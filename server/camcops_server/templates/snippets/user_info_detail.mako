@@ -31,7 +31,7 @@ camcops_server/templates/snippets/user_info_detail.mako
 <%!
 
 from camcops_server.cc_modules.cc_html import get_yes_no
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 
 %>
 
@@ -194,6 +194,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${ _("May manage patients?") }</th>
         ## TRANSLATOR: keep short; table heading in user_info_detail.mako
+        <th>${ _("May email patients?") }</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${ _("View all pts when unfiltered?") }</th>
         ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${ _("May dump?") }</th>
@@ -222,10 +224,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td>${ get_yes_no(request, ugm.may_run_reports) }</td>
             <td>${ get_yes_no(request, ugm.may_add_notes) }</td>
             %if req.user.superuser or ugm.group_id in req.user.ids_of_groups_user_is_admin_for:
-                <td><a href="${ req.route_url(
-                                    Routes.EDIT_USER_GROUP_MEMBERSHIP,
-                                    _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id}
-                                ) | n }">${ _("Edit") }</a></td>
+                <td>
+                    ${ req.icon_text(
+                            icon=Icons.USER_PERMISSIONS,
+                            url=request.route_url(
+                                Routes.EDIT_USER_GROUP_MEMBERSHIP,
+                                _query={
+                                    ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id
+                                }
+                            ),
+                            text=_("Edit")
+                    ) | n }
+                </td>
             %endif
         </tr>
     %endfor

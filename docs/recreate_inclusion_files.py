@@ -40,6 +40,10 @@ import sys
 from typing import List, Optional
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from camcops_server.cc_modules.cc_baseconstants import (
+    ENVVAR_CONFIG_FILE,
+    ENVVAR_GENERATING_CAMCOPS_DOCS,
+)
 
 log = logging.getLogger(__name__)
 
@@ -124,9 +128,9 @@ def run_cmd(cmdargs: List[str],
     log.info(f"Running: {cmdargs}")
 
     modified_env = environ.copy()
-    modified_env["GENERATING_CAMCOPS_DOCS"] = "True"
+    modified_env[ENVVAR_GENERATING_CAMCOPS_DOCS] = "True"
     modified_env.pop("CAMCOPS_QT_BASE_DIR", None)
-    modified_env["CAMCOPS_CONFIG_FILE"] = "/path/to/camcops/config_file.ini"
+    modified_env[ENVVAR_CONFIG_FILE] = "/path/to/camcops/config_file.ini"
 
     output = (
         subprocess.check_output(cmdargs, env=modified_env).decode(encoding)

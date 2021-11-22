@@ -351,7 +351,7 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamSite.WKHTMLTOPDF_FILENAME} =
 
 # -----------------------------------------------------------------------------
-# Server location
+# Server geographical location
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.REGION_CODE} = {cd.REGION_CODE}
@@ -462,6 +462,15 @@ def get_demo_config(for_docker: bool = False) -> str:
     HTTP_X_FORWARDED_PROTO
     HTTP_X_FORWARDED_FOR
     HTTP_X_SCRIPT_NAME
+
+# -----------------------------------------------------------------------------
+# Determining the externally accessible CamCOPS URL for back-end work
+# -----------------------------------------------------------------------------
+
+{ConfigParamServer.EXTERNAL_URL_SCHEME} =
+{ConfigParamServer.EXTERNAL_SERVER_NAME} =
+{ConfigParamServer.EXTERNAL_SERVER_PORT} =
+{ConfigParamServer.EXTERNAL_SCRIPT_NAME} =
 
 # -----------------------------------------------------------------------------
 # CherryPy options
@@ -585,7 +594,17 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamExportRecipient.EMAIL_KEEP_MESSAGE} = {cd.HL7_KEEP_MESSAGE}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Options applicable to HL7
+    # Options applicable to FHIR
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+{ConfigParamExportRecipient.FHIR_API_URL} = https://my.fhir.server/api
+{ConfigParamExportRecipient.FHIR_APP_ID} = {cd.FHIR_APP_ID}
+{ConfigParamExportRecipient.FHIR_APP_SECRET} = my_fhir_secret_abc
+{ConfigParamExportRecipient.FHIR_LAUNCH_TOKEN} =
+{ConfigParamExportRecipient.FHIR_CONCURRENT} =
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to HL7 (v2) exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {ConfigParamExportRecipient.HL7_HOST} = myhl7server.mydomain
@@ -1127,9 +1146,14 @@ class CamcopsConfig(object):
                 special circumstances); overrides ``config_filename``
         """
         def _get_str(section: str, paramname: str,
-                     default: str = None) -> Optional[str]:
-            return get_config_parameter(
+                     default: str = None,
+                     replace_empty_strings_with_default: bool = True) \
+                -> Optional[str]:
+            p = get_config_parameter(
                 parser, section, paramname, str, default)
+            if p == "" and replace_empty_strings_with_default:
+                return default
+            return p
 
         def _get_bool(section: str, paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
@@ -1172,7 +1196,7 @@ class CamcopsConfig(object):
                 raise AssertionError(
                     f"Environment variable {ENVVAR_CONFIG_FILE} not specified "
                     f"(and no command-line alternative given)")
-            log.info("Reading from config file: {!r}", config_filename)
+            log.info("Reading from config file: {}", config_filename)
             with codecs.open(config_filename, "r", "utf8") as file:
                 parser.read_file(file)
 
@@ -1387,6 +1411,16 @@ class CamcopsConfig(object):
         self.trusted_proxy_headers = _get_multiline(
             ws, cw.TRUSTED_PROXY_HEADERS)
         self.unix_domain_socket = _get_str(ws, cw.UNIX_DOMAIN_SOCKET)
+
+        # The defaults here depend on values above:
+        self.external_url_scheme = _get_str(
+            ws, cw.EXTERNAL_URL_SCHEME, cd.EXTERNAL_URL_SCHEME)
+        self.external_server_name = _get_str(
+            ws, cw.EXTERNAL_SERVER_NAME, self.host)
+        self.external_server_port = _get_int(
+            ws, cw.EXTERNAL_SERVER_PORT, self.port)
+        self.external_script_name = _get_str(
+            ws, cw.EXTERNAL_SCRIPT_NAME, "")
 
         for tph in self.trusted_proxy_headers:
             if tph not in ReverseProxiedMiddleware.ALL_CANDIDATES:
@@ -1769,7 +1803,7 @@ class CamcopsConfig(object):
     # File-based locks
     # -------------------------------------------------------------------------
 
-    def get_export_lockfilename_db(self, recipient_name: str) -> str:
+    def get_export_lockfilename_recipient_db(self, recipient_name: str) -> str:
         """
         Returns a full path to a lockfile suitable for locking for a
         whole-database export to a particular export recipient.
@@ -1784,8 +1818,28 @@ class CamcopsConfig(object):
         # ".lock" is appended automatically by the lockfile package
         return os.path.join(self.export_lockdir, filename)
 
-    def get_export_lockfilename_task(self, recipient_name: str,
-                                     basetable: str, pk: int) -> str:
+    def get_export_lockfilename_recipient_fhir(self,
+                                               recipient_name: str) -> str:
+        """
+        Returns a full path to a lockfile suitable for locking for a
+        FHIR export to a particular export recipient.
+
+        (This must be different from
+        :meth:`get_export_lockfilename_recipient_db`, because of what we assume
+        about someone else holding the same lock.)
+
+        Args:
+            recipient_name: name of the recipient
+
+        Returns:
+            a filename
+        """
+        filename = f"camcops_export_fhir_{recipient_name}"
+        # ".lock" is appended automatically by the lockfile package
+        return os.path.join(self.export_lockdir, filename)
+
+    def get_export_lockfilename_recipient_task(self, recipient_name: str,
+                                               basetable: str, pk: int) -> str:
         """
         Returns a full path to a lockfile suitable for locking for a
         single-task export to a particular export recipient.
@@ -1827,6 +1881,7 @@ class CamcopsConfig(object):
     # -------------------------------------------------------------------------
     # SMS backend
     # -------------------------------------------------------------------------
+
     @staticmethod
     def _read_sms_config(
             parser: configparser.ConfigParser,

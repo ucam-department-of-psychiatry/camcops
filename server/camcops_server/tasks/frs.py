@@ -188,7 +188,7 @@ def get_tabular_logit(score: float) -> float:
 #     score = x / 100
 #     logit = get_tabular_logit(score)
 #     severity = get_severity(logit)
-#     print(",".join(str(q) for q in [x, logit, severity]))
+#     print(",".join(str(q) for q in (x, logit, severity)))
 
 
 class FrsMetaclass(DeclarativeMeta):

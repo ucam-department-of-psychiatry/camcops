@@ -72,6 +72,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10depressive"
     shortname = "ICD10-DEPR"
+    info_filename_stem = "icd"
 
     mood = CamcopsColumn(
         "mood", Boolean,

@@ -984,8 +984,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     <th>d'</th>
                 </tr>
         """
-        for half in [0, 1]:
-            for prob in [0, 1]:
+        for half in (0, 1):
+            for prob in (0, 1):
                 blocks = list(range(half * self.num_blocks // 2,
                                     self.num_blocks // (2 - half)))
                 groups = groups_lowprob if prob == 0 else groups_highprob
@@ -1039,7 +1039,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 </tr>
         """
         for b in range(self.num_blocks):
-            for prob in [0, 1]:
+            for prob in (0, 1):
                 groups = groups_lowprob if prob == 0 else groups_highprob
                 (p_detected_given_present,
                  p_detected_given_absent,

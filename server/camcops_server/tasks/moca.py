@@ -331,97 +331,97 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 answer(vsp) + " / 5",
                 tr_class=CssClass.SUBHEADING)
         h += tr("Path, cube, clock/contour, clock/numbers, clock/hands",
-                ", ".join([answer(x) for x in [self.q1, self.q2, self.q3,
-                                               self.q4, self.q5]]))
+                ", ".join(answer(x) for x in (self.q1, self.q2, self.q3,
+                                              self.q4, self.q5)))
 
         h += tr(self.wxstring(req, "subscore_naming"),
                 answer(naming) + " / 3",
                 tr_class=CssClass.SUBHEADING)
         h += tr("Lion, rhino, camel",
-                ", ".join([answer(x) for x in [self.q6, self.q7, self.q8]]))
+                ", ".join(answer(x) for x in (self.q6, self.q7, self.q8)))
 
         h += tr(self.wxstring(req, "subscore_attention"),
                 answer(attention) + " / 6",
                 tr_class=CssClass.SUBHEADING)
         h += tr("5 digits forwards, 3 digits backwards, tapping, serial 7s "
                 "[<i>scores 3</i>]",
-                ", ".join([answer(x) for x in [self.q9, self.q10, self.q11,
-                                               self.q12]]))
+                ", ".join(answer(x) for x in (self.q9, self.q10, self.q11,
+                                              self.q12)))
 
         h += tr(self.wxstring(req, "subscore_language"),
                 answer(language) + " / 3",
                 tr_class=CssClass.SUBHEADING)
         h += tr("Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
-                ", ".join([answer(x) for x in [self.q13, self.q14, self.q15]]))
+                ", ".join(answer(x) for x in (self.q13, self.q14, self.q15)))
 
         h += tr(self.wxstring(req, "subscore_abstraction"),
                 answer(abstraction) + " / 2",
                 tr_class=CssClass.SUBHEADING)
         h += tr("Means of transportation, measuring instruments",
-                ", ".join([answer(x) for x in [self.q16, self.q17]]))
+                ", ".join(answer(x) for x in (self.q16, self.q17)))
 
         h += tr(self.wxstring(req, "subscore_memory"),
                 answer(memory) + " / 5",
                 tr_class=CssClass.SUBHEADING)
         h += tr(
             "Registered on first trial [<i>not scored</i>]",
-            ", ".join([
+            ", ".join(
                 answer(x, formatter_answer=italic)
-                for x in [
+                for x in (
                     self.register_trial1_1,
                     self.register_trial1_2,
                     self.register_trial1_3,
                     self.register_trial1_4,
                     self.register_trial1_5
-                ]
-            ])
+                )
+            )
         )
         h += tr(
             "Registered on second trial [<i>not scored</i>]",
-            ", ".join([
+            ", ".join(
                 answer(x, formatter_answer=italic)
-                for x in [
+                for x in (
                     self.register_trial2_1,
                     self.register_trial2_2,
                     self.register_trial2_3,
                     self.register_trial2_4,
                     self.register_trial2_5
-                ]
-            ])
+                )
+            )
         )
         h += tr(
             "Recall FACE, VELVET, CHURCH, DAISY, RED with no cue",
-            ", ".join([
-                answer(x) for x in [
+            ", ".join(
+                answer(x) for x in (
                     self.q18, self.q19, self.q20, self.q21, self.q22
-                ]
-            ])
+                )
+            )
         )
         h += tr(
             "Recall with category cue [<i>not scored</i>]",
-            ", ".join([
+            ", ".join(
                 answer(x, formatter_answer=italic)
-                for x in [
+                for x in (
                     self.recall_category_cue_1,
                     self.recall_category_cue_2,
                     self.recall_category_cue_3,
                     self.recall_category_cue_4,
                     self.recall_category_cue_5
-                ]
-            ])
+                )
+            )
         )
         h += tr(
             "Recall with multiple-choice cue [<i>not scored</i>]",
-            ", ".join([
+            ", ".join(
                 answer(x, formatter_answer=italic)
-                for x in [
+                for x in (
                     self.recall_mc_cue_1,
                     self.recall_mc_cue_2,
                     self.recall_mc_cue_3,
                     self.recall_mc_cue_4,
                     self.recall_mc_cue_5
-                ]
-            ])
+                )
+            )
         )
 
         h += tr(self.wxstring(req, "subscore_orientation"),
@@ -429,11 +429,11 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 tr_class=CssClass.SUBHEADING)
         h += tr(
             "Date, month, year, day, place, city",
-            ", ".join([
-                answer(x) for x in [
+            ", ".join(
+                answer(x) for x in (
                     self.q23, self.q24, self.q25, self.q26, self.q27, self.q28
-                ]
-            ])
+                )
+            )
         )
 
         h += subheading_spanning_two_columns(self.wxstring(req, "education_s"))
@@ -454,7 +454,8 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 without permission for CLINICAL and EDUCATIONAL use (with
                 permission from the copyright holder required for any other
                 use), with no special restrictions on electronic versions.
-                However, as of 2021, electronic versions are prohibited; see <a
+                However, as of 2021, electronic versions are prohibited without
+                specific authorization from the copyright holder; see <a
                 href="https://camcops.readthedocs.io/en/latest/tasks/moca.html">
                 https://camcops.readthedocs.io/en/latest/tasks/moca.html</a>.
             </div>

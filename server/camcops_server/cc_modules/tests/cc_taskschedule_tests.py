@@ -28,6 +28,7 @@ camcops_server/cc_modules/tests/cc_taskschedule_tests.py
 
 from urllib.parse import parse_qs, urlsplit
 
+from cardinal_pythonlib.uriconst import UriSchemes
 from pendulum import Duration
 
 from camcops_server.cc_modules.cc_email import Email
@@ -205,7 +206,7 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
 
         url = self.pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
-        self.assertEqual(scheme, "http")
+        self.assertEqual(scheme, UriSchemes.HTTP)
         self.assertEqual(netloc, "camcops.org")
         self.assertEqual(path, "/register/")
         query_dict = parse_qs(query)

@@ -173,6 +173,7 @@ class KhandakerMojoSociodemographics(
     """
     __tablename__ = "khandaker_mojo_sociodemographics"
     shortname = "Khandaker_MOJO_Sociodemographics"
+    info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
     FN_GENDER = "gender"

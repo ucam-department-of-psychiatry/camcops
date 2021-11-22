@@ -759,7 +759,7 @@ class User(Base):
             totp = pyotp.TOTP(self.mfa_secret_key)
             return totp.verify(one_time_password)
 
-        elif mfa_method in [MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS]:
+        elif mfa_method in (MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS):
             hotp = pyotp.HOTP(self.mfa_secret_key)
             return one_time_password == hotp.at(self.hotp_counter)
 

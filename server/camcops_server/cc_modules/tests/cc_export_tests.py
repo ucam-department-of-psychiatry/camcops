@@ -69,7 +69,6 @@ class ExportTests(unittest.TestCase):
             danger_file.touch()
 
             # log.debug(f"Top directory for test: {tmpdirname}")
-            # import pdb; pdb.set_trace()
 
             ok = UserDownloadFile(safe_filename, str(safe_dir))
             self.assertEqual(ok.exists, True)

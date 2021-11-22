@@ -89,6 +89,7 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "zbi12"
     shortname = "ZBI-12"
+    info_filename_stem = "zbi"
 
     MIN_PER_Q = 0
     MAX_PER_Q = 4

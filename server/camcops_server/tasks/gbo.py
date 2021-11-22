@@ -85,6 +85,7 @@ class Gbogres(TaskHasPatientMixin, Task):
     __tablename__ = "gbogres"
     shortname = "GBO-GReS"
     extrastring_taskname = "gbo"
+    info_filename_stem = extrastring_taskname
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
     FN_GOAL_1_DESC = "goal_1_description"
@@ -196,6 +197,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
     __tablename__ = "gbogpc"
     shortname = "GBO-GPC"
     extrastring_taskname = "gbo"
+    info_filename_stem = extrastring_taskname
     provides_trackers = True
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
@@ -332,6 +334,7 @@ class Gbogras(TaskHasPatientMixin, Task):
     __tablename__ = "gbogras"
     shortname = "GBO-GRaS"
     extrastring_taskname = "gbo"
+    info_filename_stem = extrastring_taskname
     provides_trackers = True
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter

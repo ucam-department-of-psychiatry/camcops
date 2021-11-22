@@ -397,7 +397,7 @@
 <context>
     <name>CPFTResearchPreferences</name>
     <message>
-        <location filename="../tasks/cpftresearchpreferences.cpp" line="+92"/>
+        <location filename="../tasks/cpftresearchpreferences.cpp" line="+93"/>
         <source>CPFT Research Preferences</source>
         <translation>CPFT-forskningspræferencer</translation>
     </message>
@@ -814,7 +814,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CardinalExpDetThreshold</name>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="+191"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="+192"/>
         <source>Cardinal RN — ExpDet-Threshold task</source>
         <translation>Cardinal RN — ExpDet-tærskelværdi opgave</translation>
     </message>
@@ -3033,7 +3033,7 @@ enig</translation>
 <context>
     <name>IDED3D</name>
     <message>
-        <location filename="../tasks/ided3d.cpp" line="+300"/>
+        <location filename="../tasks/ided3d.cpp" line="+301"/>
         <source>Three-dimensional intradimensional/extradimensional set-shifting task</source>
         <translation>Tredimensionel intradimensionel/ekstradimensionel set-shifting opgave</translation>
     </message>
@@ -3209,7 +3209,7 @@ enig</translation>
         <translation>Registrering af medicin og taleterapier til MOJO-undersøgelse.</translation>
     </message>
     <message>
-        <location line="+207"/>
+        <location line="+213"/>
         <source>Medications</source>
         <translation>Medicin</translation>
     </message>
@@ -3392,7 +3392,7 @@ enig</translation>
         <translation>Vurdering af erfaringer med dagliglivet og motorundersøgelser/komplikationer.</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+34"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
@@ -4132,7 +4132,7 @@ enig</translation>
 <context>
     <name>OpenableWidget</name>
     <message>
-        <location filename="../widgets/openablewidget.cpp" line="+142"/>
+        <location filename="../widgets/openablewidget.cpp" line="+147"/>
         <source>Abort: are you sure?</source>
         <translation>Annuller: er du sikker?</translation>
     </message>
@@ -4847,7 +4847,7 @@ enig</translation>
 <context>
     <name>QuPage</name>
     <message>
-        <location filename="../questionnairelib/qupage.cpp" line="+323"/>
+        <location filename="../questionnairelib/qupage.cpp" line="+324"/>
         <source>Invalid information</source>
         <translation>Ugyldig information</translation>
     </message>
@@ -7558,7 +7558,7 @@ Tak!</translation>
 <context>
     <name>Wsas</name>
     <message>
-        <location filename="../tasks/wsas.cpp" line="+73"/>
+        <location filename="../tasks/wsas.cpp" line="+85"/>
         <source>Work and Social Adjustment Scale</source>
         <translation>Work and Social Adjustment Scale [arbejds- og socialjusteringskala]</translation>
     </message>

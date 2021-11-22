@@ -101,7 +101,7 @@ class HamdMetaclass(DeclarativeMeta):
                              "obsessional/compulsive symptoms"]
         )
         # Now fix the wrong bits. Hardly elegant!
-        for qnum in [4, 5, 6, 12, 13, 14, 21]:
+        for qnum in (4, 5, 6, 12, 13, 14, 21):
             qname = "q" + str(qnum)
             col = getattr(cls, qname)
             col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)

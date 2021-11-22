@@ -50,6 +50,7 @@ from sqlalchemy.sql.sqltypes import (
     Float,
     Integer,
     String,
+    UnicodeText,
 )
 
 from camcops_server.cc_modules.cc_constants import DateFormat
@@ -58,6 +59,11 @@ from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_PERMITTED_VALUE_CHECKER,
+    PendulumDateTimeAsIsoTextColType,
+)
+
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -241,6 +247,13 @@ class DummyDataFactory(object):
                 self.set_date_field(task, column)
                 continue
 
+            if isinstance(column.type, PendulumDateTimeAsIsoTextColType):
+                self.set_datetime_field(task, column)
+                continue
+
+            if isinstance(column.type, UnicodeText):
+                self.set_unicode_text_field(task, column)
+
             if isinstance(column.type, String):
                 # covers String, Text, UnicodeText
                 self.set_string_field(task, column)
@@ -257,6 +270,12 @@ class DummyDataFactory(object):
     def set_date_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.date_object())
 
+    def set_datetime_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.date_time())
+
+    def set_unicode_text_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.text())
+
     def set_string_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.get_valid_string_for_field(column))
 
@@ -264,7 +283,7 @@ class DummyDataFactory(object):
         min_value = self.DEFAULT_MIN_INTEGER
         max_value = self.DEFAULT_MAX_INTEGER
 
-        value_checker = getattr(column, "permitted_value_checker", None)
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -282,7 +301,7 @@ class DummyDataFactory(object):
         min_value = self.DEFAULT_MIN_FLOAT
         max_value = self.DEFAULT_MAX_FLOAT
 
-        value_checker = getattr(column, "permitted_value_checker", None)
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -297,7 +316,7 @@ class DummyDataFactory(object):
         return self.faker.random.uniform(min_value, max_value)
 
     def get_valid_string_for_field(self, column: Column) -> str:
-        value_checker = getattr(column, "permitted_value_checker", None)
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -314,7 +333,7 @@ class DummyDataFactory(object):
         if column.name.startswith("_"):
             return False
 
-        if column.name in [
+        if column.name in (
             'editing_time_s',
             'firstexit_is_abort',
             'firstexit_is_finish',
@@ -323,7 +342,7 @@ class DummyDataFactory(object):
             'when_created',
             'when_firstexit',
             'when_last_modified',
-        ]:
+        ):
             return False
 
         return True

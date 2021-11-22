@@ -98,7 +98,7 @@ TEST_CODE = """
 
 from camcops_server.cc_modules.cc_version import make_version
 
-for v in ["1.0", "1.01", "1.14", "1.5", "1"]:
+for v in ("1.0", "1.01", "1.14", "1.5", "1"):
     print(make_version(v))
 
 """

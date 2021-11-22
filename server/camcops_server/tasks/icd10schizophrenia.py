@@ -70,6 +70,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10schizophrenia"
     shortname = "ICD10-SZ"
+    info_filename_stem = "icd"
 
     passivity_bodily = CamcopsColumn(
         "passivity_bodily", Boolean,

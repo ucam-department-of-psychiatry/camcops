@@ -48,14 +48,14 @@ try:
 except ImportError:
     distro = None
 
-assert sys.version_info >= (3, 6), "Need Python 3.6 or higher"
+assert sys.version_info >= (3, 7), "Need Python 3.7 or higher"
 LINUX = platform.system() == 'Linux'
 if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()
 else:
     LINUX_DIST = ''
-DEB = LINUX_DIST in ['ubuntu', 'debian']
-RPM = LINUX_DIST in ['fedora', 'rhel', 'centos']
+DEB = LINUX_DIST in ('ubuntu', 'debian')
+RPM = LINUX_DIST in ('fedora', 'rhel', 'centos')
 
 DESCRIPTION = """
 Make a new virtual environment.

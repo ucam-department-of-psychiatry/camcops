@@ -34,16 +34,30 @@ from urllib.parse import quote, urlencode
 from cardinal_pythonlib.datetimefunc import format_datetime
 
 from camcops_server.cc_modules.cc_constants import DateFormat
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text= _("CamCOPS server location:")
+    ) | n }
+</h2>
 <div>
-    ${ _("CamCOPS server location:") }
-    ${ req.route_url( Routes.CLIENT_API ) | n }
+    ${ req.icon_text(
+        icon=Icons.INFO_EXTERNAL,
+        url=req.route_url(Routes.CLIENT_API),
+        text=req.route_url(Routes.CLIENT_API),
+    ) | n }
 </div>
 
-<h1>${ _("Patient Task Schedules") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.PATIENTS,
+        text=_("Patients and their task schedules")
+    ) | n }
+</h1>
 
 <div>${ page.pager() | n }</div>
 
@@ -53,12 +67,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${ _("Identifiers") }</th>
         <th>${ _("Access key") }</th>
         <th>${ _("Task schedules") }</th>
-        <th>${ _("Edit patient") }</th>
+        <th>${ _("Edit patient, assign schedules") }</th>
         <th>${ _("Delete patient") }</th>
     </tr>
 %for patient in page:
     <tr>
         <td>
+            ${ req.icon(
+                icon=Icons.PATIENT,
+                alt=_("Patient")
+            ) | n }
             <b>${ patient.get_surname_forename_upper() }</b>
             (${ patient.get_sex_verbose() },
             ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
@@ -77,26 +95,39 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %for pts in patient.task_schedules:
             <%
                 if patient.email:
-                    email_text = _("Send email...")
+                    email_text = _("Send email")
                     button_class = "btn btn-success"
                     if pts.email_sent:
-                        email_text = _("Resend email...")
+                        email_text = _("Resend email")
                         button_class = "btn btn-primary"
             %>
                 <tr>
-                    <td><a href="${ req.route_url(
-                                 Routes.VIEW_PATIENT_TASK_SCHEDULE,
-                                 _query={
-                                     ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                                 }) | n }">${ pts.task_schedule.name }</a>
+                    <td>
+                        ${ req.icons_text(
+                            icons=[Icons.PATIENT, Icons.TASK_SCHEDULE],
+                            url=request.route_url(
+                                Routes.VIEW_PATIENT_TASK_SCHEDULE,
+                                _query={
+                                    ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                                }
+                            ),
+                            text=pts.task_schedule.name
+                        ) | n }
                     </td>
                     <td>
                         %if req.user.authorized_to_email_patients and patient.email and pts.task_schedule.email_from:
-                        <a class="${ button_class }" href="${ req.route_url(
-                                 Routes.SEND_EMAIL_FROM_PATIENT_LIST,
-                                 _query={
-                                     ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                                 }) | n }">${ email_text }</a>
+                            ${ req.icon_text(
+                                icon=Icons.EMAIL_SEND,
+                                url=request.route_url(
+                                    Routes.SEND_EMAIL_FROM_PATIENT_LIST,
+                                    _query={
+                                        ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                                    }
+                                ),
+                                extra_a_classes=[button_class],
+                                text=email_text,
+                                hyperlink_together=True,
+                            ) | n }
                         %endif
                     </td>
                 </tr>
@@ -104,18 +135,28 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             </table>
         </td>
         <td>
-            <a href="${ req.route_url(
-                             Routes.EDIT_SERVER_CREATED_PATIENT,
-                             _query={
-                                 ViewParam.SERVER_PK: patient.pk
-                             }) | n }">${ _("Edit") }</a>
+            ${ req.icon_text(
+                icon=Icons.PATIENT_EDIT,
+                url=request.route_url(
+                    Routes.EDIT_SERVER_CREATED_PATIENT,
+                    _query={
+                        ViewParam.SERVER_PK: patient.pk
+                    }
+                ),
+                text=_("Edit")
+            ) | n }
         </td>
         <td>
-            <a href="${ req.route_url(
-                             Routes.DELETE_SERVER_CREATED_PATIENT,
-                             _query={
-                                 ViewParam.SERVER_PK: patient.pk
-                             }) | n }">${ _("Delete") }</a>
+            ${ req.icon_text(
+                icon=Icons.DELETE,
+                url=request.route_url(
+                    Routes.DELETE_SERVER_CREATED_PATIENT,
+                    _query={
+                        ViewParam.SERVER_PK: patient.pk
+                    }
+                ),
+                text=_("Delete")
+            ) | n }
         </td>
     </tr>
 %endfor
@@ -124,13 +165,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>${ page.pager() | n }</div>
 
 <div>
-    <a href="${ req.route_url(Routes.ADD_PATIENT) | n }">${ _("Add a patient") }</a>
+    ${ req.icon_text(
+        icon=Icons.PATIENT_ADD,
+        url=request.route_url(Routes.ADD_PATIENT),
+        text=_("Add a patient")
+    ) | n }
 </div>
 %if request.user.authorized_as_groupadmin:
-<div>
-    <a href="${ request.route_url(Routes.VIEW_TASK_SCHEDULES) | n }">
-        ${ _("Manage task schedules") }</a>
-</div>
+    <%include file="to_view_task_schedules.mako"/>
 %endif
 
 <%include file="to_main_menu.mako"/>

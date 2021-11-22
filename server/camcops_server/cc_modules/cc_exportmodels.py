@@ -30,6 +30,7 @@ camcops_server/cc_modules/cc_exportmodels.py
 
 import logging
 import os
+import posixpath
 import socket
 import subprocess
 import sys
@@ -68,6 +69,7 @@ from sqlalchemy.sql.sqltypes import (
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamExportRecipient,
     FileType,
+    UTF8,
 )
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportrecipient import (
@@ -75,6 +77,10 @@ from camcops_server.cc_modules.cc_exportrecipient import (
 )
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportTransmissionMethod,
+)
+from camcops_server.cc_modules.cc_fhir import (
+    FhirExportException,
+    FhirTaskExporter,
 )
 from camcops_server.cc_modules.cc_filename import (
     change_filename_ext,
@@ -112,7 +118,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DOS_NEWLINE = "\r\n"
-UTF8 = "utf8"
 
 
 # =============================================================================
@@ -254,9 +259,11 @@ class ExportedTask(Base):
 
     recipient = relationship(ExportRecipient)
 
-    hl7_messages = relationship("ExportedTaskHL7Message")
-    filegroups = relationship("ExportedTaskFileGroup")
     emails = relationship("ExportedTaskEmail")
+    fhir_exports = relationship("ExportedTaskFhir")
+    filegroups = relationship("ExportedTaskFileGroup")
+    hl7_messages = relationship("ExportedTaskHL7Message")
+    redcap_exports = relationship("ExportedTaskRedcap")
 
     def __init__(self,
                  recipient: ExportRecipient = None,
@@ -381,6 +388,12 @@ class ExportedTask(Base):
             dbsession.add(email)
             email.export_task(req)
 
+        elif transmission_method == ExportTransmissionMethod.FHIR:
+            efhir = ExportedTaskFhir(self)
+            dbsession.add(efhir)
+            dbsession.flush()
+            efhir.export_task(req)
+
         elif transmission_method == ExportTransmissionMethod.FILE:
             efg = ExportedTaskFileGroup(self)
             dbsession.add(efg)
@@ -398,6 +411,7 @@ class ExportedTask(Base):
             eredcap = ExportedTaskRedcap(self)
             dbsession.add(eredcap)
             eredcap.export_task(req)
+
         else:
             raise AssertionError("Bug: bad transmission_method")
 
@@ -1161,3 +1175,112 @@ class ExportedTaskRedcap(Base):
             exported_task.succeed()
         except RedcapExportException as e:
             exported_task.abort(str(e))
+
+
+# =============================================================================
+# FHIR export
+# =============================================================================
+
+class ExportedTaskFhir(Base):
+    """
+    Represents an individual FHIR export.
+    """
+    __tablename__ = "_exported_task_fhir"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    exported_task_id = Column(
+        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        nullable=False,
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
+    )
+
+    exported_task = relationship(ExportedTask)
+
+    entries = relationship("ExportedTaskFhirEntry")
+
+    def __init__(self, exported_task: ExportedTask = None) -> None:
+        """
+        Args:
+            exported_task: :class:`ExportedTask` object
+        """
+        self.exported_task = exported_task
+
+    def export_task(self, req: "CamcopsRequest") -> None:
+        """
+        Exports the task to FHIR.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        exported_task = self.exported_task
+
+        try:
+            exporter = FhirTaskExporter(req, self)
+            exporter.export_task()
+            exported_task.succeed()
+        except FhirExportException as e:
+            exported_task.abort(str(e))
+
+
+class ExportedTaskFhirEntry(Base):
+    """
+    Details of Patients, Questionnaires, QuestionnaireResponses exported to
+    a FHIR server for a single task.
+    """
+    __tablename__ = "_exported_task_fhir_entry"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    exported_task_fhir_id = Column(
+        "exported_task_fhir_id", Integer, ForeignKey(ExportedTaskFhir.id),
+        nullable=False,
+        comment="FK to {}.{}".format(ExportedTaskFhir.__tablename__,
+                                     ExportedTaskFhir.id.name)
+    )
+
+    etag = Column(
+        "etag", UnicodeText, comment="The ETag for the resource (if relevant)"
+    )
+
+    last_modified = Column(
+        "last_modified", DateTime,
+        comment="Server's date/time modified."
+    )
+
+    location = Column(
+        "location", UnicodeText,
+        comment="The location (if the operation returns a location)."
+    )
+
+    status = Column(
+        "status", UnicodeText,
+        comment="Status response code (text optional)."
+    )
+
+    # TODO: outcome?
+
+    exported_task_fhir = relationship(ExportedTaskFhir)
+
+    @property
+    def location_url(self) -> str:
+        """
+        Puts the FHIR server API URL together with the returned location, so
+        we can hyperlink to the resource.
+        """
+        if not self.location:
+            return ""
+        try:
+            api_url = self.exported_task_fhir.exported_task.recipient.fhir_api_url  # noqa
+        except Exception:
+            return ""
+        # Avoid urllib.parse.urljoin; it does complex (and for our purposes
+        # wrong) things. See
+        # https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
+        return posixpath.join(api_url, self.location)

@@ -30,6 +30,6 @@ camcops_server/templates/menu/generic_form.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ title }</h1>
+<h1>${ title | n }</h1>
 
 ${ form | n }

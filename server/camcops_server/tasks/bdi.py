@@ -347,7 +347,7 @@ class Bdi(TaskHasPatientMixin, Task,
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         scale_lookup = SnomedLookup.BDI_SCALE
-        if self.bdi_scale in [SCALE_BDI_I, SCALE_BDI_IA]:
+        if self.bdi_scale in (SCALE_BDI_I, SCALE_BDI_IA):
             score_lookup = SnomedLookup.BDI_SCORE
             proc_lookup = SnomedLookup.BDI_PROCEDURE_ASSESSMENT
         elif self.bdi_scale == SCALE_BDI_II:

@@ -27,9 +27,13 @@ camcops_server/templates/snippets/to_main_menu.mako
 </%doc>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <div>
-    <a href="${ request.route_url(Routes.HOME) | n }">${ _("Return to main menu") }</a>
+    ${ req.icon_text(
+            icon=Icons.HOME,
+            url=request.route_url(Routes.HOME),
+            text=_("Return to main menu")
+    ) | n }
 </div>

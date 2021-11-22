@@ -236,6 +236,7 @@ class AuditC(TaskHasPatientMixin, Task,
     __tablename__ = "audit_c"
     shortname = "AUDIT-C"
     extrastring_taskname = "audit"  # shares strings with AUDIT
+    info_filename_stem = extrastring_taskname
 
     prohibits_commercial = True
 

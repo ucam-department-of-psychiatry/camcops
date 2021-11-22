@@ -59,6 +59,7 @@ class QolBasic(TaskHasPatientMixin, Task):
     """
     __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
+    info_filename_stem = "qol"
     provides_trackers = True
 
     tto = CamcopsColumn(

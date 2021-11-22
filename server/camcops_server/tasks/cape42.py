@@ -123,6 +123,7 @@ class Cape42(TaskHasPatientMixin, Task,
     __tablename__ = "cape42"
     shortname = "CAPE-42"
     provides_trackers = True
+    info_filename_stem = "cape"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

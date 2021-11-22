@@ -24,6 +24,8 @@ camcops_server/cc_modules/cc_forms.py
 
 ===============================================================================
 
+.. _Deform: https://docs.pylonsproject.org/projects/deform/en/latest/
+
 **Forms for use by the web front end.**
 
 *COLANDER NODES, NULLS, AND VALIDATION*
@@ -92,7 +94,34 @@ request.gettext``.
 Form titles need to be dynamically written via
 :class:`cardinal_pythonlib.deform_utils.DynamicDescriptionsForm` or similar.
 
-"""
+.. glossary::
+
+  cstruct
+    See `cstruct
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-cstruct>`_
+    in the Deform_ docs.
+
+  Colander
+    See `Colander
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-colander>`_
+    in the Deform_ docs.
+
+  field
+    See `field
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-field>`_
+    in the Deform_ docs.
+
+  Peppercorn
+    See `Peppercorn
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-peppercorn>`_
+    in the Deform_ docs.
+
+  pstruct
+    See `pstruct
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-pstruct>`_
+    in the Deform_ docs.
+
+"""  # noqa
 
 from io import BytesIO
 import json
@@ -124,9 +153,8 @@ from cardinal_pythonlib.deform_utils import (
     DynamicDescriptionsForm,
     InformativeForm,
 )
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 # noinspection PyProtectedMember
@@ -148,6 +176,7 @@ from colander import (
     Set,
     String,
     _null,
+    url,
 )
 from deform.form import Button
 from deform.widget import (
@@ -211,7 +240,6 @@ from camcops_server.cc_modules.cc_policy import (
 )
 from camcops_server.cc_modules.cc_pyramid import (
     FormAction,
-    RequestMethod,
     ViewArg,
     ViewParam,
 )
@@ -1344,7 +1372,7 @@ class UserFilterForm(InformativeNonceForm):
             buttons=[Button(name=FormAction.SET_FILTERS,
                             title=_("Refresh"))],
             css_class=BootstrapCssClasses.FORM_INLINE,
-            method=RequestMethod.GET,
+            method=HttpMethod.GET,
             **kwargs
         )
 
@@ -1900,27 +1928,28 @@ class PhoneNumberType(String):
             node: SchemaNode,
             cstruct: Union[str, ColanderNullType, None]
     ) -> Optional[phonenumbers.PhoneNumber]:
+        request = self.request  # type: CamcopsRequest
+        _ = request.gettext
+        err_message = _("Invalid phone number")
+
         # is null when form is empty
         if not cstruct:
+            if not self.allow_empty:
+                raise Invalid(node, err_message)
             return null
 
         cstruct: str
-
-        request = self.request  # type: CamcopsRequest
-
-        _ = request.gettext
-        message = _("Invalid phone number")
 
         try:
             phone_number = phonenumbers.parse(cstruct,
                                               request.config.region_code)
         except phonenumbers.NumberParseException:
-            raise Invalid(node, message)
+            raise Invalid(node, err_message)
 
         if not phonenumbers.is_valid_number(phone_number):
             # the number may parse but could still be invalid
             # (e.g. too few digits)
-            raise Invalid(node, message)
+            raise Invalid(node, err_message)
 
         return phone_number
 
@@ -1945,8 +1974,11 @@ class MandatoryPhoneNumberNode(MandatoryStringNode, RequestAwareMixin):
     default = None
     missing = None
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        self.typ = PhoneNumberType(self.request)
+        _ = self.gettext
+        self.title = _("Phone number")
+        self.typ = PhoneNumberType(self.request, allow_empty=False)
 
 
 # =============================================================================
@@ -2421,7 +2453,7 @@ class MfaHotpSmsSchema(CSRFSchema):
         _ = self.gettext
         phone_number = get_child_node(self, ViewParam.PHONE_NUMBER)
         phone_number.description = _(
-            "Include the country code (eg +123) for numbers outside of the "
+            "Include the country code (e.g. +123) for numbers outside of the "
             "'{region_code}' region").format(
                 region_code=self.request.config.region_code
             )
@@ -3526,7 +3558,7 @@ class IpUseType(SchemaType):
             node: SchemaNode,
             ip_use: Union[IpUse, None, ColanderNullType]) \
             -> Union[Dict, ColanderNullType]:
-        if ip_use in [null, None]:
+        if ip_use in (null, None):
             return null
 
         return {
@@ -4096,6 +4128,29 @@ class Hl7IdTypeNode(OptionalStringNode, RequestAwareMixin):
             raise Invalid(node, str(e))
 
 
+class FHIRIdSystemUrlNode(OptionalStringNode, RequestAwareMixin):
+    """
+    Optional node to capture the URL for a FHIR ID system:
+
+    - https://www.hl7.org/fhir/datatypes.html#Identifier
+    - https://www.hl7.org/fhir/datatypes-definitions.html#Identifier.system
+    """
+    validator = url
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("FHIR ID system")
+        self.description = _(
+            "For FHIR exports: URL defining the ID system."
+        )
+
+
 class EditIdDefinitionSchema(CSRFSchema):
     """
     Schema to edit an ID number definition.
@@ -4106,6 +4161,7 @@ class EditIdDefinitionSchema(CSRFSchema):
     validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD  # noqa
     hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
     hl7_assigning_authority = Hl7AssigningAuthorityNode()  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
+    fhir_id_system = FHIRIdSystemUrlNode()  # must match ViewParam.FHIR_ID_SYSTEM  # noqa
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest

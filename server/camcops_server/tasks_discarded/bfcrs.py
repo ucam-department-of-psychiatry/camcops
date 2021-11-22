@@ -120,8 +120,8 @@ class Bfcrs(TaskHasPatientMixin, Task,
         for q in self.TASK_FIELDS:
             d = {None: "?"}
             for option in range(0, 5):
-                if (option != 0 and option != 3) and q in ["q17", "q18", "q19",
-                                                           "q20", "q21"]:
+                if (option != 0 and option != 3) and q in ("q17", "q18", "q19",
+                                                           "q20", "q21"):
                     continue
                 d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d

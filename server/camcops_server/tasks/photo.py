@@ -66,6 +66,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "photo"
     shortname = "Photo"
+    info_filename_stem = "clinical"
 
     description = Column(
         "description", UnicodeText,
@@ -195,6 +196,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "photosequence"
     shortname = "PhotoSequence"
+    info_filename_stem = "clinical"
 
     sequence_description = Column(
         "sequence_description", UnicodeText,

@@ -135,7 +135,7 @@ Now:
 
       grep "sa\.Variant" *.py
 
-  ... suggests an error that should be "Sometype().with_variant(...)"; see 
+  ... suggests an error that should be "Sometype().with_variant(...)"; see
   source here.
 
     """)

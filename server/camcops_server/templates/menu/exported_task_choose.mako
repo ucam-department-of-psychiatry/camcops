@@ -28,9 +28,18 @@ camcops_server/templates/menu/exported_task_choose.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("View export log (starting with most recent)") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_OPTIONS,
+        text=_("View export log (starting with most recent)")
+    ) | n }
+</h1>
 
 ${form | n}
 

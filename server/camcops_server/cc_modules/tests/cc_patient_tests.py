@@ -78,7 +78,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_surname(), str)
         self.assertIsInstance(p.get_forename(), str)
         self.assertIsInstance(p.get_surname_forename_upper(), str)
-        for longform in [True, False]:
+        for longform in (True, False):
             self.assertIsInstance(p.get_dob_html(req, longform), str)
         age_str_int = p.get_age(req)
         assert isinstance(age_str_int, str) or isinstance(age_str_int, int)

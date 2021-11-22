@@ -72,6 +72,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10manic"
     shortname = "ICD10-MANIC"
+    info_filename_stem = "icd"
 
     mood_elevated = CamcopsColumn(
         "mood_elevated", Boolean,

@@ -30,12 +30,17 @@ camcops_server/templates/menu/users_view.mako
 
 <%!
 from markupsafe import escape
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Users") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.USER_MANAGEMENT,
+        text=_("Users")
+    ) | n }
+</h1>
 
 <div>${ page.pager() | n }</div>
 
@@ -57,37 +62,84 @@ ${form | n}
     </tr>
     %for user in page:
         <tr>
-            <td>${ user.username }</td>
+            <td>
+                ${ user.username }
+                %if user.id == req.user.id:
+                    ${ req.icon(icon=Icons.YOU, alt=_("You")) | n }
+                %endif
+            </td>
             <td>${ user.id }</td>
             <td>
                 %if user.superuser:
-                    <span class="important">${ _("Superuser.") }</span>
+                    <span class="important">
+                        ${ req.icon_text(
+                            icon=Icons.SUPERUSER,
+                            text=_("Superuser.")
+                        ) | n }
+                    </span>
                 %endif
                 %if user.is_a_groupadmin:
-                    <span class="important">${ _("Group administrator") }
-                        (${ user.names_of_groups_user_is_admin_for_csv }).</span>
+                    <span class="important">
+                        ${ req.icon_text(
+                            icon=Icons.GROUP_ADMIN,
+                            text=_("Group administrator")
+                        ) | n }
+                        (${ user.names_of_groups_user_is_admin_for_csv }).
+                    </span>
                 %endif
                 %if user.is_locked_out(request):
-                    <span class="warning">${ _("Locked out;") }
-                        <a href="${ req.route_url(
-                                        Routes.UNLOCK_USER,
-                                        _query={ViewParam.USER_ID: user.id}
-                                    ) | n }">${ _("unlock") }</a>.</span>
+                    <span class="warning">
+                        ${ _("Locked out;") }
+                        ${ req.icon_text(
+                            icon=Icons.UNLOCK,
+                            url=req.route_url(
+                                Routes.UNLOCK_USER,
+                                _query={
+                                    ViewParam.USER_ID: user.id
+                                }
+                            ),
+                            text=_("unlock")
+                        ) | n }.
+                    </span>
                 %endif
                 %if user.auto_generated:
                     <span>${ _("Auto-generated") }</span>
                 %endif
             </td>
             <td>${ user.fullname or "" }</td>
-            <td>${ user.email or "" }</td>
-            <td><a href="${ req.route_url(
-                                Routes.VIEW_USER,
-                                _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("View") }</a></td>
-            <td><a href="${ req.route_url(
-                                Routes.EDIT_USER,
-                                _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("Edit") }</a></td>
+            <td>
+                %if user.email:
+                    ${ req.icon_text(
+                        icon=Icons.EMAIL_SEND,
+                        url="mailto:" + user.email,
+                        text=user.email
+                    ) | n }
+                %endif
+            </td>
+            <td>
+                ${ req.icon_text(
+                    icon=Icons.USER_INFO,
+                    url=request.route_url(
+                        Routes.VIEW_USER,
+                        _query={
+                            ViewParam.USER_ID: user.id
+                        }
+                    ),
+                    text=_("View")
+                ) | n }
+            </td>
+            <td>
+                ${ req.icon_text(
+                    icon=Icons.EDIT,
+                    url=request.route_url(
+                        Routes.EDIT_USER,
+                        _query={
+                            ViewParam.USER_ID: user.id
+                        }
+                    ),
+                    text=_("Edit")
+                ) | n }
+            </td>
             <td>
                 %for i, ugm in enumerate(sorted(list(user.user_group_memberships), key=lambda ugm: ugm.group.name)):
                     %if i > 0:
@@ -95,49 +147,102 @@ ${form | n}
                     %endif
                     ${ ugm.group.name }
                     %if req.user.may_administer_group(ugm.group_id):
-                        [<a href="${ req.route_url(
-                                        Routes.EDIT_USER_GROUP_MEMBERSHIP,
-                                        _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id}
-                                    ) | n }">${ _("Permissions") }</a>]
+                        [${ req.icon_text(
+                            icon=Icons.USER_PERMISSIONS,
+                            url=request.route_url(
+                                Routes.EDIT_USER_GROUP_MEMBERSHIP,
+                                _query={
+                                    ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id
+                                }
+                            ),
+                            text=_("Permissions")
+                        ) | n }]
                     %endif
                 %endfor
             </td>
             <td>
                 ${ (escape(user.upload_group.name) if user.upload_group
                     else "<i>(None)</i>") | n }
-                [<a href="${request.route_url(
-                                Routes.SET_OTHER_USER_UPLOAD_GROUP,
-                                _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("change") }</a>]
+                [${ req.icon_text(
+                    icon=Icons.UPLOAD,
+                    url=request.route_url(
+                        Routes.SET_OTHER_USER_UPLOAD_GROUP,
+                        _query={
+                            ViewParam.USER_ID: user.id
+                        }
+                    ),
+                    text=_("Change")
+                ) | n }]
             </td>
             <td class="mini_table">
                 <table>
                     <tr>
-                        <td><a href="${ req.route_url(
-                                Routes.CHANGE_OTHER_PASSWORD,
-                                _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("Change password") }</a>
+                        <td>
+                            %if user.id == req.user.id:
+                                ${ req.icon_text(
+                                    icon=Icons.PASSWORD_OWN,
+                                    url=request.route_url(
+                                        Routes.CHANGE_OWN_PASSWORD,
+                                        _query={
+                                            ViewParam.USERNAME: request.camcops_session.username
+                                        }
+                                    ),
+                                    text=_("Change password")
+                                ) | n }
+                            %else:
+                                ${ req.icon_text(
+                                    icon=Icons.PASSWORD_OTHER,
+                                    url=request.route_url(
+                                        Routes.CHANGE_OTHER_PASSWORD,
+                                        _query={
+                                            ViewParam.USER_ID: user.id
+                                        }
+                                    ),
+                                    text=_("Change password")
+                                ) | n }
+                            %endif
                         </td>
                     </tr>
                     <tr>
-                        <td><a href="${ req.route_url(
-                                Routes.EDIT_OTHER_USER_MFA,
-                                _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("Change multi-factor authentication") }</a>
+                        <td>
+                            ${ req.icon_text(
+                                icon=Icons.MFA,
+                                url=request.route_url(
+                                    Routes.EDIT_OTHER_USER_MFA,
+                                    _query={
+                                        ViewParam.USER_ID: user.id
+                                    }
+                                ),
+                                text=_("Change multi-factor authentication")
+                            ) | n }
                         </td>
                     </tr>
                 </table>
             </td>
-            <td><a href="${ req.route_url(
-                                Routes.DELETE_USER,
-                                _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("Delete") }</a></td>
+            <td>
+                ${ req.icon_text(
+                    icon=Icons.DELETE,
+                    url=request.route_url(
+                        Routes.DELETE_USER,
+                        _query={
+                            ViewParam.USER_ID: user.id
+                        }
+                    ),
+                    text=_("Delete")
+                ) | n }
+            </td>
         </tr>
     %endfor
 </table>
 
 <div>${ page.pager() | n }</div>
 
-<td><a href="${ req.route_url(Routes.ADD_USER) | n }">${ _("Add a user") }</a></td>
+<div>
+    ${ req.icon_text(
+        icon=Icons.USER_ADD,
+        url=request.route_url(Routes.ADD_USER),
+        text=_("Add a user")
+    ) | n }
+</div>
 
 <%include file="to_main_menu.mako"/>

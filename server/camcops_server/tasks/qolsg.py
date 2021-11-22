@@ -60,6 +60,7 @@ class QolSG(TaskHasPatientMixin, Task):
     """
     __tablename__ = "qolsg"
     shortname = "QoL-SG"
+    info_filename_stem = "qol"
     provides_trackers = True
 
     category_start_time = Column(

@@ -33,7 +33,7 @@ camcops_server/templates/taskcommon/tracker_ctv.mako
 from markupsafe import escape
 from cardinal_pythonlib.datetimefunc import format_datetime
 from camcops_server.cc_modules.cc_constants import CSS_PAGED_MEDIA, DateFormat
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_tracker import format_daterange
 from camcops_server.cc_modules.cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
@@ -149,15 +149,20 @@ ${ next.body() | n }
     ## Users might appreciate a direct shortcut to the PDF, though.
     <div class="navigation">
         ## Link to PDF version
-        <a href="${ req.route_url(
-                        Routes.CTV if tracker.as_ctv else Routes.TRACKER,
-                        _query={
-                            ViewParam.WHICH_IDNUM: tracker.taskfilter.idnum_criteria[0].which_idnum,
-                            ViewParam.IDNUM_VALUE: tracker.taskfilter.idnum_criteria[0].idnum_value,
-                            ViewParam.START_DATETIME: tracker.taskfilter.start_datetime,
-                            ViewParam.END_DATETIME: tracker.taskfilter.end_datetime,
-                            ViewParam.TASKS: tracker.taskfilter.task_tablename_list,
-                            ViewParam.VIEWTYPE: ViewArg.PDF,
-                        }) | n }">${ _("View PDF for printing/saving") }</a>
+        ${ req.icon_text(
+            icon=Icons.PDF_IDENTIFIABLE,
+            url=request.route_url(
+                Routes.CTV if tracker.as_ctv else Routes.TRACKER,
+                _query={
+                    ViewParam.WHICH_IDNUM: tracker.taskfilter.idnum_criteria[0].which_idnum,
+                    ViewParam.IDNUM_VALUE: tracker.taskfilter.idnum_criteria[0].idnum_value,
+                    ViewParam.START_DATETIME: tracker.taskfilter.start_datetime,
+                    ViewParam.END_DATETIME: tracker.taskfilter.end_datetime,
+                    ViewParam.TASKS: tracker.taskfilter.task_tablename_list,
+                    ViewParam.VIEWTYPE: ViewArg.PDF,
+                }
+            ),
+            text=_("View PDF for printing/saving")
+        ) | n }
     </div>
 %endif

@@ -1007,7 +1007,11 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
             ViewParam.SERVER_PK: str(patient.pk)
         })
 
-        view = EditFinalizedPatientView(self.req)
+        view = EditFinalizedPatientView(
+            self.req,
+            task_tablename=task1.tablename,
+            task_server_pk=task1.pk
+        )
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
 
@@ -2809,7 +2813,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         args, kwargs = mock_make_email.call_args_list[0]
         self.assertEqual(kwargs["from_addr"], "server@example.com")
         self.assertEqual(kwargs["to"], "user@example.com")
-        self.assertEqual(kwargs["subject"], "CamCOPS two-step login")
+        self.assertEqual(kwargs["subject"], "CamCOPS authentication")
         self.assertIn(f"Your CamCOPS verification code is {expected_code}",
                       kwargs["body"])
         self.assertEqual(kwargs["content_type"], "text/plain")

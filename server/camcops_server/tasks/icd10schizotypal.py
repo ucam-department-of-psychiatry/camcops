@@ -101,6 +101,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,

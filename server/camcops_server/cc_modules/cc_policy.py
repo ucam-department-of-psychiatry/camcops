@@ -1084,7 +1084,7 @@ class TokenizedPolicy(object):
                       "beyond end of policy; bad policy")
             return Q_ERROR, start
         token = tokens[start]
-        if token in [TK_RPAREN, TK_AND, TK_OR]:
+        if token in (TK_RPAREN, TK_AND, TK_OR):
             log.debug("_content_chunk_value(): "
                       "chunk starts with ), AND, or OR; bad policy")
             return Q_ERROR, start
@@ -1145,7 +1145,7 @@ class TokenizedPolicy(object):
             log.debug("_op(): beyond end of policy")
             return None, start
         token = policy[start]
-        if token in [TK_AND, TK_OR]:
+        if token in (TK_AND, TK_OR):
             return token, start + 1
         else:
             log.debug("_op(): not an operator; bad policy")
