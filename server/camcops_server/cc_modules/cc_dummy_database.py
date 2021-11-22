@@ -54,6 +54,7 @@ from sqlalchemy.sql.sqltypes import (
 )
 
 from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_db import TASK_FREQUENT_AND_FK_FIELDS
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
@@ -77,9 +78,16 @@ if TYPE_CHECKING:
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-class DummyDataFactory(object):
-    FIRST_PATIENT_ID = 10001
-    NUM_PATIENTS = 5
+# =============================================================================
+# DummyDataInserter
+# =============================================================================
+
+class DummyDataInserter:
+    """
+    Class to insert random data (within constraints) to tasks and other
+    objects. It does not touch an actual database, so its methods can be used
+    for free-floating items.
+    """
 
     DEFAULT_MIN_FLOAT = 0
     DEFAULT_MAX_FLOAT = 1000
@@ -87,11 +95,144 @@ class DummyDataFactory(object):
     DEFAULT_MIN_INTEGER = 0
     DEFAULT_MAX_INTEGER = 1000
 
+    def __init__(self) -> None:
+        self.faker = Faker('en_GB')
+
+    @staticmethod
+    def column_is_q_field(column: Column) -> bool:
+        if column.name.startswith("_"):
+            return False
+
+        if column.name in TASK_FREQUENT_AND_FK_FIELDS:
+            # It's that or TASK_FREQUENT_FIELDS.
+            return False
+
+        return True
+
+    def fill_in_task_fields(self, task: Task) -> None:
+        """
+        Inserts random data into a task (within any known constraints).
+        """
+        # noinspection PyUnresolvedReferences
+        for column in task.__table__.columns:
+            if not self.column_is_q_field(column):
+                continue
+
+            if isinstance(column.type, Integer):
+                self.set_integer_field(task, column)
+                continue
+
+            if isinstance(column.type, Float):
+                self.set_float_field(task, column)
+                continue
+
+            if isinstance(column.type, Boolean):
+                self.set_bool_field(task, column)
+                continue
+
+            if isinstance(column.type, Date):
+                self.set_date_field(task, column)
+                continue
+
+            if isinstance(column.type, PendulumDateTimeAsIsoTextColType):
+                self.set_datetime_field(task, column)
+                continue
+
+            if isinstance(column.type, UnicodeText):
+                self.set_unicode_text_field(task, column)
+
+            if isinstance(column.type, String):
+                # covers String, Text, UnicodeText
+                self.set_string_field(task, column)
+
+    def set_integer_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_integer_for_field(column))
+
+    def set_float_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_float_for_field(column))
+
+    def set_bool_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.random.choice([False, True]))
+
+    def set_date_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.date_object())
+
+    def set_datetime_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.date_time())
+
+    def set_unicode_text_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.text())
+
+    def set_string_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_string_for_field(column))
+
+    def get_valid_integer_for_field(self, column: Column) -> int:
+        min_value = self.DEFAULT_MIN_INTEGER
+        max_value = self.DEFAULT_MAX_INTEGER
+
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+
+            if value_checker.minimum is not None:
+                min_value = value_checker.minimum
+
+            if value_checker.maximum is not None:
+                max_value = value_checker.maximum
+
+        return self.faker.random.randint(min_value, max_value)
+
+    def get_valid_float_for_field(self, column: Column) -> float:
+        min_value = self.DEFAULT_MIN_FLOAT
+        max_value = self.DEFAULT_MAX_FLOAT
+
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+
+            if value_checker.minimum is not None:
+                min_value = value_checker.minimum
+
+            if value_checker.maximum is not None:
+                max_value = value_checker.maximum
+
+        return self.faker.random.uniform(min_value, max_value)
+
+    def get_valid_string_for_field(self, column: Column) -> str:
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+        text = self.faker.text()
+
+        if column.type.length is None:
+            return text
+
+        return text[:column.type.length]
+
+
+# =============================================================================
+# DummyDataFactory
+# =============================================================================
+
+class DummyDataFactory(DummyDataInserter):
+    """
+    Factory to insert random data (within constraints) to tasks and other
+    objects in a dummy database. Unlike its parent, this concerns itself with
+    an actual data.
+    """
+    FIRST_PATIENT_ID = 10001
+    NUM_PATIENTS = 5
+
     def __init__(self, cfg: "CamcopsConfig") -> None:
+        super().__init__()
         engine = cfg.get_sqla_engine()
         self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
-
-        self.faker = Faker('en_GB')
 
         self.era_time = pendulum.now()
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
@@ -224,131 +365,6 @@ class DummyDataFactory(object):
 
             self.dbsession.add(task)
             self.dbsession.commit()
-
-    def fill_in_task_fields(self, task: Task) -> None:
-        """
-        Inserts random data into a task (within any known constraints).
-        """
-        # noinspection PyUnresolvedReferences
-        for column in task.__table__.columns:
-            if not self.column_is_q_field(column):
-                continue
-
-            if isinstance(column.type, Integer):
-                self.set_integer_field(task, column)
-                continue
-
-            if isinstance(column.type, Float):
-                self.set_float_field(task, column)
-                continue
-
-            if isinstance(column.type, Boolean):
-                self.set_bool_field(task, column)
-                continue
-
-            if isinstance(column.type, Date):
-                self.set_date_field(task, column)
-                continue
-
-            if isinstance(column.type, PendulumDateTimeAsIsoTextColType):
-                self.set_datetime_field(task, column)
-                continue
-
-            if isinstance(column.type, UnicodeText):
-                self.set_unicode_text_field(task, column)
-
-            if isinstance(column.type, String):
-                # covers String, Text, UnicodeText
-                self.set_string_field(task, column)
-
-    def set_integer_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.get_valid_integer_for_field(column))
-
-    def set_float_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.get_valid_float_for_field(column))
-
-    def set_bool_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.faker.random.choice([False, True]))
-
-    def set_date_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.faker.date_object())
-
-    def set_datetime_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.faker.date_time())
-
-    def set_unicode_text_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.faker.text())
-
-    def set_string_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.get_valid_string_for_field(column))
-
-    def get_valid_integer_for_field(self, column: Column) -> int:
-        min_value = self.DEFAULT_MIN_INTEGER
-        max_value = self.DEFAULT_MAX_INTEGER
-
-        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
-
-        if value_checker is not None:
-            if value_checker.permitted_values is not None:
-                return self.faker.random.choice(value_checker.permitted_values)
-
-            if value_checker.minimum is not None:
-                min_value = value_checker.minimum
-
-            if value_checker.maximum is not None:
-                max_value = value_checker.maximum
-
-        return self.faker.random.randint(min_value, max_value)
-
-    def get_valid_float_for_field(self, column: Column) -> float:
-        min_value = self.DEFAULT_MIN_FLOAT
-        max_value = self.DEFAULT_MAX_FLOAT
-
-        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
-
-        if value_checker is not None:
-            if value_checker.permitted_values is not None:
-                return self.faker.random.choice(value_checker.permitted_values)
-
-            if value_checker.minimum is not None:
-                min_value = value_checker.minimum
-
-            if value_checker.maximum is not None:
-                max_value = value_checker.maximum
-
-        return self.faker.random.uniform(min_value, max_value)
-
-    def get_valid_string_for_field(self, column: Column) -> str:
-        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
-
-        if value_checker is not None:
-            if value_checker.permitted_values is not None:
-                return self.faker.random.choice(value_checker.permitted_values)
-        text = self.faker.text()
-
-        if column.type.length is None:
-            return text
-
-        return text[:column.type.length]
-
-    @staticmethod
-    def column_is_q_field(column: Column) -> bool:
-        if column.name.startswith("_"):
-            return False
-
-        if column.name in (
-            'editing_time_s',
-            'firstexit_is_abort',
-            'firstexit_is_finish',
-            'id',
-            'patient_id',
-            'when_created',
-            'when_firstexit',
-            'when_last_modified',
-        ):
-            return False
-
-        return True
 
     def next_id(self, column: Column) -> int:
         max_id = self.dbsession.query(func.max(column)).scalar()

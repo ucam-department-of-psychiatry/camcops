@@ -33,7 +33,7 @@ from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
-from camcops_server.cc_modules.cc_dummy_database import DummyDataFactory
+from camcops_server.cc_modules.cc_dummy_database import DummyDataInserter
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_validators import (
@@ -78,7 +78,7 @@ class TaskTests(DemoDatabaseTestCase):
         log.info("Actual task table names: {!r} (n={})", tables, len(tables))
         req = self.req
         recipdef = self.recipdef
-        dummy_data_factory = DummyDataFactory(self.req.config)
+        dummy_data_factory = DummyDataInserter()
         for cls in subclasses:
             log.info("Testing {}", cls)
             assert cls.extrastring_taskname != APPSTRING_TASKNAME
