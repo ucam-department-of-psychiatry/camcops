@@ -57,6 +57,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     """
     __tablename__ = "deakin_1_healthreview"  # historically fixed
     shortname = "Deakin_S1_HealthReview"
+    info_filename_stem = "deakin_s1_healthreview"
 
     ethnicity = CamcopsColumn(
         "ethnicity", Integer,

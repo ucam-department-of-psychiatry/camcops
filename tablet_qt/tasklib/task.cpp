@@ -309,7 +309,7 @@ bool Task::isTaskPermissible(QString& why_not_permissible) const
     }
     if (prohibitsClinical() && not_definitely_false(clinical)) {
         why_not_permissible =
-            tr("Task not allowed for research use (see Task Information).") +
+            tr("Task not allowed for clinical use (see Task Information).") +
             (is_unknown(clinical) ? PROHIBITED_UNKNOWN
                                   : PROHIBITED_YES);
         return false;

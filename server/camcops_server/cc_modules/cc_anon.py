@@ -292,7 +292,7 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
     Args:
         column:
             A column specification (or ``None`` to create a dummy dictionary).
-        recipient: 
+        recipient:
             a :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
         dest_dialect:
             The SQL dialect of the destination database. If ``None``, then
@@ -423,7 +423,7 @@ def write_crate_data_dictionary(req: "CamcopsRequest",
                                 file: TextIO = sys.stdout) -> None:
     """
     Generates a draft CRATE data dictionary.
-    
+
     CRATE is an anonymisation tool. See:
 
     - Cardinal RN (2017).

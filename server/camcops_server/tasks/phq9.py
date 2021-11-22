@@ -26,6 +26,7 @@ camcops_server/tasks/phq9.py
 
 """
 
+import logging
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -35,6 +36,11 @@ from sqlalchemy.sql.sqltypes import Boolean, Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_fhir import (
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+)
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -55,6 +61,8 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
 )
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -338,3 +346,35 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(scale, {score: self.total_score()}))
             codes.append(SnomedExpression(procedure_result))
         return codes
+
+    def get_fhir_questionnaire(
+            self,
+            req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
+        items = []  # type: List[FHIRAnsweredQuestion]
+
+        main_options = {}  # type: Dict[int, str]
+        for index in range(4):
+            main_options[index] = self.wxstring(req, f"a{index}")
+        for q_field in self.MAIN_QUESTIONS:
+            items.append(FHIRAnsweredQuestion(
+                qname=q_field,
+                qtext=self.xstring(req, q_field),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=getattr(self, q_field),
+                answer_options=main_options
+            ))
+
+        q10_options = {}
+        for index in range(4):
+            q10_options[index] = self.wxstring(req, f"fa{index}")
+        items.append(FHIRAnsweredQuestion(
+            qname="q10",
+            qtext="10. " + self.xstring(req, "finalq"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q10,
+            answer_options=q10_options
+        ))
+
+        return items

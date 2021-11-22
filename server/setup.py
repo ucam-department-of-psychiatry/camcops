@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
 
+
 # =============================================================================
 # Constants
 # =============================================================================
@@ -67,9 +68,9 @@ INSTALL_REQUIRES = [
     # Direct dependencies of CamCOPS
     # -------------------------------------------------------------------------
     'alembic==1.4.2',  # database migrations
-    'asteval==0.9.18',  # safe-ish alternative to eval
+    'asteval==0.9.25',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.1.6',  # RNC libraries
+    'cardinal_pythonlib==1.1.15',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
@@ -85,8 +86,9 @@ INSTALL_REQUIRES = [
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching
 
-    # TO COME: 'fhirclient==3.2.0',  # For FHIR export
     'Faker==4.1.1',  # create fake data; for dummy database creation
+    # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
+    'fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1',  # noqa: E501
     'flower==0.9.4',  # monitor for Celery
 
     'gunicorn==20.1.0',  # web server (Unix only)
@@ -98,26 +100,36 @@ INSTALL_REQUIRES = [
 
     'matplotlib==3.2.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
-    'numpy==1.19.0',  # Used by some tasks. SLOW INSTALLATION.
+    'numpy==1.20.0',  # Used by some tasks. SLOW INSTALLATION.
 
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.1.2',  # date/time classes
     'pexpect==4.8.0',  # for open_sqlcipher.py
-    'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
+    'pdfkit==1.0.0',  # wkhtmltopdf interface, for PDF generation from HTML
+    'phonenumbers==8.12.30',  # phone number parsing, storing and validating
     'py==1.10.0',  # dependency, pinned to avoid CVE-2020-29651
     'pycap==1.1.1',  # REDCap integration
     'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
-    'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
-    'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
+    'pyexcel-ods3==0.6.0',  # ODS spreadsheet export
+    'pyexcel-xlsx==0.6.0',  # XLSX spreadsheet export
+    'pyotp==2.6.0',  # Multi-factor authentication
     'pyramid==1.10.4',  # web framework
     'pyramid_debugtoolbar==4.6.1',  # debugging for Pyramid
     "pytest==6.0.2",  # automatic testing
+
+    "qrcode[pil]==7.2",  # for registering with Authenticators
+
+    "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.5.4',  # used by some tasks. slow installation.
     'semantic_version==2.8.5',  # semantic versioning; better than semver
     'sqlalchemy==1.3.18',  # database access
     'statsmodels==0.11.1',  # e.g. logistic regression
+
+    'twilio==6.63.0',  # SMS backend for Multi-factor authentication
+
+    'urllib3==1.26.7',  # dependency, pinned to avoid vulnerabilities
 
     'Wand==0.6.1',  # ImageMagick binding
 
@@ -135,11 +147,11 @@ INSTALL_REQUIRES = [
     # Direct requirements of CamCOPS development tools
     # -------------------------------------------------------------------------
 
-    'Babel==2.8.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
+    'Babel==2.9.1',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'flake8==3.8.3',  # code checks
-    'scrapy==2.3.0',  # development only
-    'sphinx==3.1.1',  # development only
-    'sphinx_rtd_theme==0.5.0',  # development only
+    'scrapy==2.5.1',  # development only
+    'sphinx==4.2.0',  # development only
+    'sphinx_rtd_theme==1.0.0',  # development only
 
     # -------------------------------------------------------------------------
     # Dependencies of cardinal_pythonlib, whose versions we pin
@@ -151,13 +163,13 @@ INSTALL_REQUIRES = [
     'colorlog==4.1.0',
     'isodate==0.6.0',
     'openpyxl==3.0.4',  # also for pyexcel-xlsx
-    'pandas==1.0.5',
+    'pandas==1.3.4',
     'prettytable==0.7.2',
     'psutil==5.7.0',
     'pyparsing==2.4.7',
     'PyPDF2==1.26.0',  # Used by cardinal_pythonlib.pdf
     'python-dateutil==2.8.1',  # date/time extensions.
-    'sqlparse==0.3.1',
+    'sqlparse==0.4.2',
 
     # extra
     'py-bcrypt==0.4',  # used by cardinal_pythonlib.crypto
@@ -213,7 +225,6 @@ setup(
 
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

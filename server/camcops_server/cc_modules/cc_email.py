@@ -44,6 +44,7 @@ from cardinal_pythonlib.email.sendmail import (
     STANDARD_SMTP_PORT,
     STANDARD_TLS_PORT,
 )
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.sql.schema import Column
@@ -195,7 +196,7 @@ class Email(Base):
                  bcc: str = "",
                  subject: str = "",
                  body: str = "",
-                 content_type: str = "text/plain",
+                 content_type: str = MimeType.TEXT,
                  charset: str = "utf8",
                  attachment_filenames: Sequence[str] = None,
                  attachments_binary: Sequence[Tuple[str, bytes]] = None,
@@ -331,13 +332,13 @@ class Email(Base):
         # don't save password
         self.use_tls = use_tls
         to_addrs = COMMASPACE.join(
-            x for x in [self.to, self.cc, self.bcc] if x)
-        header_components = filter(None, [
+            x for x in (self.to, self.cc, self.bcc) if x)
+        header_components = filter(None, (
             f"To: {self.to}" if self.to else "",
             f"Cc: {self.cc}" if self.cc else "",
             f"Bcc: {self.bcc}" if self.bcc else "",  # noqa
             f"Subject: {self.subject}" if self.subject else "",
-        ])
+        ))
         log.info("Sending email -- {}", " -- ".join(header_components))
         try:
             send_msg(

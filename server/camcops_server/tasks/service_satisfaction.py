@@ -147,6 +147,7 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
     """
     __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
+    info_filename_stem = "pss"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -172,6 +173,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     """
     __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
+    info_filename_stem = "rss"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -198,6 +200,7 @@ class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
     """
     __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
+    info_filename_stem = "rss"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -86,6 +86,7 @@ class Gds15(TaskHasPatientMixin, Task,
     """
     __tablename__ = "gds15"
     shortname = "GDS-15"
+    info_filename_stem = "gds"
     provides_trackers = True
 
     NQUESTIONS = 15

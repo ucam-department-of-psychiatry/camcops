@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cpft_covid_medical">
+    <!-- CPFT Post-Covid Clinic Medical Questionnaire -->
+
+    <string name="q_how_and_when_symptoms">In relation to the symptoms you are attending the post-COVID clinic about, how and when did your symptoms start?</string>
+    <string name="how_and_when_symptoms_option0">They were present before I tested positive for COVID-19</string>
+    <string name="how_and_when_symptoms_option1">They started within 6 weeks of testing positive for COVID-19</string>
+    <string name="how_and_when_symptoms_option2">They started between 6 weeks and 6 months of testing positive for COVID-19</string>
+    <string name="how_and_when_symptoms_option3">They started following an immunisation for COVID-19</string>
+  </task>
+</resources>

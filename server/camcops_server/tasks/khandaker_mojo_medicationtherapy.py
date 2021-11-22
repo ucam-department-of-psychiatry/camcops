@@ -225,6 +225,7 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
     """
     __tablename__ = "khandaker_mojo_medicationtherapy"
     shortname = "Khandaker_MOJO_MedicationTherapy"
+    info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
     medication_items = ancillary_relationship(

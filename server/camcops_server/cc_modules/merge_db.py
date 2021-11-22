@@ -119,7 +119,7 @@ def get_skip_tables(src_tables: List[str]) -> List[TableIdentity]:
 
     # Check we have some core tables present in the sources
 
-    for tname in [Patient.__tablename__, User.__tablename__]:
+    for tname in (Patient.__tablename__, User.__tablename__):
         if tname not in src_tables:
             raise ValueError(
                 f"Cannot proceed; table {tname!r} missing from source; "
@@ -534,9 +534,8 @@ def get_dest_groupnum(src_groupnum: int,
     groupnum_map = trcon.info["groupnum_map"]  # type: Dict[int, int]
     if src_groupnum not in groupnum_map:
         log_warning_srcobj(oldobj)
-        log.critical(
-            "Old database contains group number {} and equivalent "
-            "group in destination not known", src_groupnum)
+        log.critical("Old database contains group number {} and equivalent "
+                     "group in destination not known", src_groupnum)
         raise ValueError("Bad group mapping")
     return groupnum_map[src_groupnum]
 
@@ -563,10 +562,9 @@ def get_dest_which_idnum(src_which_idnum: int,
     whichidnum_map = trcon.info["whichidnum_map"]  # type: Dict[int, int]
     if src_which_idnum not in whichidnum_map:
         log_warning_srcobj(oldobj)
-        log.critical(
-            "Old database contains ID number definitions of type {} and "
-            "equivalent ID number type in destination not known",
-            src_which_idnum)
+        log.critical("Old database contains ID number definitions of type {} "
+                     "and equivalent ID number type in destination not known",
+                     src_which_idnum)
         raise ValueError("Bad ID number type mapping")
     return whichidnum_map[src_which_idnum]
 
@@ -964,9 +962,8 @@ def translate_fn(trcon: TranslationContext) -> None:
             trcon.src_session.expunge(oldobj)  # prevent implicit queries
             # Then all should work:
             log_warning_srcobj(oldobj)
-            log.critical(
-                "Existing record(s) in destination DB was/were:\n\n{}\n\n",
-                pformat(existing_rec))
+            log.critical("Existing record(s) in destination DB was/were:\n\n"
+                         "{}\n\n", pformat(existing_rec))
             raise ValueError("Attempt to insert duplicate record; see log "
                              "message above.")
 
@@ -1094,7 +1091,7 @@ def merge_camcops_db(src: str,
         # overwrite the destination with, or where the PK structure has
         # changed and we don't care about old data:
         TableIdentity(tablename=x)
-        for x in [
+        for x in (
             CamcopsSession.__tablename__,
             DirtyTable.__tablename__,
             ServerSettings.__tablename__,
@@ -1102,21 +1099,21 @@ def merge_camcops_db(src: str,
             SecurityLoginFailure.__tablename__,
             UserGroupMembership.__tablename__,
             group_group_table.name,
-        ]
+        )
     ]
 
     # Tedious and bulky stuff the user may want to skip:
     if skip_export_logs:
         skip_tables.extend([
             TableIdentity(tablename=x)
-            for x in [
+            for x in (
                 Email.__tablename__,
                 ExportRecipient.__tablename__,
                 ExportedTask.__tablename__,
                 ExportedTaskEmail.__tablename__,
                 ExportedTaskFileGroup.__tablename__,
                 ExportedTaskHL7Message.__tablename__,
-            ]
+            )
         ])
     if skip_audit_logs:
         skip_tables.append(TableIdentity(tablename=AuditEntry.__tablename__))

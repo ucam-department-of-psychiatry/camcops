@@ -368,6 +368,7 @@ class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     extrastring_taskname = "hads"
+    info_filename_stem = extrastring_taskname
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

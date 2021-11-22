@@ -32,12 +32,17 @@ camcops_server/templates/menu/view_task_schedules.mako
 from cardinal_pythonlib.datetimefunc import format_datetime
 
 from camcops_server.cc_modules.cc_constants import DateFormat
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Task schedules") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.TASK_SCHEDULES,
+        text=_("Task schedules")
+    ) | n }
+</h1>
 
 <div>${ page.pager() | n }</div>
 
@@ -59,27 +64,45 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ schedule.name }
         </td>
         <td>
-            <a href="${ req.route_url(
-                            Routes.EDIT_TASK_SCHEDULE,
-                            _query={ViewParam.SCHEDULE_ID: schedule.id}
-                        ) | n }">${ _("Edit") }</a>
+            ${ req.icon_text(
+                    icon=Icons.TASK_SCHEDULE,
+                    url=request.route_url(
+                        Routes.EDIT_TASK_SCHEDULE,
+                        _query={
+                            ViewParam.SCHEDULE_ID: schedule.id
+                        }
+                    ),
+                    text=_("Edit schedule")
+            ) | n }
         </td>
         <td>
-            <a href="${ req.route_url(
-                            Routes.DELETE_TASK_SCHEDULE,
-                            _query={ViewParam.SCHEDULE_ID: schedule.id}
-                        ) | n }">${ _("Delete") }</a>
+            ${ req.icon_text(
+                    icon=Icons.DELETE,
+                    url=request.route_url(
+                        Routes.DELETE_TASK_SCHEDULE,
+                        _query={
+                            ViewParam.SCHEDULE_ID: schedule.id
+                        }
+                    ),
+                    text=_("Delete")
+            ) | n }
         </td>
         <td>
-        %for item in schedule.items:
-            ${ item.description(req) }<br>
-        %endfor
+            %for item in schedule.items:
+                ${ item.description(req) }<br>
+            %endfor
         </td>
         <td>
-            <a href="${ req.route_url(
-                            Routes.VIEW_TASK_SCHEDULE_ITEMS,
-                            _query={ViewParam.SCHEDULE_ID: schedule.id}
-                        ) | n }">${ _("Edit items") }</a>
+            ${ req.icon_text(
+                    icon=Icons.TASK_SCHEDULE_ITEMS,
+                    url=request.route_url(
+                        Routes.VIEW_TASK_SCHEDULE_ITEMS,
+                        _query={
+                            ViewParam.SCHEDULE_ID: schedule.id
+                        }
+                    ),
+                    text=_("Edit items")
+            ) | n }
         </td>
 
     </tr>
@@ -89,13 +112,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>${ page.pager() | n }</div>
 
 <div>
-    <a href="${ req.route_url(Routes.ADD_TASK_SCHEDULE) | n }">
-        ${ _("Add a task schedule") }</a>
+    ${ req.icon_text(
+            icon=Icons.TASK_SCHEDULE_ADD,
+            url=request.route_url(Routes.ADD_TASK_SCHEDULE),
+            text=_("Add a task schedule")
+    ) | n }
 </div>
 
-<div>
-    <a href="${ request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
-        ${ _("Manage scheduled tasks for patients") }</a>
-</div>
-
+<%include file="to_view_patient_task_schedules.mako"/>
 <%include file="to_main_menu.mako"/>

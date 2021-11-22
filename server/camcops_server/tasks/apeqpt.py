@@ -28,11 +28,16 @@ camcops_server/tasks/apeqpt.py
 
 """
 
-from typing import List
+from typing import Dict, List
 
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_fhir import (
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+)
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -61,6 +66,7 @@ class Apeqpt(Task):
     shortname = "APEQPT"
     provides_trackers = True
 
+    # todo: remove q_datetime (here and in the C++) -- it duplicates when_created  # noqa
     q_datetime = CamcopsColumn(
         "q_datetime", PendulumDateTimeAsIsoTextColType,
         comment="Date/time the assessment tool was completed")
@@ -157,3 +163,62 @@ class Apeqpt(Task):
                 {q_a}
             </table>
         """
+
+    def get_fhir_questionnaire(
+            self,
+            req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
+        items = []  # type: List[FHIRAnsweredQuestion]
+
+        yes_no_options = {}  # type: Dict[int, str]
+        for index in range(2):
+            yes_no_options[index] = self.wxstring(req, f"a{index}_choice")
+        items.append(FHIRAnsweredQuestion(
+            qname="q1_choice",
+            qtext=self.wxstring(req, "q1_choice"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q1_choice,
+            answer_options=yes_no_options
+        ))
+        items.append(FHIRAnsweredQuestion(
+            qname="q2_choice",
+            qtext=self.wxstring(req, "q2_choice"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q2_choice,
+            answer_options=yes_no_options
+        ))
+
+        yes_no_na_options = yes_no_options.copy()
+        yes_no_na_options[2] = self.wxstring(req, "a2_choice")
+        items.append(FHIRAnsweredQuestion(
+            qname="q3_choice",
+            qtext=self.wxstring(req, "q3_choice"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q3_choice,
+            answer_options=yes_no_na_options
+        ))
+
+        satisfaction_options = {}  # type: Dict[int, str]
+        for index in range(5):
+            satisfaction_options[index] = self.wxstring(
+                req, f"a{index}_satisfaction")
+        items.append(FHIRAnsweredQuestion(
+            qname="q1_satisfaction",
+            qtext=self.xstring(req, "q1_satisfaction"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q1_satisfaction,
+            answer_options=satisfaction_options
+        ))
+
+        items.append(FHIRAnsweredQuestion(
+            qname="q2_satisfaction",
+            qtext=self.xstring(req, "q2_satisfaction"),
+            qtype=FHIRQuestionType.STRING,
+            answer_type=FHIRAnswerType.STRING,
+            answer=self.q2_satisfaction
+        ))
+
+        return items

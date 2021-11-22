@@ -87,6 +87,7 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "hamd7"
     shortname = "HAMD-7"
+    info_filename_stem = "hamd"
     provides_trackers = True
 
     NQUESTIONS = 7

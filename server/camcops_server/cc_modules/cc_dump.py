@@ -381,7 +381,7 @@ class DumpController(object):
         """
         Add an additional summary table to the dump, if it's not there already.
         Return the table (from the destination database).
-        
+
         Args:
             est:
                 a
@@ -411,7 +411,7 @@ class DumpController(object):
           command.
 
         - We may translate the table en route.
-        
+
         Args:
             src_obj:
                 An SQLAlchemy ORM object. It will *not* be a
@@ -517,7 +517,7 @@ class DumpController(object):
         """
         Add an additional summary table to the dump, if it's not there already.
         Return the table (from the destination database).
-        
+
         Args:
             est:
                 a

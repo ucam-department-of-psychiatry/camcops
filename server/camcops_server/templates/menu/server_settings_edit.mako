@@ -28,9 +28,18 @@ camcops_server/templates/menu/server_settings_edit.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Edit master database title") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.SETTINGS,
+        text=_("Edit master database title")
+    ) | n }
+</h1>
 
 ${ form | n }
 

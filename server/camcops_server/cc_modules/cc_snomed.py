@@ -127,7 +127,7 @@ Regarding temporal coding:
       plan.
     - Codes or other representations that name or provide the semantic
       information container, link, or statement:
-      
+
       - SNOMED CT fulfills this role in a structured health record.
 
     - Additional data including text, numeric values, images and other
@@ -720,6 +720,9 @@ class SnomedLookup(object):
     # SNOMED-CT core concepts
     # -------------------------------------------------------------------------
 
+    # Base concepts
+    OBSERVABLE_ENTITY = "observable_entity"
+
     # Abstract physical quantities
     MASS = "mass"
     LENGTH = "length"
@@ -827,7 +830,10 @@ class SnomedLookup(object):
     # ... "location": not obvious
     # ... "contact type" is an AoMRC heading, but I'm not sure the observable
     #     entity of "Initial contact type" is right.
-    PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
+    #
+    # Deprecated between v20191001 and v20210929:
+    # PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
+    DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE = "diagnostic_psychiatric_interview_procedure"  # noqa
 
     PSYCLERK_REASON_FOR_REFERRAL = "psyclerk_reason_for_referral"
     PSYCLERK_PRESENTING_ISSUE = "psyclerk_presenting_issue"
@@ -1139,7 +1145,7 @@ def get_all_task_snomed_concepts(xml_filename: str) \
     if missing:
         raise ValueError(
             f"The following SNOMED-CT concepts required by CamCOPS are "
-            f"missing from the XML ({xml_filename!r}): {missing!r}")
+            f"missing from the XML ({xml_filename}): {missing!r}")
     # Done
     return camcops_concepts
 
@@ -1263,9 +1269,8 @@ def get_all_icd9cm_snomed_concepts_from_umls(
             if not entry.is_one_to_one_map:
                 continue
             if entry.icd_code in concepts:
-                log.warning(
-                    "Duplicate ICD-9-CM code found in SNOMED file {!r}: {!r}",
-                    tsv_filename, entry.icd_code)
+                log.warning("Duplicate ICD-9-CM code found in SNOMED file "
+                            "{!r}: {!r}", tsv_filename, entry.icd_code)
                 continue
             concept = entry.snomed_concept()
             # log.debug("{}", entry)
@@ -1419,9 +1424,8 @@ def get_all_icd10_snomed_concepts_from_umls(
             if entry.icd_code not in CLIENT_ICD10_CODES:
                 continue
             if entry.icd_code in concepts:
-                log.warning(
-                    "Duplicate ICD-10-CM code found in SNOMED file {!r}: {!r}",
-                    tsv_filename, entry.icd_code)
+                log.warning("Duplicate ICD-10-CM code found in SNOMED file "
+                            "{!r}: {!r}", tsv_filename, entry.icd_code)
                 continue
             concept = entry.snomed_concept()
             # log.debug("{}", entry)

@@ -77,6 +77,12 @@ QString AuditC::description() const
 }
 
 
+QString AuditC::infoFilenameStem() const
+{
+    return Audit::AUDIT_TABLENAME;  // shares with AUDIT
+}
+
+
 QString AuditC::xstringTaskname() const
 {
     return Audit::AUDIT_TABLENAME;  // shares strings with AUDIT

@@ -354,9 +354,8 @@ from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum_date,
     format_datetime,
 )
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import TextResponse
 from cardinal_pythonlib.sqlalchemy.core_query import (
     exists_in_table,
@@ -375,10 +374,7 @@ from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
-from camcops_server.cc_modules.cc_all_models import (
-    CLIENT_TABLE_MAP,
-    RESERVED_FIELDS,
-)
+from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
 from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_client_api_core import (
@@ -440,6 +436,7 @@ from camcops_server.cc_modules.cc_db import (
     FN_WHEN_ADDED_EXACT,
     FN_WHEN_REMOVED_BATCH_UTC,
     FN_WHEN_REMOVED_EXACT,
+    RESERVED_FIELDS,
 )
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
@@ -589,7 +586,6 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
     - 2017-10-08: shortcut: it's OK if it's a column name for a particular
       table.
     """
-    # if fieldname in RESERVED_FIELDS:
     if fieldname.startswith("_"):  # all reserved fields start with _
         # ... but not all fields starting with "_" are reserved; e.g.
         # "_move_off_tablet" is allowed.
@@ -2977,11 +2973,9 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
                 f"Bad move-off-tablet values: {move_off_tablet_values!r}")
     else:
         client_reports_move_off_tablet = False
-        log.warning(
-            "op_which_keys_to_send: old client not reporting "
-            "{}; requesting all records",
-            TabletParam.MOVE_OFF_TABLET_VALUES
-        )
+        log.warning("op_which_keys_to_send: old client not reporting "
+                    "{}; requesting all records",
+                    TabletParam.MOVE_OFF_TABLET_VALUES)
 
     clientinfo = []  # type: List[WhichKeyToSendInfo]
 
@@ -3228,9 +3222,11 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
     return result
 
 
-@view_config(route_name=Routes.CLIENT_API, request_method="POST",
+@view_config(route_name=Routes.CLIENT_API,
+             request_method=HttpMethod.POST,
              permission=NO_PERMISSION_REQUIRED)
-@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="POST",
+@view_config(route_name=Routes.CLIENT_API_ALIAS,
+             request_method=HttpMethod.POST,
              permission=NO_PERMISSION_REQUIRED)
 def client_api(req: "CamcopsRequest") -> Response:
     """
@@ -3304,39 +3300,3 @@ def client_api(req: "CamcopsRequest") -> Response:
     log.debug("Time in script (s): {t}", t=t1 - t0)
 
     return TextResponse(txt, status=status)
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-TEST_NHS_NUMBER = 4887211163  # generated at random
-
-
-def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
-    """
-    For unit testing: convert the text in a :class:`Response` back to a
-    dictionary, so we can check it was correct.
-    """
-    txt = str(response)
-    d = {}  # type: Dict[str, str]
-    # Format is: "200 OK\r\n<other headers>\r\n\r\n<content>"
-    # There's a blank line between the heads and the body.
-    http_gap = "\r\n\r\n"
-    camcops_linesplit = "\n"
-    camcops_k_v_sep = ":"
-    try:
-        start_of_content = txt.index(http_gap) + len(http_gap)
-        txt = txt[start_of_content:]
-        for line in txt.split(camcops_linesplit):
-            if not line:
-                continue
-            colon_pos = line.index(camcops_k_v_sep)
-            key = line[:colon_pos]
-            value = line[colon_pos + len(camcops_k_v_sep):]
-            key = key.strip()
-            value = value.strip()
-            d[key] = value
-        return d
-    except ValueError:
-        return {}

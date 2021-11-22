@@ -101,6 +101,8 @@ configuration file <server_config_file>`:
 
     SNOMED_TASK_XML_FILENAME = /some_path/camcops_snomed_ct_codes/camcops_tasks_snomed.xml
 
+See :ref:`SNOMED_TASK_XML_FILENAME <SNOMED_TASK_XML_FILENAME>`
+
 
 Adding SNOMED CT support for ICD-9-CM and ICD-10 to CamCOPS
 -----------------------------------------------------------

@@ -107,6 +107,7 @@ class KhandakerInsightMedical(TaskHasPatientMixin, Task,
     """
     __tablename__ = "khandaker_1_medicalhistory"  # NB historical name
     shortname = "Khandaker_Insight_Medical"
+    info_filename_stem = "khandaker_insight_medical"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

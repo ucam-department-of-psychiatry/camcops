@@ -32,7 +32,8 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options) :
+QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
+             const QStringList* label_styles) :
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),
@@ -42,6 +43,11 @@ QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options) :
     m_bold(false)
 {
     m_options.validateOrDie();
+    if (label_styles) {
+        m_label_styles = *label_styles;
+        Q_ASSERT(m_label_styles.size() == m_options.size());
+    }
+
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
             this, &QuMcq::fieldValueChanged);
@@ -111,8 +117,8 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
     // the latter use addWidget.
     // FlowLayout is better than QHBoxLayout.
 
-    for (int i = 0; i < m_options.size(); ++i) {
-        const NameValuePair& nvp = m_options.at(i);
+    for (int position = 0; position < m_options.size(); ++position) {
+        const NameValuePair& nvp = m_options.atPosition(position);
 
         // MCQ touch-me widget
         QPointer<BooleanWidget> w = new BooleanWidget();
@@ -126,7 +132,7 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
             connect(w, &BooleanWidget::clicked,
-                    std::bind(&QuMcq::clicked, this, i));
+                    std::bind(&QuMcq::clicked, this, position));
         }
         m_widgets.append(w);
 
@@ -142,13 +148,19 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
             namelabel->setEnabled(!read_only);
             const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             const bool italic = false;
-            const QString css = uifunc::textCSS(fontsize, m_bold, italic);
+            QString css = uifunc::textCSS(fontsize, m_bold, italic);
+
+            if (!m_label_styles.isEmpty()) {
+                const int index = m_options.indexFromPosition(position);
+                css += m_label_styles[index];
+            }
+
             namelabel->setStyleSheet(css);
 
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
                 connect(namelabel, &ClickableLabelWordWrapWide::clicked,
-                        std::bind(&QuMcq::clicked, this, i));
+                        std::bind(&QuMcq::clicked, this, position));
             }
             auto itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
@@ -188,13 +200,13 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuMcq::clicked(const int index)
+void QuMcq::clicked(const int position)
 {
-    if (!m_options.validIndex(index)) {
+    if (!m_options.validIndex(position)) {
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    const QVariant newvalue = m_options.value(index);
+    const QVariant newvalue = m_options.valueFromPosition(position);
     const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();

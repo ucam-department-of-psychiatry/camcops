@@ -122,25 +122,30 @@ Quick tutorial on Pyramid views:
 """
 
 from collections import OrderedDict
+import json
 import logging
 import os
 # from pprint import pformat
+import time
 from typing import (
     Any,
     cast,
     Dict,
     List,
+    NoReturn,
     Optional,
+    Tuple,
     Type,
     TYPE_CHECKING,
 )
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
-from cardinal_pythonlib.httpconst import MimeType
+from cardinal_pythonlib.httpconst import HttpMethod, MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     BinaryResponse,
+    JsonResponse,
     PdfResponse,
     XmlResponse,
 )
@@ -154,6 +159,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import DateTime as Pendulum
+import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -188,7 +194,8 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     GITHUB_RELEASES_URL,
-    MINIMUM_PASSWORD_LENGTH,
+    JSON_INDENT,
+    MfaMethod,
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
@@ -207,8 +214,11 @@ from camcops_server.cc_modules.cc_export import (
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskEmail,
+    ExportedTaskFhir,
+    ExportedTaskFhirEntry,
     ExportedTaskFileGroup,
     ExportedTaskHL7Message,
+    ExportedTaskRedcap,
 )
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_forms import (
@@ -221,6 +231,7 @@ from camcops_server.cc_modules.cc_forms import (
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     ChooseTrackerForm,
+    DEFORM_ACCORDION_BUG,
     DEFAULT_ROWS_PER_PAGE,
     DeleteGroupForm,
     DeleteIdDefinitionForm,
@@ -231,12 +242,14 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteTaskScheduleForm,
     DeleteTaskScheduleItemForm,
     DeleteUserForm,
-    EditGroupForm,
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditFinalizedPatientForm,
+    EditGroupForm,
     EditIdDefinitionForm,
+    EditOtherUserMfaForm,
     EditServerCreatedPatientForm,
     EditServerSettingsForm,
+    EditTaskFilterForm,
     EditTaskScheduleForm,
     EditTaskScheduleItemForm,
     EditUserFullForm,
@@ -245,17 +258,21 @@ from camcops_server.cc_modules.cc_forms import (
     EditUserGroupPermissionsFullForm,
     EraseTaskForm,
     ExportedTaskListForm,
-    get_sql_dialect_choices,
     ForciblyFinalizeChooseDeviceForm,
     ForciblyFinalizeConfirmForm,
+    get_sql_dialect_choices,
     LoginForm,
+    MfaHotpEmailForm,
+    MfaHotpSmsForm,
+    MfaMethodForm,
+    MfaTotpForm,
     OfferBasicDumpForm,
     OfferSqlDumpForm,
     OfferTermsForm,
+    OtpTokenForm,
     RefreshTasksForm,
     SendEmailForm,
     SetUserUploadGroupForm,
-    EditTaskFilterForm,
     TasksPerPageForm,
     UserDownloadDeleteForm,
     UserFilterForm,
@@ -270,8 +287,10 @@ from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
+    FlashQueue,
     FormAction,
     HTTPFoundDebugVersion,
+    Icons,
     PageUrl,
     Permission,
     Routes,
@@ -288,7 +307,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl
-from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_task import (
+    tablename_to_task_class_dict,
+    Task,
+)
 from camcops_server.cc_modules.cc_taskcollection import (
     TaskFilter,
     TaskCollection,
@@ -330,12 +352,14 @@ from camcops_server.cc_modules.cc_view_classes import (
     CreateView,
     DeleteView,
     FormView,
+    FormWizardMixin,
     UpdateView,
 )
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from deform.form import Form
+    # noinspection PyUnresolvedReferences
     from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -355,20 +379,21 @@ if DEBUG_REDIRECT:
 
 
 # =============================================================================
-# Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
-# =============================================================================
-
-FLASH_SUCCESS = "success"
-FLASH_INFO = "info"
-FLASH_WARNING = "warning"
-FLASH_DANGER = "danger"
-
-
-# =============================================================================
 # Cache control, for the http_cache parameter of view_config etc.
 # =============================================================================
 
 NEVER_CACHE = 0
+
+
+# =============================================================================
+# Constants -- for Mako templates
+# =============================================================================
+# Keys that will be added to a context dictionary that is passed to a Mako
+# template. For example, a key of "title" can be rendered within the template
+# as ${title}. Some are used frequently, so we have them here as constants.
+
+MAKO_VAR_TITLE = "title"
+TEMPLATE_GENERIC_FORM = "generic_form.mako"
 
 
 # =============================================================================
@@ -480,6 +505,20 @@ def test_page_1(req: "CamcopsRequest") -> Response:
 
 
 # noinspection PyUnusedLocal
+@view_config(route_name=Routes.TEST_NHS_NUMBERS,
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="test_nhs_numbers.mako",
+             http_cache=NEVER_CACHE)
+def test_nhs_numbers(req: "CamcopsRequest") -> Response:
+    """
+    Random Test NHS numbers for testing
+    """
+    from cardinal_pythonlib.nhs import generate_random_nhs_number
+    nhs_numbers = [generate_random_nhs_number() for _ in range(10)]
+    return dict(test_nhs_numbers=nhs_numbers)
+
+
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_1,
              http_cache=NEVER_CACHE)
 def test_page_private_1(req: "CamcopsRequest") -> Response:
@@ -580,6 +619,538 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
+class MfaMixin(FormWizardMixin):
+    """
+    Enhances FormWizardMixin to include a multi-factor authentication step.
+    This must be named "mfa" in the subclass, via the ``SELF_MFA`` variable.
+
+    This handles:
+
+    - Timing out
+    - Generating, sending and checking the six-digit code used for
+      authentication
+
+    The subclass should:
+
+    - Set ``mfa_user`` on the class to be an instance of the User to be
+      authenticated.
+    - Call ``handle_authentication_type()`` in the appropriate step.
+    - Call ``otp_is_valid()`` and ``fail_bad_mfa_code()`` in the appropriate
+      step.
+
+    See ``LoginView`` for an example that works with the yet-to-be-logged-in
+    user.
+    See ``ChangeOwnPasswordView`` for an example with the logged-in user.
+    """
+
+    STEP_PASSWORD = "password"
+    STEP_MFA = "mfa"
+
+    KEY_TITLE_HTML = "title_html"
+    KEY_INSTRUCTIONS = "instructions"
+    KEY_MFA_TIME = "mfa_time"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._mfa_user: Optional[User] = None
+        super().__init__(*args, **kwargs)
+
+    # -------------------------------------------------------------------------
+    # mfa_user
+    # -------------------------------------------------------------------------
+    # Set during __init__ by LoggedInUserMfaMixin, or via a more complex
+    # process by LoginView.
+
+    @property
+    def mfa_user(self) -> Optional[User]:
+        """
+        The user undergoing authentication.
+        """
+        return self._mfa_user
+
+    @mfa_user.setter
+    def mfa_user(self, user: Optional[User]) -> None:
+        """
+        Sets the current user being authenticated.
+        """
+        self._mfa_user = user
+
+    # -------------------------------------------------------------------------
+    # Dispatch and timeouts
+    # -------------------------------------------------------------------------
+
+    def dispatch(self) -> Response:
+        # Docstring in superclass.
+        if self.timed_out():
+            self.fail_timed_out()  # will raise
+
+        return super().dispatch()
+
+    def timed_out(self) -> bool:
+        """
+        Has authentication timed out?
+        """
+        if self.step != self.STEP_MFA:
+            return False
+
+        timeout = self.request.config.mfa_timeout_s
+        if timeout == 0:
+            return False
+
+        login_time = self.state.get(self.KEY_MFA_TIME)
+        if login_time is None:
+            return False
+
+        return int(time.time()) > login_time + timeout
+
+    # -------------------------------------------------------------------------
+    # Extra context for templates
+    # -------------------------------------------------------------------------
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        # Docstring in superclass.
+        if self.step == self.STEP_MFA:
+            context = {
+                self.KEY_TITLE_HTML: self.request.icon_text(
+                    icon=self.get_mfa_icon(),
+                    text=self.get_mfa_title()
+                ),
+                self.KEY_INSTRUCTIONS: self.get_mfa_instructions(),
+            }
+            return context
+        else:
+            return {}
+
+    def get_mfa_icon(self) -> str:
+        """
+        Returns an icon to let the user know which MFA method is being used.
+        """
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return "shield-shaded"
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return "envelope"
+
+        elif method == MfaMethod.HOTP_SMS:
+            return "chat-left-dots"
+
+        else:
+            return "Error: get_mfa_icon() called for invalid MFA method"
+
+    def get_mfa_title(self) -> str:
+        """
+        Returns a title for the page that requests the code itself.
+        """
+        _ = self.request.gettext
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return _("Authenticate via your authentication app")
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return _("Authenticate via e-mail")
+
+        elif method == MfaMethod.HOTP_SMS:
+            return _("Authenticate via SMS")
+
+        else:
+            return "Error: get_mfa_title() called for invalid MFA method"
+
+    def get_mfa_instructions(self) -> str:
+        """
+        Return user instructions for the relevant MFA method.
+        """
+        _ = self.request.gettext
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return _("Enter the code for CamCOPS displayed on your "
+                     "authentication app.")
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return _("We've sent a code by email to {}.").format(
+                self.mfa_user.partial_email
+            )
+
+        elif method == MfaMethod.HOTP_SMS:
+            return _("We've sent a code by text message to {}").format(
+                self.mfa_user.partial_phone_number
+            )
+
+        else:
+            return "Error: get_mfa_instruction() called for invalid MFA method"
+
+    # -------------------------------------------------------------------------
+    # MFA handling
+    # -------------------------------------------------------------------------
+
+    def handle_authentication_type(self) -> None:
+        """
+        Function to be called when we want an MFA code to be created.
+        """
+        mfa_user = self.mfa_user
+        mfa_user.ensure_mfa_info()
+        mfa_method = mfa_user.mfa_method
+
+        if mfa_method == MfaMethod.TOTP:
+            # Nothing to do. The app generates the code.
+            return
+
+        # Record the time of code creation:
+        self.state[self.KEY_MFA_TIME] = int(time.time())
+
+        if mfa_method == MfaMethod.HOTP_EMAIL:
+            self.send_authentication_email()
+        elif mfa_method == MfaMethod.HOTP_SMS:
+            self.send_authentication_sms()
+        else:
+            raise ValueError(f"MfaMixin.handle_authentication_type: "
+                             f"unexpected mfa_method {mfa_method!r}")
+
+    def send_authentication_email(self) -> None:
+        """
+        E-mail the code to the user.
+        """
+        _ = self.request.gettext
+        config = self.request.config
+        kwargs = dict(
+            from_addr=config.email_from,
+            to=self.mfa_user.email,
+            subject=_("CamCOPS authentication"),
+            body=self.get_hotp_message(),
+            content_type=MimeType.TEXT
+        )
+
+        email = Email(**kwargs)
+        success = email.send(host=config.email_host,
+                             username=config.email_host_username,
+                             password=config.email_host_password,
+                             port=config.email_port,
+                             use_tls=config.email_use_tls)
+        if success:
+            msg = _("E-mail sent")
+            queue = FlashQueue.SUCCESS
+        else:
+            msg = _("Failed to send e-mail! "
+                    "Please try again or contact your administrator.")
+            queue = FlashQueue.DANGER
+        self.request.session.flash(msg, queue=queue)
+
+    def send_authentication_sms(self) -> None:
+        """
+        Send a code to the user via SMS (text message).
+        """
+        backend = self.request.config.sms_backend
+        backend.send_sms(self.mfa_user.raw_phone_number,
+                         self.get_hotp_message())
+
+    def get_hotp_message(self) -> str:
+        """
+        Return a human-readable message containing an HOTP (HMAC-Based One-Time
+        Password).
+        """
+        self.mfa_user.hotp_counter += 1
+        self.request.dbsession.add(self.mfa_user)
+        _ = self.request.gettext
+        key = self.mfa_user.mfa_secret_key
+        assert key, f"Bug: self.mfa_user.mfa_secret_key = {key!r}"
+        handler = pyotp.HOTP(key)
+        code = handler.at(self.mfa_user.hotp_counter)
+        return _("Your CamCOPS verification code is {}").format(code)
+
+    def otp_is_valid(self, appstruct: Dict[str, Any]) -> bool:
+        """
+        Is the code being offered by the user the right one?
+        """
+        otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
+        return self.mfa_user.verify_one_time_password(otp)
+
+    # -------------------------------------------------------------------------
+    # Ways to fail
+    # -------------------------------------------------------------------------
+
+    def fail_bad_mfa_code(self) -> NoReturn:
+        """
+        Fail because the code was wrong.
+        """
+        _ = self.request.gettext
+        self.fail(_("You entered an invalid code. Please try again."))
+
+    def fail_timed_out(self) -> NoReturn:
+        """
+        Fail because the process timed out.
+        """
+        _ = self.request.gettext
+        self.fail(_("Your code expired. Please try again."))
+
+
+class LoggedInUserMfaMixin(MfaMixin):
+    """
+    Handles multi-factor authentication for the currently logged in user
+    (everything except :class:`LoginView`).
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.mfa_user = self.request.user
+
+
+class LoginView(MfaMixin, FormView):
+    """
+    Multi-factor authentication for the login process.
+    Sequences is: (1) password; (2) MFA, if enabled.
+
+    Inheritance (as of 2021-10-06):
+
+    - webview.LoginView
+
+      - webview.MfaMixin
+
+        - cc_view_classes.FormWizardMixin
+
+      - cc_view_classes.FormView
+
+        - cc_view_classes.TemplateResponseMixin
+
+        - cc_view_classes.BaseFormView
+
+          - cc_view_classes.FormMixin
+
+            - cc_view_classes.ContextMixin
+
+          - cc_view_classes.ProcessFormView -- provides ``get()``, ``post()``
+
+            - cc_view_classes.View -- owns ``request``, provides ``dispatch()``
+    """
+    KEY_MFA_USER_ID = "mfa_user_id"
+
+    _mfa_user: Optional[User]
+    wizard_first_step = MfaMixin.STEP_PASSWORD
+    wizard_forms = {
+        MfaMixin.STEP_PASSWORD: LoginForm,  # 1. enter username/password
+        MfaMixin.STEP_MFA: OtpTokenForm,  # 2. enter one-time code
+    }
+    wizard_templates = {
+        MfaMixin.STEP_PASSWORD: "login.mako",
+        MfaMixin.STEP_MFA: "login_token.mako",
+    }
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    # -------------------------------------------------------------------------
+    # mfa_user
+    # -------------------------------------------------------------------------
+    # Slightly more complex here, since our user isn't logged in properly yet.
+
+    @property
+    def mfa_user(self) -> Optional[User]:
+        # Docstring in superclass.
+        if self._mfa_user is None:
+            try:
+                user_id = self.state[self.KEY_MFA_USER_ID]
+                self.mfa_user = self.request.dbsession.query(User).filter(
+                    User.id == user_id
+                ).one_or_none()
+            except KeyError:
+                pass
+
+        return self._mfa_user
+
+    @mfa_user.setter
+    def mfa_user(self, user: Optional[User]) -> None:
+        # Docstring in superclass.
+        self._mfa_user = user
+        if user is None:
+            self.state[self.KEY_MFA_USER_ID] = None
+            return
+
+        self.state[self.KEY_MFA_USER_ID] = user.id
+
+    # -------------------------------------------------------------------------
+    # Content for forms
+    # -------------------------------------------------------------------------
+
+    def get_form_values(self) -> Dict:
+        # Docstring in superclass.
+        return {
+            ViewParam.REDIRECT_URL: self.get_redirect_url(),
+        }
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        # Docstring in superclass.
+        kwargs = super().get_form_kwargs()
+
+        cfg = self.request.config
+        autocomplete_password = not cfg.disable_password_autocomplete
+        kwargs["autocomplete_password"] = autocomplete_password
+
+        return kwargs
+
+    # -------------------------------------------------------------------------
+    # Form validation, and sequence handling
+    # -------------------------------------------------------------------------
+
+    def form_valid_process_data(self, form: "Form",
+                                appstruct: Dict[str, Any]) -> None:
+        # Docstring in superclass.
+        if self.step == self.STEP_PASSWORD:
+            self._form_valid_password(appstruct)
+        else:
+            self._form_valid_mfa(appstruct)
+
+        super().form_valid_process_data(form, appstruct)
+
+    def _form_valid_password(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Called when the user has entered a username/password (via a validated
+        form).
+        """
+        username = appstruct.get(ViewParam.USERNAME)
+
+        # Is the user locked?
+        locked_out_until = SecurityAccountLockout.user_locked_out_until(
+            self.request, username)
+        if locked_out_until is not None:
+            self.fail_locked_out(locked_out_until)  # will raise
+
+        password = appstruct.get(ViewParam.PASSWORD)
+
+        # Is the username/password combination correct?
+        user = User.get_user_from_username_password(
+            self.request, username, password)  # checks password
+
+        # Some trade-off between usability and security here.
+        # For failed attempts, the user has some idea as to what the problem is.
+        if user is None:
+            # Unsuccessful. Note that the username may/may not be genuine.
+            SecurityLoginFailure.act_on_login_failure(self.request, username)
+            # ... may lock the account
+            # Now, call audit() before session.logout(), as the latter
+            # will wipe the session IP address:
+            self.request.camcops_session.logout()
+            self.fail_not_authorized()  # will raise
+
+        if not user.may_use_webviewer:
+            # This means a user who can upload from tablet but who cannot
+            # log in via the web front end.
+            self.fail_not_authorized()  # will raise
+
+        self.mfa_user = user
+        self._password_next_step()
+        self._form_valid_success()
+
+    def _password_next_step(self) -> None:
+        """
+        The user has entered a password correctly; what's the next step?
+        """
+        method = self.mfa_user.mfa_method
+        if MfaMethod.requires_second_step(method):
+            self.step = self.STEP_MFA
+            self.handle_authentication_type()
+        else:
+            self.finish()
+            # Guaranteed to be valid; see constructor.
+
+    def _form_valid_mfa(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Called when the user has entered an MFA code (via a validated form).
+        """
+        if not self.otp_is_valid(appstruct):
+            self.fail_bad_mfa_code()  # will raise
+
+        self.finish()
+        self._form_valid_success()
+
+    def _form_valid_success(self) -> None:
+        """
+        Called when the next step has been determined. One possible outcome is
+        a successful login.
+        """
+        if self.finished():
+            # Successful login.
+            self.mfa_user.login(self.request)  # will clear login failure record
+            self.request.camcops_session.login(self.mfa_user)
+            audit(self.request, "Login", user_id=self.mfa_user.id)
+
+            # OK, logged in.
+            # Redirect to the main menu, or wherever the user was heading.
+            # HOWEVER, that may lead us to a "change password" or "agree terms"
+            # page, via the permissions system (Permission.HAPPY or not).
+
+    # -------------------------------------------------------------------------
+    # Next destinations
+    # -------------------------------------------------------------------------
+
+    def get_success_url(self) -> str:
+        # Docstring in superclass.
+        if self.finished():
+            return self.get_redirect_url()
+
+        return self.request.route_url(
+            Routes.LOGIN,
+            _query={
+                ViewParam.REDIRECT_URL: self.get_redirect_url(),
+            }
+        )
+
+    def get_failure_url(self) -> None:
+        # Docstring in superclass.
+        return self.request.route_url(
+            Routes.LOGIN,
+            _query={
+                ViewParam.REDIRECT_URL: self.get_redirect_url(),
+            }
+        )
+
+    def get_redirect_url(self) -> str:
+        """
+        We may be logging in after a timeout, in which case we can redirect the
+        user back to where they were before. Otherwise, they go to the main
+        page.
+        """
+        return self.request.get_redirect_url_param(
+            ViewParam.REDIRECT_URL,
+            default=self.request.route_url(Routes.HOME)
+        )
+
+    # -------------------------------------------------------------------------
+    # Ways to fail
+    # -------------------------------------------------------------------------
+
+    def fail_not_authorized(self) -> NoReturn:
+        """
+        Fail because the user has not logged in correctly or is not authorized
+        to log in.
+
+        Pretends to the type checker that it returns a response, so callers can
+        use ``return`` for code safety.
+        """
+        _ = self.request.gettext
+        self.fail(
+            _("Invalid username/password (or user not authorized).")
+        )  # will raise
+        # assert False, "Bug: LoginView.fail_not_authorized() falling through"
+
+    def fail_locked_out(self, locked_until: Pendulum) -> NoReturn:
+        """
+        Raises a failure because the user is locked out.
+
+        Pretends to the type checker that it returns a response, so callers can
+        use ``return`` for code safety.
+        """
+        _ = self.request.gettext
+        locked_until = format_datetime(locked_until,
+                                       DateFormat.LONG_DATETIME_WITH_DAY,
+                                       _("(never)"))
+        message = _(
+            "Account locked until {} due to multiple login failures. "
+            "Try again later or contact your administrator."
+        ).format(locked_until)
+        self.fail(message)  # will raise
+        # assert False, "Bug: LoginView.fail_locked_out() falling through"
+
+
 @view_config(route_name=Routes.LOGIN,
              permission=NO_PERMISSION_REQUIRED,
              http_cache=NEVER_CACHE)
@@ -588,7 +1159,8 @@ def login_view(req: "CamcopsRequest") -> Response:
     Login view.
 
     - GET: presents the login screen
-    - POST/submit: attempts to log in;
+    - POST/submit: attempts to log in (with optional multi-factor
+      authentication);
 
       - failure: returns a login failure view or an account lockout view
       - success:
@@ -596,111 +1168,11 @@ def login_view(req: "CamcopsRequest") -> Response:
         - redirects to the redirection view if one was specified;
         - redirects to the home view if not.
     """
-    cfg = req.config
-    autocomplete_password = not cfg.disable_password_autocomplete
-
-    form = LoginForm(request=req, autocomplete_password=autocomplete_password)
-
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            log.debug("Validating user login.")
-            ccsession = req.camcops_session
-            username = appstruct.get(ViewParam.USERNAME)
-            password = appstruct.get(ViewParam.PASSWORD)
-            redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
-            # 1. If we don't have a username, let's stop quickly.
-            if not username:
-                ccsession.logout()
-                return login_failed(req)
-            # 2. Is the user locked?
-            locked_out_until = SecurityAccountLockout.user_locked_out_until(
-                req, username)
-            if locked_out_until is not None:
-                return account_locked(req, locked_out_until)
-            # 3. Is the username/password combination correct?
-            user = User.get_user_from_username_password(
-                req, username, password)  # checks password
-            if user is not None and user.may_use_webviewer:
-                # Successful login.
-                user.login(req)  # will clear login failure record
-                ccsession.login(user)
-                audit(req, "Login", user_id=user.id)
-            elif user is not None:
-                # This means a user who can upload from tablet but who cannot
-                # log in via the web front end.
-                return login_failed(req)
-            else:
-                # Unsuccessful. Note that the username may/may not be genuine.
-                SecurityLoginFailure.act_on_login_failure(req, username)
-                # ... may lock the account
-                # Now, call audit() before session.logout(), as the latter
-                # will wipe the session IP address:
-                ccsession.logout()
-                return login_failed(req)
-
-            # OK, logged in.
-            # Redirect to the main menu, or wherever the user was heading.
-            # HOWEVER, that may lead us to a "change password" or "agree terms"
-            # page, via the permissions system (Permission.HAPPY or not).
-
-            if redirect_url:
-                # log.debug("Redirecting to {!r}", redirect_url)
-                return HTTPFound(redirect_url)  # redirect
-            return HTTPFound(req.route_url(Routes.HOME))  # redirect
-
-        except ValidationFailure as e:
-            rendered_form = e.render()
-
-    else:
-        redirect_url = req.get_redirect_url_param(ViewParam.REDIRECT_URL, "")
-        # ... use default of "", because None gets serialized to "None", which
-        #     would then get read back later as "None".
-        appstruct = {ViewParam.REDIRECT_URL: redirect_url}
-        # log.debug("appstruct from GET/POST: {!r}", appstruct)
-        rendered_form = form.render(appstruct)
-
-    return render_to_response(
-        "login.mako",
-        dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req
-    )
-
-
-def login_failed(req: "CamcopsRequest") -> Response:
-    """
-    Response given after login failure.
-    Returned by :func:`login_view` only.
-    """
-    return render_to_response(
-        "login_failed.mako",
-        dict(),
-        request=req
-    )
-
-
-def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
-    """
-    Response given when account locked out.
-    Returned by :func:`login_view` only.
-    """
-    _ = req.gettext
-    return render_to_response(
-        "account_locked.mako",
-        dict(
-            locked_until=format_datetime(locked_until,
-                                         DateFormat.LONG_DATETIME_WITH_DAY,
-                                         _("(never)")),
-            msg="",
-            extra_html="",
-        ),
-        request=req
-    )
+    return LoginView(req).dispatch()
 
 
 @view_config(route_name=Routes.LOGOUT,
+             permission=Authenticated,
              renderer="logged_out.mako",
              http_cache=NEVER_CACHE)
 def logout(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -762,6 +1234,8 @@ def forbidden(req: "CamcopsRequest") -> Response:
             return HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
         if user.must_agree_terms:
             return HTTPFound(req.route_url(Routes.OFFER_TERMS))
+        if user.must_set_mfa_method(req):
+            return HTTPFound(req.route_url(Routes.EDIT_OWN_USER_MFA))
     # ... but with "raise HTTPFound" instead.
     # BUT there is only one level of exception handling in Pyramid, i.e. you
     # can't raise exceptions from exceptions:
@@ -781,6 +1255,106 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
+class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
+    """
+    View to change one's own password.
+
+    If MFA is enabled, you need to (re-)authenticate via MFA to do so.
+    Then, you need to supply your own password to change it (regardless).
+    Sequence is therefore (1) MFA, optionally; (2) change password.
+
+    Most documentation in superclass.
+    """
+    model_form_dict: Dict[str, "Form"] = {}
+    STEP_CHANGE_PASSWORD = "change_password"
+
+    wizard_forms = {
+        MfaMixin.STEP_MFA: OtpTokenForm,
+        STEP_CHANGE_PASSWORD: ChangeOwnPasswordForm,
+    }
+
+    wizard_templates = {
+        MfaMixin.STEP_MFA: "login_token.mako",
+        STEP_CHANGE_PASSWORD: "change_own_password.mako",
+    }
+
+    wizard_extra_contexts: Dict[str, Dict[str, Any]] = {
+        MfaMixin.STEP_MFA: {},
+        STEP_CHANGE_PASSWORD: {},
+    }
+
+    def get_first_step(self) -> str:
+        if self.request.user.mfa_method == MfaMethod.NO_MFA:
+            return self.STEP_CHANGE_PASSWORD
+
+        return self.STEP_MFA
+
+    def get(self) -> Response:
+        if self.step == self.STEP_MFA:
+            self.handle_authentication_type()
+
+        _ = self.request.gettext
+
+        if self.request.user.must_change_password:
+            self.request.session.flash(
+                _("Your password has expired and must be changed."),
+                queue=FlashQueue.DANGER
+            )
+        return super().get()
+
+    def get_object(self) -> User:
+        return self.request.user
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.update(must_differ=True)
+        return kwargs
+
+    def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.HOME)
+
+        return self.request.route_url(Routes.CHANGE_OWN_PASSWORD)
+
+    def get_failure_url(self) -> str:
+        return self.request.route_url(Routes.HOME)
+
+    def form_valid_process_data(self, form: "Form",
+                                appstruct: Dict[str, Any]) -> None:
+        if self.step == self.STEP_MFA:
+            if not self.otp_is_valid(appstruct):
+                self.fail_bad_mfa_code()  # will raise
+
+        super().form_valid_process_data(form, appstruct)
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Superclass method overridden, not called.
+        if self.step == self.STEP_MFA:
+            self.step = self.STEP_CHANGE_PASSWORD
+        elif self.step == self.STEP_CHANGE_PASSWORD:
+            self.set_password(appstruct)
+            self.finish()
+        else:
+            assert f"ChangeOwnPasswordView: bad step {self.step!r}"
+
+    def set_password(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Success; change the user's password.
+        """
+        user = cast(User, self.object)
+        # ... form has validated old password, etc.
+        new_password = appstruct[ViewParam.NEW_PASSWORD]
+        user.set_password(self.request, new_password)
+
+        _ = self.request.gettext
+        self.request.session.flash(
+            _("You have changed your password. "
+              "If you store your password in your CamCOPS tablet application, "
+              "remember to change it there as well."),
+            queue=FlashQueue.SUCCESS
+        )
+
+
 @view_config(route_name=Routes.CHANGE_OWN_PASSWORD,
              permission=Authenticated,
              http_cache=NEVER_CACHE)
@@ -789,40 +1363,128 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     For any user: to change their own password.
 
     - GET: offer "change own password" view
-    - POST/submit: change the password and return :func:`password_changed`.
+    - POST/submit: change the password and display success message.
     """
-    user = req.user
-    assert user is not None
-    expired = user.must_change_password
-    form = ChangeOwnPasswordForm(request=req, must_differ=True)
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Change the password
-            # -----------------------------------------------------------------
-            new_password = appstruct.get(ViewParam.NEW_PASSWORD)
-            # ... form will validate old password, etc.
-            # OK
-            user.set_password(req, new_password)
-            return password_changed(req, user.username, own_password=True)
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        rendered_form = form.render()
-    return render_to_response(
-        "change_own_password.mako",
-        dict(form=rendered_form,
-             expired=expired,
-             min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req)
+    view = ChangeOwnPasswordView(req)
+
+    return view.dispatch()
+
+
+class EditUserAuthenticationView(LoggedInUserMfaMixin, UpdateView):
+    """
+    View to edit aspects of another user.
+    """
+    model_form_dict: Dict[str, "Form"] = {}
+    object_class = User
+    pk_param = ViewParam.USER_ID
+    server_pk_name = "id"
+
+    def get(self) -> Response:
+        if self.step == self.STEP_MFA:
+            self.handle_authentication_type()
+
+        return super().get()
+
+    def get_object(self) -> User:
+        user = cast(User, super().get_object())
+        assert_may_edit_user(self.request, user)
+
+        return user
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        if self.step == self.STEP_MFA:
+            return super().get_extra_context()
+
+        user = cast(User, self.object)
+
+        return {
+            "username":  user.username,
+        }
+
+    def form_valid_process_data(self, form: "Form",
+                                appstruct: Dict[str, Any]) -> None:
+        if self.step == self.STEP_MFA:
+            if not self.otp_is_valid(appstruct):
+                self.fail_bad_mfa_code()  # will raise
+
+        super().form_valid_process_data(form, appstruct)
+
+    def get_failure_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+
+class ChangeOtherPasswordView(EditUserAuthenticationView):
+    """
+    View to change the password for another user.
+    """
+    STEP_CHANGE_PASSWORD = "change_password"
+
+    wizard_forms = {
+        MfaMixin.STEP_MFA: OtpTokenForm,
+        STEP_CHANGE_PASSWORD: ChangeOtherPasswordForm
+    }
+
+    wizard_templates = {
+        MfaMixin.STEP_MFA: "login_token.mako",
+        STEP_CHANGE_PASSWORD: "change_other_password.mako"
+    }
+
+    def get(self) -> Response:
+        if self.get_pk_value() == self.request.user_id:
+            raise HTTPFound(self.request.route_url(Routes.CHANGE_OWN_PASSWORD))
+
+        return super().get()
+
+    def get_first_step(self) -> str:
+        if self.request.user.mfa_method != MfaMethod.NO_MFA:
+            return self.STEP_MFA
+
+        return self.STEP_CHANGE_PASSWORD
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Superclass method overridden, not called.
+        if self.step == self.STEP_CHANGE_PASSWORD:
+            self.set_password(appstruct)
+            self.finish()
+            return
+
+        if self.step == self.STEP_MFA:
+            self.step = self.STEP_CHANGE_PASSWORD
+
+    def set_password(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Success; change the password for the other user.
+        """
+        user = cast(User, self.object)
+        _ = self.request.gettext
+        new_password = appstruct[ViewParam.NEW_PASSWORD]
+        user.set_password(self.request, new_password)
+        must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
+        if must_change_pw:
+            user.force_password_change()
+        self.request.session.flash(
+            _("Password changed for user '{username}'").format(
+                username=user.username
+            ),
+            queue=FlashQueue.SUCCESS
+        )
+
+    def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+        user = cast(User, self.object)
+
+        return self.request.route_url(
+            Routes.CHANGE_OTHER_PASSWORD,
+            _query={
+                ViewParam.USER_ID: user.id,
+            }
+        )
 
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,
-             renderer="change_other_password.mako",
              http_cache=NEVER_CACHE)
 def change_other_password(req: "CamcopsRequest") -> Response:
     """
@@ -830,69 +1492,328 @@ def change_other_password(req: "CamcopsRequest") -> Response:
 
     - GET: offer "change another's password" view (except that if you're
       changing your own password, return :func:`change_own_password`.
-    - POST/submit: change the password and return :func:`password_changed`.
+    - POST/submit: change the password and display success message.
     """
-    form = ChangeOtherPasswordForm(request=req)
-    username = None  # for type checker
-    _ = req.gettext
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Change the password
-            # -----------------------------------------------------------------
-            user_id = appstruct.get(ViewParam.USER_ID)
-            must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
-            new_password = appstruct.get(ViewParam.NEW_PASSWORD)
-            user = User.get_user_by_id(req.dbsession, user_id)
-            if not user:
-                raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
-            assert_may_edit_user(req, user)
-            user.set_password(req, new_password)
-            if must_change_pw:
-                user.force_password_change()
-            return password_changed(req, user.username, own_password=False)
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        user_id = req.get_int_param(ViewParam.USER_ID)
-        if user_id is None:
-            raise HTTPBadRequest(f"{_('Improper user_id of')} {user_id!r}")
-        if user_id == req.user_id:
-            raise HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
-        user = User.get_user_by_id(req.dbsession, user_id)
-        if user is None:
-            raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
-        assert_may_edit_user(req, user)
-        username = user.username
-        appstruct = {ViewParam.USER_ID: user_id}
-        rendered_form = form.render(appstruct)
-    return render_to_response(
-        "change_other_password.mako",
-        dict(username=username,
-             form=rendered_form,
-             min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req)
+    view = ChangeOtherPasswordView(req)
+    return view.dispatch()
 
 
-def password_changed(req: "CamcopsRequest",
-                     username: str,
-                     own_password: bool) -> Response:
+class EditOtherUserMfaView(EditUserAuthenticationView):
     """
-    Generic "the password has been changed" view (whether changing your own
-    or another's password).
+    View to edit the MFA method for another user. Only permits disabling of
+    MFA. (If MFA is mandatory, that will require the other user to set their
+    MFA method at next logon.)
+    """
+    STEP_OTHER_USER_MFA = "other_user_mfa"
 
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        username: the username whose password is being changed?
-        own_password: is the user changing their own password?
+    wizard_forms = {
+        MfaMixin.STEP_MFA: OtpTokenForm,
+        STEP_OTHER_USER_MFA: EditOtherUserMfaForm,
+    }
+
+    wizard_templates = {
+        MfaMixin.STEP_MFA: "login_token.mako",
+        STEP_OTHER_USER_MFA: "edit_other_user_mfa.mako",
+    }
+
+    def get(self) -> Response:
+        if self.get_pk_value() == self.request.user_id:
+            raise HTTPFound(self.request.route_url(Routes.EDIT_OWN_USER_MFA))
+
+        return super().get()
+
+    def get_first_step(self) -> str:
+        if self.request.user.mfa_method != MfaMethod.NO_MFA:
+            return self.STEP_MFA
+
+        return self.STEP_OTHER_USER_MFA
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Superclass method overridden, not called.
+        if self.step == self.STEP_OTHER_USER_MFA:
+            self.maybe_disable_mfa(appstruct)
+            self.finish()
+            return
+
+        if self.step == self.STEP_MFA:
+            self.step = self.STEP_OTHER_USER_MFA
+
+    def maybe_disable_mfa(self, appstruct: Dict[str, Any]) -> None:
+        """
+        If our user asked for it, disable MFA for the user being edited.
+        """
+        if appstruct.get(ViewParam.DISABLE_MFA):
+            user = cast(User, self.object)
+            _ = self.request.gettext
+
+            user.mfa_method = MfaMethod.NO_MFA
+            self.request.session.flash(
+                _("Multi-factor authentication disabled for user "
+                  "'{username}'").format(username=user.username),
+                queue=FlashQueue.SUCCESS
+            )
+
+    def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+        user = cast(User, self.object)
+
+        return self.request.route_url(
+            Routes.EDIT_OTHER_USER_MFA,
+            _query={
+                ViewParam.USER_ID: user.id,
+            }
+        )
+
+
+@view_config(route_name=Routes.EDIT_OTHER_USER_MFA,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def edit_other_user_mfa(req: "CamcopsRequest") -> Response:
     """
-    return render_to_response("password_changed.mako",
-                              dict(username=username,
-                                   own_password=own_password),
-                              request=req)
+    For administrators, to change another users's Multi-factor Authentication.
+    Currently it is only possible to disable Multi-factor authentication for
+    a user.
+
+    - GET: offer "edit another's MFA" view (except that if you're
+      changing your own MFA, return :func:`edit_own_user_mfa`.
+    - POST/submit: edit MFA  and display success message.
+    """
+    view = EditOtherUserMfaView(req)
+    return view.dispatch()
+
+
+class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
+    """
+    View to edit your own MFA method.
+
+    The inheritance (as of 2021-10-06) illustrates a typical situation:
+
+    SPECIMEN VIEW CLASS:
+
+    - webview.EditOwnUserMfaView
+
+      - webview.LoggedInUserMfaMixin
+
+        - webview.MfaMixin
+
+          - cc_view_classes.FormWizardMixin -- with typehint for FormMixin --
+            implements ``state``.
+
+      - cc_view_classes.UpdateView
+
+        - cc_view_classes.TemplateResponseMixin
+
+        - cc_view_classes.BaseUpdateView
+
+          - cc_view_classes.ModelFormMixin -- implements ``form_valid()`` -->
+            ``save_object()`` > ``set_object_properties()``
+
+            - cc_view_classes.FormMixin -- implements ``form_valid()``,
+              ``get_context_data()``, etc.
+
+              - cc_view_classes.ContextMixin
+
+            - cc_view_classes.SingleObjectMixin -- implements ``get_object()``
+              etc.
+
+              - cc_view_classes.ContextMixin
+
+          - cc_view_classes.ProcessFormView -- implements ``get()``, ``post()``
+
+            - cc_view_classes.View -- owns ``request``, implements
+              ``dispatch()`` (which calls ``get()``, ``post()``).
+
+    SPECIMEN FORM WITHIN THAT VIEW:
+
+    - cc_forms.MfaMethodForm
+
+      - cc_forms.InformativeNonceForm
+
+        - cc_forms.InformativeForm
+
+          - deform.Form
+
+    If you subclass A(B, C), then B's superclass methods are called before C's:
+    https://www.python.org/download/releases/2.3/mro/;
+    https://makina-corpus.com/blog/metier/2014/python-tutorial-understanding-python-mro-class-search-path;
+    """  # noqa
+    STEP_MFA_METHOD = "mfa_method"
+    STEP_TOTP = MfaMethod.TOTP
+    STEP_HOTP_EMAIL = MfaMethod.HOTP_EMAIL
+    STEP_HOTP_SMS = MfaMethod.HOTP_SMS
+    wizard_first_step = STEP_MFA_METHOD
+
+    wizard_forms = {
+        STEP_MFA_METHOD: MfaMethodForm,  # 1. choose your MFA method
+        STEP_TOTP: MfaTotpForm,  # 2a. show TOTP (auth app) QR/alphanumeric code
+        STEP_HOTP_EMAIL: MfaHotpEmailForm,  # 2b. choose e-mail address
+        STEP_HOTP_SMS: MfaHotpSmsForm,  # 2c. choose phone number for SMS
+        MfaMixin.STEP_MFA: OtpTokenForm,  # 4. request code from user
+    }
+
+    FORM_WITH_TITLE_TEMPLATE = "form_with_title.mako"
+
+    wizard_templates = {
+        STEP_MFA_METHOD: FORM_WITH_TITLE_TEMPLATE,
+        STEP_TOTP: FORM_WITH_TITLE_TEMPLATE,
+        STEP_HOTP_EMAIL: FORM_WITH_TITLE_TEMPLATE,
+        STEP_HOTP_SMS: FORM_WITH_TITLE_TEMPLATE,
+        MfaMixin.STEP_MFA: "login_token.mako",
+    }
+
+    hotp_steps = (STEP_HOTP_EMAIL, STEP_HOTP_SMS)
+    secret_key_steps = (STEP_TOTP, STEP_HOTP_EMAIL, STEP_HOTP_SMS)
+
+    def get(self) -> Response:
+        if self.step == self.STEP_MFA:
+            self.handle_authentication_type()
+
+        return super().get()
+
+    def get_model_form_dict(self) -> Dict[str, Any]:
+        model_form_dict = {}
+
+        # Dictionary keys here are attribute names of the User object.
+        # Values are form attributes.
+
+        if self.step == self.STEP_MFA_METHOD:
+            model_form_dict["mfa_method"] = ViewParam.MFA_METHOD
+
+        elif self.step == self.STEP_HOTP_EMAIL:
+            model_form_dict["email"] = ViewParam.EMAIL
+
+        elif self.step == self.STEP_HOTP_SMS:
+            model_form_dict["phone_number"] = ViewParam.PHONE_NUMBER
+
+        if self.step in self.secret_key_steps:
+            model_form_dict["mfa_secret_key"] = ViewParam.MFA_SECRET_KEY
+
+        return model_form_dict
+
+    def get_object(self) -> User:
+        return self.request.user
+
+    def get_form_values(self) -> Dict[str, Any]:
+        # Will call get_model_form_dict()
+        form_values = super().get_form_values()
+
+        if self.step in self.secret_key_steps:
+            # Always create a new secret key. This will be written to the
+            # user object at the next step, via set_object_properties.
+            form_values[ViewParam.MFA_SECRET_KEY] = pyotp.random_base32()
+
+        return form_values
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        req = self.request
+        _ = req.gettext
+        if self.step == self.STEP_MFA:
+            test_msg = _("Let's test it!") + " "
+            context = super().get_extra_context()
+            context[self.KEY_INSTRUCTIONS] = (
+                test_msg + self.get_mfa_instructions()
+            )
+            return context
+
+        titles = {
+            self.STEP_MFA_METHOD: req.icon_text(
+                icon=Icons.MFA,
+                text=_("Configure multi-factor authentication settings"),
+            ),
+            self.STEP_TOTP: req.icon_text(
+                icon=Icons.APP_AUTHENTICATOR,
+                text=_("Configure authentication with app"),
+            ),
+            self.STEP_HOTP_EMAIL: req.icon_text(
+                icon=Icons.EMAIL_SEND,
+                text=_("Configure authentication by email"),
+            ),
+            self.STEP_HOTP_SMS: req.icon_text(
+                icon=Icons.SMS,
+                text=_("Configure authentication by text message")
+            ),
+        }
+        return {
+            MAKO_VAR_TITLE: titles[self.step]
+        }
+
+    def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.HOME)
+
+        return self.request.route_url(Routes.EDIT_OWN_USER_MFA)
+
+    def get_failure_url(self) -> str:
+        # We get here because the user, who has already logged in successfully,
+        # has changed their MFA method. Failure doesn't mean they should be
+        # logged out instantly -- they may have (for example) misconfigured
+        # their phone number, and if they are forcibly logged out now, they are
+        # stuffed and require administrator assistance. Instead, we return them
+        # to the home screen.
+        return self.request.route_url(Routes.HOME)
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Called by ModelFormMixin.form_valid_process_data() ->
+        # ModelFormMixin.save_object().
+
+        super().set_object_properties(appstruct)
+
+        if self.step == self.STEP_MFA_METHOD:
+            # We are setting the MFA method, including secret key etc.
+            user = cast(User, self.object)
+            user.set_mfa_method(appstruct.get(ViewParam.MFA_METHOD))
+
+        elif self.step == self.STEP_MFA:
+            # Code entered.
+            if self.otp_is_valid(appstruct):
+                _ = self.request.gettext
+                self.request.session.flash(
+                    _("Multi-factor authentication: success!"),
+                    queue=FlashQueue.SUCCESS
+                )
+                # ... and continue as below
+            else:
+                return self.fail_bad_mfa_code()
+
+        self._next_step(appstruct)
+
+    def _next_step(self, appstruct: Dict[str, Any]) -> None:
+        if self.step == self.STEP_MFA_METHOD:
+            # The user has just chosen their method.
+            # 2. Offer them method-specific options
+            mfa_method = appstruct.get(ViewParam.MFA_METHOD)
+            if mfa_method == MfaMethod.NO_MFA:
+                self.finish()
+            else:
+                self.step = mfa_method
+
+        elif self.step in (self.STEP_TOTP,
+                           self.STEP_HOTP_EMAIL,
+                           self.STEP_HOTP_SMS):
+            # Coming from one of the method-specific steps.
+            # 3. Ask for the authentication code.
+            self.step = self.STEP_MFA
+
+        elif self.step == self.STEP_MFA:
+            # Authentication code provided. End.
+            self.finish()
+
+        else:
+            raise AssertionError(f"EditOwnUserMfaView.next_step(): "
+                                 f"Bad step {self.step!r}")
+
+
+@view_config(route_name=Routes.EDIT_OWN_USER_MFA,
+             permission=Authenticated,
+             http_cache=NEVER_CACHE)
+def edit_own_user_mfa(request: "CamcopsRequest") -> Response:
+    """
+    Edit your own MFA method.
+    """
+    view = EditOwnUserMfaView(request)
+    return view.dispatch()
 
 
 # =============================================================================
@@ -906,19 +1827,17 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main CamCOPS menu view.
     """
-    # log.debug("main_menu: start")
     user = req.user
-    # log.debug("main_menu: middle")
     result = dict(
         authorized_as_groupadmin=user.authorized_as_groupadmin,
         authorized_as_superuser=user.superuser,
         authorized_for_reports=user.authorized_for_reports,
         authorized_to_dump=user.authorized_to_dump,
+        authorized_to_manage_patients=user.authorized_to_manage_patients,
         camcops_url=CAMCOPS_URL,
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
-    # log.debug("main_menu: returning")
     return result
 
 
@@ -1090,7 +2009,7 @@ def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     if errors:
         collection = []
     else:
-        collection = TaskCollection(
+        collection = TaskCollection(  # SECURITY APPLIED HERE
             req=req,
             taskfilter=taskfilter,
             sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
@@ -1130,10 +2049,10 @@ def serve_task(req: "CamcopsRequest") -> Response:
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
-    task = task_factory(req, tablename, server_pk)
+    task = task_factory(req, tablename, server_pk)  # SECURITY APPLIED HERE
 
     if task is None:
-        return HTTPNotFound(
+        raise HTTPNotFound(  # raise, don't return
             f"{_('Task not found or not permitted:')} "
             f"tablename={tablename!r}, server_pk={server_pk!r}")
 
@@ -1148,7 +2067,7 @@ def serve_task(req: "CamcopsRequest") -> Response:
             body=task.get_pdf(req, anonymise=anonymise),
             filename=task.suggested_pdf_filename(req, anonymise=anonymise)
         )
-    elif viewtype == ViewArg.PDFHTML:  # debugging option
+    elif viewtype == ViewArg.PDFHTML:  # debugging option; no direct hyperlink
         return Response(
             task.get_pdf_html(req, anonymise=anonymise)
         )
@@ -1168,11 +2087,38 @@ def serve_task(req: "CamcopsRequest") -> Response:
             xml_with_header_comments=True,
         )
         return XmlResponse(task.get_xml(req=req, options=options))
+    elif viewtype == ViewArg.FHIRJSON:  # debugging option
+        dummy_recipient = ExportRecipient()
+        bundle = task.get_fhir_bundle(req, dummy_recipient,
+                                      skip_docs_if_other_content=True)
+        return JsonResponse(json.dumps(bundle.as_json(), indent=JSON_INDENT))
     else:
-        permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
+        permissible = (ViewArg.FHIRJSON, ViewArg.HTML, ViewArg.PDF,
+                       ViewArg.PDFHTML, ViewArg.XML)
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")
+
+
+def view_patient(req: "CamcopsRequest",
+                 patient_server_pk: int) -> Response:
+    """
+    Primarily for FHIR views: show just a patient's details.
+    Must check security carefully for this one.
+    """
+    user = req.user
+    patient = Patient.get_patient_by_pk(req.dbsession, patient_server_pk)
+    if not patient or not patient.user_may_view(user):
+        _ = req.gettext
+        raise HTTPBadRequest(_("No such patient or not authorized"))
+    return render_to_response(
+        "patient.mako",
+        dict(
+            patient=patient,
+            viewtype=ViewArg.HTML,
+        ),
+        request=req
+    )
 
 
 # =============================================================================
@@ -1678,7 +2624,7 @@ def download_file(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.DELETE_FILE,
-             request_method="POST",
+             request_method=HttpMethod.POST,
              http_cache=NEVER_CACHE)
 def delete_file(req: "CamcopsRequest") -> Response:
     """
@@ -1716,6 +2662,20 @@ LEXERMAP = {
 }
 
 
+def format_sql_as_html(
+        sql: str,
+        dialect: str = SqlaDialectName.MYSQL) -> Tuple[str, str]:
+    """
+    Formats SQL as HTML with CSS.
+    """
+    lexer = LEXERMAP[dialect]()
+    # noinspection PyUnresolvedReferences
+    formatter = pygments.formatters.HtmlFormatter()
+    html = pygments.highlight(sql, lexer, formatter)
+    css = formatter.get_style_defs('.highlight')
+    return html, css
+
+
 @view_config(route_name=Routes.VIEW_DDL,
              http_cache=NEVER_CACHE)
 def view_ddl(req: "CamcopsRequest") -> Response:
@@ -1736,11 +2696,7 @@ def view_ddl(req: "CamcopsRequest") -> Response:
             appstruct = form.validate(controls)
             dialect = appstruct.get(ViewParam.DIALECT)
             ddl = get_all_ddl(dialect_name=dialect)
-            lexer = LEXERMAP[dialect]()
-            # noinspection PyUnresolvedReferences
-            formatter = pygments.formatters.HtmlFormatter()
-            html = pygments.highlight(ddl, lexer, formatter)
-            css = formatter.get_style_defs('.highlight')
+            html, css = format_sql_as_html(ddl, dialect)
             return render_to_response("introspect_file.mako",
                                       dict(css=css,
                                            code_html=html),
@@ -2135,6 +3091,54 @@ def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
     )
 
 
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_REDCAP,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_redcap(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskRedcap,
+        instance_name_for_mako="etr",
+        mako_template="exported_task_redcap.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FHIR,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_fhir(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFhir,
+        instance_name_for_mako="etf",
+        mako_template="exported_task_fhir.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_fhir_entry(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFhirEntry,
+        instance_name_for_mako="etfe",
+        mako_template="exported_task_fhir_entry.mako",
+    )
+
+
 # =============================================================================
 # User/server info views
 # =============================================================================
@@ -2176,7 +3180,6 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
     return dict(
         idnum_definitions=req.idnum_definitions,
         string_families=req.extrastring_families(),
-        all_task_classes=Task.all_subclasses_by_longname(req),
         recent_activity=recent_activity,
         session_timeout_minutes=req.config.session_timeout_minutes,
         restricted_tasks=req.config.restricted_tasks,
@@ -2186,32 +3189,6 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
 # =============================================================================
 # User management
 # =============================================================================
-
-EDIT_USER_KEYS_GROUPADMIN = [
-    # SPECIAL HANDLING # ViewParam.USER_ID,
-    ViewParam.USERNAME,
-    ViewParam.FULLNAME,
-    ViewParam.EMAIL,
-    ViewParam.MUST_CHANGE_PASSWORD,
-    ViewParam.LANGUAGE,
-    # SPECIAL HANDLING # ViewParam.GROUP_IDS,
-]
-EDIT_USER_KEYS_SUPERUSER = EDIT_USER_KEYS_GROUPADMIN + [
-    ViewParam.SUPERUSER,
-]
-EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN = [
-    ViewParam.MAY_UPLOAD,
-    ViewParam.MAY_REGISTER_DEVICES,
-    ViewParam.MAY_USE_WEBVIEWER,
-    ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,
-    ViewParam.MAY_DUMP_DATA,
-    ViewParam.MAY_RUN_REPORTS,
-    ViewParam.MAY_ADD_NOTES,
-]
-EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN + [  # noqa
-    ViewParam.GROUPADMIN,
-]
-
 
 def get_user_from_request_user_id_or_raise(req: "CamcopsRequest") -> User:
     """
@@ -2320,132 +3297,205 @@ def view_user(req: "CamcopsRequest") -> Dict[str, Any]:
     # here, but can't alter it.
 
 
+class EditUserBaseView(UpdateView):
+    """
+    Django-style view to edit a user and their groups
+    """
+    model_form_dict = {
+        "username": ViewParam.USERNAME,
+        "fullname": ViewParam.FULLNAME,
+        "email": ViewParam.EMAIL,
+        "must_change_password": ViewParam.MUST_CHANGE_PASSWORD,
+        "language": ViewParam.LANGUAGE,
+    }
+    object_class = User
+    pk_param = ViewParam.USER_ID
+    server_pk_name = "id"
+    template_name = "user_edit.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get_object(self) -> Any:
+        user = cast(User, super().get_object())
+
+        assert_may_edit_user(self.request, user)
+
+        return user
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        user = cast(User, self.object)
+        _ = self.request.gettext
+
+        new_user_name = appstruct.get(ViewParam.USERNAME)
+        existing_user = User.get_user_by_name(self.request.dbsession,
+                                              new_user_name)
+        if existing_user and existing_user.id != user.id:
+            # noinspection PyUnresolvedReferences
+            cant_rename_user = _("Can't rename user")
+            conflicts = _("that conflicts with an existing user with ID")
+            raise HTTPBadRequest(
+                f"{cant_rename_user} {user.username!r} (#{user.id!r}) → "
+                f"{new_user_name!r}; {conflicts} {existing_user.id!r}")
+
+        email = appstruct.get(ViewParam.EMAIL)
+        if not email and user.mfa_method == MfaMethod.HOTP_EMAIL:
+            message = _("This user's email address is used for multi-factor "
+                        "authentication. If you want to remove their email "
+                        "address, you must first disable multi-factor "
+                        "authentication")
+
+            raise HTTPBadRequest(message)
+
+        super().set_object_properties(appstruct)
+
+        # Groups that we might change memberships for:
+        all_fluid_groups = self.request.user.ids_of_groups_user_is_admin_for
+        # All groups that the user is currently in:
+        user_group_ids = user.group_ids
+        # Group membership we won't touch:
+        user_frozen_group_ids = list(set(user_group_ids) -
+                                     set(all_fluid_groups))
+        group_ids = appstruct.get(ViewParam.GROUP_IDS)
+        # Add back in the groups we're not going to alter:
+        final_group_ids = list(set(group_ids) | set(user_frozen_group_ids))
+        user.set_group_ids(final_group_ids)
+        # Also, if the user was uploading to a group that they are now no
+        # longer a member of, we need to fix that
+        if user.upload_group_id not in final_group_ids:
+            user.upload_group_id = None
+
+    def get_form_values(self) -> Dict[str, Any]:
+        # will populate with model_form_dict
+        form_values = super().get_form_values()
+
+        user = cast(User, self.object)
+
+        # Superusers can do everything, of course.
+        # Groupadmins can change group memberships only for groups they control
+        # (here: "fluid"). That means that there may be a subset of group
+        # memberships for this user that they will neither see nor be able to
+        # alter (here: "frozen"). They can also edit only a restricted set of
+        # permissions.
+
+        # Groups that we might change memberships for:
+        all_fluid_groups = self.request.user.ids_of_groups_user_is_admin_for
+        # All groups that the user is currently in:
+        user_group_ids = user.group_ids
+        # Group memberships we might alter:
+        user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
+        form_values.update({
+            ViewParam.USER_ID: user.id,
+            ViewParam.GROUP_IDS: user_fluid_group_ids,
+        })
+
+        return form_values
+
+
+class EditUserGroupAdminView(EditUserBaseView):
+    """
+    For group administrators to edit a user.
+    """
+    form_class = EditUserGroupAdminForm
+
+
+class EditUserSuperUserView(EditUserBaseView):
+    """
+    For superusers to edit a user.
+    """
+    form_class = EditUserFullForm
+
+    def get_model_form_dict(self) -> Dict[str, Any]:
+        model_form_dict = super().get_model_form_dict()
+        model_form_dict["superuser"] = ViewParam.SUPERUSER
+
+        return model_form_dict
+
+
 @view_config(route_name=Routes.EDIT_USER,
-             renderer="user_edit.mako",
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
+def edit_user(req: "CamcopsRequest") -> Response:
     """
     View to edit a user (for administrators).
     """
-    route_back = Routes.VIEW_ALL_USERS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    user = get_user_from_request_user_id_or_raise(req)
-    assert_may_edit_user(req, user)
-    # Superusers can do everything, of course.
-    # Groupadmins can change group memberships only for groups they control
-    # (here: "fluid"). That means that there may be a subset of group
-    # memberships for this user that they will neither see nor be able to
-    # alter (here: "frozen"). They can also edit only a restricted set of
-    # permissions.
+    view: EditUserBaseView
+
     if req.user.superuser:
-        form = EditUserFullForm(request=req)
-        keys = EDIT_USER_KEYS_SUPERUSER
+        view = EditUserSuperUserView(req)
     else:
-        form = EditUserGroupAdminForm(request=req)
-        keys = EDIT_USER_KEYS_GROUPADMIN
-    # Groups that we might change memberships for:
-    all_fluid_groups = req.user.ids_of_groups_user_is_admin_for
-    # All groups that the user is currently in:
-    user_group_ids = user.group_ids
-    # Group membership we won't touch:
-    user_frozen_group_ids = list(set(user_group_ids) - set(all_fluid_groups))
-    # Group memberships we might alter:
-    user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
-    # log.debug(
-    #     "all_fluid_groups={}, user_group_ids={}, "
-    #     "user_frozen_group_ids={}, user_fluid_group_ids={}",
-    #     all_fluid_groups, user_group_ids,
-    #     user_frozen_group_ids, user_fluid_group_ids
-    # )
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the edits
-            # -----------------------------------------------------------------
-            dbsession = req.dbsession
-            new_user_name = appstruct.get(ViewParam.USERNAME)
-            existing_user = User.get_user_by_name(dbsession, new_user_name)
-            if existing_user and existing_user.id != user.id:
-                # noinspection PyUnresolvedReferences
-                _ = req.gettext
-                cant_rename_user = _("Can't rename user")
-                conflicts = _("that conflicts with an existing user with ID")
-                raise HTTPBadRequest(
-                    f"{cant_rename_user} {user.username!r} (#{user.id!r}) → "
-                    f"{new_user_name!r}; {conflicts} {existing_user.id!r}")
-            for k in keys:
-                # What follows assumes that the keys are relevant and valid
-                # attributes of a User.
-                setattr(user, k, appstruct.get(k))
-            group_ids = appstruct.get(ViewParam.GROUP_IDS)
-            # Add back in the groups we're not going to alter:
-            final_group_ids = list(set(group_ids) | set(user_frozen_group_ids))
-            user.set_group_ids(final_group_ids)
-            # Also, if the user was uploading to a group that they are now no
-            # longer a member of, we need to fix that
-            if user.upload_group_id not in final_group_ids:
-                user.upload_group_id = None
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(user, k) for k in keys}
-        appstruct[ViewParam.USER_ID] = user.id
-        appstruct[ViewParam.GROUP_IDS] = user_fluid_group_ids
-        rendered_form = form.render(appstruct)
-    return dict(user=user,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+        view = EditUserGroupAdminView(req)
+
+    return view.dispatch()
+
+
+class EditUserGroupMembershipBaseView(UpdateView):
+    """
+    Django-style view to edit a user's group membership permissions.
+    """
+    model_form_dict = {
+        "may_upload": ViewParam.MAY_UPLOAD,
+        "may_register_devices": ViewParam.MAY_REGISTER_DEVICES,
+        "may_use_webviewer": ViewParam.MAY_USE_WEBVIEWER,
+        "view_all_patients_when_unfiltered": ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,  # noqa: E501
+        "may_dump_data": ViewParam.MAY_DUMP_DATA,
+        "may_run_reports": ViewParam.MAY_RUN_REPORTS,
+        "may_add_notes": ViewParam.MAY_ADD_NOTES,
+        "may_manage_patients": ViewParam.MAY_MANAGE_PATIENTS,
+        "may_email_patients": ViewParam.MAY_EMAIL_PATIENTS,
+    }
+
+    object_class = UserGroupMembership
+    pk_param = ViewParam.USER_GROUP_MEMBERSHIP_ID
+    server_pk_name = "id"
+    template_name = "user_edit_group_membership.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get_object(self) -> Any:
+        # noinspection PyUnresolvedReferences
+        ugm = cast(UserGroupMembership, super().get_object())
+        user = ugm.user
+        assert_may_edit_user(self.request, user)
+        assert_may_administer_group(self.request, ugm.group_id)
+
+        return ugm
+
+
+class EditUserGroupMembershipSuperUserView(EditUserGroupMembershipBaseView):
+    """
+    For superusers to edit a user's group memberships.
+    """
+    form_class = EditUserGroupPermissionsFullForm
+
+    def get_model_form_dict(self) -> Dict[str, str]:
+        model_form_dict = super().get_model_form_dict()
+        model_form_dict["groupadmin"] = ViewParam.GROUPADMIN
+
+        return model_form_dict
+
+
+class EditUserGroupMembershipGroupAdminView(EditUserGroupMembershipBaseView):
+    """
+    For group administrators to edit a user's group memberships.
+    """
+    form_class = EditUserGroupMembershipGroupAdminForm
 
 
 @view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
-             renderer="user_edit_group_membership.mako",
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
+def edit_user_group_membership(req: "CamcopsRequest") -> Response:
     """
     View to edit the group memberships of a user (for administrators).
     """
-    route_back = Routes.VIEW_ALL_USERS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    ugm_id = req.get_int_param(ViewParam.USER_GROUP_MEMBERSHIP_ID)
-    ugm = UserGroupMembership.get_ugm_by_id(req.dbsession, ugm_id)
-    if not ugm:
-        _ = req.gettext
-        raise HTTPBadRequest(
-            f"{_('No such UserGroupMembership ID:')} {ugm_id!r}")
-    user = ugm.user
-    assert_may_edit_user(req, user)
-    assert_may_administer_group(req, ugm.group_id)
     if req.user.superuser:
-        form = EditUserGroupPermissionsFullForm(request=req)
-        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER
+        view = EditUserGroupMembershipSuperUserView(req)
     else:
-        form = EditUserGroupMembershipGroupAdminForm(request=req)
-        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the changes
-            # -----------------------------------------------------------------
-            for k in keys:
-                setattr(ugm, k, appstruct.get(k))
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(ugm, k) for k in keys}
-        rendered_form = form.render(appstruct)
-    return dict(ugm=ugm,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+        view = EditUserGroupMembershipGroupAdminView(req)
+
+    return view.dispatch()
 
 
 def set_user_upload_group(req: "CamcopsRequest",
@@ -2531,7 +3581,7 @@ def unlock_user(req: "CamcopsRequest") -> Response:
 
     req.session.flash(
         _("User {username} enabled").format(username=user.username),
-        queue=FLASH_SUCCESS
+        queue=FlashQueue.SUCCESS
     )
     raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
 
@@ -3003,6 +4053,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             iddef.validation_method = appstruct.get(ViewParam.VALIDATION_METHOD)  # noqa
             iddef.hl7_id_type = appstruct.get(ViewParam.HL7_ID_TYPE)
             iddef.hl7_assigning_authority = appstruct.get(ViewParam.HL7_ASSIGNING_AUTHORITY)  # noqa
+            iddef.fhir_id_system = appstruct.get(ViewParam.FHIR_ID_SYSTEM)
             # REMOVED # clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
@@ -3015,6 +4066,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             ViewParam.VALIDATION_METHOD: iddef.validation_method or "",
             ViewParam.HL7_ID_TYPE: iddef.hl7_id_type or "",
             ViewParam.HL7_ASSIGNING_AUTHORITY: iddef.hl7_assigning_authority or "",  # noqa
+            ViewParam.FHIR_ID_SYSTEM: iddef.fhir_id_system or "",
         }
         rendered_form = form.render(appstruct)
     return dict(iddef=iddef,
@@ -3130,6 +4182,10 @@ def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a special note to a task (after confirmation).
+
+    (Note that users can't add special notes to patients -- those get added
+    automatically when a patient is edited. So the context here is always of a
+    task.)
     """
     table_name = req.get_str_param(ViewParam.TABLE_NAME,
                                    validator=validate_task_tablename)
@@ -3186,11 +4242,6 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     View to delete a special note (after confirmation).
     """
     note_id = req.get_int_param(ViewParam.NOTE_ID, None)
-    url_back = req.route_url(Routes.HOME)
-    # ... too fiddly to be more precise as we could be routing back to the task
-    # relating to a patient relating to this special note
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(url_back)
     sn = SpecialNote.get_specialnote_by_id(req.dbsession, note_id)
     _ = req.gettext
     if sn is None:
@@ -3200,6 +4251,29 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                              f"note_id={note_id}")
     if not sn.user_may_delete_specialnote(req.user):
         raise HTTPBadRequest(_("Not authorized to delete this special note"))
+    url_back = req.route_url(Routes.VIEW_TASKS)  # default
+    if sn.refers_to_patient():
+        # Special note on a patient.
+        # We might have come here from any number of tasks relating to this
+        # patient. In principle this information is retrievable; in practice it
+        # is a considerable faff for a rare operation, since special notes are
+        # displayed via special_notes.mako, which only looks at information
+        # stored with the note itself.
+        pass
+    else:
+        # Special note on a task.
+        task = sn.target_task()
+        if task:
+            url_back = req.route_url(
+                Routes.TASK,
+                _query={
+                    ViewParam.TABLE_NAME: task.tablename,
+                    ViewParam.SERVER_PK: task.pk,
+                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                }
+            )
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(url_back)
     form = DeleteSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -3312,7 +4386,7 @@ class EraseTaskEntirelyView(EraseTaskBaseView):
 
         self.request.session.flash(
             f"{msg_erased} ({self.table_name}, server PK {self.server_pk}).",
-            queue=FLASH_SUCCESS
+            queue=FlashQueue.SUCCESS
         )
 
     def get_success_url(self) -> str:
@@ -3443,7 +4517,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             )
             audit(req, msg)
 
-            req.session.flash(msg, FLASH_SUCCESS)
+            req.session.flash(msg, FlashQueue.SUCCESS)
             raise HTTPFound(req.route_url(Routes.HOME))
 
         except ValidationFailure as e:
@@ -3578,7 +4652,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             audit(req, msg)
             log.info(msg)
 
-            req.session.flash(msg, queue=FLASH_SUCCESS)
+            req.session.flash(msg, queue=FlashQueue.SUCCESS)
             raise HTTPFound(req.route_url(Routes.HOME))
 
         except ValidationFailure as e:
@@ -3628,18 +4702,27 @@ class PatientMixin(object):
             form_values[ViewParam.SERVER_PK] = patient.pk
             form_values[ViewParam.GROUP_ID] = patient.group.id
             form_values[ViewParam.ID_REFERENCES] = [
-                {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
-                 ViewParam.IDNUM_VALUE: pidnum.idnum_value}
+                {
+                    ViewParam.WHICH_IDNUM: pidnum.which_idnum,
+                    ViewParam.IDNUM_VALUE: pidnum.idnum_value
+                }
                 for pidnum in patient.idnums
             ]
-            form_values[ViewParam.TASK_SCHEDULES] = [
-                {
+            ts_list = []  # type: List[Dict]
+            for pts in patient.task_schedules:
+                ts_dict = {
+                    ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id,
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
                     ViewParam.START_DATETIME: pts.start_datetime,
-                    ViewParam.SETTINGS: pts.settings,
                 }
-                for pts in patient.task_schedules
-            ]
+                if DEFORM_ACCORDION_BUG:
+                    ts_dict[ViewParam.SETTINGS] = pts.settings
+                else:
+                    ts_dict[ViewParam.ADVANCED] = {
+                        ViewParam.SETTINGS: pts.settings,
+                    }
+                ts_list.append(ts_dict)
+            form_values[ViewParam.TASK_SCHEDULES] = ts_list
 
         return form_values
 
@@ -3680,15 +4763,24 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             self.request.session.flash(
                 f"{_('No changes required for patient record with server PK')} "  # noqa
                 f"{patient.pk} {_('(all new values matched old values)')}",
-                queue=FLASH_INFO
+                queue=FlashQueue.INFO
             )
             return
+
+        formatted_changes = []
+
+        for k, details in changes.items():
+            if len(details) == 1:
+                change = f"{k}: {details[0]}"  # usually a plain message
+            else:
+                change = f"{k}: {details[0]!r} → {details[1]!r}"
+
+            formatted_changes.append(change)
 
         # Below here, changes have definitely been made.
         change_msg = (
             _("Patient details edited. Changes:") + " " + "; ".join(
-                f"{k}: {old!r} → {new!r}"
-                for k, (old, new) in changes.items()
+                formatted_changes
             )
         )
 
@@ -3705,7 +4797,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             f"{_('Amended patient record with server PK')} "
             f"{patient.pk}. "
             f"{_('Changes were:')} {change_msg}",
-            queue=FLASH_SUCCESS
+            queue=FlashQueue.SUCCESS
         )
 
     def save_changes(self,
@@ -3722,7 +4814,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             old_value = getattr(patient, k)
             if new_value == old_value:
                 continue
-            if new_value in [None, ""] and old_value in [None, ""]:
+            if new_value in (None, "") and old_value in (None, ""):
                 # Nothing really changing!
                 continue
             changes[k] = (old_value, new_value)
@@ -3867,75 +4959,71 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                              appstruct: Dict[str, Any],
                              changes: OrderedDict) -> None:
 
+        _ = self.request.gettext
         patient = cast(Patient, self.object)
-        new_schedules = {
-            schedule_dict[ViewParam.SCHEDULE_ID]: schedule_dict
-            for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {})
-        }
+        ids_to_delete = [pts.id for pts in patient.task_schedules]
 
-        schedule_query = self.request.dbsession.query(TaskSchedule)
-        schedule_name_dict = {schedule.id: schedule.name
-                              for schedule in schedule_query}
+        anything_changed = False
 
-        old_schedules = {}
-        for pts in patient.task_schedules:
-            old_schedules[pts.task_schedule.id] = {
-                "start_datetime": pts.start_datetime,
-                "settings": pts.settings
-            }
+        for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {}):
+            pts_id = schedule_dict[ViewParam.PATIENT_TASK_SCHEDULE_ID]
+            schedule_id = schedule_dict[ViewParam.SCHEDULE_ID]
+            start_datetime = schedule_dict[ViewParam.START_DATETIME]
+            if DEFORM_ACCORDION_BUG:
+                settings = schedule_dict[ViewParam.SETTINGS]
+            else:
+                settings = schedule_dict[ViewParam.ADVANCED][ViewParam.SETTINGS]  # noqa
 
-        ids_to_add = new_schedules.keys() - old_schedules.keys()
-        ids_to_update = old_schedules.keys() & new_schedules.keys()
-        ids_to_delete = old_schedules.keys() - new_schedules.keys()
+            if pts_id is None:
+                pts = PatientTaskSchedule()
+                pts.patient_pk = patient.pk
+                pts.schedule_id = schedule_id
+                pts.start_datetime = start_datetime
+                pts.settings = settings
 
-        for schedule_id in ids_to_add:
-            pts = PatientTaskSchedule()
-            pts.patient_pk = patient.pk
-            pts.schedule_id = schedule_id
-            pts.start_datetime = new_schedules[schedule_id]["start_datetime"]
-            pts.settings = new_schedules[schedule_id]["settings"]
+                self.request.dbsession.add(pts)
+                anything_changed = True
+            else:
+                old_pts = self.request.dbsession.query(
+                    PatientTaskSchedule
+                ).filter(PatientTaskSchedule.id == pts_id).first()
 
-            self.request.dbsession.add(pts)
-            changes["schedule{} ({})".format(
-                schedule_id, schedule_name_dict[schedule_id]
-            )] = ((None, None), (pts.start_datetime, pts.settings))
+                updates = {}
+                if old_pts.start_datetime != start_datetime:
+                    updates[PatientTaskSchedule.start_datetime] = start_datetime
 
-        for schedule_id in ids_to_update:
-            updates = {}
+                if old_pts.schedule_id != schedule_id:
+                    updates[PatientTaskSchedule.schedule_id] = schedule_id
 
-            new_start_datetime = new_schedules[schedule_id]["start_datetime"]
-            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
-            if new_start_datetime != old_start_datetime:
-                updates[PatientTaskSchedule.start_datetime] = new_start_datetime
+                if old_pts.settings != settings:
+                    updates[PatientTaskSchedule.settings] = settings
 
-            new_settings = new_schedules[schedule_id]["settings"]
-            old_settings = old_schedules[schedule_id]["settings"]
-            if new_settings != old_settings:
-                updates[PatientTaskSchedule.settings] = new_settings
+                if updates:
+                    anything_changed = True
+                    self.request.dbsession.query(PatientTaskSchedule).filter(
+                        PatientTaskSchedule.id == pts_id,
+                    ).update(updates, synchronize_session="fetch")
 
-            if len(updates) > 0:
-                self.request.dbsession.query(PatientTaskSchedule).filter(
-                    PatientTaskSchedule.patient_pk == patient.pk,
-                    PatientTaskSchedule.schedule_id == schedule_id
-                ).update(updates, synchronize_session="fetch")
+                ids_to_delete.remove(pts_id)
 
-                changes["schedule{} ({})".format(
-                    schedule_id, schedule_name_dict[schedule_id]
-                )] = ((old_start_datetime, old_settings),
-                      (new_start_datetime, new_settings))
+        pts_to_delete = self.request.dbsession.query(
+            PatientTaskSchedule
+        ).filter(PatientTaskSchedule.id.in_(ids_to_delete))
 
-        self.request.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.patient_pk == patient.pk,
-            PatientTaskSchedule.schedule_id.in_(ids_to_delete)
-        ).delete(synchronize_session="fetch")
+        # Previously we had:
+        # pts_to_delete.delete(synchronize_session="fetch")
+        #
+        # This won't cascade the deletion because we are calling delete() on
+        # the query object. We could set up cascade at the database level
+        # instead but there is little performance gain here.
+        # https://stackoverflow.com/questions/19243964/sqlalchemy-delete-doesnt-cascade
 
-        for schedule_id in ids_to_delete:
-            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
-            old_settings = old_schedules[schedule_id]["settings"]
+        for pts in pts_to_delete:
+            self.request.dbsession.delete(pts)
+            anything_changed = True
 
-            changes["schedule{} ({})".format(
-                schedule_id, schedule_name_dict[schedule_id]
-            )] = ((old_start_datetime, old_settings), (None, None))
+        if anything_changed:
+            changes[_("Task schedules")] = (_("Updated"),)
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
@@ -3945,8 +5033,35 @@ class EditFinalizedPatientView(EditPatientBaseView):
     template_name = "finalized_patient_edit.mako"
     form_class = EditFinalizedPatientForm
 
+    def __init__(self,
+                 req: CamcopsRequest,
+                 task_tablename: str = None,
+                 task_server_pk: int = None) -> None:
+        """
+        The two additional parameters are for returning the user to the task
+        from which editing was initiated.
+        """
+        super().__init__(req)
+        self.task_tablename = task_tablename
+        self.task_server_pk = task_server_pk
+
     def get_success_url(self) -> str:
-        return self.request.route_url(Routes.HOME)
+        """
+        We got here by editing a patient from an uploaded task, so that's our
+        return point.
+        """
+        if self.task_tablename and self.task_server_pk:
+            return self.request.route_url(
+                Routes.TASK,
+                _query={
+                    ViewParam.TABLE_NAME: self.task_tablename,
+                    ViewParam.SERVER_PK: self.task_server_pk,
+                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                }
+            )
+        else:
+            # Likely in a testing environment!
+            return self.request.route_url(Routes.HOME)
 
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
@@ -3968,11 +5083,18 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
     """
     View to edit details for a patient.
     """
-    return EditFinalizedPatientView(req).dispatch()
+    task_table_name = req.get_str_param(ViewParam.BACK_TASK_TABLENAME,
+                                        validator=validate_task_tablename)
+    task_server_pk = req.get_int_param(ViewParam.BACK_TASK_SERVER_PK, None)
+
+    return EditFinalizedPatientView(
+        req,
+        task_tablename=task_table_name,
+        task_server_pk=task_server_pk
+    ).dispatch()
 
 
 @view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def edit_server_created_patient(req: "CamcopsRequest") -> Response:
     """
@@ -3988,6 +5110,13 @@ class AddPatientView(PatientMixin, CreateView):
     """
     form_class = EditServerCreatedPatientForm
     template_name = "patient_add.mako"
+
+    def dispatch(self) -> Response:
+        if not self.request.user.authorized_to_manage_patients:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to manage patients"))
+
+        return super().dispatch()
 
     def get_success_url(self) -> str:
         return self.request.route_url(
@@ -4042,7 +5171,10 @@ class AddPatientView(PatientMixin, CreateView):
         for task_schedule in task_schedules:
             schedule_id = task_schedule[ViewParam.SCHEDULE_ID]
             start_datetime = task_schedule[ViewParam.START_DATETIME]
-            settings = task_schedule[ViewParam.SETTINGS]
+            if DEFORM_ACCORDION_BUG:
+                settings = task_schedule[ViewParam.SETTINGS]
+            else:
+                settings = task_schedule[ViewParam.ADVANCED][ViewParam.SETTINGS]  # noqa
             patient_task_schedule = PatientTaskSchedule()
             patient_task_schedule.patient_pk = patient.pk
             patient_task_schedule.schedule_id = schedule_id
@@ -4055,7 +5187,6 @@ class AddPatientView(PatientMixin, CreateView):
 
 
 @view_config(route_name=Routes.ADD_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def add_patient(req: "CamcopsRequest") -> Response:
     """
@@ -4072,12 +5203,22 @@ class DeleteServerCreatedPatientView(DeleteView):
     object_class = Patient
     pk_param = ViewParam.SERVER_PK
     server_pk_name = "_pk"
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+        if not patient.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to delete this patient"))
+        return patient
 
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            "title": _("Delete patient"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete patient")
+            )
         }
 
     def get_success_url(self) -> str:
@@ -4096,7 +5237,6 @@ class DeleteServerCreatedPatientView(DeleteView):
 
 
 @view_config(route_name=Routes.DELETE_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def delete_server_created_patient(req: "CamcopsRequest") -> Response:
     """
@@ -4166,7 +5306,6 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
-             permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedules.mako",
              http_cache=NEVER_CACHE)
 def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -4179,7 +5318,7 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
-    allowed_group_ids = req.user.ids_of_groups_user_is_admin_for
+    allowed_group_ids = req.user.ids_of_groups_user_may_manage_patients_in
     # noinspection PyProtectedMember
     q = (
         req.dbsession.query(Patient)
@@ -4200,7 +5339,6 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedule.mako",
              http_cache=NEVER_CACHE)
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -4215,9 +5353,12 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
             joinedload("task_schedule.items"),
     ).one_or_none()
 
+    _ = req.gettext
     if pts is None:
-        _ = req.gettext
         raise HTTPBadRequest(_("Patient's task schedule does not exist"))
+
+    if not pts.patient.user_may_edit(req):
+        raise HTTPBadRequest(_("Not authorized to manage this patient"))
 
     patient_descriptor = pts.patient.prettystr(req)
 
@@ -4246,7 +5387,7 @@ class TaskScheduleMixin(object):
     object_class = TaskSchedule
     request: "CamcopsRequest"
     server_pk_name = "id"
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
 
     def get_success_url(self) -> str:
         return self.request.route_url(
@@ -4272,7 +5413,10 @@ class AddTaskScheduleView(TaskScheduleMixin, CreateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            "title": _("Add a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE_ADD,
+                text=_("Add a task schedule")
+            )
         }
 
 
@@ -4285,7 +5429,10 @@ class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            "title": _("Edit details for a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE,
+                text=_("Edit details for a task schedule")
+            )
         }
 
 
@@ -4299,7 +5446,10 @@ class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            "title": _("Delete a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete a task schedule")
+            )
         }
 
 
@@ -4336,7 +5486,7 @@ class TaskScheduleItemMixin(object):
     Mixin for viewing/editing a task schedule items.
     """
     form_class = EditTaskScheduleItemForm
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
     model_form_dict = {
         "schedule_id": ViewParam.SCHEDULE_ID,
         "task_table_name": ViewParam.TABLE_NAME,
@@ -4405,8 +5555,12 @@ class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
         schedule = self.get_schedule()
 
         return {
-            "title": _("Add an item to the {schedule_name} schedule").format(
-                schedule_name=schedule.name),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE_ITEM_ADD,
+                text=_(
+                    "Add an item to the {schedule_name} schedule"
+                ).format(schedule_name=schedule.name)
+            )
         }
 
     def get_schedule_id(self) -> int:
@@ -4428,7 +5582,10 @@ class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            "title": _("Edit details for a task schedule item"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.EDIT,
+                text=_("Edit details for a task schedule item")
+            )
         }
 
     def get_schedule_id(self) -> int:
@@ -4458,7 +5615,10 @@ class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            "title": _("Delete a task schedule item"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete a task schedule item")
+            ),
         }
 
     def get_schedule_id(self) -> int:
@@ -4494,10 +5654,10 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
     return DeleteTaskScheduleItemView(req).dispatch()
 
 
-@view_config(route_name=Routes.CLIENT_API, request_method="GET",
+@view_config(route_name=Routes.CLIENT_API, request_method=HttpMethod.GET,
              permission=NO_PERMISSION_REQUIRED,
              renderer="client_api_signposting.mako")
-@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="GET",
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method=HttpMethod.GET,
              permission=NO_PERMISSION_REQUIRED,
              renderer="client_api_signposting.mako")
 def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -4508,12 +5668,20 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
     app.
     """
     return {
-        "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
-        "server_url": req.route_url(Routes.CLIENT_API)
+        "github_link": req.icon_text(
+            icon=Icons.GITHUB,
+            url=GITHUB_RELEASES_URL,
+            text="GitHub",
+        ),
+        "server_url": req.route_url(Routes.CLIENT_API),
     }
 
 
 class SendPatientEmailBaseView(FormView):
+    """
+    Send an e-mail to a patient (such as: "please download the app and register
+    with this URL/code").
+    """
     form_class = SendEmailForm
     template_name = "send_patient_email.mako"
 
@@ -4521,6 +5689,13 @@ class SendPatientEmailBaseView(FormView):
         self._pts = None
 
         super().__init__(*args, **kwargs)
+
+    def dispatch(self) -> Response:
+        if not self.request.user.authorized_to_email_patients:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to email patients"))
+
+        return super().dispatch()
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         kwargs["pts"] = self._get_patient_task_schedule()
@@ -4537,7 +5712,7 @@ class SendPatientEmailBaseView(FormView):
             to=patient_email,
             subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
             body=appstruct.get(ViewParam.EMAIL_BODY),
-            content_type="text/html"
+            content_type=MimeType.HTML
         )
 
         cc = appstruct.get(ViewParam.EMAIL_CC)
@@ -4580,7 +5755,7 @@ class SendPatientEmailBaseView(FormView):
             patient_email=patient_email
         )
 
-        self.request.session.flash(message, queue=FLASH_SUCCESS)
+        self.request.session.flash(message, queue=FlashQueue.SUCCESS)
 
     def _display_failure_message(self, patient_email: str) -> None:
         _ = self.request.gettext
@@ -4588,7 +5763,7 @@ class SendPatientEmailBaseView(FormView):
             patient_email=patient_email
         )
 
-        self.request.session.flash(message, queue=FLASH_DANGER)
+        self.request.session.flash(message, queue=FlashQueue.DANGER)
 
     def get_form_values(self) -> Dict:
         pts = self._get_patient_task_schedule()
@@ -4620,6 +5795,10 @@ class SendPatientEmailBaseView(FormView):
 
 
 class SendEmailFromPatientListView(SendPatientEmailBaseView):
+    """
+    Send an e-mail to a patient and return to the patient task schedule list
+    view.
+    """
     def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULES,
@@ -4627,6 +5806,10 @@ class SendEmailFromPatientListView(SendPatientEmailBaseView):
 
 
 class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
+    """
+    Send an e-mail to a patient and return to the task schedule view for that
+    specific patient.
+    """
     def get_success_url(self) -> str:
         pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
 
@@ -4639,7 +5822,6 @@ class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
 
 
 @view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
     """
@@ -4649,13 +5831,162 @@ def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_LIST,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
     """
     View to send an email to a patient from the list of patients.
     """
     return SendEmailFromPatientListView(req).dispatch()
+
+
+# =============================================================================
+# FHIR identifier "system" information
+# =============================================================================
+
+@view_config(route_name=Routes.FHIR_PATIENT_ID_SYSTEM,
+             request_method=HttpMethod.GET,
+             renderer="fhir_patient_id_system.mako",
+             http_cache=NEVER_CACHE)
+def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Placeholder view for FHIR patient identifier "system" types (from the ID
+    that we may have provided to a FHIR server).
+
+    Within each system, the "value" is the actual patient's ID number (not
+    part of what we show here).
+    """
+    which_idnum = int(req.matchdict[ViewParam.WHICH_IDNUM])
+    if which_idnum not in req.valid_which_idnums:
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Unknown patient ID type:')} "
+                             f"{which_idnum!r}")
+    return dict(
+        which_idnum=which_idnum,
+    )
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_SYSTEM,
+             request_method=HttpMethod.GET,
+             renderer="all_tasks.mako",
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.TASK_LIST,
+             request_method=HttpMethod.GET,
+             renderer="all_tasks.mako",
+             http_cache=NEVER_CACHE)
+def view_task_list(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Lists all tasks.
+
+    Also the placeholder view for FHIR Questionnaire "system".
+    There's only one system -- the "value" is the task type.
+    """
+    return dict(
+        all_task_classes=Task.all_subclasses_by_tablename(),
+    )
+
+
+@view_config(route_name=Routes.TASK_DETAILS,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
+def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View details of a specific task type.
+
+    Used also for for FHIR DocumentReference, Observation,and
+    QuestionnaireResponse "system" types. (There's one system per task. Within
+    each task, the "value" relates to the specific task PK.)
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    task_class_dict = tablename_to_task_class_dict()
+    if table_name not in task_class_dict:
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Unknown task:')} {table_name!r}")
+    task_class = task_class_dict[table_name]
+    task_instance = task_class()
+
+    fhir_aq_items = task_instance.get_fhir_questionnaire(req)
+    # ddl = task_instance.get_ddl()
+    # ddl_html, ddl_css = format_sql_as_html(ddl)
+
+    return dict(
+        task_class=task_class,
+        task_instance=task_instance,
+        fhir_aq_items=fhir_aq_items,
+        # ddl_html=ddl_html,
+        # css=ddl_css,
+    )
+
+
+@view_config(route_name=Routes.FHIR_CONDITION,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_DOCUMENT_REFERENCE,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_OBSERVATION,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_PRACTITIONER,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+def fhir_view_task(req: "CamcopsRequest") -> Response:
+    """
+    Retrieve parameters from a FHIR URL referring back to this server, and
+    serve the relevant task (as HTML).
+
+    The "canonical URL" or "business identifier" of a FHIR resource is the
+    reference to the master copy -- in this case, our copy. See
+    https://www.hl7.org/fhir/datatypes.html#Identifier;
+    https://www.hl7.org/fhir/resource.html#identifiers.
+
+    FHIR identifiers have a "system" (which is a URL) and a "value". I don't
+    think that FHIR has a rule for combining the system and value to create a
+    full URL. For some (but by no means all) identifiers that we provide to
+    FHIR servers, the "system" refers to a CamCOPS task (and the value to some
+    attribute of that task, like the answer to a question (value of a field),
+    or a fixed string like "patient", and so on.
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    server_pk = req.matchdict[ViewParam.SERVER_PK]
+    return HTTPFound(
+        req.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
+    )
+
+
+@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+def fhir_view_tablename_pk(req: "CamcopsRequest") -> Response:
+    """
+    Deal with the slightly silly system that just takes a tablename and PK
+    directly. Security is key here!
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    server_pk = req.matchdict[ViewParam.SERVER_PK]
+    if table_name == Patient.__tablename__:
+        return view_patient(req, server_pk)
+    return HTTPFound(
+        req.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
+    )
 
 
 # =============================================================================

@@ -28,10 +28,19 @@ camcops_server/templates/menu/id_definition_delete.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Delete master ID definition number") }
-    ${ iddef.which_idnum } (${ iddef.description })</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.DELETE,
+        text=_("Delete master ID definition number")
+    ) | n }
+    ${ iddef.which_idnum } (${ iddef.description })
+</h1>
 
 %if error:
     <div class="error">${ error }</div>

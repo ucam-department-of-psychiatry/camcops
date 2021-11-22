@@ -69,6 +69,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,

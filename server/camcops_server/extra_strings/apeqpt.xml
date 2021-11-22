@@ -17,7 +17,7 @@
     <string name="instructions_to_subject_2">Please answer all of the questions. We also welcome your comments and suggestions.</string>
 
     <!-- Datetime question -->
-    <string name="q_date">Date &amp; Time the Assessment Tool was Completed</string>
+    <string name="q_date">Date and time the assessment tool was completed</string>
 
     <!-- Headings -->
     <string name="h1">Choice</string>
@@ -37,16 +37,16 @@
     <string name="a2_choice">N/A</string>
 
     <!-- Satisfaction Questions and summaries -->
-    <string name="q1_satisfaction">How satisfied were you with your assessment</string>
-    <string name="q2_satisfaction">Please use this space to tell us about your experience of our service</string>
+    <string name="q1_satisfaction">How satisfied were you with your assessment?</string>
+    <string name="q2_satisfaction">Please use this space to tell us about your experience of our service.</string>
     <string name="q2_satisfaction_s">Additional feedback</string>
 
     <!-- Satisfaction Answers -->
-    <string name="a4_satisfaction">Completely Satisfied</string>
-    <string name="a3_satisfaction">Mostly Satisfied</string>
-    <string name="a2_satisfaction">Neither Satisfied nor Dissatisfied</string>
-    <string name="a1_satisfaction">Not Satisfied</string>
-    <string name="a0_satisfaction">Not at all Satisfied</string>
+    <string name="a4_satisfaction">Completely satisfied</string>
+    <string name="a3_satisfaction">Mostly satisfied</string>
+    <string name="a2_satisfaction">Neither satisfied nor dissatisfied</string>
+    <string name="a1_satisfaction">Not satisfied</string>
+    <string name="a0_satisfaction">Not at all satisfied</string>
 
     <!-- Thankyou! -->
     <string name="thanks">Thank you very much. We appreciate your help.</string>

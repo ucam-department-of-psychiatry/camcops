@@ -29,8 +29,7 @@ camcops_server/cc_modules/cc_unittest.py
 """
 
 import base64
-import configparser
-from io import StringIO
+import copy
 import logging
 import os
 import sqlite3
@@ -43,15 +42,26 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import pytest
 
+from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
+from camcops_server.cc_modules.cc_request import (
+    CamcopsRequest,
+    get_unittest_request,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import (
     sql_from_sqlite_database,
 )
+from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
@@ -108,43 +118,25 @@ class DemoRequestTestCase(ExtendedTestCase):
     Test case that creates a demo Pyramid request that refers to a bare
     in-memory SQLite database.
     """
-    def setUp(self) -> None:
-        self.create_config_file()
-        from camcops_server.cc_modules.cc_request import get_unittest_request
-        from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
 
+    dbsession: "Session"
+
+    def setUp(self) -> None:
+        # config file has already been set up for the session in conftest.py
+        os.environ[ENVVAR_CONFIG_FILE] = self.config_file
         self.req = get_unittest_request(self.dbsession)
+
+        # request.config is a class property. We want to be able to override
+        # config settings in a test by setting them directly on the config
+        # object (e.g. self.req.config.foo = "bar"), then restore the defaults
+        # afterwards.
+        self.old_config = copy.copy(self.req.config)
+
+        self.req.matched_route = unittest.mock.Mock()
         self.recipdef = ExportRecipient()
 
-    def create_config_file(self) -> None:
-        from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
-
-        # We're going to be using a test (SQLite) database, but we want to
-        # be very sure that nothing writes to a real database! Also, we will
-        # want to read from this dummy config at some point.
-
-        tmpconfigfilename = os.path.join(self.tmpdir_obj.name,
-                                         "dummy_config.conf")
-        with open(tmpconfigfilename, "w") as file:
-            file.write(self.get_config_text())
-
-        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
-
-    def get_config_text(self) -> str:
-        from camcops_server.cc_modules.cc_config import get_demo_config
-        config_text = get_demo_config()
-        parser = configparser.ConfigParser()
-        parser.read_string(config_text)
-
-        # To override config settings in a test just set them directly on the
-        # config object on the request:
-        # eg: self.req.config.foo = "bar"
-
-        with StringIO() as buffer:
-            parser.write(buffer)
-            config_text = buffer.getvalue()
-
-        return config_text
+    def tearDown(self) -> None:
+        CamcopsRequest.config = self.old_config
 
     def set_echo(self, echo: bool) -> None:
         """
@@ -162,7 +154,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         if not self.database_on_disk:
             log.warning("Cannot dump database (use database_on_disk for that)")
             return
-        log.warning("Dumping database; please wait...")
+        log.info("Dumping database; please wait...")
         connection = sqlite3.connect(self.db_filename)
         sql_text = sql_from_sqlite_database(connection)
         connection.close()
@@ -207,27 +199,27 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
     """
     def setUp(self) -> None:
         super().setUp()
-        from camcops_server.cc_modules.cc_device import Device
-        from camcops_server.cc_modules.cc_group import Group
-        from camcops_server.cc_modules.cc_user import User
 
         self.set_era("2010-07-07T13:40+0100")
 
         # Set up groups, users, etc.
         # ... ID number definitions
-        self.nhs_iddef = IdNumDefinition(which_idnum=1,
+        idnum_type_nhs = 1
+        idnum_type_rio = 2
+        idnum_type_study = 3
+        self.nhs_iddef = IdNumDefinition(which_idnum=idnum_type_nhs,
                                          description="NHS number",
                                          short_description="NHS#",
                                          hl7_assigning_authority="NHS",
                                          hl7_id_type="NHSN")
         self.dbsession.add(self.nhs_iddef)
-        self.rio_iddef = IdNumDefinition(which_idnum=2,
+        self.rio_iddef = IdNumDefinition(which_idnum=idnum_type_rio,
                                          description="RiO number",
                                          short_description="RiO",
                                          hl7_assigning_authority="CPFT",
                                          hl7_id_type="CPRiO")
         self.dbsession.add(self.rio_iddef)
-        self.study_iddef = IdNumDefinition(which_idnum=3,
+        self.study_iddef = IdNumDefinition(which_idnum=idnum_type_study,
                                            description="Study number",
                                            short_description="Study")
         self.dbsession.add(self.study_iddef)
@@ -256,6 +248,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.other_device.when_registered_utc = self.era_time_utc
         self.other_device.camcops_version = CAMCOPS_SERVER_VERSION
         self.dbsession.add(self.other_device)
+
+        # ... export recipient definition (the minimum)
+        self.recipdef.primary_idnum = idnum_type_nhs
 
         self.dbsession.flush()  # sets PK fields
 
@@ -354,7 +349,6 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         else:
             self.dbsession.add(patient)
 
-        self.dbsession.add(patient)
         self.dbsession.commit()
 
         return patient
@@ -386,6 +380,39 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         obj._current = True
         obj._adding_user_id = self.user.id
         obj._when_added_batch_utc = self.era_time_utc
+
+    def create_user(self, **kwargs) -> User:
+        user = User()
+        user.hashedpw = ""
+
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+
+        self.dbsession.add(user)
+
+        return user
+
+    def create_group(self, name: str, **kwargs) -> Group:
+        group = Group()
+        group.name = name
+
+        for key, value in kwargs.items():
+            setattr(group, key, value)
+
+        self.dbsession.add(group)
+
+        return group
+
+    def create_membership(self, user: User, group: Group,
+                          **kwargs) -> UserGroupMembership:
+        ugm = UserGroupMembership(user_id=user.id, group_id=group.id)
+
+        for key, value in kwargs.items():
+            setattr(ugm, key, value)
+
+        self.dbsession.add(ugm)
+
+        return ugm
 
     def tearDown(self) -> None:
         pass

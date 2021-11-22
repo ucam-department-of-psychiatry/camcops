@@ -31,7 +31,7 @@ camcops_server/templates/snippets/user_info_detail.mako
 <%!
 
 from camcops_server.cc_modules.cc_html import get_yes_no
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 
 %>
 
@@ -116,6 +116,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
     </tr>
     <tr>
+        <th>${ _("Groups this user can add/edit/delete patients in:") }</th>
+        <td>
+            ${ one_per_line(g.name for g in user.groups_user_may_manage_patients_in) | n }
+        </td>
+    </tr>
+    <tr>
+        <th>${ _("Groups this user can send emails to patients in:") }</th>
+        <td>
+            ${ one_per_line(g.name for g in user.groups_user_may_email_patients_in) | n }
+        </td>
+    </tr>
+    <tr>
         <th>${ _("Groups this user can see data from:") }</th>
         <td>
             ${ one_per_line(g.name for g in user.groups_user_may_see) | n }
@@ -180,6 +192,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${ _("May use webviewer?") }</th>
         ## TRANSLATOR: keep short; table heading in user_info_detail.mako
+        <th>${ _("May manage patients?") }</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
+        <th>${ _("May email patients?") }</th>
+        ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${ _("View all pts when unfiltered?") }</th>
         ## TRANSLATOR: keep short; table heading in user_info_detail.mako
         <th>${ _("May dump?") }</th>
@@ -201,15 +217,25 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td>${ get_yes_no(request, ugm.may_upload) }</td>
             <td>${ get_yes_no(request, ugm.may_register_devices) }</td>
             <td>${ get_yes_no(request, ugm.may_use_webviewer) }</td>
+            <td>${ get_yes_no(request, ugm.may_manage_patients) }</td>
+            <td>${ get_yes_no(request, ugm.may_email_patients) }</td>
             <td>${ get_yes_no(request, ugm.view_all_patients_when_unfiltered) }</td>
             <td>${ get_yes_no(request, ugm.may_dump_data) }</td>
             <td>${ get_yes_no(request, ugm.may_run_reports) }</td>
             <td>${ get_yes_no(request, ugm.may_add_notes) }</td>
             %if req.user.superuser or ugm.group_id in req.user.ids_of_groups_user_is_admin_for:
-                <td><a href="${ req.route_url(
-                                    Routes.EDIT_USER_GROUP_MEMBERSHIP,
-                                    _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id}
-                                ) | n }">${ _("Edit") }</a></td>
+                <td>
+                    ${ req.icon_text(
+                            icon=Icons.USER_PERMISSIONS,
+                            url=request.route_url(
+                                Routes.EDIT_USER_GROUP_MEMBERSHIP,
+                                _query={
+                                    ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id
+                                }
+                            ),
+                            text=_("Edit")
+                    ) | n }
+                </td>
             %endif
         </tr>
     %endfor

@@ -185,6 +185,7 @@ class Honos(HonosBase,
     """
     __tablename__ = "honos"
     shortname = "HoNOS"
+    info_filename_stem = "honos"
 
     q8problemtype = CamcopsColumn(
         "q8problemtype", CharColType,
@@ -359,6 +360,7 @@ class Honos65(HonosBase,
     """
     __tablename__ = "honos65"
     shortname = "HoNOS 65+"
+    info_filename_stem = "honos"
 
     q8problemtype = CamcopsColumn(
         "q8problemtype", CharColType,
@@ -523,6 +525,7 @@ class Honosca(HonosBase,
     """
     __tablename__ = "honosca"
     shortname = "HoNOSCA"
+    info_filename_stem = "honos"
 
     NQUESTIONS = 15
     QFIELDS = strseq("q", 1, NQUESTIONS)

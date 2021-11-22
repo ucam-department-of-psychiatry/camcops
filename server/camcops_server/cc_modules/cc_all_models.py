@@ -95,6 +95,7 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )
 
+
 # =============================================================================
 # Task imports
 # =============================================================================
@@ -110,6 +111,7 @@ from camcops_server.cc_modules.cc_user import (
 # noinspection PyUnresolvedReferences
 from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401,F403
 
+
 # =============================================================================
 # Other report imports
 # =============================================================================
@@ -117,13 +119,15 @@ from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401,F403
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_taskreports import TaskCountReport  # noqa: E501,F401
 
+
 # =============================================================================
 # Logging
 # =============================================================================
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-# log.critical("Loading cc_all_models")
+# log.debug("Loading cc_all_models")
+
 
 # =============================================================================
 # Ensure that anything with an AbstractConcreteBase gets its mappers
@@ -131,6 +135,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 configure_mappers()
+
 
 # =============================================================================
 # Tables (and fields) that clients can't touch
@@ -163,7 +168,7 @@ RESERVED_TABLE_NAMES = [
     User.__tablename__,
     UserGroupMembership.__tablename__,
 ]
-RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
+
 
 # =============================================================================
 # Catalogue tables that clients use

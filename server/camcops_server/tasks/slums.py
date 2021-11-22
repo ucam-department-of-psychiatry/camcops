@@ -345,23 +345,23 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         h += tr_qa(self.wxstring(req, "q3_s"), self.q3)
         h += tr("Q5 <sup>[2]</sup> (money spent, money left "
                 "[<i>scores 2</i>]",
-                ", ".join([answer(x) for x in [self.q5a, self.q5b]]))
+                ", ".join(answer(x) for x in (self.q5a, self.q5b)))
         h += tr_qa("Q6 (animal fluency) [<i>≥15 scores 3, 10–14 scores 2, "
                    "5–9 scores 1, 0–4 scores 0</i>]",
                    self.q6)
         h += tr("Q7 (recall: apple, pen, tie, house, car)",
-                ", ".join([answer(x) for x in [self.q7a, self.q7b, self.q7c,
-                                               self.q7d, self.q7e]]))
+                ", ".join(answer(x) for x in (self.q7a, self.q7b, self.q7c,
+                                              self.q7d, self.q7e)))
         h += tr("Q8 (backwards: 648, 8537)",
-                ", ".join([answer(x) for x in [self.q8b, self.q8c]]))
+                ", ".join(answer(x) for x in (self.q8b, self.q8c)))
         h += tr("Q9 (clock: hour markers, time [<i>score 2 each</i>]",
-                ", ".join([answer(x) for x in [self.q9a, self.q9b]]))
+                ", ".join(answer(x) for x in (self.q9a, self.q9b)))
         h += tr("Q10 (X in triangle; which is biggest?)",
-                ", ".join([answer(x) for x in [self.q10a, self.q10b]]))
+                ", ".join(answer(x) for x in (self.q10a, self.q10b)))
         h += tr("Q11 (story: Female’s name? Job? When back to work? "
                 "State she lived in? [<i>score 2 each</i>])",
-                ", ".join([answer(x) for x in [self.q11a, self.q11b,
-                                               self.q11c, self.q11d]]))
+                ", ".join(answer(x) for x in (self.q11a, self.q11b,
+                                              self.q11c, self.q11d)))
         h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">

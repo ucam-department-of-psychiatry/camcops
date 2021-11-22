@@ -66,7 +66,7 @@ def main() -> None:
 
     - https://bitbucket.org/zzzeek/alembic/issues/433/variant-base-not-taken-into-account-when
     - https://bitbucket.org/zzzeek/alembic/issues/131/create-special-rendering-for-variant
-    
+
     We deal with these via
     :func:`camcops_server.alembic.env.process_revision_directives` in
     ``env.py``.
@@ -130,12 +130,12 @@ Now:
       grep "mysql\." *.py
 
   ... should only show "sa.SOMETYPE().with_variant(mysql.MYSQLTYPE..."
-  
+
 - and
 
       grep "sa\.Variant" *.py
-      
-  ... suggests an error that should be "Sometype().with_variant(...)"; see 
+
+  ... suggests an error that should be "Sometype().with_variant(...)"; see
   source here.
 
     """)

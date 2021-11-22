@@ -28,24 +28,17 @@ camcops_server/templates/menu/change_own_password.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-%if expired:
-    <div class="important">
-        ${ _("Your password has expired and must be changed.") }
-    </div>
-%endif
-
-<h1>${ _("Change your password") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.PASSWORD_OWN,
+        text=_("Change your password")
+    ) | n }
+</h1>
 
 ${form | n}
-
-<div>
-    ${ _("Choose strong passphrases.") }
-    ${ _("See") }
-    <a href="https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0">
-        https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0</a>.
-</div>
-<div>
-    ${ _("Minimum password length is {} characters.").format(min_pw_length) }
-</div>

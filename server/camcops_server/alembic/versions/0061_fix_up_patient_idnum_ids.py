@@ -41,9 +41,11 @@ when adding a new patient.
 # Imports
 # =============================================================================
 
+import logging
+
 from alembic import op
 from sqlalchemy import orm
-
+from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session as SqlASession
@@ -53,6 +55,8 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_sqla_coltypes import EraColType
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -99,6 +103,9 @@ class PatientIdNum(Base):
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     bind = op.get_bind()
+    if isinstance(bind, MockEngineStrategy.MockConnection):
+        log.warning("Using mock connection; skipping step")
+        return
     session = orm.Session(bind=bind)
 
     for idnum in session.query(PatientIdNum):

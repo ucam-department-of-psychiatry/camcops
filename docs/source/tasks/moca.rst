@@ -46,7 +46,7 @@ http://www.mocatest.org
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © Ziad Nasreddin. See https://www.mocatest.org/.
+- Copyright © Ziad S. Nasreddine. See https://www.mocatest.org/.
 
 - Initially, in Sep 2012:
 

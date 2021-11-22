@@ -34,6 +34,7 @@ import datetime
 import gettext
 import logging
 import os
+import re
 import secrets
 from typing import (Any, Dict, Generator, List, Optional, Set,
                     Tuple, TYPE_CHECKING, Union)
@@ -48,6 +49,7 @@ from cardinal_pythonlib.datetimefunc import (
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.fileops import get_directory_contents_size, mkdir_p
+from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -77,7 +79,6 @@ from webob.multidict import MultiDict
 # imports as minimal as possible.
 from camcops_server.cc_modules.cc_baseconstants import (
     DOCUMENTATION_URL,
-    ENVVAR_CONFIG_FILE,
     TRANSLATIONS_DIR,
 )
 from camcops_server.cc_modules.cc_config import (
@@ -99,6 +100,7 @@ from camcops_server.cc_modules.cc_idnumdef import (
 from camcops_server.cc_modules.cc_language import (
     DEFAULT_LOCALE,
     GETTEXT_DOMAIN,
+    POSSIBLE_LOCALES,
 )
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
@@ -108,9 +110,12 @@ from camcops_server.cc_modules.cc_pyramid import (
     CamcopsAuthorizationPolicy,
     CookieKey,
     get_session_factory,
+    icon_html,
+    icon_text,
+    icons_text,
     Permission,
-    RequestMethod,
     RouteCollection,
+    Routes,
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
 from camcops_server.cc_modules.cc_response import camcops_response_factory
@@ -164,7 +169,7 @@ if any([DEBUG_ADD_ROUTES,
         DEBUG_GETTEXT,
         DEBUG_REQUEST_CREATION,
         DEBUG_TABLET_SESSION]):
-    log.warning("cc_request: Debugging options enabled!")
+    log.warning("Debugging options enabled!")
 
 
 # =============================================================================
@@ -191,6 +196,10 @@ class CamcopsRequest(Request):
     main thing passed all around the server, and embodies what we need to know
     about the client request -- including user information, ways of accessing
     the database, and so on.
+
+    It reads its config (on first demand) from the config file specified in
+    ``os.environ[ENVVAR_CONFIG_FILE]``.
+
     """
     def __init__(self, *args, **kwargs):
         """
@@ -335,7 +344,8 @@ class CamcopsRequest(Request):
     @reify
     def config_filename(self) -> str:
         """
-        Gets the CamCOPS config filename in use.
+        Gets the CamCOPS config filename in use, from the config file specified
+        in ``os.environ[ENVVAR_CONFIG_FILE]``.
         """
         return get_config_filename_from_os_env()
 
@@ -378,8 +388,8 @@ class CamcopsRequest(Request):
         and if it requests that, the cleanup callbacks (COMMIT or ROLLBACK) get
         installed.
         """
-        # log.critical("CamcopsRequest.dbsession: caller stack:\n{}",
-        #              "\n".join(get_caller_stack_info()))
+        # log.debug("CamcopsRequest.dbsession: caller stack:\n{}",
+        #           "\n".join(get_caller_stack_info()))
         _dbsession = self.get_bare_dbsession()
 
         def end_sqlalchemy_session(req: Request) -> None:
@@ -397,8 +407,8 @@ class CamcopsRequest(Request):
         self.add_finished_callback(end_sqlalchemy_session)
 
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.warning(
-                "Returning SQLAlchemy session as CamcopsRequest.dbsession")
+            log.debug("Returning SQLAlchemy session as "
+                      "CamcopsRequest.dbsession")
 
         return _dbsession
 
@@ -416,18 +426,18 @@ class CamcopsRequest(Request):
         session = self.dbsession
         if (self.exception is not None and
                 not isinstance(self.exception, HTTPException)):
-            log.critical(
-                "Request raised exception that wasn't an HTTPException; "
-                "rolling back; exception was: {!r}", self.exception)
+            log.critical("Request raised exception that wasn't an "
+                         "HTTPException; rolling back; exception was: {!r}",
+                         self.exception)
             session.rollback()
         else:
             if DEBUG_DBSESSION_MANAGEMENT:
-                log.warning("Committing to database")
+                log.debug("Committing to database")
             session.commit()
             if self._pending_export_push_requests:
                 self._process_pending_export_push_requests()
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.warning("Closing SQLAlchemy session")
+            log.debug("Closing SQLAlchemy session")
         session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
@@ -440,7 +450,7 @@ class CamcopsRequest(Request):
             log.debug("Request is using debugging SQLAlchemy session")
             return self._debugging_db_session
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.warning("Making SQLAlchemy session")
+            log.debug("Making SQLAlchemy session")
         engine = self.engine
         maker = sessionmaker(bind=engine)
         session = maker()  # type: SqlASession
@@ -572,6 +582,130 @@ class CamcopsRequest(Request):
         Returns the URL to the CamCOPS documentation.
         """
         return DOCUMENTATION_URL
+
+    # -------------------------------------------------------------------------
+    # Icons
+    # -------------------------------------------------------------------------
+
+    @staticmethod
+    def icon(icon: str,
+             alt: str,
+             url: str = None,
+             extra_classes: List[str] = None,
+             extra_styles: List[str] = None,
+             escape_alt: bool = True) -> str:
+        """
+        Instantiates a Bootstrap icon, usually with a hyperlink. Returns
+        rendered HTML.
+
+        Args:
+            icon:
+                Icon name, without ".svg" extension (or "bi-" prefix!).
+            alt:
+                Alternative text for image.
+            url:
+                Optional URL of hyperlink.
+            extra_classes:
+                Optional extra CSS classes for the icon.
+            extra_styles:
+                Optional extra CSS styles for the icon (each looks like:
+                "color: blue").
+            escape_alt:
+                HTML-escape the alt text? Default is True.
+        """
+        return icon_html(
+            icon=icon,
+            alt=alt,
+            url=url,
+            extra_classes=extra_classes,
+            extra_styles=extra_styles,
+            escape_alt=escape_alt
+        )
+
+    @staticmethod
+    def icon_text(icon: str,
+                  text: str,
+                  url: str = None,
+                  alt: str = None,
+                  extra_icon_classes: List[str] = None,
+                  extra_icon_styles: List[str] = None,
+                  extra_a_classes: List[str] = None,
+                  extra_a_styles: List[str] = None,
+                  escape_alt: bool = True,
+                  escape_text: bool = True,
+                  hyperlink_together: bool = False) -> str:
+        """
+        Provide an icon and accompanying text. Usually, both are hyperlinked
+        (to the same destination URL). Returns rendered HTML.
+
+        Args:
+            icon:
+                Icon name, without ".svg" extension.
+            url:
+                Optional URL of hyperlink.
+            alt:
+                Alternative text for image. Will default to the main text.
+            text:
+                Main text to display.
+            extra_icon_classes:
+                Optional extra CSS classes for the icon.
+            extra_icon_styles:
+                Optional extra CSS styles for the icon (each looks like:
+                "color: blue").
+            extra_a_classes:
+                Optional extra CSS classes for the <a> element.
+            extra_a_styles:
+                Optional extra CSS styles for the <a> element.
+            escape_alt:
+                HTML-escape the alt text?
+            escape_text:
+                HTML-escape the main text?
+            hyperlink_together:
+                Hyperlink the image and text as one (rather than separately and
+                adjacent to each other)?
+        """
+        return icon_text(
+            icon=icon,
+            text=text,
+            url=url,
+            alt=alt,
+            extra_icon_classes=extra_icon_classes,
+            extra_icon_styles=extra_icon_styles,
+            extra_a_classes=extra_a_classes,
+            extra_a_styles=extra_a_styles,
+            escape_alt=escape_alt,
+            escape_text=escape_text,
+            hyperlink_together=hyperlink_together
+        )
+
+    @staticmethod
+    def icons_text(icons: List[str],
+                   text: str,
+                   url: str = None,
+                   alt: str = None,
+                   extra_icon_classes: List[str] = None,
+                   extra_icon_styles: List[str] = None,
+                   extra_a_classes: List[str] = None,
+                   extra_a_styles: List[str] = None,
+                   escape_alt: bool = True,
+                   escape_text: bool = True,
+                   hyperlink_together: bool = False) -> str:
+        """
+        Multiple-icon version of :meth:``icon_text``.
+        """
+        return icons_text(
+            icons=icons,
+            text=text,
+            url=url,
+            alt=alt,
+            extra_icon_classes=extra_icon_classes,
+            extra_icon_styles=extra_icon_styles,
+            extra_a_classes=extra_a_classes,
+            extra_a_styles=extra_a_styles,
+            escape_alt=escape_alt,
+            escape_text=escape_text,
+            hyperlink_together=hyperlink_together
+        )
 
     # -------------------------------------------------------------------------
     # Low-level HTTP information
@@ -998,10 +1132,26 @@ class CamcopsRequest(Request):
         """
         if self.user is not None:
             language = self.user.language
-            if language:
+            if language in POSSIBLE_LOCALES:
                 return language
+
         # Fallback to default
         return self.config.language
+
+    @reify
+    def language_iso_639_1(self) -> str:
+        """
+        Returns the language code selected by the current user, or if none is
+        selected (or the user isn't logged in) the server's default language.
+
+        This assumes all the possible supported languages start with a
+        two-letter primary language tag, which currently they do.
+
+        Returns:
+            str: a two-letter language code of the form ``en``
+
+        """
+        return self.language[:2]
 
     def gettext(self, message: str) -> str:
         """
@@ -1554,6 +1704,9 @@ class CamcopsRequest(Request):
           - If any are invalid, raise an error.
           - If any are duplicate, raise an error.
 
+        - Holds a global export file lock for some database access relating to
+          export recipient records.
+
         Args:
             all_recipients: use all recipients?
             all_push_recipients: use all "push" recipients?
@@ -1713,6 +1866,8 @@ class CamcopsRequest(Request):
         from camcops_server.cc_modules.celery import export_task_backend  # delayed import  # noqa
 
         for recipient_name, basetable, task_pk in self._pending_export_push_requests:  # noqa
+            log.info("Submitting background job to export task {}.{} to {}",
+                     basetable, task_pk, recipient_name)
             export_task_backend.delay(
                 recipient_name=recipient_name,
                 basetable=basetable,
@@ -1899,8 +2054,10 @@ def camcops_pyramid_configurator_context(
         # Add all the routes:
         for pr in RouteCollection.all_routes():
             if DEBUG_ADD_ROUTES:
-                log.info("{} -> {}", pr.route, pr.path)
-            config.add_route(pr.route, pr.path)
+                suffix = (f", pregenerator={pr.pregenerator}"
+                          if pr.pregenerator else "")
+                log.info("Adding route: {} -> {}{}", pr.route, pr.path, suffix)
+            config.add_route(pr.route, pr.path, pregenerator=pr.pregenerator)
         # See also:
         # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
 
@@ -1913,7 +2070,8 @@ def camcops_pyramid_configurator_context(
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
         # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
-        config.scan("camcops_server.cc_modules")
+        config.scan("camcops_server.cc_modules",
+                    ignore=[re.compile("_tests$").search])
 
         # ---------------------------------------------------------------------
         # Add tweens (inner to outer)
@@ -1963,6 +2121,9 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
     Request class that allows manual manipulation of GET/POST parameters
     for debugging.
 
+    It reads its config (on first demand) from the config file specified in
+    ``os.environ[ENVVAR_CONFIG_FILE]``.
+
     Notes:
 
     - The important base class is :class:`webob.request.BaseRequest`.
@@ -2001,13 +2162,13 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
         """
         Sets the fictional request method to GET.
         """
-        self.method = RequestMethod.GET
+        self.method = HttpMethod.GET
 
     def set_method_post(self) -> None:
         """
         Sets the fictional request method to POST.
         """
-        self.method = RequestMethod.POST
+        self.method = HttpMethod.POST
 
     def clear_get_params(self) -> None:
         """
@@ -2131,21 +2292,36 @@ y.b  # 6
 def get_core_debugging_request() -> CamcopsDummyRequest:
     """
     Returns a basic :class:`CamcopsDummyRequest`.
+
+    It reads its config (on first demand) from the config file specified in
+    ``os.environ[ENVVAR_CONFIG_FILE]``.
     """
     with camcops_pyramid_configurator_context(debug_toolbar=False) as pyr_cfg:
         req = CamcopsDummyRequest(
             environ={
-                ENVVAR_CONFIG_FILE: "nonexistent_camcops_config_file.nonexistent",  # noqa
-                WsgiEnvVar.PATH_INFO: '/',
-                WsgiEnvVar.SCRIPT_NAME: '',
+                # In URL sequence:
+                WsgiEnvVar.WSGI_URL_SCHEME: 'http',
                 WsgiEnvVar.SERVER_NAME: '127.0.0.1',
                 WsgiEnvVar.SERVER_PORT: '8000',
-                WsgiEnvVar.WSGI_URL_SCHEME: 'http',
-            }
+                WsgiEnvVar.SCRIPT_NAME: '',
+                WsgiEnvVar.PATH_INFO: '/',
+            }  # environ parameter: goes to pyramid.testing.DummyRequest.__init__  # noqa
         )
         # ... must pass an actual dict to the "environ" parameter; os.environ
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
         # environ({'key1': 'value1', ...})
+
+        # Being a CamcopsRequest, this object will read a config file from
+        # os.environ[ENVVAR_CONFIG_FILE] -- not the environ dictionary above --
+        # when needed. That means we can now rewrite some of these URL
+        # components to give a valid external URL, if the config has the right
+        # information.
+        cfg = req.config
+        req.environ[WsgiEnvVar.WSGI_URL_SCHEME] = cfg.external_url_scheme
+        req.environ[WsgiEnvVar.SERVER_NAME] = cfg.external_server_name
+        req.environ[WsgiEnvVar.SERVER_PORT] = cfg.external_server_port
+        req.environ[WsgiEnvVar.SCRIPT_NAME] = cfg.external_script_name
+        # PATH_INFO remains "/"
 
         req.registry = pyr_cfg.registry
         pyr_cfg.begin(request=req)
@@ -2179,6 +2355,8 @@ def get_command_line_request(user_id: int = None) -> CamcopsRequest:
         req._debugging_user = User.get_user_by_id(
             req.dbsession, user_id)
 
+    log.debug("Command-line request: external URL is {}",
+              req.route_url(Routes.HOME))
     return req
 
 

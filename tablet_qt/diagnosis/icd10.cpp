@@ -124,7 +124,7 @@ void Icd10::addSubcodes(const QString& basecode,
                         const QString& basedesc,
                         const QVector<CodeDescriptionPair>& level1)
 {
-    for (auto extra1 : level1) {
+    for (const auto& extra1 : level1) {
         const QString code = QString("%1%2").arg(basecode, extra1.first);
         const QString desc = QString("%1: %2").arg(
                     basedesc, xstring(extra1.second));
@@ -138,12 +138,12 @@ void Icd10::addSubcodes(const QString& basecode,
                         const QVector<CodeDescriptionPair>& level1,
                         const QVector<CodeDescriptionPair>& level2)
 {
-    for (auto extra1 : level1) {
+    for (const auto& extra1 : level1) {
         const QString l1code = QString("%1%2").arg(basecode, extra1.first);
         const QString l1desc = QString("%1: %2").arg(
                     basedesc, xstring(extra1.second));
         addIndividualIcd10Code(l1code, l1desc);
-        for (auto extra2 : level2) {
+        for (const auto& extra2 : level2) {
             const QString l2code = QString("%1%2").arg(l1code, extra2.first);
             const QString l2desc = QString("%1: %2").arg(
                         l1desc, xstring(extra2.second));
@@ -238,8 +238,8 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
 void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
 {
     const bool alcohol = basecode == "F10";
-    for (auto cdp : SUBSTANCE_L1) {
-        const QString subcode = cdp.first;
+    for (const auto& cdp : SUBSTANCE_L1) {
+        const QString& subcode = cdp.first;
         if (!alcohol && subcode == ".07") {
             continue;
         }

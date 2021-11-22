@@ -51,6 +51,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
 from camcops_server.cc_modules.cc_constants import (
+    CAMCOPS_DEFAULT_FHIR_APP_ID,
     CONFIG_FILE_SITE_SECTION,
     ConfigDefaults,
     ConfigParamExportRecipient,
@@ -86,9 +87,21 @@ class ExportTransmissionMethod(object):
     """
     DATABASE = "database"
     EMAIL = "email"
+    FHIR = "fhir"
     FILE = "file"
     HL7 = "hl7"
     REDCAP = "redcap"
+
+
+NO_PUSH_METHODS = [
+    # Methods that do not support "push" exports (exports on receipt of a new
+    # task).
+
+    ExportTransmissionMethod.DATABASE,
+    # ... because these are large and it would probably be silly to export a
+    # whole database whenever a new task arrives. (Is there also a locking
+    # problem? Can't remember right now, 2021-11-08.)
+]
 
 
 ALL_TRANSMISSION_METHODS = [
@@ -139,6 +152,8 @@ class ExportRecipientInfo(object):
     IGNORE_FOR_EQ_ATTRNAMES = [
         # Attribute names to ignore for equality comparison
         "email_host_password",
+        "fhir_app_secret",
+        "fhir_launch_token",
         "redcap_api_key",
     ]
 
@@ -231,6 +246,14 @@ class ExportRecipientInfo(object):
         self.redcap_api_url = ""
         self.redcap_fieldmap_filename = ""
 
+        # FHIR
+
+        self.fhir_app_id = ""
+        self.fhir_api_url = ""
+        self.fhir_app_secret = ""  # not in database for security
+        self.fhir_launch_token = ""  # not in database for security
+        self.fhir_concurrent = False
+
         # Copy from other?
         if other is not None:
             assert isinstance(other, ExportRecipientInfo)
@@ -269,12 +292,12 @@ class ExportRecipientInfo(object):
             if attrname not in self.IGNORE_FOR_EQ_ATTRNAMES:
                 selfattr = getattr(self, attrname)
                 otherattr = getattr(other, attrname)
-                # log.critical("{}.{}: {} {} {}",
-                #              self.__class__.__name__,
-                #              attrname,
-                #              selfattr,
-                #              "==" if selfattr == otherattr else "!=",
-                #              otherattr)
+                # log.debug("{}.{}: {} {} {}",
+                #           self.__class__.__name__,
+                #           attrname,
+                #           selfattr,
+                #           "==" if selfattr == otherattr else "!=",
+                #           otherattr)
                 if selfattr != otherattr:
                     log.debug(
                         "{}: For {!r}, new export recipient mismatches "
@@ -524,6 +547,17 @@ class ExportRecipientInfo(object):
             r.redcap_fieldmap_filename = _get_str(cpr.REDCAP_FIELDMAP_FILENAME)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # FHIR
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if r.transmission_method == ExportTransmissionMethod.FHIR:
+            r.fhir_api_url = _get_str(cpr.FHIR_API_URL)
+            r.fhir_app_id = _get_str(cpr.FHIR_APP_ID,
+                                     CAMCOPS_DEFAULT_FHIR_APP_ID)
+            r.fhir_app_secret = _get_str(cpr.FHIR_APP_SECRET)
+            r.fhir_launch_token = _get_str(cpr.FHIR_LAUNCH_TOKEN)
+            r.fhir_concurrent = _get_bool(cpr.FHIR_CONCURRENT, False)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         r.validate_db_independent()
@@ -588,10 +622,9 @@ class ExportRecipientInfo(object):
             fail_invalid(
                 f"Missing/invalid {cpr.TRANSMISSION_METHOD}: "
                 f"{self.transmission_method}")
-        no_push = [ExportTransmissionMethod.DATABASE]
-        if self.push and self.transmission_method in no_push:
+        if self.push and self.transmission_method in NO_PUSH_METHODS:
             fail_invalid(f"Push notifications not supported for these "
-                         f"transmission methods: {no_push!r}")
+                         f"transmission methods: {NO_PUSH_METHODS!r}")
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
@@ -852,9 +885,15 @@ class ExportRecipientInfo(object):
 
     def using_hl7(self) -> bool:
         """
-        Is the recipient an HL7 recipient?
+        Is the recipient an HL7 v2 recipient?
         """
         return self.transmission_method == ExportTransmissionMethod.HL7
+
+    def using_fhir(self) -> bool:
+        """
+        Is the recipient a FHIR recipient?
+        """
+        return self.transmission_method == ExportTransmissionMethod.FHIR
 
     def anonymous_ok(self) -> bool:
         """
@@ -862,7 +901,8 @@ class ExportRecipientInfo(object):
         """
         return self.include_anonymous and not (
             # Methods that require patient identification:
-            self.using_hl7()
+            self.using_hl7() or
+            self.using_fhir()
         )
 
     def is_incremental(self) -> bool:

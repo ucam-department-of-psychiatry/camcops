@@ -130,7 +130,7 @@ void Icd9cm::addSubcodes(const QString& basecode,
                          const QString& basedesc,
                          const QVector<CodeDescriptionPair>& level1)
 {
-    for (auto extra1 : level1) {
+    for (const auto& extra1 : level1) {
         const QString code = QString("%1%2").arg(basecode, extra1.first);
         const QString desc = QString("%1, %2").arg(
                     basedesc, xstring(extra1.second));

@@ -66,6 +66,9 @@ class TrackerLabel(object):
         self.label = label
         self.vertical_alignment = vertical_alignment
 
+    def __str__(self) -> str:
+        return f"{self.y}: {self.label}"
+
 
 class TrackerAxisTick(object):
     """

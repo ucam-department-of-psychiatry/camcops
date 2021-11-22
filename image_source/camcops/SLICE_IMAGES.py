@@ -200,9 +200,8 @@ def get_pdf_print_size_inches(filename: str,
         log.critical("p1args: {!r}", p1args)
         log.critical("p2args: {!r}", p2args)
         log.critical("output: {!r}", output)
-        log.warning(
-            "If the error is 'not authorized' from ImageMagick's identify "
-            "tool, see source code")
+        log.warning("If the error is 'not authorized' from ImageMagick's "
+                    "identify tool, see source code")
         raise
     width, height = info.split('x')
     return float(width), float(height)
@@ -610,7 +609,7 @@ def main() -> None:
     require(GREP[0])
     require(IDENTIFY[0])
     if WINDOWS:
-        require(GHOSTSCRIPT_WINDOWS)    
+        require(GHOSTSCRIPT_WINDOWS)
 
     if args.all:
         args.android = True
@@ -647,7 +646,7 @@ def main() -> None:
     docs_appicon_image_dir = join(args.base_dir, "docs", "source",
                                   "_app_icons")
     all_tablet_icon_dirs = [tablet_icon_dir, docs_appicon_image_dir]
-    
+
     def mk_appicon(filename: str, side_px: int,
                    windows_multires_icon: bool = False) -> None:
         make_appicon(filename, side_px, verbose=args.verbose,
@@ -656,11 +655,11 @@ def main() -> None:
     def mk_splashscreen(filename: str, width_px: int, height_px: int) -> None:
         make_splashscreen(filename, width_px, height_px, verbose=args.verbose)
 
-    def mk_feature_graphic(filename: str, width_px: int, 
+    def mk_feature_graphic(filename: str, width_px: int,
                            height_px: int) -> None:
-        make_feature_graphic(filename, width_px, height_px, 
+        make_feature_graphic(filename, width_px, height_px,
                              verbose=args.verbose)
-        
+
     def servercrop(source: str, dest: str, dest_width_px: int) -> None:
         crop_pdf(source, dest, dest_width_px=dest_width_px, autocrop=True,
                  verbose=args.verbose)

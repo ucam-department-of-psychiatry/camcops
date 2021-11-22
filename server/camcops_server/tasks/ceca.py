@@ -26,7 +26,7 @@ camcops_server/tasks/ceca.py
 
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -1641,7 +1641,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             total += value
         return total
 
-    def total_nonzero_scores_1_abort_if_none(self, fields: List[str]) \
+    def total_nonzero_scores_1_abort_if_none(self, fields: Sequence[str]) \
             -> Optional[int]:
         total = 0
         for field in fields:
@@ -1676,14 +1676,14 @@ class CecaQ3(TaskHasPatientMixin, Task):
         if self.s2a_which_mother_figure == 0:
             return None
         total = 0
-        for i in [1, 4, 6, 8, 9, 10, 11, 16]:
+        for i in (1, 4, 6, 8, 9, 10, 11, 16):
             score = getattr(self, "s2a_q" + str(i))
             if i == 16 and score is None:
                 # Q16 is allowed to be blank (if no siblings)
                 score = 0
             if score is None:
                 return None
-            if i in [8, 11]:
+            if i in (8, 11):
                 score = 6 - score  # reverse
             total += score
         return total
@@ -1692,14 +1692,14 @@ class CecaQ3(TaskHasPatientMixin, Task):
         if self.s3a_which_father_figure == 0:
             return None
         total = 0
-        for i in [1, 4, 6, 8, 9, 10, 11, 16]:
+        for i in (1, 4, 6, 8, 9, 10, 11, 16):
             score = getattr(self, "s3a_q" + str(i))
             if i == 16 and score is None:
                 # Q16 is allowed to be blank (if no siblings)
                 score = 0
             if score is None:
                 return None
-            if i in [8, 11]:
+            if i in (8, 11):
                 score = 6 - score  # reverse
             total += score
         return total
@@ -1708,11 +1708,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         if self.s2a_which_mother_figure == 0:
             return None
         total = 0
-        for i in [2, 3, 5, 7, 12, 13, 14, 15]:
+        for i in (2, 3, 5, 7, 12, 13, 14, 15):
             score = getattr(self, "s2a_q" + str(i))
             if score is None:
                 return None
-            if i in [2, 3, 5, 12, 13, 14]:
+            if i in (2, 3, 5, 12, 13, 14):
                 score = 6 - score  # reverse
             total += score
         return total
@@ -1721,11 +1721,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         if self.s3a_which_father_figure == 0:
             return None
         total = 0
-        for i in [2, 3, 5, 7, 12, 13, 14, 15]:
+        for i in (2, 3, 5, 7, 12, 13, 14, 15):
             score = getattr(self, "s3a_q" + str(i))
             if score is None:
                 return None
-            if i in [2, 3, 5, 12, 13, 14]:
+            if i in (2, 3, 5, 12, 13, 14):
                 score = 6 - score  # reverse
             total += score
         return total
@@ -1772,9 +1772,9 @@ class CecaQ3(TaskHasPatientMixin, Task):
         return total
 
     def physical_abuse_screen(self) -> Optional[int]:
-        fields = [
-            "s5c_physicalabuse"
-        ]
+        fields = (
+            "s5c_physicalabuse",
+        )  # tuple of length 1 -- requires the comma
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
     def physical_abuse_severity_mother(self) -> Optional[int]:
@@ -1782,11 +1782,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
             return 0
         if self.s5c_abused_by_mother == 0:
             return 0
-        mainfields = [
+        mainfields = (
             "s5c_mother_hit_more_than_once",
             "s5c_mother_injured",
             "s5c_mother_out_of_control"
-        ]
+        )
         total = self.total_nonzero_scores_1_abort_if_none(mainfields)
         if total is None:
             return None
@@ -1801,11 +1801,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
             return 0
         if self.s5c_abused_by_father == 0:
             return 0
-        mainfields = [
+        mainfields = (
             "s5c_father_hit_more_than_once",
             "s5c_father_injured",
             "s5c_father_out_of_control"
-        ]
+        )
         total = self.total_nonzero_scores_1_abort_if_none(mainfields)
         if total is None:
             return None
@@ -1816,17 +1816,17 @@ class CecaQ3(TaskHasPatientMixin, Task):
         return total
 
     def sexual_abuse_screen(self) -> Optional[int]:
-        fields = [
+        fields = (
             "s6_any_unwanted_sexual_experience",
             "s6_unwanted_intercourse",
             "s6_upsetting_sexual_adult_authority"
-        ]
+        )
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
     def sexual_abuse_score_first(self) -> Optional[int]:
         if self.sexual_abuse_screen() == 0:
             return 0
-        fields = [
+        fields = (
             "s6_first_person_known",
             "s6_first_relative",
             "s6_first_in_household",
@@ -1834,13 +1834,13 @@ class CecaQ3(TaskHasPatientMixin, Task):
             "s6_first_touch_privates_subject",
             "s6_first_touch_privates_other",
             "s6_first_intercourse"
-        ]
+        )
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
     def sexual_abuse_score_other(self) -> Optional[int]:
         if self.sexual_abuse_screen() == 0:
             return 0
-        fields = [
+        fields = (
             "s6_other_person_known",
             "s6_other_relative",
             "s6_other_in_household",
@@ -1848,7 +1848,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             "s6_other_touch_privates_subject",
             "s6_other_touch_privates_other",
             "s6_other_intercourse"
-        ]
+        )
         return self.total_nonzero_scores_1_abort_if_none(fields)
 
     # -------------------------------------------------------------------------

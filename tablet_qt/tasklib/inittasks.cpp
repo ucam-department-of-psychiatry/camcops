@@ -52,9 +52,11 @@
 #include "tasks/contactlog.h"
 #include "tasks/copebrief.h"
 #include "tasks/core10.h"
+#include "tasks/cpftcovidmedical.h"
 #include "tasks/cpftlpsdischarge.h"
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
+#include "tasks/cpftresearchpreferences.h"
 #include "tasks/ctqsf.h"
 
 #include "tasks/dad.h"
@@ -205,9 +207,11 @@ void InitTasks(TaskFactory& factory)
     initializeContactLog(factory);
     initializeCopeBrief(factory);
     initializeCore10(factory);
+    initializeCPFTCovidMedical(factory);
     initializeCPFTLPSDischarge(factory);
     initializeCPFTLPSReferral(factory);
     initializeCPFTLPSResetResponseClock(factory);
+    initializeCPFTResearchPreferences(factory);
     // *** // initializeCtqsf(factory);
 
     initializeDad(factory);

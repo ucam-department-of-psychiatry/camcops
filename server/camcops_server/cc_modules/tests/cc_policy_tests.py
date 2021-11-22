@@ -252,7 +252,7 @@ class PolicyTests(ExtendedTestCase):
 
         for tp in test_policies:
             policy_string = tp.policy
-            log.warning("Testing {!r}", policy_string)
+            log.info("Testing {!r}", policy_string)
             p = TokenizedPolicy(policy_string)
             p.set_valid_idnums(valid_idnums)
 

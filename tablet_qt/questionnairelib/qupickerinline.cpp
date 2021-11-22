@@ -62,9 +62,9 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
     const bool read_only = questionnaire->readOnly();
     m_cbox = new QComboBox();
     m_cbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    for (int i = 0; i < m_options.size(); ++i) {
-        const NameValuePair& nvp = m_options.at(i);
-        m_cbox->insertItem(i, nvp.name().left(MAX_LENGTH));
+    for (int position = 0; position < m_options.size(); ++position) {
+        const NameValuePair& nvp = m_options.atPosition(position);
+        m_cbox->insertItem(position, nvp.name().left(MAX_LENGTH));
         // No real point in passing the third QVariant parameter.
     }
     // QComboBox has two signals named currentIndexChanged, differing only
@@ -74,8 +74,11 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
     // Disambiguate like this:
     void (QComboBox::*ic_signal)(int) = &QComboBox::currentIndexChanged;
     if (!read_only) {
+        // The currentIndex on the QCombobox is what we are calling the position
+        // of the item in the list of options (the index being the original,
+        // unrandomized position).
         connect(m_cbox.data(), ic_signal,
-                this, &QuPickerInline::currentIndexChanged);
+                this, &QuPickerInline::currentItemChanged);
     }
     m_cbox->setEnabled(!read_only);
     m_cbox->setObjectName(cssconst::PICKER_INLINE);
@@ -84,13 +87,13 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 }
 
 
-void QuPickerInline::currentIndexChanged(const int index)
+void QuPickerInline::currentItemChanged(const int position)
 {
-    // qDebug().nospace() << "QuPickerInline::currentIndexChanged(" << index << ")";
-    if (!m_options.validIndex(index)) {
+    // qDebug().nospace() << "QuPickerInline::currentItemChanged(" << position << ")";
+    if (!m_options.validIndex(position)) {
         return;
     }
-    const QVariant newvalue = m_options.at(index).value();
+    const QVariant newvalue = m_options.atPosition(position).value();
     const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
