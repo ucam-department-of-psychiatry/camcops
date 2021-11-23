@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-# docs/rebuild_docs_and_distribute.py
 
 """
-..
+docs/rebuild_docs.py
 
 ===============================================================================
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -21,9 +22,9 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
+
 ===============================================================================
 
-..
 """
 
 import os
