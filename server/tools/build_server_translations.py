@@ -70,7 +70,7 @@ SOURCE_DIRS = [CAMCOPS_SERVER_DIRECTORY]  # it recurses below this directory
 
 PROJECT_NAME = "CamCOPS"
 COPYRIGHT_HOLDER = "Rudolf Cardinal"
-MSGID_BUGS_ADDR = "rudolf@pobox.com"
+MSGID_BUGS_ADDR = "rnc1001@cam.ac.uk"
 CHARSET = "utf-8"
 
 ENVVAR_POEDIT = "POEDIT"

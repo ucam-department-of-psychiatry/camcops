@@ -22,4 +22,4 @@
     Copyright details (and any special restrictions) are given below on the
     pages pertaining to individual tasks. If you think a task is here in error
     (i.e. that we have erred in our assesment of its copyright status), please
-    contact us immediately (at rudolf@pobox.com).
+    contact us immediately (at rnc1001@cam.ac.uk).

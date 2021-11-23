@@ -427,6 +427,8 @@ usage: camcops_server show_export_queue [-h] [-v] [--config CONFIG]
                                         [--recipients [RECIPIENTS [RECIPIENTS ...]]]
                                         [--all_recipients]
                                         [--disable_task_index] [--pretty]
+                                        [--debug_show_fhir]
+                                        [--debug_fhir_include_docs]
 
 View outbound export queue (without sending)
 
@@ -444,6 +446,10 @@ optional arguments:
                         (default: False)
   --pretty              Pretty (but slower) formatting for tasks (default:
                         False)
+  --debug_show_fhir     Show FHIR output for tasks (default: False)
+  --debug_fhir_include_docs
+                        (If --debug_show_fhir) Included FHIR documents? Large.
+                        (default: False)
 
 ===============================================================================
 Help for command 'crate_dd'

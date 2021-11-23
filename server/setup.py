@@ -205,7 +205,7 @@ setup(
 
     # Author details
     author='Rudolf Cardinal',
-    author_email='rudolf@pobox.com',
+    author_email='rnc1001@cam.ac.uk',
 
     # Choose your license
     license='GNU General Public License v3 or later (GPLv3+)',
