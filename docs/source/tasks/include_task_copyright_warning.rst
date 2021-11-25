@@ -1,6 +1,7 @@
 ..  docs/source/tasks/include_task_copyright_warning.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -21,4 +22,4 @@
     Copyright details (and any special restrictions) are given below on the
     pages pertaining to individual tasks. If you think a task is here in error
     (i.e. that we have erred in our assesment of its copyright status), please
-    contact us immediately (at rudolf@pobox.com).
+    contact us immediately (at rnc1001@cam.ac.uk).

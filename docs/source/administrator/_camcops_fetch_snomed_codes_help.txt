@@ -14,7 +14,7 @@ optional arguments:
                         api/snomed)
   --edition EDITION     SNOMED CT edition (default: uk-edition)
   --release RELEASE     Snomed release identifier (version) (default:
-                        v20191001)
+                        v20210929)
   --language LANGUAGE   Language (default: english)
   --rate_limit_hz RATE_LIMIT_HZ
                         Maximum number of requests per second (default: 1)

@@ -1,6 +1,7 @@
 ..  docs/source/changelog.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -3616,3 +3617,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Add page of random test NHS numbers for testing.
 
 - Icons for web site (using Bootstrap open-source icons).
+
+- Copyright transfer to the University of Cambridge, Department of Psychiatry
+  (2021-11-23). Remains under a fully open source licence, the GPL v3+.

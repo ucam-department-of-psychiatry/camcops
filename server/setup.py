@@ -5,7 +5,8 @@ setup.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -204,7 +205,7 @@ setup(
 
     # Author details
     author='Rudolf Cardinal',
-    author_email='rudolf@pobox.com',
+    author_email='rnc1001@cam.ac.uk',
 
     # Choose your license
     license='GNU General Public License v3 or later (GPLv3+)',

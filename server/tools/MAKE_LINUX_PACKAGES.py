@@ -5,7 +5,8 @@ tools/MAKE_LINUX_PACKAGES.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -422,7 +423,7 @@ def check_prerequisites() -> None:
 
 def get_man_page_camcops_server() -> str:
     return r""".\" Manpage for {SETUPSCRIPTNAME}.
-.\" Contact rudolf@pobox.com to correct errors or typos.
+.\" Contact rnc1001@cam.ac.uk to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{SETUPSCRIPTNAME} man page"
 
 .SH NAME
@@ -474,7 +475,7 @@ show all options
 https://camcops.readthedocs.io/
 
 .SH AUTHOR
-Rudolf Cardinal (rudolf@pobox.com)
+Rudolf Cardinal (rnc1001@cam.ac.uk)
     """.format(
         SETUPSCRIPTNAME=SETUPSCRIPTNAME,
         CHANGEDATE=CHANGEDATE,
@@ -484,7 +485,7 @@ Rudolf Cardinal (rudolf@pobox.com)
 
 def get_man_page_camcops_server_meta() -> str:
     return r""".\" Manpage for {METASCRIPTNAME}.
-.\" Contact rudolf@pobox.com to correct errors or typos.
+.\" Contact rnc1001@cam.ac.uk to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{METASCRIPTNAME} man page"
 
 .SH NAME
@@ -497,7 +498,7 @@ show all options
 https://camcops.readthedocs.io/
 
 .SH AUTHOR
-Rudolf Cardinal (rudolf@pobox.com)
+Rudolf Cardinal (rnc1001@cam.ac.uk)
     """.format(
         METASCRIPTNAME=METASCRIPTNAME,
         CHANGEDATE=CHANGEDATE,
@@ -528,7 +529,7 @@ Version: {DEBVERSION}
 Section: science
 Priority: optional
 Architecture: all
-Maintainer: Rudolf Cardinal <rudolf@pobox.com>
+Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
 X-Python3-Version: >= 3.7, <= 3.9
 Recommends: mysql-workbench
@@ -565,7 +566,7 @@ def get_changelog() -> str:
     https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
   * Note that newer entries are at the top.
 
- -- Rudolf Cardinal <rudolf@pobox.com>  {now}
+ -- Rudolf Cardinal <rnc1001@cam.ac.uk>  {now}
 
     """.format(
         CAMCOPS_SERVER_VERSION_STRING=CAMCOPS_SERVER_VERSION_STRING,
@@ -794,7 +795,8 @@ CAMCOPS
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
