@@ -72,7 +72,7 @@ INSTALL_REQUIRES = [
     'asteval==0.9.25',  # safe-ish alternative to eval
 
     'cardinal_pythonlib==1.1.15',  # RNC libraries
-    'celery==4.4.6',  # background tasks
+    'celery==5.2.0',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
 
@@ -90,7 +90,7 @@ INSTALL_REQUIRES = [
     'Faker==4.1.1',  # create fake data; for dummy database creation
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     'fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1',  # noqa: E501
-    'flower==0.9.4',  # monitor for Celery
+    'flower==1.0.0',  # monitor for Celery
 
     'gunicorn==20.1.0',  # web server (Unix only)
 
@@ -180,7 +180,7 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
 
     'alabaster==0.7.12',  # for sphinx
-    'amqp==2.6.0',  # for celery
+    'amqp==5.0.6',  # for celery
     'Chameleon==3.8.1',  # for Deform
     'tornado==6.1',  # for celery
     'webob==1.8.6',  # for pyramid

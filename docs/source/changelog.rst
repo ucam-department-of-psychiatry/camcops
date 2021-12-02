@@ -3620,3 +3620,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Copyright transfer to the University of Cambridge, Department of Psychiatry
   (2021-11-23). Remains under a fully open source licence, the GPL v3+.
+
+- ``kombu`` (not a direct dependency) requires an upgrade from 4.6.11 to 5.2.1
+  (security fix), and ``celery`` from 4.4.6 to 5.2.0 in consequence, then
+  ``amqp`` from 2.6.0 to 5.0.6 in consequence. Thus, change syntax in
+  ``launch_celery_beat`` function from ``celery beat --app APPNAME ...`` to
+  ``celery --app APPNAME beat ...``, and likewise for ``worker`` in the
+  function ``launch_celery_workers``, and ``flower`` in
+  ``launch_celery_flower``. Also bump ``flower`` from 0.9.4 to 1.0.0 as it
+  stopped working otherwise.

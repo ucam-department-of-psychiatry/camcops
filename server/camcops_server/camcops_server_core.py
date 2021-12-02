@@ -850,8 +850,9 @@ def launch_celery_workers(
     """  # noqa: E501
     config = get_default_config_from_os_env()
     cmdargs = [
-        CELERY, "worker",
+        CELERY,
         "--app", CELERY_APP_NAME,
+        "worker",
         "-O", "fair",  # optimization
         "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
         "--loglevel", "DEBUG" if verbose else "INFO",
@@ -881,8 +882,9 @@ def launch_celery_beat(
     ensure_directories_exist()
     config = get_default_config_from_os_env()
     cmdargs = [
-        CELERY, "beat",
+        CELERY,
         "--app", CELERY_APP_NAME,
+        "beat",
         "--schedule", config.celery_beat_schedule_database,
         "--pidfile", config.get_celery_beat_pidfilename(),
         "--loglevel", "DEBUG" if verbose else "INFO",
@@ -900,8 +902,9 @@ def launch_celery_flower(
     Launch the Celery Flower monitor.
     """
     cmdargs = [
-        CELERY, "flower",
+        CELERY,
         "--app", CELERY_APP_NAME,
+        "flower",
         f"--address {address}",
         f"--port {port}",
     ]
