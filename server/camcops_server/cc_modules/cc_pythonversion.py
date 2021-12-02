@@ -45,6 +45,10 @@ Not yet available:
 - string prefix/suffix removal functions (v3.9)
 - use of generics like ``list`` (not just ``List``) for type hinting (v3.9)
 
+- ``match/case`` statement, like C++'s ``switch`` (v3.10)
+- ``|`` as well as ``Union`` for type hints (v3.10)
+- explicit ``typing.TypeAlias`` annotation (v3.10)
+
 Note that one can set the environment variable ``PYTHONDEVMODE=1`` to enable
 extra checks, such as whether there are deprecation warnings with newer Python
 versions.
