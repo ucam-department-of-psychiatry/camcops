@@ -5,7 +5,8 @@ camcops_server/tasks/hads.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -368,6 +369,7 @@ class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     extrastring_taskname = "hads"
+    info_filename_stem = extrastring_taskname
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

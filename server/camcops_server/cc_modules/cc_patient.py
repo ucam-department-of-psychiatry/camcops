@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_patient.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,8 +42,15 @@ from cardinal_pythonlib.datetimefunc import (
     get_age,
     PotentialDatetimeType,
 )
+from cardinal_pythonlib.json.typing_helpers import JsonObjectType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+from fhirclient.models.address import Address
+from fhirclient.models.contactpoint import ContactPoint
+from fhirclient.models.humanname import HumanName
+from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.identifier import Identifier
+from fhirclient.models.patient import Patient as FhirPatient
 import hl7
 import pendulum
 from sqlalchemy.ext.declarative import declared_attr
@@ -59,15 +67,20 @@ from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
+    FHIRConst as Fc,
     FP_ID_DESC,
     FP_ID_SHORT_DESC,
     FP_ID_NUM,
     SEX_FEMALE,
     SEX_MALE,
+    SEX_OTHER_UNSPECIFIED,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
-from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_fhir import (
+    fhir_pk_identifier,
+    make_fhir_bundle_entry,
+)
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -106,6 +119,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskschedule import PatientTaskSchedule
+    from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -861,6 +875,121 @@ class Patient(GenericTabletRecordMixin, Base):
         )
 
     # -------------------------------------------------------------------------
+    # FHIR
+    # -------------------------------------------------------------------------
+
+    def get_fhir_bundle_entry(self,
+                              req: "CamcopsRequest",
+                              recipient: "ExportRecipient") -> Dict[str, Any]:
+        """
+        Returns a dictionary, suitable for serializing to JSON, that
+        encapsulates patient identity information in a FHIR bundle.
+
+        See https://www.hl7.org/fhir/patient.html.
+        """
+        # The JSON objects we will build up:
+        patient_dict = {}  # type: JsonObjectType
+
+        # Name
+        if self.forename or self.surname:
+            name_dict = {}  # type: JsonObjectType
+            if self.forename:
+                name_dict[Fc.NAME_GIVEN] = [self.forename]
+            if self.surname:
+                name_dict[Fc.NAME_FAMILY] = self.surname
+            patient_dict[Fc.NAME] = [HumanName(jsondict=name_dict).as_json()]
+
+        # DOB
+        if self.dob:
+            patient_dict[Fc.BIRTHDATE] = format_datetime(
+                self.dob, DateFormat.FILENAME_DATE_ONLY)
+
+        # Sex/gender (should always be present, per client minimum ID policy)
+        if self.sex:
+            gender_lookup = {
+                SEX_FEMALE: Fc.GENDER_FEMALE,
+                SEX_MALE: Fc.GENDER_MALE,
+                SEX_OTHER_UNSPECIFIED: Fc.GENDER_OTHER,
+            }
+            patient_dict[Fc.GENDER] = gender_lookup.get(self.sex,
+                                                        Fc.GENDER_UNKNOWN)
+
+        # Address
+        if self.address:
+            patient_dict[Fc.ADDRESS] = [
+                Address(jsondict={
+                    Fc.ADDRESS_TEXT: self.address
+                }).as_json()
+            ]
+
+        # Email
+        if self.email:
+            patient_dict[Fc.TELECOM] = [
+                ContactPoint(jsondict={
+                    Fc.SYSTEM: Fc.TELECOM_SYSTEM_EMAIL,
+                    Fc.VALUE: self.email
+                }).as_json()
+            ]
+
+        # General practitioner (GP): via
+        # fhirclient.models.fhirreference.FHIRReference; too structured.
+
+        # ID numbers go here:
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_PATIENT,
+            identifier=self.get_fhir_identifier(req, recipient),
+            resource=FhirPatient(jsondict=patient_dict).as_json()
+        )
+
+    def get_fhir_identifier(self,
+                            req: "CamcopsRequest",
+                            recipient: "ExportRecipient") -> Identifier:
+        """
+        Returns a FHIR identifier for this patient, as a
+        :class:`fhirclient.models.identifier.Identifier` object.
+
+        This pairs a URL to our CamCOPS server indicating the ID number type
+        (as the "system") with the actual ID number (as the "value").
+
+        For debugging situations, it falls back to a default identifier (using
+        the PK on our CamCOPS server).
+        """
+        which_idnum = recipient.primary_idnum
+        try:
+            # For real exports, the fact that the patient does have an ID
+            # number of the right type will have been pre-verified.
+            if which_idnum is None:
+                raise AttributeError
+            idnum_object = self.get_idnum_object(which_idnum)
+            idnum_value = idnum_object.idnum_value  # may raise AttributeError
+            iddef = req.get_idnum_definition(which_idnum)
+            idnum_url = iddef.effective_fhir_id_system(req)
+            return Identifier(jsondict={
+                Fc.SYSTEM: idnum_url,
+                Fc.VALUE: str(idnum_value),
+            })
+        except AttributeError:
+            # We are probably in a debugging/drafting situation. Fall back to
+            # a default identifier.
+            return fhir_pk_identifier(
+                req, self.__tablename__, self.pk,
+                Fc.CAMCOPS_VALUE_PATIENT_WITHIN_TASK
+            )
+
+    def get_fhir_subject_ref(
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> Dict:
+        """
+        Returns a FHIRReference (in JSON dict format) used to refer to this
+        patient as a "subject" of some other entry (like a questionnaire).
+        """
+        return FHIRReference(jsondict={
+            Fc.TYPE: Fc.RESOURCE_TYPE_PATIENT,
+            Fc.IDENTIFIER: self.get_fhir_identifier(req, recipient).as_json(),
+        }).as_json()
+
+    # -------------------------------------------------------------------------
     # Database status
     # -------------------------------------------------------------------------
 
@@ -936,24 +1065,14 @@ class Patient(GenericTabletRecordMixin, Base):
         super().delete_with_dependants(req)
 
     # -------------------------------------------------------------------------
-    # Editing
+    # Permissions
     # -------------------------------------------------------------------------
 
-    def is_finalized(self) -> bool:
+    def user_may_view(self, user: "User") -> bool:
         """
-        Is the patient finalized (no longer available to be edited on the
-        client device), and therefore editable on the server?
+        May this user inspect patient details directly?
         """
-        if self._era == ERA_NOW:
-            # Not finalized; no editing on server
-            return False
-        return True
-
-    def created_on_server(self, req: "CamcopsRequest") -> bool:
-        server_device = Device.get_server_device(req.dbsession)
-
-        return (self._era == ERA_NOW and
-                self._device_id == server_device.id)
+        return self._group_id in user.ids_of_groups_user_may_see
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         """

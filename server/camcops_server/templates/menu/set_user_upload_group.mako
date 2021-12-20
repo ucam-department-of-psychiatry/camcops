@@ -5,7 +5,8 @@ camcops_server/templates/menu/set_user_upload_group.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,9 +29,19 @@ camcops_server/templates/menu/set_user_upload_group.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>Set upload group for user ${ user.username }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.UPLOAD,
+        text=_("Set upload group for user")
+    ) | n }
+    ${ user.username }
+</h1>
 
 <div class="important">
     ${ _("A group must be selected for the server to permit uploads.") }

@@ -5,7 +5,8 @@ camcops_server/templates/menu/device_forcibly_finalize_choose.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,9 +29,18 @@ camcops_server/templates/menu/device_forcibly_finalize_choose.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Forcibly finalize a device") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.FORCE_FINALIZE,
+        text=_("Forcibly finalize a device")
+    ) | n }
+</h1>
 
 <h2>${ _("Step 1: choose a device") }</h2>
 

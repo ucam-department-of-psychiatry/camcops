@@ -5,7 +5,8 @@ camcops_server/camcops_server_core.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -120,11 +121,12 @@ from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_SOFT_TIME_LIMIT_SEC,
 )
 log.info("Imports complete")
-log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
+log.info("Using {} task types", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
     from pyramid.router import Router  # noqa: F401
     from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa: E501,F401
+
 
 # =============================================================================
 # Other constants
@@ -174,7 +176,9 @@ def join_url_fragments(*fragments: str) -> str:
 
 def precache() -> None:
     """
-    Populates the major caches.
+    Populates the major caches. (These are process-wide caches, e.g. using
+    dogpile's ``@cache_region_static.cache_on_arguments``, not config-specific
+    caches.)
     """
     log.info("Prepopulating caches")
     config_filename = get_config_filename_from_os_env()
@@ -555,24 +559,35 @@ def get_new_password_from_cli(username: str) -> str:
 def cmd_show_export_queue(recipient_names: List[str] = None,
                           all_recipients: bool = False,
                           via_index: bool = True,
-                          pretty: bool = False) -> None:
+                          pretty: bool = False,
+                          debug_show_fhir: bool = False,
+                          debug_fhir_include_docs: bool = False) -> None:
     """
     Shows tasks that would be exported.
 
     Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
-            it has to query the patient)
+        recipient_names:
+            List of export recipient names (as per the config file).
+        all_recipients:
+            Use all recipients?
+        via_index:
+            Use the task index (faster)?
+        pretty:
+            Use ``str(task)`` not ``repr(task)``? (Prettier, but slower because
+            it has to query the patient.)
+        debug_show_fhir:
+            Show FHIR output for each task, as JSON?
+        debug_fhir_include_docs:
+            (If debug_show_fhir.) Include document content? Large!
     """
     with command_line_request_context() as req:
         print_export_queue(req,
                            recipient_names=recipient_names,
                            all_recipients=all_recipients,
                            via_index=via_index,
-                           pretty=pretty)
+                           pretty=pretty,
+                           debug_show_fhir=debug_show_fhir,
+                           debug_fhir_include_docs=debug_fhir_include_docs)
 
 
 def cmd_export(recipient_names: List[str] = None,
@@ -835,8 +850,9 @@ def launch_celery_workers(
     """  # noqa: E501
     config = get_default_config_from_os_env()
     cmdargs = [
-        CELERY, "worker",
+        CELERY,
         "--app", CELERY_APP_NAME,
+        "worker",
         "-O", "fair",  # optimization
         "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
         "--loglevel", "DEBUG" if verbose else "INFO",
@@ -866,8 +882,9 @@ def launch_celery_beat(
     ensure_directories_exist()
     config = get_default_config_from_os_env()
     cmdargs = [
-        CELERY, "beat",
+        CELERY,
         "--app", CELERY_APP_NAME,
+        "beat",
         "--schedule", config.celery_beat_schedule_database,
         "--pidfile", config.get_celery_beat_pidfilename(),
         "--loglevel", "DEBUG" if verbose else "INFO",
@@ -885,8 +902,9 @@ def launch_celery_flower(
     Launch the Celery Flower monitor.
     """
     cmdargs = [
-        CELERY, "flower",
+        CELERY,
         "--app", CELERY_APP_NAME,
+        "flower",
         f"--address {address}",
         f"--port {port}",
     ]

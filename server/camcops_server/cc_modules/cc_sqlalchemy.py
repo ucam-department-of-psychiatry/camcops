@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_sqlalchemy.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -60,7 +61,10 @@ import sqlite3
 from typing import Any
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
+from cardinal_pythonlib.sqlalchemy.dialect import (
+    get_dialect_from_name,
+    SqlaDialectName,
+)
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
 from cardinal_pythonlib.sqlalchemy.session import (
     make_sqlite_url,
@@ -72,11 +76,13 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.sql.schema import MetaData
+from sqlalchemy.schema import CreateTable
+from sqlalchemy.sql.schema import MetaData, Table
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Naming convention; metadata; Base
@@ -292,6 +298,25 @@ def log_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> None:
     text = get_all_ddl(dialect_name)
     log.info(text)
     log.info("DDL length: {} characters", len(text))
+
+
+@cache_region_static.cache_on_arguments(function_key_generator=fkg)
+def get_table_ddl(table: Table,
+                  dialect_name: str = SqlaDialectName.MYSQL) -> str:
+    """
+    Returns the DDL (data definition language; SQL ``CREATE TABLE`` commands)
+    for a specific table.
+
+    Args:
+        table:
+            Table to dump.
+        dialect_name:
+            SQLAlchemy dialect name.
+
+    https://stackoverflow.com/questions/2128717/sqlalchemy-printing-raw-sql-from-create
+    """  # noqa
+    dialect = get_dialect_from_name(dialect_name)
+    return str(CreateTable(table).compile(dialect=dialect))
 
 
 def assert_constraint_name_ok(table_name: str, column_name: str) -> None:

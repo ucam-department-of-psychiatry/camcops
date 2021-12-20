@@ -2,11 +2,12 @@
 
 # noinspection HttpUrlsUsage
 r"""
-tools/build_qt.py
+tablet_qt/tools/build_qt.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -422,7 +423,7 @@ try:
     import distro  # http://distro.readthedocs.io/en/latest/
 except ImportError:
     distro = None
-    if platform.system() in ["Linux"]:
+    if platform.system() in ("Linux", ):
         print("Please install 'distro' first, using:\n\n"
               "pip install distro")
         raise
@@ -456,7 +457,7 @@ from cardinal_pythonlib.tee import tee_log
 import cardinal_pythonlib.version
 from semantic_version import Version
 
-assert sys.version_info >= (3, 6), "Need Python 3.6 or higher"
+assert sys.version_info >= (3, 7), "Need Python 3.7 or higher"
 
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
@@ -829,7 +830,7 @@ class Platform(object):
             raise NotImplementedError(f"Unknown target CPU: {cpu!r}")
 
         # 64-bit support only (thus far)?
-        if os in [Os.LINUX, Os.MACOS] and not self.cpu_x86_64bit_family:
+        if os in (Os.LINUX, Os.MACOS) and not self.cpu_x86_64bit_family:
             raise NotImplementedError(
                 f"Don't know how to build for CPU {cpu} on system {os}")
 
@@ -908,7 +909,7 @@ class Platform(object):
     @property
     def debian(self) -> bool:
         # http://distro.readthedocs.io/en/latest/#distro.id
-        return self.distro_id in ["ubuntu", "debian"]
+        return self.distro_id in ("ubuntu", "debian")
 
     @property
     def macos(self) -> bool:
@@ -932,7 +933,7 @@ class Platform(object):
 
     @property
     def mobile(self) -> bool:
-        return self.os in [Os.ANDROID, Os.IOS]
+        return self.os in (Os.ANDROID, Os.IOS)
 
     @property
     def desktop(self) -> bool:
@@ -940,11 +941,11 @@ class Platform(object):
 
     @property
     def cpu_x86_family(self) -> bool:
-        return self.cpu in [Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64]
+        return self.cpu in (Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64)
 
     @property
     def cpu_64bit(self) -> bool:
-        return self.cpu in [Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64]
+        return self.cpu in (Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64)
 
     @property
     def cpu_x86_64bit_family(self) -> bool:
@@ -956,15 +957,15 @@ class Platform(object):
 
     @property
     def cpu_arm_family(self) -> bool:
-        return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64]
+        return self.cpu in (Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64)
 
     @property
     def cpu_arm_32bit(self) -> bool:
-        return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32]
+        return self.cpu in (Cpu.ARM_V5_32, Cpu.ARM_V7_32)
 
     @property
     def cpu_arm_64bit(self) -> bool:
-        return self.cpu in [Cpu.ARM_V8_64]
+        return self.cpu in (Cpu.ARM_V8_64, )
 
     # -------------------------------------------------------------------------
     # Linkage method of Qt
@@ -1093,7 +1094,7 @@ class Platform(object):
                 arm64tag_present = False
                 for line in lines:
                     words = line.split()
-                    if (words[0] in ["Archive", "Mach", "magic"] or
+                    if (words[0] in ("Archive", "Mach", "magic") or
                             words[0].startswith(filename)):
                         continue
                     assert len(words) > 1, "Unknown format of otool output"
@@ -1202,20 +1203,20 @@ class Platform(object):
         - https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
         - https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64
         """  # noqa
-        if self.os in [Os.LINUX, Os.ANDROID, Os.WINDOWS]:
+        if self.os in (Os.LINUX, Os.ANDROID, Os.WINDOWS):
             return self.linux_windows_cpu_name
-        elif self.os in [Os.MACOS, Os.IOS]:
+        elif self.os in (Os.MACOS, Os.IOS):
             return self.apple_cpu_name_for_triplet
         else:
             raise NotImplementedError(f"triplet_cpu() doesn't know {self.cpu}")
 
     @property
     def triplet_vendor(self) -> str:
-        if self.os in [Os.ANDROID]:
+        if self.os in (Os.ANDROID, ):
             return "linux"
-        elif self.os in [Os.LINUX, Os.WINDOWS]:
+        elif self.os in (Os.LINUX, Os.WINDOWS):
             return "unknown"
-        elif self.os in [Os.MACOS, Os.IOS]:
+        elif self.os in (Os.MACOS, Os.IOS):
             return "apple"
         else:
             raise NotImplementedError(
@@ -2740,7 +2741,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
     elif target_platform.ios:
         # https://gist.github.com/foozmeat/5154962
         # https://gist.github.com/felix-schwarz/c61c0f7d9ab60f53ebb0
-        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146 <<< ESP. THIS
+        # https://gist.github.com/armadsen/b30f352a8d6f6c87a146 <-- ESP. THIS
         # If Bitcode is later required, see the other ones above and
         # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
         if target_platform.cpu_arm_32bit:  # iOS on 32-bit devices

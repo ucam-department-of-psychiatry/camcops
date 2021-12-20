@@ -5,7 +5,8 @@ camcops_server/tasks/hamd.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -101,7 +102,7 @@ class HamdMetaclass(DeclarativeMeta):
                              "obsessional/compulsive symptoms"]
         )
         # Now fix the wrong bits. Hardly elegant!
-        for qnum in [4, 5, 6, 12, 13, 14, 21]:
+        for qnum in (4, 5, 6, 12, 13, 14, 21):
             qname = "q" + str(qnum)
             col = getattr(cls, qname)
             col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)

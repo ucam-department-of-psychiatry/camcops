@@ -3,7 +3,8 @@ camcops_server/cc_modules/cc_view_classes.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -155,17 +156,13 @@ import logging
 from typing import Any, Dict, List, NoReturn, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.deform_utils import get_head_form_html
-from cardinal_pythonlib.httpconst import HttpStatus
+from cardinal_pythonlib.httpconst import HttpMethod, HttpStatus
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.typing_helpers import with_typehint, with_typehints
 from deform.exception import ValidationFailure
 
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
-from camcops_server.cc_modules.cc_pyramid import (
-    FlashQueue,
-    FormAction,
-    RequestMethod,
-)
+from camcops_server.cc_modules.cc_pyramid import FlashQueue, FormAction
 from camcops_server.cc_modules.cc_resource_registry import (
     CamcopsResourceRegistry
 )
@@ -188,7 +185,7 @@ class View(object):
 
     Derived classes typically implement ``get()`` and ``post()``.
     """
-    http_method_names = ["get", "post"]
+    http_method_names = [HttpMethod.GET.lower(), HttpMethod.POST.lower()]
 
     # -------------------------------------------------------------------------
     # Creation
@@ -621,7 +618,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
         # Make sure we save any changes to the form state
         self.request.dbsession.add(self.request.camcops_session)
 
-        if (self.request.method == RequestMethod.GET or
+        if (self.request.method == HttpMethod.GET or
                 self.route_name != self._request_route_name):
             # If self.route_name was None when tested here, it will be
             # initialised to self._request_route_name when first fetched

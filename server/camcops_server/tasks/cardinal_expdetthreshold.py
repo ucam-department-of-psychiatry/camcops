@@ -5,7 +5,8 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,10 +29,11 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 
 import math
 import logging
-from typing import List, Optional, Type
+from typing import List, Optional, Tuple, Type
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.rnc_web as ws
+from matplotlib.figure import Figure
 import numpy as np
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, Text, UnicodeText
@@ -301,48 +303,33 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     def is_complete(self) -> bool:
         return bool(self.finished)
 
-    def get_trial_html(self, req: CamcopsRequest) -> str:
+    def _get_figures(self,
+                     req: CamcopsRequest) -> Tuple[Figure, Optional[Figure]]:
         """
-        Note re plotting markers without lines:
-
-        .. code-block:: python
-
-            import matplotlib.pyplot as plt
-
-            fig, ax = plt.subplots()
-            ax.plot([1, 2], [1, 2], marker="+", color="r", linestyle="-")
-            ax.plot([1, 2], [2, 1], marker="o", color="b", linestyle="None")
-            fig.savefig("test.png")
-            # ... the "absent" line does NOT "cut" the red one.
-
-        Args:
-            req:
-
-        Returns:
-
+        Create and return figures. Returns ``trialfig, fitfig``.
         """
         trialarray = self.trials
-        html = CardinalExpDetThresholdTrial.get_html_table_header()
-        for t in trialarray:
-            html += t.get_html_table_row()
-        html += """</table>"""
 
-        # Don't add figures if we're incomplete
-        if not self.is_complete():
-            return html
-
-        # Add figures
-
-        figsize = (
-            PlotDefaults.FULLWIDTH_PLOT_WIDTH / 2,
-            PlotDefaults.FULLWIDTH_PLOT_WIDTH / 2
-        )
+        # Constants
         jitter_step = 0.02
         dp_to_consider_same_for_jitter = 3
         y_extra_space = 0.1
         x_extra_space = 0.02
+        figsize = (
+            PlotDefaults.FULLWIDTH_PLOT_WIDTH / 2,
+            PlotDefaults.FULLWIDTH_PLOT_WIDTH / 2
+        )
+
+        # Figure and axes
         trialfig = req.create_figure(figsize=figsize)
         trialax = trialfig.add_subplot(MatplotlibConstants.WHOLE_PANEL)
+        fitfig = None  # type: Optional[Figure]
+
+        # Anything to do?
+        if not trialarray:
+            return trialfig, fitfig
+
+        # Data
         notcalc_detected_x = []
         notcalc_detected_y = []
         notcalc_missed_x = []
@@ -383,6 +370,8 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
                 else:
                     catch_missed_x.append(x)
                     catch_missed_y.append(y)
+
+        # Create trialfig plots
         trialax.plot(
             all_x, all_y,
             marker=MatplotlibConstants.MARKER_NONE,
@@ -447,75 +436,119 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         trialax.set_xlim(-0.5, len(trialarray) - 0.5)
         req.set_figure_font_sizes(trialax)
 
-        fitfig = None
-        if self.k is not None and self.theta is not None:
-            fitfig = req.create_figure(figsize=figsize)
-            fitax = fitfig.add_subplot(MatplotlibConstants.WHOLE_PANEL)
-            detected_x = []
-            detected_x_approx = []
-            detected_y = []
-            missed_x = []
-            missed_x_approx = []
-            missed_y = []
-            all_x = []
-            for t in trialarray:
-                if t.trial_num_in_calculation_sequence is not None:
-                    all_x.append(t.intensity)
-                    approx_x = f"{t.intensity:.{dp_to_consider_same_for_jitter}f}"  # noqa
-                    if t.yes:
-                        detected_y.append(
-                            1 -
-                            detected_x_approx.count(approx_x) * jitter_step)
-                        detected_x.append(t.intensity)
-                        detected_x_approx.append(approx_x)
-                    else:
-                        missed_y.append(
-                            0 + missed_x_approx.count(approx_x) * jitter_step)
-                        missed_x.append(t.intensity)
-                        missed_x_approx.append(approx_x)
-            fit_x = np.arange(0.0 - x_extra_space, 1.0 + x_extra_space, 0.001)
-            fit_y = logistic(fit_x, self.k, self.theta)
+        # Anything to do for fitfig?
+        if self.k is None or self.theta is None:
+            return trialfig, fitfig
+
+        # Create fitfig
+        fitfig = req.create_figure(figsize=figsize)
+        fitax = fitfig.add_subplot(MatplotlibConstants.WHOLE_PANEL)
+        detected_x = []
+        detected_x_approx = []
+        detected_y = []
+        missed_x = []
+        missed_x_approx = []
+        missed_y = []
+        all_x = []
+        for t in trialarray:
+            if t.trial_num_in_calculation_sequence is not None:
+                all_x.append(t.intensity)
+                approx_x = f"{t.intensity:.{dp_to_consider_same_for_jitter}f}"  # noqa
+                if t.yes:
+                    detected_y.append(
+                        1 -
+                        detected_x_approx.count(approx_x) * jitter_step)
+                    detected_x.append(t.intensity)
+                    detected_x_approx.append(approx_x)
+                else:
+                    missed_y.append(
+                        0 + missed_x_approx.count(approx_x) * jitter_step)
+                    missed_x.append(t.intensity)
+                    missed_x_approx.append(approx_x)
+
+        # Again, anything to do for fitfig?
+        if not all_x:
+            return trialfig, fitfig
+
+        fit_x = np.arange(0.0 - x_extra_space, 1.0 + x_extra_space, 0.001)
+        fit_y = logistic(fit_x, self.k, self.theta)
+        fitax.plot(
+            fit_x, fit_y,
+            color=MatplotlibConstants.COLOUR_GREEN,
+            linestyle=MatplotlibConstants.LINESTYLE_SOLID
+        )
+        fitax.plot(
+            missed_x, missed_y,
+            marker=MatplotlibConstants.MARKER_CIRCLE,
+            color=MatplotlibConstants.COLOUR_RED,
+            linestyle=MatplotlibConstants.LINESTYLE_NONE
+        )
+        fitax.plot(
+            detected_x, detected_y,
+            marker=MatplotlibConstants.MARKER_PLUS,
+            color=MatplotlibConstants.COLOUR_BLUE,
+            linestyle=MatplotlibConstants.LINESTYLE_NONE
+        )
+        fitax.set_ylim(0 - y_extra_space, 1 + y_extra_space)
+        fitax.set_xlim(np.amin(all_x) - x_extra_space,
+                       np.amax(all_x) + x_extra_space)
+        marker_points = []
+        for y in (LOWER_MARKER, 0.5, UPPER_MARKER):
+            x = inv_logistic(y, self.k, self.theta)
+            marker_points.append((x, y))
+        for p in marker_points:
             fitax.plot(
-                fit_x, fit_y,
-                color=MatplotlibConstants.COLOUR_GREEN,
-                linestyle=MatplotlibConstants.LINESTYLE_SOLID
+                [p[0], p[0]],  # x
+                [-1, p[1]],  # y
+                color=MatplotlibConstants.COLOUR_GREY_50,
+                linestyle=MatplotlibConstants.LINESTYLE_DOTTED
             )
             fitax.plot(
-                missed_x, missed_y,
-                marker=MatplotlibConstants.MARKER_CIRCLE,
-                color=MatplotlibConstants.COLOUR_RED,
-                linestyle=MatplotlibConstants.LINESTYLE_NONE
+                [-1, p[0]],  # x
+                [p[1], p[1]],  # y
+                color=MatplotlibConstants.COLOUR_GREY_50,
+                linestyle=MatplotlibConstants.LINESTYLE_DOTTED
             )
-            fitax.plot(
-                detected_x, detected_y,
-                marker=MatplotlibConstants.MARKER_PLUS,
-                color=MatplotlibConstants.COLOUR_BLUE,
-                linestyle=MatplotlibConstants.LINESTYLE_NONE
-            )
-            fitax.set_ylim(0 - y_extra_space, 1 + y_extra_space)
-            fitax.set_xlim(np.amin(all_x) - x_extra_space,
-                           np.amax(all_x) + x_extra_space)
-            marker_points = []
-            for y in (LOWER_MARKER, 0.5, UPPER_MARKER):
-                x = inv_logistic(y, self.k, self.theta)
-                marker_points.append((x, y))
-            for p in marker_points:
-                fitax.plot(
-                    [p[0], p[0]],  # x
-                    [-1, p[1]],  # y
-                    color=MatplotlibConstants.COLOUR_GREY_50,
-                    linestyle=MatplotlibConstants.LINESTYLE_DOTTED
-                )
-                fitax.plot(
-                    [-1, p[0]],  # x
-                    [p[1], p[1]],  # y
-                    color=MatplotlibConstants.COLOUR_GREY_50,
-                    linestyle=MatplotlibConstants.LINESTYLE_DOTTED
-                )
-            fitax.set_xlabel("Intensity", fontdict=req.fontdict)
-            fitax.set_ylabel("Detected? (0=no, 1=yes; jittered)",
-                             fontdict=req.fontdict)
-            req.set_figure_font_sizes(fitax)
+        fitax.set_xlabel("Intensity", fontdict=req.fontdict)
+        fitax.set_ylabel("Detected? (0=no, 1=yes; jittered)",
+                         fontdict=req.fontdict)
+        req.set_figure_font_sizes(fitax)
+
+        # Done
+        return trialfig, fitfig
+
+    def get_trial_html(self, req: CamcopsRequest) -> str:
+        """
+        Note re plotting markers without lines:
+
+        .. code-block:: python
+
+            import matplotlib.pyplot as plt
+
+            fig, ax = plt.subplots()
+            ax.plot([1, 2], [1, 2], marker="+", color="r", linestyle="-")
+            ax.plot([1, 2], [2, 1], marker="o", color="b", linestyle="None")
+            fig.savefig("test.png")
+            # ... the "absent" line does NOT "cut" the red one.
+
+        Args:
+            req:
+
+        Returns:
+
+        """
+        trialarray = self.trials
+        html = CardinalExpDetThresholdTrial.get_html_table_header()
+        for t in trialarray:
+            html += t.get_html_table_row()
+        html += """</table>"""
+
+        # Don't add figures if we're incomplete
+        if not self.is_complete():
+            return html
+
+        # Add figures
+        trialfig, fitfig = self._get_figures(req)
 
         html += f"""
             <table class="{CssClass.NOBORDER}">

@@ -5,7 +5,8 @@ camcops_server/tasks/rand36.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -489,7 +490,7 @@ class Rand36(TaskHasPatientMixin, Task,
         for q in range(23, 31 + 1):
             h += self.answer_row_html(req, q)
         h += self.section_row_html("<br>")
-        for q in [32]:
+        for q in (32, ):
             h += self.answer_row_html(req, q)
         h += self.section_row_html(self.wxstring(req, "q33to36stem"))
         for q in range(33, 36 + 1):

@@ -5,7 +5,8 @@ camcops_server/tasks/icd10mixed.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -69,6 +70,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,

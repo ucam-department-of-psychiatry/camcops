@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_baseconstants.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -43,6 +44,7 @@ import sys
 # =============================================================================
 
 ENVVAR_CONFIG_FILE = "CAMCOPS_CONFIG_FILE"  # external or internal
+ENVVAR_GENERATING_CAMCOPS_DOCS = "GENERATING_CAMCOPS_DOCS"
 
 
 # =============================================================================
@@ -59,7 +61,7 @@ DEFORM_SUPPORTS_CSP_NONCE = False
 _this_directory = dirname(abspath(__file__))  # cc_modules
 CAMCOPS_SERVER_DIRECTORY = abspath(join(_this_directory, pardir))  # camcops_server  # noqa
 
-if "GENERATING_CAMCOPS_DOCS" in os.environ:
+if ENVVAR_GENERATING_CAMCOPS_DOCS in os.environ:
     CAMCOPS_SERVER_DIRECTORY = "/path/to/camcops/server"
 
 ALEMBIC_BASE_DIR = CAMCOPS_SERVER_DIRECTORY

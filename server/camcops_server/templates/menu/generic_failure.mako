@@ -5,7 +5,8 @@ camcops_server/templates/menu/generic_failure.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,6 +30,7 @@ camcops_server/templates/menu/generic_failure.mako
 <%inherit file="base_web.mako"/>
 
 <%!
+from types import BuiltinFunctionType
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
@@ -42,7 +44,17 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     ${ extra_html | n }
 %endif
 
-${ next.body() | n }
+<%doc>
+Without the check on "next" that follows, this template cannot be used
+directly, but only inherited from, or you will get the error:
+    AttributeError: 'builtin_function_or_method' object has no attribute 'body'
+See https://github.com/sqlalchemy/mako/issues/252.
+If inheritance is occurring, "next" is a Mako thing; otherwise, it's a Python
+keyword.
+</%doc>
+%if not isinstance(next, BuiltinFunctionType):
+    ${ next.body() | n }
+%endif
 
 %if request.exception:
 <div class="error">

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_trackerhelpers.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -65,6 +66,9 @@ class TrackerLabel(object):
         self.y = y
         self.label = label
         self.vertical_alignment = vertical_alignment
+
+    def __str__(self) -> str:
+        return f"{self.y}: {self.label}"
 
 
 class TrackerAxisTick(object):

@@ -5,7 +5,8 @@ camcops_server/templates/menu/special_note_delete.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,9 +29,18 @@ camcops_server/templates/menu/special_note_delete.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Delete special note?") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.DELETE,
+        text=_("Delete special note?")
+    ) | n }
+</h1>
 
 <div>
     ${ _("You are about to delete this note:") }

@@ -5,7 +5,8 @@ camcops_server/tasks/qolbasic.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -59,6 +60,7 @@ class QolBasic(TaskHasPatientMixin, Task):
     """
     __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
+    info_filename_stem = "qol"
     provides_trackers = True
 
     tto = CamcopsColumn(

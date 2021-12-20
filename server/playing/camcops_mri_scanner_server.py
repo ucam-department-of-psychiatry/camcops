@@ -5,7 +5,8 @@ playing/camcops_mri_scanner_server.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -288,11 +289,11 @@ class TabletServerProtocol(LineReceiver):
         """
         abs_time, rel_time = self.get_abs_rel_time(now)
         # msg = "{d},{r},{a}".format(d=data, r=rel_time, a=abs_time)
-        msg = ",".join(str(x) for x in [
+        msg = ",".join(str(x) for x in (
             rel_time,
             abs_time,
             data
-        ] + list(args))
+        ) + tuple(args))
         logger.info("Sending to tablet<{p}>: {m}".format(
             p=self.peer, m=msg))
         self.sendLine(msg.encode(ENCODING))

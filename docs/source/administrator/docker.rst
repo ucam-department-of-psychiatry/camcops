@@ -1,6 +1,7 @@
 ..  docs/source/administrator/docker.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -170,6 +171,12 @@ Linux-under-Docker-under-Windows).
 
 - You need Docker Compose installed. See
   https://docs.docker.com/compose/install/.
+
+You can check that Docker is operational with:
+
+.. code-block:: bash
+
+    docker run -it ubuntu bash
 
 
 .. _docker_environment_variables:

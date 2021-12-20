@@ -86,6 +86,12 @@ Version Cesdr::minimumServerVersion() const
 }
 
 
+QString Cesdr::infoFilenameStem() const
+{
+    return "cesd";
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================

@@ -5,7 +5,8 @@ camcops_server/templates/snippets/to_main_menu.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -27,9 +28,13 @@ camcops_server/templates/snippets/to_main_menu.mako
 </%doc>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <div>
-    <a href="${ request.route_url(Routes.HOME) | n }">${ _("Return to main menu") }</a>
+    ${ req.icon_text(
+            icon=Icons.HOME,
+            url=request.route_url(Routes.HOME),
+            text=_("Return to main menu")
+    ) | n }
 </div>

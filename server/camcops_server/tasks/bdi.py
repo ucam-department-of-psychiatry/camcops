@@ -5,7 +5,8 @@ camcops_server/tasks/bdi.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -347,7 +348,7 @@ class Bdi(TaskHasPatientMixin, Task,
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         scale_lookup = SnomedLookup.BDI_SCALE
-        if self.bdi_scale in [SCALE_BDI_I, SCALE_BDI_IA]:
+        if self.bdi_scale in (SCALE_BDI_I, SCALE_BDI_IA):
             score_lookup = SnomedLookup.BDI_SCORE
             proc_lookup = SnomedLookup.BDI_PROCEDURE_ASSESSMENT
         elif self.bdi_scale == SCALE_BDI_II:

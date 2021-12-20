@@ -5,7 +5,8 @@ playing/pyramid_test.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -369,8 +370,8 @@ def get_extra_strings():  # -> Dict[Tuple[str, str], str]:  # https://bitbucket.
     log.info("Expensive string-loading function; SHOULD ONLY BE CALLED ONCE; "
              "pretending to read file {}.".format(cfg.xstring_filename))
     xstringdict = {}  # type: Dict[Tuple[str, str] -> str]
-    for task in [TASKNAME_1, TASKNAME_2]:
-        for stringname in [STRINGNAME_1, STRINGNAME_2]:
+    for task in (TASKNAME_1, TASKNAME_2):
+        for stringname in (STRINGNAME_1, STRINGNAME_2):
             task_string_pair = (task, stringname)
             xstringdict[task_string_pair] = "{}.{}".format(task, stringname)
     return xstringdict

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_user.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -759,7 +760,7 @@ class User(Base):
             totp = pyotp.TOTP(self.mfa_secret_key)
             return totp.verify(one_time_password)
 
-        elif mfa_method in [MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS]:
+        elif mfa_method in (MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS):
             hotp = pyotp.HOTP(self.mfa_secret_key)
             return one_time_password == hotp.at(self.hotp_counter)
 

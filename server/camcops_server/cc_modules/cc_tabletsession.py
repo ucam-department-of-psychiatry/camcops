@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_tabletsession.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -31,6 +32,7 @@ camcops_server/cc_modules/cc_tabletsession.py
 import logging
 from typing import Optional, Set, TYPE_CHECKING
 
+from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from pyramid.exceptions import HTTPBadRequest
@@ -44,7 +46,6 @@ from camcops_server.cc_modules.cc_constants import (
     USER_NAME_FOR_SYSTEM,
 )
 from camcops_server.cc_modules.cc_device import Device
-from camcops_server.cc_modules.cc_pyramid import RequestMethod
 from camcops_server.cc_modules.cc_validators import (
     validate_anything,
     validate_device_name,
@@ -75,7 +76,7 @@ class TabletSession(object):
     """
     def __init__(self, req: "CamcopsRequest") -> None:
         # Check the basics
-        if req.method != RequestMethod.POST:
+        if req.method != HttpMethod.POST:
             raise HTTPBadRequest("Must use POST method")
             # ... this is for humans to view, so it has a pretty error
 

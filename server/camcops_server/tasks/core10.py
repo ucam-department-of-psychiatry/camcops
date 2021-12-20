@@ -5,7 +5,8 @@ camcops_server/tasks/core10.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -222,7 +223,7 @@ class Core10(TaskHasPatientMixin, Task):
                          get_from_dict(mapping, getattr(self, "q" + nstr)))
 
         q_a = get_tr_qa(1, normal_dict)
-        for qnum in [2, 3]:
+        for qnum in (2, 3):
             q_a += get_tr_qa(qnum, reversed_dict)
         for qnum in range(4, self.N_QUESTIONS + 1):
             q_a += get_tr_qa(qnum, normal_dict)

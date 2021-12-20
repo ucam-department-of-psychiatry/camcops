@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_patientidnum.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -165,7 +166,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         Must be compatible with __eq__.
 
-        See also 
+        See also
         https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
         """  # noqa
         return hash(self.__members())

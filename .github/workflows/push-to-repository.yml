@@ -5,14 +5,14 @@ name: Build
 on:
     push:
         paths:
-            - 'server/*'
+            - 'server/**'
             - .github/workflows/push-to-repository.yml
 jobs:
     pip-install-and-tests:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.7, 3.8, 3.9]
         env:
             DB_DATABASE: camcops
             DB_CAMCOPS_USER: camcops
@@ -78,7 +78,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.7, 3.8, 3.9]
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-python@v2

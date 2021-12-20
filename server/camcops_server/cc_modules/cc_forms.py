@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_forms.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -23,6 +24,8 @@ camcops_server/cc_modules/cc_forms.py
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+.. _Deform: https://docs.pylonsproject.org/projects/deform/en/latest/
 
 **Forms for use by the web front end.**
 
@@ -92,7 +95,34 @@ request.gettext``.
 Form titles need to be dynamically written via
 :class:`cardinal_pythonlib.deform_utils.DynamicDescriptionsForm` or similar.
 
-"""
+.. glossary::
+
+  cstruct
+    See `cstruct
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-cstruct>`_
+    in the Deform_ docs.
+
+  Colander
+    See `Colander
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-colander>`_
+    in the Deform_ docs.
+
+  field
+    See `field
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-field>`_
+    in the Deform_ docs.
+
+  Peppercorn
+    See `Peppercorn
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-peppercorn>`_
+    in the Deform_ docs.
+
+  pstruct
+    See `pstruct
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-pstruct>`_
+    in the Deform_ docs.
+
+"""  # noqa
 
 from io import BytesIO
 import json
@@ -124,9 +154,8 @@ from cardinal_pythonlib.deform_utils import (
     DynamicDescriptionsForm,
     InformativeForm,
 )
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 # noinspection PyProtectedMember
@@ -148,6 +177,7 @@ from colander import (
     Set,
     String,
     _null,
+    url,
 )
 from deform.form import Button
 from deform.widget import (
@@ -211,7 +241,6 @@ from camcops_server.cc_modules.cc_policy import (
 )
 from camcops_server.cc_modules.cc_pyramid import (
     FormAction,
-    RequestMethod,
     ViewArg,
     ViewParam,
 )
@@ -260,6 +289,13 @@ if DEBUG_CSRF_CHECK:
 # Constants
 # =============================================================================
 
+DEFORM_ACCORDION_BUG = True
+# If you have a sequence containing an accordion (e.g. advanced JSON settings),
+# then when you add a new node (e.g. "Add Task schedule") then the newly
+# created node's accordion won't open out.
+# https://github.com/Pylons/deform/issues/347
+
+
 class Binding(object):
     """
     Keys used for binding dictionaries with Colander schemas (schemata).
@@ -307,14 +343,16 @@ class AutocompleteAttrValues(object):
     USERNAME = "username"
 
 
-class WidgetDefaults(object):
-    TINYMCE_OPTIONS = {
+def get_tinymce_options(request: "CamcopsRequest") -> Dict[str, Any]:
+    return {
         "content_css": "static/tinymce/custom_content.css",
         "menubar": "false",
         "plugins": "link",
         "toolbar": ("undo redo | bold italic underline | link | "
+                    "bullist numlist | "
                     "alignleft aligncenter alignright alignjustify | "
                     "outdent indent"),
+        "language": request.language_iso_639_1,
     }
 
 
@@ -1342,7 +1380,7 @@ class UserFilterForm(InformativeNonceForm):
             buttons=[Button(name=FormAction.SET_FILTERS,
                             title=_("Refresh"))],
             css_class=BootstrapCssClasses.FORM_INLINE,
-            method=RequestMethod.GET,
+            method=HttpMethod.GET,
             **kwargs
         )
 
@@ -1898,27 +1936,28 @@ class PhoneNumberType(String):
             node: SchemaNode,
             cstruct: Union[str, ColanderNullType, None]
     ) -> Optional[phonenumbers.PhoneNumber]:
+        request = self.request  # type: CamcopsRequest
+        _ = request.gettext
+        err_message = _("Invalid phone number")
+
         # is null when form is empty
         if not cstruct:
+            if not self.allow_empty:
+                raise Invalid(node, err_message)
             return null
 
         cstruct: str
-
-        request = self.request  # type: CamcopsRequest
-
-        _ = request.gettext
-        message = _("Invalid phone number")
 
         try:
             phone_number = phonenumbers.parse(cstruct,
                                               request.config.region_code)
         except phonenumbers.NumberParseException:
-            raise Invalid(node, message)
+            raise Invalid(node, err_message)
 
         if not phonenumbers.is_valid_number(phone_number):
             # the number may parse but could still be invalid
             # (e.g. too few digits)
-            raise Invalid(node, message)
+            raise Invalid(node, err_message)
 
         return phone_number
 
@@ -1943,8 +1982,11 @@ class MandatoryPhoneNumberNode(MandatoryStringNode, RequestAwareMixin):
     default = None
     missing = None
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        self.typ = PhoneNumberType(self.request)
+        _ = self.gettext
+        self.title = _("Phone number")
+        self.typ = PhoneNumberType(self.request, allow_empty=False)
 
 
 # =============================================================================
@@ -2419,7 +2461,7 @@ class MfaHotpSmsSchema(CSRFSchema):
         _ = self.gettext
         phone_number = get_child_node(self, ViewParam.PHONE_NUMBER)
         phone_number.description = _(
-            "Include the country code (eg +123) for numbers outside of the "
+            "Include the country code (e.g. +123) for numbers outside of the "
             "'{region_code}' region").format(
                 region_code=self.request.config.region_code
             )
@@ -3524,7 +3566,7 @@ class IpUseType(SchemaType):
             node: SchemaNode,
             ip_use: Union[IpUse, None, ColanderNullType]) \
             -> Union[Dict, ColanderNullType]:
-        if ip_use in [null, None]:
+        if ip_use in (null, None):
             return null
 
         return {
@@ -4094,6 +4136,29 @@ class Hl7IdTypeNode(OptionalStringNode, RequestAwareMixin):
             raise Invalid(node, str(e))
 
 
+class FHIRIdSystemUrlNode(OptionalStringNode, RequestAwareMixin):
+    """
+    Optional node to capture the URL for a FHIR ID system:
+
+    - https://www.hl7.org/fhir/datatypes.html#Identifier
+    - https://www.hl7.org/fhir/datatypes-definitions.html#Identifier.system
+    """
+    validator = url
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("FHIR ID system")
+        self.description = _(
+            "For FHIR exports: URL defining the ID system."
+        )
+
+
 class EditIdDefinitionSchema(CSRFSchema):
     """
     Schema to edit an ID number definition.
@@ -4104,6 +4169,7 @@ class EditIdDefinitionSchema(CSRFSchema):
     validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD  # noqa
     hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
     hl7_assigning_authority = Hl7AssigningAuthorityNode()  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
+    fhir_id_system = FHIRIdSystemUrlNode()  # must match ViewParam.FHIR_ID_SYSTEM  # noqa
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
@@ -4383,8 +4449,10 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
         self.title = _("Task schedule")
         values = []  # type: List[Tuple[Optional[int], str]]
 
+        valid_group_ids = request.user.ids_of_groups_user_may_manage_patients_in
         task_schedules = (
             request.dbsession.query(TaskSchedule)
+            .filter(TaskSchedule.group_id.in_(valid_group_ids))
             .order_by(TaskSchedule.name)
         )
 
@@ -4485,20 +4553,56 @@ class JsonWidget(Widget):
         return pstruct
 
 
-class JsonNode(SchemaNode, RequestAwareMixin):
+class JsonSettingsNode(SchemaNode, RequestAwareMixin):
+    """
+    Note to edit raw JSON.
+    """
     schema_type = JsonType
     missing = null
 
     # noinspection PyUnusedLocal,PyAttributeOutsideInit
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
         self.widget = JsonWidget(self.request)
+        self.title = _("Task-specific settings for this patient")
+        self.description = _(
+            "ADVANCED. Only applicable to tasks that are configurable on a "
+            "per-patient basis. Format: JSON object, with settings keyed on "
+            "task table name."
+        )
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if value is not None:
+            # will be None if JSON failed to validate
+            if not isinstance(value, dict):
+                _ = self.request.gettext
+                error_message = _(
+                    "Please enter a valid JSON object (with settings keyed on "
+                    "task table name) or leave blank"
+                )
+                raise Invalid(node, error_message)
+
+
+class TaskScheduleJsonSchema(Schema):
+    """
+    Schema for the advanced JSON parts of a patient-to-task-schedule mapping.
+    """
+    settings = JsonSettingsNode()  # must match ViewParam.SETTINGS
 
 
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
+    """
+    Node to edit settings for a patient-to-task-schedule mapping.
+    """
+    patient_task_schedule_id = HiddenIntegerNode()  # name must match ViewParam.PATIENT_TASK_SCHEDULE_ID  # noqa
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
-    # must match ViewParam.START_DATETIME
-    start_datetime = StartPendulumSelector()
-    settings = JsonNode()  # must match ViewParam.SETTINGS
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    if DEFORM_ACCORDION_BUG:
+        settings = JsonSettingsNode()  # must match ViewParam.SETTINGS
+    else:
+        advanced = TaskScheduleJsonSchema(  # must match ViewParam.ADVANCED
+            widget=MappingWidget(template="mapping_accordion", open=False)
+        )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
@@ -4512,30 +4616,15 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
         start_datetime.description = _(
             "Leave blank for the date the patient first downloads the schedule"
         )
-        settings = get_child_node(self, "settings")
-        settings.title = _("Task-specific settings for this patient")
-        settings.description = _(
-            "ADVANCED. Only applicable to tasks that are configurable on a "
-            "per-patient basis. Format: JSON object, with settings keyed on "
-            "task table name."
-        )
-
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        settings_value = value["settings"]
-
-        if settings_value is not None:
-            # will be None if JSON failed to validate
-            if not isinstance(settings_value, dict):
-                _ = self.request.gettext
-                error_message = _(
-                    "Please enter a valid JSON object (with settings keyed on "
-                    "task table name) or leave blank"
-                )
-
-                raise Invalid(node, error_message)
+        if not DEFORM_ACCORDION_BUG:
+            advanced = get_child_node(self, "advanced")
+            advanced.title = _("Advanced")
 
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
+    """
+    Sequence for multiple patient-to-task-schedule mappings.
+    """
     task_schedule_sequence = TaskScheduleNode()
     missing = drop
 
@@ -4661,7 +4750,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         ).format(self.formatter.get_valid_parameters_string())
 
         # noinspection PyAttributeOutsideInit
-        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
+        self.widget = RichTextWidget(options=get_tinymce_options(self.request))
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
@@ -5204,7 +5293,7 @@ class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
         self.title = _("Message")
 
         # noinspection PyAttributeOutsideInit
-        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
+        self.widget = RichTextWidget(options=get_tinymce_options(self.request))
 
 
 class SendEmailSchema(CSRFSchema):

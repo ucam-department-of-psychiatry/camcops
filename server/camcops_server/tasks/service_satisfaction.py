@@ -5,7 +5,8 @@ camcops_server/tasks/service_satisfaction.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -147,6 +148,7 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
     """
     __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
+    info_filename_stem = "pss"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -172,6 +174,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     """
     __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
+    info_filename_stem = "rss"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -198,6 +201,7 @@ class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
     """
     __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
+    info_filename_stem = "rss"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

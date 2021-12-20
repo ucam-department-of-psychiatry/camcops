@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_pdf.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,6 +29,11 @@ camcops_server/cc_modules/cc_pdf.py
 
 """
 
+# =============================================================================
+# Imports
+# =============================================================================
+
+# import logging
 from typing import Any, Dict, TYPE_CHECKING
 
 from cardinal_pythonlib.pdf import get_pdf_from_html
@@ -40,6 +46,12 @@ from camcops_server.cc_modules.cc_constants import (
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
+# log = logging.getLogger(__name__)
+
+
+# =============================================================================
+# pdf_from_html
+# =============================================================================
 
 def pdf_from_html(req: "CamcopsRequest",
                   html: str,

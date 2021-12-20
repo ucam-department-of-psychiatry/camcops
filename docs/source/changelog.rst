@@ -1,6 +1,7 @@
 ..  docs/source/changelog.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -71,6 +72,7 @@ Contributors
   - Task scheduling.
   - Single-user mode.
   - Improvements to web site front end.
+  - FHIR framework.
   - ... and lots more.
 
 
@@ -263,7 +265,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Better internal timezone handling.
 - Commit during menu-driven administration to prevent database locking.
 - Lock user accounts after multiple login failures.
-- HL7 message framework. (Validated internally and against HL7 Inspector.)
+- HL7 (v2) message framework. (Validated internally and against HL7 Inspector.)
 - File export message framework, with post-export script option.
 - Database title, ID descriptions, and policies now have their primary home
   in the configuration file. Copied to database purely for researcher lookup.
@@ -1022,12 +1024,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Client v2.0.0 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - Development of C++ version from scratch. Replaces Titanium version.
 - Released as beta to Google Play on 2017-07-17.
 
 
 **Client v2.0.1 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - More const checking.
 - Bugfix to stone/pound/ounce conversion.
@@ -1036,6 +1040,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.2 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - Cosmetic bug fixes, mainly for phones, including a re-layout of the ACE-III
   address learning for very small screens.
@@ -1047,12 +1052,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.3 beta, 2017-08-07**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Trivial type fix to patient_wanted_copy_of_letter (String → Bool) in the
   unused task CPFTLPSDischarge.
 
 
 **Server v2.1.0 beta, 2017-10-17**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Major changes, including...
 - SQLAlchemy for database work
@@ -1062,18 +1069,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.4 beta, 2017-10-22**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: BLOB FKs weren’t being set properly from `BlobFieldRef` helper
   functions.
 
 
 **Client v2.0.5 beta, 2017-10-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: if the server’s ID number definitions were consecutively numbered,
   the client got confused and renumbered them from 1.
 
 
 **Server v2.1.1 beta, 2017-10-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
   irrelevant for other reasons” flag.
@@ -1085,6 +1095,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Client v2.2.0 beta, 2018-01-04 to 2018-02-03**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - *To solve the problem of clients and servers being upgraded independently:*
   Reads tables from server during registration (see server v2.2.0). Implemented
@@ -1141,6 +1152,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.1, 2018-04-24 to 2018-06-11**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Username added to login audit.
 
@@ -1180,6 +1192,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.2, 2018-06-19**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fixed bug in Diagnosis report for non-superusers (see
   :meth:`camcops_server.tasks.diagnosis.get_diagnosis_inc_exc_report_query`);
@@ -1188,6 +1201,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.1 beta, 2018-08-06**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Background striping for the `QuMcqGrid*` classes.
 
@@ -1195,6 +1209,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :ref:`Khandaker/Insight medical history <khandaker_insight_medical>` task.
 
@@ -1203,6 +1218,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.4, 2018-07-18**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to Android client for older Android versions.
 
@@ -1407,6 +1423,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.4, 2018-06-29**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Update to libraries:
 
@@ -1437,11 +1454,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.5, 2018-07-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Python package: ``camcops-server``.
 
 
 **Server and client v2.2.6, 2018-07-26**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Logic bugfix and improved clarity in client ``Task::isTaskUploadable``.
 
@@ -1481,12 +1500,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.7, 2018-07-31**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix relating to offset-naive versus offset-aware datetimes in
   ``cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary``.
 
 
 **Client v2.2.7, 2018-08-17**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to CISR: field ``sleep_gain3`` was missing from field list.
 
@@ -1496,6 +1517,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.8 to 2.3.0 (from 2018-09-10)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
@@ -1603,6 +1625,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.8 to 2.3.0 (2018-09-14 to 2018-11-26)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN``
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191
@@ -1711,6 +1734,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-24)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``cardinal_pythonlib`` to 1.0.49.
 
@@ -2090,6 +2114,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client and server v2.3.2 (2018-03-25 to 2018-04-04)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Session information in ORS and SRS summaries.
 
@@ -2131,7 +2156,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
+.. _changelog_v2_3_3:
+
 **Client and server v2.3.3**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Windows service.
 
@@ -3519,3 +3547,85 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.12, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Database revision to 0071.
+
+- Add numbered and unnumbered lists to the visual editor when editing emails
+  and their templates. https://github.com/RudolfCardinal/camcops/issues/188
+
+- Display Danish or English on the visual editor according to the user's
+  language.
+
+- Initial FHIR support.
+
+  - Explicit FHIR export support for (search for ``def get_fhir``):
+
+    - PHQ9 (a prototype patient-based task);
+    - APEQPT (an anonymous task);
+    - BMI (provides Observation objects too);
+    - the Diagnosis* tasks (provide observations).
+
+  - Autodiscovery support for all others. This is imperfect in terms of
+    question/answer text, and the guesswork could probably be improved, but it
+    gets the job done (using field comments as a fallback).
+
+  - For testing details, see ``camcops_server/cc_modules/cc_fhir.py``.
+
+  - Links through to FHIR server and back-links back to CamCOPS.
+
+  - FHIR views from tasks.
+
+- Packages:
+
+  - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
+
+  - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
+    some bugs).
+
+  - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
+    objects properly. The bug manifested during reindexing, and was as
+    documented above in :ref:`v2.3.3 <changelog_v2_3_3>`.
+
+  - Bump ``cardinal_pythonlib``, which now uses numpy 1.20.0, which removes
+    support for Python 3.6, so we do too.
+    **Minimum Python version now Python 3.7.**
+
+  - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
+
+  - Some ``pyexcel-*`` bumps to remove warnings.
+
+  - Bump ``pdfkit`` from 0.6.1 to 1.0.0 to remove a bug warning inside it
+    (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
+    self.type is 'file':``).
+
+  - Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing
+    warnings.
+
+- Update SNOMED code fetcher. Replace 32537008 with 165172002 in
+  PsychiatricClerking. Other minor tweaks.
+
+  - **Requires :ref:`SNOMED_TASK_XML_FILENAME
+    <SNOMED_TASK_XML_FILENAME>` file upgrade for those using SNOMED.** See
+    :ref:`camcops_fetch_snomed_codes <camcops_fetch_snomed_codes>`
+
+- Fix a bug where assigning the same schedule twice to a patient would not be
+  possible: https://github.com/RudolfCardinal/camcops/issues/218
+
+- Fix internal server error when removing a schedule from a patient, where
+  emails had been sent relating to the schedule.
+
+- Add page of random test NHS numbers for testing.
+
+- Icons for web site (using Bootstrap open-source icons).
+
+- Copyright transfer to the University of Cambridge, Department of Psychiatry
+  (2021-11-23). Remains under a fully open source licence, the GPL v3+.
+
+- ``kombu`` (not a direct dependency) requires an upgrade from 4.6.11 to 5.2.1
+  (security fix), and ``celery`` from 4.4.6 to 5.2.0 in consequence, then
+  ``amqp`` from 2.6.0 to 5.0.6 in consequence. Thus, change syntax in
+  ``launch_celery_beat`` function from ``celery beat --app APPNAME ...`` to
+  ``celery --app APPNAME beat ...``, and likewise for ``worker`` in the
+  function ``launch_celery_workers``, and ``flower`` in
+  ``launch_celery_flower``. Also bump ``flower`` from 0.9.4 to 1.0.0 as it
+  stopped working otherwise.

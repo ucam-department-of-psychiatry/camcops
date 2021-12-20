@@ -5,7 +5,8 @@ camcops_server/tasks/contactlog.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -64,6 +65,7 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "contactlog"
     shortname = "ContactLog"
+    info_filename_stem = "clinical"
 
     location = Column(
         "location", UnicodeText,

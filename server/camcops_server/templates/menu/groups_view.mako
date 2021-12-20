@@ -5,7 +5,8 @@ camcops_server/templates/menu/groups_view.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,15 +30,26 @@ camcops_server/templates/menu/groups_view.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Groups") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.GROUPS,
+        text=_("Groups")
+    ) | n }
+</h1>
 
 <%include file="groups_table.mako" args="groups_page=groups_page, valid_which_idnums=valid_which_idnums, with_edit=True"/>
 
-<td><a href="${ req.route_url(Routes.ADD_GROUP) | n }">${ _("Add a group") }</a></td>
+<div>
+    ${ req.icon_text(
+        icon=Icons.GROUP_ADD,
+        url=request.route_url(Routes.ADD_GROUP),
+        text=_("Add a group")
+    ) | n }
+</div>
 
 <%include file="to_main_menu.mako"/>

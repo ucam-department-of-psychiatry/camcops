@@ -5,7 +5,8 @@ camcops_server/tasks/cgi_task.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -238,6 +239,7 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cgi_i"
     shortname = "CGI-I"
     extrastring_taskname = "cgi"  # shares with CGI
+    info_filename_stem = "cgi"
 
     q = CamcopsColumn(
         "q", Integer,

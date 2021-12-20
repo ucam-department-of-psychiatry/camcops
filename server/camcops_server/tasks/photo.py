@@ -5,7 +5,8 @@ camcops_server/tasks/photo.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -66,6 +67,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "photo"
     shortname = "Photo"
+    info_filename_stem = "clinical"
 
     description = Column(
         "description", UnicodeText,
@@ -195,6 +197,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "photosequence"
     shortname = "PhotoSequence"
+    info_filename_stem = "clinical"
 
     sequence_description = Column(
         "sequence_description", UnicodeText,

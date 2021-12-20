@@ -4,7 +4,8 @@
 """
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -203,12 +204,12 @@ class Eq5d5l(TaskHasPatientMixin, Task):
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] This is a string of digits, not a directly meaningful 
+                [1] This is a string of digits, not a directly meaningful
                     number. Each digit corresponds to a question.
                     A score of 1 indicates no problems in any given dimension.
                     5 indicates extreme problems. Missing values are
                     coded as 9.
-                [2] This is the visual analogue health score, with missing 
+                [2] This is the visual analogue health score, with missing
                     values coded as 999.
             </div>
         """  # noqa

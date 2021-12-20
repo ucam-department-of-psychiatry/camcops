@@ -1,6 +1,7 @@
 ..  docs/source/overview/overview.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -47,7 +48,8 @@ CamCOPS is:
 - The server offers a web ‘front end’ (including printable task summaries,
   quantitative tracking information, and clinical summary views), a relational
   database ‘back end’ for powerful statistical analysis, and automatic export
-  facilities including HL7- and file-based export of structured data or PDFs.
+  facilities including the export of structured data or PDFs via HL7 v2,
+  HL7 FHIR, and files.
 
 Additionally,
 
@@ -69,12 +71,18 @@ Internally,
 
 - See automatically calculated summary information.
 
+- Be prompted to complete tasks on a schedule requested by your clinician or
+  researcher.
+
 **Features for clinicians**
 
 - Enter information electronically in a convenient format on a mobile or
   desktop device.
 
-- Lock a device so one patient can't see another's information.
+- Schedule tasks for patients to complete at home.
+
+- For use in clinics, lock a device so one patient can't see another's
+  information.
 
 - Have summary scores automatically calculated for you.
 
@@ -103,6 +111,8 @@ Internally,
 
 **Features for system administrators**
 
+- Multi-factor authentication.
+
 - Group security and group administrators.
 
   - Create groups.
@@ -111,9 +121,9 @@ Internally,
   - Allow users to see groups, or groups to see other groups.
   - Create group administrators to manage groups independently.
 
-- Export facilities
+- Export facilities.
 
-  - Export via files, e-mails, HL7.
+  - Export via files, e-mails, HL7 v2, FHIR, and to REDCap.
   - Export tasks as PDF, HTML, XML, or as a database.
   - For database export, add summary information or denormalize for subsequent
     anonymisation.

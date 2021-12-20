@@ -5,7 +5,8 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -225,6 +226,7 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
     """
     __tablename__ = "khandaker_mojo_medicationtherapy"
     shortname = "Khandaker_MOJO_MedicationTherapy"
+    info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
     medication_items = ancillary_relationship(

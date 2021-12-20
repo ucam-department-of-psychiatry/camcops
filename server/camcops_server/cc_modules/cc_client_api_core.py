@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_client_api_core.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -450,7 +451,7 @@ class UploadRecordResult(object):
         """
         Returns all PKs (old, new, or both).
         """
-        return list(x for x in [self.oldserverpk, self.newserverpk]
+        return list(x for x in (self.oldserverpk, self.newserverpk)
                     if x is not None)
 
     @property

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_specialnote.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,7 +29,7 @@ camcops_server/cc_modules/cc_specialnote.py
 
 """
 
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship, Session as SqlASession
@@ -49,6 +50,10 @@ from camcops_server.cc_modules.cc_xml import (
     make_xml_branches_from_columns,
     XmlElement,
 )
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -196,34 +201,64 @@ class SpecialNote(Base):
             .first()
         )
 
+    def refers_to_patient(self) -> bool:
+        """
+        Is this a note relating to a patient, rather than a task?
+        """
+        from camcops_server.cc_modules.cc_patient import Patient  # delayed import  # noqa
+        return self.basetable == Patient.__tablename__
+
+    def refers_to_task(self) -> bool:
+        """
+        Is this a note relating to a task, rather than a patient?
+        """
+        return not self.refers_to_patient()
+
+    def target_patient(self) -> Optional["Patient"]:
+        """
+        Get the patient to which this note refers, or ``None`` if it doesn't.
+        """
+        from camcops_server.cc_modules.cc_patient import Patient  # delayed import  # noqa
+        if not self.refers_to_patient():
+            return None
+        dbsession = SqlASession.object_session(self)
+        return Patient.get_patient_by_id_device_era(
+            dbsession=dbsession,
+            client_id=self.task_id,
+            device_id=self.device_id,
+            era=self.era
+        )
+
+    def target_task(self) -> Optional["Task"]:
+        """
+        Get the patient to which this note refers, or ``None`` if it doesn't.
+        """
+        from camcops_server.cc_modules.cc_taskfactory import task_factory_clientkeys_no_security_checks  # delayed import  # noqa
+        if not self.refers_to_task():
+            return None
+        dbsession = SqlASession.object_session(self)
+        return task_factory_clientkeys_no_security_checks(
+            dbsession=dbsession,
+            basetable=self.basetable,
+            client_id=self.task_id,
+            device_id=self.device_id,
+            era=self.era
+        )
+
     def get_group_id_of_target(self) -> Optional[int]:
         """
         Returns the group ID for the object (task or patient) that this
         special note is about.
         """
-        from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_taskfactory import task_factory_clientkeys_no_security_checks  # noqa
-        dbsession = SqlASession.object_session(self)
         group_id = None
-        if self.basetable == Patient.__tablename__:
+        if self.refers_to_patient():
             # Patient
-            patient = Patient.get_patient_by_id_device_era(
-                dbsession=dbsession,
-                client_id=self.task_id,
-                device_id=self.device_id,
-                era=self.era
-            )
+            patient = self.target_patient()
             if patient:
                 group_id = patient.group_id
         else:
             # Task
-            task = task_factory_clientkeys_no_security_checks(
-                dbsession=dbsession,
-                basetable=self.basetable,
-                client_id=self.task_id,
-                device_id=self.device_id,
-                era=self.era
-            )
+            task = self.target_task()
             if task:
                 group_id = task.group_id
         return group_id

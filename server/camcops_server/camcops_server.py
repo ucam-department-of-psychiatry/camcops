@@ -5,7 +5,8 @@ camcops_server/camcops_server.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -305,12 +306,16 @@ def _cmd_export(recipient_names: List[str] = None,
 def _cmd_show_export_queue(recipient_names: List[str] = None,
                            all_recipients: bool = False,
                            via_index: bool = True,
-                           pretty: bool = False) -> None:
+                           pretty: bool = False,
+                           debug_show_fhir: bool = False,
+                           debug_fhir_include_docs: bool = False) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     core.cmd_show_export_queue(recipient_names=recipient_names,
                                all_recipients=all_recipients,
                                via_index=via_index,
-                               pretty=pretty)
+                               pretty=pretty,
+                               debug_show_fhir=debug_show_fhir,
+                               debug_fhir_include_docs=debug_fhir_include_docs)
 
 
 def _cmd_crate_dd(filename: str, recipient_name: str) -> None:
@@ -449,7 +454,7 @@ def _dev_cli() -> None:
 # Command-line processor
 # =============================================================================
 
-_REQNAMED = 'required named arguments'
+_REQNAMED = "required named arguments"
 
 
 # noinspection PyShadowingBuiltins
@@ -494,7 +499,7 @@ def add_sub(sp: "_SubParsersAction",
     # appear in the subparsers just because it's in the top-level parser, which
     # sounds like an argparse bug given its help, but there you go).
     subparser.add_argument(
-        '-v', '--verbose', action='store_true',
+        "-v", "--verbose", action="store_true",
         help="Be verbose")
 
     # Config file handling
@@ -575,14 +580,14 @@ def camcops_main() -> int:
     # -------------------------------------------------------------------------
 
     parser.add_argument(
-        '--allhelp',
+        "--allhelp",
         action=ShowAllSubparserHelpAction,
-        help='show help for all commands and exit')
+        help="show help for all commands and exit")
     parser.add_argument(
         "--version", action="version",
         version=f"CamCOPS {CAMCOPS_SERVER_VERSION}")
     parser.add_argument(
-        '-v', '--verbose', action='store_true',
+        "-v", "--verbose", action="store_true",
         help="Be verbose")
     parser.add_argument(
         "--no_log", action="store_true",
@@ -596,8 +601,8 @@ def camcops_main() -> int:
     subparsers = parser.add_subparsers(
         title="commands",
         description="Valid CamCOPS commands are as follows.",
-        help='Specify one command.',
-        dest='command',  # sorts out the help for the command being mandatory
+        help="Specify one command.",
+        dest="command",  # sorts out the help for the command being mandatory
         # https://stackoverflow.com/questions/23349349/argparse-with-required-subparser  # noqa
     )  # type: _SubParsersAction  # noqa
     subparsers.required = True  # requires a command
@@ -698,7 +703,7 @@ def camcops_main() -> int:
         help="The target database revision"
     )
     dev_downgrade_parser.add_argument(
-        '--confirm_downgrade_db', action="store_true",
+        "--confirm_downgrade_db", action="store_true",
         help="Must specify this too, as a safety measure")
     dev_downgrade_parser.add_argument(
         "--show_sql_only", action="store_true",
@@ -720,7 +725,7 @@ def camcops_main() -> int:
     )
 
     dummy_database_parser.add_argument(
-        '--confirm_add_dummy_data', action="store_true",
+        "--confirm_add_dummy_data", action="store_true",
         help="Must specify this too, as a safety measure")
 
     dummy_database_parser.set_defaults(
@@ -742,17 +747,17 @@ def camcops_main() -> int:
         subparsers, "show_db_schema",
         help="Show the database schema as PlantUML +/- PNG")
     showdbschema_parser.add_argument(
-        "--schemastem", default='schema',
+        "--schemastem", default="schema",
         help="Stem for output filenames (for schema diagrams); "
         "'.plantuml' and '.png' are appended")
     showdbschema_parser.add_argument(
         "--make_image", action="store_true",
         help="Create a PNG image (impractically large!)")
     showdbschema_parser.add_argument(
-        "--java", default='java',
+        "--java", default="java",
         help="Java executable (for schema diagrams)")
     showdbschema_parser.add_argument(
-        "--plantuml", default='plantuml.jar',
+        "--plantuml", default="plantuml.jar",
         help="PlantUML Java .jar file (for schema diagrams)")
     showdbschema_parser.add_argument(
         "--height_width_limit", type=int, default=20000,
@@ -778,30 +783,30 @@ def camcops_main() -> int:
         subparsers, "merge_db", config_mandatory=True,
         help="Merge in data from an old or recent CamCOPS database")
     mergedb_parser.add_argument(
-        '--report_every', type=int, default=10000,
+        "--report_every", type=int, default=10000,
         help="Report progress every n rows")
     mergedb_parser.add_argument(
-        '--echo', action="store_true",
+        "--echo", action="store_true",
         help="Echo SQL to source database")
     mergedb_parser.add_argument(
-        '--dummy_run', action="store_true",
+        "--dummy_run", action="store_true",
         help="Perform a dummy run only; do not alter destination database")
     mergedb_parser.add_argument(
-        '--info_only', action="store_true",
+        "--info_only", action="store_true",
         help="Show table information only; don't do any work")
     # mergedb_parser.add_argument(
-    #     '--skip_export_logs', action="store_true",
+    #     "--skip_export_logs", action="store_true",
     #     help="Skip the export log tables")
     # mergedb_parser.add_argument(
-    #     '--skip_audit_logs', action="store_true",
+    #     "--skip_audit_logs", action="store_true",
     #     help="Skip the audit log table")
     mergedb_parser.add_argument(
-        '--default_group_id', type=int, default=None,
+        "--default_group_id", type=int, default=None,
         help="Default group ID (integer) to apply to old records without one. "
              "If none is specified, a new group will be created for such "
              "records.")
     mergedb_parser.add_argument(
-        '--default_group_name', type=str, default=None,
+        "--default_group_name", type=str, default=None,
         help="If default_group_id is not specified, use this group name. The "
              "group will be looked up if it exists, and created if not.")
     add_req_named(
@@ -866,7 +871,7 @@ def camcops_main() -> int:
              "facility instead)")
     add_req_named(
         createdb_parser,
-        '--confirm_create_db', action="store_true",
+        "--confirm_create_db", action="store_true",
         help="Must specify this too, as a safety measure")
     createdb_parser.set_defaults(
         func=lambda args: _create_database_from_scratch(
@@ -879,7 +884,7 @@ def camcops_main() -> int:
         subparsers, "ddl",
         help="Print database schema (data definition language; DDL)")
     ddl_parser.add_argument(
-        '--dialect', type=str, default=SqlaDialectName.MYSQL,
+        "--dialect", type=str, default=SqlaDialectName.MYSQL,
         help=f"SQL dialect (options: {', '.join(sorted(ALL_SQLA_DIALECTS))})")
     ddl_parser.set_defaults(
         func=lambda args: print(_get_all_ddl(dialect_name=args.dialect)))
@@ -919,7 +924,7 @@ def camcops_main() -> int:
         subparsers, "make_superuser",
         help="Make superuser, or give superuser status to an existing user")
     superuser_parser.add_argument(
-        '--username',
+        "--username",
         help="Username of superuser to create/promote (if omitted, you will "
              "be asked to type it in)")
     superuser_parser.set_defaults(func=lambda args: _make_superuser(
@@ -931,7 +936,7 @@ def camcops_main() -> int:
         subparsers, "reset_password",
         help="Reset a user's password")
     password_parser.add_argument(
-        '--username',
+        "--username",
         help="Username to change password for (if omitted, you will be asked "
              "to type it in)")
     password_parser.set_defaults(func=lambda args: _reset_password(
@@ -943,7 +948,7 @@ def camcops_main() -> int:
         subparsers, "enable_user",
         help="Re-enable a locked user account")
     enableuser_parser.add_argument(
-        '--username',
+        "--username",
         help="Username to enable (if omitted, you will be asked "
              "to type it in)")
     enableuser_parser.set_defaults(func=lambda args: _enable_user_cli(
@@ -956,13 +961,13 @@ def camcops_main() -> int:
 
     def _add_export_options(sp: ArgumentParser) -> None:
         sp.add_argument(
-            '--recipients', type=str, nargs="*",
+            "--recipients", type=str, nargs="*",
             help="Export recipients (as named in config file)")
         sp.add_argument(
-            '--all_recipients', action="store_true",
+            "--all_recipients", action="store_true",
             help="Use all recipients")
         sp.add_argument(
-            '--disable_task_index', action="store_true",
+            "--disable_task_index", action="store_true",
             help="Disable use of the task index (for debugging only)")
 
     # Export data
@@ -988,14 +993,22 @@ def camcops_main() -> int:
         help="View outbound export queue (without sending)")
     _add_export_options(show_export_queue_parser)
     show_export_queue_parser.add_argument(
-        '--pretty', action="store_true",
+        "--pretty", action="store_true",
         help="Pretty (but slower) formatting for tasks")
+    show_export_queue_parser.add_argument(
+        "--debug_show_fhir", action="store_true",
+        help="Show FHIR output for tasks")
+    show_export_queue_parser.add_argument(
+        "--debug_fhir_include_docs", action="store_true",
+        help="(If --debug_show_fhir) Included FHIR documents? Large.")
     show_export_queue_parser.set_defaults(
         func=lambda args: _cmd_show_export_queue(
             recipient_names=args.recipients,
             all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
             pretty=args.pretty,
+            debug_show_fhir=args.debug_show_fhir,
+            debug_fhir_include_docs=args.debug_fhir_include_docs,
         ))
 
     # Make CRATE data dictionary
@@ -1004,10 +1017,10 @@ def camcops_main() -> int:
         help="Make draft data dictionary for CRATE anonymisation tool"
     )
     crate_dd_parser.add_argument(
-        '--filename', type=str, required=True,
+        "--filename", type=str, required=True,
         help="Output filename (data dictionary to write)")
     crate_dd_parser.add_argument(
-        '--recipient', type=str, required=True,
+        "--recipient", type=str, required=True,
         help="Export recipient (as named in config file)")
     crate_dd_parser.set_defaults(
         func=lambda args: _cmd_crate_dd(filename=args.filename,
@@ -1020,10 +1033,10 @@ def camcops_main() -> int:
         help="Make draft data dictionary for CRIS anonymisation tool"
     )
     cris_dd_parser.add_argument(
-        '--filename', type=str, required=True,
+        "--filename", type=str, required=True,
         help="Filename of data dictionary to write")
     cris_dd_parser.add_argument(
-        '--recipient', type=str, required=True,
+        "--recipient", type=str, required=True,
         help="Export recipient (as named in config file)")
     cris_dd_parser.set_defaults(
         func=lambda args: _cmd_cris_dd(filename=args.filename,
@@ -1201,7 +1214,7 @@ def camcops_main() -> int:
         # We want the the config filename in the environment from now on:
         os.environ[ENVVAR_CONFIG_FILE] = progargs.config
     cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
-    log.info("Using configuration file: {!r}", cfg_name)
+    log.debug("Using configuration file: {!r}", cfg_name)
 
     # Call the subparser function for the chosen command
     if progargs.func is None:
