@@ -28,6 +28,8 @@ cognitive and psychiatric assessment, on tablets, laptops, and desktops. It
 offers simple questionnaires and more complex tasks, and sends its data
 securely to your server.
 
+For scientific papers about CamCOPS, see :ref:`publications <publications>`.
+
 ..  toctree::
     :maxdepth: 2
     :numbered:
@@ -60,6 +62,7 @@ securely to your server.
     changelog.rst
     faq_known_problems.rst
     to_do.rst
+    publications.rst
 
 
 Indexes and tables
@@ -68,4 +71,3 @@ Indexes and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
