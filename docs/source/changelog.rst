@@ -3629,3 +3629,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   function ``launch_celery_workers``, and ``flower`` in
   ``launch_celery_flower``. Also bump ``flower`` from 0.9.4 to 1.0.0 as it
   stopped working otherwise.
+
+- Documentation and support for code-signing Windows client executables.
