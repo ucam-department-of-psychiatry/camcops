@@ -5,7 +5,8 @@ tools/build_server_translations.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -35,6 +36,7 @@ import logging
 import os
 from os.path import abspath, dirname, join
 import shutil
+import subprocess
 from typing import Iterable, List
 
 from cardinal_pythonlib.argparse_func import (
@@ -56,6 +58,7 @@ TRANSLATIONS_DIR = join(TABLET_QT_DIR, "translations")  # .ts and .qm live here
 ENVVAR_LCONVERT = "LCONVERT"
 ENVVAR_LRELEASE = "LRELEASE"
 ENVVAR_LUPDATE = "LUPDATE"
+ENVVAR_POEDIT = "POEDIT"
 
 EXT_PO = ".po"
 EXT_TS = ".ts"
@@ -64,8 +67,10 @@ OP_PO_TO_TS = "po2ts"
 OP_SRC_TO_TS = "update"
 OP_TS_TO_QM = "release"
 OP_TS_TO_PO = "ts2po"
+OP_POEDIT = "poedit"
 OP_ALL = "all"
-ALL_OPERATIONS = [OP_PO_TO_TS, OP_SRC_TO_TS, OP_TS_TO_PO, OP_TS_TO_QM, OP_ALL]
+ALL_OPERATIONS = [OP_PO_TO_TS, OP_SRC_TO_TS, OP_TS_TO_PO, OP_TS_TO_QM,
+                  OP_POEDIT, OP_ALL]
 
 
 # =============================================================================
@@ -84,6 +89,16 @@ def run(cmdargs: List[str]) -> None:
     broken .po file to break (for example) your Danish .po file.
     """
     check_call_verbose(cmdargs, log_level=logging.DEBUG)
+
+
+def spawn(cmdargs: List[str]) -> None:
+    """
+    Runs a sub-command, detaching it so it runs separately.
+
+    See
+    https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
+    """  # noqa
+    subprocess.Popen(cmdargs, close_fds=True)
 
 
 def change_extension(filename: str, new_ext: str) -> str:
@@ -184,10 +199,13 @@ Operations:
         Updates all .qm files (which are binary) from the corresponding .ts
         files (discovered via the .pro file).
 
+    {OP_POEDIT}
+        Launch (spawn) Poedit to edit the .po files.
+
     {OP_ALL}
-        Executes all other operations in sequence. This should be safe, and
-        allow you to use .po editors like Poedit. Run this script before and
-        after editing.""",
+        Executes all other operations in sequence, except {OP_POEDIT}.
+        This should be safe, and allow you to use .po editors like Poedit. Run
+        this script before and after editing.""",
         formatter_class=RawDescriptionArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
@@ -196,25 +214,32 @@ Operations:
         help=f"Operation to perform; possibilities are {ALL_OPERATIONS!r}"
     )
     parser.add_argument(
-        "--lconvert", action="store_true",
+        "--lconvert",
         help=f"Path to 'lconvert' tool (part of Qt Linguist). "
              f"Default is taken from {ENVVAR_LCONVERT} environment variable "
              f"or 'which lconvert'.",
         default=os.environ.get(ENVVAR_LCONVERT) or shutil.which("lconvert")
     )
     parser.add_argument(
-        "--lrelease", action="store_true",
+        "--lrelease",
         help=f"Path to 'lrelease' tool (part of Qt Linguist). "
              f"Default is taken from {ENVVAR_LRELEASE} environment variable "
              f"or 'which lrelease'.",
         default=os.environ.get(ENVVAR_LRELEASE) or shutil.which("lrelease")
     )
     parser.add_argument(
-        "--lupdate", action="store_true",
+        "--lupdate",
         help=f"Path to 'lupdate' tool (part of Qt Linguist). "
              f"Default is taken from {ENVVAR_LUPDATE} environment variable "
              f"or 'which lupdate'.",
         default=os.environ.get(ENVVAR_LUPDATE) or shutil.which("lupdate")
+    )
+    parser.add_argument(
+        "--poedit",
+        help=f"Path to 'poedit' tool. "
+             f"Default is taken from {ENVVAR_POEDIT} environment variable "
+             f"or 'which poedit'.",
+        default=os.environ.get(ENVVAR_POEDIT) or shutil.which("poedit")
     )
     parser.add_argument(
         "--trim", dest="trim", action="store_true",
@@ -235,7 +260,7 @@ Operations:
         level=logging.DEBUG if args.verbose else logging.INFO)
     op = args.operation  # type: str
 
-    if op in [OP_PO_TO_TS, OP_ALL]:
+    if op in (OP_PO_TO_TS, OP_ALL):
         log.debug(
             f"Copying all {EXT_PO} files to corresponding {EXT_TS} files if "
             f"the {EXT_PO} file is newer (or the {EXT_TS} file doesn't "
@@ -248,7 +273,7 @@ Operations:
                 lconvert=args.lconvert
             )
 
-    if op in [OP_SRC_TO_TS, OP_ALL]:
+    if op in (OP_SRC_TO_TS, OP_ALL):
         assert args.lupdate, "Missing lupdate"
         log.info(f"Using Qt Linguist 'lupdate' to update .ts files "
                  f"from {CAMCOPS_PRO_FILE}")
@@ -256,7 +281,7 @@ Operations:
         cmdargs = [args.lupdate] + options + [CAMCOPS_PRO_FILE]
         run(cmdargs)
 
-    if op in [OP_TS_TO_PO, OP_ALL]:
+    if op in (OP_TS_TO_PO, OP_ALL):
         log.debug(
             f"Copying all {EXT_TS} files to corresponding {EXT_PO} files if "
             f"the {EXT_PO} file is newer (or the {EXT_PO} file doesn't "
@@ -269,12 +294,17 @@ Operations:
                 lconvert=args.lconvert
             )
 
-    if op in [OP_TS_TO_QM, OP_ALL]:
+    if op in (OP_TS_TO_QM, OP_ALL):
         assert args.lrelease, "Missing lrelease"
         log.info(f"Using Qt Linguist 'lrelease' to update .qm files "
                  f"from .ts files")
         cmdargs = [args.lrelease, CAMCOPS_PRO_FILE]
         run(cmdargs)
+
+    if op in (OP_POEDIT, ):  # but not OP_ALL
+        for po_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_PO):
+            cmdargs = [args.poedit, po_filename]
+            spawn(cmdargs)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_hl7_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -80,8 +81,8 @@ class HL7CoreTests(DemoDatabaseTestCase):
             patient_id_list=pitlist
         ), hl7.Segment)
         self.assertIsInstance(make_obr_segment(task), hl7.Segment)
-        for task_format in [FileType.PDF, FileType.HTML, FileType.XML]:
-            for comments in [True, False]:
+        for task_format in (FileType.PDF, FileType.HTML, FileType.XML):
+            for comments in (True, False):
                 export_options = TaskExportOptions(
                     xml_include_comments=comments,
                     xml_with_header_comments=comments,

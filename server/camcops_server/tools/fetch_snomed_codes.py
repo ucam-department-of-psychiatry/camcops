@@ -5,7 +5,8 @@ camcops_server/tools/fetch_snomed_codes.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -60,7 +61,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_URL = "https://termbrowser.nhs.uk/sct-browser-api/snomed"
 DEFAULT_EDITION = "uk-edition"
-DEFAULT_RELEASE = "v20191001"
+DEFAULT_RELEASE = "v20210929"
 DEFAULT_LANGUAGE = "english"
 DEFAULT_RATE_LIMIT_HZ = 1  # be nice
 DEFAULT_OUTPUT_XML_FILENAME = "camcops_tasks_snomed.xml"
@@ -218,6 +219,8 @@ SWEMWBS2 = "Short Warwick-Edinburgh Mental Well-Being Scale"
 WSAS = "Improving Access to Psychological Therapies programme Work and Social Adjustment Scale"  # noqa
 
 CCMAP = OrderedDict([
+    # camcops_name, snomed_term_details (= term_name, semantic_type, term_suffix)  # noqa
+    (SL.OBSERVABLE_ENTITY, ("Observable entity", ST.OBS)),
     (SL.MASS, ("Mass, a measure of quantity of matter", ST.QV, " (property)")),
     (SL.LENGTH, ("Length", ST.QV, " property")),
     (SL.UNIT_OF_MEASURE, ("Unit of measure", ST.QV)),
@@ -289,7 +292,10 @@ CCMAP = OrderedDict([
     (SL.PHOTOGRAPH_PROCEDURE, ("Medical photography", ST.PROC)),
     (SL.PHOTOGRAPH_PHYSICAL_OBJECT, ("Photograph", ST.OBJ)),
 
-    (SL.PSYCHIATRIC_ASSESSMENT_PROCEDURE, (f"Psychiatric diagnostic interview, examination, history, mental status and disposition", ST.PROC)),  # noqa
+    # Deprecated between v20191001 and v20210929:
+    # (SL.PSYCHIATRIC_ASSESSMENT_PROCEDURE, (f"Psychiatric diagnostic interview, examination, history, mental status and disposition", ST.PROC)),  # noqa
+    # Its replacement in v20210929:
+    (SL.DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE, (f"Diagnostic psychiatric interview", ST.PROC)),  # noqa
 
     (SL.PSYCLERK_REASON_FOR_REFERRAL, ("Reason for referral", ST.REC)),
     (SL.PSYCLERK_PRESENTING_ISSUE, ("Presenting complaints or issues", ST.REC)),  # NOQA
@@ -312,7 +318,8 @@ CCMAP = OrderedDict([
     (SL.PSYCLERK_MSE_BEHAVIOUR, ("Behavior observable", ST.OBS)),
     (SL.PSYCLERK_MSE_SPEECH, ("Speech observable", ST.OBS)),
     (SL.PSYCLERK_MSE_MOOD, ("Mood, function", ST.OBS)),
-    (SL.PSYCLERK_MSE_AFFECT, ("Affect, function", ST.OBS)),
+    (SL.PSYCLERK_MSE_AFFECT, ("Affect function", ST.OBS)),
+    # ... was "Affect, function" in v20191001; changed for v20210929.
     (SL.PSYCLERK_MSE_THOUGHT, ("Thinking, function", ST.OBS)),
     (SL.PSYCLERK_MSE_PERCEPTION, ("Perception, function", ST.OBS)),
     (SL.PSYCLERK_MSE_COGNITION, ("Cognitive functions", ST.OBS)),
@@ -627,12 +634,14 @@ class SnomedApiInfo(object):
         log.debug(f"Query params: {params}")
         json_object = self.get_result(url, params)
         if not isinstance(json_object, dict):
-            raise ConceptNotFound(f"No result for {term!r}.")
+            raise ConceptNotFound(f"No result for {term!r} "
+                                  f"(semantic_area={semantic_area!r}.")
         matches = json_object["matches"]
         if not isinstance(matches, list):
             raise ConceptNotFound(f"Bad 'matches' object for {term!r}.")
         if len(matches) == 0:
-            raise ConceptNotFound(f"No matches for {term!r}.")
+            raise ConceptNotFound(f"No matches for {term!r} "
+                                  f"(semantic_area={semantic_area!r}.")
         log.debug(f"Found {len(matches)} hits for {term!r}")
         for match in matches:
             assert isinstance(match, dict)
@@ -754,20 +763,24 @@ def fetch_camcops_snomed_codes(api: SnomedApiInfo,
     seen = set()  # type: Set[str]
     with open(filename, "wt") as f:
         print(XML_HEADER, file=f)
-        for camcops_name, name_type in CCMAP.items():
-            sname = name_type[0]
-            stype = name_type[1]
-            suffix = name_type[2] if len(name_type) >= 3 else ""
+        for camcops_name, snomed_term_details in CCMAP.items():
+            term_name = snomed_term_details[0]
+            semantic_type = snomed_term_details[1]
+            term_suffix = (
+                snomed_term_details[2] if len(snomed_term_details) >= 3 else ""
+            )
             assert camcops_name in possible_names, f"Bad name: {camcops_name}"
-            assert stype in possible_types, f"Bad type: {stype}"
+            assert semantic_type in possible_types, f"Bad type: {semantic_type}"
             try:
-                concept = api.get_concept_by_term(sname, stype, suffix=suffix)
+                concept = api.get_concept_by_term(
+                    term_name, semantic_type, suffix=term_suffix)
                 xml = get_xml(camcops_name, concept)
                 print(f"    {xml}", file=f)
                 seen.add(camcops_name)
             except ConceptNotFound:
                 if continue_on_error:
-                    log.error(f"Could not find: {sname!r}, {stype!r}")
+                    log.error(f"Could not find: "
+                              f"{term_name!r}, {semantic_type!r}")
                 else:
                     raise
         print(XML_FOOTER, file=f)

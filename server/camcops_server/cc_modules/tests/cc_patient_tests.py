@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_patient_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -78,7 +79,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_surname(), str)
         self.assertIsInstance(p.get_forename(), str)
         self.assertIsInstance(p.get_surname_forename_upper(), str)
-        for longform in [True, False]:
+        for longform in (True, False):
             self.assertIsInstance(p.get_dob_html(req, longform), str)
         age_str_int = p.get_age(req)
         assert isinstance(age_str_int, str) or isinstance(age_str_int, int)

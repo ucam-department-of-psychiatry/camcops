@@ -5,7 +5,8 @@ camcops_server/tasks/frs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -188,7 +189,7 @@ def get_tabular_logit(score: float) -> float:
 #     score = x / 100
 #     logit = get_tabular_logit(score)
 #     severity = get_severity(logit)
-#     print(",".join(str(q) for q in [x, logit, severity]))
+#     print(",".join(str(q) for q in (x, logit, severity)))
 
 
 class FrsMetaclass(DeclarativeMeta):

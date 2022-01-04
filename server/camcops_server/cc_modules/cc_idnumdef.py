@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_idnumdef.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -38,10 +39,12 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String
 
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     HL7AssigningAuthorityType,
     HL7IdTypeType,
     IdDescriptorColType,
+    UrlColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
@@ -143,6 +146,10 @@ class IdNumDefinition(Base):
         "validation_method", String(length=ID_NUM_VALIDATION_METHOD_MAX_LEN),
         comment="Optional validation method"
     )
+    fhir_id_system = Column(
+        "fhir_id_system", UrlColType,
+        comment="FHIR external ID 'system' URL"
+    )
 
     def __init__(self,
                  which_idnum: int = None,
@@ -150,7 +157,8 @@ class IdNumDefinition(Base):
                  short_description: str = "",
                  hl7_id_type: str = "",
                  hl7_assigning_authority: str = "",
-                 validation_method: str = ""):
+                 validation_method: str = "",
+                 fhir_id_system: str = ""):
         # We permit a "blank" constructor for automatic copying, e.g. merge_db.
         self.which_idnum = which_idnum
         self.description = description
@@ -158,11 +166,43 @@ class IdNumDefinition(Base):
         self.hl7_id_type = hl7_id_type
         self.hl7_assigning_authority = hl7_assigning_authority
         self.validation_method = validation_method
+        self.fhir_id_system = fhir_id_system
 
     def __repr__(self) -> str:
         return simple_repr(self,
                            ["which_idnum", "description", "short_description"],
                            with_addr=False)
+
+    def _camcops_default_fhir_id_system(self, req: "CamcopsRequest") -> str:
+        """
+        The built-in FHIR ID system URL that we'll use if the user hasn't
+        specified one for the selected ID number type.
+        """
+        return req.route_url(
+            Routes.FHIR_PATIENT_ID_SYSTEM,
+            which_idnum=self.which_idnum
+        )  # path will be e.g. /fhir_patient_id_system/3
+
+    def effective_fhir_id_system(self, req: "CamcopsRequest") -> str:
+        """
+        If the user has set a FHIR ID system, return that. Otherwise, return
+        a CamCOPS default.
+        """
+        return self.fhir_id_system or self._camcops_default_fhir_id_system(req)
+
+    def verbose_fhir_id_system(self, req: "CamcopsRequest") -> str:
+        """
+        Returns a human-readable description of the FHIR ID system in effect,
+        in HTML form.
+        """
+        _ = req.gettext
+        if self.fhir_id_system:
+            prefix = ""
+            url = self.fhir_id_system
+        else:
+            prefix = _("Default:") + " "
+            url = self._camcops_default_fhir_id_system(req)
+        return f'{prefix} <a href="{url}">{url}</a>'
 
 
 # =============================================================================

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_snomed.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -720,6 +721,9 @@ class SnomedLookup(object):
     # SNOMED-CT core concepts
     # -------------------------------------------------------------------------
 
+    # Base concepts
+    OBSERVABLE_ENTITY = "observable_entity"
+
     # Abstract physical quantities
     MASS = "mass"
     LENGTH = "length"
@@ -827,7 +831,10 @@ class SnomedLookup(object):
     # ... "location": not obvious
     # ... "contact type" is an AoMRC heading, but I'm not sure the observable
     #     entity of "Initial contact type" is right.
-    PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
+    #
+    # Deprecated between v20191001 and v20210929:
+    # PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
+    DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE = "diagnostic_psychiatric_interview_procedure"  # noqa
 
     PSYCLERK_REASON_FOR_REFERRAL = "psyclerk_reason_for_referral"
     PSYCLERK_PRESENTING_ISSUE = "psyclerk_presenting_issue"
@@ -1139,7 +1146,7 @@ def get_all_task_snomed_concepts(xml_filename: str) \
     if missing:
         raise ValueError(
             f"The following SNOMED-CT concepts required by CamCOPS are "
-            f"missing from the XML ({xml_filename!r}): {missing!r}")
+            f"missing from the XML ({xml_filename}): {missing!r}")
     # Done
     return camcops_concepts
 

@@ -5,7 +5,8 @@ camcops_server/tasks/icd10schizotypal.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -101,6 +102,7 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,

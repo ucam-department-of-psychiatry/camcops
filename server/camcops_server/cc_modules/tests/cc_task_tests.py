@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_task_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -27,10 +28,13 @@ camcops_server/cc_modules/tests/cc_task_tests.py
 """
 
 import logging
+import urllib.request
 
+from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
+from camcops_server.cc_modules.cc_dummy_database import DummyDataInserter
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_validators import (
@@ -75,6 +79,7 @@ class TaskTests(DemoDatabaseTestCase):
         log.info("Actual task table names: {!r} (n={})", tables, len(tables))
         req = self.req
         recipdef = self.recipdef
+        dummy_data_factory = DummyDataInserter()
         for cls in subclasses:
             log.info("Testing {}", cls)
             assert cls.extrastring_taskname != APPSTRING_TASKNAME
@@ -166,13 +171,19 @@ class TaskTests(DemoDatabaseTestCase):
                 self.assertIsInstance(idnum.short_description(req), str)
                 self.assertIsInstance(idnum.get_filename_component(req), str)
 
-            # HL7
+            # HL7 v2
             pidseg = t.get_patient_hl7_pid_segment(req, recipdef)
             assert isinstance(pidseg, str) or isinstance(pidseg, hl7.Segment)
             for dataseg in t.get_hl7_data_segments(req, recipdef):
                 self.assertIsInstance(dataseg, hl7.Segment)
             for dataseg in t.get_hl7_extra_data_segments(recipdef):
                 self.assertIsInstance(dataseg, hl7.Segment)
+
+            # FHIR
+            self.assertIsInstance(
+                t.get_fhir_bundle(req, recipdef).as_json(),
+                dict
+            )  # the main test is not crashing!
 
             # Other properties
             self.assertIsInstance(t.is_erased(), bool)
@@ -197,6 +208,14 @@ class TaskTests(DemoDatabaseTestCase):
                 str
             )
 
+            # Help
+            help_url = t.help_url()
+            self.assertEqual(
+                urllib.request.urlopen(help_url).getcode(),
+                HttpStatus.OK,
+                msg=f"Task help not found at {help_url}"
+            )
+
             # Special operations
             t.apply_special_note(req, "Debug: Special note! (1)",
                                  from_console=True)
@@ -205,6 +224,10 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.special_notes, list)
             t.cancel_from_export_log(req, from_console=True)
             t.cancel_from_export_log(req, from_console=False)
+
+            # Insert random data and check it doesn't crash.
+            dummy_data_factory.fill_in_task_fields(t)
+            self.assertIsInstance(t.get_html(req), str)
 
             # Destructive special operations
             self.assertFalse(t.is_erased())

@@ -1,6 +1,7 @@
 ..  docs/source/misc/to_do.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -101,23 +102,7 @@ Client core
 
 **Priority**
 
-- Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
-  2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
-
 - Test task upload (and date filtering) under Windows/SQL Server.
-
-- "Single patient" mode to go along with task scheduling.
-
-  - e.g. activate CamCOPS at first use with a URL to a server including a
-    security token; this should then lead to the CamCOPS client registering
-    with the server and knowing the owner's identity
-  - in single-patient mode, automatic fetching of scheduling info (but
-    must cope if network down)
-  - in single-patient mode, automatic uploading of completed tasks (but
-    must cope if network down)
-  - facility to switch in and out of single-patient mode
-  - helpful summary of "things you need to do", so it walks the user through
-  - **See "server" below.**
 
 **Medium priority**
 
@@ -187,13 +172,6 @@ Server
 
 **Medium**
 
-- Self-test: possible to avoid recreating database structure each time? Makes
-  it very slow.
-  (MB 2020-08-19: Certainly possible with pytest / pytest-django. I haven't
-  checked if there's an equivalent for pyramid. No doubt this would require a
-  lot of work up front and would be good not to have to maintain our own test
-  runner.)
-
 - At present the client calls ``op_validate_patients`` prior to an upload. This
   eliminates all realistic possibilities of uploading patient details not
   permitted to that user. However, it doesn't prevent the theoretical
@@ -237,12 +215,6 @@ Server
   - Best to implement by fixed column names for all ID numbers, e.g.
     ``_patient_idnum1``, ``_patient_idnum17``, etc.? NULL if absent.
 
-- FHIR support via ``fhirclient``.
-
-  - https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
-  - https://www.hl7.org/fhir/overview.html
-  - CamCOPS will be a FHIR server, not a client.
-
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
 
@@ -253,6 +225,10 @@ Server
   - TranslatableDateTimeSelectorNode
   - CheckedPasswordWidget
 
+- When Deform bug https://github.com/Pylons/deform/issues/347 is fixed, turn
+  off ``DEFORM_ACCORDION_BUG`` (in ``cc_forms.py``) to auto-hide advanced
+  JSON task schedule settings by default.
+
 
 Documentation
 -------------
@@ -262,10 +238,6 @@ Documentation
 
 Developer convenience
 ---------------------
-
-- Use ``lconvert`` to convert from ``.ts`` to ``.po`` and back, so we can use
-  Poedit (with its autosuggestions) for the C++ side:
-  https://stackoverflow.com/questions/12109368/how-to-convert-gnu-gettext-po-files-to-qts-ts-files
 
 
 Wishlist and blue-sky thoughts

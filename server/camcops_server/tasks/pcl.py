@@ -5,7 +5,8 @@ camcops_server/tasks/pcl.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -100,6 +101,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
     __abstract__ = True
     provides_trackers = True
     extrastring_taskname = "pcl"
+    info_filename_stem = extrastring_taskname
 
     NQUESTIONS = 17
     SCORED_FIELDS = strseq("q", 1, NQUESTIONS)

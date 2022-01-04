@@ -1,6 +1,7 @@
 ..  docs/source/index.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -26,6 +27,8 @@ CamCOPS is an open-source application for capturing information relevant for
 cognitive and psychiatric assessment, on tablets, laptops, and desktops. It
 offers simple questionnaires and more complex tasks, and sends its data
 securely to your server.
+
+For scientific papers about CamCOPS, see :ref:`publications <publications>`.
 
 ..  toctree::
     :maxdepth: 2
@@ -59,6 +62,7 @@ securely to your server.
     changelog.rst
     faq_known_problems.rst
     to_do.rst
+    publications.rst
 
 
 Indexes and tables
@@ -67,4 +71,3 @@ Indexes and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

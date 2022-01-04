@@ -5,7 +5,8 @@ camcops_server/templates/snippets/to_view_all_groups.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -27,9 +28,13 @@ camcops_server/templates/snippets/to_view_all_groups.mako
 </%doc>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <div>
-    <a href="${ req.route_url(Routes.VIEW_GROUPS) | n }">${ _("View all groups") }</a>
+    ${ req.icon_text(
+            icon=Icons.GROUPS,
+            url=request.route_url(Routes.VIEW_GROUPS),
+            text=_("View all groups")
+    ) | n }
 </div>

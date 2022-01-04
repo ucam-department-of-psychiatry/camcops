@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_db.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -47,13 +48,17 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from camcops_server.cc_modules.cc_constants import (
+    CLIENT_DATE_FIELD,
     ERA_NOW,
     EXTRA_COMMENT_PREFIX,
-    EXTRA_TASK_TABLENAME_FIELD,
     EXTRA_TASK_SERVER_PK_FIELD,
+    EXTRA_TASK_TABLENAME_FIELD,
+    MOVE_OFF_TABLET_FIELD,
+    TABLET_ID_FIELD,
 )
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
+    COLATTR_PERMITTED_VALUE_CHECKER,
     EraColType,
     gen_ancillary_relationships,
     gen_camcops_blob_columns,
@@ -197,6 +202,10 @@ if pymysql:
         pymysql.converters.encoders[Pendulum] = pymysql_crash_on_bad_conversion
     else:
         pymysql.converters.encoders[Pendulum] = pymysql.converters.escape_datetime  # noqa
+    # And also, as per the source code and
+    # https://stackoverflow.com/questions/59871904/convert-pymysql-query-result-with-mysql-decimal-type-to-python-float  # noqa
+    pymysql.converters.conversions = pymysql.converters.encoders.copy()
+    pymysql.converters.conversions.update(pymysql.converters.decoders)
 
 
 # =============================================================================
@@ -234,6 +243,76 @@ TFN_WHEN_FIRSTEXIT = "when_firstexit"
 TFN_FIRSTEXIT_IS_FINISH = "firstexit_is_finish"
 TFN_FIRSTEXIT_IS_ABORT = "firstexit_is_abort"
 TFN_EDITING_TIME_S = "editing_time_s"
+
+# Fieldnames for the task patient mixin. Do not change.
+TFN_PATIENT_ID = "patient_id"
+
+# Fieldnames for the task clinician mixin. Do not change.
+TFN_CLINICIAN_SPECIALTY = "clinician_specialty"
+TFN_CLINICIAN_NAME = "clinician_name"
+TFN_CLINICIAN_PROFESSIONAL_REGISTRATION = "clinician_professional_registration"
+TFN_CLINICIAN_POST = "clinician_post"
+TFN_CLINICIAN_SERVICE = "clinician_service"
+TFN_CLINICIAN_CONTACT_DETAILS = "clinician_contact_details"
+
+# Fieldnames for the task respondent mixin. Do not change.
+TFN_RESPONDENT_NAME = "respondent_name"
+TFN_RESPONDENT_RELATIONSHIP = "respondent_relationship"
+
+RESERVED_FIELDS = (  # fields that tablets can't upload
+    FN_PK,
+    FN_DEVICE_ID,
+    FN_ERA,
+    FN_CURRENT,
+    FN_WHEN_ADDED_EXACT,
+    FN_WHEN_ADDED_BATCH_UTC,
+    FN_ADDING_USER_ID,
+    FN_WHEN_REMOVED_EXACT,
+    FN_WHEN_REMOVED_BATCH_UTC,
+    FN_REMOVING_USER_ID,
+    FN_PRESERVING_USER_ID,
+    FN_FORCIBLY_PRESERVED,
+    FN_PREDECESSOR_PK,
+    FN_SUCCESSOR_PK,
+    FN_MANUALLY_ERASED,
+    FN_MANUALLY_ERASED_AT,
+    FN_MANUALLY_ERASING_USER_ID,
+    FN_CAMCOPS_VERSION,
+    FN_ADDITION_PENDING,
+    FN_REMOVAL_PENDING,
+    FN_GROUP_ID,
+)  # but more generally: they start with "_"...
+assert(all(x.startswith("_") for x in RESERVED_FIELDS))
+
+TABLET_STANDARD_FIELDS = RESERVED_FIELDS + (
+    TABLET_ID_FIELD,
+    CLIENT_DATE_FIELD,  # when_last_modified
+    MOVE_OFF_TABLET_FIELD,
+)
+TASK_STANDARD_FIELDS = TABLET_STANDARD_FIELDS + (
+    # All tasks:
+    TFN_WHEN_CREATED,
+    TFN_WHEN_FIRSTEXIT,
+    TFN_FIRSTEXIT_IS_FINISH,
+    TFN_FIRSTEXIT_IS_ABORT,
+    TFN_EDITING_TIME_S,
+)
+TASK_FREQUENT_AND_FK_FIELDS = TASK_STANDARD_FIELDS + (
+    # Tasks with a patient:
+    TFN_PATIENT_ID,
+)
+TASK_FREQUENT_FIELDS = TASK_FREQUENT_AND_FK_FIELDS + (
+    # Tasks with a clinician:
+    TFN_CLINICIAN_SPECIALTY,
+    TFN_CLINICIAN_NAME,
+    TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+    TFN_CLINICIAN_POST,
+    TFN_CLINICIAN_SERVICE,
+    TFN_CLINICIAN_CONTACT_DETAILS,
+    # Tasks with a respondent:
+    TFN_RESPONDENT_NAME,
+    TFN_RESPONDENT_RELATIONSHIP,
+)
 
 
 # =============================================================================
@@ -448,31 +527,6 @@ class GenericTabletRecordMixin(object):
             comment="(SERVER) ID of group to which this record belongs"
         )
 
-    RESERVED_FIELDS = [  # fields that tablets can't upload
-        FN_PK,
-        FN_DEVICE_ID,
-        FN_ERA,
-        FN_CURRENT,
-        FN_WHEN_ADDED_EXACT,
-        FN_WHEN_ADDED_BATCH_UTC,
-        FN_ADDING_USER_ID,
-        FN_WHEN_REMOVED_EXACT,
-        FN_WHEN_REMOVED_BATCH_UTC,
-        FN_REMOVING_USER_ID,
-        FN_PRESERVING_USER_ID,
-        FN_FORCIBLY_PRESERVED,
-        FN_PREDECESSOR_PK,
-        FN_SUCCESSOR_PK,
-        FN_MANUALLY_ERASED,
-        FN_MANUALLY_ERASED_AT,
-        FN_MANUALLY_ERASING_USER_ID,
-        FN_CAMCOPS_VERSION,
-        FN_ADDITION_PENDING,
-        FN_REMOVAL_PENDING,
-        FN_GROUP_ID,
-    ]  # but more generally: they start with "_"...
-    assert(all(x.startswith("_") for x in RESERVED_FIELDS))
-
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:
     # -------------------------------------------------------------------------
@@ -481,7 +535,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def id(cls) -> Column:
         return Column(
-            "id", Integer,
+            TABLET_ID_FIELD, Integer,
             nullable=False, index=True,
             comment="(TASK) Primary key (task ID) on the tablet device"
         )
@@ -490,7 +544,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def when_last_modified(cls) -> Column:
         return Column(
-            "when_last_modified", PendulumDateTimeAsIsoTextColType,
+            CLIENT_DATE_FIELD, PendulumDateTimeAsIsoTextColType,
             index=True,  # ... as used by database upload script
             comment="(STANDARD) Date/time this row was last modified on the "
                     "source tablet device (ISO 8601)"
@@ -500,7 +554,7 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _move_off_tablet(cls) -> Column:
         return Column(
-            "_move_off_tablet", Boolean, default=False,
+            MOVE_OFF_TABLET_FIELD, Boolean, default=False,
             comment="(SERVER/TABLET) Record-specific preservation pending?"
         )
 
@@ -573,6 +627,32 @@ class GenericTabletRecordMixin(object):
         Returns the group ID of this record.
         """
         return self._group_id
+
+    # -------------------------------------------------------------------------
+    # Other universal properties
+    # -------------------------------------------------------------------------
+
+    def is_live_on_tablet(self) -> bool:
+        """
+        Is the record live on a tablet (not finalized)?
+        """
+        return self._era == ERA_NOW
+
+    def is_finalized(self) -> bool:
+        """
+        Is the record finalized (no longer available to be edited on the
+        client device), and therefore (if required) editable on the server?
+        """
+        return not self.is_live_on_tablet()
+
+    def created_on_server(self, req: "CamcopsRequest") -> bool:
+        """
+        Was this record created on the server?
+        """
+        from camcops_server.cc_modules.cc_device import Device  # delayed import  # noqa
+        server_device = Device.get_server_device(req.dbsession)
+        return (self._era == ERA_NOW and
+                self._device_id == server_device.id)
 
     # -------------------------------------------------------------------------
     # Autoscanning objects and their relationships
@@ -1092,7 +1172,7 @@ def add_multiple_columns(
                 s = comment_strings[i] or ""
             colkwargs["comment"] = comment_fmt.format(n=n, s=s)
         if minimum is not None or maximum is not None or pv is not None:
-            colkwargs["permitted_value_checker"] = PermittedValueChecker(
+            colkwargs[COLATTR_PERMITTED_VALUE_CHECKER] = PermittedValueChecker(
                 minimum=minimum,
                 maximum=maximum,
                 permitted_values=pv

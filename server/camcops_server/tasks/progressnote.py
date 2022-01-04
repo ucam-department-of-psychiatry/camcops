@@ -5,7 +5,8 @@ camcops_server/tasks/progressnote.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -59,6 +60,7 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     __tablename__ = "progressnote"
     shortname = "ProgressNote"
+    info_filename_stem = "clinical"
 
     location = Column("location", UnicodeText, comment="Location")
     note = Column("note", UnicodeText, comment="Clinical note")

@@ -5,7 +5,8 @@ camcops_server/templates/menu/exported_task_hl7_message.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,12 +30,17 @@ camcops_server/templates/menu/exported_task_hl7_message.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Individual HL7 message") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_ITEM,
+        text=_("Individual HL7 v2 message")
+    ) | n }
+</h1>
 
 <table>
     <tr>
@@ -43,10 +49,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
     <tr>
         <th>Exported task ID</th>
-        <td><a href="${ req.route_url(
-                            Routes.VIEW_EXPORTED_TASK,
-                            _query={ViewParam.ID: msg.exported_task_id}
-                        ) | n }">ExportedTask ${ msg.exported_task_id }</a></td>
+        <td>
+            ${ req.icon_text(
+                    icon=Icons.EXPORTED_TASK,
+                    url=request.route_url(
+                        Routes.VIEW_EXPORTED_TASK,
+                        _query={
+                            ViewParam.ID: msg.exported_task_id
+                        }
+                    ),
+                    text="ExportedTask " + str(msg.exported_task_id)
+            ) | n }
+        </td>
     </tr>
     <tr>
         <th>Sent at (UTC)</th>
@@ -74,4 +88,5 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
 </table>
 
+<%include file="to_offer_exported_task_list.mako"/>
 <%include file="to_main_menu.mako"/>

@@ -5,7 +5,8 @@ camcops_server/tasks/khandaker_mojo_medical.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -334,6 +335,7 @@ class KhandakerMojoMedical(
     """
     __tablename__ = "khandaker_mojo_medical"
     shortname = "Khandaker_MOJO_Medical"
+    info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
     # Section 1: General Information

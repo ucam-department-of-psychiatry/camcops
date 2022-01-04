@@ -5,14 +5,14 @@ name: Build
 on:
     push:
         paths:
-            - 'server/*'
+            - 'server/**'
             - .github/workflows/push-to-repository.yml
 jobs:
     pip-install-and-tests:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.7, 3.8, 3.9]
         env:
             DB_DATABASE: camcops
             DB_CAMCOPS_USER: camcops
@@ -28,7 +28,7 @@ jobs:
             - name: Set up MySQL
               run: |
                   set -xe
-                  sudo /etc/init.d/mysql start
+                  sudo systemctl start mysql
                   mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
                   mysql -e 'CREATE USER `${{ env.DB_CAMCOPS_USER }}`@`localhost` IDENTIFIED BY "${{ env.DB_CAMCOPS_PASSWORD }}";' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
                   mysql -e 'GRANT ALL PRIVILEGES ON `${{ env.DB_DATABASE }}`.* TO `${{ env.DB_CAMCOPS_USER }}`@`localhost`;' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
@@ -78,7 +78,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.7, 3.8, 3.9]
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-python@v2

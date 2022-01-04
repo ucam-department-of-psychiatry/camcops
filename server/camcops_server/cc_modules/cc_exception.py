@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_exception.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -46,6 +47,14 @@ STR_FORMAT_EXCEPTIONS = (
     KeyError,  # missing named parameter: "{x}".format(y=2)
     ValueError  # e.g. unmatched brace: "{x".format(x=1)
 )
+
+
+# =============================================================================
+# Exceptions
+# =============================================================================
+
+class FhirExportException(Exception):
+    pass
 
 
 # =============================================================================

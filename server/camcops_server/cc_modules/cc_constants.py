@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_constants.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -36,6 +37,8 @@ import os
 
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
+from cardinal_pythonlib.tcpipconst import Ports
+from cardinal_pythonlib.uriconst import UriSchemes
 
 from camcops_server.cc_modules.cc_baseconstants import (
     DEFAULT_EXTRA_STRINGS_DIR,
@@ -69,6 +72,14 @@ class FileType(object):
 
 
 # =============================================================================
+# Encodings
+# =============================================================================
+
+ASCII = "ascii"
+UTF8 = "utf8"
+
+
+# =============================================================================
 # Launching
 # =============================================================================
 
@@ -91,6 +102,13 @@ MINIMUM_PASSWORD_LENGTH = 10
 
 OBSCURE_PHONE_ASTERISKS = "*" * 10
 OBSCURE_EMAIL_ASTERISKS = "*" * 5
+
+
+# =============================================================================
+# Other display constants
+# =============================================================================
+
+JSON_INDENT = 4
 
 
 # =============================================================================
@@ -118,6 +136,9 @@ class DateFormat(object):
     ISO8601_HUMANIZED_TO_SECONDS = "%Y-%m-%d %H:%M:%S"  # e.g. 2013-07-24 20:04:23  # noqa
     ISO8601_HUMANIZED_TO_SECONDS_TZ = "%Y-%m-%d %H:%M:%S %z"  # e.g. 2013-07-24 20:04:23 +0100  # noqa
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
+    FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
+    # FHIR_DATETIME -- use x.isoformat()
+    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
@@ -128,6 +149,13 @@ class DateFormat(object):
 
 
 # =============================================================================
+# FHIR constants
+# =============================================================================
+
+CAMCOPS_DEFAULT_FHIR_APP_ID = "camcops"
+
+
+# =============================================================================
 # Permitted values in fields: some common settings
 # =============================================================================
 
@@ -135,10 +163,10 @@ class PV(object):
     """
     Collections of permitted values.
     """
-    BIT = [0, 1]
+    BIT = (0, 1)
 
     # Red/Yellow/Green
-    RYG = ["R", "Y", "G"]
+    RYG = ("R", "Y", "G")
 
 
 NO_CHAR = 'N'
@@ -148,13 +176,14 @@ YES_CHAR = 'Y'
 SEX_FEMALE = "F"
 SEX_MALE = "M"
 SEX_OTHER_UNSPECIFIED = "X"
-POSSIBLE_SEX_VALUES = [SEX_FEMALE, SEX_MALE, SEX_OTHER_UNSPECIFIED]
+POSSIBLE_SEX_VALUES = (SEX_FEMALE, SEX_MALE, SEX_OTHER_UNSPECIFIED)
 
 
 # =============================================================================
 # Field names/specifications
 # =============================================================================
 
+# Do not alter these!
 TABLET_ID_FIELD = "id"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
@@ -447,6 +476,10 @@ class ConfigParamServer(object):
     DEBUG_REVERSE_PROXY = "DEBUG_REVERSE_PROXY"
     DEBUG_SHOW_GUNICORN_OPTIONS = "DEBUG_SHOW_GUNICORN_OPTIONS"
     DEBUG_TOOLBAR = "DEBUG_TOOLBAR"
+    EXTERNAL_URL_SCHEME = "EXTERNAL_URL_SCHEME"
+    EXTERNAL_SERVER_NAME = "EXTERNAL_SERVER_NAME"
+    EXTERNAL_SERVER_PORT = "EXTERNAL_SERVER_PORT"
+    EXTERNAL_SCRIPT_NAME = "EXTERNAL_SCRIPT_NAME"
     GUNICORN_DEBUG_RELOAD = "GUNICORN_DEBUG_RELOAD"
     GUNICORN_NUM_WORKERS = "GUNICORN_NUM_WORKERS"
     GUNICORN_TIMEOUT_S = "GUNICORN_TIMEOUT_S"
@@ -508,6 +541,11 @@ class ConfigParamExportRecipient(object):
     EMAIL_TIMEOUT = "EMAIL_TIMEOUT"
     EMAIL_TO = "EMAIL_TO"
     END_DATETIME_UTC = "END_DATETIME_UTC"
+    FHIR_API_URL = "FHIR_API_URL"
+    FHIR_APP_ID = "FHIR_APP_ID"
+    FHIR_APP_SECRET = "FHIR_APP_SECRET"
+    FHIR_LAUNCH_TOKEN = "FHIR_LAUNCH_TOKEN"
+    FHIR_CONCURRENT = "FHIR_CONCURRENT"
     FILE_EXPORT_RIO_METADATA = "FILE_EXPORT_RIO_METADATA"
     FILE_FILENAME_SPEC = "FILE_FILENAME_SPEC"
     FILE_MAKE_DIRECTORY = "FILE_MAKE_DIRECTORY"
@@ -544,18 +582,6 @@ class ConfigParamExportRecipient(object):
     XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
 
-class StandardPorts(object):
-    """
-    Standard TCP port numbers.
-    """
-    ALTERNATIVE_HTTP = 8000
-    AMQP = 5672
-    SMTP = 25
-    SMTP_TLS = 587
-    HL7_MLLP = 2575
-    MYSQL = 3306
-
-
 class MfaMethod:
     """
     Open multi-factor authentication (MFA) standards are defined in RFC 4226
@@ -577,14 +603,14 @@ class MfaMethod:
         """
         Is the method a known MFA method (including "no MFA")?
         """
-        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.NO_MFA, cls.TOTP]
+        return method in (cls.HOTP_EMAIL, cls.HOTP_SMS, cls.NO_MFA, cls.TOTP)
 
     @classmethod
     def requires_second_step(cls, method: str) -> bool:
         """
         Does the method require a second authentication step?
         """
-        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.TOTP]
+        return method in (cls.HOTP_EMAIL, cls.HOTP_SMS, cls.TOTP)
 
     @classmethod
     def clean(cls, method: str) -> str:
@@ -626,7 +652,7 @@ class DockerConstants(object):
     CONTAINER_MYSQL = "mysql"
 
     # Other
-    CELERY_BROKER_URL = f"amqp://{CONTAINER_RABBITMQ}:{StandardPorts.AMQP}/"
+    CELERY_BROKER_URL = f"amqp://{CONTAINER_RABBITMQ}:{Ports.AMQP}/"
     DEFAULT_MYSQL_CAMCOPS_USER = "camcops"
     HOST = "0.0.0.0"
     # ... not "localhost" or "127.0.0.1"; see
@@ -653,13 +679,15 @@ class ConfigDefaults(object):
     CLIENT_API_LOGLEVEL_TEXTFORMAT = "info"  # should match CLIENT_API_LOGLEVEL
     DB_DATABASE = "camcops"  # for demo configs only
     DB_ECHO = False
-    DB_PORT = StandardPorts.MYSQL  # for demo configs only
+    DB_PORT = Ports.MYSQL  # for demo configs only
     DB_SERVER = "localhost"  # for demo configs only
     DB_USER = "YYY_USERNAME_REPLACE_ME"  # cosmetic; for demo configs only
     DB_PASSWORD = "ZZZ_PASSWORD_REPLACE_ME"  # cosmetic; for demo configs only
     DISABLE_PASSWORD_AUTOCOMPLETE = True
-    EMAIL_PORT = StandardPorts.SMTP_TLS
+    EMAIL_PORT = Ports.SMTP_MSA
     EMAIL_USE_TLS = True
+    EXTERNAL_URL_SCHEME = UriSchemes.HTTPS
+    EXTERNAL_SERVER_NAME = "localhost"
     EXTRA_STRING_FILES = os.path.join(DEFAULT_EXTRA_STRINGS_DIR, "*.xml")  # cosmetic; for demo configs only  # noqa
     LANGUAGE = DEFAULT_LOCALE
     LOCAL_INSTITUTION_URL = "https://camcops.readthedocs.io/"
@@ -696,7 +724,7 @@ class ConfigDefaults(object):
     GUNICORN_NUM_WORKERS = 2 * multiprocessing.cpu_count()
     GUNICORN_TIMEOUT_S = 30
     HOST = "127.0.0.1"
-    PORT = StandardPorts.ALTERNATIVE_HTTP
+    PORT = Ports.ALTERNATIVE_HTTP_NONSTANDARD
     PROXY_REWRITE_PATH_INFO = False
     SHOW_REQUEST_IMMEDIATELY = False
     SHOW_REQUESTS = False
@@ -719,6 +747,7 @@ class ConfigDefaults(object):
     DB_PATIENT_ID_PER_ROW = False
     EMAIL_BODY_IS_HTML = False
     EMAIL_KEEP_MESSAGE = False
+    FHIR_APP_ID = CAMCOPS_DEFAULT_FHIR_APP_ID
     FILE_EXPORT_RIO_METADATA = False
     FILE_MAKE_DIRECTORY = False
     FILE_OVERWRITE_FILES = False
@@ -730,7 +759,7 @@ class ConfigDefaults(object):
     HL7_KEEP_REPLY = False
     HL7_NETWORK_TIMEOUT_MS = 10000
     HL7_PING_FIRST = True
-    HL7_PORT = StandardPorts.HL7_MLLP
+    HL7_PORT = Ports.HL7_MLLP
     INCLUDE_ANONYMOUS = False
     PUSH = False
     REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = True
@@ -988,3 +1017,269 @@ class StringLengths:
 
     SESSION_TOKEN_MAX_LEN = len(
         create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))
+
+
+# =============================================================================
+# FHIR string constants
+# =============================================================================
+
+class FHIRConst:
+    """
+    Constants used, mainly as dictionary keys, by the Python ``fhirclient``
+    package.
+
+    - Capitalized: usually FHIR object types
+    - lower_case or lowerCamelCase: usually dictionary keys
+    - plainlowercase: often string constants
+    """
+    # -------------------------------------------------------------------------
+    # Authentication (FHIRClient settings)
+    # -------------------------------------------------------------------------
+
+    API_BASE = "api_base"
+    APP_ID = "app_id"
+    APP_SECRET = "app_secret"
+    LAUNCH_TOKEN = "launch_token"
+
+    # -------------------------------------------------------------------------
+    # Generic keys (used by lots)
+    # -------------------------------------------------------------------------
+
+    CODE = "code"
+    DATE = "date"
+    DESCRIPTION = "description"
+    IDENTIFIER = "identifier"
+    ITEM = "item"
+    NAME = "name"
+    STATUS = "status"
+    SUBJECT = "subject"
+    SYSTEM = "system"
+    TRANSACTION = "transaction"
+    URL = "url"
+    VALUE = "value"
+
+    # -------------------------------------------------------------------------
+    # Resource types (usually: BundleEntryRequest keys)
+    # -------------------------------------------------------------------------
+
+    RESOURCE_TYPE_BUNDLE = "Bundle"
+    RESOURCE_TYPE_CONDITION = "Condition"
+    RESOURCE_TYPE_DOCUMENT_REFERENCE = "DocumentReference"
+    RESOURCE_TYPE_OBSERVATION = "Observation"
+    RESOURCE_TYPE_PATIENT = "Patient"
+    RESOURCE_TYPE_PRACTITIONER = "Practitioner"
+    RESOURCE_TYPE_QUESTIONNAIRE = "Questionnaire"
+    RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE = "QuestionnaireResponse"
+
+    # -------------------------------------------------------------------------
+    # Resource-specific keys
+    # -------------------------------------------------------------------------
+
+    # Annotation keys
+    AUTHOR_REFERENCE = "authorReference"
+    AUTHOR_STRING = "authorString"
+    TIME = "time"
+
+    # Attachment and Binary keys
+    CONTENT_TYPE = "contentType"
+    DATA = "data"
+
+    # Bundle keys
+    TYPE = "type"
+    ENTRY = "entry"
+
+    # BundleEntry keys
+    REQUEST = "request"
+    RESOURCE = "resource"
+
+    # BundleEntryRequest keys
+    IF_NONE_EXIST = "ifNoneExist"
+    METHOD = "method"
+
+    # CodeableConcept keys
+    CODING = "coding"
+    TEXT = "text"
+
+    # Coding keys
+    DISPLAY = "display"
+    USER_SELECTED = "userSelected"
+    VERSION = "version"
+    # Coding values
+    # https://www.hl7.org/fhir/terminologies-systems.html
+    # http://www.hl7.org/fhir/snomedct.html
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_SNOMED_CT = "http://snomed.info/sct"
+    # http://www.hl7.org/fhir/icd.html
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_ICD9_CM = "http://hl7.org/fhir/sid/icd-9-cm"
+    # http://www.hl7.org/fhir/icd.html
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_ICD10 = "http://hl7.org/fhir/sid/icd-10"
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_LOINC = "http://loinc.org"
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_UCUM = "http://unitsofmeasure.org"
+
+    # Condition keys
+    NOTE = "note"
+    RECORDER = "recorder"  # = clinician
+
+    # ContactPoint values
+    TELECOM_SYSTEM_EMAIL = "email"
+    TELECOM_SYSTEM_OTHER = "other"
+
+    # DocumentReference keys
+    AUTHOR = "author"
+    CONTENT = "content"
+    DOCSTATUS = "docStatus"
+    MASTER_IDENTIFIER = "masterIdentifier"
+    # DocumentReference values
+    DOCSTATUS_CURRENT = "current"
+    DOCSTATUS_FINAL = "final"
+    DOCSTATUS_PRELIMINARY = "preliminary"
+
+    # DocumentReferenceContent keys:
+    ATTACHMENT = "attachment"
+    FORMAT = "format"
+
+    # HumanName keys
+    NAME_FAMILY = "family"
+    NAME_GIVEN = "given"
+
+    # Observation keys
+    COMPONENT = "component"
+    EFFECTIVE_DATE_TIME = "effectiveDateTime"
+    # Observation values
+    OBSSTATUS_FINAL = "final"
+    OBSSTATUS_PRELIMINARY = "preliminary"
+
+    # Observation/ObservationComponent/QuestionnaireResponseItemAnswer keys
+    # (not all are possible for all of those!).
+    VALUE_ATTACHMENT = "valueAttachment"
+    VALUE_BOOLEAN = "valueBoolean"
+    VALUE_CODEABLE_CONCEPT = "valueCodeableConcept"
+    VALUE_CODING = "valueCoding"
+    VALUE_DATE = "valueDate"
+    VALUE_DATETIME = "valueDateTime"
+    VALUE_DECIMAL = "valueDecimal"
+    VALUE_INTEGER = "valueInteger"
+    VALUE_QUANTITY = "valueQuantity"
+    VALUE_REFERENCE = "valueReference"
+    VALUE_STRING = "valueString"
+    VALUE_TIME = "valueTime"
+    VALUE_URI = "valueUri"
+
+    # Patient/Practitioner keys
+    ADDRESS = "address"
+    BIRTHDATE = "birthDate"
+    GENDER = "gender"
+    TELECOM = "telecom"
+    # Patient values
+    GENDER_FEMALE = "female"
+    GENDER_MALE = "male"
+    GENDER_OTHER = "other"
+    GENDER_UNKNOWN = "unknown"
+
+    # Address keys
+    ADDRESS_TEXT = "text"
+
+    # Quantity keys
+    # COMPARATOR = "comparator"
+    UNIT = "unit"
+
+    # Questionnaire keys
+    TITLE = "title"
+    COPYRIGHT = "copyright"
+    # Questionnaire values
+    QSTATUS_ACTIVE = "active"
+    QSTATUS_COMPLETED = "completed"
+    QSTATUS_IN_PROGRESS = "in-progress"
+    QSTATUS_STOPPED = "stopped"
+
+    # QuestionnaireItem keys
+    LINK_ID = "linkId"
+    ANSWER_OPTION = "answerOption"
+    # NB: answerValueSet isn't just a list; it's a fiddly thing.
+    # QuestionnaireItem values
+    QITEM_TYPE_ATTACHMENT = "attachment"
+    QITEM_TYPE_BOOLEAN = "boolean"
+    QITEM_TYPE_CHOICE = "choice"
+    QITEM_TYPE_DATE = "date"
+    QITEM_TYPE_DATETIME = "dateTime"
+    QITEM_TYPE_DECIMAL = "decimal"
+    QITEM_TYPE_DISPLAY = "display"
+    QITEM_TYPE_GROUP = "group"
+    QITEM_TYPE_INTEGER = "integer"
+    QITEM_TYPE_OPEN_CHOICE = "open-choice"
+    QITEM_TYPE_QUANTITY = "quantity"
+    QITEM_TYPE_QUESTION = "question"
+    QITEM_TYPE_REFERENCE = "reference"
+    QITEM_TYPE_STRING = "string"
+    QITEM_TYPE_TIME = "time"
+    QITEM_TYPE_URL = "url"
+    # Some belong here but are not in the fhirclient docs. See:
+    # https://www.hl7.org/fhir/codesystem-item-type.html
+    # https://www.hl7.org/fhir/valueset-item-type.html
+
+    # QuestionnaireResponse keys
+    AUTHORED = "authored"
+    QUESTIONNAIRE = "questionnaire"
+
+    # QuestionnaireResponseItem keys
+    ANSWER = "answer"
+
+    # -------------------------------------------------------------------------
+    # Very specific codes
+    # -------------------------------------------------------------------------
+
+    # For BMI and related:
+    # - https://www.hl7.org/fhir/observation-example-bmi-using-related.html
+    # - https://www.hl7.org/fhir/observation-example.html
+    # - https://hl7.org/fhir/us/core/2017Jan/ValueSet-us-core-ucum.html
+    # - Height: https://loinc.org/8302-2/
+    # - Waist circumference: https://loinc.org/8280-0/ -- but NB also several
+    #   others. https://loinc.org/56117-5/ is the "natural waist" which is most
+    #   likely in the absence of other detail.
+    LOINC_BMI_CODE = "39156-5"
+    LOINC_BMI_TEXT = "Body mass index (BMI) [Ratio]"
+    LOINC_BODY_WEIGHT_CODE = "29463-7"
+    LOINC_BODY_WEIGHT_TEXT = "Body weight"
+    LOINC_HEIGHT_CODE = "8302-2"
+    LOINC_HEIGHT_TEXT = "Body height"
+    LOINC_WAIST_CIRCUMFERENCE_CODE = "56117-5"
+    LOINC_WAIST_CIRCUMFERENCE_TEXT = "Waist Circumference by WHI"
+    UCUM_CODE_KG_PER_SQ_M = "kg/m2"
+    UCUM_CODE_KG = "kg"
+    UCUM_CODE_METRE = "m"
+    UCUM_CODE_CENTIMETRE = "cm"
+    # noinspection HttpUrlsUsage
+    VITAL_SIGNS_SYSTEM = "http://terminology.hl7.org/CodeSystem/observation-category"  # noqa
+    VITAL_SIGNS_CODE = "vital-signs"
+    VITAL_SIGNS_DISPLAY = "Vital Signs"
+
+    # ID_SYSTEM_NHS_NUMBER = "https://fhir.nhs.uk/Id/nhs-number"
+
+    # -------------------------------------------------------------------------
+    # Response values
+    # -------------------------------------------------------------------------
+
+    ETAG = "etag"
+    ID = "id"
+    LAST_MODIFIED = "lastModified"
+    LINK = "link"
+    LOCATION = "location"
+    RELATION = "relation"
+    RESOURCE_TYPE = "resourceType"
+    RESPONSE = "response"
+    SELF = "self"
+    TRANSACTION_RESPONSE = "transaction-response"
+    RESPONSE_STATUS_200_OK = "200 OK"
+    RESPONSE_STATUS_201_CREATED = "201 Created"
+
+    # -------------------------------------------------------------------------
+    # CamCOPS tags
+    # -------------------------------------------------------------------------
+
+    CAMCOPS_VALUE_CLINICIAN_WITHIN_TASK = "clinician"
+    CAMCOPS_VALUE_PATIENT_WITHIN_TASK = "patient"
+    CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK = "qr"

@@ -1,6 +1,7 @@
 ..  docs/source/introduction/introduction.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -49,3 +50,4 @@ Technical things:
     security_design.rst
     data_structure_design.rst
 
+For scientific papers about CamCOPS, see :ref:`publications <publications>`.

@@ -5,7 +5,8 @@ camcops_server/tasks/psychiatricclerking.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -59,6 +60,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "psychiatricclerking"
     shortname = "Clerking"
+    info_filename_stem = "clinical"
 
     # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa
 
@@ -344,7 +346,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         add(SnomedLookup.PSYCLERK_INFORMATION_GIVEN, self.information_given)
 
         codes = [SnomedExpression(
-            req.snomed(SnomedLookup.PSYCHIATRIC_ASSESSMENT_PROCEDURE),
+            req.snomed(SnomedLookup.DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE),
             refinement=refinement or None,
         )]
         return codes

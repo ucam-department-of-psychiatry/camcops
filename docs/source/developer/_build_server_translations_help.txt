@@ -1,4 +1,5 @@
-usage: build_server_translations.py [-h] [--verbose] operation
+usage: build_server_translations.py [-h] [--verbose] [--poedit POEDIT]
+                                    operation
 
 Create translation files for CamCOPS server. CamCOPS knows about the following
 locales:
@@ -21,16 +22,22 @@ Operations:
 
     [At this stage, edit the .po files with Poedit or similar.]
 
+    poedit
+        Launch (spawn) Poedit to edit the .po files.
+
     compile
         Converts each .po file to an equivalent .mo file.
 
     all
-        Executes all other operations in sequence.
+        Executes all other operations, except poedit, in sequence.
 
 positional arguments:
-  operation   Operation to perform; possibilities are ['extract',
-              'init_missing', 'update', 'compile', 'all']
+  operation        Operation to perform; possibilities are ['extract',
+                   'init_missing', 'update', 'poedit', 'compile', 'all']
 
 optional arguments:
-  -h, --help  show this help message and exit
-  --verbose   Be verbose (default: False)
+  -h, --help       show this help message and exit
+  --verbose        Be verbose (default: False)
+  --poedit POEDIT  Path to 'poedit' tool. Default is taken from POEDIT
+                   environment variable or 'which poedit'. (default:
+                   /snap/bin/poedit)

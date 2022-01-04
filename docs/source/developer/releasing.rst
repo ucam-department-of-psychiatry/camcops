@@ -1,6 +1,7 @@
 ..  docs/source/developer/releasing.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -18,7 +19,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Inno Setup: http://www.jrsoftware.org/isinfo.php
-
+.. _SignTool: https://docs.microsoft.com/en-gb/windows/win32/seccrypto/signtool
 
 .. _dev_releasing:
 
@@ -251,6 +252,16 @@ Windows client
 
 The client will be packaged automatically by the
 ``camcops_windows_innosetup.iss`` script, which runs under `Inno Setup`_.
+
+To sign the executables you'll need a valid certificate and a tool such as
+`SignTool`_. This is distributed as part of the Windows 10 SDK.
+
+Within Inno Setup, select :menuselection:`Tools --> Configure Sign
+Tools...`. Add a tool called ``signtool`` with a command to sign the executable.
+
+For example:
+
+``C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe sign /f C:\Users\Me\Downloads\certificate.p12 /tr http://timestamp.sectigo.com /td SHA256 /p "password" $f``
 
 .. warning::
 

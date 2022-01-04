@@ -3,7 +3,8 @@ camcops_server/cc_modules/tests/cc_proquint_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -65,7 +66,7 @@ class ProquintTest(TestCase):
         )
 
     def test_ints_converted_to_proquints_and_back(self) -> None:
-        for bits in [16, 32, 48, 64, 80, 96, 128, 256]:
+        for bits in (16, 32, 48, 64, 80, 96, 128, 256):
             for i in range(1000):
                 random_int = random.getrandbits(bits)
 

@@ -5,7 +5,8 @@ camcops_server/templates/menu/download_scheduled.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,16 +30,29 @@ camcops_server/templates/menu/download_scheduled.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
-<div>${ _(
-    "A file containing your data will be built. If your e-mail address is "
-    "configured, CamCOPS will e-mail you when it is ready.") }</div>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.BUSY,
+        text=_("Processing...")
+    ) | n }
+</h1>
 
 <div>
-    <a href="${ request.route_url(Routes.DOWNLOAD_AREA) | n }">
-        ${ _("Download area") }</a>
+    ${ _(
+        "A file containing your data will be built. If your e-mail address is "
+        "configured, CamCOPS will e-mail you when it is ready."
+    ) }
+</div>
+
+<div>
+    ${ req.icon_text(
+            icon=Icons.DOWNLOAD,
+            url=request.route_url(Routes.DOWNLOAD_AREA),
+            text=_("Download area")
+    ) | n }
 </div>
 
 <%include file="to_main_menu.mako"/>

@@ -5,7 +5,8 @@ camcops_server/templates/menu/view_server_info.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,27 +29,55 @@ camcops_server/templates/menu/view_server_info.mako
 
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("CamCOPS: information about this database/server") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("CamCOPS: information about this database/server")
+    ) | n }
+</h1>
 
-<h2>${ _("Identification (ID) numbers") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.ID_DEFINITIONS,
+        text=_("Identification (ID) numbers")
+    ) | n }
+</h2>
 <table>
     <tr>
         <th>${ _("ID number") }</th>
         <th>${ _("Description") }</th>
         <th>${ _("Short description") }</th>
+        <th>${ _("FHIR patient ID system") }</th>
     </tr>
     %for iddef in idnum_definitions:
         <tr>
             <td>${ iddef.which_idnum }</td>
             <td>${ iddef.description }</td>
             <td>${ iddef.short_description }</td>
+            <td>
+                ${ req.icon_text(
+                        icon=Icons.INFO_INTERNAL,
+                        url=req.route_url(Routes.FHIR_PATIENT_ID_SYSTEM,
+                                          which_idnum=iddef.which_idnum),
+                        text=_("FHIR")
+                ) | n }
+            </td>
         </tr>
     %endfor
 </table>
 
-<h2>${ _("Recent activity") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.ACTIVITY,
+        text=_("Recent activity")
+    ) | n }
+</h2>
 <table>
     <tr>
         <th>${ _("Time-scale") }</th>
@@ -66,22 +95,35 @@ camcops_server/templates/menu/view_server_info.mako
     ${ _("minutes; sessions older than this are periodically deleted.") }
 </p>
 
-<h2>${ _("Extra string families present") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("All known tasks")
+    ) | n }
+</h2>
+<p>
+    ${ req.icon_text(
+            icon=Icons.INFO_INTERNAL,
+            url=request.route_url(Routes.TASK_LIST),
+            text=_("Task list")
+    ) | n }
+</p>
+
+<h2>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("Extra string families present")
+    ) | n }
+</h2>
+<ul>
 %for sf in string_families:
-    ${ sf  }
-    %if sf in restricted_tasks:
-        <b>— restricted to groups: ${ ", ".join(restricted_tasks[sf]) }</b>
-    %endif
-    <br>
-
+    <li>
+        ${ sf  }
+        %if sf in restricted_tasks:
+            <b>— restricted to groups: ${ ", ".join(restricted_tasks[sf]) }</b>
+        %endif
+    </li>
 %endfor
-
-<h2>${ _("All known tasks") }</h2>
-<p>${ _("Format is: long name (short name; base table name).") }</p>
-<pre>
-    %for tc in all_task_classes:
-${ tc.longname(req) } (${ tc.shortname }; ${ tc.tablename })
-    %endfor
-</pre>
+</ul>
 
 <%include file="to_main_menu.mako"/>

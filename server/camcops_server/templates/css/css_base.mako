@@ -5,7 +5,8 @@ camcops_server/templates/css/css_base.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -253,6 +254,10 @@ table.clinician, table.clinician th, table.clinician td {
 .filters {
     font-style: italic;
 }
+.info {
+    color: rgb(0, 102, 0);
+    font-weight: bold;
+}
 input[type="date"].form-control,
 input[type="time"].form-control {
     line-height: normal; /* Bootstrap default looks wrong */
@@ -358,6 +363,10 @@ p.indent {
 }
 div.indented {
     margin-left: ${va.INDENT_LARGE};
+}
+.menu {
+    list-style: none;
+    padding-left: ${va.INDENT_NORMAL};
 }
 .navigation {
     background-color: rgb(200, 255, 200);

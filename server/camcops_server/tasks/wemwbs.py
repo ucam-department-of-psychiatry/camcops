@@ -5,7 +5,8 @@ camcops_server/tasks/wemwbs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -247,6 +248,7 @@ class Swemwbs(TaskHasPatientMixin, Task,
     __tablename__ = "swemwbs"
     shortname = "SWEMWBS"
     extrastring_taskname = "wemwbs"  # shares
+    info_filename_stem = extrastring_taskname
 
     MINQSCORE = 1
     MAXQSCORE = 5

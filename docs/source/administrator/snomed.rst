@@ -1,6 +1,7 @@
 ..  docs/source/administrator/snomed.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -100,6 +101,8 @@ configuration file <server_config_file>`:
 .. code-block:: ini
 
     SNOMED_TASK_XML_FILENAME = /some_path/camcops_snomed_ct_codes/camcops_tasks_snomed.xml
+
+See :ref:`SNOMED_TASK_XML_FILENAME <SNOMED_TASK_XML_FILENAME>`
 
 
 Adding SNOMED CT support for ICD-9-CM and ICD-10 to CamCOPS

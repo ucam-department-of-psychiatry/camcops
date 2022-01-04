@@ -5,7 +5,8 @@ camcops_server/tasks/khandaker_insight_medical.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -107,6 +108,7 @@ class KhandakerInsightMedical(TaskHasPatientMixin, Task,
     """
     __tablename__ = "khandaker_1_medicalhistory"  # NB historical name
     shortname = "Khandaker_Insight_Medical"
+    info_filename_stem = "khandaker_insight_medical"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_anon.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -292,7 +293,7 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
     Args:
         column:
             A column specification (or ``None`` to create a dummy dictionary).
-        recipient: 
+        recipient:
             a :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
         dest_dialect:
             The SQL dialect of the destination database. If ``None``, then

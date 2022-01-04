@@ -5,7 +5,8 @@ camcops_server/tasks/cope.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -105,6 +106,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
     __tablename__ = "cope_brief"
     shortname = "COPE-Brief"
     extrastring_taskname = "cope"
+    info_filename_stem = "cope"
 
     NQUESTIONS = 28
     RELATIONSHIP_OTHER_CODE = 0

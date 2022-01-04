@@ -5,7 +5,8 @@ camcops_server/tasks/deakin_s1_healthreview.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -57,6 +58,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     """
     __tablename__ = "deakin_1_healthreview"  # historically fixed
     shortname = "Deakin_S1_HealthReview"
+    info_filename_stem = "deakin_s1_healthreview"
 
     ethnicity = CamcopsColumn(
         "ethnicity", Integer,

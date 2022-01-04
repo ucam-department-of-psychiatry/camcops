@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_email.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -332,13 +333,13 @@ class Email(Base):
         # don't save password
         self.use_tls = use_tls
         to_addrs = COMMASPACE.join(
-            x for x in [self.to, self.cc, self.bcc] if x)
-        header_components = filter(None, [
+            x for x in (self.to, self.cc, self.bcc) if x)
+        header_components = filter(None, (
             f"To: {self.to}" if self.to else "",
             f"Cc: {self.cc}" if self.cc else "",
             f"Bcc: {self.bcc}" if self.bcc else "",  # noqa
             f"Subject: {self.subject}" if self.subject else "",
-        ])
+        ))
         log.info("Sending email -- {}", " -- ".join(header_components))
         try:
             send_msg(

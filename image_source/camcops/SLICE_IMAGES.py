@@ -609,7 +609,7 @@ def main() -> None:
     require(GREP[0])
     require(IDENTIFY[0])
     if WINDOWS:
-        require(GHOSTSCRIPT_WINDOWS)    
+        require(GHOSTSCRIPT_WINDOWS)
 
     if args.all:
         args.android = True
@@ -655,9 +655,9 @@ def main() -> None:
     def mk_splashscreen(filename: str, width_px: int, height_px: int) -> None:
         make_splashscreen(filename, width_px, height_px, verbose=args.verbose)
 
-    def mk_feature_graphic(filename: str, width_px: int, 
+    def mk_feature_graphic(filename: str, width_px: int,
                            height_px: int) -> None:
-        make_feature_graphic(filename, width_px, height_px, 
+        make_feature_graphic(filename, width_px, height_px,
                              verbose=args.verbose)
 
     def servercrop(source: str, dest: str, dest_width_px: int) -> None:

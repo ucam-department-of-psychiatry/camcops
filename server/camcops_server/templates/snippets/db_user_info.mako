@@ -5,7 +5,8 @@ camcops_server/templates/snippets/db_user_info.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,7 +30,7 @@ camcops_server/templates/snippets/db_user_info.mako
 <%page args="offer_main_menu=True"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <% _ = request.gettext %>
@@ -39,9 +40,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes
     %if request.camcops_session.username:
         ${ _("Logged in as") } <b>${ request.camcops_session.username }</b>.
         [
-            <a href="${ request.route_url(Routes.LOGOUT) | n }">${ _("Log out") }</a>
+            ${ req.icon_text(
+                    icon=Icons.LOGOUT,
+                    url=request.route_url(Routes.LOGOUT),
+                    text=_("Log out")
+            ) | n }
         %if offer_main_menu:
-            | <a href="${ request.route_url(Routes.HOME) | n }">${ _("Main menu") }</a>
+            |
+            ${ req.icon_text(
+                    icon=Icons.HOME,
+                    url=request.route_url(Routes.HOME),
+                    text=_("Main menu")
+            ) | n }
         %endif
         ]
     %endif

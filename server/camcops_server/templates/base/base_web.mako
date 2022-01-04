@@ -5,7 +5,8 @@ camcops_server/templates/base/base_web.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,7 +30,12 @@ camcops_server/templates/base/base_web.mako
 <%inherit file="base.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import (
+    Routes,
+    STATIC_BOOTSTRAP_ICONS_PATH,
+    ViewArg,
+    ViewParam,
+)
 %>
 
 <%block name="logo">
@@ -54,6 +60,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <link rel="stylesheet"
           href="${ request.static_url('deform:static/css/bootstrap.min.css') | n }"
           media="screen"/>
+    <link rel="stylesheet"
+          href="${ request.static_url(STATIC_BOOTSTRAP_ICONS_PATH + '/bootstrap-icons.css') | n }" />
 </%block>
 
 <%block name="messages">

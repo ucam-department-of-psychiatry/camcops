@@ -5,7 +5,8 @@ camcops_server/templates/taskcommon/ctv.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -33,7 +34,7 @@ camcops_server/templates/taskcommon/ctv.mako
 from cardinal_pythonlib.datetimefunc import format_datetime
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 
 %>
 
@@ -74,20 +75,30 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %endif
             ## Hyperlinks
             %if viewtype == ViewArg.HTML:
-                [<a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.HTML,
-                                }) | n }">HTML</a>]
-                [<a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.PDF,
-                                }) | n }">PDF</a>]
+                [${ req.icon_text(
+                    icon=Icons.HTML_IDENTIFIABLE,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task.pk,
+                            ViewParam.VIEWTYPE: ViewArg.HTML,
+                        }
+                    ),
+                    text="HTML"
+                ) | n },
+                ${ req.icon_text(
+                    icon=Icons.PDF_IDENTIFIABLE,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task.pk,
+                            ViewParam.VIEWTYPE: ViewArg.PDF,
+                        }
+                    ),
+                    text="PDF"
+                ) | n }]
             %endif
             ## Clinician
             %if task.has_clinician and ctvinfo_list:

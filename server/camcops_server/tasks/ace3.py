@@ -5,7 +5,8 @@ camcops_server/tasks/ace3.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -599,39 +600,39 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
             subheading_spanning_two_columns("Attention") +
             tr("Day? Date? Month? Year? Season?",
-               ", ".join([answer(x) for x in [self.attn_time1,
-                                              self.attn_time2,
-                                              self.attn_time3,
-                                              self.attn_time4,
-                                              self.attn_time5]])) +
+               ", ".join(answer(x) for x in (self.attn_time1,
+                                             self.attn_time2,
+                                             self.attn_time3,
+                                             self.attn_time4,
+                                             self.attn_time5))) +
             tr("House number/floor? Street/hospital? Town? County? Country?",
-               ", ".join([answer(x) for x in [self.attn_place1,
-                                              self.attn_place2,
-                                              self.attn_place3,
-                                              self.attn_place4,
-                                              self.attn_place5]])) +
+               ", ".join(answer(x) for x in (self.attn_place1,
+                                             self.attn_place2,
+                                             self.attn_place3,
+                                             self.attn_place4,
+                                             self.attn_place5))) +
             tr("Repeat: Lemon? Key? Ball?",
-               ", ".join([answer(x) for x in [self.attn_repeat_word1,
-                                              self.attn_repeat_word2,
-                                              self.attn_repeat_word3]])) +
+               ", ".join(answer(x) for x in (self.attn_repeat_word1,
+                                             self.attn_repeat_word2,
+                                             self.attn_repeat_word3))) +
             tr("Repetition: number of trials <i>(not scored)</i>",
                answer(self.attn_num_registration_trials,
                       formatter_answer=italic)) +
             tr(
                 "Serial subtractions: First correct? Second? Third? Fourth? "
                 "Fifth?",
-                ", ".join([answer(x) for x in [
+                ", ".join(answer(x) for x in (
                     self.attn_serial7_subtraction1,
                     self.attn_serial7_subtraction2,
                     self.attn_serial7_subtraction3,
                     self.attn_serial7_subtraction4,
-                    self.attn_serial7_subtraction5]])) +
+                    self.attn_serial7_subtraction5))) +
 
             subheading_spanning_two_columns("Memory (1)") +
             tr("Recall: Lemon? Key? Ball?",
-               ", ".join([answer(x) for x in [self.mem_recall_word1,
-                                              self.mem_recall_word2,
-                                              self.mem_recall_word3]])) +
+               ", ".join(answer(x) for x in (self.mem_recall_word1,
+                                             self.mem_recall_word2,
+                                             self.mem_recall_word3))) +
 
             subheading_spanning_two_columns("Fluency") +
             tr("Score for words beginning with ‘P’ <i>(≥18 scores 7, 14–17 "
@@ -647,20 +648,20 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr(
                 "Third trial of address registration: Harry? Barnes? 73? "
                 "Orchard? Close? Kingsbridge? Devon?",
-                ", ".join([answer(x) for x in [
+                ", ".join(answer(x) for x in (
                     self.mem_repeat_address_trial3_1,
                     self.mem_repeat_address_trial3_2,
                     self.mem_repeat_address_trial3_3,
                     self.mem_repeat_address_trial3_4,
                     self.mem_repeat_address_trial3_5,
                     self.mem_repeat_address_trial3_6,
-                    self.mem_repeat_address_trial3_7]])) +
+                    self.mem_repeat_address_trial3_7))) +
             tr("Current PM? Woman who was PM? USA president? USA president "
                "assassinated in 1960s?",
-               ", ".join([answer(x) for x in [self.mem_famous1,
-                                              self.mem_famous2,
-                                              self.mem_famous3,
-                                              self.mem_famous4]])) +
+               ", ".join(answer(x) for x in (self.mem_famous1,
+                                             self.mem_famous2,
+                                             self.mem_famous3,
+                                             self.mem_famous4))) +
 
             subheading_spanning_two_columns("Language") +
             tr("<i>Practice trial (“Pick up the pencil and then the "
@@ -676,9 +677,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr(
                 "Sentence-writing: point for ≥2 complete sentences about "
                 "the one topic? Point for correct grammar and spelling?",
-                ", ".join([answer(x) for x in [
+                ", ".join(answer(x) for x in (
                     self.lang_write_sentences_point1,
-                    self.lang_write_sentences_point2]])) +
+                    self.lang_write_sentences_point2))) +
             tr(
                 "Repeat: caterpillar? eccentricity? unintelligible? "
                 "statistician? <i>(score 2 if all correct, 1 if 3 correct, "
@@ -695,28 +696,28 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr_qa("Repeat: “A stitch in time saves nine”?",
                   self.lang_repeat_sentence2) +
             tr("Name pictures: spoon, book, kangaroo/wallaby",
-               ", ".join([answer(x) for x in [self.lang_name_picture1,
-                                              self.lang_name_picture2,
-                                              self.lang_name_picture3]])) +
+               ", ".join(answer(x) for x in (self.lang_name_picture1,
+                                             self.lang_name_picture2,
+                                             self.lang_name_picture3))) +
             tr("Name pictures: penguin, anchor, camel/dromedary",
-               ", ".join([answer(x) for x in [self.lang_name_picture4,
-                                              self.lang_name_picture5,
-                                              self.lang_name_picture6]])) +
+               ", ".join(answer(x) for x in (self.lang_name_picture4,
+                                             self.lang_name_picture5,
+                                             self.lang_name_picture6))) +
             tr("Name pictures: harp, rhinoceros/rhino, barrel/keg/tub",
-               ", ".join([answer(x) for x in [self.lang_name_picture7,
-                                              self.lang_name_picture8,
-                                              self.lang_name_picture9]])) +
+               ", ".join(answer(x) for x in (self.lang_name_picture7,
+                                             self.lang_name_picture8,
+                                             self.lang_name_picture9))) +
             tr("Name pictures: crown, alligator/crocodile, "
                "accordion/piano accordion/squeeze box",
-               ", ".join([answer(x) for x in [self.lang_name_picture10,
-                                              self.lang_name_picture11,
-                                              self.lang_name_picture12]])) +
+               ", ".join(answer(x) for x in (self.lang_name_picture10,
+                                             self.lang_name_picture11,
+                                             self.lang_name_picture12))) +
             tr(
                 "Identify pictures: monarchy? marsupial? Antarctic? nautical?",
-                ", ".join([answer(x) for x in [self.lang_identify_concept1,
-                                               self.lang_identify_concept2,
-                                               self.lang_identify_concept3,
-                                               self.lang_identify_concept4]])
+                ", ".join(answer(x) for x in (self.lang_identify_concept1,
+                                              self.lang_identify_concept2,
+                                              self.lang_identify_concept3,
+                                              self.lang_identify_concept4))
             ) +
             tr_qa("Read all successfully: sew, pint, soot, dough, height",
                   self.lang_read_words_aloud) +
@@ -727,26 +728,26 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr("Draw clock with numbers and hands at 5:10",
                answer(self.vsp_draw_clock) + " / 5") +
             tr("Count dots: 8, 10, 7, 9",
-               ", ".join([answer(x) for x in [self.vsp_count_dots1,
-                                              self.vsp_count_dots2,
-                                              self.vsp_count_dots3,
-                                              self.vsp_count_dots4]])) +
+               ", ".join(answer(x) for x in (self.vsp_count_dots1,
+                                             self.vsp_count_dots2,
+                                             self.vsp_count_dots3,
+                                             self.vsp_count_dots4))) +
             tr("Identify letters: K, M, A, T",
-               ", ".join([answer(x) for x in [self.vsp_identify_letter1,
-                                              self.vsp_identify_letter2,
-                                              self.vsp_identify_letter3,
-                                              self.vsp_identify_letter4]])) +
+               ", ".join(answer(x) for x in (self.vsp_identify_letter1,
+                                             self.vsp_identify_letter2,
+                                             self.vsp_identify_letter3,
+                                             self.vsp_identify_letter4))) +
 
             subheading_spanning_two_columns("Memory (3)") +
             tr("Recall address: Harry? Barnes? 73? Orchard? Close? "
                "Kingsbridge? Devon?",
-               ", ".join([answer(x) for x in [self.mem_recall_address1,
-                                              self.mem_recall_address2,
-                                              self.mem_recall_address3,
-                                              self.mem_recall_address4,
-                                              self.mem_recall_address5,
-                                              self.mem_recall_address6,
-                                              self.mem_recall_address7]])) +
+               ", ".join(answer(x) for x in (self.mem_recall_address1,
+                                             self.mem_recall_address2,
+                                             self.mem_recall_address3,
+                                             self.mem_recall_address4,
+                                             self.mem_recall_address5,
+                                             self.mem_recall_address6,
+                                             self.mem_recall_address7))) +
             tr("Recognize address: Jerry Barnes/Harry Barnes/Harry Bradford?",
                self.get_recog_text((self.mem_recall_address1 == 1 and
                                     self.mem_recall_address2 == 1),

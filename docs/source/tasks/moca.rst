@@ -1,6 +1,7 @@
 ..  docs/source/tasks/moca.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -46,7 +47,7 @@ http://www.mocatest.org
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © Ziad Nasreddin. See https://www.mocatest.org/.
+- Copyright © Ziad S. Nasreddine. See https://www.mocatest.org/.
 
 - Initially, in Sep 2012:
 

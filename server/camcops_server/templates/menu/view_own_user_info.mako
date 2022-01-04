@@ -5,7 +5,8 @@ camcops_server/templates/menu/view_own_user_info.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,13 +30,28 @@ camcops_server/templates/menu/view_own_user_info.mako
 ## <%page args="user: User"/>
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Information about user") } ${ user.username }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.USER_INFO,
+        text=_("Information about user")
+    ) | n }
+    ${ user.username }
+</h1>
 
 <%include file="user_info_detail.mako" args="user=user"/>
 
-<h1>${ _("Groups that user") } ${ user.username } ${ _("is a member of") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.GROUPS,
+        text=_("Groups that user") + " " + user.username + " " + _("is a member of")
+    ) | n }
+</h1>
 
 <%include file="groups_table.mako" args="groups_page=groups_page, valid_which_idnums=valid_which_idnums, with_edit=False"/>
 

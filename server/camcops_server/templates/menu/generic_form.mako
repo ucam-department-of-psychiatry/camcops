@@ -5,7 +5,8 @@ camcops_server/templates/menu/generic_form.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -30,6 +31,6 @@ camcops_server/templates/menu/generic_form.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ title }</h1>
+<h1>${ title | n }</h1>
 
 ${ form | n }

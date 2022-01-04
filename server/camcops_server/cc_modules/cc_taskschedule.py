@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -30,6 +31,7 @@ import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
 from urllib.parse import urlencode, urlunsplit
 
+from cardinal_pythonlib.uriconst import UriSchemes
 from pendulum import DateTime as Pendulum, Duration
 
 from sqlalchemy import cast, Numeric
@@ -89,6 +91,41 @@ class ScheduledTaskInfo(object):
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
 
+    @property
+    def due_now(self) -> bool:
+        """
+        Are we in the range [start_datetime, end_datetime)?
+        """
+        if not self.start_datetime or not self.end_datetime:
+            return False
+        return self.start_datetime <= Pendulum.now() < self.end_datetime
+
+    @property
+    def is_complete(self) -> bool:
+        """
+        Returns whether its associated task is complete..
+        """
+        if not self.task:
+            return False
+        return self.task.is_complete()
+
+    @property
+    def is_identifiable_and_incomplete(self) -> bool:
+        """
+        If this is an anonymous task, returns ``False``.
+        If this is an identifiable task, returns ``not is_complete``.
+        """
+        if self.is_anonymous:
+            return False
+        return not self.is_complete
+
+    @property
+    def due_now_identifiable_and_incomplete(self) -> bool:
+        """
+        Is this task currently due, identifiable, and incomplete?
+        """
+        return self.due_now and self.is_identifiable_and_incomplete
+
 
 # =============================================================================
 # PatientTaskSchedule
@@ -140,6 +177,9 @@ class PatientTaskSchedule(Base):
 
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
             -> List[ScheduledTaskInfo]:
+        """
+        Tasks scheduled for this patient.
+        """
 
         task_list = []
 
@@ -221,9 +261,13 @@ class PatientTaskSchedule(Base):
         return None
 
     def email_body(self, req: "CamcopsRequest") -> str:
+        """
+        Body content (HTML) for an e-mail to the patient -- the schedule's
+        template, populated with patient-specific information.
+        """
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
-            android_launch_url=self.launch_url(req, "http"),
+            android_launch_url=self.launch_url(req, UriSchemes.HTTP),
             ios_launch_url=self.launch_url(req, "camcops"),
             forename=self.patient.forename,
             server_url=req.route_url(Routes.CLIENT_API),
@@ -254,6 +298,9 @@ class PatientTaskSchedule(Base):
 
     @property
     def email_sent(self) -> bool:
+        """
+        Has an e-mail been sent to the patient for this schedule?
+        """
         return any(e.email.sent for e in self.emails)
 
 
@@ -371,6 +418,9 @@ class TaskSchedule(Base):
     )
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
+        """
+        May the current user edit this schedule?
+        """
         return req.user.may_administer_group(self.group_id)
 
 
@@ -413,12 +463,19 @@ class TaskScheduleItem(Base):
 
     @property
     def task_shortname(self) -> str:
+        """
+        Short name of the task being scheduled.
+        """
         task_class_lookup = tablename_to_task_class_dict()
 
         return task_class_lookup[self.task_table_name].shortname
 
     @property
     def due_within(self) -> Optional[Duration]:
+        """
+        Returns the "due within" property, e.g. "due within 7 days (of being
+        scheduled to start)". This is calculated from due_from and due_by.
+        """
         if self.due_by is None:
             # Should not be possible if created through the form
             return None
@@ -429,6 +486,9 @@ class TaskScheduleItem(Base):
         return self.due_by - self.due_from
 
     def description(self, req: "CamcopsRequest") -> str:
+        """
+        Description of this schedule item -- which task, due when.
+        """
         _ = req.gettext
 
         if self.due_from is None:
@@ -444,6 +504,9 @@ class TaskScheduleItem(Base):
 
 
 class TaskScheduleEmailTemplateFormatter(SafeFormatter):
+    """
+    Safe template formatter for task schedule e-mails.
+    """
     def __init__(self):
         super().__init__([
             "access_key",

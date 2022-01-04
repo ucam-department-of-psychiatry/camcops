@@ -5,7 +5,8 @@ camcops_server/tasks/icd10schizophrenia.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -70,6 +71,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "icd10schizophrenia"
     shortname = "ICD10-SZ"
+    info_filename_stem = "icd"
 
     passivity_bodily = CamcopsColumn(
         "passivity_bodily", Boolean,

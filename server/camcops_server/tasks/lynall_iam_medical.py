@@ -5,7 +5,8 @@ camcops_server/tasks/lynall_iam_medical.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -58,6 +59,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
     __tablename__ = "lynall_1_iam_medical"  # historically fixed
     shortname = "Lynall_IAM_Medical"
     extrastring_taskname = "lynall_iam_medical"
+    info_filename_stem = extrastring_taskname
 
     Q2_N_OPTIONS = 6
     Q3_N_OPTIONS = 11
@@ -347,7 +349,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         q7a_options = self.make_options_from_xstrings(
             req, "q7a_option", 0, 1)
         _q7b_anchors = []  # type: List[str]
-        for _o in [1, 10]:
+        for _o in (1, 10):
             _wxstring = self.wxstring(req, f"q7b_anchor_{_o}")
             _q7b_anchors.append(f'{_o}: {_wxstring}')
         q7b_explanation = f" <i>(Anchors: {' // '.join(_q7b_anchors)})</i>"
@@ -377,7 +379,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
             {ynnrow("6a", "q6a_question", self.q6a_inpatient_last_y)}
             {plainrow("6b", "q6b_question", self.q6b_inpatient_weeks, True)}
             {boolrow("7a", "q7a_question", self.q7a_sx_last_2y, q7a_options)}
-            {plainrow("7b", "q7b_question", self.q7b_variability, True, 
+            {plainrow("7b", "q7b_question", self.q7b_variability, True,
                       qsuffix=q7b_explanation)}
             {lookuprow("8", "q8_question", self.q8_smoking, q8_options)}
             {boolrow("9", "q9_question", self.q9_pregnant, q9_options)}
