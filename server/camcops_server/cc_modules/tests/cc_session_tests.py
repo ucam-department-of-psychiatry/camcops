@@ -29,9 +29,13 @@ camcops_server/cc_modules/tests/cc_session_tests.py
 
 from pendulum import DateTime as Pendulum
 
+from camcops_server.cc_modules.cc_request import get_unittest_request
 from camcops_server.cc_modules.cc_session import CamcopsSession, generate_token
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
+    DemoDatabaseTestCase,
+)
 from camcops_server.cc_modules.cc_user import User
 
 
@@ -75,3 +79,17 @@ class SessionTests(DemoDatabaseTestCase):
         assert numfilters == 0, (
             "TaskFilter count should be 0; cascade delete not working"
         )
+
+
+class GetSessionTests(BasicDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        CamcopsSession.delete_old_sessions(self.req)
+
+    def test_old_session_returned_for_same_ip(self) -> None:
+        request1 = get_unittest_request(self.dbsession)
+        request2 = get_unittest_request(self.dbsession)
+
+        self.assertEqual(request1.remote_addr, request2.remote_addr)
+        self.assertEqual(request1.camcops_session.id,
+                         request2.camcops_session.id)
