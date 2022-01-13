@@ -3633,3 +3633,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   stopped working otherwise.
 
 - Documentation and support for code-signing Windows client executables.
+
+- New config option to make binding a session to the user's IP address
+  configurable. There are cases where the IP address may change before
+  the session timeout is reached.
+  :ref:`SESSION_BIND_TO_IP <SESSION_BIND_TO_IP>`
+  https://github.com/RudolfCardinal/camcops/issues/226
