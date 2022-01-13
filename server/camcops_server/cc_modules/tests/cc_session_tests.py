@@ -29,7 +29,6 @@ camcops_server/cc_modules/tests/cc_session_tests.py
 
 from pendulum import DateTime as Pendulum
 
-from camcops_server.cc_modules.cc_request import get_unittest_request
 from camcops_server.cc_modules.cc_session import CamcopsSession, generate_token
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_unittest import (
@@ -82,14 +81,44 @@ class SessionTests(DemoDatabaseTestCase):
 
 
 class GetSessionTests(BasicDatabaseTestCase):
+    old_ip_addr = "192.0.2.1"
+    new_ip_addr = "192.0.2.2"
+
     def setUp(self) -> None:
         super().setUp()
         CamcopsSession.delete_old_sessions(self.req)
 
-    def test_old_session_returned_for_same_ip(self) -> None:
-        request1 = get_unittest_request(self.dbsession)
-        request2 = get_unittest_request(self.dbsession)
+        self.old_session = CamcopsSession(ip_addr=self.old_ip_addr,
+                                          last_activity_utc=self.req.now_utc)
+        self.dbsession.add(self.old_session)
+        self.dbsession.flush()
 
-        self.assertEqual(request1.remote_addr, request2.remote_addr)
-        self.assertEqual(request1.camcops_session.id,
-                         request2.camcops_session.id)
+    def test_old_session_for_same_ip(self) -> None:
+        self.req.remote_addr = self.old_ip_addr
+        new_session = CamcopsSession.get_session(self.req,
+                                                 str(self.old_session.id),
+                                                 self.old_session.token)
+        self.dbsession.add(new_session)
+        self.dbsession.flush()
+        self.assertEqual(self.old_session.id, new_session.id)
+
+    def test_old_session_for_different_ip_when_ip_ignored(self) -> None:
+        self.req.config.session_bind_to_ip = False
+        self.req.remote_addr = self.new_ip_addr
+        new_session = CamcopsSession.get_session(self.req,
+                                                 str(self.old_session.id),
+                                                 self.old_session.token)
+        self.dbsession.add(new_session)
+        self.dbsession.flush()
+        self.assertEqual(self.old_session.id, new_session.id)
+
+    def test_new_session_for_different_ip_when_ip_checked(
+            self) -> None:
+        self.req.config.session_bind_to_ip = True
+        self.req.remote_addr = self.new_ip_addr
+        new_session = CamcopsSession.get_session(self.req,
+                                                 str(self.old_session.id),
+                                                 self.old_session.token)
+        self.dbsession.add(new_session)
+        self.dbsession.flush()
+        self.assertNotEqual(self.old_session.id, new_session.id)

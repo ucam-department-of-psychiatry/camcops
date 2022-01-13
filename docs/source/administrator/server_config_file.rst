@@ -417,6 +417,15 @@ SESSION_TIMEOUT_MINUTES
 Time (in minutes) after which a session will expire.
 
 
+SESSION_BIND_TO_IP
+##################
+*Boolean.* Default: true.
+
+Checks the user's IP address on every request. This can cause problems if IP
+addresses change due to e.g. a load balancer. Set to False if users are being
+logged out before the above timeout is reached.
+
+
 PASSWORD_CHANGE_FREQUENCY_DAYS
 ##############################
 

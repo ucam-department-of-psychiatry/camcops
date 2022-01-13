@@ -291,12 +291,18 @@ class CamcopsSession(Base):
         if session_id and session_token:
             oldest_last_activity_allowed = \
                 cls.get_oldest_last_activity_allowed(req)
-            candidate = dbsession.query(cls).\
+            query = dbsession.query(cls).\
                 filter(cls.id == session_id).\
                 filter(cls.token == session_token).\
-                filter(cls.ip_address == ip_addr).\
-                filter(cls.last_activity_utc >= oldest_last_activity_allowed).\
-                first()  # type: Optional[CamcopsSession]
+                filter(cls.last_activity_utc >= oldest_last_activity_allowed)
+
+            if req.config.session_bind_to_ip:
+                # Binding the session to the IP address can cause problems if
+                # the IP address changes before the session times out. A load
+                # balancer may cause this.
+                query = query.filter(cls.ip_address == ip_addr)
+
+            candidate = query.first()  # type: Optional[CamcopsSession]
             if DEBUG_CAMCOPS_SESSION_CREATION:
                 if candidate is None:
                     log.debug("Session not found in database")
