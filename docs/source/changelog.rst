@@ -3544,7 +3544,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   conditions relating to clinical use were not met.
 
 
-.. _changelog_2022
+.. _changelog_2022:
 
 2022
 ~~~~
@@ -3640,8 +3640,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Documentation and support for code-signing Windows client executables.
 
-- New config option to check the user's IP address against the previously stored
-  value on every request. There are cases where this may be undesireable if a
-  user's IP address changes before the session timeout is reached.
-  :ref:`SESSION_CHECK_USER_IP <SESSION_CHECK_USER_IP>`
+- New config option :ref:`SESSION_CHECK_USER_IP <SESSION_CHECK_USER_IP>` to
+  check the user's IP address against the previously stored value on every
+  request. There are cases where this may be undesireable if a user's IP address
+  changes before the session timeout is reached.
   https://github.com/RudolfCardinal/camcops/issues/226
