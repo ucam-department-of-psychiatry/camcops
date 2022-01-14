@@ -371,7 +371,6 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamSite.LOCKOUT_DURATION_INCREMENT_MINUTES} = {cd.LOCKOUT_DURATION_INCREMENT_MINUTES}
 {ConfigParamSite.DISABLE_PASSWORD_AUTOCOMPLETE} = {cd.DISABLE_PASSWORD_AUTOCOMPLETE}
 
-
 # -----------------------------------------------------------------------------
 # Suggested filenames for saving PDFs from the web view
 # -----------------------------------------------------------------------------
