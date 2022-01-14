@@ -103,7 +103,7 @@ class GetSessionTests(BasicDatabaseTestCase):
         self.assertEqual(self.old_session.id, new_session.id)
 
     def test_old_session_for_different_ip_when_ip_ignored(self) -> None:
-        self.req.config.session_bind_to_ip = False
+        self.req.config.session_check_user_ip = False
         self.req.remote_addr = self.new_ip_addr
         new_session = CamcopsSession.get_session(self.req,
                                                  str(self.old_session.id),
@@ -114,7 +114,7 @@ class GetSessionTests(BasicDatabaseTestCase):
 
     def test_new_session_for_different_ip_when_ip_checked(
             self) -> None:
-        self.req.config.session_bind_to_ip = True
+        self.req.config.session_check_user_ip = True
         self.req.remote_addr = self.new_ip_addr
         new_session = CamcopsSession.get_session(self.req,
                                                  str(self.old_session.id),

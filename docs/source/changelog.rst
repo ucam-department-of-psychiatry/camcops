@@ -3640,8 +3640,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Documentation and support for code-signing Windows client executables.
 
-- New config option to make binding a session to the user's IP address
-  configurable. There are cases where the IP address may change before
-  the session timeout is reached.
-  :ref:`SESSION_BIND_TO_IP <SESSION_BIND_TO_IP>`
+- New config option to check the user's IP address against the previously stored
+  value on every request. There are cases where this may be undesireable if a
+  user's IP address changes before the session timeout is reached.
+  :ref:`SESSION_CHECK_USER_IP <SESSION_CHECK_USER_IP>`
   https://github.com/RudolfCardinal/camcops/issues/226

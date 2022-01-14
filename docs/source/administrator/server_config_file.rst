@@ -417,10 +417,10 @@ SESSION_TIMEOUT_MINUTES
 Time (in minutes) after which a session will expire.
 
 
-.. _SESSION_BIND_TO_IP:
+.. _SESSION_CHECK_USER_IP:
 
-SESSION_BIND_TO_IP
-##################
+SESSION_CHECK_USER_IP
+#####################
 
 *Boolean.* Default: true.
 

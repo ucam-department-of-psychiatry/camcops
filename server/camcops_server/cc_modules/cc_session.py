@@ -296,7 +296,7 @@ class CamcopsSession(Base):
                 filter(cls.token == session_token).\
                 filter(cls.last_activity_utc >= oldest_last_activity_allowed)
 
-            if req.config.session_bind_to_ip:
+            if req.config.session_check_user_ip:
                 # Binding the session to the IP address can cause problems if
                 # the IP address changes before the session times out. A load
                 # balancer may cause this.
