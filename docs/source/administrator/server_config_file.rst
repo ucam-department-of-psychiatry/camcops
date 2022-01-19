@@ -409,12 +409,32 @@ and keep it secret. (When you make a new CamCOPS demo config, the value shown
 is fresh and random.)
 
 
+.. _SESSION_TIMEOUT_MINUTES:
+
 SESSION_TIMEOUT_MINUTES
 #######################
 
 *Integer.* Default: 30.
 
 Time (in minutes) after which a session will expire.
+
+
+.. _SESSION_CHECK_USER_IP:
+
+SESSION_CHECK_USER_IP
+#####################
+
+*Boolean.* Default: true.
+
+If true: CamCOPS checks the user's IP address on every request, and prohibits
+the user from changing IP address within a session. (A change of IP address
+will require them to log in again.) If False, the IP address is not checked and
+is permitted to change.
+
+Setting this to True is more conservative as a security setting, but can cause
+problems if user IP addresses (as seen by the CamCOPS server) change due to
+e.g. a load balancer, or the user switching networks. Set it to False if users
+are being logged out before SESSION_TIMEOUT_MINUTES_ is reached.
 
 
 PASSWORD_CHANGE_FREQUENCY_DAYS
