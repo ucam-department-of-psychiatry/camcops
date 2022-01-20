@@ -604,7 +604,10 @@ class VersionReleaser:
 
             self.remove_old_pypi_builds()
             os.chdir(SERVER_SOURCE_DIR)
-            self.run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
+
+            # "bdist_wheel" removed from below to allow GitHub dependencies
+            # Currenly fhirclient is on a fork
+            self.run_with_check(["python", "setup.py", "sdist"])
             pypi_packages = [str(f) for f in self.get_pypi_builds()]
             print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
