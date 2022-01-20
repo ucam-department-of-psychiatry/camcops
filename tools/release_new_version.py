@@ -545,12 +545,12 @@ class VersionReleaser:
         if "Everything up-to-date" not in output:
             self.errors.append("There are unpushed tags")
 
-    def check_wheel_installed(self) -> None:
+    def check_package_installed(self, package: str) -> None:
         try:
-            self.run_with_check(["pip", "show", "--quiet", "wheel"])
+            self.run_with_check(["pip", "show", "--quiet", package])
         except CalledProcessError:
-            self.errors.append(("Wheel is not installed. "
-                                "To release to PyPI: pip install wheel"))
+            self.errors.append((f"'{package}' is not installed. "
+                                f"To release to PyPI: pip install {package}"))
 
     def perform_checks(self) -> None:
         releases = self.get_released_versions()
@@ -594,7 +594,8 @@ class VersionReleaser:
         self.check_unpushed_changes()
         self.check_release_tag()
         self.check_unpushed_tags()
-        self.check_wheel_installed()
+        self.check_package_installed("wheel")
+        self.check_package_installed("twine")
 
     def release(self) -> None:
         if self.should_release_server:
