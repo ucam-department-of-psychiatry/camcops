@@ -3551,8 +3551,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_12:
 
-**Client and server v2.4.12, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Server v2.4.12, released 20 Jan 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Database revision to 0071.
 
@@ -3645,3 +3645,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   request. There are cases where this may be undesireable if a user's IP address
   changes before the session timeout is reached.
   https://github.com/RudolfCardinal/camcops/issues/226
+
+**Client and server v2.4.13, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
