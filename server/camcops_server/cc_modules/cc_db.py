@@ -69,7 +69,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     TableNameColType,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from camcops_server.cc_modules.cc_xml import (
     make_xml_branches_from_blobs,
@@ -723,19 +723,22 @@ class GenericTabletRecordMixin(object):
         # log.debug("... branches for {!r}: {!r}", self, branches)
         return branches
 
-    def _get_core_tsv_page(self, req: "CamcopsRequest",
-                           heading_prefix: str = "") -> TsvPage:
+    def _get_core_spreadsheet_page(
+            self,
+            req: "CamcopsRequest",
+            heading_prefix: str = "") -> SpreadsheetPage:
         """
-        Returns a single-row :class:`camcops_server.cc_modules.cc_tsv.TsvPage`,
-        like an Excel "sheet", representing this record. (It may be combined
-        with others later to produce a multi-row spreadsheet.)
+        Returns a single-row
+        :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`, like
+        an Excel "sheet", representing this record. (It may be combined with
+        others later to produce a multi-row spreadsheet.)
         """
         row = OrderedDict()
         for attrname, column in gen_columns(self):
             row[heading_prefix + attrname] = getattr(self, attrname)
         for s in self.get_summaries(req):
             row[heading_prefix + s.name] = s.value
-        return TsvPage(name=self.__tablename__, rows=[row])
+        return SpreadsheetPage(name=self.__tablename__, rows=[row])
 
     # -------------------------------------------------------------------------
     # Erasing (overwriting data, not deleting the database records)

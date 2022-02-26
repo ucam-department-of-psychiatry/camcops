@@ -74,7 +74,7 @@ from camcops_server.cc_modules.cc_constants import (
     SEX_FEMALE,
     SEX_MALE,
     SEX_OTHER_UNSPECIFIED,
-    TSV_PATIENT_FIELD_PREFIX,
+    SPREADSHEET_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_fhir import (
@@ -106,7 +106,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     UuidColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION_STRING
 from camcops_server.cc_modules.cc_xml import (
     XML_COMMENT_SPECIAL_NOTES,
@@ -772,14 +772,14 @@ class Patient(GenericTabletRecordMixin, Base):
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.__tablename__, value=branches)
 
-    def get_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
+    def get_spreadsheet_page(self, req: "CamcopsRequest") -> SpreadsheetPage:
         """
-        Get a :class:`camcops_server.cc_modules.cc_tsv.TsvPage` for the
-        patient.
+        Get a :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`
+        for the patient.
         """
         # 1. Our core fields.
-        page = self._get_core_tsv_page(
-            req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
+        page = self._get_core_spreadsheet_page(
+            req, heading_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX)
         # 2. ID number details
         #    We can't just iterate through the ID numbers; we have to iterate
         #    through all possible ID numbers.
@@ -793,13 +793,13 @@ class Patient(GenericTabletRecordMixin, Base):
                  if idnum.which_idnum == n and idnum.is_superficially_valid()),
                 None)
             page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
+                heading=SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
                 value=idnum_value)
             page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
+                heading=SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
                 value=longdesc)
             page.add_or_set_value(
-                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC +
+                heading=(SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC +
                          nstr),
                 value=shortdesc)
         return page

@@ -40,7 +40,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
 from camcops_server.cc_modules.cc_db import TaskDescendant
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 if TYPE_CHECKING:
@@ -128,12 +128,13 @@ class ExtraSummaryTable(TaskDescendant):
             itembranches.append(branch)
         return XmlElement(name=self.xmlname, value=itembranches)
 
-    def get_tsv_page(self) -> TsvPage:
+    def get_spreadsheet_page(self) -> SpreadsheetPage:
         """
-        Returns an :class:`camcops_server.cc_modules.cc_tsv.TsvPage`
+        Returns an
+        :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`
         representing this summary table.
         """
-        return TsvPage(name=self.tablename, rows=self.rows)
+        return SpreadsheetPage(name=self.tablename, rows=self.rows)
 
     def __repr__(self) -> str:
         return auto_repr(self)

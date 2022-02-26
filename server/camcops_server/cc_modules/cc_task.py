@@ -210,7 +210,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
     from camcops_server.cc_modules.cc_snomed import SnomedExpression  # noqa: E501,F401
     from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_tsv import TsvPage  # noqa: F401
+    from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -2361,28 +2361,30 @@ class Task(GenericTabletRecordMixin, Base):
     # TSV export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List["TsvPage"]:
+    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
+            -> List["SpreadsheetPage"]:
         """
-        Returns information used for the basic research dump in TSV format.
+        Returns information used for the basic research dump in (e.g.) TSV
+        format.
         """
         # 1. Our core fields, plus summary information
 
-        main_page = self._get_core_tsv_page(req)
+        main_page = self._get_core_spreadsheet_page(req)
         # 2. Patient details.
 
         if self.patient:
             main_page.add_or_set_columns_from_page(
-                self.patient.get_tsv_page(req))
-        tsv_pages = [main_page]
+                self.patient.get_spreadsheet_page(req))
+        pages = [main_page]
         # 3. +/- Ancillary objects
         for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
-            page = ancillary._get_core_tsv_page(req)
-            tsv_pages.append(page)
+            page = ancillary._get_core_spreadsheet_page(req)
+            pages.append(page)
         # 4. +/- Extra summary tables (inc. SNOMED)
         for est in self.get_all_summary_tables(req):
-            tsv_pages.append(est.get_tsv_page())
+            pages.append(est.get_spreadsheet_page())
         # Done
-        return tsv_pages
+        return pages
 
     # -------------------------------------------------------------------------
     # XML view

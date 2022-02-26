@@ -94,9 +94,7 @@ class Core10ReportTests(Core10ReportTestCase):
         self.dbsession.commit()
 
     def test_row_has_totals_and_averages(self) -> None:
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
-        # log.info(f"\n{tsv_pages[0]}")
-        # log.info(f"\n{tsv_pages[1]}")
+        pages = self.report.get_spreadsheet_pages(req=self.req)
         expected_rows = [
             [
                 3,  # n initial
@@ -106,19 +104,19 @@ class Core10ReportTests(Core10ReportTestCase):
                 3.0,  # Average progress
             ]
         ]
-        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
+        self.assertEqual(pages[0].plainrows, expected_rows)
 
 
 class Core10ReportEmptyTests(Core10ReportTestCase):
     def test_no_rows_when_no_data(self) -> None:
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        pages = self.report.get_spreadsheet_pages(req=self.req)
         no_data = self.report.no_data_value()
         expected_rows = [
             [
                 0, 0, no_data, no_data, no_data,
             ]
         ]
-        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
+        self.assertEqual(pages[0].plainrows, expected_rows)
 
 
 class Core10ReportDoubleCountingTests(Core10ReportTestCase):
@@ -145,7 +143,7 @@ class Core10ReportDoubleCountingTests(Core10ReportTestCase):
         self.dbsession.commit()
 
     def test_record_does_not_appear_in_first_and_latest(self) -> None:
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        pages = self.report.get_spreadsheet_pages(req=self.req)
         expected_rows = [
             [
                 3,  # n initial
@@ -155,7 +153,7 @@ class Core10ReportDoubleCountingTests(Core10ReportTestCase):
                 2.0,  # Average progress
             ]
         ]
-        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
+        self.assertEqual(pages[0].plainrows, expected_rows)
 
 
 class Core10ReportDateRangeTests(Core10ReportTestCase):
@@ -250,7 +248,7 @@ class Core10ReportDateRangeTests(Core10ReportTestCase):
         self.report.end_datetime = pendulum.parse("2018-09-01T00:00:00.000000+00:00")  # noqa
 
         self.set_echo(True)
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        pages = self.report.get_spreadsheet_pages(req=self.req)
         self.set_echo(False)
         expected_rows = [
             [
@@ -261,4 +259,4 @@ class Core10ReportDateRangeTests(Core10ReportTestCase):
                 2.0,  # Average progress
             ]
         ]
-        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
+        self.assertEqual(pages[0].plainrows, expected_rows)

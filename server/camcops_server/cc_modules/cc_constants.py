@@ -398,9 +398,9 @@ ICD10_COPYRIGHT_DIV = """
 """
 INVALID_VALUE = "[invalid_value]"
 
-TSV_PATIENT_FIELD_PREFIX = "_patient_"
-
 QUESTION = "Question"
+
+SPREADSHEET_PATIENT_FIELD_PREFIX = "_patient_"
 
 
 # =============================================================================

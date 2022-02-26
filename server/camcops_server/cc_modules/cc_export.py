@@ -208,7 +208,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_task import Task
-from camcops_server.cc_modules.cc_tsv import TsvCollection, TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import (
+    SpreadsheetCollection,
+    SpreadsheetPage,
+)
 from camcops_server.cc_modules.celery import (
     create_user_download,
     email_basic_dump,
@@ -616,15 +619,15 @@ def get_information_schema_query(req: "CamcopsRequest") -> ResultProxy:
     return result_proxy
 
 
-def get_information_schema_tsv_page(
+def get_information_schema_spreadsheet_page(
         req: "CamcopsRequest",
-        page_name: str = INFOSCHEMA_PAGENAME) -> TsvPage:
+        page_name: str = INFOSCHEMA_PAGENAME) -> SpreadsheetPage:
     """
     Returns the server database's ``INFORMATION_SCHEMA.COLUMNS`` table as a
-    :class:`camcops_server.cc_modules.cc_tsv.TsvPage``.
+    :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage``.
     """
     result_proxy = get_information_schema_query(req)
-    return TsvPage.from_resultproxy(page_name, result_proxy)
+    return SpreadsheetPage.from_resultproxy(page_name, result_proxy)
 
 
 def write_information_schema_to_dst(
@@ -914,35 +917,37 @@ class TaskCollectionExporter(object):
         """
         raise NotImplementedError("Exporter needs to implement 'get_file_body'")
 
-    def get_tsv_collection(self) -> TsvCollection:
+    def get_spreadsheet_collection(self) -> SpreadsheetCollection:
         """
         Converts the collection of tasks to a collection of spreadsheet-style
         data. Also audits the request as a basic data dump.
 
         Returns:
-            a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object
+            a
+            :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetCollection`
+            object
         """  # noqa
         audit_descriptions = []  # type: List[str]
         # Task may return >1 file for TSV output (e.g. for subtables).
-        tsvcoll = TsvCollection()
+        coll = SpreadsheetCollection()
         # Iterate through tasks, creating the TSV collection
         for cls in self.collection.task_classes():
             for task in gen_audited_tasks_for_task_class(self.collection, cls,
                                                          audit_descriptions):
-                tsv_pages = task.get_tsv_pages(self.req)
-                tsvcoll.add_pages(tsv_pages)
+                pages = task.get_spreadsheet_pages(self.req)
+                coll.add_pages(pages)
 
         if self.options.include_information_schema_columns:
-            info_schema_page = get_information_schema_tsv_page(self.req)
-            tsvcoll.add_page(info_schema_page)
+            info_schema_page = get_information_schema_spreadsheet_page(self.req)
+            coll.add_page(info_schema_page)
 
-        tsvcoll.sort_pages()
+        coll.sort_pages()
         if self.options.spreadsheet_sort_by_heading:
-            tsvcoll.sort_headings_within_all_pages()
+            coll.sort_headings_within_all_pages()
 
         audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
 
-        return tsvcoll
+        return coll
 
 
 class OdsExporter(TaskCollectionExporter):
@@ -953,7 +958,7 @@ class OdsExporter(TaskCollectionExporter):
     viewtype = ViewArg.ODS
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_ods()
+        return self.get_spreadsheet_collection().as_ods()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return OdsResponse(body=body, filename=filename)
@@ -974,7 +979,7 @@ class RExporter(TaskCollectionExporter):
         return self.get_r_script().encode(self.encoding)
 
     def get_r_script(self) -> str:
-        return self.get_tsv_collection().as_r()
+        return self.get_spreadsheet_collection().as_r()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         filename = self.get_filename()
@@ -991,7 +996,7 @@ class TsvZipExporter(TaskCollectionExporter):
     viewtype = ViewArg.TSV_ZIP
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_zip()
+        return self.get_spreadsheet_collection().as_zip()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return ZipResponse(body=body, filename=filename)
@@ -1005,7 +1010,7 @@ class XlsxExporter(TaskCollectionExporter):
     viewtype = ViewArg.XLSX
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_xlsx()
+        return self.get_spreadsheet_collection().as_xlsx()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return XlsxResponse(body=body, filename=filename)

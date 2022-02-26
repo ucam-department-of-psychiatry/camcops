@@ -67,9 +67,9 @@ class MaasReportTests(AverageScoreReportTestCase):
         self.dbsession.add(task)
 
     def test_average_progress_is_positive(self) -> None:
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        pages = self.report.get_spreadsheet_pages(req=self.req)
 
         expected_progress = 27 - 21
-        actual_progress = tsv_pages[0].plainrows[0][self.PROGRESS_COL]
+        actual_progress = pages[0].plainrows[0][self.PROGRESS_COL]
 
         self.assertEqual(actual_progress, expected_progress)

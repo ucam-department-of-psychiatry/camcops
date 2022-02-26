@@ -2736,7 +2736,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
-  smaller for ODS files. See ``cc_tsv.py``.
+  smaller for ODS files. See ``cc_spreadsheet.py``.
 
 - Option to send research data dumps by e-mail, to offload work to the
   back-end. Similarly, option to queue data dumps for download.
