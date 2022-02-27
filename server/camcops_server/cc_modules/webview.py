@@ -2406,8 +2406,7 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
-                ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
-                    ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
+                ViewParam.INCLUDE_SCHEMA: appstruct.get(ViewParam.INCLUDE_SCHEMA),  # noqa
                 ViewParam.SIMPLIFIED: appstruct.get(ViewParam.SIMPLIFIED),
             }
             # We could return a response, or redirect via GET.
@@ -2468,7 +2467,7 @@ def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
              http_cache=NEVER_CACHE)
 def serve_basic_dump(req: "CamcopsRequest") -> Response:
     """
-    View serving a TSV/ZIP basic research dump.
+    View serving a spreadsheet-style basic research dump.
     """
     # Get view-specific parameters
     simplified = req.get_bool_param(ViewParam.SIMPLIFIED, False)
@@ -2477,8 +2476,7 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
         ViewParam.VIEWTYPE, ViewArg.XLSX, lower=True)
     delivery_mode = req.get_str_param(
         ViewParam.DELIVERY_MODE, ViewArg.EMAIL, lower=True)
-    include_information_schema_columns = req.get_bool_param(
-        ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS, False)
+    include_schema = req.get_bool_param(ViewParam.INCLUDE_SCHEMA, False)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -2487,12 +2485,14 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
         req=req,
         collection=collection,
         options=DownloadOptions(
+            # Exporting to spreadsheets
             user_id=req.user_id,
             viewtype=viewtype,
             delivery_mode=delivery_mode,
             spreadsheet_simplified=simplified,
             spreadsheet_sort_by_heading=sort_by_heading,
-            include_information_schema_columns=include_information_schema_columns  # noqa
+            include_information_schema_columns=include_schema,
+            include_summary_schema=True,
         )
     )  # may raise
     # Export, or schedule an email/download
@@ -2522,8 +2522,7 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
-                ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
-                    ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
+                ViewParam.INCLUDE_SCHEMA: appstruct.get(ViewParam.INCLUDE_SCHEMA),  # noqa
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -2552,8 +2551,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     patient_id_per_row = req.get_bool_param(ViewParam.PATIENT_ID_PER_ROW, True)
     delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
                                       ViewArg.EMAIL, lower=True)
-    include_information_schema_columns = req.get_bool_param(
-        ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS, False)
+    include_schema = req.get_bool_param(ViewParam.INCLUDE_SCHEMA, False)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -2562,12 +2560,14 @@ def sql_dump(req: "CamcopsRequest") -> Response:
         req=req,
         collection=collection,
         options=DownloadOptions(
+            # Exporting to SQL
             user_id=req.user_id,
             viewtype=sqlite_method,
             delivery_mode=delivery_mode,
             db_include_blobs=include_blobs,
             db_patient_id_per_row=patient_id_per_row,
-            include_information_schema_columns=include_information_schema_columns  # noqa
+            include_information_schema_columns=include_schema,
+            include_summary_schema=include_schema,  # doesn't do much for SQL export at present  # noqa
         )
     )  # may raise
     # Export, or schedule an email/download

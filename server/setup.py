@@ -101,7 +101,7 @@ INSTALL_REQUIRES = [
 
     'matplotlib==3.2.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
-    'numpy==1.22.0',  # Used by some tasks. SLOW INSTALLATION.
+    'numpy==1.21.5',  # Used by some tasks. SLOW INSTALLATION.
 
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.1.2',  # date/time classes

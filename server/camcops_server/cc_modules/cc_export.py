@@ -158,7 +158,7 @@ import os
 import sqlite3
 import tempfile
 from typing import (Dict, List, Generator, Optional,
-                    Tuple, Type, TYPE_CHECKING, Union)
+                    Set, Tuple, Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import gen_all_subclasses
 from cardinal_pythonlib.datetimefunc import (
@@ -194,6 +194,7 @@ from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat, JSON_INDENT
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import (
     REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
 )
@@ -234,6 +235,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
+SUMMARYSCHEMA_PAGENAME = "_camcops_column_explanations"
 
 
 # =============================================================================
@@ -697,7 +699,8 @@ class DownloadOptions(object):
                  spreadsheet_sort_by_heading: bool = False,
                  db_include_blobs: bool = False,
                  db_patient_id_per_row: bool = False,
-                 include_information_schema_columns: bool = True) -> None:
+                 include_information_schema_columns: bool = True,
+                 include_summary_schema: bool = True) -> None:
         """
         Args:
             user_id:
@@ -718,7 +721,10 @@ class DownloadOptions(object):
                 Denormalize by include the patient ID in all rows of
                 patient-related tables?
             include_information_schema_columns:
-                Include descriptions of the columns provided?
+                Include descriptions of the database source columns?
+            include_summary_schema:
+                Include descriptions of summary columns and other columns in
+                output spreadsheets?
         """
         assert delivery_mode in self.DELIVERY_MODES
         self.user_id = user_id
@@ -729,6 +735,7 @@ class DownloadOptions(object):
         self.db_include_blobs = db_include_blobs
         self.db_patient_id_per_row = db_patient_id_per_row
         self.include_information_schema_columns = include_information_schema_columns  # noqa
+        self.include_summary_schema = include_summary_schema
 
 
 class TaskCollectionExporter(object):
@@ -933,27 +940,52 @@ class TaskCollectionExporter(object):
             object
         """  # noqa
         audit_descriptions = []  # type: List[str]
-        # Task may return >1 sheet for output (e.g. for subtables).
-        coll = SpreadsheetCollection()
-        # Iterate through tasks, creating the spreadsheet collection
-        for cls in self.collection.task_classes():
-            for task in gen_audited_tasks_for_task_class(self.collection, cls,
-                                                         audit_descriptions):
-                pages = task.get_spreadsheet_pages(self.req)
-                coll.add_pages(pages)
-
-        if self.options.include_information_schema_columns:
-            info_schema_page = get_information_schema_spreadsheet_page(self.req)
-            coll.add_page(info_schema_page)
-
-        coll.sort_pages()
         options = self.options
         if options.spreadsheet_simplified:
-            coll.delete_page(SNOMED_TABLENAME)
-            coll.delete_columns(REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS)
+            summary_exclusion_tables = {SNOMED_TABLENAME}
+            summary_exclusion_columns = REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
+        else:
+            summary_exclusion_tables = set()
+            summary_exclusion_columns = set()
+        # Task may return >1 sheet for output (e.g. for subtables).
+        coll = SpreadsheetCollection()
+
+        # Iterate through tasks, creating the spreadsheet collection
+        schema_elements = set()  # type: Set[SummarySchemaInfo]
+        for cls in self.collection.task_classes():
+            schema_done = False
+            for task in gen_audited_tasks_for_task_class(self.collection, cls,
+                                                         audit_descriptions):
+                # Task data
+                coll.add_pages(task.get_spreadsheet_pages(self.req))
+                if not schema_done and options.include_summary_schema:
+                    # Schema (including summary explanations)
+                    schema_elements |= task.get_spreadsheet_schema_elements(self.req)  # noqa
+                    # We just need this from one task instance.
+                    schema_done = True
+
+        if options.include_summary_schema:
+            coll.add_page(SpreadsheetPage(name=SUMMARYSCHEMA_PAGENAME, rows=[
+                si.as_dict for si in sorted(schema_elements)
+                if si.column_name not in summary_exclusion_columns
+                and si.table_name not in summary_exclusion_tables
+            ]))
+
+        if options.include_information_schema_columns:
+            # Source database information schema
+            coll.add_page(get_information_schema_spreadsheet_page(self.req))
+
+        # Simplify
+        if options.spreadsheet_simplified:
+            coll.delete_pages(summary_exclusion_tables)
+            coll.delete_columns(summary_exclusion_columns)
+
+        # Sort
+        coll.sort_pages()
         if options.spreadsheet_sort_by_heading:
             coll.sort_headings_within_all_pages()
 
+        # Audit
         audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
 
         return coll

@@ -37,8 +37,8 @@ import logging
 import os
 import random
 import re
-from typing import (Any, BinaryIO, Callable, Dict, Iterable, List, Optional,
-                    Sequence, Union)
+from typing import (Any, BinaryIO, Callable, Container, Dict, Iterable, List,
+                    Optional, Sequence, Union)
 import zipfile
 
 from cardinal_pythonlib.datetimefunc import (
@@ -206,7 +206,7 @@ class SpreadsheetPage(object):
         """
         self.headings.sort()
 
-    def delete_columns(self, headings: Sequence[str]) -> None:
+    def delete_columns(self, headings: Container[str]) -> None:
         """
         Removes columns with the specified heading names.
         Used to simplify spreadsheets.
@@ -402,13 +402,13 @@ class SpreadsheetCollection(object):
         """
         self.pages = [p for p in self.pages if p.name != page_name]
 
-    def delete_pages(self, page_names: Sequence[str]) -> None:
+    def delete_pages(self, page_names: Container[str]) -> None:
         """
         Delete pages with the names specified.
         """
         self.pages = [p for p in self.pages if p.name not in page_names]
 
-    def delete_columns(self, headings: Sequence[str]) -> None:
+    def delete_columns(self, headings: Container[str]) -> None:
         """
         Across all pages, removes columns with the specified heading names.
         Used to simplify spreadsheets.

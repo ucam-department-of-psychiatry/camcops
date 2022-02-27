@@ -66,12 +66,13 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                 ${ _("SQL dump") }</a> ${ _("to get the raw data.") }
         </li>
         <li>
-            ${ _("For explanations of each field (field comments),") }
+            ${ _("Includes a sheet describing every column. "
+                 "You can add a full description of the source database. "
+                 "You can also") }
             <a href="${ request.route_url(Routes.VIEW_DDL) | n }">
-                ${ _("inspect the table definitions") }</a>
-            ${ _("or explore the") }
+                ${ _("inspect the table definitions") }</a>;
             <a href="${ request.route_url(Routes.TASK_LIST) | n }">
-                ${ _("task list") }</a>.
+                ${ _("explore the task list") }</a>.
         </li>
     </ul>
 </div>

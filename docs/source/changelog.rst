@@ -3654,5 +3654,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Option for simplified spreadsheet downloads.
 
-- Bump ``numpy`` from 1.20.0 to 1.22.0 for the endless series of security
-  warnings about things that aren't really vulnerabilities.
+- Bump ``numpy`` from 1.20.0 to 1.21.5 (1.22.0 unavailable for Python 3.7) for
+  the endless series of security warnings about things that aren't really
+  vulnerabilities.

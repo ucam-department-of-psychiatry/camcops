@@ -57,6 +57,7 @@ from camcops_server.cc_modules.cc_constants import (
     SPREADSHEET_PATIENT_FIELD_PREFIX,
     TABLET_ID_FIELD,
 )
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     COLATTR_PERMITTED_VALUE_CHECKER,
@@ -323,7 +324,7 @@ TASK_FREQUENT_FIELDS = TASK_FREQUENT_AND_FK_FIELDS + (
     TFN_RESPONDENT_RELATIONSHIP,
 )
 
-REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = (
+REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = {
     # keep this: CLIENT_DATE_FIELD = when_last_modified
     # keep this: FN_PK = task PK
     # keep this: SFN_IS_COMPLETE = is the task complete
@@ -382,7 +383,7 @@ REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = (
     TFN_FIRSTEXIT_IS_FINISH,
     TFN_PATIENT_ID,
     TFN_WHEN_FIRSTEXIT,
-)
+}
 
 
 # =============================================================================
@@ -809,6 +810,22 @@ class GenericTabletRecordMixin(object):
         for s in self.get_summaries(req):
             row[heading_prefix + s.name] = s.value
         return SpreadsheetPage(name=self.__tablename__, rows=[row])
+
+    def _get_core_spreadsheet_schema(
+            self,
+            table_name: str = "",
+            column_name_prefix: str = "") -> Set[SummarySchemaInfo]:
+        """
+        Returns schema information compatible with
+        :func:`_get_core_spreadsheet_page`.
+        """
+        return set(
+            SummarySchemaInfo.from_column(
+                column,
+                table_name=table_name,
+                column_name_prefix=column_name_prefix
+            ) for _, column in gen_columns(self)
+        )
 
     # -------------------------------------------------------------------------
     # Erasing (overwriting data, not deleting the database records)

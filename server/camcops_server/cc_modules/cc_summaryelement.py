@@ -33,12 +33,13 @@ information.
 """
 
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Set, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.reprfunc import auto_repr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import TaskDescendant
 from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_xml import XmlElement
@@ -135,6 +136,18 @@ class ExtraSummaryTable(TaskDescendant):
         representing this summary table.
         """
         return SpreadsheetPage(name=self.tablename, rows=self.rows)
+
+    def get_spreadsheet_schema_elements(self) -> Set[SummarySchemaInfo]:
+        """
+        Schema equivalent to :func:`get_spreadsheet_page`.
+        """
+        return set(
+            SummarySchemaInfo.from_column(
+                c,
+                table_name=self.tablename,
+                source=SummarySchemaInfo.SSV_SUMMARY
+            ) for c in self.columns
+        )
 
     def __repr__(self) -> str:
         return auto_repr(self)
