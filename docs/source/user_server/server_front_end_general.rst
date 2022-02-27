@@ -1,4 +1,4 @@
-..  docs/source/user/server_front_end_general.rst
+..  docs/source/user_server/server_front_end_general.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
@@ -219,13 +219,29 @@ The download formats include:
 - `OpenOffice <https://www.openoffice.org/>`_/`LibreOffice
   <https://www.libreoffice.org/>`_ spreadsheet (`ODS
   <https://en.wikipedia.org/wiki/OpenDocument>`_) format.
+
 - `Microsoft Excel <https://en.wikipedia.org/wiki/Office_Open_XML>`_ (XLSX).
+
 - A ZIP file containing multiple TSV files, one per worksheet. This is the
-  least human-friendly format, but is good for automatically importing into
+  least human-friendly format, but is OK for automatically importing into
   statistics packages.
-- An `R <https://www.r-project.org/>`_ script, which encapsulates the data and creates R objects for you.
-  You can pull in the data from another script (or the command line) via th
-  ``source`` command. It uses `data.table
+
+  - For TSV, NULL values are represented by blank fields and are therefore
+    indistinguishable from blank strings, and the Excel dialect of TSV is used.
+    If you want to read TSV files into R, try:
+
+    .. code-block:: R
+
+        mydf = read.table("something.tsv", sep="\t", header=TRUE, na.strings="", comment.char="")
+
+    Note that R will prepend ‘X’ to variable names starting with an underscore;
+    see ``?make.names``.
+
+    Inspect the results with e.g. ``colnames(mydf)`` or ``View(mydf)``.
+
+- An `R <https://www.r-project.org/>`_ script, which encapsulates the data and
+  creates R objects for you. You can pull in the data from another script (or
+  the command line) via th ``source`` command. It uses `data.table
   <https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html>`_.
 
 There are also advanced data dumps in other formats (see below).

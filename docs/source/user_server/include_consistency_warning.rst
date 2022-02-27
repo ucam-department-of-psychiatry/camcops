@@ -1,4 +1,4 @@
-..  docs/source/user/include_consistency_warning.rst
+..  docs/source/user_server/include_consistency_warning.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).

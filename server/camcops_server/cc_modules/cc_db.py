@@ -324,15 +324,14 @@ TASK_FREQUENT_FIELDS = TASK_FREQUENT_AND_FK_FIELDS + (
 )
 
 REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = (
-    # not this: CLIENT_DATE_FIELD = when_last_modified
-    # not this: FN_CAMCOPS_VERSION = version that captured the original data
-    # not this: FN_PK
-    # not this: SFN_CAMCOPS_SERVER_VERSION = version that generated summary information  # noqa
-    # not this: SFN_IS_COMPLETE
-    # not this: SPREADSHEET_PATIENT_FIELD_PREFIX + FN_PK,
-    # not this: TFN_WHEN_CREATED = main creation time
+    # keep this: CLIENT_DATE_FIELD = when_last_modified
+    # keep this: FN_PK = task PK
+    # keep this: SFN_IS_COMPLETE = is the task complete
+    # keep this: SPREADSHEET_PATIENT_FIELD_PREFIX + FN_PK = patient PK
+    # keep this: TFN_WHEN_CREATED = main creation time
     FN_ADDING_USER_ID,
     FN_ADDITION_PENDING,
+    FN_CAMCOPS_VERSION,  # debatable; version that captured the original data
     FN_CURRENT,
     FN_DEVICE_ID,
     FN_ERA,
@@ -351,6 +350,7 @@ REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = (
     FN_WHEN_REMOVED_BATCH_UTC,
     FN_WHEN_REMOVED_EXACT,
     MOVE_OFF_TABLET_FIELD,
+    SFN_CAMCOPS_SERVER_VERSION,  # debatable; version that generated summary information  # noqa
     SFN_SECONDS_CREATION_TO_FIRST_FINISH,
     SPREADSHEET_PATIENT_FIELD_PREFIX + CLIENT_DATE_FIELD,
     SPREADSHEET_PATIENT_FIELD_PREFIX + FN_ADDING_USER_ID,

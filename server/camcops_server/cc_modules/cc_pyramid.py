@@ -1462,7 +1462,7 @@ class Icons:
     GOTO_PREDECESSOR = "arrow-left-square"
     GOTO_SUCCESSOR = "arrow-right-square-fill"
     GROUP_ADD = "plus-circle"
-    GROUP_ADMIN = "suit-diamond"
+    GROUP_ADMIN = "suit-diamond-fill"
     GROUP_EDIT = "box"
     GROUPS = "boxes"  # change?
     HOME = "house-fill"

@@ -933,9 +933,9 @@ class TaskCollectionExporter(object):
             object
         """  # noqa
         audit_descriptions = []  # type: List[str]
-        # Task may return >1 file for TSV output (e.g. for subtables).
+        # Task may return >1 sheet for output (e.g. for subtables).
         coll = SpreadsheetCollection()
-        # Iterate through tasks, creating the TSV collection
+        # Iterate through tasks, creating the spreadsheet collection
         for cls in self.collection.task_classes():
             for task in gen_audited_tasks_for_task_class(self.collection, cls,
                                                          audit_descriptions):
