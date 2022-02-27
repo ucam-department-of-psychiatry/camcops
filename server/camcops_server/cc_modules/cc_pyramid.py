@@ -239,6 +239,7 @@ class ViewParam(object):
     SETTINGS = "settings"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"
+    SIMPLIFIED = "simplified"
     SORT = "sort"
     SOURCE = "source"
     SQLITE_METHOD = "sqlite_method"

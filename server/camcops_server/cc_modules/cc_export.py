@@ -194,6 +194,9 @@ from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat, JSON_INDENT
+from camcops_server.cc_modules.cc_db import (
+    REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
+)
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exception import FhirExportException
@@ -207,7 +210,7 @@ from camcops_server.cc_modules.cc_forms import UserDownloadDeleteForm
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
-from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_task import SNOMED_TABLENAME, Task
 from camcops_server.cc_modules.cc_spreadsheet import (
     SpreadsheetCollection,
     SpreadsheetPage,
@@ -690,6 +693,7 @@ class DownloadOptions(object):
                  user_id: int,
                  viewtype: str,
                  delivery_mode: str,
+                 spreadsheet_simplified: bool = False,
                  spreadsheet_sort_by_heading: bool = False,
                  db_include_blobs: bool = False,
                  db_patient_id_per_row: bool = False,
@@ -720,6 +724,7 @@ class DownloadOptions(object):
         self.user_id = user_id
         self.viewtype = viewtype
         self.delivery_mode = delivery_mode
+        self.spreadsheet_simplified = spreadsheet_simplified
         self.spreadsheet_sort_by_heading = spreadsheet_sort_by_heading
         self.db_include_blobs = db_include_blobs
         self.db_patient_id_per_row = db_patient_id_per_row
@@ -942,7 +947,11 @@ class TaskCollectionExporter(object):
             coll.add_page(info_schema_page)
 
         coll.sort_pages()
-        if self.options.spreadsheet_sort_by_heading:
+        options = self.options
+        if options.spreadsheet_simplified:
+            coll.delete_page(SNOMED_TABLENAME)
+            coll.delete_columns(REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS)
+        if options.spreadsheet_sort_by_heading:
             coll.sort_headings_within_all_pages()
 
         audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")

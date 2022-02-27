@@ -2408,6 +2408,7 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
                 ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
                     ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
+                ViewParam.SIMPLIFIED: appstruct.get(ViewParam.SIMPLIFIED),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -2470,6 +2471,7 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     View serving a TSV/ZIP basic research dump.
     """
     # Get view-specific parameters
+    simplified = req.get_bool_param(ViewParam.SIMPLIFIED, False)
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
     viewtype = req.get_str_param(
         ViewParam.VIEWTYPE, ViewArg.XLSX, lower=True)
@@ -2488,6 +2490,7 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
             user_id=req.user_id,
             viewtype=viewtype,
             delivery_mode=delivery_mode,
+            spreadsheet_simplified=simplified,
             spreadsheet_sort_by_heading=sort_by_heading,
             include_information_schema_columns=include_information_schema_columns  # noqa
         )

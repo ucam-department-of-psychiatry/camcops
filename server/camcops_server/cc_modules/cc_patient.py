@@ -76,7 +76,11 @@ from camcops_server.cc_modules.cc_constants import (
     SEX_OTHER_UNSPECIFIED,
     SPREADSHEET_PATIENT_FIELD_PREFIX,
 )
-from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_db import (
+    GenericTabletRecordMixin,
+    PFN_UUID,
+    TABLET_ID_FIELD,
+)
 from camcops_server.cc_modules.cc_fhir import (
     fhir_pk_identifier,
     make_fhir_bundle_entry,
@@ -135,13 +139,13 @@ class Patient(GenericTabletRecordMixin, Base):
     __tablename__ = "patient"
 
     id = Column(
-        "id", Integer,
+        TABLET_ID_FIELD, Integer,
         nullable=False,
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
     )
     uuid = CamcopsColumn(
-        "uuid", UuidColType,
+        PFN_UUID, UuidColType,
         comment="UUID",
         default=uuid.uuid4  # generates a random UUID
     )  # type: Optional[uuid.UUID]

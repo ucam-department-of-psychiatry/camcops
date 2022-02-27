@@ -3590,8 +3590,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Bump ``celery`` from 5.2.0 to 5.2.2 for CVE-2021-23727.
 
-  - Bump ``cardinal_pythonlib``, which now uses numpy 1.20.0, which removes
-    support for Python 3.6, so we do too.
+  - Bump ``cardinal_pythonlib`` to 1.1.15, which now uses numpy 1.20.0, which
+    removes support for Python 3.6, so we do too.
     **Minimum Python version now Python 3.7.**
 
   - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
@@ -3646,5 +3646,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   changes before the session timeout is reached.
   https://github.com/RudolfCardinal/camcops/issues/226
 
+
+.. _changelog_v2_4_13:
+
 **Client and server v2.4.13, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Option for simplified spreadsheet downloads.

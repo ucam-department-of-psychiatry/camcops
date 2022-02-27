@@ -206,6 +206,16 @@ class SpreadsheetPage(object):
         """
         self.headings.sort()
 
+    def delete_columns(self, headings: Sequence[str]) -> None:
+        """
+        Removes columns with the specified heading names.
+        Used to simplify spreadsheets.
+
+        Since our rows are a dictionary, and our export functions are based on
+        the headings, all we have to do is to delete the unwanted headings.
+        """
+        self.headings = [h for h in self.headings if h not in headings]
+
     @property
     def plainrows(self) -> List[List[Any]]:
         """
@@ -385,6 +395,26 @@ class SpreadsheetCollection(object):
         Return a list of the names of all our pages.
         """
         return [p.name for p in self.pages]
+
+    def delete_page(self, page_name: str) -> None:
+        """
+        Delete any page with the name specified.
+        """
+        self.pages = [p for p in self.pages if p.name != page_name]
+
+    def delete_pages(self, page_names: Sequence[str]) -> None:
+        """
+        Delete pages with the names specified.
+        """
+        self.pages = [p for p in self.pages if p.name not in page_names]
+
+    def delete_columns(self, headings: Sequence[str]) -> None:
+        """
+        Across all pages, removes columns with the specified heading names.
+        Used to simplify spreadsheets.
+        """
+        for p in self.pages:
+            p.delete_columns(headings)
 
     # -------------------------------------------------------------------------
     # TSV

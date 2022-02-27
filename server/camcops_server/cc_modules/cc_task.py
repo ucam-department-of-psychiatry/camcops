@@ -123,6 +123,9 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
+    SFN_CAMCOPS_SERVER_VERSION,
+    SFN_IS_COMPLETE,
+    SFN_SECONDS_CREATION_TO_FIRST_FINISH,
     TASK_FREQUENT_FIELDS,
     TFN_CLINICIAN_CONTACT_DETAILS,
     TFN_CLINICIAN_NAME,
@@ -1096,20 +1099,20 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return [
             SummaryElement(
-                name="is_complete",
+                name=SFN_IS_COMPLETE,
                 coltype=Boolean(),
                 value=self.is_complete(),
                 comment="(GENERIC) Task complete?"
             ),
             SummaryElement(
-                name="seconds_from_creation_to_first_finish",
+                name=SFN_SECONDS_CREATION_TO_FIRST_FINISH,
                 coltype=Float(),
                 value=self.get_seconds_from_creation_to_first_finish(),
                 comment="(GENERIC) Time (in seconds) from record creation to "
                         "first exit, if that was a finish not an abort",
             ),
             SummaryElement(
-                name="camcops_server_version",
+                name=SFN_CAMCOPS_SERVER_VERSION,
                 coltype=SemanticVersionColType(),
                 value=CAMCOPS_SERVER_VERSION,
                 comment="(GENERIC) CamCOPS server version that created the "

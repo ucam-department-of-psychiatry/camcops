@@ -3837,6 +3837,26 @@ class SqliteSelector(SchemaNode, RequestAwareMixin):
         self.validator = OneOf(pv)
 
 
+class SimplifiedSpreadsheetsNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: simplify basic dump spreadsheets?
+    """
+    schema_type = Boolean
+    default = True
+    missing = True
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.label = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Simplify spreadsheets?")
+        self.label = _("Remove non-essential details?")
+
+
 class SortTsvByHeadingsNode(SchemaNode, RequestAwareMixin):
     """
     Boolean node: sort TSV files by column name?
@@ -3950,6 +3970,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     Schema to choose the settings for a basic (TSV/ZIP) data dump.
     """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
+    simplified = SimplifiedSpreadsheetsNode()  # must match ViewParam.SIMPLIFIED
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     include_information_schema_columns = IncludeInformationSchemaColumnsNode()  # must match ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
