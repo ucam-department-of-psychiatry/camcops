@@ -236,6 +236,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
 SUMMARYSCHEMA_PAGENAME = "_camcops_column_explanations"
+REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS = {SNOMED_TABLENAME}
+EMPTY_SET = set()
 
 
 # =============================================================================
@@ -942,11 +944,11 @@ class TaskCollectionExporter(object):
         audit_descriptions = []  # type: List[str]
         options = self.options
         if options.spreadsheet_simplified:
-            summary_exclusion_tables = {SNOMED_TABLENAME}
+            summary_exclusion_tables = REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
             summary_exclusion_columns = REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
         else:
-            summary_exclusion_tables = set()
-            summary_exclusion_columns = set()
+            summary_exclusion_tables = EMPTY_SET
+            summary_exclusion_columns = EMPTY_SET
         # Task may return >1 sheet for output (e.g. for subtables).
         coll = SpreadsheetCollection()
 
