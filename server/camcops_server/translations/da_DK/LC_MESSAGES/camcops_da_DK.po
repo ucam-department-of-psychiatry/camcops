@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-02-27 01:01+0000\n"
-"PO-Revision-Date: 2022-02-27 01:01+0000\n"
+"POT-Creation-Date: 2022-03-01 12:11+0000\n"
+"PO-Revision-Date: 2022-03-01 12:11+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -22,25 +22,25 @@ msgstr ""
 msgid "(Server) Devices registered with the server"
 msgstr "(Server) Enheder, der er registreret på serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:825
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:897
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:834
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:906
 msgid "CamCOPS research data dump"
 msgstr "CamCOPS forskningsdata dump"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:826
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:835
 msgid "The research data dump you requested is attached."
 msgstr "Den forskningsdata-dump, du har anmodet om, er vedhæftet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:866
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:875
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr "Du har ikke tilstrækkelig plads til at oprette denne overførsel. Du har tilladelse {total_permitted} byte, og du har {space} byte gratis. Denne overførsel skal bruge {size} byte."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:879
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:888
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr "Den forskningsdata dump, du har anmodet om, er klar til at blive hentet. Du finder det i dit download område. Det kaldes %s"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:895
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr "Filen {filename} kunne ikke oprettes. Fejlen var: {message}"
 
@@ -1149,15 +1149,15 @@ msgstr "Ukendt valideringsmetode"
 msgid "Default:"
 msgstr "Standard:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:666
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:668
 msgid "Date of birth:"
 msgstr "Fødselsdato:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:671
 msgid "DOB:"
 msgstr "Født:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1207
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1255
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
@@ -1193,7 +1193,7 @@ msgstr "Slutdato"
 msgid "Can't fetch ID number definition"
 msgstr "Definitionen af id-nummer kan ikke hentes"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2601
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2637
 msgid "Anonymous"
 msgstr "Anonym"
 
@@ -2806,11 +2806,11 @@ msgstr "Forklaring"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:49
 msgid "Provides a spreadsheet-style download (usually one sheet per task; for some tasks, more than one)."
-msgstr "Indeholder en overførsel i regnearksformat (normalt ét ark pr. opgave; for nogle opgaver, mere end én)."
+msgstr "Indeholder en overførsel i regnearksformat (normalt ét ark pr. opgave, for nogle opgaver, mere end ét)."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:53
-msgid "Incorporates patient and summary information into each row. Doesn’t provide BLOBs (e.g. pictures)."
-msgstr "Indeholder patient-og opsummeringsoplysninger i hver række. Giver ikke BLOBs (f. eks. billeder)."
+msgid "Incorporates patient and summary information into each row. Doesn’t provide binary large objects (e.g. pictures)."
+msgstr "Inkorporerer patient- og oversigtsoplysninger i hver række. Leverer ikke binære store objekter (f.eks. billeder)."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:57
 msgid "If there are no instances of a particular task, no sheet is returned."
@@ -2821,42 +2821,30 @@ msgid "Restricted to current records (i.e. ignores historical versions of tasks 
 msgstr "Begrænset til aktuelle poster (dvs. ignorerer historiske versioner af opgaver, der er blevet redigeret)."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:64
-msgid "For TSV, NULL values are represented by blank fields and are therefore indistinguishable from blank strings, and the Excel dialect of TSV is used. If you want to read TSV files into R, try:"
-msgstr "I forbindelse med TSV repræsenteres NULL-værdier af tomme felter og kan derfor ikke skelnes fra tomme strenge, og der bruges Excel-dialekt af TSV. Hvis du ønsker at læse TSV filer i R, så prøv:"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:69
-msgid "Note that R will prepend ‘X’ to variable names starting with an underscore; see"
-msgstr "Bemærk, at R vil foranstiller 'X' til variable navne startende med et understregningstegn; se"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:72
-msgid "Inspect the results with e.g."
-msgstr "Undersøg resultaterne med f. eks."
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:74
-msgid "or in RStudio,"
-msgstr "eller i RStudio,"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:78
 msgid "For more advanced features, use the"
 msgstr "Du kan få mere avancerede funktioner ved at bruge"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:66
 msgid "SQL dump"
 msgstr "SQL-dump"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:66
 msgid "to get the raw data."
 msgstr "for at få de rå data."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:83
-msgid "For explanations of each field (field comments), see each task’s XML view or"
-msgstr "Hvis du vil have forklaringer på hvert felt (felt kommentarer), skal du se hver opgaves XML-visning eller"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:69
+msgid "Includes a sheet describing every column. You can add a full description of the source database. You can also"
+msgstr "Indeholder et ark, der beskriver hver kolonne. Du kan tilføje en fuldstændig beskrivelse af kildedatabasen. Du kan også"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:86
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:73
 msgid "inspect the table definitions"
 msgstr "inspicere tabeldefinitionerne"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:91
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:75
+msgid "explore the task list"
+msgstr "udforske opgavelisten"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
 msgid "Choose basic dump settings"
 msgstr "Vælg grundlæggende dump-indstillinger"
 

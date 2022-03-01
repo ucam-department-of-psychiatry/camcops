@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CamCOPS 2.4.12\n"
+"Project-Id-Version: CamCOPS 2.4.13\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-02-27 01:01+0000\n"
+"POT-Creation-Date: 2022-03-01 12:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,25 +21,25 @@ msgstr ""
 msgid "(Server) Devices registered with the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:825
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:897
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:834
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:906
 msgid "CamCOPS research data dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:826
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:835
 msgid "The research data dump you requested is attached."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:866
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:875
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:879
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:888
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:895
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr ""
 
@@ -1148,15 +1148,15 @@ msgstr ""
 msgid "Default:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:666
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:668
 msgid "Date of birth:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:671
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1207
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1255
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
@@ -1192,7 +1192,7 @@ msgstr ""
 msgid "Can't fetch ID number definition"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2601
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2637
 msgid "Anonymous"
 msgstr ""
 
@@ -2785,7 +2785,7 @@ msgid "Provides a spreadsheet-style download (usually one sheet per task; for so
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:53
-msgid "Incorporates patient and summary information into each row. Doesn’t provide BLOBs (e.g. pictures)."
+msgid "Incorporates patient and summary information into each row. Doesn’t provide binary large objects (e.g. pictures)."
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:57
@@ -2797,42 +2797,30 @@ msgid "Restricted to current records (i.e. ignores historical versions of tasks 
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:64
-msgid "For TSV, NULL values are represented by blank fields and are therefore indistinguishable from blank strings, and the Excel dialect of TSV is used. If you want to read TSV files into R, try:"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:69
-msgid "Note that R will prepend ‘X’ to variable names starting with an underscore; see"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:72
-msgid "Inspect the results with e.g."
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:74
-msgid "or in RStudio,"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:78
 msgid "For more advanced features, use the"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:66
 msgid "SQL dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:66
 msgid "to get the raw data."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:83
-msgid "For explanations of each field (field comments), see each task’s XML view or"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:69
+msgid "Includes a sheet describing every column. You can add a full description of the source database. You can also"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:86
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:73
 msgid "inspect the table definitions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:91
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:75
+msgid "explore the task list"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
 msgid "Choose basic dump settings"
 msgstr ""
 
