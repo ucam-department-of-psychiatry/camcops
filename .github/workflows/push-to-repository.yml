@@ -56,6 +56,10 @@ jobs:
                   echo installing vulnerability checker
                   python -m pip install safety
                   echo checking packages for vulnerabilities
+                  # All of these vulnerabilities look either harmless or very low risk
+                  # 44715 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/19038
+                  # 44716 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/19000
+                  # 44717 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/18993
                   safety check --full-report --ignore=44715 --ignore=44716 --ignore=44717
                   echo checking python for style and errors
                   flake8 --config=setup.cfg server/camcops_server
