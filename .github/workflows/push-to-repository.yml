@@ -93,6 +93,11 @@ jobs:
             - uses: actions/setup-python@v2
               with:
                   python-version: ${{ matrix.python-version }}
+            - name: Change apt mirror
+              run: |
+                  # azure.archive.ubuntu.com is flaky
+                  sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/' /etc/apt/sources.list
+                  sudo apt-get update
             - name: Build and install debian package
               run: |
                   set -xe
