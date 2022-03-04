@@ -680,7 +680,7 @@ AR = "ar"  # manipulates archives
 BASH = "bash"  # GNU Bourne-Again SHell
 CL = "cl"  # Visual C++ compiler
 CLANG = "clang"  # macOS XCode compiler; also used under Linux for 64-bit ARM
-# CMAKE = "cmake"  # CMake
+CMAKE = "cmake"  # CMake
 GCC = "gcc"  # GNU C compiler
 GCC_AR = "gcc-ar"  # wrapper around ar
 GIT = "git"  # Git
@@ -1421,34 +1421,39 @@ class Platform(object):
                 supports_parallel = False
             makefile_switch = "/FS"
             parallel_switch = "/J"
-        else:
-            make = MAKE
-            supports_parallel = True
-            makefile_switch = "-f"  # Unix standard
-            parallel_switch = "-j"
-        # require(make)
-        # ... not necessarily visible now; may be on a PATH yet to be set
-        args = [make]
-        if allow_parallel and supports_parallel:
-            args += [parallel_switch, str(cfg.nparallel)]
-        if extra_args:
-            args += extra_args
-        if makefile:
-            args += [makefile_switch, makefile]
+
+            args = [make]
+
+            if allow_parallel and supports_parallel:
+                args += [parallel_switch, str(cfg.nparallel)]
+            if extra_args:
+                args += extra_args
+            if makefile:
+                args += [makefile_switch, makefile]
+            if command:
+                args.append(command)
+            return args
+
+        args = [CMAKE, "--build", "."]
+
+        if allow_parallel:
+            args.append("--parallel")
+
         if command:
             args.append(command)
+
         return args
 
     @property
-    def qmake_executable(self) -> str:
+    def cmake_executable(self) -> str:
         """
-        Used to calculate the name of the qmake file we'll be building (so we
+        Used to calculate the name of the cmake file we'll be building (so we
         can check if it's been compiled).
         """
         if self.windows:
-            return "qmake.exe"
+            return "cmake.exe"
         else:
-            return "qmake"
+            return "cmake"
 
     # -------------------------------------------------------------------------
     # SQLCipher
@@ -1659,7 +1664,7 @@ class Config(object):
 
     def qt_install_dir(self, target_platform: Platform) -> str:
         """
-        The directory to which we'll install Qt, culminating in the "qmake"
+        The directory to which we'll install Qt, culminating in the "cmake"
         tool.
         """
         return join(
@@ -3104,7 +3109,7 @@ def fetch_qt(cfg: Config) -> None:
 def build_qt(cfg: Config, target_platform: Platform) -> str:
     """
     1. Builds Qt.
-    2. Returns the name of the "install" directory, where the installed qmake
+    2. Returns the name of the "install" directory, where the installed cmake
        is.
     """
     # http://doc.qt.io/qt-5/opensslsupport.html
@@ -3154,7 +3159,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
 
-    targets = [join(installdir, "bin", target_platform.qmake_executable)]
+    targets = [join(installdir, "bin", target_platform.cmake_executable)]
     if not cfg.force and all(isfile(x) for x in targets):
         report_all_targets_exist("Qt", targets)
         return installdir
@@ -3237,12 +3242,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     #
     # no, doesn't work: # qt_config_args += ["-no-feature-printing-and-pdf"]
 
-    extra_qmake_cxxflags = []  # type: List[str]
-    extra_qmake_lflags = []  # type: List[str]
+    extra_cmake_cxxflags = []  # type: List[str]
+    extra_cmake_lflags = []  # type: List[str]
     if cfg.verbose >= 2:
-        extra_qmake_cxxflags += ["-v"]  # make clang++ verbose
-        extra_qmake_cxxflags += ["-Xlinker --verbose=2"]  # make linker verbose
-        # extra_qmake_lflags += ["--verbose=2"]  # make ld verbose
+        extra_cmake_cxxflags += ["-v"]  # make clang++ verbose
+        extra_cmake_cxxflags += ["-Xlinker --verbose=2"]  # make linker verbose
+        # extra_cmake_lflags += ["--verbose=2"]  # make ld verbose
 
     if target_platform.android:
         # We use a dynamic build of Qt (bundled into the APK), not a static
@@ -3315,14 +3320,14 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
                                   str(target_platform))
 
     for objdir in objdirs:
-        extra_qmake_cxxflags.append(f"-B{objdir}")
+        extra_cmake_cxxflags.append(f"-B{objdir}")
 
-    if extra_qmake_cxxflags:
-        qt_config_args.append("QMAKE_CXXFLAGS += {}".format(
-            " ".join(extra_qmake_cxxflags)))
-    if extra_qmake_lflags:
-        qt_config_args.append("QMAKE_LFLAGS += {}".format(
-            " ".join(extra_qmake_lflags)))
+    if extra_cmake_cxxflags:
+        qt_config_args.append("CMAKE_CXXFLAGS += {}".format(
+            " ".join(extra_cmake_cxxflags)))
+    if extra_cmake_lflags:
+        qt_config_args.append("CMAKE_LFLAGS += {}".format(
+            " ".join(extra_cmake_lflags)))
 
     for includedir in includedirs:
         qt_config_args.extend(["-I", includedir])
@@ -3422,7 +3427,7 @@ Troubleshooting Qt 'configure' failures
     log.info(
         f"Making Qt {target_platform.description} build into {installdir}")
     with pushd(builddir):
-        # run(cfg.make_args(command="qmake_all", env=env), env)
+        # run(cfg.make_args(command="cmake_all", env=env), env)
         try:
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
