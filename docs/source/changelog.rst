@@ -34,6 +34,7 @@ Quick links:
 - :ref:`2019 <changelog_2019>`
 - :ref:`2020 <changelog_2020>`
 - :ref:`2021 <changelog_2021>`
+- :ref:`2022 <changelog_2022>`
 
 
 Contributors
@@ -3543,10 +3544,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
   conditions relating to clinical use were not met.
 
 
+.. _changelog_2022:
+
+2022
+~~~~
+
 .. _changelog_v2_4_12:
 
-**Client and server v2.4.12, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Server v2.4.12, released 20 Jan 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Database revision to 0071.
 
@@ -3577,29 +3583,31 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Packages:
 
+  - Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing
+    warnings.
+
   - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
 
-  - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
-    some bugs).
-
-  - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
-    objects properly. The bug manifested during reindexing, and was as
-    documented above in :ref:`v2.3.3 <changelog_v2_3_3>`.
+  - Bump ``celery`` from 5.2.0 to 5.2.2 for CVE-2021-23727.
 
   - Bump ``cardinal_pythonlib``, which now uses numpy 1.20.0, which removes
     support for Python 3.6, so we do too.
     **Minimum Python version now Python 3.7.**
 
-  - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
+  - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
+    some bugs).
 
-  - Some ``pyexcel-*`` bumps to remove warnings.
+  - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
 
   - Bump ``pdfkit`` from 0.6.1 to 1.0.0 to remove a bug warning inside it
     (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
     self.type is 'file':``).
 
-  - Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing
-    warnings.
+  - Some ``pyexcel-*`` bumps to remove warnings.
+
+  - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
+    objects properly. The bug manifested during reindexing, and was as
+    documented above in :ref:`v2.3.3 <changelog_v2_3_3>`.
 
 - Update SNOMED code fetcher. Replace 32537008 with 165172002 in
   PsychiatricClerking. Other minor tweaks.
@@ -3631,3 +3639,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
   stopped working otherwise.
 
 - Documentation and support for code-signing Windows client executables.
+
+- New config option :ref:`SESSION_CHECK_USER_IP <SESSION_CHECK_USER_IP>` to
+  check the user's IP address against the previously stored value on every
+  request. There are cases where this may be undesireable if a user's IP address
+  changes before the session timeout is reached.
+  https://github.com/RudolfCardinal/camcops/issues/226
+
+**Client and server v2.4.13, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

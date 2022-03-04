@@ -545,6 +545,13 @@ class VersionReleaser:
         if "Everything up-to-date" not in output:
             self.errors.append("There are unpushed tags")
 
+    def check_package_installed(self, package: str) -> None:
+        try:
+            self.run_with_check(["pip", "show", "--quiet", package])
+        except CalledProcessError:
+            self.errors.append((f"'{package}' is not installed. "
+                                f"To release to PyPI: pip install {package}"))
+
     def perform_checks(self) -> None:
         releases = self.get_released_versions()
         latest_version, latest_date = releases[-1]
@@ -587,6 +594,8 @@ class VersionReleaser:
         self.check_unpushed_changes()
         self.check_release_tag()
         self.check_unpushed_tags()
+        self.check_package_installed("wheel")
+        self.check_package_installed("twine")
 
     def release(self) -> None:
         if self.should_release_server:
@@ -595,7 +604,10 @@ class VersionReleaser:
 
             self.remove_old_pypi_builds()
             os.chdir(SERVER_SOURCE_DIR)
-            self.run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
+
+            # "bdist_wheel" removed from below to allow GitHub dependencies
+            # Currenly fhirclient is on a fork
+            self.run_with_check(["python", "setup.py", "sdist"])
             pypi_packages = [str(f) for f in self.get_pypi_builds()]
             print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
