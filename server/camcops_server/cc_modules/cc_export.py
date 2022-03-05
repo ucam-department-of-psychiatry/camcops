@@ -158,7 +158,7 @@ import os
 import sqlite3
 import tempfile
 from typing import (Dict, List, Generator, Optional,
-                    Tuple, Type, TYPE_CHECKING, Union)
+                    Set, Tuple, Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import gen_all_subclasses
 from cardinal_pythonlib.datetimefunc import (
@@ -194,6 +194,10 @@ from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat, JSON_INDENT
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
+from camcops_server.cc_modules.cc_db import (
+    REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
+)
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exception import FhirExportException
@@ -207,8 +211,11 @@ from camcops_server.cc_modules.cc_forms import UserDownloadDeleteForm
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
-from camcops_server.cc_modules.cc_task import Task
-from camcops_server.cc_modules.cc_tsv import TsvCollection, TsvPage
+from camcops_server.cc_modules.cc_task import SNOMED_TABLENAME, Task
+from camcops_server.cc_modules.cc_spreadsheet import (
+    SpreadsheetCollection,
+    SpreadsheetPage,
+)
 from camcops_server.cc_modules.celery import (
     create_user_download,
     email_basic_dump,
@@ -228,6 +235,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
+SUMMARYSCHEMA_PAGENAME = "_camcops_column_explanations"
+REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS = {SNOMED_TABLENAME}
+EMPTY_SET = set()
 
 
 # =============================================================================
@@ -616,15 +626,15 @@ def get_information_schema_query(req: "CamcopsRequest") -> ResultProxy:
     return result_proxy
 
 
-def get_information_schema_tsv_page(
+def get_information_schema_spreadsheet_page(
         req: "CamcopsRequest",
-        page_name: str = INFOSCHEMA_PAGENAME) -> TsvPage:
+        page_name: str = INFOSCHEMA_PAGENAME) -> SpreadsheetPage:
     """
     Returns the server database's ``INFORMATION_SCHEMA.COLUMNS`` table as a
-    :class:`camcops_server.cc_modules.cc_tsv.TsvPage``.
+    :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage``.
     """
     result_proxy = get_information_schema_query(req)
-    return TsvPage.from_resultproxy(page_name, result_proxy)
+    return SpreadsheetPage.from_resultproxy(page_name, result_proxy)
 
 
 def write_information_schema_to_dst(
@@ -687,10 +697,12 @@ class DownloadOptions(object):
                  user_id: int,
                  viewtype: str,
                  delivery_mode: str,
+                 spreadsheet_simplified: bool = False,
                  spreadsheet_sort_by_heading: bool = False,
                  db_include_blobs: bool = False,
                  db_patient_id_per_row: bool = False,
-                 include_information_schema_columns: bool = True) -> None:
+                 include_information_schema_columns: bool = True,
+                 include_summary_schema: bool = True) -> None:
         """
         Args:
             user_id:
@@ -711,16 +723,21 @@ class DownloadOptions(object):
                 Denormalize by include the patient ID in all rows of
                 patient-related tables?
             include_information_schema_columns:
-                Include descriptions of the columns provided?
+                Include descriptions of the database source columns?
+            include_summary_schema:
+                Include descriptions of summary columns and other columns in
+                output spreadsheets?
         """
         assert delivery_mode in self.DELIVERY_MODES
         self.user_id = user_id
         self.viewtype = viewtype
         self.delivery_mode = delivery_mode
+        self.spreadsheet_simplified = spreadsheet_simplified
         self.spreadsheet_sort_by_heading = spreadsheet_sort_by_heading
         self.db_include_blobs = db_include_blobs
         self.db_patient_id_per_row = db_patient_id_per_row
         self.include_information_schema_columns = include_information_schema_columns  # noqa
+        self.include_summary_schema = include_summary_schema
 
 
 class TaskCollectionExporter(object):
@@ -914,35 +931,66 @@ class TaskCollectionExporter(object):
         """
         raise NotImplementedError("Exporter needs to implement 'get_file_body'")
 
-    def get_tsv_collection(self) -> TsvCollection:
+    def get_spreadsheet_collection(self) -> SpreadsheetCollection:
         """
         Converts the collection of tasks to a collection of spreadsheet-style
         data. Also audits the request as a basic data dump.
 
         Returns:
-            a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object
+            a
+            :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetCollection`
+            object
         """  # noqa
         audit_descriptions = []  # type: List[str]
-        # Task may return >1 file for TSV output (e.g. for subtables).
-        tsvcoll = TsvCollection()
-        # Iterate through tasks, creating the TSV collection
+        options = self.options
+        if options.spreadsheet_simplified:
+            summary_exclusion_tables = REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
+            summary_exclusion_columns = REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
+        else:
+            summary_exclusion_tables = EMPTY_SET
+            summary_exclusion_columns = EMPTY_SET
+        # Task may return >1 sheet for output (e.g. for subtables).
+        coll = SpreadsheetCollection()
+
+        # Iterate through tasks, creating the spreadsheet collection
+        schema_elements = set()  # type: Set[SummarySchemaInfo]
         for cls in self.collection.task_classes():
+            schema_done = False
             for task in gen_audited_tasks_for_task_class(self.collection, cls,
                                                          audit_descriptions):
-                tsv_pages = task.get_tsv_pages(self.req)
-                tsvcoll.add_pages(tsv_pages)
+                # Task data
+                coll.add_pages(task.get_spreadsheet_pages(self.req))
+                if not schema_done and options.include_summary_schema:
+                    # Schema (including summary explanations)
+                    schema_elements |= task.get_spreadsheet_schema_elements(self.req)  # noqa
+                    # We just need this from one task instance.
+                    schema_done = True
 
-        if self.options.include_information_schema_columns:
-            info_schema_page = get_information_schema_tsv_page(self.req)
-            tsvcoll.add_page(info_schema_page)
+        if options.include_summary_schema:
+            coll.add_page(SpreadsheetPage(name=SUMMARYSCHEMA_PAGENAME, rows=[
+                si.as_dict for si in sorted(schema_elements)
+                if si.column_name not in summary_exclusion_columns
+                and si.table_name not in summary_exclusion_tables
+            ]))
 
-        tsvcoll.sort_pages()
-        if self.options.spreadsheet_sort_by_heading:
-            tsvcoll.sort_headings_within_all_pages()
+        if options.include_information_schema_columns:
+            # Source database information schema
+            coll.add_page(get_information_schema_spreadsheet_page(self.req))
 
+        # Simplify
+        if options.spreadsheet_simplified:
+            coll.delete_pages(summary_exclusion_tables)
+            coll.delete_columns(summary_exclusion_columns)
+
+        # Sort
+        coll.sort_pages()
+        if options.spreadsheet_sort_by_heading:
+            coll.sort_headings_within_all_pages()
+
+        # Audit
         audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
 
-        return tsvcoll
+        return coll
 
 
 class OdsExporter(TaskCollectionExporter):
@@ -953,7 +1001,7 @@ class OdsExporter(TaskCollectionExporter):
     viewtype = ViewArg.ODS
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_ods()
+        return self.get_spreadsheet_collection().as_ods()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return OdsResponse(body=body, filename=filename)
@@ -974,7 +1022,7 @@ class RExporter(TaskCollectionExporter):
         return self.get_r_script().encode(self.encoding)
 
     def get_r_script(self) -> str:
-        return self.get_tsv_collection().as_r()
+        return self.get_spreadsheet_collection().as_r()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         filename = self.get_filename()
@@ -991,7 +1039,7 @@ class TsvZipExporter(TaskCollectionExporter):
     viewtype = ViewArg.TSV_ZIP
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_zip()
+        return self.get_spreadsheet_collection().as_zip()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return ZipResponse(body=body, filename=filename)
@@ -1005,7 +1053,7 @@ class XlsxExporter(TaskCollectionExporter):
     viewtype = ViewArg.XLSX
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_xlsx()
+        return self.get_spreadsheet_collection().as_xlsx()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return XlsxResponse(body=body, filename=filename)

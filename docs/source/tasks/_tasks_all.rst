@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. include:: ../user/include_tabletdefs.rst
+.. include:: ../user_client/include_tabletdefs.rst
 
 .. _tasks_all:
 

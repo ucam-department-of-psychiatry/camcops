@@ -49,7 +49,7 @@ import datetime
 import logging
 import statistics
 from typing import (Any, Dict, Iterable, Generator, List, Optional,
-                    Tuple, Type, TYPE_CHECKING, Union)
+                    Set, Tuple, Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -121,8 +121,12 @@ from camcops_server.cc_modules.cc_constants import (
     INVALID_VALUE,
     UTF8,
 )
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
+    SFN_CAMCOPS_SERVER_VERSION,
+    SFN_IS_COMPLETE,
+    SFN_SECONDS_CREATION_TO_FIRST_FINISH,
     TASK_FREQUENT_FIELDS,
     TFN_CLINICIAN_CONTACT_DETAILS,
     TFN_CLINICIAN_NAME,
@@ -210,7 +214,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
     from camcops_server.cc_modules.cc_snomed import SnomedExpression  # noqa: E501,F401
     from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_tsv import TsvPage  # noqa: F401
+    from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1096,20 +1100,20 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return [
             SummaryElement(
-                name="is_complete",
+                name=SFN_IS_COMPLETE,
                 coltype=Boolean(),
                 value=self.is_complete(),
                 comment="(GENERIC) Task complete?"
             ),
             SummaryElement(
-                name="seconds_from_creation_to_first_finish",
+                name=SFN_SECONDS_CREATION_TO_FIRST_FINISH,
                 coltype=Float(),
                 value=self.get_seconds_from_creation_to_first_finish(),
                 comment="(GENERIC) Time (in seconds) from record creation to "
                         "first exit, if that was a finish not an abort",
             ),
             SummaryElement(
-                name="camcops_server_version",
+                name=SFN_CAMCOPS_SERVER_VERSION,
                 coltype=SemanticVersionColType(),
                 value=CAMCOPS_SERVER_VERSION,
                 comment="(GENERIC) CamCOPS server version that created the "
@@ -1733,7 +1737,7 @@ class Task(GenericTabletRecordMixin, Base):
     def _get_fhir_subject_ref(self, req: "CamcopsRequest",
                               recipient: "ExportRecipient") -> Dict:
         """
-        Returns a a reference to the patient, for "subject" fields.
+        Returns a reference to the patient, for "subject" fields.
         """
         assert self.has_patient, (
             "Don't call Task._get_fhir_subject_ref() for anonymous tasks"
@@ -1742,7 +1746,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def _get_fhir_practitioner_ref(self, req: "CamcopsRequest") -> Dict:
         """
-        Returns a a reference to the clinician, for "practitioner" fields.
+        Returns a reference to the clinician, for "practitioner" fields.
         """
         assert self.has_clinician, (
             "Don't call Task._get_fhir_clinician_ref() "
@@ -2345,7 +2349,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def contains_all_strings(self, strings: List[str]) -> bool:
         """
-        Does this task contain all of the specified strings?
+        Does this task contain all the specified strings?
 
         Args:
             strings:
@@ -2358,31 +2362,68 @@ class Task(GenericTabletRecordMixin, Base):
         return all(self.contains_text(text) for text in strings)
 
     # -------------------------------------------------------------------------
-    # TSV export for basic research dump
+    # Spreadsheet export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List["TsvPage"]:
+    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
+            -> List["SpreadsheetPage"]:
         """
-        Returns information used for the basic research dump in TSV format.
+        Returns information used for the basic research dump in (e.g.) TSV
+        format.
         """
         # 1. Our core fields, plus summary information
+        main_page = self._get_core_spreadsheet_page(req)
 
-        main_page = self._get_core_tsv_page(req)
         # 2. Patient details.
-
         if self.patient:
             main_page.add_or_set_columns_from_page(
-                self.patient.get_tsv_page(req))
-        tsv_pages = [main_page]
+                self.patient.get_spreadsheet_page(req))
+        pages = [main_page]
+
         # 3. +/- Ancillary objects
         for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
-            page = ancillary._get_core_tsv_page(req)
-            tsv_pages.append(page)
+            page = ancillary._get_core_spreadsheet_page(req)
+            pages.append(page)
+
         # 4. +/- Extra summary tables (inc. SNOMED)
         for est in self.get_all_summary_tables(req):
-            tsv_pages.append(est.get_tsv_page())
+            pages.append(est.get_spreadsheet_page())
+
         # Done
-        return tsv_pages
+        return pages
+
+    def get_spreadsheet_schema_elements(
+            self,
+            req: "CamcopsRequest") -> Set[SummarySchemaInfo]:
+        """
+        Returns schema information used for spreadsheets -- more than just
+        the database columns, and in the same format as the spreadsheets.
+        """
+        table_name = self.__tablename__
+
+        # 1(a). Database columns: main table
+        items = self._get_core_spreadsheet_schema()
+        # 1(b). Summary information.
+        for summary in self.get_summaries(req):
+            items.add(
+                SummarySchemaInfo.from_summary_element(table_name, summary)
+            )
+
+        # 2. Patient details
+        if self.patient:
+            items.update(
+                self.patient.get_spreadsheet_schema_elements(req, table_name)
+            )
+
+        # 3. Ancillary objects
+        for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
+            items.update(ancillary._get_core_spreadsheet_schema())
+
+        # 4. Extra summary tables
+        for est in self.get_all_summary_tables(req):
+            items.update(est.get_spreadsheet_schema_elements())
+
+        return items
 
     # -------------------------------------------------------------------------
     # XML view
@@ -3168,7 +3209,7 @@ class Task(GenericTabletRecordMixin, Base):
     def get_extrastring_taskname(self) -> str:
         """
         Get the taskname used as the top-level key for this task's extra
-        strings (loaded by the server from XML files). By default this is the
+        strings (loaded by the server from XML files). By default, this is the
         task's primary tablename, but tasks may override that via
         ``extrastring_taskname``.
         """

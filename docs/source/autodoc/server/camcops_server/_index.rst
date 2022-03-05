@@ -166,6 +166,7 @@ server/camcops_server
     cc_modules/cc_sms.py.rst
     cc_modules/cc_snomed.py.rst
     cc_modules/cc_specialnote.py.rst
+    cc_modules/cc_spreadsheet.py.rst
     cc_modules/cc_sqla_coltypes.py.rst
     cc_modules/cc_sqlalchemy.py.rst
     cc_modules/cc_string.py.rst
@@ -181,7 +182,6 @@ server/camcops_server
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
-    cc_modules/cc_tsv.py.rst
     cc_modules/cc_unittest.py.rst
     cc_modules/cc_user.py.rst
     cc_modules/cc_validators.py.rst
@@ -210,13 +210,13 @@ server/camcops_server
     cc_modules/tests/cc_request_tests.py.rst
     cc_modules/tests/cc_session_tests.py.rst
     cc_modules/tests/cc_sms_tests.py.rst
+    cc_modules/tests/cc_spreadsheet_tests.py.rst
     cc_modules/tests/cc_sqla_coltypes_tests.py.rst
     cc_modules/tests/cc_task_collection_tests.py.rst
     cc_modules/tests/cc_task_tests.py.rst
     cc_modules/tests/cc_taskschedule_tests.py.rst
     cc_modules/tests/cc_text_tests.py.rst
     cc_modules/tests/cc_tracker_tests.py.rst
-    cc_modules/tests/cc_tsv_tests.py.rst
     cc_modules/tests/cc_user_tests.py.rst
     cc_modules/tests/cc_validator_tests.py.rst
     cc_modules/tests/cc_view_classes_tests.py.rst

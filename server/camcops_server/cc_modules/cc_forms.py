@@ -3837,6 +3837,26 @@ class SqliteSelector(SchemaNode, RequestAwareMixin):
         self.validator = OneOf(pv)
 
 
+class SimplifiedSpreadsheetsNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: simplify basic dump spreadsheets?
+    """
+    schema_type = Boolean
+    default = True
+    missing = True
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.label = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Simplify spreadsheets?")
+        self.label = _("Remove non-essential details?")
+
+
 class SortTsvByHeadingsNode(SchemaNode, RequestAwareMixin):
     """
     Boolean node: sort TSV files by column name?
@@ -3857,7 +3877,7 @@ class SortTsvByHeadingsNode(SchemaNode, RequestAwareMixin):
         self.label = _("Sort by heading (column) names within spreadsheets?")
 
 
-class IncludeInformationSchemaColumnsNode(SchemaNode, RequestAwareMixin):
+class IncludeSchemaNode(SchemaNode, RequestAwareMixin):
     """
     Boolean node: should INFORMATION_SCHEMA.COLUMNS be included (for
     downloads)?
@@ -3950,8 +3970,9 @@ class OfferBasicDumpSchema(CSRFSchema):
     Schema to choose the settings for a basic (TSV/ZIP) data dump.
     """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
+    simplified = SimplifiedSpreadsheetsNode()  # must match ViewParam.SIMPLIFIED
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
-    include_information_schema_columns = IncludeInformationSchemaColumnsNode()  # must match ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS  # noqa
+    include_schema = IncludeSchemaNode()  # must match ViewParam.INCLUDE_SCHEMA
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
     viewtype = SpreadsheetFormatSelector()  # must match ViewParam.VIEWTYPE  # noqa
     delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
@@ -3974,7 +3995,7 @@ class OfferSqlDumpSchema(CSRFSchema):
     """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sqlite_method = SqliteSelector()  # must match ViewParam.SQLITE_METHOD
-    include_information_schema_columns = IncludeInformationSchemaColumnsNode()  # must match ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS  # noqa
+    include_schema = IncludeSchemaNode()  # must match ViewParam.INCLUDE_SCHEMA
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
     patient_id_per_row = PatientIdPerRowNode()  # must match ViewParam.PATIENT_ID_PER_ROW  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/tests/cc_tsv_tests.py
+camcops_server/cc_modules/tests/cc_spreadsheet_tests.py
 
 ===============================================================================
 
@@ -34,9 +34,9 @@ import uuid
 from xml.dom.minidom import parseString
 import zipfile
 
-from camcops_server.cc_modules.cc_tsv import (
-    TsvCollection,
-    TsvPage,
+from camcops_server.cc_modules.cc_spreadsheet import (
+    SpreadsheetCollection,
+    SpreadsheetPage,
     XLSX_VIA_PYEXCEL,
 )
 
@@ -53,10 +53,10 @@ else:
 # Unit tests
 # =============================================================================
 
-class TsvCollectionTests(TestCase):
+class SpreadsheetCollectionTests(TestCase):
     def test_xlsx_created_from_zero_rows(self) -> None:
-        page = TsvPage(name="test", rows=[])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="test", rows=[])
+        coll = SpreadsheetCollection()
         coll.add_page(page)
 
         output = coll.as_xlsx()
@@ -68,13 +68,13 @@ class TsvCollectionTests(TestCase):
         self.assertEqual(output[3], 0x04)
 
     def test_xlsx_worksheet_names_are_page_names(self) -> None:
-        page1 = TsvPage(name="name 1",
-                        rows=[{"test data 1": "row 1"}])
-        page2 = TsvPage(name="name 2",
-                        rows=[{"test data 2": "row 1"}])
-        page3 = TsvPage(name="name 3",
-                        rows=[{"test data 3": "row 1"}])
-        coll = TsvCollection()
+        page1 = SpreadsheetPage(name="name 1",
+                                rows=[{"test data 1": "row 1"}])
+        page2 = SpreadsheetPage(name="name 2",
+                                rows=[{"test data 2": "row 1"}])
+        page3 = SpreadsheetPage(name="name 3",
+                                rows=[{"test data 3": "row 1"}])
+        coll = SpreadsheetCollection()
 
         coll.add_pages([page1, page2, page3])
 
@@ -90,9 +90,9 @@ class TsvCollectionTests(TestCase):
             self.assertEqual(sheetnames, expected_sheetnames)
 
     def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
-        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
-                       rows=[{"test data 1": "row 1"}])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="abcdefghijklmnopqrstuvwxyz78901",
+                               rows=[{"test data 1": "row 1"}])
+        coll = SpreadsheetCollection()
 
         self.assertEqual(
             coll.get_sheet_title(page),
@@ -100,9 +100,9 @@ class TsvCollectionTests(TestCase):
         )
 
     def test_xlsx_page_name_over_31_chars_truncated(self) -> None:
-        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
-                       rows=[{"test data 1": "row 1"}])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                               rows=[{"test data 1": "row 1"}])
+        coll = SpreadsheetCollection()
 
         self.assertEqual(
             coll.get_sheet_title(page),
@@ -110,9 +110,9 @@ class TsvCollectionTests(TestCase):
         )
 
     def test_xlsx_invalid_chars_in_page_name_replaced(self) -> None:
-        page = TsvPage(name="[a]b\\c:d/e*f?g'h",
-                       rows=[{"test data 1": "row 1"}])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="[a]b\\c:d/e*f?g'h",
+                               rows=[{"test data 1": "row 1"}])
+        coll = SpreadsheetCollection()
 
         self.assertEqual(
             coll.get_sheet_title(page),
@@ -121,9 +121,9 @@ class TsvCollectionTests(TestCase):
 
     def test_ods_page_name_sanitised(self) -> None:
         # noinspection PyUnresolvedReferences
-        page = TsvPage(name="What perinatal service have you accessed?",
-                       rows=[{"test data 1": "row 1"}])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="What perinatal service have you accessed?",
+                               rows=[{"test data 1": "row 1"}])
+        coll = SpreadsheetCollection()
         coll.add_pages([page])
 
         data = coll.as_ods()
@@ -136,13 +136,13 @@ class TsvCollectionTests(TestCase):
                          "What perinatal service have ...")
 
     def test_worksheet_names_are_not_duplicated(self) -> None:
-        page1 = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
-                        rows=[{"test data 1": "row 1"}])
-        page2 = TsvPage(name="ABCDEFGHIJKLMNOPQRSTUVWXYZ789012345",
-                        rows=[{"test data 2": "row 1"}])
-        page3 = TsvPage(name="abcdefghijklmnopqrstuvwxyz7890123456",
-                        rows=[{"test data 3": "row 1"}])
-        coll = TsvCollection()
+        page1 = SpreadsheetPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                                rows=[{"test data 1": "row 1"}])
+        page2 = SpreadsheetPage(name="ABCDEFGHIJKLMNOPQRSTUVWXYZ789012345",
+                                rows=[{"test data 2": "row 1"}])
+        page3 = SpreadsheetPage(name="abcdefghijklmnopqrstuvwxyz7890123456",
+                                rows=[{"test data 3": "row 1"}])
+        coll = SpreadsheetCollection()
 
         coll.add_pages([page1, page2, page3])
 
@@ -157,9 +157,9 @@ class TsvCollectionTests(TestCase):
     def test_uuid_exported_to_ods_as_string(self) -> None:
         test_uuid = uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
 
-        page = TsvPage(name="Testing",
-                       rows=[{"UUID": test_uuid}])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="Testing",
+                               rows=[{"UUID": test_uuid}])
+        coll = SpreadsheetCollection()
         coll.add_pages([page])
 
         data = coll.as_ods()
@@ -175,9 +175,9 @@ class TsvCollectionTests(TestCase):
     def test_uuid_exported_to_xlsx_as_string(self) -> None:
         test_uuid = uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
 
-        page = TsvPage(name="Testing",
-                       rows=[{"UUID": test_uuid}])
-        coll = TsvCollection()
+        page = SpreadsheetPage(name="Testing",
+                               rows=[{"UUID": test_uuid}])
+        coll = SpreadsheetCollection()
         coll.add_pages([page])
 
         data = coll.as_xlsx()

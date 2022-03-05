@@ -27,7 +27,7 @@ camcops_server/templates/tasks/average_score_report.mako
 
 </%doc>
 
-## <%page args="title: str, report_id: str, mainpage: TsvPage, datepage: TsvPage"/>
+## <%page args="title: str, report_id: str, mainpage: SpreadsheetPage, datepage: SpreadsheetPage"/>
 
 <%inherit file="report.mako"/>
 

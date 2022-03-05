@@ -62,7 +62,7 @@ from camcops_server.cc_modules.cc_task import (
     Task,
 )
 from camcops_server.cc_modules.cc_text import SS
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 
 
 # =============================================================================
@@ -551,14 +551,15 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             request=req
         )
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
+            -> List[SpreadsheetPage]:
         _ = req.gettext
 
         pages = []
 
-        for table in self._get_tsv_tables(req):
+        for table in self._get_spreadsheet_tables(req):
             pages.append(
-                self.get_tsv_page(
+                self.get_spreadsheet_page(
                     name=table.heading,
                     column_names=table.column_headings,
                     rows=table.rows
@@ -566,7 +567,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             )
 
         pages.append(
-            self.get_tsv_page(
+            self.get_spreadsheet_page(
                 name=_("Comments"),
                 column_names=[_("Comment")],
                 rows=self._get_comment_rows(req)
@@ -583,11 +584,11 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             for config in self._get_table_configs(req)
         ]
 
-    def _get_tsv_tables(
+    def _get_spreadsheet_tables(
             self, req: "CamcopsRequest") -> List["PerinatalPoemReportTable"]:
 
         return [
-            self._get_tsv_table(req, config)
+            self._get_spreadsheet_table(req, config)
             for config in self._get_table_configs(req)
         ]
 
@@ -635,8 +636,8 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
 
     def _get_html_table(
             self, req: "CamcopsRequest",
-            config: PerinatalPoemReportTableConfig
-    ) -> PerinatalPoemReportTable:
+            config: PerinatalPoemReportTableConfig) \
+            -> PerinatalPoemReportTable:
         column_dict = {}
 
         for fieldname in config.fieldnames:
@@ -659,10 +660,10 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             rows=rows
         )
 
-    def _get_tsv_table(
+    def _get_spreadsheet_table(
             self, req: "CamcopsRequest",
-            config: PerinatalPoemReportTableConfig
-    ) -> PerinatalPoemReportTable:
+            config: PerinatalPoemReportTableConfig) \
+            -> PerinatalPoemReportTable:
         column_dict = {}
 
         for fieldname in config.fieldnames:

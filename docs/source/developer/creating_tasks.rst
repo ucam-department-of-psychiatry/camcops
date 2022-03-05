@@ -22,7 +22,7 @@
 .. _NHS number: http://www.datadictionary.nhs.uk/version2/data_dictionary/data_field_notes/n/nhs_number_de.asp
 .. _Visual analogue scale: https://en.wikipedia.org/wiki/Visual_analogue_scale
 
-.. include:: ../user/include_tabletdefs.rst
+.. include:: ../user_client/include_tabletdefs.rst
 
 Creating tasks
 ==============

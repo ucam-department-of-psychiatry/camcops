@@ -1,4 +1,4 @@
-..  docs/source/user/include_tabletdefs.rst
+..  docs/source/user_client/include_tabletdefs.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
@@ -392,4 +392,3 @@
    :align: middle
    :height: 24px
    :width: 24px
-

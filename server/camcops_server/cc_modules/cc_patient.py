@@ -31,7 +31,7 @@ camcops_server/cc_modules/cc_patient.py
 
 import logging
 from typing import (
-    Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING, Union,
+    Any, Dict, Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union,
 )
 import uuid
 
@@ -74,15 +74,21 @@ from camcops_server.cc_modules.cc_constants import (
     SEX_FEMALE,
     SEX_MALE,
     SEX_OTHER_UNSPECIFIED,
-    TSV_PATIENT_FIELD_PREFIX,
+    SPREADSHEET_PATIENT_FIELD_PREFIX,
 )
-from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
+from camcops_server.cc_modules.cc_db import (
+    GenericTabletRecordMixin,
+    PFN_UUID,
+    TABLET_ID_FIELD,
+)
 from camcops_server.cc_modules.cc_fhir import (
     fhir_pk_identifier,
     make_fhir_bundle_entry,
 )
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
     HL7PatientIdentifier,
@@ -106,7 +112,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     UuidColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION_STRING
 from camcops_server.cc_modules.cc_xml import (
     XML_COMMENT_SPECIAL_NOTES,
@@ -135,13 +141,13 @@ class Patient(GenericTabletRecordMixin, Base):
     __tablename__ = "patient"
 
     id = Column(
-        "id", Integer,
+        TABLET_ID_FIELD, Integer,
         nullable=False,
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
     )
     uuid = CamcopsColumn(
-        "uuid", UuidColType,
+        PFN_UUID, UuidColType,
         comment="UUID",
         default=uuid.uuid4  # generates a random UUID
     )  # type: Optional[uuid.UUID]
@@ -772,14 +778,14 @@ class Patient(GenericTabletRecordMixin, Base):
             branches.append(sn.get_xml_root())
         return XmlElement(name=self.__tablename__, value=branches)
 
-    def get_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
+    def get_spreadsheet_page(self, req: "CamcopsRequest") -> SpreadsheetPage:
         """
-        Get a :class:`camcops_server.cc_modules.cc_tsv.TsvPage` for the
-        patient.
+        Get a :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`
+        for the patient.
         """
         # 1. Our core fields.
-        page = self._get_core_tsv_page(
-            req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
+        page = self._get_core_spreadsheet_page(
+            req, heading_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX)
         # 2. ID number details
         #    We can't just iterate through the ID numbers; we have to iterate
         #    through all possible ID numbers.
@@ -793,16 +799,62 @@ class Patient(GenericTabletRecordMixin, Base):
                  if idnum.which_idnum == n and idnum.is_superficially_valid()),
                 None)
             page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
+                heading=SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
                 value=idnum_value)
             page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
+                heading=SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
                 value=longdesc)
             page.add_or_set_value(
-                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC +
-                         nstr),
+                heading=(SPREADSHEET_PATIENT_FIELD_PREFIX
+                         + FP_ID_SHORT_DESC + nstr),
                 value=shortdesc)
         return page
+
+    def get_spreadsheet_schema_elements(
+            self,
+            req: "CamcopsRequest",
+            table_name: str = "") -> Set[SummarySchemaInfo]:
+        """
+        Follows :func:`get_spreadsheet_page`, but retrieving schema
+        information.
+        """
+        # 1. Core fields
+        items = self._get_core_spreadsheet_schema(
+            table_name=table_name,
+            column_name_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX
+        )
+        # 2. ID number details
+        table_name = table_name or self.__tablename__
+        for iddef in req.idnum_definitions:
+            n = iddef.which_idnum
+            nstr = str(n)
+            comment_suffix = f" [ID#{n}]"
+            items.add(SummarySchemaInfo(
+                table_name=table_name,
+                source=SummarySchemaInfo.SSV_DB,
+                column_name=(SPREADSHEET_PATIENT_FIELD_PREFIX
+                             + FP_ID_NUM + nstr),
+                data_type=str(PatientIdNum.idnum_value.type),
+                comment=PatientIdNum.idnum_value.comment + comment_suffix,
+            ))
+            items.add(SummarySchemaInfo(
+                table_name=table_name,
+                source=SummarySchemaInfo.SSV_DB,
+                column_name=(SPREADSHEET_PATIENT_FIELD_PREFIX
+                             + FP_ID_DESC + nstr),
+                data_type=str(IdNumDefinition.description.type),
+                comment=IdNumDefinition.description.comment + comment_suffix,
+            ))
+            items.add(SummarySchemaInfo(
+                table_name=table_name,
+                source=SummarySchemaInfo.SSV_DB,
+                column_name=(SPREADSHEET_PATIENT_FIELD_PREFIX
+                             + FP_ID_SHORT_DESC + nstr),
+                data_type=str(IdNumDefinition.short_description.type),
+                comment=(IdNumDefinition.short_description.comment
+                         + comment_suffix),
+            ))
+        return items
 
     def get_bare_ptinfo(self) -> BarePatientInfo:
         """

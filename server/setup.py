@@ -101,7 +101,7 @@ INSTALL_REQUIRES = [
 
     'matplotlib==3.2.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
-    'numpy==1.20.0',  # Used by some tasks. SLOW INSTALLATION.
+    'numpy==1.21.5',  # Used by some tasks. SLOW INSTALLATION.
 
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.1.2',  # date/time classes
@@ -110,6 +110,7 @@ INSTALL_REQUIRES = [
     'phonenumbers==8.12.30',  # phone number parsing, storing and validating
     'py==1.10.0',  # dependency, pinned to avoid CVE-2020-29651
     'pycap==1.1.1',  # REDCap integration
+    'Pillow==9.0.1',  # used by a dependency; pin for security warnings
     'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.6.0',  # ODS spreadsheet export
     'pyexcel-xlsx==0.6.0',  # XLSX spreadsheet export
