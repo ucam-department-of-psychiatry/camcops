@@ -209,7 +209,7 @@ def gen_tasks_having_exportedtasks(collection: TaskCollection) \
 class ExportedTask(Base):
     """
     Class representing an attempt to exported a task (as part of a
-    :class:`ExportRun` to a specific
+    :class:`ExportRun`) to a specific
     :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`.
     """
     __tablename__ = "_exported_tasks"
@@ -1279,7 +1279,7 @@ class ExportedTaskFhirEntry(Base):
             return ""
         try:
             api_url = self.exported_task_fhir.exported_task.recipient.fhir_api_url  # noqa
-        except Exception:
+        except AttributeError:
             return ""
         # Avoid urllib.parse.urljoin; it does complex (and for our purposes
         # wrong) things. See

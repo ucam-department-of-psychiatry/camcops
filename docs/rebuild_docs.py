@@ -27,9 +27,22 @@ docs/rebuild_docs.py
 
 """
 
+# =============================================================================
+# Imports
+# =============================================================================
+
 import os
 import shutil
 import subprocess
+
+from camcops_server.cc_modules.cc_baseconstants import (
+    ENVVARS_PROHIBITED_DURING_DOC_BUILD,
+)
+
+
+# =============================================================================
+# Constants
+# =============================================================================
 
 # Work out directories
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -44,6 +57,11 @@ DEST_DIRS = [
     # WEBSITE_DOCS_DIR,
 ]
 
+
+# =============================================================================
+# Build documentation
+# =============================================================================
+
 if __name__ == "__main__":
     # Remove anything old
     shutil.rmtree(BUILD_HTML_DIR, ignore_errors=True)
@@ -55,9 +73,12 @@ if __name__ == "__main__":
     print("Making HTML version of documentation")
     os.chdir(THIS_DIR)
     # This one first, as it has requirements and may crash:
-    subprocess.call(["python", os.path.join(THIS_DIR,
-                                            "recreate_inclusion_files.py")])
-    subprocess.call(["make", "html"])
+    for ev in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
+        os.environ.pop(ev, None)
+    subprocess.check_call([
+        "python", os.path.join(THIS_DIR, "recreate_inclusion_files.py")
+    ])
+    subprocess.check_call(["make", "html"])
 
     # Copy
     for destdir in DEST_DIRS:

@@ -38,12 +38,13 @@ For scientific papers about CamCOPS, see :ref:`publications <publications>`.
 
     introduction/introduction.rst
 
-    user/download.rst
-    user/client_installation.rst
-    user/client_uninstall_upgrade.rst
-    user/client_using.rst
-    user/server_front_end_general.rst
-    user/client_troubleshooting.rst
+    user_client/download.rst
+    user_client/client_installation.rst
+    user_client/client_uninstall_upgrade.rst
+    user_client/client_using.rst
+    user_client/client_troubleshooting.rst
+
+    user_server/server_front_end_general.rst
 
     privacy.rst
 

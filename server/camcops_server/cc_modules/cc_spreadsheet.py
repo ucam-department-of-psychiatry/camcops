@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/cc_tsv.py
+camcops_server/cc_modules/cc_spreadsheet.py
 
 ===============================================================================
 
@@ -26,7 +26,7 @@ camcops_server/cc_modules/cc_tsv.py
 ===============================================================================
 
 **Helper functions/classes for spreadsheet-style tab-separated value (TSV)
-exports.**
+(and related) exports.**
 
 """
 
@@ -37,8 +37,8 @@ import logging
 import os
 import random
 import re
-from typing import (Any, BinaryIO, Callable, Dict, Iterable, List, Optional,
-                    Sequence, Union)
+from typing import (Any, BinaryIO, Callable, Container, Dict, Iterable, List,
+                    Optional, Sequence, Union)
 import zipfile
 
 from cardinal_pythonlib.datetimefunc import (
@@ -76,12 +76,12 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
-# TSV output holding structures
+# Spreadsheet output holding structures
 # =============================================================================
 
-class TsvPage(object):
+class SpreadsheetPage(object):
     """
-    Represents a single TSV "spreadsheet".
+    Represents a single "spreadsheet" page, e.g. for TSV/Excel/ODS output.
     """
     def __init__(self, name: str,
                  rows: List[Union[Dict[str, Any], OrderedDict]]) -> None:
@@ -99,14 +99,14 @@ class TsvPage(object):
             self._add_headings_if_absent(row.keys())
 
     def __str__(self) -> str:
-        return f"TsvPage: name={self.name}\n{self.get_tsv()}"
+        return f"SpreadsheetPage: name={self.name}\n{self.get_tsv()}"
 
     @classmethod
     def from_headings_rows(cls, name: str, headings: List[str],
-                           rows: List[Sequence[Any]]) -> "TsvPage":
+                           rows: List[Sequence[Any]]) -> "SpreadsheetPage":
         """
-        Creates a TsvPage object using a list of headings and the row data
-        as a list of lists.
+        Creates a SpreadsheetPage object using a list of headings and the row
+        data as a list of lists.
         """
         page = cls(name=name, rows=[])
         n_cols = len(headings)
@@ -117,9 +117,9 @@ class TsvPage(object):
         return page
 
     @classmethod
-    def from_resultproxy(cls, name: str, rp: ResultProxy) -> "TsvPage":
+    def from_resultproxy(cls, name: str, rp: ResultProxy) -> "SpreadsheetPage":
         """
-        Creates a TsvPage object from an SQLAlchemy ResultProxy.
+        Creates a SpreadsheetPage object from an SQLAlchemy ResultProxy.
 
         Args:
             rp:
@@ -174,7 +174,7 @@ class TsvPage(object):
         for i, row in enumerate(self.rows):
             row[heading] = values[i]
 
-    def add_or_set_columns_from_page(self, other: "TsvPage") -> None:
+    def add_or_set_columns_from_page(self, other: "SpreadsheetPage") -> None:
         """
         This function presupposes that ``self`` and ``other`` are two pages
         ("spreadsheets") with *matching* rows.
@@ -193,7 +193,7 @@ class TsvPage(object):
             for k, v in other.rows[i].items():
                 row[k] = v
 
-    def add_rows_from_page(self, other: "TsvPage") -> None:
+    def add_rows_from_page(self, other: "SpreadsheetPage") -> None:
         """
         Add all rows from ``other`` to ``self``.
         """
@@ -205,6 +205,16 @@ class TsvPage(object):
         Sort our headings internally.
         """
         self.headings.sort()
+
+    def delete_columns(self, headings: Container[str]) -> None:
+        """
+        Removes columns with the specified heading names.
+        Used to simplify spreadsheets.
+
+        Since our rows are a dictionary, and our export functions are based on
+        the headings, all we have to do is to delete the unwanted headings.
+        """
+        self.headings = [h for h in self.headings if h not in headings]
 
     @property
     def plainrows(self) -> List[List[Any]]:
@@ -317,17 +327,18 @@ class TsvPage(object):
         return f"{object_name} <- {definition}"
 
 
-class TsvCollection(object):
+class SpreadsheetCollection(object):
     """
-    A collection of :class:`camcops_server.cc_modules.cc_tsv.TsvPage` pages
+    A collection of
+    :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage` pages
     (spreadsheets), like an Excel workbook.
     """
     def __init__(self) -> None:
-        self.pages = []  # type: List[TsvPage]
+        self.pages = []  # type: List[SpreadsheetPage]
 
     def __str__(self) -> str:
         return (
-            "TsvCollection:\n" +
+            "SpreadsheetCollection:\n" +
             "\n\n".join(page.get_tsv() for page in self.pages)
         )
 
@@ -335,7 +346,7 @@ class TsvCollection(object):
     # Pages
     # -------------------------------------------------------------------------
 
-    def page_with_name(self, page_name: str) -> Optional[TsvPage]:
+    def page_with_name(self, page_name: str) -> Optional[SpreadsheetPage]:
         """
         Returns the page with the specific name, or ``None`` if no such
         page exists.
@@ -343,7 +354,7 @@ class TsvCollection(object):
         return next((page for page in self.pages if page.name == page_name),
                     None)
 
-    def add_page(self, page: TsvPage) -> None:
+    def add_page(self, page: SpreadsheetPage) -> None:
         """
         Adds a new page to our collection. If the new page has the same name
         as an existing page, rows from the new page are added to the existing
@@ -359,7 +370,7 @@ class TsvCollection(object):
             # New page
             self.pages.append(page)
 
-    def add_pages(self, pages: List[TsvPage]) -> None:
+    def add_pages(self, pages: List[SpreadsheetPage]) -> None:
         """
         Adds all ``pages`` to our collection, via :func:`add_page`.
         """
@@ -384,6 +395,26 @@ class TsvCollection(object):
         Return a list of the names of all our pages.
         """
         return [p.name for p in self.pages]
+
+    def delete_page(self, page_name: str) -> None:
+        """
+        Delete any page with the name specified.
+        """
+        self.pages = [p for p in self.pages if p.name != page_name]
+
+    def delete_pages(self, page_names: Container[str]) -> None:
+        """
+        Delete pages with the names specified.
+        """
+        self.pages = [p for p in self.pages if p.name not in page_names]
+
+    def delete_columns(self, headings: Container[str]) -> None:
+        """
+        Across all pages, removes columns with the specified heading names.
+        Used to simplify spreadsheets.
+        """
+        for p in self.pages:
+            p.delete_columns(headings)
 
     # -------------------------------------------------------------------------
     # TSV
@@ -484,9 +515,9 @@ class TsvCollection(object):
         return contents
 
     @staticmethod
-    def get_sheet_title(page: TsvPage) -> str:
+    def get_sheet_title(page: SpreadsheetPage) -> str:
         r"""
-        Returns a worksheet name for a :class:`TsvPage`.
+        Returns a worksheet name for a :class:`SpreadsheetPage`.
 
         See ``openpyxl/workbook/child.py``.
 
@@ -544,10 +575,10 @@ class TsvCollection(object):
             contents = memfile.getvalue()
         return contents
 
-    def get_pages_with_valid_sheet_names(self) -> Dict[TsvPage, str]:
+    def get_pages_with_valid_sheet_names(self) -> Dict[SpreadsheetPage, str]:
         """
-        Returns an ordered mapping from :class:`TsvPage` objects to their
-        sheet names.
+        Returns an ordered mapping from :class:`SpreadsheetPage` objects to
+        their sheet names.
         """
         name_dict = OrderedDict()
 
@@ -559,10 +590,10 @@ class TsvCollection(object):
         return name_dict
 
     @staticmethod
-    def make_sheet_names_unique(name_dict: Dict[TsvPage, str]) -> None:
+    def make_sheet_names_unique(name_dict: Dict[SpreadsheetPage, str]) -> None:
         """
-        Modifies (in place) a mapping from :class:`TsvPage` to worksheet names,
-        such that all page names are unique.
+        Modifies (in place) a mapping from :class:`SpreadsheetPage` to
+        worksheet names, such that all page names are unique.
 
         - See also :func:`avoid_duplicate_name` in
           ``openpxl/workbook/child.py``
@@ -642,14 +673,15 @@ library(data.table)
             f.write(self.as_r())
 
 
-def _make_benchmarking_collection(nsheets: int = 100,
-                                  nrows: int = 200,
-                                  ncols: int = 30,
-                                  mindata: int = 0,
-                                  maxdata: int = 1000000) -> TsvCollection:
-    log.info(f"Creating TsvCollection with nsheets={nsheets}, nrows={nrows}, "
-             f"ncols={ncols}...")
-    coll = TsvCollection()
+def _make_benchmarking_collection(
+        nsheets: int = 100,
+        nrows: int = 200,
+        ncols: int = 30,
+        mindata: int = 0,
+        maxdata: int = 1000000) -> SpreadsheetCollection:
+    log.info(f"Creating SpreadsheetCollection with nsheets={nsheets}, "
+             f"nrows={nrows}, ncols={ncols}...")
+    coll = SpreadsheetCollection()
     for sheetnum in range(1, nsheets + 1):
         rows = [
             {
@@ -657,7 +689,7 @@ def _make_benchmarking_collection(nsheets: int = 100,
                 for colnum in range(1, ncols + 1)
             } for _ in range(1, nrows + 1)
         ]
-        page = TsvPage(name=f"sheet{sheetnum}", rows=rows)
+        page = SpreadsheetPage(name=f"sheet{sheetnum}", rows=rows)
         coll.add_page(page)
     log.info("... done.")
     return coll
@@ -680,7 +712,7 @@ def benchmark_save(xlsx_filename: str = "test.xlsx",
     .. code-block:: python
 
         from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
-        from camcops_server.cc_modules.cc_tsv import benchmark_save
+        from camcops_server.cc_modules.cc_spreadsheet import benchmark_save
         main_only_quicksetup_rootlogger()
         benchmark_save()
 

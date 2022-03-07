@@ -71,7 +71,7 @@ class TaskTests(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_string import APPSTRING_TASKNAME
         from camcops_server.cc_modules.cc_summaryelement import SummaryElement
         from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F811
-        from camcops_server.cc_modules.cc_tsv import TsvPage  # noqa: F811
+        from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage  # noqa: E501,F811
         from camcops_server.cc_modules.cc_xml import XmlElement
 
         subclasses = Task.all_subclasses_by_tablename()
@@ -101,7 +101,8 @@ class TaskTests(DemoDatabaseTestCase):
                 for ctvinfo in ctvlist:
                     self.assertIsInstance(ctvinfo, CtvInfo)
             for est in t.get_all_summary_tables(req):
-                self.assertIsInstance(est.get_tsv_page(), TsvPage)
+                self.assertIsInstance(est.get_spreadsheet_page(),
+                                      SpreadsheetPage)
                 self.assertIsInstance(est.get_xml_element(), XmlElement)
 
             self.assertIsInstance(t.has_patient, bool)
@@ -193,7 +194,7 @@ class TaskTests(DemoDatabaseTestCase):
                 self.assertIsInstance(col, Column)
 
             # Views
-            for page in t.get_tsv_pages(req):
+            for page in t.get_spreadsheet_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
             self.assertIsInstance(t.get_xml(req), str)
             self.assertIsInstance(t.get_html(req), str)

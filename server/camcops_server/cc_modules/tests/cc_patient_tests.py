@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleItem,
 )
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase,
@@ -71,7 +71,7 @@ class PatientTests(DemoDatabaseTestCase):
         for idnum in p.get_idnum_raw_values_only():
             self.assertIsInstance(idnum, int)
         self.assertIsInstance(p.get_xml_root(req), XmlElement)
-        self.assertIsInstance(p.get_tsv_page(req), TsvPage)
+        self.assertIsInstance(p.get_spreadsheet_page(req), SpreadsheetPage)
         self.assertIsInstance(p.get_bare_ptinfo(), BarePatientInfo)
         self.assertIsInstanceOrNone(p.group, Group)
         self.assertIsInstance(p.satisfies_upload_id_policy(), bool)

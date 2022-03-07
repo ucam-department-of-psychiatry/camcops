@@ -62,7 +62,10 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewArg,
     ViewParam,
 )
-from camcops_server.cc_modules.cc_tsv import TsvCollection, TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import (
+    SpreadsheetCollection,
+    SpreadsheetPage,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_forms import (  # noqa: F401
@@ -104,7 +107,8 @@ class Report(object):
     - One combination of:
 
       - (simplest) :meth:`get_query` OR :meth:`get_rows_colnames`
-      - (for multi-page results) :meth:`render_html` and :meth:`get_tsv_pages`
+      - (for multi-page results) :meth:`render_html` and
+        :meth:`get_spreadsheet_pages`
       - (manual control) all ``render_*`` functions
 
     See the explanations of each.
@@ -345,44 +349,48 @@ class Report(object):
 
         # By default there is only one page. If there are more,
         # we only output the first
-        page = self.get_tsv_pages(req)[0]
+        page = self.get_spreadsheet_pages(req)[0]
 
         return TsvResponse(body=page.get_tsv(), filename=filename)
 
     def render_xlsx(self, req: "CamcopsRequest") -> XlsxResponse:
         filename = self.get_filename(req, ViewArg.XLSX)
-        tsvcoll = self.get_tsv_collection(req)
+        tsvcoll = self.get_spreadsheet_collection(req)
         content = tsvcoll.as_xlsx()
 
         return XlsxResponse(body=content, filename=filename)
 
     def render_ods(self, req: "CamcopsRequest") -> OdsResponse:
         filename = self.get_filename(req, ViewArg.ODS)
-        tsvcoll = self.get_tsv_collection(req)
+        tsvcoll = self.get_spreadsheet_collection(req)
         content = tsvcoll.as_ods()
 
         return OdsResponse(body=content, filename=filename)
 
-    def get_tsv_collection(self, req: "CamcopsRequest") -> TsvCollection:
-        tsvcoll = TsvCollection()
-        tsvcoll.add_pages(self.get_tsv_pages(req))
+    def get_spreadsheet_collection(self, req: "CamcopsRequest") \
+            -> SpreadsheetCollection:
+        coll = SpreadsheetCollection()
+        coll.add_pages(self.get_spreadsheet_pages(req))
 
-        return tsvcoll
+        return coll
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
+            -> List[SpreadsheetPage]:
         plain_report = self._get_plain_report(req)
 
-        page = self.get_tsv_page(name=self.title(req),
-                                 column_names=plain_report.column_names,
-                                 rows=plain_report.rows)
+        page = self.get_spreadsheet_page(
+            name=self.title(req),
+            column_names=plain_report.column_names,
+            rows=plain_report.rows
+        )
         return [page]
 
     @staticmethod
-    def get_tsv_page(name: str,
-                     column_names: Sequence[str],
-                     rows: Sequence[Sequence[Any]]) -> TsvPage:
+    def get_spreadsheet_page(name: str,
+                             column_names: Sequence[str],
+                             rows: Sequence[Sequence[Any]]) -> SpreadsheetPage:
         keyed_rows = [dict(zip(column_names, r)) for r in rows]
-        page = TsvPage(name=name, rows=keyed_rows)
+        page = SpreadsheetPage(name=name, rows=keyed_rows)
 
         return page
 
@@ -673,17 +681,18 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
         return ""
 
     def render_html(self, req: "CamcopsRequest") -> Response:
-        tsv_pages = self.get_tsv_pages(req)
+        pages = self.get_spreadsheet_pages(req)
         return render_to_response(
             self.template_name,
             dict(title=self.title(req),
-                 mainpage=tsv_pages[0],
-                 datepage=tsv_pages[1],
+                 mainpage=pages[0],
+                 datepage=pages[1],
                  report_id=self.report_id),
             request=req
         )
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
+            -> List[SpreadsheetPage]:
         """
         We use an SQLAlchemy ORM, rather than Core, method. Why?
 
@@ -787,12 +796,12 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
             row += [avg_first, avg_last, avg_improvement]
 
         # Create and return report
-        mainpage = self.get_tsv_page(
+        mainpage = self.get_spreadsheet_page(
             name=self.title(req),
             column_names=column_names,
             rows=[row]
         )
-        datepage = self.get_tsv_page(
+        datepage = self.get_spreadsheet_page(
             name=_("Date filters"),
             column_names=[_("Start date"), _("End date")],
             rows=[[str(self.start_datetime), str(self.end_datetime)]]

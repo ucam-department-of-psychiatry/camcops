@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 
 
 # =============================================================================
@@ -247,25 +247,26 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
             request=req
         )
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
+            -> List[SpreadsheetPage]:
         _ = req.gettext
 
-        main_page = self.get_tsv_page(
+        main_page = self.get_spreadsheet_page(
             name=_("Main questions"),
             column_names=self._get_main_column_headings(req),
             rows=self._get_main_rows(req)
         )
-        ff_page = self.get_tsv_page(
+        ff_page = self.get_spreadsheet_page(
             name=_("Friends and family question"),
             column_names=self._get_ff_column_headings(req),
             rows=self._get_ff_rows(req)
         )
-        ff_why_page = self.get_tsv_page(
+        ff_why_page = self.get_spreadsheet_page(
             name=_("Reasons given for the above responses"),
             column_names=[_("Response"), _("Reason")],
             rows=self._get_ff_why_rows(req)
         )
-        comments_page = self.get_tsv_page(
+        comments_page = self.get_spreadsheet_page(
             name=_("Comments"),
             column_names=[_("Comment")],
             rows=self._get_comment_rows(req)

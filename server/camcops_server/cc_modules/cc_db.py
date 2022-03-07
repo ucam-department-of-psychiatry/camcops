@@ -54,8 +54,10 @@ from camcops_server.cc_modules.cc_constants import (
     EXTRA_TASK_SERVER_PK_FIELD,
     EXTRA_TASK_TABLENAME_FIELD,
     MOVE_OFF_TABLET_FIELD,
+    SPREADSHEET_PATIENT_FIELD_PREFIX,
     TABLET_ID_FIELD,
 )
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     COLATTR_PERMITTED_VALUE_CHECKER,
@@ -69,7 +71,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     TableNameColType,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from camcops_server.cc_modules.cc_xml import (
     make_xml_branches_from_blobs,
@@ -259,6 +261,14 @@ TFN_CLINICIAN_CONTACT_DETAILS = "clinician_contact_details"
 TFN_RESPONDENT_NAME = "respondent_name"
 TFN_RESPONDENT_RELATIONSHIP = "respondent_relationship"
 
+# Selected field/column names for patients. Do not change.
+PFN_UUID = "uuid"
+
+# Column names for task summaries.
+SFN_IS_COMPLETE = "is_complete"
+SFN_SECONDS_CREATION_TO_FIRST_FINISH = "seconds_from_creation_to_first_finish"
+SFN_CAMCOPS_SERVER_VERSION = "camcops_server_version"
+
 RESERVED_FIELDS = (  # fields that tablets can't upload
     FN_PK,
     FN_DEVICE_ID,
@@ -313,6 +323,67 @@ TASK_FREQUENT_FIELDS = TASK_FREQUENT_AND_FK_FIELDS + (
     TFN_RESPONDENT_NAME,
     TFN_RESPONDENT_RELATIONSHIP,
 )
+
+REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = {
+    # keep this: CLIENT_DATE_FIELD = when_last_modified
+    # keep this: FN_PK = task PK
+    # keep this: SFN_IS_COMPLETE = is the task complete
+    # keep this: SPREADSHEET_PATIENT_FIELD_PREFIX + FN_PK = patient PK
+    # keep this: TFN_WHEN_CREATED = main creation time
+    FN_ADDING_USER_ID,
+    FN_ADDITION_PENDING,
+    FN_CAMCOPS_VERSION,  # debatable; version that captured the original data
+    FN_CURRENT,
+    FN_DEVICE_ID,
+    FN_ERA,
+    FN_FORCIBLY_PRESERVED,
+    FN_GROUP_ID,
+    FN_MANUALLY_ERASED,
+    FN_MANUALLY_ERASED_AT,
+    FN_MANUALLY_ERASING_USER_ID,
+    FN_PREDECESSOR_PK,
+    FN_PRESERVING_USER_ID,
+    FN_REMOVAL_PENDING,
+    FN_REMOVING_USER_ID,
+    FN_SUCCESSOR_PK,
+    FN_WHEN_ADDED_BATCH_UTC,
+    FN_WHEN_ADDED_EXACT,
+    FN_WHEN_REMOVED_BATCH_UTC,
+    FN_WHEN_REMOVED_EXACT,
+    MOVE_OFF_TABLET_FIELD,
+    SFN_CAMCOPS_SERVER_VERSION,  # debatable; version that generated summary information  # noqa
+    SFN_SECONDS_CREATION_TO_FIRST_FINISH,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + CLIENT_DATE_FIELD,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_ADDING_USER_ID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_ADDITION_PENDING,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_CAMCOPS_VERSION,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_CURRENT,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_DEVICE_ID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_ERA,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_FORCIBLY_PRESERVED,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_GROUP_ID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_MANUALLY_ERASED,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_MANUALLY_ERASED_AT,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_MANUALLY_ERASING_USER_ID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_PREDECESSOR_PK,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_PRESERVING_USER_ID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_REMOVAL_PENDING,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_REMOVING_USER_ID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_SUCCESSOR_PK,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_WHEN_ADDED_BATCH_UTC,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_WHEN_ADDED_EXACT,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_WHEN_REMOVED_BATCH_UTC,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + FN_WHEN_REMOVED_EXACT,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + MOVE_OFF_TABLET_FIELD,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + PFN_UUID,
+    SPREADSHEET_PATIENT_FIELD_PREFIX + TABLET_ID_FIELD,
+    TABLET_ID_FIELD,
+    TFN_EDITING_TIME_S,
+    TFN_FIRSTEXIT_IS_ABORT,
+    TFN_FIRSTEXIT_IS_FINISH,
+    TFN_PATIENT_ID,
+    TFN_WHEN_FIRSTEXIT,
+}
 
 
 # =============================================================================
@@ -723,19 +794,38 @@ class GenericTabletRecordMixin(object):
         # log.debug("... branches for {!r}: {!r}", self, branches)
         return branches
 
-    def _get_core_tsv_page(self, req: "CamcopsRequest",
-                           heading_prefix: str = "") -> TsvPage:
+    def _get_core_spreadsheet_page(
+            self,
+            req: "CamcopsRequest",
+            heading_prefix: str = "") -> SpreadsheetPage:
         """
-        Returns a single-row :class:`camcops_server.cc_modules.cc_tsv.TsvPage`,
-        like an Excel "sheet", representing this record. (It may be combined
-        with others later to produce a multi-row spreadsheet.)
+        Returns a single-row
+        :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`, like
+        an Excel "sheet", representing this record. (It may be combined with
+        others later to produce a multi-row spreadsheet.)
         """
         row = OrderedDict()
         for attrname, column in gen_columns(self):
             row[heading_prefix + attrname] = getattr(self, attrname)
         for s in self.get_summaries(req):
             row[heading_prefix + s.name] = s.value
-        return TsvPage(name=self.__tablename__, rows=[row])
+        return SpreadsheetPage(name=self.__tablename__, rows=[row])
+
+    def _get_core_spreadsheet_schema(
+            self,
+            table_name: str = "",
+            column_name_prefix: str = "") -> Set[SummarySchemaInfo]:
+        """
+        Returns schema information compatible with
+        :func:`_get_core_spreadsheet_page`.
+        """
+        return set(
+            SummarySchemaInfo.from_column(
+                column,
+                table_name=table_name,
+                column_name_prefix=column_name_prefix
+            ) for _, column in gen_columns(self)
+        )
 
     # -------------------------------------------------------------------------
     # Erasing (overwriting data, not deleting the database records)

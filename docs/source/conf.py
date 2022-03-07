@@ -27,11 +27,12 @@ docs/source/conf.py
 
 Sphinx configuration file
 """
+
 import os
 import sys
-
 import logging
 from typing import Any, Callable, Dict, List, Tuple
+import warnings
 
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
@@ -43,6 +44,7 @@ from docutils.parsers.rst.roles import register_canonical_role
 from docutils.parsers.rst.states import Inliner
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import Options
+from sqlalchemy.exc import SAWarning
 
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION_STRING
 
@@ -370,3 +372,9 @@ autoclass_content = "class"
 
 # To prevent Alembic env.py breaking:
 os.environ["_SPHINX_AUTODOC_IN_PROGRESS"] = "true"
+
+# To prevent e.g. "SAWarning: Unmanaged access of declarative attribute _group
+# from non-mapped class Task":
+warnings.filterwarnings("ignore", category=SAWarning)
+# ... not suppress_warnings, which is about Sphinx warnings; see
+# https://www.sphinx-doc.org/en/master/usage/configuration.html

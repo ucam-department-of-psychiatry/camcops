@@ -124,6 +124,11 @@ DOCUMENTATION_URL = "https://camcops.readthedocs.io/"
 
 # Is this program running on readthedocs.org?
 ON_READTHEDOCS = os.environ.get('READTHEDOCS') == 'True'
+ENVVARS_PROHIBITED_DURING_DOC_BUILD = (
+    "LCONVERT",  # for build_client_translations.py
+    "LRELEASE",  # for build_client_translations.py
+    "LUPDATE",  # for build_client_translations.py
+)
 
 
 # =============================================================================

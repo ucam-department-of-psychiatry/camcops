@@ -1,4 +1,4 @@
-..  docs/source/user/client_uninstall_upgrade.rst
+..  docs/source/user_client/client_uninstall_upgrade.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).

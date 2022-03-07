@@ -1,4 +1,4 @@
-..  docs/source/user/client_using.rst
+..  docs/source/user_client/client_using.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).

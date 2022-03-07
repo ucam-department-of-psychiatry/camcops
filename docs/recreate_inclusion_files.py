@@ -44,6 +44,7 @@ from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     ENVVAR_GENERATING_CAMCOPS_DOCS,
+    ENVVARS_PROHIBITED_DURING_DOC_BUILD,
 )
 
 log = logging.getLogger(__name__)
@@ -54,7 +55,7 @@ THIS_DIR = dirname(realpath(__file__))
 
 DOCS_SOURCE_DIR = join(THIS_DIR, "source")
 ADMIN_DIR = join(DOCS_SOURCE_DIR, "administrator")
-USER_DIR = join(DOCS_SOURCE_DIR, "user")
+USER_CLIENT_DIR = join(DOCS_SOURCE_DIR, "user_client")
 DEV_DIR = join(DOCS_SOURCE_DIR, "developer")
 
 CAMCOPS_ROOT_DIR = abspath(join(THIS_DIR, pardir))  # .../camcops
@@ -147,11 +148,7 @@ def run_cmd(cmdargs: List[str],
 
 
 def main():
-    prohibit_env_vars([
-        "LCONVERT",  # for build_client_translations.py
-        "LRELEASE",  # for build_client_translations.py
-        "LUPDATE",  # for build_client_translations.py
-    ])
+    prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
     # administrator
     run_cmd(["camcops_backup_mysql_database", "--help"],
             join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"))
@@ -195,7 +192,7 @@ def main():
     # user
     camcops_client_executable = find_camcops_client_executable()
     run_cmd([camcops_client_executable, "--help"],
-            join(USER_DIR, "_camcops_client_help.txt"))
+            join(USER_CLIENT_DIR, "_camcops_client_help.txt"))
 
     log.info("Done.")
 
