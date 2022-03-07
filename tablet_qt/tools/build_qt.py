@@ -1421,36 +1421,34 @@ class Platform(object):
                 supports_parallel = False
             makefile_switch = "/FS"
             parallel_switch = "/J"
-
-            args = [make]
-
-            if allow_parallel and supports_parallel:
-                args += [parallel_switch, str(cfg.nparallel)]
-            if extra_args:
-                args += extra_args
-            if makefile:
-                args += [makefile_switch, makefile]
-            if command:
-                args.append(command)
-            return args
-
-        args = [CMAKE, f"--{command}", "."]
-
-        if allow_parallel:
-            args += ["--parallel", str(cfg.nparallel)]
-
+        else:
+            make = MAKE
+            supports_parallel = True
+            makefile_switch = "-f"  # Unix standard
+            parallel_switch = "-j"
+        # require(make)
+        # ... not necessarily visible now; may be on a PATH yet to be set
+        args = [make]
+        if allow_parallel and supports_parallel:
+            args += [parallel_switch, str(cfg.nparallel)]
+        if extra_args:
+            args += extra_args
+        if makefile:
+            args += [makefile_switch, makefile]
+        if command:
+            args.append(command)
         return args
 
     @property
-    def cmake_executable(self) -> str:
+    def qmake_executable(self) -> str:
         """
-        Used to calculate the name of the cmake file we'll be building (so we
+        Used to calculate the name of the qmake file we'll be building (so we
         can check if it's been compiled).
         """
         if self.windows:
-            return "cmake.exe"
+            return "qmake.exe"
         else:
-            return "cmake"
+            return "qmake"
 
     # -------------------------------------------------------------------------
     # SQLCipher
@@ -1661,7 +1659,7 @@ class Config(object):
 
     def qt_install_dir(self, target_platform: Platform) -> str:
         """
-        The directory to which we'll install Qt, culminating in the "cmake"
+        The directory to which we'll install Qt, culminating in the "qmake"
         tool.
         """
         return join(
@@ -3056,7 +3054,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                               allow_parallel=allow_parallel), env)
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
-        runmake("build")
+        runmake()
 
         # ---------------------------------------------------------------------
         # OpenSSL: Test
@@ -3106,7 +3104,7 @@ def fetch_qt(cfg: Config) -> None:
 def build_qt(cfg: Config, target_platform: Platform) -> str:
     """
     1. Builds Qt.
-    2. Returns the name of the "install" directory, where the installed cmake
+    2. Returns the name of the "install" directory, where the installed qmake
        is.
     """
     # http://doc.qt.io/qt-5/opensslsupport.html
@@ -3156,7 +3154,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
 
-    targets = [join(installdir, "bin", target_platform.cmake_executable)]
+    targets = [join(installdir, "bin", target_platform.qmake_executable)]
     if not cfg.force and all(isfile(x) for x in targets):
         report_all_targets_exist("Qt", targets)
         return installdir
@@ -3424,9 +3422,14 @@ Troubleshooting Qt 'configure' failures
     log.info(
         f"Making Qt {target_platform.description} build into {installdir}")
     with pushd(builddir):
-        # run(cfg.make_args(command="cmake_all", env=env), env)
+        # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
-            run(cfg.make_args(command="build", env=env), env)
+            if BUILD_PLATFORM.windows:
+                run(cfg.make_args(env=env), env)
+            else:
+                cmake_args = [CMAKE, "--build", ".", "--parallel",
+                              f"{cfg.nparallel}"]
+                run(cmake_args)
         except subprocess.CalledProcessError:
             log.warning("""Qt 'make' failure.
 
@@ -3458,8 +3461,13 @@ A.  Standard header files like os/log.h should live within
     # Qt: make install
     # -------------------------------------------------------------------------
     with pushd(builddir):
-        run(cfg.make_args(command="install", allow_parallel=False, env=env), env)
-    # ... installs to installdir because of -prefix earlier
+        if BUILD_PLATFORM.windows:
+            run(cfg.make_args(command="install", env=env), env)
+        else:
+            cmake_args = [CMAKE, "--install", "."]
+            run(cmake_args)
+
+            # ... installs to installdir because of -prefix earlier
     return installdir
 
 
