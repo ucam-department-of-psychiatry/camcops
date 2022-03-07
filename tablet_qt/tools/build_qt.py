@@ -3056,7 +3056,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                               allow_parallel=allow_parallel), env)
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
-        runmake()
+        runmake("build")
 
         # ---------------------------------------------------------------------
         # OpenSSL: Test
