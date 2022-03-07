@@ -1434,13 +1434,10 @@ class Platform(object):
                 args.append(command)
             return args
 
-        args = [CMAKE, "--build", "."]
+        args = [CMAKE, f"--{command}", "."]
 
         if allow_parallel:
-            args.append("--parallel")
-
-        if command:
-            args.append(command)
+            args += ["--parallel", str(cfg.nparallel)]
 
         return args
 
@@ -3429,7 +3426,7 @@ Troubleshooting Qt 'configure' failures
     with pushd(builddir):
         # run(cfg.make_args(command="cmake_all", env=env), env)
         try:
-            run(cfg.make_args(env=env), env)
+            run(cfg.make_args(command="build", env=env), env)
         except subprocess.CalledProcessError:
             log.warning("""Qt 'make' failure.
 
@@ -3461,7 +3458,7 @@ A.  Standard header files like os/log.h should live within
     # Qt: make install
     # -------------------------------------------------------------------------
     with pushd(builddir):
-        run(cfg.make_args(command="install", env=env), env)
+        run(cfg.make_args(command="install", allow_parallel=False, env=env), env)
     # ... installs to installdir because of -prefix earlier
     return installdir
 
