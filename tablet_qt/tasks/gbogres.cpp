@@ -64,13 +64,13 @@ GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_DATE, QVariant::Date);
-    addField(FN_GOAL_1_DESC, QVariant::String);
-    addField(FN_GOAL_2_DESC, QVariant::String);
-    addField(FN_GOAL_3_DESC, QVariant::String);
-    addField(FN_GOAL_OTHER, QVariant::String);
-    addField(FN_COMPLETED_BY, QVariant::Int);
-    addField(FN_COMPLETED_BY_OTHER, QVariant::String);
+    addField(FN_DATE, QMetaType::QDate);
+    addField(FN_GOAL_1_DESC, QMetaType::QString);
+    addField(FN_GOAL_2_DESC, QMetaType::QString);
+    addField(FN_GOAL_3_DESC, QMetaType::QString);
+    addField(FN_GOAL_OTHER, QMetaType::QString);
+    addField(FN_COMPLETED_BY, QMetaType::Int);
+    addField(FN_COMPLETED_BY_OTHER, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

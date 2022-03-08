@@ -62,7 +62,7 @@ CPFTCovidMedical::CPFTCovidMedical(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_HOW_AND_WHEN_SYMPTOMS, QVariant::Int);
+    addField(FN_HOW_AND_WHEN_SYMPTOMS, QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

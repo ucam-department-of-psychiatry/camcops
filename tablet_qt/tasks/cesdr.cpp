@@ -53,7 +53,7 @@ Cesdr::Cesdr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
             Task(app, db, CESDR_TABLENAME, false, false, false),
             m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -38,32 +38,32 @@ const QString VALUE_TEXT_FIELDNAME("value_text");
 
 // - Also, SQLite is typeless... could make use of that, and store all values
 //   in the same column. But for generality:
-const QMap<QVariant::Type, QString> COLMAP{
+const QMap<QMetaType::Type, QString> COLMAP{
     // Which database field shall we use to store each QVariant type?
-    {QVariant::Bool, VALUE_BOOL_FIELDNAME},
-    {QVariant::DateTime, VALUE_TEXT_FIELDNAME},
-    {QVariant::Double, VALUE_REAL_FIELDNAME},
-    {QVariant::Int, VALUE_INTEGER_FIELDNAME},
-    {QVariant::LongLong, VALUE_INTEGER_FIELDNAME},
-    {QVariant::String, VALUE_TEXT_FIELDNAME},
-    {QVariant::Uuid, VALUE_TEXT_FIELDNAME},
+    {QMetaType::Bool, VALUE_BOOL_FIELDNAME},
+    {QMetaType::QDateTime, VALUE_TEXT_FIELDNAME},
+    {QMetaType::Double, VALUE_REAL_FIELDNAME},
+    {QMetaType::Int, VALUE_INTEGER_FIELDNAME},
+    {QMetaType::LongLong, VALUE_INTEGER_FIELDNAME},
+    {QMetaType::QString, VALUE_TEXT_FIELDNAME},
+    {QMetaType::QUuid, VALUE_TEXT_FIELDNAME},
 };
-const QMap<QVariant::Type, QString> TYPEMAP{
+const QMap<QMetaType::Type, QString> TYPEMAP{
     // What value should we put in the 'type' database column to indicate
     // the QVariant type in use?
     // http://doc.qt.io/qt-5/qvariant-obsolete.html#Type-enum
-    {QVariant::Bool, "Bool"},
-    {QVariant::DateTime, "DateTime"},
-    {QVariant::Double, "Double"},
-    {QVariant::Int, "Int"},
-    {QVariant::LongLong, "LongLong"},
-    {QVariant::String, "String"},
-    {QVariant::Uuid, "Uuid"},
+    {QMetaType::Bool, "Bool"},
+    {QMetaType::QDateTime, "DateTime"},
+    {QMetaType::Double, "Double"},
+    {QMetaType::Int, "Int"},
+    {QMetaType::LongLong, "LongLong"},
+    {QMetaType::QString, "String"},
+    {QMetaType::QUuid, "Uuid"},
 };
 
 
 StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
-                     const QString& name, const QVariant::Type type,
+                     const QString& name, const QMetaType::Type type,
                      const QVariant& default_value) :
     DatabaseObject(app, db, STOREDVAR_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false),
@@ -74,12 +74,12 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(NAME_FIELDNAME, QVariant::String, true, true, false);
-    addField(TYPE_FIELDNAME, QVariant::String, true, false, false);
-    QMapIterator<QVariant::Type, QString> i(COLMAP);
+    addField(NAME_FIELDNAME, QMetaType::QString, true, true, false);
+    addField(TYPE_FIELDNAME, QMetaType::QString, true, false, false);
+    QMapIterator<QMetaType::Type, QString> i(COLMAP);
     while (i.hasNext()) {
         i.next();
-        const QVariant::Type fieldtype = i.key();
+        const QMetaType::Type fieldtype = i.key();
         const QString fieldname = i.value();
         if (!hasField(fieldname)) {
             // We can have duplicate/overlapping fieldnames, and it will be
@@ -142,7 +142,7 @@ bool StoredVar::setValue(const QVariant& value, const bool save_to_db)
 QVariant StoredVar::value() const
 {
     QVariant v = value(m_value_fieldname);
-    v.convert(m_type);
+    v.convert(QMetaType(m_type));
     return v;
 }
 

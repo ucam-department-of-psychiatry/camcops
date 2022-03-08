@@ -81,10 +81,10 @@ Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_fr_waist_cm(nullptr),
     m_fr_waist_in(nullptr)
 {
-    addField(FN_MASS_KG, QVariant::Double);
-    addField(FN_HEIGHT_M, QVariant::Double);
-    addField(FN_WAIST_CM, QVariant::Double);
-    addField(FN_COMMENT, QVariant::String);
+    addField(FN_MASS_KG, QMetaType::Double);
+    addField(FN_HEIGHT_M, QMetaType::Double);
+    addField(FN_WAIST_CM, QMetaType::Double);
+    addField(FN_COMMENT, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

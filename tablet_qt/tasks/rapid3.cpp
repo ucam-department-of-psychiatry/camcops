@@ -55,9 +55,9 @@ Rapid3::Rapid3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, RAPID3_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(q1Fieldnames(), QVariant::Int);
-    addField(Q2, QVariant::Double);
-    addField(Q3, QVariant::Double);
+    addFields(q1Fieldnames(), QMetaType::Int);
+    addField(Q2, QMetaType::Double);
+    addField(Q3, QMetaType::Double);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

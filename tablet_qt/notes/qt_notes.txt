@@ -409,7 +409,7 @@ Database objects
 //      ...
 //      MyTableSpec::MyTableSpec()
 //      {
-//          addField("thing", QVariant::Int);
+//          addField("thing", QMetaType::Int);
 //          ...
 //      }
 // - a normal member object containing field values for those fields, e.g.

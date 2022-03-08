@@ -52,7 +52,7 @@ void initializePhq15(TaskFactory& factory)
 Phq15::Phq15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHQ15_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

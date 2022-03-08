@@ -63,9 +63,9 @@ LynallIamLife::LynallIamLife(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, LYNALL_IAM_LIFE_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_MAIN), QVariant::Bool);
-    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_SEVERITY), QVariant::Int);
-    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_FREQUENCY), QVariant::Int);
+    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_MAIN), QMetaType::Bool);
+    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_SEVERITY), QMetaType::Int);
+    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_FREQUENCY), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

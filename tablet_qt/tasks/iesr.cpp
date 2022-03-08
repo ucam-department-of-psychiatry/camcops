@@ -60,8 +60,8 @@ void initializeIesr(TaskFactory& factory)
 Iesr::Iesr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IESR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(FN_EVENT, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addField(FN_EVENT, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

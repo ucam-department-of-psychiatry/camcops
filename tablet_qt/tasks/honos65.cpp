@@ -57,10 +57,10 @@ void initializeHonos65(TaskFactory& factory)
 Honos65::Honos65(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HONOS65_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(PERIOD_RATED, QVariant::String);
-    addField(Q8_PROBLEM_TYPE, QVariant::String);
-    addField(Q8_OTHER_PROBLEM, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addField(PERIOD_RATED, QMetaType::QString);
+    addField(Q8_PROBLEM_TYPE, QMetaType::QString);
+    addField(Q8_OTHER_PROBLEM, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -145,8 +145,8 @@ Bdi::Bdi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_grid_ia(nullptr),
     m_grid_ii(nullptr)
 {
-    addField(FN_BDI_SCALE, QVariant::String);
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addField(FN_BDI_SCALE, QMetaType::QString);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

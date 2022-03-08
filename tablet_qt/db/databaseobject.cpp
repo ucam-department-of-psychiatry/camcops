@@ -30,6 +30,7 @@
 #include <iostream>
 #include <QDateTime>
 #include <QMapIterator>
+#include <QMetaType>
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QStringList>
@@ -71,19 +72,19 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
             QString("DatabaseObject::DatabaseObject: Missing pk_fieldname; "
                     "table=%1").arg(m_tablename));
     }
-    addField(pk_fieldname, QVariant::Int, true, true, true);
+    addField(pk_fieldname, QMetaType::Int, true, true, true);
     if (has_move_off_tablet_field) {
         // Will be true for everything in data DB, but not system DB
-        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
+        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QMetaType::Bool,
                  false, false, false);
     }
     if (has_modification_timestamp) {
         addField(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME,
-                 QVariant::DateTime);
+                 QMetaType::QDateTime);
     }
     if (has_creation_timestamp) {
         addField(dbconst::CREATION_TIMESTAMP_FIELDNAME,
-                 QVariant::DateTime);
+                 QMetaType::QDateTime);
         QDateTime now = QDateTime::currentDateTime();
         m_record[dbconst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
     }
@@ -95,13 +96,13 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
 // ============================================================================
 
 void DatabaseObject::addField(const QString& fieldname,
-                              const QVariant::Type type,
+                              const QMetaType::Type type,
                               const bool mandatory,
                               const bool unique,
                               const bool pk,
                               const QVariant& default_value)
 {
-    if (type == QVariant::ULongLong) {
+    if (type == QMetaType::ULongLong) {
         qWarning() << "SQLite3 does not properly support unsigned 64-bit "
                       "integers; please use signed if possible";
     }
@@ -135,7 +136,7 @@ void DatabaseObject::addField(const QString& fieldname,
 
 
 void DatabaseObject::addFields(const QStringList& fieldnames,
-                               const QVariant::Type type,
+                               const QMetaType::Type type,
                                const bool mandatory)
 {
     for (const QString& fieldname : fieldnames) {
@@ -157,10 +158,10 @@ bool DatabaseObject::hasField(const QString& fieldname) const
 }
 
 
-QVariant::Type DatabaseObject::fieldType(const QString& fieldname) const
+QMetaType::Type DatabaseObject::fieldType(const QString& fieldname) const
 {
     if (!hasField(fieldname)) {
-        return QVariant::Type::Invalid;
+        return QMetaType::UnknownType;
     }
     const Field& field = m_record[fieldname];
     return field.type();
@@ -439,13 +440,13 @@ QJsonValue DatabaseObject::valueAsJsonValue(const QString& fieldname) const
     if (v.isNull()) {
         return QJsonValue();  // null type
     }
-    const QVariant::Type type = fieldType(fieldname);
+    const QMetaType::Type type = fieldType(fieldname);
     QJsonValue jval;
     switch (type) {
-        case QVariant::Date:
+        case QMetaType::QDate:
             jval = QJsonValue(datetime::dateToIso(v.toDate()));
             break;
-        case QVariant::DateTime:
+        case QMetaType::QDateTime:
             jval = QJsonValue(datetime::datetimeToIsoMs(v.toDateTime()));
             break;
         default:

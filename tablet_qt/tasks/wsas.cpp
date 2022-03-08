@@ -64,8 +64,8 @@ void initializeWsas(TaskFactory& factory)
 Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, WSAS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(RETIRED_ETC, QVariant::Bool);
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addField(RETIRED_ETC, QMetaType::Bool);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -111,8 +111,8 @@ KhandakerInsightMedical::KhandakerInsightMedical(
     Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     for (const KhandakerInsightQInfo& info : QUESTIONS) {
-        addField(info.fieldname_yn, QVariant::Bool);
-        addField(info.fieldname_comment, QVariant::String);
+        addField(info.fieldname_yn, QMetaType::Bool);
+        addField(info.fieldname_comment, QMetaType::QString);
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

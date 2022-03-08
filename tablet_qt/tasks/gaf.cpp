@@ -46,7 +46,7 @@ void initializeGaf(TaskFactory& factory)
 Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GAF_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(SCORE, QVariant::String);
+    addField(SCORE, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

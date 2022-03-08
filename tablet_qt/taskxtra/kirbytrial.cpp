@@ -39,16 +39,16 @@ KirbyTrial::KirbyTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject (app, db, KIRBY_TRIAL_TABLENAME)
 {
     // Keys
-    addField(FN_FK_TO_TASK, QVariant::Int);
-    addField(FN_TRIAL, QVariant::Int, true);  // trial number within this session, 1-based
+    addField(FN_FK_TO_TASK, QMetaType::Int);
+    addField(FN_TRIAL, QMetaType::Int, true);  // trial number within this session, 1-based
     // Choice
-    addField(FN_SIR, QVariant::Int);  // int for now
-    addField(FN_LDR, QVariant::Int);  // int for now
-    addField(FN_DELAY_DAYS, QVariant::Int);  // int for now
-    addField(FN_CURRENCY, QVariant::String);
-    addField(FN_CURRENCY_SYMBOL_FIRST, QVariant::Bool);
+    addField(FN_SIR, QMetaType::Int);  // int for now
+    addField(FN_LDR, QMetaType::Int);  // int for now
+    addField(FN_DELAY_DAYS, QMetaType::Int);  // int for now
+    addField(FN_CURRENCY, QMetaType::QString);
+    addField(FN_CURRENCY_SYMBOL_FIRST, QMetaType::Bool);
     // Response
-    addField(FN_CHOSE_LDR, QVariant::Bool);
+    addField(FN_CHOSE_LDR, QMetaType::Bool);
 
     load(load_pk);
 }

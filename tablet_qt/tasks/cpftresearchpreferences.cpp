@@ -66,10 +66,10 @@ CPFTResearchPreferences::CPFTResearchPreferences(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_CONTACT_PREFERENCE, QVariant::Char);
-    addField(FN_CONTACT_BY_EMAIL, QVariant::Bool);
+    addField(FN_CONTACT_PREFERENCE, QMetaType::Char);
+    addField(FN_CONTACT_BY_EMAIL, QMetaType::Bool);
     addField(FN_RESEARCH_OPT_OUT,
-             QVariant::Bool,
+             QMetaType::Bool,
              true,   // Mandatory
              false,  // Unique
              false,  // pk

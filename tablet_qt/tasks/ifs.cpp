@@ -91,32 +91,32 @@ Ifs::Ifs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IFS_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(Q1, QVariant::Int);
-    addField(Q2, QVariant::Int);
-    addField(Q3, QVariant::Int);
-    addField(Q4_LEN2_1, QVariant::Bool);
-    addField(Q4_LEN2_2, QVariant::Bool);
-    addField(Q4_LEN3_1, QVariant::Bool);
-    addField(Q4_LEN3_2, QVariant::Bool);
-    addField(Q4_LEN4_1, QVariant::Bool);
-    addField(Q4_LEN4_2, QVariant::Bool);
-    addField(Q4_LEN5_1, QVariant::Bool);
-    addField(Q4_LEN5_2, QVariant::Bool);
-    addField(Q4_LEN6_1, QVariant::Bool);
-    addField(Q4_LEN6_2, QVariant::Bool);
-    addField(Q4_LEN7_1, QVariant::Bool);
-    addField(Q4_LEN7_2, QVariant::Bool);
-    addField(Q5, QVariant::Int);
-    addField(Q6_SEQ1, QVariant::Int);
-    addField(Q6_SEQ2, QVariant::Int);
-    addField(Q6_SEQ3, QVariant::Int);
-    addField(Q6_SEQ4, QVariant::Int);
-    addField(Q7_PROVERB1, QVariant::Double);  // can score 0.5
-    addField(Q7_PROVERB2, QVariant::Double);
-    addField(Q7_PROVERB3, QVariant::Double);
-    addField(Q8_SENTENCE1, QVariant::Int);
-    addField(Q8_SENTENCE2, QVariant::Int);
-    addField(Q8_SENTENCE3, QVariant::Int);
+    addField(Q1, QMetaType::Int);
+    addField(Q2, QMetaType::Int);
+    addField(Q3, QMetaType::Int);
+    addField(Q4_LEN2_1, QMetaType::Bool);
+    addField(Q4_LEN2_2, QMetaType::Bool);
+    addField(Q4_LEN3_1, QMetaType::Bool);
+    addField(Q4_LEN3_2, QMetaType::Bool);
+    addField(Q4_LEN4_1, QMetaType::Bool);
+    addField(Q4_LEN4_2, QMetaType::Bool);
+    addField(Q4_LEN5_1, QMetaType::Bool);
+    addField(Q4_LEN5_2, QMetaType::Bool);
+    addField(Q4_LEN6_1, QMetaType::Bool);
+    addField(Q4_LEN6_2, QMetaType::Bool);
+    addField(Q4_LEN7_1, QMetaType::Bool);
+    addField(Q4_LEN7_2, QMetaType::Bool);
+    addField(Q5, QMetaType::Int);
+    addField(Q6_SEQ1, QMetaType::Int);
+    addField(Q6_SEQ2, QMetaType::Int);
+    addField(Q6_SEQ3, QMetaType::Int);
+    addField(Q6_SEQ4, QMetaType::Int);
+    addField(Q7_PROVERB1, QMetaType::Double);  // can score 0.5
+    addField(Q7_PROVERB2, QMetaType::Double);
+    addField(Q7_PROVERB3, QMetaType::Double);
+    addField(Q8_SENTENCE1, QMetaType::Int);
+    addField(Q8_SENTENCE2, QMetaType::Int);
+    addField(Q8_SENTENCE3, QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

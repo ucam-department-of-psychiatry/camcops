@@ -133,82 +133,82 @@ CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db,
                                    const int load_pk) :
     Task(app, db, CPFTLPSDISCHARGE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(DISCHARGE_DATE, QVariant::Date);
-    addField(DISCHARGE_REASON_CODE, QVariant::String);
+    addField(DISCHARGE_DATE, QMetaType::QDate);
+    addField(DISCHARGE_REASON_CODE, QMetaType::QString);
 
-    addField(LEAFLET_OR_DISCHARGE_CARD_GIVEN, QVariant::Bool);
-    addField(FREQUENT_ATTENDER, QVariant::Bool);
-    addField(PATIENT_WANTED_COPY_OF_LETTER, QVariant::Bool);  // was erroneously String prior to 2.0.3
-    addField(GAF_AT_FIRST_ASSESSMENT, QVariant::Int);
-    addField(GAF_AT_DISCHARGE, QVariant::Int);
+    addField(LEAFLET_OR_DISCHARGE_CARD_GIVEN, QMetaType::Bool);
+    addField(FREQUENT_ATTENDER, QMetaType::Bool);
+    addField(PATIENT_WANTED_COPY_OF_LETTER, QMetaType::Bool);  // was erroneously String prior to 2.0.3
+    addField(GAF_AT_FIRST_ASSESSMENT, QMetaType::Int);
+    addField(GAF_AT_DISCHARGE, QMetaType::Int);
 
-    addField(REFERRAL_REASON_SELF_HARM_OVERDOSE, QVariant::Bool);
-    addField(REFERRAL_REASON_SELF_HARM_OTHER, QVariant::Bool);
-    addField(REFERRAL_REASON_SUICIDAL_IDEAS, QVariant::Bool);
-    addField(REFERRAL_REASON_BEHAVIOURAL_DISTURBANCE, QVariant::Bool);
-    addField(REFERRAL_REASON_LOW_MOOD, QVariant::Bool);
-    addField(REFERRAL_REASON_ELEVATED_MOOD, QVariant::Bool);
-    addField(REFERRAL_REASON_PSYCHOSIS, QVariant::Bool);
-    addField(REFERRAL_REASON_PRE_TRANSPLANT, QVariant::Bool);
-    addField(REFERRAL_REASON_POST_TRANSPLANT, QVariant::Bool);
-    addField(REFERRAL_REASON_DELIRIUM, QVariant::Bool);
-    addField(REFERRAL_REASON_ANXIETY, QVariant::Bool);
-    addField(REFERRAL_REASON_SOMATOFORM_MUS, QVariant::Bool);
-    addField(REFERRAL_REASON_MOTIVATION_ADHERENCE, QVariant::Bool);
-    addField(REFERRAL_REASON_CAPACITY, QVariant::Bool);
-    addField(REFERRAL_REASON_EATING_DISORDER, QVariant::Bool);
-    addField(REFERRAL_REASON_SAFEGUARDING, QVariant::Bool);
-    addField(REFERRAL_REASON_DISCHARGE_PLACEMENT, QVariant::Bool);
-    addField(REFERRAL_REASON_COGNITIVE_PROBLEM, QVariant::Bool);
-    addField(REFERRAL_REASON_SUBSTANCE_ALCOHOL, QVariant::Bool);
-    addField(REFERRAL_REASON_SUBSTANCE_OTHER, QVariant::Bool);
-    addField(REFERRAL_REASON_OTHER, QVariant::Bool);
+    addField(REFERRAL_REASON_SELF_HARM_OVERDOSE, QMetaType::Bool);
+    addField(REFERRAL_REASON_SELF_HARM_OTHER, QMetaType::Bool);
+    addField(REFERRAL_REASON_SUICIDAL_IDEAS, QMetaType::Bool);
+    addField(REFERRAL_REASON_BEHAVIOURAL_DISTURBANCE, QMetaType::Bool);
+    addField(REFERRAL_REASON_LOW_MOOD, QMetaType::Bool);
+    addField(REFERRAL_REASON_ELEVATED_MOOD, QMetaType::Bool);
+    addField(REFERRAL_REASON_PSYCHOSIS, QMetaType::Bool);
+    addField(REFERRAL_REASON_PRE_TRANSPLANT, QMetaType::Bool);
+    addField(REFERRAL_REASON_POST_TRANSPLANT, QMetaType::Bool);
+    addField(REFERRAL_REASON_DELIRIUM, QMetaType::Bool);
+    addField(REFERRAL_REASON_ANXIETY, QMetaType::Bool);
+    addField(REFERRAL_REASON_SOMATOFORM_MUS, QMetaType::Bool);
+    addField(REFERRAL_REASON_MOTIVATION_ADHERENCE, QMetaType::Bool);
+    addField(REFERRAL_REASON_CAPACITY, QMetaType::Bool);
+    addField(REFERRAL_REASON_EATING_DISORDER, QMetaType::Bool);
+    addField(REFERRAL_REASON_SAFEGUARDING, QMetaType::Bool);
+    addField(REFERRAL_REASON_DISCHARGE_PLACEMENT, QMetaType::Bool);
+    addField(REFERRAL_REASON_COGNITIVE_PROBLEM, QMetaType::Bool);
+    addField(REFERRAL_REASON_SUBSTANCE_ALCOHOL, QMetaType::Bool);
+    addField(REFERRAL_REASON_SUBSTANCE_OTHER, QMetaType::Bool);
+    addField(REFERRAL_REASON_OTHER, QMetaType::Bool);
 
-    addField(REFERRAL_REASON_TRANSPLANT_ORGAN, QVariant::String);
-    addField(REFERRAL_REASON_OTHER_DETAIL, QVariant::String);
+    addField(REFERRAL_REASON_TRANSPLANT_ORGAN, QMetaType::QString);
+    addField(REFERRAL_REASON_OTHER_DETAIL, QMetaType::QString);
 
-    addField(DIAGNOSIS_NO_ACTIVE_MENTAL_HEALTH_PROBLEM, QVariant::Bool);
-    addField(DIAGNOSIS_PSYCH_1_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_1_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_2_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_2_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_3_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_3_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_4_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_4_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_1, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_2, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_3, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_4, QVariant::String);
+    addField(DIAGNOSIS_NO_ACTIVE_MENTAL_HEALTH_PROBLEM, QMetaType::Bool);
+    addField(DIAGNOSIS_PSYCH_1_ICD10CODE, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_1_DESCRIPTION, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_2_ICD10CODE, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_2_DESCRIPTION, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_3_ICD10CODE, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_3_DESCRIPTION, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_4_ICD10CODE, QMetaType::QString);
+    addField(DIAGNOSIS_PSYCH_4_DESCRIPTION, QMetaType::QString);
+    addField(DIAGNOSIS_MEDICAL_1, QMetaType::QString);
+    addField(DIAGNOSIS_MEDICAL_2, QMetaType::QString);
+    addField(DIAGNOSIS_MEDICAL_3, QMetaType::QString);
+    addField(DIAGNOSIS_MEDICAL_4, QMetaType::QString);
 
-    addField(MANAGEMENT_ASSESSMENT_DIAGNOSTIC, QVariant::Bool);
-    addField(MANAGEMENT_MEDICATION, QVariant::Bool);
-    addField(MANAGEMENT_SPECIALLING_BEHAVIOURAL_DISTURBANCE, QVariant::Bool);
-    addField(MANAGEMENT_SUPPORTIVE_PATIENT, QVariant::Bool);
-    addField(MANAGEMENT_SUPPORTIVE_CARERS, QVariant::Bool);
-    addField(MANAGEMENT_SUPPORTIVE_STAFF, QVariant::Bool);
-    addField(MANAGEMENT_NURSING_MANAGEMENT, QVariant::Bool);
-    addField(MANAGEMENT_THERAPY_CBT, QVariant::Bool);
-    addField(MANAGEMENT_THERAPY_CAT, QVariant::Bool);
-    addField(MANAGEMENT_THERAPY_OTHER, QVariant::Bool);
-    addField(MANAGEMENT_TREATMENT_ADHERENCE, QVariant::Bool);
-    addField(MANAGEMENT_CAPACITY, QVariant::Bool);
-    addField(MANAGEMENT_EDUCATION_PATIENT, QVariant::Bool);
-    addField(MANAGEMENT_EDUCATION_CARERS, QVariant::Bool);
-    addField(MANAGEMENT_EDUCATION_STAFF, QVariant::Bool);
-    addField(MANAGEMENT_ACCOMMODATION_PLACEMENT, QVariant::Bool);
-    addField(MANAGEMENT_SIGNPOSTING_EXTERNAL_REFERRAL, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S136, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S5_2, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S2, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S3, QVariant::Bool);
-    addField(MANAGEMENT_COMPLEX_CASE_CONFERENCE, QVariant::Bool);
-    addField(MANAGEMENT_OTHER, QVariant::Bool);
-    addField(MANAGEMENT_OTHER_DETAIL, QVariant::String);
+    addField(MANAGEMENT_ASSESSMENT_DIAGNOSTIC, QMetaType::Bool);
+    addField(MANAGEMENT_MEDICATION, QMetaType::Bool);
+    addField(MANAGEMENT_SPECIALLING_BEHAVIOURAL_DISTURBANCE, QMetaType::Bool);
+    addField(MANAGEMENT_SUPPORTIVE_PATIENT, QMetaType::Bool);
+    addField(MANAGEMENT_SUPPORTIVE_CARERS, QMetaType::Bool);
+    addField(MANAGEMENT_SUPPORTIVE_STAFF, QMetaType::Bool);
+    addField(MANAGEMENT_NURSING_MANAGEMENT, QMetaType::Bool);
+    addField(MANAGEMENT_THERAPY_CBT, QMetaType::Bool);
+    addField(MANAGEMENT_THERAPY_CAT, QMetaType::Bool);
+    addField(MANAGEMENT_THERAPY_OTHER, QMetaType::Bool);
+    addField(MANAGEMENT_TREATMENT_ADHERENCE, QMetaType::Bool);
+    addField(MANAGEMENT_CAPACITY, QMetaType::Bool);
+    addField(MANAGEMENT_EDUCATION_PATIENT, QMetaType::Bool);
+    addField(MANAGEMENT_EDUCATION_CARERS, QMetaType::Bool);
+    addField(MANAGEMENT_EDUCATION_STAFF, QMetaType::Bool);
+    addField(MANAGEMENT_ACCOMMODATION_PLACEMENT, QMetaType::Bool);
+    addField(MANAGEMENT_SIGNPOSTING_EXTERNAL_REFERRAL, QMetaType::Bool);
+    addField(MANAGEMENT_MHA_S136, QMetaType::Bool);
+    addField(MANAGEMENT_MHA_S5_2, QMetaType::Bool);
+    addField(MANAGEMENT_MHA_S2, QMetaType::Bool);
+    addField(MANAGEMENT_MHA_S3, QMetaType::Bool);
+    addField(MANAGEMENT_COMPLEX_CASE_CONFERENCE, QMetaType::Bool);
+    addField(MANAGEMENT_OTHER, QMetaType::Bool);
+    addField(MANAGEMENT_OTHER_DETAIL, QMetaType::QString);
 
-    addField(OUTCOME, QVariant::String);
-    addField(OUTCOME_HOSPITAL_TRANSFER_DETAIL, QVariant::String);
-    addField(OUTCOME_OTHER_DETAIL, QVariant::String);
+    addField(OUTCOME, QMetaType::QString);
+    addField(OUTCOME_HOSPITAL_TRANSFER_DETAIL, QMetaType::QString);
+    addField(OUTCOME_OTHER_DETAIL, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

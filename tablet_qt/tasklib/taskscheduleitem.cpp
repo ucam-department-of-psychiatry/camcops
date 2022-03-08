@@ -67,19 +67,19 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
                    false,
                    false)
 {
-    addField(FK_TASK_SCHEDULE, QVariant::Int, true);
-    addField(FN_TASK_TABLE_NAME, QVariant::String, true);
-    addField(FN_SETTINGS, QVariant::String, true);
-    addField(FN_DUE_FROM, QVariant::String, true);
-    addField(FN_DUE_BY, QVariant::String, true);
-    addField(FN_COMPLETE, QVariant::Bool, true);
-    addField(FN_ANONYMOUS, QVariant::Bool,
+    addField(FK_TASK_SCHEDULE, QMetaType::Int, true);
+    addField(FN_TASK_TABLE_NAME, QMetaType::QString, true);
+    addField(FN_SETTINGS, QMetaType::QString, true);
+    addField(FN_DUE_FROM, QMetaType::QString, true);
+    addField(FN_DUE_BY, QMetaType::QString, true);
+    addField(FN_COMPLETE, QMetaType::Bool, true);
+    addField(FN_ANONYMOUS, QMetaType::Bool,
              true /* mandatory */,
              false /* unique */,
              false /* pk */,
              false /* default_value */);
-    addField(FK_TASK, QVariant::Int, true);  // PK of task in its table
-    addField(FN_WHEN_COMPLETED, QVariant::DateTime);
+    addField(FK_TASK, QMetaType::Int, true);  // PK of task in its table
+    addField(FN_WHEN_COMPLETED, QMetaType::QDateTime);
 
     load(load_pk);
 }

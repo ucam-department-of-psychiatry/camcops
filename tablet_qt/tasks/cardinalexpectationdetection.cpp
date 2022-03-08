@@ -194,31 +194,31 @@ CardinalExpectationDetection::CardinalExpectationDetection(
     Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_NUM_BLOCKS, QVariant::Int);
-    addField(FN_STIMULUS_COUNTERBALANCING, QVariant::Int);
-    addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QVariant::Bool);
-    addField(FN_PAUSE_EVERY_N_TRIALS, QVariant::Int);
+    addField(FN_NUM_BLOCKS, QMetaType::Int);
+    addField(FN_STIMULUS_COUNTERBALANCING, QMetaType::Int);
+    addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QMetaType::Bool);
+    addField(FN_PAUSE_EVERY_N_TRIALS, QMetaType::Int);
     // ... cue
-    addField(FN_CUE_DURATION_S, QVariant::Double);
-    addField(FN_VISUAL_CUE_INTENSITY, QVariant::Double);
-    addField(FN_AUDITORY_CUE_INTENSITY, QVariant::Double);
+    addField(FN_CUE_DURATION_S, QMetaType::Double);
+    addField(FN_VISUAL_CUE_INTENSITY, QMetaType::Double);
+    addField(FN_AUDITORY_CUE_INTENSITY, QMetaType::Double);
     // ... ISI
-    addField(FN_ISI_DURATION_S, QVariant::Double);
+    addField(FN_ISI_DURATION_S, QMetaType::Double);
     // ... target
-    addField(FN_VISUAL_TARGET_DURATION_S, QVariant::Double);
-    addField(FN_VISUAL_BACKGROUND_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_VISUAL_TARGET_0_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_VISUAL_TARGET_1_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_AUDITORY_TARGET_0_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_AUDITORY_TARGET_1_INTENSITY, QVariant::Double);  // 0 to 1
+    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::Double);
+    addField(FN_VISUAL_BACKGROUND_INTENSITY, QMetaType::Double);  // 0 to 1
+    addField(FN_VISUAL_TARGET_0_INTENSITY, QMetaType::Double);  // 0 to 1
+    addField(FN_VISUAL_TARGET_1_INTENSITY, QMetaType::Double);  // 0 to 1
+    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QMetaType::Double);  // 0 to 1
+    addField(FN_AUDITORY_TARGET_0_INTENSITY, QMetaType::Double);  // 0 to 1
+    addField(FN_AUDITORY_TARGET_1_INTENSITY, QMetaType::Double);  // 0 to 1
     // ... ITI
-    addField(FN_ITI_MIN_S, QVariant::Double);
-    addField(FN_ITI_MAX_S, QVariant::Double);
+    addField(FN_ITI_MIN_S, QMetaType::Double);
+    addField(FN_ITI_MAX_S, QMetaType::Double);
     // Results:
-    addField(FN_ABORTED, QVariant::Bool, false, false, false, false);
-    addField(FN_FINISHED, QVariant::Bool, false, false, false, false);
-    addField(FN_LAST_TRIAL_COMPLETED, QVariant::Int);
+    addField(FN_ABORTED, QMetaType::Bool, false, false, false, false);
+    addField(FN_FINISHED, QMetaType::Bool, false, false, false, false);
+    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::Int);
 
     load(load_pk);
 

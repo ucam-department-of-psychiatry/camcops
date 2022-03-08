@@ -22,6 +22,7 @@
 #include <QAbstractSocket>
 #include <QDebug>
 #include <QMap>
+#include <QMetaType>
 #include <QSsl>
 #include <QString>
 #include <QUrlQuery>
@@ -186,7 +187,7 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64);
 QString toDp(double x, int dp);
 
 // Displays a QVariant in a pretty format, with an explicit type specified.
-QString prettyValue(const QVariant& variant, int dp, QVariant::Type type);
+QString prettyValue(const QVariant& variant, int dp, QMetaType::Type type);
 
 // Displays a QVariant in a pretty format, asking it for its type.
 QString prettyValue(const QVariant& variant, int dp = -1);

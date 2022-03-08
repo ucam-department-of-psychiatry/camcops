@@ -50,7 +50,7 @@ void initializePhotoSequence(TaskFactory& factory)
 PhotoSequence::PhotoSequence(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHOTOSEQUENCE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(SEQUENCE_DESCRIPTION, QVariant::String);
+    addField(SEQUENCE_DESCRIPTION, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

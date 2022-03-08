@@ -98,28 +98,28 @@ Icd10SpecPD::Icd10SpecPD(CamcopsApp& app, DatabaseManager& db,
     Task(app, db, ICD10SPECPD_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_fr_has_pd(nullptr)
 {
-    addFields(strseq(G_PREFIX, 1, N_GENERAL), QVariant::Bool);
-    addFields(strseq(G1_PREFIX, 1, N_GENERAL_1), QVariant::Bool);
-    addFields(strseq(PARANOID_PREFIX, 1, N_PARANOID), QVariant::Bool);
-    addFields(strseq(SCHIZOID_PREFIX, 1, N_SCHIZOID), QVariant::Bool);
-    addFields(strseq(DISSOCIAL_PREFIX, 1, N_DISSOCIAL), QVariant::Bool);
-    addFields(strseq(EU_PREFIX, 1, N_EU), QVariant::Bool);
-    addFields(strseq(HISTRIONIC_PREFIX, 1, N_HISTRIONIC), QVariant::Bool);
-    addFields(strseq(ANANKASTIC_PREFIX, 1, N_ANANKASTIC), QVariant::Bool);
-    addFields(strseq(ANXIOUS_PREFIX, 1, N_ANXIOUS), QVariant::Bool);
-    addFields(strseq(DEPENDENT_PREFIX, 1, N_DEPENDENT), QVariant::Bool);
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
-    addField(SKIP_PARANOID, QVariant::Bool);
-    addField(SKIP_SCHIZOID, QVariant::Bool);
-    addField(SKIP_DISSOCIAL, QVariant::Bool);
-    addField(SKIP_EU, QVariant::Bool);
-    addField(SKIP_HISTRIONIC, QVariant::Bool);
-    addField(SKIP_ANANKASTIC, QVariant::Bool);
-    addField(SKIP_ANXIOUS, QVariant::Bool);
-    addField(SKIP_DEPENDENT, QVariant::Bool);
-    addField(OTHER_PD_PRESENT, QVariant::Bool);
-    addField(VIGNETTE, QVariant::String);
+    addFields(strseq(G_PREFIX, 1, N_GENERAL), QMetaType::Bool);
+    addFields(strseq(G1_PREFIX, 1, N_GENERAL_1), QMetaType::Bool);
+    addFields(strseq(PARANOID_PREFIX, 1, N_PARANOID), QMetaType::Bool);
+    addFields(strseq(SCHIZOID_PREFIX, 1, N_SCHIZOID), QMetaType::Bool);
+    addFields(strseq(DISSOCIAL_PREFIX, 1, N_DISSOCIAL), QMetaType::Bool);
+    addFields(strseq(EU_PREFIX, 1, N_EU), QMetaType::Bool);
+    addFields(strseq(HISTRIONIC_PREFIX, 1, N_HISTRIONIC), QMetaType::Bool);
+    addFields(strseq(ANANKASTIC_PREFIX, 1, N_ANANKASTIC), QMetaType::Bool);
+    addFields(strseq(ANXIOUS_PREFIX, 1, N_ANXIOUS), QMetaType::Bool);
+    addFields(strseq(DEPENDENT_PREFIX, 1, N_DEPENDENT), QMetaType::Bool);
+    addField(DATE_PERTAINS_TO, QMetaType::QDate);
+    addField(COMMENTS, QMetaType::QString);
+    addField(SKIP_PARANOID, QMetaType::Bool);
+    addField(SKIP_SCHIZOID, QMetaType::Bool);
+    addField(SKIP_DISSOCIAL, QMetaType::Bool);
+    addField(SKIP_EU, QMetaType::Bool);
+    addField(SKIP_HISTRIONIC, QMetaType::Bool);
+    addField(SKIP_ANANKASTIC, QMetaType::Bool);
+    addField(SKIP_ANXIOUS, QMetaType::Bool);
+    addField(SKIP_DEPENDENT, QMetaType::Bool);
+    addField(OTHER_PD_PRESENT, QMetaType::Bool);
+    addField(VIGNETTE, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

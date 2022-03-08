@@ -70,13 +70,13 @@ GboGPC::GboGPC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGPC_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_DATE, QVariant::Date);
-    addField(FN_SESSION, QVariant::Int);
-    addField(FN_GOAL_NUMBER, QVariant::Int);
-    addField(FN_GOAL_DESCRIPTION, QVariant::String);
-    addField(FN_PROGRESS, QVariant::Int);
-    addField(FN_WHOSE_GOAL, QVariant::Int);
-    addField(FN_WHOSE_GOAL_OTHER, QVariant::String);
+    addField(FN_DATE, QMetaType::QDate);
+    addField(FN_SESSION, QMetaType::Int);
+    addField(FN_GOAL_NUMBER, QMetaType::Int);
+    addField(FN_GOAL_DESCRIPTION, QMetaType::QString);
+    addField(FN_PROGRESS, QMetaType::Int);
+    addField(FN_WHOSE_GOAL, QMetaType::Int);
+    addField(FN_WHOSE_GOAL_OTHER, QMetaType::QString);
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 
     if (load_pk == dbconst::NONEXISTENT_PK) {

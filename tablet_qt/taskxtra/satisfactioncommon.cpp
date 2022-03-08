@@ -47,10 +47,10 @@ SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
                                        const int load_pk) :
     Task(app, db, tablename, anonymous, false, false)  // ... anon, clin, resp
 {
-    addField(SERVICE, QVariant::String);
-    addField(RATING, QVariant::Int);
-    addField(GOOD, QVariant::String);
-    addField(BAD, QVariant::String);
+    addField(SERVICE, QMetaType::QString);
+    addField(RATING, QMetaType::Int);
+    addField(GOOD, QMetaType::QString);
+    addField(BAD, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

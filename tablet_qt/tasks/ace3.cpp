@@ -177,40 +177,40 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ACE3_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_AGE_FT_EDUCATION, QVariant::Int);
-    addField(FN_OCCUPATION, QVariant::String);
-    addField(FN_HANDEDNESS, QVariant::String);
-    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME), QVariant::Int);
-    addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QVariant::Int);
-    addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QVariant::Int);
-    addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QVariant::Int);
-    addFields(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7), QVariant::Int);
-    addFields(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD), QVariant::Int);
-    addField(FN_FLUENCY_LETTERS_SCORE, QVariant::Int);
-    addField(FN_FLUENCY_ANIMALS_SCORE, QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QVariant::Int);
-    addField(FN_LANG_FOLLOW_CMD_PRACTICE, QVariant::Int);
-    addFields(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD), QVariant::Int);
-    addFields(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT), QVariant::Int);
-    addFields(strseq(FP_LANG_REPEAT_WORD, 1, N_LANG_REPEAT_WORD), QVariant::Int);
-    addFields(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE), QVariant::Int);
-    addFields(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE), QVariant::Int);
-    addFields(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT), QVariant::Int);
-    addField(FN_LANG_READ_WORDS_ALOUD, QVariant::Int);
-    addField(FN_VSP_COPY_INFINITY, QVariant::Int);
-    addField(FN_VSP_COPY_CUBE, QVariant::Int);
-    addField(FN_VSP_DRAW_CLOCK, QVariant::Int);
-    addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QVariant::Int);
-    addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QVariant::Int);
-    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS), QVariant::Int);
-    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Int);
-    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Char);
-    addField(FN_PICTURE1_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(FN_PICTURE2_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(FN_COMMENTS, QVariant::String);
+    addField(FN_AGE_FT_EDUCATION, QMetaType::Int);
+    addField(FN_OCCUPATION, QMetaType::QString);
+    addField(FN_HANDEDNESS, QMetaType::QString);
+    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME), QMetaType::Int);
+    addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QMetaType::Int);
+    addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QMetaType::Int);
+    addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QMetaType::Int);
+    addFields(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7), QMetaType::Int);
+    addFields(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD), QMetaType::Int);
+    addField(FN_FLUENCY_LETTERS_SCORE, QMetaType::Int);
+    addField(FN_FLUENCY_ANIMALS_SCORE, QMetaType::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_ADDR), QMetaType::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_ADDR), QMetaType::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR), QMetaType::Int);
+    addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QMetaType::Int);
+    addField(FN_LANG_FOLLOW_CMD_PRACTICE, QMetaType::Int);
+    addFields(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD), QMetaType::Int);
+    addFields(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT), QMetaType::Int);
+    addFields(strseq(FP_LANG_REPEAT_WORD, 1, N_LANG_REPEAT_WORD), QMetaType::Int);
+    addFields(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE), QMetaType::Int);
+    addFields(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE), QMetaType::Int);
+    addFields(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT), QMetaType::Int);
+    addField(FN_LANG_READ_WORDS_ALOUD, QMetaType::Int);
+    addField(FN_VSP_COPY_INFINITY, QMetaType::Int);
+    addField(FN_VSP_COPY_CUBE, QMetaType::Int);
+    addField(FN_VSP_DRAW_CLOCK, QMetaType::Int);
+    addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QMetaType::Int);
+    addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QMetaType::Int);
+    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS), QMetaType::Int);
+    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::Int);
+    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::Char);
+    addField(FN_PICTURE1_BLOBID, QMetaType::Int);  // FK to BLOB table
+    addField(FN_PICTURE2_BLOBID, QMetaType::Int);  // FK to BLOB table
+    addField(FN_COMMENTS, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

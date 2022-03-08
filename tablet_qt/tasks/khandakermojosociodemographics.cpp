@@ -92,10 +92,10 @@ KhandakerMojoSociodemographics::KhandakerMojoSociodemographics(
     m_questionnaire(nullptr)
 {
     for (const auto& info : MC_QUESTIONS) {
-        addField(info.getFieldname(), QVariant::Int);
+        addField(info.getFieldname(), QMetaType::Int);
 
         if (info.hasOther()) {
-            addField(info.getOtherFieldname(), QVariant::String);
+            addField(info.getOtherFieldname(), QMetaType::QString);
         }
     }
 

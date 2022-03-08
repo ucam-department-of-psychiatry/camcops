@@ -58,10 +58,10 @@ PclCommon::PclCommon(CamcopsApp& app,
     m_xstring_prefix(xstring_prefix),
     m_specific_event(specific_event)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
     if (m_specific_event) {
-        addField(EVENT, QVariant::String);
-        addField(EVENTDATE, QVariant::String);  // free text from subject
+        addField(EVENT, QMetaType::QString);
+        addField(EVENTDATE, QMetaType::QString);  // free text from subject
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

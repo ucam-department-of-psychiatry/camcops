@@ -87,7 +87,7 @@ ElixhauserCI::ElixhauserCI(CamcopsApp& app, DatabaseManager& db, const int load_
     m_questionnaire(nullptr)
 {
     for (const QString& fieldname : FIELDNAMES) {
-        addField(fieldname, QVariant::Bool);
+        addField(fieldname, QMetaType::Bool);
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

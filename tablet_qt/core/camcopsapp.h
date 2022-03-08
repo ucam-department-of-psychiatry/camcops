@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QApplication>
+#include <QMetaType>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QSqlDatabase>
@@ -751,7 +752,7 @@ protected slots:
     void retryUpload();
 
 protected:
-    void createVar(const QString& name, QVariant::Type type,
+    void createVar(const QString& name, QMetaType::Type type,
                    const QVariant& default_value = QVariant());
 
     // ------------------------------------------------------------------------

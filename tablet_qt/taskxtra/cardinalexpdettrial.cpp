@@ -62,36 +62,36 @@ CardinalExpDetTrial::CardinalExpDetTrial(
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
-    addField(FN_FK_TO_TASK, QVariant::Int);
-    addField(FN_TRIAL, QVariant::Int);
+    addField(FN_FK_TO_TASK, QMetaType::Int);
+    addField(FN_TRIAL, QMetaType::Int);
     // Task determines these (via an autogeneration process from the config):
-    addField(FN_BLOCK, QVariant::Int);
-    addField(FN_GROUP_NUM, QVariant::Int);
-    addField(FN_CUE, QVariant::Int);
-    addField(FN_RAW_CUE_NUMBER, QVariant::Int); // following counterbalancing
-    addField(FN_TARGET_MODALITY, QVariant::Int);
-    addField(FN_TARGET_NUMBER, QVariant::Int);
-    addField(FN_TARGET_PRESENT, QVariant::Bool);
-    addField(FN_ITI_LENGTH_S, QVariant::Double);
+    addField(FN_BLOCK, QMetaType::Int);
+    addField(FN_GROUP_NUM, QMetaType::Int);
+    addField(FN_CUE, QMetaType::Int);
+    addField(FN_RAW_CUE_NUMBER, QMetaType::Int); // following counterbalancing
+    addField(FN_TARGET_MODALITY, QMetaType::Int);
+    addField(FN_TARGET_NUMBER, QMetaType::Int);
+    addField(FN_TARGET_PRESENT, QMetaType::Bool);
+    addField(FN_ITI_LENGTH_S, QMetaType::Double);
     // Task determines these (on the fly):
-    addField(FN_PAUSE_GIVEN_BEFORE_TRIAL, QVariant::Bool);
-    addField(FN_PAUSE_START_TIME, QVariant::DateTime);
-    addField(FN_PAUSE_END_TIME, QVariant::DateTime);
-    addField(FN_TRIAL_START_TIME, QVariant::DateTime);
-    addField(FN_CUE_START_TIME, QVariant::DateTime);
-    addField(FN_TARGET_START_TIME, QVariant::DateTime);
-    addField(FN_DETECTION_START_TIME, QVariant::DateTime);
-    addField(FN_ITI_START_TIME, QVariant::DateTime);
-    addField(FN_ITI_END_TIME, QVariant::DateTime);
-    addField(FN_TRIAL_END_TIME, QVariant::DateTime);
+    addField(FN_PAUSE_GIVEN_BEFORE_TRIAL, QMetaType::Bool);
+    addField(FN_PAUSE_START_TIME, QMetaType::QDateTime);
+    addField(FN_PAUSE_END_TIME, QMetaType::QDateTime);
+    addField(FN_TRIAL_START_TIME, QMetaType::QDateTime);
+    addField(FN_CUE_START_TIME, QMetaType::QDateTime);
+    addField(FN_TARGET_START_TIME, QMetaType::QDateTime);
+    addField(FN_DETECTION_START_TIME, QMetaType::QDateTime);
+    addField(FN_ITI_START_TIME, QMetaType::QDateTime);
+    addField(FN_ITI_END_TIME, QMetaType::QDateTime);
+    addField(FN_TRIAL_END_TIME, QMetaType::QDateTime);
     // Subject decides these:
-    addField(FN_RESPONDED, QVariant::Bool);
-    addField(FN_RESPONSE_TIME, QVariant::DateTime);
-    addField(FN_RESPONSE_LATENCY_MS, QVariant::Int);
-    addField(FN_RATING, QVariant::Int);
-    addField(FN_CORRECT, QVariant::Bool);
-    addField(FN_POINTS, QVariant::Int);
-    addField(FN_CUMULATIVE_POINTS, QVariant::Int);
+    addField(FN_RESPONDED, QMetaType::Bool);
+    addField(FN_RESPONSE_TIME, QMetaType::QDateTime);
+    addField(FN_RESPONSE_LATENCY_MS, QMetaType::Int);
+    addField(FN_RATING, QMetaType::Int);
+    addField(FN_CORRECT, QMetaType::Bool);
+    addField(FN_POINTS, QMetaType::Int);
+    addField(FN_CUMULATIVE_POINTS, QMetaType::Int);
 
     load(load_pk);
 }

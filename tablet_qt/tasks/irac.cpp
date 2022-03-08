@@ -45,8 +45,8 @@ void initializeIrac(TaskFactory& factory)
 Irac::Irac(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IRAC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(AIM, QVariant::String);
-    addField(ACHIEVED, QVariant::Int);
+    addField(AIM, QMetaType::QString);
+    addField(ACHIEVED, QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

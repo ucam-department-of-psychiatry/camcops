@@ -83,7 +83,7 @@ HamD::HamD(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_questionnaire(nullptr)
 {
     for (auto qinfo : QLIST) {
-        addField(qinfo.name, QVariant::Int);
+        addField(qinfo.name, QMetaType::Int);
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

@@ -104,8 +104,8 @@ void initializeFrs(TaskFactory& factory)
 Frs::Frs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FRS_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(COMMENTS, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addField(COMMENTS, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

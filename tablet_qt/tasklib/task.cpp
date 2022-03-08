@@ -78,26 +78,26 @@ Task::Task(CamcopsApp& app,
     // here; its vtable is incomplete.
     // http://stackoverflow.com/questions/6561429/calling-virtual-function-of-derived-class-from-base-class-constructor
 
-    addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QVariant::Bool);
-    addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QVariant::Bool);
-    addField(WHEN_FIRSTEXIT_FIELDNAME, QVariant::DateTime);
-    addField(Field(EDITING_TIME_S_FIELDNAME, QVariant::Double)
+    addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QMetaType::Bool);
+    addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QMetaType::Bool);
+    addField(WHEN_FIRSTEXIT_FIELDNAME, QMetaType::QDateTime);
+    addField(Field(EDITING_TIME_S_FIELDNAME, QMetaType::Double)
              .setCppDefaultValue(0.0));
 
     if (!is_anonymous) {
-        addField(PATIENT_FK_FIELDNAME, QVariant::Int);
+        addField(PATIENT_FK_FIELDNAME, QMetaType::Int);
     }
     if (has_clinician) {
-        addField(CLINICIAN_SPECIALTY, QVariant::String);
-        addField(CLINICIAN_NAME, QVariant::String);
-        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String);
-        addField(CLINICIAN_POST, QVariant::String);
-        addField(CLINICIAN_SERVICE, QVariant::String);
-        addField(CLINICIAN_CONTACT_DETAILS, QVariant::String);
+        addField(CLINICIAN_SPECIALTY, QMetaType::QString);
+        addField(CLINICIAN_NAME, QMetaType::QString);
+        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::QString);
+        addField(CLINICIAN_POST, QMetaType::QString);
+        addField(CLINICIAN_SERVICE, QMetaType::QString);
+        addField(CLINICIAN_CONTACT_DETAILS, QMetaType::QString);
     }
     if (has_respondent) {
-        addField(RESPONDENT_NAME, QVariant::String);
-        addField(RESPONDENT_RELATIONSHIP, QVariant::String);
+        addField(RESPONDENT_NAME, QMetaType::QString);
+        addField(RESPONDENT_RELATIONSHIP, QMetaType::QString);
     }
 
     connect(this, &DatabaseObject::dataChanged,

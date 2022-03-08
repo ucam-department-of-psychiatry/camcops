@@ -70,7 +70,7 @@ Suppsp::Suppsp(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SUPPSP_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

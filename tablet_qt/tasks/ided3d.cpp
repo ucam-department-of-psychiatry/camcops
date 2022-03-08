@@ -234,26 +234,26 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_LAST_STAGE, QVariant::Int);
-    addField(FN_MAX_TRIALS_PER_STAGE, QVariant::Int);
-    addField(FN_PROGRESS_CRITERION_X, QVariant::Int);
-    addField(FN_PROGRESS_CRITERION_Y, QVariant::Int);
-    addField(FN_MIN_NUMBER, QVariant::Int);
-    addField(FN_MAX_NUMBER, QVariant::Int);
-    addField(FN_PAUSE_AFTER_BEEP_MS, QVariant::Int);
-    addField(FN_ITI_MS, QVariant::Int);
-    addField(FN_COUNTERBALANCE_DIMENSIONS, QVariant::Int);
-    addField(FN_VOLUME, QVariant::Double);
-    addField(FN_OFFER_ABORT, QVariant::Bool);
-    addField(FN_DEBUG_DISPLAY_STIMULI_ONLY, QVariant::Bool);
-    addField(FN_SHAPE_DEFINITIONS_SVG, QVariant::String);
-    addField(FN_COLOUR_DEFINITIONS_RGB, QVariant::String);
+    addField(FN_LAST_STAGE, QMetaType::Int);
+    addField(FN_MAX_TRIALS_PER_STAGE, QMetaType::Int);
+    addField(FN_PROGRESS_CRITERION_X, QMetaType::Int);
+    addField(FN_PROGRESS_CRITERION_Y, QMetaType::Int);
+    addField(FN_MIN_NUMBER, QMetaType::Int);
+    addField(FN_MAX_NUMBER, QMetaType::Int);
+    addField(FN_PAUSE_AFTER_BEEP_MS, QMetaType::Int);
+    addField(FN_ITI_MS, QMetaType::Int);
+    addField(FN_COUNTERBALANCE_DIMENSIONS, QMetaType::Int);
+    addField(FN_VOLUME, QMetaType::Double);
+    addField(FN_OFFER_ABORT, QMetaType::Bool);
+    addField(FN_DEBUG_DISPLAY_STIMULI_ONLY, QMetaType::Bool);
+    addField(FN_SHAPE_DEFINITIONS_SVG, QMetaType::QString);
+    addField(FN_COLOUR_DEFINITIONS_RGB, QMetaType::QString);
     // Results
-    addField(FN_ABORTED, QVariant::Bool);
+    addField(FN_ABORTED, QMetaType::Bool);
     getField(FN_ABORTED).setCppDefaultValue(false);
-    addField(FN_FINISHED, QVariant::Bool);
+    addField(FN_FINISHED, QMetaType::Bool);
     getField(FN_FINISHED).setCppDefaultValue(false);
-    addField(FN_LAST_TRIAL_COMPLETED, QVariant::Int);
+    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::Int);
 
     load(load_pk);
 

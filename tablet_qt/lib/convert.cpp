@@ -32,6 +32,7 @@
 #include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMetaType>
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
@@ -208,55 +209,55 @@ QString toSqlLiteral(const QVariant& value)
     if (value.isNull()) {
         return NULL_STR;
     }
-    const QVariant::Type variant_type = value.type();
+    const int variant_type = value.typeId();
     switch (variant_type) {
     // Integer types
-    case QVariant::Int:
+    case QMetaType::Int:
         return QString("%1").arg(value.toInt());
-    case QVariant::LongLong:
+    case QMetaType::LongLong:
         return QString("%1").arg(value.toLongLong());
-    case QVariant::UInt:
+    case QMetaType::UInt:
         return QString("%1").arg(value.toUInt());
-    case QVariant::ULongLong:
+    case QMetaType::ULongLong:
         return QString("%1").arg(value.toULongLong());
 
     // Boolean
-    case QVariant::Bool:
+    case QMetaType::Bool:
         return QString("%1").arg(value.toInt());  // boolean to integer
 
     // Floating-point:
-    case QVariant::Double:
+    case QMetaType::Double:
         return QString("%1").arg(value.toDouble());
 
     // String
-    case QVariant::Char:
-    case QVariant::String:
+    case QMetaType::Char:
+    case QMetaType::QString:
         return sqlQuoteString(escapeNewlines(value.toString()));
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         return sqlQuoteString(qStringListToCsvString(value.toStringList()));
 
     // Dates, times
-    case QVariant::Date:
+    case QMetaType::QDate:
         return value.toDate().toString("'yyyy-MM-dd'");
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         return QString("'%1'").arg(datetime::datetimeToIsoMs(value.toDateTime()));
-    case QVariant::Time:
+    case QMetaType::QTime:
         return value.toTime().toString("'HH:mm:ss'");
 
     // BLOB types
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         // Base 64 is more efficient for network transmission than hex.
         return blobToQuotedBase64(value.toByteArray());
 
     // Other
-    case QVariant::Invalid:
+    case QMetaType::UnknownType:
         uifunc::stopApp("toSqlLiteral: Invalid field type");
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
 
-    case QVariant::UserType:
+    case QMetaType::User:
         if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
@@ -676,30 +677,30 @@ QString toDp(double x, int dp)
 
 
 QString prettyValue(const QVariant& variant,
-                    const int dp, const QVariant::Type type)
+                    const int dp, const QMetaType type)
 {
     if (variant.isNull()) {
         return NULL_STR;
     }
-    switch (type) {
-    case QVariant::ByteArray:
+    switch (type.id()) {
+    case QMetaType::QByteArray:
         return "<binary>";
-    case QVariant::Date:
+    case QMetaType::QDate:
         return datetime::dateToIso(variant.toDate());
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         return datetime::datetimeToIsoMs(variant.toDateTime());
-    case QVariant::Double:
+    case QMetaType::Double:
         if (dp < 0) {
             return variant.toString();
         }
         return toDp(variant.toDouble(), dp);
-    case QVariant::String:
+    case QMetaType::QString:
         {
             QString escaped = variant.toString().toHtmlEscaped();
             stringfunc::toHtmlLinebreaks(escaped, false);
             return escaped;
         }
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         {
             QStringList raw = variant.toStringList();
             QStringList escaped;
@@ -710,7 +711,7 @@ QString prettyValue(const QVariant& variant,
             }
             return escaped.join(",");
         }
-    case QVariant::UserType:
+    case QMetaType::User:
         if (isQVariantOfUserType(variant, TYPENAME_QVECTOR_INT)) {
             QVector<int> intvec = qVariantToIntVector(variant);
             return numericVectorToCsvString(intvec);
@@ -727,7 +728,7 @@ QString prettyValue(const QVariant& variant,
 
 QString prettyValue(const QVariant& variant, const int dp)
 {
-    return prettyValue(variant, dp, variant.type());
+    return prettyValue(variant, dp, variant.metaType());
 }
 
 

@@ -136,17 +136,17 @@ Icd10Schizophrenia::Icd10Schizophrenia(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ICD10SZ_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(A_NAMES, QVariant::Bool);
-    addFields(B_NAMES, QVariant::Bool);
-    addFields(C_NAMES, QVariant::Bool);
-    addFields(D_NAMES, QVariant::Bool);
-    addFields(E_NAMES, QVariant::Bool);
-    addFields(F_NAMES, QVariant::Bool);
-    addFields(G_NAMES, QVariant::Bool);
-    addFields(H_NAMES, QVariant::Bool);
+    addFields(A_NAMES, QMetaType::Bool);
+    addFields(B_NAMES, QMetaType::Bool);
+    addFields(C_NAMES, QMetaType::Bool);
+    addFields(D_NAMES, QMetaType::Bool);
+    addFields(E_NAMES, QMetaType::Bool);
+    addFields(F_NAMES, QMetaType::Bool);
+    addFields(G_NAMES, QMetaType::Bool);
+    addFields(H_NAMES, QMetaType::Bool);
 
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
+    addField(DATE_PERTAINS_TO, QMetaType::QDate);
+    addField(COMMENTS, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

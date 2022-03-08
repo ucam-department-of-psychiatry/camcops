@@ -63,7 +63,7 @@ Shaps::Shaps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SHAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(fieldNames(), QVariant::Int);
+    addFields(fieldNames(), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

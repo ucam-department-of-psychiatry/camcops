@@ -50,14 +50,14 @@ KhandakerMojoTherapyItem::KhandakerMojoTherapyItem(
                    true,  // has_move_off_tablet_field
                    true)  // triggers_need_upload
 {
-    addField(FN_FK_NAME, QVariant::Int);
-    addField(FN_SEQNUM, QVariant::Int);
-    addField(FN_THERAPY, QVariant::String);
-    addField(FN_FREQUENCY, QVariant::String);
-    addField(FN_SESSIONS_COMPLETED, QVariant::Int);
-    addField(FN_SESSIONS_PLANNED, QVariant::Int);
-    addField(FN_INDICATION, QVariant::String);
-    addField(FN_RESPONSE, QVariant::Int);
+    addField(FN_FK_NAME, QMetaType::Int);
+    addField(FN_SEQNUM, QMetaType::Int);
+    addField(FN_THERAPY, QMetaType::QString);
+    addField(FN_FREQUENCY, QMetaType::QString);
+    addField(FN_SESSIONS_COMPLETED, QMetaType::Int);
+    addField(FN_SESSIONS_PLANNED, QMetaType::Int);
+    addField(FN_INDICATION, QMetaType::QString);
+    addField(FN_RESPONSE, QMetaType::Int);
 
     load(load_pk);
 }

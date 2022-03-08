@@ -63,10 +63,10 @@ Asdas::Asdas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ASDAS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QMetaType::Int);
 
-    addField(Q_CRP, QVariant::Double);
-    addField(Q_ESR, QVariant::Double);
+    addField(Q_CRP, QMetaType::Double);
+    addField(Q_ESR, QMetaType::Double);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

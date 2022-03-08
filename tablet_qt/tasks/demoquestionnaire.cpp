@@ -90,33 +90,33 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
 {
     using stringfunc::strseq;
 
-    addFields(strseq("mcq", 1, 10), QVariant::Int);  // 9-10: v2
-    addFields(strseq("mcqbool", 1, 3), QVariant::Bool);
-    addFields(strseq("multipleresponse", 1, 6), QVariant::Bool);
-    addFields(strseq("booltext", 1, 22), QVariant::Bool);
-    addFields(strseq("boolimage", 1, 2), QVariant::Bool);
-    addFields(strseq("slider", 1, 2), QVariant::Double);
-    addFields(strseq("picker", 1, 2), QVariant::Int);
-    addFields(strseq("mcqtext_", 1, 3, {"a", "b"}), QVariant::String);
-    addField("typedvar_text", QVariant::String);
-    addField("typedvar_text_multiline", QVariant::String);
-    addField("typedvar_text_rich", QVariant::String);  // v2
-    addField("typedvar_int", QVariant::Int);
-    addField("typedvar_real", QVariant::Double);
-    addField("spinbox_int", QVariant::Int);  // v2
-    addField("spinbox_real", QVariant::Double);  // v2
-    addField("date_time", QVariant::DateTime);
-    addField("date_only", QVariant::Date);
-    addField("time_only", QVariant::Time);  // v2
-    addField("thermometer", QVariant::Int);
-    addField("diagnosticcode_code", QVariant::String);
-    addField("diagnosticcode_description", QVariant::String);
-    addField("diagnosticcode2_code", QVariant::String);  // v2
-    addField("diagnosticcode2_description", QVariant::String);  // v2
-    addField("photo_blobid", QVariant::Int);  // FK to BLOB table
-    // addField("photo_rotation", QVariant::String);  // DEFUNCT in v2
-    addField("canvas_blobid", QVariant::Int);  // FK to BLOB table
-    addField("canvas2_blobid", QVariant::Int);  // FK to BLOB table; v2
+    addFields(strseq("mcq", 1, 10), QMetaType::Int);  // 9-10: v2
+    addFields(strseq("mcqbool", 1, 3), QMetaType::Bool);
+    addFields(strseq("multipleresponse", 1, 6), QMetaType::Bool);
+    addFields(strseq("booltext", 1, 22), QMetaType::Bool);
+    addFields(strseq("boolimage", 1, 2), QMetaType::Bool);
+    addFields(strseq("slider", 1, 2), QMetaType::Double);
+    addFields(strseq("picker", 1, 2), QMetaType::Int);
+    addFields(strseq("mcqtext_", 1, 3, {"a", "b"}), QMetaType::QString);
+    addField("typedvar_text", QMetaType::QString);
+    addField("typedvar_text_multiline", QMetaType::QString);
+    addField("typedvar_text_rich", QMetaType::QString);  // v2
+    addField("typedvar_int", QMetaType::Int);
+    addField("typedvar_real", QMetaType::Double);
+    addField("spinbox_int", QMetaType::Int);  // v2
+    addField("spinbox_real", QMetaType::Double);  // v2
+    addField("date_time", QMetaType::QDateTime);
+    addField("date_only", QMetaType::QDate);
+    addField("time_only", QMetaType::QTime);  // v2
+    addField("thermometer", QMetaType::Int);
+    addField("diagnosticcode_code", QMetaType::QString);
+    addField("diagnosticcode_description", QMetaType::QString);
+    addField("diagnosticcode2_code", QMetaType::QString);  // v2
+    addField("diagnosticcode2_description", QMetaType::QString);  // v2
+    addField("photo_blobid", QMetaType::Int);  // FK to BLOB table
+    // addField("photo_rotation", QMetaType::QString);  // DEFUNCT in v2
+    addField("canvas_blobid", QMetaType::Int);  // FK to BLOB table
+    addField("canvas2_blobid", QMetaType::Int);  // FK to BLOB table; v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

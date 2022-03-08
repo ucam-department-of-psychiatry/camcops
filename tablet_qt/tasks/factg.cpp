@@ -97,22 +97,22 @@ Factg::Factg(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_in_tickbox_change(false)
 {
     for (auto field : strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL)) {
-        addField(field, QVariant::Int);
+        addField(field, QMetaType::Int);
     }
 
     for (auto field : strseq(PREFIX_SOCIAL, FIRST_Q, LAST_Q_SOCIAL)) {
-        addField(field, QVariant::Int);
+        addField(field, QMetaType::Int);
     }
 
     for (auto field : strseq(PREFIX_EMOTIONAL, FIRST_Q, LAST_Q_EMOTIONAL)) {
-        addField(field, QVariant::Int);
+        addField(field, QMetaType::Int);
     }
 
     for (auto field : strseq(PREFIX_FUNCTIONAL, FIRST_Q, LAST_Q_FUNCTIONAL)) {
-        addField(field, QVariant::Int);
+        addField(field, QMetaType::Int);
     }
 
-    addField(IGNORE_SOCIAL_Q7, QVariant::Bool);
+    addField(IGNORE_SOCIAL_Q7, QMetaType::Bool);
 
     if (load_pk == dbconst::NONEXISTENT_PK) {
         setValue(IGNORE_SOCIAL_Q7, false, false);

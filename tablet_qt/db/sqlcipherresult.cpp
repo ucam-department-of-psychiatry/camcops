@@ -62,6 +62,7 @@
 #include "sqlcipherresult.h"
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QMetaType>
 #include <QSqlDriver>
 #include <QSqlField>
 #include "common/preprocessor_aid.h"
@@ -141,7 +142,7 @@ void SQLCipherResult::initColumns(const bool emptyResultset)
         // sqlite3_column_type is documented to have undefined behavior if the result set is empty
         int stp = emptyResultset ? -1 : sqlite3_column_type(m_stmt, i);
 
-        QVariant::Type field_type;
+        QMetaType::Type field_type;
 
         if (!type_name.isEmpty()) {
             field_type = qGetColumnType(type_name);
@@ -149,25 +150,25 @@ void SQLCipherResult::initColumns(const bool emptyResultset)
             // Get the proper type for the field based on stp value
             switch (stp) {
             case SQLITE_INTEGER:
-                field_type = QVariant::Int;
+                field_type = QMetaType::Int;
                 break;
             case SQLITE_FLOAT:
-                field_type = QVariant::Double;
+                field_type = QMetaType::Double;
                 break;
             case SQLITE_BLOB:
-                field_type = QVariant::ByteArray;
+                field_type = QMetaType::QByteArray;
                 break;
             case SQLITE_TEXT:
-                field_type = QVariant::String;
+                field_type = QMetaType::QString;
                 break;
             case SQLITE_NULL:
             default:
-                field_type = QVariant::Invalid;
+                field_type = QMetaType::UnknownType;
                 break;
             }
         }
 
-        QSqlField fld(col_name, field_type);
+        QSqlField fld(col_name, QMetaType(field_type));
         fld.setSqlType(stp);
         m_r_inf.append(fld);
     }
@@ -244,7 +245,7 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
                 };
                 break;
             case SQLITE_NULL:
-                values[i + idx] = QVariant(QVariant::String);
+                values[i + idx] = QVariant(QMetaType(QMetaType::QString));
                 break;
             default:
                 values[i + idx] = QString(reinterpret_cast<const QChar*>(
@@ -415,26 +416,26 @@ bool SQLCipherResult::exec()
             if (value.isNull()) {
                 res = sqlite3_bind_null(m_stmt, i + 1);
             } else {
-                switch (value.type()) {
-                case QVariant::ByteArray:
+                switch (value.typeId()) {
+                case QMetaType::QByteArray:
                 {
                     auto ba = static_cast<const QByteArray*>(value.constData());
                     res = sqlite3_bind_blob(m_stmt, i + 1, ba->constData(),
                                             ba->size(), SQLITE_STATIC);
                     break;
                 }
-                case QVariant::Int:
-                case QVariant::Bool:
+                case QMetaType::Int:
+                case QMetaType::Bool:
                     res = sqlite3_bind_int(m_stmt, i + 1, value.toInt());
                     break;
-                case QVariant::Double:
+                case QMetaType::Double:
                     res = sqlite3_bind_double(m_stmt, i + 1, value.toDouble());
                     break;
-                case QVariant::UInt:
-                case QVariant::LongLong:
+                case QMetaType::UInt:
+                case QMetaType::LongLong:
                     res = sqlite3_bind_int64(m_stmt, i + 1, value.toLongLong());
                     break;
-                case QVariant::DateTime:
+                case QMetaType::QDateTime:
                 {
                     const QDateTime dateTime = value.toDateTime();
                     const QString str = dateTime.toString(QStringLiteral("yyyy-MM-ddThh:mm:ss.zzz"));
@@ -442,7 +443,7 @@ bool SQLCipherResult::exec()
                                               str.size() * sizeof(ushort), SQLITE_TRANSIENT);
                     break;
                 }
-                case QVariant::Time:
+                case QMetaType::QTime:
                 {
                     const QTime time = value.toTime();
                     const QString str = time.toString(QStringLiteral("hh:mm:ss.zzz"));
@@ -450,7 +451,7 @@ bool SQLCipherResult::exec()
                                               str.size() * sizeof(ushort), SQLITE_TRANSIENT);
                     break;
                 }
-                case QVariant::String:
+                case QMetaType::QString:
                 {
                     // lifetime of string == lifetime of its qvariant
                     auto str = static_cast<const QString*>(value.constData());

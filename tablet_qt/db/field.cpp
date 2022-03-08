@@ -32,7 +32,7 @@ const QString SQLITE_TYPE_TEXT("TEXT");
 
 
 Field::Field(const QString& name,
-             const QVariant::Type type,
+             const QMetaType::Type type,
              const bool mandatory,
              const bool unique,
              const bool pk,
@@ -59,7 +59,7 @@ Field::Field(const QString& name,
              const QVariant& cpp_default_value,
              const QVariant& db_default_value) :
     m_name(name),
-    m_type(QVariant::UserType),
+    m_type(QMetaType::User),
     m_type_name(type_name),
     m_pk(pk),
     m_unique(unique || pk),
@@ -73,7 +73,7 @@ Field::Field(const QString& name,
 
 
 Field::Field() :  // needed by QMap
-    Field("", QVariant::Int)  // delegating constructor (C++11)
+    Field("", QMetaType::Int)  // delegating constructor (C++11)
 {
 }
 
@@ -81,7 +81,7 @@ Field::Field() :  // needed by QMap
 Field& Field::setCppDefaultValue(const QVariant& value)
 {
     m_cpp_default_value = value;
-    m_cpp_default_value.convert(m_type);
+    m_cpp_default_value.convert(QMetaType(m_type));
     if (!m_set) {
         m_value = m_cpp_default_value;
     }
@@ -92,7 +92,7 @@ Field& Field::setCppDefaultValue(const QVariant& value)
 Field& Field::setDbDefaultValue(const QVariant& value)
 {
     m_db_default_value = value;
-    m_db_default_value.convert(m_type);
+    m_db_default_value.convert(QMetaType(m_type));
     return *this;
 }
 
@@ -138,7 +138,7 @@ QString Field::name() const
 }
 
 
-QVariant::Type Field::type() const
+QMetaType::Type Field::type() const
 {
     return m_type;
 }
@@ -211,12 +211,12 @@ bool Field::setValue(const QVariant& value)
         m_dirty = true;
     }
     m_value = value;
-    if (!m_value.isNull() && m_type != QVariant::UserType) {
+    if (!m_value.isNull() && m_type != QMetaType::User) {
         // Don't try to convert NULL values; needless warning.
         // Don't try to convert user type; it'll go wrong.
-        const bool converted = m_value.convert(m_type);
+        const bool converted = m_value.convert(QMetaType(m_type));
         if (!converted) {
-            if (m_type == QVariant::Char) {
+            if (m_type == QMetaType::Char) {
                 // Deal with special oddities, e.g. failure to convert
                 // a QVariant of type QString to one of type QChar.
                 m_value = convert::toQCharVariant(value);
@@ -236,7 +236,7 @@ bool Field::nullify()
     if (!m_set || !isNull()) {
         m_dirty = true;
     }
-    m_value = QVariant(m_type);
+    m_value = QVariant(QMetaType(m_type));
     m_set = true;
     return m_dirty;
 }
@@ -269,7 +269,7 @@ void Field::clearDirty()
 QDebug operator<<(QDebug debug, const Field& f)
 {
     if (f.m_value.isNull()) {
-        debug.nospace() << "NULL (" << QVariant::typeToName(f.m_type) << ")";
+        debug.nospace() << "NULL (" << QMetaType(f.m_type).name() << ")";
     } else {
         debug.nospace() << f.m_value;
     }
@@ -300,29 +300,29 @@ QString Field::sqlColumnType() const
     // C++ type name: QVariant::typeToName(m_type);
     switch (m_type) {
 
-    case QVariant::Bool:
-    case QVariant::Int:  // normally 32-bit
-    case QVariant::LongLong:  // 64-bit
-    case QVariant::UInt:  // normally 32-bit
-    case QVariant::ULongLong:  // 64-bit
+    case QMetaType::Bool:
+    case QMetaType::Int:  // normally 32-bit
+    case QMetaType::LongLong:  // 64-bit
+    case QMetaType::UInt:  // normally 32-bit
+    case QMetaType::ULongLong:  // 64-bit
         return SQLITE_TYPE_INTEGER;
 
-    case QVariant::Double:
+    case QMetaType::Double:
         return SQLITE_TYPE_REAL;
 
-    case QVariant::Char:
-    case QVariant::Date:
-    case QVariant::DateTime:
-    case QVariant::String:
-    case QVariant::StringList:
-    case QVariant::Time:
-    case QVariant::Uuid:
+    case QMetaType::Char:
+    case QMetaType::QDate:
+    case QMetaType::QDateTime:
+    case QMetaType::QString:
+    case QMetaType::QStringList:
+    case QMetaType::QTime:
+    case QMetaType::QUuid:
         return SQLITE_TYPE_TEXT;
 
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         return SQLITE_TYPE_BLOB;
 
-    case QVariant::UserType:
+    case QMetaType::User:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return SQLITE_TYPE_TEXT;
         }
@@ -345,21 +345,21 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
 {
     // SQLite -> C++
     switch (m_type) {
-    case QVariant::Char:
+    case QMetaType::Char:
         // If you just do "m_value = db_value", it will become an invalid
         // value when the convert() call is made below, so will appear as NULL.
         m_value = convert::toQCharVariant(db_value);
         break;
-    case QVariant::Date:
+    case QMetaType::QDate:
         m_value = QVariant(datetime::isoToDate(db_value.toString()));
         break;
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
         break;
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         m_value = QVariant(convert::csvStringToQStringList(db_value.toString()));
         break;
-    case QVariant::UserType:
+    case QMetaType::User:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(
                                  db_value.toString()));
@@ -373,8 +373,8 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         m_value = db_value;
         break;
     }
-    if (m_type != QVariant::UserType) {
-        m_value.convert(m_type);
+    if (m_type != QMetaType::User) {
+        m_value.convert(QMetaType(m_type));
     }
     m_dirty = false;
 }
@@ -387,15 +387,15 @@ QVariant Field::databaseValue() const
         return m_value;  // NULL
     }
     switch (m_type) {
-    case QVariant::Char:
+    case QMetaType::Char:
         return m_value.toString();
-    case QVariant::Date:
+    case QMetaType::QDate:
         return QVariant(datetime::dateToIso(m_value.toDate()));
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         return convert::qStringListToCsvString(m_value.toStringList());
-    case QVariant::UserType:
+    case QMetaType::User:
         if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
             return convert::numericVectorToCsvString(
                         convert::qVariantToIntVector(m_value));
@@ -404,7 +404,7 @@ QVariant Field::databaseValue() const
             return Version::fromVariant(m_value).toString();
         }
         break;
-    case QVariant::Uuid:
+    case QMetaType::QUuid:
         return m_value.toString();
         // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
         // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit

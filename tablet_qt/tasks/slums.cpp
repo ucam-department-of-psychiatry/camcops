@@ -114,12 +114,12 @@ void initializeSlums(TaskFactory& factory)
 Slums::Slums(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SLUMS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(ALERT, QVariant::Int);
-    addField(HIGHSCHOOLEDUCATION, QVariant::Int);
-    addFields(QLIST, QVariant::Int);
-    addField(CLOCKPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(SHAPESPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(COMMENTS, QVariant::String);
+    addField(ALERT, QMetaType::Int);
+    addField(HIGHSCHOOLEDUCATION, QMetaType::Int);
+    addFields(QLIST, QMetaType::Int);
+    addField(CLOCKPICTURE_BLOBID, QMetaType::Int);  // FK to BLOB table
+    addField(SHAPESPICTURE_BLOBID, QMetaType::Int);  // FK to BLOB table
+    addField(COMMENTS, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

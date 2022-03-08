@@ -52,14 +52,14 @@ IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db,
     m_incorrect_stimulus_can_overlap(false),
     m_n_possible_locations(0)
 {
-    addField(FN_FK_TO_TASK, QVariant::Int);
+    addField(FN_FK_TO_TASK, QMetaType::Int);
     // More keys
-    addField(FN_STAGE, QVariant::Int, true);  // 1-based stage number within this session
+    addField(FN_STAGE, QMetaType::Int, true);  // 1-based stage number within this session
     // Config
-    addField(FN_STAGE_NAME, QVariant::String);
-    addField(FN_RELEVANT_DIMENSION, QVariant::String);
-    addField(FN_CORRECT_EXEMPLAR, QVariant::Int);  // was string prior to 2.0.0
-    addField(FN_INCORRECT_EXEMPLAR, QVariant::Int);  // was string prior to 2.0.0
+    addField(FN_STAGE_NAME, QMetaType::QString);
+    addField(FN_RELEVANT_DIMENSION, QMetaType::QString);
+    addField(FN_CORRECT_EXEMPLAR, QMetaType::Int);  // was string prior to 2.0.0
+    addField(FN_INCORRECT_EXEMPLAR, QMetaType::Int);  // was string prior to 2.0.0
     addField(FN_CORRECT_STIMULUS_SHAPES, convert::TYPENAME_QVECTOR_INT);
     addField(FN_CORRECT_STIMULUS_COLOURS, convert::TYPENAME_QVECTOR_INT);  // was string prior to 2.0.0
     addField(FN_CORRECT_STIMULUS_NUMBERS, convert::TYPENAME_QVECTOR_INT);
@@ -67,12 +67,12 @@ IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db,
     addField(FN_INCORRECT_STIMULUS_COLOURS, convert::TYPENAME_QVECTOR_INT);  // was string prior to 2.0.0
     addField(FN_INCORRECT_STIMULUS_NUMBERS, convert::TYPENAME_QVECTOR_INT);
     // Results
-    addField(FN_FIRST_TRIAL_NUM, QVariant::Int);  // 1-based
-    addField(FN_N_COMPLETED_TRIALS, QVariant::Int);
-    addField(FN_N_CORRECT, QVariant::Int);
-    addField(FN_N_INCORRECT, QVariant::Int);
-    addField(FN_STAGE_PASSED, QVariant::Bool);
-    addField(FN_STAGE_FAILED, QVariant::Bool);
+    addField(FN_FIRST_TRIAL_NUM, QMetaType::Int);  // 1-based
+    addField(FN_N_COMPLETED_TRIALS, QMetaType::Int);
+    addField(FN_N_CORRECT, QMetaType::Int);
+    addField(FN_N_INCORRECT, QMetaType::Int);
+    addField(FN_STAGE_PASSED, QMetaType::Bool);
+    addField(FN_STAGE_FAILED, QMetaType::Bool);
 
     load(load_pk);
 }

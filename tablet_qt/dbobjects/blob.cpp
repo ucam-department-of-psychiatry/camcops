@@ -54,14 +54,14 @@ Blob::Blob(CamcopsApp& app,
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(SRC_TABLE_FIELDNAME, QVariant::String, true);
-    addField(SRC_PK_FIELDNAME, QVariant::Int, true);
-    addField(SRC_FIELD_FIELDNAME, QVariant::String, true);
-    addField(FILENAME_FIELDNAME, QVariant::String);
-    addField(MIMETYPE_FIELDNAME, QVariant::String);
+    addField(SRC_TABLE_FIELDNAME, QMetaType::QString, true);
+    addField(SRC_PK_FIELDNAME, QMetaType::Int, true);
+    addField(SRC_FIELD_FIELDNAME, QMetaType::QString, true);
+    addField(FILENAME_FIELDNAME, QMetaType::QString);
+    addField(MIMETYPE_FIELDNAME, QMetaType::QString);
     // ... maximum length 255; https://stackoverflow.com/questions/643690
-    addField(BLOB_FIELDNAME, QVariant::ByteArray);
-    addField(ROTATION_FIELDNAME, QVariant::Int);
+    addField(BLOB_FIELDNAME, QMetaType::QByteArray);
+    addField(ROTATION_FIELDNAME, QMetaType::Int);
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen

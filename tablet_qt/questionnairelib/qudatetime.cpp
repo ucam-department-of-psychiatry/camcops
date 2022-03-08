@@ -392,15 +392,15 @@ void QuDateTime::setField(const QDateTime& datetime,
     switch (m_mode) {
     case DefaultDateTime:
     case CustomDateTime:
-        newvalue.convert(QVariant::DateTime);
+        newvalue.convert(QMetaType::QDateTime);
         break;
     case DefaultDate:
     case CustomDate:
-        newvalue.convert(QVariant::Date);
+        newvalue.convert(QMetaType::QDate);
         break;
     case DefaultTime:
     case CustomTime:
-        newvalue.convert(QVariant::Time);
+        newvalue.convert(QMetaType::QTime);
         break;
     }
     const bool changed = m_fieldref->setValue(newvalue,

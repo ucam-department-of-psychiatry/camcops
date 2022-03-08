@@ -127,26 +127,26 @@ CardinalExpDetThreshold::CardinalExpDetThreshold(
     Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_MODALITY, QVariant::Int);
-    addField(FN_TARGET_NUMBER, QVariant::Int);
-    addField(FN_BACKGROUND_FILENAME, QVariant::String);  // set automatically
-    addField(FN_TARGET_FILENAME, QVariant::String);  // set automatically
-    addField(FN_VISUAL_TARGET_DURATION_S, QVariant::Double);
-    addField(FN_BACKGROUND_INTENSITY, QVariant::Double);
-    addField(FN_START_INTENSITY_MIN, QVariant::Double);
-    addField(FN_START_INTENSITY_MAX, QVariant::Double);
-    addField(FN_INITIAL_LARGE_INTENSITY_STEP, QVariant::Double);
-    addField(FN_MAIN_SMALL_INTENSITY_STEP, QVariant::Double);
-    addField(FN_NUM_TRIALS_IN_MAIN_SEQUENCE, QVariant::Int);
-    addField(FN_P_CATCH_TRIAL, QVariant::Double);
-    addField(FN_PROMPT, QVariant::String);
-    addField(FN_ITI_S, QVariant::Double);
+    addField(FN_MODALITY, QMetaType::Int);
+    addField(FN_TARGET_NUMBER, QMetaType::Int);
+    addField(FN_BACKGROUND_FILENAME, QMetaType::QString);  // set automatically
+    addField(FN_TARGET_FILENAME, QMetaType::QString);  // set automatically
+    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::Double);
+    addField(FN_BACKGROUND_INTENSITY, QMetaType::Double);
+    addField(FN_START_INTENSITY_MIN, QMetaType::Double);
+    addField(FN_START_INTENSITY_MAX, QMetaType::Double);
+    addField(FN_INITIAL_LARGE_INTENSITY_STEP, QMetaType::Double);
+    addField(FN_MAIN_SMALL_INTENSITY_STEP, QMetaType::Double);
+    addField(FN_NUM_TRIALS_IN_MAIN_SEQUENCE, QMetaType::Int);
+    addField(FN_P_CATCH_TRIAL, QMetaType::Double);
+    addField(FN_PROMPT, QMetaType::QString);
+    addField(FN_ITI_S, QMetaType::Double);
     // Results
-    addField(FN_FINISHED, QVariant::Bool);
-    addField(FN_INTERCEPT, QVariant::Double);
-    addField(FN_SLOPE, QVariant::Double);
-    addField(FN_K, QVariant::Double);
-    addField(FN_THETA, QVariant::Double);
+    addField(FN_FINISHED, QMetaType::Bool);
+    addField(FN_INTERCEPT, QMetaType::Double);
+    addField(FN_SLOPE, QMetaType::Double);
+    addField(FN_K, QMetaType::Double);
+    addField(FN_THETA, QMetaType::Double);
 
     load(load_pk);
 

@@ -57,12 +57,12 @@ void initializeCiwa(TaskFactory& factory)
 Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CIWA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QVariant::Int);
-    addField(T, QVariant::Double);  // previously int, which was wrong (is temp in degrees C)
-    addField(HR, QVariant::Int);
-    addField(SBP, QVariant::Int);
-    addField(DBP, QVariant::Int);
-    addField(RR, QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QMetaType::Int);
+    addField(T, QMetaType::Double);  // previously int, which was wrong (is temp in degrees C)
+    addField(HR, QMetaType::Int);
+    addField(SBP, QMetaType::Int);
+    addField(DBP, QMetaType::Int);
+    addField(RR, QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

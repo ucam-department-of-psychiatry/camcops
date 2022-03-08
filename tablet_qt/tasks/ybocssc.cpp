@@ -160,11 +160,11 @@ YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, YBOCSSC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
-        addField(item + SUFFIX_CURRENT, QVariant::Bool);
-        addField(item + SUFFIX_PAST, QVariant::Bool);
-        addField(item + SUFFIX_PRINCIPAL, QVariant::Bool);
+        addField(item + SUFFIX_CURRENT, QMetaType::Bool);
+        addField(item + SUFFIX_PAST, QMetaType::Bool);
+        addField(item + SUFFIX_PRINCIPAL, QMetaType::Bool);
         if (item.endsWith(SUFFIX_OTHER)) {
-            addField(item + SUFFIX_DETAIL, QVariant::String);
+            addField(item + SUFFIX_DETAIL, QMetaType::QString);
         }
     }
 

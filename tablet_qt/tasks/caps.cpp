@@ -62,10 +62,10 @@ Caps::Caps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(FN_INTRUSIVE_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addFields(strseq(FN_INTRUSIVE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

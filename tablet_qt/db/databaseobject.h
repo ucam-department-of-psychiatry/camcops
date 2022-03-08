@@ -22,6 +22,7 @@
 #include <QDate>
 #include <QDateTime>
 #include <QMap>
+#include <QMetaType>
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "common/aliases_qt.h"
@@ -103,7 +104,7 @@ public:
     //      value for fields that haven't been written to (or read from the
     //      database)
     void addField(const QString& fieldname,
-                  QVariant::Type type,
+                  QMetaType::Type type,
                   bool mandatory = false,
                   bool unique = false,
                   bool pk = false,
@@ -121,15 +122,15 @@ public:
     void addField(const Field& field);
 
     // Bulk field addition.
-    void addFields(const QStringList& fieldnames, QVariant::Type type,
+    void addFields(const QStringList& fieldnames, QMetaType::Type type,
                    bool mandatory = false);
 
     // Do we have the specified field?
     bool hasField(const QString& fieldname) const;
 
     // What's a field's type?
-    // (Returns QVariant::Type::Invalid for non-existent fields.)
-    QVariant::Type fieldType(const QString& fieldname) const;
+    // (Returns QMetaType::UnknownType for non-existent fields.)
+    QMetaType::Type fieldType(const QString& fieldname) const;
 
     // Return all fieldnames.
     QStringList fieldnames() const;

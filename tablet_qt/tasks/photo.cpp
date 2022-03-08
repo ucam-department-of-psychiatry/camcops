@@ -46,9 +46,9 @@ void initializePhoto(TaskFactory& factory)
 Photo::Photo(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHOTO_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(DESCRIPTION, QVariant::String);
-    addField(PHOTO_BLOBID, QVariant::Int);  // FK to BLOB table
-    // addField(ROTATION, QVariant::Int);  // DEFUNCT in v2
+    addField(DESCRIPTION, QMetaType::QString);
+    addField(PHOTO_BLOBID, QMetaType::Int);  // FK to BLOB table
+    // addField(ROTATION, QMetaType::Int);  // DEFUNCT in v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

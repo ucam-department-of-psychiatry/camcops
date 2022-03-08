@@ -53,7 +53,7 @@ TaskSchedule::TaskSchedule(CamcopsApp& app, DatabaseManager& db,
                    false,  // Has move off tablet field
                    false)  // Triggers need upload
 {
-    addField(FN_NAME, QVariant::String);
+    addField(FN_NAME, QMetaType::QString);
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen

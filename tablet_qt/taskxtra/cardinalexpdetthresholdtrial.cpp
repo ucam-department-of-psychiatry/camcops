@@ -46,21 +46,21 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
-    addField(FN_FK_TO_TASK, QVariant::Int);
-    addField(FN_TRIAL, QVariant::Int, true);  // trial number within this session, 0-based
+    addField(FN_FK_TO_TASK, QMetaType::Int);
+    addField(FN_TRIAL, QMetaType::Int, true);  // trial number within this session, 0-based
     // Results
-    addField(FN_TRIAL_IGNORING_CATCH_TRIALS, QVariant::Int);
-    addField(FN_TARGET_PRESENTED, QVariant::Bool);
-    addField(FN_TARGET_TIME, QVariant::DateTime);
-    addField(FN_INTENSITY, QVariant::Double);
-    addField(FN_CHOICE_TIME, QVariant::DateTime);
-    addField(FN_RESPONDED, QVariant::Bool);
-    addField(FN_RESPONSE_TIME, QVariant::DateTime);
-    addField(FN_RESPONSE_LATENCY_MS, QVariant::Int);
-    addField(FN_YES, QVariant::Bool);
-    addField(FN_NO, QVariant::Bool);
-    addField(FN_CAUGHT_OUT_RESET, QVariant::Bool);
-    addField(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, QVariant::Int);  // 0 or NULL for trials not used
+    addField(FN_TRIAL_IGNORING_CATCH_TRIALS, QMetaType::Int);
+    addField(FN_TARGET_PRESENTED, QMetaType::Bool);
+    addField(FN_TARGET_TIME, QMetaType::QDateTime);
+    addField(FN_INTENSITY, QMetaType::Double);
+    addField(FN_CHOICE_TIME, QMetaType::QDateTime);
+    addField(FN_RESPONDED, QMetaType::Bool);
+    addField(FN_RESPONSE_TIME, QMetaType::QDateTime);
+    addField(FN_RESPONSE_LATENCY_MS, QMetaType::Int);
+    addField(FN_YES, QMetaType::Bool);
+    addField(FN_NO, QMetaType::Bool);
+    addField(FN_CAUGHT_OUT_RESET, QMetaType::Bool);
+    addField(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, QMetaType::Int);  // 0 or NULL for trials not used
 
     load(load_pk);
 }

@@ -67,11 +67,11 @@ CopeBrief::CopeBrief(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     // There is a respondent, optionally, but the task handles this manually with more detail
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(COMPLETED_BY_PATIENT, QVariant::Bool);
-    addField(COMPLETED_BY, QVariant::String);
-    addField(RELATIONSHIP_TO_PATIENT, QVariant::Int);
-    addField(RELATIONSHIP_TO_PATIENT_OTHER, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addField(COMPLETED_BY_PATIENT, QMetaType::Bool);
+    addField(COMPLETED_BY, QMetaType::QString);
+    addField(RELATIONSHIP_TO_PATIENT, QMetaType::Int);
+    addField(RELATIONSHIP_TO_PATIENT_OTHER, QMetaType::QString);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
