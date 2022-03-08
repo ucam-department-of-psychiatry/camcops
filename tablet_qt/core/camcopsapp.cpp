@@ -700,7 +700,7 @@ void CamcopsApp::setLanguage(const QString& language_code,
         m_qt_translator = nullptr;
     }
     const QString qt_filename = QString("qt_%1.qm").arg(language_code);
-    const QString qt_directory = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    const QString qt_directory = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
     m_qt_translator = QSharedPointer<QTranslator>(new QTranslator());
     bool loaded = m_qt_translator->load(qt_filename, qt_directory);
     if (loaded) {
