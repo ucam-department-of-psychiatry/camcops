@@ -289,13 +289,12 @@ void Margins::removeMarginsFromInPlace(QRect& rect) const
 
 Margins Margins::getContentsMargins(const QWidget* widget)
 {
-    Margins m;
+    Margins ret;
     if (widget) {
-        int left, top, right, bottom;
-        widget->getContentsMargins(&left, &top, &right, &bottom);
-        m.set(left, top, right, bottom);
+        auto margins = widget->contentsMargins();
+        ret.set(margins.left(), margins.top(), margins.right(), margins.bottom());
     }
-    return m;
+    return ret;
 }
 
 

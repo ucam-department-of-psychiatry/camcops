@@ -584,7 +584,7 @@ ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scen
         label->setTextInteractionFlags(Qt::NoTextInteraction);
 
         auto layout = new QVBoxLayout();
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(label);
 
         result.button->setLayout(layout);

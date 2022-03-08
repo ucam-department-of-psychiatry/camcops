@@ -1760,7 +1760,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
                                                  gi.m_hfw_data[i].minimum_size);
 #endif
         }
-    
+
         for (int pass = 0; pass < 2; ++pass) {
             // Two passes used to calculate for items that cover >1 box.
             for (QQGridBox* box : m_things) {
@@ -1772,7 +1772,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
                         gi.m_col_data.at(c2).pos + gi.m_col_data.at(c2).size -
                         gi.m_col_data.at(c1).pos
                 );
-    
+
                 if (r1 == r2) {
                     if (pass == 0) {
                         addHfwData(gi, box, w);
