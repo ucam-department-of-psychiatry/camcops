@@ -44,7 +44,7 @@ bool DiagnosisSortFilterModel::filterAcceptsRow(
     }
 
     // Otherwise, if it matches our search criteria, we're good:
-    if (index.data().toString().contains(filterRegExp())) {
+    if (index.data().toString().contains(filterRegularExpression())) {
         return true;
     }
 
