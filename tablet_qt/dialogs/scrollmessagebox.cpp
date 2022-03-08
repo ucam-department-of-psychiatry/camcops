@@ -28,7 +28,6 @@
 #include "scrollmessagebox.h"
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QFontMetrics>
 #include <QGridLayout>
 #include <QLabel>
