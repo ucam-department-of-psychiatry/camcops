@@ -42,6 +42,7 @@
 #include <QNetworkReply>
 #include <QProcessEnvironment>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QScreen>
 #include <QSqlDatabase>
 #include <QSqlDriverCreator>
@@ -1375,7 +1376,10 @@ void CamcopsApp::seedRng()
     // ------------------------------------------------------------------------
     // QUuid may, if /dev/urandom does not exist, use qrand(). It won't use
     // OpenSSL or anything else. So we'd better make sure it's seeded first:
-    qsrand(QDateTime::currentMSecsSinceEpoch() & 0xffffffff);
+
+    // TODO: qsrand removed in Qt 6.2 and QUuid no longer appears to be using qrand()
+    // Is this still needed?
+    QRandomGenerator::system()->seed((QDateTime::currentMSecsSinceEpoch() & 0xffffffff));
     // QDateTime::currentMSecsSinceEpoch() -> qint64
     // qsrand wants uint (= uint32)
 }
