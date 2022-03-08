@@ -53,7 +53,7 @@ QString textfileContents(const QString& filename)
     qDebug() << "Reading file:" << filename;
 #endif
     QTextStream in(&file);
-    in.setCodec("UTF-8");
+    in.setEncoding(QStringConverter::Utf8);
     const QString text = in.readAll();
 #ifdef DEBUG_READ_FILE_CONTENTS
     qDebug() << text;
