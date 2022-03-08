@@ -216,7 +216,7 @@ bool FieldRef::valid() const
         return m_p_dbobject && m_blob;
 
     case FieldRefMethod::IsolatedBlobFieldForTesting:
-        return m_blob;
+        return !!m_blob;
 
     case FieldRefMethod::Functions:
         return m_getterfunc && m_setterfunc;
