@@ -47,6 +47,7 @@
 #include <QApplication>
 #include <QBasicTimer>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QEvent>
 #include <QHash>
 #include <QList>
@@ -73,9 +74,9 @@ struct FlickData {
     QPoint pressPos;
     QPoint lastPos;
     QPoint speed;
-    QTime speedTimer;
+    QElapsedTimer speedTimer;
     QList<QEvent*> ignored;
-    QTime accelerationTimer;
+    QElapsedTimer accelerationTimer;
     bool lastPosValid:1;
     bool waitingAcceleration:1;
 
@@ -185,7 +186,7 @@ class FlickCharmPrivate
 public:
     QHash<QWidget*, FlickData*> flickData;
     QBasicTimer ticker;
-    QTime timeCounter;
+    QElapsedTimer timeCounter;
     void startTicker(QObject* object)
     {
         if (!ticker.isActive()) {
