@@ -64,7 +64,7 @@ DebugDialog::DebugDialog(QWidget* parent,
             widget->setStyleSheet("background: green;");
         }
         // const Qt::Alignment align = Qt::AlignTop;
-        const Qt::Alignment align = 0;
+        const Qt::Alignment align = Qt::Alignment();
         // We can't do what follows via the QLayout* pointer, which is why we
         // have to maintain these two:
         if (use_hfw_layout) {

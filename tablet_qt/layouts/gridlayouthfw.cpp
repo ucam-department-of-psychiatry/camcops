@@ -1815,10 +1815,11 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 
     // Expanding
 
-    gi.m_expanding = 0;
+    Qt::Orientations expanding;
+
     for (int r = 0; r < m_nrow; r++) {
         if (gi.m_row_data.at(r).expansive) {
-            gi.m_expanding |= Qt::Vertical;
+            expanding |= Qt::Vertical;
             break;
         }
     }
@@ -1828,6 +1829,8 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
             break;
         }
     }
+
+    gi.m_expanding = expanding;
 
     // Size hints
 

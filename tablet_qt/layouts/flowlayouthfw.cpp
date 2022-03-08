@@ -206,7 +206,7 @@ QLayoutItem* FlowLayoutHfw::takeAt(const int index)
 Qt::Orientations FlowLayoutHfw::expandingDirections() const
 {
     // http://doc.qt.io/qt-5/qlayout.html#expandingDirections
-    return 0;
+    return Qt::Orientations();
 }
 
 

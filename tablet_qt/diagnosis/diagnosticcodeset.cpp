@@ -134,7 +134,7 @@ QVariant DiagnosticCodeSet::data(const QModelIndex& index,
 Qt::ItemFlags DiagnosticCodeSet::flags(const QModelIndex& index) const
 {
     if (!index.isValid()) {
-        return 0;
+        return Qt::NoItemFlags;
     }
     // return QAbstractItemModel::flags(index);
     auto item = static_cast<DiagnosticCode*>(index.internalPointer());
