@@ -18,6 +18,11 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QAudioDevice>
+#include <QAudioOutput>
+#include <QMediaDevices>
+#include <QMediaPlayer>
+
 #include "soundtestdialog.h"
 #include "dialogs/logbox.h"
 #include "lib/soundfunc.h"
@@ -38,8 +43,13 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
     statusMessage("Trying to play: " + url.toString());
-    m_player->setMedia(url);
-    m_player->setVolume(volume_percent);
+    m_player->setSource(url);
+
+    auto audio_output = new QAudioOutput{};
+    audio_output->setDevice(QMediaDevices::defaultAudioOutput());
+    audio_output->setVolume(volume_percent);
+    m_player->setAudioOutput(audio_output);
+
     m_player->play();
 }
 
