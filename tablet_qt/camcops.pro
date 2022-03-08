@@ -624,7 +624,6 @@ SOURCES += \
     graphics/geometry.cpp \
     graphics/graphicsfunc.cpp \
     graphics/graphicspixmapitemwithopacity.cpp \
-    graphics/imagefunc.cpp \
     graphics/linesegment.cpp \
     graphics/paintertranslaterotatecontext.cpp \
     graphics/penbrush.cpp \
@@ -1093,7 +1092,6 @@ HEADERS += \
     graphics/geometry.h \
     graphics/graphicsfunc.h \
     graphics/graphicspixmapitemwithopacity.h \
-    graphics/imagefunc.h \
     graphics/linesegment.h \
     graphics/paintertranslaterotatecontext.h \
     graphics/penbrush.h \

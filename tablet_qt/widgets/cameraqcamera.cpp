@@ -619,7 +619,7 @@ void CameraQCamera::imageAvailable(const int id, const QVideoFrame& buffer)
 
     Q_UNUSED(id)
     qInfo() << "Camera::imageAvailable: fetching image from buffer...";
-    m_most_recent_image = imagefunc::imageFromVideoFrame(buffer);
+    m_most_recent_image = buffer.toImage();
     qInfo() << "Camera::imageAvailable: ... fetched.";
 #ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     m_captured_state = CapturedState::Buffer;
