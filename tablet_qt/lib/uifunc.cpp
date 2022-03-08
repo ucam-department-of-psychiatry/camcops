@@ -687,7 +687,8 @@ QString escapeString(const QString& string)
         char c = arr.at(i);
         if (c < ' ') {
             result.append('\\');
-            result.append(c - 1 + 'a');
+            int code = c - 1 + 'a';
+            result.append(QLatin1Char(code));
         } else {
             result.append(c);
         }
