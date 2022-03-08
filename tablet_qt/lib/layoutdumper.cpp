@@ -300,13 +300,14 @@ QString getWidgetAttributeInfo(const QWidget* w, const bool all)
         }
     };
 
-    // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
+    // https://doc.qt.io/qt-6/qt.html#WidgetAttribute-enum
     // ... sorted
 
+    ADD_WIDGET_ATTR(WA_AcceptDrops);
     ADD_WIDGET_ATTR(WA_AcceptTouchEvents);
     ADD_WIDGET_ATTR(WA_AlwaysShowToolTips);
     ADD_WIDGET_ATTR(WA_AlwaysStackOnTop);
-    ADD_WIDGET_ATTR(WA_ContentsPropagated);
+    ADD_WIDGET_ATTR(WA_ContentsMarginsRespectsSafeArea);
     ADD_WIDGET_ATTR(WA_CustomWhatsThis);
     ADD_WIDGET_ATTR(WA_DeleteOnClose);
     ADD_WIDGET_ATTR(WA_Disabled);
@@ -314,30 +315,23 @@ QString getWidgetAttributeInfo(const QWidget* w, const bool all)
     ADD_WIDGET_ATTR(WA_DontShowOnScreen);
     ADD_WIDGET_ATTR(WA_ForceDisabled);
     ADD_WIDGET_ATTR(WA_ForceUpdatesDisabled);
-    ADD_WIDGET_ATTR(WA_GroupLeader);
     ADD_WIDGET_ATTR(WA_Hover);
     ADD_WIDGET_ATTR(WA_InputMethodEnabled);
-    ADD_WIDGET_ATTR(WA_KeyboardFocusChange);
     ADD_WIDGET_ATTR(WA_KeyCompression);
+    ADD_WIDGET_ATTR(WA_KeyboardFocusChange);
     ADD_WIDGET_ATTR(WA_LayoutOnEntireRect);
     ADD_WIDGET_ATTR(WA_LayoutUsesWidgetRect);
     ADD_WIDGET_ATTR(WA_MacAlwaysShowToolWindow);
-    ADD_WIDGET_ATTR(WA_MacBrushedMetal);
-    ADD_WIDGET_ATTR(WA_MacFrameworkScaled);
     ADD_WIDGET_ATTR(WA_MacMiniSize);
-    ADD_WIDGET_ATTR(WA_MacNoClickThrough);
     ADD_WIDGET_ATTR(WA_MacNormalSize);
     ADD_WIDGET_ATTR(WA_MacOpaqueSizeGrip);
     ADD_WIDGET_ATTR(WA_MacShowFocusRect);
     ADD_WIDGET_ATTR(WA_MacSmallSize);
-    ADD_WIDGET_ATTR(WA_MacVariableSize);
     ADD_WIDGET_ATTR(WA_Mapped);
     ADD_WIDGET_ATTR(WA_MouseNoMask);
     ADD_WIDGET_ATTR(WA_MouseTracking);
     ADD_WIDGET_ATTR(WA_Moved);
-    ADD_WIDGET_ATTR(WA_MSWindowsUseDirect3D);
     ADD_WIDGET_ATTR(WA_NativeWindow);
-    ADD_WIDGET_ATTR(WA_NoBackground);
     ADD_WIDGET_ATTR(WA_NoChildEventsForParent);
     ADD_WIDGET_ATTR(WA_NoChildEventsFromChildren);
     ADD_WIDGET_ATTR(WA_NoMousePropagation);
@@ -360,9 +354,10 @@ QString getWidgetAttributeInfo(const QWidget* w, const bool all)
     ADD_WIDGET_ATTR(WA_ShowModal);
     ADD_WIDGET_ATTR(WA_ShowWithoutActivating);
     ADD_WIDGET_ATTR(WA_StaticContents);
-    ADD_WIDGET_ATTR(WA_StyledBackground);
     ADD_WIDGET_ATTR(WA_StyleSheet);
-    // ADD_WIDGET_ATTR(WA_TabletTracking);  // too new
+    ADD_WIDGET_ATTR(WA_StyleSheetTarget);
+    ADD_WIDGET_ATTR(WA_StyledBackground);
+    ADD_WIDGET_ATTR(WA_TabletTracking);
     ADD_WIDGET_ATTR(WA_TouchPadAcceptSingleTouchEvents);
     ADD_WIDGET_ATTR(WA_TranslucentBackground);
     ADD_WIDGET_ATTR(WA_TransparentForMouseEvents);
@@ -372,9 +367,9 @@ QString getWidgetAttributeInfo(const QWidget* w, const bool all)
     ADD_WIDGET_ATTR(WA_WindowPropagation);
     ADD_WIDGET_ATTR(WA_X11DoNotAcceptFocus);
     ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeCombo);
+    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDND);
     ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDesktop);
     ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDialog);
-    ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDND);
     ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDock);
     ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeDropDownMenu);
     ADD_WIDGET_ATTR(WA_X11NetWmWindowTypeMenu);
