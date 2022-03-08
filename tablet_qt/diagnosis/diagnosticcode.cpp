@@ -172,7 +172,7 @@ QDebug operator<<(QDebug debug, const DiagnosticCode& dc)
 QTextStream& operator<<(QTextStream& stream, const DiagnosticCode& dc)
 {
     if (dc.selectable()) {
-        stream << dc.code() << endl;
+        stream << dc.code() << Qt::endl;
     }
     for (auto c : dc.m_children) {
         stream << *c;
