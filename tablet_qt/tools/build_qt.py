@@ -3414,6 +3414,20 @@ Troubleshooting Qt 'configure' failures
     you.
 
 """)
+            log.warning(80 * "*")
+            log.warning("Contents of CMakeOutput.log:")
+            output_log = os.path.join(builddir, "CMakeFiles",
+                                      "CMakeOutput.log")
+            with open(output_log) as f:
+                log.warning(f.read)
+
+            log.warning(80 * "*")
+            log.warning("Contents of CMakeError.log:")
+            error_log = os.path.join(builddir, "CMakeFiles",
+                                     "CMakeError.log")
+            with open(error_log) as f:
+                log.warning(f.read)
+
             sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
