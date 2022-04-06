@@ -502,7 +502,7 @@ The possible values are:
 
 - ``hotp_email``: Send a code by email.
 
-- ``hotp_sms``: Send a code by `SMS`_ (text message). For this option, you must
+- ``hotp_sms``: Send a code by SMS_ (text message). For this option, you must
   also configure SMS_BACKEND_.
 
 - ``no_mfa``: permit login with no MFA (i.e. just with a username/password

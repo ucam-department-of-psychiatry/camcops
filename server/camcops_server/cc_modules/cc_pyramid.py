@@ -1432,6 +1432,7 @@ def icons_text(icons: List[str],
 class Icons:
     """
     Constants for Bootstrap icons. See https://icons.getbootstrap.com/.
+    See also include_bootstrap_icons.rst; must match.
     """
     ACTIVITY = "activity"
     APP_AUTHENTICATOR = "shield-shaded"
