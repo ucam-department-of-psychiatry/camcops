@@ -630,7 +630,7 @@ users, it shows:
 - the username (marked to show |you| you in the list);
 - their internal user ID number;
 - flags, such as |superuser| superuser or |group_admin| group administrator
-  status, or if the user is locked out, lockout status with an |unlock|
+  status, and if the user is locked out, lockout status with an |unlock|
   **unlock** facility;
 - full name;
 - e-mail address, hyperlinked to |email_send| **e-mail** them;
