@@ -64,6 +64,8 @@ Patients
 You can schedule tasks for a patient to complete on their own tablet with the
 CamCOPS app running in :ref:`Single User Mode <single_user_mode>`.
 
+**OVERVIEW**
+
 The key pieces of information your patient needs to know are:
 
 - Where they can download CamCOPS for their tablet, phone, laptop etc (Google
@@ -75,54 +77,55 @@ How you choose to communicate these to your patients is up to you. CamCOPS
 supports a simple email workflow.
 
 Your task schedules and patients will be associated with a :ref:`group
-<groups>` that you administer. You must set the IP settings for this group to
-describe the contexts in which your group operates (clinical, commercial etc.).
-Any tasks you schedule for a patient need to be permitted for these contexts.
+<groups>` that you administer. You must set the intellectual property (IP)
+settings for this group to describe the contexts in which your group operates
+(clinical, commercial, etc.). Any tasks you schedule for a patient need to be
+permitted for these contexts.
 
-- First of all create a task schedule for your study (:menuselection:`Manage
-  task schedules --> Add a task schedule`). Here you can specify the From, CC
-  and BCC fields for your emails, along with an email template, which can be
+- First, create a task schedule for your study (:menuselection:`Manage task
+  schedules --> Add a task schedule`). Here you can specify the From, CC and
+  BCC fields for your emails, along with an email template. The template can be
   customised to include the location of the server, the patient's name, their
-  unique access key and a unique URL that patients can use the first time they
+  unique access key, and a unique URL that patients can use the first time they
   launch the app. This last option will register their patient automatically
-  with the server, without the need to enter the server and access key
-  (Android only).
+  with the server, without the need to enter the server and access key (Android
+  only).
 
 - Next add items to your schedule (:menuselection:`Edit items` from the table
   of schedules):
 
-    - Select the task from the drop-down
-    - Enter the time from the start of the schedule when the patient may begin
-      the task and the time the patient has to complete the task. These times
-      can be expressed as a combination of months, weeks and days (1 month = 30
-      days, 1 week = 7 days).
+  - Select the task from the drop-down
 
-From the Patient Task Schedules page you can add a new patient. The patient must
-have enough identifiable information to match the :ref:`uploading and finalizing
-ID policies <uploading_and_finalizing_policies>` of the group. Here you can also
-assign one or more task schedules to the patient. You can specify the start date
-of the schedule or leave it blank. If you leave it blank, the start date will be
-the date the patient first downloads the schedule from the server. You can
-assign the same schedule multiple times to a patient, though you should only do
-this once the patient has completed the tasks for all previous instances of the
-same schedule.
+  - Enter the time from the start of the schedule when the patient may begin
+    the task and the time the patient has to complete the task. These times can
+    be expressed as a combination of months, weeks and days (defined here as 1
+    month = 30 days, 1 week = 7 days).
+
+From the Patient Task Schedules page you can add a new patient. The patient
+must have enough identifiable information to match the :ref:`uploading and
+finalizing ID policies <uploading_and_finalizing_policies>` of the group. Here
+you can also assign one or more task schedules to the patient. You can specify
+the start date of the schedule or leave it blank. If you leave it blank, the
+start date will be the date the patient first downloads the schedule from the
+server. You can assign the same schedule multiple times to a patient, though
+you should only do this once the patient has completed the tasks for all
+previous instances of the same schedule.
 
 Advanced use: There is an optional form field to specify any patient-specific
-settings for the tasks. This is a JSON object keyed on the task table name
+settings for the tasks. This is a JSON object keyed on the task table name,
 e.g.:
 
-.. code-block:: json
+    .. code-block:: json
 
-  {
-    "task1": {
-      "name1": "value1",
-      "name2": "value2"
-    },
-
-    "task2": {
-      "name1": "value1"
-    }
-  }
+        {
+            "task1": {
+                "name1": "value1",
+                "name2": "value2"
+            },
+            "task2": {
+                "name1": "value1"
+            }
+        }
 
 Refer to the relevant task documentation for any settings that can be applied
 in this way.
@@ -146,7 +149,110 @@ the patient and view their details.
     will pick up the changes when it next picks up schedule updates.
 
     If you change the patient's ID numbers, though, the patient may have to
-    redo tasks (complete tasks are sought by any current ID number).
+    redo tasks (completed tasks are sought by any current ID number).
+
+
+**INTERFACE**
+
+.. _view_patient_task_schedules:
+
+|patients| **Patients and their task schedules**
+
+This page manages patients and their associated schedules. It offers:
+
+- |info_internal| **CamCOPS server location**
+
+  - |info_external| Shows the URL for this server's API -- the URL that client
+    devices should use to communicate with the CamCOPS server.
+
+- |patients| **Patients (and their task schedules)**. For every patient set up
+  for scheduling, this shows:
+
+  - |patient| Their basic details (name, etc.);
+  - identification numbers associated with them;
+  - their access key;
+  - |patient| |task_schedule| **task schedules** assigned to them (hyperlinked
+    to :ref:`show their progress on this schedule
+    <view_patient_task_schedule>`), along with a button to |email_send|
+    **e-mail** them (using that schedule's template), if authorized;
+  - a link to |patient_edit| **edit** the patient or assign schedules to them;
+  - a link to |delete| **delete** the patient.
+
+- A link to |patient_add| **add a patient**.
+
+- A link to |task_schedules| :ref:`manage task schedules
+  <view_task_schedules>`, if authorized.
+
+
+.. _view_patient_task_schedule:
+
+|patient| |task_schedule| **View a patient's progress on a schedule**
+
+This page shows:
+
+- Scheduled tasks for this patient on this schedule (including task type,
+  "due from" date, "due by" date, whether the task has been created/uploaded to
+  the server, and whether it is |complete| complete or |incomplete|
+  incomplete).
+
+  - If the task is due now and is not complete, a |due| due symbol will be
+    displayed.
+
+  - If the task is present on the server, you will be able to view it as
+    |html_identifiable| HTML or |pdf_identifiable| PDF (see :ref:`View tasks
+    <view_tasks>`).
+
+  - If the task is anonymous, some of this information will be |unknown|
+    unknown. CamCOPS treats anonymity seriously.
+
+- Emails previously sent to the patient about this schedule. You can
+  |email_view| **view** them, if authorized.
+
+- A link to |email_send| **e-mail** the patient (using that schedule's
+  template).
+
+- A link back to |patients| :ref:`manage patients and their tasks
+  <view_patient_task_schedules>`.
+
+
+.. _view_task_schedules:
+
+|task_schedules| **Task schedules**
+
+This page manages task schedules themselves. It offers:
+
+- |task_schedules| **Task schedules**. For every schedule configured, this
+  shows:
+
+  - the associated :ref:`group <groups>`;
+  - the schedule's name;
+  - links to |task_schedule| **edit** and |delete| **delete** the schedule;
+  - the schedule's items and a link to |task_schedule_items| :ref:`edit items
+    <view_task_schedule_items>`.
+
+- A link to |task_schedule_add| **add a task schedule**.
+
+- A link back to |patients| :ref:`manage patients and their tasks
+  <view_patient_task_schedules>`.
+
+
+.. _view_task_schedule_items:
+
+|task_schedule_items| **Task schedule items (for a specific schedule)**
+
+This page allows you to view and edit items for a specific schedule. It offers:
+
+- |task_schedule_items| For every item associated with this schedule,
+
+  - the task;
+  - when the task is due from (relative to the start of the schedule);
+  - how long the task is due within (once it falls due);
+  - links to |edit| **edit** and |delete| **delete** the item.
+
+- A link to |task_schedule_item_add| **add a task schedule item**.
+
+- A link back to |task_schedules| :ref:`manage task schedules
+  <view_task_schedules>`.
 
 
 Task, trackers, and clinical text views
@@ -185,6 +291,8 @@ As well as a **set filters** button, there is a **clear** button to clear all
 current filters.
 
 
+.. _view_tasks:
+
 |view_tasks| View tasks
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -210,10 +318,10 @@ bottom:
   calculated fields such as summary scores.
 
   One useful feature is that all fields have an associated comment, and these
-  comments are displayed in the XML. You can also view comments in the task
-  details.
+  comments are displayed in the XML.
 
-  .. todo: add cross-reference here
+  You can also view comments and other helpful details about the data structure
+  of every task in the task details -- see :`Task list <task_list>`.
 
 - **View anonymised version:** |html_anonymous| **HTML** \| |pdf_anonymous|
   **PDF**. This shows you a version with patient identification details hidden.
@@ -429,6 +537,8 @@ This is where you can pick up data files that you have queued for downloading
 (see above).
 
 
+.. _task_list:
+
 |info_internal| Task list
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -510,58 +620,146 @@ formatter [#sqlformat]_.
 Group administrator options
 +++++++++++++++++++++++++++
 
-
 |user_management| User management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: add content
+This page shows all users registered with the CamCOPS server. For existing
+users, it shows:
+
+- the username (marked to show |you| you in the list);
+- their internal user ID number;
+- flags, such as |superuser| superuser or |group_admin| group administrator
+  status, or if the user is locked out, lockout status with an |unlock|
+  **unlock** facility;
+- full name;
+- e-mail address, hyperlinked to |email_send| **e-mail** them;
+- a link to |user_info| **view more details** about the user;
+- a link to |edit| **edit** the user;
+- groups they belong to, with links to set |user_permissions| **permissions**
+  for the user within each group;
+- their current upload group, with a button to |upload| **change** their upload
+  group;
+- links to set their authentication method, including
+
+  - |password_other| **change password** for another user;
+  - |password_own| **change password** for |you| yourself;
+  - |mfa| **change multi-factor authentication method** for the user;
+
+- a link to |delete| **delete** the user.
+
+There is also a link to |user_add| **add a user**.
+
+By default, autogenerated users (used by patients as part of :ref:`task
+scheduling <scheduling_tasks>`) are not shown. They have names that look like
+gibberish. However, you can show them if you wish; there's a tickbox to enable
+this.
 
 
 |email_configure| E-mail addresses of your users
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: add content
+This simple page shows all e-mail addresses of your users, along with users
+whose e-mail addresses are missing.
+
+You can e-mail an individual user by clicking their hyperlink (which will
+launch your mail client via a ``mailto:`` URL).
+
+To e-mail all users, copy/paste the list shown into your e-mail client. (There
+is no universally accepted standard for multi-recipient ``mailto:`` URLs! See
+https://stackoverflow.com/questions/13765286.)
 
 
 |force_finalize| Forcibly finalize records for a device
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: add content
+Here, you can force-finalize records for a device that has been lost or damaged
+while it has outstanding business with the CamCOPS server.
+
+This process marks all records from a particular device (e.g. tablet, or
+desktop client) as final, so the device can no longer alter them. If you do
+this and the client re-uploads records, they will be created as fresh tasks, so
+only force-finalize devices that are no longer in use and to which you no
+longer have access.
 
 
 |delete_major| Delete patient entirely
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: add content
+This **irrevocable** operation permanently deletes a patient and all their
+tasks from a specified group.
 
 
 Superuser options
 +++++++++++++++++
 
-
 |groups| Group management
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: add content
+See :ref:`Groups <groups>` for background. Here, you can view and edit groups.
+
+For existing groups, this shows
+
+- the group's name;
+- its internal ID number;
+- its description;
+- groups whose data this group is allowed to see (in addition to its own data);
+- the upload ID policy;
+- the principal (single necessary) ID number required by the upload policy, if
+  applicable;
+- the finalizing ID policy;
+- the principal (single necessary) ID number required by the finalizing policy,
+  if applicable;
+- a list of group members;
+- buttons to |group_edit| **edit** and |delete| **delete** the group.
+
+There is also a link to |group_add| **add a new group**.
 
 
 |audit_menu| Audit menu
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Here you can view
+Here you can
 
-- |audit_options| the CamCOPS **audit trail** (with hyperlinks to
-  |html_identifiable| **view a task** where relevant);
+- |audit_options| **configure** then view the CamCOPS |audit_report| **audit
+  trail** (with hyperlinks to |html_identifiable| **view a task** where
+  relevant);
 
-- |audit_options| the **exported task log** (with hyperlinks to the
-  |exported_task| **task export attempt**, the |export_recipient| **export
-  recipient**, and the |html_identifiable| **task** exported).
+- |audit_options| **configure** then view the |audit_report| **exported task
+  log** (with hyperlinks to the |exported_task| **task export attempt**, the
+  |export_recipient| **export recipient**, and the |html_identifiable| **task**
+  exported).
+
+  The |exported_task| **task export attempt** may offer further details,
+  depending on the export method, such as
+
+  - |audit_item| e-mails sent;
+  - |exported_task_entry_collection| FHIR task exports containing |audit_item|
+    individual entries (e.g. Patients, Questionnaires, QuestionnaireResponses);
+  - |audit_item| files created;
+  - |audit_item| HL7 v2 messages sent;
+  - |audit_item| REDCap exports.
 
 
 |id_definitions| ID number definition management
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: add content
+See :ref:`patient/subject identification <patient_identification>` for
+background. Here, you can view and edit ID number definitions.
+
+For existing ID number definitions, this shows
+
+- the ID type number (e.g. 1, 2, 3...) *(note: this is the internal CamCOPS
+  number representing this type, not a specific patient's ID)*;
+- a description (e.g. "NHS number");
+- a short description (e.g. "NHS");
+- a validation method, if applicable (e.g. CamCOPS knows how to check UK NHS
+  numbers for validity using their checksum method);
+- for HL7 exports, the HL7 ID Type and HL7 Assigning Authority;
+- for FHIR exports, the |info_internal| URL (hyperlinked) used to define this
+  ID number (Patient identifier) system;
+- buttons to |edit| **edit** and |delete| **delete** the ID number type.
+
+There is also a link to |id_definition_add| **add a new ID number definition**.
 
 
 |settings| Edit server settings
