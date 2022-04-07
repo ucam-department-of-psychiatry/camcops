@@ -411,8 +411,9 @@ Research views
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This option allows you to download a spreadsheet or similar file that contains
-one worksheet for every current task [#current]_, and includes raw data and
-summary measures (e.g. total scores).
+one worksheet for every type of task for which "current" data is present
+[#current]_ (one row per task instance), and includes raw data and summary
+measures (e.g. total scores).
 
 .. note::
 
@@ -499,7 +500,7 @@ There are also advanced data dumps in other formats (see below).
 
   You can ask the server to build a file for you. It will e-mail you when it's
   ready (assuming your e-mail address is configured) and you can then collect
-  it from the :ref:`Download area <download_area>`.
+  it from the |download| :ref:`Download area <download_area>`.
 
   Your administrator will set a time limit and a capacity limit for your
   download area. Files that get too old will be deleted, and you will not be
@@ -588,7 +589,7 @@ generate a URL for the final report.
 The HTML view of the report shows the configuration parameters, the results
 (page by page), and the SQL used to generate the report.
 
-The TSV option gives you the data in tab-separate values (TSV) format.
+The TSV option gives you the data in tab-separated values (TSV) format.
 
 When you view the report in HTML format, you will see that the browser’s URL
 contains your report configuration information. This means that you can save
