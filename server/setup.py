@@ -151,7 +151,7 @@ INSTALL_REQUIRES = [
 
     'Babel==2.9.1',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'flake8==3.8.3',  # code checks
-    'scrapy==2.5.1',  # development only
+    'scrapy==2.6.1',  # development only
     'sphinx==4.2.0',  # development only
     'sphinx_rtd_theme==1.0.0',  # development only
 
