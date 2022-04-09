@@ -111,9 +111,11 @@ server. You can assign the same schedule multiple times to a patient, though
 you should only do this once the patient has completed the tasks for all
 previous instances of the same schedule.
 
-Advanced use: There is an optional form field to specify any patient-specific
-settings for the tasks. This is a JSON object keyed on the task table name,
-e.g.:
+.. note::
+
+    Advanced use: There is an optional form field to specify any
+    patient-specific settings for the tasks. This is a JSON object keyed on the
+    task table name, e.g.:
 
     .. code-block:: json
 
@@ -127,8 +129,8 @@ e.g.:
             }
         }
 
-Refer to the relevant task documentation for any settings that can be applied
-in this way.
+    Refer to the relevant task documentation for any settings that can be
+    applied in this way.
 
 If the patient has been successfully created, they should now appear in the
 table along with the unique access key that they need for registration. The
@@ -311,25 +313,27 @@ to save the task as a single human-readable file.
 When you view a task in HTML mode, there are some additional hyperlinks at the
 bottom:
 
-- |info_external| **Task help.** Shows you information about the task.
+- |info_external| **Task help.** Shows you general information about the task.
+
+- |info_internal| **Task details.** Shows you information about the task's data
+  structure.
 
 - **View raw data:** |xml| **XML** \| |json| **FHIR**. This shows you the raw
   structure as XML, or JSON-formatted FHIR format, including stored data and
   calculated fields such as summary scores.
 
-  One useful feature is that all fields have an associated comment, and these
-  comments are displayed in the XML.
-
-  You can also view comments and other helpful details about the data structure
-  of every task in the task details -- see :`Task list <task_list>`.
+  All fields have an associated comment, and these comments are displayed in
+  the XML. You can also view these comments, and other helpful details about
+  the data structure of every task, in the task details -- see :ref:`Task list
+  <task_list>`.
 
 - **View anonymised version:** |html_anonymous| **HTML** \| |pdf_anonymous|
   **PDF**. This shows you a version with patient identification details hidden.
-  It is not guaranteed to be free of identifying material, though; it makes no
-  effort to remove patient details from free text, for example [#crate]_.
+  It is not guaranteed to be free of identifying material, though; for example,
+  it makes no effort to remove patient details from free text [#crate]_.
 
-- (Administrators have additional options; see :ref:`administrative options
-  <task_admin>`.)
+- Administrators have additional options; see :ref:`administrative options
+  <task_admin>`.
 
 - |pdf_identifiable| **View PDF**. A link to the PDF version.
 
@@ -405,7 +409,7 @@ Specimen CTV:
 Research views
 ++++++++++++++
 
-.. _summary_fields:
+.. _basic_research_dump:
 
 |dump_basic| Basic research dump (fields and summaries)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -414,33 +418,6 @@ This option allows you to download a spreadsheet or similar file that contains
 one worksheet for every type of task for which "current" data is present
 [#current]_ (one row per task instance), and includes raw data and summary
 measures (e.g. total scores).
-
-.. note::
-
-    For example, the :ref:`PHQ-9 <phq9>` stores the answers for 9 symptom
-    questions in fields `q1` to `q9`, and one overall impact answer in the
-    `q10` field; it also stores information to link the record to the patient
-    in question, and some administrative information (relating to record
-    history, editing time, etc.)
-
-    However, it doesn’t store summary information on the server
-    [#databasenormalization]_; rather, summary measures are calculated on
-    demand. For this task, summary measures include:
-
-    - `is_complete` (Boolean): is the task complete (no missing values)?
-    - `total` (integer): total score
-    - `n_core` (integer): number of core depressive symptoms reaching threshold
-    - `n_other` (integer): number of other depressive symptoms reaching
-      threshold
-    - `n_total` (integer): total number of symptoms reaching threshold
-    - `is_mds` (Boolean): does this patient meet the PHQ9 criteria for
-      major depressive syndrome?
-    - `is_ods` (Boolean): does this patient meet the PHQ9 criteria for
-      other depressive syndrome?
-    - `severity` (text): textual description of depressive severity by the
-      standard PHQ9 scoring method.
-
-    These summary measures are included in the research dumps.
 
 You can choose to dump everything that you have permission for, or restrict to
 the criteria you’ve set in your current session filter, or specify tasks and/or
@@ -466,7 +443,7 @@ The download formats include:
   statistics packages.
 
   - For TSV, NULL values are represented by blank fields and are therefore
-    indistinguishable from blank strings, and the Excel dialect of TSV is used.
+    indistinguishable from blank strings. The Excel dialect of TSV is used.
     If you want to read TSV files into R, try:
 
     .. code-block:: R
@@ -474,11 +451,12 @@ The download formats include:
         mydf = read.table("something.tsv", sep="\t", header=TRUE, na.strings="", comment.char="")
 
     Note that R will prepend ‘X’ to variable names starting with an underscore;
-    see ``?make.names``.
+    see ``?make.names``. Inspect the results with e.g. ``colnames(mydf)`` or
+    ``View(mydf)``. However, if you simply want to import into R, CamCOPS will
+    provide you an R script directly, which may be simpler.
 
-    Inspect the results with e.g. ``colnames(mydf)`` or ``View(mydf)``.
-
-There are also advanced data dumps in other formats (see below).
+There are also :ref:`advanced data dumps <advanced_research_dump>` in other
+formats (see below).
 
 **Delivery method**
 
@@ -507,15 +485,18 @@ There are also advanced data dumps in other formats (see below).
   allowed to create files that would exceed your capacity limit.
 
 
+.. _advanced_research_dump:
+
 |dump_sql| Advanced research dump (SQL or database)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This more sophisticated research dump generates a fully structured SQLite
 binary database of the data you select (or, if you prefer, the SQL text to
 create it). By default, BLOBs (binary large objects) are skipped, because they
-can be very large, but if you want, you can choose to include them.
+can be very large, but you can choose to include them.
 
-You can choose the information you want exactly as for the basic research dump.
+You can select the information you want, exactly as for the :ref:`basic
+research dump <basic_research_dump>`.
 
 Some user information will be provided (e.g. user names), but security
 information (e.g. passwords) is removed prior to the download.
@@ -556,6 +537,37 @@ This provides information on all tasks in CamCOPS. For each task, you can view:
 
 - The task's long name, hyperlinked to its |info_external| **online help**.
 
+.. _summary_fields:
+
+.. note::
+
+    What do we mean by "summary" information?
+
+    For example, the :ref:`PHQ-9 <phq9>` tasks stores the answers for 9 symptom
+    questions in fields `q1` to `q9`, and one overall impact answer in the
+    `q10` field. It also stores information to link the record to the patient
+    in question, and some administrative information (relating to record
+    history, editing time, etc.)
+
+    However, it doesn’t store summary information on the server
+    [#databasenormalization]_; rather, summary measures are calculated on
+    demand. For this task, summary measures include:
+
+    - `is_complete` (Boolean): is the task complete (no missing values)?
+    - `total` (integer): total score
+    - `n_core` (integer): number of core depressive symptoms reaching threshold
+    - `n_other` (integer): number of other depressive symptoms reaching
+      threshold
+    - `n_total` (integer): total number of symptoms reaching threshold
+    - `is_mds` (Boolean): does this patient meet the PHQ9 criteria for
+      major depressive syndrome?
+    - `is_ods` (Boolean): does this patient meet the PHQ9 criteria for
+      other depressive syndrome?
+    - `severity` (text): textual description of depressive severity by the
+      standard PHQ9 scoring method.
+
+
+.. _inspect_table_definitions:
 
 |info_internal| Inspect table definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -565,6 +577,8 @@ database, as data definition language (DDL), meaning the subset of SQL used to
 create tables. In SQL dialects that support it (e.g. MySQL), the DDL contains
 comments for every field, usually in considerable detail, so viewing the DDL
 this is a good way of understanding how CamCOPS tasks store their data.
+However, the task information in the :ref:`task list <task_list>` may be
+simpler!
 
 
 Reports
@@ -581,26 +595,32 @@ Reports are used in two stages: (1) |report_config| **configure**, (2)
 |report_detail| **run**.
 
 The configuration stage provides an interface to select options for the report.
-This generally includes the output format (e.g. HTML, TSV), and sometimes much
-more (e.g. for the reports to find patient by diagnosis). Once you’ve chosen the
-options, click “View Report”. What the configuration stage actually does is to
-generate a URL for the final report.
+This includes the output format (e.g. HTML, TSV), but may include more (e.g.
+for reports that find patient by diagnosis). Once you’ve chosen the options,
+click “View Report”. Behind the scenes, what the configuration stage actually
+does is generate a URL for the final report.
 
-The HTML view of the report shows the configuration parameters, the results
-(page by page), and the SQL used to generate the report.
+Output formats include:
 
-The TSV option gives you the data in tab-separated values (TSV) format.
+- HTML, for online use. This is typically paginated, may show configuration
+  parameters, and sometimes shows the SQL used to generate the report. (To view
+  SQL in a formatted state, paste it into an online SQL formatter
+  [#sqlformat]_.) When you view the report in HTML format, you will see that
+  the browser’s URL contains your report configuration information. This means
+  that you can save this report for later.
 
-When you view the report in HTML format, you will see that the browser’s URL
-contains your report configuration information. This means that you can save
-this report for later.
+- ODS: OpenOffice spreadsheet format.
 
-For example, suppose you regularly want to find patients between the ages of 20
-to 65 inclusive, with an ICD-9-CM inclusion diagnosis of depression (e.g. 311)
-[#icd9cm]_, excluding bipolar affective disorder (e.g. anything starting 296)
-or eating disorders (e.g. 307.1). You could create a report with these age
-restrictions and inclusion and exclusion diagnoses, and view it. The URL would
-look like this:
+- TSV: tab-separated values (TSV) format.
+
+- XLSX: Microsoft Excel.
+
+An example of keeping the URL for later: suppose you regularly want to find
+patients between the ages of 20 to 65 inclusive, with an ICD-9-CM inclusion
+diagnosis of depression (e.g. 311) [#icd9cm]_, excluding bipolar affective
+disorder (e.g. anything starting 296) or eating disorders (e.g. 307.1). You
+could create a report with these age restrictions and inclusion and exclusion
+diagnoses, and view it. The URL would look like this:
 
 ::
 
@@ -614,167 +634,18 @@ F32% and F33%; exclude F30%, F31%, F50%):
 
     https://my.camcops.site/report?diagnoses_inclusion=F32%25&diagnoses_inclusion=F33%25&age_maximum=65&which_idnum=1&rows_per_page=&viewtype=html&diagnoses_exclusion=F30%25&diagnoses_exclusion=F31%25&diagnoses_exclusion=F50%25&age_minimum=20&report_id=diagnoses_finder_icd10&page=1
 
-To view a report’s SQL in a formatted state, paste it into an online SQL
-formatter [#sqlformat]_.
-
 
 Group administrator options
 +++++++++++++++++++++++++++
 
-|user_management| User management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This page shows all users registered with the CamCOPS server. For existing
-users, it shows:
-
-- the username (marked to show |you| you in the list);
-- their internal user ID number;
-- flags, such as |superuser| superuser or |group_admin| group administrator
-  status, and if the user is locked out, lockout status with an |unlock|
-  **unlock** facility;
-- full name;
-- e-mail address, hyperlinked to |email_send| **e-mail** them;
-- a link to |user_info| **view more details** about the user;
-- a link to |edit| **edit** the user;
-- groups they belong to, with links to set |user_permissions| **permissions**
-  for the user within each group;
-- their current upload group, with a button to |upload| **change** their upload
-  group;
-- links to set their authentication method, including
-
-  - |password_other| **change password** for another user;
-  - |password_own| **change password** for |you| yourself;
-  - |mfa| **change multi-factor authentication method** for the user;
-
-- a link to |delete| **delete** the user.
-
-There is also a link to |user_add| **add a user**.
-
-By default, autogenerated users (used by patients as part of :ref:`task
-scheduling <scheduling_tasks>`) are not shown. They have names that look like
-gibberish. However, you can show them if you wish; there's a tickbox to enable
-this.
-
-
-|email_configure| E-mail addresses of your users
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This simple page shows all e-mail addresses of your users, along with users
-whose e-mail addresses are missing.
-
-You can e-mail an individual user by clicking their hyperlink (which will
-launch your mail client via a ``mailto:`` URL).
-
-To e-mail all users, copy/paste the list shown into your e-mail client. (There
-is no universally accepted standard for multi-recipient ``mailto:`` URLs! See
-https://stackoverflow.com/questions/13765286.)
-
-
-|force_finalize| Forcibly finalize records for a device
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Here, you can force-finalize records for a device that has been lost or damaged
-while it has outstanding business with the CamCOPS server.
-
-This process marks all records from a particular device (e.g. tablet, or
-desktop client) as final, so the device can no longer alter them. If you do
-this and the client re-uploads records, they will be created as fresh tasks, so
-only force-finalize devices that are no longer in use and to which you no
-longer have access.
-
-
-|delete_major| Delete patient entirely
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This **irrevocable** operation permanently deletes a patient and all their
-tasks from a specified group.
+See :ref:`group administrator options <group_administrator_options>` in the
+Administrator's Guide.
 
 
 Superuser options
 +++++++++++++++++
 
-|groups| Group management
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-See :ref:`Groups <groups>` for background. Here, you can view and edit groups.
-
-For existing groups, this shows
-
-- the group's name;
-- its internal ID number;
-- its description;
-- groups whose data this group is allowed to see (in addition to its own data);
-- the upload ID policy;
-- the principal (single necessary) ID number required by the upload policy, if
-  applicable;
-- the finalizing ID policy;
-- the principal (single necessary) ID number required by the finalizing policy,
-  if applicable;
-- a list of group members;
-- buttons to |group_edit| **edit** and |delete| **delete** the group.
-
-There is also a link to |group_add| **add a new group**.
-
-
-|audit_menu| Audit menu
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Here you can
-
-- |audit_options| **configure** then view the CamCOPS |audit_report| **audit
-  trail** (with hyperlinks to |html_identifiable| **view a task** where
-  relevant);
-
-- |audit_options| **configure** then view the |audit_report| **exported task
-  log** (with hyperlinks to the |exported_task| **task export attempt**, the
-  |export_recipient| **export recipient**, and the |html_identifiable| **task**
-  exported).
-
-  The |exported_task| **task export attempt** may offer further details,
-  depending on the export method, such as
-
-  - |audit_item| e-mails sent;
-  - |exported_task_entry_collection| FHIR task exports containing |audit_item|
-    individual entries (e.g. Patients, Questionnaires, QuestionnaireResponses);
-  - |audit_item| files created;
-  - |audit_item| HL7 v2 messages sent;
-  - |audit_item| REDCap exports.
-
-
-|id_definitions| ID number definition management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-See :ref:`patient/subject identification <patient_identification>` for
-background. Here, you can view and edit ID number definitions.
-
-For existing ID number definitions, this shows
-
-- the ID type number (e.g. 1, 2, 3...) *(note: this is the internal CamCOPS
-  number representing this type, not a specific patient's ID)*;
-- a description (e.g. "NHS number");
-- a short description (e.g. "NHS");
-- a validation method, if applicable (e.g. CamCOPS knows how to check UK NHS
-  numbers for validity using their checksum method);
-- for HL7 exports, the HL7 ID Type and HL7 Assigning Authority;
-- for FHIR exports, the |info_internal| URL (hyperlinked) used to define this
-  ID number (Patient identifier) system;
-- buttons to |edit| **edit** and |delete| **delete** the ID number type.
-
-There is also a link to |id_definition_add| **add a new ID number definition**.
-
-
-|settings| Edit server settings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Here you can edit
-
-- your CamCOPS server's database title.
-
-
-|developer| Developer test pages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This shows some test pages relevant to developers only.
+See :ref:`superuser options <superuser_options>` in the Administrator's Guide.
 
 
 Settings
@@ -784,8 +655,11 @@ Settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 CamCOPS has a concept of "groups" (e.g. a clinical group or a research study).
-Using this option, you can choose which group your CamCOPS client (tablet
-device) will upload to next.
+When one of your tablets or other client devices (i.e. a client device using
+your username) uploads data to this CamCOPS server, it will store its patient
+and task details in a group. Which group should this be? You get to choose
+here, from the groups that you are a member of (and have permission to upload
+into).
 
 
 |info_internal| View your user settings
@@ -815,20 +689,29 @@ Show information about the server, including:
 Use this option to change your password.
 
 
+.. _multi_factor_authentication:
+
 |mfa| Multi-factor authentication settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Choose your preferred multi-factor authentication (MFA) method. Your server
-administrator may have enabled a subset of these, so some may be unavailable.
-The full set of options is:
+Choose your preferred multi-factor authentication (MFA) method. When this is
+enabled, users are required to enter a six-digit code in addition to their
+username and password. Your server administrator may have enabled a subset of
+these, so some may be unavailable. The full set of options is:
 
 - Use an app such as `Google Authenticator`_ or `Twilio Authy`_.
 
 - Send a code by e-mail.
 
-- Send a code by SMS_ text message.
+- Send a code by SMS_ text message. SMS requires the server administrator to
+  set up a paid account with a supported provider (currently Kapow_ or `Twilio
+  SMS`_).
 
 - Disable multi-factor authentication. (This is less secure!)
+
+Administrators can enforce MFA by omitting ``none`` from the list of supported
+MFA methods on the server. See :ref:`MFA_METHODS <MFA_METHODS>`. If they do so,
+a user without MFA will be prompted to set it up once they have logged in.
 
 
 Help

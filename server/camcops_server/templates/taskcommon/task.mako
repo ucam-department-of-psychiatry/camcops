@@ -228,10 +228,18 @@ ${ task.get_task_html(req) | n }
 
         ## Link to help
         ${ req.icon_text(
-                icon=Icons.INFO_EXTERNAL,
-                url=task.help_url(),
-                text=_("Task help")
+            icon=Icons.INFO_EXTERNAL,
+            url=task.help_url(),
+            text=_("Task help")
         ) | n }
+        |
+        ## Link to details
+        ${ req.icon_text(
+            icon=Icons.INFO_INTERNAL,
+            url=req.route_url(Routes.TASK_DETAILS, table_name=task.tablename),
+            text=_("Task details")
+        ) | n }
+
 
         ## Link to XML and FHIR versions (always identifiable)
         %if not anonymise:
