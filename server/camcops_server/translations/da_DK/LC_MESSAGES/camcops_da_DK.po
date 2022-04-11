@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-03-01 12:11+0000\n"
-"PO-Revision-Date: 2022-03-01 12:11+0000\n"
+"POT-Creation-Date: 2022-04-11 16:34+0100\n"
+"PO-Revision-Date: 2022-04-11 16:34+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -1165,7 +1165,7 @@ msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 msgid "ID number fails basic checks"
 msgstr "Id-nummer fejler grundlæggende kontroller"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1671
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1676
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
@@ -1197,13 +1197,25 @@ msgstr "Definitionen af id-nummer kan ikke hentes"
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:78
-msgid "(Server) Count current task instances, by creation month and task type"
-msgstr "(Server) Tæl nuværende opgave forekomster, efter oprettelses måned og opgavetype"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:87
+msgid "Split by year?"
+msgstr "Opdelt efter år?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:171
-msgid "(Server) Count current task instances, by creation month and user"
-msgstr "(Server) Tæl nuværende opgave forekomster, efter oprettelses måned og bruger"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:101
+msgid "Split by month?"
+msgstr "Opdelt efter måned?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:115
+msgid "Split by task type?"
+msgstr "Opdelt efter opgavetype?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:129
+msgid "Split by user?"
+msgstr "Opdelt efter bruger?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:158
+msgid "(Server) Count current task instances"
+msgstr "(Server) Tæl aktuelle opgaveforekomster"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:500
 msgid "{task_name} @ {due_days} days"
@@ -3496,6 +3508,7 @@ msgid "The special note will vanish (though preserved in the database for auditi
 msgstr "Den særlige note vil forsvinde (men bevaret i databasen for revision)."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:51
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:240
 msgid "Task details"
 msgstr "Oplysninger om opgave"
 
@@ -4359,39 +4372,39 @@ msgstr "kl.:"
 msgid "Task help"
 msgstr "Opgavehjælp"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:281
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:289
 msgid "View identifiable version"
 msgstr "Vis identificerbar version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:331
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:339
 msgid "Add special note"
 msgstr "Tilføj speciel note"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:348
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:356
 msgid "Edit patient details"
 msgstr "Rediger patientoplysninger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:367
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:375
 msgid "Erase task instance, leaving placeholder"
 msgstr "Slet opgaveforekomst, forlader pladsholder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:380
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:388
 msgid "Erase task entirely"
 msgstr "Slet opgave helt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:405
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:413
 msgid "view previous version"
 msgstr "se tidligere version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:422
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:430
 msgid "view next version"
 msgstr "se næste version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:441
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:449
 msgid "View anonymised PDF"
 msgstr "Vis anonymiseret PDF"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:454
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:462
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:166
 msgid "View PDF for printing/saving"
 msgstr "Vis PDF til udskrivning/lagring"
