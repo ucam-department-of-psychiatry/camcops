@@ -86,6 +86,7 @@ first.
 When might one want to erase a task? See :ref:`Delete patient entirely
 <delete_patient>`.
 
+
 .. _erase_task_entirely:
 
 |delete_major| Erase task instance entirely
@@ -325,7 +326,6 @@ Here you can
   - |audit_item| files created;
   - |audit_item| HL7 v2 messages sent;
   - |audit_item| REDCap exports.
-
 
 
 |id_definitions| ID number definition management
