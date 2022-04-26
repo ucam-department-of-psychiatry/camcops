@@ -33,7 +33,9 @@ from typing import Generator, Optional, TYPE_CHECKING
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
-    OdsResponse, TsvResponse, XlsxResponse,
+    OdsResponse,
+    TsvResponse,
+    XlsxResponse,
 )
 from deform.form import Form
 import pendulum
@@ -64,7 +66,9 @@ if TYPE_CHECKING:
     )
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+        CamcopsRequest,
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -73,16 +77,20 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Unit testing
 # =============================================================================
 
+
 class AllReportTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_reports(self) -> None:
         self.announce("test_reports")
+        from camcops_server.cc_modules.cc_forms import ReportParamSchema  # noqa: E501,F811
+
         req = self.req
         for cls in get_all_report_classes(req):
             log.info("Testing report: {}", cls)
-            from camcops_server.cc_modules.cc_forms import ReportParamSchema  # noqa
+
             report = cls()
 
             self.assertIsInstance(report.report_id, str)
@@ -105,9 +113,11 @@ class AllReportTests(DemoDatabaseTestCase):
 
             try:
                 q = report.get_query(req)
-                assert (q is None or
-                        isinstance(q, SelectBase) or
-                        isinstance(q, Query)), (
+                assert (
+                    q is None
+                    or isinstance(q, SelectBase)
+                    or isinstance(q, Query)
+                ), (
                     f"get_query() method of class {cls} returned {q} which is "
                     f"of type {type(q)}"
                 )
@@ -116,7 +126,8 @@ class AllReportTests(DemoDatabaseTestCase):
 
             try:
                 self.assertIsInstanceOrNone(
-                    report.get_rows_colnames(req), PlainReportType)
+                    report.get_rows_colnames(req), PlainReportType
+                )
             except HTTPBadRequest:
                 pass
 
@@ -174,6 +185,7 @@ class AverageScoreReportTestCase(BasicDatabaseTestCase):
 
     def create_patient(self, idnum_value: int = 333) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
+
         patient = Patient()
         patient.id = next(self.patient_id_sequence)
         self.apply_standard_db_fields(patient)
@@ -189,9 +201,11 @@ class AverageScoreReportTestCase(BasicDatabaseTestCase):
 
         return patient
 
-    def create_patient_idnum(self, patient,
-                             idnum_value: int = 333) -> "PatientIdNum":
+    def create_patient_idnum(
+        self, patient, idnum_value: int = 333
+    ) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patient import PatientIdNum
+
         patient_idnum = PatientIdNum()
         patient_idnum.id = next(self.patient_idnum_id_sequence)
         self.apply_standard_db_fields(patient_idnum)
@@ -213,8 +227,9 @@ class TestReport(Report):
     def title(cls, req: "CamcopsRequest") -> str:
         return "Test report"
 
-    def get_rows_colnames(self, req: "CamcopsRequest") -> Optional[
-            PlainReportType]:
+    def get_rows_colnames(
+        self, req: "CamcopsRequest"
+    ) -> Optional[PlainReportType]:
         rows = [
             ["one", "two", "three"],
             ["eleven", "twelve", "thirteen"],
@@ -234,13 +249,10 @@ class ReportSpreadsheetTests(DemoRequestTestCase):
         self.assertIsInstance(response, XlsxResponse)
 
         self.assertIn(
-            "filename=CamCOPS_test_report",
-            response.content_disposition
+            "filename=CamCOPS_test_report", response.content_disposition
         )
 
-        self.assertIn(
-            ".xlsx", response.content_disposition
-        )
+        self.assertIn(".xlsx", response.content_disposition)
 
     def test_render_ods(self) -> None:
         report = TestReport()
@@ -249,13 +261,10 @@ class ReportSpreadsheetTests(DemoRequestTestCase):
         self.assertIsInstance(response, OdsResponse)
 
         self.assertIn(
-            "filename=CamCOPS_test_report",
-            response.content_disposition
+            "filename=CamCOPS_test_report", response.content_disposition
         )
 
-        self.assertIn(
-            ".ods", response.content_disposition
-        )
+        self.assertIn(".ods", response.content_disposition)
 
     def test_render_tsv(self) -> None:
         report = TestReport()
@@ -264,18 +273,17 @@ class ReportSpreadsheetTests(DemoRequestTestCase):
         self.assertIsInstance(response, TsvResponse)
 
         self.assertIn(
-            "filename=CamCOPS_test_report",
-            response.content_disposition
+            "filename=CamCOPS_test_report", response.content_disposition
         )
 
-        self.assertIn(
-            ".tsv", response.content_disposition
-        )
+        self.assertIn(".tsv", response.content_disposition)
 
         import csv
         import io
-        reader = csv.reader(io.StringIO(response.body.decode()),
-                            dialect="excel-tab")
+
+        reader = csv.reader(
+            io.StringIO(response.body.decode()), dialect="excel-tab"
+        )
 
         headings = next(reader)
         row_1 = next(reader)

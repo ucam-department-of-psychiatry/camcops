@@ -46,6 +46,7 @@ class MissingBackendException(Exception):
     """
     SMS backend not configured.
     """
+
     pass
 
 
@@ -53,6 +54,7 @@ class SmsBackend:
     """
     Base class for sending SMS (text) messages.
     """
+
     def __init__(self, config: Dict[str, Any]) -> None:
         """
         Args:
@@ -61,8 +63,9 @@ class SmsBackend:
         """
         self.config = config
 
-    def send_sms(self, recipient: str,
-                 message: str, sender: str = None) -> None:
+    def send_sms(
+        self, recipient: str, message: str, sender: str = None
+    ) -> None:
         """
         Send an SMS message.
 
@@ -81,6 +84,7 @@ class ConsoleSmsBackend(SmsBackend):
     """
     Debugging "backend" -- just prints the message to the server console.
     """
+
     PREFIX = "SMS debugging: would have sent message"
 
     @classmethod
@@ -90,8 +94,9 @@ class ConsoleSmsBackend(SmsBackend):
         """
         return f"{cls.PREFIX} {message!r} to {recipient}"
 
-    def send_sms(self, recipient: str,
-                 message: str, sender: str = None) -> None:
+    def send_sms(
+        self, recipient: str, message: str, sender: str = None
+    ) -> None:
         log.info(self.make_msg(recipient, message))
 
 
@@ -99,6 +104,7 @@ class KapowSmsBackend(SmsBackend):
     """
     Send SMS messages via Kapow.
     """
+
     API_URL = "https://www.kapow.co.uk/scripts/sendsms.php"
     # Parameters must be in lower case; see _read_sms_config().
     PARAM_USERNAME = "username"
@@ -106,20 +112,21 @@ class KapowSmsBackend(SmsBackend):
 
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
-        assert self.PARAM_USERNAME in config, (
-            f"Kapow SMS: missing parameter {self.PARAM_USERNAME.upper()}"
-        )
-        assert self.PARAM_PASSWORD in config, (
-            f"Kapow SMS: missing parameter {self.PARAM_PASSWORD.upper()}"
-        )
+        assert (
+            self.PARAM_USERNAME in config
+        ), f"Kapow SMS: missing parameter {self.PARAM_USERNAME.upper()}"
+        assert (
+            self.PARAM_PASSWORD in config
+        ), f"Kapow SMS: missing parameter {self.PARAM_PASSWORD.upper()}"
 
-    def send_sms(self, recipient: str,
-                 message: str, sender: str = None) -> None:
+    def send_sms(
+        self, recipient: str, message: str, sender: str = None
+    ) -> None:
         data = {
             "username": self.config[self.PARAM_USERNAME],
             "password": self.config[self.PARAM_PASSWORD],
             "mobile": recipient,
-            "sms": message
+            "sms": message,
         }
         requests.post(self.API_URL, data=data)
 
@@ -128,6 +135,7 @@ class TwilioSmsBackend(SmsBackend):
     """
     Send SMS messages via Twilio SMS.
     """
+
     # Parameters must be in lower case; see _read_sms_config().
     PARAM_SID = "sid"
     PARAM_TOKEN = "token"
@@ -135,12 +143,12 @@ class TwilioSmsBackend(SmsBackend):
 
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
-        assert self.PARAM_SID in config, (
-            f"Twilio SMS: missing parameter {self.PARAM_SID.upper()}"
-        )
-        assert self.PARAM_TOKEN in config, (
-            f"Twilio SMS: missing parameter {self.PARAM_TOKEN.upper()}"
-        )
+        assert (
+            self.PARAM_SID in config
+        ), f"Twilio SMS: missing parameter {self.PARAM_SID.upper()}"
+        assert (
+            self.PARAM_TOKEN in config
+        ), f"Twilio SMS: missing parameter {self.PARAM_TOKEN.upper()}"
         assert self.PARAM_FROM_PHONE_NUMBER in config, (
             f"Twilio SMS: missing parameter "
             f"{self.PARAM_FROM_PHONE_NUMBER.upper()}"
@@ -151,14 +159,15 @@ class TwilioSmsBackend(SmsBackend):
             # account_sid: defaults to username
         )
 
-    def send_sms(self, recipient: str, message:
-                 str, sender: str = None) -> None:
+    def send_sms(
+        self, recipient: str, message: str, sender: str = None
+    ) -> None:
         # Twilio accounts are associated with a phone number so we ignore
         # ``sender``
         self.client.messages.create(
             to=recipient,
             body=message,
-            from_=self.config[self.PARAM_FROM_PHONE_NUMBER]
+            from_=self.config[self.PARAM_FROM_PHONE_NUMBER],
         )
 
 

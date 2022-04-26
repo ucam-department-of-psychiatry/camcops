@@ -41,6 +41,7 @@ Creation date: 2021-07-20 13:07:35.320726
 
 from alembic import op
 import sqlalchemy as sa
+
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 
@@ -279,7 +280,9 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["_manually_erasing_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_cpft_research_preferences__manually_erasing_user_id"),
+            name=op.f(
+                "fk_cpft_research_preferences__manually_erasing_user_id"
+            ),
         ),
         sa.ForeignKeyConstraint(
             ["_preserving_user_id"],

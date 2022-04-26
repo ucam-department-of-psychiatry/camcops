@@ -47,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0062'
-down_revision = '0061'
+revision = "0062"
+down_revision = "0061"
 branch_labels = None
 depends_on = None
 
@@ -57,11 +57,23 @@ depends_on = None
 # The upgrade/downgrade steps
 # =============================================================================
 
+
 def upgrade():
-    with op.batch_alter_table('_security_webviewer_sessions', schema=None) as batch_op:  # noqa
-        batch_op.add_column(sa.Column('is_api_session', sa.Boolean(), nullable=True, comment='This session is using the client API (not a human browsing).'))  # noqa
+    with op.batch_alter_table(
+        "_security_webviewer_sessions", schema=None
+    ) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "is_api_session",
+                sa.Boolean(),
+                nullable=True,
+                comment="This session is using the client API (not a human browsing).",
+            )
+        )
 
 
 def downgrade():
-    with op.batch_alter_table('_security_webviewer_sessions', schema=None) as batch_op:  # noqa
-        batch_op.drop_column('is_api_session')
+    with op.batch_alter_table(
+        "_security_webviewer_sessions", schema=None
+    ) as batch_op:  # noqa
+        batch_op.drop_column("is_api_session")

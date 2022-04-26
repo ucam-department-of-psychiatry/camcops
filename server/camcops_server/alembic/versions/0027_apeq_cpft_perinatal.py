@@ -41,6 +41,7 @@ Creation date: 2019-06-10 22:58:38.487588
 
 from alembic import op
 import sqlalchemy as sa
+
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 

@@ -30,12 +30,20 @@ playing/sqla_concrete_inheritance_2.py
 """
 # https://stackoverflow.com/questions/26724897/adjacency-list-abstract-base-class-inheritance-used-in-relationship
 
-from sqlalchemy import Column, String, Integer, create_engine, ForeignKey, Float
-from sqlalchemy.orm import configure_mappers, Session, relationship
+from sqlalchemy import (
+    Column,
+    String,
+    Integer,
+    create_engine,
+    Float,
+)
+from sqlalchemy.orm import configure_mappers, Session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.declarative import declared_attr, AbstractConcreteBase
-from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn, CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    BoolColumn,
+    CamcopsColumn,
+)
 
 
 CREATE = False
@@ -58,7 +66,7 @@ class TreeNode(AbstractConcreteBase, Base):
 
     @declared_attr
     def __mapper_args__(cls):
-        return {'polymorphic_identity': cls.__name__, 'concrete': True}
+        return {"polymorphic_identity": cls.__name__, "concrete": True}
 
 
 class IntTreeNode(TreeNode):
@@ -69,7 +77,7 @@ class IntTreeNode(TreeNode):
 class FloatTreeNode(TreeNode):
     __tablename__ = "float_tree_node"
     value = Column(Float)
-    miau = Column(String(50), default='zuff')
+    miau = Column(String(50), default="zuff")
 
 
 e = create_engine("sqlite://", echo=True)
@@ -89,7 +97,7 @@ if PREPARE:
     # configuration, which includes creating instances.
 
 if CREATE:
-    itn = IntTreeNode(name='int_node')
+    itn = IntTreeNode(name="int_node")
     if CREATE_BOTH:
         ftn = FloatTreeNode(name="float_node")
 

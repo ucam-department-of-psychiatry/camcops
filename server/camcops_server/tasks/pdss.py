@@ -57,13 +57,19 @@ DP = 3
 
 class PdssMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Pdss'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Pdss"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q,
+            maximum=cls.MAX_PER_Q,
             comment_fmt="Q{n}, {s} (0-4, higher worse)",
             comment_strings=[
                 "frequency",
@@ -73,16 +79,16 @@ class PdssMetaclass(DeclarativeMeta):
                 "activities avoided",
                 "interference with responsibilities",
                 "interference with social life",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Pdss(TaskHasPatientMixin, Task,
-           metaclass=PdssMetaclass):
+class Pdss(TaskHasPatientMixin, Task, metaclass=PdssMetaclass):
     """
     Server implementation of the PDSS task.
     """
+
     __tablename__ = "pdss"
     shortname = "PDSS"
     provides_trackers = True
@@ -100,25 +106,29 @@ class Pdss(TaskHasPatientMixin, Task,
         return _("Panic Disorder Severity Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="PDSS total score (lower is better)",
-            axis_label=f"Total score (out of {self.MAX_TOTAL})",
-            axis_min=-0.5,
-            axis_max=self.MAX_TOTAL + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PDSS total score (lower is better)",
+                axis_label=f"Total score (out of {self.MAX_TOTAL})",
+                axis_min=-0.5,
+                axis_max=self.MAX_TOTAL + 0.5,
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total_score", coltype=Integer(),
+                name="total_score",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/ {self.MAX_TOTAL})"
+                comment=f"Total score (/ {self.MAX_TOTAL})",
             ),
             SummaryElement(
-                name="composite_score", coltype=Float(),
+                name="composite_score",
+                coltype=Float(),
                 value=self.composite_score(),
-                comment=f"Composite score (/ {self.MAX_COMPOSITE})"
+                comment=f"Composite score (/ {self.MAX_COMPOSITE})",
             ),
         ]
 
@@ -127,10 +137,12 @@ class Pdss(TaskHasPatientMixin, Task,
             return CTV_INCOMPLETE
         t = self.total_score()
         c = ws.number_to_dp(self.composite_score(), DP, default="?")
-        return [CtvInfo(
-            content=f"PDSS total score {t}/{self.MAX_TOTAL} "
-                    f"(composite {c}/{self.MAX_COMPOSITE})"
-        )]
+        return [
+            CtvInfo(
+                content=f"PDSS total score {t}/{self.MAX_TOTAL} "
+                f"(composite {c}/{self.MAX_COMPOSITE})"
+            )
+        ]
 
     def total_score(self) -> int:
         return self.sum_fields(self.QUESTION_FIELDS)
@@ -139,9 +151,8 @@ class Pdss(TaskHasPatientMixin, Task,
         return self.mean_fields(self.QUESTION_FIELDS)
 
     def is_complete(self) -> bool:
-        return (
-            self.field_contents_valid() and
-            self.all_fields_not_none(self.QUESTION_FIELDS)
+        return self.field_contents_valid() and self.all_fields_not_none(
+            self.QUESTION_FIELDS
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -169,8 +180,9 @@ class Pdss(TaskHasPatientMixin, Task,
             complete_tr=self.get_is_complete_tr(req),
             total=answer(self.total_score()),
             tmax=self.MAX_TOTAL,
-            composite=answer(ws.number_to_dp(self.composite_score(), DP,
-                                             default="?")),
+            composite=answer(
+                ws.number_to_dp(self.composite_score(), DP, default="?")
+            ),
             cmax=self.MAX_COMPOSITE,
             qmin=self.MIN_PER_Q,
             qmax=self.MAX_PER_Q,
@@ -178,20 +190,26 @@ class Pdss(TaskHasPatientMixin, Task,
         for q in range(1, self.NQUESTIONS + 1):
             qtext = self.wxstring(req, "q" + str(q))
             a = getattr(self, "q" + str(q))
-            atext = (self.wxstring(req, f"q{q}_option{a}", str(a))
-                     if a is not None else None)
+            atext = (
+                self.wxstring(req, f"q{q}_option{a}", str(a))
+                if a is not None
+                else None
+            )
             h += tr(qtext, answer(atext))
-        h += """
+        h += (
+            """
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        """
+            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        )
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         if not self.is_complete():
             return []
-        return [SnomedExpression(
-            req.snomed(SnomedLookup.PDSS_SCALE),
-            {
-                req.snomed(SnomedLookup.PDSS_SCORE): self.total_score(),
-            }
-        )]
+        return [
+            SnomedExpression(
+                req.snomed(SnomedLookup.PDSS_SCALE),
+                {req.snomed(SnomedLookup.PDSS_SCORE): self.total_score()},
+            )
+        ]

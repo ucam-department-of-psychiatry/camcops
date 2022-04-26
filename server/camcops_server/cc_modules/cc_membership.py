@@ -52,7 +52,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # -----------------------------------------------------------------------------
 # First version:
 # -----------------------------------------------------------------------------
-# http://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#many-to-many
+# https://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#many-to-many
 # user_group_table = Table(
 #     "_security_user_group",
 #     Base.metadata,
@@ -68,86 +68,91 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # -----------------------------------------------------------------------------
 # https://stackoverflow.com/questions/7417906/sqlalchemy-manytomany-secondary-table-with-additional-fields  # noqa
 # ... no, association_proxy isn't quite what we want
-# ... http://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html
-# http://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#association-object  # noqa
+# ... https://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html
+# https://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#association-object  # noqa
 # ... yes
 # ... ah, but that AND association_proxy:
-# http://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html#simplifying-association-objects  # noqa
+# https://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html#simplifying-association-objects  # noqa
 # ... no, not association_proxy!
+
 
 class UserGroupMembership(Base):
     """
     Represents a user's membership of a group, and associated per-group
     permissions.
     """
+
     __tablename__ = "_security_user_group"
 
     # PK, so we can use this object easily on its own via the ORM.
-    id = Column(
-        "id", Integer, primary_key=True, autoincrement=True,
-    )
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
 
     # Many-to-many mapping between User and Group
-    user_id = Column(
-        "user_id", Integer, ForeignKey("_security_users.id")
-    )
-    group_id = Column(
-        "group_id", Integer, ForeignKey("_security_groups.id"),
-    )
+    user_id = Column("user_id", Integer, ForeignKey("_security_users.id"))
+    group_id = Column("group_id", Integer, ForeignKey("_security_groups.id"))
 
     # User attributes that are specific to their group membership
     groupadmin = Column(
-        "groupadmin", Boolean,
+        "groupadmin",
+        Boolean,
         default=False,
-        comment="Is the user a privileged administrator for this group?"
+        comment="Is the user a privileged administrator for this group?",
     )
     may_upload = Column(
-        "may_upload", Boolean,
+        "may_upload",
+        Boolean,
         default=False,
-        comment="May the user upload data from a tablet device?"
+        comment="May the user upload data from a tablet device?",
     )
     may_register_devices = Column(
-        "may_register_devices", Boolean,
+        "may_register_devices",
+        Boolean,
         default=False,
-        comment="May the user register tablet devices?"
+        comment="May the user register tablet devices?",
     )
     may_use_webviewer = Column(
-        "may_use_webviewer", Boolean,
+        "may_use_webviewer",
+        Boolean,
         default=False,
-        comment="May the user use the web front end to view "
-                "CamCOPS data?"
+        comment="May the user use the web front end to view " "CamCOPS data?",
     )
     view_all_patients_when_unfiltered = Column(
-        "view_all_patients_when_unfiltered", Boolean,
+        "view_all_patients_when_unfiltered",
+        Boolean,
         default=False,
         comment="When no record filters are applied, can the user see "
-                "all records? (If not, then none are shown.)"
+        "all records? (If not, then none are shown.)",
     )
     may_dump_data = Column(
-        "may_dump_data", Boolean,
+        "may_dump_data",
+        Boolean,
         default=False,
-        comment="May the user run database data dumps via the web interface?"
+        comment="May the user run database data dumps via the web interface?",
     )
     may_run_reports = Column(
-        "may_run_reports", Boolean,
+        "may_run_reports",
+        Boolean,
         default=False,
         comment="May the user run reports via the web interface? "
-                "(Overrides other view restrictions.)"
+        "(Overrides other view restrictions.)",
     )
     may_add_notes = Column(
-        "may_add_notes", Boolean,
+        "may_add_notes",
+        Boolean,
         default=False,
-        comment="May the user add special notes to tasks?"
+        comment="May the user add special notes to tasks?",
     )
     may_manage_patients = Column(
-        "may_manage_patients", Boolean,
+        "may_manage_patients",
+        Boolean,
         default=False,
-        comment="May the user add/edit/delete patients?"
+        comment="May the user add/edit/delete patients?",
     )
     may_email_patients = Column(
-        "may_email_patients", Boolean,
+        "may_email_patients",
+        Boolean,
         default=False,
-        comment="May the user send emails to patients?"
+        comment="May the user send emails to patients?",
     )
 
     group = relationship("Group", back_populates="user_group_memberships")
@@ -158,9 +163,9 @@ class UserGroupMembership(Base):
         self.group_id = group_id
 
     @classmethod
-    def get_ugm_by_id(cls,
-                      dbsession: SqlASession,
-                      ugm_id: Optional[int]) -> Optional['UserGroupMembership']:
+    def get_ugm_by_id(
+        cls, dbsession: SqlASession, ugm_id: Optional[int]
+    ) -> Optional["UserGroupMembership"]:
         """
         Fetches a :class:`UserGroupMembership` by its ID.
         """

@@ -81,8 +81,14 @@ OP_UPDATE = "update"
 OP_POEDIT = "poedit"
 OP_COMPILE = "compile"
 OP_ALL = "all"
-ALL_OPERATIONS = [OP_EXTRACT, OP_INIT_MISSING, OP_UPDATE,
-                  OP_POEDIT, OP_COMPILE, OP_ALL]
+ALL_OPERATIONS = [
+    OP_EXTRACT,
+    OP_INIT_MISSING,
+    OP_UPDATE,
+    OP_POEDIT,
+    OP_COMPILE,
+    OP_ALL,
+]
 
 LOCALES = [_ for _ in POSSIBLE_LOCALES if _ != DEFAULT_LOCALE]
 LC_MESSAGES = "LC_MESSAGES"
@@ -126,8 +132,9 @@ def get_po_filename(locale: str) -> str:
     """
     Returns the full-path filename of the ``.po`` file for a given locale.
     """
-    return join(TRANSLATIONS_DIR, locale, LC_MESSAGES,
-                get_po_basefilename(locale))
+    return join(
+        TRANSLATIONS_DIR, locale, LC_MESSAGES, get_po_basefilename(locale)
+    )
 
 
 def get_mo_basefilename() -> str:
@@ -184,27 +191,26 @@ Operations:
 
     {OP_ALL}
         Executes all other operations, except {OP_POEDIT}, in sequence.""",
-        formatter_class=RawDescriptionArgumentDefaultsHelpFormatter
+        formatter_class=RawDescriptionArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "operation", choices=ALL_OPERATIONS,
+        "operation",
+        choices=ALL_OPERATIONS,
         metavar="operation",
-        help=f"Operation to perform; possibilities are {ALL_OPERATIONS!r}"
+        help=f"Operation to perform; possibilities are {ALL_OPERATIONS!r}",
     )
-    parser.add_argument(
-        "--verbose", action="store_true",
-        help="Be verbose"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Be verbose")
     parser.add_argument(
         "--poedit",
         help=f"Path to 'poedit' tool. "
-             f"Default is taken from {ENVVAR_POEDIT} environment variable "
-             f"or 'which poedit'.",
-        default=os.environ.get(ENVVAR_POEDIT) or shutil.which("poedit")
+        f"Default is taken from {ENVVAR_POEDIT} environment variable "
+        f"or 'which poedit'.",
+        default=os.environ.get(ENVVAR_POEDIT) or shutil.which("poedit"),
     )
     args = parser.parse_args()
     main_only_quicksetup_rootlogger(
-        level=logging.DEBUG if args.verbose else logging.INFO)
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
     op = args.operation  # type: str
 
     pybabel = "pybabel"
@@ -214,7 +220,8 @@ Operations:
         log.info(f"EXTRACT: from code to a .pot file: {POT_FILE}")
         comment_tags_csv = ",".join(COMMENT_TAGS)
         cmdargs = [
-            pybabel, "extract",
+            pybabel,
+            "extract",
             # "--help",
             f"--charset={CHARSET}",
             f"--mapping-file={MAPPING_FILE}",
@@ -224,7 +231,7 @@ Operations:
             f"--copyright-holder={COPYRIGHT_HOLDER}",
             f"--project={PROJECT_NAME}",
             f"--version={CAMCOPS_SERVER_VERSION_STRING}",
-            f"--add-comments={comment_tags_csv}"
+            f"--add-comments={comment_tags_csv}",
         ] + SOURCE_DIRS
         run(cmdargs)
 
@@ -234,16 +241,19 @@ Operations:
         for locale in LOCALES:
             po_filename = get_po_filename(locale)
             if isfile(po_filename):
-                log.debug(f"Skipping init for existing .po file: {po_filename}")
+                log.debug(
+                    f"Skipping init for existing .po file: {po_filename}"
+                )
                 continue
             log.info(f"Making new .po file for {locale}: {po_filename}")
             cmdargs = [
-                pybabel, "init",
+                pybabel,
+                "init",
                 f"--domain={DOMAIN}",
                 f"--input-file={POT_FILE}",
                 f"--locale={locale}",
                 f"--output-file={po_filename}",
-                "--no-wrap"
+                "--no-wrap",
             ]
             run(cmdargs)
 
@@ -255,7 +265,8 @@ Operations:
                 continue
             log.info(f"Using .pot file to update .po file: {po_filename}")
             cmdargs = [
-                pybabel, "update",
+                pybabel,
+                "update",
                 f"--domain={DOMAIN}",
                 f"--input-file={POT_FILE}",
                 f"--output-file={po_filename}",
@@ -266,16 +277,14 @@ Operations:
             ]
             run(cmdargs)
 
-    if op in (OP_POEDIT, ):  # but not OP_ALL
+    if op in (OP_POEDIT,):  # but not OP_ALL
         for locale in LOCALES:
             po_filename = get_po_filename(locale)
             if not isfile(po_filename):
                 log.warning(f"Missing .po file: {po_filename}")
                 continue
             log.info(f"Launching Poedit to edit .po file: {po_filename}")
-            cmdargs = [
-                poedit, po_filename,
-            ]
+            cmdargs = [poedit, po_filename]
             spawn(cmdargs)
 
     if op in (OP_COMPILE, OP_ALL):
@@ -284,7 +293,8 @@ Operations:
             mo_filename = get_mo_filename(locale)
             log.info(f"Compiling .po file to .mo file: {mo_filename}")
             cmdargs = [
-                pybabel, "compile",
+                pybabel,
+                "compile",
                 f"--domain={DOMAIN}",
                 f"--input-file={po_filename}",
                 f"--output-file={mo_filename}",

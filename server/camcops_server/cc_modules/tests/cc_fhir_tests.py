@@ -43,7 +43,9 @@ from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTaskFhir,
 )
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
+from camcops_server.cc_modules.cc_exportrecipientinfo import (
+    ExportRecipientInfo,
+)
 from camcops_server.cc_modules.cc_fhir import (
     fhir_reference_from_identifier,
     fhir_sysval_from_id,
@@ -84,6 +86,7 @@ TEST_SEX = "F"
 # Helper classes
 # =============================================================================
 
+
 class MockFhirTaskExporter(FhirTaskExporter):
     pass
 
@@ -92,7 +95,7 @@ class MockFhirResponse(mock.Mock):
     def __init__(self, response_json: Dict):
         super().__init__(
             text=json.dumps(response_json),
-            json=mock.Mock(return_value=response_json)
+            json=mock.Mock(return_value=response_json),
         )
 
 
@@ -114,25 +117,24 @@ class FhirExportTestCase(DemoDatabaseTestCase):
 
     def create_fhir_patient(self) -> None:
         self.patient = self.create_patient(
-            forename=TEST_FORENAME,
-            surname=TEST_SURNAME,
-            sex=TEST_SEX
+            forename=TEST_FORENAME, surname=TEST_SURNAME, sex=TEST_SEX
         )
         self.patient_nhs = self.create_patient_idnum(
             patient_id=self.patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER
+            idnum_value=TEST_NHS_NUMBER,
         )
         self.patient_rio = self.create_patient_idnum(
             patient_id=self.patient.id,
             which_idnum=self.rio_iddef.which_idnum,
-            idnum_value=TEST_RIO_NUMBER
+            idnum_value=TEST_RIO_NUMBER,
         )
 
 
 # =============================================================================
 # A generic patient-based task: PHQ9
 # =============================================================================
+
 
 class FhirTaskExporterPhq9Tests(FhirExportTestCase):
     def create_tasks(self) -> None:
@@ -151,7 +153,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.task.q9 = 0
         self.task.q10 = 3
         self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(self.req, self.patient._device_id)
+        self.task.save_with_next_available_id(
+            self.req, self.patient._device_id
+        )
         self.dbsession.commit()
 
     def test_patient_exported(self) -> None:
@@ -160,13 +164,13 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
-        response_json = {
-            Fc.TYPE: Fc.TRANSACTION_RESPONSE,
-        }
+        response_json = {Fc.TYPE: Fc.TRANSACTION_RESPONSE}
 
         with mock.patch.object(
-                exporter.client.server, "post_json",
-                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.client.server,
+            "post_json",
+            return_value=MockFhirResponse(response_json),
+        ) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -187,10 +191,12 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(identifier[0][Fc.SYSTEM], patient_id.system)
         self.assertEqual(identifier[0][Fc.VALUE], str(idnum_value))
 
-        self.assertEqual(patient[Fc.NAME][0][Fc.NAME_FAMILY],
-                         self.patient.surname)
-        self.assertEqual(patient[Fc.NAME][0][Fc.NAME_GIVEN],
-                         [self.patient.forename])
+        self.assertEqual(
+            patient[Fc.NAME][0][Fc.NAME_FAMILY], self.patient.surname
+        )
+        self.assertEqual(
+            patient[Fc.NAME][0][Fc.NAME_GIVEN], [self.patient.forename]
+        )
         self.assertEqual(patient[Fc.GENDER], Fc.GENDER_FEMALE)
 
         request = sent_json[Fc.ENTRY][0][Fc.REQUEST]
@@ -198,7 +204,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_PATIENT)
         self.assertEqual(
             request[Fc.IF_NONE_EXIST],
-            fhir_reference_from_identifier(patient_id)
+            fhir_reference_from_identifier(patient_id),
         )
 
     def test_questionnaire_exported(self) -> None:
@@ -207,13 +213,13 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
-        response_json = {
-            Fc.TYPE: Fc.TRANSACTION_RESPONSE,
-        }
+        response_json = {Fc.TYPE: Fc.TRANSACTION_RESPONSE}
 
         with mock.patch.object(
-                exporter.client.server, "post_json",
-                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.client.server,
+            "post_json",
+            return_value=MockFhirResponse(response_json),
+        ) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -221,8 +227,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         sent_json = args[1]
 
         questionnaire = sent_json[Fc.ENTRY][1][Fc.RESOURCE]
-        self.assertEqual(questionnaire[Fc.RESOURCE_TYPE],
-                         Fc.RESOURCE_TYPE_QUESTIONNAIRE)
+        self.assertEqual(
+            questionnaire[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_QUESTIONNAIRE
+        )
         self.assertEqual(questionnaire[Fc.STATUS], Fc.QSTATUS_ACTIVE)
 
         identifier = questionnaire[Fc.IDENTIFIER]
@@ -231,57 +238,68 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_SYSTEM}"
         )
         self.assertEqual(identifier[0][Fc.SYSTEM], questionnaire_url)
-        self.assertEqual(identifier[0][Fc.VALUE],
-                         f"phq9/{CAMCOPS_SERVER_VERSION_STRING}")
+        self.assertEqual(
+            identifier[0][Fc.VALUE], f"phq9/{CAMCOPS_SERVER_VERSION_STRING}"
+        )
 
         question_1 = questionnaire[Fc.ITEM][0]
         question_10 = questionnaire[Fc.ITEM][9]
         self.assertEqual(question_1[Fc.LINK_ID], "q1")
-        self.assertEqual(question_1[Fc.TEXT],
-                         "1. Little interest or pleasure in doing things")
+        self.assertEqual(
+            question_1[Fc.TEXT],
+            "1. Little interest or pleasure in doing things",
+        )
         self.assertEqual(question_1[Fc.TYPE], Fc.QITEM_TYPE_CHOICE)
 
         options = question_1[Fc.ANSWER_OPTION]
         self.assertEqual(options[0][Fc.VALUE_CODING][Fc.CODE], "0")
-        self.assertEqual(options[0][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Not at all")
+        self.assertEqual(options[0][Fc.VALUE_CODING][Fc.DISPLAY], "Not at all")
 
         self.assertEqual(options[1][Fc.VALUE_CODING][Fc.CODE], "1")
-        self.assertEqual(options[1][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Several days")
+        self.assertEqual(
+            options[1][Fc.VALUE_CODING][Fc.DISPLAY], "Several days"
+        )
 
         self.assertEqual(options[2][Fc.VALUE_CODING][Fc.CODE], "2")
-        self.assertEqual(options[2][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "More than half the days")
+        self.assertEqual(
+            options[2][Fc.VALUE_CODING][Fc.DISPLAY], "More than half the days"
+        )
 
         self.assertEqual(options[3][Fc.VALUE_CODING][Fc.CODE], "3")
-        self.assertEqual(options[3][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Nearly every day")
+        self.assertEqual(
+            options[3][Fc.VALUE_CODING][Fc.DISPLAY], "Nearly every day"
+        )
 
         self.assertEqual(question_10[Fc.LINK_ID], "q10")
         self.assertEqual(
             question_10[Fc.TEXT],
-            ("10. If you checked off any problems, how difficult have these "
-             "problems made it for you to do your work, take care of things "
-             "at home, or get along with other people?")
+            (
+                "10. If you checked off any problems, how difficult have these "
+                "problems made it for you to do your work, take care of things "
+                "at home, or get along with other people?"
+            ),
         )
         self.assertEqual(question_10[Fc.TYPE], Fc.QITEM_TYPE_CHOICE)
         options = question_10[Fc.ANSWER_OPTION]
         self.assertEqual(options[0][Fc.VALUE_CODING][Fc.CODE], "0")
-        self.assertEqual(options[0][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Not difficult at all")
+        self.assertEqual(
+            options[0][Fc.VALUE_CODING][Fc.DISPLAY], "Not difficult at all"
+        )
 
         self.assertEqual(options[1][Fc.VALUE_CODING][Fc.CODE], "1")
-        self.assertEqual(options[1][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Somewhat difficult")
+        self.assertEqual(
+            options[1][Fc.VALUE_CODING][Fc.DISPLAY], "Somewhat difficult"
+        )
 
         self.assertEqual(options[2][Fc.VALUE_CODING][Fc.CODE], "2")
-        self.assertEqual(options[2][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Very difficult")
+        self.assertEqual(
+            options[2][Fc.VALUE_CODING][Fc.DISPLAY], "Very difficult"
+        )
 
         self.assertEqual(options[3][Fc.VALUE_CODING][Fc.CODE], "3")
-        self.assertEqual(options[3][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Extremely difficult")
+        self.assertEqual(
+            options[3][Fc.VALUE_CODING][Fc.DISPLAY], "Extremely difficult"
+        )
 
         self.assertEqual(len(questionnaire[Fc.ITEM]), 10)
 
@@ -290,8 +308,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_QUESTIONNAIRE)
         q_id = self.task._get_fhir_questionnaire_id(self.req)
         self.assertEqual(
-            request[Fc.IF_NONE_EXIST],
-            fhir_reference_from_identifier(q_id)
+            request[Fc.IF_NONE_EXIST], fhir_reference_from_identifier(q_id)
         )
 
     def test_questionnaire_response_exported(self) -> None:
@@ -300,13 +317,13 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
-        response_json = {
-            Fc.TYPE: Fc.TRANSACTION_RESPONSE,
-        }
+        response_json = {Fc.TYPE: Fc.TRANSACTION_RESPONSE}
 
         with mock.patch.object(
-                exporter.client.server, "post_json",
-                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.client.server,
+            "post_json",
+            return_value=MockFhirResponse(response_json),
+        ) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -314,16 +331,15 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         sent_json = args[1]
 
         response = sent_json[Fc.ENTRY][2][Fc.RESOURCE]
-        self.assertEqual(response[Fc.RESOURCE_TYPE],
-                         Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE)
+        self.assertEqual(
+            response[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE
+        )
 
         q_id = self.task._get_fhir_questionnaire_id(self.req)
+        self.assertEqual(response[Fc.QUESTIONNAIRE], fhir_sysval_from_id(q_id))
         self.assertEqual(
-            response[Fc.QUESTIONNAIRE],
-            fhir_sysval_from_id(q_id)
+            response[Fc.AUTHORED], self.task.when_created.isoformat()
         )
-        self.assertEqual(response[Fc.AUTHORED],
-                         self.task.when_created.isoformat())
         self.assertEqual(response[Fc.STATUS], Fc.QSTATUS_COMPLETED)
 
         subject = response[Fc.SUBJECT]
@@ -341,19 +357,20 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         request = sent_json[Fc.ENTRY][2][Fc.REQUEST]
         self.assertEqual(request[Fc.METHOD], HttpMethod.POST)
-        self.assertEqual(request[Fc.URL],
-                         Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE)
+        self.assertEqual(
+            request[Fc.URL], Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE
+        )
         qr_id = self.task._get_fhir_questionnaire_response_id(self.req)
         self.assertEqual(
-            request[Fc.IF_NONE_EXIST],
-            fhir_reference_from_identifier(qr_id)
+            request[Fc.IF_NONE_EXIST], fhir_reference_from_identifier(qr_id)
         )
 
         item_1 = response[Fc.ITEM][0]
         item_10 = response[Fc.ITEM][9]
         self.assertEqual(item_1[Fc.LINK_ID], "q1")
-        self.assertEqual(item_1[Fc.TEXT],
-                         "1. Little interest or pleasure in doing things")
+        self.assertEqual(
+            item_1[Fc.TEXT], "1. Little interest or pleasure in doing things"
+        )
         answer_1 = item_1[Fc.ANSWER][0]
         # noinspection PyUnresolvedReferences
         self.assertEqual(answer_1[Fc.VALUE_INTEGER], self.task.q1)
@@ -361,9 +378,11 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(item_10[Fc.LINK_ID], "q10")
         self.assertEqual(
             item_10[Fc.TEXT],
-            ("10. If you checked off any problems, how difficult have these "
-             "problems made it for you to do your work, take care of things "
-             "at home, or get along with other people?")
+            (
+                "10. If you checked off any problems, how difficult have these "
+                "problems made it for you to do your work, take care of things "
+                "at home, or get along with other people?"
+            ),
         )
         answer_10 = item_10[Fc.ANSWER][0]
         self.assertEqual(answer_10[Fc.VALUE_INTEGER], self.task.q10)
@@ -384,47 +403,49 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         response_json = {
             Fc.RESOURCE_TYPE: Fc.RESOURCE_TYPE_BUNDLE,
-            Fc.ID: 'cae48957-e7e6-4649-97f8-0a882076ad0a',
+            Fc.ID: "cae48957-e7e6-4649-97f8-0a882076ad0a",
             Fc.TYPE: Fc.TRANSACTION_RESPONSE,
             Fc.LINK: [
-                {
-                    Fc.RELATION: Fc.SELF,
-                    Fc.URL: 'http://localhost:8080/fhir'
-                }
+                {Fc.RELATION: Fc.SELF, Fc.URL: "http://localhost:8080/fhir"}
             ],
             Fc.ENTRY: [
                 {
                     Fc.RESPONSE: {
                         Fc.STATUS: Fc.RESPONSE_STATUS_200_OK,
-                        Fc.LOCATION: 'Patient/1/_history/1',
-                        Fc.ETAG: '1'
+                        Fc.LOCATION: "Patient/1/_history/1",
+                        Fc.ETAG: "1",
                     }
                 },
                 {
                     Fc.RESPONSE: {
                         Fc.STATUS: Fc.RESPONSE_STATUS_200_OK,
-                        Fc.LOCATION: 'Questionnaire/26/_history/1',
-                        Fc.ETAG: '1'
+                        Fc.LOCATION: "Questionnaire/26/_history/1",
+                        Fc.ETAG: "1",
                     }
                 },
                 {
                     Fc.RESPONSE: {
                         Fc.STATUS: Fc.RESPONSE_STATUS_201_CREATED,
-                        Fc.LOCATION: 'QuestionnaireResponse/42/_history/1',
-                        Fc.ETAG: '1',
-                        Fc.LAST_MODIFIED: '2021-05-24T09:30:11.098+00:00'
+                        Fc.LOCATION: "QuestionnaireResponse/42/_history/1",
+                        Fc.ETAG: "1",
+                        Fc.LAST_MODIFIED: "2021-05-24T09:30:11.098+00:00",
                     }
-                }
-            ]
+                },
+            ],
         }
 
-        with mock.patch.object(exporter.client.server, "post_json",
-                               return_value=MockFhirResponse(response_json)):
+        with mock.patch.object(
+            exporter.client.server,
+            "post_json",
+            return_value=MockFhirResponse(response_json),
+        ):
             exporter.export_task()
 
         self.dbsession.commit()
 
-        entries = exported_task_fhir.entries  # type: List[ExportedTaskFhirEntry]  # noqa
+        entries = (
+            exported_task_fhir.entries
+        )  # type: List[ExportedTaskFhirEntry]  # noqa
 
         entries.sort(key=lambda e: e.location)
 
@@ -437,11 +458,14 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(entries[1].etag, "1")
 
         self.assertEqual(entries[2].status, Fc.RESPONSE_STATUS_201_CREATED)
-        self.assertEqual(entries[2].location,
-                         "QuestionnaireResponse/42/_history/1")
+        self.assertEqual(
+            entries[2].location, "QuestionnaireResponse/42/_history/1"
+        )
         self.assertEqual(entries[2].etag, "1")
-        self.assertEqual(entries[2].last_modified,
-                         datetime.datetime(2021, 5, 24, 9, 30, 11, 98000))
+        self.assertEqual(
+            entries[2].last_modified,
+            datetime.datetime(2021, 5, 24, 9, 30, 11, 98000),
+        )
 
     # def test_raises_when_task_does_not_support(self) -> None:
     #     exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -468,8 +492,10 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         errmsg = "Something bad happened"
         with mock.patch.object(
-                exporter.client.server, "post_json",
-                side_effect=HTTPError(response=mock.Mock(text=errmsg))):
+            exporter.client.server,
+            "post_json",
+            side_effect=HTTPError(response=mock.Mock(text=errmsg)),
+        ):
             with self.assertRaises(FhirExportException) as cm:
                 exporter.export_task()
 
@@ -534,8 +560,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.task.q1_satisfaction = 3
         self.task.q2_satisfaction = "Service experience"
 
-        self.task.save_with_next_available_id(self.req,
-                                              self.server_device.id)
+        self.task.save_with_next_available_id(self.req, self.server_device.id)
         self.dbsession.commit()
 
     def test_questionnaire_exported(self) -> None:
@@ -544,13 +569,13 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
-        response_json = {
-            Fc.TYPE: Fc.TRANSACTION_RESPONSE,
-        }
+        response_json = {Fc.TYPE: Fc.TRANSACTION_RESPONSE}
 
         with mock.patch.object(
-                exporter.client.server, "post_json",
-                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.client.server,
+            "post_json",
+            return_value=MockFhirResponse(response_json),
+        ) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -558,8 +583,9 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         sent_json = args[1]
 
         questionnaire = sent_json[Fc.ENTRY][0][Fc.RESOURCE]
-        self.assertEqual(questionnaire[Fc.RESOURCE_TYPE],
-                         Fc.RESOURCE_TYPE_QUESTIONNAIRE)
+        self.assertEqual(
+            questionnaire[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_QUESTIONNAIRE
+        )
         self.assertEqual(questionnaire[Fc.STATUS], Fc.QSTATUS_ACTIVE)
 
         identifier = questionnaire[Fc.IDENTIFIER]
@@ -568,12 +594,18 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_SYSTEM}"
         )
         self.assertEqual(identifier[0][Fc.SYSTEM], questionnaire_url)
-        self.assertEqual(identifier[0][Fc.VALUE],
-                         f"apeqpt/{CAMCOPS_SERVER_VERSION_STRING}")
+        self.assertEqual(
+            identifier[0][Fc.VALUE], f"apeqpt/{CAMCOPS_SERVER_VERSION_STRING}"
+        )
 
         self.assertEqual(len(questionnaire[Fc.ITEM]), 5)
-        (q1_choice, q2_choice, q3_choice,
-         q1_satisfaction, q2_satisfaction) = questionnaire[Fc.ITEM]
+        (
+            q1_choice,
+            q2_choice,
+            q3_choice,
+            q1_satisfaction,
+            q2_satisfaction,
+        ) = questionnaire[Fc.ITEM]
 
         # q1_choice
         self.assertEqual(q1_choice[Fc.LINK_ID], "q1_choice")
@@ -618,24 +650,29 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(q1_satisfaction[Fc.TYPE], Fc.QITEM_TYPE_CHOICE)
         options = q1_satisfaction[Fc.ANSWER_OPTION]
         self.assertEqual(options[0][Fc.VALUE_CODING][Fc.CODE], "0")
-        self.assertEqual(options[0][Fc.VALUE_CODING][Fc.DISPLAY],
-                         APEQ_SATIS_A0)
+        self.assertEqual(
+            options[0][Fc.VALUE_CODING][Fc.DISPLAY], APEQ_SATIS_A0
+        )
 
         self.assertEqual(options[1][Fc.VALUE_CODING][Fc.CODE], "1")
-        self.assertEqual(options[1][Fc.VALUE_CODING][Fc.DISPLAY],
-                         APEQ_SATIS_A1)
+        self.assertEqual(
+            options[1][Fc.VALUE_CODING][Fc.DISPLAY], APEQ_SATIS_A1
+        )
 
         self.assertEqual(options[2][Fc.VALUE_CODING][Fc.CODE], "2")
-        self.assertEqual(options[2][Fc.VALUE_CODING][Fc.DISPLAY],
-                         APEQ_SATIS_A2)
+        self.assertEqual(
+            options[2][Fc.VALUE_CODING][Fc.DISPLAY], APEQ_SATIS_A2
+        )
 
         self.assertEqual(options[3][Fc.VALUE_CODING][Fc.CODE], "3")
-        self.assertEqual(options[3][Fc.VALUE_CODING][Fc.DISPLAY],
-                         APEQ_SATIS_A3)
+        self.assertEqual(
+            options[3][Fc.VALUE_CODING][Fc.DISPLAY], APEQ_SATIS_A3
+        )
 
         self.assertEqual(options[4][Fc.VALUE_CODING][Fc.CODE], "4")
-        self.assertEqual(options[4][Fc.VALUE_CODING][Fc.DISPLAY],
-                         APEQ_SATIS_A4)
+        self.assertEqual(
+            options[4][Fc.VALUE_CODING][Fc.DISPLAY], APEQ_SATIS_A4
+        )
 
         # q2 satisfaction
         self.assertEqual(q2_satisfaction[Fc.LINK_ID], "q2_satisfaction")
@@ -647,8 +684,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_QUESTIONNAIRE)
         q_id = self.task._get_fhir_questionnaire_id(self.req)
         self.assertEqual(
-            request[Fc.IF_NONE_EXIST],
-            fhir_reference_from_identifier(q_id)
+            request[Fc.IF_NONE_EXIST], fhir_reference_from_identifier(q_id)
         )
 
     def test_questionnaire_response_exported(self) -> None:
@@ -657,13 +693,13 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
-        response_json = {
-            Fc.TYPE: Fc.TRANSACTION_RESPONSE,
-        }
+        response_json = {Fc.TYPE: Fc.TRANSACTION_RESPONSE}
 
         with mock.patch.object(
-                exporter.client.server, "post_json",
-                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.client.server,
+            "post_json",
+            return_value=MockFhirResponse(response_json),
+        ) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -671,12 +707,14 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         sent_json = args[1]
 
         response = sent_json[Fc.ENTRY][1][Fc.RESOURCE]
-        self.assertEqual(response[Fc.RESOURCE_TYPE],
-                         Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE)
+        self.assertEqual(
+            response[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE
+        )
         q_id = self.task._get_fhir_questionnaire_id(self.req)
         self.assertEqual(response[Fc.QUESTIONNAIRE], fhir_sysval_from_id(q_id))
-        self.assertEqual(response[Fc.AUTHORED],
-                         self.task.when_created.isoformat())
+        self.assertEqual(
+            response[Fc.AUTHORED], self.task.when_created.isoformat()
+        )
         self.assertEqual(response[Fc.STATUS], Fc.QSTATUS_COMPLETED)
 
         request = sent_json[Fc.ENTRY][1][Fc.REQUEST]
@@ -684,53 +722,63 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(request[Fc.URL], "QuestionnaireResponse")
         qr_id = self.task._get_fhir_questionnaire_response_id(self.req)
         self.assertEqual(
-            request[Fc.IF_NONE_EXIST],
-            fhir_reference_from_identifier(qr_id)
+            request[Fc.IF_NONE_EXIST], fhir_reference_from_identifier(qr_id)
         )
 
         self.assertEqual(len(response[Fc.ITEM]), 5)
-        (q1_choice, q2_choice, q3_choice,
-         q1_satisfaction, q2_satisfaction) = response[Fc.ITEM]
+        (
+            q1_choice,
+            q2_choice,
+            q3_choice,
+            q1_satisfaction,
+            q2_satisfaction,
+        ) = response[Fc.ITEM]
 
         # q1_choice
         self.assertEqual(q1_choice[Fc.LINK_ID], "q1_choice")
         self.assertEqual(q1_choice[Fc.TEXT], GIVEN_INFO)
         q1_choice_answer = q1_choice[Fc.ANSWER][0]
-        self.assertEqual(q1_choice_answer[Fc.VALUE_INTEGER],
-                         self.task.q1_choice)
+        self.assertEqual(
+            q1_choice_answer[Fc.VALUE_INTEGER], self.task.q1_choice
+        )
 
         # q2_choice
         self.assertEqual(q2_choice[Fc.LINK_ID], "q2_choice")
         self.assertEqual(q2_choice[Fc.TEXT], PREFER_ANY)
         q2_choice_answer = q2_choice[Fc.ANSWER][0]
-        self.assertEqual(q2_choice_answer[Fc.VALUE_INTEGER],
-                         self.task.q2_choice)
+        self.assertEqual(
+            q2_choice_answer[Fc.VALUE_INTEGER], self.task.q2_choice
+        )
 
         # q3_choice
         self.assertEqual(q3_choice[Fc.LINK_ID], "q3_choice")
         self.assertEqual(q3_choice[Fc.TEXT], OFFERED_PREFERENCE)
         q3_choice_answer = q3_choice[Fc.ANSWER][0]
-        self.assertEqual(q3_choice_answer[Fc.VALUE_INTEGER],
-                         self.task.q3_choice)
+        self.assertEqual(
+            q3_choice_answer[Fc.VALUE_INTEGER], self.task.q3_choice
+        )
 
         # q1_satisfaction
         self.assertEqual(q1_satisfaction[Fc.LINK_ID], "q1_satisfaction")
         self.assertEqual(q1_satisfaction[Fc.TEXT], SATISFIED_ASSESSMENT)
         q1_satisfaction_answer = q1_satisfaction[Fc.ANSWER][0]
-        self.assertEqual(q1_satisfaction_answer[Fc.VALUE_INTEGER],
-                         self.task.q1_satisfaction)
+        self.assertEqual(
+            q1_satisfaction_answer[Fc.VALUE_INTEGER], self.task.q1_satisfaction
+        )
 
         # q2 satisfaction
         self.assertEqual(q2_satisfaction[Fc.LINK_ID], "q2_satisfaction")
         self.assertEqual(q2_satisfaction[Fc.TEXT], TELL_US)
         q2_satisfaction_answer = q2_satisfaction[Fc.ANSWER][0]
-        self.assertEqual(q2_satisfaction_answer[Fc.VALUE_STRING],
-                         self.task.q2_satisfaction)
+        self.assertEqual(
+            q2_satisfaction_answer[Fc.VALUE_STRING], self.task.q2_satisfaction
+        )
 
 
 # =============================================================================
 # Tasks that add their own special details
 # =============================================================================
+
 
 class FhirTaskExporterBMITests(FhirExportTestCase):
     def create_tasks(self) -> None:
@@ -742,14 +790,14 @@ class FhirTaskExporterBMITests(FhirExportTestCase):
         self.task.height_m = 1.8
         self.task.waist_cm = 82
         self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(self.req, self.patient._device_id)
+        self.task.save_with_next_available_id(
+            self.req, self.patient._device_id
+        )
         self.dbsession.commit()
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
-            self.req,
-            self.recipient,
-            skip_docs_if_other_content=True
+            self.req, self.recipient, skip_docs_if_other_content=True
         )
         bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
@@ -763,7 +811,9 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
         self.task = DiagnosisIcd10()
         self.apply_standard_task_fields(self.task)
         self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(self.req, self.patient._device_id)
+        self.task.save_with_next_available_id(
+            self.req, self.patient._device_id
+        )
         self.dbsession.commit()
 
         # noinspection PyArgumentList
@@ -772,9 +822,9 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
             seqnum=1,
             code="F33.30",
             description="Recurrent depressive disorder, current episode "
-                        "severe with psychotic symptoms: "
-                        "with mood-congruent psychotic symptoms",
-            comment="Cotard's syndrome"
+            "severe with psychotic symptoms: "
+            "with mood-congruent psychotic symptoms",
+            comment="Cotard's syndrome",
         )
         self.apply_standard_db_fields(item1)
         item1.save_with_next_available_id(self.req, self.task._device_id)
@@ -783,16 +833,14 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
             diagnosis_icd10_id=self.task.id,
             seqnum=2,
             code="F43.1",
-            description="Post-traumatic stress disorder"
+            description="Post-traumatic stress disorder",
         )
         self.apply_standard_db_fields(item2)
         item2.save_with_next_available_id(self.req, self.task._device_id)
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
-            self.req,
-            self.recipient,
-            skip_docs_if_other_content=True
+            self.req, self.recipient, skip_docs_if_other_content=True
         )
         bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
@@ -806,7 +854,9 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
         self.task = DiagnosisIcd9CM()
         self.apply_standard_task_fields(self.task)
         self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(self.req, self.patient._device_id)
+        self.task.save_with_next_available_id(
+            self.req, self.patient._device_id
+        )
         self.dbsession.commit()
 
         # noinspection PyArgumentList
@@ -815,7 +865,7 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
             seqnum=1,
             code="290.4",
             description="Vascular dementia",
-            comment="or perhaps mixed dementia"
+            comment="or perhaps mixed dementia",
         )
         self.apply_standard_db_fields(item1)
         item1.save_with_next_available_id(self.req, self.task._device_id)
@@ -824,16 +874,14 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
             diagnosis_icd9cm_id=self.task.id,
             seqnum=2,
             code="303.0",
-            description="Acute alcoholic intoxication"
+            description="Acute alcoholic intoxication",
         )
         self.apply_standard_db_fields(item2)
         item2.save_with_next_available_id(self.req, self.task._device_id)
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
-            self.req,
-            self.recipient,
-            skip_docs_if_other_content=True
+            self.req, self.recipient, skip_docs_if_other_content=True
         )
         bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
@@ -845,20 +893,21 @@ class FhirTaskExporterGad7Tests(FhirExportTestCase):
     The GAD7 is a standard questionnaire that we don't provide any special
     FHIR support for; we rely on autodiscovery.
     """
+
     def create_tasks(self) -> None:
         self.create_fhir_patient()
 
         self.task = Gad7()
         self.apply_standard_task_fields(self.task)
         self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(self.req, self.patient._device_id)
+        self.task.save_with_next_available_id(
+            self.req, self.patient._device_id
+        )
         self.dbsession.commit()
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
-            self.req,
-            self.recipient,
-            skip_docs_if_other_content=True
+            self.req, self.recipient, skip_docs_if_other_content=True
         )
         bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.critical(f"Bundle:\n{bundle_str}")

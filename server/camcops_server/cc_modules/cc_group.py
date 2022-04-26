@@ -59,14 +59,22 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # A group can always see itself, but may also have permission to see others;
 # see "Groups" in the CamCOPS documentation.
 
-# http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#self-referential-many-to-many-relationship  # noqa
+# https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#self-referential-many-to-many-relationship  # noqa
 group_group_table = Table(
     "_security_group_group",
     Base.metadata,
-    Column("group_id", Integer, ForeignKey("_security_groups.id"),
-           primary_key=True),
-    Column("can_see_group_id", Integer, ForeignKey("_security_groups.id"),
-           primary_key=True)
+    Column(
+        "group_id",
+        Integer,
+        ForeignKey("_security_groups.id"),
+        primary_key=True,
+    ),
+    Column(
+        "can_see_group_id",
+        Integer,
+        ForeignKey("_security_groups.id"),
+        primary_key=True,
+    ),
 )
 
 
@@ -74,45 +82,59 @@ group_group_table = Table(
 # Group
 # =============================================================================
 
+
 class Group(Base):
     """
     Represents a CamCOPS group.
 
     See "Groups" in the CamCOPS documentation.
     """
+
     __tablename__ = "_security_groups"
 
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True, index=True,
-        comment="Group ID"
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        comment="Group ID",
     )
     name = Column(
-        "name", GroupNameColType,
-        nullable=False, index=True, unique=True,
-        comment="Group name"
+        "name",
+        GroupNameColType,
+        nullable=False,
+        index=True,
+        unique=True,
+        comment="Group name",
     )
     description = Column(
-        "description", GroupDescriptionColType,
-        comment="Description of the group"
+        "description",
+        GroupDescriptionColType,
+        comment="Description of the group",
     )
     upload_policy = Column(
-        "upload_policy", IdPolicyColType,
-        comment="Upload policy for the group, as a string"
+        "upload_policy",
+        IdPolicyColType,
+        comment="Upload policy for the group, as a string",
     )
     finalize_policy = Column(
-        "finalize_policy", IdPolicyColType,
-        comment="Finalize policy for the group, as a string"
+        "finalize_policy",
+        IdPolicyColType,
+        comment="Finalize policy for the group, as a string",
     )
 
     ip_use_id = Column(
-        "ip_use_id", Integer, ForeignKey(IpUse.id),
+        "ip_use_id",
+        Integer,
+        ForeignKey(IpUse.id),
         nullable=True,
-        comment=f"FK to {IpUse.__tablename__}.{IpUse.id.name}"
+        comment=f"FK to {IpUse.__tablename__}.{IpUse.id.name}",
     )
 
-    ip_use = relationship(IpUse, uselist=False, single_parent=True,
-                          cascade="all, delete-orphan")
+    ip_use = relationship(
+        IpUse, uselist=False, single_parent=True, cascade="all, delete-orphan"
+    )
 
     # users = relationship(
     #     "User",  # defined with string to avoid circular import
@@ -120,7 +142,8 @@ class Group(Base):
     #     back_populates="groups"  # see User.groups
     # )
     user_group_memberships = relationship(
-        "UserGroupMembership", back_populates="group")
+        "UserGroupMembership", back_populates="group"
+    )
     users = association_proxy("user_group_memberships", "user")
 
     regular_user_group_memberships = relationship(
@@ -128,12 +151,9 @@ class Group(Base):
         primaryjoin="and_("
         "Group.id==UserGroupMembership.group_id, "
         "User.id==UserGroupMembership.user_id, "
-        "User.auto_generated==False)"
+        "User.auto_generated==False)",
     )
-    regular_users = association_proxy(
-        "regular_user_group_memberships",
-        "user"
-    )
+    regular_users = association_proxy("regular_user_group_memberships", "user")
 
     can_see_other_groups = relationship(
         "Group",  # link back to our own class
@@ -141,7 +161,7 @@ class Group(Base):
         primaryjoin=(id == group_group_table.c.group_id),  # "us"
         secondaryjoin=(id == group_group_table.c.can_see_group_id),  # "them"
         backref="groups_that_can_see_us",
-        lazy="joined"  # not sure this does anything here
+        lazy="joined",  # not sure this does anything here
     )
 
     def __str__(self) -> str:
@@ -172,16 +192,18 @@ class Group(Base):
         return ourself.union(self.ids_of_other_groups_group_may_see())
 
     @classmethod
-    def get_groups_from_id_list(cls, dbsession: SqlASession,
-                                group_ids: List[int]) -> List["Group"]:
+    def get_groups_from_id_list(
+        cls, dbsession: SqlASession, group_ids: List[int]
+    ) -> List["Group"]:
         """
         Fetches groups from a list of group IDs.
         """
         return dbsession.query(Group).filter(Group.id.in_(group_ids)).all()
 
     @classmethod
-    def get_group_by_name(cls, dbsession: SqlASession,
-                          name: str) -> Optional["Group"]:
+    def get_group_by_name(
+        cls, dbsession: SqlASession, name: str
+    ) -> Optional["Group"]:
         """
         Fetches a group from its name.
         """
@@ -190,8 +212,9 @@ class Group(Base):
         return dbsession.query(cls).filter(cls.name == name).first()
 
     @classmethod
-    def get_group_by_id(cls, dbsession: SqlASession,
-                        group_id: int) -> Optional["Group"]:
+    def get_group_by_id(
+        cls, dbsession: SqlASession, group_id: int
+    ) -> Optional["Group"]:
         """
         Fetches a group from its integer ID.
         """

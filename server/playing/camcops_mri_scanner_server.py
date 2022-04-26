@@ -37,14 +37,19 @@ import random
 from typing import Any, Tuple
 
 from twisted.internet import reactor
+
 # from twisted.internet.stdio import StandardIO
 from twisted.internet.protocol import connectionDone, Factory, Protocol
 from twisted.internet.serialport import (
-    SerialPort, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
+    SerialPort,
+    EIGHTBITS,
+    PARITY_NONE,
+    STOPBITS_ONE,
 )
 from twisted.internet.task import LoopingCall
 from twisted.protocols.basic import LineReceiver
 from twisted.python.failure import Failure
+
 # http://twistedmatrix.com/documents/current/core/howto/servers.html
 
 """
@@ -107,6 +112,7 @@ KEYBOARD_TICK_S = 0.001
 # Support functions
 # =============================================================================
 
+
 def get_now() -> datetime.datetime:
     return datetime.datetime.now(LOCALTZ)
 
@@ -120,8 +126,9 @@ def coin(p: float) -> bool:
 # =============================================================================
 # http://stackoverflow.com/questions/4715340
 
+
 class MRIProtocol(Protocol):
-    delimiter = '\n'
+    delimiter = "\n"
 
     def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
@@ -156,8 +163,8 @@ class MRIProtocol(Protocol):
 # =============================================================================
 # http://stackoverflow.com/questions/4715340
 
-class ButtonBoxProtocol(Protocol):
 
+class ButtonBoxProtocol(Protocol):
     def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
         network.buttonbox = self
@@ -186,8 +193,8 @@ class ButtonBoxProtocol(Protocol):
 # Communication with keyboard (or button box emulating keyboard)
 # =============================================================================
 
-class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
 
+class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
     def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
 
@@ -217,7 +224,6 @@ class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
 
 
 class KeyboardPoller(object):
-
     def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
         # self.nticks = 0
@@ -238,6 +244,7 @@ class KeyboardPoller(object):
 # =============================================================================
 # Tablet server, to communicate with tablet
 # =============================================================================
+
 
 class TabletServerProtocol(LineReceiver):
     # alter "delimiter" if necessary
@@ -274,10 +281,9 @@ class TabletServerProtocol(LineReceiver):
     # Outbound information
     # -------------------------------------------------------------------------
 
-    def tell_tablet(self,
-                    data: str,
-                    now: datetime.datetime = None,
-                    *args: Any) -> None:
+    def tell_tablet(
+        self, data: str, now: datetime.datetime = None, *args: Any
+    ) -> None:
         """
         Send information to tablet, with timestamps.
         Comma-separed columns, containing:
@@ -289,13 +295,10 @@ class TabletServerProtocol(LineReceiver):
         """
         abs_time, rel_time = self.get_abs_rel_time(now)
         # msg = "{d},{r},{a}".format(d=data, r=rel_time, a=abs_time)
-        msg = ",".join(str(x) for x in (
-            rel_time,
-            abs_time,
-            data
-        ) + tuple(args))
-        logger.info("Sending to tablet<{p}>: {m}".format(
-            p=self.peer, m=msg))
+        msg = ",".join(
+            str(x) for x in (rel_time, abs_time, data) + tuple(args)
+        )
+        logger.info("Sending to tablet<{p}>: {m}".format(p=self.peer, m=msg))
         self.sendLine(msg.encode(ENCODING))
 
     def tell_scanner(self, data: str) -> None:
@@ -314,8 +317,9 @@ class TabletServerProtocol(LineReceiver):
     # Support functions
     # -------------------------------------------------------------------------
 
-    def get_abs_rel_time(self, now: datetime.datetime = None) \
-            -> Tuple[str, float]:
+    def get_abs_rel_time(
+        self, now: datetime.datetime = None
+    ) -> Tuple[str, float]:
         """
         Returns tuple:
             absolute time in ISO-8601 format
@@ -341,8 +345,9 @@ class TabletServerProtocol(LineReceiver):
         Override of Twisted function. Data received from tablet via TCP.
         """
         data = data.decode(ENCODING)
-        logger.debug("Line received from tablet<{p}>: {d}".format(
-            p=self.peer, d=data))
+        logger.debug(
+            "Line received from tablet<{p}>: {d}".format(p=self.peer, d=data)
+        )
         if data == FT_START_TIMING_PULSES:
             self.ft_want_pulses()
         elif data == FT_TRIGGER:
@@ -350,8 +355,10 @@ class TabletServerProtocol(LineReceiver):
         elif data == FT_FAKE_PULSE:
             self.factory.fake_pulse()
         else:
-            logger.warning("Unknown command received from tablet<{p}>: "
-                           "{d}".format(p=self.peer, d=data))
+            logger.warning(
+                "Unknown command received from tablet<{p}>: "
+                "{d}".format(p=self.peer, d=data)
+            )
             self.tell_tablet(TT_SYNTAX_ERROR)
 
     def ft_trigger(self) -> None:
@@ -383,8 +390,9 @@ class TabletServerProtocol(LineReceiver):
         if data == FS_PULSE:
             self.fs_pulse(now)
         else:
-            logger.warning("Unknown command received from scanner: "
-                           "{}".format(data))
+            logger.warning(
+                "Unknown command received from scanner: " "{}".format(data)
+            )
 
     def fs_pulse(self, now: datetime.datetime) -> None:
         """
@@ -414,6 +422,7 @@ class TabletServerProtocol(LineReceiver):
 # =============================================================================
 # Tablet server factory, to create and manage instances of tablet servers
 # =============================================================================
+
 
 class TabletServerProtocolFactory(Factory):
     protocol = TabletServerProtocol
@@ -478,6 +487,7 @@ class TabletServerProtocolFactory(Factory):
 # Main
 # =============================================================================
 
+
 def main() -> None:
     """
     Connect to MRI scanner and button box. Start network comms.
@@ -485,45 +495,107 @@ def main() -> None:
     # Fetch command-line options.
     parser = argparse.ArgumentParser(
         prog="camcops_mri_scanner_server",  # name the user will use to call it
-        description="CamCOPS MRI scanner/button box interface server."
+        description="CamCOPS MRI scanner/button box interface server.",
     )
-    parser.add_argument("--port", type=int, default=3233,
-                        help="TCP port for network communications")
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=3233,
+        help="TCP port for network communications",
+    )
     # ... Suboptimal, but this is the Whisker port number
 
-    parser.add_argument("--mri_serialdev", type=str,
-                        default="/dev/cu.Bluetooth-Serial-1",
-                        help=("Device to talk to MRI scanner "
-                              "(e.g. Linux /dev/XXX; Windows COM4)"))
-    parser.add_argument("--mri_baudrate", type=int, default=19200,
-                        help="MRI scanner: baud rate (e.g. 19200)")
-    parser.add_argument("--mri_bytesize", type=int, default=EIGHTBITS,
-                        help="MRI scanner: number of bits (e.g. 8)")
-    parser.add_argument("--mri_parity", type=str, default=PARITY_NONE,
-                        help="MRI scanner: parity (e.g. N)")
-    parser.add_argument("--mri_stopbits", type=int, default=STOPBITS_ONE,
-                        help="MRI scanner: stop bits (e.g. 1)")
-    parser.add_argument("--mri_xonxoff", type=int, default=0,
-                        help="MRI scanner: use XON/XOFF (0 or 1)")
-    parser.add_argument("--mri_rtscts", type=int, default=0,
-                        help="MRI scanner: use RTS/CTS (0 or 1)")
+    parser.add_argument(
+        "--mri_serialdev",
+        type=str,
+        default="/dev/cu.Bluetooth-Serial-1",
+        help=(
+            "Device to talk to MRI scanner "
+            "(e.g. Linux /dev/XXX; Windows COM4)"
+        ),
+    )
+    parser.add_argument(
+        "--mri_baudrate",
+        type=int,
+        default=19200,
+        help="MRI scanner: baud rate (e.g. 19200)",
+    )
+    parser.add_argument(
+        "--mri_bytesize",
+        type=int,
+        default=EIGHTBITS,
+        help="MRI scanner: number of bits (e.g. 8)",
+    )
+    parser.add_argument(
+        "--mri_parity",
+        type=str,
+        default=PARITY_NONE,
+        help="MRI scanner: parity (e.g. N)",
+    )
+    parser.add_argument(
+        "--mri_stopbits",
+        type=int,
+        default=STOPBITS_ONE,
+        help="MRI scanner: stop bits (e.g. 1)",
+    )
+    parser.add_argument(
+        "--mri_xonxoff",
+        type=int,
+        default=0,
+        help="MRI scanner: use XON/XOFF (0 or 1)",
+    )
+    parser.add_argument(
+        "--mri_rtscts",
+        type=int,
+        default=0,
+        help="MRI scanner: use RTS/CTS (0 or 1)",
+    )
 
-    parser.add_argument("--bb_serialdev", type=str,
-                        default="/dev/cu.Bluetooth-Serial-2",
-                        help=("Device to talk to button box "
-                              "(e.g. Linux /dev/YYY; Windows COM5)"))
-    parser.add_argument("--bb_baudrate", type=int, default=19200,
-                        help="Button box: baud rate (e.g. 19200)")
-    parser.add_argument("--bb_bytesize", type=int, default=EIGHTBITS,
-                        help="Button box: number of bits (e.g. 8)")
-    parser.add_argument("--bb_parity", type=str, default=PARITY_NONE,
-                        help="Button box: parity (e.g. N)")
-    parser.add_argument("--bb_stopbits", type=int, default=STOPBITS_ONE,
-                        help="Button box: stop bits (e.g. 1)")
-    parser.add_argument("--bb_xonxoff", type=int, default=0,
-                        help="Button box: use XON/XOFF (0 or 1)")
-    parser.add_argument("--bb_rtscts", type=int, default=0,
-                        help="Button box: use RTS/CTS (0 or 1)")
+    parser.add_argument(
+        "--bb_serialdev",
+        type=str,
+        default="/dev/cu.Bluetooth-Serial-2",
+        help=(
+            "Device to talk to button box "
+            "(e.g. Linux /dev/YYY; Windows COM5)"
+        ),
+    )
+    parser.add_argument(
+        "--bb_baudrate",
+        type=int,
+        default=19200,
+        help="Button box: baud rate (e.g. 19200)",
+    )
+    parser.add_argument(
+        "--bb_bytesize",
+        type=int,
+        default=EIGHTBITS,
+        help="Button box: number of bits (e.g. 8)",
+    )
+    parser.add_argument(
+        "--bb_parity",
+        type=str,
+        default=PARITY_NONE,
+        help="Button box: parity (e.g. N)",
+    )
+    parser.add_argument(
+        "--bb_stopbits",
+        type=int,
+        default=STOPBITS_ONE,
+        help="Button box: stop bits (e.g. 1)",
+    )
+    parser.add_argument(
+        "--bb_xonxoff",
+        type=int,
+        default=0,
+        help="Button box: use XON/XOFF (0 or 1)",
+    )
+    parser.add_argument(
+        "--bb_rtscts",
+        type=int,
+        default=0,
+        help="Button box: use RTS/CTS (0 or 1)",
+    )
 
     args = parser.parse_args()
 
@@ -536,16 +608,20 @@ def main() -> None:
             baud=args.mri_baudrate,
             b=args.mri_bytesize,
             p=args.mri_parity,
-            s=args.mri_stopbits))
-    SerialPort(protocol=MRIProtocol(tcpfactory),
-               deviceNameOrPortNumber=args.mri_serialdev,
-               reactor=reactor,
-               baudrate=args.mri_baudrate,
-               bytesize=args.mri_bytesize,
-               parity=args.mri_parity,
-               stopbits=args.mri_stopbits,
-               xonxoff=args.mri_xonxoff,
-               rtscts=args.mri_rtscts)
+            s=args.mri_stopbits,
+        )
+    )
+    SerialPort(
+        protocol=MRIProtocol(tcpfactory),
+        deviceNameOrPortNumber=args.mri_serialdev,
+        reactor=reactor,
+        baudrate=args.mri_baudrate,
+        bytesize=args.mri_bytesize,
+        parity=args.mri_parity,
+        stopbits=args.mri_stopbits,
+        xonxoff=args.mri_xonxoff,
+        rtscts=args.mri_rtscts,
+    )
 
     logger.info(
         "Response button box: starting serial comms on device {dev} "
@@ -554,16 +630,20 @@ def main() -> None:
             baud=args.bb_baudrate,
             b=args.bb_bytesize,
             p=args.bb_parity,
-            s=args.bb_stopbits))
-    SerialPort(protocol=ButtonBoxProtocol(tcpfactory),
-               deviceNameOrPortNumber=args.bb_serialdev,
-               reactor=reactor,
-               baudrate=args.bb_baudrate,
-               bytesize=args.bb_bytesize,
-               parity=args.bb_parity,
-               stopbits=args.bb_stopbits,
-               xonxoff=args.bb_xonxoff,
-               rtscts=args.bb_rtscts)
+            s=args.bb_stopbits,
+        )
+    )
+    SerialPort(
+        protocol=ButtonBoxProtocol(tcpfactory),
+        deviceNameOrPortNumber=args.bb_serialdev,
+        reactor=reactor,
+        baudrate=args.bb_baudrate,
+        bytesize=args.bb_bytesize,
+        parity=args.bb_parity,
+        stopbits=args.bb_stopbits,
+        xonxoff=args.bb_xonxoff,
+        rtscts=args.bb_rtscts,
+    )
 
     logger.info("Starting keyboard input")
 
@@ -581,5 +661,5 @@ def main() -> None:
     reactor.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

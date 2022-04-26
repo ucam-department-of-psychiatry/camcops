@@ -27,22 +27,18 @@ camcops_server/cc_modules/tests/cc_export_tests.py
 
 """
 
-# import logging
 from os.path import join
 from pathlib import Path
 import tempfile
 import unittest
 
-from camcops_server.cc_modules.cc_export import (
-    UserDownloadFile,
-)
-
-# log = logging.getLogger(__name__)
+from camcops_server.cc_modules.cc_export import UserDownloadFile
 
 
 # =============================================================================
 # Unit tests
 # =============================================================================
+
 
 class ExportTests(unittest.TestCase):
     """

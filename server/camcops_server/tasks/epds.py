@@ -57,12 +57,15 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # EPDS
 # =============================================================================
 
+
 class EpdsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Epds'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Epds"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
         super().__init__(name, bases, classdict)
 
@@ -84,23 +87,27 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
         return _("Edinburgh Postnatal Depression Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="EPDS total score (rating depressive symptoms)",
-            axis_label=f"Total score (out of {self.MAX_TOTAL})",
-            axis_min=-0.5,
-            axis_max=self.MAX_TOTAL + 0.5,
-            horizontal_lines=[
-                self.CUTOFF_2_GREATER_OR_EQUAL - 0.5,
-                self.CUTOFF_1_GREATER_OR_EQUAL - 0.5,
-            ],
-            horizontal_labels=[
-                TrackerLabel(self.CUTOFF_2_GREATER_OR_EQUAL,
-                             "likely depression"),
-                TrackerLabel(self.CUTOFF_1_GREATER_OR_EQUAL,
-                             "possible depression"),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="EPDS total score (rating depressive symptoms)",
+                axis_label=f"Total score (out of {self.MAX_TOTAL})",
+                axis_min=-0.5,
+                axis_max=self.MAX_TOTAL + 0.5,
+                horizontal_lines=[
+                    self.CUTOFF_2_GREATER_OR_EQUAL - 0.5,
+                    self.CUTOFF_1_GREATER_OR_EQUAL - 0.5,
+                ],
+                horizontal_labels=[
+                    TrackerLabel(
+                        self.CUTOFF_2_GREATER_OR_EQUAL, "likely depression"
+                    ),
+                    TrackerLabel(
+                        self.CUTOFF_1_GREATER_OR_EQUAL, "possible depression"
+                    ),
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
@@ -111,10 +118,11 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (out of {self.MAX_TOTAL})"
-            ),
+                comment=f"Total score (out of {self.MAX_TOTAL})",
+            )
         ]
 
     def is_complete(self) -> bool:
@@ -132,15 +140,21 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
             d = {None: "?"}
             for option in range(0, 4):
                 d[option] = (
-                    str(option) + " — " +
-                    self.wxstring(req, "q" + str(q) + "_option" + str(option)))
+                    str(option)
+                    + " — "
+                    + self.wxstring(
+                        req, "q" + str(q) + "_option" + str(option)
+                    )
+                )
             answer_dicts.append(d)
 
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_question"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+                get_from_dict(
+                    answer_dicts[q - 1], getattr(self, "q" + str(q))
+                ),
             )
 
         return f"""

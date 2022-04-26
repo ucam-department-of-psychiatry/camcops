@@ -71,6 +71,7 @@ from camcops_server.tasks.cpft_covid_medical import CpftCovidMedical
 from camcops_server.tasks.cpft_research_preferences import (
     CpftResearchPreferences,
 )
+
 # todo: # from camcops_server.tasks.ctqsf import Ctqsf
 
 from camcops_server.tasks.dad import Dad
@@ -118,11 +119,9 @@ from camcops_server.tasks.irac import Irac
 from camcops_server.tasks.khandaker_insight_medical import (
     KhandakerInsightMedical,
 )
-from camcops_server.tasks.khandaker_mojo_medical import (
-    KhandakerMojoMedical,
-)
+from camcops_server.tasks.khandaker_mojo_medical import KhandakerMojoMedical
 from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
-     KhandakerMojoMedicationTherapy,
+    KhandakerMojoMedicationTherapy,
 )
 from camcops_server.tasks.kirby_mcq import Kirby
 from camcops_server.tasks.khandaker_mojo_sociodemographics import (

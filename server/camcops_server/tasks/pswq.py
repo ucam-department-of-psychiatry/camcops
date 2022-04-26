@@ -48,15 +48,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # PSWQ
 # =============================================================================
 
+
 class PswqMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Pswq'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Pswq"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q,
+            maximum=cls.MAX_PER_Q,
             comment_fmt="Q{n}, {s} (1-5)",
             comment_strings=[
                 "OK if not enough time [REVERSE SCORE]",  # 1
@@ -75,16 +82,16 @@ class PswqMetaclass(DeclarativeMeta):
                 "when start worrying cannot stop",
                 "worry all the time",  # 15
                 "worry about projects until done",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Pswq(TaskHasPatientMixin, Task,
-           metaclass=PswqMetaclass):
+class Pswq(TaskHasPatientMixin, Task, metaclass=PswqMetaclass):
     """
     Server implementation of the PSWQ task.
     """
+
     __tablename__ = "pswq"
     shortname = "PSWQ"
     provides_trackers = True
@@ -103,28 +110,35 @@ class Pswq(TaskHasPatientMixin, Task,
         return _("Penn State Worry Questionnaire")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="PSWQ total score (lower is better)",
-            axis_label=f"Total score ({self.MIN_TOTAL}–{self.MAX_TOTAL})",
-            axis_min=self.MIN_TOTAL - 0.5,
-            axis_max=self.MAX_TOTAL + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PSWQ total score (lower is better)",
+                axis_label=f"Total score ({self.MIN_TOTAL}–{self.MAX_TOTAL})",
+                axis_min=self.MIN_TOTAL - 0.5,
+                axis_max=self.MAX_TOTAL + 0.5,
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total_score", coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (16-80)"),
+            SummaryElement(
+                name="total_score",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (16-80)",
+            )
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"PSWQ total score {self.total_score()} "
-                    f"(range {self.MIN_TOTAL}–{self.MAX_TOTAL})"
-        )]
+        return [
+            CtvInfo(
+                content=f"PSWQ total score {self.total_score()} "
+                f"(range {self.MIN_TOTAL}–{self.MAX_TOTAL})"
+            )
+        ]
 
     def score(self, q: int) -> Optional[int]:
         value = getattr(self, "q" + str(q))
@@ -141,8 +155,8 @@ class Pswq(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -179,12 +193,16 @@ class Pswq(TaskHasPatientMixin, Task,
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.PSWQ_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.PSWQ_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.PSWQ_SCALE),
-                {
-                    req.snomed(SnomedLookup.PSWQ_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.PSWQ_SCALE),
+                    {req.snomed(SnomedLookup.PSWQ_SCORE): self.total_score()},
+                )
+            )
         return codes

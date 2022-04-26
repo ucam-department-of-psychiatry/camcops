@@ -78,6 +78,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # ExportRecipient class
 # =============================================================================
 
+
 class ExportRecipient(ExportRecipientInfo, Base):
     """
     SQLAlchemy ORM class representing an export recipient.
@@ -98,7 +99,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         "current",
         "group_names",  # Python only
     ]
-    NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES = [
+    RECOPY_EACH_TIME_FROM_CONFIG_ATTRNAMES = [
         # Fields representing sensitive information, not stored in the
         # database. See also init_on_load() function.
         "email_host_password",
@@ -111,288 +112,382 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # Identifying this object, and whether it's the "live" version
     # -------------------------------------------------------------------------
     id = Column(
-        "id", BigInteger,
-        primary_key=True, autoincrement=True, index=True,
-        comment="Export recipient ID (arbitrary primary key)"
+        "id",
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        comment="Export recipient ID (arbitrary primary key)",
     )
     recipient_name = Column(
-        "recipient_name", ExportRecipientNameColType, nullable=False,
-        comment="Name of export recipient"
+        "recipient_name",
+        ExportRecipientNameColType,
+        nullable=False,
+        comment="Name of export recipient",
     )
     current = Column(
-        "current", Boolean, default=False, nullable=False,
+        "current",
+        Boolean,
+        default=False,
+        nullable=False,
         comment="Is this the current record for this recipient? (If not, it's "
-                "a historical record for audit purposes.)"
+        "a historical record for audit purposes.)",
     )
 
     # -------------------------------------------------------------------------
     # How to export
     # -------------------------------------------------------------------------
     transmission_method = Column(
-        "transmission_method", ExportTransmissionMethodColType, nullable=False,
-        comment="Export transmission method (e.g. hl7, file)"
+        "transmission_method",
+        ExportTransmissionMethodColType,
+        nullable=False,
+        comment="Export transmission method (e.g. hl7, file)",
     )
     push = Column(
-        "push", Boolean, default=False, nullable=False,
-        comment="Push (support auto-export on upload)?"
+        "push",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Push (support auto-export on upload)?",
     )
     task_format = Column(
-        "task_format", ExportTransmissionMethodColType,
+        "task_format",
+        ExportTransmissionMethodColType,
         comment="Format that task information should be sent in (e.g. PDF), "
-                "if not predetermined by the transmission method"
+        "if not predetermined by the transmission method",
     )
     xml_field_comments = Column(
-        "xml_field_comments", Boolean, default=True, nullable=False,
-        comment="Whether to include field comments in XML output"
+        "xml_field_comments",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="Whether to include field comments in XML output",
     )
 
     # -------------------------------------------------------------------------
     # What to export
     # -------------------------------------------------------------------------
     all_groups = Column(
-        "all_groups", Boolean, default=False, nullable=False,
-        comment="Export all groups? (If not, see group_ids.)"
+        "all_groups",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Export all groups? (If not, see group_ids.)",
     )
     group_ids = Column(
-        "group_ids", IntListType,
-        comment="Integer IDs of CamCOPS group to export data from (as CSV)"
+        "group_ids",
+        IntListType,
+        comment="Integer IDs of CamCOPS group to export data from (as CSV)",
     )
     tasks = Column(
-        "tasks", StringListType,
+        "tasks",
+        StringListType,
         comment="Base table names of CamCOPS tasks to export data from "
-                "(as CSV)"
+        "(as CSV)",
     )
     start_datetime_utc = Column(
-        "start_datetime_utc", DateTime,
-        comment="Start date/time for tasks (UTC)"
+        "start_datetime_utc",
+        DateTime,
+        comment="Start date/time for tasks (UTC)",
     )
     end_datetime_utc = Column(
-        "end_datetime_utc", DateTime,
-        comment="End date/time for tasks (UTC)"
+        "end_datetime_utc", DateTime, comment="End date/time for tasks (UTC)"
     )
     finalized_only = Column(
-        "finalized_only", Boolean, default=True, nullable=False,
-        comment="Send only finalized tasks"
+        "finalized_only",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="Send only finalized tasks",
     )
     include_anonymous = Column(
-        "include_anonymous", Boolean, default=False, nullable=False,
+        "include_anonymous",
+        Boolean,
+        default=False,
+        nullable=False,
         comment="Include anonymous tasks? "
-                "Not applicable to some methods (e.g. HL7)"
+        "Not applicable to some methods (e.g. HL7)",
     )
     primary_idnum = Column(
-        "primary_idnum", Integer, nullable=False,
-        comment="Which ID number is used as the primary ID?"
+        "primary_idnum",
+        Integer,
+        nullable=False,
+        comment="Which ID number is used as the primary ID?",
     )
     require_idnum_mandatory = Column(
-        "require_idnum_mandatory", Boolean,
+        "require_idnum_mandatory",
+        Boolean,
         comment="Must the primary ID number be mandatory in the relevant "
-                "policy?"
+        "policy?",
     )
 
     # -------------------------------------------------------------------------
     # Database
     # -------------------------------------------------------------------------
     db_url = Column(
-        "db_url", UrlColType,
-        comment="(DATABASE) SQLAlchemy database URL for export"
+        "db_url",
+        UrlColType,
+        comment="(DATABASE) SQLAlchemy database URL for export",
     )
     db_echo = Column(
-        "db_echo", Boolean, default=False, nullable=False,
-        comment="(DATABASE) Echo SQL applied to destination database?"
+        "db_echo",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(DATABASE) Echo SQL applied to destination database?",
     )
     db_include_blobs = Column(
-        "db_include_blobs", Boolean, default=True, nullable=False,
-        comment="(DATABASE) Include BLOBs?"
+        "db_include_blobs",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="(DATABASE) Include BLOBs?",
     )
     db_add_summaries = Column(
-        "db_add_summaries", Boolean, default=True, nullable=False,
-        comment="(DATABASE) Add summary information?"
+        "db_add_summaries",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="(DATABASE) Add summary information?",
     )
     db_patient_id_per_row = Column(
-        "db_patient_id_per_row", Boolean, default=True, nullable=False,
-        comment="(DATABASE) Add patient ID information per row?"
+        "db_patient_id_per_row",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="(DATABASE) Add patient ID information per row?",
     )
 
     # -------------------------------------------------------------------------
     # Email
     # -------------------------------------------------------------------------
     email_host = Column(
-        "email_host", HostnameColType,
-        comment="(EMAIL) E-mail (SMTP) server host name/IP address"
+        "email_host",
+        HostnameColType,
+        comment="(EMAIL) E-mail (SMTP) server host name/IP address",
     )
     email_port = Column(
-        "email_port", Integer,
-        comment="(EMAIL) E-mail (SMTP) server port number"
+        "email_port",
+        Integer,
+        comment="(EMAIL) E-mail (SMTP) server port number",
     )
     email_use_tls = Column(
-        "email_use_tls", Boolean, default=True, nullable=False,
-        comment="(EMAIL) Use explicit TLS connection?"
+        "email_use_tls",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="(EMAIL) Use explicit TLS connection?",
     )
     email_host_username = Column(
-        "email_host_username", UserNameExternalColType,
-        comment="(EMAIL) Username on e-mail server"
+        "email_host_username",
+        UserNameExternalColType,
+        comment="(EMAIL) Username on e-mail server",
     )
     # email_host_password: not stored in database
     email_from = Column(
-        "email_from", EmailAddressColType,
-        comment='(EMAIL) "From:" address(es)'
+        "email_from",
+        EmailAddressColType,
+        comment='(EMAIL) "From:" address(es)',
     )
     email_sender = Column(
-        "email_sender", EmailAddressColType,
-        comment='(EMAIL) "Sender:" address(es)'
+        "email_sender",
+        EmailAddressColType,
+        comment='(EMAIL) "Sender:" address(es)',
     )
     email_reply_to = Column(
-        "email_reply_to", EmailAddressColType,
-        comment='(EMAIL) "Reply-To:" address(es)'
+        "email_reply_to",
+        EmailAddressColType,
+        comment='(EMAIL) "Reply-To:" address(es)',
     )
     email_to = Column(
-        "email_to", Text,
-        comment='(EMAIL) "To:" recipient(s), as a CSV list'
+        "email_to", Text, comment='(EMAIL) "To:" recipient(s), as a CSV list'
     )
     email_cc = Column(
-        "email_cc", Text,
-        comment='(EMAIL) "CC:" recipient(s), as a CSV list'
+        "email_cc", Text, comment='(EMAIL) "CC:" recipient(s), as a CSV list'
     )
     email_bcc = Column(
-        "email_bcc", Text,
-        comment='(EMAIL) "BCC:" recipient(s), as a CSV list'
+        "email_bcc", Text, comment='(EMAIL) "BCC:" recipient(s), as a CSV list'
     )
     email_patient_spec = Column(
-        "email_patient", FileSpecColType,
-        comment="(EMAIL) Patient specification"
+        "email_patient",
+        FileSpecColType,
+        comment="(EMAIL) Patient specification",
     )
     email_patient_spec_if_anonymous = Column(
-        "email_patient_spec_if_anonymous", FileSpecColType,
-        comment="(EMAIL) Patient specification for anonymous tasks"
+        "email_patient_spec_if_anonymous",
+        FileSpecColType,
+        comment="(EMAIL) Patient specification for anonymous tasks",
     )
     email_subject = Column(
-        "email_subject", FileSpecColType,
-        comment="(EMAIL) Subject specification"
+        "email_subject",
+        FileSpecColType,
+        comment="(EMAIL) Subject specification",
     )
     email_body_as_html = Column(
-        "email_body_as_html", Boolean, default=False, nullable=False,
-        comment="(EMAIL) Is the body HTML, rather than plain text?"
+        "email_body_as_html",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(EMAIL) Is the body HTML, rather than plain text?",
     )
-    email_body = Column(
-        "email_body", Text,
-        comment="(EMAIL) Body contents"
-    )
+    email_body = Column("email_body", Text, comment="(EMAIL) Body contents")
     email_keep_message = Column(
-        "email_keep_message", Boolean, default=False, nullable=False,
-        comment="(EMAIL) Keep entire message?"
+        "email_keep_message",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(EMAIL) Keep entire message?",
     )
 
     # -------------------------------------------------------------------------
     # HL7
     # -------------------------------------------------------------------------
     hl7_host = Column(
-        "hl7_host", HostnameColType,
-        comment="(HL7) Destination host name/IP address"
+        "hl7_host",
+        HostnameColType,
+        comment="(HL7) Destination host name/IP address",
     )
     hl7_port = Column(
-        "hl7_port", Integer,
-        comment="(HL7) Destination port number"
+        "hl7_port", Integer, comment="(HL7) Destination port number"
     )
     hl7_ping_first = Column(
-        "hl7_ping_first", Boolean, default=False, nullable=False,
-        comment="(HL7) Ping via TCP/IP before sending HL7 messages?"
+        "hl7_ping_first",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(HL7) Ping via TCP/IP before sending HL7 messages?",
     )
     hl7_network_timeout_ms = Column(
-        "hl7_network_timeout_ms", Integer,
-        comment="(HL7) Network timeout (ms)."
+        "hl7_network_timeout_ms",
+        Integer,
+        comment="(HL7) Network timeout (ms).",
     )
     hl7_keep_message = Column(
-        "hl7_keep_message", Boolean, default=False, nullable=False,
-        comment="(HL7) Keep copy of message in database? (May be large!)"
+        "hl7_keep_message",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(HL7) Keep copy of message in database? (May be large!)",
     )
     hl7_keep_reply = Column(
-        "hl7_keep_reply", Boolean, default=False, nullable=False,
-        comment="(HL7) Keep copy of server's reply in database?"
+        "hl7_keep_reply",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(HL7) Keep copy of server's reply in database?",
     )
     hl7_debug_divert_to_file = Column(
-        "hl7_debug_divert_to_file", Boolean, default=False, nullable=False,
-        comment="(HL7 debugging option) Divert messages to files?"
+        "hl7_debug_divert_to_file",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(HL7 debugging option) Divert messages to files?",
     )
     hl7_debug_treat_diverted_as_sent = Column(
-        "hl7_debug_treat_diverted_as_sent", Boolean,
-        default=False, nullable=False,
-        comment="(HL7 debugging option) Treat messages diverted to file as sent"  # noqa
+        "hl7_debug_treat_diverted_as_sent",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(HL7 debugging option) Treat messages diverted to file as sent",  # noqa
     )
 
     # -------------------------------------------------------------------------
     # File
     # -------------------------------------------------------------------------
     file_patient_spec = Column(
-        "file_patient_spec", FileSpecColType,
-        comment="(FILE) Patient part of filename specification"
+        "file_patient_spec",
+        FileSpecColType,
+        comment="(FILE) Patient part of filename specification",
     )
     file_patient_spec_if_anonymous = Column(
-        "file_patient_spec_if_anonymous", FileSpecColType,
-        comment="(FILE) Patient part of filename specification for anonymous tasks"  # noqa
+        "file_patient_spec_if_anonymous",
+        FileSpecColType,
+        comment="(FILE) Patient part of filename specification for anonymous tasks",  # noqa
     )
     file_filename_spec = Column(
-        "file_filename_spec", FileSpecColType,
-        comment="(FILE) Filename specification"
+        "file_filename_spec",
+        FileSpecColType,
+        comment="(FILE) Filename specification",
     )
     file_make_directory = Column(
-        "file_make_directory", Boolean, default=True, nullable=False,
-        comment="(FILE) Make destination directory if it doesn't already exist"
+        "file_make_directory",
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="(FILE) Make destination directory if it doesn't already exist",
     )
     file_overwrite_files = Column(
-        "file_overwrite_files", Boolean, default=False, nullable=False,
-        comment="(FILE) Overwrite existing files"
+        "file_overwrite_files",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(FILE) Overwrite existing files",
     )
     file_export_rio_metadata = Column(
-        "file_export_rio_metadata", Boolean, default=False, nullable=False,
-        comment="(FILE) Export RiO metadata file along with main file?"
+        "file_export_rio_metadata",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="(FILE) Export RiO metadata file along with main file?",
     )
     file_script_after_export = Column(
-        "file_script_after_export", Text,
-        comment="(FILE) Command/script to run after file export"
+        "file_script_after_export",
+        Text,
+        comment="(FILE) Command/script to run after file export",
     )
 
     # -------------------------------------------------------------------------
     # File/RiO
     # -------------------------------------------------------------------------
     rio_idnum = Column(
-        "rio_idnum", Integer,
-        comment="(FILE / RiO) RiO metadata: which ID number is the RiO ID?"
+        "rio_idnum",
+        Integer,
+        comment="(FILE / RiO) RiO metadata: which ID number is the RiO ID?",
     )
     rio_uploading_user = Column(
-        "rio_uploading_user", Text,
-        comment="(FILE / RiO) RiO metadata: name of automatic upload user"
+        "rio_uploading_user",
+        Text,
+        comment="(FILE / RiO) RiO metadata: name of automatic upload user",
     )
     rio_document_type = Column(
-        "rio_document_type", Text,
-        comment="(FILE / RiO) RiO metadata: document type for RiO"
+        "rio_document_type",
+        Text,
+        comment="(FILE / RiO) RiO metadata: document type for RiO",
     )
 
     # -------------------------------------------------------------------------
     # REDCap export
     # -------------------------------------------------------------------------
     redcap_api_url = Column(
-        "redcap_api_url", Text,
-        comment="(REDCap) REDCap API URL, pointing to the REDCap server"
+        "redcap_api_url",
+        Text,
+        comment="(REDCap) REDCap API URL, pointing to the REDCap server",
     )
     redcap_fieldmap_filename = Column(
-        "redcap_fieldmap_filename", Text,
-        comment="(REDCap) File defining CamCOPS-to-REDCap field mapping"
+        "redcap_fieldmap_filename",
+        Text,
+        comment="(REDCap) File defining CamCOPS-to-REDCap field mapping",
     )
 
     # -------------------------------------------------------------------------
     # FHIR export
     # -------------------------------------------------------------------------
     fhir_api_url = Column(
-        "fhir_api_url", Text,
-        comment="(FHIR) FHIR API URL, pointing to the FHIR server"
+        "fhir_api_url",
+        Text,
+        comment="(FHIR) FHIR API URL, pointing to the FHIR server",
     )
     fhir_app_id = Column(
-        "fhir_app_id", Text,
-        comment="(FHIR) FHIR app ID, identifying CamCOPS as the data source"
+        "fhir_app_id",
+        Text,
+        comment="(FHIR) FHIR app ID, identifying CamCOPS as the data source",
     )
     fhir_concurrent = Column(
-        "fhir_concurrent", Boolean, default=False, nullable=True,
-        comment="(FHIR) Server supports concurrency (parallel processing)?"
+        "fhir_concurrent",
+        Boolean,
+        default=False,
+        nullable=True,
+        comment="(FHIR) Server supports concurrency (parallel processing)?",
     )
 
     def __init__(self, *args, **kwargs) -> None:
@@ -435,14 +530,17 @@ class ExportRecipient(ExportRecipientInfo, Base):
         Returns all relevant attribute names.
         """
         attrnames = set([attrname for attrname, _ in gen_columns(self)])
-        attrnames.update(key for key in self.__dict__ if not key.startswith('_'))  # noqa
+        attrnames.update(
+            key for key in self.__dict__ if not key.startswith("_")
+        )
         return sorted(attrnames)
 
     def __repr__(self) -> str:
         return simple_repr(self, self.get_attrnames())
 
-    def is_upload_suitable_for_push(self, tablename: str,
-                                    uploading_group_id: int) -> bool:
+    def is_upload_suitable_for_push(
+        self, tablename: str, uploading_group_id: int
+    ) -> bool:
         """
         Might an upload potentially give tasks to be "pushed"?
 
@@ -481,9 +579,14 @@ class ExportRecipient(ExportRecipientInfo, Base):
         Returns:
             bool: is the task suitable for this recipient?
         """
+
         def _warn(reason: str) -> None:
-            log.info("For recipient {}, task {!r} is unsuitable: {}",
-                     self, task, reason)
+            log.info(
+                "For recipient {}, task {!r} is unsuitable: {}",
+                self,
+                task,
+                reason,
+            )
             # Not a warning, actually; it's normal to see these because it
             # allows the client API to skip some checks for speed.
 
@@ -514,24 +617,24 @@ class ExportRecipient(ExportRecipientInfo, Base):
                 _warn("task created at/after recipient end_datetime_utc")
                 return False
 
-        if (not task.is_anonymous and
-                self.primary_idnum is not None):
+        if not task.is_anonymous and self.primary_idnum is not None:
             patient = task.patient
             if not patient:
                 _warn("missing patient")
                 return False
             if not patient.has_idnum_type(self.primary_idnum):
-                _warn(f"task's patient is missing ID number type "
-                      f"{self.primary_idnum}")
+                _warn(
+                    f"task's patient is missing ID number type "
+                    f"{self.primary_idnum}"
+                )
                 return False
 
         return True
 
     @classmethod
-    def get_existing_matching_recipient(cls,
-                                        dbsession: SqlASession,
-                                        recipient: "ExportRecipient") \
-            -> Optional["ExportRecipient"]:
+    def get_existing_matching_recipient(
+        cls, dbsession: SqlASession, recipient: "ExportRecipient"
+    ) -> Optional["ExportRecipient"]:
         """
         Retrieves an active instance from the database that matches ``other``,
         if there is one.
@@ -547,7 +650,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
         # noinspection PyPep8
         q = dbsession.query(cls).filter(
             cls.recipient_name == recipient.recipient_name,
-            cls.current == True)  # noqa: E712
+            cls.current == True,  # noqa: E712
+        )
         results = q.all()
         if len(results) > 1:
             raise ValueError(
@@ -583,9 +687,9 @@ class ExportRecipient(ExportRecipientInfo, Base):
 # noinspection PyUnusedLocal
 @listens_for(ExportRecipient, "after_insert")
 @listens_for(ExportRecipient, "after_update")
-def _check_current(mapper: "Mapper",
-                   connection: "Connection",
-                   target: ExportRecipient) -> None:
+def _check_current(
+    mapper: "Mapper", connection: "Connection", target: ExportRecipient
+) -> None:
     """
     Ensures that only one :class:`ExportRecipient` is marked as ``current``
     per ``recipient_name``.

@@ -88,8 +88,9 @@ def assert_minimum_python_version():
     if sys.version_info < MINIMUM_PYTHON_VERSION:
         required = ".".join(str(x) for x in MINIMUM_PYTHON_VERSION)
         actual = ".".join(str(x) for x in sys.version_info)
-        raise AssertionError("Need Python %s or higher; this is %s" %
-                             (required, actual))
+        raise AssertionError(
+            "Need Python %s or higher; this is %s" % (required, actual)
+        )
 
 
 if __name__ == "__main__":

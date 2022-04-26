@@ -28,12 +28,12 @@ camcops_server/tasks/tests/maas_tests.py
 """
 
 import pendulum
-from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.tasks.maas import Maas, MaasReport
 
+from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.tests.cc_report_tests import (
-    AverageScoreReportTestCase
+    AverageScoreReportTestCase,
 )
+from camcops_server.tasks.maas import Maas, MaasReport
 
 
 class MaasReportTests(AverageScoreReportTestCase):
@@ -45,10 +45,12 @@ class MaasReportTests(AverageScoreReportTestCase):
     def create_tasks(self) -> None:
         self.patient_1 = self.create_patient()
 
-        self.create_task(patient=self.patient_1, q1=2, q2=2,
-                         era="2019-03-01")  # total 17 + 2 + 2
-        self.create_task(patient=self.patient_1, q1=5, q2=5,
-                         era="2019-06-01")  # total 17 + 5 + 5
+        self.create_task(
+            patient=self.patient_1, q1=2, q2=2, era="2019-03-01"
+        )  # total 17 + 2 + 2
+        self.create_task(
+            patient=self.patient_1, q1=5, q2=5, era="2019-06-01"
+        )  # total 17 + 5 + 5
         self.dbsession.commit()
 
     def create_task(self, patient: Patient, era: str = None, **kwargs) -> None:

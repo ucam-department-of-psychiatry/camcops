@@ -57,37 +57,31 @@ FIELDNAMES = [
     "valvular_disease",
     "pulmonary_circulation_disorders",
     "peripheral_vascular_disorders",
-
     "hypertension_uncomplicated",
     "hypertension_complicated",
     "paralysis",
     "other_neurological_disorders",
     "chronic_pulmonary_disease",
-
     "diabetes_uncomplicated",
     "diabetes_complicated",
     "hypothyroidism",
     "renal_failure",
     "liver_disease",
-
     "peptic_ulcer_disease_exc_bleeding",
     "aids_hiv",
     "lymphoma",
     "metastatic_cancer",
     "solid_tumor_without_metastasis",
-
     "rheumatoid_arthritis_collagen_vascular_diseases",
     "coagulopathy",
     "obesity",
     "weight_loss",
     "fluid_electrolyte_disorders",
-
     "blood_loss_anemia",
     "deficiency_anemia",
     "alcohol_abuse",
     "drug_abuse",
     "psychoses",
-
     "depression",
 ]
 MAX_SCORE = len(FIELDNAMES)
@@ -102,23 +96,32 @@ CONSTRAINT_NAME_MAP = {
 
 class ElixhauserCIMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['ElixhauserCI'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["ElixhauserCI"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)
             setattr(
-                cls, colname,
-                BoolColumn(colname, comment="Disease present (0 no, 1 yes)",
-                           constraint_name=constraint_name))
+                cls,
+                colname,
+                BoolColumn(
+                    colname,
+                    comment="Disease present (0 no, 1 yes)",
+                    constraint_name=constraint_name,
+                ),
+            )
         super().__init__(name, bases, classdict)
 
 
-class ElixhauserCI(TaskHasPatientMixin,
-                   TaskHasClinicianMixin,
-                   Task,
-                   metaclass=ElixhauserCIMetaclass):
+class ElixhauserCI(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+    metaclass=ElixhauserCIMetaclass,
+):
     __tablename__ = "elixhauserci"
     shortname = "ElixhauserCI"
 
@@ -130,10 +133,11 @@ class ElixhauserCI(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (out of {MAX_SCORE})"
-            ),
+                comment=f"Total score (out of {MAX_SCORE})",
+            )
         ]
 
     def is_complete(self) -> bool:
@@ -147,10 +151,7 @@ class ElixhauserCI(TaskHasPatientMixin,
         q_a = ""
         for f in FIELDNAMES:
             v = getattr(self, f)
-            q_a += tr_qa(
-                self.wxstring(req, f),
-                get_yes_no_unknown(req, v)
-            )
+            q_a += tr_qa(self.wxstring(req, f), get_yes_no_unknown(req, v))
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">

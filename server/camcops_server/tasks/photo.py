@@ -61,28 +61,32 @@ from camcops_server.cc_modules.cc_task import (
 # Photo
 # =============================================================================
 
+
 class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the Photo task.
     """
+
     __tablename__ = "photo"
     shortname = "Photo"
     info_filename_stem = "clinical"
 
     description = Column(
-        "description", UnicodeText,
-        comment="Description of the photograph"
+        "description", UnicodeText, comment="Description of the photograph"
     )
     photo_blobid = CamcopsColumn(
-        "photo_blobid", Integer,
-        is_blob_id_field=True, blob_relationship_attr_name="photo",
+        "photo_blobid",
+        Integer,
+        is_blob_id_field=True,
+        blob_relationship_attr_name="photo",
         comment="ID of the BLOB (foreign key to blobs.id, given "
-                "matching device and current/frozen record status)"
+        "matching device and current/frozen record status)",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
     rotation = Column(  # DEFUNCT as of v2.0.0
-        "rotation", Integer,
-        comment="Rotation (clockwise, in degrees) to be applied for viewing"
+        "rotation",
+        Integer,
+        comment="Rotation (clockwise, in degrees) to be applied for viewing",
     )
 
     photo = blob_relationship("Photo", "photo_blobid")  # type: Optional[Blob]
@@ -114,11 +118,12 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         """.format(
             CssClass=CssClass,
             description=answer(
-                ws.webify(self.description), default="(No description)",
-                default_for_blank_strings=True
+                ws.webify(self.description),
+                default="(No description)",
+                default_for_blank_strings=True,
             ),
             # ... xhtml2pdf crashes if the contents are empty...
-            photo=get_blob_img_html(self.photo)
+            photo=get_blob_img_html(self.photo),
         )
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
@@ -126,7 +131,9 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return []
         return [
             SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PROCEDURE)),
-            SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PHYSICAL_OBJECT)),  # noqa
+            SnomedExpression(
+                req.snomed(SnomedLookup.PHOTOGRAPH_PHYSICAL_OBJECT)
+            ),
         ]
 
 
@@ -134,33 +141,40 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 # PhotoSequence
 # =============================================================================
 
+
 class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "photosequence_photos"
 
     photosequence_id = Column(
-        "photosequence_id", Integer, nullable=False,
-        comment="Tablet FK to photosequence"
+        "photosequence_id",
+        Integer,
+        nullable=False,
+        comment="Tablet FK to photosequence",
     )
     seqnum = Column(
-        "seqnum", Integer, nullable=False,
+        "seqnum",
+        Integer,
+        nullable=False,
         comment="Sequence number of this photo "
-                "(consistently 1-based as of 2018-12-01)"
+        "(consistently 1-based as of 2018-12-01)",
     )
     description = Column(
-        "description", UnicodeText,
-        comment="Description of the photograph"
+        "description", UnicodeText, comment="Description of the photograph"
     )
     photo_blobid = CamcopsColumn(
-        "photo_blobid", Integer,
-        is_blob_id_field=True, blob_relationship_attr_name="photo",
+        "photo_blobid",
+        Integer,
+        is_blob_id_field=True,
+        blob_relationship_attr_name="photo",
         comment="ID of the BLOB (foreign key to blobs.id, given "
-                "matching device and current/frozen record status)"
+        "matching device and current/frozen record status)",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
     rotation = Column(  # DEFUNCT as of v2.0.0
-        "rotation", Integer,
+        "rotation",
+        Integer,
         comment="(DEFUNCT COLUMN) "
-                "Rotation (clockwise, in degrees) to be applied for viewing"
+        "Rotation (clockwise, in degrees) to be applied for viewing",
     )
 
     photo = blob_relationship("PhotoSequenceSinglePhoto", "photo_blobid")
@@ -176,7 +190,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
             CssClass=CssClass,
             num=self.seqnum,
             description=ws.webify(self.description),
-            photo=get_blob_img_html(self.photo)
+            photo=get_blob_img_html(self.photo),
         )
 
     # -------------------------------------------------------------------------
@@ -195,20 +209,22 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the PhotoSequence task.
     """
+
     __tablename__ = "photosequence"
     shortname = "PhotoSequence"
     info_filename_stem = "clinical"
 
     sequence_description = Column(
-        "sequence_description", UnicodeText,
-        comment="Description of the sequence of photographs"
+        "sequence_description",
+        UnicodeText,
+        comment="Description of the sequence of photographs",
     )
 
     photos = ancillary_relationship(
         parent_class_name="PhotoSequence",
         ancillary_class_name="PhotoSequenceSinglePhoto",
         ancillary_fk_to_parent_attr_name="photosequence_id",
-        ancillary_order_by_attr_name="seqnum"
+        ancillary_order_by_attr_name="seqnum",
     )  # type: List[PhotoSequenceSinglePhoto]
 
     @staticmethod
@@ -254,5 +270,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return []
         return [
             SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PROCEDURE)),
-            SnomedExpression(req.snomed(SnomedLookup.PHOTOGRAPH_PHYSICAL_OBJECT)),  # noqa
+            SnomedExpression(
+                req.snomed(SnomedLookup.PHOTOGRAPH_PHYSICAL_OBJECT)
+            ),
         ]

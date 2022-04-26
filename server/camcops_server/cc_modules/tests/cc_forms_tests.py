@@ -66,7 +66,8 @@ from camcops_server.cc_modules.cc_unittest import (
 TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
     ctry=phonenumbers.PhoneMetadata.metadata_for_region("GB").country_code,
     tel=phonenumbers.PhoneMetadata.metadata_for_region(
-        "GB").personal_number.example_number
+        "GB"
+    ).personal_number.example_number,
 )  # see webview_tests.py
 
 log = logging.getLogger(__name__)
@@ -76,13 +77,15 @@ log = logging.getLogger(__name__)
 # Unit tests
 # =============================================================================
 
+
 class SchemaTestCase(DemoRequestTestCase):
     """
     Unit tests.
     """
-    def serialize_deserialize(self,
-                              schema: Schema,
-                              appstruct: Dict[str, Any]) -> None:
+
+    def serialize_deserialize(
+        self, schema: Schema, appstruct: Dict[str, Any]
+    ) -> None:
         cstruct = schema.serialize(appstruct)
         final = schema.deserialize(cstruct)
         mismatch = False
@@ -90,12 +93,15 @@ class SchemaTestCase(DemoRequestTestCase):
             if final[k] != v:
                 mismatch = True
                 break
-        self.assertFalse(mismatch, msg=(
-            "Elements of final don't match corresponding elements of starting "
-            "appstruct:\n"
-            f"final = {pformat(final)}\n"
-            f"start = {pformat(appstruct)}"
-        ))
+        self.assertFalse(
+            mismatch,
+            msg=(
+                "Elements of final don't match corresponding elements of "
+                "starting appstruct:\n"
+                f"final = {pformat(final)}\n"
+                f"start = {pformat(appstruct)}"
+            ),
+        )
 
 
 class LoginSchemaTests(SchemaTestCase):
@@ -125,8 +131,10 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("'bad_key' is not a valid placeholder",
-                      cm.exception.children[0].messages()[0])
+        self.assertIn(
+            "'bad_key' is not a valid placeholder",
+            cm.exception.children[0].messages()[0],
+        )
 
     def test_invalid_for_mismatched_braces(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
@@ -143,8 +151,9 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("Invalid email template",
-                      cm.exception.children[0].messages()[0])
+        self.assertIn(
+            "Invalid email template", cm.exception.children[0].messages()[0]
+        )
 
 
 class TaskScheduleItemSchemaTests(SchemaTestCase):
@@ -154,7 +163,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             ViewParam.TABLE_NAME: "bmi",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=90),
-            ViewParam.DUE_WITHIN: Duration(days=100)
+            ViewParam.DUE_WITHIN: Duration(days=100),
         }
         schema = TaskScheduleItemSchema().bind(request=self.req)
         self.serialize_deserialize(schema, appstruct)
@@ -166,15 +175,16 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             ViewParam.TABLE_NAME: "elixhauserci",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=90),
-            ViewParam.DUE_WITHIN: Duration(days=100)
+            ViewParam.DUE_WITHIN: Duration(days=100),
         }
 
         cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("you must tick 'Allow clinician tasks'",
-                      cm.exception.messages()[0])
+        self.assertIn(
+            "you must tick 'Allow clinician tasks'", cm.exception.messages()[0]
+        )
 
     def test_valid_for_clinician_task_with_confirmation(self) -> None:
         schema = TaskScheduleItemSchema().bind(request=mock.Mock())
@@ -183,7 +193,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             ViewParam.TABLE_NAME: "elixhauserci",
             ViewParam.CLINICIAN_CONFIRMATION: True,
             ViewParam.DUE_FROM: Duration(days=90),
-            ViewParam.DUE_WITHIN: Duration(days=100)
+            ViewParam.DUE_WITHIN: Duration(days=100),
         }
 
         try:
@@ -198,15 +208,16 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             ViewParam.TABLE_NAME: "phq9",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=90),
-            ViewParam.DUE_WITHIN: Duration(days=0)
+            ViewParam.DUE_WITHIN: Duration(days=0),
         }
 
         cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("must be more than zero days",
-                      cm.exception.messages()[0])
+        self.assertIn(
+            "must be more than zero days", cm.exception.messages()[0]
+        )
 
     def test_invalid_for_negative_due_within(self) -> None:
         schema = TaskScheduleItemSchema().bind(request=self.req)
@@ -215,15 +226,16 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             ViewParam.TABLE_NAME: "phq9",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=90),
-            ViewParam.DUE_WITHIN: Duration(days=-1)
+            ViewParam.DUE_WITHIN: Duration(days=-1),
         }
 
         cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("must be more than zero days",
-                      cm.exception.messages()[0])
+        self.assertIn(
+            "must be more than zero days", cm.exception.messages()[0]
+        )
 
     def test_invalid_for_negative_due_from(self) -> None:
         schema = TaskScheduleItemSchema().bind(request=self.req)
@@ -232,15 +244,14 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             ViewParam.TABLE_NAME: "phq9",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=-1),
-            ViewParam.DUE_WITHIN: Duration(days=10)
+            ViewParam.DUE_WITHIN: Duration(days=10),
         }
 
         cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("must be zero or more days",
-                      cm.exception.messages()[0])
+        self.assertIn("must be zero or more days", cm.exception.messages()[0])
 
 
 class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
@@ -263,15 +274,14 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
             ViewParam.TABLE_NAME: "mfi20",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=0),
-            ViewParam.DUE_WITHIN: Duration(days=10)
+            ViewParam.DUE_WITHIN: Duration(days=10),
         }
 
         cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("prohibits commercial",
-                      cm.exception.messages()[0])
+        self.assertIn("prohibits commercial", cm.exception.messages()[0])
 
     def test_invalid_for_clinical_mismatch(self) -> None:
         self.group.ip_use.clinical = True
@@ -291,8 +301,7 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("prohibits clinical",
-                      cm.exception.messages()[0])
+        self.assertIn("prohibits clinical", cm.exception.messages()[0])
 
     def test_invalid_for_educational_mismatch(self) -> None:
         self.group.ip_use.educational = True
@@ -312,13 +321,13 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
 
         # No real world example prohibits educational use
         mock_task_class = mock.Mock(prohibits_educational=True)
-        with mock.patch.object(schema, "_get_task_class",
-                               return_value=mock_task_class):
+        with mock.patch.object(
+            schema, "_get_task_class", return_value=mock_task_class
+        ):
             with self.assertRaises(Invalid) as cm:
                 schema.deserialize(cstruct)
 
-        self.assertIn("prohibits educational",
-                      cm.exception.messages()[0])
+        self.assertIn("prohibits educational", cm.exception.messages()[0])
 
     def test_invalid_for_research_mismatch(self) -> None:
         self.group.ip_use.research = True
@@ -338,8 +347,7 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-        self.assertIn("prohibits research",
-                      cm.exception.messages()[0])
+        self.assertIn("prohibits research", cm.exception.messages()[0])
 
     def test_invalid_for_missing_ip_use(self) -> None:
         self.group.ip_use = None
@@ -362,7 +370,7 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         self.assertIn(
             f"The group '{self.group.name}' has no intellectual property "
             f"settings",
-            cm.exception.messages()[0]
+            cm.exception.messages()[0],
         )
 
 
@@ -377,11 +385,7 @@ class DurationWidgetTests(TestCase):
         field = mock.Mock()
         field.renderer = mock.Mock()
 
-        cstruct = {
-            "months": 1,
-            "weeks": 2,
-            "days": 3,
-        }
+        cstruct = {"months": 1, "weeks": 2, "days": 3}
 
         widget.serialize(field, cstruct, readonly=False)
 
@@ -402,37 +406,34 @@ class DurationWidgetTests(TestCase):
         field = mock.Mock()
         field.renderer = mock.Mock()
 
-        cstruct = {
-            "months": 1,
-            "weeks": 2,
-            "days": 3,
-        }
+        cstruct = {"months": 1, "weeks": 2, "days": 3}
 
         widget.serialize(field, cstruct, readonly=True)
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
+        self.assertEqual(
+            args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt"
+        )
         self.assertTrue(kwargs["readonly"])
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
-            self) -> None:
+        self
+    ) -> None:
         widget = DurationWidget(self.request, readonly=True)
 
         field = mock.Mock()
         field.renderer = mock.Mock()
 
-        cstruct = {
-            "months": 1,
-            "weeks": 2,
-            "days": 3,
-        }
+        cstruct = {"months": 1, "weeks": 2, "days": 3}
 
         widget.serialize(field, cstruct)
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
+        self.assertEqual(
+            args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt"
+        )
 
     def test_serialize_with_null_defaults_to_blank_values(self) -> None:
         widget = DurationWidget(self.request)
@@ -465,11 +466,7 @@ class DurationWidgetTests(TestCase):
     def test_deserialize_returns_valid_values(self) -> None:
         widget = DurationWidget(self.request)
 
-        pstruct = {
-            "days": 1,
-            "weeks": 2,
-            "months": 3,
-        }
+        pstruct = {"days": 1, "weeks": 2, "months": 3}
 
         # noinspection PyTypeChecker
         cstruct = widget.deserialize(None, pstruct)
@@ -489,22 +486,24 @@ class DurationWidgetTests(TestCase):
     def test_deserialize_fails_validation(self) -> None:
         widget = DurationWidget(self.request)
 
-        pstruct = {
-            "days": "abc",
-            "weeks": "def",
-            "months": "ghi",
-        }
+        pstruct = {"days": "abc", "weeks": "def", "months": "ghi"}
 
         with self.assertRaises(Invalid) as cm:
             # noinspection PyTypeChecker
             widget.deserialize(None, pstruct)
 
-        self.assertIn("Please enter a valid number of days or leave blank",
-                      cm.exception.messages())
-        self.assertIn("Please enter a valid number of weeks or leave blank",
-                      cm.exception.messages())
-        self.assertIn("Please enter a valid number of months or leave blank",
-                      cm.exception.messages())
+        self.assertIn(
+            "Please enter a valid number of days or leave blank",
+            cm.exception.messages(),
+        )
+        self.assertIn(
+            "Please enter a valid number of weeks or leave blank",
+            cm.exception.messages(),
+        )
+        self.assertIn(
+            "Please enter a valid number of months or leave blank",
+            cm.exception.messages(),
+        )
         self.assertEqual(cm.exception.value, pstruct)
 
 
@@ -609,7 +608,8 @@ class JsonWidgetTests(TestCase):
         self.assertTrue(kwargs["readonly"])
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
-            self) -> None:
+        self
+    ) -> None:
         widget = JsonWidget(self.request, readonly=True)
 
         field = mock.Mock()
@@ -661,10 +661,7 @@ class JsonWidgetTests(TestCase):
             # noinspection PyTypeChecker
             widget.deserialize(None, pstruct)
 
-        self.assertIn(
-            "Please enter valid JSON",
-            cm.exception.messages()[0]
-        )
+        self.assertIn("Please enter valid JSON", cm.exception.messages()[0])
 
         self.assertEqual(cm.exception.value, "{")
 
@@ -706,15 +703,13 @@ class JsonTypeTests(TestCase):
 
 
 class TaskScheduleNodeTests(TestCase):
-
     def test_deserialize_not_a_json_object_fails_validation(self) -> None:
         node = TaskScheduleNode()
         with self.assertRaises(Invalid) as cm:
             node.deserialize({})
 
             self.assertIn(
-                "Please enter a valid JSON object",
-                cm.exception.messages()[0]
+                "Please enter a valid JSON object", cm.exception.messages()[0]
             )
 
             self.assertEqual(cm.exception.value, "[{}]")
@@ -743,10 +738,12 @@ class TaskScheduleSelectorTests(BasicDatabaseTestCase):
         self.req._debugging_user = user
 
         selector = TaskScheduleSelector().bind(request=self.req)
-        self.assertIn((my_schedule.id, my_schedule.name),
-                      selector.widget.values)
-        self.assertNotIn((not_my_schedule.id, not_my_schedule.name),
-                         selector.widget.values)
+        self.assertIn(
+            (my_schedule.id, my_schedule.name), selector.widget.values
+        )
+        self.assertNotIn(
+            (not_my_schedule.id, not_my_schedule.name), selector.widget.values
+        )
 
 
 class GroupIpUseWidgetTests(TestCase):
@@ -797,8 +794,9 @@ class GroupIpUseWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(args[0],
-                         f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt")
+        self.assertEqual(
+            args[0], f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt"
+        )
         self.assertTrue(kwargs["readonly"])
 
     def test_serialize_readonly_widget_renders_readonly_template(self) -> None:
@@ -818,8 +816,9 @@ class GroupIpUseWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(args[0],
-                         f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt")
+        self.assertEqual(
+            args[0], f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt"
+        )
 
     def test_serialize_with_null_defaults_to_false_values(self) -> None:
         widget = GroupIpUseWidget(self.request)
@@ -870,10 +869,7 @@ class GroupIpUseWidgetTests(TestCase):
 
         # It shouldn't matter what the values are set to so long as the keys
         # are present. In practice the values will be set to "1"
-        pstruct = {
-            IpContexts.EDUCATIONAL: "1",
-            IpContexts.RESEARCH: "1",
-        }
+        pstruct = {IpContexts.EDUCATIONAL: "1", IpContexts.RESEARCH: "1"}
 
         # noinspection PyTypeChecker
         cstruct = widget.deserialize(field, pstruct)
@@ -919,8 +915,9 @@ class IpUseTypeTests(TestCase):
 class MfaSecretWidgetTests(TestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.request = mock.Mock(gettext=lambda t: t,
-                                 user=mock.Mock(username="test"))
+        self.request = mock.Mock(
+            gettext=lambda t: t, user=mock.Mock(username="test")
+        )
         self.mfa_secret = "HVIHV7TUFQPV7KAIJE2GSJTLTEAQIQSJ"
 
     def test_serialize_renders_template_with_values(self) -> None:
@@ -950,8 +947,9 @@ class MfaSecretWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(args[0],
-                         f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")
+        self.assertEqual(
+            args[0], f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt"
+        )
         self.assertTrue(kwargs["readonly"])
 
     def test_serialize_readonly_widget_renders_readonly_template(self) -> None:
@@ -965,8 +963,9 @@ class MfaSecretWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(args[0],
-                         f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")
+        self.assertEqual(
+            args[0], f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt"
+        )
 
 
 class PhoneNumberTypeTestCase(TestCase):
@@ -988,30 +987,27 @@ class PhoneNumberTypeDeserializeTests(PhoneNumberTypeTestCase):
         with self.assertRaises(Invalid) as cm:
             self.phone_type.deserialize(self.node, "abc")
 
-            self.assertIn(
-                "Invalid phone number",
-                cm.exception.messages()[0]
-            )
+            self.assertIn("Invalid phone number", cm.exception.messages()[0])
 
     def test_raises_for_invalid_parsable_number(self) -> None:
         with self.assertRaises(Invalid) as cm:
             self.phone_type.deserialize(self.node, "+4411349600")
 
-            self.assertIn(
-                "Invalid phone number",
-                cm.exception.messages()[0]
-            )
+            self.assertIn("Invalid phone number", cm.exception.messages()[0])
 
     def test_returns_valid_phone_number(self) -> None:
         phone_number = self.phone_type.deserialize(
-            self.node, TEST_PHONE_NUMBER)
+            self.node, TEST_PHONE_NUMBER
+        )
 
         self.assertIsInstance(phone_number, phonenumbers.PhoneNumber)
 
-        self.assertEqual(phonenumbers.format_number(
-            phone_number,
-            phonenumbers.PhoneNumberFormat.E164
-        ), TEST_PHONE_NUMBER)
+        self.assertEqual(
+            phonenumbers.format_number(
+                phone_number, phonenumbers.PhoneNumberFormat.E164
+            ),
+            TEST_PHONE_NUMBER,
+        )
 
 
 class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
@@ -1021,8 +1017,10 @@ class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
     def test_returns_number_formatted_e164(self) -> None:
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
 
-        self.assertEqual(self.phone_type.serialize(self.node, phone_number),
-                         TEST_PHONE_NUMBER)
+        self.assertEqual(
+            self.phone_type.serialize(self.node, phone_number),
+            TEST_PHONE_NUMBER,
+        )
 
 
 class PhoneNumberTypeMandatoryTestCase(TestCase):
@@ -1035,7 +1033,8 @@ class PhoneNumberTypeMandatoryTestCase(TestCase):
 
 
 class PhoneNumberTypeMandatoryDeserializeTests(
-        PhoneNumberTypeMandatoryTestCase):
+    PhoneNumberTypeMandatoryTestCase
+):
     def test_raises_for_appstruct_none(self) -> None:
         # For allow_empty=False:
         with self.assertRaises(Invalid):

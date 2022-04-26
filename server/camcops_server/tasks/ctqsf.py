@@ -34,20 +34,19 @@ from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
 
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # CTQ-SF
 # =============================================================================
 
+
 class Ctqsf(TaskHasPatientMixin, Task):
     """
     Server implementation of the CTQ-SF task.
     """
+
     __tablename__ = "ctqsf"
     shortname = "CTQ-SF"
     provides_trackers = False

@@ -42,7 +42,8 @@ from camcops_server.conftest import TEST_DATABASE_FILENAME
 def main() -> None:
     cmdargs = ["pytest"] + sys.argv[1:]
     formatted_args = cmdline_quote(cmdargs)
-    print(f"""
+    print(
+        f"""
 - You can run tests manually via one of these methods:
     pytest                                              # all tests
     pytest FILE.py                                      # one test file
@@ -63,7 +64,8 @@ def main() -> None:
 - We'll do this now:
     cd {CAMCOPS_SERVER_DIRECTORY}
     {formatted_args}
-""")
+"""
+    )
     # https://stackoverflow.com/questions/36456920
     # examples:
     # pytest client_api_tests.py::ClientApiTests::test_client_api_validators

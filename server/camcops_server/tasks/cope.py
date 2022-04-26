@@ -54,15 +54,22 @@ from camcops_server.cc_modules.cc_task import (
 # COPE_Brief
 # =============================================================================
 
+
 class CopeBriefMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['CopeBrief'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["CopeBrief"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=0, maximum=3,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=3,
             comment_fmt="Q{n}, {s} (0 not at all - 3 a lot)",
             comment_strings=[
                 "work/activities to take mind off",  # 1
@@ -92,17 +99,17 @@ class CopeBriefMetaclass(DeclarativeMeta):
                 "thinking hard about what steps to take",  # 25
                 "blaming myself",
                 "praying/meditating",
-                "making fun of the situation"  # 28
-            ]
+                "making fun of the situation",  # 28
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class CopeBrief(TaskHasPatientMixin, Task,
-                metaclass=CopeBriefMetaclass):
+class CopeBrief(TaskHasPatientMixin, Task, metaclass=CopeBriefMetaclass):
     """
     Server implementation of the COPE-Brief task.
     """
+
     __tablename__ = "cope_brief"
     shortname = "COPE-Brief"
     extrastring_taskname = "cope"
@@ -115,24 +122,28 @@ class CopeBrief(TaskHasPatientMixin, Task,
     RELATIONSHIPS_LAST = 9
 
     completed_by_patient = CamcopsColumn(
-        "completed_by_patient", Integer,
+        "completed_by_patient",
+        Integer,
         permitted_value_checker=BIT_CHECKER,
-        comment="Task completed by patient? (0 no, 1 yes)"
+        comment="Task completed by patient? (0 no, 1 yes)",
     )
     completed_by = Column(
-        "completed_by", UnicodeText,
-        comment="Name of person task completed by (if not by patient)"
+        "completed_by",
+        UnicodeText,
+        comment="Name of person task completed by (if not by patient)",
     )
     relationship_to_patient = CamcopsColumn(
-        "relationship_to_patient", Integer,
+        "relationship_to_patient",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=9),
         comment="Relationship of responder to patient (0 other, 1 wife, "
-                "2 husband, 3 daughter, 4 son, 5 sister, 6 brother, "
-                "7 mother, 8 father, 9 friend)"
+        "2 husband, 3 daughter, 4 son, 5 sister, 6 brother, "
+        "7 mother, 8 father, 9 friend)",
     )
     relationship_to_patient_other = Column(
-        "relationship_to_patient_other", UnicodeText,
-        comment="Relationship of responder to patient (if OTHER chosen)"
+        "relationship_to_patient_other",
+        UnicodeText,
+        comment="Relationship of responder to patient (if OTHER chosen)",
     )
 
     @staticmethod
@@ -142,62 +153,90 @@ class CopeBrief(TaskHasPatientMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="self_distraction",
-                           coltype=Integer(),
-                           value=self.self_distraction(),
-                           comment="Self-distraction (2-8)"),
-            SummaryElement(name="active_coping",
-                           coltype=Integer(),
-                           value=self.active_coping(),
-                           comment="Active coping (2-8)"),
-            SummaryElement(name="denial",
-                           coltype=Integer(),
-                           value=self.denial(),
-                           comment="Denial (2-8)"),
-            SummaryElement(name="substance_use",
-                           coltype=Integer(),
-                           value=self.substance_use(),
-                           comment="Substance use (2-8)"),
-            SummaryElement(name="emotional_support",
-                           coltype=Integer(),
-                           value=self.emotional_support(),
-                           comment="Use of emotional support (2-8)"),
-            SummaryElement(name="instrumental_support",
-                           coltype=Integer(),
-                           value=self.instrumental_support(),
-                           comment="Use of instrumental support (2-8)"),
-            SummaryElement(name="behavioural_disengagement",
-                           coltype=Integer(),
-                           value=self.behavioural_disengagement(),
-                           comment="Behavioural disengagement (2-8)"),
-            SummaryElement(name="venting",
-                           coltype=Integer(),
-                           value=self.venting(),
-                           comment="Venting (2-8)"),
-            SummaryElement(name="positive_reframing",
-                           coltype=Integer(),
-                           value=self.positive_reframing(),
-                           comment="Positive reframing (2-8)"),
-            SummaryElement(name="planning",
-                           coltype=Integer(),
-                           value=self.planning(),
-                           comment="Planning (2-8)"),
-            SummaryElement(name="humour",
-                           coltype=Integer(),
-                           value=self.humour(),
-                           comment="Humour (2-8)"),
-            SummaryElement(name="acceptance",
-                           coltype=Integer(),
-                           value=self.acceptance(),
-                           comment="Acceptance (2-8)"),
-            SummaryElement(name="religion",
-                           coltype=Integer(),
-                           value=self.religion(),
-                           comment="Religion (2-8)"),
-            SummaryElement(name="self_blame",
-                           coltype=Integer(),
-                           value=self.self_blame(),
-                           comment="Self-blame (2-8)"),
+            SummaryElement(
+                name="self_distraction",
+                coltype=Integer(),
+                value=self.self_distraction(),
+                comment="Self-distraction (2-8)",
+            ),
+            SummaryElement(
+                name="active_coping",
+                coltype=Integer(),
+                value=self.active_coping(),
+                comment="Active coping (2-8)",
+            ),
+            SummaryElement(
+                name="denial",
+                coltype=Integer(),
+                value=self.denial(),
+                comment="Denial (2-8)",
+            ),
+            SummaryElement(
+                name="substance_use",
+                coltype=Integer(),
+                value=self.substance_use(),
+                comment="Substance use (2-8)",
+            ),
+            SummaryElement(
+                name="emotional_support",
+                coltype=Integer(),
+                value=self.emotional_support(),
+                comment="Use of emotional support (2-8)",
+            ),
+            SummaryElement(
+                name="instrumental_support",
+                coltype=Integer(),
+                value=self.instrumental_support(),
+                comment="Use of instrumental support (2-8)",
+            ),
+            SummaryElement(
+                name="behavioural_disengagement",
+                coltype=Integer(),
+                value=self.behavioural_disengagement(),
+                comment="Behavioural disengagement (2-8)",
+            ),
+            SummaryElement(
+                name="venting",
+                coltype=Integer(),
+                value=self.venting(),
+                comment="Venting (2-8)",
+            ),
+            SummaryElement(
+                name="positive_reframing",
+                coltype=Integer(),
+                value=self.positive_reframing(),
+                comment="Positive reframing (2-8)",
+            ),
+            SummaryElement(
+                name="planning",
+                coltype=Integer(),
+                value=self.planning(),
+                comment="Planning (2-8)",
+            ),
+            SummaryElement(
+                name="humour",
+                coltype=Integer(),
+                value=self.humour(),
+                comment="Humour (2-8)",
+            ),
+            SummaryElement(
+                name="acceptance",
+                coltype=Integer(),
+                value=self.acceptance(),
+                comment="Acceptance (2-8)",
+            ),
+            SummaryElement(
+                name="religion",
+                coltype=Integer(),
+                value=self.religion(),
+                comment="Religion (2-8)",
+            ),
+            SummaryElement(
+                name="self_blame",
+                coltype=Integer(),
+                value=self.self_blame(),
+                comment="Self-blame (2-8)",
+            ),
         ]
 
     def is_complete_responder(self) -> bool:
@@ -207,17 +246,20 @@ class CopeBrief(TaskHasPatientMixin, Task,
             return True
         if not self.completed_by or self.relationship_to_patient is None:
             return False
-        if (self.relationship_to_patient == self.RELATIONSHIP_OTHER_CODE and
-                not self.relationship_to_patient_other):
+        if (
+            self.relationship_to_patient == self.RELATIONSHIP_OTHER_CODE
+            and not self.relationship_to_patient_other
+        ):
             return False
         return True
 
     def is_complete(self) -> bool:
         return (
-            self.is_complete_responder() and
-            self.all_fields_not_none(
-                [f"q{n}" for n in range(1, self.NQUESTIONS + 1)]) and
-            self.field_contents_valid()
+            self.is_complete_responder()
+            and self.all_fields_not_none(
+                [f"q{n}" for n in range(1, self.NQUESTIONS + 1)]
+            )
+            and self.field_contents_valid()
         )
 
     def self_distraction(self) -> int:
@@ -272,7 +314,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
         for q in range(1, self.NQUESTIONS + 1):
             q_a += tr_qa(
                 f"Q{q}. {self.wxstring(req, 'q' + str(q))}",
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             )
         return f"""
             <div class="{CssClass.SUMMARY}">

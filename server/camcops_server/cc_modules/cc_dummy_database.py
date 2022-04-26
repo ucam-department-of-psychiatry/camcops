@@ -83,6 +83,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # DummyDataInserter
 # =============================================================================
 
+
 class DummyDataInserter:
     """
     Class to insert random data (within constraints) to tasks and other
@@ -97,7 +98,7 @@ class DummyDataInserter:
     DEFAULT_MAX_INTEGER = 1000
 
     def __init__(self) -> None:
-        self.faker = Faker('en_GB')
+        self.faker = Faker("en_GB")
 
     @staticmethod
     def column_is_q_field(column: Column) -> bool:
@@ -214,12 +215,13 @@ class DummyDataInserter:
         if column.type.length is None:
             return text
 
-        return text[:column.type.length]
+        return text[: column.type.length]
 
 
 # =============================================================================
 # DummyDataFactory
 # =============================================================================
+
 
 class DummyDataFactory(DummyDataInserter):
     """
@@ -227,6 +229,7 @@ class DummyDataFactory(DummyDataInserter):
     objects in a dummy database. Unlike its parent, this concerns itself with
     an actual data.
     """
+
     FIRST_PATIENT_ID = 10001
     NUM_PATIENTS = 5
 
@@ -262,19 +265,22 @@ class DummyDataFactory(DummyDataInserter):
         self.device = self.get_device(self.dbsession)
         self.dbsession.commit()
 
-        self.nhs_iddef = IdNumDefinition(which_idnum=1001,
-                                         description="NHS number (TEST)",
-                                         short_description="NHS#",
-                                         hl7_assigning_authority="NHS",
-                                         hl7_id_type="NHSN")
+        self.nhs_iddef = IdNumDefinition(
+            which_idnum=1001,
+            description="NHS number (TEST)",
+            short_description="NHS#",
+            hl7_assigning_authority="NHS",
+            hl7_id_type="NHSN",
+        )
         self.dbsession.add(self.nhs_iddef)
         try:
             self.dbsession.commit()
         except IntegrityError:
             self.dbsession.rollback()
 
-        for patient_id in range(self.FIRST_PATIENT_ID,
-                                self.FIRST_PATIENT_ID + self.NUM_PATIENTS):
+        for patient_id in range(
+            self.FIRST_PATIENT_ID, self.FIRST_PATIENT_ID + self.NUM_PATIENTS
+        ):
             Faker.seed(patient_id)
             self.add_patient(patient_id)
             log.info(f"Adding tasks for patient {patient_id}")
@@ -307,8 +313,7 @@ class DummyDataFactory(DummyDataInserter):
         self.apply_standard_db_fields(patient)
 
         patient.sex = self.faker.random.choices(
-            ["M", "F", "X"],
-            weights=[49.8, 49.8, 0.4]
+            ["M", "F", "X"], weights=[49.8, 49.8, 0.4]
         )[0]
 
         if patient.sex == "M":
@@ -325,7 +330,7 @@ class DummyDataFactory(DummyDataInserter):
         # consistent results but our population ages over time.
         patient.dob = self.faker.date_between_dates(
             date_start=pendulum.date(1900, 1, 1),
-            date_end=pendulum.date(2020, 1, 1)
+            date_end=pendulum.date(2020, 1, 1),
         )
         self.dbsession.add(patient)
 
@@ -382,8 +387,9 @@ class DummyDataFactory(DummyDataInserter):
         self.apply_standard_db_fields(task)
         task.when_created = self.era_time
 
-    def apply_standard_db_fields(self,
-                                 obj: "GenericTabletRecordMixin") -> None:
+    def apply_standard_db_fields(
+        self, obj: "GenericTabletRecordMixin"
+    ) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.

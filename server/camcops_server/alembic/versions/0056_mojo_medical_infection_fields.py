@@ -39,8 +39,8 @@ Creation date: 2020-11-16 11:28:45.597495
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0056'
-down_revision = '0055'
+revision = "0056"
+down_revision = "0055"
 branch_labels = None
 depends_on = None
 
@@ -48,6 +48,7 @@ depends_on = None
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 def upgrade():
     # We considered changing the wording of the questions about having had an

@@ -119,13 +119,14 @@ Crash using type-hinted functions under Python 3.5 with dogpile.cache==0.6.4:
 from cardinal_pythonlib.dogpile_cache import kw_fkg_allowing_type_hints as fkg
 from dogpile.cache import make_region
 
+
 # =============================================================================
 # The main cache: static for the lifetime of this process.
 # =============================================================================
 
 cache_region_static = make_region()
 cache_region_static.configure(
-    backend='dogpile.cache.memory'
+    backend="dogpile.cache.memory"
     # Consider later: memcached via dogpile.cache.pylibmc
 )
 
@@ -133,4 +134,4 @@ cache_region_static.configure(
 # @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 
 # https://stackoverflow.com/questions/44834/can-someone-explain-all-in-python
-__all__ = ['cache_region_static', 'fkg']  # prevents "Unused import statement"
+__all__ = ["cache_region_static", "fkg"]  # prevents "Unused import statement"

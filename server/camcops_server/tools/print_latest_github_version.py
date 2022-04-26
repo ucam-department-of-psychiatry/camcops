@@ -61,12 +61,7 @@ REPOSITORY = "https://github.com/ucam-department-of-psychiatry/camcops"
 
 def main() -> None:
     log.info(f"Checking repository: {REPOSITORY}")
-    cmdargs = [
-        "git",
-        "ls-remote",
-        "--tag",
-        REPOSITORY
-    ]
+    cmdargs = ["git", "ls-remote", "--tag", REPOSITORY]
     output = subprocess.check_output(cmdargs).decode(sys.getdefaultencoding())
     log.debug(f"Tags found:\n{output}")
     version_strings = [

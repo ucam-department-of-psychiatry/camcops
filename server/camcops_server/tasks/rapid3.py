@@ -56,12 +56,15 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # RAPID 3
 # =============================================================================
 
+
 class Rapid3Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type["Rapid3"],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Rapid3"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
         comment_strings = [
             "get dressed",
@@ -81,41 +84,57 @@ class Rapid3Metaclass(DeclarativeMeta):
         score_comment = "(0 without any difficulty - 3 unable to do)"
 
         for q_index, q_fieldname in cls.q1_all_indexed_fieldnames():
-            setattr(cls, q_fieldname, CamcopsColumn(
-                q_fieldname, Integer,
-                permitted_value_checker=ZERO_TO_THREE_CHECKER,
-                comment="{} ({}) {}".format(
-                    q_fieldname.capitalize(),
-                    comment_strings[q_index],
-                    score_comment
-                )
-            ))
+            setattr(
+                cls,
+                q_fieldname,
+                CamcopsColumn(
+                    q_fieldname,
+                    Integer,
+                    permitted_value_checker=ZERO_TO_THREE_CHECKER,
+                    comment="{} ({}) {}".format(
+                        q_fieldname.capitalize(),
+                        comment_strings[q_index],
+                        score_comment,
+                    ),
+                ),
+            )
 
         permitted_scale_values = [v / 2.0 for v in range(0, 20 + 1)]
 
-        setattr(cls, "q2", CamcopsColumn(
-            "q2", Float,
-            permitted_value_checker=PermittedValueChecker(
-                permitted_values=permitted_scale_values
+        setattr(
+            cls,
+            "q2",
+            CamcopsColumn(
+                "q2",
+                Float,
+                permitted_value_checker=PermittedValueChecker(
+                    permitted_values=permitted_scale_values
+                ),
+                comment=(
+                    "Q2 (pain tolerance) (0 no pain - 10 pain as bad as "
+                    "it could be"
+                ),
             ),
-            comment=("Q2 (pain tolerance) (0 no pain - 10 pain as bad as "
-                     "it could be")
-        ))
+        )
 
-        setattr(cls, "q3", CamcopsColumn(
-            "q3", Float,
-            permitted_value_checker=PermittedValueChecker(
-                permitted_values=permitted_scale_values
+        setattr(
+            cls,
+            "q3",
+            CamcopsColumn(
+                "q3",
+                Float,
+                permitted_value_checker=PermittedValueChecker(
+                    permitted_values=permitted_scale_values
+                ),
+                comment="Q3 (patient global estimate) "
+                "(0 very well - very poorly)",
             ),
-            comment="Q3 (patient global estimate) (0 very well - very poorly)"
-        ))
+        )
 
         super().__init__(name, bases, classdict)
 
 
-class Rapid3(TaskHasPatientMixin,
-             Task,
-             metaclass=Rapid3Metaclass):
+class Rapid3(TaskHasPatientMixin, Task, metaclass=Rapid3Metaclass):
     __tablename__ = "rapid3"
     shortname = "RAPID3"
     provides_trackers = True
@@ -144,23 +163,24 @@ class Rapid3(TaskHasPatientMixin,
 
     @classmethod
     def q1_all_indexed_fieldnames(cls) -> List[Tuple[int, str]]:
-        return [(i, f) for (i, f) in
-                cls.q1_indexed_fieldnames(cls.N_Q1_QUESTIONS)]
+        return [
+            (i, f) for (i, f) in cls.q1_indexed_fieldnames(cls.N_Q1_QUESTIONS)
+        ]
 
     @classmethod
     def q1_all_fieldnames(cls) -> List[str]:
-        return [f for (i, f) in
-                cls.q1_indexed_fieldnames(cls.N_Q1_QUESTIONS)]
+        return [f for (i, f) in cls.q1_indexed_fieldnames(cls.N_Q1_QUESTIONS)]
 
     @classmethod
     def q1_all_letters(cls) -> List[str]:
-        return [c for (i, c) in
-                cls.q1_indexed_letters(cls.N_Q1_QUESTIONS)]
+        return [c for (i, c) in cls.q1_indexed_letters(cls.N_Q1_QUESTIONS)]
 
     @classmethod
     def q1_scoring_fieldnames(cls) -> List[str]:
-        return [f for (i, f) in
-                cls.q1_indexed_fieldnames(cls.N_Q1_SCORING_QUESTIONS)]
+        return [
+            f
+            for (i, f) in cls.q1_indexed_fieldnames(cls.N_Q1_SCORING_QUESTIONS)
+        ]
 
     @classmethod
     def all_fieldnames(cls) -> List[str]:
@@ -174,16 +194,19 @@ class Rapid3(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="rapid3", coltype=Float(),
+                name="rapid3",
+                coltype=Float(),
                 value=self.rapid3(),
-                comment="RAPID3"),
+                comment="RAPID3",
+            )
         ]
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         axis_min = self.MINIMUM - 0.5
         axis_max = self.MAXIMUM + 0.5
-        axis_ticks = [TrackerAxisTick(n, str(n))
-                      for n in range(0, int(axis_max) + 1, 2)]
+        axis_ticks = [
+            TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1, 2)
+        ]
 
         horizontal_lines = [
             self.MAXIMUM,
@@ -194,14 +217,21 @@ class Rapid3(TaskHasPatientMixin,
         ]
 
         horizontal_labels = [
-            TrackerLabel(self.MODERATE_SEVERITY_MAX + 8.0,
-                         self.wxstring(req, "high_severity")),
-            TrackerLabel(self.MODERATE_SEVERITY_MAX - 3.0,
-                         self.wxstring(req, "moderate_severity")),
-            TrackerLabel(self.LOW_SEVERITY_MAX - 1.5,
-                         self.wxstring(req, "low_severity")),
-            TrackerLabel(self.NEAR_REMISSION_MAX - 1.5,
-                         self.wxstring(req, "near_remission")),
+            TrackerLabel(
+                self.MODERATE_SEVERITY_MAX + 8.0,
+                self.wxstring(req, "high_severity"),
+            ),
+            TrackerLabel(
+                self.MODERATE_SEVERITY_MAX - 3.0,
+                self.wxstring(req, "moderate_severity"),
+            ),
+            TrackerLabel(
+                self.LOW_SEVERITY_MAX - 1.5, self.wxstring(req, "low_severity")
+            ),
+            TrackerLabel(
+                self.NEAR_REMISSION_MAX - 1.5,
+                self.wxstring(req, "near_remission"),
+            ),
         ]
 
         return [
@@ -214,16 +244,18 @@ class Rapid3(TaskHasPatientMixin,
                 axis_ticks=axis_ticks,
                 horizontal_lines=horizontal_lines,
                 horizontal_labels=horizontal_labels,
-            ),
+            )
         ]
 
     def rapid3(self) -> Optional[float]:
         if not self.is_complete():
             return None
 
-        return (self.functional_status() +
-                self.pain_tolerance() +
-                self.global_estimate())
+        return (
+            self.functional_status()
+            + self.pain_tolerance()
+            + self.global_estimate()
+        )
 
     def functional_status(self) -> float:
         return round(self.sum_fields(self.q1_scoring_fieldnames()) / 3, 1)
@@ -247,9 +279,8 @@ class Rapid3(TaskHasPatientMixin,
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = tr_span_col(
-            f'{self.wxstring(req, "q1")}<br>'
-            f'{self.wxstring(req, "q1sub")}',
-            cols=2
+            f'{self.wxstring(req, "q1")}<br>' f'{self.wxstring(req, "q1sub")}',
+            cols=2,
         )
         for letter in self.q1_all_letters():
             q_fieldname = f"q1{letter}"
@@ -313,10 +344,7 @@ class Rapid3(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             rapid3=tr(
                 self.wxstring(req, "rapid3") + " (0–30) <sup>[1]</sup>",
-                "{} ({})".format(
-                    answer(rapid3),
-                    self.disease_severity(req)
-                )
+                "{} ({})".format(answer(rapid3), self.disease_severity(req)),
             ),
             rows=rows,
         )

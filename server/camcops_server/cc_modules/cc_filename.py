@@ -45,8 +45,12 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_exception import STR_FORMAT_EXCEPTIONS
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_patientidnum import (
+        PatientIdNum,  # noqa: F401
+    )
+    from camcops_server.cc_modules.cc_request import (
+        CamcopsRequest,  # noqa: F401
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -55,11 +59,13 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Ancillary functions for export filenames
 # =============================================================================
 
+
 class PatientSpecElementForFilename(object):
     """
     Parts of the patient information that can be used to autogenerate
     the "patient" part of a filename specification.
     """
+
     SURNAME = "surname"
     FORENAME = "forename"
     DOB = "dob"
@@ -73,6 +79,7 @@ class FilenameSpecElement(object):
     """
     Types of informatino that can be used to autogenerate a filename.
     """
+
     PATIENT = "patient"
     CREATED = "created"
     NOW = "now"
@@ -83,8 +90,9 @@ class FilenameSpecElement(object):
     # ... plus all those from PatientSpecElementForFilename
 
 
-def patient_spec_for_filename_is_valid(patient_spec: str,
-                                       valid_which_idnums: List[int]) -> bool:
+def patient_spec_for_filename_is_valid(
+    patient_spec: str, valid_which_idnums: List[int]
+) -> bool:
     """
     Returns ``True`` if the ``patient_spec`` appears valid; otherwise
     ``False``.
@@ -109,8 +117,9 @@ def patient_spec_for_filename_is_valid(patient_spec: str,
         return False
 
 
-def filename_spec_is_valid(filename_spec: str,
-                           valid_which_idnums: List[int]) -> bool:
+def filename_spec_is_valid(
+    filename_spec: str, valid_which_idnums: List[int]
+) -> bool:
     """
     Returns ``True`` if the ``filename_spec`` appears valid; otherwise
     ``False``.
@@ -145,21 +154,23 @@ def filename_spec_is_valid(filename_spec: str,
         return False
 
 
-def get_export_filename(req: "CamcopsRequest",
-                        patient_spec_if_anonymous: str,
-                        patient_spec: str,
-                        filename_spec: str,
-                        filetype: str,
-                        is_anonymous: bool = False,
-                        surname: str = None,
-                        forename: str = None,
-                        dob: Date = None,
-                        sex: str = None,
-                        idnum_objects: List['PatientIdNum'] = None,
-                        creation_datetime: Pendulum = None,
-                        basetable: str = None,
-                        serverpk: int = None,
-                        skip_conversion_to_safe_filename: bool = False) -> str:
+def get_export_filename(
+    req: "CamcopsRequest",
+    patient_spec_if_anonymous: str,
+    patient_spec: str,
+    filename_spec: str,
+    filetype: str,
+    is_anonymous: bool = False,
+    surname: str = None,
+    forename: str = None,
+    dob: Date = None,
+    sex: str = None,
+    idnum_objects: List["PatientIdNum"] = None,
+    creation_datetime: Pendulum = None,
+    basetable: str = None,
+    serverpk: int = None,
+    skip_conversion_to_safe_filename: bool = False,
+) -> str:
     """
     Get filename, for file exports/transfers.
     Also used for e-mail headers and bodies.
@@ -200,7 +211,8 @@ def get_export_filename(req: "CamcopsRequest",
         pse.FORENAME: forename or "",
         pse.DOB: (
             format_datetime(dob, DateFormat.FILENAME_DATE_ONLY, "")
-            if dob else ""
+            if dob
+            else ""
         ),
         pse.SEX: sex or "",
     }
@@ -209,8 +221,12 @@ def get_export_filename(req: "CamcopsRequest",
         if idobj.which_idnum is not None:
             nstr = str(idobj.which_idnum)
             has_num = idobj.idnum_value is not None
-            d[pse.IDNUM_PREFIX + nstr] = str(idobj.idnum_value) if has_num else ""  # noqa
-            d[pse.IDSHORTDESC_PREFIX + nstr] = idobj.short_description(req) or ""  # noqa
+            d[pse.IDNUM_PREFIX + nstr] = (
+                str(idobj.idnum_value) if has_num else ""
+            )
+            d[pse.IDSHORTDESC_PREFIX + nstr] = (
+                idobj.short_description(req) or ""
+            )
             if has_num and idobj.short_description(req):
                 all_id_components.append(idobj.get_filename_component(req))
     d[pse.ALLIDNUMS] = "_".join(all_id_components)
@@ -220,20 +236,25 @@ def get_export_filename(req: "CamcopsRequest",
         try:
             patient = str(patient_spec).format(**d)
         except STR_FORMAT_EXCEPTIONS:
-            log.warning("Bad patient_spec: {!r}; dictionary was {!r}",
-                        patient_spec, d)
+            log.warning(
+                "Bad patient_spec: {!r}; dictionary was {!r}", patient_spec, d
+            )
             patient = "invalid_patient_spec"
-    d.update({
-        fse.PATIENT: patient,
-        fse.CREATED: format_datetime(creation_datetime,
-                                     DateFormat.FILENAME, ""),
-        fse.NOW: format_datetime(get_now_localtz_pendulum(),
-                                 DateFormat.FILENAME),
-        fse.TASKTYPE: str(basetable or ""),
-        fse.SERVERPK: str(serverpk or ""),
-        fse.FILETYPE: filetype.lower(),
-        fse.ANONYMOUS: patient_spec_if_anonymous if is_anonymous else "",
-    })
+    d.update(
+        {
+            fse.PATIENT: patient,
+            fse.CREATED: format_datetime(
+                creation_datetime, DateFormat.FILENAME, ""
+            ),
+            fse.NOW: format_datetime(
+                get_now_localtz_pendulum(), DateFormat.FILENAME
+            ),
+            fse.TASKTYPE: str(basetable or ""),
+            fse.SERVERPK: str(serverpk or ""),
+            fse.FILETYPE: filetype.lower(),
+            fse.ANONYMOUS: patient_spec_if_anonymous if is_anonymous else "",
+        }
+    )
     try:
         formatted = str(filename_spec).format(**d)
     except STR_FORMAT_EXCEPTIONS:
@@ -253,7 +274,7 @@ def convert_string_for_filename(s: str, allow_paths: bool = False) -> str:
     # ... modified
     s = mangle_unicode_to_ascii(s)
     s = s.replace(" ", "_")
-    keepcharacters = ['.', '_', '-']
+    keepcharacters = [".", "_", "-"]
     if allow_paths:
         keepcharacters.extend([os.sep])  # '/' under UNIX; '\' under Windows
     s = "".join(c for c in s if c.isalnum() or c in keepcharacters)

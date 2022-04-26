@@ -42,10 +42,12 @@ from camcops_server.cc_modules.cc_user import User
 # Unit tests
 # =============================================================================
 
+
 class SessionTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_sessions(self) -> None:
         self.announce("test_sessions")
         req = self.req
@@ -55,7 +57,8 @@ class SessionTests(DemoDatabaseTestCase):
 
         CamcopsSession.delete_old_sessions(req)
         self.assertIsInstance(
-            CamcopsSession.get_oldest_last_activity_allowed(req), Pendulum)
+            CamcopsSession.get_oldest_last_activity_allowed(req), Pendulum
+        )
 
         s = req.camcops_session
         u = self.dbsession.query(User).first()  # type: User
@@ -75,9 +78,9 @@ class SessionTests(DemoDatabaseTestCase):
         dbsession.delete(s)
         dbsession.commit()
         numfilters = dbsession.query(TaskFilter).count()
-        assert numfilters == 0, (
-            "TaskFilter count should be 0; cascade delete not working"
-        )
+        assert (
+            numfilters == 0
+        ), "TaskFilter count should be 0; cascade delete not working"
 
 
 class GetSessionTests(BasicDatabaseTestCase):
@@ -88,16 +91,17 @@ class GetSessionTests(BasicDatabaseTestCase):
         super().setUp()
         CamcopsSession.delete_old_sessions(self.req)
 
-        self.old_session = CamcopsSession(ip_addr=self.old_ip_addr,
-                                          last_activity_utc=self.req.now_utc)
+        self.old_session = CamcopsSession(
+            ip_addr=self.old_ip_addr, last_activity_utc=self.req.now_utc
+        )
         self.dbsession.add(self.old_session)
         self.dbsession.flush()
 
     def test_old_session_for_same_ip(self) -> None:
         self.req.remote_addr = self.old_ip_addr
-        new_session = CamcopsSession.get_session(self.req,
-                                                 str(self.old_session.id),
-                                                 self.old_session.token)
+        new_session = CamcopsSession.get_session(
+            self.req, str(self.old_session.id), self.old_session.token
+        )
         self.dbsession.add(new_session)
         self.dbsession.flush()
         self.assertEqual(self.old_session.id, new_session.id)
@@ -105,20 +109,19 @@ class GetSessionTests(BasicDatabaseTestCase):
     def test_old_session_for_different_ip_when_ip_ignored(self) -> None:
         self.req.config.session_check_user_ip = False
         self.req.remote_addr = self.new_ip_addr
-        new_session = CamcopsSession.get_session(self.req,
-                                                 str(self.old_session.id),
-                                                 self.old_session.token)
+        new_session = CamcopsSession.get_session(
+            self.req, str(self.old_session.id), self.old_session.token
+        )
         self.dbsession.add(new_session)
         self.dbsession.flush()
         self.assertEqual(self.old_session.id, new_session.id)
 
-    def test_new_session_for_different_ip_when_ip_checked(
-            self) -> None:
+    def test_new_session_for_different_ip_when_ip_checked(self) -> None:
         self.req.config.session_check_user_ip = True
         self.req.remote_addr = self.new_ip_addr
-        new_session = CamcopsSession.get_session(self.req,
-                                                 str(self.old_session.id),
-                                                 self.old_session.token)
+        new_session = CamcopsSession.get_session(
+            self.req, str(self.old_session.id), self.old_session.token
+        )
         self.dbsession.add(new_session)
         self.dbsession.flush()
         self.assertNotEqual(self.old_session.id, new_session.id)

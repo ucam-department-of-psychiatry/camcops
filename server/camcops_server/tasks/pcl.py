@@ -60,18 +60,26 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # PCL
 # =============================================================================
 
+
 class PclMetaclass(DeclarativeMeta, ABCMeta):
     """
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
+
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['PclCommon'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["PclCommon"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=1, maximum=5,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=1,
+            maximum=5,
             comment_fmt="Q{n} ({s}) (1 not at all - 5 extremely)",
             comment_strings=[
                 "disturbing memories/thoughts/images",
@@ -91,13 +99,12 @@ class PclMetaclass(DeclarativeMeta, ABCMeta):
                 "difficulty concentrating",
                 "super alert/on guard",
                 "jumpy/easily startled",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class PclCommon(TaskHasPatientMixin, Task, ABC,
-                metaclass=PclMetaclass):
+class PclCommon(TaskHasPatientMixin, Task, ABC, metaclass=PclMetaclass):
     __abstract__ = True
     provides_trackers = True
     extrastring_taskname = "pcl"
@@ -113,28 +120,28 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
         return self.sum_fields(self.SCORED_FIELDS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="PCL total score",
-            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
-            axis_min=self.MIN_SCORE - 0.5,
-            axis_max=self.MAX_SCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PCL total score",
+                axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
+                axis_min=self.MIN_SCORE - 0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"PCL total score {self.total_score()}"
-        )]
+        return [CtvInfo(content=f"PCL total score {self.total_score()}")]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -142,36 +149,42 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})"),
+                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
+            ),
             SummaryElement(
                 name="num_symptomatic",
                 coltype=Integer(),
                 value=self.num_symptomatic(),
                 comment="Total number of symptoms considered symptomatic "
-                        "(meaning scoring 3 or more)"),
+                "(meaning scoring 3 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_B",
                 coltype=Integer(),
                 value=self.num_symptomatic_b(),
                 comment="Number of group B symptoms considered symptomatic "
-                        "(meaning scoring 3 or more)"),
+                "(meaning scoring 3 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_C",
                 coltype=Integer(),
                 value=self.num_symptomatic_c(),
                 comment="Number of group C symptoms considered symptomatic "
-                        "(meaning scoring 3 or more)"),
+                "(meaning scoring 3 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_D",
                 coltype=Integer(),
                 value=self.num_symptomatic_d(),
                 comment="Number of group D symptoms considered symptomatic "
-                        "(meaning scoring 3 or more)"),
+                "(meaning scoring 3 or more)",
+            ),
             SummaryElement(
                 name="ptsd",
                 coltype=Boolean(),
                 value=self.ptsd(),
-                comment="Meets DSM-IV criteria for PTSD"),
+                comment="Meets DSM-IV criteria for PTSD",
+            ),
         ]
 
     def get_num_symptomatic(self, first: int, last: int) -> int:
@@ -198,8 +211,11 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
         num_symptomatic_b = self.num_symptomatic_b()
         num_symptomatic_c = self.num_symptomatic_c()
         num_symptomatic_d = self.num_symptomatic_d()
-        return num_symptomatic_b >= 1 and num_symptomatic_c >= 3 and \
-            num_symptomatic_d >= 2
+        return (
+            num_symptomatic_b >= 1
+            and num_symptomatic_c >= 3
+            and num_symptomatic_d >= 2
+        )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -210,8 +226,11 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
         ptsd = self.ptsd()
         answer_dict = {None: None}
         for option in range(1, 6):
-            answer_dict[option] = str(option) + " – " + \
-                self.wxstring(req, "option" + str(option))
+            answer_dict[option] = (
+                str(option)
+                + " – "
+                + self.wxstring(req, "option" + str(option))
+            )
         q_a = ""
         if hasattr(self, "event") and hasattr(self, "eventdate"):
             # PCL-S
@@ -225,7 +244,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
                 )
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             )
         h = """
             <div class="{CssClass.SUMMARY}">
@@ -251,19 +270,21 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr_qa(
-                f"{req.sstring(SS.TOTAL_SCORE)} (17–85)",
-                score
-            ),
+            total_score=tr_qa(f"{req.sstring(SS.TOTAL_SCORE)} (17–85)", score),
             num_symptomatic=tr(
                 "Number symptomatic <sup>[1]</sup>: B, C, D (total)",
-                answer(num_symptomatic_b) + ", " +
-                answer(num_symptomatic_c) + ", " +
-                answer(num_symptomatic_d) + " (" + answer(num_symptomatic) + ")"  # noqa
+                answer(num_symptomatic_b)
+                + ", "
+                + answer(num_symptomatic_c)
+                + ", "
+                + answer(num_symptomatic_d)
+                + " ("
+                + answer(num_symptomatic)
+                + ")",
             ),
             dsm_criteria_met=tr_qa(
                 self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
-                get_yes_no(req, ptsd)
+                get_yes_no(req, ptsd),
             ),
             q_a=q_a,
         )
@@ -274,11 +295,12 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
 # PCL-C
 # =============================================================================
 
-class PclC(PclCommon,
-           metaclass=PclMetaclass):
+
+class PclC(PclCommon, metaclass=PclMetaclass):
     """
     Server implementation of the PCL-C task.
     """
+
     __tablename__ = "pclc"
     shortname = "PCL-C"
 
@@ -294,11 +316,12 @@ class PclC(PclCommon,
 # PCL-M
 # =============================================================================
 
-class PclM(PclCommon,
-           metaclass=PclMetaclass):
+
+class PclM(PclCommon, metaclass=PclMetaclass):
     """
     Server implementation of the PCL-M task.
     """
+
     __tablename__ = "pclm"
     shortname = "PCL-M"
 
@@ -314,21 +337,18 @@ class PclM(PclCommon,
 # PCL-S
 # =============================================================================
 
-class PclS(PclCommon,
-           metaclass=PclMetaclass):
+
+class PclS(PclCommon, metaclass=PclMetaclass):
     """
     Server implementation of the PCL-S task.
     """
+
     __tablename__ = "pcls"
     shortname = "PCL-S"
 
-    event = Column(
-        "event", UnicodeText,
-        comment="Traumatic event"
-    )
+    event = Column("event", UnicodeText, comment="Traumatic event")
     eventdate = Column(
-        "eventdate", UnicodeText,
-        comment="Date of traumatic event (free text)"
+        "eventdate", UnicodeText, comment="Date of traumatic event (free text)"
     )
 
     TASK_FIELDS = PclCommon.SCORED_FIELDS + ["event", "eventdate"]

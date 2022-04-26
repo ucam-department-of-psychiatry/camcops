@@ -36,6 +36,7 @@ from camcops_server.tasks.basdai import Basdai
 # Unit tests
 # =============================================================================
 
+
 class BasdaiTests(TestCase):
     def setUp(self) -> None:
         super().setUp()

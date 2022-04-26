@@ -3658,3 +3658,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bump ``numpy`` from 1.20.0 to 1.21.5 (1.22.0 unavailable for Python 3.7) for
   the endless series of security warnings about things that aren't really
   vulnerabilities.
+
+- Use Black code style: https://black.readthedocs.io/.
+  Note: "E203 whitespace before ':'" errors should be suppressed. See
+  https://github.com/psf/black/issues/315;
+  https://black.readthedocs.io/en/stable/faq.html.

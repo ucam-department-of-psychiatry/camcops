@@ -32,8 +32,22 @@ client.**
 
 from collections import OrderedDict
 import logging
-from typing import (Any, Callable, Dict, Generator, Iterable, List, NoReturn,
-                    Optional, Set, Tuple, Type, TYPE_CHECKING, TypeVar, Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    NoReturn,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    TypeVar,
+    Union,
+)
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
@@ -85,8 +99,12 @@ from camcops_server.cc_modules.cc_xml import (
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
     from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_summaryelement import SummaryElement  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import (
+        CamcopsRequest,  # noqa: F401
+    )
+    from camcops_server.cc_modules.cc_summaryelement import (
+        SummaryElement,  # noqa: F401
+    )
     from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -116,19 +134,21 @@ except ImportError:
 _SQL_LITERAL_TYPE = Union[int, float, str]
 
 _MYSQL_CONVERSION_DICT_TYPE = Dict[Any, Callable]
-_MYSQLDB_PYTHON_TO_DB_TYPE = Callable[[Any, _MYSQL_CONVERSION_DICT_TYPE],
-                                      _SQL_LITERAL_TYPE]  # f(o, d) -> s
+_MYSQLDB_PYTHON_TO_DB_TYPE = Callable[
+    [Any, _MYSQL_CONVERSION_DICT_TYPE], _SQL_LITERAL_TYPE
+]  # f(o, d) -> s
 _MYSQLDB_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]  # f(s) -> o
 
 _PYMYSQL_ENCODER_DICT_TYPE = Dict[Type, Callable]
-_PYMYSQL_PYTHON_TO_DB_TYPE = Callable[[Any, Optional[_PYMYSQL_ENCODER_DICT_TYPE]],  # noqa
-                                      _SQL_LITERAL_TYPE]  # f(o, mapping) -> s
+_PYMYSQL_PYTHON_TO_DB_TYPE = Callable[
+    [Any, Optional[_PYMYSQL_ENCODER_DICT_TYPE]], _SQL_LITERAL_TYPE  # noqa
+]  # f(o, mapping) -> s
 _PYMYSQL_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]
 
 
-def mysqldb_crash_on_bad_conversion(o: Any,
-                                    d: _MYSQL_CONVERSION_DICT_TYPE) -> \
-        NoReturn:
+def mysqldb_crash_on_bad_conversion(
+    o: Any, d: _MYSQL_CONVERSION_DICT_TYPE
+) -> NoReturn:
     """
     Reports a bad conversion and crashes. For debugging only (obviously)!
 
@@ -171,9 +191,9 @@ def mysqldb_crash_on_bad_conversion(o: Any,
     raise RuntimeError(failmsg)
 
 
-def pymysql_crash_on_bad_conversion(obj: Any,
-                                    mapping: _PYMYSQL_ENCODER_DICT_TYPE) -> \
-        NoReturn:
+def pymysql_crash_on_bad_conversion(
+    obj: Any, mapping: _PYMYSQL_ENCODER_DICT_TYPE
+) -> NoReturn:
     """
     See :func:`mysqldb_crash_on_bad_conversion`.
     """
@@ -194,16 +214,22 @@ def pymysql_crash_on_bad_conversion(obj: Any,
 if MySQLdb:
     log.debug("Hacking MySQLdb to support pendulum.DateTime")
     if CRASH_ON_BAD_CONVERSIONS:
-        MySQLdb.converters.conversions[Pendulum] = mysqldb_crash_on_bad_conversion  # noqa
+        MySQLdb.converters.conversions[
+            Pendulum
+        ] = mysqldb_crash_on_bad_conversion  # noqa
     else:
-        MySQLdb.converters.conversions[Pendulum] = MySQLdb.converters.DateTime2literal  # noqa
+        MySQLdb.converters.conversions[
+            Pendulum
+        ] = MySQLdb.converters.DateTime2literal  # noqa
 
 if pymysql:
     log.debug("Hacking pymysql to support pendulum.DateTime")
     if CRASH_ON_BAD_CONVERSIONS:
         pymysql.converters.encoders[Pendulum] = pymysql_crash_on_bad_conversion
     else:
-        pymysql.converters.encoders[Pendulum] = pymysql.converters.escape_datetime  # noqa
+        pymysql.converters.encoders[
+            Pendulum
+        ] = pymysql.converters.escape_datetime  # noqa
     # And also, as per the source code and
     # https://stackoverflow.com/questions/59871904/convert-pymysql-query-result-with-mysql-decimal-type-to-python-float  # noqa
     pymysql.converters.conversions = pymysql.converters.encoders.copy()
@@ -214,7 +240,7 @@ if pymysql:
 # Constants
 # =============================================================================
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 # Database fieldname constants. Do not change. Used here and in client_api.py
 FN_PK = "_pk"
@@ -292,7 +318,7 @@ RESERVED_FIELDS = (  # fields that tablets can't upload
     FN_REMOVAL_PENDING,
     FN_GROUP_ID,
 )  # but more generally: they start with "_"...
-assert(all(x.startswith("_") for x in RESERVED_FIELDS))
+assert all(x.startswith("_") for x in RESERVED_FIELDS)
 
 TABLET_STANDARD_FIELDS = RESERVED_FIELDS + (
     TABLET_ID_FIELD,
@@ -402,6 +428,7 @@ class GenericTabletRecordMixin(object):
     individual tablet (defined by the combination of ``_device_id`` and
     ``_era``) sees its own PK, ``id``.
     """
+
     __tablename__ = None  # type: str  # sorts out some mixin type checking
 
     # -------------------------------------------------------------------------
@@ -414,29 +441,36 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _pk(cls) -> Column:
         return Column(
-            FN_PK, Integer,
-            primary_key=True, autoincrement=True, index=True,
-            comment="(SERVER) Primary key (on the server)"
+            FN_PK,
+            Integer,
+            primary_key=True,
+            autoincrement=True,
+            index=True,
+            comment="(SERVER) Primary key (on the server)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _device_id(cls) -> Column:
         return Column(
-            FN_DEVICE_ID, Integer, ForeignKey("_security_devices.id",
-                                              use_alter=True),
-            nullable=False, index=True,
-            comment="(SERVER) ID of the source tablet device"
+            FN_DEVICE_ID,
+            Integer,
+            ForeignKey("_security_devices.id", use_alter=True),
+            nullable=False,
+            index=True,
+            comment="(SERVER) ID of the source tablet device",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _era(cls) -> Column:
         return Column(
-            FN_ERA, EraColType,
-            nullable=False, index=True,
+            FN_ERA,
+            EraColType,
+            nullable=False,
+            index=True,
             comment="(SERVER) 'NOW', or when this row was preserved and "
-                    "removed from the source device (UTC ISO 8601)",
+            "removed from the source device (UTC ISO 8601)",
         )
         # ... note that _era is textual so that plain comparison
         # with "=" always works, i.e. no NULLs -- for USER comparison too, not
@@ -446,33 +480,38 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _current(cls) -> Column:
         return Column(
-            FN_CURRENT, Boolean,
-            nullable=False, index=True,
-            comment="(SERVER) Is the row current (1) or not (0)?"
+            FN_CURRENT,
+            Boolean,
+            nullable=False,
+            index=True,
+            comment="(SERVER) Is the row current (1) or not (0)?",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _when_added_exact(cls) -> Column:
         return Column(
-            FN_WHEN_ADDED_EXACT, PendulumDateTimeAsIsoTextColType,
-            comment="(SERVER) Date/time this row was added (ISO 8601)"
+            FN_WHEN_ADDED_EXACT,
+            PendulumDateTimeAsIsoTextColType,
+            comment="(SERVER) Date/time this row was added (ISO 8601)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _when_added_batch_utc(cls) -> Column:
         return Column(
-            FN_WHEN_ADDED_BATCH_UTC, DateTime,
+            FN_WHEN_ADDED_BATCH_UTC,
+            DateTime,
             comment="(SERVER) Date/time of the upload batch that added this "
-                    "row (DATETIME in UTC)"
+            "row (DATETIME in UTC)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _adding_user_id(cls) -> Column:
         return Column(
-            FN_ADDING_USER_ID, Integer,
+            FN_ADDING_USER_ID,
+            Integer,
             ForeignKey("_security_users.id"),
             comment="(SERVER) ID of user that added this row",
         )
@@ -481,121 +520,142 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _when_removed_exact(cls) -> Column:
         return Column(
-            FN_WHEN_REMOVED_EXACT, PendulumDateTimeAsIsoTextColType,
+            FN_WHEN_REMOVED_EXACT,
+            PendulumDateTimeAsIsoTextColType,
             comment="(SERVER) Date/time this row was removed, i.e. made "
-                    "not current (ISO 8601)"
+            "not current (ISO 8601)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _when_removed_batch_utc(cls) -> Column:
         return Column(
-            FN_WHEN_REMOVED_BATCH_UTC, DateTime,
+            FN_WHEN_REMOVED_BATCH_UTC,
+            DateTime,
             comment="(SERVER) Date/time of the upload batch that removed "
-                    "this row (DATETIME in UTC)"
+            "this row (DATETIME in UTC)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _removing_user_id(cls) -> Column:
         return Column(
-            FN_REMOVING_USER_ID, Integer,
+            FN_REMOVING_USER_ID,
+            Integer,
             ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that removed this row"
+            comment="(SERVER) ID of user that removed this row",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _preserving_user_id(cls) -> Column:
         return Column(
-            FN_PRESERVING_USER_ID, Integer,
+            FN_PRESERVING_USER_ID,
+            Integer,
             ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that preserved this row"
+            comment="(SERVER) ID of user that preserved this row",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _forcibly_preserved(cls) -> Column:
         return Column(
-            FN_FORCIBLY_PRESERVED, Boolean, default=False,
+            FN_FORCIBLY_PRESERVED,
+            Boolean,
+            default=False,
             comment="(SERVER) Forcibly preserved by superuser (rather than "
-                    "normally preserved by tablet)?"
+            "normally preserved by tablet)?",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _predecessor_pk(cls) -> Column:
         return Column(
-            FN_PREDECESSOR_PK, Integer,
-            comment="(SERVER) PK of predecessor record, prior to modification"
+            FN_PREDECESSOR_PK,
+            Integer,
+            comment="(SERVER) PK of predecessor record, prior to modification",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _successor_pk(cls) -> Column:
         return Column(
-            FN_SUCCESSOR_PK, Integer,
+            FN_SUCCESSOR_PK,
+            Integer,
             comment="(SERVER) PK of successor record  (after modification) "
-                    "or NULL (whilst live, or after deletion)"
+            "or NULL (whilst live, or after deletion)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _manually_erased(cls) -> Column:
         return Column(
-            FN_MANUALLY_ERASED, Boolean, default=False,
-            comment="(SERVER) Record manually erased (content destroyed)?"
+            FN_MANUALLY_ERASED,
+            Boolean,
+            default=False,
+            comment="(SERVER) Record manually erased (content destroyed)?",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _manually_erased_at(cls) -> Column:
         return Column(
-            FN_MANUALLY_ERASED_AT, PendulumDateTimeAsIsoTextColType,
-            comment="(SERVER) Date/time of manual erasure (ISO 8601)"
+            FN_MANUALLY_ERASED_AT,
+            PendulumDateTimeAsIsoTextColType,
+            comment="(SERVER) Date/time of manual erasure (ISO 8601)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _manually_erasing_user_id(cls) -> Column:
         return Column(
-            FN_MANUALLY_ERASING_USER_ID, Integer,
+            FN_MANUALLY_ERASING_USER_ID,
+            Integer,
             ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that erased this row manually"
+            comment="(SERVER) ID of user that erased this row manually",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _camcops_version(cls) -> Column:
         return Column(
-            FN_CAMCOPS_VERSION, SemanticVersionColType,
+            FN_CAMCOPS_VERSION,
+            SemanticVersionColType,
             default=CAMCOPS_SERVER_VERSION,
-            comment="(SERVER) CamCOPS version number of the uploading device"
+            comment="(SERVER) CamCOPS version number of the uploading device",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _addition_pending(cls) -> Column:
         return Column(
-            FN_ADDITION_PENDING, Boolean, nullable=False, default=False,
-            comment="(SERVER) Addition pending?"
+            FN_ADDITION_PENDING,
+            Boolean,
+            nullable=False,
+            default=False,
+            comment="(SERVER) Addition pending?",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _removal_pending(cls) -> Column:
         return Column(
-            FN_REMOVAL_PENDING, Boolean, default=False,
-            comment="(SERVER) Removal pending?"
+            FN_REMOVAL_PENDING,
+            Boolean,
+            default=False,
+            comment="(SERVER) Removal pending?",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _group_id(cls) -> Column:
         return Column(
-            FN_GROUP_ID, Integer, ForeignKey("_security_groups.id"),
-            nullable=False, index=True,
-            comment="(SERVER) ID of group to which this record belongs"
+            FN_GROUP_ID,
+            Integer,
+            ForeignKey("_security_groups.id"),
+            nullable=False,
+            index=True,
+            comment="(SERVER) ID of group to which this record belongs",
         )
 
     # -------------------------------------------------------------------------
@@ -606,27 +666,32 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def id(cls) -> Column:
         return Column(
-            TABLET_ID_FIELD, Integer,
-            nullable=False, index=True,
-            comment="(TASK) Primary key (task ID) on the tablet device"
+            TABLET_ID_FIELD,
+            Integer,
+            nullable=False,
+            index=True,
+            comment="(TASK) Primary key (task ID) on the tablet device",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def when_last_modified(cls) -> Column:
         return Column(
-            CLIENT_DATE_FIELD, PendulumDateTimeAsIsoTextColType,
+            CLIENT_DATE_FIELD,
+            PendulumDateTimeAsIsoTextColType,
             index=True,  # ... as used by database upload script
             comment="(STANDARD) Date/time this row was last modified on the "
-                    "source tablet device (ISO 8601)"
+            "source tablet device (ISO 8601)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _move_off_tablet(cls) -> Column:
         return Column(
-            MOVE_OFF_TABLET_FIELD, Boolean, default=False,
-            comment="(SERVER/TABLET) Record-specific preservation pending?"
+            MOVE_OFF_TABLET_FIELD,
+            Boolean,
+            default=False,
+            comment="(SERVER/TABLET) Record-specific preservation pending?",
         )
 
     # -------------------------------------------------------------------------
@@ -656,14 +721,14 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     @declared_attr
     def _manually_erasing_user(cls) -> RelationshipProperty:
-        return relationship("User",
-                            foreign_keys=[cls._manually_erasing_user_id])
+        return relationship(
+            "User", foreign_keys=[cls._manually_erasing_user_id]
+        )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _group(cls) -> RelationshipProperty:
-        return relationship("Group",
-                            foreign_keys=[cls._group_id])
+        return relationship("Group", foreign_keys=[cls._group_id])
 
     # -------------------------------------------------------------------------
     # Fetching attributes
@@ -720,18 +785,20 @@ class GenericTabletRecordMixin(object):
         """
         Was this record created on the server?
         """
-        from camcops_server.cc_modules.cc_device import Device  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_device import (
+            Device,
+        )  # delayed import
+
         server_device = Device.get_server_device(req.dbsession)
-        return (self._era == ERA_NOW and
-                self._device_id == server_device.id)
+        return self._era == ERA_NOW and self._device_id == server_device.id
 
     # -------------------------------------------------------------------------
     # Autoscanning objects and their relationships
     # -------------------------------------------------------------------------
 
-    def _get_xml_root(self,
-                      req: "CamcopsRequest",
-                      options: TaskExportOptions) -> XmlElement:
+    def _get_xml_root(
+        self, req: "CamcopsRequest", options: TaskExportOptions
+    ) -> XmlElement:
         """
         Called to create an XML root object for records ancillary to Task
         objects. Tasks themselves use a more complex mechanism.
@@ -746,12 +813,12 @@ class GenericTabletRecordMixin(object):
         # noinspection PyUnresolvedReferences
         return XmlElement(
             name=self.__tablename__,
-            value=self._get_xml_branches(req=req, options=options)
+            value=self._get_xml_branches(req=req, options=options),
         )
 
-    def _get_xml_branches(self,
-                          req: "CamcopsRequest",
-                          options: TaskExportOptions) -> List[XmlElement]:
+    def _get_xml_branches(
+        self, req: "CamcopsRequest", options: TaskExportOptions
+    ) -> List[XmlElement]:
         """
         Gets the values of SQLAlchemy columns as XmlElement objects.
         Optionally, find any SQLAlchemy relationships that are relationships
@@ -764,21 +831,25 @@ class GenericTabletRecordMixin(object):
             options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
         """  # noqa
         # log.debug("_get_xml_branches for {!r}", self)
-        options = options or TaskExportOptions(xml_include_plain_columns=True,
-                                               xml_include_calculated=True,
-                                               xml_sort_by_name=True)
+        options = options or TaskExportOptions(
+            xml_include_plain_columns=True,
+            xml_include_calculated=True,
+            xml_sort_by_name=True,
+        )
         branches = []  # type: List[XmlElement]
         if options.xml_with_header_comments:
             branches.append(XML_COMMENT_STORED)
         if options.xml_include_plain_columns:
             new_branches = make_xml_branches_from_columns(
-                self, skip_fields=options.xml_skip_fields)
+                self, skip_fields=options.xml_skip_fields
+            )
             if options.xml_sort_by_name:
                 new_branches.sort(key=lambda el: el.name)
             branches += new_branches
         if options.include_blobs:
             new_branches = make_xml_branches_from_blobs(
-                req, self, skip_fields=options.xml_skip_fields)
+                req, self, skip_fields=options.xml_skip_fields
+            )
             if options.xml_sort_by_name:
                 new_branches.sort(key=lambda el: el.name)
             branches += new_branches
@@ -786,18 +857,19 @@ class GenericTabletRecordMixin(object):
         if options.xml_include_calculated:
             if options.xml_with_header_comments:
                 branches.append(XML_COMMENT_CALCULATED)
-            branches.extend(make_xml_branches_from_summaries(
-                self.get_summaries(req),
-                skip_fields=options.xml_skip_fields,
-                sort_by_name=options.xml_sort_by_name
-            ))
+            branches.extend(
+                make_xml_branches_from_summaries(
+                    self.get_summaries(req),
+                    skip_fields=options.xml_skip_fields,
+                    sort_by_name=options.xml_sort_by_name,
+                )
+            )
         # log.debug("... branches for {!r}: {!r}", self, branches)
         return branches
 
     def _get_core_spreadsheet_page(
-            self,
-            req: "CamcopsRequest",
-            heading_prefix: str = "") -> SpreadsheetPage:
+        self, req: "CamcopsRequest", heading_prefix: str = ""
+    ) -> SpreadsheetPage:
         """
         Returns a single-row
         :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`, like
@@ -812,9 +884,8 @@ class GenericTabletRecordMixin(object):
         return SpreadsheetPage(name=self.__tablename__, rows=[row])
 
     def _get_core_spreadsheet_schema(
-            self,
-            table_name: str = "",
-            column_name_prefix: str = "") -> Set[SummarySchemaInfo]:
+        self, table_name: str = "", column_name_prefix: str = ""
+    ) -> Set[SummarySchemaInfo]:
         """
         Returns schema information compatible with
         :func:`_get_core_spreadsheet_page`.
@@ -823,8 +894,9 @@ class GenericTabletRecordMixin(object):
             SummarySchemaInfo.from_column(
                 column,
                 table_name=table_name,
-                column_name_prefix=column_name_prefix
-            ) for _, column in gen_columns(self)
+                column_name_prefix=column_name_prefix,
+            )
+            for _, column in gen_columns(self)
         )
 
     # -------------------------------------------------------------------------
@@ -884,8 +956,9 @@ class GenericTabletRecordMixin(object):
         dbsession = SqlASession.object_session(self)
         dbsession.delete(self)
 
-    def gen_attrname_ancillary_pairs(self) \
-            -> Generator[Tuple[str, "GenericTabletRecordMixin"], None, None]:
+    def gen_attrname_ancillary_pairs(
+        self
+    ) -> Generator[Tuple[str, "GenericTabletRecordMixin"], None, None]:
         """
         Iterates through and yields all ``_current`` "ancillary" objects
         (typically: records of subtables).
@@ -894,30 +967,37 @@ class GenericTabletRecordMixin(object):
         """
         for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):
             if rel_prop.uselist:
-                ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
+                ancillaries = getattr(
+                    self, attrname
+                )  # type: List[GenericTabletRecordMixin]
             else:
-                ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
+                ancillaries = [
+                    getattr(self, attrname)
+                ]  # type: List[GenericTabletRecordMixin]
             for ancillary in ancillaries:
                 if ancillary is None:
                     continue
                 yield attrname, ancillary
 
-    def gen_ancillary_instances(self) -> Generator["GenericTabletRecordMixin",
-                                                   None, None]:
+    def gen_ancillary_instances(
+        self
+    ) -> Generator["GenericTabletRecordMixin", None, None]:
         """
         Generates all ``_current`` ancillary objects of this object.
         """
         for attrname, ancillary in self.gen_attrname_ancillary_pairs():
             yield ancillary
 
-    def gen_ancillary_instances_even_noncurrent(self) \
-            -> Generator["GenericTabletRecordMixin", None, None]:
+    def gen_ancillary_instances_even_noncurrent(
+        self
+    ) -> Generator["GenericTabletRecordMixin", None, None]:
         """
         Generates all ancillary objects of this object, even non-current
         ones.
         """
         for lineage_member in self._gen_unique_lineage_objects(
-                self.gen_ancillary_instances()):
+            self.gen_ancillary_instances()
+        ):
             yield lineage_member
 
     def gen_blobs(self) -> Generator["Blob", None, None]:
@@ -936,7 +1016,8 @@ class GenericTabletRecordMixin(object):
         Generates all BLOBs owned by this object, even non-current ones.
         """
         for lineage_member in self._gen_unique_lineage_objects(
-                self.gen_blobs()):  # type: "Blob"
+            self.gen_blobs()
+        ):  # type: "Blob"
             yield lineage_member
 
     def get_lineage(self) -> List["GenericTabletRecordMixin"]:
@@ -962,8 +1043,8 @@ class GenericTabletRecordMixin(object):
 
     @staticmethod
     def _gen_unique_lineage_objects(
-            collection: Iterable["GenericTabletRecordMixin"]) \
-            -> Generator["GenericTabletRecordMixin", None, None]:
+        collection: Iterable["GenericTabletRecordMixin"]
+    ) -> Generator["GenericTabletRecordMixin", None, None]:
         """
         Given an iterable of database records, generate all related lineage
         objects for each of them (via :meth:`get_lineage`) that are unique by
@@ -985,9 +1066,9 @@ class GenericTabletRecordMixin(object):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_linked(cls, client_id: Optional[int],
-                   other: "GenericTabletRecordMixin") \
-            -> Optional["GenericTabletRecordMixin"]:
+    def get_linked(
+        cls, client_id: Optional[int], other: "GenericTabletRecordMixin"
+    ) -> Optional["GenericTabletRecordMixin"]:
         """
         Returns a specific linked record, of the class of ``self``, whose
         client-side ID is ``client_id``, and which matches ``other`` in terms
@@ -1010,8 +1091,9 @@ class GenericTabletRecordMixin(object):
     # History functions for server-side editing
     # -------------------------------------------------------------------------
 
-    def set_predecessor(self, req: "CamcopsRequest",
-                        predecessor: "GenericTabletRecordMixin") -> None:
+    def set_predecessor(
+        self, req: "CamcopsRequest", predecessor: "GenericTabletRecordMixin"
+    ) -> None:
         """
         Used for some unusual server-side manipulations (e.g. editing patient
         details).
@@ -1042,8 +1124,9 @@ class GenericTabletRecordMixin(object):
             req.dbsession.flush()  # ensure we have a PK, part 2
         predecessor._set_successor(req, self)
 
-    def _set_successor(self, req: "CamcopsRequest",
-                       successor: "GenericTabletRecordMixin") -> None:
+    def _set_successor(
+        self, req: "CamcopsRequest", successor: "GenericTabletRecordMixin"
+    ) -> None:
         """
         See :func:`set_predecessor` above.
         """
@@ -1064,8 +1147,9 @@ class GenericTabletRecordMixin(object):
             self._removing_user_id = req.user_id
             self._current = False
 
-    def create_fresh(self, req: "CamcopsRequest", device_id: int,
-                     era: str, group_id: int) -> None:
+    def create_fresh(
+        self, req: "CamcopsRequest", device_id: int, era: str, group_id: int
+    ) -> None:
         """
         Used to create a record from scratch.
         """
@@ -1077,9 +1161,9 @@ class GenericTabletRecordMixin(object):
         self._when_added_batch_utc = req.now_utc
         self._adding_user_id = req.user_id
 
-    def save_with_next_available_id(self, req: "CamcopsRequest",
-                                    device_id: int,
-                                    era: str = ERA_NOW) -> None:
+    def save_with_next_available_id(
+        self, req: "CamcopsRequest", device_id: int, era: str = ERA_NOW
+    ) -> None:
         """
         Save a record with the next available client pk in sequence.
         This is of use when creating patients and ID numbers on the server
@@ -1146,12 +1230,14 @@ class GenericTabletRecordMixin(object):
 # Relationships
 # =============================================================================
 
+
 def ancillary_relationship(
-        parent_class_name: str,
-        ancillary_class_name: str,
-        ancillary_fk_to_parent_attr_name: str,
-        ancillary_order_by_attr_name: str = None,
-        read_only: bool = True) -> RelationshipProperty:
+    parent_class_name: str,
+    ancillary_class_name: str,
+    ancillary_fk_to_parent_attr_name: str,
+    ancillary_order_by_attr_name: str = None,
+    read_only: bool = True,
+) -> RelationshipProperty:
     """
     Implements a one-to-many relationship, i.e. one parent to many ancillaries.
     """
@@ -1172,15 +1258,14 @@ def ancillary_relationship(
             )
         ),
         uselist=True,
-        order_by="{a}.{f}".format(a=ancillary_class_name,
-                                  f=ancillary_order_by_attr_name),
+        order_by="{a}.{f}".format(
+            a=ancillary_class_name, f=ancillary_order_by_attr_name
+        ),
         viewonly=read_only,
-        info={
-            RelationshipInfo.IS_ANCILLARY: True,
-        },
+        info={RelationshipInfo.IS_ANCILLARY: True},
         # ... "info" is a user-defined dictionary; see
-        # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.params.info  # noqa
-        # http://docs.sqlalchemy.org/en/latest/orm/internals.html#MapperProperty.info  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.params.info  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/internals.html#MapperProperty.info  # noqa
     )
 
 
@@ -1190,22 +1275,24 @@ def ancillary_relationship(
 
 # TypeEngineBase = TypeVar('TypeEngineBase', bound=TypeEngine)
 
+
 def add_multiple_columns(
-        cls: Type,
-        prefix: str,
-        start: int,
-        end: int,
-        coltype=Integer,
-        # this type fails: Union[Type[TypeEngineBase], TypeEngine]
-        # ... https://stackoverflow.com/questions/38106227
-        # ... https://github.com/python/typing/issues/266
-        colkwargs: Dict[str, Any] = None,
-        comment_fmt: str = None,
-        comment_strings: List[str] = None,
-        minimum: Union[int, float] = None,
-        maximum: Union[int, float] = None,
-        pv: List[Any] = None,
-        suffix: str = "") -> None:
+    cls: Type,
+    prefix: str,
+    start: int,
+    end: int,
+    coltype=Integer,
+    # this type fails: Union[Type[TypeEngineBase], TypeEngine]
+    # ... https://stackoverflow.com/questions/38106227
+    # ... https://github.com/python/typing/issues/266
+    colkwargs: Dict[str, Any] = None,
+    comment_fmt: str = None,
+    comment_strings: List[str] = None,
+    minimum: Union[int, float] = None,
+    maximum: Union[int, float] = None,
+    pv: List[Any] = None,
+    suffix: str = "",
+) -> None:
     """
     Add a sequence of SQLAlchemy columns to a class.
 
@@ -1263,9 +1350,7 @@ def add_multiple_columns(
             colkwargs["comment"] = comment_fmt.format(n=n, s=s)
         if minimum is not None or maximum is not None or pv is not None:
             colkwargs[COLATTR_PERMITTED_VALUE_CHECKER] = PermittedValueChecker(
-                minimum=minimum,
-                maximum=maximum,
-                permitted_values=pv
+                minimum=minimum, maximum=maximum, permitted_values=pv
             )
             setattr(cls, colname, CamcopsColumn(colname, coltype, **colkwargs))
         else:
@@ -1275,6 +1360,7 @@ def add_multiple_columns(
 # =============================================================================
 # TaskDescendant
 # =============================================================================
+
 
 class TaskDescendant(object):
     """
@@ -1343,12 +1429,14 @@ class TaskDescendant(object):
         """
         return [
             Column(
-                EXTRA_TASK_TABLENAME_FIELD, TableNameColType,
-                comment=EXTRA_COMMENT_PREFIX + "Table name of ancestor task"
+                EXTRA_TASK_TABLENAME_FIELD,
+                TableNameColType,
+                comment=EXTRA_COMMENT_PREFIX + "Table name of ancestor task",
             ),
             Column(
-                EXTRA_TASK_SERVER_PK_FIELD, Integer,
-                comment=EXTRA_COMMENT_PREFIX + "Server PK of ancestor task"
+                EXTRA_TASK_SERVER_PK_FIELD,
+                Integer,
+                comment=EXTRA_COMMENT_PREFIX + "Server PK of ancestor task",
             ),
         ]
 

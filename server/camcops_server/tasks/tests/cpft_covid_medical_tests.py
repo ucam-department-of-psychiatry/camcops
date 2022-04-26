@@ -30,10 +30,7 @@ camcops_server/tasks/tests/cpft_covid_medical_tests.py
 from unittest import mock
 import unittest
 
-
-from camcops_server.tasks.cpft_covid_medical import (
-    CpftCovidMedical,
-)
+from camcops_server.tasks.cpft_covid_medical import CpftCovidMedical
 
 
 class CpftCovidMedicalTests(unittest.TestCase):
@@ -55,9 +52,7 @@ class CpftCovidMedicalTests(unittest.TestCase):
         self.assertFalse(task.is_complete())
 
     def test_incomplete_when_any_field_invalid(self) -> None:
-        all_fields = [
-            "how_and_when_symptoms",
-        ]
+        all_fields = ["how_and_when_symptoms"]
 
         for invalid_field in all_fields:
             task = CpftCovidMedical()
@@ -70,4 +65,5 @@ class CpftCovidMedicalTests(unittest.TestCase):
             setattr(task, invalid_field, 10.5)
             self.assertFalse(
                 task.is_complete(),
-                msg=f"Failed when setting {invalid_field} invalid")
+                msg=f"Failed when setting {invalid_field} invalid",
+            )

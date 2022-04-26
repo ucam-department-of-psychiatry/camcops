@@ -71,9 +71,9 @@ class ErrorReportingMiddleware(object):
         except:
             exc_info = sys.exc_info()
             start_response(
-                '500 Internal Server Error',
-                [('content-type', 'text/html')],
-                exc_info
+                "500 Internal Server Error",
+                [("content-type", "text/html")],
+                exc_info,
             )
             return self.format_exception(exc_info)
 

@@ -238,7 +238,7 @@ class TaskCountReport(Report):
                 .select_from(TaskIndexEntry.__table__)
                 .group_by(*groupers)
                 .order_by(*sorters)
-                # ... http://docs.sqlalchemy.org/en/latest/core/tutorial.html#ordering-or-grouping-by-a-label  # noqa
+                # ... https://docs.sqlalchemy.org/en/latest/core/tutorial.html#ordering-or-grouping-by-a-label  # noqa
             )
             if by_user:
                 # noinspection PyUnresolvedReferences

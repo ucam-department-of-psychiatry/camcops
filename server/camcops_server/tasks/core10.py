@@ -66,10 +66,12 @@ log = logging.getLogger(__name__)
 # CORE-10
 # =============================================================================
 
+
 class Core10(TaskHasPatientMixin, Task):
     """
     Server implementation of the CORE-10 task.
     """
+
     __tablename__ = "core10"
     shortname = "CORE-10"
     provides_trackers = True
@@ -78,54 +80,64 @@ class Core10(TaskHasPatientMixin, Task):
     COMMENT_REVERSED = " (0 most or all of the time - 4 not at all)"
 
     q1 = CamcopsColumn(
-        "q1", Integer,
+        "q1",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q1 (tension/anxiety)" + COMMENT_NORMAL
+        comment="Q1 (tension/anxiety)" + COMMENT_NORMAL,
     )
     q2 = CamcopsColumn(
-        "q2", Integer,
+        "q2",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q2 (support)" + COMMENT_REVERSED
+        comment="Q2 (support)" + COMMENT_REVERSED,
     )
     q3 = CamcopsColumn(
-        "q3", Integer,
+        "q3",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q3 (coping)" + COMMENT_REVERSED
+        comment="Q3 (coping)" + COMMENT_REVERSED,
     )
     q4 = CamcopsColumn(
-        "q4", Integer,
+        "q4",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q4 (talking is too much)" + COMMENT_NORMAL
+        comment="Q4 (talking is too much)" + COMMENT_NORMAL,
     )
     q5 = CamcopsColumn(
-        "q5", Integer,
+        "q5",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q5 (panic)" + COMMENT_NORMAL
+        comment="Q5 (panic)" + COMMENT_NORMAL,
     )
     q6 = CamcopsColumn(
-        "q6", Integer,
+        "q6",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q6 (suicidality)" + COMMENT_NORMAL
+        comment="Q6 (suicidality)" + COMMENT_NORMAL,
     )
     q7 = CamcopsColumn(
-        "q7", Integer,
+        "q7",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q7 (sleep problems)" + COMMENT_NORMAL
+        comment="Q7 (sleep problems)" + COMMENT_NORMAL,
     )
     q8 = CamcopsColumn(
-        "q8", Integer,
+        "q8",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q8 (despair/hopelessness)" + COMMENT_NORMAL
+        comment="Q8 (despair/hopelessness)" + COMMENT_NORMAL,
     )
     q9 = CamcopsColumn(
-        "q9", Integer,
+        "q9",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q9 (unhappy)" + COMMENT_NORMAL
+        comment="Q9 (unhappy)" + COMMENT_NORMAL,
     )
     q10 = CamcopsColumn(
-        "q10", Integer,
+        "q10",
+        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment="Q10 (unwanted images)" + COMMENT_NORMAL
+        comment="Q10 (unwanted images)" + COMMENT_NORMAL,
     )
 
     N_QUESTIONS = 10
@@ -146,44 +158,49 @@ class Core10(TaskHasPatientMixin, Task):
         return self.all_fields_not_none(self.QUESTION_FIELDNAMES)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.clinical_score(),
-            plot_label="CORE-10 clinical score (rating distress)",
-            axis_label=f"Clinical score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            axis_ticks=[
-                TrackerAxisTick(40, "40"),
-                TrackerAxisTick(35, "35"),
-                TrackerAxisTick(30, "30"),
-                TrackerAxisTick(25, "25"),
-                TrackerAxisTick(20, "20"),
-                TrackerAxisTick(15, "15"),
-                TrackerAxisTick(10, "10"),
-                TrackerAxisTick(5, "5"),
-                TrackerAxisTick(0, "0"),
-            ],
-            horizontal_lines=[
-                30,
-                20,
-                10,
-            ],
-        )]
+        return [
+            TrackerInfo(
+                value=self.clinical_score(),
+                plot_label="CORE-10 clinical score (rating distress)",
+                axis_label=f"Clinical score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                axis_ticks=[
+                    TrackerAxisTick(40, "40"),
+                    TrackerAxisTick(35, "35"),
+                    TrackerAxisTick(30, "30"),
+                    TrackerAxisTick(25, "25"),
+                    TrackerAxisTick(20, "20"),
+                    TrackerAxisTick(15, "15"),
+                    TrackerAxisTick(10, "10"),
+                    TrackerAxisTick(5, "5"),
+                    TrackerAxisTick(0, "0"),
+                ],
+                horizontal_lines=[30, 20, 10],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"CORE-10 clinical score {self.clinical_score()}/{self.MAX_SCORE}"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"CORE-10 clinical score "
+                    f"{self.clinical_score()}/{self.MAX_SCORE}"
+                )
+            )
+        ]
         # todo: CORE10: add suicidality to clinical text?
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="clinical_score", coltype=Integer(),
+                name="clinical_score",
+                coltype=Integer(),
                 value=self.clinical_score(),
-                comment=f"Clinical score (/{self.MAX_SCORE})"),
+                comment=f"Clinical score (/{self.MAX_SCORE})",
+            )
         ]
 
     def total_score(self) -> int:
@@ -219,8 +236,10 @@ class Core10(TaskHasPatientMixin, Task):
 
         def get_tr_qa(qnum_: int, mapping: Dict[Optional[int], str]) -> str:
             nstr = str(qnum_)
-            return tr_qa(self.wxstring(req, "q" + nstr),
-                         get_from_dict(mapping, getattr(self, "q" + nstr)))
+            return tr_qa(
+                self.wxstring(req, "q" + nstr),
+                get_from_dict(mapping, getattr(self, "q" + nstr)),
+            )
 
         q_a = get_tr_qa(1, normal_dict)
         for qnum in (2, 3):
@@ -230,7 +249,7 @@ class Core10(TaskHasPatientMixin, Task):
 
         tr_clinical_score = tr(
             "Clinical score <sup>[1]</sup>",
-            answer(self.clinical_score()) + " / {}".format(self.MAX_SCORE)
+            answer(self.clinical_score()) + " / {}".format(self.MAX_SCORE),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -257,14 +276,22 @@ class Core10(TaskHasPatientMixin, Task):
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.CORE10_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.CORE10_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.CORE10_SCALE),
-                {
-                    req.snomed(SnomedLookup.CORE10_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.CORE10_SCALE),
+                    {
+                        req.snomed(
+                            SnomedLookup.CORE10_SCORE
+                        ): self.total_score()
+                    },
+                )
+            )
         return codes
 
 
@@ -273,6 +300,7 @@ class Core10Report(AverageScoreReport):
     An average score of the people seen at the start of treatment
     an average final measure and an average progress score.
     """
+
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
@@ -297,6 +325,6 @@ class Core10Report(AverageScoreReport):
                 scorefunc=Core10.clinical_score,
                 minimum=0,
                 maximum=Core10.MAX_SCORE,
-                higher_score_is_better=False
+                higher_score_is_better=False,
             )
         ]

@@ -157,8 +157,17 @@ import logging
 import os
 import sqlite3
 import tempfile
-from typing import (Dict, List, Generator, Optional,
-                    Set, Tuple, Type, TYPE_CHECKING, Union)
+from typing import (
+    Dict,
+    List,
+    Generator,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 
 from cardinal_pythonlib.classes import gen_all_subclasses
 from cardinal_pythonlib.datetimefunc import (
@@ -196,7 +205,7 @@ from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat, JSON_INDENT
 from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import (
-    REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
+    REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS,
 )
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
@@ -244,14 +253,16 @@ EMPTY_SET = set()
 # Export tasks from the back end
 # =============================================================================
 
+
 def print_export_queue(
-        req: "CamcopsRequest",
-        recipient_names: List[str] = None,
-        all_recipients: bool = False,
-        via_index: bool = True,
-        pretty: bool = False,
-        debug_show_fhir: bool = False,
-        debug_fhir_include_docs: bool = False) -> None:
+    req: "CamcopsRequest",
+    recipient_names: List[str] = None,
+    all_recipients: bool = False,
+    via_index: bool = True,
+    pretty: bool = False,
+    debug_show_fhir: bool = False,
+    debug_fhir_include_docs: bool = False,
+) -> None:
     """
     Shows tasks that would be exported.
 
@@ -277,15 +288,16 @@ def print_export_queue(
     recipients = req.get_export_recipients(
         recipient_names=recipient_names,
         all_recipients=all_recipients,
-        save=False
+        save=False,
     )
     if not recipients:
         log.warning("No export recipients")
         return
     for recipient in recipients:
         log.info("Tasks to be exported for recipient: {}", recipient)
-        collection = get_collection_for_export(req, recipient,
-                                               via_index=via_index)
+        collection = get_collection_for_export(
+            req, recipient, via_index=via_index
+        )
         for task in collection.gen_tasks_by_class():
             print(
                 f"{recipient.recipient_name}: "
@@ -294,21 +306,25 @@ def print_export_queue(
             if debug_show_fhir:
                 try:
                     bundle = task.get_fhir_bundle(
-                        req, recipient,
-                        skip_docs_if_other_content=not debug_fhir_include_docs
+                        req,
+                        recipient,
+                        skip_docs_if_other_content=not debug_fhir_include_docs,
                     )
-                    bundle_str = json.dumps(bundle.as_json(),
-                                            indent=JSON_INDENT)
+                    bundle_str = json.dumps(
+                        bundle.as_json(), indent=JSON_INDENT
+                    )
                     log.info("FHIR output as JSON:\n{}", bundle_str)
                 except FhirExportException as e:
                     log.info("Task has no non-document content:\n{}", e)
 
 
-def export(req: "CamcopsRequest",
-           recipient_names: List[str] = None,
-           all_recipients: bool = False,
-           via_index: bool = True,
-           schedule_via_backend: bool = False) -> None:
+def export(
+    req: "CamcopsRequest",
+    recipient_names: List[str] = None,
+    all_recipients: bool = False,
+    via_index: bool = True,
+    schedule_via_backend: bool = False,
+) -> None:
     """
     Exports all relevant tasks (pending incremental exports, or everything if
     applicable) for specified export recipients.
@@ -325,8 +341,9 @@ def export(req: "CamcopsRequest",
         via_index: use the task index (faster)?
         schedule_via_backend: schedule jobs via the backend instead?
     """
-    recipients = req.get_export_recipients(recipient_names=recipient_names,
-                                           all_recipients=all_recipients)
+    recipients = req.get_export_recipients(
+        recipient_names=recipient_names, all_recipients=all_recipients
+    )
     if not recipients:
         log.warning("No export recipients")
         return
@@ -337,20 +354,24 @@ def export(req: "CamcopsRequest",
             if schedule_via_backend:
                 raise NotImplementedError(
                     "Not yet implemented: whole-database export via Celery "
-                    "backend")  # todo: implement whole-database export via Celery backend  # noqa
+                    "backend"
+                )  # todo: implement whole-database export via Celery backend  # noqa
             else:
                 export_whole_database(req, recipient, via_index=via_index)
         else:
             # Non-database recipient.
             export_tasks_individually(
-                req, recipient,
-                via_index=via_index, schedule_via_backend=schedule_via_backend)
+                req,
+                recipient,
+                via_index=via_index,
+                schedule_via_backend=schedule_via_backend,
+            )
         log.info("Finished exporting to {}", recipient.recipient_name)
 
 
-def export_whole_database(req: "CamcopsRequest",
-                          recipient: ExportRecipient,
-                          via_index: bool = True) -> None:
+def export_whole_database(
+    req: "CamcopsRequest", recipient: ExportRecipient, via_index: bool = True
+) -> None:
     """
     Exports to a database.
 
@@ -368,15 +389,20 @@ def export_whole_database(req: "CamcopsRequest",
     """
     cfg = req.config
     lockfilename = cfg.get_export_lockfilename_recipient_db(
-        recipient_name=recipient.recipient_name)
+        recipient_name=recipient.recipient_name
+    )
     try:
         with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
-            collection = get_collection_for_export(req, recipient,
-                                                   via_index=via_index)
-            dst_engine = create_engine(recipient.db_url,
-                                       echo=recipient.db_echo)
-            log.info("Exporting to database: {}",
-                     get_safe_url_from_engine(dst_engine))
+            collection = get_collection_for_export(
+                req, recipient, via_index=via_index
+            )
+            dst_engine = create_engine(
+                recipient.db_url, echo=recipient.db_echo
+            )
+            log.info(
+                "Exporting to database: {}",
+                get_safe_url_from_engine(dst_engine),
+            )
             dst_session = sessionmaker(bind=dst_engine)()  # type: SqlASession
             task_generator = gen_tasks_having_exportedtasks(collection)
             export_options = TaskExportOptions(
@@ -396,15 +422,19 @@ def export_whole_database(req: "CamcopsRequest",
     except lockfile.AlreadyLocked:
         log.warning(
             "Export logfile {!r} already locked by another process; "
-            "aborting (another process is doing this work)", lockfilename)
+            "aborting (another process is doing this work)",
+            lockfilename,
+        )
         # No need to retry by raising -- if someone else holds this lock, they
         # are doing the work that we wanted to do.
 
 
-def export_tasks_individually(req: "CamcopsRequest",
-                              recipient: ExportRecipient,
-                              via_index: bool = True,
-                              schedule_via_backend: bool = False) -> None:
+def export_tasks_individually(
+    req: "CamcopsRequest",
+    recipient: ExportRecipient,
+    via_index: bool = True,
+    schedule_via_backend: bool = False,
+) -> None:
     """
     Exports all necessary tasks for a recipient.
 
@@ -435,16 +465,22 @@ def export_tasks_individually(req: "CamcopsRequest",
             else:
                 basetable = task_or_index.task_table_name
                 task_pk = task_or_index.task_pk
-            log.info("Scheduling job to export task {}.{} to {}",
-                     basetable, task_pk, recipient_name)
+            log.info(
+                "Scheduling job to export task {}.{} to {}",
+                basetable,
+                task_pk,
+                recipient_name,
+            )
             export_task_backend.delay(
                 recipient_name=recipient_name,
                 basetable=basetable,
-                task_pk=task_pk
+                task_pk=task_pk,
             )
             n_tasks += 1
-        log.info(f"Scheduled {n_tasks} background task exports to "
-                 f"{recipient_name}")
+        log.info(
+            f"Scheduled {n_tasks} background task exports to "
+            f"{recipient_name}"
+        )
     else:
         for task in collection.gen_tasks_by_class():
             # Do NOT use this to check the working of export_task_backend():
@@ -456,9 +492,9 @@ def export_tasks_individually(req: "CamcopsRequest",
         log.info(f"Exported {n_tasks} tasks to {recipient_name}")
 
 
-def export_task(req: "CamcopsRequest",
-                recipient: ExportRecipient,
-                task: Task) -> None:
+def export_task(
+    req: "CamcopsRequest", recipient: ExportRecipient, task: Task
+) -> None:
     """
     Exports a single task, checking that it remains valid to do so.
 
@@ -512,14 +548,17 @@ def export_task(req: "CamcopsRequest",
             )
             try:
                 stack.enter_context(
-                    lockfile.FileLock(fhir_lockfilename,
-                                      timeout=jittered_delay_s())
+                    lockfile.FileLock(
+                        fhir_lockfilename, timeout=jittered_delay_s()
+                    )
                     # waits for a while
                 )
             except lockfile.AlreadyLocked:
                 log.warning(
                     "Export logfile {!r} already locked by another process; "
-                    "will try again later", fhir_lockfilename)
+                    "will try again later",
+                    fhir_lockfilename,
+                )
                 raise
                 # We will reschedule via Celery; see "self.retry(...)" in
                 # celery.py
@@ -531,12 +570,16 @@ def export_task(req: "CamcopsRequest",
             # We recheck the export status once we hold the lock, in case
             # multiple jobs are competing to export it.
             if ExportedTask.task_already_exported(
-                    dbsession=dbsession,
-                    recipient_name=recipient.recipient_name,
-                    basetable=task.tablename,
-                    task_pk=task.pk):
-                log.info("Task {!r} already exported to recipient {}; "
-                         "ignoring", task, recipient)
+                dbsession=dbsession,
+                recipient_name=recipient.recipient_name,
+                basetable=task.tablename,
+                task_pk=task.pk,
+            ):
+                log.info(
+                    "Task {!r} already exported to recipient {}; " "ignoring",
+                    task,
+                    recipient,
+                )
                 # Not a warning; it's normal to see these because it allows the
                 # client API to skip some checks for speed.
                 return
@@ -548,17 +591,21 @@ def export_task(req: "CamcopsRequest",
         except lockfile.AlreadyLocked:
             log.warning(
                 "Export logfile {!r} already locked by another process; "
-                "aborting (another process is doing this work)", lockfilename)
+                "aborting (another process is doing this work)",
+                lockfilename,
+            )
 
 
 # =============================================================================
 # Helpers for task collection export functions
 # =============================================================================
 
+
 def gen_audited_tasks_for_task_class(
-        collection: "TaskCollection",
-        cls: Type[Task],
-        audit_descriptions: List[str]) -> Generator[Task, None, None]:
+    collection: "TaskCollection",
+    cls: Type[Task],
+    audit_descriptions: List[str],
+) -> Generator[Task, None, None]:
     """
     Generates tasks from a collection, for a given task class, simultaneously
     adding to an audit description. Used for user-triggered downloads.
@@ -580,14 +627,13 @@ def gen_audited_tasks_for_task_class(
         pklist.append(task.pk)
         yield task
     audit_descriptions.append(
-        f"{cls.__tablename__}: "
-        f"{','.join(str(pk) for pk in pklist)}"
+        f"{cls.__tablename__}: " f"{','.join(str(pk) for pk in pklist)}"
     )
 
 
 def gen_audited_tasks_by_task_class(
-        collection: "TaskCollection",
-        audit_descriptions: List[str]) -> Generator[Task, None, None]:
+    collection: "TaskCollection", audit_descriptions: List[str]
+) -> Generator[Task, None, None]:
     """
     Generates tasks from a collection, across task classes, simultaneously
     adding to an audit description. Used for user-triggered downloads.
@@ -600,8 +646,9 @@ def gen_audited_tasks_by_task_class(
         :class:`camcops_server.cc_modules.cc_task.Task` objects
     """  # noqa
     for cls in collection.task_classes():
-        for task in gen_audited_tasks_for_task_class(collection, cls,
-                                                     audit_descriptions):
+        for task in gen_audited_tasks_for_task_class(
+            collection, cls, audit_descriptions
+        ):
             yield task
 
 
@@ -617,18 +664,20 @@ def get_information_schema_query(req: "CamcopsRequest") -> ResultProxy:
     dbname = req.engine.url.database
     # Query the information schema for our database.
     # https://docs.sqlalchemy.org/en/13/core/sqlelement.html#sqlalchemy.sql.expression.text  # noqa
-    query = text("""
+    query = text(
+        """
         SELECT *
         FROM information_schema.columns
         WHERE table_schema = :dbname
-    """).bindparams(dbname=dbname)
+    """
+    ).bindparams(dbname=dbname)
     result_proxy = req.dbsession.execute(query)
     return result_proxy
 
 
 def get_information_schema_spreadsheet_page(
-        req: "CamcopsRequest",
-        page_name: str = INFOSCHEMA_PAGENAME) -> SpreadsheetPage:
+    req: "CamcopsRequest", page_name: str = INFOSCHEMA_PAGENAME
+) -> SpreadsheetPage:
     """
     Returns the server database's ``INFORMATION_SCHEMA.COLUMNS`` table as a
     :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage``.
@@ -638,9 +687,10 @@ def get_information_schema_spreadsheet_page(
 
 
 def write_information_schema_to_dst(
-        req: "CamcopsRequest",
-        dst_session: SqlASession,
-        dest_table_name: str = INFOSCHEMA_PAGENAME) -> None:
+    req: "CamcopsRequest",
+    dst_session: SqlASession,
+    dest_table_name: str = INFOSCHEMA_PAGENAME,
+) -> None:
     """
     Writes the server's information schema to a separate database session
     (which will be an SQLite database being created for download).
@@ -663,7 +713,7 @@ def write_information_schema_to_dst(
         Column("GENERATION_EXPRESSION", Text),
         autoload=True,  # "read (reflect) structure from the database"
         autoload_with=src_engine,  # "read (reflect) structure from the source"
-        schema="information_schema"  # schema
+        schema="information_schema",  # schema
     )
     # 2. Write that structure to our new database.
     table.name = dest_table_name  # create it with a different name
@@ -682,27 +732,27 @@ def write_information_schema_to_dst(
 # Convert task collections to different export formats for user download
 # =============================================================================
 
+
 @register_for_json
 class DownloadOptions(object):
     """
     Represents options for the process of the user downloading tasks.
     """
-    DELIVERY_MODES = [
-        ViewArg.DOWNLOAD,
-        ViewArg.EMAIL,
-        ViewArg.IMMEDIATELY,
-    ]
 
-    def __init__(self,
-                 user_id: int,
-                 viewtype: str,
-                 delivery_mode: str,
-                 spreadsheet_simplified: bool = False,
-                 spreadsheet_sort_by_heading: bool = False,
-                 db_include_blobs: bool = False,
-                 db_patient_id_per_row: bool = False,
-                 include_information_schema_columns: bool = True,
-                 include_summary_schema: bool = True) -> None:
+    DELIVERY_MODES = [ViewArg.DOWNLOAD, ViewArg.EMAIL, ViewArg.IMMEDIATELY]
+
+    def __init__(
+        self,
+        user_id: int,
+        viewtype: str,
+        delivery_mode: str,
+        spreadsheet_simplified: bool = False,
+        spreadsheet_sort_by_heading: bool = False,
+        db_include_blobs: bool = False,
+        db_patient_id_per_row: bool = False,
+        include_information_schema_columns: bool = True,
+        include_summary_schema: bool = True,
+    ) -> None:
         """
         Args:
             user_id:
@@ -736,7 +786,9 @@ class DownloadOptions(object):
         self.spreadsheet_sort_by_heading = spreadsheet_sort_by_heading
         self.db_include_blobs = db_include_blobs
         self.db_patient_id_per_row = db_patient_id_per_row
-        self.include_information_schema_columns = include_information_schema_columns  # noqa
+        self.include_information_schema_columns = (
+            include_information_schema_columns
+        )
         self.include_summary_schema = include_summary_schema
 
 
@@ -745,10 +797,12 @@ class TaskCollectionExporter(object):
     Class to provide tasks for user download.
     """
 
-    def __init__(self,
-                 req: "CamcopsRequest",
-                 collection: "TaskCollection",
-                 options: DownloadOptions):
+    def __init__(
+        self,
+        req: "CamcopsRequest",
+        collection: "TaskCollection",
+        options: DownloadOptions,
+    ):
         """
         Args:
             req:
@@ -790,16 +844,12 @@ class TaskCollectionExporter(object):
         if self.options.delivery_mode == ViewArg.EMAIL:
             self.schedule_email()
             return render_to_response(
-                "email_scheduled.mako",
-                dict(),
-                request=req
+                "email_scheduled.mako", dict(), request=req
             )
         elif self.options.delivery_mode == ViewArg.DOWNLOAD:
             self.schedule_download()
             return render_to_response(
-                "download_scheduled.mako",
-                dict(),
-                request=req
+                "download_scheduled.mako", dict(), request=req
             )
         else:  # ViewArg.IMMEDIATELY
             return self.download_now()
@@ -885,11 +935,14 @@ class TaskCollectionExporter(object):
                     f.write(contents)
                 # Success
                 log.info(f"Created user download: {fullpath}")
-                msg = _(
-                    "The research data dump you requested is ready to be "
-                    "downloaded. You will find it in your download area. "
-                    "It is called %s"
-                ) % filename
+                msg = (
+                    _(
+                        "The research data dump you requested is ready to be "
+                        "downloaded. You will find it in your download area. "
+                        "It is called %s"
+                    )
+                    % filename
+                )
             except Exception as e:
                 # Some other error
                 msg = _(
@@ -929,7 +982,9 @@ class TaskCollectionExporter(object):
         """
         Returns binary data to be stored as a file.
         """
-        raise NotImplementedError("Exporter needs to implement 'get_file_body'")
+        raise NotImplementedError(
+            "Exporter needs to implement 'get_file_body'"
+        )
 
     def get_spreadsheet_collection(self) -> SpreadsheetCollection:
         """
@@ -944,8 +999,12 @@ class TaskCollectionExporter(object):
         audit_descriptions = []  # type: List[str]
         options = self.options
         if options.spreadsheet_simplified:
-            summary_exclusion_tables = REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
-            summary_exclusion_columns = REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS  # noqa
+            summary_exclusion_tables = (
+                REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS
+            )
+            summary_exclusion_columns = (
+                REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
+            )
         else:
             summary_exclusion_tables = EMPTY_SET
             summary_exclusion_columns = EMPTY_SET
@@ -956,22 +1015,31 @@ class TaskCollectionExporter(object):
         schema_elements = set()  # type: Set[SummarySchemaInfo]
         for cls in self.collection.task_classes():
             schema_done = False
-            for task in gen_audited_tasks_for_task_class(self.collection, cls,
-                                                         audit_descriptions):
+            for task in gen_audited_tasks_for_task_class(
+                self.collection, cls, audit_descriptions
+            ):
                 # Task data
                 coll.add_pages(task.get_spreadsheet_pages(self.req))
                 if not schema_done and options.include_summary_schema:
                     # Schema (including summary explanations)
-                    schema_elements |= task.get_spreadsheet_schema_elements(self.req)  # noqa
+                    schema_elements |= task.get_spreadsheet_schema_elements(
+                        self.req
+                    )
                     # We just need this from one task instance.
                     schema_done = True
 
         if options.include_summary_schema:
-            coll.add_page(SpreadsheetPage(name=SUMMARYSCHEMA_PAGENAME, rows=[
-                si.as_dict for si in sorted(schema_elements)
-                if si.column_name not in summary_exclusion_columns
-                and si.table_name not in summary_exclusion_tables
-            ]))
+            coll.add_page(
+                SpreadsheetPage(
+                    name=SUMMARYSCHEMA_PAGENAME,
+                    rows=[
+                        si.as_dict
+                        for si in sorted(schema_elements)
+                        if si.column_name not in summary_exclusion_columns
+                        and si.table_name not in summary_exclusion_tables
+                    ],
+                )
+            )
 
         if options.include_information_schema_columns:
             # Source database information schema
@@ -997,6 +1065,7 @@ class OdsExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an OpenOffice ODS file.
     """
+
     file_extension = "ods"
     viewtype = ViewArg.ODS
 
@@ -1011,6 +1080,7 @@ class RExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an R script.
     """
+
     file_extension = "R"
     viewtype = ViewArg.R
 
@@ -1035,6 +1105,7 @@ class TsvZipExporter(TaskCollectionExporter):
     Converts a set of tasks to a set of TSV (tab-separated value) file, (one
     per table) in a ZIP file.
     """
+
     file_extension = "zip"
     viewtype = ViewArg.TSV_ZIP
 
@@ -1049,6 +1120,7 @@ class XlsxExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an Excel XLSX file.
     """
+
     file_extension = "xlsx"
     viewtype = ViewArg.XLSX
 
@@ -1063,6 +1135,7 @@ class SqliteExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an SQLite binary file.
     """
+
     file_extension = "sqlite"
     viewtype = ViewArg.SQLITE
 
@@ -1142,8 +1215,9 @@ class SqliteExporter(TaskCollectionExporter):
             # Iterate through tasks, creating tables as we need them.
             # ---------------------------------------------------------------------
             audit_descriptions = []  # type: List[str]
-            task_generator = gen_audited_tasks_by_task_class(self.collection,
-                                                             audit_descriptions)
+            task_generator = gen_audited_tasks_by_task_class(
+                self.collection, audit_descriptions
+            )
             # ---------------------------------------------------------------------
             # Next bit very tricky. We're trying to achieve several things:
             # - a copy of part of the database structure
@@ -1153,11 +1227,13 @@ class SqliteExporter(TaskCollectionExporter):
             # - Must treat tasks all together, because otherwise we will insert
             #   duplicate dependency objects like Group objects.
             # ---------------------------------------------------------------------
-            copy_tasks_and_summaries(tasks=task_generator,
-                                     dst_engine=engine,
-                                     dst_session=dst_session,
-                                     export_options=self.get_export_options(),
-                                     req=self.req)
+            copy_tasks_and_summaries(
+                tasks=task_generator,
+                dst_engine=engine,
+                dst_session=dst_session,
+                export_options=self.get_export_options(),
+                req=self.req,
+            )
             dst_session.commit()
             if self.options.include_information_schema_columns:
                 # Must have committed before we do this:
@@ -1171,13 +1247,15 @@ class SqliteExporter(TaskCollectionExporter):
             # ---------------------------------------------------------------------
             if as_text:
                 # SQL text
-                connection = sqlite3.connect(db_filename)  # type: sqlite3.Connection  # noqa
+                connection = sqlite3.connect(
+                    db_filename
+                )  # type: sqlite3.Connection  # noqa
                 sql_text = sql_from_sqlite_database(connection)
                 connection.close()
                 return sql_text
             else:
                 # SQLite binary
-                with open(db_filename, 'rb') as f:
+                with open(db_filename, "rb") as f:
                     binary_contents = f.read()
                 return binary_contents
 
@@ -1192,6 +1270,7 @@ class SqlExporter(SqliteExporter):
     """
     Converts a set of tasks to the textual SQL needed to create an SQLite file.
     """
+
     file_extension = "sql"
     viewtype = ViewArg.SQL
 
@@ -1226,14 +1305,18 @@ class SqlExporter(SqliteExporter):
 # Create mapping from "viewtype" to class.
 # noinspection PyTypeChecker
 DOWNLOADER_CLASSES = {}  # type: Dict[str, Type[TaskCollectionExporter]]
-for _cls in gen_all_subclasses(TaskCollectionExporter):  # type: Type[TaskCollectionExporter]  # noqa
+for _cls in gen_all_subclasses(
+    TaskCollectionExporter
+):  # type: Type[TaskCollectionExporter]  # noqa
     # noinspection PyTypeChecker
     DOWNLOADER_CLASSES[_cls.viewtype] = _cls
 
 
-def make_exporter(req: "CamcopsRequest",
-                  collection: "TaskCollection",
-                  options: DownloadOptions) -> TaskCollectionExporter:
+def make_exporter(
+    req: "CamcopsRequest",
+    collection: "TaskCollection",
+    options: DownloadOptions,
+) -> TaskCollectionExporter:
     """
 
     Args:
@@ -1257,23 +1340,22 @@ def make_exporter(req: "CamcopsRequest",
         raise HTTPBadRequest(
             f"{_('Bad delivery mode:')} {options.delivery_mode!r} "
             f"({_('permissible:')} "
-            f"{DownloadOptions.DELIVERY_MODES!r})")
+            f"{DownloadOptions.DELIVERY_MODES!r})"
+        )
     try:
         downloader_class = DOWNLOADER_CLASSES[options.viewtype]
     except KeyError:
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {options.viewtype!r} "
-            f"({_('permissible:')} {DOWNLOADER_CLASSES.keys()!r})")
-    return downloader_class(
-        req=req,
-        collection=collection,
-        options=options
-    )
+            f"({_('permissible:')} {DOWNLOADER_CLASSES.keys()!r})"
+        )
+    return downloader_class(req=req, collection=collection, options=options)
 
 
 # =============================================================================
 # Represent files for users to download
 # =============================================================================
+
 
 class UserDownloadFile(object):
     """
@@ -1291,9 +1373,14 @@ class UserDownloadFile(object):
         many = UserDownloadFile.from_directory_scan("/etc")
 
     """
-    def __init__(self, filename: str, directory: str = "",
-                 permitted_lifespan_min: float = 0,
-                 req: "CamcopsRequest" = None) -> None:
+
+    def __init__(
+        self,
+        filename: str,
+        directory: str = "",
+        permitted_lifespan_min: float = 0,
+        req: "CamcopsRequest" = None,
+    ) -> None:
         """
         Args:
             filename:
@@ -1323,7 +1410,8 @@ class UserDownloadFile(object):
             # filename must be within the directory specified
             self.directory = os.path.abspath(directory)
             candidate_path = os.path.abspath(
-                os.path.join(self.directory, filename))
+                os.path.join(self.directory, filename)
+            )
             if os.path.commonpath([directory, candidate_path]) != directory:
                 # Filename is not within directory.
                 # This is dodgy -- someone may have passed a filename like
@@ -1381,8 +1469,9 @@ class UserDownloadFile(object):
         if not self.exists:
             return None
         # noinspection PyTypeChecker
-        creation = Pendulum.fromtimestamp(self.statinfo.st_mtime,
-                                          tz=get_tz_utc())  # type: Pendulum
+        creation = Pendulum.fromtimestamp(
+            self.statinfo.st_mtime, tz=get_tz_utc()
+        )  # type: Pendulum
         # ... gives the correct time in the UTC timezone
         # ... note that utcfromtimestamp() gives a time without a timezone,
         #     which is unhelpful!
@@ -1408,9 +1497,8 @@ class UserDownloadFile(object):
         if not self.exists:
             return None
         now = get_now_localtz_pendulum()
-        death = (
-            self.when_last_modified +
-            Duration(minutes=self.permitted_lifespan_min)
+        death = self.when_last_modified + Duration(
+            minutes=self.permitted_lifespan_min
         )
         remaining = death - now  # type: Period
         # Note that Period is a subclass of Duration, but its __str__()
@@ -1449,10 +1537,7 @@ class UserDownloadFile(object):
         if not self.req:
             return ""
         dest_url = self.req.route_url(Routes.DELETE_FILE)
-        form = UserDownloadDeleteForm(
-            request=self.req,
-            action=dest_url
-        )
+        form = UserDownloadDeleteForm(request=self.req, action=dest_url)
         appstruct = {ViewParam.FILENAME: self.filename}
         rendered_form = form.render(appstruct)
         return rendered_form
@@ -1479,9 +1564,7 @@ class UserDownloadFile(object):
         """
         if not self.req:
             return ""
-        querydict = {
-            ViewParam.FILENAME: self.filename
-        }
+        querydict = {ViewParam.FILENAME: self.filename}
         return self.req.route_url(Routes.DOWNLOAD_FILE, _query=querydict)
 
     @property
@@ -1500,9 +1583,11 @@ class UserDownloadFile(object):
 
     @classmethod
     def from_directory_scan(
-            cls, directory: str,
-            permitted_lifespan_min: float = 0,
-            req: "CamcopsRequest" = None) -> List["UserDownloadFile"]:
+        cls,
+        directory: str,
+        permitted_lifespan_min: float = 0,
+        req: "CamcopsRequest" = None,
+    ) -> List["UserDownloadFile"]:
         """
         Scans the directory and returns a list of :class:`UserDownloadFile`
         objects, one for each file in the directory.
@@ -1522,11 +1607,14 @@ class UserDownloadFile(object):
             for f in files:
                 fullpath = os.path.join(root, f)
                 relative_filename = relative_filename_within_dir(
-                    fullpath, directory)
-                results.append(UserDownloadFile(
-                    filename=relative_filename,
-                    directory=directory,
-                    permitted_lifespan_min=permitted_lifespan_min,
-                    req=req
-                ))
+                    fullpath, directory
+                )
+                results.append(
+                    UserDownloadFile(
+                        filename=relative_filename,
+                        directory=directory,
+                        permitted_lifespan_min=permitted_lifespan_min,
+                        req=req,
+                    )
+                )
         return results

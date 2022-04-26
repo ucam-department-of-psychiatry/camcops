@@ -85,7 +85,7 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter,
     get_config_parameter_boolean,
     get_config_parameter_loglevel,
-    get_config_parameter_multiline
+    get_config_parameter_multiline,
 )
 from cardinal_pythonlib.docker import running_under_docker
 from cardinal_pythonlib.fileops import relative_filename_within_dir
@@ -99,7 +99,9 @@ from cardinal_pythonlib.sqlalchemy.engine_func import (
     is_sqlserver,
     is_sqlserver_2008_or_later,
 )
-from cardinal_pythonlib.sqlalchemy.logs import pre_disable_sqlalchemy_extra_echo_log  # noqa
+from cardinal_pythonlib.sqlalchemy.logs import (
+    pre_disable_sqlalchemy_extra_echo_log,
+)
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedMiddleware
@@ -136,9 +138,7 @@ from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportRecipientInfo,
 )
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
-from camcops_server.cc_modules.cc_filename import (
-    PatientSpecElementForFilename,
-)
+from camcops_server.cc_modules.cc_filename import PatientSpecElementForFilename
 from camcops_server.cc_modules.cc_language import POSSIBLE_LOCALES
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
 from camcops_server.cc_modules.cc_sms import (
@@ -164,6 +164,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 pre_disable_sqlalchemy_extra_echo_log()
 
+
 # =============================================================================
 # Constants
 # =============================================================================
@@ -177,14 +178,22 @@ VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
 DEFAULT_LINUX_CAMCOPS_CONFIG = "/etc/camcops/camcops.conf"
 DEFAULT_LINUX_CAMCOPS_BASE_DIR = "/usr/share/camcops"
 DEFAULT_LINUX_CAMCOPS_VENV_DIR = os.path.join(
-    DEFAULT_LINUX_CAMCOPS_BASE_DIR, "venv")
+    DEFAULT_LINUX_CAMCOPS_BASE_DIR, "venv"
+)
 DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR = os.path.join(
-    DEFAULT_LINUX_CAMCOPS_VENV_DIR, "bin")
+    DEFAULT_LINUX_CAMCOPS_VENV_DIR, "bin"
+)
 DEFAULT_LINUX_CAMCOPS_EXECUTABLE = os.path.join(
-    DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR, "camcops_server")
+    DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR, "camcops_server"
+)
 DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
     DEFAULT_LINUX_CAMCOPS_VENV_DIR,
-    "lib", "python3.6", "site-packages", "camcops_server", "static")
+    "lib",
+    "python3.6",
+    "site-packages",
+    "camcops_server",
+    "static",
+)
 DEFAULT_LINUX_LOGDIR = "/var/log/supervisor"
 DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 
@@ -193,12 +202,15 @@ DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 # Helper functions
 # =============================================================================
 
-def warn_if_not_within_docker_dir(param_name: str,
-                                  filespec: str,
-                                  permit_cfg: bool = False,
-                                  permit_venv: bool = False,
-                                  permit_tmp: bool = False,
-                                  param_contains_not_is: bool = False) -> None:
+
+def warn_if_not_within_docker_dir(
+    param_name: str,
+    filespec: str,
+    permit_cfg: bool = False,
+    permit_venv: bool = False,
+    permit_tmp: bool = False,
+    param_contains_not_is: bool = False,
+) -> None:
     """
     If the specified filename isn't within a relevant directory that will be
     used by CamCOPS when operating within a Docker Compose application, warn
@@ -228,19 +240,18 @@ def warn_if_not_within_docker_dir(param_name: str,
         permitted_dirs.append(DockerConstants.VENV_DIR)
     if permit_tmp:
         permitted_dirs.append(DockerConstants.TMP_DIR)
-    ok = any(
-        relative_filename_within_dir(filespec, d)
-        for d in permitted_dirs
-    )
+    ok = any(relative_filename_within_dir(filespec, d) for d in permitted_dirs)
     if not ok:
-        log.warning(f"Config parameter {param_name} {is_phrase} {filespec!r}, "
-                    f"which is not within the permitted Docker directories "
-                    f"{permitted_dirs!r}")
+        log.warning(
+            f"Config parameter {param_name} {is_phrase} {filespec!r}, "
+            f"which is not within the permitted Docker directories "
+            f"{permitted_dirs!r}"
+        )
 
 
-def warn_if_not_docker_value(param_name: str,
-                             actual_value: Any,
-                             required_value: Any) -> None:
+def warn_if_not_docker_value(
+    param_name: str, actual_value: Any, required_value: Any
+) -> None:
     """
     Warn the user if a parameter does not match the specific value required
     when operating under Docker.
@@ -254,9 +265,11 @@ def warn_if_not_docker_value(param_name: str,
             Value that should be used.
     """
     if actual_value != required_value:
-        log.warning(f"Config parameter {param_name} is {actual_value!r}, "
-                    f"but should be {required_value!r} when running inside "
-                    f"Docker")
+        log.warning(
+            f"Config parameter {param_name} is {actual_value!r}, "
+            f"but should be {required_value!r} when running inside "
+            f"Docker"
+        )
 
 
 def warn_if_not_present(param_name: str, value: Any) -> None:
@@ -271,8 +284,10 @@ def warn_if_not_present(param_name: str, value: Any) -> None:
             Value in the config file.
     """
     if value is None or value == "":
-        log.warning(f"Config parameter {param_name} is not specified, "
-                    f"but should be specified when running inside Docker")
+        log.warning(
+            f"Config parameter {param_name} is not specified, "
+            f"but should be specified when running inside Docker"
+        )
 
 
 def list_to_multiline_string(values: List[Any]) -> str:
@@ -293,9 +308,9 @@ def list_to_multiline_string(values: List[Any]) -> str:
 # =============================================================================
 
 # Cosmetic demonstration constants:
-DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
-DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
-DUMMY_INSTITUTION_URL = 'https://www.mydomain/'
+DEFAULT_DB_READONLY_USER = "QQQ_USERNAME_REPLACE_ME"
+DEFAULT_DB_READONLY_PASSWORD = "PPP_PASSWORD_REPLACE_ME"
+DUMMY_INSTITUTION_URL = "https://www.mydomain/"
 
 
 def get_demo_config(for_docker: bool = False) -> str:
@@ -741,9 +756,10 @@ programs = camcops_server, camcops_workers, camcops_scheduler
 
 
 def get_demo_apache_config(
-        rootpath: str = "camcops",  # no slash
-        specimen_internal_port: int = None,
-        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
+    rootpath: str = "camcops",  # no slash
+    specimen_internal_port: int = None,
+    specimen_socket_file: str = DEFAULT_SOCKET_FILENAME,
+) -> str:
     """
     Returns a demo Apache HTTPD config file section applicable to CamCOPS.
     """
@@ -1027,6 +1043,7 @@ def get_demo_apache_config(
 # Helper functions
 # =============================================================================
 
+
 def raise_missing(section: str, parameter: str) -> None:
     msg = (
         f"Config file: missing/blank parameter {parameter} "
@@ -1039,18 +1056,22 @@ def raise_missing(section: str, parameter: str) -> None:
 # CrontabEntry
 # =============================================================================
 
+
 class CrontabEntry(object):
     """
     Class to represent a ``crontab``-style entry.
     """
-    def __init__(self,
-                 line: str = None,
-                 minute: Union[str, int, List[int]] = "*",
-                 hour: Union[str, int, List[int]] = "*",
-                 day_of_week: Union[str, int, List[int]] = "*",
-                 day_of_month: Union[str, int, List[int]] = "*",
-                 month_of_year: Union[str, int, List[int]] = "*",
-                 content: str = None) -> None:
+
+    def __init__(
+        self,
+        line: str = None,
+        minute: Union[str, int, List[int]] = "*",
+        hour: Union[str, int, List[int]] = "*",
+        day_of_week: Union[str, int, List[int]] = "*",
+        day_of_month: Union[str, int, List[int]] = "*",
+        month_of_year: Union[str, int, List[int]] = "*",
+        content: str = None,
+    ) -> None:
         """
         Args:
             line:
@@ -1074,20 +1095,26 @@ class CrontabEntry(object):
         mean "every 5 minutes".
         """
         has_line = line is not None
-        has_components = bool(minute and hour and day_of_week and
-                              day_of_month and month_of_year and content)
-        assert has_line or has_components, (
-            "Specify either a crontab line or all the time components"
+        has_components = bool(
+            minute
+            and hour
+            and day_of_week
+            and day_of_month
+            and month_of_year
+            and content
         )
+        assert (
+            has_line or has_components
+        ), "Specify either a crontab line or all the time components"
         if has_line:
             line = line.split("#")[0].strip()  # everything before a '#'
             components = line.split()  # split on whitespace
-            assert len(components) >= 6, (
-                "Must specify 5 time components and then contents"
-            )
-            minute, hour, day_of_week, day_of_month, month_of_year = (
-                components[0:5]
-            )
+            assert (
+                len(components) >= 6
+            ), "Must specify 5 time components and then contents"
+            minute, hour, day_of_week, day_of_month, month_of_year = components[
+                0:5
+            ]
             content = " ".join(components[5:])
 
         self.minute = minute
@@ -1129,14 +1156,13 @@ class CrontabEntry(object):
 # Configuration class. (It gets cached on a per-process basis.)
 # =============================================================================
 
+
 class CamcopsConfig(object):
     """
     Class representing the CamCOPS configuration.
     """
 
-    def __init__(self,
-                 config_filename: str,
-                 config_text: str = None) -> None:
+    def __init__(self, config_filename: str, config_text: str = None) -> None:
         """
         Initialize by reading the config file.
 
@@ -1147,37 +1173,45 @@ class CamcopsConfig(object):
                 Text contents of the config file (alternative method for
                 special circumstances); overrides ``config_filename``
         """
-        def _get_str(section: str, paramname: str,
-                     default: str = None,
-                     replace_empty_strings_with_default: bool = True) \
-                -> Optional[str]:
-            p = get_config_parameter(
-                parser, section, paramname, str, default)
+
+        def _get_str(
+            section: str,
+            paramname: str,
+            default: str = None,
+            replace_empty_strings_with_default: bool = True,
+        ) -> Optional[str]:
+            p = get_config_parameter(parser, section, paramname, str, default)
             if p == "" and replace_empty_strings_with_default:
                 return default
             return p
 
         def _get_bool(section: str, paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
-                parser, section, paramname, default)
+                parser, section, paramname, default
+            )
 
-        def _get_int(section: str, paramname: str,
-                     default: int = None) -> Optional[int]:
+        def _get_int(
+            section: str, paramname: str, default: int = None
+        ) -> Optional[int]:
             return get_config_parameter(
-                parser, section, paramname, int, default)
+                parser, section, paramname, int, default
+            )
 
         def _get_multiline(section: str, paramname: str) -> List[str]:
             # http://stackoverflow.com/questions/335695/lists-in-configparser
             return get_config_parameter_multiline(
-                parser, section, paramname, [])
+                parser, section, paramname, []
+            )
 
-        def _get_multiline_ignoring_comments(section: str,
-                                             paramname: str) -> List[str]:
+        def _get_multiline_ignoring_comments(
+            section: str, paramname: str
+        ) -> List[str]:
             # Returns lines with any trailing comments removed, and any
             # comment-only lines removed.
             lines = _get_multiline(section, paramname)
-            return list(filter(None,
-                               (x.split("#")[0].strip() for x in lines if x)))
+            return list(
+                filter(None, (x.split("#")[0].strip() for x in lines if x))
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Learn something about our environment
@@ -1197,7 +1231,8 @@ class CamcopsConfig(object):
             if not config_filename:
                 raise AssertionError(
                     f"Environment variable {ENVVAR_CONFIG_FILE} not specified "
-                    f"(and no command-line alternative given)")
+                    f"(and no command-line alternative given)"
+                )
             log.info("Reading from config file: {}", config_filename)
             with codecs.open(config_filename, "r", "utf8") as file:
                 parser.read_file(file)
@@ -1210,24 +1245,30 @@ class CamcopsConfig(object):
         cd = ConfigDefaults()
 
         self.allow_insecure_cookies = _get_bool(
-            s, cs.ALLOW_INSECURE_COOKIES, cd.ALLOW_INSECURE_COOKIES)
+            s, cs.ALLOW_INSECURE_COOKIES, cd.ALLOW_INSECURE_COOKIES
+        )
 
         self.camcops_logo_file_absolute = _get_str(
-            s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, cd.CAMCOPS_LOGO_FILE_ABSOLUTE)
+            s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, cd.CAMCOPS_LOGO_FILE_ABSOLUTE
+        )
         self.ctv_filename_spec = _get_str(s, cs.CTV_FILENAME_SPEC)
 
         self.db_url = parser.get(s, cs.DB_URL)
         # ... no default: will fail if not provided
         self.db_echo = _get_bool(s, cs.DB_ECHO, cd.DB_ECHO)
         self.client_api_loglevel = get_config_parameter_loglevel(
-            parser, s, cs.CLIENT_API_LOGLEVEL, cd.CLIENT_API_LOGLEVEL)
-        logging.getLogger("camcops_server.cc_modules.client_api")\
-            .setLevel(self.client_api_loglevel)
+            parser, s, cs.CLIENT_API_LOGLEVEL, cd.CLIENT_API_LOGLEVEL
+        )
+        logging.getLogger("camcops_server.cc_modules.client_api").setLevel(
+            self.client_api_loglevel
+        )
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
 
         self.disable_password_autocomplete = _get_bool(
-            s, cs.DISABLE_PASSWORD_AUTOCOMPLETE,
-            cd.DISABLE_PASSWORD_AUTOCOMPLETE)
+            s,
+            cs.DISABLE_PASSWORD_AUTOCOMPLETE,
+            cd.DISABLE_PASSWORD_AUTOCOMPLETE,
+        )
 
         self.email_host = _get_str(s, cs.EMAIL_HOST, "")
         self.email_port = _get_int(s, cs.EMAIL_PORT, cd.EMAIL_PORT)
@@ -1236,8 +1277,9 @@ class CamcopsConfig(object):
         self.email_host_password = _get_str(s, cs.EMAIL_HOST_PASSWORD, "")
 
         # Development only: Read password from safe using GNU Pass
-        gnu_pass_lookup = _get_str(s, cs.EMAIL_HOST_PASSWORD_GNU_PASS_LOOKUP,
-                                   "")
+        gnu_pass_lookup = _get_str(
+            s, cs.EMAIL_HOST_PASSWORD_GNU_PASS_LOOKUP, ""
+        )
         if gnu_pass_lookup:
             output = run(["pass", gnu_pass_lookup], stdout=PIPE)
             self.email_host_password = output.stdout.decode("utf-8").split()[0]
@@ -1250,18 +1292,25 @@ class CamcopsConfig(object):
 
         self.language = _get_str(s, cs.LANGUAGE, cd.LANGUAGE)
         if self.language not in POSSIBLE_LOCALES:
-            log.warning(f"Invalid language {self.language!r}, "
-                        f"switching to {cd.LANGUAGE!r}")
+            log.warning(
+                f"Invalid language {self.language!r}, "
+                f"switching to {cd.LANGUAGE!r}"
+            )
             self.language = cd.LANGUAGE
         self.local_institution_url = _get_str(
-            s, cs.LOCAL_INSTITUTION_URL, cd.LOCAL_INSTITUTION_URL)
+            s, cs.LOCAL_INSTITUTION_URL, cd.LOCAL_INSTITUTION_URL
+        )
         self.local_logo_file_absolute = _get_str(
-            s, cs.LOCAL_LOGO_FILE_ABSOLUTE, cd.LOCAL_LOGO_FILE_ABSOLUTE)
+            s, cs.LOCAL_LOGO_FILE_ABSOLUTE, cd.LOCAL_LOGO_FILE_ABSOLUTE
+        )
         self.lockout_threshold = _get_int(
-            s, cs.LOCKOUT_THRESHOLD, cd.LOCKOUT_THRESHOLD)
+            s, cs.LOCKOUT_THRESHOLD, cd.LOCKOUT_THRESHOLD
+        )
         self.lockout_duration_increment_minutes = _get_int(
-            s, cs.LOCKOUT_DURATION_INCREMENT_MINUTES,
-            cd.LOCKOUT_DURATION_INCREMENT_MINUTES)
+            s,
+            cs.LOCKOUT_DURATION_INCREMENT_MINUTES,
+            cd.LOCKOUT_DURATION_INCREMENT_MINUTES,
+        )
 
         self.mfa_methods = _get_multiline(s, cs.MFA_METHODS)
         if not self.mfa_methods:
@@ -1277,14 +1326,17 @@ class CamcopsConfig(object):
         self.mfa_timeout_s = _get_int(s, cs.MFA_TIMEOUT_S, cd.MFA_TIMEOUT_S)
 
         self.password_change_frequency_days = _get_int(
-            s, cs.PASSWORD_CHANGE_FREQUENCY_DAYS,
-            cd.PASSWORD_CHANGE_FREQUENCY_DAYS)
+            s,
+            cs.PASSWORD_CHANGE_FREQUENCY_DAYS,
+            cd.PASSWORD_CHANGE_FREQUENCY_DAYS,
+        )
         self.patient_spec_if_anonymous = _get_str(
-            s, cs.PATIENT_SPEC_IF_ANONYMOUS, cd.PATIENT_SPEC_IF_ANONYMOUS)
+            s, cs.PATIENT_SPEC_IF_ANONYMOUS, cd.PATIENT_SPEC_IF_ANONYMOUS
+        )
         self.patient_spec = _get_str(s, cs.PATIENT_SPEC)
         self.permit_immediate_downloads = _get_bool(
-            s, cs.PERMIT_IMMEDIATE_DOWNLOADS,
-            cd.PERMIT_IMMEDIATE_DOWNLOADS)
+            s, cs.PERMIT_IMMEDIATE_DOWNLOADS, cd.PERMIT_IMMEDIATE_DOWNLOADS
+        )
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = cd.PLOT_FONTSIZE
 
@@ -1307,43 +1359,54 @@ class CamcopsConfig(object):
                 )
             xml_taskname = xml_taskname.strip()
             if xml_taskname in self.restricted_tasks:
-                raise ValueError(f"Duplicate restricted task specification "
-                                 f"for {xml_taskname!r}")
+                raise ValueError(
+                    f"Duplicate restricted task specification "
+                    f"for {xml_taskname!r}"
+                )
             groupnames = [x.strip() for x in groupnames.split(",")]
             for gn in groupnames:
                 validate_group_name(gn)
             self.restricted_tasks[xml_taskname] = groupnames
 
         self.session_timeout_minutes = _get_int(
-            s, cs.SESSION_TIMEOUT_MINUTES, cd.SESSION_TIMEOUT_MINUTES)
+            s, cs.SESSION_TIMEOUT_MINUTES, cd.SESSION_TIMEOUT_MINUTES
+        )
         self.session_cookie_secret = _get_str(s, cs.SESSION_COOKIE_SECRET)
         self.session_timeout = datetime.timedelta(
-            minutes=self.session_timeout_minutes)
-        self.session_check_user_ip = _get_bool(s, cs.SESSION_CHECK_USER_IP,
-                                               cd.SESSION_CHECK_USER_IP)
+            minutes=self.session_timeout_minutes
+        )
+        self.session_check_user_ip = _get_bool(
+            s, cs.SESSION_CHECK_USER_IP, cd.SESSION_CHECK_USER_IP
+        )
         sms_label = _get_str(s, cs.SMS_BACKEND, cd.SMS_BACKEND)
         sms_config = self._read_sms_config(parser, sms_label)
         self.sms_backend = get_sms_backend(sms_label, sms_config)
         self.snomed_task_xml_filename = _get_str(
-            s, cs.SNOMED_TASK_XML_FILENAME)
+            s, cs.SNOMED_TASK_XML_FILENAME
+        )
         self.snomed_icd9_xml_filename = _get_str(
-            s, cs.SNOMED_ICD9_XML_FILENAME)
+            s, cs.SNOMED_ICD9_XML_FILENAME
+        )
         self.snomed_icd10_xml_filename = _get_str(
-            s, cs.SNOMED_ICD10_XML_FILENAME)
+            s, cs.SNOMED_ICD10_XML_FILENAME
+        )
 
         self.task_filename_spec = _get_str(s, cs.TASK_FILENAME_SPEC)
         self.tracker_filename_spec = _get_str(s, cs.TRACKER_FILENAME_SPEC)
 
         self.user_download_dir = _get_str(s, cs.USER_DOWNLOAD_DIR, "")
         self.user_download_file_lifetime_min = _get_int(
-            s, cs.USER_DOWNLOAD_FILE_LIFETIME_MIN,
-            cd.USER_DOWNLOAD_FILE_LIFETIME_MIN)
+            s,
+            cs.USER_DOWNLOAD_FILE_LIFETIME_MIN,
+            cd.USER_DOWNLOAD_FILE_LIFETIME_MIN,
+        )
         self.user_download_max_space_mb = _get_int(
-            s, cs.USER_DOWNLOAD_MAX_SPACE_MB,
-            cd.USER_DOWNLOAD_MAX_SPACE_MB)
+            s, cs.USER_DOWNLOAD_MAX_SPACE_MB, cd.USER_DOWNLOAD_MAX_SPACE_MB
+        )
 
         self.webview_loglevel = get_config_parameter_loglevel(
-            parser, s, cs.WEBVIEW_LOGLEVEL, cd.WEBVIEW_LOGLEVEL)
+            parser, s, cs.WEBVIEW_LOGLEVEL, cd.WEBVIEW_LOGLEVEL
+        )
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
         self.wkhtmltopdf_filename = _get_str(s, cs.WKHTMLTOPDF_FILENAME)
@@ -1372,66 +1435,83 @@ class CamcopsConfig(object):
         ws = CONFIG_FILE_SERVER_SECTION
         cw = ConfigParamServer
 
-        self.cherrypy_log_screen = _get_bool(ws, cw.CHERRYPY_LOG_SCREEN,
-                                             cd.CHERRYPY_LOG_SCREEN)
+        self.cherrypy_log_screen = _get_bool(
+            ws, cw.CHERRYPY_LOG_SCREEN, cd.CHERRYPY_LOG_SCREEN
+        )
         self.cherrypy_root_path = _get_str(
-            ws, cw.CHERRYPY_ROOT_PATH, cd.CHERRYPY_ROOT_PATH)
+            ws, cw.CHERRYPY_ROOT_PATH, cd.CHERRYPY_ROOT_PATH
+        )
         self.cherrypy_server_name = _get_str(
-            ws, cw.CHERRYPY_SERVER_NAME, cd.CHERRYPY_SERVER_NAME)
+            ws, cw.CHERRYPY_SERVER_NAME, cd.CHERRYPY_SERVER_NAME
+        )
         self.cherrypy_threads_max = _get_int(
-            ws, cw.CHERRYPY_THREADS_MAX, cd.CHERRYPY_THREADS_MAX)
+            ws, cw.CHERRYPY_THREADS_MAX, cd.CHERRYPY_THREADS_MAX
+        )
         self.cherrypy_threads_start = _get_int(
-            ws, cw.CHERRYPY_THREADS_START, cd.CHERRYPY_THREADS_START)
-        self.debug_reverse_proxy = _get_bool(ws, cw.DEBUG_REVERSE_PROXY,
-                                             cd.DEBUG_REVERSE_PROXY)
+            ws, cw.CHERRYPY_THREADS_START, cd.CHERRYPY_THREADS_START
+        )
+        self.debug_reverse_proxy = _get_bool(
+            ws, cw.DEBUG_REVERSE_PROXY, cd.DEBUG_REVERSE_PROXY
+        )
         self.debug_show_gunicorn_options = _get_bool(
-            ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, cd.DEBUG_SHOW_GUNICORN_OPTIONS)
+            ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, cd.DEBUG_SHOW_GUNICORN_OPTIONS
+        )
         self.debug_toolbar = _get_bool(ws, cw.DEBUG_TOOLBAR, cd.DEBUG_TOOLBAR)
         self.gunicorn_debug_reload = _get_bool(
-            ws, cw.GUNICORN_DEBUG_RELOAD, cd.GUNICORN_DEBUG_RELOAD)
+            ws, cw.GUNICORN_DEBUG_RELOAD, cd.GUNICORN_DEBUG_RELOAD
+        )
         self.gunicorn_num_workers = _get_int(
-            ws, cw.GUNICORN_NUM_WORKERS, cd.GUNICORN_NUM_WORKERS)
+            ws, cw.GUNICORN_NUM_WORKERS, cd.GUNICORN_NUM_WORKERS
+        )
         self.gunicorn_timeout_s = _get_int(
-            ws, cw.GUNICORN_TIMEOUT_S, cd.GUNICORN_TIMEOUT_S)
+            ws, cw.GUNICORN_TIMEOUT_S, cd.GUNICORN_TIMEOUT_S
+        )
         self.host = _get_str(ws, cw.HOST, cd.HOST)
         self.port = _get_int(ws, cw.PORT, cd.PORT)
         self.proxy_http_host = _get_str(ws, cw.PROXY_HTTP_HOST)
         self.proxy_remote_addr = _get_str(ws, cw.PROXY_REMOTE_ADDR)
         self.proxy_rewrite_path_info = _get_bool(
-            ws, cw.PROXY_REWRITE_PATH_INFO, cd.PROXY_REWRITE_PATH_INFO)
+            ws, cw.PROXY_REWRITE_PATH_INFO, cd.PROXY_REWRITE_PATH_INFO
+        )
         self.proxy_script_name = _get_str(ws, cw.PROXY_SCRIPT_NAME)
         self.proxy_server_name = _get_str(ws, cw.PROXY_SERVER_NAME)
         self.proxy_server_port = _get_int(ws, cw.PROXY_SERVER_PORT)
         self.proxy_url_scheme = _get_str(ws, cw.PROXY_URL_SCHEME)
         self.show_request_immediately = _get_bool(
-            ws, cw.SHOW_REQUEST_IMMEDIATELY, cd.SHOW_REQUEST_IMMEDIATELY)
+            ws, cw.SHOW_REQUEST_IMMEDIATELY, cd.SHOW_REQUEST_IMMEDIATELY
+        )
         self.show_requests = _get_bool(ws, cw.SHOW_REQUESTS, cd.SHOW_REQUESTS)
         self.show_response = _get_bool(ws, cw.SHOW_RESPONSE, cd.SHOW_RESPONSE)
         self.show_timing = _get_bool(ws, cw.SHOW_TIMING, cd.SHOW_TIMING)
         self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
         self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
-        self.static_cache_duration_s = _get_int(ws, cw.STATIC_CACHE_DURATION_S,
-                                                cd.STATIC_CACHE_DURATION_S)
+        self.static_cache_duration_s = _get_int(
+            ws, cw.STATIC_CACHE_DURATION_S, cd.STATIC_CACHE_DURATION_S
+        )
         self.trusted_proxy_headers = _get_multiline(
-            ws, cw.TRUSTED_PROXY_HEADERS)
+            ws, cw.TRUSTED_PROXY_HEADERS
+        )
         self.unix_domain_socket = _get_str(ws, cw.UNIX_DOMAIN_SOCKET)
 
         # The defaults here depend on values above:
         self.external_url_scheme = _get_str(
-            ws, cw.EXTERNAL_URL_SCHEME, cd.EXTERNAL_URL_SCHEME)
+            ws, cw.EXTERNAL_URL_SCHEME, cd.EXTERNAL_URL_SCHEME
+        )
         self.external_server_name = _get_str(
-            ws, cw.EXTERNAL_SERVER_NAME, self.host)
+            ws, cw.EXTERNAL_SERVER_NAME, self.host
+        )
         self.external_server_port = _get_int(
-            ws, cw.EXTERNAL_SERVER_PORT, self.port)
-        self.external_script_name = _get_str(
-            ws, cw.EXTERNAL_SCRIPT_NAME, "")
+            ws, cw.EXTERNAL_SERVER_PORT, self.port
+        )
+        self.external_script_name = _get_str(ws, cw.EXTERNAL_SCRIPT_NAME, "")
 
         for tph in self.trusted_proxy_headers:
             if tph not in ReverseProxiedMiddleware.ALL_CANDIDATES:
                 raise ValueError(
                     f"Invalid {cw.TRUSTED_PROXY_HEADERS} value specified: "
                     f"was {tph!r}, options are "
-                    f"{ReverseProxiedMiddleware.ALL_CANDIDATES}")
+                    f"{ReverseProxiedMiddleware.ALL_CANDIDATES}"
+                )
 
         del ws
         del cw
@@ -1443,42 +1523,57 @@ class CamcopsConfig(object):
         ce = ConfigParamExportGeneral
 
         self.celery_beat_extra_args = _get_multiline(
-            es, ce.CELERY_BEAT_EXTRA_ARGS)
+            es, ce.CELERY_BEAT_EXTRA_ARGS
+        )
         self.celery_beat_schedule_database = _get_str(
-            es, ce.CELERY_BEAT_SCHEDULE_DATABASE)
+            es, ce.CELERY_BEAT_SCHEDULE_DATABASE
+        )
         if not self.celery_beat_schedule_database:
             raise_missing(es, ce.CELERY_BEAT_SCHEDULE_DATABASE)
         self.celery_broker_url = _get_str(
-            es, ce.CELERY_BROKER_URL, cd.CELERY_BROKER_URL)
+            es, ce.CELERY_BROKER_URL, cd.CELERY_BROKER_URL
+        )
         self.celery_worker_extra_args = _get_multiline(
-            es, ce.CELERY_WORKER_EXTRA_ARGS)
+            es, ce.CELERY_WORKER_EXTRA_ARGS
+        )
         self.celery_export_task_rate_limit = _get_str(
-            es, ce.CELERY_EXPORT_TASK_RATE_LIMIT)
+            es, ce.CELERY_EXPORT_TASK_RATE_LIMIT
+        )
 
         self.export_lockdir = _get_str(es, ce.EXPORT_LOCKDIR)
         if not self.export_lockdir:
             raise_missing(es, ConfigParamExportGeneral.EXPORT_LOCKDIR)
 
         self.export_recipient_names = _get_multiline_ignoring_comments(
-            CONFIG_FILE_EXPORT_SECTION, ce.RECIPIENTS)
-        duplicates = [name for name, count in
-                      collections.Counter(self.export_recipient_names).items()
-                      if count > 1]
+            CONFIG_FILE_EXPORT_SECTION, ce.RECIPIENTS
+        )
+        duplicates = [
+            name
+            for name, count in collections.Counter(
+                self.export_recipient_names
+            ).items()
+            if count > 1
+        ]
         if duplicates:
             raise ValueError(
-                f"Duplicate export recipients specified: {duplicates!r}")
+                f"Duplicate export recipients specified: {duplicates!r}"
+            )
         for recip_name in self.export_recipient_names:
             if re.match(VALID_RECIPIENT_NAME_REGEX, recip_name) is None:
                 raise ValueError(
                     f"Recipient names must be alphanumeric or _- only; was "
-                    f"{recip_name!r}")
-        if len(set(self.export_recipient_names)) != len(self.export_recipient_names):  # noqa
+                    f"{recip_name!r}"
+                )
+        if len(set(self.export_recipient_names)) != len(
+            self.export_recipient_names
+        ):
             raise ValueError("Recipient names contain duplicates")
         self._export_recipients = []  # type: List[ExportRecipientInfo]
         self._read_export_recipients(parser)
 
         self.schedule_timezone = _get_str(
-            es, ce.SCHEDULE_TIMEZONE, cd.SCHEDULE_TIMEZONE)
+            es, ce.SCHEDULE_TIMEZONE, cd.SCHEDULE_TIMEZONE
+        )
 
         self.crontab_entries = []  # type: List[CrontabEntry]
         crontab_lines = _get_multiline(es, ce.SCHEDULE)
@@ -1491,7 +1586,8 @@ class CamcopsConfig(object):
             if crontab_entry.content not in self.export_recipient_names:
                 raise ValueError(
                     f"{ce.SCHEDULE} setting exists for non-existent recipient "
-                    f"{crontab_entry.content}")
+                    f"{crontab_entry.content}"
+                )
             self.crontab_entries.append(crontab_entry)
 
         del es
@@ -1512,12 +1608,12 @@ class CamcopsConfig(object):
             warn_if_not_docker_value(
                 param_name=ConfigParamExportGeneral.CELERY_BROKER_URL,
                 actual_value=self.celery_broker_url,
-                required_value=DockerConstants.CELERY_BROKER_URL
+                required_value=DockerConstants.CELERY_BROKER_URL,
             )
             warn_if_not_docker_value(
                 param_name=ConfigParamServer.HOST,
                 actual_value=self.host,
-                required_value=DockerConstants.HOST
+                required_value=DockerConstants.HOST,
             )
 
             # Values expected to be present
@@ -1539,24 +1635,24 @@ class CamcopsConfig(object):
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamServer.SSL_CERTIFICATE,
                 filespec=self.ssl_certificate,
-                permit_cfg=True
+                permit_cfg=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamServer.SSL_PRIVATE_KEY,
                 filespec=self.ssl_private_key,
-                permit_cfg=True
+                permit_cfg=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE,
                 filespec=self.local_logo_file_absolute,
                 permit_cfg=True,
-                permit_venv=True
+                permit_venv=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 filespec=self.camcops_logo_file_absolute,
                 permit_cfg=True,
-                permit_venv=True
+                permit_venv=True,
             )
             for esf in self.extra_string_files:
                 warn_if_not_within_docker_dir(
@@ -1564,25 +1660,25 @@ class CamcopsConfig(object):
                     filespec=esf,
                     permit_cfg=True,
                     permit_venv=True,
-                    param_contains_not_is=True
+                    param_contains_not_is=True,
                 )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.SNOMED_ICD9_XML_FILENAME,
                 filespec=self.snomed_icd9_xml_filename,
                 permit_cfg=True,
-                permit_venv=True
+                permit_venv=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.SNOMED_ICD10_XML_FILENAME,
                 filespec=self.snomed_icd10_xml_filename,
                 permit_cfg=True,
-                permit_venv=True
+                permit_venv=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.SNOMED_TASK_XML_FILENAME,
                 filespec=self.snomed_task_xml_filename,
                 permit_cfg=True,
-                permit_venv=True
+                permit_venv=True,
             )
 
             # Temporary/scratch space that needs to be shared between Docker
@@ -1590,17 +1686,17 @@ class CamcopsConfig(object):
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.USER_DOWNLOAD_DIR,
                 filespec=self.user_download_dir,
-                permit_tmp=True
+                permit_tmp=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE,  # noqa
                 filespec=self.celery_beat_schedule_database,
-                permit_tmp=True
+                permit_tmp=True,
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamExportGeneral.EXPORT_LOCKDIR,
                 filespec=self.export_lockdir,
-                permit_tmp=True
+                permit_tmp=True,
             )
 
     # -------------------------------------------------------------------------
@@ -1636,8 +1732,10 @@ class CamcopsConfig(object):
                 pool_pre_ping=True,
                 # pool_size=0,  # no limit (for parallel testing, which failed)
             )
-            log.debug("Created SQLAlchemy engine for URL {}",
-                      get_safe_url_from_engine(self._sqla_engine))
+            log.debug(
+                "Created SQLAlchemy engine for URL {}",
+                get_safe_url_from_engine(self._sqla_engine),
+            )
         return self._sqla_engine
 
     @property
@@ -1714,7 +1812,8 @@ class CamcopsConfig(object):
             raise_runtime_error(
                 f"Database structure is at version {current} but should be at "
                 f"version {head}. CamCOPS will not start. Please use the "
-                f"'upgrade_db' command to fix this.")
+                f"'upgrade_db' command to fix this."
+            )
 
     def assert_database_ok(self) -> None:
         """
@@ -1761,15 +1860,16 @@ class CamcopsConfig(object):
         if not self.snomed_icd10_xml_filename:
             return {}
         return get_icd10_snomed_concepts_from_xml(
-            self.snomed_icd10_xml_filename)
+            self.snomed_icd10_xml_filename
+        )
 
     # -------------------------------------------------------------------------
     # Export functions
     # -------------------------------------------------------------------------
 
     def _read_export_recipients(
-            self,
-            parser: configparser.ConfigParser = None) -> None:
+        self, parser: configparser.ConfigParser = None
+    ) -> None:
         """
         Loads
         :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
@@ -1789,7 +1889,8 @@ class CamcopsConfig(object):
             except ValueError as e:
                 raise ValueError(f"Bad recipient name {recip_name!r}: {e}")
             recipient = ExportRecipientInfo.read_from_config(
-                self, parser=parser, recipient_name=recip_name)
+                self, parser=parser, recipient_name=recip_name
+            )
             self._export_recipients.append(recipient)
 
     def get_all_export_recipient_info(self) -> List["ExportRecipientInfo"]:
@@ -1822,8 +1923,9 @@ class CamcopsConfig(object):
         # ".lock" is appended automatically by the lockfile package
         return os.path.join(self.export_lockdir, filename)
 
-    def get_export_lockfilename_recipient_fhir(self,
-                                               recipient_name: str) -> str:
+    def get_export_lockfilename_recipient_fhir(
+        self, recipient_name: str
+    ) -> str:
         """
         Returns a full path to a lockfile suitable for locking for a
         FHIR export to a particular export recipient.
@@ -1842,8 +1944,9 @@ class CamcopsConfig(object):
         # ".lock" is appended automatically by the lockfile package
         return os.path.join(self.export_lockdir, filename)
 
-    def get_export_lockfilename_recipient_task(self, recipient_name: str,
-                                               basetable: str, pk: int) -> str:
+    def get_export_lockfilename_recipient_task(
+        self, recipient_name: str, basetable: str, pk: int
+    ) -> str:
         """
         Returns a full path to a lockfile suitable for locking for a
         single-task export to a particular export recipient.
@@ -1888,8 +1991,8 @@ class CamcopsConfig(object):
 
     @staticmethod
     def _read_sms_config(
-            parser: configparser.ConfigParser,
-            sms_label: str) -> Dict[str, str]:
+        parser: configparser.ConfigParser, sms_label: str
+    ) -> Dict[str, str]:
         """
         Read a config section for a specific SMS backend.
         """
@@ -1908,6 +2011,7 @@ class CamcopsConfig(object):
 # Get config filename from an appropriate environment (WSGI or OS)
 # =============================================================================
 
+
 def get_config_filename_from_os_env() -> str:
     """
     Returns the config filename to use, from our operating system environment
@@ -1919,13 +2023,15 @@ def get_config_filename_from_os_env() -> str:
     if not config_filename:
         raise AssertionError(
             f"OS environment did not provide the required "
-            f"environment variable {ENVVAR_CONFIG_FILE}")
+            f"environment variable {ENVVAR_CONFIG_FILE}"
+        )
     return config_filename
 
 
 # =============================================================================
 # Cached instances
 # =============================================================================
+
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_config(config_filename: str) -> CamcopsConfig:
@@ -1941,6 +2047,7 @@ def get_config(config_filename: str) -> CamcopsConfig:
 # =============================================================================
 # Get default config
 # =============================================================================
+
 
 def get_default_config_from_os_env() -> CamcopsConfig:
     """

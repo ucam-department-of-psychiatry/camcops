@@ -54,13 +54,19 @@ from typing import List, Type, Tuple, Dict, Any
 
 class ChitMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Chit'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Chit"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_SCORED_QUESTIONS,
-            minimum=0, maximum=3,
+            cls,
+            "q",
+            1,
+            cls.N_SCORED_QUESTIONS,
+            minimum=0,
+            maximum=3,
             comment_fmt="Q{n} ({s}) (0 strongly disagree - 3 strongly agree)",
             comment_strings=[
                 "hate unfinished task",
@@ -77,20 +83,20 @@ class ChitMetaclass(DeclarativeMeta):
                 "improvement",
                 "complete",
                 "avoid situations",
-                "hobby"]
+                "hobby",
+            ],
         )
 
         setattr(
-            cls, "q16",
-            BoolColumn("q16", comment="Q16 (negative effect) (0 no, 1 yes)")
+            cls,
+            "q16",
+            BoolColumn("q16", comment="Q16 (negative effect) (0 no, 1 yes)"),
         )
 
         super().__init__(name, bases, classdict)
 
 
-class Chit(TaskHasPatientMixin,
-           Task,
-           metaclass=ChitMetaclass):
+class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
     __tablename__ = "chit"
     shortname = "CHI-T"
 
@@ -108,9 +114,11 @@ class Chit(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.MAX_SCORE_MAIN})"),
+                comment=f"Total score (/{self.MAX_SCORE_MAIN})",
+            )
         ]
 
     def is_complete(self) -> bool:
@@ -129,7 +137,7 @@ class Chit(TaskHasPatientMixin,
             0: "0 — " + self.wxstring(req, "a0"),
             1: "1 — " + self.wxstring(req, "a1"),
             2: "2 — " + self.wxstring(req, "a2"),
-            3: "3 — " + self.wxstring(req, "a3")
+            3: "3 — " + self.wxstring(req, "a3"),
         }
 
         rows = ""
@@ -140,8 +148,9 @@ class Chit(TaskHasPatientMixin,
 
             rows += tr_qa(question_cell, answer_cell)
 
-        rows += tr_qa("16. " + self.wxstring(req, "q16"),
-                      get_yes_no_unknown(req, "q16"))
+        rows += tr_qa(
+            "16. " + self.wxstring(req, "q16"), get_yes_no_unknown(req, "q16")
+        )
 
         html = """
             <div class="{CssClass.SUMMARY}">
@@ -165,7 +174,7 @@ class Chit(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                answer(self.total_score()) + f" / {self.MAX_SCORE_MAIN}"
+                answer(self.total_score()) + f" / {self.MAX_SCORE_MAIN}",
             ),
             rows=rows,
         )

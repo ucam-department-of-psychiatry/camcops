@@ -48,8 +48,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0043'
-down_revision = '0042'
+revision = "0043"
+down_revision = "0042"
 branch_labels = None
 depends_on = None
 
@@ -61,29 +61,29 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade() -> None:
     def drop_clinician(batch_op_: BatchOperations) -> None:
-        batch_op_.drop_column('clinician_specialty')
-        batch_op_.drop_column('clinician_professional_registration')
-        batch_op_.drop_column('clinician_service')
-        batch_op_.drop_column('clinician_contact_details')
-        batch_op_.drop_column('clinician_post')
-        batch_op_.drop_column('clinician_name')
+        batch_op_.drop_column("clinician_specialty")
+        batch_op_.drop_column("clinician_professional_registration")
+        batch_op_.drop_column("clinician_service")
+        batch_op_.drop_column("clinician_contact_details")
+        batch_op_.drop_column("clinician_post")
+        batch_op_.drop_column("clinician_name")
 
-    with op.batch_alter_table('asdas', schema=None) as batch_op:
+    with op.batch_alter_table("asdas", schema=None) as batch_op:
         drop_clinician(batch_op)
 
-    with op.batch_alter_table('chit', schema=None) as batch_op:
+    with op.batch_alter_table("chit", schema=None) as batch_op:
         drop_clinician(batch_op)
 
-    with op.batch_alter_table('esspri', schema=None) as batch_op:
+    with op.batch_alter_table("esspri", schema=None) as batch_op:
         drop_clinician(batch_op)
 
-    with op.batch_alter_table('mfi20', schema=None) as batch_op:
+    with op.batch_alter_table("mfi20", schema=None) as batch_op:
         drop_clinician(batch_op)
 
-    with op.batch_alter_table('sfmpq2', schema=None) as batch_op:
+    with op.batch_alter_table("sfmpq2", schema=None) as batch_op:
         drop_clinician(batch_op)
 
-    with op.batch_alter_table('suppsp', schema=None) as batch_op:
+    with op.batch_alter_table("suppsp", schema=None) as batch_op:
         drop_clinician(batch_op)
 
 
@@ -91,27 +91,69 @@ def upgrade() -> None:
 def downgrade() -> None:
     # noinspection PyPep8
     def add_clinician(batch_op_: BatchOperations) -> None:
-        batch_op_.add_column(sa.Column('clinician_name', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's name (e.g. Dr X)"))
-        batch_op_.add_column(sa.Column('clinician_post', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's post (e.g. Consultant)"))
-        batch_op_.add_column(sa.Column('clinician_contact_details', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's contact details (e.g. bleep, extension)"))
-        batch_op_.add_column(sa.Column('clinician_service', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry Service)"))
-        batch_op_.add_column(sa.Column('clinician_professional_registration', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's professional registration (e.g. GMC# 12345)"))
-        batch_op_.add_column(sa.Column('clinician_specialty', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)"))
+        batch_op_.add_column(
+            sa.Column(
+                "clinician_name",
+                sa.Text(),
+                nullable=True,
+                comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
+            )
+        )
+        batch_op_.add_column(
+            sa.Column(
+                "clinician_post",
+                sa.Text(),
+                nullable=True,
+                comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
+            )
+        )
+        batch_op_.add_column(
+            sa.Column(
+                "clinician_contact_details",
+                sa.Text(),
+                nullable=True,
+                comment="(CLINICIAN) Clinician's contact details (e.g. bleep, extension)",
+            )
+        )
+        batch_op_.add_column(
+            sa.Column(
+                "clinician_service",
+                sa.Text(),
+                nullable=True,
+                comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry Service)",
+            )
+        )
+        batch_op_.add_column(
+            sa.Column(
+                "clinician_professional_registration",
+                sa.Text(),
+                nullable=True,
+                comment="(CLINICIAN) Clinician's professional registration (e.g. GMC# 12345)",
+            )
+        )
+        batch_op_.add_column(
+            sa.Column(
+                "clinician_specialty",
+                sa.Text(),
+                nullable=True,
+                comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)",
+            )
+        )
 
-    with op.batch_alter_table('suppsp', schema=None) as batch_op:
+    with op.batch_alter_table("suppsp", schema=None) as batch_op:
         add_clinician(batch_op)
 
-    with op.batch_alter_table('sfmpq2', schema=None) as batch_op:
+    with op.batch_alter_table("sfmpq2", schema=None) as batch_op:
         add_clinician(batch_op)
 
-    with op.batch_alter_table('mfi20', schema=None) as batch_op:
+    with op.batch_alter_table("mfi20", schema=None) as batch_op:
         add_clinician(batch_op)
 
-    with op.batch_alter_table('esspri', schema=None) as batch_op:
+    with op.batch_alter_table("esspri", schema=None) as batch_op:
         add_clinician(batch_op)
 
-    with op.batch_alter_table('chit', schema=None) as batch_op:
+    with op.batch_alter_table("chit", schema=None) as batch_op:
         add_clinician(batch_op)
 
-    with op.batch_alter_table('asdas', schema=None) as batch_op:
+    with op.batch_alter_table("asdas", schema=None) as batch_op:
         add_clinician(batch_op)

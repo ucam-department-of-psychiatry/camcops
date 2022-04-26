@@ -34,13 +34,7 @@ import getpass
 import logging
 import pytz
 import sqlalchemy
-from sqlalchemy import (
-    Column,
-    DateTime,
-    Integer,
-    String,
-    TypeDecorator
-)
+from sqlalchemy import Column, DateTime, Integer, String, TypeDecorator
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.functions import func
@@ -54,6 +48,7 @@ Base = declarative_base()
 # =============================================================================
 # Ancillary functions
 # =============================================================================
+
 
 def heading(x):
     print("=" * 79)
@@ -84,8 +79,9 @@ def ask_user(prompt, default=None, returntype=None, mask=False):
     return value
 
 
-def engine_mysql(user, password, host, port, database, echo=True,
-                 interface="pymysql"):
+def engine_mysql(
+    user, password, host, port, database, echo=True, interface="pymysql"
+):
     connectstring = (
         "mysql+{interface}://{user}:{password}@{host}:{port}/"
         "{database}".format(
@@ -94,8 +90,9 @@ def engine_mysql(user, password, host, port, database, echo=True,
             password=password,
             host=host,
             port=port,
-            database=database
-        ))
+            database=database,
+        )
+    )
     # Removed "?charset=utf8&use_unicode=0"; with PyMySQL==0.7.1 it causes
     # TypeError: 'str' does not support the buffer interface
     # because dates come back as e.g. b'2013-05-30 06:00:00' and then the
@@ -115,6 +112,7 @@ def engine_mysql_commandline(echo=True):
 # =============================================================================
 # Custom date/time field as ISO-8601 text including timezone
 # =============================================================================
+
 
 def python_datetime_to_iso(x):
     """From a Python datetime to an ISO-formatted string in our particular
@@ -151,14 +149,13 @@ def mysql_isotzdatetime_to_utcdatetime(x):
     #   https://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html#function_date-format  # noqa
     # Note the use of "%i" for minutes.
     # Things after "func." get passed to the database engine as literal SQL
-    # functions; http://docs.sqlalchemy.org/en/latest/core/tutorial.html
+    # functions; https://docs.sqlalchemy.org/en/latest/core/tutorial.html
     return func.CONVERT_TZ(
         func.STR_TO_DATE(
-            func.LEFT(x, func.LENGTH(x) - 6),
-            '%Y-%m-%dT%H:%i:%S.%f'
+            func.LEFT(x, func.LENGTH(x) - 6), "%Y-%m-%dT%H:%i:%S.%f"
         ),
         func.RIGHT(x, 6),
-        "+00:00"
+        "+00:00",
     )
 
 
@@ -168,7 +165,7 @@ def mysql_unknown_field_to_utcdatetime(x):
         func.LENGTH(x) == 19,
         # ... length of a plain DATETIME e.g. 2013-05-30 00:00:00
         x,
-        mysql_isotzdatetime_to_utcdatetime(x)
+        mysql_isotzdatetime_to_utcdatetime(x),
     )
 
 
@@ -185,27 +182,34 @@ class DateTimeAsIsoText(TypeDecorator):
         """Convert things on the way from Python to the database."""
         logger.debug(
             "process_bind_param(self={}, value={}, dialect={})".format(
-                repr(self), repr(value), repr(dialect)))
+                repr(self), repr(value), repr(dialect)
+            )
+        )
         return python_datetime_to_iso(value)
 
     def process_literal_param(self, value, dialect):
         """Convert things on the way from Python to the database."""
         logger.debug(
             "process_literal_param(self={}, value={}, dialect={})".format(
-                repr(self), repr(value), repr(dialect)))
+                repr(self), repr(value), repr(dialect)
+            )
+        )
         return python_datetime_to_iso(value)
 
     def process_result_value(self, value, dialect):
         """Convert things on the way from the database to Python."""
         logger.debug(
             "process_result_value(self={}, value={}, dialect={})".format(
-                repr(self), repr(value), repr(dialect)))
+                repr(self), repr(value), repr(dialect)
+            )
+        )
         return iso_to_python_datetime(value)
 
     # noinspection PyPep8Naming
     class comparator_factory(TypeDecorator.Comparator):
         """Process SQL for when we are comparing our column, in the database,
         to something else."""
+
         def operate(self, op, *other, **kwargs):
             assert len(other) == 1
             other = other[0]
@@ -217,12 +221,16 @@ class DateTimeAsIsoText(TypeDecorator):
                 # else that we don't really care about). If it's a DATETIME,
                 # then we assume it is already in UTC.
                 processed_other = mysql_unknown_field_to_utcdatetime(other)
-            logger.debug("operate(self={}, op={}, other={})".format(
-                repr(self), repr(op), repr(other)))
+            logger.debug(
+                "operate(self={}, op={}, other={})".format(
+                    repr(self), repr(op), repr(other)
+                )
+            )
             logger.debug("self.expr = {}".format(repr(self.expr)))
             # traceback.print_stack()
-            return op(mysql_isotzdatetime_to_utcdatetime(self.expr),
-                      processed_other)
+            return op(
+                mysql_isotzdatetime_to_utcdatetime(self.expr), processed_other
+            )
             # NOT YET IMPLEMENTED: dialects other than MySQL, and how to
             # detect the dialect at this point.
 
@@ -231,7 +239,7 @@ class DateTimeAsIsoText(TypeDecorator):
 
 
 class TestIso(Base):
-    __tablename__ = 'test_iso_datetime'
+    __tablename__ = "test_iso_datetime"
     id = Column(Integer, primary_key=True)
     name = Column(String(20))
     plain_datetime = Column(DateTime)
@@ -242,16 +250,20 @@ class TestIso(Base):
         return (
             "<TestIso(id={}, name={}, "
             "plain_datetime={}, when_created={}, when_deleted={})>".format(
-                self.id, self.name,
+                self.id,
+                self.name,
                 repr(self.plain_datetime),
-                repr(self.when_created), repr(self.when_deleted),
-                self.q1)
+                repr(self.when_created),
+                repr(self.when_deleted),
+                self.q1,
+            )
         )
 
 
 # =============================================================================
 # Main, with unit testing
 # =============================================================================
+
 
 def test():
     logging.basicConfig(level=logging.DEBUG)
@@ -287,29 +299,51 @@ def test():
     assert t0 < t1 < t2 == t2b < t3
 
     session.query(TestIso).delete()
-    alice = TestIso(id=1, name="alice",
-                    when_created=t1, when_deleted=t2,
-                    plain_datetime=python_datetime_to_utc(t3))
+    alice = TestIso(
+        id=1,
+        name="alice",
+        when_created=t1,
+        when_deleted=t2,
+        plain_datetime=python_datetime_to_utc(t3),
+    )
     session.add(alice)
-    bob = TestIso(id=2, name="bob",
-                  when_created=t2, when_deleted=t3,
-                  plain_datetime=python_datetime_to_utc(t0))
+    bob = TestIso(
+        id=2,
+        name="bob",
+        when_created=t2,
+        when_deleted=t3,
+        plain_datetime=python_datetime_to_utc(t0),
+    )
     session.add(bob)
-    celia = TestIso(id=3, name="celia",
-                    when_created=t3, when_deleted=t2,
-                    plain_datetime=python_datetime_to_utc(t1))
+    celia = TestIso(
+        id=3,
+        name="celia",
+        when_created=t3,
+        when_deleted=t2,
+        plain_datetime=python_datetime_to_utc(t1),
+    )
     session.add(celia)
-    david = TestIso(id=4, name="david",
-                    when_created=t3, when_deleted=t3,
-                    plain_datetime=python_datetime_to_utc(t1))
+    david = TestIso(
+        id=4,
+        name="david",
+        when_created=t3,
+        when_deleted=t3,
+        plain_datetime=python_datetime_to_utc(t1),
+    )
     session.add(david)
-    edgar = TestIso(id=5, name="edgar",
-                    when_created=t2b, when_deleted=t2,
-                    plain_datetime=python_datetime_to_utc(t2b))
+    edgar = TestIso(
+        id=5,
+        name="edgar",
+        when_created=t2b,
+        when_deleted=t2,
+        plain_datetime=python_datetime_to_utc(t2b),
+    )
     session.add(edgar)
     session.commit()
 
-    heading("A. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS literal")
+    heading(
+        "A. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS literal"
+    )
     q = session.query(TestIso).filter(TestIso.when_created < t2)
     assert q.all() == [alice]
     q = session.query(TestIso).filter(TestIso.when_created == t2)
@@ -317,8 +351,9 @@ def test():
     q = session.query(TestIso).filter(TestIso.when_created > t2)
     assert q.all() == [celia, david]
 
-    heading("B. DateTimeAsIsoText test: literal VERSUS DateTimeAsIsoText "
-            "field")
+    heading(
+        "B. DateTimeAsIsoText test: literal VERSUS DateTimeAsIsoText " "field"
+    )
     q = session.query(TestIso).filter(t2 > TestIso.when_created)
     assert q.all() == [alice]
     q = session.query(TestIso).filter(t2 == TestIso.when_created)
@@ -326,47 +361,63 @@ def test():
     q = session.query(TestIso).filter(t2 < TestIso.when_created)
     assert q.all() == [celia, david]
 
-    heading("C. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
-            "DateTimeAsIsoText field")
-    q = session.query(TestIso).filter(TestIso.when_created <
-                                      TestIso.when_deleted)
+    heading(
+        "C. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
+        "DateTimeAsIsoText field"
+    )
+    q = session.query(TestIso).filter(
+        TestIso.when_created < TestIso.when_deleted
+    )
     assert q.all() == [alice, bob]
-    q = session.query(TestIso).filter(TestIso.when_created ==
-                                      TestIso.when_deleted)
+    q = session.query(TestIso).filter(
+        TestIso.when_created == TestIso.when_deleted
+    )
     assert q.all() == [david, edgar]
-    q = session.query(TestIso).filter(TestIso.when_created >
-                                      TestIso.when_deleted)
+    q = session.query(TestIso).filter(
+        TestIso.when_created > TestIso.when_deleted
+    )
     assert q.all() == [celia]
 
-    heading("D. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
-            "plain DATETIME field")
-    q = session.query(TestIso).filter(TestIso.when_created <
-                                      TestIso.plain_datetime)
+    heading(
+        "D. DateTimeAsIsoText test: DateTimeAsIsoText field VERSUS "
+        "plain DATETIME field"
+    )
+    q = session.query(TestIso).filter(
+        TestIso.when_created < TestIso.plain_datetime
+    )
     assert q.all() == [alice]
-    q = session.query(TestIso).filter(TestIso.when_created ==
-                                      TestIso.plain_datetime)
+    q = session.query(TestIso).filter(
+        TestIso.when_created == TestIso.plain_datetime
+    )
     # CAUTION: don't have any non-zero millisecond components; they'll get
     # stripped from the plain DATETIME and exact comparisons will then fail.
     assert q.all() == [edgar]
-    q = session.query(TestIso).filter(TestIso.when_created >
-                                      TestIso.plain_datetime)
+    q = session.query(TestIso).filter(
+        TestIso.when_created > TestIso.plain_datetime
+    )
     assert q.all() == [bob, celia, david]
 
-    heading("E. DateTimeAsIsoText testplain DATETIME field VERSUS "
-            "DateTimeAsIsoText field")
-    q = session.query(TestIso).filter(TestIso.plain_datetime >
-                                      TestIso.when_created)
+    heading(
+        "E. DateTimeAsIsoText testplain DATETIME field VERSUS "
+        "DateTimeAsIsoText field"
+    )
+    q = session.query(TestIso).filter(
+        TestIso.plain_datetime > TestIso.when_created
+    )
     assert q.all() == [alice]
-    q = session.query(TestIso).filter(TestIso.plain_datetime ==
-                                      TestIso.when_created)
+    q = session.query(TestIso).filter(
+        TestIso.plain_datetime == TestIso.when_created
+    )
     assert q.all() == [edgar]
-    q = session.query(TestIso).filter(TestIso.plain_datetime <
-                                      TestIso.when_created)
+    q = session.query(TestIso).filter(
+        TestIso.plain_datetime < TestIso.when_created
+    )
     assert q.all() == [bob, celia, david]
 
     heading("F. DateTimeAsIsoText test: SELECT everything")
     q = session.query(TestIso)
     assert q.all() == [alice, bob, celia, david, edgar]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test()

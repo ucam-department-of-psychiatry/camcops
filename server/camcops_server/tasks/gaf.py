@@ -57,18 +57,21 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # GAF (crippled)
 # =============================================================================
 
+
 class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the GAF task.
     """
+
     __tablename__ = "gaf"
     shortname = "GAF"
     provides_trackers = True
 
     score = CamcopsColumn(
-        "score", Integer,
+        "score",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
-        comment="GAF score (1-100 or 0 for insufficient information)"
+        comment="GAF score (1-100 or 0 for insufficient information)",
     )
 
     @staticmethod
@@ -78,19 +81,21 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.score is not None and
-            self.score != 0 and
-            self.field_contents_valid()
+            self.score is not None
+            and self.score != 0
+            and self.field_contents_valid()
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="GAF score (rating overall functioning)",
-            axis_label="Score (1-100)",
-            axis_min=0.5,
-            axis_max=100.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="GAF score (rating overall functioning)",
+                axis_label="Score (1-100)",
+                axis_min=0.5,
+                axis_max=100.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():

@@ -41,12 +41,14 @@ if TYPE_CHECKING:
 # SummarySchemaInfo
 # =============================================================================
 
+
 @dataclass(eq=True, frozen=True, order=True)  # hashable, sortable
 class SummarySchemaInfo:
     """
     Information to be given to the user about the schema for spreadsheet-style
     downloads, including database and summary columns.
     """
+
     # Summary schema values:
     SSV_DB = "database"
     SSV_SUMMARY = "summary"
@@ -59,9 +61,9 @@ class SummarySchemaInfo:
     comment: str
 
     def __post_init__(self) -> None:
-        assert self.source in self.VALID_SOURCES, (
-            f"Bad source: {self.source!r}"
-        )
+        assert (
+            self.source in self.VALID_SOURCES
+        ), f"Bad source: {self.source!r}"
 
     @property
     def as_dict(self) -> Dict[str, str]:
@@ -77,11 +79,13 @@ class SummarySchemaInfo:
         }
 
     @classmethod
-    def from_column(cls,
-                    column: "Column",
-                    table_name: str = "",
-                    source: str = "",
-                    column_name_prefix: str = "") -> "SummarySchemaInfo":
+    def from_column(
+        cls,
+        column: "Column",
+        table_name: str = "",
+        source: str = "",
+        column_name_prefix: str = "",
+    ) -> "SummarySchemaInfo":
         """
         Create from an SQLAlchemy column.
         """
@@ -89,8 +93,10 @@ class SummarySchemaInfo:
             if column.table is not None:
                 table_name = column.table.name
             else:
-                raise ValueError(f"table_name not specified and column not "
-                                 f"attached to a table: {column!r}")
+                raise ValueError(
+                    f"table_name not specified and column not "
+                    f"attached to a table: {column!r}"
+                )
         source = source or cls.SSV_DB
         return cls(
             table_name=table_name,
@@ -102,11 +108,12 @@ class SummarySchemaInfo:
 
     @classmethod
     def from_summary_element(
-            cls,
-            table_name: str,
-            element: "SummaryElement",
-            source: str = "",
-            column_name_prefix: str = "") -> "SummarySchemaInfo":
+        cls,
+        table_name: str,
+        element: "SummaryElement",
+        source: str = "",
+        column_name_prefix: str = "",
+    ) -> "SummarySchemaInfo":
         """
         Create from a
         :class:`camcops_server.cc_modules.cc_summaryelement.SummarySchemaInfo`.

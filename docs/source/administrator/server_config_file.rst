@@ -145,7 +145,7 @@ DB_URL
 *String.*
 
 The SQLAlchemy connection URL for the CamCOPS database. See
-http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
+https://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 
 - MySQL under Linux via mysqlclient:
 

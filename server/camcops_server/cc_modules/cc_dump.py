@@ -31,8 +31,17 @@ camcops_server/cc_modules/cc_dump.py
 
 import logging
 from typing import (
-    Any, Dict, Generator, Iterable, List, Optional, Set, Tuple, Type,
-    TYPE_CHECKING, Union,
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
 )
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -85,21 +94,11 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # Restrict specified tables to certain columns only:
 DUMP_ONLY_COLNAMES = {  # mapping of tablename : list_of_column_names
-    Device.__tablename__: [
-        "camcops_version",
-        "friendly_name",
-        "id",
-        "name",
-    ],
-    User.__tablename__: [
-        "fullname",
-        "id",
-        "username",
-    ]
+    Device.__tablename__: ["camcops_version", "friendly_name", "id", "name"],
+    User.__tablename__: ["fullname", "id", "username"],
 }
 # Drop specific columns from certain tables:
-DUMP_DROP_COLNAMES = {  # mapping of tablename : list_of_column_names
-}
+DUMP_DROP_COLNAMES = {}  # mapping of tablename : list_of_column_names
 # List of columns to be skipped regardless of table:
 DUMP_SKIP_COLNAMES = [
     # We restrict to current records only, so many of these are irrelevant:
@@ -136,9 +135,7 @@ DUMP_SKIP_TABLES = [
     UserGroupMembership.__tablename__,
 ]
 # Tables for which no relationships will be traversed:
-DUMP_SKIP_ALL_RELS_FOR_TABLES = [
-    Group.__tablename__
-]
+DUMP_SKIP_ALL_RELS_FOR_TABLES = [Group.__tablename__]
 FOREIGN_KEY_CONSTRAINTS_IN_DUMP = False
 # ... the keys will be present, but should we try to enforce constraints?
 
@@ -147,16 +144,20 @@ FOREIGN_KEY_CONSTRAINTS_IN_DUMP = False
 # Handy place to hold the controlling information
 # =============================================================================
 
+
 class DumpController(object):
     """
     A controller class that manages the copying (dumping) of information from
     our database to another SQLAlchemy :class:`Engine`/:class:`Session`.
     """
-    def __init__(self,
-                 dst_engine: Engine,
-                 dst_session: SqlASession,
-                 export_options: "TaskExportOptions",
-                 req: "CamcopsRequest") -> None:
+
+    def __init__(
+        self,
+        dst_engine: Engine,
+        dst_session: SqlASession,
+        export_options: "TaskExportOptions",
+        req: "CamcopsRequest",
+    ) -> None:
         """
         Args:
             dst_engine: destination SQLAlchemy Engine
@@ -201,7 +202,9 @@ class DumpController(object):
         Generates all destination tables.
         """
         tablenames_seen = set()  # type: Set[str]
-        for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):  # type: Type[GenericTabletRecordMixin]  # noqa
+        for cls in gen_orm_classes_from_base(
+            GenericTabletRecordMixin
+        ):  # type: Type[GenericTabletRecordMixin]  # noqa
             instance = cls()
             for table in self.gen_all_dest_tables_for_obj(instance):
                 if table.name in tablenames_seen:
@@ -209,8 +212,9 @@ class DumpController(object):
                 tablenames_seen.add(table.name)
                 yield table
 
-    def gen_all_dest_tables_for_obj(self, src_obj: object) \
-            -> Generator[Table, None, None]:
+    def gen_all_dest_tables_for_obj(
+        self, src_obj: object
+    ) -> Generator[Table, None, None]:
         """
         Generates all destination tables for an object.
         """
@@ -219,16 +223,18 @@ class DumpController(object):
         # Additional tables
         if isinstance(src_obj, Task):
             add_extra_id_cols = (
-                self.export_options.db_patient_id_in_each_row and
-                not src_obj.is_anonymous
+                self.export_options.db_patient_id_in_each_row
+                and not src_obj.is_anonymous
             )
             estables = src_obj.get_all_summary_tables(self.req)
             for est in estables:
                 yield self.get_dest_table_for_est(
-                    est, add_extra_id_cols=add_extra_id_cols)
+                    est, add_extra_id_cols=add_extra_id_cols
+                )
 
-    def gen_all_dest_columns(self) -> Generator[Union[Column, CamcopsColumn],
-                                                None, None]:
+    def gen_all_dest_columns(
+        self
+    ) -> Generator[Union[Column, CamcopsColumn], None, None]:
         """
         Generates all destination columns.
         """
@@ -250,13 +256,15 @@ class DumpController(object):
             self._add_dump_table_for_src_object(src_obj)
         # If this table is going into the destination, copy the object
         # (and maybe remove columns from it, or add columns to it).
-        if (src_tablename in self.dst_tables and
-                not self._dump_skip_table(src_tablename)):
+        if src_tablename in self.dst_tables and not self._dump_skip_table(
+            src_tablename
+        ):
             self._copy_object_to_dump(src_obj)
 
     @staticmethod
-    def _merits_extra_id_num_columns_if_requested(obj: object) \
-            -> Tuple[bool, Optional[Patient]]:
+    def _merits_extra_id_num_columns(
+        obj: object
+    ) -> Tuple[bool, Optional[Patient]]:
         """
         Is the source object one that would support the addition of extra
         ID number information if the export option ``DB_PATIENT_ID_PER_ROW`` is
@@ -291,8 +299,10 @@ class DumpController(object):
             merits = obj.task_ancestor_might_have_patient()
             patient = obj.task_ancestor_patient()
             return merits, patient
-        log.warning(f"_merits_extra_id_num_columns_if_requested: don't know "
-                    f"how to handle {obj!r}")
+        log.warning(
+            f"_merits_extra_id_num_columns_if_requested: don't know "
+            f"how to handle {obj!r}"
+        )
         return False, None
 
     def get_dest_table_for_src_object(self, src_obj: object) -> Table:
@@ -335,10 +345,11 @@ class DumpController(object):
                 copied_column.foreign_keys = set(
                     fk.copy() for fk in src_column.foreign_keys
                 )
-                log.warning("NOT WORKING: foreign key commands not being "
-                            "emitted")
+                log.warning(
+                    "NOT WORKING: foreign key commands not being " "emitted"
+                )
                 # but
-                # http://docs.sqlalchemy.org/en/latest/core/constraints.html
+                # https://docs.sqlalchemy.org/en/latest/core/constraints.html
                 # works fine under SQLite, even if the other table hasn't been
                 # created yet. Does the table to which the FK refer have to be
                 # in the metadata already?
@@ -360,13 +371,16 @@ class DumpController(object):
         if self.export_options.db_include_summaries:
             if isinstance(src_obj, GenericTabletRecordMixin):
                 for summary_element in src_obj.get_summaries(self.req):
-                    dst_columns.append(CamcopsColumn(
-                        summary_element.name,
-                        summary_element.coltype,
-                        exempt_from_anonymisation=True,
-                        comment=summary_element.decorated_comment))
+                    dst_columns.append(
+                        CamcopsColumn(
+                            summary_element.name,
+                            summary_element.coltype,
+                            exempt_from_anonymisation=True,
+                            comment=summary_element.decorated_comment,
+                        )
+                    )
         if self.export_options.db_patient_id_in_each_row:
-            merits, _ = self._merits_extra_id_num_columns_if_requested(src_obj)
+            merits, _ = self._merits_extra_id_num_columns(src_obj)
             if merits:
                 dst_columns.extend(all_extra_id_columns(self.req))
             if isinstance(src_obj, TaskDescendant):
@@ -377,8 +391,9 @@ class DumpController(object):
         self.dst_tables[tablename] = dst_table
         return dst_table
 
-    def get_dest_table_for_est(self, est: "ExtraSummaryTable",
-                               add_extra_id_cols: bool = False) -> Table:
+    def get_dest_table_for_est(
+        self, est: "ExtraSummaryTable", add_extra_id_cols: bool = False
+    ) -> Table:
         """
         Add an additional summary table to the dump, if it's not there already.
         Return the table (from the destination database).
@@ -462,8 +477,9 @@ class DumpController(object):
         adding_extra_ids = False
         patient = None  # type: Optional[Patient]
         if self.export_options.db_patient_id_in_each_row:
-            adding_extra_ids, patient = \
-                self._merits_extra_id_num_columns_if_requested(src_obj)
+            adding_extra_ids, patient = self._merits_extra_id_num_columns(
+                src_obj
+            )
 
         # 1. Insert row for this object, potentially adding and removing
         #    columns.
@@ -500,7 +516,8 @@ class DumpController(object):
             # ... includes SNOMED
             for est in estables:
                 dst_summary_table = self._get_or_insert_summary_table(
-                    est, add_extra_id_cols=adding_extra_ids)
+                    est, add_extra_id_cols=adding_extra_ids
+                )
                 for row in est.rows:
                     if patient:
                         patient.add_extra_idnum_info_to_row(row)
@@ -509,12 +526,16 @@ class DumpController(object):
                     try:
                         self.dst_session.execute(dst_summary_table.insert(row))
                     except CompileError:
-                        log.critical("\ndst_summary_table:\n{}\nrow:\n{}",
-                                     dst_table, row)
+                        log.critical(
+                            "\ndst_summary_table:\n{}\nrow:\n{}",
+                            dst_table,
+                            row,
+                        )
                         raise
 
-    def _get_or_insert_summary_table(self, est: "ExtraSummaryTable",
-                                     add_extra_id_cols: bool = False) -> Table:
+    def _get_or_insert_summary_table(
+        self, est: "ExtraSummaryTable", add_extra_id_cols: bool = False
+    ) -> Table:
         """
         Add an additional summary table to the dump, if it's not there already.
         Return the table (from the destination database).
@@ -530,7 +551,8 @@ class DumpController(object):
         tablename = est.tablename
         if tablename not in self.tablenames_created:
             table = self.get_dest_table_for_est(
-                est, add_extra_id_cols=add_extra_id_cols)
+                est, add_extra_id_cols=add_extra_id_cols
+            )
             self._create_dest_table(table)
         return self.dst_tables[tablename]
 
@@ -538,7 +560,10 @@ class DumpController(object):
         """
         Should we skip this table (omit it from the dump)?
         """
-        if not self.export_options.include_blobs and tablename == Blob.__tablename__:  # noqa
+        if (
+            not self.export_options.include_blobs
+            and tablename == Blob.__tablename__
+        ):
             return True
         if tablename in DUMP_SKIP_TABLES:
             return True
@@ -551,11 +576,15 @@ class DumpController(object):
         """
         if columnname in DUMP_SKIP_COLNAMES:
             return True
-        if (tablename in DUMP_ONLY_COLNAMES and
-                columnname not in DUMP_ONLY_COLNAMES[tablename]):
+        if (
+            tablename in DUMP_ONLY_COLNAMES
+            and columnname not in DUMP_ONLY_COLNAMES[tablename]
+        ):
             return True
-        if (tablename in DUMP_DROP_COLNAMES and
-                columnname in DUMP_DROP_COLNAMES[tablename]):
+        if (
+            tablename in DUMP_DROP_COLNAMES
+            and columnname in DUMP_DROP_COLNAMES[tablename]
+        ):
             return True
         return False
 
@@ -564,11 +593,14 @@ class DumpController(object):
 # Copying stuff to a dump
 # =============================================================================
 
-def copy_tasks_and_summaries(tasks: Iterable[Task],
-                             dst_engine: Engine,
-                             dst_session: SqlASession,
-                             export_options: "TaskExportOptions",
-                             req: "CamcopsRequest") -> None:
+
+def copy_tasks_and_summaries(
+    tasks: Iterable[Task],
+    dst_engine: Engine,
+    dst_session: SqlASession,
+    export_options: "TaskExportOptions",
+    req: "CamcopsRequest",
+) -> None:
     """
     Copy a set of tasks, and their associated related information (found by
     walking the SQLAlchemy ORM tree), to the dump.
@@ -596,20 +628,23 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
     # - Let's not create FK constraints explicitly. Most are not achievable
     #   anyway (e.g. linking on device/era; omission of BLOBs).
 
-    controller = DumpController(dst_engine=dst_engine,
-                                dst_session=dst_session,
-                                export_options=export_options,
-                                req=req)
+    controller = DumpController(
+        dst_engine=dst_engine,
+        dst_session=dst_session,
+        export_options=export_options,
+        req=req,
+    )
 
     # We walk through all the objects.
     log.debug("Starting to copy tasks...")
     for startobj in tasks:
         log.debug("Processing task: {!r}", startobj)
         for src_obj in walk_orm_tree(
-                startobj,
-                seen=controller.instances_seen,
-                skip_relationships_always=DUMP_SKIP_RELNAMES,
-                skip_all_relationships_for_tablenames=DUMP_SKIP_ALL_RELS_FOR_TABLES,  # noqa
-                skip_all_objects_for_tablenames=DUMP_SKIP_TABLES):
+            startobj,
+            seen=controller.instances_seen,
+            skip_relationships_always=DUMP_SKIP_RELNAMES,
+            skip_all_relationships_for_tablenames=DUMP_SKIP_ALL_RELS_FOR_TABLES,  # noqa
+            skip_all_objects_for_tablenames=DUMP_SKIP_TABLES,
+        ):
             controller.consider_object(src_obj)
     log.debug("... finished copying tasks.")

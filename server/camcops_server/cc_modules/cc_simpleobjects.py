@@ -30,7 +30,6 @@ camcops_server/cc_modules/cc_simpleobjects.py
 """
 
 import copy
-# import logging
 from typing import List, TYPE_CHECKING
 
 from pendulum import Date
@@ -43,8 +42,6 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
-# log = logging.getLogger(__name__)
-
 # Prefer classes to collections.namedtuple; both support type checking but
 # classes support better parameter checking (and refactoring) via PyCharm.
 
@@ -52,6 +49,7 @@ if TYPE_CHECKING:
 # =============================================================================
 # IdNumReference
 # =============================================================================
+
 
 class IdNumReference(object):
     """
@@ -65,6 +63,7 @@ class IdNumReference(object):
     9999999999, we might represent this ID of theirs as
     ``IdNumReference(which_idnum=7, idnum_value=9999999999)``.
     """
+
     def __init__(self, which_idnum: int, idnum_value: int) -> None:
         self.which_idnum = which_idnum
         self.idnum_value = idnum_value
@@ -77,16 +76,18 @@ class IdNumReference(object):
 
     def is_valid(self) -> bool:
         return (
-            self.which_idnum is not None and self.which_idnum > 0 and
-            self.idnum_value is not None and self.idnum_value > 0
+            self.which_idnum is not None
+            and self.which_idnum > 0
+            and self.idnum_value is not None
+            and self.idnum_value > 0
         )
 
     def __eq__(self, other: "IdNumReference") -> bool:
         if not isinstance(other, IdNumReference):
             return False
         return (
-            self.which_idnum == other.which_idnum and
-            self.idnum_value == other.idnum_value
+            self.which_idnum == other.which_idnum
+            and self.idnum_value == other.idnum_value
         )
 
     def description(self, req: "CamcopsRequest") -> str:
@@ -104,8 +105,10 @@ class HL7PatientIdentifier(object):
     """
     Represents a patient identifier for the HL7 protocol.
     """
-    def __init__(self, pid: str, id_type: str,
-                 assigning_authority: str) -> None:
+
+    def __init__(
+        self, pid: str, id_type: str, assigning_authority: str
+    ) -> None:
         self.pid = pid
         # ... called "pid" not "id" as type checker sometimes thinks "id" must
         # be integer, as in Python's id(object).
@@ -117,6 +120,7 @@ class HL7PatientIdentifier(object):
 # BarePatientInfo
 # =============================================================================
 
+
 class BarePatientInfo(object):
     """
     Represents information about a patient using a simple object with no
@@ -127,16 +131,19 @@ class BarePatientInfo(object):
     we would otherwise have to deal with mutual dependency problems and the use
     of the database (prior to full database initialization).
     """
-    def __init__(self,
-                 forename: str = None,
-                 surname: str = None,
-                 sex: str = None,
-                 dob: Date = None,
-                 address: str = None,
-                 email: str = None,
-                 gp: str = None,
-                 otherdetails: str = None,
-                 idnum_definitions: List[IdNumReference] = None) -> None:
+
+    def __init__(
+        self,
+        forename: str = None,
+        surname: str = None,
+        sex: str = None,
+        dob: Date = None,
+        address: str = None,
+        email: str = None,
+        gp: str = None,
+        otherdetails: str = None,
+        idnum_definitions: List[IdNumReference] = None,
+    ) -> None:
         self.forename = forename
         self.surname = surname
         self.sex = sex
@@ -145,7 +152,9 @@ class BarePatientInfo(object):
         self.email = email
         self.gp = gp
         self.otherdetails = otherdetails
-        self.idnum_definitions = idnum_definitions or []  # type: List[IdNumReference]  # noqa
+        self.idnum_definitions = (
+            idnum_definitions or []
+        )  # type: List[IdNumReference]
 
     def __str__(self) -> str:
         return (
@@ -160,8 +169,9 @@ class BarePatientInfo(object):
                 email=self.email,
                 gp=self.gp,
                 o=self.otherdetails,
-                i="[{}]".format(", ".join(
-                    str(idnum) for idnum in self.idnum_definitions)),
+                i="[{}]".format(
+                    ", ".join(str(idnum) for idnum in self.idnum_definitions)
+                ),
             )
         )
 
@@ -184,15 +194,15 @@ class BarePatientInfo(object):
         if not isinstance(other, BarePatientInfo):
             return False
         return (
-            self.forename == other.forename and
-            self.surname == other.surname and
-            self.sex == other.sex and
-            self.dob == other.dob and
-            self.address == other.address and
-            self.email == other.email and
-            self.gp == other.gp and
-            self.otherdetails == other.otherdetails and
-            self.idnum_definitions == other.idnum_definitions
+            self.forename == other.forename
+            and self.surname == other.surname
+            and self.sex == other.sex
+            and self.dob == other.dob
+            and self.address == other.address
+            and self.email == other.email
+            and self.gp == other.gp
+            and self.otherdetails == other.otherdetails
+            and self.idnum_definitions == other.idnum_definitions
         )
 
 
@@ -200,10 +210,12 @@ class BarePatientInfo(object):
 # Raw XML value
 # =============================================================================
 
+
 class XmlSimpleValue(object):
     """
     Represents XML lowest-level items. See functions in ``cc_xml.py``.
     """
+
     def __init__(self, value) -> None:
         self.value = value
 
@@ -212,25 +224,29 @@ class XmlSimpleValue(object):
 # TaskExportOptions
 # =============================================================================
 
+
 class TaskExportOptions(object):
     """
     Information-holding object for options controlling XML and other
     representations of tasks.
     """
-    def __init__(self,
-                 db_patient_id_per_row: bool = False,
-                 db_make_all_tables_even_empty: bool = False,
-                 db_include_summaries: bool = False,
-                 include_blobs: bool = False,
-                 xml_include_ancillary: bool = False,
-                 xml_include_calculated: bool = False,
-                 xml_include_comments: bool = True,
-                 xml_include_patient: bool = False,
-                 xml_include_plain_columns: bool = False,
-                 xml_include_snomed: bool = False,
-                 xml_skip_fields: List[str] = None,
-                 xml_sort_by_name: bool = True,
-                 xml_with_header_comments: bool = False) -> None:
+
+    def __init__(
+        self,
+        db_patient_id_per_row: bool = False,
+        db_make_all_tables_even_empty: bool = False,
+        db_include_summaries: bool = False,
+        include_blobs: bool = False,
+        xml_include_ancillary: bool = False,
+        xml_include_calculated: bool = False,
+        xml_include_comments: bool = True,
+        xml_include_patient: bool = False,
+        xml_include_plain_columns: bool = False,
+        xml_include_snomed: bool = False,
+        xml_skip_fields: List[str] = None,
+        xml_sort_by_name: bool = True,
+        xml_with_header_comments: bool = False,
+    ) -> None:
         """
         Args:
             db_patient_id_per_row:

@@ -52,10 +52,12 @@ from typing import List, Type, Tuple, Dict, Any
 
 class SuppspMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Suppsp'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Suppsp"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
         comment_strings = [
             "see to end",
@@ -91,19 +93,23 @@ class SuppspMetaclass(DeclarativeMeta):
             if q_num in reverse_questions:
                 score_comment = "(1 strongly disagree - 4 strongly agree)"
 
-            setattr(cls, q_field, CamcopsColumn(
-                q_field, Integer,
-                permitted_value_checker=ONE_TO_FOUR_CHECKER,
-                comment="Q{} ({}) {}".format(
-                    q_num, comment_strings[q_index], score_comment)
-            ))
+            setattr(
+                cls,
+                q_field,
+                CamcopsColumn(
+                    q_field,
+                    Integer,
+                    permitted_value_checker=ONE_TO_FOUR_CHECKER,
+                    comment="Q{} ({}) {}".format(
+                        q_num, comment_strings[q_index], score_comment
+                    ),
+                ),
+            )
 
         super().__init__(name, bases, classdict)
 
 
-class Suppsp(TaskHasPatientMixin,
-             Task,
-             metaclass=SuppspMetaclass):
+class Suppsp(TaskHasPatientMixin, Task, metaclass=SuppspMetaclass):
     __tablename__ = "suppsp"
     shortname = "SUPPS-P"
 
@@ -116,16 +122,19 @@ class Suppsp(TaskHasPatientMixin,
     MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
-    NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list(
-        "q", {6, 8, 13, 15})
+    NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list("q", {6, 8, 13, 15})
     LACK_OF_PERSEVERANCE_QUESTIONS = Task.fieldnames_from_list(
-        "q", {1, 4, 7, 11})
+        "q", {1, 4, 7, 11}
+    )
     LACK_OF_PREMEDITATION_QUESTIONS = Task.fieldnames_from_list(
-        "q", {2, 5, 12, 19})
+        "q", {2, 5, 12, 19}
+    )
     SENSATION_SEEKING_QUESTIONS = Task.fieldnames_from_list(
-        "q", {9, 14, 16, 18})
+        "q", {9, 14, 16, 18}
+    )
     POSITIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list(
-        "q", {3, 10, 17, 20})
+        "q", {3, 10, 17, 20}
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -136,29 +145,41 @@ class Suppsp(TaskHasPatientMixin,
         subscale_range = f"[{self.MIN_SUBSCALE}–{self.MAX_SUBSCALE}]"
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score [{self.MIN_SCORE}–{self.MAX_SCORE}]"),
+                comment=f"Total score [{self.MIN_SCORE}–{self.MAX_SCORE}]",
+            ),
             SummaryElement(
-                name="negative_urgency", coltype=Integer(),
+                name="negative_urgency",
+                coltype=Integer(),
                 value=self.negative_urgency_score(),
-                comment=f"Negative urgency {subscale_range}"),
+                comment=f"Negative urgency {subscale_range}",
+            ),
             SummaryElement(
-                name="lack_of_perseverance", coltype=Integer(),
+                name="lack_of_perseverance",
+                coltype=Integer(),
                 value=self.lack_of_perseverance_score(),
-                comment=f"Lack of perseverance {subscale_range}"),
+                comment=f"Lack of perseverance {subscale_range}",
+            ),
             SummaryElement(
-                name="lack_of_premeditation", coltype=Integer(),
+                name="lack_of_premeditation",
+                coltype=Integer(),
                 value=self.lack_of_premeditation_score(),
-                comment=f"Lack of premeditation {subscale_range}"),
+                comment=f"Lack of premeditation {subscale_range}",
+            ),
             SummaryElement(
-                name="sensation_seeking", coltype=Integer(),
+                name="sensation_seeking",
+                coltype=Integer(),
                 value=self.sensation_seeking_score(),
-                comment=f"Sensation seeking {subscale_range}"),
+                comment=f"Sensation seeking {subscale_range}",
+            ),
             SummaryElement(
-                name="positive_urgency", coltype=Integer(),
+                name="positive_urgency",
+                coltype=Integer(),
                 value=self.positive_urgency_score(),
-                comment=f"Positive urgency {subscale_range}"),
+                comment=f"Positive urgency {subscale_range}",
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -192,14 +213,14 @@ class Suppsp(TaskHasPatientMixin,
             1: "1 — " + self.wxstring(req, "a0"),
             2: "2 — " + self.wxstring(req, "a1"),
             3: "3 — " + self.wxstring(req, "a2"),
-            4: "4 — " + self.wxstring(req, "a3")
+            4: "4 — " + self.wxstring(req, "a3"),
         }
         reverse_score_dict = {
             None: None,
             4: "4 — " + self.wxstring(req, "a0"),
             3: "3 — " + self.wxstring(req, "a1"),
             2: "2 — " + self.wxstring(req, "a2"),
-            1: "1 — " + self.wxstring(req, "a3")
+            1: "1 — " + self.wxstring(req, "a3"),
         }
         reverse_q_nums = {3, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 20}
         fullscale_range = f"[{self.MIN_SCORE}–{self.MAX_SCORE}]"
@@ -252,28 +273,28 @@ class Suppsp(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                f"{answer(self.total_score())} {fullscale_range}"
+                f"{answer(self.total_score())} {fullscale_range}",
             ),
             negative_urgency_score=tr(
                 self.wxstring(req, "negative_urgency") + " <sup>[2]</sup>",
-                f"{answer(self.negative_urgency_score())} {subscale_range}"
+                f"{answer(self.negative_urgency_score())} {subscale_range}",
             ),
             lack_of_perseverance_score=tr(
                 self.wxstring(req, "lack_of_perseverance") + " <sup>[3]</sup>",
-                f"{answer(self.lack_of_perseverance_score())} {subscale_range}"
+                f"{answer(self.lack_of_perseverance_score())} {subscale_range}",
             ),
             lack_of_premeditation_score=tr(
-                self.wxstring(req,
-                              "lack_of_premeditation") + " <sup>[4]</sup>",
-                f"{answer(self.lack_of_premeditation_score())} {subscale_range}"  # noqa
+                self.wxstring(req, "lack_of_premeditation")
+                + " <sup>[4]</sup>",
+                f"{answer(self.lack_of_premeditation_score())} {subscale_range}",  # noqa
             ),
             sensation_seeking_score=tr(
                 self.wxstring(req, "sensation_seeking") + " <sup>[5]</sup>",
-                f"{answer(self.sensation_seeking_score())} {subscale_range}"
+                f"{answer(self.sensation_seeking_score())} {subscale_range}",
             ),
             positive_urgency_score=tr(
                 self.wxstring(req, "positive_urgency") + " <sup>[6]</sup>",
-                f"{answer(self.positive_urgency_score())} {subscale_range}"
+                f"{answer(self.positive_urgency_score())} {subscale_range}",
             ),
             rows=rows,
         )

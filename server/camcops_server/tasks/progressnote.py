@@ -54,10 +54,12 @@ from camcops_server.cc_modules.cc_text import SS
 # ProgressNote
 # =============================================================================
 
+
 class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     Server implementation of the ProgressNote task.
     """
+
     __tablename__ = "progressnote"
     shortname = "ProgressNote"
     info_filename_stem = "clinical"
@@ -98,8 +100,10 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         refinement = {}  # type: Dict[SnomedConcept, str]
         if self.note:
             refinement[req.snomed(SnomedLookup.CLINICAL_NOTE)] = self.note
-        codes = [SnomedExpression(
-            req.snomed(SnomedLookup.PROGRESS_NOTE_PROCEDURE),
-            refinement=refinement or None
-        )]
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.PROGRESS_NOTE_PROCEDURE),
+                refinement=refinement or None,
+            )
+        ]
         return codes

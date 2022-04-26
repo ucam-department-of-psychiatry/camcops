@@ -59,35 +59,59 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # AIMS
 # =============================================================================
 
+
 class AimsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Aims'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Aims"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NSCOREDQUESTIONS,
-            minimum=0, maximum=4,
+            cls,
+            "q",
+            1,
+            cls.NSCOREDQUESTIONS,
+            minimum=0,
+            maximum=4,
             comment_fmt="Q{n}, {s} (0 none - 4 severe)",
-            comment_strings=["facial_expression", "lips", "jaw", "tongue",
-                             "upper_limbs", "lower_limbs", "trunk", "global",
-                             "incapacitation", "awareness"]
+            comment_strings=[
+                "facial_expression",
+                "lips",
+                "jaw",
+                "tongue",
+                "upper_limbs",
+                "lower_limbs",
+                "trunk",
+                "global",
+                "incapacitation",
+                "awareness",
+            ],
         )
         add_multiple_columns(
-            cls, "q", cls.NSCOREDQUESTIONS + 1, cls.NQUESTIONS, pv=PV.BIT,
+            cls,
+            "q",
+            cls.NSCOREDQUESTIONS + 1,
+            cls.NQUESTIONS,
+            pv=PV.BIT,
             comment_fmt="Q{n}, {s} (not scored) (0 no, 1 yes)",
-            comment_strings=["problems_teeth_dentures",
-                             "usually_wears_dentures"]
+            comment_strings=[
+                "problems_teeth_dentures",
+                "usually_wears_dentures",
+            ],
         )
 
         super().__init__(name, bases, classdict)
 
 
-class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
-           metaclass=AimsMetaclass):
+class Aims(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=AimsMetaclass
+):
     """
     Server implementation of the AIMS task.
     """
+
     __tablename__ = "aims"
     shortname = "AIMS"
     provides_trackers = True
@@ -103,32 +127,36 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return _("Abnormal Involuntary Movement Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="AIMS total score",
-            axis_label="Total score (out of 40)",
-            axis_min=-0.5,
-            axis_max=40.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="AIMS total score",
+                axis_label="Total score (out of 40)",
+                axis_min=-0.5,
+                axis_max=40.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"AIMS total score {self.total_score()}/40"
-        )]
+        return [CtvInfo(content=f"AIMS total score {self.total_score()}/40")]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/40)"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/40)",
+            )
         ]
 
     def is_complete(self) -> bool:
-        return (self.all_fields_not_none(Aims.TASK_FIELDS) and
-                self.field_contents_valid())
+        return (
+            self.all_fields_not_none(Aims.TASK_FIELDS)
+            and self.field_contents_valid()
+        )
 
     def total_score(self) -> int:
         return self.sum_fields(self.SCORED_FIELDS)
@@ -139,23 +167,33 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         main_dict = {None: None}
         q10_dict = {None: None}
         for option in range(0, 5):
-            main_dict[option] = str(option) + " — " + \
-                self.wxstring(req, "main_option" + str(option))
-            q10_dict[option] = str(option) + " — " + \
-                self.wxstring(req, "q10_option" + str(option))
+            main_dict[option] = (
+                str(option)
+                + " — "
+                + self.wxstring(req, "main_option" + str(option))
+            )
+            q10_dict[option] = (
+                str(option)
+                + " — "
+                + self.wxstring(req, "q10_option" + str(option))
+            )
 
         q_a = ""
         for q in range(1, 10):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(main_dict, getattr(self, "q" + str(q))))
+                get_from_dict(main_dict, getattr(self, "q" + str(q))),
+            )
         q_a += (
-            tr_qa(self.wxstring(req, "q10_s"),
-                  get_from_dict(q10_dict, self.q10)) +
-            tr_qa(self.wxstring(req, "q11_s"),
-                  get_yes_no_none(req, self.q11)) +
-            tr_qa(self.wxstring(req, "q12_s"),
-                  get_yes_no_none(req, self.q12))
+            tr_qa(
+                self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)
+            )
+            + tr_qa(
+                self.wxstring(req, "q11_s"), get_yes_no_none(req, self.q11)
+            )
+            + tr_qa(
+                self.wxstring(req, "q12_s"), get_yes_no_none(req, self.q12)
+            )
         )
 
         return f"""
@@ -179,12 +217,20 @@ class Aims(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.AIMS_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.AIMS_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.AIMS_SCALE),
-                {
-                    req.snomed(SnomedLookup.AIMS_TOTAL_SCORE): self.total_score(),  # noqa
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.AIMS_SCALE),
+                    {
+                        req.snomed(
+                            SnomedLookup.AIMS_TOTAL_SCORE
+                        ): self.total_score()  # noqa
+                    },
+                )
+            )
         return codes

@@ -36,9 +36,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    SummaryCategoryColType,
-)
+from camcops_server.cc_modules.cc_sqla_coltypes import SummaryCategoryColType
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 from camcops_server.cc_modules.cc_trackerhelpers import (
@@ -55,39 +53,45 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 class AsdasMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Asdas'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Asdas"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
         add_multiple_columns(
-            cls, "q", 1, cls.N_SCALE_QUESTIONS,
-            minimum=0, maximum=10,
+            cls,
+            "q",
+            1,
+            cls.N_SCALE_QUESTIONS,
+            minimum=0,
+            maximum=10,
             comment_fmt="Q{n} - {s}",
             comment_strings=[
                 "back pain 0-10 (None - very severe)",
                 "morning stiffness 0-10 (None - 2+ hours)",
                 "patient global 0-10 (Not active - very active)",
                 "peripheral pain 0-10 (None - very severe)",
-            ]
+            ],
         )
 
         setattr(
-            cls, cls.CRP_FIELD_NAME,
-            Column(cls.CRP_FIELD_NAME, Float, comment="CRP (mg/L)")
+            cls,
+            cls.CRP_FIELD_NAME,
+            Column(cls.CRP_FIELD_NAME, Float, comment="CRP (mg/L)"),
         )
 
         setattr(
-            cls, cls.ESR_FIELD_NAME,
-            Column(cls.ESR_FIELD_NAME, Float, comment="ESR (mm/h)")
+            cls,
+            cls.ESR_FIELD_NAME,
+            Column(cls.ESR_FIELD_NAME, Float, comment="ESR (mm/h)"),
         )
 
         super().__init__(name, bases, classdict)
 
 
-class Asdas(TaskHasPatientMixin,
-            Task,
-            metaclass=AsdasMetaclass):
+class Asdas(TaskHasPatientMixin, Task, metaclass=AsdasMetaclass):
     __tablename__ = "asdas"
     shortname = "ASDAS"
     provides_trackers = True
@@ -111,21 +115,29 @@ class Asdas(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="asdas_crp", coltype=Float(),
+                name="asdas_crp",
+                coltype=Float(),
                 value=self.asdas_crp(),
-                comment="ASDAS-CRP"),
+                comment="ASDAS-CRP",
+            ),
             SummaryElement(
-                name="activity_state_crp", coltype=SummaryCategoryColType,
+                name="activity_state_crp",
+                coltype=SummaryCategoryColType,
                 value=self.activity_state(req, self.asdas_crp()),
-                comment="Activity state (CRP)"),
+                comment="Activity state (CRP)",
+            ),
             SummaryElement(
-                name="asdas_esr", coltype=Float(),
+                name="asdas_esr",
+                coltype=Float(),
                 value=self.asdas_esr(),
-                comment="ASDAS-ESR"),
+                comment="ASDAS-ESR",
+            ),
             SummaryElement(
-                name="activity_state_esr", coltype=SummaryCategoryColType,
+                name="activity_state_esr",
+                coltype=SummaryCategoryColType,
                 value=self.activity_state(req, self.asdas_esr()),
-                comment="Activity state (ESR)"),
+                comment="Activity state (ESR)",
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -146,8 +158,9 @@ class Asdas(TaskHasPatientMixin,
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         axis_min = -0.5
         axis_max = 7.5
-        axis_ticks = [TrackerAxisTick(n, str(n))
-                      for n in range(0, int(axis_max) + 1)]
+        axis_ticks = [
+            TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1)
+        ]
 
         horizontal_lines = [
             self.HIGH_VERY_HIGH_CUTOFF,
@@ -207,11 +220,11 @@ class Asdas(TaskHasPatientMixin,
         crp = max(crp, 2.0)
 
         return (
-            0.12 * self.back_pain() +
-            0.06 * self.morning_stiffness() +
-            0.11 * self.patient_global() +
-            0.07 * self.peripheral_pain() +
-            0.58 * math.log(crp + 1)
+            0.12 * self.back_pain()
+            + 0.06 * self.morning_stiffness()
+            + 0.11 * self.patient_global()
+            + 0.07 * self.peripheral_pain()
+            + 0.58 * math.log(crp + 1)
         )
 
     def asdas_esr(self) -> Optional[float]:
@@ -220,11 +233,11 @@ class Asdas(TaskHasPatientMixin,
             return None
 
         return (
-            0.08 * self.back_pain() +
-            0.07 * self.morning_stiffness() +
-            0.11 * self.patient_global() +
-            0.09 * self.peripheral_pain() +
-            0.29 * math.sqrt(esr)
+            0.08 * self.back_pain()
+            + 0.07 * self.morning_stiffness()
+            + 0.11 * self.patient_global()
+            + 0.09 * self.peripheral_pain()
+            + 0.29 * math.sqrt(esr)
         )
 
     def activity_state(self, req: CamcopsRequest, measurement: Any) -> str:
@@ -300,15 +313,15 @@ class Asdas(TaskHasPatientMixin,
                 self.wxstring(req, "asdas_crp") + " <sup>[1][2]</sup>",
                 "{} ({})".format(
                     answer(asdas_crp),
-                    self.activity_state(req, self.asdas_crp())
-                )
+                    self.activity_state(req, self.asdas_crp()),
+                ),
             ),
             asdas_esr=tr(
                 self.wxstring(req, "asdas_esr") + " <sup>[1][3]</sup>",
                 "{} ({})".format(
                     answer(asdas_esr),
-                    self.activity_state(req, self.asdas_esr())
-                )
+                    self.activity_state(req, self.asdas_esr()),
+                ),
             ),
             rows=rows,
         )

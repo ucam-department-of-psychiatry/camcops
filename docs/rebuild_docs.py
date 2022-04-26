@@ -75,9 +75,9 @@ if __name__ == "__main__":
     # This one first, as it has requirements and may crash:
     for ev in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
         os.environ.pop(ev, None)
-    subprocess.check_call([
-        "python", os.path.join(THIS_DIR, "recreate_inclusion_files.py")
-    ])
+    subprocess.check_call(
+        ["python", os.path.join(THIS_DIR, "recreate_inclusion_files.py")]
+    )
     subprocess.check_call(["make", "html"])
 
     # Copy

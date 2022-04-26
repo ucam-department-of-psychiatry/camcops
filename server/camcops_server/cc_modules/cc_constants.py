@@ -62,10 +62,12 @@ NUMBER_OF_IDNUMS_DEFUNCT = 8  # DEFUNCT BUT DO NOT REMOVE OR ALTER. EIGHT.
 # File types
 # =============================================================================
 
+
 class FileType(object):
     """
     Used to represent output formats and their file extensions.
     """
+
     HTML = "html"
     PDF = "pdf"
     XML = "xml"
@@ -84,7 +86,9 @@ UTF8 = "utf8"
 # =============================================================================
 
 DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
-DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html  # noqa
+DEFAULT_FLOWER_PORT = (
+    5555
+)  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html
 
 
 # =============================================================================
@@ -96,7 +100,9 @@ DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 
 # Address to download Windows/Mac versions:
-GITHUB_RELEASES_URL = "https://github.com/ucam-department-of-psychiatry/camcops/releases/"  # noqa
+GITHUB_RELEASES_URL = (
+    "https://github.com/ucam-department-of-psychiatry/camcops/releases/"
+)
 
 MINIMUM_PASSWORD_LENGTH = 10
 
@@ -115,30 +121,46 @@ JSON_INDENT = 4
 # Date formats
 # =============================================================================
 
+
 class DateFormat(object):
     """
     Assorted date/time formats.
     """
+
     SHORT_DATE = "%d %b %Y"  # e.g. 24 Jul 2013
     LONG_DATE = "%d %B %Y"  # e.g. 24 July 2013
     LONG_DATE_WITH_DAY = "%a %d %B %Y"  # e.g. Wed 24 July 2013
     LONG_DATETIME = "%d %B %Y, %H:%M %z"  # e.g. 24 July 2013, 20:04 +0100
-    LONG_DATETIME_WITH_DAY = "%a %d %B %Y, %H:%M %z"  # e.g. Wed 24 July 2013, 20:04 +0100  # noqa
-    LONG_DATETIME_WITH_DAY_NO_TZ = "%a %d %B %Y, %H:%M"  # e.g. Wed 24 July 2013, 20:04  # noqa
-    SHORT_DATETIME_WITH_DAY_NO_TZ = "%a %d %b %Y, %H:%M"  # e.g. Wed 24 Jul 2013, 20:04  # noqa
+    LONG_DATETIME_WITH_DAY = (
+        "%a %d %B %Y, %H:%M %z"
+    )  # e.g. Wed 24 July 2013, 20:04 +0100
+    LONG_DATETIME_WITH_DAY_NO_TZ = (
+        "%a %d %B %Y, %H:%M"
+    )  # e.g. Wed 24 July 2013, 20:04
+    SHORT_DATETIME_WITH_DAY_NO_TZ = (
+        "%a %d %b %Y, %H:%M"
+    )  # e.g. Wed 24 Jul 2013, 20:04
     LONG_DATETIME_SECONDS = "%d %B %Y, %H:%M:%S %z"
     SHORT_DATETIME = "%d %b %Y, %H:%M %z"  # e.g. 24 Jul 2013, 20:04 +0100
     SHORT_DATETIME_NO_TZ = "%d %b %Y, %H:%M"  # e.g. 24 Jul 2013, 20:04
-    SHORT_DATETIME_SECONDS = "%d %b %Y, %H:%M:%S %z"  # e.g. 24 Jul 2013, 20:04:23 +0100  # noqa
+    SHORT_DATETIME_SECONDS = (
+        "%d %b %Y, %H:%M:%S %z"
+    )  # e.g. 24 Jul 2013, 20:04:23 +0100
     HOURS_MINUTES = "%H:%M"  # e.g. 20:04
     ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100
     ISO8601_HUMANIZED_TO_MINUTES = "%Y-%m-%d %H:%M"  # e.g. 2013-07-24 20:04
-    ISO8601_HUMANIZED_TO_SECONDS = "%Y-%m-%d %H:%M:%S"  # e.g. 2013-07-24 20:04:23  # noqa
-    ISO8601_HUMANIZED_TO_SECONDS_TZ = "%Y-%m-%d %H:%M:%S %z"  # e.g. 2013-07-24 20:04:23 +0100  # noqa
+    ISO8601_HUMANIZED_TO_SECONDS = (
+        "%Y-%m-%d %H:%M:%S"
+    )  # e.g. 2013-07-24 20:04:23
+    ISO8601_HUMANIZED_TO_SECONDS_TZ = (
+        "%Y-%m-%d %H:%M:%S %z"
+    )  # e.g. 2013-07-24 20:04:23 +0100
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
     FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
     # FHIR_DATETIME -- use x.isoformat()
-    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa
+    FHIR_TIME = (
+        "%H:%M:%S"
+    )  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
@@ -159,18 +181,20 @@ CAMCOPS_DEFAULT_FHIR_APP_ID = "camcops"
 # Permitted values in fields: some common settings
 # =============================================================================
 
+
 class PV(object):
     """
     Collections of permitted values.
     """
+
     BIT = (0, 1)
 
     # Red/Yellow/Green
     RYG = ("R", "Y", "G")
 
 
-NO_CHAR = 'N'
-YES_CHAR = 'Y'
+NO_CHAR = "N"
+YES_CHAR = "Y"
 
 # Database values:
 SEX_FEMALE = "F"
@@ -222,10 +246,12 @@ PDF_ENGINE = "pdfkit"  # working
 # Simple constants for HTML/plots/display
 # =============================================================================
 
+
 class PlotDefaults(object):
     """
     Defaults used with matplotlib plotting.
     """
+
     DEFAULT_PLOT_DPI = 300
 
     FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
@@ -248,6 +274,7 @@ class MatplotlibConstants(object):
     """
     Constants used by matplotlib
     """
+
     # https://matplotlib.org/tutorials/colors/colors.html
     COLOUR_BLACK = "k"
     COLOUR_BLUE = "b"
@@ -279,7 +306,7 @@ USE_SVG_IN_HTML = True  # set to False for PNG debugging
 # CSS/HTML constants
 # =============================================================================
 
-CSS_PAGED_MEDIA = (PDF_ENGINE != "pdfkit")
+CSS_PAGED_MEDIA = PDF_ENGINE != "pdfkit"
 
 WKHTMLTOPDF_OPTIONS = {  # dict for pdfkit
     "page-size": "A4",
@@ -302,6 +329,7 @@ class CssClass(object):
 
     Values should match e.g. ``camcops_server/templates/css/css_base.mako``.
     """
+
     BAD_ID_POLICY_MILD = "badidpolicy_mild"
     BAD_ID_POLICY_SEVERE = "badidpolicy_severe"
     BANNER = "banner"
@@ -418,6 +446,7 @@ class ConfigParamSite(object):
     Parameters allowed in the main ``[site]`` section of the CamCOPS config
     file.
     """
+
     ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
     CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
     CLIENT_API_LOGLEVEL = "CLIENT_API_LOGLEVEL"
@@ -469,6 +498,7 @@ class ConfigParamServer(object):
     Parameters allowed in the web server (``[server]``) section of the CamCOPS
     config file.
     """
+
     CHERRYPY_LOG_SCREEN = "CHERRYPY_LOG_SCREEN"
     CHERRYPY_ROOT_PATH = "CHERRYPY_ROOT_PATH"
     CHERRYPY_SERVER_NAME = "CHERRYPY_SERVER_NAME"
@@ -508,6 +538,7 @@ class ConfigParamExportGeneral(object):
     """
     Parameters allowed in the ``[export]`` section of the CamCOPS config file.
     """
+
     CELERY_BEAT_EXTRA_ARGS = "CELERY_BEAT_EXTRA_ARGS"
     CELERY_BEAT_SCHEDULE_DATABASE = "CELERY_BEAT_SCHEDULE_DATABASE"
     CELERY_BROKER_URL = "CELERY_BROKER_URL"
@@ -524,6 +555,7 @@ class ConfigParamExportRecipient(object):
     Possible configuration file parameters that relate to "export recipient"
     definitions.
     """
+
     ALL_GROUPS = "ALL_GROUPS"
     DB_ADD_SUMMARIES = "DB_ADD_SUMMARIES"
     DB_ECHO = "DB_ECHO"
@@ -572,7 +604,9 @@ class ConfigParamExportRecipient(object):
     REDCAP_API_KEY = "REDCAP_API_KEY"
     REDCAP_API_URL = "REDCAP_API_URL"
     REDCAP_FIELDMAP_FILENAME = "REDCAP_FIELDMAP_FILENAME"
-    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY"  # noqa
+    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = (
+        "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY"
+    )
     RIO_DOCUMENT_TYPE = "RIO_DOCUMENT_TYPE"
     RIO_IDNUM = "RIO_IDNUM"
     RIO_UPLOADING_USER = "RIO_UPLOADING_USER"
@@ -594,6 +628,7 @@ class MfaMethod:
 
     Values must be in lower case.
     """
+
     HOTP_EMAIL = "hotp_email"  # Send a code by email
     HOTP_SMS = "hotp_sms"  # Send a code by SMS
     NO_MFA = "no_mfa"  # No multi-factor authentication; username/password only
@@ -630,6 +665,7 @@ class SmsBackendNames:
     """
     Names of allowed SMS backends.
     """
+
     CONSOLE = "console"
     KAPOW = "kapow"
     TWILIO = "twilio"
@@ -639,6 +675,7 @@ class DockerConstants(object):
     """
     Constants for the Docker environment.
     """
+
     # Directories
     DOCKER_CAMCOPS_ROOT_DIR = "/camcops"
     CONFIG_DIR = os.path.join(DOCKER_CAMCOPS_ROOT_DIR, "cfg")
@@ -664,6 +701,7 @@ class DockerConstants(object):
 # Configuration defaults
 # =============================================================================
 
+
 class ConfigDefaults(object):
     """
     Contains default values for the config, plus some cosmetic defaults for
@@ -672,10 +710,12 @@ class ConfigDefaults(object):
     - Re ``CHERRYPY_THREADS_MAX``: beware the default MySQL connection limit of
       151; https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
     """
+
     # [site] section
     ALLOW_INSECURE_COOKIES = False
-    CAMCOPS_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR,
-                                              "logo_camcops.png")
+    CAMCOPS_LOGO_FILE_ABSOLUTE = os.path.join(
+        STATIC_ROOT_DIR, "logo_camcops.png"
+    )
     CLIENT_API_LOGLEVEL = logging.INFO
     CLIENT_API_LOGLEVEL_TEXTFORMAT = "info"  # should match CLIENT_API_LOGLEVEL
     DB_DATABASE = "camcops"  # for demo configs only
@@ -689,7 +729,9 @@ class ConfigDefaults(object):
     EMAIL_USE_TLS = True
     EXTERNAL_URL_SCHEME = UriSchemes.HTTPS
     EXTERNAL_SERVER_NAME = "localhost"
-    EXTRA_STRING_FILES = os.path.join(DEFAULT_EXTRA_STRINGS_DIR, "*.xml")  # cosmetic; for demo configs only  # noqa
+    EXTRA_STRING_FILES = os.path.join(
+        DEFAULT_EXTRA_STRINGS_DIR, "*.xml"
+    )  # cosmetic; for demo configs only
     LANGUAGE = DEFAULT_LOCALE
     LOCAL_INSTITUTION_URL = "https://camcops.readthedocs.io/"
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
@@ -704,7 +746,9 @@ class ConfigDefaults(object):
     SESSION_CHECK_USER_IP = True
     SESSION_TIMEOUT_MINUTES = 30
     SMS_BACKEND = SmsBackendNames.CONSOLE
-    USER_DOWNLOAD_DIR = LINUX_DEFAULT_USER_DOWNLOAD_DIR  # for demo configs only  # noqa
+    USER_DOWNLOAD_DIR = (
+        LINUX_DEFAULT_USER_DOWNLOAD_DIR
+    )  # for demo configs only
     USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
     USER_DOWNLOAD_MAX_SPACE_MB = 100
     WEBVIEW_LOGLEVEL = logging.INFO
@@ -737,7 +781,8 @@ class ConfigDefaults(object):
     # [export] section
     CELERY_BROKER_URL = "amqp://"
     CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
-        LINUX_DEFAULT_LOCK_DIR, "camcops_celerybeat_schedule")  # for demo configs only  # noqa
+        LINUX_DEFAULT_LOCK_DIR, "camcops_celerybeat_schedule"
+    )  # for demo configs only
     EXPORT_LOCKDIR = LINUX_DEFAULT_LOCK_DIR  # for demo configs only
     SCHEDULE_TIMEZONE = "UTC"
 
@@ -785,7 +830,8 @@ class ConfigDefaults(object):
         if docker:
             self.CELERY_BROKER_URL = DockerConstants.CELERY_BROKER_URL
             self.CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
-                DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule")
+                DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule"
+            )
             self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
             self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
             self.EXPORT_LOCKDIR = DockerConstants.DEFAULT_LOCKDIR
@@ -800,12 +846,14 @@ class ConfigDefaults(object):
         # mysqlclient ("mysqldb") for Docker -- the C-based fast one
         # pymysql for standard installations -- fewer dependencies
         driver = "mysqldb" if self._docker else "pymysql"
-        return make_mysql_url(driver=driver,
-                              host=self.DB_SERVER,
-                              port=self.DB_PORT,
-                              username=self.DB_USER,
-                              password=self.DB_PASSWORD,
-                              dbname=self.DB_DATABASE)
+        return make_mysql_url(
+            driver=driver,
+            host=self.DB_SERVER,
+            port=self.DB_PORT,
+            username=self.DB_USER,
+            password=self.DB_PASSWORD,
+            dbname=self.DB_DATABASE,
+        )
 
 
 # =============================================================================
@@ -1018,12 +1066,14 @@ class StringLengths:
     DIAGNOSTIC_CODE_MAX_LEN = max(ICD9_CODE_MAX_LEN, ICD10_CODE_MAX_LEN)
 
     SESSION_TOKEN_MAX_LEN = len(
-        create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))
+        create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES)
+    )
 
 
 # =============================================================================
 # FHIR string constants
 # =============================================================================
+
 
 class FHIRConst:
     """
@@ -1034,6 +1084,7 @@ class FHIRConst:
     - lower_case or lowerCamelCase: usually dictionary keys
     - plainlowercase: often string constants
     """
+
     # -------------------------------------------------------------------------
     # Authentication (FHIRClient settings)
     # -------------------------------------------------------------------------
@@ -1255,7 +1306,9 @@ class FHIRConst:
     UCUM_CODE_METRE = "m"
     UCUM_CODE_CENTIMETRE = "cm"
     # noinspection HttpUrlsUsage
-    VITAL_SIGNS_SYSTEM = "http://terminology.hl7.org/CodeSystem/observation-category"  # noqa
+    VITAL_SIGNS_SYSTEM = (
+        "http://terminology.hl7.org/CodeSystem/observation-category"
+    )
     VITAL_SIGNS_CODE = "vital-signs"
     VITAL_SIGNS_DISPLAY = "Vital Signs"
 

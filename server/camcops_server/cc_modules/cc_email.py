@@ -75,6 +75,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Email class
 # =============================================================================
 
+
 class Email(Base):
     """
     Class representing an e-mail sent from CamCOPS.
@@ -83,6 +84,7 @@ class Email(Base):
     It's cross-referenced from classes that use it, such as
     :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskEmail`.
     """
+
     __tablename__ = "_emails"
 
     # -------------------------------------------------------------------------
@@ -90,118 +92,88 @@ class Email(Base):
     # -------------------------------------------------------------------------
     id = Column(
         # SQLite doesn't support autoincrement with BigInteger
-        "id", BigInteger().with_variant(Integer, "sqlite"),
-        primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "id",
+        BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     created_at_utc = Column(
-        "created_at_utc", DateTime,
-        comment="Date/time message was created (UTC)"
+        "created_at_utc",
+        DateTime,
+        comment="Date/time message was created (UTC)",
     )
     # -------------------------------------------------------------------------
     # Headers
     # -------------------------------------------------------------------------
     date = Column(
-        "date", Rfc2822DateColType,
-        comment="Email date in RFC 2822 format"
+        "date", Rfc2822DateColType, comment="Email date in RFC 2822 format"
     )
     from_addr = Column(
-        "from_addr", EmailAddressColType,
-        comment="Email 'From:' field"
+        "from_addr", EmailAddressColType, comment="Email 'From:' field"
     )
     sender = Column(
-        "sender", EmailAddressColType,
-        comment="Email 'Sender:' field"
+        "sender", EmailAddressColType, comment="Email 'Sender:' field"
     )
     reply_to = Column(
-        "reply_to", EmailAddressColType,
-        comment="Email 'Reply-To:' field"
+        "reply_to", EmailAddressColType, comment="Email 'Reply-To:' field"
     )
-    to = Column(
-        "to", Text,
-        comment="Email 'To:' field"
-    )
-    cc = Column(
-        "cc", Text,
-        comment="Email 'Cc:' field"
-    )
-    bcc = Column(
-        "bcc", Text,
-        comment="Email 'Bcc:' field"
-    )
-    subject = Column(
-        "subject", Text,
-        comment="Email 'Subject:' field"
-    )
+    to = Column("to", Text, comment="Email 'To:' field")
+    cc = Column("cc", Text, comment="Email 'Cc:' field")
+    bcc = Column("bcc", Text, comment="Email 'Bcc:' field")
+    subject = Column("subject", Text, comment="Email 'Subject:' field")
     # -------------------------------------------------------------------------
     # Body, message
     # -------------------------------------------------------------------------
-    body = Column(
-        "body", Text,
-        comment="Email body"
-    )
+    body = Column("body", Text, comment="Email body")
     content_type = Column(
-        "content_type", MimeTypeColType,
-        comment="MIME type for e-mail body"
+        "content_type", MimeTypeColType, comment="MIME type for e-mail body"
     )
     charset = Column(
-        "charset", CharsetColType,
-        comment="Character set for e-mail body"
+        "charset", CharsetColType, comment="Character set for e-mail body"
     )
-    msg_string = Column(
-        "msg_string", LongText,
-        comment="Full encoded e-mail"
-    )
+    msg_string = Column("msg_string", LongText, comment="Full encoded e-mail")
     # -------------------------------------------------------------------------
     # Server
     # -------------------------------------------------------------------------
-    host = Column(
-        "host", HostnameColType,
-        comment="Email server"
-    )
-    port = Column(
-        "port", Integer,
-        comment="Port number on e-mail server"
-    )
+    host = Column("host", HostnameColType, comment="Email server")
+    port = Column("port", Integer, comment="Port number on e-mail server")
     username = Column(
-        "username", UserNameExternalColType,
-        comment="Username on e-mail server"
+        "username",
+        UserNameExternalColType,
+        comment="Username on e-mail server",
     )
-    use_tls = Column(
-        "use_tls", Boolean,
-        comment="Use TLS?"
-    )
+    use_tls = Column("use_tls", Boolean, comment="Use TLS?")
     # -------------------------------------------------------------------------
     # Status
     # -------------------------------------------------------------------------
     sent = Column(
-        "sent", Boolean, default=False, nullable=False,
-        comment="Sent?"
+        "sent", Boolean, default=False, nullable=False, comment="Sent?"
     )
     sent_at_utc = Column(
-        "sent_at_utc", DateTime,
-        comment="Date/time message was sent (UTC)"
+        "sent_at_utc", DateTime, comment="Date/time message was sent (UTC)"
     )
     sending_failure_reason = Column(
-        "sending_failure_reason", Text,
-        comment="Reason for sending failure"
+        "sending_failure_reason", Text, comment="Reason for sending failure"
     )
 
-    def __init__(self,
-                 from_addr: str = "",
-                 date: str = None,
-                 sender: str = "",
-                 reply_to: str = "",
-                 to: str = "",
-                 cc: str = "",
-                 bcc: str = "",
-                 subject: str = "",
-                 body: str = "",
-                 content_type: str = MimeType.TEXT,
-                 charset: str = "utf8",
-                 attachment_filenames: Sequence[str] = None,
-                 attachments_binary: Sequence[Tuple[str, bytes]] = None,
-                 save_msg_string: bool = False) -> None:
+    def __init__(
+        self,
+        from_addr: str = "",
+        date: str = None,
+        sender: str = "",
+        reply_to: str = "",
+        to: str = "",
+        cc: str = "",
+        bcc: str = "",
+        subject: str = "",
+        body: str = "",
+        content_type: str = MimeType.TEXT,
+        charset: str = "utf8",
+        attachment_filenames: Sequence[str] = None,
+        attachments_binary: Sequence[Tuple[str, bytes]] = None,
+        save_msg_string: bool = False,
+    ) -> None:
         """
         Args:
             from_addr: name of the sender for the "From:" field
@@ -243,11 +215,16 @@ class Email(Base):
         # -------------------------------------------------------------------------
         if not date:
             date = email.utils.format_datetime(now_local)
-        attachment_filenames = attachment_filenames or []  # type: Sequence[str]
-        attachments_binary = attachments_binary or []  # type: Sequence[Tuple[str, bytes]]  # noqa
+        attachment_filenames = (
+            attachment_filenames or []
+        )  # type: Sequence[str]
+        attachments_binary = (
+            attachments_binary or []
+        )  # type: Sequence[Tuple[str, bytes]]
         if attachments_binary:
             attachment_binary_filenames, attachment_binaries = zip(
-                *attachments_binary)
+                *attachments_binary
+            )
         else:
             attachment_binary_filenames = []  # type: List[str]
             attachment_binaries = []  # type: List[bytes]
@@ -258,21 +235,25 @@ class Email(Base):
         # Transient fields
         # ---------------------------------------------------------------------
         self.password = None
-        self.msg = make_email(
-            from_addr=from_addr,
-            date=date,
-            sender=sender,
-            reply_to=reply_to,
-            to=to,
-            cc=cc,
-            bcc=bcc,
-            subject=subject,
-            body=body,
-            content_type=content_type,
-            attachment_filenames=attachment_filenames,
-            attachment_binaries=attachment_binaries,
-            attachment_binary_filenames=attachment_binary_filenames,
-        ) if from_addr else None
+        self.msg = (
+            make_email(
+                from_addr=from_addr,
+                date=date,
+                sender=sender,
+                reply_to=reply_to,
+                to=to,
+                cc=cc,
+                bcc=bcc,
+                subject=subject,
+                body=body,
+                content_type=content_type,
+                attachment_filenames=attachment_filenames,
+                attachment_binaries=attachment_binaries,
+                attachment_binary_filenames=attachment_binary_filenames,
+            )
+            if from_addr
+            else None
+        )
 
         # ---------------------------------------------------------------------
         # Database fields
@@ -300,12 +281,14 @@ class Email(Base):
         self.password = None
         self.msg = None
 
-    def send(self,
-             host: str,
-             username: str,
-             password: str,
-             port: int = None,
-             use_tls: bool = True) -> bool:
+    def send(
+        self,
+        host: str,
+        username: str,
+        password: str,
+        port: int = None,
+        use_tls: bool = True,
+    ) -> bool:
         """
         Sends message and returns success.
         """
@@ -333,13 +316,17 @@ class Email(Base):
         # don't save password
         self.use_tls = use_tls
         to_addrs = COMMASPACE.join(
-            x for x in (self.to, self.cc, self.bcc) if x)
-        header_components = filter(None, (
-            f"To: {self.to}" if self.to else "",
-            f"Cc: {self.cc}" if self.cc else "",
-            f"Bcc: {self.bcc}" if self.bcc else "",  # noqa
-            f"Subject: {self.subject}" if self.subject else "",
-        ))
+            x for x in (self.to, self.cc, self.bcc) if x
+        )
+        header_components = filter(
+            None,
+            (
+                f"To: {self.to}" if self.to else "",
+                f"Cc: {self.cc}" if self.cc else "",
+                f"Bcc: {self.bcc}" if self.bcc else "",  # noqa
+                f"Subject: {self.subject}" if self.subject else "",
+            ),
+        )
         log.info("Sending email -- {}", " -- ".join(header_components))
         try:
             send_msg(

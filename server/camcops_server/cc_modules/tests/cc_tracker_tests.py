@@ -37,10 +37,12 @@ from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 # Unit tests
 # =============================================================================
 
+
 class TrackerCtvTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def setUp(self) -> None:
         super().setUp()
 

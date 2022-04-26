@@ -107,11 +107,13 @@ def prohibit_env_vars(envvars: List[str]) -> None:
         )
 
 
-def run_cmd(cmdargs: List[str],
-            output_filename: str,
-            timestamp: bool = False,
-            comment_prefix: str = "# ",
-            encoding: str = sys.getdefaultencoding()) -> None:
+def run_cmd(
+    cmdargs: List[str],
+    output_filename: str,
+    timestamp: bool = False,
+    comment_prefix: str = "# ",
+    encoding: str = sys.getdefaultencoding(),
+) -> None:
     """
     Args:
         cmdargs:
@@ -135,9 +137,11 @@ def run_cmd(cmdargs: List[str],
     modified_env[ENVVAR_CONFIG_FILE] = "/path/to/camcops/config_file.ini"
 
     output = (
-        subprocess.check_output(cmdargs, env=modified_env).decode(encoding)
-        .replace(CAMCOPS_CLIENT_EXECUTABLE,
-                 "/path/to/camcops/client/executable")
+        subprocess.check_output(cmdargs, env=modified_env)
+        .decode(encoding)
+        .replace(
+            CAMCOPS_CLIENT_EXECUTABLE, "/path/to/camcops/client/executable"
+        )
     )
     log.info(f"... writing to: {output_filename}")
     with open(output_filename, "wt") as f:
@@ -150,49 +154,86 @@ def run_cmd(cmdargs: List[str],
 def main():
     prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
     # administrator
-    run_cmd(["camcops_backup_mysql_database", "--help"],
-            join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"))
-    run_cmd(["camcops_server", "--allhelp"],
-            join(ADMIN_DIR, "_camcops_server_allhelp.txt"))
-    run_cmd(["camcops_server_meta", "--help"],
-            join(ADMIN_DIR, "_camcops_server_meta_help.txt"))
+    run_cmd(
+        ["camcops_backup_mysql_database", "--help"],
+        join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"),
+    )
+    run_cmd(
+        ["camcops_server", "--allhelp"],
+        join(ADMIN_DIR, "_camcops_server_allhelp.txt"),
+    )
+    run_cmd(
+        ["camcops_server_meta", "--help"],
+        join(ADMIN_DIR, "_camcops_server_meta_help.txt"),
+    )
     log.warning("Skipping camcops_windows_service_help.txt (requires Windows)")
-    run_cmd(["camcops_server", "demo_camcops_config"],
-            join(ADMIN_DIR, "_demo_camcops_config.ini"))
-    run_cmd(["camcops_server", "demo_supervisor_config"],
-            join(ADMIN_DIR, "_demo_supervisor_config.ini"))
-    run_cmd(["camcops_server", "demo_apache_config"],
-            join(ADMIN_DIR, "_demo_apache_config.conf"))
-    run_cmd(["camcops_fetch_snomed_codes", "--allhelp"],
-            join(ADMIN_DIR, "_camcops_fetch_snomed_codes_help.txt"))
+    run_cmd(
+        ["camcops_server", "demo_camcops_config"],
+        join(ADMIN_DIR, "_demo_camcops_config.ini"),
+    )
+    run_cmd(
+        ["camcops_server", "demo_supervisor_config"],
+        join(ADMIN_DIR, "_demo_supervisor_config.ini"),
+    )
+    run_cmd(
+        ["camcops_server", "demo_apache_config"],
+        join(ADMIN_DIR, "_demo_apache_config.conf"),
+    )
+    run_cmd(
+        ["camcops_fetch_snomed_codes", "--allhelp"],
+        join(ADMIN_DIR, "_camcops_fetch_snomed_codes_help.txt"),
+    )
     # developer
-    run_cmd(["python", join(TABLET_TOOLS_DIR, "build_qt.py"), "--help"],
-            join(DEV_DIR, "_build_qt_help.txt"))
-    run_cmd(["python", join(SERVER_TOOLS_DIR, "build_server_translations.py"),
-             "--help"],
-            join(DEV_DIR, "_build_server_translations_help.txt"))
-    run_cmd(["python", join(SERVER_TOOLS_DIR, "create_database_migration.py"),
-             "--help"],
-            join(DEV_DIR, "_create_database_migration_help.txt"))
-    run_cmd(["python", join(TABLET_TOOLS_DIR, "build_client_translations.py"),
-             "--help"],
-            join(DEV_DIR, "_build_client_translations_help.txt"))
-    run_cmd(["python", join(TABLET_TOOLS_DIR, "decrypt_sqlcipher.py"),
-             "--help"],
-            join(DEV_DIR, "_decrypt_sqlcipher_help.txt"))
-    run_cmd(["python", join(TABLET_TOOLS_DIR, "encrypt_sqlcipher.py"),
-             "--help"],
-            join(DEV_DIR, "_encrypt_sqlcipher_help.txt"))
-    run_cmd(["python", join(SERVER_TOOLS_DIR, "make_xml_skeleton.py"),
-             "--help"],
-            join(DEV_DIR, "_make_xml_skeleton_help.txt"))
-    run_cmd(["python", join(TABLET_TOOLS_DIR, "open_sqlcipher.py"),
-             "--help"],
-            join(DEV_DIR, "_open_sqlcipher_help.txt"))
+    run_cmd(
+        ["python", join(TABLET_TOOLS_DIR, "build_qt.py"), "--help"],
+        join(DEV_DIR, "_build_qt_help.txt"),
+    )
+    run_cmd(
+        [
+            "python",
+            join(SERVER_TOOLS_DIR, "build_server_translations.py"),
+            "--help",
+        ],
+        join(DEV_DIR, "_build_server_translations_help.txt"),
+    )
+    run_cmd(
+        [
+            "python",
+            join(SERVER_TOOLS_DIR, "create_database_migration.py"),
+            "--help",
+        ],
+        join(DEV_DIR, "_create_database_migration_help.txt"),
+    )
+    run_cmd(
+        [
+            "python",
+            join(TABLET_TOOLS_DIR, "build_client_translations.py"),
+            "--help",
+        ],
+        join(DEV_DIR, "_build_client_translations_help.txt"),
+    )
+    run_cmd(
+        ["python", join(TABLET_TOOLS_DIR, "decrypt_sqlcipher.py"), "--help"],
+        join(DEV_DIR, "_decrypt_sqlcipher_help.txt"),
+    )
+    run_cmd(
+        ["python", join(TABLET_TOOLS_DIR, "encrypt_sqlcipher.py"), "--help"],
+        join(DEV_DIR, "_encrypt_sqlcipher_help.txt"),
+    )
+    run_cmd(
+        ["python", join(SERVER_TOOLS_DIR, "make_xml_skeleton.py"), "--help"],
+        join(DEV_DIR, "_make_xml_skeleton_help.txt"),
+    )
+    run_cmd(
+        ["python", join(TABLET_TOOLS_DIR, "open_sqlcipher.py"), "--help"],
+        join(DEV_DIR, "_open_sqlcipher_help.txt"),
+    )
     # user
     camcops_client_executable = find_camcops_client_executable()
-    run_cmd([camcops_client_executable, "--help"],
-            join(USER_CLIENT_DIR, "_camcops_client_help.txt"))
+    run_cmd(
+        [camcops_client_executable, "--help"],
+        join(USER_CLIENT_DIR, "_camcops_client_help.txt"),
+    )
 
     log.info("Done.")
 

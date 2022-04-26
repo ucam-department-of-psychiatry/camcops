@@ -88,15 +88,20 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 MODIFY_CLASS = True
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Before classes are even declared:
     main_only_quicksetup_rootlogger()
     log.info("Module starting to load.")
 
 
-def add_multiple_fields(cls: Type, first: int, last: int, prefix: str,
-                        coltype: Type,
-                        colkwargs: Dict[str, Any] = None) -> None:
+def add_multiple_fields(
+    cls: Type,
+    first: int,
+    last: int,
+    prefix: str,
+    coltype: Type,
+    colkwargs: Dict[str, Any] = None,
+) -> None:
     colkwargs = {} if colkwargs is None else colkwargs  # type: Dict[str, Any]
     for n in range(first, last + 1):
         nstr = str(n)
@@ -116,9 +121,9 @@ class MetaSomeThing(DeclarativeMeta):
     log.debug("MetaSomeThing: first line of declaration")
 
     # noinspection PyMethodParameters
-    def __prepare__(name: str,
-                    bases: Tuple[Type, ...],
-                    **kwds: Dict[str, Any]) -> Dict:
+    def __prepare__(
+        name: str, bases: Tuple[Type, ...], **kwds: Dict[str, Any]
+    ) -> Dict:
         """
 
         Args:
@@ -132,14 +137,18 @@ class MetaSomeThing(DeclarativeMeta):
             a dictionary-like object to store the class member definitions;
             see https://www.python.org/dev/peps/pep-3115/
         """
-        log.debug("MetaSomething.__prepare__: name={!r}, bases={!r}, "
-                  "kwds={!r}".format(name, bases, kwds))
+        log.debug(
+            "MetaSomething.__prepare__: name={!r}, bases={!r}, "
+            "kwds={!r}".format(name, bases, kwds)
+        )
         return dict()
 
-    def __new__(mcs: Type,
-                name: str,
-                bases: Tuple[Type, ...],
-                classdict: Dict[str, Any]) -> Type:
+    def __new__(
+        mcs: Type,
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> Type:
         """
         Args:
             mcs: this metaclass, e.g.
@@ -165,13 +174,18 @@ class MetaSomeThing(DeclarativeMeta):
         Returns:
             the class being created, e.g. <class '__main__.SomeThing'>
         """
-        log.debug("MetaSomeThing.__new__: mcs={0!r}, name={1!r}, bases={2!r}, "
-                  "classdict={3!r}".format(mcs, name, bases, classdict))
+        log.debug(
+            "MetaSomeThing.__new__: mcs={0!r}, name={1!r}, bases={2!r}, "
+            "classdict={3!r}".format(mcs, name, bases, classdict)
+        )
         if MODIFY_CLASS:
-            log.debug("MetaSomeThing.__new__: adding b_from_new_classdict, "
-                      "via classdict")
-            classdict['b_from_new_classdict'] = Column(
-                "b_from_new_classdict", Integer)
+            log.debug(
+                "MetaSomeThing.__new__: adding b_from_new_classdict, "
+                "via classdict"
+            )
+            classdict["b_from_new_classdict"] = Column(
+                "b_from_new_classdict", Integer
+            )
         retval = super().__new__(mcs, name, bases, classdict)
         if MODIFY_CLASS:
             log.debug("MetaSomeThing.__new__: adding b_from_new_cls, via cls")
@@ -180,10 +194,12 @@ class MetaSomeThing(DeclarativeMeta):
         log.debug("MetaSomeThing.__new__: returning {0!r}", retval)
         return retval
 
-    def __init__(cls: Type,
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type,
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         """
         Args:
             cls: the class being created (not the metaclass), e.g.
@@ -206,23 +222,30 @@ class MetaSomeThing(DeclarativeMeta):
                     'c': Column('c', Integer(), table=None)
                 }
         """
-        log.debug("MetaSomeThing.__init__: cls={0!r}, name={1!r}, "
-                  "bases={2!r}, classdict={3!r}".format(cls, name, bases,
-                                                        classdict))
-        if getattr(cls, '_decl_class_registry', None) is None:
+        log.debug(
+            "MetaSomeThing.__init__: cls={0!r}, name={1!r}, "
+            "bases={2!r}, classdict={3!r}".format(cls, name, bases, classdict)
+        )
+        if getattr(cls, "_decl_class_registry", None) is None:
             log.debug("... says no")
             return
         if MODIFY_CLASS:
-            log.debug("MetaSomeThing.__init__: attempting to add "
-                      "b_from_init_classdict by modifying classdict "
-                      "but THIS WILL NOT WORK")
-            classdict['b_from_init_classdict'] = Column(
-                "b_from_init_classdict", Integer)
-            log.debug("MetaSomeThing.__init__: adding b_from_init_cls by "
-                      "modifying cls directly; this will work")
+            log.debug(
+                "MetaSomeThing.__init__: attempting to add "
+                "b_from_init_classdict by modifying classdict "
+                "but THIS WILL NOT WORK"
+            )
+            classdict["b_from_init_classdict"] = Column(
+                "b_from_init_classdict", Integer
+            )
+            log.debug(
+                "MetaSomeThing.__init__: adding b_from_init_cls by "
+                "modifying cls directly; this will work"
+            )
             cls.b_from_init_cls = Column("b_from_init_cls", Integer)
-            add_multiple_fields(cls, first=1, last=5, prefix="d",
-                                coltype=Integer)
+            add_multiple_fields(
+                cls, first=1, last=5, prefix="d", coltype=Integer
+            )
         super().__init__(name, bases, classdict)
         # ... DOES NOT need the "cls" parameter
 
@@ -255,6 +278,7 @@ def act_with(blah: SomeThing) -> None:
 # 2. Now, how simple can this look?
 # =============================================================================
 
+
 class SimpleTaskMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
     def __init__(cls, name, bases, classdict):
@@ -272,6 +296,7 @@ class SimpleTask(Base, metaclass=SimpleTaskMetaclass):
 #    respondent?
 # =============================================================================
 
+
 class PretendTaskBase(object):
     has_extra_bits = False
 
@@ -287,22 +312,24 @@ class ExtraMixin(object):
     z = Column("z", Integer)
 
 
-class ComplexTask(ExtraMixin, PretendTaskBase, Base,
-                  metaclass=SimpleTaskMetaclass):
+class ComplexTask(
+    ExtraMixin, PretendTaskBase, Base, metaclass=SimpleTaskMetaclass
+):
     # The LEFT-MOST HAS PRIORITY WHEN ATTRIBUTES CLASH.
     # Similarly, the left-most comes first in the Method Resolution Order.
     __tablename__ = "table_for_complex_task"
     some_pk = Column("some_pk", Integer, primary_key=True)
 
     checkme = CamcopsColumn(
-        "checkme_internal", Integer,
+        "checkme_internal",
+        Integer,
         # NB: different SQL name from attr name (this tests whether we have
         # the naming system right!).
         permitted_value_checker=PermittedValueChecker(
             not_null=True,
             # permitted_values=[3, 4],
-            maximum=3
-        )
+            maximum=3,
+        ),
     )
 
     def __repr__(self) -> str:
@@ -320,12 +347,14 @@ class ComplexTask(ExtraMixin, PretendTaskBase, Base,
 # Main
 # =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     log.info("Classes declared; doing something else.")
     log.info("SomeThing == {!r}", SomeThing)
     log.info("dir(SomeThing) == {!r}", dir(SomeThing))
-    log.info("get_orm_column_names(SomeThing) == {}",
-             get_orm_column_names(SomeThing, sort=True))
+    log.info(
+        "get_orm_column_names(SomeThing) == {}",
+        get_orm_column_names(SomeThing, sort=True),
+    )
     st = SomeThing()
     st.somefunc()
     # Now, which columns does the PyCharm type checker/autocomplete find?
@@ -347,12 +376,16 @@ if __name__ == '__main__':
     act_with(st)
 
     x = SimpleTask()
-    log.info("get_orm_column_names(SimpleTask) == {}",
-             get_orm_column_names(SimpleTask, sort=True))
+    log.info(
+        "get_orm_column_names(SimpleTask) == {}",
+        get_orm_column_names(SimpleTask, sort=True),
+    )
 
     ct = ComplexTask()
-    log.info("get_orm_column_names(ComplexTask) == {}",
-             get_orm_column_names(ComplexTask, sort=True))
+    log.info(
+        "get_orm_column_names(ComplexTask) == {}",
+        get_orm_column_names(ComplexTask, sort=True),
+    )
     log.info("ct.has_extra_bits = {}", ct.has_extra_bits)
     log.info("ComplexTask.__mro__ = {}", ComplexTask.__mro__)
 
@@ -360,11 +393,15 @@ if __name__ == '__main__':
 
     log.info("{!r}", ct)
     log.info("permitted_values_ok(ct) = {}", permitted_values_ok(ct))
-    log.info("permitted_value_failure_msgs(ct) = {}",
-             permitted_value_failure_msgs(ct))
+    log.info(
+        "permitted_value_failure_msgs(ct) = {}",
+        permitted_value_failure_msgs(ct),
+    )
 
     ct.checkme = 5
     log.info("{!r}", ct)
     log.info("permitted_values_ok(ct) = {}", permitted_values_ok(ct))
-    log.info("permitted_value_failure_msgs(ct) = {}",
-             permitted_value_failure_msgs(ct))
+    log.info(
+        "permitted_value_failure_msgs(ct) = {}",
+        permitted_value_failure_msgs(ct),
+    )

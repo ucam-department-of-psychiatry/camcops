@@ -35,10 +35,12 @@ from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 # Unit tests
 # =============================================================================
 
+
 class DeviceTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_device(self) -> None:
         self.announce("test_device")
         q = self.dbsession.query(Device)

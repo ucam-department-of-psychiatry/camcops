@@ -30,8 +30,15 @@ they're registered (and also Task knows about all its subclasses).**
 
 """
 
+# =============================================================================
+# Imports
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Simple
+# -----------------------------------------------------------------------------
+
 import logging
-# from pprint import pformat
 from typing import Dict, List, Type
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -43,23 +50,27 @@ from camcops_server.cc_modules.cc_baseconstants import ALEMBIC_VERSION_TABLE
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
-# =============================================================================
+# -----------------------------------------------------------------------------
 # Non-task model imports representing client-side tables
-# =============================================================================
+# -----------------------------------------------------------------------------
 # How to suppress "Unused import statement"?
 # https://stackoverflow.com/questions/21139329/false-unused-import-statement-in-pycharm  # noqa
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
+
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: F401
+from camcops_server.cc_modules.cc_patientidnum import (  # noqa: F401
+    PatientIdNum,
+)
+
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
 
-# =============================================================================
+# -----------------------------------------------------------------------------
 # Other non-task model imports
-# =============================================================================
+# -----------------------------------------------------------------------------
 
 from camcops_server.cc_modules.cc_audit import AuditEntry
 from camcops_server.cc_modules.cc_device import Device
@@ -78,6 +89,7 @@ from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_serversettings import ServerSettings
+
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
@@ -85,6 +97,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleItem,
 )
+
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_taskindex import (
     PatientIdNumIndexEntry,
@@ -96,10 +109,9 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )
 
-
-# =============================================================================
+# -----------------------------------------------------------------------------
 # Task imports
-# =============================================================================
+# -----------------------------------------------------------------------------
 
 # import_submodules("..tasks", __package__)
 #
@@ -112,13 +124,14 @@ from camcops_server.cc_modules.cc_user import (
 # noinspection PyUnresolvedReferences
 from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401,F403
 
-
-# =============================================================================
+# -----------------------------------------------------------------------------
 # Other report imports
-# =============================================================================
+# -----------------------------------------------------------------------------
 
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_taskreports import TaskCountReport  # noqa: E501,F401
+from camcops_server.cc_modules.cc_taskreports import (  # noqa: F401
+    TaskCountReport,
+)
 
 
 # =============================================================================

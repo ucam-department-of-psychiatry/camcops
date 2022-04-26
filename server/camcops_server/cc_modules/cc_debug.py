@@ -30,7 +30,6 @@ camcops_server/cc_modules/cc_debug.py
 """
 
 import cProfile
-# import trace
 from types import FrameType
 from typing import Any, Callable, Set, Union
 
@@ -63,8 +62,9 @@ def profile(func):
 
 
 # noinspection PyUnusedLocal
-def trace_calls(frame: FrameType, event: str, arg: Any) \
-        -> Union[TraceFuncType, None]:
+def trace_calls(
+    frame: FrameType, event: str, arg: Any
+) -> Union[TraceFuncType, None]:
     """
     A function that can be used as an argument to ``sys.settrace``. It prints
     details of every function called (filename, line number, function name).
@@ -94,8 +94,9 @@ def makefunc_trace_unique_calls(file_only: bool = False) -> TraceFuncType:
     called = set()  # type: Set[str]
 
     # noinspection PyUnusedLocal
-    def _trace_calls(frame: FrameType, event: str, arg: Any) \
-            -> Union[TraceFuncType, None]:
+    def _trace_calls(
+        frame: FrameType, event: str, arg: Any
+    ) -> Union[TraceFuncType, None]:
         nonlocal called
         if event != "call":
             return

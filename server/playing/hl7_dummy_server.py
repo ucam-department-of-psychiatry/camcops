@@ -41,20 +41,26 @@ from twisted.internet import protocol, reactor
 # http://twistedmatrix.com/documents/current/core/howto/servers.html
 
 # made by this code:
-testmsg_1 = "MSH|^~\&|hl7_dummy_server.py||||20140619232037+0100||ACK|1|P" \
-            "|2.3||||AL||UNICODE UTF-8|" \
-            "\r" \
-            "MSA|AE|20140619232037+0100|Failure|||"
+testmsg_1 = (
+    "MSH|^~\&|hl7_dummy_server.py||||20140619232037+0100||ACK|1|P"
+    "|2.3||||AL||UNICODE UTF-8|"
+    "\r"
+    "MSA|AE|20140619232037+0100|Failure|||"
+)
 
 # from http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
-testmsg_2 = "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|" \
-            "6162003124232500|P|2.3|||||||" \
-            "\r" \
-            "MSA|AA|20030226000000|Success||||"
-testmsg_3 = "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|" \
-            "6162003124232500|P|2.3|||||||" \
-            "\r" \
-            "MSA|AE|20030226000000|Failure||||"
+testmsg_2 = (
+    "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
+    "6162003124232500|P|2.3|||||||"
+    "\r"
+    "MSA|AA|20030226000000|Success||||"
+)
+testmsg_3 = (
+    "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
+    "6162003124232500|P|2.3|||||||"
+    "\r"
+    "MSA|AE|20030226000000|Failure||||"
+)
 
 SEGMENT_SEPARATOR = u"\r"
 FIELD_SEPARATOR = u"|"
@@ -64,10 +70,10 @@ DATEFORMAT_HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
 REPETITION_SEPARATOR = u"~"
 ESCAPE_CHARACTER = u"\\"
 
-SB = '\x0b'  # <SB>, vertical tab
-EB = '\x1c'  # <EB>, file separator
-CR = '\x0d'  # <CR>, \r
-FF = '\x0c'  # <FF>, new page form feed
+SB = "\x0b"  # <SB>, vertical tab
+EB = "\x1c"  # <EB>, file separator
+CR = "\x0d"  # <CR>, \r
+FF = "\x0c"  # <FF>, new page form feed
 
 PROBABILITY_OF_TIMEOUT = 0.0
 PROBABILITY_OF_SUCCESS = 1.0
@@ -121,7 +127,7 @@ class HL7Server(protocol.Protocol):
 
         # wrap in MLLP gubbins?
         data = SB + data + EB + CR
-        self.transport.write(data.encode('utf-8'))
+        self.transport.write(data.encode("utf-8"))
         self.transport.loseConnection()
 
 
@@ -143,14 +149,19 @@ def format_datetime(d, fmt, default=None):
 
 def make_msh_segment(message_datetime):
     segment_id = u"MSH"
-    encoding_characters = (COMPONENT_SEPARATOR + REPETITION_SEPARATOR +
-                           ESCAPE_CHARACTER + SUBCOMPONENT_SEPARATOR)
+    encoding_characters = (
+        COMPONENT_SEPARATOR
+        + REPETITION_SEPARATOR
+        + ESCAPE_CHARACTER
+        + SUBCOMPONENT_SEPARATOR
+    )
     sending_application = u"hl7_dummy_server.py"
     sending_facility = ""
     receiving_application = ""
     receiving_facility = ""
-    date_time_of_message = format_datetime(message_datetime,
-                                           DATEFORMAT_HL7_DATETIME)
+    date_time_of_message = format_datetime(
+        message_datetime, DATEFORMAT_HL7_DATETIME
+    )
     security = ""
     message_type = u"ACK"
     message_control_id = "1"
@@ -194,8 +205,9 @@ def make_msh_segment(message_datetime):
 def make_msa_segment(message_datetime, success):
     segment_id = u"MSA"
     acknowledgement_code = u"AA" if success else u"AE"
-    message_control_id = format_datetime(message_datetime,
-                                         DATEFORMAT_HL7_DATETIME)
+    message_control_id = format_datetime(
+        message_datetime, DATEFORMAT_HL7_DATETIME
+    )
     test_mesage = u"Success" if success else u"Failure"
     expected_sequence_number = ""
     delayed_acknowledgement_type = ""
@@ -218,7 +230,7 @@ def make_hl7_ack(success):
     message_datetime = datetime.datetime.now(dateutil.tz.tzlocal())
     segments = [
         make_msh_segment(message_datetime),
-        make_msa_segment(message_datetime, success)
+        make_msa_segment(message_datetime, success),
     ]
     msg = hl7.Message(SEGMENT_SEPARATOR, segments)
     return msg
@@ -234,5 +246,5 @@ def main(port=2575):
     reactor.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

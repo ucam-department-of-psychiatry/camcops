@@ -39,7 +39,11 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
-    answer, get_yes_no, subheading_spanning_two_columns, tr, tr_qa
+    answer,
+    get_yes_no,
+    subheading_spanning_two_columns,
+    tr,
+    tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 
@@ -62,18 +66,26 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # PCL-5
 # =============================================================================
 
+
 class Pcl5Metaclass(DeclarativeMeta):
     """
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
+
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Pcl5'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Pcl5"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS,
-            minimum=0, maximum=4,
+            cls,
+            "q",
+            1,
+            cls.N_QUESTIONS,
+            minimum=0,
+            maximum=4,
             comment_fmt="Q{n} ({s}) (0 not at all - 4 extremely)",
             comment_strings=[
                 "disturbing memories/thoughts/images",
@@ -96,18 +108,18 @@ class Pcl5Metaclass(DeclarativeMeta):
                 "jumpy/easily startled",
                 "difficulty concentrating",
                 "hard to sleep",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Pcl5(TaskHasPatientMixin, Task,
-           metaclass=Pcl5Metaclass):
+class Pcl5(TaskHasPatientMixin, Task, metaclass=Pcl5Metaclass):
     """
     Server implementation of the PCL-5 task.
     """
-    __tablename__ = 'pcl5'
-    shortname = 'PCL-5'
+
+    __tablename__ = "pcl5"
+    shortname = "PCL-5"
     provides_trackers = True
     extrastring_taskname = "pcl5"
     N_QUESTIONS = 20
@@ -119,7 +131,7 @@ class Pcl5(TaskHasPatientMixin, Task,
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _('PTSD Checklist, DSM-5 version')
+        return _("PTSD Checklist, DSM-5 version")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -128,8 +140,8 @@ class Pcl5(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -138,34 +150,35 @@ class Pcl5(TaskHasPatientMixin, Task,
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         line_step = 20
         preliminary_cutoff = 33
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="PCL-5 total score",
-            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
-            axis_min=self.MIN_SCORE - 0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            axis_ticks=regular_tracker_axis_ticks_int(
-                self.MIN_SCORE,
-                self.MAX_SCORE,
-                step=line_step
-            ),
-            horizontal_lines=equally_spaced_int(
-                self.MIN_SCORE + line_step,
-                self.MAX_SCORE - line_step,
-                step=line_step
-            ) + [preliminary_cutoff],
-            horizontal_labels=[
-                TrackerLabel(preliminary_cutoff,
-                             self.wxstring(req, "preliminary_cutoff")),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PCL-5 total score",
+                axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
+                axis_min=self.MIN_SCORE - 0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                axis_ticks=regular_tracker_axis_ticks_int(
+                    self.MIN_SCORE, self.MAX_SCORE, step=line_step
+                ),
+                horizontal_lines=equally_spaced_int(
+                    self.MIN_SCORE + line_step,
+                    self.MAX_SCORE - line_step,
+                    step=line_step,
+                )
+                + [preliminary_cutoff],
+                horizontal_labels=[
+                    TrackerLabel(
+                        preliminary_cutoff,
+                        self.wxstring(req, "preliminary_cutoff"),
+                    )
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"PCL-5 total score {self.total_score()}"
-        )]
+        return [CtvInfo(content=f"PCL-5 total score {self.total_score()}")]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -173,42 +186,49 @@ class Pcl5(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})"),
+                comment=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
+            ),
             SummaryElement(
                 name="num_symptomatic",
                 coltype=Integer(),
                 value=self.num_symptomatic(),
                 comment="Total number of symptoms considered symptomatic "
-                        "(meaning scoring 2 or more)"),
+                "(meaning scoring 2 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_B",
                 coltype=Integer(),
                 value=self.num_symptomatic_b(),
                 comment="Number of group B symptoms considered symptomatic "
-                        "(meaning scoring 2 or more)"),
+                "(meaning scoring 2 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_C",
                 coltype=Integer(),
                 value=self.num_symptomatic_c(),
                 comment="Number of group C symptoms considered symptomatic "
-                        "(meaning scoring 2 or more)"),
+                "(meaning scoring 2 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_D",
                 coltype=Integer(),
                 value=self.num_symptomatic_d(),
                 comment="Number of group D symptoms considered symptomatic "
-                        "(meaning scoring 2 or more)"),
+                "(meaning scoring 2 or more)",
+            ),
             SummaryElement(
                 name="num_symptomatic_E",
                 coltype=Integer(),
                 value=self.num_symptomatic_e(),
                 comment="Number of group D symptoms considered symptomatic "
-                        "(meaning scoring 2 or more)"),
+                "(meaning scoring 2 or more)",
+            ),
             SummaryElement(
                 name="ptsd",
                 coltype=Boolean(),
                 value=self.ptsd(),
-                comment="Provisionally meets DSM-5 criteria for PTSD"),
+                comment="Provisionally meets DSM-5 criteria for PTSD",
+            ),
         ]
 
     def get_num_symptomatic(self, first: int, last: int) -> int:
@@ -240,10 +260,10 @@ class Pcl5(TaskHasPatientMixin, Task,
         num_symptomatic_d = self.num_symptomatic_d()
         num_symptomatic_e = self.num_symptomatic_e()
         return (
-            num_symptomatic_b >= 1 and
-            num_symptomatic_c >= 1 and
-            num_symptomatic_d >= 2 and
-            num_symptomatic_e >= 2
+            num_symptomatic_b >= 1
+            and num_symptomatic_c >= 1
+            and num_symptomatic_d >= 2
+            and num_symptomatic_e >= 2
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -256,15 +276,16 @@ class Pcl5(TaskHasPatientMixin, Task,
         ptsd = self.ptsd()
         answer_dict = {None: None}
         for option in range(5):
-            answer_dict[option] = str(option) + " – " + \
-                self.wxstring(req, "a" + str(option))
+            answer_dict[option] = (
+                str(option) + " – " + self.wxstring(req, "a" + str(option))
+            )
         q_a = ""
 
         section_start = {
-            1: 'B (intrusion symptoms)',
-            6: 'C (avoidance)',
-            8: 'D (negative cognition/mood)',
-            15: 'E (arousal/reactivity)'
+            1: "B (intrusion symptoms)",
+            6: "C (avoidance)",
+            8: "D (negative cognition/mood)",
+            15: "E (arousal/reactivity)",
         }
 
         for q in range(1, self.N_QUESTIONS + 1):
@@ -276,7 +297,7 @@ class Pcl5(TaskHasPatientMixin, Task,
 
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             )
 
         h = """
@@ -304,20 +325,23 @@ class Pcl5(TaskHasPatientMixin, Task,
         """.format(  # noqa
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr_qa(
-                f"{req.sstring(SS.TOTAL_SCORE)} (0–80)",
-                score
-            ),
+            total_score=tr_qa(f"{req.sstring(SS.TOTAL_SCORE)} (0–80)", score),
             num_symptomatic=tr(
                 "Number symptomatic <sup>[1]</sup>: B, C, D, E (total)",
-                answer(num_symptomatic_b) + ", " +
-                answer(num_symptomatic_c) + ", " +
-                answer(num_symptomatic_d) + ", " +
-                answer(num_symptomatic_e) + " (" + answer(num_symptomatic) + ")"  # noqa
+                answer(num_symptomatic_b)
+                + ", "
+                + answer(num_symptomatic_c)
+                + ", "
+                + answer(num_symptomatic_d)
+                + ", "
+                + answer(num_symptomatic_e)
+                + " ("
+                + answer(num_symptomatic)
+                + ")",
             ),
             dsm_criteria_met=tr_qa(
                 self.wxstring(req, "dsm_criteria_met") + " <sup>[2]</sup>",
-                get_yes_no(req, ptsd)
+                get_yes_no(req, ptsd),
             ),
             q_a=q_a,
         )

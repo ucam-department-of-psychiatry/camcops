@@ -39,6 +39,7 @@ from os import pardir
 from os.path import abspath, dirname, join
 import sys
 
+
 # =============================================================================
 # Environment variable names
 # =============================================================================
@@ -59,7 +60,9 @@ DEFORM_SUPPORTS_CSP_NONCE = False
 # =============================================================================
 
 _this_directory = dirname(abspath(__file__))  # cc_modules
-CAMCOPS_SERVER_DIRECTORY = abspath(join(_this_directory, pardir))  # camcops_server  # noqa
+CAMCOPS_SERVER_DIRECTORY = abspath(
+    join(_this_directory, pardir)
+)  # camcops_server
 
 if ENVVAR_GENERATING_CAMCOPS_DOCS in os.environ:
     CAMCOPS_SERVER_DIRECTORY = "/path/to/camcops/server"
@@ -79,7 +82,8 @@ LINUX_DEFAULT_USER_DOWNLOAD_DIR = "/var/tmp/camcops"
 
 PROHIBITED_PASSWORDS_FILE = join(
     CAMCOPS_SERVER_DIRECTORY,
-    "prohibited_passwords", "PwnedPasswordsTop100k.txt"
+    "prohibited_passwords",
+    "PwnedPasswordsTop100k.txt",
 )
 
 STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, "static")
@@ -92,16 +96,16 @@ TRANSLATIONS_DIR = join(CAMCOPS_SERVER_DIRECTORY, "translations")
 # Filenames
 # =============================================================================
 
-if hasattr(sys, 'real_prefix'):
+if hasattr(sys, "real_prefix"):
     # We're running in a virtual environment.
     # https://stackoverflow.com/questions/1871549/python-determine-if-running-inside-virtualenv
     _venv = sys.prefix
-    _venv_bin = join(_venv, 'bin')
+    _venv_bin = join(_venv, "bin")
     CAMCOPS_EXECUTABLE = join(_venv_bin, "camcops")
 else:
     CAMCOPS_EXECUTABLE = "camcops"  # fallback; may not work
 
-ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, 'alembic.ini')
+ALEMBIC_CONFIG_FILENAME = join(ALEMBIC_BASE_DIR, "alembic.ini")
 
 
 # =============================================================================
@@ -123,7 +127,7 @@ DOCUMENTATION_URL = "https://camcops.readthedocs.io/"
 # =============================================================================
 
 # Is this program running on readthedocs.org?
-ON_READTHEDOCS = os.environ.get('READTHEDOCS') == 'True'
+ON_READTHEDOCS = os.environ.get("READTHEDOCS") == "True"
 ENVVARS_PROHIBITED_DURING_DOC_BUILD = (
     "LCONVERT",  # for build_client_translations.py
     "LRELEASE",  # for build_client_translations.py

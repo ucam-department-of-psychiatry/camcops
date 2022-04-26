@@ -100,8 +100,17 @@ Also notes:
 
 import json
 import logging
-from typing import (Any, Generator, List, Optional, Sequence,
-                    Tuple, Type, TYPE_CHECKING, Union)
+from typing import (
+    Any,
+    Generator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 import uuid
 
 from cardinal_pythonlib.datetimefunc import (
@@ -112,9 +121,7 @@ from cardinal_pythonlib.datetimefunc import (
     PotentialDatetimeType,
 )
 from cardinal_pythonlib.lists import chunks
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
@@ -123,7 +130,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import (
     fail_unknown_dialect,
-    fetch_processed_single_clause
+    fetch_processed_single_clause,
 )
 from isodate.isoerror import ISO8601Error
 from pendulum import DateTime as Pendulum, Duration
@@ -161,7 +168,9 @@ from camcops_server.cc_modules.cc_version import make_version
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement  # noqa: F401
     from sqlalchemy.sql.compiler import SQLCompiler  # noqa: F401
-    from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_db import (
+        GenericTabletRecordMixin,
+    )  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -177,12 +186,16 @@ DEBUG_INT_LIST_COLTYPE = False
 DEBUG_SEMANTIC_VERSION = False
 DEBUG_STRING_LIST_COLTYPE = False
 
-if any([DEBUG_DATETIME_AS_ISO_TEXT,
+if any(
+    [
+        DEBUG_DATETIME_AS_ISO_TEXT,
         DEBUG_DURATION_AS_ISO_TEXT,
         DEBUG_SEMANTIC_VERSION,
         DEBUG_IDNUMDEF_LIST,
         DEBUG_INT_LIST_COLTYPE,
-        DEBUG_STRING_LIST_COLTYPE]):
+        DEBUG_STRING_LIST_COLTYPE,
+    ]
+):
     log.warning("Debugging options enabled!")
 
 
@@ -190,12 +203,14 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
 # Constants
 # =============================================================================
 
+
 class RelationshipInfo(object):
     """
     Used as keys the ``info`` (user-defined) dictionary parameter to SQLAlchemy
     ``relationship`` calls; see
     https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.
     """  # noqa
+
     IS_ANCILLARY = "is_ancillary"
     IS_BLOB = "is_blob"
 
@@ -225,16 +240,19 @@ DiagnosticCodeColType = String(length=StringLengths.DIAGNOSTIC_CODE_MAX_LEN)
 EmailAddressColType = Unicode(length=StringLengths.EMAIL_ADDRESS_MAX_LEN)
 EraColType = String(length=StringLengths.ISO8601_DATETIME_STRING_MAX_LEN)
 ExportRecipientNameColType = String(
-    length=StringLengths.EXPORT_RECIPIENT_NAME_MAX_LEN)
+    length=StringLengths.EXPORT_RECIPIENT_NAME_MAX_LEN
+)
 ExportTransmissionMethodColType = String(
-    length=StringLengths.SENDING_FORMAT_MAX_LEN)
+    length=StringLengths.SENDING_FORMAT_MAX_LEN
+)
 
 FilterTextColType = Unicode(length=StringLengths.FILTER_TEXT_MAX_LEN)
 FileSpecColType = Unicode(length=StringLengths.FILESPEC_MAX_LEN)
 FullNameColType = Unicode(length=StringLengths.FULLNAME_MAX_LEN)
 
 GroupDescriptionColType = Unicode(
-    length=StringLengths.GROUP_DESCRIPTION_MAX_LEN)
+    length=StringLengths.GROUP_DESCRIPTION_MAX_LEN
+)
 GroupNameColType = Unicode(length=StringLengths.GROUP_NAME_MAX_LEN)
 
 HashedPasswordColType = String(length=StringLengths.HASHED_PW_MAX_LEN)
@@ -282,7 +300,8 @@ Rfc2822DateColType = String(length=StringLengths.RFC_2822_DATE_MAX_LEN)
 SessionTokenColType = String(length=StringLengths.SESSION_TOKEN_MAX_LEN)
 SexColType = String(length=1)
 SummaryCategoryColType = String(
-    length=StringLengths.TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN)
+    length=StringLengths.TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN
+)
 # ... pretty generic
 
 TableNameColType = String(length=StringLengths.TABLENAME_MAX_LEN)
@@ -290,7 +309,8 @@ TableNameColType = String(length=StringLengths.TABLENAME_MAX_LEN)
 UrlColType = String(length=StringLengths.URL_MAX_LEN)
 UserNameCamcopsColType = String(length=StringLengths.USERNAME_CAMCOPS_MAX_LEN)
 UserNameExternalColType = String(
-    length=StringLengths.USERNAME_EXTERNAL_MAX_LEN)
+    length=StringLengths.USERNAME_EXTERNAL_MAX_LEN
+)
 
 
 # =============================================================================
@@ -329,15 +349,16 @@ class isotzdatetime_to_utcdatetime(FunctionElement):
 
     Implemented for different SQL dialects.
     """
+
     type = DateTime()
-    name = 'isotzdatetime_to_utcdatetime'
+    name = "isotzdatetime_to_utcdatetime"
 
 
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime)
 def isotzdatetime_to_utcdatetime_default(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> None:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> None:
     """
     Default implementation for :class:`isotzdatetime_to_utcdatetime`: fail.
     """
@@ -347,8 +368,8 @@ def isotzdatetime_to_utcdatetime_default(
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.MYSQL)
 def isotzdatetime_to_utcdatetime_mysql(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> str:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for MySQL.
 
@@ -382,8 +403,8 @@ def isotzdatetime_to_utcdatetime_mysql(
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.SQLITE)
 def isotzdatetime_to_utcdatetime_sqlite(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> str:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for SQLite.
 
@@ -436,8 +457,8 @@ def isotzdatetime_to_utcdatetime_sqlite(
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.SQLSERVER)
 def isotzdatetime_to_utcdatetime_sqlserver(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> str:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for SQL Server.
 
@@ -568,15 +589,16 @@ class unknown_field_to_utcdatetime(FunctionElement):
 
     Implemented for different SQL dialects.
     """
+
     type = DateTime()
-    name = 'unknown_field_to_utcdatetime'
+    name = "unknown_field_to_utcdatetime"
 
 
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime)
 def unknown_field_to_utcdatetime_default(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> None:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> None:
     """
     Default implementation for :class:`unknown_field_to_utcdatetime`: fail.
     """
@@ -586,8 +608,8 @@ def unknown_field_to_utcdatetime_default(
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime, SqlaDialectName.MYSQL)
 def unknown_field_to_utcdatetime_mysql(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> str:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> str:
     """
     Implementation of :class:`unknown_field_to_utcdatetime` for MySQL.
 
@@ -604,8 +626,8 @@ def unknown_field_to_utcdatetime_mysql(
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime, SqlaDialectName.SQLITE)
 def unknown_field_to_utcdatetime_sqlite(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> str:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> str:
     """
     Implementation of :class:`unknown_field_to_utcdatetime` for SQLite.
     """
@@ -619,8 +641,8 @@ def unknown_field_to_utcdatetime_sqlite(
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime, SqlaDialectName.SQLSERVER)
 def unknown_field_to_utcdatetime_sqlserver(
-        element: "ClauseElement",
-        compiler: "SQLCompiler", **kw) -> str:
+    element: "ClauseElement", compiler: "SQLCompiler", **kw
+) -> str:
     """
     Implementation of :class:`unknown_field_to_utcdatetime` for SQL Server.
 
@@ -653,6 +675,7 @@ def unknown_field_to_utcdatetime_sqlserver(
 # pendulum.DateTime on the Python side.
 # =============================================================================
 
+
 class PendulumDateTimeAsIsoTextColType(TypeDecorator):
     """
     Stores date/time values as ISO-8601, in a specific format.
@@ -680,7 +703,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         # https://docs.python.org/3.4/library/datetime.html#strftime-strptime-behavior  # noqa
         x = coerce_to_pendulum(x)
         try:
-            mainpart = x.strftime("%Y-%m-%dT%H:%M:%S.%f")  # microsecond accuracy  # noqa
+            mainpart = x.strftime(
+                "%Y-%m-%dT%H:%M:%S.%f"
+            )  # microsecond accuracy
             timezone = x.strftime("%z")  # won't have the colon in
             return mainpart + timezone[:-2] + ":" + timezone[-2:]
         except AttributeError:
@@ -697,8 +722,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             log.warning("Bad ISO date/time string: {!r}", x)
             return None
 
-    def process_bind_param(self, value: Optional[Pendulum],
-                           dialect: Dialect) -> Optional[str]:
+    def process_bind_param(
+        self, value: Optional[Pendulum], dialect: Dialect
+    ) -> Optional[str]:
         """
         Convert parameters on the way from Python to the database.
         """
@@ -707,11 +733,17 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_literal_param(self, value: Optional[Pendulum],
-                              dialect: Dialect) -> Optional[str]:
+    def process_literal_param(
+        self, value: Optional[Pendulum], dialect: Dialect
+    ) -> Optional[str]:
         """
         Convert literals on the way from Python to the database.
         """
@@ -720,11 +752,17 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> Optional[Pendulum]:
+    def process_result_value(
+        self, value: Optional[str], dialect: Dialect
+    ) -> Optional[Pendulum]:
         """
         Convert things on the way from the database to Python.
         """
@@ -733,7 +771,12 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
     # noinspection PyPep8Naming
@@ -761,7 +804,8 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             other = other[0]
             try:
                 processed_other = convert_datetime_to_utc(
-                    coerce_to_pendulum(other))
+                    coerce_to_pendulum(other)
+                )
                 # - If you try to call a dialect-specialized FunctionElement,
                 #   it processes the clause to "?" (meaning "attach bind
                 #   parameter here"); it's not the value itself.
@@ -776,13 +820,13 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # DATETIME, then we assume it is already in UTC.
                 processed_other = unknown_field_to_utcdatetime(other)
             if DEBUG_DATETIME_AS_ISO_TEXT:
-                log.debug("operate(self={!r}, op={!r}, other={!r})",
-                          self, op, other)
+                log.debug(
+                    "operate(self={!r}, op={!r}, other={!r})", self, op, other
+                )
                 log.debug("self.expr = {!r}", self.expr)
                 log.debug("processed_other = {!r}", processed_other)
                 # traceback.print_stack()
-            return op(isotzdatetime_to_utcdatetime(self.expr),
-                      processed_other)
+            return op(isotzdatetime_to_utcdatetime(self.expr), processed_other)
 
         def reverse_operate(self, op, *other, **kwargs):
             assert False, "I don't think this is ever being called"
@@ -792,6 +836,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 # Custom duration field as ISO-8601 text, using pendulum.Duration on the Python
 # side.
 # =============================================================================
+
 
 class PendulumDurationAsIsoTextColType(TypeDecorator):
     """
@@ -819,8 +864,9 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         if x is None:
             return None
-        return duration_to_iso(x, permit_years_months=True,
-                               minus_sign_at_front=True)
+        return duration_to_iso(
+            x, permit_years_months=True, minus_sign_at_front=True
+        )
 
     @staticmethod
     def isostring_to_pendulum_duration(x: Optional[str]) -> Optional[Duration]:
@@ -835,8 +881,9 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
             log.warning("Bad ISO duration string: {!r}", x)
             return None
 
-    def process_bind_param(self, value: Optional[Pendulum],
-                           dialect: Dialect) -> Optional[str]:
+    def process_bind_param(
+        self, value: Optional[Pendulum], dialect: Dialect
+    ) -> Optional[str]:
         """
         Convert parameters on the way from Python to the database.
         """
@@ -845,11 +892,17 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
             log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_literal_param(self, value: Optional[Pendulum],
-                              dialect: Dialect) -> Optional[str]:
+    def process_literal_param(
+        self, value: Optional[Pendulum], dialect: Dialect
+    ) -> Optional[str]:
         """
         Convert literals on the way from Python to the database.
         """
@@ -858,11 +911,17 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
             log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> Optional[Pendulum]:
+    def process_result_value(
+        self, value: Optional[str], dialect: Dialect
+    ) -> Optional[Pendulum]:
         """
         Convert things on the way from the database to Python.
         """
@@ -871,7 +930,12 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
             log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
     # No comparator_factory; we do not use SQL to compare ISO durations.
@@ -880,6 +944,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
 # =============================================================================
 # Semantic version column type
 # =============================================================================
+
 
 class SemanticVersionColType(TypeDecorator):
     """
@@ -898,8 +963,9 @@ class SemanticVersionColType(TypeDecorator):
         """
         return Version
 
-    def process_bind_param(self, value: Optional[Version],
-                           dialect: Dialect) -> Optional[str]:
+    def process_bind_param(
+        self, value: Optional[Version], dialect: Dialect
+    ) -> Optional[str]:
         """
         Convert parameters on the way from Python to the database.
         """
@@ -908,11 +974,17 @@ class SemanticVersionColType(TypeDecorator):
             log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_literal_param(self, value: Optional[Version],
-                              dialect: Dialect) -> Optional[str]:
+    def process_literal_param(
+        self, value: Optional[Version], dialect: Dialect
+    ) -> Optional[str]:
         """
         Convert literals on the way from Python to the database.
         """
@@ -921,11 +993,17 @@ class SemanticVersionColType(TypeDecorator):
             log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> Optional[Version]:
+    def process_result_value(
+        self, value: Optional[str], dialect: Dialect
+    ) -> Optional[Version]:
         """
         Convert things on the way from the database to Python.
         """
@@ -940,7 +1018,12 @@ class SemanticVersionColType(TypeDecorator):
             log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
     '''
@@ -980,6 +1063,7 @@ class SemanticVersionColType(TypeDecorator):
 # IdNumReferenceListColType
 # =============================================================================
 
+
 class IdNumReferenceListColType(TypeDecorator):
     """
     Stores a list of IdNumReference objects.
@@ -998,7 +1082,8 @@ class IdNumReferenceListColType(TypeDecorator):
 
     @staticmethod
     def _idnumdef_list_to_dbstr(
-            idnumdef_list: Optional[List[IdNumReference]]) -> str:
+        idnumdef_list: Optional[List[IdNumReference]]
+    ) -> str:
         """
         Converts an optional list of
         :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`
@@ -1030,12 +1115,16 @@ class IdNumReferenceListColType(TypeDecorator):
         for which_idnum, idnum_value in chunks(intlist, n=2):
             if which_idnum < 0 or idnum_value < 0:  # enforce positive integers
                 return []
-            idnumdef_list.append(IdNumReference(which_idnum=which_idnum,
-                                                idnum_value=idnum_value))
+            idnumdef_list.append(
+                IdNumReference(
+                    which_idnum=which_idnum, idnum_value=idnum_value
+                )
+            )
         return idnumdef_list
 
-    def process_bind_param(self, value: Optional[List[IdNumReference]],
-                           dialect: Dialect) -> str:
+    def process_bind_param(
+        self, value: Optional[List[IdNumReference]], dialect: Dialect
+    ) -> str:
         """
         Convert parameters on the way from Python to the database.
         """
@@ -1044,11 +1133,17 @@ class IdNumReferenceListColType(TypeDecorator):
             log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_literal_param(self, value: Optional[List[IdNumReference]],
-                              dialect: Dialect) -> str:
+    def process_literal_param(
+        self, value: Optional[List[IdNumReference]], dialect: Dialect
+    ) -> str:
         """
         Convert literals on the way from Python to the database.
         """
@@ -1057,11 +1152,17 @@ class IdNumReferenceListColType(TypeDecorator):
             log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
-    def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> List[IdNumReference]:
+    def process_result_value(
+        self, value: Optional[str], dialect: Dialect
+    ) -> List[IdNumReference]:
         """
         Convert things on the way from the database to Python.
         """
@@ -1070,13 +1171,19 @@ class IdNumReferenceListColType(TypeDecorator):
             log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
-                self._coltype_name, self, value, dialect, retval)
+                self._coltype_name,
+                self,
+                value,
+                dialect,
+                retval,
+            )
         return retval
 
 
 # =============================================================================
 # UUID column type
 # =============================================================================
+
 
 class UuidColType(TypeDecorator):
     # Based on:
@@ -1089,15 +1196,17 @@ class UuidColType(TypeDecorator):
     def python_type(self) -> type:
         return str
 
-    def process_bind_param(self, value: uuid.UUID,
-                           dialect: Dialect) -> Optional[str]:
+    def process_bind_param(
+        self, value: uuid.UUID, dialect: Dialect
+    ) -> Optional[str]:
         if value is None:
             return None
 
         return "%.32x" % value.int
 
-    def process_result_value(self, value: Optional[str],
-                             dialect: Dialect) -> Optional[uuid.UUID]:
+    def process_result_value(
+        self, value: Optional[str], dialect: Dialect
+    ) -> Optional[uuid.UUID]:
         if value is None:
             return None
 
@@ -1107,6 +1216,7 @@ class UuidColType(TypeDecorator):
 # =============================================================================
 # JSON column type
 # =============================================================================
+
 
 class JsonColType(TypeDecorator):
     # Unlike
@@ -1118,8 +1228,9 @@ class JsonColType(TypeDecorator):
     def python_type(self) -> type:
         return str
 
-    def process_bind_param(self, value: Any,
-                           dialect: Dialect) -> Optional[str]:
+    def process_bind_param(
+        self, value: Any, dialect: Dialect
+    ) -> Optional[str]:
         if value is None:
             return None
 
@@ -1136,6 +1247,7 @@ class JsonColType(TypeDecorator):
 # Phone number column type
 # =============================================================================
 
+
 class PhoneNumberColType(TypeDecorator):
     impl = Unicode(length=StringLengths.PHONE_NUMBER_MAX_LEN)
 
@@ -1143,13 +1255,15 @@ class PhoneNumberColType(TypeDecorator):
     def python_type(self) -> type:
         return str
 
-    def process_bind_param(self, value: Any,
-                           dialect: Dialect) -> Optional[str]:
+    def process_bind_param(
+        self, value: Any, dialect: Dialect
+    ) -> Optional[str]:
         if value is None:
             return None
 
-        return phonenumbers.format_number(value,
-                                          phonenumbers.PhoneNumberFormat.E164)
+        return phonenumbers.format_number(
+            value, phonenumbers.PhoneNumberFormat.E164
+        )
 
     def process_result_value(self, value: str, dialect: Dialect) -> Any:
         if not value:
@@ -1163,16 +1277,20 @@ class PhoneNumberColType(TypeDecorator):
 # PermittedValueChecker: used by CamcopsColumn
 # =============================================================================
 
+
 class PermittedValueChecker(object):
     """
     Represents permitted values (in columns belonging to CamCOPS tasks), and
     checks a value against them.
     """
-    def __init__(self,
-                 not_null: bool = False,
-                 minimum: Union[int, float] = None,
-                 maximum: Union[int, float] = None,
-                 permitted_values: Sequence[Any] = None) -> None:
+
+    def __init__(
+        self,
+        not_null: bool = False,
+        minimum: Union[int, float] = None,
+        maximum: Union[int, float] = None,
+        permitted_values: Sequence[Any] = None,
+    ) -> None:
         """
         Args:
             not_null: must the value not be NULL?
@@ -1193,7 +1311,10 @@ class PermittedValueChecker(object):
             return not self.not_null
             # If not_null is True, then the value is not OK; return False.
             # If not_null is False, then a null value passes all other tests.
-        if self.permitted_values is not None and value not in self.permitted_values:  # noqa
+        if (
+            self.permitted_values is not None
+            and value not in self.permitted_values
+        ):
             return False
         if self.minimum is not None and value < self.minimum:
             return False
@@ -1210,7 +1331,10 @@ class PermittedValueChecker(object):
                 return "value is None and NULL values are not permitted"
             else:
                 return ""  # value is OK
-        if self.permitted_values is not None and value not in self.permitted_values:  # noqa
+        if (
+            self.permitted_values is not None
+            and value not in self.permitted_values
+        ):
             return (
                 f"value {value!r} not in permitted values "
                 f"{self.permitted_values!r}"
@@ -1292,15 +1416,18 @@ class CamcopsColumn(Column):
     - which values are permitted in the field (in a soft sense: duff values
       cause errors to be reported, but they're still stored).
     """
-    def __init__(self,
-                 *args,
-                 include_in_anon_staging_db: bool = False,
-                 exempt_from_anonymisation: bool = False,
-                 identifies_patient: bool = False,
-                 is_blob_id_field: bool = False,
-                 blob_relationship_attr_name: str = "",
-                 permitted_value_checker: PermittedValueChecker = None,
-                 **kwargs) -> None:
+
+    def __init__(
+        self,
+        *args,
+        include_in_anon_staging_db: bool = False,
+        exempt_from_anonymisation: bool = False,
+        identifies_patient: bool = False,
+        is_blob_id_field: bool = False,
+        blob_relationship_attr_name: str = "",
+        permitted_value_checker: PermittedValueChecker = None,
+        **kwargs,
+    ) -> None:
         """
 
         Args:
@@ -1340,7 +1467,8 @@ class CamcopsColumn(Column):
         if is_blob_id_field:
             assert blob_relationship_attr_name, (
                 "If specifying a BLOB ID field, must give the attribute name "
-                "of the relationship too")
+                "of the relationship too"
+            )
         super().__init__(*args, **kwargs)
 
     def _constructor(self, *args, **kwargs) -> "CamcopsColumn":
@@ -1351,11 +1479,13 @@ class CamcopsColumn(Column):
         See
         https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
         """  # noqa
-        kwargs['include_in_anon_staging_db'] = self.include_in_anon_staging_db
-        kwargs['exempt_from_anonymisation'] = self.exempt_from_anonymisation
-        kwargs['identifies_patient'] = self.identifies_patient
-        kwargs['is_blob_id_field'] = self.is_blob_id_field
-        kwargs['blob_relationship_attr_name'] = self.blob_relationship_attr_name  # noqa
+        kwargs["include_in_anon_staging_db"] = self.include_in_anon_staging_db
+        kwargs["exempt_from_anonymisation"] = self.exempt_from_anonymisation
+        kwargs["identifies_patient"] = self.identifies_patient
+        kwargs["is_blob_id_field"] = self.is_blob_id_field
+        kwargs[
+            "blob_relationship_attr_name"
+        ] = self.blob_relationship_attr_name  # noqa
         kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = self.permitted_value_checker
         # noinspection PyTypeChecker
         return self.__class__(*args, **kwargs)
@@ -1363,6 +1493,7 @@ class CamcopsColumn(Column):
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
             return f"{attrname}={getattr(self, attrname)!r}"
+
         elements = [
             kvp("include_in_anon_staging_db"),
             kvp("exempt_from_anonymisation"),
@@ -1375,7 +1506,8 @@ class CamcopsColumn(Column):
         return f"CamcopsColumn({', '.join(elements)})"
 
     def set_permitted_value_checker(
-            self, permitted_value_checker: PermittedValueChecker) -> None:
+        self, permitted_value_checker: PermittedValueChecker
+    ) -> None:
         """
         Sets the :class:`PermittedValueChecker` attribute.
         """
@@ -1386,8 +1518,10 @@ class CamcopsColumn(Column):
 # Operate on Column/CamcopsColumn properties
 # =============================================================================
 
-def gen_columns_matching_attrnames(obj, attrnames: List[str]) \
-        -> Generator[Tuple[str, Column], None, None]:
+
+def gen_columns_matching_attrnames(
+    obj, attrnames: List[str]
+) -> Generator[Tuple[str, Column], None, None]:
     """
     Find columns of an SQLAlchemy ORM object whose attribute names match a
     list.
@@ -1405,8 +1539,9 @@ def gen_columns_matching_attrnames(obj, attrnames: List[str]) \
             yield attrname, column
 
 
-def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
-                                          None, None]:
+def gen_camcops_columns(
+    obj
+) -> Generator[Tuple[str, CamcopsColumn], None, None]:
     """
     Finds all columns of an object that are
     :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns.
@@ -1422,8 +1557,9 @@ def gen_camcops_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
             yield attrname, column
 
 
-def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
-                                               None, None]:
+def gen_camcops_blob_columns(
+    obj
+) -> Generator[Tuple[str, CamcopsColumn], None, None]:
     """
     Finds all columns of an object that are
     :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns
@@ -1438,8 +1574,12 @@ def gen_camcops_blob_columns(obj) -> Generator[Tuple[str, CamcopsColumn],
     for attrname, column in gen_camcops_columns(obj):
         if column.is_blob_id_field:
             if attrname != column.name:
-                log.warning("BLOB field where attribute name {!r} != SQL "
-                            "column name {!r}", attrname, column.name)
+                log.warning(
+                    "BLOB field where attribute name {!r} != SQL "
+                    "column name {!r}",
+                    attrname,
+                    column.name,
+                )
             yield attrname, column
 
 
@@ -1481,14 +1621,15 @@ def permitted_value_failure_msgs(obj) -> List[str]:
     """
     failure_msgs = []
     for attrname, camcops_column in gen_camcops_columns(obj):
-        pv_checker = camcops_column.permitted_value_checker  # type: Optional[PermittedValueChecker]  # noqa
+        pv_checker = (
+            camcops_column.permitted_value_checker
+        )  # type: Optional[PermittedValueChecker]
         if pv_checker is None:
             continue
         value = getattr(obj, attrname)
         failure_msg = pv_checker.failure_msg(value)
         if failure_msg:
-            failure_msgs.append(
-                f"Invalid value for {attrname}: {failure_msg}")
+            failure_msgs.append(f"Invalid value for {attrname}: {failure_msg}")
     return failure_msgs
 
 
@@ -1501,7 +1642,9 @@ def permitted_values_ok(obj) -> bool:
     :func:`permitted_value_failure_msgs`.
     """
     for attrname, camcops_column in gen_camcops_columns(obj):
-        pv_checker = camcops_column.permitted_value_checker  # type: Optional[PermittedValueChecker]  # noqa
+        pv_checker = (
+            camcops_column.permitted_value_checker
+        )  # type: Optional[PermittedValueChecker]
         if pv_checker is None:
             continue
         value = getattr(obj, attrname)
@@ -1510,9 +1653,13 @@ def permitted_values_ok(obj) -> bool:
     return True
 
 
-def gen_ancillary_relationships(obj) -> Generator[
-        Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
-        None, None]:
+def gen_ancillary_relationships(
+    obj
+) -> Generator[
+    Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
+    None,
+    None,
+]:
     """
     For an SQLAlchemy ORM object, yields tuples of ``attrname,
     relationship_property, related_class`` for all relationships that are
@@ -1523,9 +1670,13 @@ def gen_ancillary_relationships(obj) -> Generator[
             yield attrname, rel_prop, related_class
 
 
-def gen_blob_relationships(obj) -> Generator[
-        Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
-        None, None]:
+def gen_blob_relationships(
+    obj
+) -> Generator[
+    Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
+    None,
+    None,
+]:
     """
     For an SQLAlchemy ORM object, yields tuples of ``attrname,
     relationship_property, related_class`` for all relationships that are
@@ -1539,6 +1690,7 @@ def gen_blob_relationships(obj) -> Generator[
 # =============================================================================
 # Specializations of CamcopsColumn to save typing
 # =============================================================================
+
 
 def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
     """
@@ -1579,6 +1731,7 @@ class BoolColumn(CamcopsColumn):
     A :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`
     representing a boolean value.
     """
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Must pass on all arguments, ultimately to Column, or when using
         # AbstractConcreteBase, you can get this:
@@ -1595,30 +1748,35 @@ class BoolColumn(CamcopsColumn):
         # in args, so we must handle that, too...
 
         _, type_in_args = _name_type_in_column_args(args)
-        self.constraint_name = kwargs.pop("constraint_name", None)  # type: Optional[str]  # noqa
+        self.constraint_name = kwargs.pop(
+            "constraint_name", None
+        )  # type: Optional[str]
         if not type_in_args:
             if self.constraint_name:
                 constraint_name_conv = conv(self.constraint_name)
                 # ... see help for ``conv``
             else:
                 constraint_name_conv = None
-            kwargs['type_'] = Boolean(name=constraint_name_conv)
+            kwargs["type_"] = Boolean(name=constraint_name_conv)
             # The "name" parameter to Boolean() specifies the  name of the
             # (0, 1) constraint.
         kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = BIT_CHECKER
         super().__init__(*args, **kwargs)
-        if (not self.constraint_name and
-                len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):
-            log.warning("BoolColumn with long column name and no constraint "
-                        "name: {!r}", self.name)
+        if (
+            not self.constraint_name
+            and len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT
+        ):
+            log.warning(
+                "BoolColumn with long column name and no constraint "
+                "name: {!r}",
+                self.name,
+            )
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
             return f"{attrname}={getattr(self, attrname)!r}"
-        elements = [
-            kvp("constraint_name"),
-            f"super()={super().__repr__()}",
-        ]
+
+        elements = [kvp("constraint_name"), f"super()={super().__repr__()}"]
         return f"BoolColumn({', '.join(elements)})"
 
     def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":

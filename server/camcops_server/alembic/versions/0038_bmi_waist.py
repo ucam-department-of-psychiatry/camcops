@@ -47,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0038'
-down_revision = '0037'
+revision = "0038"
+down_revision = "0037"
 branch_labels = None
 depends_on = None
 
@@ -59,11 +59,18 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('bmi', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('waist_cm', sa.Float(), nullable=True, comment='waist circumference (cm)'))
+    with op.batch_alter_table("bmi", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "waist_cm",
+                sa.Float(),
+                nullable=True,
+                comment="waist circumference (cm)",
+            )
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('bmi', schema=None) as batch_op:
-        batch_op.drop_column('waist_cm')
+    with op.batch_alter_table("bmi", schema=None) as batch_op:
+        batch_op.drop_column("waist_cm")
