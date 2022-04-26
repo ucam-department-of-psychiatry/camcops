@@ -89,7 +89,7 @@ permitted for these contexts.
   unique access key, and a unique URL that patients can use the first time they
   launch the app. This last option will register their patient automatically
   with the server, without the need to enter the server and access key (Android
-  only).
+  and iOS only).
 
 - Next add items to your schedule (:menuselection:`Edit items` from the table
   of schedules):
