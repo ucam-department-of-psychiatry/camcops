@@ -172,7 +172,7 @@ Modifications
   reduced activity (items 7, 11, 13, 19), reduced motivation (items 3, 6, 10,
   17), and mental fatigue (items 4, 9, 15, 18)."
 
-  Per https://github.com/RudolfCardinal/camcops/issues/199, from
+  Per https://github.com/ucam-department-of-psychiatry/camcops/issues/199, from
   https://github.com/pjbulls, on 7 Sep 2021:
 
   The grouping of MFI-20 questions into categories (general, physical,

@@ -56,7 +56,7 @@ from semantic_version import Version
 log = logging.getLogger(__name__)
 
 
-REPOSITORY = "https://github.com/RudolfCardinal/camcops"
+REPOSITORY = "https://github.com/ucam-department-of-psychiatry/camcops"
 
 
 def main() -> None:

@@ -2219,7 +2219,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix for SQL ``DATETIME`` columns when used via database URLs like
   ``mysql+mysqldb://..`` rather than ``mysql+pymysql://``.
 
-  - Bug report: https://github.com/RudolfCardinal/camcops/issues/2 -- with
+  - Bug report: https://github.com/ucam-department-of-psychiatry/camcops/issues/2 -- with
     thanks to Martin Burchell.
   - Symptom: when running e.g. ``camcops_server make_superuser``, crashes with
     error ``sqlalchemy.exc.OperationalError:
@@ -3071,7 +3071,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - It will erroneously report its version as 2.4.1
   - It won't report incompatibility with server >= v2.4.0. See
-    https://github.com/RudolfCardinal/camcops/issues/137
+    https://github.com/ucam-department-of-psychiatry/camcops/issues/137
   - Minor cosmetic differences in the display of dialogs
   - MoCA functionality still present (see below)
 
@@ -3099,18 +3099,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix two bugs when deleting patients created on the server:
 
   - It was impossible to delete an already registered patient
-    https://github.com/RudolfCardinal/camcops/issues/143
+    https://github.com/ucam-department-of-psychiatry/camcops/issues/143
     (Database revision 0060)
 
   - Deleting a patient created on the server would delete ID numbers from
     unrelated patients. This is because the entries in the patient_idnum table
     were being created with the id field set to zero.
-    https://github.com/RudolfCardinal/camcops/issues/144
+    https://github.com/ucam-department-of-psychiatry/camcops/issues/144
     (Database revision 0061 assigns correct ids to any entries that require them)
 
 - Fix bug where patient ID numbers were not always displayed correctly in the
   list of patients and their task schedules.
-  https://github.com/RudolfCardinal/camcops/issues/147
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/147
 
 
 .. _changelog_v2.4.5:
@@ -3317,7 +3317,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
       some of its widgets. These don't have the nonce, so don't execute. And
       the ``<script>`` and ``<style>`` tags are quite embedded, e.g. in
       ``deform/templates/form.pt``, with no obvious extensible options. See
-      https://github.com/RudolfCardinal/camcops/issues/162. At the moment,
+      https://github.com/ucam-department-of-psychiatry/camcops/issues/162. At the moment,
       CamCOPS does not use "maximum security" CSP headers. However, when Deform
       supports this (https://github.com/Pylons/deform/issues/512), we can turn
       them up via the ``DEFORM_SUPPORTS_CSP_NONCE`` switch in CamCOPS.
@@ -3416,7 +3416,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
     - RESPONSE: not changed; low concern noted; but raised as a Deform issue at
       https://github.com/Pylons/deform/issues/511, and tracked at
-      https://github.com/RudolfCardinal/camcops/issues/161.
+      https://github.com/ucam-department-of-psychiatry/camcops/issues/161.
 
 - Also fixed REDCap example for PHQ9 (from ``task.q10 + 1``, which could fail
   if ``q10`` was ``None``, to ``task.q10 + 1 if task.q10 is not None else
@@ -3447,7 +3447,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   Fix bug where deleting a task schedule with related items would result in
   an internal server error.
-  https://github.com/RudolfCardinal/camcops/issues/150
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/150
   (Database revision 0063)
 
 - ``GET`` requests to the API, which are likely to come from users visiting a
@@ -3464,17 +3464,17 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix in validation of download filenames (it was being overzealous and
   preventing downloads), to fix
-  https://github.com/RudolfCardinal/camcops/issues/178, and add some additional
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/178, and add some additional
   safety checks.
 
 - Replace the brittle ``mailto:`` links with the ability to email patient
   invitations from the CamCOPS server itself.
-  https://github.com/RudolfCardinal/camcops/issues/180
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/180
   (Database revisions 0064-0065)
 
 - Android and iOS users can now register themselves as patients by launching
   the app from a URL sent to them by email.
-  https://github.com/RudolfCardinal/camcops/issues/153
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/153
 
 
 .. _changelog_v2_4_9:
@@ -3486,7 +3486,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   is mainly for consistency as we only use UUIDs for server-created patients
   and the ability to add patients on the server was implemented at the same
   time as 0048.
-  https://github.com/RudolfCardinal/camcops/issues/187
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/187
   (Database revision 0066.)
 
 - Fix Debian package Python dependencies. Would fail if Python 3.6 was not
@@ -3510,13 +3510,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
   their tasks**. (Database revision 0069.)
 
 - Reinstate Danish, which disappeared from the server in v2.4.9:
-  https://github.com/RudolfCardinal/camcops/issues/200
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/200
 
 - Fix internal server error when viewing HTML APEQ CPFT Perinatal Report:
-  https://github.com/RudolfCardinal/camcops/issues/203
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/203
 
 - Fix database revision 0066, which failed if no patient records were missing
-  UUIDs: https://github.com/RudolfCardinal/camcops/issues/192
+  UUIDs: https://github.com/ucam-department-of-psychiatry/camcops/issues/192
 
 
 .. _changelog_v2_4_11:
@@ -3525,20 +3525,20 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fix Qt build script on Linux, Windows and MacOS.
-  https://github.com/RudolfCardinal/camcops/issues/209
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/209
 
 - WSAS: Display options vertically on smaller screen widths
-  https://github.com/RudolfCardinal/camcops/issues/205
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/205
 
 - Fix bug whereby non admin group members with the "manage patients" privilege
   would see an empty group selector when adding/editing patients.
-  https://github.com/RudolfCardinal/camcops/issues/211
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/211
 
 - Support for :ref:`multi-factor authentication (MFA)
   <multi_factor_authentication>` on the server. (Database revision 0070.)
 
 - Bugfix to :ref:`MFI-20 <mfi20>` (q.v.).
-  https://github.com/RudolfCardinal/camcops/issues/199
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/199
 
 - Bugfix to app: was reporting "research" rather than "clinical" when
   conditions relating to clinical use were not met.
@@ -3557,7 +3557,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Database revision to 0071.
 
 - Add numbered and unnumbered lists to the visual editor when editing emails
-  and their templates. https://github.com/RudolfCardinal/camcops/issues/188
+  and their templates.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/188
 
 - Display Danish or English on the visual editor according to the user's
   language.
@@ -3617,7 +3618,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     :ref:`camcops_fetch_snomed_codes <camcops_fetch_snomed_codes>`
 
 - Fix a bug where assigning the same schedule twice to a patient would not be
-  possible: https://github.com/RudolfCardinal/camcops/issues/218
+  possible: https://github.com/ucam-department-of-psychiatry/camcops/issues/218
 
 - Fix internal server error when removing a schedule from a patient, where
   emails had been sent relating to the schedule.
@@ -3644,7 +3645,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   check the user's IP address against the previously stored value on every
   request. There are cases where this may be undesireable if a user's IP address
   changes before the session timeout is reached.
-  https://github.com/RudolfCardinal/camcops/issues/226
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/226
 
 
 .. _changelog_v2_4_13:

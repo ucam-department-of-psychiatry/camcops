@@ -42,7 +42,7 @@ CAMCOPS_SERVER_RPM=camcops-server_${CAMCOPS_VERSION}-2.noarch.rpm
 # CAMCOPS_CLIENT_WINDOWS=camcops_${CAMCOPS_VERSION}_windows.exe
 
 # URLs:
-GITHUB_URL=https://github.com/RudolfCardinal/camcops
+GITHUB_URL=https://github.com/ucam-department-of-psychiatry/camcops
 DOWNLOAD_URL=${GITHUB_URL}/releases/download/v${CAMCOPS_VERSION}
 URL_SERVER_DEB=${DOWNLOAD_URL}/${CAMCOPS_SERVER_DEB}
 URL_SERVER_RPM=${DOWNLOAD_URL}/${CAMCOPS_SERVER_RPM}
