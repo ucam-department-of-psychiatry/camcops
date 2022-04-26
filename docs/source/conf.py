@@ -156,7 +156,9 @@ html_theme = 'nature'  # very nice. CHOSEN.
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = [
+    '_static'
+]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -263,6 +265,9 @@ def setup(app: Sphinx) -> None:
     # Add CSS
     # - https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx  # noqa
     app.add_css_file('css/camcops_docs.css')  # may also be an URL
+
+    # Bootstrap icons
+    app.add_css_file('bootstrap-icons-1.7.0/bootstrap-icons.css')
 
     # Don't skip __init__
     # https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method  # noqa

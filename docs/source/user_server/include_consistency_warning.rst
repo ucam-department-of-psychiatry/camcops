@@ -25,4 +25,4 @@
     information is the same across all tasks. (Did someone mis-spell a name,
     for example -- or worse, mis-file information by entering the wrong ID
     number?) **Beware** if the consistency check fails; you will need to
-    ensure yourself that all the data relates to the same patient.
+    ensure manually that all the data relates to the same patient.

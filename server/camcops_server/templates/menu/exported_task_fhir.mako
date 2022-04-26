@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 
 <table>
     <tr>
-        <th>HL7 message ID</th>
+        <th>FHIR message ID</th>
         <td>${ etf.id }</td>
     </tr>
     <tr>
