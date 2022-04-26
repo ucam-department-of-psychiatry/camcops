@@ -45,7 +45,7 @@ tested primarily under Linux with MySQL.
 URLs for CamCOPS source code
 ----------------------------
 
-- https://github.com/RudolfCardinal/camcops (for source)
+- https://github.com/ucam-department-of-psychiatry/camcops (for source)
 
 .. todo:: https://pypi.io/project/XXX/ (for pip install XXX)
 
@@ -60,7 +60,8 @@ differences between Linux operating systems.
 Ubuntu installation from the CamCOPS Debian package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To install CamCOPS and all its dependencies, download the Debian package from https://github.com/RudolfCardinal/camcops/releases and use
+To install CamCOPS and all its dependencies, download the Debian package from
+https://github.com/ucam-department-of-psychiatry/camcops/releases and use
 ``gdebi``:
 
 .. code-block:: bash

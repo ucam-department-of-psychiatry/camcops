@@ -96,7 +96,7 @@ DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 
 # Address to download Windows/Mac versions:
-GITHUB_RELEASES_URL = "https://github.com/RudolfCardinal/camcops/releases/"
+GITHUB_RELEASES_URL = "https://github.com/ucam-department-of-psychiatry/camcops/releases/"  # noqa
 
 MINIMUM_PASSWORD_LENGTH = 10
 

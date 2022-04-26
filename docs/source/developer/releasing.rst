@@ -39,8 +39,8 @@ Releasing a new client and server involves the following steps:
 Code and documentation
 ----------------------
 
-- Push to Github (https://github.com/RudolfCardinal/camcops). This also
-  automatically updates the docs at https://camcops.readthedocs.io/.
+- Push to Github (https://github.com/ucam-department-of-psychiatry/camcops).
+  This also automatically updates the docs at https://camcops.readthedocs.io/.
 
 
 Android client

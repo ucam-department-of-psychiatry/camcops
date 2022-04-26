@@ -44,11 +44,11 @@ The iOS app is in the Apple App Store at
 
 Windows client downloads, and server distributions, are at
 
-- https://github.com/RudolfCardinal/camcops/releases
+- https://github.com/ucam-department-of-psychiatry/camcops/releases
 
 The source code is at
 
-- https://github.com/RudolfCardinal/CamCOPS
+- https://github.com/ucam-department-of-psychiatry/camcops
 
 
 Windows client notes
