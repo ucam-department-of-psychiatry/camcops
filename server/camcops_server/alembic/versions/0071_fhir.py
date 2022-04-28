@@ -151,7 +151,10 @@ def upgrade():
                 "fhir_app_id",
                 sa.Text(),
                 nullable=True,
-                comment="(FHIR) FHIR app ID, identifying CamCOPS as the data source",
+                comment=(
+                    "(FHIR) FHIR app ID, identifying CamCOPS as the data"
+                    " source"
+                ),
             )
         )
         batch_op.add_column(
@@ -159,7 +162,9 @@ def upgrade():
                 "fhir_concurrent",
                 sa.Boolean(),
                 nullable=True,
-                comment="(FHIR) Server supports concurrency (parallel processing)?",
+                comment=(
+                    "(FHIR) Server supports concurrency (parallel processing)?"
+                ),
             )
         )
     with op.batch_alter_table("_idnum_definitions", schema=None) as batch_op:

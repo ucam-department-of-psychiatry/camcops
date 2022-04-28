@@ -402,7 +402,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
     file_patient_spec_if_anonymous = Column(
         "file_patient_spec_if_anonymous",
         FileSpecColType,
-        comment="(FILE) Patient part of filename specification for anonymous tasks",  # noqa
+        comment="(FILE) Patient part of filename specification for anonymous tasks",  # noqa: E501
     )
     file_filename_spec = Column(
         "file_filename_spec",
@@ -414,7 +414,9 @@ class ExportRecipient(ExportRecipientInfo, Base):
         Boolean,
         default=True,
         nullable=False,
-        comment="(FILE) Make destination directory if it doesn't already exist",
+        comment=(
+            "(FILE) Make destination directory if it doesn't already exist"
+        ),
     )
     file_overwrite_files = Column(
         "file_overwrite_files",

@@ -345,8 +345,8 @@ def all_extra_strings_as_dicts(
                 taskname, {}
             )  # type: Dict[str, Dict[str, str]]  # noqa
             for e in taskroot.findall("./string[@name]"):
-                # ... "all elements with the tag 'string' that have an attribute
-                # named 'name'"
+                # ... "all elements with the tag 'string' that have an
+                # attribute named 'name'"
                 stringname = e.attrib.get("name")
                 final_string = text_contents(e)
                 final_string = unescape_newlines(final_string)

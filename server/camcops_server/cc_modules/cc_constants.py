@@ -158,7 +158,7 @@ class DateFormat(object):
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
     FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
     # FHIR_DATETIME -- use x.isoformat()
-    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time
+    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa: E501
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
@@ -881,7 +881,7 @@ class StringLengths:
 
     BASE32_MAX_LEN = 32
 
-    #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.
+    #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.  # noqa: E501
     #: Probably ~18 so give it some headroom.
     CHARSET_MAX_LEN = 64
 
@@ -1038,7 +1038,7 @@ class StringLengths:
     - MySQL: 64 -- https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
     - SQL Server: 128  -- https://msdn.microsoft.com/en-us/library/ms191240.aspx
     - Oracle: 32, then 128 from v12.2 (2017)
-    """
+    """  # noqa: E501
 
     TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
     """

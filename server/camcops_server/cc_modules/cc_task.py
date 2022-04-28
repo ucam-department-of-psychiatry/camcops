@@ -2007,8 +2007,8 @@ class Task(GenericTabletRecordMixin, Base):
                     ).as_json()
                 ],
                 # "qualification" is too structured.
-                # There isn't anywhere to represent our other information, so we
-                # jam it in to "telecom"/"other".
+                # There isn't anywhere to represent our other information, so
+                # we jam it in to "telecom"/"other".
                 Fc.TELECOM: [
                     ContactPoint(
                         jsondict={

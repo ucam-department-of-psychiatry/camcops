@@ -541,8 +541,8 @@ def fhir_observation_component_from_snomed(
     return ObservationComponent(
         jsondict={
             # code = "the type of thing reported here"
-            # Per https://www.hl7.org/fhir/observation.html#code-interop, we use
-            # SNOMED 363787002 = Observable entity.
+            # Per https://www.hl7.org/fhir/observation.html#code-interop, we
+            # use SNOMED 363787002 = Observable entity.
             Fc.CODE: CodeableConcept(
                 jsondict={
                     Fc.CODING: [
@@ -572,7 +572,7 @@ def fhir_observation_component_from_snomed(
                                 Fc.CODE: expr.as_string(longform=False),
                                 Fc.DISPLAY: expr_longform,
                                 Fc.USER_SELECTED: False,
-                                # ... means "did the user choose it themselves?"
+                                # ... means "did the user choose it themselves?"  # noqa: E501
                                 # version: not used
                             }
                         ).as_json()
@@ -613,8 +613,9 @@ def make_fhir_bundle_entry(
             Fc.METHOD: HttpMethod.POST,
             Fc.URL: resource_type_url,
             Fc.IF_NONE_EXIST: fhir_reference_from_identifier(identifier),
-            # "If this resource doesn't exist, as determined by this identifier,
-            # then create it:" https://www.hl7.org/fhir/http.html#ccreate
+            # "If this resource doesn't exist, as determined by this
+            # identifier, then create it:"
+            # https://www.hl7.org/fhir/http.html#ccreate
         }
     )
     return BundleEntry(

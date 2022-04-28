@@ -139,7 +139,7 @@ class ErrorReportingMiddleware(object):
         # noinspection PyBroadException
         try:
             return self.app(environ, start_response)
-        except:
+        except Exception:
             exc_info = sys.exc_info()
             start_response(
                 "500 Internal Server Error",

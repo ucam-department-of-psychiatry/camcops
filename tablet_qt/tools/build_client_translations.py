@@ -317,8 +317,8 @@ Operations:
     if op in (OP_TS_TO_QM, OP_ALL):
         assert args.lrelease, "Missing lrelease"
         log.info(
-            f"Using Qt Linguist 'lrelease' to update .qm files "
-            f"from .ts files"
+            f"Using Qt Linguist '{args.lrelease}' to update .qm files "
+            "from .ts files"
         )
         cmdargs = [args.lrelease, CAMCOPS_PRO_FILE]
         run(cmdargs)

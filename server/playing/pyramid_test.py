@@ -303,8 +303,8 @@ class RoutePath(object):
     - Pyramid URL paths are URL fragments, like '/thing', and can contain
       placeholders, like '/thing/{bork_id}', which will result in the
       request.matchdict object containing a 'bork_id' key. Those can be
-      further constrained by regular expressions, like '/thing/{bork_id:\d+}'
-      to restrict to digits.
+      further constrained by regular expressions, like
+      '/thing/{bork_id:\\d+}' to restrict to digits.
     """
 
     def __init__(self, route: str, path: str) -> None:
@@ -386,7 +386,7 @@ def get_extra_strings():  # -> Dict[Tuple[str, str], str]:  # https://bitbucket.
         "Expensive string-loading function; SHOULD ONLY BE CALLED ONCE; "
         "pretending to read file {}.".format(cfg.xstring_filename)
     )
-    xstringdict = {}  # type: Dict[Tuple[str, str] -> str]
+    xstringdict = {}  # type: Dict[Tuple[str, str], str]
     for task in (TASKNAME_1, TASKNAME_2):
         for stringname in (STRINGNAME_1, STRINGNAME_2):
             task_string_pair = (task, stringname)
@@ -651,7 +651,7 @@ class CamcopsHttpSession(Base):
 def http_session_tween_factory(
     handler: Callable[[Request], Response], registry: Registry
 ) -> Callable[[Request], Response]:
-    cfg = get_config()  # type: DummyConfig
+    get_config()  # type: DummyConfig
 
     def http_session_tween(request: Request) -> Response:
         log.debug("Starting http_session_tween")
@@ -786,7 +786,7 @@ def session_context():
         yield dbsession
         log.debug("Command-line database session: committing")
         dbsession.commit()
-    except Exception as e:
+    except Exception:
         log.warning("Exception:\n" + traceback.format_exc())
         log.warning("Command-line database session: rolling back")
         dbsession.rollback()

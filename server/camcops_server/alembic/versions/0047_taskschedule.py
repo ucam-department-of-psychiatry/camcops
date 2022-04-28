@@ -42,7 +42,11 @@ Creation date: 2020-03-23 15:10:13.993974
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    JsonColType,
+    PendulumDateTimeAsIsoTextColType,
+    PendulumDurationAsIsoTextColType,
+)
 
 
 # =============================================================================
@@ -110,19 +114,21 @@ def upgrade():
         ),
         sa.Column(
             "due_from",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType(
-                length=29
-            ),
+            PendulumDurationAsIsoTextColType(length=29),
             nullable=True,
-            comment="Relative time from the start date by which the task may be started",
+            comment=(
+                "Relative time from the start date by which the task may be"
+                " started"
+            ),
         ),
         sa.Column(
             "due_by",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType(
-                length=29
-            ),
+            PendulumDurationAsIsoTextColType(length=29),
             nullable=True,
-            comment="Relative time from the start date by which the task must be completed",
+            comment=(
+                "Relative time from the start date by which the task must be"
+                " completed"
+            ),
         ),
         sa.ForeignKeyConstraint(
             ["schedule_id"],
@@ -148,15 +154,16 @@ def upgrade():
         sa.Column("schedule_id", sa.Integer(), nullable=True),
         sa.Column(
             "start_datetime",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="Schedule start date for the patient. Due from/within durations for a task schedule item are relative to this.",
+            comment=(
+                "Schedule start date for the patient. Due from/within"
+                " durations for a task schedule item are relative to this."
+            ),
         ),
         sa.Column(
             "settings",
-            camcops_server.cc_modules.cc_sqla_coltypes.JsonColType(),
+            JsonColType(),
             nullable=True,
             comment="Task-specific settings for this patient",
         ),

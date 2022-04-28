@@ -66,13 +66,13 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # -----------------------------------------------------------------------------
 # Second version, when we want more information in the relationship:
 # -----------------------------------------------------------------------------
-# https://stackoverflow.com/questions/7417906/sqlalchemy-manytomany-secondary-table-with-additional-fields  # noqa
+# https://stackoverflow.com/questions/7417906/sqlalchemy-manytomany-secondary-table-with-additional-fields  # noqa: E501
 # ... no, association_proxy isn't quite what we want
-# ... https://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html
-# https://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#association-object  # noqa
+# ... https://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html  # noqa: E501
+# https://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#association-object  # noqa: E501
 # ... yes
 # ... ah, but that AND association_proxy:
-# https://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html#simplifying-association-objects  # noqa
+# https://docs.sqlalchemy.org/en/latest/orm/extensions/associationproxy.html#simplifying-association-objects  # noqa: E501
 # ... no, not association_proxy!
 
 

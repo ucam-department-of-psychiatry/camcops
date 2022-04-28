@@ -350,7 +350,7 @@ class CamcopsRequest(Request):
         That looks like we can add a callback in the process of running a
         callback. And when we add a cookie to a Pyramid session, that sets a
         callback. Let's give it a go...
-        """
+        """  # noqa: E501
         # 2019-03-21: If we've not used a CamcopsSession (e.g. for serving
         # a static view), do we care?
         if self._camcops_session is None:

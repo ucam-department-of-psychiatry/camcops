@@ -122,126 +122,6 @@ def coin(p: float) -> bool:
 
 
 # =============================================================================
-# Communication with scanner
-# =============================================================================
-# http://stackoverflow.com/questions/4715340
-
-
-class MRIProtocol(Protocol):
-    delimiter = "\n"
-
-    def __init__(self, network: TabletServerProtocolFactory) -> None:
-        self.network = network
-        network.scanner = self
-
-    # noinspection PyPep8Naming
-    def dataReceived(self, data: bytes) -> None:
-        """
-        Data received from scanner.
-        Timestamp as early as possible.
-        """
-        now = get_now()
-        data = data.decode(ENCODING)
-        logger.info("Received from scanner: {}".format(data))
-        self.network.from_scanner(data, now)
-
-    # noinspection PyMethodMayBeStatic
-    def tell_scanner(self, data: str) -> None:
-        """
-        Send information to scanner.
-        """
-        logger.info("Sending to scanner: {}".format(data))
-        # WOULD DO SOMETHING HERE
-
-    def fake_pulse(self):
-        logger.debug("FAKING A PULSE")
-        self.dataReceived(FS_PULSE.encode(ENCODING))
-
-
-# =============================================================================
-# Communication with button box
-# =============================================================================
-# http://stackoverflow.com/questions/4715340
-
-
-class ButtonBoxProtocol(Protocol):
-    def __init__(self, network: TabletServerProtocolFactory) -> None:
-        self.network = network
-        network.buttonbox = self
-
-    # noinspection PyPep8Naming
-    def dataReceived(self, data: bytes) -> None:
-        """
-        Data received from button box.
-        Timestamp as early as possible.
-        """
-        now = get_now()
-        data = data.decode(ENCODING)
-        logger.info("Received from button box: {}".format(data))
-        self.network.from_buttonbox(data, now)
-
-    # noinspection PyMethodMayBeStatic
-    def tell_buttonbox(self, data: str) -> None:
-        """
-        Send information to button box.
-        """
-        logger.info("Sending to button box: {}".format(data))
-        # WOULD DO SOMETHING HERE
-
-
-# =============================================================================
-# Communication with keyboard (or button box emulating keyboard)
-# =============================================================================
-
-
-class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
-    def __init__(self, network: TabletServerProtocolFactory) -> None:
-        self.network = network
-
-    # noinspection PyPep8Naming
-    def connectionMade(self) -> None:
-        self.setRawMode()
-
-    # noinspection PyPep8Naming
-    def rawDataReceived(self, data: bytes) -> None:
-        """
-        Data received from keyboard.
-        Timestamp as early as possible.
-        """
-        now = get_now()
-        data = data.decode(ENCODING)
-        logger.info("Received from keyboard: {}".format(data))
-        self.network.from_keyboard(data, now)
-
-    # noinspection PyPep8Naming
-    def lineReceived(self, line: bytes) -> None:
-        pass
-
-
-# may need pygame
-# see also http://stackoverflow.com/questions/12469827
-# and http://stackoverflow.com/questions/510357
-
-
-class KeyboardPoller(object):
-    def __init__(self, network: TabletServerProtocolFactory) -> None:
-        self.network = network
-        # self.nticks = 0
-
-    def send_key(self, key: str) -> None:
-        now = get_now()
-        logger.info("Received from keyboard: {}".format(key))
-        self.network.from_keyboard(key, now)
-
-    def tick(self) -> None:
-        # self.nticks += 1
-        # if self.nticks % 1000 == 0:
-        #     logger.info("tock: {} ticks".format(self.nticks))
-        if coin(0.001):
-            self.send_key("X")
-
-
-# =============================================================================
 # Tablet server, to communicate with tablet
 # =============================================================================
 
@@ -481,6 +361,126 @@ class TabletServerProtocolFactory(Factory):
         """
         for client in self.client_list:
             client.from_keyboard(data, now)
+
+
+# =============================================================================
+# Communication with scanner
+# =============================================================================
+# http://stackoverflow.com/questions/4715340
+
+
+class MRIProtocol(Protocol):
+    delimiter = "\n"
+
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
+        self.network = network
+        network.scanner = self
+
+    # noinspection PyPep8Naming
+    def dataReceived(self, data: bytes) -> None:
+        """
+        Data received from scanner.
+        Timestamp as early as possible.
+        """
+        now = get_now()
+        data = data.decode(ENCODING)
+        logger.info("Received from scanner: {}".format(data))
+        self.network.from_scanner(data, now)
+
+    # noinspection PyMethodMayBeStatic
+    def tell_scanner(self, data: str) -> None:
+        """
+        Send information to scanner.
+        """
+        logger.info("Sending to scanner: {}".format(data))
+        # WOULD DO SOMETHING HERE
+
+    def fake_pulse(self):
+        logger.debug("FAKING A PULSE")
+        self.dataReceived(FS_PULSE.encode(ENCODING))
+
+
+# =============================================================================
+# Communication with button box
+# =============================================================================
+# http://stackoverflow.com/questions/4715340
+
+
+class ButtonBoxProtocol(Protocol):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
+        self.network = network
+        network.buttonbox = self
+
+    # noinspection PyPep8Naming
+    def dataReceived(self, data: bytes) -> None:
+        """
+        Data received from button box.
+        Timestamp as early as possible.
+        """
+        now = get_now()
+        data = data.decode(ENCODING)
+        logger.info("Received from button box: {}".format(data))
+        self.network.from_buttonbox(data, now)
+
+    # noinspection PyMethodMayBeStatic
+    def tell_buttonbox(self, data: str) -> None:
+        """
+        Send information to button box.
+        """
+        logger.info("Sending to button box: {}".format(data))
+        # WOULD DO SOMETHING HERE
+
+
+# =============================================================================
+# Communication with keyboard (or button box emulating keyboard)
+# =============================================================================
+
+
+class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
+        self.network = network
+
+    # noinspection PyPep8Naming
+    def connectionMade(self) -> None:
+        self.setRawMode()
+
+    # noinspection PyPep8Naming
+    def rawDataReceived(self, data: bytes) -> None:
+        """
+        Data received from keyboard.
+        Timestamp as early as possible.
+        """
+        now = get_now()
+        data = data.decode(ENCODING)
+        logger.info("Received from keyboard: {}".format(data))
+        self.network.from_keyboard(data, now)
+
+    # noinspection PyPep8Naming
+    def lineReceived(self, line: bytes) -> None:
+        pass
+
+
+# may need pygame
+# see also http://stackoverflow.com/questions/12469827
+# and http://stackoverflow.com/questions/510357
+
+
+class KeyboardPoller(object):
+    def __init__(self, network: TabletServerProtocolFactory) -> None:
+        self.network = network
+        # self.nticks = 0
+
+    def send_key(self, key: str) -> None:
+        now = get_now()
+        logger.info("Received from keyboard: {}".format(key))
+        self.network.from_keyboard(key, now)
+
+    def tick(self) -> None:
+        # self.nticks += 1
+        # if self.nticks % 1000 == 0:
+        #     logger.info("tock: {} ticks".format(self.nticks))
+        if coin(0.001):
+            self.send_key("X")
 
 
 # =============================================================================

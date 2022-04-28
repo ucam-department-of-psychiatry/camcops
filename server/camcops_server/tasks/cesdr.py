@@ -184,7 +184,8 @@ class Cesdr(TaskHasPatientMixin, Task, metaclass=CesdrMetaclass):
             "suicidal": [14, 15],
         }
 
-        # Dysphoria or anhedonia must be present at frequency FREQ_DAILY_2_WEEKS
+        # Dysphoria or anhedonia must be present at frequency
+        # FREQ_DAILY_2_WEEKS
         anhedonia_criterion = self.fulfils_group_criteria(
             q_group_anhedonia, True
         ) or self.fulfils_group_criteria(q_group_dysphoria, True)

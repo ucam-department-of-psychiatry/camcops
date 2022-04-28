@@ -42,7 +42,7 @@ Creation date: 2020-03-17 18:00:33.550294
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import UuidColType
 
 
 # =============================================================================
@@ -65,9 +65,7 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "uuid",
-                camcops_server.cc_modules.cc_sqla_coltypes.UuidColType(
-                    length=32
-                ),
+                UuidColType(length=32),
                 nullable=True,
                 comment="UUID",
             )

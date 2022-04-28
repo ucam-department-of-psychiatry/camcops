@@ -64,42 +64,58 @@ def upgrade():
             "q1",
             existing_type=sa.Float(),
             comment="Q1 - fatigue/tiredness 0-10 (none - very severe)",
-            existing_comment="Q1 - fatigue/tiredness 0-10 (None - very severe)",
+            existing_comment=(
+                "Q1 - fatigue/tiredness 0-10 (None - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q2",
             existing_type=sa.Float(),
             comment="Q2 - AS neck, back, hip pain 0-10 (none - very severe)",
-            existing_comment="Q2 - AS neck, back, hip pain 0-10 (None - very severe)",
+            existing_comment=(
+                "Q2 - AS neck, back, hip pain 0-10 (None - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q3",
             existing_type=sa.Float(),
             comment="Q3 - other joint pain/swelling 0-10 (none - very severe)",
-            existing_comment="Q3 - other joint pain/swelling 0-10 (None - very severe)",
+            existing_comment=(
+                "Q3 - other joint pain/swelling 0-10 (None - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q4",
             existing_type=sa.Float(),
-            comment="Q4 - discomfort from tender areas 0-10 (none - very severe)",
-            existing_comment="Q4 - discomfort from tender areas 0-10 (None - very severe)",
+            comment=(
+                "Q4 - discomfort from tender areas 0-10 (none - very severe)"
+            ),
+            existing_comment=(
+                "Q4 - discomfort from tender areas 0-10 (None - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q5",
             existing_type=sa.Float(),
             comment="Q5 - morning stiffness level 0-10 (none - very severe)",
-            existing_comment="Q5 - morning stiffness level 0-10 (None - very severe)",
+            existing_comment=(
+                "Q5 - morning stiffness level 0-10 (None - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q6",
             existing_type=sa.Float(),
-            comment="Q6 - morning stiffness duration 0-10 (none - 2 or more hours)",
-            existing_comment="Q6 - morning stiffness duration 0-10 (None - 2 or more hours)",
+            comment=(
+                "Q6 - morning stiffness duration 0-10 (none - 2 or more hours)"
+            ),
+            existing_comment=(
+                "Q6 - morning stiffness duration 0-10 (None - 2 or more hours)"
+            ),
             existing_nullable=True,
         )
 
@@ -110,42 +126,58 @@ def downgrade():
         batch_op.alter_column(
             "q6",
             existing_type=sa.Float(),
-            comment="Q6 - morning stiffness duration 0-10 (None - 2 or more hours)",
-            existing_comment="Q6 - morning stiffness duration 0-10 (none - 2 or more hours)",
+            comment=(
+                "Q6 - morning stiffness duration 0-10 (None - 2 or more hours)"
+            ),
+            existing_comment=(
+                "Q6 - morning stiffness duration 0-10 (none - 2 or more hours)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q5",
             existing_type=sa.Float(),
             comment="Q5 - morning stiffness level 0-10 (None - very severe)",
-            existing_comment="Q5 - morning stiffness level 0-10 (none - very severe)",
+            existing_comment=(
+                "Q5 - morning stiffness level 0-10 (none - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q4",
             existing_type=sa.Float(),
-            comment="Q4 - discomfort from tender areas 0-10 (None - very severe)",
-            existing_comment="Q4 - discomfort from tender areas 0-10 (none - very severe)",
+            comment=(
+                "Q4 - discomfort from tender areas 0-10 (None - very severe)"
+            ),
+            existing_comment=(
+                "Q4 - discomfort from tender areas 0-10 (none - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q3",
             existing_type=sa.Float(),
             comment="Q3 - other joint pain/swelling 0-10 (None - very severe)",
-            existing_comment="Q3 - other joint pain/swelling 0-10 (none - very severe)",
+            existing_comment=(
+                "Q3 - other joint pain/swelling 0-10 (none - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q2",
             existing_type=sa.Float(),
             comment="Q2 - AS neck, back, hip pain 0-10 (None - very severe)",
-            existing_comment="Q2 - AS neck, back, hip pain 0-10 (none - very severe)",
+            existing_comment=(
+                "Q2 - AS neck, back, hip pain 0-10 (none - very severe)"
+            ),
             existing_nullable=True,
         )
         batch_op.alter_column(
             "q1",
             existing_type=sa.Float(),
             comment="Q1 - fatigue/tiredness 0-10 (None - very severe)",
-            existing_comment="Q1 - fatigue/tiredness 0-10 (none - very severe)",
+            existing_comment=(
+                "Q1 - fatigue/tiredness 0-10 (none - very severe)"
+            ),
             existing_nullable=True,
         )

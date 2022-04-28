@@ -4154,7 +4154,8 @@ class Cisr(TaskHasPatientMixin, Task):
                 jump_to(CQ.ANX2_GENERAL_DAYS_PAST_WEEK)
             elif self.answer_is_yes(q, v):
                 # This was in ANX_PHOBIA2; PHOBIAS_FLAG was set by arriving
-                # there (but that only happens when we get a 'yes' answer here).
+                # there (but that only happens when we get a 'yes' answer
+                # here).
                 r.decide("Phobias. Exploring further. Setting phobias flag.")
                 r.phobias_flag = True
 

@@ -73,7 +73,9 @@ def upgrade():
                 "email_bcc",
                 sa.UnicodeText(),
                 nullable=True,
-                comment="Send a blind carbon copy of the email to these addresses",
+                comment=(
+                    "Send a blind carbon copy of the email to these addresses"
+                ),
             )
         )
         batch_op.add_column(

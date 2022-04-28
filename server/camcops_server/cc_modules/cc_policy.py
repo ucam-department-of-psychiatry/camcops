@@ -814,8 +814,8 @@ class TokenizedPolicy(object):
     #     "More restrictive" means "requires more information".
     #     "Less restrictive" means "requires or enforces less information".
     #
-    #     Therefore, we must return True if we can find a situation where "self"
-    #     is satisfied but "other" is not.
+    #     Therefore, we must return True if we can find a situation where
+    #     "self" is satisfied but "other" is not.
     #
     #     Args:
     #         other: the other policy

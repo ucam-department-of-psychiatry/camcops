@@ -65,7 +65,9 @@ def upgrade():
                 "redcap_api_url",
                 sa.Text(),
                 nullable=True,
-                comment="(REDCap) REDCap API URL, pointing to the REDCap server",
+                comment=(
+                    "(REDCap) REDCap API URL, pointing to the REDCap server"
+                ),
             )
         )
         batch_op.add_column(
@@ -73,7 +75,9 @@ def upgrade():
                 "redcap_fieldmap_filename",
                 sa.Text(),
                 nullable=True,
-                comment="(REDCap) File defining CamCOPS-to-REDCap field mapping",
+                comment=(
+                    "(REDCap) File defining CamCOPS-to-REDCap field mapping"
+                ),
             )
         )
 
@@ -96,19 +100,28 @@ def upgrade():
             "redcap_record_id",
             sa.UnicodeText(),
             nullable=True,
-            comment="ID of the (patient) record on the REDCap instance where this task has been exported",
+            comment=(
+                "ID of the (patient) record on the REDCap instance where this"
+                " task has been exported"
+            ),
         ),
         sa.Column(
             "redcap_instrument_name",
             sa.UnicodeText(),
             nullable=True,
-            comment="The name of the REDCap instrument name (form) where this task has been exported",
+            comment=(
+                "The name of the REDCap instrument name (form) where this task"
+                " has been exported"
+            ),
         ),
         sa.Column(
             "redcap_instance_id",
             sa.Integer(),
             nullable=True,
-            comment="1-based index of this particular task within the patient record. Increments on every repeat attempt.",
+            comment=(
+                "1-based index of this particular task within the patient"
+                " record. Increments on every repeat attempt."
+            ),
         ),
         sa.ForeignKeyConstraint(
             ["exported_task_id"],

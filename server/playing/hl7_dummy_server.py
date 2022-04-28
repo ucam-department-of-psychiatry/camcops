@@ -42,7 +42,7 @@ from twisted.internet import protocol, reactor
 
 # made by this code:
 testmsg_1 = (
-    "MSH|^~\&|hl7_dummy_server.py||||20140619232037+0100||ACK|1|P"
+    "MSH|^~\\&|hl7_dummy_server.py||||20140619232037+0100||ACK|1|P"
     "|2.3||||AL||UNICODE UTF-8|"
     "\r"
     "MSA|AE|20140619232037+0100|Failure|||"
@@ -50,13 +50,13 @@ testmsg_1 = (
 
 # from http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
 testmsg_2 = (
-    "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
+    "MSH|^~\\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
     "6162003124232500|P|2.3|||||||"
     "\r"
     "MSA|AA|20030226000000|Success||||"
 )
 testmsg_3 = (
-    "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
+    "MSH|^~\\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
     "6162003124232500|P|2.3|||||||"
     "\r"
     "MSA|AE|20030226000000|Failure||||"
@@ -119,7 +119,7 @@ class HL7Server(protocol.Protocol):
 
         # Our messages
         msg = make_hl7_ack(success)
-        data = unicode(msg)
+        data = str(msg)
 
         # Testing other messages
         # data = testmsg_2 if success else testmsg_3

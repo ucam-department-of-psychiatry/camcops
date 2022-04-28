@@ -172,7 +172,8 @@ class VersionReleaser:
 
     def get_released_versions(self) -> List[Tuple[Version, datetime]]:
         """
-        Returns a list of ``(version, date_released)`` tuples from the changelog.
+        Returns a list of ``(version, date_released)`` tuples from the
+        changelog.
         """
         regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*released\s+(\d+)\s+([a-zA-Z]+)\s+(\d+).*\*\*$"  # noqa: E501
 
@@ -315,8 +316,9 @@ class VersionReleaser:
         if self.new_server_version == self.progress_version:
             self.errors.append(
                 f"The desired server version ({self.new_server_version}) "
-                "matches the current IN PROGRESS version in the changelog. You "
-                "probably want to mark the version in the changelog as released"
+                "matches the current IN PROGRESS version in the changelog. "
+                "You probably want to mark the version in the changelog as "
+                "released"
             )
 
         current_server_version = Version(CAMCOPS_SERVER_VERSION_STRING)
@@ -666,7 +668,8 @@ class VersionReleaser:
 
     def get_pypi_builds(self) -> Iterable[Path]:
         """
-        Iterates through old PyPI upload files (e.g. ``camcops_server-*.tar.gz``).
+        Iterates through old PyPI upload files (e.g.
+        ``camcops_server-*.tar.gz``).
         """
         return Path(SERVER_DIST_DIR).glob("camcops_server-*")
 
@@ -697,7 +700,7 @@ def main() -> None:
     - Distribute to Play Store / Apple Store / GitHub
 
     Ideally we want to do all the checks before tagging and building so we
-    don't get the version numbers spiralling out of control this may be
+    don't get the version numbers spiralling out of control. This may be
     impossible for errors when deploying to Apple Store etc.
 
     """

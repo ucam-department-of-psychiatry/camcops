@@ -375,8 +375,8 @@ class RedcapTaskExporter(object):
         if patient_id_fieldname not in records:
             raise RedcapExportException(
                 (
-                    f"Field '{patient_id_fieldname}' does not exist in REDCap. "
-                    f"Is the 'patient' tag in the fieldmap correct?"
+                    f"Field '{patient_id_fieldname}' does not exist in "
+                    f"REDCap. Is the 'patient' tag in the fieldmap correct?"
                 )
             )
 

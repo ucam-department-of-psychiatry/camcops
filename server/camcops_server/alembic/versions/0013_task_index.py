@@ -42,8 +42,9 @@ Creation date: 2018-11-10 22:54:18.529528
 from alembic import op
 import sqlalchemy as sa
 
-from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+)
 
 
 # =============================================================================
@@ -109,9 +110,7 @@ def upgrade():
         sa.Column("when_created_utc", sa.DateTime(), nullable=False),
         sa.Column(
             "when_created_iso",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
         ),
         sa.Column("when_added_batch_utc", sa.DateTime(), nullable=False),

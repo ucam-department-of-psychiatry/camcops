@@ -81,7 +81,9 @@ def clazy_camcops_source() -> None:
     parser.add_argument(
         "--assemble",
         action="store_true",
-        help="Assemble (produce .s file) rather than compile (produce .o file)",
+        help=(
+            "Assemble (produce .s file) rather than compile (produce .o file)"
+        ),
     )
     parser.add_argument(
         "--clazy",
@@ -98,9 +100,11 @@ def clazy_camcops_source() -> None:
             ENVVAR_QT_INSTALLATION_ROOT,
             os.path.expanduser(DEFAULT_QT_INSTALLATION_ROOT),
         ),
-        help=f"Path to your installed copy of Qt. Priority: (1) this argument, "
-        f"(2) the {ENVVAR_QT_INSTALLATION_ROOT} environment variable, "
-        f"(3) {DEFAULT_QT_INSTALLATION_ROOT}.",
+        help=(
+            f"Path to your installed copy of Qt. Priority: (1) this argument, "
+            f"(2) the {ENVVAR_QT_INSTALLATION_ROOT} environment variable, "
+            f"(3) {DEFAULT_QT_INSTALLATION_ROOT}."
+        ),
     )
     parser.add_argument(
         "files",

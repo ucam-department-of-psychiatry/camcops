@@ -395,4 +395,4 @@ class Ifs(
                 [1] Sum of scores for Q4 + Q6.
             </div>
             {DATA_COLLECTION_UNLESS_UPGRADED_DIV}
-        """
+        """  # noqa: E501

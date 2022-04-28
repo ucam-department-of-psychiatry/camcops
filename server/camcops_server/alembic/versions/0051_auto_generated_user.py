@@ -73,7 +73,11 @@ def upgrade():
                 "single_patient_pk",
                 sa.Integer(),
                 nullable=True,
-                comment="For users locked to a single patient, the server PK of the server-created patient with which they are associated",
+                comment=(
+                    "For users locked to a single patient, the server PK of"
+                    " the server-created patient with which they are"
+                    " associated"
+                ),
             )
         )
         batch_op.create_foreign_key(

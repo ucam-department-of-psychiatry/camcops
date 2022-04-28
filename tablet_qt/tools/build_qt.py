@@ -1964,8 +1964,7 @@ class Config(object):
             elif target_platform.cpu == Cpu.ARM_V8_64:
                 # e.g. "aarch64-linux-android-4.9"
                 return "aarch-linux-android-{}".format(
-                    target_platform.android_arch_short,
-                    self.android_toolchain_version,
+                    self.android_toolchain_version
                 )
             else:
                 # but ARM ones look like "arm-linux-androideabi-4.9"
@@ -2842,7 +2841,7 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
 
     NOTE: If in doubt, on Unix-ish systems use './config'.
 
-    """
+    """  # noqa: E501
 
     # http://doc.qt.io/qt-5/opensslsupport.html
 
@@ -3183,21 +3182,21 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
                 makefile,
                 [
                     (
-                        "SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa
+                        "SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa: E501
                         "SHLIBS=libcrypto.so libssl.so",
                     ),
                     (
-                        'SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa
+                        'SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa: E501
                         'SHLIB_INFO="libcrypto.so" "libssl.so"',
                     ),
                     # ... also deals with INSTALL_SHLIBS, INSTALL_SHLIB_INFO
                     #     which are identical
                     (
-                        "SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa
+                        "SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa: E501
                         "SHLIBNAME_FULL=libcrypto.so",
                     ),
                     (
-                        "SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",
+                        "SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa: E501
                         "SHLIBNAME_FULL=libssl.so",
                     ),
                 ],
@@ -4357,7 +4356,7 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         log.critical("External process failed:")
         traceback.print_exc()
         sys.exit(EXIT_FAILURE)

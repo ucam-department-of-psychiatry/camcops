@@ -274,9 +274,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(
             question_10[Fc.TEXT],
             (
-                "10. If you checked off any problems, how difficult have these "
-                "problems made it for you to do your work, take care of things "
-                "at home, or get along with other people?"
+                "10. If you checked off any problems, how difficult have "
+                "these problems made it for you to do your work, take care of "
+                "things at home, or get along with other people?"
             ),
         )
         self.assertEqual(question_10[Fc.TYPE], Fc.QITEM_TYPE_CHOICE)
@@ -379,9 +379,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(
             item_10[Fc.TEXT],
             (
-                "10. If you checked off any problems, how difficult have these "
-                "problems made it for you to do your work, take care of things "
-                "at home, or get along with other people?"
+                "10. If you checked off any problems, how difficult have "
+                "these problems made it for you to do your work, take care of "
+                "things at home, or get along with other people?"
             ),
         )
         answer_10 = item_10[Fc.ANSWER][0]
@@ -466,23 +466,6 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             entries[2].last_modified,
             datetime.datetime(2021, 5, 24, 9, 30, 11, 98000),
         )
-
-    # def test_raises_when_task_does_not_support(self) -> None:
-    #     exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-    #     exported_task_fhir = ExportedTaskFhir(exported_task)
-    #
-    #     exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
-    #
-    #     errmsg = "Something is not implemented"
-    #     with mock.patch.object(self.task,
-    #                            "get_fhir_bundle_entries") as mock_task:
-    #         mock_task.side_effect = NotImplementedError(errmsg)
-    #
-    #         with self.assertRaises(FhirExportException) as cm:
-    #             exporter.export_task()
-    #
-    #         message = str(cm.exception)
-    #         self.assertIn(errmsg, message)
 
     def test_raises_when_http_error(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)

@@ -181,7 +181,7 @@ def get_pdf_print_size_inches(
             return get_pdf_print_size_inches(
                 tmpfname, autocrop=False, verbose=verbose
             )
-        except:
+        except Exception:
             raise
         finally:
             os.remove(tmpfname)
@@ -194,7 +194,7 @@ def get_pdf_print_size_inches(
     # ... looks like "Print size: 1.18056x1.18056"
     try:
         info = output.split()[2]
-    except:
+    except Exception:
         log.critical("p1args: {!r}", p1args)
         log.critical("p2args: {!r}", p2args)
         log.critical("output: {!r}", output)
