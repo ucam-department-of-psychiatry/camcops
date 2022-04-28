@@ -340,7 +340,7 @@ def iso_to_python_datetime(x: str) -> Optional[datetime.datetime]:
 
 
 def python_datetime_to_utc(
-    x: datetime.datetime
+    x: datetime.datetime,
 ) -> Optional[datetime.datetime]:
     """From a Python datetime, with timezone, to a UTC Python version."""
     try:

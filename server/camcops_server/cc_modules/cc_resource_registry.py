@@ -38,13 +38,14 @@ class CamcopsResourceRegistry(ResourceRegistry):
         super().__init__(*args, **kwargs)
 
         self.set_js_resources(
-            "jsoneditor", None,
-            "camcops_server.static:jsoneditor/jsoneditor.min.js"
+            "jsoneditor",
+            None,
+            "camcops_server.static:jsoneditor/jsoneditor.min.js",
         )
 
         self.set_css_resources(
             "jsoneditor",
             None,
             "camcops_server.static:jsoneditor/jsoneditor.min.css",
-            "camcops_server.static:jsoneditor/jsonwidget.css"
+            "camcops_server.static:jsoneditor/jsonwidget.css",
         )

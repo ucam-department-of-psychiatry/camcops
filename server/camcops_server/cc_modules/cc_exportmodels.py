@@ -163,7 +163,7 @@ def get_collection_for_export(
 
 
 def gen_exportedtasks(
-    collection: TaskCollection
+    collection: TaskCollection,
 ) -> Generator["ExportedTask", None, None]:
     """
     Generates task export entries from a collection.
@@ -185,7 +185,7 @@ def gen_exportedtasks(
 
 
 def gen_tasks_having_exportedtasks(
-    collection: TaskCollection
+    collection: TaskCollection,
 ) -> Generator["Task", None, None]:
     """
     Generates tasks from a collection, creating export logs as we go.

@@ -320,8 +320,8 @@ class CamcopsSession(Base):
         # Fetch or create
         # ---------------------------------------------------------------------
         if session_id and session_token:
-            oldest_last_activity_allowed = cls.get_oldest_last_activity_allowed(
-                req
+            oldest_last_activity_allowed = (
+                cls.get_oldest_last_activity_allowed(req)
             )
             query = (
                 dbsession.query(cls)

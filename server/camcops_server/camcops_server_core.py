@@ -62,8 +62,8 @@ try:
     from gunicorn.app.base import BaseApplication
 except ImportError:
     BaseApplication = (
-        None
-    )  # e.g. on Windows: "ImportError: no module named 'fcntl'".
+        None  # e.g. on Windows: "ImportError: no module named 'fcntl'".
+    )
 from wsgiref.simple_server import make_server  # noqa: E402
 
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402

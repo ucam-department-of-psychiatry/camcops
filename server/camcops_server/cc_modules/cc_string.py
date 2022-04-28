@@ -191,7 +191,7 @@ class AS(object):
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_extra_strings_as_dicts(
-    config_filename: str
+    config_filename: str,
 ) -> Dict[str, Dict[str, Dict[str, str]]]:
     r"""
     Returns strings from the all the extra XML string files.

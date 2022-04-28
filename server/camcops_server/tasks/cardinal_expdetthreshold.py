@@ -458,9 +458,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         for t in trialarray:
             if t.trial_num_in_calculation_sequence is not None:
                 all_x.append(t.intensity)
-                approx_x = (
-                    f"{t.intensity:.{dp_to_consider_same_for_jitter}f}"
-                )
+                approx_x = f"{t.intensity:.{dp_to_consider_same_for_jitter}f}"
                 if t.yes:
                     detected_y.append(
                         1 - detected_x_approx.count(approx_x) * jitter_step

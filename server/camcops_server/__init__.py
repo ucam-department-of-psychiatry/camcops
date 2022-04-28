@@ -32,5 +32,5 @@ The mere existence of this file makes Python treat the directory as a package.
 # Create camcops_server.__version__:
 # noinspection PyPep8Naming
 from camcops_server.cc_modules.cc_version_string import (
-    CAMCOPS_SERVER_VERSION_STRING as __version__
+    CAMCOPS_SERVER_VERSION_STRING as __version__,
 )

@@ -69,13 +69,20 @@ OP_TS_TO_QM = "release"
 OP_TS_TO_PO = "ts2po"
 OP_POEDIT = "poedit"
 OP_ALL = "all"
-ALL_OPERATIONS = [OP_PO_TO_TS, OP_SRC_TO_TS, OP_TS_TO_PO, OP_TS_TO_QM,
-                  OP_POEDIT, OP_ALL]
+ALL_OPERATIONS = [
+    OP_PO_TO_TS,
+    OP_SRC_TO_TS,
+    OP_TS_TO_PO,
+    OP_TS_TO_QM,
+    OP_POEDIT,
+    OP_ALL,
+]
 
 
 # =============================================================================
 # Support functions
 # =============================================================================
+
 
 def run(cmdargs: List[str]) -> None:
     """
@@ -118,22 +125,27 @@ def first_file_newer_than_second(first: str, second: str) -> bool:
     return first_time > second_time
 
 
-def convert_language_file_if_source_newer(source_filename: str,
-                                          dest_filename: str,
-                                          lconvert: str) -> None:
+def convert_language_file_if_source_newer(
+    source_filename: str, dest_filename: str, lconvert: str
+) -> None:
     """
     Converts a .po file to a .ts file (or vice versa), if either (a) the
     destination doesn't exist, or (b) the source is newer.
     """
-    if (not os.path.exists(dest_filename) or
-            first_file_newer_than_second(source_filename, dest_filename)):
+    if not os.path.exists(dest_filename) or first_file_newer_than_second(
+        source_filename, dest_filename
+    ):
         log.info(f"Converting {source_filename} -> {dest_filename}")
-        run([
-            lconvert,
-            "-locations", "relative",
-            source_filename,
-            "-o", dest_filename
-        ])
+        run(
+            [
+                lconvert,
+                "-locations",
+                "relative",
+                source_filename,
+                "-o",
+                dest_filename,
+            ]
+        )
         # Now, we have converted from source to destination. The destination
         # file will therefore be marked as newer. But this will lead to the
         # newer file being converted back to the older, the next time round,
@@ -164,6 +176,7 @@ def gen_files_with_ext(directory: str, ext: str) -> Iterable[str]:
 # =============================================================================
 # Command-line entry point
 # =============================================================================
+
 
 def main() -> None:
     """
@@ -206,77 +219,83 @@ Operations:
         Executes all other operations in sequence, except {OP_POEDIT}.
         This should be safe, and allow you to use .po editors like Poedit. Run
         this script before and after editing.""",
-        formatter_class=RawDescriptionArgumentDefaultsHelpFormatter
+        formatter_class=RawDescriptionArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "operation", choices=ALL_OPERATIONS,
+        "operation",
+        choices=ALL_OPERATIONS,
         metavar="operation",
-        help=f"Operation to perform; possibilities are {ALL_OPERATIONS!r}"
+        help=f"Operation to perform; possibilities are {ALL_OPERATIONS!r}",
     )
     parser.add_argument(
         "--lconvert",
         help=f"Path to 'lconvert' tool (part of Qt Linguist). "
-             f"Default is taken from {ENVVAR_LCONVERT} environment variable "
-             f"or 'which lconvert'.",
-        default=os.environ.get(ENVVAR_LCONVERT) or shutil.which("lconvert")
+        f"Default is taken from {ENVVAR_LCONVERT} environment variable "
+        f"or 'which lconvert'.",
+        default=os.environ.get(ENVVAR_LCONVERT) or shutil.which("lconvert"),
     )
     parser.add_argument(
         "--lrelease",
         help=f"Path to 'lrelease' tool (part of Qt Linguist). "
-             f"Default is taken from {ENVVAR_LRELEASE} environment variable "
-             f"or 'which lrelease'.",
-        default=os.environ.get(ENVVAR_LRELEASE) or shutil.which("lrelease")
+        f"Default is taken from {ENVVAR_LRELEASE} environment variable "
+        f"or 'which lrelease'.",
+        default=os.environ.get(ENVVAR_LRELEASE) or shutil.which("lrelease"),
     )
     parser.add_argument(
         "--lupdate",
         help=f"Path to 'lupdate' tool (part of Qt Linguist). "
-             f"Default is taken from {ENVVAR_LUPDATE} environment variable "
-             f"or 'which lupdate'.",
-        default=os.environ.get(ENVVAR_LUPDATE) or shutil.which("lupdate")
+        f"Default is taken from {ENVVAR_LUPDATE} environment variable "
+        f"or 'which lupdate'.",
+        default=os.environ.get(ENVVAR_LUPDATE) or shutil.which("lupdate"),
     )
     parser.add_argument(
         "--poedit",
         help=f"Path to 'poedit' tool. "
-             f"Default is taken from {ENVVAR_POEDIT} environment variable "
-             f"or 'which poedit'.",
-        default=os.environ.get(ENVVAR_POEDIT) or shutil.which("poedit")
+        f"Default is taken from {ENVVAR_POEDIT} environment variable "
+        f"or 'which poedit'.",
+        default=os.environ.get(ENVVAR_POEDIT) or shutil.which("poedit"),
     )
     parser.add_argument(
-        "--trim", dest="trim", action="store_true",
+        "--trim",
+        dest="trim",
+        action="store_true",
         help="Remove redundant strings.",
-        default=True
+        default=True,
     )
     parser.add_argument(
-        "--no_trim", dest="trim", action="store_true",
+        "--no_trim",
+        dest="trim",
+        action="store_true",
         help="Do not remove redundant strings.",
-        default=False
+        default=False,
     )
-    parser.add_argument(
-        "--verbose", action="store_true",
-        help="Be verbose"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Be verbose")
     args = parser.parse_args()
     main_only_quicksetup_rootlogger(
-        level=logging.DEBUG if args.verbose else logging.INFO)
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
     op = args.operation  # type: str
 
     if op in (OP_PO_TO_TS, OP_ALL):
         log.debug(
             f"Copying all {EXT_PO} files to corresponding {EXT_TS} files if "
             f"the {EXT_PO} file is newer (or the {EXT_TS} file doesn't "
-            f"exist).")
+            f"exist)."
+        )
         for source_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_PO):
             dest_filename = change_extension(source_filename, EXT_TS)
             convert_language_file_if_source_newer(
                 source_filename=source_filename,
                 dest_filename=dest_filename,
-                lconvert=args.lconvert
+                lconvert=args.lconvert,
             )
 
     if op in (OP_SRC_TO_TS, OP_ALL):
         assert args.lupdate, "Missing lupdate"
-        log.info(f"Using Qt Linguist 'lupdate' to update .ts files "
-                 f"from {CAMCOPS_PRO_FILE}")
+        log.info(
+            f"Using Qt Linguist 'lupdate' to update .ts files "
+            f"from {CAMCOPS_PRO_FILE}"
+        )
         options = ["-no-obsolete"] if args.trim else []
         cmdargs = [args.lupdate] + options + [CAMCOPS_PRO_FILE]
         run(cmdargs)
@@ -285,23 +304,26 @@ Operations:
         log.debug(
             f"Copying all {EXT_TS} files to corresponding {EXT_PO} files if "
             f"the {EXT_PO} file is newer (or the {EXT_PO} file doesn't "
-            f"exist).")
+            f"exist)."
+        )
         for source_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_TS):
             dest_filename = change_extension(source_filename, EXT_PO)
             convert_language_file_if_source_newer(
                 source_filename=source_filename,
                 dest_filename=dest_filename,
-                lconvert=args.lconvert
+                lconvert=args.lconvert,
             )
 
     if op in (OP_TS_TO_QM, OP_ALL):
         assert args.lrelease, "Missing lrelease"
-        log.info(f"Using Qt Linguist 'lrelease' to update .qm files "
-                 f"from .ts files")
+        log.info(
+            f"Using Qt Linguist 'lrelease' to update .qm files "
+            f"from .ts files"
+        )
         cmdargs = [args.lrelease, CAMCOPS_PRO_FILE]
         run(cmdargs)
 
-    if op in (OP_POEDIT, ):  # but not OP_ALL
+    if op in (OP_POEDIT,):  # but not OP_ALL
         for po_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_PO):
             cmdargs = [args.poedit, po_filename]
             spawn(cmdargs)

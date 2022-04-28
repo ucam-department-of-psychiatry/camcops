@@ -64,47 +64,62 @@ def main() -> None:
     # -------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
         description="Open an encrypted database at the SQLCipher command line",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
-        "encrypted",
-        help="Filename of the existing encrypted database")
+        "encrypted", help="Filename of the existing encrypted database"
+    )
     parser.add_argument(
-        "--password", type=str, default=None,
+        "--password",
+        type=str,
+        default=None,
         help="Password (if blank, environment variable {} will be used, or you"
-             " will be prompted)".format(PASSWORD_ENV_VAR))
+        " will be prompted)".format(PASSWORD_ENV_VAR),
+    )
     parser.add_argument(
-        "--sqlcipher", type=str, default=None,
+        "--sqlcipher",
+        type=str,
+        default=None,
         help=(
             "SQLCipher executable file (if blank, environment variable {} "
             "will be used, or the default of {})"
-        ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)))
+        ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)),
+    )
     parser.add_argument(
-        "--cipher_compatibility", type=int, default=None,
+        "--cipher_compatibility",
+        type=int,
+        default=None,
         help=(
             "Use compatibility settings for this major version of SQLCipher "
             "(e.g. 3)"
-        )
+        ),
     )
     parser.add_argument(
-        "--cipher_migrate", action="store_true",
-        help="Migrate the database to the latest version of SQLCipher"
+        "--cipher_migrate",
+        action="store_true",
+        help="Migrate the database to the latest version of SQLCipher",
     )
     parser.add_argument(
-        "--encoding", type=str, default=sys.getdefaultencoding(),
-        help="Encoding to use")
+        "--encoding",
+        type=str,
+        default=sys.getdefaultencoding(),
+        help="Encoding to use",
+    )
     progargs = parser.parse_args()
     # log.debug("Args: " + repr(progargs))
 
-    assert (
-       not (progargs.cipher_migrate and
-            progargs.cipher_compatibility is not None)
+    assert not (
+        progargs.cipher_migrate and progargs.cipher_compatibility is not None
     ), "Can't specify both --cipher_migrate and --cipher_compatibility"
 
     # -------------------------------------------------------------------------
     # SQLCipher executable
     # -------------------------------------------------------------------------
-    sqlcipher = (progargs.sqlcipher or os.environ.get(SQLCIPHER_ENV_VAR) or
-                 SQLCIPHER_DEFAULT)
+    sqlcipher = (
+        progargs.sqlcipher
+        or os.environ.get(SQLCIPHER_ENV_VAR)
+        or SQLCIPHER_DEFAULT
+    )
 
     # -------------------------------------------------------------------------
     # Check file existence
@@ -122,15 +137,21 @@ def main() -> None:
     log.warning("Password will be visible on SQLCipher command line")
     password = progargs.password
     if password:
-        log.debug("Using password from command-line arguments (NB danger: "
-                  "visible to ps and similar tools)")
+        log.debug(
+            "Using password from command-line arguments (NB danger: "
+            "visible to ps and similar tools)"
+        )
     elif PASSWORD_ENV_VAR in os.environ:
         password = os.environ[PASSWORD_ENV_VAR]
-        log.debug("Using password from environment variable {}",
-                  PASSWORD_ENV_VAR)
+        log.debug(
+            "Using password from environment variable {}", PASSWORD_ENV_VAR
+        )
     else:
-        log.info("Password not on command-line or in environment variable {};"
-                 " please enter it manually.", PASSWORD_ENV_VAR)
+        log.info(
+            "Password not on command-line or in environment variable {};"
+            " please enter it manually.",
+            PASSWORD_ENV_VAR,
+        )
         password = getpass.getpass()
 
     # -------------------------------------------------------------------------
@@ -147,7 +168,8 @@ def main() -> None:
         sql_commands += [
             "-- Set compatibility to a specific version of SQLCipher",
             "PRAGMA cipher_compatibility = {};".format(
-                progargs.cipher_compatibility),
+                progargs.cipher_compatibility
+            ),
         ]
     if progargs.cipher_migrate:
         # This command takes several seconds (e.g. 3.4 s) if it has to do work,
@@ -175,6 +197,6 @@ def main() -> None:
     log.debug("Done")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main_only_quicksetup_rootlogger(level=logging.DEBUG)
     main()

@@ -87,7 +87,7 @@ class RequestTests(DemoRequestTestCase):
         )
 
     def test_language_iso_639_1_returns_default_if_users_not_valid(
-        self
+        self,
     ) -> None:
         self.req._debugging_user = mock.Mock(language="d")
 

@@ -1112,9 +1112,13 @@ class CrontabEntry(object):
             assert (
                 len(components) >= 6
             ), "Must specify 5 time components and then contents"
-            minute, hour, day_of_week, day_of_month, month_of_year = components[
-                0:5
-            ]
+            (
+                minute,
+                hour,
+                day_of_week,
+                day_of_month,
+                month_of_year,
+            ) = components[0:5]
             content = " ".join(components[5:])
 
         self.minute = minute

@@ -698,7 +698,7 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertFalse(user.may_register_devices)
 
     def test_may_not_register_devices_with_upload_group_but_no_permission(
-        self
+        self,
     ) -> None:
         user = self.create_user(
             username="test", upload_group_id=self.group_a.id
@@ -719,7 +719,7 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertTrue(user.may_register_devices)
 
     def test_superuser_may_not_register_devices_with_no_upload_group(
-        self
+        self,
     ) -> None:
         user = self.create_user(username="test", superuser=True)
         self.dbsession.flush()

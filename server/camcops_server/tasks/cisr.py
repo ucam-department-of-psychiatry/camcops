@@ -1313,8 +1313,8 @@ class CisrResult(object):
         # reactions to events or activities that normally produce an
         # emotional response".
         self.weight_change = (
-            WTCHANGE_NONE_OR_APPETITE_INCREASE
-        )  # WTCHANGE IN original  # noqa
+            WTCHANGE_NONE_OR_APPETITE_INCREASE  # WTCHANGE IN original  # noqa
+        )
         self.somatic_symptoms = 0  # SOMATIC in original
         self.fatigue = 0  # FATIGUE in original
         self.neurasthenia = 0  # NEURAS in original

@@ -621,7 +621,7 @@ AUTOGEN_COMMENT = (
 
 
 def get_snomed_concepts_from_xml(
-    xml_filename: str
+    xml_filename: str,
 ) -> Dict[str, Union[SnomedConcept, List[SnomedConcept]]]:
     """
     Reads in all SNOMED-CT concepts from an XML file according to the CamCOPS
@@ -1127,12 +1127,10 @@ class SnomedLookup(object):
         "phq9_finding_positive_screening_for_depression"
     )
     PHQ9_SCORE = "phq9_observable_score"
-    PHQ9_PROCEDURE_DEPRESSION_SCREENING = (
-        "phq9_procedure_depression_screening"
-    )
+    PHQ9_PROCEDURE_DEPRESSION_SCREENING = "phq9_procedure_depression_screening"
     PHQ9_SCALE = (
-        "phq9_scale"
-    )  # https://snomedbrowser.com/Codes/Details/758711000000105
+        "phq9_scale"  # https://snomedbrowser.com/Codes/Details/758711000000105
+    )
 
     # PHQ-15
     PHQ15_SCORE = "phq15_observable_score"
@@ -1193,7 +1191,7 @@ VALID_SNOMED_LOOKUPS = set(
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_all_task_snomed_concepts(
-    xml_filename: str
+    xml_filename: str,
 ) -> Dict[str, SnomedConcept]:
     """
     Reads in all SNOMED-CT codes for CamCOPS tasks, from the custom CamCOPS XML
@@ -1348,7 +1346,7 @@ class UmlsIcd9SnomedRow(object):
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_all_icd9cm_snomed_concepts_from_umls(
-    tsv_filename: str
+    tsv_filename: str,
 ) -> Dict[str, SnomedConcept]:
     """
     Reads in all ICD-9-CM SNOMED-CT codes that are supported by the client,
@@ -1544,7 +1542,7 @@ class UmlsSnomedToIcd10Row(object):
 
 
 def get_all_icd10_snomed_concepts_from_umls(
-    tsv_filename: str
+    tsv_filename: str,
 ) -> Dict[str, SnomedConcept]:
     """
     Reads in all ICD-10 SNOMED-CT codes that are supported by the client,
@@ -1766,7 +1764,7 @@ def get_multiple_snomed_concepts_from_xml(
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_icd9_snomed_concepts_from_xml(
-    xml_filename: str
+    xml_filename: str,
 ) -> Dict[str, List[SnomedConcept]]:
     """
     Reads in all ICD-9-CM SNOMED-CT codes from a custom CamCOPS XML file.
@@ -1784,7 +1782,7 @@ def get_icd9_snomed_concepts_from_xml(
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_icd10_snomed_concepts_from_xml(
-    xml_filename: str
+    xml_filename: str,
 ) -> Dict[str, List[SnomedConcept]]:
     """
     Reads in all ICD-10 SNOMED-CT codes from a custom CamCOPS XML file.

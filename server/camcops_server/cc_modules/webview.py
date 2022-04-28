@@ -4269,7 +4269,7 @@ def view_id_definitions(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 def get_iddef_from_request_which_idnum_or_raise(
-    req: "CamcopsRequest"
+    req: "CamcopsRequest",
 ) -> IdNumDefinition:
     """
     Returns the :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`

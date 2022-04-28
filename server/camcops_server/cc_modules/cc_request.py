@@ -251,8 +251,8 @@ class CamcopsRequest(Request):
         super().__init__(*args, **kwargs)
         self.use_svg = False  # use SVG (not just PNG) for graphics
         self.provide_png_fallback_for_svg = (
-            True
-        )  # for SVG: provide PNG fallback image?  # noqa
+            True  # for SVG: provide PNG fallback image?  # noqa
+        )
         self.add_response_callback(complete_request_add_cookies)
         self._camcops_session = None  # type: Optional[CamcopsSession]
         self._debugging_db_session = (
@@ -2511,7 +2511,7 @@ def get_command_line_request(user_id: int = None) -> CamcopsRequest:
 
 @contextmanager
 def command_line_request_context(
-    user_id: int = None
+    user_id: int = None,
 ) -> Generator[CamcopsRequest, None, None]:
     """
     Request objects are ubiquitous, and allow code to refer to the HTTP

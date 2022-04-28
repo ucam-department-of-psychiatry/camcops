@@ -1088,7 +1088,7 @@ class Task(GenericTabletRecordMixin, Base):
         return convert_datetime_to_utc(localtime)
 
     def get_creation_datetime_utc_tz_unaware(
-        self
+        self,
     ) -> Optional[datetime.datetime]:
         """
         Creation time as a :class:`datetime.datetime` object on UTC with no
@@ -2440,7 +2440,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def gen_text_filter_columns(
-        cls
+        cls,
     ) -> Generator[Tuple[str, Column], None, None]:
         """
         Yields tuples of ``attrname, column``, for columns that are suitable

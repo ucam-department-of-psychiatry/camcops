@@ -151,7 +151,7 @@ def db_url(request: "FixtureRequest") -> bool:
 
 @pytest.fixture(scope="session")
 def tmpdir_obj(
-    request: "FixtureRequest"
+    request: "FixtureRequest",
 ) -> Generator[tempfile.TemporaryDirectory, None, None]:
     tmpdir_obj = tempfile.TemporaryDirectory()
 

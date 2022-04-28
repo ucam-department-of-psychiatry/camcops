@@ -3406,7 +3406,7 @@ class ReportParamForm(SimpleSubmitForm):
 
 
 def get_sql_dialect_choices(
-    request: "CamcopsRequest"
+    request: "CamcopsRequest",
 ) -> List[Tuple[str, str]]:
     _ = request.gettext
     return [
@@ -5114,9 +5114,7 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     patient_task_schedule_id = (
         HiddenIntegerNode()
     )  # name must match ViewParam.PATIENT_TASK_SCHEDULE_ID
-    schedule_id = (
-        TaskScheduleSelector()
-    )  # must match ViewParam.SCHEDULE_ID
+    schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID
     start_datetime = (
         StartPendulumSelector()
     )  # must match ViewParam.START_DATETIME
