@@ -85,9 +85,9 @@ class AllReportTests(DemoDatabaseTestCase):
 
     def test_reports(self) -> None:
         self.announce("test_reports")
-        from camcops_server.cc_modules.cc_forms import (
+        from camcops_server.cc_modules.cc_forms import (  # noqa: F811
             ReportParamSchema,
-        )  # noqa: E501,F811
+        )
 
         req = self.req
         for cls in get_all_report_classes(req):

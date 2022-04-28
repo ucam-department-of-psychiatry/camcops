@@ -60,7 +60,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))  # .../docs/source
 CAMCOPS_ROOT_DIR = os.path.abspath(
     os.path.join(THIS_DIR, os.pardir, os.pardir)
-)  # .../  # noqa
+)  # .../
 CAMCOPS_SERVER_ROOT_DIR = os.path.join(CAMCOPS_ROOT_DIR, "server")
 
 sys.path.insert(0, CAMCOPS_SERVER_ROOT_DIR)
