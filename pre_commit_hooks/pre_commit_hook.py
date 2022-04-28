@@ -70,8 +70,7 @@ EXIT_FAILURE = 1
 
 PRECOMMIT_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, "..")
-PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
-                                 "server", "camcops_server")
+PYTHON_SOURCE_DIR = PROJECT_ROOT
 CONFIG_FILE = os.path.abspath(os.path.join(PROJECT_ROOT, "setup.cfg"))
 GITHUB_ACTIONS_DIR = os.path.join(PROJECT_ROOT, ".github", "workflows")
 
@@ -87,11 +86,13 @@ def run_with_check(args: List[str]) -> None:
 
 
 def check_python_style_and_errors() -> None:
-    run_with_check([
-        "flake8",
-        f"--config={CONFIG_FILE}",
-        PYTHON_SOURCE_DIR,
-    ])
+    run_with_check(
+        [
+            "flake8",
+            f"--config={CONFIG_FILE}",
+            PYTHON_SOURCE_DIR,
+        ]
+    )
 
 
 def check_python_formatting() -> None:
@@ -129,16 +130,15 @@ def check_yml() -> None:
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
 def in_virtualenv() -> bool:
-    return (
-        hasattr(sys, "real_prefix") or
-        (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
+    return hasattr(sys, "real_prefix") or (
+        hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
     )
 
 
 def get_flake8_version() -> List[int]:
     command = ["flake8", "--version"]
-    output = run(command, stdout=PIPE).stdout.decode('utf-8').split()[0]
-    flake8_version = [int(n) for n in output.split('.')]
+    output = run(command, stdout=PIPE).stdout.decode("utf-8").split()[0]
+    flake8_version = [int(n) for n in output.split(".")]
 
     return flake8_version
 
@@ -154,7 +154,9 @@ def main() -> None:
         sys.exit(EXIT_FAILURE)
 
     if get_flake8_version() < [3, 7, 8]:
-        log.error("flake8 version must be 3.7.8 or higher for type hint support")  # noqa
+        log.error(
+            "flake8 version must be 3.7.8 or higher for type hint support"
+        )
         sys.exit(EXIT_FAILURE)
 
     try:
