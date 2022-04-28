@@ -105,9 +105,7 @@ def check_python_formatting() -> None:
             "--line-length",
             "79",
             "--diff",
-            "--check",
-            "--exclude",
-            "working",
+            "--check",  # Should not need --exclude (reads .gitignore)
             PYTHON_SOURCE_DIR,
         ]
     )
