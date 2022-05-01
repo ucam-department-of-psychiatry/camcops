@@ -161,8 +161,7 @@ SELECT sqlcipher_export('encrypted');
 DETACH DATABASE encrypted;
 .exit
     """.format(
-        encrypted=progargs.encrypted,
-        key=string_to_sql_literal(password),
+        encrypted=progargs.encrypted, key=string_to_sql_literal(password)
     )
     cmdargs = [sqlcipher, progargs.plaintext]
     # log.debug("cmdargs: " + repr(cmdargs))

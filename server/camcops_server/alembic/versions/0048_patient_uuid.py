@@ -64,10 +64,7 @@ def upgrade():
     with op.batch_alter_table("patient", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
-                "uuid",
-                UuidColType(length=32),
-                nullable=True,
-                comment="UUID",
+                "uuid", UuidColType(length=32), nullable=True, comment="UUID"
             )
         )
 

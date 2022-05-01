@@ -818,9 +818,7 @@ class ExportRecipientInfo(object):
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
-        from camcops_server.cc_modules.cc_group import (
-            Group,
-        )  # delayed import
+        from camcops_server.cc_modules.cc_group import Group  # delayed import
 
         def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)

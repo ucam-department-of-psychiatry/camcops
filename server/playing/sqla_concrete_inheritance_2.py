@@ -30,13 +30,7 @@ playing/sqla_concrete_inheritance_2.py
 """
 # https://stackoverflow.com/questions/26724897/adjacency-list-abstract-base-class-inheritance-used-in-relationship
 
-from sqlalchemy import (
-    Column,
-    String,
-    Integer,
-    create_engine,
-    Float,
-)
+from sqlalchemy import Column, String, Integer, create_engine, Float
 from sqlalchemy.orm import configure_mappers, Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr, AbstractConcreteBase

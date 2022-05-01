@@ -320,14 +320,12 @@ class CamcopsSession(Base):
         # Fetch or create
         # ---------------------------------------------------------------------
         if session_id and session_token:
-            oldest_last_activity_allowed = (
-                cls.get_oldest_last_activity_allowed(req)
-            )
+            oldest_permitted = cls.get_oldest_last_activity_allowed(req)
             query = (
                 dbsession.query(cls)
                 .filter(cls.id == session_id)
                 .filter(cls.token == session_token)
-                .filter(cls.last_activity_utc >= oldest_last_activity_allowed)
+                .filter(cls.last_activity_utc >= oldest_permitted)
             )
 
             if req.config.session_check_user_ip:

@@ -436,9 +436,7 @@ from cardinal_pythonlib.buildfunc import (
     untar_to_directory,
 )
 from cardinal_pythonlib.buildfunc import run as run2
-from cardinal_pythonlib.file_io import (
-    replace_multiple_in_file,
-)
+from cardinal_pythonlib.file_io import replace_multiple_in_file
 from cardinal_pythonlib.fileops import (
     copy_tree_contents,
     mkdir_p,
@@ -559,7 +557,9 @@ OPENSSL_SRC_URL = (
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
 # SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQLCipher version 3.4.2, 21 Dec 2017  # noqa
-SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"  # SQLCipher version 4.2.0, 29 May 2019  # noqa
+SQLCIPHER_GIT_COMMIT = (
+    "750f5e32474ee23a423376203e671cab9841c67a"
+)  # SQLCipher version 4.2.0, 29 May 2019  # noqa
 
 # - Note that there's another URL for the Android binary packages
 # - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
@@ -578,8 +578,12 @@ MIN_MACOS_VERSION = "10.10"  # ... with 10.7, SQLCipher's "configure" fails
 
 # GNU tools
 
-CONFIG_GUESS_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"  # noqa
-CONFIG_SUB_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"  # noqa
+CONFIG_GUESS_MASTER = (
+    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"
+)  # noqa
+CONFIG_SUB_MASTER = (
+    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"
+)  # noqa
 
 
 # -----------------------------------------------------------------------------
@@ -3065,14 +3069,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     if target_platform.android:
         configure_args += [f"-D__ANDROID_API__={cfg.android_sdk_version}"]
     if target_platform.ios:
-        configure_args += [
-            "no-makedepend",
-        ]
+        configure_args += ["no-makedepend"]
 
     if target_platform.qt_linkage_static:
-        configure_args += [
-            "no-shared",
-        ]
+        configure_args += ["no-shared"]
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 2/2
@@ -3379,13 +3379,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     else:
         configure_prog_name = "configure"
     # sysroot = cfg.sysroot(target_platform, env)
-    includedirs = [
-        openssl_include_root,  # #include files for OpenSSL
-    ]
+    includedirs = [openssl_include_root]  # #include files for OpenSSL
     objdirs = []  # type: List[str]
-    libdirs = [
-        openssl_lib_root,  # libraries for OpenSSL
-    ]
+    libdirs = [openssl_lib_root]  # libraries for OpenSSL
     qt_config_args = [
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
@@ -3827,9 +3823,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         if "CFLAGS" in env:
             # inherit this too; 2018-08-24
             cflags.append(env["CFLAGS"])
-        gccflags = [
-            "-Wfatal-errors",  # all errors are fatal
-        ]
+        gccflags = ["-Wfatal-errors"]  # all errors are fatal
 
         # Linker:
         ldflags = [f"-L{openssl_workdir}"]

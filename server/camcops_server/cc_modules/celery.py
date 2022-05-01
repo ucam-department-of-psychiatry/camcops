@@ -299,7 +299,7 @@ def backoff_delay_s(attempts: int) -> float:
     As per https://blog.balthazar-rouberol.com/celery-best-practices.
 
     """
-    return 2.0**attempts
+    return 2.0 ** attempts
 
 
 def jittered_delay_s() -> float:
@@ -463,9 +463,7 @@ def export_to_recipient_backend(
         self: the Celery task, :class:`celery.app.task.Task`
         recipient_name: export recipient name (as per the config file)
     """
-    from camcops_server.cc_modules.cc_export import (
-        export,
-    )  # delayed import
+    from camcops_server.cc_modules.cc_export import export  # delayed import
     from camcops_server.cc_modules.cc_request import (
         command_line_request_context,
     )  # delayed import

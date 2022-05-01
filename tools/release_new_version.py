@@ -102,30 +102,40 @@ class MissingDateException(Exception):
 
 
 class VersionReleaser:
-    #                         (               1                       )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
-    client_version_search = r"(^const Version CAMCOPS_CLIENT_VERSION\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    client_version_search = (
+        # (               1                       )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
+        r"(^const Version CAMCOPS_CLIENT_VERSION\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    )
     client_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                      (               1                        )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
-    client_date_search = r"(^const QDate CAMCOPS_CLIENT_CHANGEDATE\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    client_date_search = (
+        # (               1                        )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
+        r"(^const QDate CAMCOPS_CLIENT_CHANGEDATE\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    )
     client_date_replace = r"\g<1>{year}\g<3>{month}\g<5>{day}\g<7>"
 
-    #                          (              1                )( 2 )( 3)( 4 )( 5)( 6 )(7)  # noqa: E501
-    windows_version_search = r'(^#define CamcopsClientVersion ")(\d+)(\.)(\d+)(\.)(\d+)(")'  # noqa: E501
+    windows_version_search = (
+        # (              1                )( 2 )( 3)( 4 )( 5)( 6 )(7)
+        r'(^#define CamcopsClientVersion ")(\d+)(\.)(\d+)(\.)(\d+)(")'
+    )
     windows_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                          (          1          )( 2 )( 3)( 4 )( 5)( 6 )(7)  # noqa: E501
     android_version_search = (
+        # (          1          )( 2 )( 3)( 4 )( 5)( 6 )(7)
         r'(android:versionName=")(\d+)(\.)(\d+)(\.)(\d+)(")'
     )
     android_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                            (                      1                         )( 3 )( 3)( 4 )( 5)( 6 )(    7    )  # noqa: E501
-    ios_short_version_search = r"(<key>CFBundleShortVersionString</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    ios_short_version_search = (
+        # (                      1                         )( 3 )( 3)( 4 )( 5)( 6 )(    7    )  # noqa: E501
+        r"(<key>CFBundleShortVersionString</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    )
     ios_short_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                      (                  1                  )( 2 )( 3)( 4 )( 5)( 6 )( 7)( 8 )(    9    )  # noqa: E501
-    ios_version_search = r"(<key>CFBundleVersion</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    ios_version_search = (
+        # (                  1                  )( 2 )( 3)( 4 )( 5)( 6 )( 7)( 8 )(    9    )  # noqa: E501
+        r"(<key>CFBundleVersion</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    )
     ios_version_replace = (
         r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>{extra}\g<9>"
     )

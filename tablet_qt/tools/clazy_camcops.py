@@ -61,9 +61,7 @@ CAMCOPS_CPP_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 
 DEFAULT_QT_INSTALLATION_ROOT = "~/dev/qt_local_build/qt_linux_x86_64_install"
 
-CAMCOPS_CPP_INCLUDE_DIRS = [
-    CAMCOPS_CPP_DIR,
-]
+CAMCOPS_CPP_INCLUDE_DIRS = [CAMCOPS_CPP_DIR]
 CAMCOPS_CPP_INCLUDE_DIRS.sort()
 
 

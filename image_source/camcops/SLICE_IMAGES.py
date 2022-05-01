@@ -377,13 +377,7 @@ def crop_pdf(
         args += ["-verbose"]
     if autocrop:
         args.append("-trim")
-    args.extend(
-        [
-            "-density",
-            str(density_dpi),
-            src_filename,
-        ]
-    )
+    args.extend(["-density", str(density_dpi), src_filename])
     if autocrop:
         args.append("+repage")
     if transparent:
@@ -411,12 +405,7 @@ def crop_pdf(
         # ])
 
         # https://www.imagemagick.org/discourse-server/viewtopic.php?t=26252
-        args.extend(
-            [
-                "-define",
-                "icon:auto-resize=256,64,48,32,16",
-            ]
-        )
+        args.extend(["-define", "icon:auto-resize=256,64,48,32,16"])
         # Note that 256x256 icons are stored as PNG (and smaller ones as BMP)
         # within the multi-resolution .ICO file. This seems to be correct; see
         # https://en.wikipedia.org/wiki/ICO_(file_format).
@@ -510,13 +499,7 @@ def tile_pdf(
         args += ["-verbose"]
     if autocrop:
         args.append("-trim")
-    args.extend(
-        [
-            "-density",
-            str(density_dpi),
-            src_filename,
-        ]
-    )
+    args.extend(["-density", str(density_dpi), src_filename])
     if autocrop:
         args.append("+repage")
     if transparent:

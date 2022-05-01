@@ -204,9 +204,7 @@ def upgrade():
         sa.Column("dob", sa.Date(), nullable=True),
         sa.Column("sex", sa.String(length=1), nullable=True),
         sa.Column(
-            "idnum_criteria",
-            IdNumReferenceListColType(),
-            nullable=True,
+            "idnum_criteria", IdNumReferenceListColType(), nullable=True
         ),
         sa.Column(
             "device_ids",
@@ -4773,14 +4771,10 @@ def upgrade():
         "contactlog",
         sa.Column("location", sa.UnicodeText(), nullable=True),
         sa.Column(
-            "start",
-            PendulumDateTimeAsIsoTextColType(length=32),
-            nullable=True,
+            "start", PendulumDateTimeAsIsoTextColType(length=32), nullable=True
         ),
         sa.Column(
-            "end",
-            PendulumDateTimeAsIsoTextColType(length=32),
-            nullable=True,
+            "end", PendulumDateTimeAsIsoTextColType(length=32), nullable=True
         ),
         sa.Column("patient_contact", sa.Integer(), nullable=True),
         sa.Column("staff_liaison", sa.Integer(), nullable=True),

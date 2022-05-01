@@ -158,7 +158,9 @@ class DateFormat(object):
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
     FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
     # FHIR_DATETIME -- use x.isoformat()
-    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa: E501
+    FHIR_TIME = (
+        "%H:%M:%S"
+    )  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa: E501
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100

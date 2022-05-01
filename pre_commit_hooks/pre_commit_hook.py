@@ -86,13 +86,7 @@ def run_with_check(args: List[str]) -> None:
 
 
 def check_python_style_and_errors() -> None:
-    run_with_check(
-        [
-            "flake8",
-            f"--config={CONFIG_FILE}",
-            PYTHON_SOURCE_DIR,
-        ]
-    )
+    run_with_check(["flake8", f"--config={CONFIG_FILE}", PYTHON_SOURCE_DIR])
 
 
 def check_python_formatting() -> None:

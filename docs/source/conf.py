@@ -70,7 +70,7 @@ sys.path.insert(0, CAMCOPS_SERVER_ROOT_DIR)
 
 project = "CamCOPS"
 # noinspection PyShadowingBuiltins
-copyright = "2012-2020, Rudolf Cardinal"
+copyright = "2012, University of Cambridge, Department of Psychiatry"
 author = "Rudolf Cardinal"
 
 # The short X.Y version
@@ -218,7 +218,7 @@ latex_documents = [
         "CamCOPS Documentation",
         "Rudolf Cardinal",
         "manual",
-    ),
+    )
 ]
 
 
@@ -243,7 +243,7 @@ texinfo_documents = [
         "CamCOPS",
         "Cambridge Cognitive and Psychiatric Assessment Kit.",
         "Miscellaneous",
-    ),
+    )
 ]
 
 
@@ -371,10 +371,7 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
             )
         )
         parsed_nodes, parsed_msgs = inliner.parse(
-            text=text,
-            lineno=0,
-            memo=inliner,
-            parent=None,
+            text=text, lineno=0, memo=inliner, parent=None
         )  # type: Tuple[List[Node], List[str]]
         top_node = nodes.inline(  # was nodes.inline
             text="", refid=css_class, **options

@@ -163,7 +163,7 @@ def main() -> NoReturn:
         sql_commands += [
             "PRAGMA cipher_compatibility = {};".format(
                 progargs.cipher_compatibility
-            ),
+            )
         ]
     sql_commands += [
         "",
