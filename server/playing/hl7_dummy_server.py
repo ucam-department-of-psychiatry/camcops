@@ -42,7 +42,7 @@ from twisted.internet import protocol, reactor
 
 # made by this code:
 testmsg_1 = (
-    "MSH|^~\&|hl7_dummy_server.py||||20140619232037+0100||ACK|1|P"
+    "MSH|^~\\&|hl7_dummy_server.py||||20140619232037+0100||ACK|1|P"
     "|2.3||||AL||UNICODE UTF-8|"
     "\r"
     "MSA|AE|20140619232037+0100|Failure|||"
@@ -50,25 +50,25 @@ testmsg_1 = (
 
 # from http://hl7reference.com/HL7%20Specifications%20ORM-ORU.PDF
 testmsg_2 = (
-    "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
+    "MSH|^~\\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
     "6162003124232500|P|2.3|||||||"
     "\r"
     "MSA|AA|20030226000000|Success||||"
 )
 testmsg_3 = (
-    "MSH|^~\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
+    "MSH|^~\\&|EMRDirect|Example Hospital|||20030226000000||ACK|"
     "6162003124232500|P|2.3|||||||"
     "\r"
     "MSA|AE|20030226000000|Failure||||"
 )
 
-SEGMENT_SEPARATOR = u"\r"
-FIELD_SEPARATOR = u"|"
-COMPONENT_SEPARATOR = u"^"
-SUBCOMPONENT_SEPARATOR = u"&"
+SEGMENT_SEPARATOR = "\r"
+FIELD_SEPARATOR = "|"
+COMPONENT_SEPARATOR = "^"
+SUBCOMPONENT_SEPARATOR = "&"
 DATEFORMAT_HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
-REPETITION_SEPARATOR = u"~"
-ESCAPE_CHARACTER = u"\\"
+REPETITION_SEPARATOR = "~"
+ESCAPE_CHARACTER = "\\"
 
 SB = "\x0b"  # <SB>, vertical tab
 EB = "\x1c"  # <EB>, file separator
@@ -119,7 +119,7 @@ class HL7Server(protocol.Protocol):
 
         # Our messages
         msg = make_hl7_ack(success)
-        data = unicode(msg)
+        data = str(msg)
 
         # Testing other messages
         # data = testmsg_2 if success else testmsg_3
@@ -148,14 +148,14 @@ def format_datetime(d, fmt, default=None):
 
 
 def make_msh_segment(message_datetime):
-    segment_id = u"MSH"
+    segment_id = "MSH"
     encoding_characters = (
         COMPONENT_SEPARATOR
         + REPETITION_SEPARATOR
         + ESCAPE_CHARACTER
         + SUBCOMPONENT_SEPARATOR
     )
-    sending_application = u"hl7_dummy_server.py"
+    sending_application = "hl7_dummy_server.py"
     sending_facility = ""
     receiving_application = ""
     receiving_facility = ""
@@ -163,7 +163,7 @@ def make_msh_segment(message_datetime):
         message_datetime, DATEFORMAT_HL7_DATETIME
     )
     security = ""
-    message_type = u"ACK"
+    message_type = "ACK"
     message_control_id = "1"
     processing_id = "P"  # production (processing mode: current)
     version_id = "2.3"  # HL7 version
@@ -203,12 +203,12 @@ def make_msh_segment(message_datetime):
 
 
 def make_msa_segment(message_datetime, success):
-    segment_id = u"MSA"
-    acknowledgement_code = u"AA" if success else u"AE"
+    segment_id = "MSA"
+    acknowledgement_code = "AA" if success else "AE"
     message_control_id = format_datetime(
         message_datetime, DATEFORMAT_HL7_DATETIME
     )
-    test_mesage = u"Success" if success else u"Failure"
+    test_mesage = "Success" if success else "Failure"
     expected_sequence_number = ""
     delayed_acknowledgement_type = ""
     error_condition = ""

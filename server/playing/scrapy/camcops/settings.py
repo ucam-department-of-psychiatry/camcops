@@ -15,7 +15,8 @@ SPIDER_MODULES = ["camcops.spiders"]
 NEWSPIDER_MODULE = "camcops.spiders"
 
 
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
+# Crawl responsibly by identifying yourself (and your website) on the
+# user-agent
 # USER_AGENT = 'camcops (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
@@ -42,7 +43,7 @@ COOKIES_DEBUG = True
 
 # Override the default request headers:
 # DEFAULT_REQUEST_HEADERS = {
-#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',  # noqa: E501
 #   'Accept-Language': 'en',
 # }
 
@@ -84,7 +85,7 @@ COOKIES_DEBUG = True
 # AUTOTHROTTLE_DEBUG = False
 
 # Enable and configure HTTP caching (disabled by default)
-# See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
+# See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings  # noqa: E501
 # HTTPCACHE_ENABLED = True
 # HTTPCACHE_EXPIRATION_SECS = 0
 # HTTPCACHE_DIR = 'httpcache'

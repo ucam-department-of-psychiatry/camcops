@@ -42,7 +42,10 @@ Creation date: 2019-08-12 17:23:42.336508
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -79,7 +82,11 @@ def upgrade():
             "ethnicity",
             sa.Integer(),
             nullable=True,
-            comment="Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, 4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, 7 Black African, 8 Black Other, 9 Chinese, 10 Other (specify))",
+            comment=(
+                "Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, 4"
+                " Bangladeshi, 5 Other Asian, 6 Black Caribbean, 7 Black"
+                " African, 8 Black Other, 9 Chinese, 10 Other (specify))"
+            ),
         ),
         sa.Column(
             "other_ethnicity",
@@ -91,7 +98,11 @@ def upgrade():
             "with_whom_live",
             sa.Integer(),
             nullable=True,
-            comment="0 Alone, 1 Alone with children, 2 Partner/Spouse, 3 Partner/Spouse and children, 4 Parents, 5 Other family, 6 Friends, 7 Other (specify)",
+            comment=(
+                "0 Alone, 1 Alone with children, 2 Partner/Spouse, 3"
+                " Partner/Spouse and children, 4 Parents, 5 Other family, 6"
+                " Friends, 7 Other (specify)"
+            ),
         ),
         sa.Column(
             "other_with_whom_live",
@@ -103,19 +114,30 @@ def upgrade():
             "relationship_status",
             sa.Integer(),
             nullable=True,
-            comment="0 Single, 1 Married / Civil partnership, 2 In steady relationship, 3 Divorced / separated, 4 Widowed",
+            comment=(
+                "0 Single, 1 Married / Civil partnership, 2 In steady"
+                " relationship, 3 Divorced / separated, 4 Widowed"
+            ),
         ),
         sa.Column(
             "education",
             sa.Integer(),
             nullable=True,
-            comment="0 No qualifications, 1 GCSE/O levels, 2 A levels, 3 Vocational/college (B. Tecs/NVQs etc), 4 University / Professional Qualifications",
+            comment=(
+                "0 No qualifications, 1 GCSE/O levels, 2 A levels, 3"
+                " Vocational/college (B. Tecs/NVQs etc), 4 University /"
+                " Professional Qualifications"
+            ),
         ),
         sa.Column(
             "employment",
             sa.Integer(),
             nullable=True,
-            comment="0 No unemployed, 1 No student, 2 Yes full time, 3 Yes part time, 4 Full time homemaker, 5 Self employed, 6 Not working for medical reasons, 7 Other (specify)",
+            comment=(
+                "0 No unemployed, 1 No student, 2 Yes full time, 3 Yes part"
+                " time, 4 Full time homemaker, 5 Self employed, 6 Not working"
+                " for medical reasons, 7 Other (specify)"
+            ),
         ),
         sa.Column(
             "other_employment",
@@ -127,7 +149,12 @@ def upgrade():
             "accommodation",
             sa.Integer(),
             nullable=True,
-            comment="0 Own outright, 1 Own with mortgage, 2 Rent from local authority etc, 3 Rent from landlord (private), 4 Shared ownership (part rent, part mortgage)5 Live rent free, 6 Other (specify)",
+            comment=(
+                "0 Own outright, 1 Own with mortgage, 2 Rent from local"
+                " authority etc, 3 Rent from landlord (private), 4 Shared"
+                " ownership (part rent, part mortgage)5 Live rent free, 6"
+                " Other (specify)"
+            ),
         ),
         sa.Column(
             "other_accommodation",
@@ -143,31 +170,37 @@ def upgrade():
         ),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
-            comment="(TASK) Date/time this task instance was created (ISO 8601)",
+            comment=(
+                "(TASK) Date/time this task instance was created (ISO 8601)"
+            ),
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+            comment=(
+                "(TASK) Date/time of the first exit from this task (ISO 8601)"
+            ),
         ),
         sa.Column(
             "firstexit_is_finish",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from the task because it was finished (1)?",
+            comment=(
+                "(TASK) Was the first exit from the task because it was"
+                " finished (1)?"
+            ),
         ),
         sa.Column(
             "firstexit_is_abort",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from this task because it was aborted (1)?",
+            comment=(
+                "(TASK) Was the first exit from this task because it was"
+                " aborted (1)?"
+            ),
         ),
         sa.Column(
             "editing_time_s",
@@ -192,7 +225,10 @@ def upgrade():
             "_era",
             sa.String(length=32),
             nullable=False,
-            comment="(SERVER) 'NOW', or when this row was preserved and removed from the source device (UTC ISO 8601)",
+            comment=(
+                "(SERVER) 'NOW', or when this row was preserved and removed"
+                " from the source device (UTC ISO 8601)"
+            ),
         ),
         sa.Column(
             "_current",
@@ -202,9 +238,7 @@ def upgrade():
         ),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time this row was added (ISO 8601)",
         ),
@@ -212,7 +246,10 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that added this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that added this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_adding_user_id",
@@ -222,17 +259,21 @@ def upgrade():
         ),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(SERVER) Date/time this row was removed, i.e. made not current (ISO 8601)",
+            comment=(
+                "(SERVER) Date/time this row was removed, i.e. made not"
+                " current (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that removed this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that removed this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_removing_user_id",
@@ -250,7 +291,10 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment="(SERVER) Forcibly preserved by superuser (rather than normally preserved by tablet)?",
+            comment=(
+                "(SERVER) Forcibly preserved by superuser (rather than"
+                " normally preserved by tablet)?"
+            ),
         ),
         sa.Column(
             "_predecessor_pk",
@@ -262,7 +306,10 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment="(SERVER) PK of successor record  (after modification) or NULL (whilst live, or after deletion)",
+            comment=(
+                "(SERVER) PK of successor record  (after modification) or NULL"
+                " (whilst live, or after deletion)"
+            ),
         ),
         sa.Column(
             "_manually_erased",
@@ -272,9 +319,7 @@ def upgrade():
         ),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)",
         ),
@@ -286,9 +331,7 @@ def upgrade():
         ),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
             comment="(SERVER) CamCOPS version number of the uploading device",
         ),
@@ -318,11 +361,12 @@ def upgrade():
         ),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(STANDARD) Date/time this row was last modified on the source tablet device (ISO 8601)",
+            comment=(
+                "(STANDARD) Date/time this row was last modified on the source"
+                " tablet device (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_move_off_tablet",

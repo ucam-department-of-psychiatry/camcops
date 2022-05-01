@@ -255,7 +255,6 @@ class TestIso(Base):
                 repr(self.plain_datetime),
                 repr(self.when_created),
                 repr(self.when_deleted),
-                self.q1,
             )
         )
 

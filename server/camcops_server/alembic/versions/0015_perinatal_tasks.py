@@ -47,7 +47,10 @@ Creation date: 2019-02-04 10:09:25.229002
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -71,9 +74,7 @@ def upgrade():
         "apeqpt",
         sa.Column(
             "q_datetime",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("q1_choice", sa.Integer(), nullable=True),
@@ -83,16 +84,12 @@ def upgrade():
         sa.Column("q2_satisfaction", sa.UnicodeText(), nullable=True),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("firstexit_is_finish", sa.Boolean(), nullable=True),
@@ -104,18 +101,14 @@ def upgrade():
         sa.Column("_current", sa.Boolean(), nullable=False),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_added_batch_utc", sa.DateTime(), nullable=True),
         sa.Column("_adding_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_removed_batch_utc", sa.DateTime(), nullable=True),
@@ -127,17 +120,13 @@ def upgrade():
         sa.Column("_manually_erased", sa.Boolean(), nullable=True),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_manually_erasing_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
         ),
         sa.Column("_addition_pending", sa.Boolean(), nullable=False),
@@ -146,9 +135,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_move_off_tablet", sa.Boolean(), nullable=True),
@@ -222,16 +209,12 @@ def upgrade():
         sa.Column("patient_id", sa.Integer(), nullable=False),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("firstexit_is_finish", sa.Boolean(), nullable=True),
@@ -243,18 +226,14 @@ def upgrade():
         sa.Column("_current", sa.Boolean(), nullable=False),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_added_batch_utc", sa.DateTime(), nullable=True),
         sa.Column("_adding_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_removed_batch_utc", sa.DateTime(), nullable=True),
@@ -266,17 +245,13 @@ def upgrade():
         sa.Column("_manually_erased", sa.Boolean(), nullable=True),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_manually_erasing_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
         ),
         sa.Column("_addition_pending", sa.Boolean(), nullable=False),
@@ -285,9 +260,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_move_off_tablet", sa.Boolean(), nullable=True),
@@ -367,16 +340,12 @@ def upgrade():
         sa.Column("patient_id", sa.Integer(), nullable=False),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("firstexit_is_finish", sa.Boolean(), nullable=True),
@@ -388,18 +357,14 @@ def upgrade():
         sa.Column("_current", sa.Boolean(), nullable=False),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_added_batch_utc", sa.DateTime(), nullable=True),
         sa.Column("_adding_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_removed_batch_utc", sa.DateTime(), nullable=True),
@@ -411,17 +376,13 @@ def upgrade():
         sa.Column("_manually_erased", sa.Boolean(), nullable=True),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_manually_erasing_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
         ),
         sa.Column("_addition_pending", sa.Boolean(), nullable=False),
@@ -430,9 +391,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_move_off_tablet", sa.Boolean(), nullable=True),
@@ -506,16 +465,12 @@ def upgrade():
         sa.Column("patient_id", sa.Integer(), nullable=False),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("firstexit_is_finish", sa.Boolean(), nullable=True),
@@ -527,18 +482,14 @@ def upgrade():
         sa.Column("_current", sa.Boolean(), nullable=False),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_added_batch_utc", sa.DateTime(), nullable=True),
         sa.Column("_adding_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_removed_batch_utc", sa.DateTime(), nullable=True),
@@ -550,17 +501,13 @@ def upgrade():
         sa.Column("_manually_erased", sa.Boolean(), nullable=True),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_manually_erasing_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
         ),
         sa.Column("_addition_pending", sa.Boolean(), nullable=False),
@@ -569,9 +516,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_move_off_tablet", sa.Boolean(), nullable=True),

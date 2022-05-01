@@ -1045,7 +1045,8 @@ class LoginView(MfaMixin, FormView):
         )  # checks password
 
         # Some trade-off between usability and security here.
-        # For failed attempts, the user has some idea as to what the problem is.
+        # For failed attempts, the user has some idea as to what the problem
+        # is.
         if user is None:
             # Unsuccessful. Note that the username may/may not be genuine.
             SecurityLoginFailure.act_on_login_failure(self.request, username)
@@ -1684,7 +1685,7 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
 
     wizard_forms = {
         STEP_MFA_METHOD: MfaMethodForm,  # 1. choose your MFA method
-        STEP_TOTP: MfaTotpForm,  # 2a. show TOTP (auth app) QR/alphanumeric code
+        STEP_TOTP: MfaTotpForm,  # 2a. show TOTP (auth app) QR/alphanumeric code  # noqa: E501
         STEP_HOTP_EMAIL: MfaHotpEmailForm,  # 2b. choose e-mail address
         STEP_HOTP_SMS: MfaHotpSmsForm,  # 2c. choose phone number for SMS
         MfaMixin.STEP_MFA: OtpTokenForm,  # 4. request code from user
@@ -4269,7 +4270,7 @@ def view_id_definitions(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 def get_iddef_from_request_which_idnum_or_raise(
-    req: "CamcopsRequest"
+    req: "CamcopsRequest",
 ) -> IdNumDefinition:
     """
     Returns the :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition`
@@ -5428,8 +5429,8 @@ class EditFinalizedPatientView(EditPatientBaseView):
 
             raise HTTPBadRequest(
                 _(
-                    "Patient is not editable (likely: not finalized, so a copy "
-                    "still on a client device)"
+                    "Patient is not editable (likely: not finalized, so a "
+                    "copy still on a client device)"
                 )
             )
 

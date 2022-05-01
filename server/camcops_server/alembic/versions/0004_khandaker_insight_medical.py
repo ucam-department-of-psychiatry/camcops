@@ -39,7 +39,10 @@ DATABASE REVISION SCRIPT
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -113,16 +116,12 @@ def upgrade():
         sa.Column("firstexit_is_abort", sa.Boolean(), nullable=True),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("editing_time_s", sa.Float(), nullable=True),
@@ -134,34 +133,26 @@ def upgrade():
         sa.Column("_predecessor_pk", sa.Integer(), nullable=True),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_when_removed_batch_utc", sa.DateTime(), nullable=True),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_group_id", sa.Integer(), nullable=False),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_current", sa.Boolean(), nullable=False),
         sa.Column("_manually_erasing_user_id", sa.Integer(), nullable=True),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
         ),
         sa.Column("_manually_erased", sa.Boolean(), nullable=True),
@@ -173,9 +164,7 @@ def upgrade():
         sa.Column("_era", sa.String(length=32), nullable=False),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
         ),
         sa.Column("_forcibly_preserved", sa.Boolean(), nullable=True),

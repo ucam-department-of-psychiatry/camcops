@@ -67,7 +67,7 @@ PV_NHS_ETHNIC_CATEGORY = [
 
 
 def get_nhs_dd_person_marital_status(
-    req: "CamcopsRequest"
+    req: "CamcopsRequest",
 ) -> Dict[Optional[str], Optional[str]]:
     """
     Returns a dictionary mapping NHS marital status codes to descriptive
@@ -85,7 +85,7 @@ def get_nhs_dd_person_marital_status(
 
 
 def get_nhs_dd_ethnic_category_code(
-    req: "CamcopsRequest"
+    req: "CamcopsRequest",
 ) -> Dict[Optional[str], Optional[str]]:
     """
     Returns a dictionary mapping NHS ethnicity codes to descriptive

@@ -118,7 +118,9 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             return CTV_INCOMPLETE
         return [
             CtvInfo(
-                content=f"CGI total score {self.total_score()}/{self.MAX_SCORE}"
+                content=(
+                    f"CGI total score {self.total_score()}/{self.MAX_SCORE}"
+                )
             )
         ]
 

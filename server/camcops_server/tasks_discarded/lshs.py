@@ -222,4 +222,4 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
         )
         return h
 
-'''
+'''  # noqa: E501

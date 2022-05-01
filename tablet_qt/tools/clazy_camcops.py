@@ -71,44 +71,52 @@ CAMCOPS_CPP_INCLUDE_DIRS.sort()
 # Apply clazy to our source code
 # =============================================================================
 
+
 def clazy_camcops_source() -> None:
     """
     Apply clazy to CamCOPS C++ source code, to detect errors.
     """
     parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action="store_true", help="Be verbose")
     parser.add_argument(
-        "--verbose", action="store_true",
-        help="Be verbose"
+        "--assemble",
+        action="store_true",
+        help=(
+            "Assemble (produce .s file) rather than compile (produce .o file)"
+        ),
     )
     parser.add_argument(
-        "--assemble", action="store_true",
-        help="Assemble (produce .s file) rather than compile (produce .o file)"
-    )
-    parser.add_argument(
-        "--clazy", type=str,
+        "--clazy",
+        type=str,
         default=os.environ.get(ENVVAR_CLAZY, shutil.which("clazy")),
         help=f"Path to clazy. Priority: (1) this argument, (2) the "
-             f"{ENVVAR_CLAZY} environment variable, (3) the results of "
-             f"'which clazy'."
+        f"{ENVVAR_CLAZY} environment variable, (3) the results of "
+        f"'which clazy'.",
     )
     parser.add_argument(
-        "--qt_installation_root", type=str,
+        "--qt_installation_root",
+        type=str,
         default=os.environ.get(
             ENVVAR_QT_INSTALLATION_ROOT,
-            os.path.expanduser(DEFAULT_QT_INSTALLATION_ROOT)
+            os.path.expanduser(DEFAULT_QT_INSTALLATION_ROOT),
         ),
-        help=f"Path to your installed copy of Qt. Priority: (1) this argument, "
-             f"(2) the {ENVVAR_QT_INSTALLATION_ROOT} environment variable, "
-             f"(3) {DEFAULT_QT_INSTALLATION_ROOT}."
+        help=(
+            f"Path to your installed copy of Qt. Priority: (1) this argument, "
+            f"(2) the {ENVVAR_QT_INSTALLATION_ROOT} environment variable, "
+            f"(3) {DEFAULT_QT_INSTALLATION_ROOT}."
+        ),
     )
     parser.add_argument(
-        "files", type=str, nargs="*",
-        help="Files to scan (leave blank for all)."
+        "files",
+        type=str,
+        nargs="*",
+        help="Files to scan (leave blank for all).",
     )
     args = parser.parse_args()
 
-    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
-                                    else logging.INFO)
+    main_only_quicksetup_rootlogger(
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
     log.warning("todo: clean up .s/.o files produced")
 
     # -------------------------------------------------------------------------
@@ -121,7 +129,8 @@ def clazy_camcops_source() -> None:
     # noinspection PyUnresolvedReferences
     system_cpp_include_dirs = [qt_include_root] + [
         # All immediate subdirectories of qt_include_root
-        x.path for x in os.scandir(qt_include_root)
+        x.path
+        for x in os.scandir(qt_include_root)
     ]
     system_cpp_include_dirs.sort()
 
@@ -137,9 +146,7 @@ def clazy_camcops_source() -> None:
     # Basic arguments
     cmdargs = [
         args.clazy,
-
         "-fPIC",  # https://gcc.gnu.org/onlinedocs/gcc-4.0.4/gccint/PIC.html
-
         "--assemble" if args.assemble else "--compile",
         # --assemble produces ".s" files  (preprocess/assemble);
         # --compile produces ".o" files (preprocess/assemble/compile);

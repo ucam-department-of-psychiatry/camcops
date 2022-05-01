@@ -43,7 +43,10 @@ from alembic import op
 import sqlalchemy as sa
 import cardinal_pythonlib.sqlalchemy.list_types
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -69,133 +72,202 @@ def upgrade():
             "qa",
             sa.Integer(),
             nullable=True,
-            comment="Question A: Is the respondent the patient (1) or other (2)?",
+            comment=(
+                "Question A: Is the respondent the patient (1) or other (2)?"
+            ),
         ),
         sa.Column(
             "qb",
             sa.Integer(),
             nullable=True,
-            comment="Question B: Was the service type inpatient [mother-and-baby unit, MBU] (1) or community (2)?",
+            comment=(
+                "Question B: Was the service type inpatient [mother-and-baby"
+                " unit, MBU] (1) or community (2)?"
+            ),
         ),
         sa.Column(
             "q1a",
             sa.Integer(),
             nullable=True,
-            comment="Q1A: mental health at first contact (1 very well, 2 well, 3 unwell, 4 very unwell, 5 extremely unwell)",
+            comment=(
+                "Q1A: mental health at first contact (1 very well, 2 well, 3"
+                " unwell, 4 very unwell, 5 extremely unwell)"
+            ),
         ),
         sa.Column(
             "q1b",
             sa.Integer(),
             nullable=True,
-            comment="Q1B: mental health at discharge (1 very well, 2 well, 3 unwell, 4 very unwell, 5 extremely unwell)",
+            comment=(
+                "Q1B: mental health at discharge (1 very well, 2 well, 3"
+                " unwell, 4 very unwell, 5 extremely unwell)"
+            ),
         ),
         sa.Column(
             "q2a",
             sa.Integer(),
             nullable=True,
-            comment="Q2a: staff didn't communicate with others (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2a: staff didn't communicate with others (1 strongly agree,"
+                " 2 agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2b",
             sa.Integer(),
             nullable=True,
-            comment="Q2b: Staff gave right amount of support (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2b: Staff gave right amount of support (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2c",
             sa.Integer(),
             nullable=True,
-            comment="Q2c: Help not quick enough after referral (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2c: Help not quick enough after referral (1 strongly agree,"
+                " 2 agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2d",
             sa.Integer(),
             nullable=True,
-            comment="Q2d: Staff listened/understood (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2d: Staff listened/understood (1 strongly agree, 2 agree, 3"
+                " disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2e",
             sa.Integer(),
             nullable=True,
-            comment="Q2e: Staff didn't involve pt enough (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2e: Staff didn't involve pt enough (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2f",
             sa.Integer(),
             nullable=True,
-            comment="Q2f: Service provided information (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2f: Service provided information (1 strongly agree, 2 agree,"
+                " 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2g",
             sa.Integer(),
             nullable=True,
-            comment="Q2g: Staff not very sensitive to pt (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2g: Staff not very sensitive to pt (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2h",
             sa.Integer(),
             nullable=True,
-            comment="Q2h: Staff helped understanding of illness (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2h: Staff helped understanding of illness (1 strongly agree,"
+                " 2 agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2i",
             sa.Integer(),
             nullable=True,
-            comment="Q2i: Staff not very sensitive to baby (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2i: Staff not very sensitive to baby (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2j",
             sa.Integer(),
             nullable=True,
-            comment="Q2j: Staff helped confidence re baby (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2j: Staff helped confidence re baby (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2k",
             sa.Integer(),
             nullable=True,
-            comment="Q2k: Service involved others helpfully (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2k: Service involved others helpfully (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q2l",
             sa.Integer(),
             nullable=True,
-            comment="Q2l: Would recommend service (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree)",
+            comment=(
+                "Q2l: Would recommend service (1 strongly agree, 2 agree, 3"
+                " disagree, 4 strongly disagree)"
+            ),
         ),
         sa.Column(
             "q3a",
             sa.Integer(),
             nullable=True,
-            comment="Q3a: MBU clean (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient services only]",
+            comment=(
+                "Q3a: MBU clean (1 strongly agree, 2 agree, 3 disagree, 4"
+                " strongly disagree) [Inpatient services only]"
+            ),
         ),
         sa.Column(
             "q3b",
             sa.Integer(),
             nullable=True,
-            comment="Q3b: MBU not a good place to recover (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient services only]",
+            comment=(
+                "Q3b: MBU not a good place to recover (1 strongly agree, 2"
+                " agree, 3 disagree, 4 strongly disagree) [Inpatient services"
+                " only]"
+            ),
         ),
         sa.Column(
             "q3c",
             sa.Integer(),
             nullable=True,
-            comment="Q3c: MBU did not provide helpful activities (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient services only]",
+            comment=(
+                "Q3c: MBU did not provide helpful activities (1 strongly"
+                " agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient"
+                " services only]"
+            ),
         ),
         sa.Column(
             "q3d",
             sa.Integer(),
             nullable=True,
-            comment="Q3d: MBU a good place for baby to be with pt (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient services only]",
+            comment=(
+                "Q3d: MBU a good place for baby to be with pt (1 strongly"
+                " agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient"
+                " services only]"
+            ),
         ),
         sa.Column(
             "q3e",
             sa.Integer(),
             nullable=True,
-            comment="Q3e: MBU supported contact with family/friends (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient services only]",
+            comment=(
+                "Q3e: MBU supported contact with family/friends (1 strongly"
+                " agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient"
+                " services only]"
+            ),
         ),
         sa.Column(
             "q3f",
             sa.Integer(),
             nullable=True,
-            comment="Q3f: Food not acceptable (1 strongly agree, 2 agree, 3 disagree, 4 strongly disagree) [Inpatient services only]",
+            comment=(
+                "Q3f: Food not acceptable (1 strongly agree, 2 agree, 3"
+                " disagree, 4 strongly disagree) [Inpatient services only]"
+            ),
         ),
         sa.Column(
             "general_comments",
@@ -217,31 +289,37 @@ def upgrade():
         ),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
-            comment="(TASK) Date/time this task instance was created (ISO 8601)",
+            comment=(
+                "(TASK) Date/time this task instance was created (ISO 8601)"
+            ),
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+            comment=(
+                "(TASK) Date/time of the first exit from this task (ISO 8601)"
+            ),
         ),
         sa.Column(
             "firstexit_is_finish",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from the task because it was finished (1)?",
+            comment=(
+                "(TASK) Was the first exit from the task because it was"
+                " finished (1)?"
+            ),
         ),
         sa.Column(
             "firstexit_is_abort",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from this task because it was aborted (1)?",
+            comment=(
+                "(TASK) Was the first exit from this task because it was"
+                " aborted (1)?"
+            ),
         ),
         sa.Column(
             "editing_time_s",
@@ -266,7 +344,10 @@ def upgrade():
             "_era",
             sa.String(length=32),
             nullable=False,
-            comment="(SERVER) 'NOW', or when this row was preserved and removed from the source device (UTC ISO 8601)",
+            comment=(
+                "(SERVER) 'NOW', or when this row was preserved and removed"
+                " from the source device (UTC ISO 8601)"
+            ),
         ),
         sa.Column(
             "_current",
@@ -276,9 +357,7 @@ def upgrade():
         ),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time this row was added (ISO 8601)",
         ),
@@ -286,7 +365,10 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that added this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that added this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_adding_user_id",
@@ -296,17 +378,21 @@ def upgrade():
         ),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(SERVER) Date/time this row was removed, i.e. made not current (ISO 8601)",
+            comment=(
+                "(SERVER) Date/time this row was removed, i.e. made not"
+                " current (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that removed this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that removed this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_removing_user_id",
@@ -324,7 +410,10 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment="(SERVER) Forcibly preserved by superuser (rather than normally preserved by tablet)?",
+            comment=(
+                "(SERVER) Forcibly preserved by superuser (rather than"
+                " normally preserved by tablet)?"
+            ),
         ),
         sa.Column(
             "_predecessor_pk",
@@ -336,7 +425,10 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment="(SERVER) PK of successor record  (after modification) or NULL (whilst live, or after deletion)",
+            comment=(
+                "(SERVER) PK of successor record  (after modification) or NULL"
+                " (whilst live, or after deletion)"
+            ),
         ),
         sa.Column(
             "_manually_erased",
@@ -346,9 +438,7 @@ def upgrade():
         ),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)",
         ),
@@ -360,9 +450,7 @@ def upgrade():
         ),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
             comment="(SERVER) CamCOPS version number of the uploading device",
         ),
@@ -392,11 +480,12 @@ def upgrade():
         ),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(STANDARD) Date/time this row was last modified on the source tablet device (ISO 8601)",
+            comment=(
+                "(STANDARD) Date/time this row was last modified on the source"
+                " tablet device (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_move_off_tablet",
@@ -476,7 +565,10 @@ def upgrade():
                 "tasks",
                 cardinal_pythonlib.sqlalchemy.list_types.StringListType(),
                 nullable=True,
-                comment="Base table names of CamCOPS tasks to export data from (as CSV)",
+                comment=(
+                    "Base table names of CamCOPS tasks to export data from (as"
+                    " CSV)"
+                ),
             )
         )
 

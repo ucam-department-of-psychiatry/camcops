@@ -415,17 +415,18 @@ try:
     import cardinal_pythonlib
 except ImportError:
     cardinal_pythonlib = None
-    print("Please install 'cardinal_pythonlib' first, using:\n\n"
-          "pip install cardinal_pythonlib")
+    print(
+        "Please install 'cardinal_pythonlib' first, using:\n\n"
+        "pip install cardinal_pythonlib"
+    )
     raise
 
 try:
     import distro  # http://distro.readthedocs.io/en/latest/
 except ImportError:
     distro = None
-    if platform.system() in ("Linux", ):
-        print("Please install 'distro' first, using:\n\n"
-              "pip install distro")
+    if platform.system() in ("Linux",):
+        print("Please install 'distro' first, using:\n\n" "pip install distro")
         raise
 
 from cardinal_pythonlib.buildfunc import (
@@ -460,8 +461,12 @@ from semantic_version import Version
 assert sys.version_info >= (3, 7), "Need Python 3.7 or higher"
 
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
-if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
-    raise ImportError(f"Need cardinal_pythonlib >= {MINIMUM_CARDINAL_PYTHONLIB}")  # noqa
+if Version(cardinal_pythonlib.version.VERSION) < Version(
+    MINIMUM_CARDINAL_PYTHONLIB
+):  # noqa
+    raise ImportError(
+        f"Need cardinal_pythonlib >= {MINIMUM_CARDINAL_PYTHONLIB}"
+    )  # noqa
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -491,7 +496,9 @@ if "GENERATING_CAMCOPS_DOCS" in os.environ:
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 
 DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
-DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-15, inc. 64-bit ARM  # noqa
+DEFAULT_ANDROID_NDK = join(
+    USER_DIR, "dev", "android-ndk-r20"
+)  # from 2019-06-15, inc. 64-bit ARM  # noqa
 
 DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
 
@@ -525,9 +532,9 @@ DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
-USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
-    QT_VERSION >= Version("5.12.0")  # new feature 2019-06-15
-)
+USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = QT_VERSION >= Version(
+    "5.12.0"
+)  # new feature 2019-06-15
 
 # OpenSSL
 
@@ -586,29 +593,24 @@ QT_CONFIG_COMMON_ARGS = [
     # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
     # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
     # http://doc.qt.io/qt-5.9/configure-options.html
-
     # -------------------------------------------------------------------------
     # Qt license
     # -------------------------------------------------------------------------
-
-    "-opensource", "-confirm-license",  # Choose our Qt edition.
-
+    "-opensource",
+    "-confirm-license",  # Choose our Qt edition.
     # -------------------------------------------------------------------------
     # debug v. release
     # -------------------------------------------------------------------------
     # Now decided manually (2017-12-04); occasionally we need a debug build.
     # We can't in general create a "simultaneously debug and release" build;
     # see https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7 .  # noqa
-
     # -------------------------------------------------------------------------
     # static v. shared
     # -------------------------------------------------------------------------
     # Now decided on a per-platform basis (2017-06-18)
-
     # -------------------------------------------------------------------------
     # Database support
     # -------------------------------------------------------------------------
-
     # v5.7.0 # "-qt-sql-sqlite",  # SQLite (v3) support built in to Qt
     # v5.9.0:
     # "-sql-sqlite",  # v5.9: explicitly add SQLite support
@@ -616,7 +618,6 @@ QT_CONFIG_COMMON_ARGS = [
     # 2017-12-01: conflict between SQLite and SQLCipher (symbols duplicated on
     # linking); try disabling it
     "-no-sql-sqlite",
-
     "-no-sql-db2",  # disable other SQL drivers
     "-no-sql-ibase",
     "-no-sql-mysql",  # ... for future: maybe re-enable as a plugin
@@ -625,42 +626,36 @@ QT_CONFIG_COMMON_ARGS = [
     "-no-sql-psql",  # ... for future: maybe re-enable as a plugin
     "-no-sql-sqlite2",  # this is an old SQLite version
     "-no-sql-tds",  # this one specifically was causing library problems
-
     # -------------------------------------------------------------------------
     # Libraries
     # -------------------------------------------------------------------------
-
     "-qt-doubleconversion",  # Use Qt version of double conversion library
     # NOT YET WORKING ("Qt no longer ships fonts") # "-qt-freetype",  # Qt, not system, version of Freetype  # noqa
     # NOT YET WORKING ("Qt no longer ships fonts") # "-qt-harfbuzz",  # Qt, not system, version of HarfBuzz-NG  # noqa
     "-qt-libjpeg",  # Qt, not host OS, version of JPEG library
     "-qt-libpng",  # Qt, not host OS, version of PNG library
     "-qt-zlib",  # Qt, not host OS, version of zlib
-
     # -------------------------------------------------------------------------
     # Compilation
     # -------------------------------------------------------------------------
     # Note: the default release build optimizes with -O2 -Os; there are
     # some 'configure' options to control this, but it's probably a good
     # default.
-
     "-no-warnings-are-errors",  # don't treat warnings as errors
-
     # -------------------------------------------------------------------------
     # Stuff to skip
     # -------------------------------------------------------------------------
     # CHANGE OF HEART: don't skip anything; it leads to trouble later!
-
     # not a valid "-nomake": # "-nomake", "docs",
     # not a valid "-nomake": # "-nomake", "demos",
-    "-nomake", "examples",
-    "-nomake", "tests",
-
+    "-nomake",
+    "examples",
+    "-nomake",
+    "tests",
     # "-skip", "qttranslations",
-
     # Don't need this on any platform, and unsupported on Android:
-    "-skip", "qtserialport",
-
+    "-skip",
+    "qtserialport",
     # Except the webkit stuff, which ends up giving problems with Wayland-EGL:
     # "-skip", "qtwebkit",  # disabled 2017-10-22: "Project ERROR: -skip command line argument used with non-existent module 'qtwebkit'."  # noqa
     # "-skip", "qtwebkit-examples",  # disabled 2017-10-22: ditto
@@ -713,8 +708,8 @@ XCRUN = "xcrun"  # macOS XCode tool
 # Logging
 # -----------------------------------------------------------------------------
 
-LOG_FORMAT = '%(asctime)s.%(msecs)03d:%(levelname)s:%(message)s'
-LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
+LOG_FORMAT = "%(asctime)s.%(msecs)03d:%(levelname)s:%(message)s"
+LOG_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
 # -----------------------------------------------------------------------------
 # Errors
@@ -731,15 +726,18 @@ BAD_WINDOWS_PATH_MSG = (
 
 # Take your pick:
 CANNOT_CROSS_COMPILE_QT = (
-    "Cannot, at present, cross-compile Qt from Linux to Windows.")
+    "Cannot, at present, cross-compile Qt from Linux to Windows."
+)
 ERROR_COMPILE_FOR_WINDOWS_ON_LINUX = "Please use Linux to build for Windows."
 
 QT_BUILD_DEBUG = "debug"
 QT_BUILD_RELEASE = "release"
 QT_BUILD_RELEASE_WITH_SYMBOLS = "release_w_symbols"
-QT_POSSIBLE_BUILD_TYPES = [QT_BUILD_DEBUG,
-                           QT_BUILD_RELEASE,
-                           QT_BUILD_RELEASE_WITH_SYMBOLS]
+QT_POSSIBLE_BUILD_TYPES = [
+    QT_BUILD_DEBUG,
+    QT_BUILD_RELEASE,
+    QT_BUILD_RELEASE_WITH_SYMBOLS,
+]
 
 
 # =============================================================================
@@ -761,12 +759,14 @@ def run(*args, **kwargs) -> Tuple[str, str]:
 # Classes to collect constants
 # =============================================================================
 
+
 class Os(object):
     """
     Operating system constants.
     These strings are cosmetic and should NOT be relied on for passing to
     external tools.
     """
+
     ANDROID = "Android"
     LINUX = "Linux"
     WINDOWS = "Windows"
@@ -800,6 +800,7 @@ class Cpu(object):
     "EABI" is "embedded-application binary interface".
 
     """
+
     X86_32 = "Intel x86 (32-bit)"
     X86_64 = "Intel x86 (64-bit)"
     AMD_64 = "AMD (64-bit)"
@@ -815,10 +816,12 @@ ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
 # Information about the target system
 # =============================================================================
 
+
 class Platform(object):
     """
     Represents the build or target platform, defined by OS+CPU.
     """
+
     # noinspection PyShadowingNames
     def __init__(self, os: str, cpu: str, distro_id: str = "") -> None:
         self.os = os
@@ -832,7 +835,8 @@ class Platform(object):
         # 64-bit support only (thus far)?
         if os in (Os.LINUX, Os.MACOS) and not self.cpu_x86_64bit_family:
             raise NotImplementedError(
-                f"Don't know how to build for CPU {cpu} on system {os}")
+                f"Don't know how to build for CPU {cpu} on system {os}"
+            )
 
     # -------------------------------------------------------------------------
     # Descriptives
@@ -843,9 +847,9 @@ class Platform(object):
 
     def __eq__(self, other: "Platform") -> bool:
         return (
-            self.os == other.os and
-            self.cpu == other.cpu and
-            self.distro_id == other.distro_id
+            self.os == other.os
+            and self.cpu == other.cpu
+            and self.distro_id == other.distro_id
         )
 
     @property
@@ -965,7 +969,7 @@ class Platform(object):
 
     @property
     def cpu_arm_64bit(self) -> bool:
-        return self.cpu in (Cpu.ARM_V8_64, )
+        return self.cpu in (Cpu.ARM_V8_64,)
 
     # -------------------------------------------------------------------------
     # Linkage method of Qt
@@ -1033,7 +1037,8 @@ class Platform(object):
             pass
         else:
             raise NotImplementedError(
-                f"Don't know ELF reader for {BUILD_PLATFORM}")
+                f"Don't know ELF reader for {BUILD_PLATFORM}"
+            )
 
     def verify_lib(self, filename: str) -> None:
         """
@@ -1069,15 +1074,25 @@ class Platform(object):
             else:
                 elfcmd = [READELF, "-h", filename]
                 elfresult = fetch(elfcmd)
-                arm32_tag_present = bool(re.search(r"Machine:\s+ARM", elfresult))  # noqa
-                arm64_tag_present = bool(re.search(r"Machine:\s+AArch64", elfresult))  # noqa
+                arm32_tag_present = bool(
+                    re.search(r"Machine:\s+ARM", elfresult)
+                )  # noqa
+                arm64_tag_present = bool(
+                    re.search(r"Machine:\s+AArch64", elfresult)
+                )  # noqa
                 arm_tag_present = arm32_tag_present or arm64_tag_present
                 if self.cpu_arm_32bit and not arm32_tag_present:
-                    raise ValueError(f"File {filename} was not built for 32-bit ARM")  # noqa
+                    raise ValueError(
+                        f"File {filename} was not built for 32-bit ARM"
+                    )  # noqa
                 if self.cpu_arm_64bit and not arm64_tag_present:
-                    raise ValueError(f"File {filename} was not built for 64-bit ARM")  # noqa
+                    raise ValueError(
+                        f"File {filename} was not built for 64-bit ARM"
+                    )  # noqa
                 if (not self.cpu_arm_family) and arm_tag_present:
-                    raise ValueError(f"File {filename} was built for ARM but shouldn't be")  # noqa
+                    raise ValueError(
+                        f"File {filename} was built for ARM but shouldn't be"
+                    )  # noqa
         elif BUILD_PLATFORM.macos:
             if BUILD_PLATFORM.cpu_64bit:
                 dumpcmd = [OTOOL, "-hv", "-arch", "all", filename]
@@ -1094,8 +1109,9 @@ class Platform(object):
                 arm64tag_present = False
                 for line in lines:
                     words = line.split()
-                    if (words[0] in ("Archive", "Mach", "magic") or
-                            words[0].startswith(filename)):
+                    if words[0] in ("Archive", "Mach", "magic") or words[
+                        0
+                    ].startswith(filename):
                         continue
                     assert len(words) > 1, "Unknown format of otool output"
                     cputype = words[1]
@@ -1114,8 +1130,10 @@ class Platform(object):
             elif self.cpu != Cpu.ARM_V8_64 and arm64tag_present:
                 raise ValueError(f"File {filename} was built for ARM64")
         else:
-            log.warning("Don't know how to verify library under build "
-                        "platform {}", BUILD_PLATFORM)
+            log.warning(
+                "Don't know how to verify library under build " "platform {}",
+                BUILD_PLATFORM,
+            )
             return
         log.info("Library file is good: {!r}", filename)
 
@@ -1174,8 +1192,9 @@ class Platform(object):
             # See above
             return "arm"
         else:
-            raise ValueError(f"apple_cpu_name_for_triplet(): "
-                             f"Unknown CPU {self.cpu}")
+            raise ValueError(
+                f"apple_cpu_name_for_triplet(): " f"Unknown CPU {self.cpu}"
+            )
 
     @property
     def linux_windows_cpu_name(self) -> str:
@@ -1195,7 +1214,8 @@ class Platform(object):
             return "aarch64"  # verified
         else:
             raise NotImplementedError(
-                f"linux_windows_cpu_name() doesn't know {self.cpu}")
+                f"linux_windows_cpu_name() doesn't know {self.cpu}"
+            )
 
     @property
     def triplet_cpu(self) -> str:
@@ -1212,7 +1232,7 @@ class Platform(object):
 
     @property
     def triplet_vendor(self) -> str:
-        if self.os in (Os.ANDROID, ):
+        if self.os in (Os.ANDROID,):
             return "linux"
         elif self.os in (Os.LINUX, Os.WINDOWS):
             return "unknown"
@@ -1220,7 +1240,8 @@ class Platform(object):
             return "apple"
         else:
             raise NotImplementedError(
-                f"triplet_vendor() doesn't know {self.os}")
+                f"triplet_vendor() doesn't know {self.os}"
+            )
 
     @property
     def triplet_os(self) -> str:
@@ -1283,8 +1304,9 @@ class Platform(object):
         elif self.cpu == Cpu.ARM_V8_64:
             return "arm64"
         else:
-            raise NotImplementedError("Don't know how to build Android for "
-                                      "CPU " + self.cpu)
+            raise NotImplementedError(
+                "Don't know how to build Android for " "CPU " + self.cpu
+            )
 
     @property
     def android_arch_short(self) -> str:
@@ -1367,9 +1389,8 @@ class Platform(object):
         """
         Work out the name of an appropriate ar assembler.
         """
-        return (
-            self._get_tool(GCC_AR, fullpath, cfg) or
-            self._get_tool(AR, fullpath, cfg)
+        return self._get_tool(GCC_AR, fullpath, cfg) or self._get_tool(
+            AR, fullpath, cfg
         )
 
     def cross_compile_prefix(self, cfg: "Config") -> str:
@@ -1409,10 +1430,15 @@ class Platform(object):
     # Support for make, cmake
     # -------------------------------------------------------------------------
 
-    def make_args(self, cfg: "Config", extra_args: List[str] = None,
-                  command: str = "", makefile: str = "",
-                  env: Dict[str, str] = None,
-                  allow_parallel: bool = True) -> List[str]:
+    def make_args(
+        self,
+        cfg: "Config",
+        extra_args: List[str] = None,
+        command: str = "",
+        makefile: str = "",
+        env: Dict[str, str] = None,
+        allow_parallel: bool = True,
+    ) -> List[str]:
         """
         Generates command arguments for "make" or a platform equivalent.
         """
@@ -1510,22 +1536,31 @@ BUILD_PLATFORM = get_build_platform()
 # =============================================================================
 # https://stackoverflow.com/questions/42279063/python-typehints-for-argparse-namespace-objects  # noqa
 
+
 class Config(object):
     # noinspection PyUnresolvedReferences
     def __init__(self, args: argparse.Namespace) -> None:
         # Architectures
         self.build_all = args.build_all  # type: bool
         self.build_android_x86_32 = args.build_android_x86_32  # type: bool
-        self.build_android_arm_v7_32 = args.build_android_arm_v7_32  # type: bool  # noqa
-        self.build_android_arm_v8_64 = args.build_android_arm_v8_64  # type: bool  # noqa
+        self.build_android_arm_v7_32 = (
+            args.build_android_arm_v7_32
+        )  # type: bool  # noqa
+        self.build_android_arm_v8_64 = (
+            args.build_android_arm_v8_64
+        )  # type: bool  # noqa
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
         self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
         self.build_windows_x86_32 = args.build_windows_x86_32  # type: bool
         self.build_ios_arm_v7_32 = args.build_ios_arm_v7_32  # type: bool
         self.build_ios_arm_v8_64 = args.build_ios_arm_v8_64  # type: bool
-        self.build_ios_simulator_x86_32 = args.build_ios_simulator_x86_32  # type: bool  # noqa
-        self.build_ios_simulator_x86_64 = args.build_ios_simulator_x86_64  # type: bool  # noqa
+        self.build_ios_simulator_x86_32 = (
+            args.build_ios_simulator_x86_32
+        )  # type: bool  # noqa
+        self.build_ios_simulator_x86_64 = (
+            args.build_ios_simulator_x86_64
+        )  # type: bool  # noqa
 
         if self.build_all:
             if BUILD_PLATFORM.linux:
@@ -1573,8 +1608,9 @@ class Config(object):
         self.qt_git_branch = QT_GIT_BRANCH  # type: str
         self.qt_git_commit = QT_GIT_COMMIT  # type: str
         self.qt_openssl_static = args.qt_openssl_static  # type: bool
-        self.qt_src_gitdir = join(self.src_rootdir,
-                                  args.qt_src_dirname)  # type: str  # noqa
+        self.qt_src_gitdir = join(
+            self.src_rootdir, args.qt_src_dirname
+        )  # type: str  # noqa
 
         # Android SDK/NDK
         # - installed independently by user
@@ -1585,7 +1621,9 @@ class Config(object):
         self.android_sdk_root = args.android_sdk_root  # type: str
         self.android_ndk_root = args.android_ndk_root  # type: str
         self.android_ndk_host = args.android_ndk_host  # type: str
-        self.android_toolchain_version = args.android_toolchain_version  # type: str  # noqa
+        self.android_toolchain_version = (
+            args.android_toolchain_version
+        )  # type: str  # noqa
         self.android_api = f"android-{self.android_sdk_version}"
         # ... see $ANDROID_SDK_ROOT/platforms/
         self.android_ndk_platform = self.android_api
@@ -1607,10 +1645,12 @@ class Config(object):
         # ... derived:
         self.openssl_src_dir = join(self.src_rootdir, "openssl")
         self.openssl_src_filename = f"openssl-{self.openssl_version}.tar.gz"
-        self.openssl_src_fullpath = join(self.openssl_src_dir,
-                                         self.openssl_src_filename)
+        self.openssl_src_fullpath = join(
+            self.openssl_src_dir, self.openssl_src_filename
+        )
         self.openssl_android_script_fullpath = join(
-            self.openssl_src_dir, "Setenv-android.sh")
+            self.openssl_src_dir, "Setenv-android.sh"
+        )
 
         # SQLCipher
         # - git repository in "src"
@@ -1620,20 +1660,20 @@ class Config(object):
         #   uses the amalgamation file, which is platform-independent).
         self.sqlcipher_git_url = SQLCIPHER_GIT_URL  # type: str
         self.sqlcipher_git_commit = SQLCIPHER_GIT_COMMIT  # type: str
-        self.sqlcipher_src_gitdir = join(self.src_rootdir, "sqlcipher")  # type: str  # noqa
+        self.sqlcipher_src_gitdir = join(
+            self.src_rootdir, "sqlcipher"
+        )  # type: str  # noqa
 
         # Eigen
         # Changed location from bitbucket:
         # https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
         self.eigen_version = EIGEN_VERSION  # type: str
-        self.eigen_src_url = (
-            f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
-        )
+        self.eigen_src_url = f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
 
         self.eigen_src_dir = join(self.src_rootdir, "eigen")
         self.eigen_src_fullpath = join(
-            self.eigen_src_dir,
-            f"eigen-{self.eigen_version}.tar.gz")
+            self.eigen_src_dir, f"eigen-{self.eigen_version}.tar.gz"
+        )
         self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
         # jom: comes with QtCreator
@@ -1645,11 +1685,11 @@ class Config(object):
         self._cached_xcode_developer_path = ""
 
     def __repr__(self) -> str:
-        elements = [f"    {k}={repr(v)}"
-                    for k, v in self.__dict__.items()]
+        elements = [f"    {k}={repr(v)}" for k, v in self.__dict__.items()]
         elements.sort()
-        return "{q}(\n{e}\n)".format(q=self.__class__.__qualname__,
-                                     e=",\n".join(elements))
+        return "{q}(\n{e}\n)".format(
+            q=self.__class__.__qualname__, e=",\n".join(elements)
+        )
 
     # -------------------------------------------------------------------------
     # Directories we'll write to
@@ -1661,7 +1701,8 @@ class Config(object):
         """
         return join(
             self.root_dir,
-            f"qt_{target_platform.dirpart}_build{self._qt_dir_suffix()}")
+            f"qt_{target_platform.dirpart}_build{self._qt_dir_suffix()}",
+        )
 
     def qt_install_dir(self, target_platform: Platform) -> str:
         """
@@ -1670,7 +1711,8 @@ class Config(object):
         """
         return join(
             self.root_dir,
-            f"qt_{target_platform.dirpart}_install{self._qt_dir_suffix()}")
+            f"qt_{target_platform.dirpart}_install{self._qt_dir_suffix()}",
+        )
 
     def _qt_dir_suffix(self) -> str:
         if self.qt_build_type == QT_BUILD_RELEASE:
@@ -1683,14 +1725,16 @@ class Config(object):
             raise ValueError("Bad qt_build_type")
 
     def get_openssl_rootdir_workdir(
-            self, target_platform: Platform) -> Tuple[str, str]:
+        self, target_platform: Platform
+    ) -> Tuple[str, str]:
         """
         Calculates local OpenSSL directories: the rootdir (where we unpack
         OpenSSL) and the workdir (a subdirectory of the rootdir, where the
         interesting stuff lives).
         """
-        rootdir = join(self.root_dir,
-                       f"openssl_{target_platform.dirpart}_build")
+        rootdir = join(
+            self.root_dir, f"openssl_{target_platform.dirpart}_build"
+        )
         workdir = join(rootdir, f"openssl-{self.openssl_version}")
         return rootdir, workdir
 
@@ -1698,18 +1742,25 @@ class Config(object):
     # Compile/make tools
     # -------------------------------------------------------------------------
 
-    def make_args(self, extra_args: List[str] = None, command: str = "",
-                  makefile: str = "", env: Dict[str, str] = None,
-                  allow_parallel: bool = True) -> List[str]:
+    def make_args(
+        self,
+        extra_args: List[str] = None,
+        command: str = "",
+        makefile: str = "",
+        env: Dict[str, str] = None,
+        allow_parallel: bool = True,
+    ) -> List[str]:
         """
         Returns command arguments for "make" or a platform equivalent.
         """
-        return BUILD_PLATFORM.make_args(cfg=self,
-                                        extra_args=extra_args,
-                                        command=command,
-                                        makefile=makefile,
-                                        env=env,
-                                        allow_parallel=allow_parallel)
+        return BUILD_PLATFORM.make_args(
+            cfg=self,
+            extra_args=extra_args,
+            command=command,
+            makefile=makefile,
+            env=env,
+            allow_parallel=allow_parallel,
+        )
 
     # -------------------------------------------------------------------------
     # Environment variables
@@ -1741,11 +1792,12 @@ class Config(object):
             return os.environ.copy()
 
     def set_compile_env(
-            self,
-            env: Dict[str, str],
-            target_platform: Platform,
-            use_cross_compile_var: bool = True,
-            building_sqlcipher: bool = False) -> None:
+        self,
+        env: Dict[str, str],
+        target_platform: Platform,
+        use_cross_compile_var: bool = True,
+        building_sqlcipher: bool = False,
+    ) -> None:
         """
         Adds variables to the environment for compilation or cross-compilation.
         Modifies env.
@@ -1754,21 +1806,27 @@ class Config(object):
             self._set_android_env(
                 env,
                 target_platform=target_platform,
-                use_cross_compile_var=use_cross_compile_var)
+                use_cross_compile_var=use_cross_compile_var,
+            )
         elif target_platform.ios:
             self._set_ios_env(env, target_platform=target_platform)
         elif target_platform.linux:
-            self._set_linux_env(env,
-                                use_cross_compile_var=use_cross_compile_var)
+            self._set_linux_env(
+                env, use_cross_compile_var=use_cross_compile_var
+            )
         elif target_platform.windows:
             self._set_windows_env(env, target_platform=target_platform)
         elif target_platform.macos:
-            self._set_macos_env(env, target_platform=target_platform,
-                                building_sqlcipher=building_sqlcipher)
+            self._set_macos_env(
+                env,
+                target_platform=target_platform,
+                building_sqlcipher=building_sqlcipher,
+            )
         else:
             raise NotImplementedError(
                 f"Don't know how to set compilation environment "
-                f"for {target_platform}")
+                f"for {target_platform}"
+            )
 
     def sysroot(self, target_platform: Platform, env: Dict[str, str]) -> str:
         """
@@ -1785,12 +1843,14 @@ class Config(object):
             return self._xcode_sdk_path(
                 xcode_platform=target_platform.ios_platform_name,
                 sdk_version=self._get_ios_sdk_version(
-                    target_platform=target_platform))
+                    target_platform=target_platform
+                ),
+            )
 
         if target_platform.macos:
             return self._xcode_sdk_path(
                 xcode_platform=target_platform.macos_platform_name,
-                sdk_version=""
+                sdk_version="",
             )
 
         if target_platform.linux:
@@ -1800,31 +1860,36 @@ class Config(object):
             return env["WindowsSdkDir"]
 
         raise NotImplementedError(
-            f"Don't know sysroot for target: {target_platform}")
+            f"Don't know sysroot for target: {target_platform}"
+        )
 
     # -------------------------------------------------------------------------
     # Linux
     # -------------------------------------------------------------------------
 
-    def _set_linux_env(self,
-                       env: Dict[str, str],
-                       use_cross_compile_var: bool) -> None:
+    def _set_linux_env(
+        self, env: Dict[str, str], use_cross_compile_var: bool
+    ) -> None:
         """
         Implementation of :meth:`set_compile_env` for Linux targets.
         """
-        env["AR"] = BUILD_PLATFORM.ar(fullpath=not use_cross_compile_var,
-                                      cfg=self)
-        env["CC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
-                                       cfg=self)
+        env["AR"] = BUILD_PLATFORM.ar(
+            fullpath=not use_cross_compile_var, cfg=self
+        )
+        env["CC"] = BUILD_PLATFORM.gcc(
+            fullpath=not use_cross_compile_var, cfg=self
+        )
 
     # -------------------------------------------------------------------------
     # Android
     # -------------------------------------------------------------------------
 
-    def _set_android_env(self,
-                         env: Dict[str, str],
-                         target_platform: Platform,
-                         use_cross_compile_var: bool) -> None:
+    def _set_android_env(
+        self,
+        env: Dict[str, str],
+        target_platform: Platform,
+        use_cross_compile_var: bool,
+    ) -> None:
         """
         Implementation of :meth:`set_compile_env` for Android targets.
         """
@@ -1840,24 +1905,28 @@ class Config(object):
         env["ANDROID_SDK_ROOT"] = self.android_sdk_root
         env["ANDROID_SYSROOT"] = android_sysroot
         env["ANDROID_TOOLCHAIN"] = android_toolchain
-        env["AR"] = target_platform.ar(fullpath=not use_cross_compile_var,
-                                       cfg=self)
+        env["AR"] = target_platform.ar(
+            fullpath=not use_cross_compile_var, cfg=self
+        )
         env["ARCH"] = target_platform.android_arch_short
         env["CC"] = self._android_cc(
             target_platform,
-            fullpath=self.android_clang_not_gcc or not use_cross_compile_var
+            fullpath=self.android_clang_not_gcc or not use_cross_compile_var,
         )
         if use_cross_compile_var:
             env["CROSS_COMPILE"] = target_platform.cross_compile_prefix(self)
             # ... unnecessary as we are specifying AR, CC directly
-        env["HOSTCC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
-                                           cfg=self)
+        env["HOSTCC"] = BUILD_PLATFORM.gcc(
+            fullpath=not use_cross_compile_var, cfg=self
+        )
         env["JAVA_HOME"] = self.java_home  # added 2019-06-16 for Qt
-        env["PATH"] = os.pathsep.join([
-            android_toolchain,
-            join(self.java_home, "bin"),  # added 2019-06-16 for Qt
-            env['PATH'],
-        ])
+        env["PATH"] = os.pathsep.join(
+            [
+                android_toolchain,
+                join(self.java_home, "bin"),  # added 2019-06-16 for Qt
+                env["PATH"],
+            ]
+        )
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
 
@@ -1883,7 +1952,8 @@ class Config(object):
         if target_platform.cpu_x86_family:
             return "{}-{}".format(
                 target_platform.android_arch_short,
-                self.android_toolchain_version)  # e.g. x86-4.9
+                self.android_toolchain_version,
+            )  # e.g. x86-4.9
             # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
             # ... "-android-arch" and "-android-toolchain-version" get
             # concatenated, I think; for example, this gives the toolchain
@@ -1894,13 +1964,14 @@ class Config(object):
             elif target_platform.cpu == Cpu.ARM_V8_64:
                 # e.g. "aarch64-linux-android-4.9"
                 return "aarch-linux-android-{}".format(
-                    target_platform.android_arch_short,
-                    self.android_toolchain_version)
+                    self.android_toolchain_version
+                )
             else:
                 # but ARM ones look like "arm-linux-androideabi-4.9"
                 return "{}-linux-androideabi-{}".format(
                     target_platform.android_arch_short,
-                    self.android_toolchain_version)
+                    self.android_toolchain_version,
+                )
         else:
             raise NotImplementedError("Unknown CPU family for Android")
 
@@ -1925,10 +1996,15 @@ class Config(object):
         """
         if self.android_clang_not_gcc:
             # return join(self.android_ndk_root, "sysroot")
-            return join(self.android_toolchain_root_dir(target_platform),
-                        "sysroot")
-        return join(self.android_ndk_root, "platforms",
-                    self.android_api, target_platform.android_arch_full)
+            return join(
+                self.android_toolchain_root_dir(target_platform), "sysroot"
+            )
+        return join(
+            self.android_ndk_root,
+            "platforms",
+            self.android_api,
+            target_platform.android_arch_full,
+        )
 
     def android_toolchain_root_dir(self, target_platform: Platform) -> str:
         """
@@ -1939,9 +2015,13 @@ class Config(object):
         - android-ndk-r11c/toolchains/x86_64-4.9/prebuilt/linux-x86_64
         - android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/
         """
-        return join(self.android_ndk_root, "toolchains",
-                    self._android_eabi(target_platform),
-                    "prebuilt", self.android_ndk_host)
+        return join(
+            self.android_ndk_root,
+            "toolchains",
+            self._android_eabi(target_platform),
+            "prebuilt",
+            self.android_ndk_host,
+        )
 
     def android_toolchain_bin_dir(self, target_platform: Platform) -> str:
         """
@@ -1950,8 +2030,7 @@ class Config(object):
         """
         return join(self.android_toolchain_root_dir(target_platform), "bin")
 
-    def _android_cc(self, target_platform: Platform,
-                    fullpath: bool) -> str:
+    def _android_cc(self, target_platform: Platform, fullpath: bool) -> str:
         """
         Gets the name of a compiler for Android.
 
@@ -1967,16 +2046,18 @@ class Config(object):
             return target_platform.clang(fullpath, cfg=self)
         else:
             return (
-                target_platform.gcc(fullpath, cfg=self) + "-" +
-                self.android_toolchain_version
+                target_platform.gcc(fullpath, cfg=self)
+                + "-"
+                + self.android_toolchain_version
             )
 
     # -------------------------------------------------------------------------
     # Android conversion functions
     # -------------------------------------------------------------------------
 
-    def convert_android_lib_a_to_so(self, lib_a_fullpath: str,
-                                    target_platform: Platform) -> str:
+    def convert_android_lib_a_to_so(
+        self, lib_a_fullpath: str, target_platform: Platform
+    ) -> str:
         """
         Converts an Android library from static (.a) to dynamic (.so) format.
         """
@@ -1985,24 +2066,28 @@ class Config(object):
         directory, filename = split(lib_a_fullpath)
         basename, ext = os.path.splitext(filename)
         if not basename.startswith(libprefix):
-            raise ValueError("Don't know how to convert library: " +
-                             lib_a_fullpath)
-        libname = basename[len(libprefix):]
+            raise ValueError(
+                "Don't know how to convert library: " + lib_a_fullpath
+            )
+        libname = basename[len(libprefix) :]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
         compiler = self._android_cc(target_platform, fullpath=True)
-        run([
-            compiler,
-            "-o", newlibfilename,
-            "-shared",
-            "-Wl,--whole-archive",
-            "-Wl,-soname," + newlibbasename,
-            lib_a_fullpath,
-            "-Wl,--no-whole-archive",
-            # "-L{}".format(directory),
-            # "-l{}".format(libname),
-            f"--sysroot={self._android_sysroot(target_platform)}",
-        ])
+        run(
+            [
+                compiler,
+                "-o",
+                newlibfilename,
+                "-shared",
+                "-Wl,--whole-archive",
+                "-Wl,-soname," + newlibbasename,
+                lib_a_fullpath,
+                "-Wl,--no-whole-archive",
+                # "-L{}".format(directory),
+                # "-l{}".format(libname),
+                f"--sysroot={self._android_sysroot(target_platform)}",
+            ]
+        )
         target_platform.verify_lib(newlibfilename)
         return newlibfilename
 
@@ -2011,9 +2096,12 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     # noinspection PyUnusedLocal
-    def _set_macos_env(self, env: Dict[str, str],
-                       target_platform: Platform,
-                       building_sqlcipher: bool = False) -> None:
+    def _set_macos_env(
+        self,
+        env: Dict[str, str],
+        target_platform: Platform,
+        building_sqlcipher: bool = False,
+    ) -> None:
         """
         Implementation of :meth:`set_compile_env` for macOS targets.
         """
@@ -2033,8 +2121,9 @@ class Config(object):
             )
             # ... but it's necessary for OpenSSL.
 
-    def _set_ios_env(self, env: Dict[str, str],
-                     target_platform: Platform) -> None:
+    def _set_ios_env(
+        self, env: Dict[str, str], target_platform: Platform
+    ) -> None:
         """
         Implementation of :meth:`set_compile_env` for iOS targets.
         """
@@ -2047,19 +2136,24 @@ class Config(object):
         xcode_platform = target_platform.ios_platform_name
         arch = target_platform.apple_arch_name
         developer = self._xcode_developer_path
-        sdk_version = self._get_ios_sdk_version(target_platform=target_platform)
-        sdk_name = self._xcode_sdk_name(xcode_platform=xcode_platform,
-                                        sdk_version=sdk_version)
+        sdk_version = self._get_ios_sdk_version(
+            target_platform=target_platform
+        )
+        sdk_name = self._xcode_sdk_name(
+            xcode_platform=xcode_platform, sdk_version=sdk_version
+        )
         sdk_name_lower = sdk_name.lower()
         # ... must be lower-case for some functions. Try:
         #     xcodebuild -showsdks
         #     xcrun -sdk <sdkname> -find clang
-        sysroot = self._xcode_sdk_path(xcode_platform=xcode_platform,
-                                       sdk_version=sdk_version)
+        sysroot = self._xcode_sdk_path(
+            xcode_platform=xcode_platform, sdk_version=sdk_version
+        )
         escaped_sysroot = escape_literal_for_shell(sysroot)
 
-        env["AR"] = fetch([XCRUN, "-sdk", sdk_name_lower,
-                           "-find", "ar"]).strip()
+        env["AR"] = fetch(
+            [XCRUN, "-sdk", sdk_name_lower, "-find", "ar"]
+        ).strip()
         env["BUILD_TOOLS"] = developer
         if use_gcc:
             env["CC"] = (
@@ -2069,8 +2163,9 @@ class Config(object):
                 f"-arch {arch}"
             )
         else:
-            env["CC"] = fetch([XCRUN, "-sdk", sdk_name_lower,
-                               "-find", CLANG]).strip()
+            env["CC"] = fetch(
+                [XCRUN, "-sdk", sdk_name_lower, "-find", CLANG]
+            ).strip()
 
         cflags = [
             f"-arch {arch}",
@@ -2083,12 +2178,14 @@ class Config(object):
         env["CPP"] = env["CC"] + " -E"
         env["CPPFLAGS"] = env["CFLAGS"]
         env["CROSS_TOP"] = self._xcode_platform_dev_path(
-            xcode_platform=xcode_platform)
+            xcode_platform=xcode_platform
+        )
         env["CROSS_SDK"] = sdk_name + ".sdk"
         env["LDFLAGS"] = f"-arch {arch} -isysroot {escaped_sysroot}"
         env["PLATFORM"] = xcode_platform
-        env["RANLIB"] = fetch([XCRUN, "-sdk", sdk_name_lower, "-find",
-                               "ranlib"]).strip()
+        env["RANLIB"] = fetch(
+            [XCRUN, "-sdk", sdk_name_lower, "-find", "ranlib"]
+        ).strip()
         # env["SYSROOT"] = sysroot
         # ... see https://forums.developer.apple.com/thread/100545
         # ... but the problem we have is the makefile from OpenSSL configure
@@ -2100,7 +2197,8 @@ class Config(object):
         """
         if not self._cached_xcode_developer_path:
             self._cached_xcode_developer_path = fetch(
-                [XCODE_SELECT, "-print-path"]).strip()
+                [XCODE_SELECT, "-print-path"]
+            ).strip()
         return self._cached_xcode_developer_path
         # e.g. "/Applications/Xcode.app/Contents/Developer"
 
@@ -2116,16 +2214,23 @@ class Config(object):
         """
         Find the XCode default toolchain.
         """
-        return join(self._xcode_developer_path,
-                    "Toolchains", "XcodeDefault.xctoolchain", "usr", "bin")
+        return join(
+            self._xcode_developer_path,
+            "Toolchains",
+            "XcodeDefault.xctoolchain",
+            "usr",
+            "bin",
+        )
 
     def _xcode_platform_dev_path(self, xcode_platform: str) -> str:
         """
         Find the XCode Developer path for a specific target platform.
         """
-        return join(self._xcode_platforms_path,
-                    f"{xcode_platform}.platform",
-                    "Developer")
+        return join(
+            self._xcode_platforms_path,
+            f"{xcode_platform}.platform",
+            "Developer",
+        )
 
     def _xcode_all_sdks_path(self, xcode_platform: str) -> str:
         """
@@ -2145,13 +2250,20 @@ class Config(object):
         """
         Find the path to a specific platform SDK.
         """
-        return join(self._xcode_all_sdks_path(xcode_platform),
-                    self._xcode_sdk_name(xcode_platform=xcode_platform,
-                                         sdk_version=sdk_version) + ".sdk")
+        return join(
+            self._xcode_all_sdks_path(xcode_platform),
+            self._xcode_sdk_name(
+                xcode_platform=xcode_platform, sdk_version=sdk_version
+            )
+            + ".sdk",
+        )
 
-    def _get_latest_ios_sdk_version(self, target_platform: Platform,
-                                    xcode_platform: str = "",
-                                    default: str = "8.0") -> str:
+    def _get_latest_ios_sdk_version(
+        self,
+        target_platform: Platform,
+        xcode_platform: str = "",
+        default: str = "8.0",
+    ) -> str:
         """
         Get the version as a string, e.g. "9.3", of the latest SDK available
         for iOS for the specified platform.
@@ -2165,10 +2277,14 @@ class Config(object):
         if not sdks:
             log.warning("No iOS SDKs found in {}", sdkpath)
             return default
-        latest_sdk = sdks[-1]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
+        latest_sdk = sdks[
+            -1
+        ]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
-        sdk_name = latest_sdk[:-len(suffix)]  # remove the trailing ".sdk"
-        sdk_version = sdk_name[len(xcode_platform):]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
+        sdk_name = latest_sdk[: -len(suffix)]  # remove the trailing ".sdk"
+        sdk_version = sdk_name[
+            len(xcode_platform) :
+        ]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
         # log.debug("iOS SDK version: {!r}", sdk_version)
         return sdk_version
 
@@ -2178,14 +2294,16 @@ class Config(object):
         latest we can find.
         """
         return self.ios_sdk or self._get_latest_ios_sdk_version(
-            target_platform=target_platform)
+            target_platform=target_platform
+        )
 
     # -------------------------------------------------------------------------
     # Windows
     # -------------------------------------------------------------------------
 
-    def _set_windows_env(self, env: Dict[str, str],
-                         target_platform: Platform) -> None:
+    def _set_windows_env(
+        self, env: Dict[str, str], target_platform: Platform
+    ) -> None:
         """
         Implementation of :meth:`set_compile_env` for Windows targets.
         """
@@ -2197,12 +2315,14 @@ class Config(object):
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
             # PATH
-            env["PATH"] = os.pathsep.join([
-                join(self.qt_src_gitdir, "qtrepotools", "bin"),
-                join(self.qt_src_gitdir, "qtbase", "bin"),
-                join(self.qt_src_gitdir, "gnuwin32", "bin"),
-                env["PATH"],
-            ])
+            env["PATH"] = os.pathsep.join(
+                [
+                    join(self.qt_src_gitdir, "qtrepotools", "bin"),
+                    join(self.qt_src_gitdir, "qtbase", "bin"),
+                    join(self.qt_src_gitdir, "gnuwin32", "bin"),
+                    env["PATH"],
+                ]
+            )
             # VCVARSALL.BAT
 
             # We can't CALL a batch file and have it change our environment,
@@ -2216,7 +2336,8 @@ class Config(object):
             else:
                 raise NotImplementedError(
                     f"Don't know how to compile for Windows for target "
-                    f"platform {target_platform}")
+                    f"platform {target_platform}"
+                )
             # Now read the result from vcvarsall.bat directly
             args = [VCVARSALL, arch]
             fetched_env = windows_get_environment_from_batch_command(
@@ -2237,12 +2358,14 @@ class Config(object):
         else:
             raise NotImplementedError(
                 f"Don't know how to compile for Windows on build platform "
-                f"{BUILD_PLATFORM}")
+                f"{BUILD_PLATFORM}"
+            )
 
 
 # =============================================================================
 # Ancillary: crash out informatively
 # =============================================================================
+
 
 def fail(msg: str) -> NoReturn:
     log.critical(msg)
@@ -2252,6 +2375,7 @@ def fail(msg: str) -> NoReturn:
 # =============================================================================
 # Ancillary: environment and shell handling
 # =============================================================================
+
 
 def escape_literal_for_shell(x: str) -> str:
     """
@@ -2270,11 +2394,12 @@ def escape_literal_for_shell(x: str) -> str:
     I'm not certain this is particularly generic, so haven't moved it to
     cardinal_pythonlib.
     """
-    assert not BUILD_PLATFORM.windows, (
-        "Windows has terrible shell escaping and we use other methods")
-    space = ' '
+    assert (
+        not BUILD_PLATFORM.windows
+    ), "Windows has terrible shell escaping and we use other methods"
+    space = " "
     dquote = '"'
-    backslash = '\\'
+    backslash = "\\"
     must_quote = [space, dquote]
     something_needs_quoting = any(c in x for c in must_quote)
     if not something_needs_quoting:
@@ -2457,12 +2582,15 @@ def ensure_first_perl_is_not_cygwin() -> None:
     """  # noqa
     require(PERL)
     which = shutil.which(PERL)
-    if "cygwin" in which.lower():  # imperfect check based on default Cygwin installation path  # noqa
+    if (
+        "cygwin" in which.lower()
+    ):  # imperfect check based on default Cygwin installation path  # noqa
         fail(
             f"The first instance of Perl on your path ({which}) is from "
             f"Cygwin. This will fail when building OpenSSL. Please re-order "
             f"your PATH so that a Windows version, e.g. ActiveState Perl, "
-            f"comes first.")
+            f"comes first."
+        )
 
 
 def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
@@ -2504,15 +2632,15 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
 
     """  # noqa
     tcl_cmd = r'puts -nonewline [file dirname "\\some\\path\\filename.txt"]'
-    correct = r'/some/path'
-    incorrect = '.'
+    correct = r"/some/path"
+    incorrect = "."
     cmdargs = [tclsh]
     encoding = sys.getdefaultencoding()
     subproc_run_kwargs = {
-        'stdout': subprocess.PIPE,
-        'check': True,
-        'encoding': encoding,
-        'input': tcl_cmd,
+        "stdout": subprocess.PIPE,
+        "check": True,
+        "encoding": encoding,
+        "input": tcl_cmd,
     }
     # In Python 3.5, we deal with bytes objects and manually encode/decode.
     # In Python 3.6+, we can specify the encoding and deal with str objects.
@@ -2523,20 +2651,24 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     if result == correct:
         return True
     elif result == incorrect:
-        log.warning(f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. "
-                    f"Cygwin) incompatible with Windows backslash-delimited "
-                    f"filenames; switch to a Windows version (e.g. "
-                    f"ActiveState ActiveTCL).")
+        log.warning(
+            f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. "
+            f"Cygwin) incompatible with Windows backslash-delimited "
+            f"filenames; switch to a Windows version (e.g. "
+            f"ActiveState ActiveTCL)."
+        )
         return False
     else:
         raise RuntimeError(
             f"Don't understand output from TCL shell {tclsh!r} with input "
-            f"{tcl_cmd!r}; output was {result!r}")
+            f"{tcl_cmd!r}; output was {result!r}"
+        )
 
 
 # =============================================================================
 # Ancillary: information messages
 # =============================================================================
+
 
 def report_all_targets_exist(package: str, targets: List[str]) -> None:
     """
@@ -2545,8 +2677,7 @@ def report_all_targets_exist(package: str, targets: List[str]) -> None:
     """
     log.info(
         "{}: All targets exist already:\n{}".format(
-            package,
-            "\n".join("    " + str(x) for x in targets)
+            package, "\n".join("    " + str(x) for x in targets)
         )
     )
 
@@ -2554,6 +2685,7 @@ def report_all_targets_exist(package: str, targets: List[str]) -> None:
 # =============================================================================
 # Building OpenSSL
 # =============================================================================
+
 
 def fetch_openssl(cfg: Config) -> None:
     """
@@ -2567,149 +2699,149 @@ def fetch_openssl(cfg: Config) -> None:
 
 def openssl_target_os_args(target_platform: Platform) -> List[str]:
     """
-    Returns the target OS for OpenSSL's "Configure" Perl script, +/- any other
-    required target-specific parameters, as a list.
+        Returns the target OS for OpenSSL's "Configure" Perl script, +/- any other
+        required target-specific parameters, as a list.
 
--------------------------------------------------------------------------------
-OpenSSL 1.0.2h targets:
--------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------
+    OpenSSL 1.0.2h targets:
+    -------------------------------------------------------------------------------
 
-BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
-OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
-VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
-android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
-bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
-darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
-hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
-hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
-hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
-hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
-irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
-linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
-linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
-linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
-linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
-linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
-linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
-netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
-netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
-osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
-solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
-solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
-solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
-solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
-uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
-unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
-vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
-vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
-debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
-debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
-debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
-debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
-debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
-debug-levitte-linux-elf debug-levitte-linux-elf-extreme
-debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
-debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
-debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
-debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
-debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
-debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
+    BC-32 BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+    BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-x86_64 DJGPP MPE/iX-gcc OS2-EMX
+    OS390-Unix QNX6 QNX6-i386 ReliantUNIX SINIX SINIX-N UWIN VC-CE VC-WIN32
+    VC-WIN64A VC-WIN64I aix-cc aix-gcc aix3-cc aix64-cc aix64-gcc android
+    android-armv7 android-mips android-x86 aux3-gcc beos-x86-bone beos-x86-r5
+    bsdi-elf-gcc cc cray-j90 cray-t3e darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc
+    darwin64-x86_64-cc dgux-R3-gcc dgux-R4-gcc dgux-R4-x86-gcc dist gcc hpux-cc
+    hpux-gcc hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc hpux-parisc-cc-o4
+    hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux-parisc2-cc
+    hpux-parisc2-gcc hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc
+    hpux64-parisc2-gcc hurd-x86 iphoneos-cross irix-cc irix-gcc irix-mips3-cc
+    irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc linux-aarch64
+    linux-alpha+bwx-ccc linux-alpha+bwx-gcc linux-alpha-ccc linux-alpha-gcc
+    linux-aout linux-armv4 linux-elf linux-generic32 linux-generic64
+    linux-ia32-icc linux-ia64 linux-ia64-icc linux-mips32 linux-mips64 linux-ppc
+    linux-ppc64 linux-ppc64le linux-sparcv8 linux-sparcv9 linux-x32 linux-x86_64
+    linux-x86_64-clang linux-x86_64-icc linux32-s390x linux64-mips64 linux64-s390x
+    linux64-sparcv9 mingw mingw64 ncr-scde netware-clib netware-clib-bsdsock
+    netware-clib-bsdsock-gcc netware-clib-gcc netware-libc netware-libc-bsdsock
+    netware-libc-bsdsock-gcc netware-libc-gcc newsos4-gcc nextstep nextstep3.3
+    osf1-alpha-cc osf1-alpha-gcc purify qnx4 rhapsody-ppc-cc sco5-cc sco5-gcc
+    solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
+    solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-cc solaris-x86-gcc
+    solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
+    solaris64-x86_64-gcc sunos-gcc tandem-c89 tru64-alpha-cc uClinux-dist
+    uClinux-dist64 ultrix-cc ultrix-gcc unixware-2.0 unixware-2.1 unixware-7
+    unixware-7-gcc vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
+    vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
+    vxworks-simlinux debug debug-BSD-x86-elf debug-VC-WIN32 debug-VC-WIN64A
+    debug-VC-WIN64I debug-ben debug-ben-darwin64 debug-ben-debug
+    debug-ben-debug-64 debug-ben-debug-64-clang debug-ben-macos
+    debug-ben-macos-gcc46 debug-ben-no-opt debug-ben-openbsd
+    debug-ben-openbsd-debug debug-ben-strict debug-bodo debug-darwin-i386-cc
+    debug-darwin-ppc-cc debug-darwin64-x86_64-cc debug-geoff32 debug-geoff64
+    debug-levitte-linux-elf debug-levitte-linux-elf-extreme
+    debug-levitte-linux-noasm debug-levitte-linux-noasm-extreme debug-linux-elf
+    debug-linux-elf-noefence debug-linux-generic32 debug-linux-generic64
+    debug-linux-ia32-aes debug-linux-pentium debug-linux-ppro debug-linux-x86_64
+    debug-linux-x86_64-clang debug-rse debug-solaris-sparcv8-cc
+    debug-solaris-sparcv8-gcc debug-solaris-sparcv9-cc debug-solaris-sparcv9-gcc
+    debug-steve-opt debug-steve32 debug-steve64 debug-vos-gcc
 
--------------------------------------------------------------------------------
-OpenSSL 1.1.0g targets:
--------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------
+    OpenSSL 1.1.0g targets:
+    -------------------------------------------------------------------------------
 
-Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx]
-    [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared]
-    [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386]
-    [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE]
-    os/compiler[:flags]
+    Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx]
+        [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared]
+        [[no-]zlib|zlib-dynamic] [no-asm] [no-dso] [no-egd] [sctp] [386]
+        [--prefix=DIR] [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE]
+        os/compiler[:flags]
 
-pick os/compiler from:
-BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586
-Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6
-QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc
-aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86
-android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc
-darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc
-haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc
-hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc
-hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross
-ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc
-irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32
-linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64
-linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le
-linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64
-linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9
-mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc
-solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
-solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc
-solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc
-tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1
-unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64
-vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
-vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
-vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium
-debug-linux-ppro debug-test-64-clang
+    pick os/compiler from:
+    BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+    BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586
+    Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc OS390-Unix QNX6
+    QNX6-i386 UEFI UWIN VC-CE VC-WIN32 VC-WIN64A VC-WIN64A-masm VC-WIN64I aix-cc
+    aix-gcc aix64-cc aix64-gcc android android-armeabi android-mips android-x86
+    android64 android64-aarch64 bsdi-elf-gcc cc darwin-i386-cc darwin-ppc-cc
+    darwin64-debug-test-64-clang darwin64-ppc-cc darwin64-x86_64-cc dist gcc
+    haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc hpux-parisc-cc
+    hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc hpux64-ia64-cc
+    hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86 ios-cross
+    ios64-cross iphoneos-cross irix-mips3-cc irix-mips3-gcc irix64-mips4-cc
+    irix64-mips4-gcc linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32
+    linux-armv4 linux-c64xplus linux-elf linux-generic32 linux-generic64
+    linux-ia64 linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le
+    linux-sparcv8 linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64
+    linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9
+    mingw mingw64 nextstep nextstep3.3 purify qnx4 sco5-cc sco5-gcc
+    solaris-sparcv7-cc solaris-sparcv7-gcc solaris-sparcv8-cc solaris-sparcv8-gcc
+    solaris-sparcv9-cc solaris-sparcv9-gcc solaris-x86-gcc solaris64-sparcv9-cc
+    solaris64-sparcv9-gcc solaris64-x86_64-cc solaris64-x86_64-gcc tru64-alpha-cc
+    tru64-alpha-gcc uClinux-dist uClinux-dist64 unixware-2.0 unixware-2.1
+    unixware-7 unixware-7-gcc vms-alpha vms-alpha-p32 vms-alpha-p64 vms-ia64
+    vms-ia64-p32 vms-ia64-p64 vos-gcc vxworks-mips vxworks-ppc405 vxworks-ppc60x
+    vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
+    vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium
+    debug-linux-ppro debug-test-64-clang
 
--------------------------------------------------------------------------------
-OpenSSL 1.1.1c targets (reformatted for clarity):
--------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------
+    OpenSSL 1.1.1c targets (reformatted for clarity):
+    -------------------------------------------------------------------------------
 
-Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx]
-    [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared]
-    [[no-]zlib|zlib-dynamic] [no-asm] [no-egd] [sctp] [386] [--prefix=DIR]
-    [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE]
-    os/compiler[:flags]
+    Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx]
+        [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared]
+        [[no-]zlib|zlib-dynamic] [no-asm] [no-egd] [sctp] [386] [--prefix=DIR]
+        [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE]
+        os/compiler[:flags]
 
-pick os/compiler from:
-BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
-BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586
-Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc UEFI UWIN
+    pick os/compiler from:
+    BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+    BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586
+    Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc UEFI UWIN
 
-    VC-CE VC-WIN32 VC-WIN32-ARM VC-WIN32-ONECORE VC-WIN64-ARM VC-WIN64A
-    VC-WIN64A-ONECORE VC-WIN64A-masm VC-WIN64I
+        VC-CE VC-WIN32 VC-WIN32-ARM VC-WIN32-ONECORE VC-WIN64-ARM VC-WIN64A
+        VC-WIN64A-ONECORE VC-WIN64A-masm VC-WIN64I
 
-aix-cc aix-gcc aix64-cc aix64-gcc
+    aix-cc aix-gcc aix64-cc aix64-gcc
 
-    android-arm android-arm64 android-armeabi android-mips android-mips64
-    android-x86 android-x86_64 android64 android64-aarch64 android64-mips64
-    android64-x86_64
+        android-arm android-arm64 android-armeabi android-mips android-mips64
+        android-x86 android-x86_64 android64 android64-aarch64 android64-mips64
+        android64-x86_64
 
-bsdi-elf-gcc cc
+    bsdi-elf-gcc cc
 
-    darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc darwin64-x86_64-cc
+        darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc darwin64-x86_64-cc
 
-gcc haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc
-hpux-parisc-cc hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc
-hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86
+    gcc haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc
+    hpux-parisc-cc hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc
+    hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86
 
-    ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun
-    iphoneos-cross
+        ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun
+        iphoneos-cross
 
-irix-mips3-cc irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc
+    irix-mips3-cc irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc
 
-linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 linux-armv4
-linux-c64xplus linux-elf linux-generic32 linux-generic64 linux-ia64
-linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le linux-sparcv8
-linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64
-linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9
+    linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 linux-armv4
+    linux-c64xplus linux-elf linux-generic32 linux-generic64 linux-ia64
+    linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le linux-sparcv8
+    linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64
+    linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9
 
-mingw mingw64 nextstep
-nextstep3.3 sco5-cc sco5-gcc solaris-sparcv7-cc solaris-sparcv7-gcc
-solaris-sparcv8-cc solaris-sparcv8-gcc solaris-sparcv9-cc solaris-sparcv9-gcc
-solaris-x86-gcc solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
-solaris64-x86_64-gcc tru64-alpha-cc tru64-alpha-gcc uClinux-dist
-uClinux-dist64 unixware-2.0 unixware-2.1 unixware-7 unixware-7-gcc vms-alpha
-vms-alpha-p32 vms-alpha-p64 vms-ia64 vms-ia64-p32 vms-ia64-p64 vos-gcc
-vxworks-mips vxworks-ppc405 vxworks-ppc60x vxworks-ppc750 vxworks-ppc750-debug
-vxworks-ppc860 vxworks-ppcgen vxworks-simlinux
+    mingw mingw64 nextstep
+    nextstep3.3 sco5-cc sco5-gcc solaris-sparcv7-cc solaris-sparcv7-gcc
+    solaris-sparcv8-cc solaris-sparcv8-gcc solaris-sparcv9-cc solaris-sparcv9-gcc
+    solaris-x86-gcc solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
+    solaris64-x86_64-gcc tru64-alpha-cc tru64-alpha-gcc uClinux-dist
+    uClinux-dist64 unixware-2.0 unixware-2.1 unixware-7 unixware-7-gcc vms-alpha
+    vms-alpha-p32 vms-alpha-p64 vms-ia64 vms-ia64-p32 vms-ia64-p64 vos-gcc
+    vxworks-mips vxworks-ppc405 vxworks-ppc60x vxworks-ppc750 vxworks-ppc750-debug
+    vxworks-ppc860 vxworks-ppcgen vxworks-simlinux
 
-NOTE: If in doubt, on Unix-ish systems use './config'.
+    NOTE: If in doubt, on Unix-ish systems use './config'.
 
-    """
+    """  # noqa: E501
 
     # http://doc.qt.io/qt-5/opensslsupport.html
 
@@ -2749,7 +2881,10 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         elif target_platform.cpu_arm_64bit:  # iOS on 64-bit devices
             return ["ios64-cross"]
         elif target_platform.cpu_x86_64bit_family:  # iOS on 64-bit simulator
-            return ["darwin64-x86_64-cc", "no-asm"]  # unsure if "no-asm" required  # noqa
+            return [
+                "darwin64-x86_64-cc",
+                "no-asm",
+            ]  # unsure if "no-asm" required  # noqa
         elif target_platform.cpu_x86_32bit_family:  # iOS on 32-bit simulator
             return ["darwin-i386-cc"]
 
@@ -2774,7 +2909,8 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 return ["VC-WIN32", "-FS"]
 
     raise NotImplementedError(
-        f"Don't known OpenSSL target name for {target_platform}")
+        f"Don't known OpenSSL target name for {target_platform}"
+    )
 
     # For new platforms: if you're not sure, use target_os = "crashme" and
     # you'll get the list of permitted values, which as of 2017-11-12 is:
@@ -2842,7 +2978,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         for t in main_targets:
             dirname, basename = os.path.split(t)
             assert basename.startswith(libprefix)
-            shortbasename = basename[len(libprefix):]
+            shortbasename = basename[len(libprefix) :]
             shadow_targets.append(join(dirname, shortbasename))
 
     targets = main_targets + shadow_targets
@@ -2853,8 +2989,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
-    untar_to_directory(cfg.openssl_src_fullpath, rootdir, run_func=run,
-                       chdir_via_python=True)
+    untar_to_directory(
+        cfg.openssl_src_fullpath, rootdir, run_func=run, chdir_via_python=True
+    )
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 1/2
@@ -2880,12 +3017,14 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     if target_platform.ios:
         # iOS specials
         # e.g. https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-        run([
-            SED,
-            "-ie",
-            "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",  # noqa
-            join(workdir, "crypto", "ui", "ui_openssl.c")
-        ])
+        run(
+            [
+                SED,
+                "-ie",
+                "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",  # noqa
+                join(workdir, "crypto", "ui", "ui_openssl.c"),
+            ]
+        )
 
     # At some point (transiently!) we also got something like:
     #    ar  r ../../libcrypto.a o_names.o obj_dat.o obj_lib.o
@@ -2924,9 +3063,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         ]
     # OpenSSL's Configure script applies optimizations by default.
     if target_platform.android:
-        configure_args += [
-            f"-D__ANDROID_API__={cfg.android_sdk_version}"
-        ]
+        configure_args += [f"-D__ANDROID_API__={cfg.android_sdk_version}"]
     if target_platform.ios:
         configure_args += [
             "no-makedepend",
@@ -2964,9 +3101,11 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         if use_configure or not target_platform.android:
             # http://doc.qt.io/qt-5/opensslsupport.html
             if BUILD_PLATFORM.windows:
-                log.warning("The OpenSSL Configure script may warn about "
-                            "nmake.exe being missing when it isn't. "
-                            "(Or when it is...)")
+                log.warning(
+                    "The OpenSSL Configure script may warn about "
+                    "nmake.exe being missing when it isn't. "
+                    "(Or when it is...)"
+                )
             run([PERL, join(workdir, "Configure")] + configure_args, env)
         else:
             # The "config" script guesses the OS then runs "Configure".
@@ -2983,22 +3122,24 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         if target_platform.ios:
             # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
             # add -isysroot to CC=
-            run([
-                SED,
-                "-i",  # in place
-                "-e",  # execute the script expression that follows
-                (
-                    f"s"  # s/regexp/replacement/
-                    f"!"  # use '!' not '/' to delineate regex
-                    f"^CFLAGS="
-                    f"!"
-                    f"CFLAGS=-isysroot {env['CROSS_TOP']}/SDKs/{env['CROSS_SDK']} "  # noqa
-                    f"-mios-version-min={cfg.ios_min_version} "
-                    f"-miphoneos-version-min={cfg.ios_min_version} "
-                    f"!"
-                ),
-                makefile
-            ])
+            run(
+                [
+                    SED,
+                    "-i",  # in place
+                    "-e",  # execute the script expression that follows
+                    (
+                        f"s"  # s/regexp/replacement/
+                        f"!"  # use '!' not '/' to delineate regex
+                        f"^CFLAGS="
+                        f"!"
+                        f"CFLAGS=-isysroot {env['CROSS_TOP']}/SDKs/{env['CROSS_SDK']} "  # noqa
+                        f"-mios-version-min={cfg.ios_min_version} "
+                        f"-miphoneos-version-min={cfg.ios_min_version} "
+                        f"!"
+                    ),
+                    makefile,
+                ]
+            )
             # 2018-08-24: was CFLAG=, now CFLAGS=
             # 2018-08-24: makefile was modified before Configure called; daft
 
@@ -3037,27 +3178,44 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             # extra_args.append("SHLIB_EXT=.so")
 
             # Homebrew version, 2018-07-14, which works:
-            replace_multiple_in_file(makefile, [
-                ('SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
-                 'SHLIBS=libcrypto.so libssl.so'),
-                ('SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa
-                 'SHLIB_INFO="libcrypto.so" "libssl.so"'),
-                # ... also deals with INSTALL_SHLIBS, INSTALL_SHLIB_INFO
-                #     which are identical
-                ('SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
-                 'SHLIBNAME_FULL=libcrypto.so'),
-                ('SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',
-                 'SHLIBNAME_FULL=libssl.so'),
-            ])
+            replace_multiple_in_file(
+                makefile,
+                [
+                    (
+                        "SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa: E501
+                        "SHLIBS=libcrypto.so libssl.so",
+                    ),
+                    (
+                        'SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa: E501
+                        'SHLIB_INFO="libcrypto.so" "libssl.so"',
+                    ),
+                    # ... also deals with INSTALL_SHLIBS, INSTALL_SHLIB_INFO
+                    #     which are identical
+                    (
+                        "SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa: E501
+                        "SHLIBNAME_FULL=libcrypto.so",
+                    ),
+                    (
+                        "SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)",  # noqa: E501
+                        "SHLIBNAME_FULL=libssl.so",
+                    ),
+                ],
+            )
 
         def runmake(command: str = "") -> None:
             # Windows seems to have a problem building OpenSSL with
             # nparallel > 1
             allow_parallel = not BUILD_PLATFORM.windows
 
-            run(cfg.make_args(command=command, env=env,
-                              extra_args=extra_args,
-                              allow_parallel=allow_parallel), env)
+            run(
+                cfg.make_args(
+                    command=command,
+                    env=env,
+                    extra_args=extra_args,
+                    allow_parallel=allow_parallel,
+                ),
+                env,
+            )
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
@@ -3066,8 +3224,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # OpenSSL: Test
         # ---------------------------------------------------------------------
         test_openssl = (
-            (not OPENSSL_FAILS_OWN_TESTS) and
-            target_platform.os == BUILD_PLATFORM.os
+            (not OPENSSL_FAILS_OWN_TESTS)
+            and target_platform.os == BUILD_PLATFORM.os
             # can't really test e.g. Android code directly under Linux
         )
         if test_openssl:
@@ -3087,17 +3245,20 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 # Building Qt
 # =============================================================================
 
+
 def fetch_qt(cfg: Config) -> None:
     """
     Downloads Qt source code.
     """
     log.info("Fetching Qt source...")
-    if not git_clone(prettyname="Qt",
-                     url=cfg.qt_git_url,
-                     branch=cfg.qt_git_branch,
-                     commit=cfg.qt_git_commit,
-                     directory=cfg.qt_src_gitdir,
-                     run_func=run):
+    if not git_clone(
+        prettyname="Qt",
+        url=cfg.qt_git_url,
+        branch=cfg.qt_git_branch,
+        commit=cfg.qt_git_commit,
+        directory=cfg.qt_src_gitdir,
+        run_func=run,
+    ):
         return
     chdir(cfg.qt_src_gitdir)
     run([PERL, "init-repository"])
@@ -3153,7 +3314,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # if USE_CLANG_NOT_GCC_FOR_ANDROID_ARM:
         #     require(CLANG)
 
-    opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(target_platform)  # noqa
+    opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
+        target_platform
+    )  # noqa
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
 
@@ -3191,7 +3354,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     openssl_libs = f"-L{openssl_lib_root} -lssl -lcrypto {crypto_dependencies}"
 
     # See also https://bugreports.qt.io/browse/QTBUG-62016
-    env['OPENSSL_LIBS'] = openssl_libs
+    env["OPENSSL_LIBS"] = openssl_libs
     # Setting OPENSSL_LIBS as an *environment variable* may be unnecessary,
     # but is suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
     # However, it seems necessary to set it as an *option* to configure; see
@@ -3201,8 +3364,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # Qt: Directories
     # -------------------------------------------------------------------------
-    log.info("Configuring {} build in {}",
-             target_platform.description, builddir)
+    log.info(
+        "Configuring {} build in {}", target_platform.description, builddir
+    )
     mkdir_p(builddir)
     mkdir_p(installdir)
 
@@ -3225,7 +3389,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     qt_config_args = [
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
-        "-prefix", installdir,  # where to install Qt
+        "-prefix",
+        installdir,  # where to install Qt
         "-recheck-all",  # don't cache from previous configure runs
         "OPENSSL_LIBS=" + openssl_libs,
         # "-sysroot": not required; Qt's configure should handle this
@@ -3264,14 +3429,21 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         else:
             raise NotImplementedError(
                 f"Don't know how to use CPU {target_platform.cpu!r} "
-                f"for Android")
+                f"for Android"
+            )
         qt_config_args += [
-            "-android-sdk", cfg.android_sdk_root,
-            "-android-ndk", cfg.android_ndk_root,
-            "-android-ndk-platform", cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
-            "-android-ndk-host", cfg.android_ndk_host,
-            "-android-arch", android_arch_short,
-            "-android-toolchain-version", cfg.android_toolchain_version,
+            "-android-sdk",
+            cfg.android_sdk_root,
+            "-android-ndk",
+            cfg.android_ndk_root,
+            "-android-ndk-platform",
+            cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
+            "-android-ndk-host",
+            cfg.android_ndk_host,
+            "-android-arch",
+            android_arch_short,
+            "-android-toolchain-version",
+            cfg.android_toolchain_version,
             "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
             # MAY POSSIBLY NEED:
             # (https://wiki.qt.io/Qt5_platform_configurations,
@@ -3298,7 +3470,10 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         else:
             qt_config_args.append("-system-xcb")  # use system XCB libraries
             # http://doc.qt.io/qt-5/linux-requirements.html
-        qt_config_args += ["-gstreamer", "1.0"]  # gstreamer version; see troubleshooting below  # noqa
+        qt_config_args += [
+            "-gstreamer",
+            "1.0",
+        ]  # gstreamer version; see troubleshooting below  # noqa
 
     elif target_platform.macos:
         if BUILD_PLATFORM.macos:
@@ -3306,7 +3481,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         else:
             raise NotImplementedError(
                 f"Don't know how to compile Qt for MacOS on "
-                f"{target_platform}")
+                f"{target_platform}"
+            )
 
     elif target_platform.ios:
         # http://doc.qt.io/qt-5/building-from-source-ios.html
@@ -3319,21 +3495,25 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         else:
             raise NotImplementedError(
                 f"Don't know how to compile Qt for Windows on "
-                f"{target_platform}")
+                f"{target_platform}"
+            )
 
     else:
-        raise NotImplementedError("Don't know how to compile Qt for " +
-                                  str(target_platform))
+        raise NotImplementedError(
+            "Don't know how to compile Qt for " + str(target_platform)
+        )
 
     for objdir in objdirs:
         extra_qmake_cxxflags.append(f"-B{objdir}")
 
     if extra_qmake_cxxflags:
-        qt_config_args.append("QMAKE_CXXFLAGS += {}".format(
-            " ".join(extra_qmake_cxxflags)))
+        qt_config_args.append(
+            "QMAKE_CXXFLAGS += {}".format(" ".join(extra_qmake_cxxflags))
+        )
     if extra_qmake_lflags:
-        qt_config_args.append("QMAKE_LFLAGS += {}".format(
-            " ".join(extra_qmake_lflags)))
+        qt_config_args.append(
+            "QMAKE_LFLAGS += {}".format(" ".join(extra_qmake_lflags))
+        )
 
     for includedir in includedirs:
         qt_config_args.extend(["-I", includedir])
@@ -3386,7 +3566,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
-            log.warning("""Qt 'configure' failure.
+            log.warning(
+                """Qt 'configure' failure.
 
 ===============================================================================
 Troubleshooting Qt 'configure' failures
@@ -3415,20 +3596,23 @@ Troubleshooting Qt 'configure' failures
     clearly. This is IMPORTANT or other error messages incorrectly distract
     you.
 
-""")
+"""
+            )
             sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
     # Qt: make (can take several hours)
     # -------------------------------------------------------------------------
     log.info(
-        f"Making Qt {target_platform.description} build into {installdir}")
+        f"Making Qt {target_platform.description} build into {installdir}"
+    )
     with pushd(builddir):
         # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
-            log.warning("""Qt 'make' failure.
+            log.warning(
+                """Qt 'make' failure.
 
 ===============================================================================
 Troubleshooting Qt 'make' failures
@@ -3451,7 +3635,8 @@ A.  Standard header files like os/log.h should live within
     - Upgrade Xcode. (Xcode 7 is too old on macOS 10.13. Try Xcode 9.4.1.)
       That should install SDKs for iOS 11.4 and macOS 10.13.4.
 
-""")  # noqa
+"""
+            )  # noqa
             sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
@@ -3463,18 +3648,21 @@ A.  Standard header files like os/log.h should live within
     return installdir
 
 
-def make_missing_libqtforandroid_so(cfg: Config,
-                                    target_platform: Platform) -> None:
+def make_missing_libqtforandroid_so(
+    cfg: Config, target_platform: Platform
+) -> None:
     log.info(
         f"Making Android Qt dynamic library (from static version) for "
-        f"{target_platform}")
+        f"{target_platform}"
+    )
     qt_install_dir = cfg.qt_install_dir(target_platform)
     parent_dir = join(qt_install_dir, "plugins", "platforms")
     starting_lib_dir = join(parent_dir, "android")
     static_ext = target_platform.static_lib_ext
     starting_a_lib = join(starting_lib_dir, "libqtforandroid" + static_ext)
-    newlib_path = cfg.convert_android_lib_a_to_so(starting_a_lib,
-                                                  target_platform)
+    newlib_path = cfg.convert_android_lib_a_to_so(
+        starting_a_lib, target_platform
+    )
     _, newlib_basename = split(newlib_path)
     extra_copy_newlib = join(parent_dir, newlib_basename)
     shutil.copyfile(newlib_path, extra_copy_newlib)
@@ -3484,29 +3672,34 @@ def make_missing_libqtforandroid_so(cfg: Config,
 # SQLCipher
 # =============================================================================
 
+
 def fetch_sqlcipher(cfg: Config) -> None:
     """
     Downloads SQLCipher source code.
     """
     log.info("Fetching SQLCipher source...")
-    git_clone(prettyname="SQLCipher",
-              url=cfg.sqlcipher_git_url,
-              commit=cfg.sqlcipher_git_commit,
-              directory=cfg.sqlcipher_src_gitdir,
-              clone_options=["--config", "core.autocrlf=false"],
-              run_func=run)
+    git_clone(
+        prettyname="SQLCipher",
+        url=cfg.sqlcipher_git_url,
+        commit=cfg.sqlcipher_git_commit,
+        directory=cfg.sqlcipher_src_gitdir,
+        clone_options=["--config", "core.autocrlf=false"],
+        run_func=run,
+    )
     # We must have LF endings, not CR+LF, because we're going to use Unix tools
     # even under Windows.
 
     # The versions of config.guess and config.sub that come with SQLCipher
     # are taken (I think) from SQLite, and as of 2019-06-15, don't support
     # "aarch64". So let's fetch some proper ones:
-    log.info("Replacing config.guess and config.sub with recent GNU versions, "
-             "to detect newer architectures e.g. aarch64")
-    download(CONFIG_GUESS_MASTER,
-             join(cfg.sqlcipher_src_gitdir, "config.guess"))
-    download(CONFIG_SUB_MASTER,
-             join(cfg.sqlcipher_src_gitdir, "config.sub"))
+    log.info(
+        "Replacing config.guess and config.sub with recent GNU versions, "
+        "to detect newer architectures e.g. aarch64"
+    )
+    download(
+        CONFIG_GUESS_MASTER, join(cfg.sqlcipher_src_gitdir, "config.guess")
+    )
+    download(CONFIG_SUB_MASTER, join(cfg.sqlcipher_src_gitdir, "config.sub"))
 
 
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
@@ -3527,9 +3720,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # SQLCipher: setup
     # -------------------------------------------------------------------------
-    destdir = join(cfg.root_dir,
-                   "sqlcipher_" + target_platform.dirpart,
-                   "sqlcipher")  # this allows #include <sqlcipher/sqlite3.h>
+    destdir = join(
+        cfg.root_dir, "sqlcipher_" + target_platform.dirpart, "sqlcipher"
+    )  # this allows #include <sqlcipher/sqlite3.h>
 
     target_h = join(destdir, "sqlite3.h")
     target_c = join(destdir, "sqlite3.c")
@@ -3548,8 +3741,12 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     copy_tree_contents(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
     env = cfg.get_starting_env()
-    cfg.set_compile_env(env, target_platform, use_cross_compile_var=False,
-                        building_sqlcipher=True)
+    cfg.set_compile_env(
+        env,
+        target_platform,
+        use_cross_compile_var=False,
+        building_sqlcipher=True,
+    )
 
     _, openssl_workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     openssl_include_dir = join(openssl_workdir, "include")
@@ -3572,23 +3769,30 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             replace_multiple_in_file(
                 filename=makefile,
                 replacements=[
-                    ("TCC = $(TCC) -DSQLITE_TEMP_STORE=1",
-                     "TCC = $(TCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
-
-                    ("RCC = $(RCC) -DSQLITE_TEMP_STORE=1",
-                     "RCC = $(RCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
-                ]
+                    (
+                        "TCC = $(TCC) -DSQLITE_TEMP_STORE=1",
+                        "TCC = $(TCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc,
+                    ),
+                    (
+                        "RCC = $(RCC) -DSQLITE_TEMP_STORE=1",
+                        "RCC = $(RCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc,
+                    ),
+                ],
             )
             if not is_tclsh_windows_compatible():
                 raise RuntimeError("Incompatible TCL interpreter; stopping")
             nmake = which_with_envpath(NMAKE, env)
-            run([
-                nmake,
-                "/f", makefile,
-                "sqlite3.h",
-                "sqlite3.c",
-                "libsqlite3.lib",
-            ], env)
+            run(
+                [
+                    nmake,
+                    "/f",
+                    makefile,
+                    "sqlite3.h",
+                    "sqlite3.c",
+                    "libsqlite3.lib",
+                ],
+                env,
+            )
             # The Makefile.msc deletes all .obj files but compiles to .lo
             # files, which I think are identical (see LTCOMPILE, which calls
             # the compiler with the -Fo switch);
@@ -3635,8 +3839,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         if link_openssl_statically:
             log.info("Linking OpenSSL into SQLCipher STATICALLY")
             static_ext = target_platform.static_lib_ext
-            static_openssl_lib = join(openssl_workdir,
-                                      "libcrypto" + static_ext)
+            static_openssl_lib = join(
+                openssl_workdir, "libcrypto" + static_ext
+            )
             # Not working:
             # ldflags.append("-static")
             # ldflags.append("-l:libcrypto.a")
@@ -3649,7 +3854,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         else:
             log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
             # make the executable load OpenSSL dynamically
-            ldflags.append('-lcrypto')
+            ldflags.append("-lcrypto")
         # Note that "--with-crypto-lib" isn't helpful here:
         # https://www.zetetic.net/blog/2013/6/27/sqlcipher-220-release.html
 
@@ -3657,8 +3862,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         if trace_include:
             cflags.append("-H")
 
-        cflags.append("--sysroot={}".format(
-            escape_literal_for_shell(cfg.sysroot(target_platform, env))))
+        cflags.append(
+            "--sysroot={}".format(
+                escape_literal_for_shell(cfg.sysroot(target_platform, env))
+            )
+        )
         # ... or, for Android, configure will call ld which will say:
         #     ld: error: cannot open crtbegin_dynamic.o: No such file or directory  # noqa
         # ... escape_literal_for_shell() needed for paths with spaces in
@@ -3709,7 +3917,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
                 # Unix-style paths. So we let it use gcc.
                 run([MAKE, "sqlite3.c"], env)  # the amalgamation target
             if not isfile(target_exe) or not isfile(target_o):
-                run([MAKE, "sqlite3" + target_platform.obj_ext], env)  # for static linking  # noqa
+                run(
+                    [MAKE, "sqlite3" + target_platform.obj_ext], env
+                )  # for static linking  # noqa
             if want_exe and not isfile(target_exe):
                 run([MAKE, "sqlcipher"], env)  # the command-line executable
 
@@ -3725,13 +3935,15 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         f"and the library:\n"
         f"- {target_o}\n"
         f"and, on non-mobile platforms, the executable:\n"
-        f"- {target_exe}")
+        f"- {target_exe}"
+    )
 
 
 # =============================================================================
 # Eigen
 # =============================================================================
 # A better matrix system than mlpack, not least in that Eigen is headers-only
+
 
 def fetch_eigen(cfg: Config) -> None:
     """
@@ -3747,16 +3959,19 @@ def build_eigen(cfg: Config) -> None:
     'Build' simply means 'unpack' -- header-only template library.
     """
     log.info("Building (unpacking) Eigen...")
-    untar_to_directory(tarfile=cfg.eigen_src_fullpath,
-                       directory=cfg.eigen_unpacked_dir,
-                       gzipped=True,
-                       run_func=run,
-                       chdir_via_python=True)
+    untar_to_directory(
+        tarfile=cfg.eigen_src_fullpath,
+        directory=cfg.eigen_unpacked_dir,
+        gzipped=True,
+        run_func=run,
+        chdir_via_python=True,
+    )
 
 
 # =============================================================================
 # Master build function
 # =============================================================================
+
 
 def master_builder(args) -> None:
     """
@@ -3812,13 +4027,13 @@ def master_builder(args) -> None:
     # noinspection PyShadowingNames
     def build_for(os: str, cpu: str) -> None:
         target_platform = Platform(os, cpu)
-        log.info(f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
-                 f"for {target_platform}")
+        log.info(
+            f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
+            f"for {target_platform}"
+        )
         build_openssl(cfg, target_platform)
         build_sqlcipher(cfg, target_platform)
-        installdirs.append(
-            build_qt(cfg, target_platform)
-        )
+        installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
 
@@ -3845,23 +4060,32 @@ def master_builder(args) -> None:
             fail(CANNOT_CROSS_COMPILE_QT)
         build_for(Os.WINDOWS, Cpu.X86_32)
 
-    if cfg.build_ios_arm_v7_32:  # for iOS (e.g. iPad) with 32-bit ARM processor  # noqa
+    if (
+        cfg.build_ios_arm_v7_32
+    ):  # for iOS (e.g. iPad) with 32-bit ARM processor  # noqa
         build_for(Os.IOS, Cpu.ARM_V7_32)
 
-    if cfg.build_ios_arm_v8_64:  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
+    if (
+        cfg.build_ios_arm_v8_64
+    ):  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
-    if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel macOS  # noqa
+    if (
+        cfg.build_ios_simulator_x86_32
+    ):  # 32-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_32)
 
-    if cfg.build_ios_simulator_x86_64:  # 64-bit iOS simulator under Intel macOS  # noqa
+    if (
+        cfg.build_ios_simulator_x86_64
+    ):  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
     if not installdirs and not done_extra:
         log.warning("Nothing more to do. Run with --help argument for help.")
         sys.exit(EXIT_FAILURE)
 
-    log.info("""
+    log.info(
+        """
 ..
 
 ===============================================================================
@@ -3870,13 +4094,15 @@ Now, to compile CamCOPS using Qt Creator:
 
 See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
 
-    """)
+    """
+    )
     sys.exit(EXIT_SUCCESS)
 
 
 # =============================================================================
 # Main
 # =============================================================================
+
 
 def main() -> None:
     """
@@ -3889,95 +4115,132 @@ def main() -> None:
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Build Qt and other libraries for CamCOPS",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
     # General
     general = parser.add_argument_group("General", "General options")
     default_root_dir = os.environ.get(ENVVAR_QT_BASE) or DEFAULT_ROOT_DIR
     general.add_argument(
-        "--show_config_only", action="store_true",
-        help="Show config, then quit")
+        "--show_config_only",
+        action="store_true",
+        help="Show config, then quit",
+    )
     general.add_argument(
-        "--root_dir", default=default_root_dir,
+        "--root_dir",
+        default=default_root_dir,
         help=(
             f"Root directory for source and builds (default taken from "
             f"environment variable {ENVVAR_QT_BASE} if present)"
-        )
+        ),
     )
     general.add_argument(
-        "--nparallel", type=int, default=multiprocessing.cpu_count(),
-        help="Number of parallel processes to run")
+        "--nparallel",
+        type=int,
+        default=multiprocessing.cpu_count(),
+        help="Number of parallel processes to run",
+    )
+    general.add_argument("--force", action="store_true", help="Force build")
     general.add_argument(
-        "--force", action="store_true", help="Force build")
+        "--tee",
+        type=str,
+        default=None,
+        help="Copy stdout/stderr to this named file",
+    )
     general.add_argument(
-        "--tee", type=str, default=None,
-        help="Copy stdout/stderr to this named file")
+        "--verbose",
+        "-v",
+        type=int,
+        default=0,
+        choices=[0, 1, 2],
+        help="Verbosity level",
+    )
     general.add_argument(
-        "--verbose", "-v", type=int, default=0, choices=[0, 1, 2],
-        help="Verbosity level")
+        "--inherit_os_env",
+        dest="inherit_os_env",
+        action="store_true",
+        help="Inherit the parent OS environment variables",
+    )
     general.add_argument(
-        "--inherit_os_env", dest="inherit_os_env", action="store_true",
-        help="Inherit the parent OS environment variables")
-    general.add_argument(
-        "--no_inherit_os_env", dest="inherit_os_env", action="store_false",
-        help="Do not inherit the parent OS environment variables")
+        "--no_inherit_os_env",
+        dest="inherit_os_env",
+        action="store_false",
+        help="Do not inherit the parent OS environment variables",
+    )
     parser.set_defaults(inherit_os_env=not BUILD_PLATFORM.linux)
 
     # Architectures
     archgroup = parser.add_argument_group(
-        "Architecture",
-        "Choose architecture for which to build")
+        "Architecture", "Choose architecture for which to build"
+    )
     archgroup.add_argument(
-        "--build_all", action="store_true",
+        "--build_all",
+        action="store_true",
         help=(
             f"Build for all architectures supported on this host (this host "
             f"is: {BUILD_PLATFORM})"
-        )
+        ),
     )
     archgroup.add_argument(
-        "--build_android_x86_32", action="store_true",
+        "--build_android_x86_32",
+        action="store_true",
         help="An architecture target (Android under an "
-             "Intel x86 32-bit emulator)")
+        "Intel x86 32-bit emulator)",
+    )
     archgroup.add_argument(
-        "--build_android_arm_v7_32", action="store_true",
-        help="An architecture target (Android with a 32-bit ARM processor)")
+        "--build_android_arm_v7_32",
+        action="store_true",
+        help="An architecture target (Android with a 32-bit ARM processor)",
+    )
     archgroup.add_argument(
-        "--build_android_arm_v8_64", action="store_true",
-        help="An architecture target (Android with a 64-bit ARM processor)")
+        "--build_android_arm_v8_64",
+        action="store_true",
+        help="An architecture target (Android with a 64-bit ARM processor)",
+    )
     archgroup.add_argument(
-        "--build_linux_x86_64", action="store_true",
+        "--build_linux_x86_64",
+        action="store_true",
         help="An architecture target (native Linux with a 64-bit Intel/AMD "
-             "CPU; check with 'lscpu' and 'uname -a'")
+        "CPU; check with 'lscpu' and 'uname -a'",
+    )
     archgroup.add_argument(
-        "--build_macos_x86_64", action="store_true",
+        "--build_macos_x86_64",
+        action="store_true",
         help="An architecture target (macOS under an Intel 64-bit CPU; "
-             "check with 'sysctl -a|grep cpu', and see "
-             "https://support.apple.com/en-gb/HT201948 )")
-    archgroup.add_argument(
-        "--build_windows_x86_64", action="store_true",
-        help="An architecture target (Windows with an Intel/AMD 64-bit CPU)"
+        "check with 'sysctl -a|grep cpu', and see "
+        "https://support.apple.com/en-gb/HT201948 )",
     )
     archgroup.add_argument(
-        "--build_windows_x86_32", action="store_true",
-        help="An architecture target (Windows with an Intel/AMD 32-bit CPU)"
+        "--build_windows_x86_64",
+        action="store_true",
+        help="An architecture target (Windows with an Intel/AMD 64-bit CPU)",
     )
     archgroup.add_argument(
-        "--build_ios_arm_v7_32", action="store_true",
-        help="An architecture target (iOS with a 32-bit ARM processor)"
+        "--build_windows_x86_32",
+        action="store_true",
+        help="An architecture target (Windows with an Intel/AMD 32-bit CPU)",
     )
     archgroup.add_argument(
-        "--build_ios_arm_v8_64", action="store_true",
-        help="An architecture target (iOS with a 64-bit ARM processor)"
+        "--build_ios_arm_v7_32",
+        action="store_true",
+        help="An architecture target (iOS with a 32-bit ARM processor)",
     )
     archgroup.add_argument(
-        "--build_ios_simulator_x86_32", action="store_true",
+        "--build_ios_arm_v8_64",
+        action="store_true",
+        help="An architecture target (iOS with a 64-bit ARM processor)",
+    )
+    archgroup.add_argument(
+        "--build_ios_simulator_x86_32",
+        action="store_true",
         help="An architecture target (iOS with an Intel 32-bit CPU, for the "
-             "iOS simulator)"
+        "iOS simulator)",
     )
     archgroup.add_argument(
-        "--build_ios_simulator_x86_64", action="store_true",
+        "--build_ios_simulator_x86_64",
+        action="store_true",
         help="An architecture target (iOS with an Intel 64-bit CPU, for the "
-             "iOS simulator)"
+        "iOS simulator)",
     )
 
     # Qt
@@ -3985,60 +4248,81 @@ def main() -> None:
         "Qt",
         "Qt options [Qt must be built from source for SQLite support, and "
         "also if static OpenSSL linkage is desired; note that static OpenSSL "
-        "linkage requires a Qt rebuild (slow!) if you rebuild OpenSSL]")
+        "linkage requires a Qt rebuild (slow!) if you rebuild OpenSSL]",
+    )
     qt.add_argument(
-        "--qt_build_type", type=str, default=QT_BUILD_RELEASE,
+        "--qt_build_type",
+        type=str,
+        default=QT_BUILD_RELEASE,
         choices=QT_POSSIBLE_BUILD_TYPES,
-        help="Qt build type (release = small and quick)")
+        help="Qt build type (release = small and quick)",
+    )
     qt.add_argument(
-        "--qt_src_dirname", default=DEFAULT_QT_SRC_DIRNAME,
-        help="Qt source directory")
+        "--qt_src_dirname",
+        default=DEFAULT_QT_SRC_DIRNAME,
+        help="Qt source directory",
+    )
     qt.add_argument(
-        "--qt_openssl_static", dest="qt_openssl_static", action="store_true",
+        "--qt_openssl_static",
+        dest="qt_openssl_static",
+        action="store_true",
         help="Link OpenSSL statically (ONLY if Qt is statically linked) "
-             "[True=static, False=dynamic]")
+        "[True=static, False=dynamic]",
+    )
     qt.add_argument(
-        "--qt_openssl_linked", dest="qt_openssl_static", action="store_false",
-        help="Link OpenSSL dynamically [True=static, False=dynamic]")
+        "--qt_openssl_linked",
+        dest="qt_openssl_static",
+        action="store_false",
+        help="Link OpenSSL dynamically [True=static, False=dynamic]",
+    )
     parser.set_defaults(qt_openssl_static=DEFAULT_QT_USE_OPENSSL_STATICALLY)
 
     # Android
     android = parser.add_argument_group(
         "Android",
         "Android options (NB you must install the Android SDK and NDK "
-        "separately, BEFOREHAND)")
+        "separately, BEFOREHAND)",
+    )
     android.add_argument(
-        "--android_sdk_root", default=DEFAULT_ANDROID_SDK,
-        help="Android SDK root directory")
+        "--android_sdk_root",
+        default=DEFAULT_ANDROID_SDK,
+        help="Android SDK root directory",
+    )
     android.add_argument(
-        "--android_ndk_root", default=DEFAULT_ANDROID_NDK,
-        help="Android NDK root directory")
+        "--android_ndk_root",
+        default=DEFAULT_ANDROID_NDK,
+        help="Android NDK root directory",
+    )
     android.add_argument(
-        "--android_ndk_host", default=DEFAULT_ANDROID_NDK_HOST,
-        help="Android NDK host architecture")
+        "--android_ndk_host",
+        default=DEFAULT_ANDROID_NDK_HOST,
+        help="Android NDK host architecture",
+    )
     android.add_argument(
-        "--android_toolchain_version", default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,  # noqa
-        help="Android toolchain version")
+        "--android_toolchain_version",
+        default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,  # noqa
+        help="Android toolchain version",
+    )
     android.add_argument(
-        "--java_home", default=DEFAULT_JAVA_HOME,
-        help="JAVA_HOME directory"
+        "--java_home", default=DEFAULT_JAVA_HOME, help="JAVA_HOME directory"
     )
 
     # iOS
     ios = parser.add_argument_group("iOS", "iOS options")
     ios.add_argument(
-        "--ios_sdk", default="",
-        help="iOS SDK to use (leave blank for system default)"
+        "--ios_sdk",
+        default="",
+        help="iOS SDK to use (leave blank for system default)",
     )
 
     # jom
     jom = parser.add_argument_group(
-        "jom",
-        "'jom' parallel make tool for Windows"
+        "jom", "'jom' parallel make tool for Windows"
     )
     jom.add_argument(
-        "--jom_executable", default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
-        help="jom executable (typically installed with QtCreator)"
+        "--jom_executable",
+        default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
+        help="jom executable (typically installed with QtCreator)",
     )
 
     args = parser.parse_args()
@@ -4051,8 +4335,9 @@ def main() -> None:
     if main_only_quicksetup_rootlogger:
         main_only_quicksetup_rootlogger(level=loglevel)
     else:
-        logging.basicConfig(level=loglevel, format=LOG_FORMAT,
-                            datefmt=LOG_DATEFMT)
+        logging.basicConfig(
+            level=loglevel, format=LOG_FORMAT, datefmt=LOG_DATEFMT
+        )
     if args.tee:
         with open(args.tee, "wt") as tee_file:  # type: TextIO
             with tee_log(tee_file, loglevel=loglevel):
@@ -4068,10 +4353,10 @@ def main() -> None:
         DEBUG_SHOW_ENV = True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         log.critical("External process failed:")
         traceback.print_exc()
         sys.exit(EXIT_FAILURE)

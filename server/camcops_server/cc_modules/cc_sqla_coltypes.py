@@ -1082,7 +1082,7 @@ class IdNumReferenceListColType(TypeDecorator):
 
     @staticmethod
     def _idnumdef_list_to_dbstr(
-        idnumdef_list: Optional[List[IdNumReference]]
+        idnumdef_list: Optional[List[IdNumReference]],
     ) -> str:
         """
         Converts an optional list of
@@ -1540,7 +1540,7 @@ def gen_columns_matching_attrnames(
 
 
 def gen_camcops_columns(
-    obj
+    obj,
 ) -> Generator[Tuple[str, CamcopsColumn], None, None]:
     """
     Finds all columns of an object that are
@@ -1558,7 +1558,7 @@ def gen_camcops_columns(
 
 
 def gen_camcops_blob_columns(
-    obj
+    obj,
 ) -> Generator[Tuple[str, CamcopsColumn], None, None]:
     """
     Finds all columns of an object that are
@@ -1654,7 +1654,7 @@ def permitted_values_ok(obj) -> bool:
 
 
 def gen_ancillary_relationships(
-    obj
+    obj,
 ) -> Generator[
     Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
     None,
@@ -1671,7 +1671,7 @@ def gen_ancillary_relationships(
 
 
 def gen_blob_relationships(
-    obj
+    obj,
 ) -> Generator[
     Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
     None,

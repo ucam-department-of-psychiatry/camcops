@@ -112,7 +112,10 @@ def downgrade() -> None:
                 "clinician_contact_details",
                 sa.Text(),
                 nullable=True,
-                comment="(CLINICIAN) Clinician's contact details (e.g. bleep, extension)",
+                comment=(
+                    "(CLINICIAN) Clinician's contact details (e.g. bleep,"
+                    " extension)"
+                ),
             )
         )
         batch_op_.add_column(
@@ -120,7 +123,10 @@ def downgrade() -> None:
                 "clinician_service",
                 sa.Text(),
                 nullable=True,
-                comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry Service)",
+                comment=(
+                    "(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry"
+                    " Service)"
+                ),
             )
         )
         batch_op_.add_column(
@@ -128,7 +134,10 @@ def downgrade() -> None:
                 "clinician_professional_registration",
                 sa.Text(),
                 nullable=True,
-                comment="(CLINICIAN) Clinician's professional registration (e.g. GMC# 12345)",
+                comment=(
+                    "(CLINICIAN) Clinician's professional registration (e.g."
+                    " GMC# 12345)"
+                ),
             )
         )
         batch_op_.add_column(
@@ -136,7 +145,10 @@ def downgrade() -> None:
                 "clinician_specialty",
                 sa.Text(),
                 nullable=True,
-                comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)",
+                comment=(
+                    "(CLINICIAN) Clinician's specialty (e.g. Liaison"
+                    " Psychiatry)"
+                ),
             )
         )
 

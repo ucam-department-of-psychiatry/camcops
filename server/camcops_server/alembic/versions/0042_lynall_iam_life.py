@@ -42,7 +42,10 @@ Creation date: 2019-09-15 19:21:48.809716
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -68,253 +71,379 @@ def upgrade():
             "q1_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q1: in last 6 months: illness/injury/assault (self) (0 no, 1 yes)",
+            comment=(
+                "Q1: in last 6 months: illness/injury/assault (self) (0 no, 1"
+                " yes)"
+            ),
         ),
         sa.Column(
             "q1_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q1: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q1: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q1_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q1: For what percentage of your life since aged 18 has [this event: illness/injury/assault (self)] been happening? (0-100)",
+            comment=(
+                "Q1: For what percentage of your life since aged 18 has [this"
+                " event: illness/injury/assault (self)] been happening?"
+                " (0-100)"
+            ),
         ),
         sa.Column(
             "q2_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q2: in last 6 months: illness/injury/assault (relative) (0 no, 1 yes)",
+            comment=(
+                "Q2: in last 6 months: illness/injury/assault (relative) (0"
+                " no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q2_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q2: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q2: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q2_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q2: For what percentage of your life since aged 18 has [this event: illness/injury/assault (relative)] been happening? (0-100)",
+            comment=(
+                "Q2: For what percentage of your life since aged 18 has [this"
+                " event: illness/injury/assault (relative)] been happening?"
+                " (0-100)"
+            ),
         ),
         sa.Column(
             "q3_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q3: in last 6 months: parent/child/spouse/sibling died (0 no, 1 yes)",
+            comment=(
+                "Q3: in last 6 months: parent/child/spouse/sibling died (0 no,"
+                " 1 yes)"
+            ),
         ),
         sa.Column(
             "q3_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q3: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q3: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q3_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q3: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q3: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q4_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q4: in last 6 months: close family friend/other relative died (0 no, 1 yes)",
+            comment=(
+                "Q4: in last 6 months: close family friend/other relative died"
+                " (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q4_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q4: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q4: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q4_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q4: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q4: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q5_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q5: in last 6 months: marital separation or broke off relationship (0 no, 1 yes)",
+            comment=(
+                "Q5: in last 6 months: marital separation or broke off"
+                " relationship (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q5_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q5: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q5: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q5_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q5: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q5: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q6_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q6: in last 6 months: ended long-lasting friendship with close friend/relative (0 no, 1 yes)",
+            comment=(
+                "Q6: in last 6 months: ended long-lasting friendship with"
+                " close friend/relative (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q6_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q6: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q6: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q6_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q6: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q6: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q7_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q7: in last 6 months: problems with close friend/neighbour/relative (0 no, 1 yes)",
+            comment=(
+                "Q7: in last 6 months: problems with close"
+                " friend/neighbour/relative (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q7_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q7: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q7: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q7_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q7: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q7: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q8_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q8: in last 6 months: unsuccessful job-seeking for >1 month (0 no, 1 yes)",
+            comment=(
+                "Q8: in last 6 months: unsuccessful job-seeking for >1 month"
+                " (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q8_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q8: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q8: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q8_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q8: For what percentage of your life since aged 18 has [this event: unsuccessful job-seeking for >1 month] been happening? (0-100)",
+            comment=(
+                "Q8: For what percentage of your life since aged 18 has [this"
+                " event: unsuccessful job-seeking for >1 month] been"
+                " happening? (0-100)"
+            ),
         ),
         sa.Column(
             "q9_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q9: in last 6 months: sacked/made redundant (0 no, 1 yes)",
+            comment=(
+                "Q9: in last 6 months: sacked/made redundant (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q9_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q9: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q9: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q9_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q9: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q9: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q10_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q10: in last 6 months: major financial crisis (0 no, 1 yes)",
+            comment=(
+                "Q10: in last 6 months: major financial crisis (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q10_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q10: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q10: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q10_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q10: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q10: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q11_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q11: in last 6 months: problem with police involving court appearance (0 no, 1 yes)",
+            comment=(
+                "Q11: in last 6 months: problem with police involving court"
+                " appearance (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q11_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q11: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q11: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q11_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q11: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q11: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q12_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q12: in last 6 months: something valued lost/stolen (0 no, 1 yes)",
+            comment=(
+                "Q12: in last 6 months: something valued lost/stolen (0 no, 1"
+                " yes)"
+            ),
         ),
         sa.Column(
             "q12_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q12: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q12: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q12_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q12: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q12: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q13_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q13: in last 6 months: self/partner gave birth (0 no, 1 yes)",
+            comment=(
+                "Q13: in last 6 months: self/partner gave birth (0 no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q13_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q13: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q13: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q13_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q13: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q13: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "q14_main",
             sa.Boolean(),
             nullable=True,
-            comment="Q14: in last 6 months: other significant negative events (0 no, 1 yes)",
+            comment=(
+                "Q14: in last 6 months: other significant negative events (0"
+                " no, 1 yes)"
+            ),
         ),
         sa.Column(
             "q14_severity",
             sa.Integer(),
             nullable=True,
-            comment="Q14: (if yes) how bad was that (1 not too bad, 2 moderately bad, 3 very bad)",
+            comment=(
+                "Q14: (if yes) how bad was that (1 not too bad, 2 moderately"
+                " bad, 3 very bad)"
+            ),
         ),
         sa.Column(
             "q14_frequency",
             sa.Integer(),
             nullable=True,
-            comment="Q14: Since age 18, how many times has this happened to you in total?",
+            comment=(
+                "Q14: Since age 18, how many times has this happened to you in"
+                " total?"
+            ),
         ),
         sa.Column(
             "patient_id",
@@ -324,31 +453,37 @@ def upgrade():
         ),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
-            comment="(TASK) Date/time this task instance was created (ISO 8601)",
+            comment=(
+                "(TASK) Date/time this task instance was created (ISO 8601)"
+            ),
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+            comment=(
+                "(TASK) Date/time of the first exit from this task (ISO 8601)"
+            ),
         ),
         sa.Column(
             "firstexit_is_finish",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from the task because it was finished (1)?",
+            comment=(
+                "(TASK) Was the first exit from the task because it was"
+                " finished (1)?"
+            ),
         ),
         sa.Column(
             "firstexit_is_abort",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from this task because it was aborted (1)?",
+            comment=(
+                "(TASK) Was the first exit from this task because it was"
+                " aborted (1)?"
+            ),
         ),
         sa.Column(
             "editing_time_s",
@@ -373,7 +508,10 @@ def upgrade():
             "_era",
             sa.String(length=32),
             nullable=False,
-            comment="(SERVER) 'NOW', or when this row was preserved and removed from the source device (UTC ISO 8601)",
+            comment=(
+                "(SERVER) 'NOW', or when this row was preserved and removed"
+                " from the source device (UTC ISO 8601)"
+            ),
         ),
         sa.Column(
             "_current",
@@ -383,9 +521,7 @@ def upgrade():
         ),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time this row was added (ISO 8601)",
         ),
@@ -393,7 +529,10 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that added this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that added this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_adding_user_id",
@@ -403,17 +542,21 @@ def upgrade():
         ),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(SERVER) Date/time this row was removed, i.e. made not current (ISO 8601)",
+            comment=(
+                "(SERVER) Date/time this row was removed, i.e. made not"
+                " current (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that removed this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that removed this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_removing_user_id",
@@ -431,7 +574,10 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment="(SERVER) Forcibly preserved by superuser (rather than normally preserved by tablet)?",
+            comment=(
+                "(SERVER) Forcibly preserved by superuser (rather than"
+                " normally preserved by tablet)?"
+            ),
         ),
         sa.Column(
             "_predecessor_pk",
@@ -443,7 +589,10 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment="(SERVER) PK of successor record  (after modification) or NULL (whilst live, or after deletion)",
+            comment=(
+                "(SERVER) PK of successor record  (after modification) or NULL"
+                " (whilst live, or after deletion)"
+            ),
         ),
         sa.Column(
             "_manually_erased",
@@ -453,9 +602,7 @@ def upgrade():
         ),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)",
         ),
@@ -467,9 +614,7 @@ def upgrade():
         ),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
             comment="(SERVER) CamCOPS version number of the uploading device",
         ),
@@ -499,11 +644,12 @@ def upgrade():
         ),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(STANDARD) Date/time this row was last modified on the source tablet device (ISO 8601)",
+            comment=(
+                "(STANDARD) Date/time this row was last modified on the source"
+                " tablet device (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_move_off_tablet",

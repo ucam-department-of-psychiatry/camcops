@@ -67,7 +67,10 @@ def upgrade():
                 "is_api_session",
                 sa.Boolean(),
                 nullable=True,
-                comment="This session is using the client API (not a human browsing).",
+                comment=(
+                    "This session is using the client API (not a human"
+                    " browsing)."
+                ),
             )
         )
 

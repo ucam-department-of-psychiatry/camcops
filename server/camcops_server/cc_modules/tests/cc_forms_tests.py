@@ -418,7 +418,7 @@ class DurationWidgetTests(TestCase):
         self.assertTrue(kwargs["readonly"])
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
-        self
+        self,
     ) -> None:
         widget = DurationWidget(self.request, readonly=True)
 
@@ -608,7 +608,7 @@ class JsonWidgetTests(TestCase):
         self.assertTrue(kwargs["readonly"])
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
-        self
+        self,
     ) -> None:
         widget = JsonWidget(self.request, readonly=True)
 

@@ -1716,7 +1716,7 @@ class CamcopsPage(Page):
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
-        # dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!
+        # dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!  # noqa: E501
         return super().pager(
             format=format,
             url=url,

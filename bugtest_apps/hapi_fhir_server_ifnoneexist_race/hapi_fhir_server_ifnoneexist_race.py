@@ -72,42 +72,44 @@ def make_bundle(value: str, sp_unique: bool = False) -> Bundle:
     jd = {
         "type": "transaction",
         "entry": [
-            BundleEntry(jsondict={
-                "request": BundleEntryRequest(jsondict={
-                    "method": "POST",
-                    "url": "Questionnaire",
-                    "ifNoneExist": f"identifier={system}|{value}"
-                }).as_json(),
-                "resource": Questionnaire(jsondict={
-                    "name": "some_questionnaire_name",
-                    "status": "active",
-                    "identifier": [
-                        Identifier(jsondict={
-                            "system": system,
-                            "value": value
-                        }).as_json()
-                    ]
-                }).as_json()
-            }).as_json()
-        ]
+            BundleEntry(
+                jsondict={
+                    "request": BundleEntryRequest(
+                        jsondict={
+                            "method": "POST",
+                            "url": "Questionnaire",
+                            "ifNoneExist": f"identifier={system}|{value}",
+                        }
+                    ).as_json(),
+                    "resource": Questionnaire(
+                        jsondict={
+                            "name": "some_questionnaire_name",
+                            "status": "active",
+                            "identifier": [
+                                Identifier(
+                                    jsondict={"system": system, "value": value}
+                                ).as_json()
+                            ],
+                        }
+                    ).as_json(),
+                }
+            ).as_json()
+        ],
     }
     # Note: the .as_json() conversions are necessary.
     if sp_unique:
         raise NotImplementedError(
             "sp_unique method not implemented; see "
-            "https://github.com/hapifhir/hapi-fhir/issues/3141")
+            "https://github.com/hapifhir/hapi-fhir/issues/3141"
+        )
     return Bundle(jsondict=jd)
 
 
-def single_test_insert_if_none_exists(url: str,
-                                      value: str,
-                                      proc_num: int = 1,
-                                      sp_unique: bool = False) -> None:
+def single_test_insert_if_none_exists(
+    url: str, value: str, proc_num: int = 1, sp_unique: bool = False
+) -> None:
     app_id = "hapi_fhir_server_ifnoneexist_race"
-    client = FHIRClient(settings={
-        "api_base": url,
-        "app_id": app_id
-    })
+    client = FHIRClient(settings={"api_base": url, "app_id": app_id})
     bundle = make_bundle(value=value, sp_unique=sp_unique)
     print_json(f"[{proc_num}] Bundle: ", bundle.as_json())
     try:
@@ -121,7 +123,9 @@ def single_test_insert_if_none_exists(url: str,
         # At that point, type(e) gives: <class 'server.FHIRNotFoundException'>,
         # but isinstance(e, FHIRNotFoundException) gives False.
         # Manual creation/type testing works.
-        log.error(f"[{proc_num}] FHIR server says not found: {e.response.text}")
+        log.error(
+            f"[{proc_num}] FHIR server says not found: {e.response.text}"
+        )
     except Exception as e:
         x = e.response.text if hasattr(e, "response") else ""
         log.error(f"[{proc_num}] Error from fhirclient ({type(e)}): {e}{x}")
@@ -130,32 +134,36 @@ def single_test_insert_if_none_exists(url: str,
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--url", default="http://localhost:8080/fhir",
-        help="FHIR server API URL"
+        "--url",
+        default="http://localhost:8080/fhir",
+        help="FHIR server API URL",
     )
     parser.add_argument(
-        "--value", default="value1",
+        "--value",
+        default="value1",
         help="Value field for object to be created. If no bug is observed at "
-             "first, change this to a new value and try again."
+        "first, change this to a new value and try again.",
     )
     parser.add_argument(
-        "--n", type=int, default=cpu_count(),
-        help="Number of simultaneous threads"
+        "--n",
+        type=int,
+        default=cpu_count(),
+        help="Number of simultaneous threads",
     )
     parser.add_argument(
-        "--serial", action="store_true",
-        help="Use serial mode, not parallel"
+        "--serial", action="store_true", help="Use serial mode, not parallel"
     )
     parser.add_argument(
-        "--sp_unique", action="store_true",
+        "--sp_unique",
+        action="store_true",
         help="Enforce uniqueness via a Combo Search Index Parameter; "
-             "https://smilecdr.com/docs/fhir_repository/custom_search_parameters.html#uniqueness"  # noqa
+        "https://smilecdr.com/docs/fhir_repository/custom_search_parameters.html#uniqueness",  # noqa
     )
     args = parser.parse_args()
     logging.basicConfig(
         format="%(asctime)s.%(msecs)03d:%(levelname)s: %(message)s",
         level=logging.INFO,
-        datefmt="%Y-%m-%d %H:%M:%S"
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     def thread_fn(i_: int) -> None:

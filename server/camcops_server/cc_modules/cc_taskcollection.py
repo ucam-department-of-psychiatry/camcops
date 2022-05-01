@@ -94,7 +94,7 @@ if DEBUG_QUERY_TIMING:
 
 
 def task_when_created_sorter(
-    task: Task
+    task: Task,
 ) -> Union[Tuple[Pendulum, datetime.datetime], MinType]:
     """
     Function to sort tasks by their creation date/time (with upload date/time
@@ -359,7 +359,7 @@ class TaskCollection(object):
 
     @property
     def all_tasks_or_indexes_or_query(
-        self
+        self,
     ) -> Union[List[Task], List[TaskIndexEntry], Query]:
         """
         Returns a list of all appropriate task instances, or index entries, or
@@ -394,7 +394,7 @@ class TaskCollection(object):
     #     # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
 
     def gen_all_tasks_or_indexes(
-        self
+        self,
     ) -> Generator[Union[Task, TaskIndexEntry], None, None]:
         """
         Generates tasks or index entries.
@@ -935,7 +935,8 @@ class TaskCollection(object):
                 )
                 # noinspection PyPep8
                 liberal_or_anon_criteria = [
-                    TaskIndexEntry.patient_pk == None  # noqa: E711
+                    TaskIndexEntry.patient_pk
+                    == None  # noqa: E711
                     # anonymous OK
                 ]  # type: List[ClauseElement]
                 for gid in liberal_group_ids:
@@ -975,9 +976,7 @@ class TaskCollection(object):
                 TaskIndexEntry.when_created_utc >= tf.start_datetime_utc
             )
         if tf.end_datetime is not None:
-            q = q.filter(
-                TaskIndexEntry.when_created_utc < tf.end_datetime_utc
-            )
+            q = q.filter(TaskIndexEntry.when_created_utc < tf.end_datetime_utc)
 
         # text_contents is managed at the later fetch stage when using indexes
 

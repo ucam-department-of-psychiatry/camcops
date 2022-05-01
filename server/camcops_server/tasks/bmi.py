@@ -397,9 +397,9 @@ class Bmi(TaskHasPatientMixin, Task):
                                     Fc.CODING: [
                                         Coding(
                                             jsondict={
-                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,
+                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,  # noqa: E501
                                                 Fc.CODE: Fc.LOINC_HEIGHT_CODE,
-                                                Fc.DISPLAY: Fc.LOINC_HEIGHT_TEXT,  # noqa
+                                                Fc.DISPLAY: Fc.LOINC_HEIGHT_TEXT,  # noqa: E501
                                             }
                                         ).as_json()
                                     ]
@@ -434,9 +434,9 @@ class Bmi(TaskHasPatientMixin, Task):
                                     Fc.CODING: [
                                         Coding(
                                             jsondict={
-                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,
-                                                Fc.CODE: Fc.LOINC_BODY_WEIGHT_CODE,  # noqa
-                                                Fc.DISPLAY: Fc.LOINC_BODY_WEIGHT_TEXT,  # noqa
+                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,  # noqa: E501
+                                                Fc.CODE: Fc.LOINC_BODY_WEIGHT_CODE,  # noqa: E501
+                                                Fc.DISPLAY: Fc.LOINC_BODY_WEIGHT_TEXT,  # noqa: E501
                                             }
                                         ).as_json()
                                     ]

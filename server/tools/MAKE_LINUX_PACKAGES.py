@@ -777,7 +777,7 @@ restart_supervisord
 echo '{PACKAGE}: postrm file finished'
 
     """.format(
-        BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME, DSTBASEDIR=DSTBASEDIR
+        BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME
     )
 
 

@@ -957,7 +957,7 @@ class GenericTabletRecordMixin(object):
         dbsession.delete(self)
 
     def gen_attrname_ancillary_pairs(
-        self
+        self,
     ) -> Generator[Tuple[str, "GenericTabletRecordMixin"], None, None]:
         """
         Iterates through and yields all ``_current`` "ancillary" objects
@@ -980,7 +980,7 @@ class GenericTabletRecordMixin(object):
                 yield attrname, ancillary
 
     def gen_ancillary_instances(
-        self
+        self,
     ) -> Generator["GenericTabletRecordMixin", None, None]:
         """
         Generates all ``_current`` ancillary objects of this object.
@@ -989,7 +989,7 @@ class GenericTabletRecordMixin(object):
             yield ancillary
 
     def gen_ancillary_instances_even_noncurrent(
-        self
+        self,
     ) -> Generator["GenericTabletRecordMixin", None, None]:
         """
         Generates all ancillary objects of this object, even non-current
@@ -1043,7 +1043,7 @@ class GenericTabletRecordMixin(object):
 
     @staticmethod
     def _gen_unique_lineage_objects(
-        collection: Iterable["GenericTabletRecordMixin"]
+        collection: Iterable["GenericTabletRecordMixin"],
     ) -> Generator["GenericTabletRecordMixin", None, None]:
         """
         Given an iterable of database records, generate all related lineage

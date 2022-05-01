@@ -191,7 +191,7 @@ class AS(object):
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_extra_strings_as_dicts(
-    config_filename: str
+    config_filename: str,
 ) -> Dict[str, Dict[str, Dict[str, str]]]:
     r"""
     Returns strings from the all the extra XML string files.
@@ -345,8 +345,8 @@ def all_extra_strings_as_dicts(
                 taskname, {}
             )  # type: Dict[str, Dict[str, str]]  # noqa
             for e in taskroot.findall("./string[@name]"):
-                # ... "all elements with the tag 'string' that have an attribute
-                # named 'name'"
+                # ... "all elements with the tag 'string' that have an
+                # attribute named 'name'"
                 stringname = e.attrib.get("name")
                 final_string = text_contents(e)
                 final_string = unescape_newlines(final_string)

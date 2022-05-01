@@ -267,7 +267,7 @@ class PatientPermissionTests(BasicDatabaseTestCase):
         self.assertTrue(patient.user_may_edit(self.req))
 
     def test_group_member_with_permission_may_edit_server_created(
-        self
+        self,
     ) -> None:
         user = self.create_user(username="testuser")
         self.dbsession.flush()

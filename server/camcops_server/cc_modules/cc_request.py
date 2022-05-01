@@ -251,19 +251,19 @@ class CamcopsRequest(Request):
         super().__init__(*args, **kwargs)
         self.use_svg = False  # use SVG (not just PNG) for graphics
         self.provide_png_fallback_for_svg = (
-            True
-        )  # for SVG: provide PNG fallback image?  # noqa
+            True  # for SVG: provide PNG fallback image?
+        )
         self.add_response_callback(complete_request_add_cookies)
         self._camcops_session = None  # type: Optional[CamcopsSession]
         self._debugging_db_session = (
             None
-        )  # type: Optional[SqlASession]  # for unit testing only  # noqa
+        )  # type: Optional[SqlASession]  # for unit testing only
         self._debugging_user = (
             None
-        )  # type: Optional[User]  # for unit testing only  # noqa
+        )  # type: Optional[User]  # for unit testing only
         self._pending_export_push_requests = (
             []
-        )  # type: List[Tuple[str, str, int]]  # noqa
+        )  # type: List[Tuple[str, str, int]]
         self._cached_sstring = {}  # type: Dict[SS, str]
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
@@ -350,7 +350,7 @@ class CamcopsRequest(Request):
         That looks like we can add a callback in the process of running a
         callback. And when we add a cookie to a Pyramid session, that sets a
         callback. Let's give it a go...
-        """
+        """  # noqa: E501
         # 2019-03-21: If we've not used a CamcopsSession (e.g. for serving
         # a static view), do we care?
         if self._camcops_session is None:
@@ -1512,7 +1512,7 @@ class CamcopsRequest(Request):
         for axis in axes:
             for ticklabel in axis.get_ticklabels(
                 which="both"
-            ):  # type: Text  # I think!  # noqa
+            ):  # type: Text  # I think!
                 ticklabel.set_fontproperties(fp)
 
     def get_html_from_pyplot_figure(self, fig: Figure) -> str:
@@ -1876,7 +1876,7 @@ class CamcopsRequest(Request):
         # Convert to SQLAlchemy ORM ExportRecipient objects:
         recipients = [
             ExportRecipient(x) for x in recipientinfolist
-        ]  # type: List[ExportRecipient]  # noqa
+        ]  # type: List[ExportRecipient]
 
         final_recipients = []  # type: List[ExportRecipient]
         dbsession = self.dbsession
@@ -1988,7 +1988,7 @@ class CamcopsRequest(Request):
             recipient_name,
             basetable,
             task_pk,
-        ) in self._pending_export_push_requests:  # noqa
+        ) in self._pending_export_push_requests:
             log.info(
                 "Submitting background job to export task {}.{} to {}",
                 basetable,
@@ -2511,7 +2511,7 @@ def get_command_line_request(user_id: int = None) -> CamcopsRequest:
 
 @contextmanager
 def command_line_request_context(
-    user_id: int = None
+    user_id: int = None,
 ) -> Generator[CamcopsRequest, None, None]:
     """
     Request objects are ubiquitous, and allow code to refer to the HTTP

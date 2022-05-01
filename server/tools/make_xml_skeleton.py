@@ -53,7 +53,7 @@ def make_skeleton(xml_filename: str, replacement_text: str) -> str:
     """
     with open(xml_filename, "r") as file:
         original_content = file.read()
-    replacement_re = fr"\1{replacement_text}\2"
+    replacement_re = rf"\1{replacement_text}\2"
     skeleton = STRING_RE.sub(replacement_re, original_content)
     return skeleton
 

@@ -61,7 +61,9 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                 cls.FN_GENDER,
                 Integer,
                 permitted_value_checker=ZERO_TO_TWO_CHECKER,
-                comment="Gender at birth (0 Male, 1 Female, 2 Other (specify))",
+                comment=(
+                    "Gender at birth (0 Male, 1 Female, 2 Other (specify))"
+                ),
             ),
         )
         setattr(

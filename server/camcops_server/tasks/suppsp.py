@@ -281,12 +281,12 @@ class Suppsp(TaskHasPatientMixin, Task, metaclass=SuppspMetaclass):
             ),
             lack_of_perseverance_score=tr(
                 self.wxstring(req, "lack_of_perseverance") + " <sup>[3]</sup>",
-                f"{answer(self.lack_of_perseverance_score())} {subscale_range}",
+                f"{answer(self.lack_of_perseverance_score())} {subscale_range}",  # noqa: E501
             ),
             lack_of_premeditation_score=tr(
                 self.wxstring(req, "lack_of_premeditation")
                 + " <sup>[4]</sup>",
-                f"{answer(self.lack_of_premeditation_score())} {subscale_range}",  # noqa
+                f"{answer(self.lack_of_premeditation_score())} {subscale_range}",  # noqa: E501
             ),
             sensation_seeking_score=tr(
                 self.wxstring(req, "sensation_seeking") + " <sup>[5]</sup>",

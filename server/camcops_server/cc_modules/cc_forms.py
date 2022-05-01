@@ -3406,7 +3406,7 @@ class ReportParamForm(SimpleSubmitForm):
 
 
 def get_sql_dialect_choices(
-    request: "CamcopsRequest"
+    request: "CamcopsRequest",
 ) -> List[Tuple[str, str]]:
     _ = request.gettext
     return [
@@ -3804,8 +3804,8 @@ class PolicyNode(MandatoryStringNode, RequestAwareMixin):
                 node,
                 _(
                     "Invalid policy. Have you referred to non-existent ID "
-                    "numbers? Is the policy less restrictive than the tablet’s "
-                    "minimum ID policy?"
+                    "numbers? Is the policy less restrictive than the "
+                    "tablet’s minimum ID policy?"
                 )
                 + f" [{TABLET_ID_POLICY_STR!r}]",
             )
@@ -3864,13 +3864,13 @@ class GroupIpUseWidget(Widget):
                 "The settings here influence whether CamCOPS will consider "
                 "some third-party tasks “permitted” on your behalf, according "
                 "to their published use criteria. They do <b>not</b> remove "
-                "your responsibility to ensure that you use them in accordance "
-                "with their own requirements."
+                "your responsibility to ensure that you use them in "
+                "accordance with their own requirements."
             ),
             warning=_(
-                "WARNING. Providing incorrect information here may lead to you "
-                "VIOLATING copyright law, by using a task for a purpose that "
-                "is not permitted, and being subject to damages and/or "
+                "WARNING. Providing incorrect information here may lead to "
+                "you VIOLATING copyright law, by using task for a purpose "
+                "that is not permitted, and being subject to damages and/or "
                 "prosecution."
             ),
             disclaimer=_(
@@ -5114,9 +5114,7 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     patient_task_schedule_id = (
         HiddenIntegerNode()
     )  # name must match ViewParam.PATIENT_TASK_SCHEDULE_ID
-    schedule_id = (
-        TaskScheduleSelector()
-    )  # must match ViewParam.SCHEDULE_ID
+    schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID
     start_datetime = (
         StartPendulumSelector()
     )  # must match ViewParam.START_DATETIME
@@ -5320,8 +5318,8 @@ class EmailBccNode(OptionalEmailNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Email BCC")
         self.description = _(
-            "The patient will not see these email addresses. Separate multiple "
-            "addresses with commas."
+            "The patient will not see these email addresses. Separate "
+            "multiple addresses with commas."
         )
 
 
@@ -5410,7 +5408,8 @@ class DurationWidget(Widget):
         cstruct: Union[Dict[str, Any], None, ColanderNullType],
         **kw: Any,
     ) -> Any:
-        # called when rendering the form with values from DurationType.serialize
+        # called when rendering the form with values from
+        # DurationType.serialize
         if cstruct in (None, null):
             cstruct = {}
 
@@ -5576,8 +5575,8 @@ class TaskScheduleItemSchema(CSRFSchema):
         clinician_confirmation.title = _("Allow clinician tasks")
         clinician_confirmation.label = None
         clinician_confirmation.description = _(
-            "Tick this box to schedule a task that would normally be completed "
-            "by (or with) a clinician"
+            "Tick this box to schedule a task that would normally be "
+            "completed by (or with) a clinician"
         )
 
     def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
@@ -5650,9 +5649,10 @@ class TaskScheduleItemSchema(CSRFSchema):
                 ),
             )
 
-        # TODO: One the client we say 'to use this task, you must seek
-        # permission from the copyright holder'. We could do the same but at the
-        # moment there isn't a way of telling the system that we have done so.
+        # TODO: On the client we say 'to use this task, you must seek
+        # permission from the copyright holder'. We could do the same but at
+        # the moment there isn't a way of telling the system that we have done
+        # so.
         if (
             task_class.prohibits_commercial
             and schedule.group.ip_use.commercial

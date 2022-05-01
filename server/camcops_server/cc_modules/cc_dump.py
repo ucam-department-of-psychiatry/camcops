@@ -233,7 +233,7 @@ class DumpController(object):
                 )
 
     def gen_all_dest_columns(
-        self
+        self,
     ) -> Generator[Union[Column, CamcopsColumn], None, None]:
         """
         Generates all destination columns.
@@ -263,7 +263,7 @@ class DumpController(object):
 
     @staticmethod
     def _merits_extra_id_num_columns(
-        obj: object
+        obj: object,
     ) -> Tuple[bool, Optional[Patient]]:
         """
         Is the source object one that would support the addition of extra

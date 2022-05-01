@@ -87,8 +87,8 @@ UTF8 = "utf8"
 
 DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
 DEFAULT_FLOWER_PORT = (
-    5555
-)  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html
+    5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html
+)
 
 
 # =============================================================================
@@ -132,35 +132,33 @@ class DateFormat(object):
     LONG_DATE_WITH_DAY = "%a %d %B %Y"  # e.g. Wed 24 July 2013
     LONG_DATETIME = "%d %B %Y, %H:%M %z"  # e.g. 24 July 2013, 20:04 +0100
     LONG_DATETIME_WITH_DAY = (
-        "%a %d %B %Y, %H:%M %z"
-    )  # e.g. Wed 24 July 2013, 20:04 +0100
+        "%a %d %B %Y, %H:%M %z"  # e.g. Wed 24 July 2013, 20:04 +0100
+    )
     LONG_DATETIME_WITH_DAY_NO_TZ = (
-        "%a %d %B %Y, %H:%M"
-    )  # e.g. Wed 24 July 2013, 20:04
+        "%a %d %B %Y, %H:%M"  # e.g. Wed 24 July 2013, 20:04
+    )
     SHORT_DATETIME_WITH_DAY_NO_TZ = (
-        "%a %d %b %Y, %H:%M"
-    )  # e.g. Wed 24 Jul 2013, 20:04
+        "%a %d %b %Y, %H:%M"  # e.g. Wed 24 Jul 2013, 20:04
+    )
     LONG_DATETIME_SECONDS = "%d %B %Y, %H:%M:%S %z"
     SHORT_DATETIME = "%d %b %Y, %H:%M %z"  # e.g. 24 Jul 2013, 20:04 +0100
     SHORT_DATETIME_NO_TZ = "%d %b %Y, %H:%M"  # e.g. 24 Jul 2013, 20:04
     SHORT_DATETIME_SECONDS = (
-        "%d %b %Y, %H:%M:%S %z"
-    )  # e.g. 24 Jul 2013, 20:04:23 +0100
+        "%d %b %Y, %H:%M:%S %z"  # e.g. 24 Jul 2013, 20:04:23 +0100
+    )
     HOURS_MINUTES = "%H:%M"  # e.g. 20:04
     ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100
     ISO8601_HUMANIZED_TO_MINUTES = "%Y-%m-%d %H:%M"  # e.g. 2013-07-24 20:04
     ISO8601_HUMANIZED_TO_SECONDS = (
-        "%Y-%m-%d %H:%M:%S"
-    )  # e.g. 2013-07-24 20:04:23
+        "%Y-%m-%d %H:%M:%S"  # e.g. 2013-07-24 20:04:23
+    )
     ISO8601_HUMANIZED_TO_SECONDS_TZ = (
-        "%Y-%m-%d %H:%M:%S %z"
-    )  # e.g. 2013-07-24 20:04:23 +0100
+        "%Y-%m-%d %H:%M:%S %z"  # e.g. 2013-07-24 20:04:23 +0100
+    )
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
     FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
     # FHIR_DATETIME -- use x.isoformat()
-    FHIR_TIME = (
-        "%H:%M:%S"
-    )  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time
+    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa: E501
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
@@ -747,8 +745,8 @@ class ConfigDefaults(object):
     SESSION_TIMEOUT_MINUTES = 30
     SMS_BACKEND = SmsBackendNames.CONSOLE
     USER_DOWNLOAD_DIR = (
-        LINUX_DEFAULT_USER_DOWNLOAD_DIR
-    )  # for demo configs only
+        LINUX_DEFAULT_USER_DOWNLOAD_DIR  # for demo configs only
+    )
     USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
     USER_DOWNLOAD_MAX_SPACE_MB = 100
     WEBVIEW_LOGLEVEL = logging.INFO
@@ -883,7 +881,7 @@ class StringLengths:
 
     BASE32_MAX_LEN = 32
 
-    #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.
+    #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.  # noqa: E501
     #: Probably ~18 so give it some headroom.
     CHARSET_MAX_LEN = 64
 
@@ -1040,7 +1038,7 @@ class StringLengths:
     - MySQL: 64 -- https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
     - SQL Server: 128  -- https://msdn.microsoft.com/en-us/library/ms191240.aspx
     - Oracle: 32, then 128 from v12.2 (2017)
-    """
+    """  # noqa: E501
 
     TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
     """

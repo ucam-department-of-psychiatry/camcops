@@ -42,7 +42,10 @@ Creation date: 2019-06-03 10:46:48.698930
 from alembic import op
 import sqlalchemy as sa
 
-import camcops_server.cc_modules.cc_sqla_coltypes
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -67,43 +70,68 @@ def upgrade():
             "q1_age_first_inflammatory_sx",
             sa.Integer(),
             nullable=True,
-            comment="Age (y) at onset of first symptoms of inflammatory disease",
+            comment=(
+                "Age (y) at onset of first symptoms of inflammatory disease"
+            ),
         ),
         sa.Column(
             "q2_when_psych_sx_started",
             sa.Integer(),
             nullable=True,
-            comment="Timing of onset of psych symptoms (1 = NA, 2 = before physical symptoms [Sx], 3 = same time as physical Sx but before diagnosis [Dx], 4 = around time of Dx, 5 = weeks or months after Dx, 6 = years after Dx)",
+            comment=(
+                "Timing of onset of psych symptoms (1 = NA, 2 = before"
+                " physical symptoms [Sx], 3 = same time as physical Sx but"
+                " before diagnosis [Dx], 4 = around time of Dx, 5 = weeks or"
+                " months after Dx, 6 = years after Dx)"
+            ),
         ),
         sa.Column(
             "q3_worst_symptom_last_month",
             sa.Integer(),
             nullable=True,
-            comment="Worst symptom in last month (1 = fatigue, 2 = low mood, 3 = irritable, 4 = anxiety, 5 = brain fog/confused, 6 = pain, 7 = bowel Sx, 8 = mobility, 9 = skin, 10 = other, 11 = no Sx in past month)",
+            comment=(
+                "Worst symptom in last month (1 = fatigue, 2 = low mood, 3 ="
+                " irritable, 4 = anxiety, 5 = brain fog/confused, 6 = pain, 7"
+                " = bowel Sx, 8 = mobility, 9 = skin, 10 = other, 11 = no Sx"
+                " in past month)"
+            ),
         ),
         sa.Column(
             "q4a_symptom_timing",
             sa.Integer(),
             nullable=True,
-            comment="Timing of brain/psych Sx relative to physical Sx (1 = brain before physical, 2 = brain after physical, 3 = same time, 4 = no relationship, 5 = none of the above)",
+            comment=(
+                "Timing of brain/psych Sx relative to physical Sx (1 = brain"
+                " before physical, 2 = brain after physical, 3 = same time, 4"
+                " = no relationship, 5 = none of the above)"
+            ),
         ),
         sa.Column(
             "q4b_days_psych_before_phys",
             sa.Integer(),
             nullable=True,
-            comment="If Q4a == 1, number of days that brain Sx typically begin before physical Sx",
+            comment=(
+                "If Q4a == 1, number of days that brain Sx typically begin"
+                " before physical Sx"
+            ),
         ),
         sa.Column(
             "q4c_days_psych_after_phys",
             sa.Integer(),
             nullable=True,
-            comment="If Q4a == 2, number of days that brain Sx typically begin after physical Sx",
+            comment=(
+                "If Q4a == 2, number of days that brain Sx typically begin"
+                " after physical Sx"
+            ),
         ),
         sa.Column(
             "q5_antibiotics",
             sa.Boolean(),
             nullable=True,
-            comment="Medication for infection (e.g. antibiotics) in past 3 months? (0 = no, 1 = yes)",
+            comment=(
+                "Medication for infection (e.g. antibiotics) in past 3 months?"
+                " (0 = no, 1 = yes)"
+            ),
         ),
         sa.Column(
             "q6a_inpatient_last_y",
@@ -115,7 +143,10 @@ def upgrade():
             "q6b_inpatient_weeks",
             sa.Integer(),
             nullable=True,
-            comment="If Q6a is true, approximate number of weeks spent as an inpatient in the past year",
+            comment=(
+                "If Q6a is true, approximate number of weeks spent as an"
+                " inpatient in the past year"
+            ),
         ),
         sa.Column(
             "q7a_sx_last_2y",
@@ -127,13 +158,20 @@ def upgrade():
             "q7b_variability",
             sa.Integer(),
             nullable=True,
-            comment="If Q7a is true, degree of variability of symptoms (1-10 where 1 = highly variable [from none to severe], 10 = there all the time)",
+            comment=(
+                "If Q7a is true, degree of variability of symptoms (1-10 where"
+                " 1 = highly variable [from none to severe], 10 = there all"
+                " the time)"
+            ),
         ),
         sa.Column(
             "q8_smoking",
             sa.Integer(),
             nullable=True,
-            comment="Current smoking status (0 = no, 1 = yes but not every day, 2 = every day)",
+            comment=(
+                "Current smoking status (0 = no, 1 = yes but not every day, 2"
+                " = every day)"
+            ),
         ),
         sa.Column(
             "q9_pregnant",
@@ -205,7 +243,10 @@ def upgrade():
             "q11h_ph_other_detail",
             sa.UnicodeText(),
             nullable=True,
-            comment="If q11h_ph_other_psych is true, this is the free-text details field",
+            comment=(
+                "If q11h_ph_other_psych is true, this is the free-text details"
+                " field"
+            ),
         ),
         sa.Column(
             "q12a_fh_depression",
@@ -259,7 +300,10 @@ def upgrade():
             "q12h_fh_other_detail",
             sa.UnicodeText(),
             nullable=True,
-            comment="If q12h_fh_other_psych is true, this is the free-text details field",
+            comment=(
+                "If q12h_fh_other_psych is true, this is the free-text details"
+                " field"
+            ),
         ),
         sa.Column(
             "q13a_behcet",
@@ -301,7 +345,9 @@ def upgrade():
             "q13g_genital_scarring",
             sa.Boolean(),
             nullable=True,
-            comment="(If Behçet’s + genital) Genital scarring? (0 = no, 1 = yes)",
+            comment=(
+                "(If Behçet’s + genital) Genital scarring? (0 = no, 1 = yes)"
+            ),
         ),
         sa.Column(
             "patient_id",
@@ -311,31 +357,37 @@ def upgrade():
         ),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
-            comment="(TASK) Date/time this task instance was created (ISO 8601)",
+            comment=(
+                "(TASK) Date/time this task instance was created (ISO 8601)"
+            ),
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+            comment=(
+                "(TASK) Date/time of the first exit from this task (ISO 8601)"
+            ),
         ),
         sa.Column(
             "firstexit_is_finish",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from the task because it was finished (1)?",
+            comment=(
+                "(TASK) Was the first exit from the task because it was"
+                " finished (1)?"
+            ),
         ),
         sa.Column(
             "firstexit_is_abort",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from this task because it was aborted (1)?",
+            comment=(
+                "(TASK) Was the first exit from this task because it was"
+                " aborted (1)?"
+            ),
         ),
         sa.Column(
             "editing_time_s",
@@ -360,7 +412,10 @@ def upgrade():
             "_era",
             sa.String(length=32),
             nullable=False,
-            comment="(SERVER) 'NOW', or when this row was preserved and removed from the source device (UTC ISO 8601)",
+            comment=(
+                "(SERVER) 'NOW', or when this row was preserved and removed"
+                " from the source device (UTC ISO 8601)"
+            ),
         ),
         sa.Column(
             "_current",
@@ -370,9 +425,7 @@ def upgrade():
         ),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time this row was added (ISO 8601)",
         ),
@@ -380,7 +433,10 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that added this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that added this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_adding_user_id",
@@ -390,17 +446,21 @@ def upgrade():
         ),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(SERVER) Date/time this row was removed, i.e. made not current (ISO 8601)",
+            comment=(
+                "(SERVER) Date/time this row was removed, i.e. made not"
+                " current (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that removed this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that removed this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_removing_user_id",
@@ -418,7 +478,10 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment="(SERVER) Forcibly preserved by superuser (rather than normally preserved by tablet)?",
+            comment=(
+                "(SERVER) Forcibly preserved by superuser (rather than"
+                " normally preserved by tablet)?"
+            ),
         ),
         sa.Column(
             "_predecessor_pk",
@@ -430,7 +493,10 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment="(SERVER) PK of successor record  (after modification) or NULL (whilst live, or after deletion)",
+            comment=(
+                "(SERVER) PK of successor record  (after modification) or NULL"
+                " (whilst live, or after deletion)"
+            ),
         ),
         sa.Column(
             "_manually_erased",
@@ -440,9 +506,7 @@ def upgrade():
         ),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)",
         ),
@@ -454,9 +518,7 @@ def upgrade():
         ),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
             comment="(SERVER) CamCOPS version number of the uploading device",
         ),
@@ -486,11 +548,12 @@ def upgrade():
         ),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(STANDARD) Date/time this row was last modified on the source tablet device (ISO 8601)",
+            comment=(
+                "(STANDARD) Date/time this row was last modified on the source"
+                " tablet device (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_move_off_tablet",

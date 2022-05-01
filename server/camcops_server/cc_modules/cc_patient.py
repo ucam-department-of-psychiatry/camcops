@@ -1158,7 +1158,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def gen_patient_idnums_even_noncurrent(
-        self
+        self,
     ) -> Generator[PatientIdNum, None, None]:
         """
         Generates all :class:`PatientIdNum` objects, including non-current

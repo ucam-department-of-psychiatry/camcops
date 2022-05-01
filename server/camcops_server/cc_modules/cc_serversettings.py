@@ -125,8 +125,8 @@ class ServerStoredVarNamesDefunct(object):
     LAST_ANALYTICS_SENT_AT = "lastAnalyticsSentAt"  # text
     ID_DESCRIPTION_PREFIX = "idDescription"  # text; apply suffixes 1-8
     ID_SHORT_DESCRIPTION_PREFIX = (
-        "idShortDescription"
-    )  # text; apply suffixes 1-8
+        "idShortDescription"  # text; apply suffixes 1-8
+    )
 
 
 StoredVarNameColTypeDefunct = String(length=255)
@@ -196,7 +196,7 @@ class ServerSettings(Base):
     )
 
     def get_last_dummy_login_failure_clearance_pendulum(
-        self
+        self,
     ) -> Optional[Pendulum]:
         """
         Returns the time at which login failure records were cleared for

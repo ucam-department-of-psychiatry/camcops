@@ -62,8 +62,8 @@ try:
     from gunicorn.app.base import BaseApplication
 except ImportError:
     BaseApplication = (
-        None
-    )  # e.g. on Windows: "ImportError: no module named 'fcntl'".
+        None  # e.g. on Windows: "ImportError: no module named 'fcntl'".
+    )
 from wsgiref.simple_server import make_server  # noqa: E402
 
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
@@ -143,7 +143,7 @@ log.info("Using {} task types", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
     from pyramid.router import Router  # noqa: F401
-    from camcops_server.cc_modules.cc_exportrecipientinfo import (  # noqa: E401
+    from camcops_server.cc_modules.cc_exportrecipientinfo import (
         ExportRecipientInfo,
     )
 
@@ -498,7 +498,7 @@ def serve_gunicorn(
             self.application = app_
             super().__init__()
             if debug_show_known_settings:
-                # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))
+                # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))  # noqa: E501
                 # ... which basically tells us to look in gunicorn/config.py
                 # at every class that inherits from Setting.
                 # Each has helpful documentation, as follows:
