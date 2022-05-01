@@ -377,7 +377,14 @@ PACKAGENAME = join(
 # =============================================================================
 
 PREREQUISITES = (
-    "alien dpkg-deb fakeroot find git gzip lintian " "rpmrebuild".split()
+    "alien",
+    "dpkg-deb",
+    "fakeroot",
+    "find",
+    "git",
+    "gzip",
+    "lintian",
+    "rpmrebuild",
 )
 
 
