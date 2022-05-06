@@ -1491,7 +1491,7 @@ An example to prevent the :ref:`Celery-related memory leak
 .. code-block:: ini
 
     CELERY_WORKER_EXTRA_ARGS =
-        --maxtasksperchild=20
+        --max-tasks-per-child=20
 
 
 CELERY_EXPORT_TASK_RATE_LIMIT

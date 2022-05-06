@@ -3663,3 +3663,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Note: "E203 whitespace before ':'" errors should be suppressed. See
   https://github.com/psf/black/issues/315;
   https://black.readthedocs.io/en/stable/faq.html.
+
+- Change ``CELERY_WORKER_EXTRA_ARGS`` ``--maxtasksperchild`` to ``--max-tasks-per-child``
+  following removal of --maxtasksperchild in Celery 5.0.
