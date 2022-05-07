@@ -299,7 +299,7 @@ def backoff_delay_s(attempts: int) -> float:
     As per https://blog.balthazar-rouberol.com/celery-best-practices.
 
     """
-    return 2.0 ** attempts
+    return 2.0**attempts
 
 
 def jittered_delay_s() -> float:
