@@ -115,6 +115,7 @@ const QString ICON_CHAIN("chain.png");
 const QString ICON_CHOOSE_PATIENT("choose_patient.png");
 const QString ICON_CLINICAL("clinical.png");
 const QString ICON_COGNITIVE("cognitive.png");
+const QString ICON_EATING("eating.png");
 const QString ICON_EXECUTIVE("executive.png");
 const QString ICON_FIELD_INCOMPLETE_MANDATORY("field_incomplete_mandatory.png");
 const QString ICON_FIELD_INCOMPLETE_OPTIONAL("field_incomplete_optional.png");

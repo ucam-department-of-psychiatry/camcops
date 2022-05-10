@@ -133,6 +133,7 @@ extern const QString ICON_CHECK_UNSELECTED_REQUIRED;
 extern const QString ICON_CHOOSE_PATIENT;
 extern const QString ICON_CLINICAL;
 extern const QString ICON_COGNITIVE;
+extern const QString ICON_EATING;
 extern const QString ICON_EXECUTIVE;
 extern const QString ICON_FIELD_INCOMPLETE_MANDATORY;
 extern const QString ICON_FIELD_INCOMPLETE_OPTIONAL;

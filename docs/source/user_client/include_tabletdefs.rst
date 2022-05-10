@@ -153,6 +153,11 @@
    :height: 24px
    :width: 24px
 
+.. |eating| image:: ../_app_icons/eating.png
+   :align: middle
+   :height: 24px
+   :width: 24px
+
 .. |edit| image:: ../_app_icons/edit.png
    :align: middle
    :height: 24px
