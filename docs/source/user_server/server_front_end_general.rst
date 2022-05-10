@@ -19,8 +19,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Google Authenticator: https://en.wikipedia.org/wiki/Google_Authenticator
+.. _Kapow: https://www.kapow.co.uk/
 .. _SMS: https://en.wikipedia.org/wiki/SMS
 .. _Twilio Authy: https://authy.com/
+.. _Twilio SMS: https://www.twilio.com/sms
 
 .. include:: include_bootstrap_icons.rst
 
