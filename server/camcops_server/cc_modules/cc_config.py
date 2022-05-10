@@ -519,7 +519,7 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE} = {cd.CELERY_BEAT_SCHEDULE_DATABASE}
 {ConfigParamExportGeneral.CELERY_BROKER_URL} = {cd.CELERY_BROKER_URL}
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
-    --maxtasksperchild=1000
+    --max-tasks-per-child=1000
 {ConfigParamExportGeneral.CELERY_EXPORT_TASK_RATE_LIMIT} = 100/m
 {ConfigParamExportGeneral.EXPORT_LOCKDIR} = {cd.EXPORT_LOCKDIR}
 

@@ -119,7 +119,7 @@ Celery. See:
 - https://docs.celeryproject.org/en/latest/userguide/workers.html#max-tasks-per-child-setting
 - possibly related: https://github.com/celery/celery/issues/4843 (2018)
 
-A solution: use ``--maxtasksperchild=20`` in the :ref:`CELERY_WORKER_EXTRA_ARGS
+A solution: use ``--max-tasks-per-child=20`` in the :ref:`CELERY_WORKER_EXTRA_ARGS
 <CELERY_WORKER_EXTRA_ARGS>` config parameter. This successfully caps memory
 usage at around 750 MiB for a one-worker container.
 
