@@ -226,7 +226,9 @@ branch-closed.png	            |denovo|
 branch-end.png	                |denovo|
 branch-more.png	                |denovo|
 branch-open.png	                |denovo|
-camcops.png	                    Brain from `<http://www.public-domain-photos.com/free-cliparts/people/bodypart/brain_jon_phillips_01-4366.htm>`_ (public domain). Rest |denovo|.
+camcops.png	                    Brain from
+                                `<http://www.public-domain-photos.com/free-cliparts/people/bodypart/brain_jon_phillips_01-4366.htm>`_
+                                (public domain). Rest |denovo|.
 camera.png	                    |denovo|
 cancel.png	                    |denovo|
 catatonia.png	                After Cardinal RN, Everitt BJ. Neural systems
@@ -244,8 +246,19 @@ choose_page.png	                |denovo|
 choose_patient.png	            |denovo|
 clinical.png	                |denovo|
 cognitive.png	                |denovo|
-delete.png	                    Pencil modified from http://www.clker.com/clipart-pencil-28.html> (public domain, as per http://www.clker.com/disclaimer.html). Rest |denovo|.
-edit.png	                    Pencil modified from http://www.clker.com/clipart-pencil-28.html (public domain, as per http://www.clker.com/disclaimer.html). Rest |denovo|.
+delete.png	                    Pencil modified from
+                                http://www.clker.com/clipart-pencil-28.html>
+                                (public domain, as per
+                                http://www.clker.com/disclaimer.html). Rest
+                                |denovo|.
+eating.png                      Modified from
+                                https://commons.wikimedia.org/wiki/File:Noun_11637_cc.svg
+                                (by Federico Panzano, CC-BY-3.0).
+edit.png	                    Pencil modified from
+                                http://www.clker.com/clipart-pencil-28.html
+                                (public domain, as per
+                                http://www.clker.com/disclaimer.html). Rest
+                                |denovo|.
 executive.png	                Built using chess icons
                                 https://commons.wikimedia.org/wiki/File:Chess_qdt45.svg,
                                 https://commons.wikimedia.org/wiki/File:Chess_rlt45.svg,
@@ -261,15 +274,23 @@ finishflag.png	                Modified from
                                 (public domain, as per
                                 http://www.clker.com/disclaimer.html).
 finish.png	                    |denovo|
-global.png	                    From https://commons.wikimedia.org/wiki/File:Globe_Atlantic.svg (by the US Government; public domain).
+global.png	                    From
+                                https://commons.wikimedia.org/wiki/File:Globe_Atlantic.svg
+                                (by the US Government; public domain).
 hasChild.png	                |denovo|
 hasParent.png	                |denovo|
-info.png	                    Modified from https://en.wikipedia.org/wiki/File:Info_icon_002.svg (by Amada44; unrestricted use).
+info.png	                    Modified from
+                                https://en.wikipedia.org/wiki/File:Info_icon_002.svg
+                                (by Amada44; unrestricted use).
 language.png                    From http://www.languageicon.org; open-source
                                 licence terms described there and at
                                 https://en.wikipedia.org/wiki/Language_Icon
-locked.png	                    Modified from https://commons.wikimedia.org/wiki/File:Ambox_padlock_gray.svg (by User:HuBoro; public domain).
-magnify.png	                    Modified from https://commons.wikimedia.org/wiki/File:Magnifying_glass_icon.svg (by Derferman; public domain).
+locked.png	                    Modified from
+                                https://commons.wikimedia.org/wiki/File:Ambox_padlock_gray.svg
+                                (by User:HuBoro; public domain).
+magnify.png	                    Modified from
+                                https://commons.wikimedia.org/wiki/File:Magnifying_glass_icon.svg
+                                (by Derferman; public domain).
 next.png	                    |denovo|
 ok.png	                        |denovo|
 patient_summary.png	            |denovo|
@@ -302,7 +323,10 @@ research.png	                Mortarboard from
 rotate_anticlockwise.png	    |denovo|
 rotate_clockwise.png	        |denovo|
 sets_clinical.png	            |denovo|
-sets_research.png	            Mortarboard from https://en.wikipedia.org/wiki/File:French_university_icon.svg [CC-SA-3.0, by Λua∫Wise (Operibus anteire)]. Rest |denovo|.
+sets_research.png	            Mortarboard from
+                                https://en.wikipedia.org/wiki/File:French_university_icon.svg
+                                [CC-SA-3.0, by Λua∫Wise (Operibus anteire)].
+                                Rest |denovo|.
 settings.png	                Modified from
                                 https://www.clker.com/clipart-gear-grey.html
                                 (public domain, as per
@@ -324,9 +348,18 @@ treeview.png	                |denovo|
 unlocked.png	                Modified from
                                 https://commons.wikimedia.org/wiki/File:Ambox_padlock_gray.svg
                                 (by User:HuBoro; public domain).
-upload.png	                    Globe from https://openclipart.org/download/121609/1298353280.svg (public domain, as per https://openclipart.org/share). Server from https://commons.wikimedia.org/wiki/File:Server-database-mysql.svg, in turn from https://commons.wikimedia.org/wiki/File:Drive-harddisk.svg (by Sasa Stefanovic; public domain).
+upload.png	                    Globe from
+                                https://openclipart.org/download/121609/1298353280.svg
+                                (public domain, as per
+                                https://openclipart.org/share). Server from
+                                https://commons.wikimedia.org/wiki/File:Server-database-mysql.svg,
+                                in turn from
+                                https://commons.wikimedia.org/wiki/File:Drive-harddisk.svg
+                                (by Sasa Stefanovic; public domain).
 vline.png	                    |denovo|
 warning.png	                    |denovo|
 whisker.png	                    |denovo|
-zoom.png	                    Modified from https://commons.wikimedia.org/wiki/File:Magnifying_glass_icon.svg (by Derferman; public domain).
+zoom.png	                    Modified from
+                                https://commons.wikimedia.org/wiki/File:Magnifying_glass_icon.svg
+                                (by Derferman; public domain).
 =============================== ===============================================
