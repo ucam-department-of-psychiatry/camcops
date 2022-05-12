@@ -195,6 +195,6 @@
         <file>resources/camcops/images/physical.png</file>
         <file>resources/moca/missing.png</file>
         <file>resources/camcops/prohibited_passwords/PwnedPasswordsTop100k.txt</file>
-        <file>resources/camcops/images/eating.png</file>
+        <file>resources/camcops/images/dolphin.png</file>
     </qresource>
 </RCC>

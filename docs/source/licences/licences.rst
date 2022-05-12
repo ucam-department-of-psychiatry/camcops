@@ -276,9 +276,8 @@ the CamCOPS general images:
       - Pencil modified from http://www.clker.com/clipart-pencil-28.html
         (public domain, as per http://www.clker.com/disclaimer.html). Rest
         |denovo|.
-    * - eating.png
-      - Modified from https://commons.wikimedia.org/wiki/File:Noun_11637_cc.svg
-        (by Federico Panzano, CC-BY-3.0).
+    * - dolphin.png
+      - https://commons.wikimedia.org/wiki/File:Dolphin.svg (public domain).
     * - edit.png
       - Pencil modified from http://www.clker.com/clipart-pencil-28.html
         (public domain, as per http://www.clker.com/disclaimer.html). Rest

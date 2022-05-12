@@ -25,8 +25,12 @@
 
 
 EatingDisordersMenu::EatingDisordersMenu(CamcopsApp& app) :
-    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_EATING))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_DOLPHIN))
 {
+    // Icon is a dolphin, per KI 2022-05-12, after the Maudsley Animal
+    // Analogies and acceptance (KI reports) in the eating disorders community.
+    // - https://thenewmaudsleyapproach.co.uk/index.php/research
+    // - https://avedcaregiver.ca/wp-content/uploads/2018/12/Maudsley-Animal-Analogies.pdf
 }
 
 
@@ -42,6 +46,5 @@ void EatingDisordersMenu::makeItems()
         MAKE_CHANGE_PATIENT(m_app),
         // todo:: CIA
         // todo:: EDE-Q
-        // todo:: ISAAQ
     };
 }

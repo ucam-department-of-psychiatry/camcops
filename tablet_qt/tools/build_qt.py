@@ -556,8 +556,8 @@ OPENSSL_SRC_URL = (
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
-# SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQLCipher version 3.4.2, 21 Dec 2017  # noqa
-SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"  # SQLCipher version 4.2.0, 29 May 2019  # noqa
+SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
+# ... SQLCipher version 4.2.0, 29 May 2019
 
 # - Note that there's another URL for the Android binary packages
 # - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
@@ -576,8 +576,12 @@ MIN_MACOS_VERSION = "10.10"  # ... with 10.7, SQLCipher's "configure" fails
 
 # GNU tools
 
-CONFIG_GUESS_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"  # noqa
-CONFIG_SUB_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"  # noqa
+CONFIG_GUESS_MASTER = (
+    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"
+)
+CONFIG_SUB_MASTER = (
+    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"
+)
 
 
 # -----------------------------------------------------------------------------

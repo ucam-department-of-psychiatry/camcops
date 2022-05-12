@@ -958,7 +958,12 @@ def main() -> None:
         row("camera", "physical", "global", "patient_summary", "add", None),
         none_row,
         row(
-            "radio_selected", "eating", "cognitive", "hasChild", "cancel", None
+            "radio_selected",
+            "dolphin",
+            "cognitive",
+            "hasChild",
+            "cancel",
+            None,
         ),
         none_row,
         row("radio_unselected", None, "affective", "clinical", "edit", None),

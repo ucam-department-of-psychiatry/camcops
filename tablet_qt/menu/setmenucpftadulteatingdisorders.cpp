@@ -29,13 +29,14 @@
 #include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
 #include "tasks/gbogpc.h"
+#include "tasks/ided3d.h"
 #include "tasks/phq9.h"
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
 
 
 SetMenuCpftAdultEatingDisorders::SetMenuCpftAdultEatingDisorders(CamcopsApp& app) :
-    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_DOLPHIN))
 {
 }
 
@@ -58,21 +59,25 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Generic measures")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
+        // todo:: PARADISE-24 [and add to "global" menu]
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
+        // todo:: CIA [and add to "eating disorders" menu]
+        // todo:: EDE-Q [and add to "eating disorders" menu]
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
-        // todo:: CIA
-        // todo:: EDE-Q
-        // todo:: ISAAQ
 
         MenuItem(tr("Treatment/care")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GboGRaS::GBOGRAS_TABLENAME, m_app),
+
+        MenuItem(tr("Research")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
+        // todo:: ISAAQ [and add to "research" menu]
+        MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
     };
 }
