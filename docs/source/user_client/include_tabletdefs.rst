@@ -153,10 +153,10 @@
    :height: 24px
    :width: 24px
 
-.. |eating| image:: ../_app_icons/eating.png
+.. |dolphin| image:: ../_app_icons/dolphin.png
    :align: middle
-   :height: 24px
-   :width: 24px
+   :height: 48px
+   :width: 48px
 
 .. |edit| image:: ../_app_icons/edit.png
    :align: middle

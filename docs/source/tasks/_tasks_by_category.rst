@@ -203,7 +203,7 @@ Drug/alcohol abuse and addiction
 Eating disorders
 ----------------
 
-|eating|
+|dolphin|
 
 .. todo:: CIA
 .. todo:: EDE-Q
