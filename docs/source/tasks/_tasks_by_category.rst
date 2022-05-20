@@ -30,116 +30,8 @@ Tasks in CamCOPS by category
     :depth: 1
 
 
-.. All tasks should appear in this list.
-
-Clinical notes and logs
------------------------
-
-|clinical|
-
-- :ref:`Body mass index (BMI) <bmi>`
-
-- :ref:`Contact log <contact_log>`
-
-- :ref:`CPFT Liaison Psychiatry Service admin tool: referral
-  (defunct) <cpft_lps_referral>`
-
-- :ref:`CPFT Liaison Psychiatry Service admin tool: response clock
-  (defunct) <cpft_lps_response_clock>`
-
-- :ref:`CPFT Liaison Psychiatry Service admin tools: discharge
-  (defunct) <cpft_lps_discharge>`
-
-- :ref:`Diagnostic coding, ICD-10 codes <diagnosis_icd10>`
-
-- :ref:`Goal-Based Outcomes -- 1 -- Goal Record Sheet <gbo_gres>`
-
-- :ref:`Goal-Based Outcomes -- 2 -- Goal Progress Chart <gbo_gpc>`
-
-- :ref:`Goal-Based Outcomes -- 3 -- Goal Rating Sheet <gbo_gras>`
-
-- :ref:`Identify and Rate the Aim of the Contact (IRAC) <irac>`
-
-- :ref:`Photograph <photo>`
-
-- :ref:`Photo sequence <photosequence>`
-
-- :ref:`Progress note <progress_note>`
-
-- :ref:`Psychiatric clerking <clerking>`
-
-
-Global function and multiple aspects of psychopathology
--------------------------------------------------------
-
-|global|
-
-- :ref:`Brief Psychiatric Rating Scale (BPRS) <bprs>`
-
-- :ref:`Brief Psychiatric Rating Scale, Expanded (BPRS-E) <bprse>`
-
-- :ref:`Bristol Activities of Daily Living Scale (BADLS) <badls>`
-
-- :ref:`Cambridge Behavioural Inventory, Revised (CBI-R) <cbir>`
-
-- :ref:`Clinical Global Impression scale (CGI) <cgi>`
-
-- :ref:`Clinical Global Impression – Improvement (CGI-I) <cgi_i>`
-
-- :ref:`Brief COPE Inventory (COPE_Brief) <cope>`
-
-- :ref:`Dementia Quality of Life measure, self-report version (DEMQOL)
-  <demqol>`
-
-- :ref:`Dementia Quality of Life measure, proxy version (DEMQOL-Proxy)
-  <demqol_proxy>`
-
-- :ref:`Disability Assessment for Dementia scale (DAD) <dad>`
-
-- :ref:`Distress Thermometer <distressthermometer>`
-
-- :ref:`Frontotemporal Dementia Rating Scale (FRS) <frs>`
-
-- :ref:`Functional Assessment of Cancer Therapy—General (FACT-G) <factg>`
-
-- :ref:`EuroQol 5-Dimension, 5-Level Health Scale (EQ-5D-5L) <eq5d5l>`
-
-- :ref:`Global Assessment of Functioning (GAF) <gaf>`
-
-- :ref:`Health of the Nation Outcome Scales: HoNOS <honos>`
-
-- :ref:`Health of the Nation Outcome Scales: HoNOS 65+ <honos65>`
-
-- :ref:`Health of the Nation Outcome Scales: HoNOSCA <honosca>`
-
-- :ref:`Neuropsychiatric Inventory Questionnaire (NPI-Q) <npiq>`
-
-- :ref:`Outcome Rating Scale (ORS) <ors>`
-
-- :ref:`RAND 36-Item Short Form Health Survey 1.0 (RAND-36) <rand36>`
-
-- :ref:`Short Warwick–Edinburgh Mental Well-Being Scale (SWEMWBS) <swemwbs>`
-
-- :ref:`Warwick–Edinburgh Mental Well-Being Scale (WEMWBS) <wemwbs>`
-
-- :ref:`Work and Social Adjustment Scale (WSAS) <wsas>`
-
-- :ref:`Zarit Burden Inventory (ZBI), 12-item version <zbi>`
-
-
-Cognitive assessment
---------------------
-
-|cognitive|
-
-- :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
-
-- :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
-
-- :ref:`National Adult Reading Test (NART) <nart>`
-
-- :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
-
+..  All tasks should appear in this list. Categories alphabetical (except
+    "set menu" collections at the end).
 
 Affective (mood and anxiety) disorders
 --------------------------------------
@@ -205,6 +97,86 @@ Affective (mood and anxiety) disorders
 - :ref:`Y-BOCS Symptom Checklist (Y-BOCS-SC) <ybocs_sc>`
 
 
+Anonymous questionnaires
+------------------------
+
+|anonymous|
+
+- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
+  (APEQPT) <apeqpt>`.
+
+- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
+  <perinatal_poem>`
+
+- :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
+
+- :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
+
+
+Catatonia and extrapyramidal side effects
+-----------------------------------------
+
+|catatonia|
+
+- :ref:`Abnormal Involuntary Movement Scale (AIMS) <aims>`
+
+- :ref:`Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s
+  Disease Rating Scale (MDS-UPDRS) <mdsupdrs>`
+
+.. - Catatonia examination technique (info only)
+
+
+Cognitive assessment
+--------------------
+
+|cognitive|
+
+- :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
+
+- :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
+
+- :ref:`National Adult Reading Test (NART) <nart>`
+
+- :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
+
+
+Clinical notes and logs
+-----------------------
+
+|clinical|
+
+- :ref:`Body mass index (BMI) <bmi>`
+
+- :ref:`Contact log <contact_log>`
+
+- :ref:`CPFT Liaison Psychiatry Service admin tool: referral
+  (defunct) <cpft_lps_referral>`
+
+- :ref:`CPFT Liaison Psychiatry Service admin tool: response clock
+  (defunct) <cpft_lps_response_clock>`
+
+- :ref:`CPFT Liaison Psychiatry Service admin tools: discharge
+  (defunct) <cpft_lps_discharge>`
+
+- :ref:`Diagnostic coding, ICD-10 codes <diagnosis_icd10>`
+
+- :ref:`Goal-Based Outcomes -- 1 -- Goal Record Sheet <gbo_gres>`
+
+- :ref:`Goal-Based Outcomes -- 2 -- Goal Progress Chart <gbo_gpc>`
+
+- :ref:`Goal-Based Outcomes -- 3 -- Goal Rating Sheet <gbo_gras>`
+
+- :ref:`Identify and Rate the Aim of the Contact (IRAC) <irac>`
+
+- :ref:`Photograph <photo>`
+
+- :ref:`Photo sequence <photosequence>`
+
+- :ref:`Progress note <progress_note>`
+
+- :ref:`Psychiatric clerking <clerking>`
+
+
 Drug/alcohol abuse and addiction
 --------------------------------
 
@@ -228,37 +200,80 @@ Drug/alcohol abuse and addiction
 - :ref:`Short Michigan Alcohol Screening Test (SMAST) <smast>`
 
 
-Psychosis
----------
+Eating disorders
+----------------
 
-|psychosis|
+|dolphin|
 
-- :ref:`Community Assessment of Psychic Experiences (CAPE-42) <cape>`
-
-- :ref:`Cardiff Anomalous Perceptions Scale (CAPS) <caps>`
-
-- :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
-
-- :ref:`Clinical Global Impression – Schizophrenia (CGI-SCH) <cgisch>`
-
-- :ref:`ICD-10 criteria: schizophrenia <icd10_schizophrenia>`
-
-- :ref:`ICD-10 criteria: schizotypal disorder <icd10_schizotypal>`
-
-- :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
+.. todo:: CIA
+.. todo:: EDE-Q
+.. todo:: ISAAQ
 
 
-Catatonia and extrapyramidal side effects
------------------------------------------
+Executive function
+------------------
 
-|catatonia|
+|executive|
 
-- :ref:`Abnormal Involuntary Movement Scale (AIMS) <aims>`
+- :ref:`INECO Frontal Screening (IFS) <ifs>`
 
-- :ref:`Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s
-  Disease Rating Scale (MDS-UPDRS) <mdsupdrs>`
 
-.. - Catatonia examination technique (info only)
+Global function and multiple aspects of psychopathology
+-------------------------------------------------------
+
+|global|
+
+- :ref:`Brief Psychiatric Rating Scale (BPRS) <bprs>`
+
+- :ref:`Brief Psychiatric Rating Scale, Expanded (BPRS-E) <bprse>`
+
+- :ref:`Bristol Activities of Daily Living Scale (BADLS) <badls>`
+
+- :ref:`Cambridge Behavioural Inventory, Revised (CBI-R) <cbir>`
+
+- :ref:`Clinical Global Impression scale (CGI) <cgi>`
+
+- :ref:`Clinical Global Impression – Improvement (CGI-I) <cgi_i>`
+
+- :ref:`Brief COPE Inventory (COPE_Brief) <cope>`
+
+- :ref:`Dementia Quality of Life measure, self-report version (DEMQOL)
+  <demqol>`
+
+- :ref:`Dementia Quality of Life measure, proxy version (DEMQOL-Proxy)
+  <demqol_proxy>`
+
+- :ref:`Disability Assessment for Dementia scale (DAD) <dad>`
+
+- :ref:`Distress Thermometer <distressthermometer>`
+
+- :ref:`Frontotemporal Dementia Rating Scale (FRS) <frs>`
+
+- :ref:`Functional Assessment of Cancer Therapy—General (FACT-G) <factg>`
+
+- :ref:`EuroQol 5-Dimension, 5-Level Health Scale (EQ-5D-5L) <eq5d5l>`
+
+- :ref:`Global Assessment of Functioning (GAF) <gaf>`
+
+- :ref:`Health of the Nation Outcome Scales: HoNOS <honos>`
+
+- :ref:`Health of the Nation Outcome Scales: HoNOS 65+ <honos65>`
+
+- :ref:`Health of the Nation Outcome Scales: HoNOSCA <honosca>`
+
+- :ref:`Neuropsychiatric Inventory Questionnaire (NPI-Q) <npiq>`
+
+- :ref:`Outcome Rating Scale (ORS) <ors>`
+
+- :ref:`RAND 36-Item Short Form Health Survey 1.0 (RAND-36) <rand36>`
+
+- :ref:`Short Warwick–Edinburgh Mental Well-Being Scale (SWEMWBS) <swemwbs>`
+
+- :ref:`Warwick–Edinburgh Mental Well-Being Scale (WEMWBS) <wemwbs>`
+
+- :ref:`Work and Social Adjustment Scale (WSAS) <wsas>`
+
+- :ref:`Zarit Burden Inventory (ZBI), 12-item version <zbi>`
 
 
 Personality and experience
@@ -276,14 +291,6 @@ Personality and experience
 - :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`
 
 - :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`
-
-
-Executive function
-------------------
-
-|executive|
-
-- :ref:`INECO Frontal Screening (IFS) <ifs>`
 
 
 Physical illness measurement
@@ -304,6 +311,26 @@ Physical illness measurement
 - :ref:`Routine Assessment of Patient Index Data (RAPID3) <rapid3>`
 
 - :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
+
+
+Psychosis
+---------
+
+|psychosis|
+
+- :ref:`Community Assessment of Psychic Experiences (CAPE-42) <cape>`
+
+- :ref:`Cardiff Anomalous Perceptions Scale (CAPS) <caps>`
+
+- :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
+- :ref:`Clinical Global Impression – Schizophrenia (CGI-SCH) <cgisch>`
+
+- :ref:`ICD-10 criteria: schizophrenia <icd10_schizophrenia>`
+
+- :ref:`ICD-10 criteria: schizotypal disorder <icd10_schizotypal>`
+
+- :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
 
 
 Service evaluation
@@ -368,22 +395,6 @@ These are more experimental:
 
 - :ref:`Cardinal RN — Expectation–Detection task (with associated sound test)
   <cardinal_expdet>`
-
-
-Anonymous questionnaires
-------------------------
-
-|anonymous|
-
-- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
-  (APEQPT) <apeqpt>`.
-
-- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
-  <perinatal_poem>`
-
-- :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
-
-- :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
 
 
 Set menus for research

@@ -678,6 +678,7 @@ SOURCES += \
     menu/clinicalmenu.cpp \
     menu/clinicalsetsmenu.cpp \
     menu/cognitivemenu.cpp \
+    menu/eatingdisordersmenu.cpp \
     menu/executivemenu.cpp \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
@@ -690,6 +691,7 @@ SOURCES += \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
     menu/setmenucpftadrd.cpp \
+    menu/setmenucpftadulteatingdisorders.cpp \
     menu/setmenucpftcovid.cpp \
     menu/setmenucpftperinatal.cpp \
     menu/setmenucpftpsychooncology.cpp \
@@ -1153,6 +1155,7 @@ HEADERS += \
     menu/clinicalmenu.h \
     menu/clinicalsetsmenu.h \
     menu/cognitivemenu.h \
+    menu/eatingdisordersmenu.h \
     menu/executivemenu.h \
     menu/globalmenu.h \
     menu/helpmenu.h \
@@ -1165,6 +1168,7 @@ HEADERS += \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
     menu/setmenucpftadrd.h \
+    menu/setmenucpftadulteatingdisorders.h \
     menu/setmenucpftcovid.h \
     menu/setmenucpftperinatal.h \
     menu/setmenucpftpsychooncology.h \

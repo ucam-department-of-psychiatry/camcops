@@ -86,6 +86,7 @@ void GlobalMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, m_app),
+        // todo:: PARADISE-24
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Wemwbs::WEMWBS_TABLENAME, m_app),

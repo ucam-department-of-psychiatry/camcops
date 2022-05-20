@@ -43,19 +43,6 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     ) | n }
 </h1>
 
-%if authorized_to_manage_patients:
-    <h3>${ _("Patients") }</h3>
-    <ul class="menu">
-        <li>
-            ${ req.icon_text(
-                icon=Icons.PATIENTS,
-                url=request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES),
-                text=_("Manage patients and their task schedules")
-            ) | n }
-        </li>
-    </ul>
-%endif
-
 <h3>${ _("Tasks, trackers, and clinical text views") }</h3>
 <ul class="menu">
     <li>
@@ -91,6 +78,19 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         ) | n }
     </li>
 </ul>
+
+%if authorized_to_manage_patients:
+    <h3>${ _("Patients") }</h3>
+    <ul class="menu">
+        <li>
+            ${ req.icon_text(
+                icon=Icons.PATIENTS,
+                url=request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES),
+                text=_("Manage patients and their task schedules")
+            ) | n }
+        </li>
+    </ul>
+%endif
 
 %if authorized_to_dump:
     <h3>${ _("Research views") }</h3>

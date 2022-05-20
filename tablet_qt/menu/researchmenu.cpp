@@ -75,6 +75,7 @@ void ResearchMenu::makeItems()
         ),
         MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
+        // todo:: ISAAQ
     };
 }
 

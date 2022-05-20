@@ -19,8 +19,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Google Authenticator: https://en.wikipedia.org/wiki/Google_Authenticator
+.. _Kapow: https://www.kapow.co.uk/
 .. _SMS: https://en.wikipedia.org/wiki/SMS
 .. _Twilio Authy: https://authy.com/
+.. _Twilio SMS: https://www.twilio.com/sms
 
 .. include:: include_bootstrap_icons.rst
 
@@ -51,6 +53,155 @@ the navigation menu at the top of the page.
 
 The main menu contains the following items. You may see only a subset,
 depending on your permissions.
+
+
+Task, trackers, and clinical text views
++++++++++++++++++++++++++++++++++++++++
+
+Client devices upload **tasks**. You can view these individually in a variety
+of formats. You can also view numeric information over time for a patient in a
+**tracker**, and clinically relevant textual information for a patient in a
+**clinical text view**.
+
+
+.. _filter_tasks:
+
+|filter| Filter tasks
+~~~~~~~~~~~~~~~~~~~~~
+
+You can configure your CamCOPS session to filter tasks according to *who*,
+*what*, *when*, and *administrative criteria*. By default, no task filters are
+set.
+
+Under **who**, you can specify an optional patient forename, surname, date of
+birth, sex, or any form of ID number in use on your server.
+
+Under **what**, you can restrict to any subset of task types, and if you wish
+you can restrict to completed tasks. You can also specify text contents. For
+example, type in “paracetamol” to find clerkings that mention paracetamol
+anywhere.
+
+Under **when**, you can specify start and/or end dates, to find tasks in that
+date range.
+
+Under **administrative criteria**, you can restrict to specific uploading
+devices or users, or the group to which a task belongs.
+
+As well as a **set filters** button, there is a **clear** button to clear all
+current filters.
+
+
+.. _view_tasks:
+
+|view_tasks| View tasks
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This page shows all tasks meeting your current filter criteria. There are links
+allowing you to |filter| :ref:`filter <filter_tasks>` the tasks.
+
+Each task has hyperlinks to an |html_identifiable| HTML and a
+|pdf_identifiable| PDF version. Sometimes tasks are colour-coded (there’s a key
+at the bottom of the page).
+
+The HTML task view is fastest and has additional viewing options. However, you
+should not print the HTML view in a clinical environment, because it won’t have
+patient identifiers on each page. Use the PDF for that instead, or if you want
+to save the task as a single human-readable file.
+
+When you view a task in HTML mode, there are some additional hyperlinks at the
+bottom:
+
+- |info_external| **Task help.** Shows you general information about the task.
+
+- |info_internal| **Task details.** Shows you information about the task's data
+  structure.
+
+- **View raw data:** |xml| **XML** \| |json| **FHIR**. This shows you the raw
+  structure as XML, or JSON-formatted FHIR format, including stored data and
+  calculated fields such as summary scores.
+
+  All fields have an associated comment, and these comments are displayed in
+  the XML. You can also view these comments, and other helpful details about
+  the data structure of every task, in the task details -- see :ref:`Task list
+  <task_list>`.
+
+- **View anonymised version:** |html_anonymous| **HTML** \| |pdf_anonymous|
+  **PDF**. This shows you a version with patient identification details hidden.
+  It is not guaranteed to be free of identifying material, though; for example,
+  it makes no effort to remove patient details from free text [#crate]_.
+
+- Administrators have additional options; see :ref:`administrative options
+  <task_admin>`.
+
+- |pdf_identifiable| **View PDF**. A link to the PDF version.
+
+PDF versions include patient identifiers on each page, to meet normal UK
+clinical standards, and if the task involved recording a clinician’s views or
+assessments, the PDF will include a template signature box for on-paper
+authentication by the clinician.
+
+Specimen tasks in PDF format:
+
+- :download:`PHQ-9 <demotasks/dummy_task_1.pdf>`
+- :download:`Psychiatric clerking <demotasks/dummy_task_2.pdf>` (albeit not a
+  very good one!)
+
+.. http://www.sphinx-doc.org/en/stable/markup/inline.html#referencing-downloadable-files
+
+
+.. _trackers:
+
+|trackers| Trackers for numerical information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many tasks produce numerical information, like total scores. Trackers allow you
+to view numerical information from these tasks, or a subset of them, over time.
+The resulting graphs are time-aligned within the tracker, across all tasks
+(i.e. all graphs have the same time axis).
+
+Not all tasks offer trackers.
+
+Some tasks offer more than one numerical value, and therefore provide more than
+one graph.
+
+To configure a tracker, choose a patient by an ID number. You can, optionally,
+specify a start and/or end date, and you can restrict to specific tasks.
+
+You can view trackers in |html_identifiable| HTML or |pdf_identifiable| PDF
+mode, or view the data used to generate them in |xml| XML format.
+
+Specimen tracker:
+
+- :download:`Fictional tracker <demotasks/dummy_tracker.pdf>`
+
+.. include:: include_consistency_warning.rst
+
+
+|ctv| Clinical text views
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Like a tracker, a clinical text view (CTV) collects information across many
+tasks for one patient. Like a tracker, a CTV is configured for a patient, and
+can be configured for a date range and/or a subset of tasks. Like a tracker
+(and like a book), a CTV flows from older to newer information. Unlike a
+tracker, a CTV produces text for each task, not numbers. The text is intended
+to be clinically useful. For example, simple questionnaires produce their
+summary information. The ACE-III produces its total but also its subscale
+scores. Clinical clerkings produce their full text. All tasks appear in the
+CTV, but some tasks simply indicate that they have been performed.
+
+You can view CTVs in |html_identifiable| HTML or |pdf_identifiable| PDF
+mode, or view the data used to generate them in |xml| XML format.
+
+In the HTML view of a CTV, all tasks provide hyperlinks to the full
+representation of each task, so you can delve into more detail for any task of
+interest.
+
+Specimen CTV:
+
+- :download:`Fictional CTV <demotasks/dummy_clinicaltextview.pdf>`
+
+.. include:: include_consistency_warning.rst
 
 
 Patients
@@ -255,155 +406,6 @@ This page allows you to view and edit items for a specific schedule. It offers:
 
 - A link back to |task_schedules| :ref:`manage task schedules
   <view_task_schedules>`.
-
-
-Task, trackers, and clinical text views
-+++++++++++++++++++++++++++++++++++++++
-
-Client devices upload **tasks**. You can view these individually in a variety
-of formats. You can also view numeric information over time for a patient in a
-**tracker**, and clinically relevant textual information for a patient in a
-**clinical text view**.
-
-
-.. _filter_tasks:
-
-|filter| Filter tasks
-~~~~~~~~~~~~~~~~~~~~~
-
-You can configure your CamCOPS session to filter tasks according to *who*,
-*what*, *when*, and *administrative criteria*. By default, no task filters are
-set.
-
-Under **who**, you can specify an optional patient forename, surname, date of
-birth, sex, or any form of ID number in use on your server.
-
-Under **what**, you can restrict to any subset of task types, and if you wish
-you can restrict to completed tasks. You can also specify text contents. For
-example, type in “paracetamol” to find clerkings that mention paracetamol
-anywhere.
-
-Under **when**, you can specify start and/or end dates, to find tasks in that
-date range.
-
-Under **administrative criteria**, you can restrict to specific uploading
-devices or users, or the group to which a task belongs.
-
-As well as a **set filters** button, there is a **clear** button to clear all
-current filters.
-
-
-.. _view_tasks:
-
-|view_tasks| View tasks
-~~~~~~~~~~~~~~~~~~~~~~~
-
-This page shows all tasks meeting your current filter criteria. There are links
-allowing you to |filter| :ref:`filter <filter_tasks>` the tasks.
-
-Each task has hyperlinks to an |html_identifiable| HTML and a
-|pdf_identifiable| PDF version. Sometimes tasks are colour-coded (there’s a key
-at the bottom of the page).
-
-The HTML task view is fastest and has additional viewing options. However, you
-should not print the HTML view in a clinical environment, because it won’t have
-patient identifiers on each page. Use the PDF for that instead, or if you want
-to save the task as a single human-readable file.
-
-When you view a task in HTML mode, there are some additional hyperlinks at the
-bottom:
-
-- |info_external| **Task help.** Shows you general information about the task.
-
-- |info_internal| **Task details.** Shows you information about the task's data
-  structure.
-
-- **View raw data:** |xml| **XML** \| |json| **FHIR**. This shows you the raw
-  structure as XML, or JSON-formatted FHIR format, including stored data and
-  calculated fields such as summary scores.
-
-  All fields have an associated comment, and these comments are displayed in
-  the XML. You can also view these comments, and other helpful details about
-  the data structure of every task, in the task details -- see :ref:`Task list
-  <task_list>`.
-
-- **View anonymised version:** |html_anonymous| **HTML** \| |pdf_anonymous|
-  **PDF**. This shows you a version with patient identification details hidden.
-  It is not guaranteed to be free of identifying material, though; for example,
-  it makes no effort to remove patient details from free text [#crate]_.
-
-- Administrators have additional options; see :ref:`administrative options
-  <task_admin>`.
-
-- |pdf_identifiable| **View PDF**. A link to the PDF version.
-
-PDF versions include patient identifiers on each page, to meet normal UK
-clinical standards, and if the task involved recording a clinician’s views or
-assessments, the PDF will include a template signature box for on-paper
-authentication by the clinician.
-
-Specimen tasks in PDF format:
-
-- :download:`PHQ-9 <demotasks/dummy_task_1.pdf>`
-- :download:`Psychiatric clerking <demotasks/dummy_task_2.pdf>` (albeit not a
-  very good one!)
-
-.. http://www.sphinx-doc.org/en/stable/markup/inline.html#referencing-downloadable-files
-
-
-.. _trackers:
-
-|trackers| Trackers for numerical information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Many tasks produce numerical information, like total scores. Trackers allow you
-to view numerical information from these tasks, or a subset of them, over time.
-The resulting graphs are time-aligned within the tracker, across all tasks
-(i.e. all graphs have the same time axis).
-
-Not all tasks offer trackers.
-
-Some tasks offer more than one numerical value, and therefore provide more than
-one graph.
-
-To configure a tracker, choose a patient by an ID number. You can, optionally,
-specify a start and/or end date, and you can restrict to specific tasks.
-
-You can view trackers in |html_identifiable| HTML or |pdf_identifiable| PDF
-mode, or view the data used to generate them in |xml| XML format.
-
-Specimen tracker:
-
-- :download:`Fictional tracker <demotasks/dummy_tracker.pdf>`
-
-.. include:: include_consistency_warning.rst
-
-
-|ctv| Clinical text views
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Like a tracker, a clinical text view (CTV) collects information across many
-tasks for one patient. Like a tracker, a CTV is configured for a patient, and
-can be configured for a date range and/or a subset of tasks. Like a tracker
-(and like a book), a CTV flows from older to newer information. Unlike a
-tracker, a CTV produces text for each task, not numbers. The text is intended
-to be clinically useful. For example, simple questionnaires produce their
-summary information. The ACE-III produces its total but also its subscale
-scores. Clinical clerkings produce their full text. All tasks appear in the
-CTV, but some tasks simply indicate that they have been performed.
-
-You can view CTVs in |html_identifiable| HTML or |pdf_identifiable| PDF
-mode, or view the data used to generate them in |xml| XML format.
-
-In the HTML view of a CTV, all tasks provide hyperlinks to the full
-representation of each task, so you can delve into more detail for any task of
-interest.
-
-Specimen CTV:
-
-- :download:`Fictional CTV <demotasks/dummy_clinicaltextview.pdf>`
-
-.. include:: include_consistency_warning.rst
 
 
 Research views

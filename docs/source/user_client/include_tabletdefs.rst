@@ -153,6 +153,11 @@
    :height: 24px
    :width: 24px
 
+.. |dolphin| image:: ../_app_icons/dolphin.png
+   :align: middle
+   :height: 48px
+   :width: 48px
+
 .. |edit| image:: ../_app_icons/edit.png
    :align: middle
    :height: 24px
