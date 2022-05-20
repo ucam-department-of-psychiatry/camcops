@@ -83,6 +83,7 @@ from camcops_server.tasks.demqol import Demqol
 from camcops_server.tasks.diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
 from camcops_server.tasks.distressthermometer import DistressThermometer
 
+from camcops_server.tasks.edeq import Edeq
 from camcops_server.tasks.elixhauserci import ElixhauserCI
 from camcops_server.tasks.epds import Epds
 from camcops_server.tasks.eq5d5l import Eq5d5l
