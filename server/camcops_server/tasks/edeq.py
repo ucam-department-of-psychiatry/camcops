@@ -25,7 +25,7 @@ camcops_server/tasks/basdai.py
 
 ===============================================================================
 
-** EATING DISORDER EXAMINATION QUESTIONNAIRE (EDE-Q 6.0) task.**
+** Eating Disorder Examination Questionnaire (EDE-Q 6.0) task.**
 
 """
 
@@ -34,6 +34,7 @@ from typing import Optional
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
+from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 
 
@@ -45,10 +46,20 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
     __tablename__ = "edeq"
     shortname = "EDE-Q"
 
+    @staticmethod
+    def longname(req: CamcopsRequest) -> str:
+        _ = req.gettext
+        return _("Eating Disorder Examination Questionnaire")
+
+    def is_complete(self) -> bool:
+        # TODO
+        return True
+
+    def get_task_html(self, req: CamcopsRequest) -> str:
+        # TODO
+        return ""
+
     def restraint(self) -> Optional[float]:
         restraint_field_names = strseq("q", 1, 5)
 
         return sum([getattr(self, q) for q in restraint_field_names]) / 5
-
-    def is_complete(self) -> bool:
-        return True
