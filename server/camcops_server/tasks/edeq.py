@@ -29,22 +29,146 @@ camcops_server/tasks/basdai.py
 
 """
 
-from typing import Optional
+from typing import Any, Dict, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy import Column
 from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
+from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 
 
 class EdeqMetaclass(DeclarativeMeta):
-    pass
+    def __init__(
+        cls: Type["Edeq"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
+
+        add_multiple_columns(
+            cls,
+            "q",
+            1,
+            12,
+            coltype=Integer,
+            minimum=0,
+            maximum=6,
+            comment_fmt="Q{n} - {s}",
+            comment_strings=[
+                "days limit the amount of food 0-6 (no days - every day)",
+                "days long periods without eating 0-6 (no days - every day)",
+                "days exclude from diet 0-6 (no days - every day)",
+                "days follow rules 0-6 (no days - every day)",
+                "days desire empty stomach 0-6 (no days - every day)",
+                "days desire flat stomach 0-6 (no days - every day)",
+                "days thinking about food 0-6 (no days - every day)",
+                "days thinking about shape 0-6 (no days - every day)",
+                "days fear losing control 0-6 (no days - every day)",
+                "days fear weight gain 0-6 (no days - every day)",
+                "days felt fat 0-6 (no days - every day)",
+                "days desire lose weight 0-6 (no days - every day)",
+            ],
+        )
+
+        add_multiple_columns(
+            cls,
+            "q",
+            13,
+            18,
+            coltype=Integer,
+            comment_fmt="Q{n} - {s}",
+            comment_strings=[
+                "times eaten unusually large amount of food",
+                "times sense lost control",
+                "days episodes of overeating",
+                "times made self sick",
+                "times taken laxatives",
+                "times exercised in driven or compulsive way",
+            ],
+        )
+
+        add_multiple_columns(
+            cls,
+            "q",
+            19,
+            21,
+            coltype=Integer,
+            minimum=0,
+            maximum=6,
+            comment_fmt="Q{n} - {s}",
+            comment_strings=[
+                "days eaten in secret (no days - every day)",
+                "times felt guilty (none of the times - every time)",
+                "concern about people seeing you eat (not at all - markedly)",
+            ],
+        )
+
+        add_multiple_columns(
+            cls,
+            "q",
+            22,
+            28,
+            coltype=Integer,
+            minimum=0,
+            maximum=6,
+            comment_fmt="Q{n} - {s}",
+            comment_strings=[
+                "weight influenced how you judge self (not at all - markedly)",
+                "shape influenced how you judge self (not at all - markedly)",
+                "upset if asked to weigh self (not at all - markedly)",
+                "dissatisfied with weight (not at all - markedly)",
+                "dissatisfied with shape (not at all - markedly)",
+                "uncomfortable seeing body (not at all - markedly)",
+                "uncomfortable others seeing shape (not at all - markedly)",
+            ],
+        )
+
+        setattr(
+            cls,
+            "q_weight",
+            Column("q_weight", Float, comment="Weight (kg)"),
+        )
+
+        setattr(
+            cls,
+            "q_height",
+            Column("q_height", Float, comment="Height (m)"),
+        )
+
+        setattr(
+            cls,
+            "q_num_periods_missed",
+            Column(
+                "q_num_periods_missed",
+                Integer,
+                comment="Number of periods missed",
+            ),
+        )
+
+        setattr(
+            cls,
+            "q_pill",
+            Column("q_pill", Boolean, comment="Taking the pill"),
+        )
+
+        super().__init__(name, bases, classdict)
 
 
 class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
     __tablename__ = "edeq"
     shortname = "EDE-Q"
+
+    N_QUESTIONS = 28
+    FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + [
+        "q_weight",
+        "q_height",
+        "q_num_periods_missed",
+        "q_pill",
+    ]
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -52,7 +176,9 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return _("Eating Disorder Examination Questionnaire")
 
     def is_complete(self) -> bool:
-        # TODO
+        if self.any_fields_none(self.FIELD_NAMES):
+            return False
+
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:

@@ -50,8 +50,8 @@ class EdeqTests(TestCase):
     def test_complete_when_all_answers_valid(self) -> None:
         edeq = Edeq()
 
-        for q_num in range(1, 28):
-            setattr(edeq, "q{q_num}", 0)
+        for q_num in range(1, 28+1):
+            setattr(edeq, f"q{q_num}", 0)
 
         edeq.q_weight = 67.0
         edeq.q_height = 1.83
