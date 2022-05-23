@@ -31,7 +31,7 @@ camcops_server/tasks/basdai.py
 
 from typing import Any, Dict, Optional, Type, Tuple
 
-from cardinal_pythonlib.stringfunc import strseq
+from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
@@ -170,6 +170,9 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         "q_pill",
     ]
 
+    RESTRAINT_FIELD_NAMES = strseq("q", 1, 5)
+    EATING_CONCERN_FIELD_NAMES = strnumlist("q", [7, 9, 19, 20, 21])
+
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
@@ -186,6 +189,10 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return ""
 
     def restraint(self) -> Optional[float]:
-        restraint_field_names = strseq("q", 1, 5)
+        return sum([getattr(self, q) for q in self.RESTRAINT_FIELD_NAMES]) / 5
 
-        return sum([getattr(self, q) for q in restraint_field_names]) / 5
+    def eating_concern(self) -> Optional[float]:
+        return (
+            sum([getattr(self, q) for q in self.EATING_CONCERN_FIELD_NAMES])
+            / 5
+        )

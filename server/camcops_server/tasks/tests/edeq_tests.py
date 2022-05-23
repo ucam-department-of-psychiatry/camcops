@@ -47,10 +47,24 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.restraint(), 3.2)
 
+    def test_eating_concern_subscale(self):
+        edeq = Edeq()
+
+        edeq.q7 = 1
+        edeq.q9 = 2
+        edeq.q19 = 3
+        edeq.q21 = 4
+        edeq.q20 = 6
+
+        # 1 + 2 + 3 + 4 + 6 = 16
+        # 16 / 5 = 3.2
+
+        self.assertEqual(edeq.eating_concern(), 3.2)
+
     def test_complete_when_all_answers_valid(self) -> None:
         edeq = Edeq()
 
-        for q_num in range(1, 28+1):
+        for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
         edeq.q_weight = 67.0
