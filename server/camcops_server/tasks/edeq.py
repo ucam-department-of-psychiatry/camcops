@@ -172,6 +172,7 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
     RESTRAINT_FIELD_NAMES = strseq("q", 1, 5)
     EATING_CONCERN_FIELD_NAMES = strnumlist("q", [7, 9, 19, 20, 21])
+    SHAPE_CONCERN_FIELD_NAMES = strnumlist("q", [6, 8, 10, 11, 23, 26, 27, 28])
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -195,4 +196,9 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return (
             sum([getattr(self, q) for q in self.EATING_CONCERN_FIELD_NAMES])
             / 5
+        )
+
+    def shape_concern(self) -> Optional[float]:
+        return (
+            sum([getattr(self, q) for q in self.SHAPE_CONCERN_FIELD_NAMES]) / 8
         )
