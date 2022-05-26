@@ -29,7 +29,7 @@ camcops_server/tasks/basdai.py
 
 """
 
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Any, Dict, List, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy import Column
@@ -191,21 +191,16 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return ""
 
     def restraint(self) -> Optional[float]:
-        return sum([getattr(self, q) for q in self.RESTRAINT_FIELD_NAMES]) / 5
+        return self.subscale(self.RESTRAINT_FIELD_NAMES)
 
     def eating_concern(self) -> Optional[float]:
-        return (
-            sum([getattr(self, q) for q in self.EATING_CONCERN_FIELD_NAMES])
-            / 5
-        )
+        return self.subscale(self.EATING_CONCERN_FIELD_NAMES)
 
     def shape_concern(self) -> Optional[float]:
-        return (
-            sum([getattr(self, q) for q in self.SHAPE_CONCERN_FIELD_NAMES]) / 8
-        )
+        return self.subscale(self.SHAPE_CONCERN_FIELD_NAMES)
 
     def weight_concern(self) -> Optional[float]:
-        return (
-            sum([getattr(self, q) for q in self.WEIGHT_CONCERN_FIELD_NAMES])
-            / 5
-        )
+        return self.subscale(self.WEIGHT_CONCERN_FIELD_NAMES)
+
+    def subscale(self, field_names: List[str]) -> Optional[float]:
+        return sum([getattr(self, q) for q in field_names]) / len(field_names)
