@@ -78,6 +78,20 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.shape_concern(), 3.5)
 
+    def test_weight_concern_subscale(self):
+        edeq = Edeq()
+
+        edeq.q8 = 1
+        edeq.q12 = 2
+        edeq.q22 = 3
+        edeq.q24 = 4
+        edeq.q25 = 6
+
+        # 1 + 2 + 3 + 4 + 6 = 16
+        # 16 / 5 = 3.2
+
+        self.assertEqual(edeq.weight_concern(), 3.2)
+
     def test_complete_when_all_answers_valid(self) -> None:
         edeq = Edeq()
 
