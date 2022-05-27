@@ -47,6 +47,17 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.restraint(), 3.2)
 
+    def test_subscale_none_if_answer_none(self):
+        edeq = Edeq()
+
+        edeq.q1 = None
+        edeq.q2 = 2
+        edeq.q3 = 3
+        edeq.q4 = 4
+        edeq.q5 = 6
+
+        self.assertIsNone(edeq.restraint())
+
     def test_eating_concern_subscale(self):
         edeq = Edeq()
 

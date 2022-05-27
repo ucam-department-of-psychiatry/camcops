@@ -299,7 +299,11 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return self.subscale(self.WEIGHT_CONCERN_FIELD_NAMES)
 
     def subscale(self, field_names: List[str]) -> Optional[float]:
-        return statistics.mean([getattr(self, q) for q in field_names])
+        scores = [getattr(self, q) for q in field_names]
+        if None in scores:
+            return None
+
+        return statistics.mean(scores)
 
     def global_score(self) -> Optional[float]:
         subscales = [
