@@ -92,8 +92,9 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.weight_concern(), 3.2)
 
-    def test_complete_when_all_answers_valid(self) -> None:
+    def test_complete_when_all_answers_valid_for_female(self) -> None:
         edeq = Edeq()
+        edeq.patient = mock.Mock(sex="F")
 
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
@@ -101,10 +102,38 @@ class EdeqTests(TestCase):
         edeq.q_weight = 67.0
         edeq.q_height = 1.83
 
-        # TODO Male / Female differences
-        # number of periods optional
         edeq.q_num_periods_missed = 1
         edeq.q_pill = False
+
+        self.assertTrue(edeq.is_complete())
+
+    def test_incomplete_when_female_misses_female_questions(self) -> None:
+        edeq = Edeq()
+        edeq.patient = mock.Mock(sex="F")
+
+        for q_num in range(1, 28 + 1):
+            setattr(edeq, f"q{q_num}", 0)
+
+        edeq.q_weight = 67.0
+        edeq.q_height = 1.83
+
+        edeq.q_num_periods_missed = None
+        edeq.q_pill = None
+
+        self.assertFalse(edeq.is_complete())
+
+    def test_complete_when_all_answers_valid_for_male(self) -> None:
+        edeq = Edeq()
+        edeq.patient = mock.Mock(sex="M")
+
+        for q_num in range(1, 28 + 1):
+            setattr(edeq, f"q{q_num}", 0)
+
+        edeq.q_weight = 67.0
+        edeq.q_height = 1.83
+
+        edeq.q_num_periods_missed = None
+        edeq.q_pill = None
 
         self.assertTrue(edeq.is_complete())
 

@@ -167,12 +167,11 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
     shortname = "EDE-Q"
 
     N_QUESTIONS = 28
-    FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + [
-        "q_weight",
-        "q_height",
-        "q_num_periods_missed",
-        "q_pill",
-    ]
+
+    MEASUREMENT_FIELD_NAMES = ["q_weight", "q_height"]
+    COMMON_FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + MEASUREMENT_FIELD_NAMES
+
+    FEMALE_FIELD_NAMES = ["q_num_periods_missed", "q_pill"]
 
     RESTRAINT_Q_NUMS = strnumlist("", [1, 2, 3, 4, 5])
     RESTRAINT_FIELD_NAMES = strnumlist("q", RESTRAINT_Q_NUMS)
@@ -189,7 +188,12 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return _("Eating Disorder Examination Questionnaire")
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.FIELD_NAMES):
+        if self.any_fields_none(self.COMMON_FIELD_NAMES):
+            return False
+
+        if self.patient.sex == "F" and self.any_fields_none(
+            self.FEMALE_FIELD_NAMES
+        ):
             return False
 
         return True
