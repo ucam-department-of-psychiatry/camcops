@@ -27,7 +27,7 @@ camcops_server/tasks/tests/basdai_tests.py
 
 """
 
-from unittest import TestCase
+from unittest import mock, TestCase
 
 from camcops_server.tasks.edeq import Edeq
 
@@ -112,3 +112,14 @@ class EdeqTests(TestCase):
         edeq = Edeq()
 
         self.assertFalse(edeq.is_complete())
+
+    def test_global_score_is_mean_of_subscales(self) -> None:
+        edeq = Edeq()
+
+        edeq.restraint = mock.Mock(return_value=1)
+        edeq.eating_concern = mock.Mock(return_value=2)
+        edeq.shape_concern = mock.Mock(return_value=3)
+        edeq.weight_concern = mock.Mock(return_value=4)
+
+        # (1 + 2 + 3 + 4) / 4
+        self.assertEqual(edeq.global_score(), 2.5)
