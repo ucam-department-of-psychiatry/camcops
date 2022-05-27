@@ -29,6 +29,7 @@ camcops_server/tasks/basdai.py
 
 """
 
+import statistics
 from typing import Any, Dict, List, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
@@ -36,9 +37,12 @@ from sqlalchemy import Column
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
+from camcops_server.cc_modules.cc_text import SS
 
 
 class EdeqMetaclass(DeclarativeMeta):
@@ -170,10 +174,14 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         "q_pill",
     ]
 
-    RESTRAINT_FIELD_NAMES = strseq("q", 1, 5)
-    EATING_CONCERN_FIELD_NAMES = strnumlist("q", [7, 9, 19, 20, 21])
-    SHAPE_CONCERN_FIELD_NAMES = strnumlist("q", [6, 8, 10, 11, 23, 26, 27, 28])
-    WEIGHT_CONCERN_FIELD_NAMES = strnumlist("q", [8, 12, 22, 24, 25])
+    RESTRAINT_Q_NUMS = strnumlist("", [1, 2, 3, 4, 5])
+    RESTRAINT_FIELD_NAMES = strnumlist("q", RESTRAINT_Q_NUMS)
+    EATING_CONCERN_Q_NUMS = strnumlist("", [7, 9, 19, 20, 21])
+    EATING_CONCERN_FIELD_NAMES = strnumlist("q", EATING_CONCERN_Q_NUMS)
+    SHAPE_CONCERN_Q_NUMS = strnumlist("", [6, 8, 10, 11, 23, 26, 27, 28])
+    SHAPE_CONCERN_FIELD_NAMES = strnumlist("q", SHAPE_CONCERN_Q_NUMS)
+    WEIGHT_CONCERN_Q_NUMS = strnumlist("", [8, 12, 22, 24, 25])
+    WEIGHT_CONCERN_FIELD_NAMES = strnumlist("q", WEIGHT_CONCERN_Q_NUMS)
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -187,8 +195,92 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        # TODO
-        return ""
+        score_range = "[0–7]"
+
+        rows = ""
+        for q_num in range(1, self.N_QUESTIONS + 1):
+            q_field = "q" + str(q_num)
+            question_cell = "{}. {}".format(q_num, self.xstring(req, q_field))
+
+            score = getattr(self, q_field)
+            if score is None or (q_num >= 13 and q_num <= 18):
+                answer_cell = score
+            else:
+                if q_num <= 12 or q_num == 19:
+                    meaning = self.wxstring(req, f"days_option_{score}")
+                elif q_num == 20:
+                    meaning = self.wxstring(req, f"freq_option_{score}")
+                else:
+                    if score % 2 == 1:
+                        previous = self.wxstring(
+                            req, f"how_much_option_{score-1}"
+                        )
+                        next = self.wxstring(req, f"how_much_option_{score+1}")
+                        meaning = f"{previous}—{next}"
+                    else:
+                        meaning = self.wxstring(
+                            req, f"how_much_option_{score}"
+                        )
+
+                answer_cell = f"{score} [{meaning}]"
+
+            rows += tr_qa(question_cell, answer_cell)
+
+        html = """
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {tr_is_complete}
+                    {global_score}
+                    {restraint_score}
+                    {eating_concern_score}
+                    {shape_concern_score}
+                    {weight_concern_score}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="60%">Question</th>
+                    <th width="40%">Score</th>
+                </tr>
+                {rows}
+            </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] Mean of four subscales.
+                [2] Mean of questions {restraint_q_nums}.
+                [3] Mean of questions {eating_concern_q_nums}.
+                [4] Mean of questions {shape_concern_q_nums}.
+                [5] Mean of questions {weight_concern_q_nums}.
+            </div>
+        """.format(
+            CssClass=CssClass,
+            tr_is_complete=self.get_is_complete_tr(req),
+            global_score=tr(
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
+                f"{answer(self.global_score())} {score_range}",
+            ),
+            restraint_score=tr(
+                self.wxstring(req, "restraint") + " <sup>[2]</sup>",
+                f"{answer(self.restraint())} {score_range}",
+            ),
+            eating_concern_score=tr(
+                self.wxstring(req, "eating_concern") + " <sup>[3]</sup>",
+                f"{answer(self.eating_concern())} {score_range}",
+            ),
+            shape_concern_score=tr(
+                self.wxstring(req, "shape_concern") + " <sup>[4]</sup>",
+                f"{answer(self.shape_concern())} {score_range}",
+            ),
+            weight_concern_score=tr(
+                self.wxstring(req, "weight_concern") + " <sup>[5]</sup>",
+                f"{answer(self.weight_concern())} {score_range}",
+            ),
+            rows=rows,
+            restraint_q_nums=",".join(self.RESTRAINT_Q_NUMS),
+            eating_concern_q_nums=",".join(self.EATING_CONCERN_Q_NUMS),
+            shape_concern_q_nums=",".join(self.SHAPE_CONCERN_Q_NUMS),
+            weight_concern_q_nums=",".join(self.WEIGHT_CONCERN_Q_NUMS),
+        )
+        return html
 
     def restraint(self) -> Optional[float]:
         return self.subscale(self.RESTRAINT_FIELD_NAMES)
@@ -203,4 +295,14 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return self.subscale(self.WEIGHT_CONCERN_FIELD_NAMES)
 
     def subscale(self, field_names: List[str]) -> Optional[float]:
-        return sum([getattr(self, q) for q in field_names]) / len(field_names)
+        return statistics.mean([getattr(self, q) for q in field_names])
+
+    def global_score(self) -> Optional[float]:
+        return statistics.mean(
+            [
+                self.restraint(),
+                self.eating_concern(),
+                self.shape_concern(),
+                self.weight_concern(),
+            ]
+        )
