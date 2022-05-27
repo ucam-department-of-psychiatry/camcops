@@ -152,3 +152,13 @@ class EdeqTests(TestCase):
 
         # (1 + 2 + 3 + 4) / 4
         self.assertEqual(edeq.global_score(), 2.5)
+
+    def test_global_score_none_if_any_subscale_none(self) -> None:
+        edeq = Edeq()
+
+        edeq.restraint = mock.Mock(return_value=1)
+        edeq.eating_concern = mock.Mock(return_value=2)
+        edeq.shape_concern = mock.Mock(return_value=3)
+        edeq.weight_concern = mock.Mock(return_value=None)
+
+        self.assertIsNone(edeq.global_score())

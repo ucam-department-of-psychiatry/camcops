@@ -302,11 +302,14 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return statistics.mean([getattr(self, q) for q in field_names])
 
     def global_score(self) -> Optional[float]:
-        return statistics.mean(
-            [
-                self.restraint(),
-                self.eating_concern(),
-                self.shape_concern(),
-                self.weight_concern(),
-            ]
-        )
+        subscales = [
+            self.restraint(),
+            self.eating_concern(),
+            self.shape_concern(),
+            self.weight_concern(),
+        ]
+
+        if None in subscales:
+            return None
+
+        return statistics.mean(subscales)
