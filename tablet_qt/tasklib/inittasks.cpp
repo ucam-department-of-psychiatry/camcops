@@ -71,6 +71,7 @@
 #include "tasks/diagnosisicd10.h"
 #include "tasks/distressthermometer.h"
 
+#include "tasks/edeq.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
