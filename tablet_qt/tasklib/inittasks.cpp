@@ -227,6 +227,7 @@ void InitTasks(TaskFactory& factory)
     initializeDiagnosisIcd10(factory);
     initializeDistressThermometer(factory);
 
+    initializeEdeq(factory);
     initializeElixhauserCI(factory);
     initializeEpds(factory);
     initializeEq5d5l(factory);

@@ -26,6 +26,7 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
+class QuMcqGrid;
 
 void initializeEdeq(TaskFactory& factory);
 
@@ -60,4 +61,6 @@ public:
 protected:
     QPointer<Questionnaire> m_questionnaire;
     QStringList fieldNames() const;
+private:
+    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options);
 };
