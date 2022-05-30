@@ -41,6 +41,9 @@ To obtain an overall or ‘global’ score, the four subscales scores are summed
 total divided by the number of subscales (i.e. four). Subscale scores are reported as means and
 standard deviations.
 
+In our implementation all applicable questions are mandatory so all items will
+have been rated.
+
 Subscale Items (the numbers are the item number on the EDE-Q):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
