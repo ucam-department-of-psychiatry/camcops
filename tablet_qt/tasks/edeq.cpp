@@ -23,8 +23,11 @@
 #include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qugridcontainer.h"
+#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
+#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using stringfunc::strseq;
@@ -138,16 +141,27 @@ OpenableWidget* Edeq::editor(const bool read_only)
         {xstring("how_much_option_6"), 6},
     };
 
+    auto grid1_12 = buildGrid(1, 12, days_options, xstring("q1_12_heading"));
 
-    auto grid1_12 = buildGrid(1, 12, days_options);
+    auto grid13_18 = new QuGridContainer();
+    for (int row = 0; row < 6; row++) {
+        const int qnum = row + 13;
+        const QString& fieldname = "q" + QString::number(qnum);
+        auto number_editor = new QuLineEditInteger(fieldRef(fieldname),
+0, 1000); // TODO: Better maximum
+        auto question_text = new QuText(xstring(fieldname));
+        grid13_18->addCell(QuGridCell(question_text, row, 0));
+        grid13_18->addCell(QuGridCell(number_editor, row, 1));
+    }
+
     auto grid19 = buildGrid(19, 19, days_options);
     auto grid20 = buildGrid(20, 20, freq_options);
     auto grid21 = buildGrid(21, 21, how_much_options);
-    auto grid22_28 = buildGrid(22, 28, how_much_options);
-
+    auto grid22_28 = buildGrid(22, 28, how_much_options, xstring("q22_28_heading"));
 
     QuPagePtr page((new QuPage{
                 grid1_12,
+                grid13_18,
                     grid19,
                     grid20,
                     grid21,
@@ -164,7 +178,8 @@ OpenableWidget* Edeq::editor(const bool read_only)
 
 QuMcqGrid* Edeq::buildGrid(int first_qnum,
                            int last_qnum,
-                           const NameValueOptions options)
+                           const NameValueOptions options,
+                           const QString title)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 
@@ -178,18 +193,19 @@ QuMcqGrid* Edeq::buildGrid(int first_qnum,
     }
 
     auto grid = new QuMcqGrid(q_field_pairs, options);
-
+    grid->setTitle(title);
     // Repeat options every five lines
     QVector<McqGridSubtitle> subtitles{
-        {5, ""},
-        {10, ""},
-        {15, ""},
+        {5, title},
+        {10, title},
+        {15, title},
     };
     grid->setSubtitles(subtitles);
 
     const int question_width = 4;
     const QVector<int> option_widths = {1, 1, 1, 1, 1, 1, 1};
     grid->setWidth(question_width, option_widths);
+    grid->setQuestionsBold(false);
 
     return grid;
 }

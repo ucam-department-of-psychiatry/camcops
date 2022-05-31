@@ -62,5 +62,5 @@ protected:
     QPointer<Questionnaire> m_questionnaire;
     QStringList fieldNames() const;
 private:
-    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options);
+    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options, const QString title = "");
 };
