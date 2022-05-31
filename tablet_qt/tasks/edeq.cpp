@@ -24,6 +24,7 @@
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
+#include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -141,8 +142,12 @@ OpenableWidget* Edeq::editor(const bool read_only)
         {xstring("how_much_option_6"), 6},
     };
 
+    auto instructions = new QuHeading(xstring("instructions"));
+    auto instructions1_12 = new QuHeading(xstring("q1_12_instructions"));
     auto grid1_12 = buildGrid(1, 12, days_options, xstring("q1_12_heading"));
 
+    auto instructions13_18 = new QuHeading(xstring("q13_18_instructions"));
+    auto heading13_18 = new QuHeading(xstring("q13_18_heading"));
     auto grid13_18 = new QuGridContainer();
     for (int row = 0; row < 6; row++) {
         const int qnum = row + 13;
@@ -153,18 +158,28 @@ OpenableWidget* Edeq::editor(const bool read_only)
         grid13_18->addCell(QuGridCell(question_text, row, 0));
         grid13_18->addCell(QuGridCell(number_editor, row, 1));
     }
+    grid13_18->setColumnStretch(0, 4);
+    grid13_18->setColumnStretch(1, 1);
 
+    auto instructions19_21 = new QuHeading(xstring("q19_21_instructions"));
     auto grid19 = buildGrid(19, 19, days_options);
     auto grid20 = buildGrid(20, 20, freq_options);
     auto grid21 = buildGrid(21, 21, how_much_options);
+    auto instructions22_28 = new QuHeading(xstring("q22_28_instructions"));
     auto grid22_28 = buildGrid(22, 28, how_much_options, xstring("q22_28_heading"));
 
     QuPagePtr page((new QuPage{
-                grid1_12,
-                grid13_18,
+                    instructions,
+                    instructions1_12,
+                    grid1_12,
+                    instructions13_18,
+                    heading13_18,
+                    grid13_18,
+                    instructions19_21,
                     grid19,
                     grid20,
                     grid21,
+                    instructions22_28,
                     grid22_28
                     })->setTitle(xstring("title_main")));
 
