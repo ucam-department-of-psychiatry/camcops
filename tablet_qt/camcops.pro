@@ -780,6 +780,7 @@ SOURCES += \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
     questionnairelib/qulineedituint64.cpp \
+    questionnairelib/qumass.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/qumcqgriddouble.cpp \
@@ -801,6 +802,7 @@ SOURCES += \
     questionnairelib/qutextedit.cpp \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
+    questionnairelib/quunitselector.cpp \
     questionnairelib/quverticalcontainer.cpp \
     questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
@@ -1257,6 +1259,7 @@ HEADERS += \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditnhsnumber.h \
     questionnairelib/qulineedituint64.h \
+    questionnairelib/qumass.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
@@ -1278,6 +1281,7 @@ HEADERS += \
     questionnairelib/qutextedit.h \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
+    questionnairelib/quunitselector.h \
     questionnairelib/quverticalcontainer.h \
     questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \

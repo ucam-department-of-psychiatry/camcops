@@ -52,6 +52,14 @@ public:
     static const QString SEX_UNSPECIFIED;
 
     // ========================================================================
+    // Units
+    // ========================================================================
+public:
+    static const int METRIC;
+    static const int IMPERIAL;
+    static const int BOTH;
+
+    // ========================================================================
     // Translated text
     // ========================================================================
 public:
@@ -67,6 +75,21 @@ public:
     static QString sexFemale();
     static QString sexMale();
     static QString sexUnspecified();
+    static QString metricM();
+    static QString imperialFtIn();
+    static QString metres();
+    static QString feet();
+    static QString inches();
+    static QString metricKg();
+    static QString imperialStLbOz();
+    static QString kg();
+    static QString st();
+    static QString lb();
+    static QString oz();
+    static QString metricCm();
+    static QString imperialIn();
+    static QString cm();
+    static QString showBoth();
 
     // ========================================================================
     // Option sets
@@ -89,4 +112,8 @@ public:
 
     static NameValueOptions optionsCopyingDescriptions(
             const QStringList& descriptions);
+
+    static NameValueOptions massUnits();
+    static NameValueOptions waistUnits();
+    static NameValueOptions heightUnits();
 };
