@@ -110,8 +110,8 @@ class EdeqTests(TestCase):
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
-        edeq.q_weight = 67.0
-        edeq.q_height = 1.83
+        edeq.q_mass_kg = 67.0
+        edeq.q_height_m = 1.83
 
         edeq.q_num_periods_missed = 1
         edeq.q_pill = False
@@ -125,8 +125,8 @@ class EdeqTests(TestCase):
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
-        edeq.q_weight = 67.0
-        edeq.q_height = 1.83
+        edeq.q_mass_kg = 67.0
+        edeq.q_height_m = 1.83
 
         edeq.q_num_periods_missed = None
         edeq.q_pill = None
@@ -140,8 +140,8 @@ class EdeqTests(TestCase):
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
-        edeq.q_weight = 67.0
-        edeq.q_height = 1.83
+        edeq.q_mass_kg = 67.0
+        edeq.q_height_m = 1.83
 
         edeq.q_num_periods_missed = None
         edeq.q_pill = None

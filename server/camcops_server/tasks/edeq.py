@@ -133,14 +133,14 @@ class EdeqMetaclass(DeclarativeMeta):
 
         setattr(
             cls,
-            "q_weight",
-            Column("q_weight", Float, comment="Weight (kg)"),
+            "q_mass_kg",
+            Column("q_mass_kg", Float, comment="Mass (kg)"),
         )
 
         setattr(
             cls,
-            "q_height",
-            Column("q_height", Float, comment="Height (m)"),
+            "q_height_m",
+            Column("q_height_m", Float, comment="Height (m)"),
         )
 
         setattr(
@@ -168,7 +168,7 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
     N_QUESTIONS = 28
 
-    MEASUREMENT_FIELD_NAMES = ["q_weight", "q_height"]
+    MEASUREMENT_FIELD_NAMES = ["q_mass_kg", "q_height_m"]
     COMMON_FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + MEASUREMENT_FIELD_NAMES
 
     FEMALE_FIELD_NAMES = ["q_num_periods_missed", "q_pill"]

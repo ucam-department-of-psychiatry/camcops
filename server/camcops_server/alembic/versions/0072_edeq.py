@@ -253,10 +253,10 @@ def upgrade():
                 "(not at all - markedly)"
             ),
         ),
+        sa.Column("q_mass_kg", sa.Float(), nullable=True, comment="Mass (kg)"),
         sa.Column(
-            "q_weight", sa.Float(), nullable=True, comment="Weight (kg)"
+            "q_height_m", sa.Float(), nullable=True, comment="Height (m)"
         ),
-        sa.Column("q_height", sa.Float(), nullable=True, comment="Height (m)"),
         sa.Column(
             "q_num_periods_missed",
             sa.Integer(),
