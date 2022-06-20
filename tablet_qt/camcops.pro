@@ -770,6 +770,7 @@ SOURCES += \
     questionnairelib/qugridcell.cpp \
     questionnairelib/qugridcontainer.cpp \
     questionnairelib/quheading.cpp \
+    questionnairelib/quheight.cpp \
     questionnairelib/quhorizontalcontainer.cpp \
     questionnairelib/quhorizontalline.cpp \
     questionnairelib/quimage.cpp \
@@ -1249,6 +1250,7 @@ HEADERS += \
     questionnairelib/qugridcell.h \
     questionnairelib/qugridcontainer.h \
     questionnairelib/quheading.h \
+    questionnairelib/quheight.h \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quhorizontalline.h \
     questionnairelib/quimage.h \

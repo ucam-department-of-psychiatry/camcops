@@ -44,6 +44,7 @@ class QuElement : public QObject
     friend class QuPage;
     friend class QuFlowContainer;
     friend class QuGridContainer;
+    friend class QuHeight;
     friend class QuHorizontalContainer;
     friend class QuMass;
     friend class QuUnitSelector;

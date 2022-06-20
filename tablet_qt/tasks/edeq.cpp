@@ -26,6 +26,7 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
+#include "questionnairelib/quheight.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumass.h"
 #include "questionnairelib/qumcq.h"
@@ -174,9 +175,14 @@ OpenableWidget* Edeq::editor(const bool read_only)
     auto grid21 = buildGrid(21, 21, how_much_options);
     auto instructions22_28 = new QuHeading(xstring("q22_28_instructions"));
     auto grid22_28 = buildGrid(22, 28, how_much_options, xstring("q22_28_heading"));
-    auto q_mass_kg = new QuText(xstring(Q_MASS_KG"));
-    auto units = new QuUnitSelector(CommonOptions::massUnits());
-    auto mass = new QuMass(fieldRef(Q_MASS_KG), units);
+    auto q_mass_kg = new QuText(xstring(Q_MASS_KG));
+    auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
+    auto mass = new QuMass(fieldRef(Q_MASS_KG), mass_units);
+    auto q_height_m = new QuText(xstring(Q_HEIGHT_M));
+    auto height_units = new QuUnitSelector(CommonOptions::heightUnits());
+    auto height = new QuHeight(fieldRef(Q_HEIGHT_M), height_units);
+
+
 
     QuPagePtr page((new QuPage{
                     instructions,
@@ -191,9 +197,12 @@ OpenableWidget* Edeq::editor(const bool read_only)
                     grid21,
                     instructions22_28,
                     grid22_28,
-                    q_weight,
-                    units,
-                    mass
+                    q_mass_kg,
+                    mass_units,
+                    mass,
+                    q_height_m,
+                    height_units,
+                    height
                     })->setTitle(xstring("title_main")));
 
     m_questionnaire = new Questionnaire(m_app, {page});
