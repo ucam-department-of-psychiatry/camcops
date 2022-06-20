@@ -57,7 +57,7 @@ QPointer<QWidget> QuMass::makeWidget(Questionnaire* questionnaire)
     auto kg_edit = new QuLineEditDouble(m_fr_kg, 0, 1000, 3);
     m_metric_grid = questionnairefunc::defaultGridRawPointer(
         {
-            {tr("kg"), kg_edit},
+            {CommonOptions::kilograms(), kg_edit},
         }, 1, 1);
 
     layout->addWidget(m_metric_grid->widget(questionnaire));
@@ -68,9 +68,9 @@ QPointer<QWidget> QuMass::makeWidget(Questionnaire* questionnaire)
 
     m_imperial_grid = questionnairefunc::defaultGridRawPointer(
         {
-            {tr("st"), st_edit},
-            {tr("lb"), lb_edit},
-            {tr("oz"), oz_edit},
+            {CommonOptions::stones(), st_edit},
+            {CommonOptions::pounds(), lb_edit},
+            {CommonOptions::ounces(), oz_edit},
         }, 1, 1);
 
     layout->addWidget(m_imperial_grid->widget(questionnaire));

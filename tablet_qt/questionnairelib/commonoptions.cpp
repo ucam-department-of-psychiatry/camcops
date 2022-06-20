@@ -157,25 +157,25 @@ QString CommonOptions::imperialStLbOz()
 }
 
 
-QString CommonOptions::kg()
+QString CommonOptions::kilograms()
 {
     return tr("kilograms (kg)");
 }
 
 
-QString CommonOptions::st()
+QString CommonOptions::stones()
 {
     return tr("stones (st)");
 }
 
 
-QString CommonOptions::lb()
+QString CommonOptions::pounds()
 {
     return tr("pounds (lb)");
 }
 
 
-QString CommonOptions::oz()
+QString CommonOptions::ounces()
 {
     return tr("ounces (oz)");
 }
@@ -193,7 +193,7 @@ QString CommonOptions::imperialIn()
 }
 
 
-QString CommonOptions::cm()
+QString CommonOptions::centimetres()
 {
     return tr("centimetres (cm)");
 }

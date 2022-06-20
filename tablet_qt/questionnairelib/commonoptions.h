@@ -82,13 +82,13 @@ public:
     static QString inches();
     static QString metricKg();
     static QString imperialStLbOz();
-    static QString kg();
-    static QString st();
-    static QString lb();
-    static QString oz();
+    static QString kilograms();
+    static QString stones();
+    static QString pounds();
+    static QString ounces();
     static QString metricCm();
     static QString imperialIn();
-    static QString cm();
+    static QString centimetres();
     static QString showBoth();
 
     // ========================================================================
