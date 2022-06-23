@@ -24,6 +24,7 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quheight.h"
@@ -213,38 +214,29 @@ OpenableWidget* Edeq::editor(const bool read_only)
         FieldRef::GetterFunction get_have_missed_periods = std::bind(&Edeq::getHaveMissedPeriods, this);
         FieldRef::SetterFunction set_have_missed_periods = std::bind(&Edeq::setHaveMissedPeriods, this, std::placeholders::_1);
         m_have_missed_periods_fr = FieldRefPtr(new FieldRef(get_have_missed_periods, set_have_missed_periods, true));
-        auto have_missed_periods_text = new QuText(xstring("q_have_missed_periods"));
         auto have_missed_periods_edit = (
             new QuMcq(
                 m_have_missed_periods_fr,
                 CommonOptions::yesNoBoolean()
                 )
             );
-        auto num_periods_missed_text = new QuText(xstring(Q_NUM_PERIODS_MISSED));
         auto num_periods_missed_edit = new QuLineEditInteger(fieldRef(Q_NUM_PERIODS_MISSED), 0, 10);
-        auto have_missed_periods_grid = new QuGridContainer();
-        have_missed_periods_grid->setFixedGrid(true);
-        have_missed_periods_grid->addCell(QuGridCell(have_missed_periods_text, 0, 0));
-        have_missed_periods_grid->addCell(QuGridCell(have_missed_periods_edit, 0, 1));
+        auto have_missed_periods_grid = questionnairefunc::defaultGridRawPointer(
+            {
+                {xstring("q_have_missed_periods"), have_missed_periods_edit},
+            }, 1, 1);
         elements.append(have_missed_periods_grid);
 
-        m_num_periods_missed_grid = new QuGridContainer();
-        m_num_periods_missed_grid->setFixedGrid(true);
-        m_num_periods_missed_grid->addCell(QuGridCell(num_periods_missed_text, 0, 0));
-        m_num_periods_missed_grid->addCell(QuGridCell(num_periods_missed_edit, 0, 1));
+        m_num_periods_missed_grid = questionnairefunc::defaultGridRawPointer(
+            {
+                {xstring(Q_NUM_PERIODS_MISSED), num_periods_missed_edit}
+            }, 1, 1);
         elements.append(m_num_periods_missed_grid);
 
-        auto pill_text = new QuText(xstring("q_pill"));
-        auto pill_edit = (
-            new QuMcq(
-                fieldRef(Q_PILL),
-                CommonOptions::yesNoBoolean()
-                )
-            );
-        auto pill_grid = new QuGridContainer();
-        pill_grid->setFixedGrid(true);
-        pill_grid->addCell(QuGridCell(pill_text, 0, 0));
-        pill_grid->addCell(QuGridCell(pill_edit, 0, 1));
+        auto pill_edit =
+            (new QuMcq(fieldRef(Q_PILL), CommonOptions::yesNoBoolean()));
+        auto pill_grid = questionnairefunc::defaultGridRawPointer(
+            {{xstring("q_pill"), pill_edit}}, 1, 1);
         elements.append(pill_grid);
     };
 
