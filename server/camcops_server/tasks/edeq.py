@@ -230,6 +230,15 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
             rows += tr_qa(question_cell, answer_cell)
 
+        for q_field in self.MEASUREMENT_FIELD_NAMES:
+            rows += tr_qa(self.xstring(req, q_field), getattr(self, q_field))
+
+        if self.patient.is_female():
+            for q_field in self.FEMALE_FIELD_NAMES:
+                rows += tr_qa(
+                    self.xstring(req, q_field), getattr(self, q_field)
+                )
+
         html = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
