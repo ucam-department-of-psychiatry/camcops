@@ -204,7 +204,7 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
             q_field = "q" + str(q_num)
-            question_cell = "{}. {}".format(q_num, self.xstring(req, q_field))
+            question_cell = self.xstring(req, q_field)
 
             score = getattr(self, q_field)
             if score is None or (q_num >= 13 and q_num <= 18):
