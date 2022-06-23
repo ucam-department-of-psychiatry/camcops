@@ -43,6 +43,7 @@ const QString QPREFIX("q");
 const QString Q_MASS_KG("q_mass_kg");
 const QString Q_HEIGHT_M("q_height_m");
 const QString Q_NUM_PERIODS_MISSED("q_num_periods_missed");
+const QString Q_PILL("q_pill");
 
 const QString Edeq::EDEQ_TABLENAME("edeq");
 
@@ -63,6 +64,7 @@ Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(Q_MASS_KG, QVariant::Double);
     addField(Q_HEIGHT_M, QVariant::Double);
     addField(Q_NUM_PERIODS_MISSED, QVariant::Int, false, false, false, 0);
+    addField(Q_PILL, QVariant::Bool, false, false, false, false);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -231,6 +233,19 @@ OpenableWidget* Edeq::editor(const bool read_only)
         m_num_periods_missed_grid->addCell(QuGridCell(num_periods_missed_text, 0, 0));
         m_num_periods_missed_grid->addCell(QuGridCell(num_periods_missed_edit, 0, 1));
         elements.append(m_num_periods_missed_grid);
+
+        auto pill_text = new QuText(xstring("q_pill"));
+        auto pill_edit = (
+            new QuMcq(
+                fieldRef(Q_PILL),
+                CommonOptions::yesNoBoolean()
+                )
+            );
+        auto pill_grid = new QuGridContainer();
+        pill_grid->setFixedGrid(true);
+        pill_grid->addCell(QuGridCell(pill_text, 0, 0));
+        pill_grid->addCell(QuGridCell(pill_edit, 0, 1));
+        elements.append(pill_grid);
     };
 
     QuPagePtr page((new QuPage(elements))->setTitle(xstring("title_main")));
