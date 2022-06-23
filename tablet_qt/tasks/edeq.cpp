@@ -248,6 +248,8 @@ OpenableWidget* Edeq::editor(const bool read_only)
         elements.append(pill_grid);
     };
 
+    elements.append(new QuText(xstring("thanks")));
+
     QuPagePtr page((new QuPage(elements))->setTitle(xstring("title_main")));
 
     m_questionnaire = new Questionnaire(m_app, {page});
