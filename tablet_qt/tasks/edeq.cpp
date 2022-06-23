@@ -42,6 +42,7 @@ const int N_QUESTIONS = 28;
 const QString QPREFIX("q");
 const QString Q_MASS_KG("q_mass_kg");
 const QString Q_HEIGHT_M("q_height_m");
+const QString Q_NUM_PERIODS_MISSED("q_num_periods_missed");
 
 const QString Edeq::EDEQ_TABLENAME("edeq");
 
@@ -53,12 +54,15 @@ void initializeEdeq(TaskFactory& factory)
 
 Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, EDEQ_TABLENAME, false, false, false),  // ... anon, clin, resp
-    m_questionnaire(nullptr)
+    m_questionnaire(nullptr),
+    m_have_missed_periods_fr(nullptr),
+    m_num_periods_missed_grid(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     addField(Q_MASS_KG, QVariant::Double);
     addField(Q_HEIGHT_M, QVariant::Double);
+    addField(Q_NUM_PERIODS_MISSED, QVariant::Int, false, false, false, 0);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -175,16 +179,14 @@ OpenableWidget* Edeq::editor(const bool read_only)
     auto grid21 = buildGrid(21, 21, how_much_options);
     auto instructions22_28 = new QuHeading(xstring("q22_28_instructions"));
     auto grid22_28 = buildGrid(22, 28, how_much_options, xstring("q22_28_heading"));
-    auto q_mass_kg = new QuText(xstring(Q_MASS_KG));
+    auto mass_text = new QuText(xstring(Q_MASS_KG));
     auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
-    auto mass = new QuMass(fieldRef(Q_MASS_KG), mass_units);
-    auto q_height_m = new QuText(xstring(Q_HEIGHT_M));
+    auto mass_edit = new QuMass(fieldRef(Q_MASS_KG), mass_units);
+    auto height_text = new QuText(xstring(Q_HEIGHT_M));
     auto height_units = new QuUnitSelector(CommonOptions::heightUnits());
-    auto height = new QuHeight(fieldRef(Q_HEIGHT_M), height_units);
+    auto height_edit = new QuHeight(fieldRef(Q_HEIGHT_M), height_units);
 
-
-
-    QuPagePtr page((new QuPage{
+    QVector<QuElement*> elements{
                     instructions,
                     instructions1_12,
                     grid1_12,
@@ -197,19 +199,75 @@ OpenableWidget* Edeq::editor(const bool read_only)
                     grid21,
                     instructions22_28,
                     grid22_28,
-                    q_mass_kg,
+                    mass_text,
                     mass_units,
-                    mass,
-                    q_height_m,
+                    mass_edit,
+                    height_text,
                     height_units,
-                    height
-                    })->setTitle(xstring("title_main")));
+                    height_edit,
+    };
+
+    if (isFemale()) {
+        FieldRef::GetterFunction get_have_missed_periods = std::bind(&Edeq::getHaveMissedPeriods, this);
+        FieldRef::SetterFunction set_have_missed_periods = std::bind(&Edeq::setHaveMissedPeriods, this, std::placeholders::_1);
+        m_have_missed_periods_fr = FieldRefPtr(new FieldRef(get_have_missed_periods, set_have_missed_periods, true));
+        auto have_missed_periods_text = new QuText(xstring("q_have_missed_periods"));
+        auto have_missed_periods_edit = (
+            new QuMcq(
+                m_have_missed_periods_fr,
+                CommonOptions::yesNoBoolean()
+                )
+            );
+        auto num_periods_missed_text = new QuText(xstring(Q_NUM_PERIODS_MISSED));
+        auto num_periods_missed_edit = new QuLineEditInteger(fieldRef(Q_NUM_PERIODS_MISSED), 0, 10);
+        auto have_missed_periods_grid = new QuGridContainer();
+        have_missed_periods_grid->setFixedGrid(true);
+        have_missed_periods_grid->addCell(QuGridCell(have_missed_periods_text, 0, 0));
+        have_missed_periods_grid->addCell(QuGridCell(have_missed_periods_edit, 0, 1));
+        elements.append(have_missed_periods_grid);
+
+        m_num_periods_missed_grid = new QuGridContainer();
+        m_num_periods_missed_grid->setFixedGrid(true);
+        m_num_periods_missed_grid->addCell(QuGridCell(num_periods_missed_text, 0, 0));
+        m_num_periods_missed_grid->addCell(QuGridCell(num_periods_missed_edit, 0, 1));
+        elements.append(m_num_periods_missed_grid);
+    };
+
+    QuPagePtr page((new QuPage(elements))->setTitle(xstring("title_main")));
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
+    m_have_missed_periods_fr->setValue(valueInt(Q_NUM_PERIODS_MISSED) > 0);
+
     return m_questionnaire;
+}
+
+
+QVariant Edeq::getHaveMissedPeriods()
+{
+    return m_have_missed_periods;
+}
+
+
+bool Edeq::setHaveMissedPeriods(const QVariant& value)
+{
+    const bool changed = value != m_have_missed_periods;
+
+    if (changed) {
+        m_have_missed_periods = value;
+
+        const bool have_missed = value.toBool();
+
+        if (!have_missed) {
+            setValue(Q_NUM_PERIODS_MISSED, 0);
+        }
+
+        m_num_periods_missed_grid->setVisible(have_missed);
+    }
+
+    return changed;
 }
 
 

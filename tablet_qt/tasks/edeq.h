@@ -26,6 +26,7 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
+class QuGridContainer;
 class QuMcqGrid;
 
 void initializeEdeq(TaskFactory& factory);
@@ -60,7 +61,17 @@ public:
     static const QString EDEQ_TABLENAME;
 protected:
     QPointer<Questionnaire> m_questionnaire;
+    QVariant m_have_missed_periods;
+    FieldRefPtr m_have_missed_periods_fr;
+    QuGridContainer* m_num_periods_missed_grid;
     QStringList fieldNames() const;
 private:
     QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options, const QString title = "");
+
+    // ------------------------------------------------------------------------
+    // Getters/setters
+    // ------------------------------------------------------------------------
+public:
+    QVariant getHaveMissedPeriods();
+    bool setHaveMissedPeriods(const QVariant& value);
 };
