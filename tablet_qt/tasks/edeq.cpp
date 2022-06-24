@@ -166,56 +166,61 @@ OpenableWidget* Edeq::editor(const bool read_only)
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto instructions1_12 = new QuHeading(xstring("q1_12_instructions"));
-    auto grid1_12 = buildGrid(1, 12, days_options, xstring("q1_12_heading"));
+    auto heading1_12 = new QuHeading(xstring("q1_12_heading"));
+    QString title = xstring("title_main");
+    QVector<QuPagePtr> pages;
+    for (int q_num = 1; q_num <= 12; q_num++) {
+        auto question = new QuMcq(fieldRef(QPREFIX + QString::number(q_num)),
+                                  days_options);
+        pages.append(QuPagePtr((new QuPage({instructions, instructions1_12, heading1_12,
+                                            question}))->setTitle(title)));
+    }
 
     auto instructions13_18 = new QuHeading(xstring("q13_18_instructions"));
     auto heading13_18 = new QuHeading(xstring("q13_18_heading"));
-    auto grid13_18 = new QuGridContainer();
-    for (int row = 0; row < 6; row++) {
-        const int qnum = row + 13;
-        const QString& fieldname = "q" + QString::number(qnum);
-        auto number_editor = new QuLineEditInteger(fieldRef(fieldname),
+
+    for (int q_num = 13; q_num <= 18; q_num++) {
+        const QString& fieldname = QPREFIX + QString::number(q_num);
+        auto number_edit = new QuLineEditInteger(fieldRef(fieldname),
 0, 1000); // TODO: Better maximum
         auto question_text = new QuText(xstring(fieldname));
-        grid13_18->addCell(QuGridCell(question_text, row, 0));
-        grid13_18->addCell(QuGridCell(number_editor, row, 1));
+        pages.append(QuPagePtr((new QuPage({instructions, instructions13_18, heading13_18,
+                                            question_text, number_edit}))->setTitle(title)));
     }
-    grid13_18->setColumnStretch(0, 4);
-    grid13_18->setColumnStretch(1, 1);
 
     auto instructions19_21 = new QuHeading(xstring("q19_21_instructions"));
-    auto grid19 = buildGrid(19, 19, days_options);
-    auto grid20 = buildGrid(20, 20, freq_options);
-    auto grid21 = buildGrid(21, 21, how_much_options);
+    auto question19 = new QuMcq(fieldRef(QPREFIX + QString::number(19)),
+                                days_options);
+    pages.append(QuPagePtr((new QuPage({instructions, instructions19_21, new QuText(xstring(QPREFIX + "19")),
+                                        question19}))->setTitle(title)));
+    auto question20 = new QuMcq(fieldRef(QPREFIX + QString::number(20)), freq_options);
+    pages.append(QuPagePtr((new QuPage({
+                        instructions,
+                        instructions19_21,
+                        new QuText(xstring(QPREFIX + "20")),
+                        question20}))->setTitle(title)));
+    auto question21 = new QuMcq(fieldRef(QPREFIX + QString::number(21)),
+                                freq_options);
+    pages.append(QuPagePtr((new QuPage({instructions, instructions19_21, new QuText(xstring(QPREFIX + "21")),
+                                        question21}))->setTitle(title)));
+
     auto instructions22_28 = new QuHeading(xstring("q22_28_instructions"));
-    auto grid22_28 = buildGrid(22, 28, how_much_options, xstring("q22_28_heading"));
+    auto heading22_28 = new QuHeading(xstring("q22_28_heading"));
+    for (int q_num = 22; q_num <= 28; q_num++) {
+        auto question = new QuMcq(fieldRef(QPREFIX + QString::number(q_num)),
+                                  days_options);
+        pages.append(QuPagePtr((new QuPage({instructions, instructions22_28, heading22_28,
+                                            question}))->setTitle(title)));
+    }
+
     auto mass_text = new QuText(xstring(Q_MASS_KG));
     auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
     auto mass_edit = new QuMass(fieldRef(Q_MASS_KG), mass_units);
+    pages.append(QuPagePtr((new QuPage({mass_text, mass_units, mass_edit}))->setTitle(title)));
     auto height_text = new QuText(xstring(Q_HEIGHT_M));
     auto height_units = new QuUnitSelector(CommonOptions::heightUnits());
     auto height_edit = new QuHeight(fieldRef(Q_HEIGHT_M), height_units);
-
-    QVector<QuElement*> elements{
-                    instructions,
-                    instructions1_12,
-                    grid1_12,
-                    instructions13_18,
-                    heading13_18,
-                    grid13_18,
-                    instructions19_21,
-                    grid19,
-                    grid20,
-                    grid21,
-                    instructions22_28,
-                    grid22_28,
-                    mass_text,
-                    mass_units,
-                    mass_edit,
-                    height_text,
-                    height_units,
-                    height_edit,
-    };
+    pages.append(QuPagePtr((new QuPage({height_text, height_units, height_edit}))->setTitle(title)));
 
     if (isFemale()) {
         FieldRef::GetterFunction get_have_missed_periods = std::bind(&Edeq::getHaveMissedPeriods, this);
@@ -232,26 +237,23 @@ OpenableWidget* Edeq::editor(const bool read_only)
             {
                 {xstring("q_have_missed_periods"), have_missed_periods_edit},
             }, 1, 1);
-        elements.append(have_missed_periods_grid);
-
         m_num_periods_missed_grid = questionnairefunc::defaultGridRawPointer(
             {
                 {xstring(Q_NUM_PERIODS_MISSED), num_periods_missed_edit}
             }, 1, 1);
-        elements.append(m_num_periods_missed_grid);
+        pages.append(QuPagePtr((new QuPage({have_missed_periods_grid,
+                                            m_num_periods_missed_grid}))->setTitle(title)));
 
-        auto pill_edit =
-            (new QuMcq(fieldRef(Q_PILL), CommonOptions::yesNoBoolean()));
+        auto pill_edit = new QuMcq(fieldRef(Q_PILL), CommonOptions::yesNoBoolean());
         auto pill_grid = questionnairefunc::defaultGridRawPointer(
             {{xstring("q_pill"), pill_edit}}, 1, 1);
-        elements.append(pill_grid);
-    };
+        pages.append(QuPagePtr((new QuPage({pill_grid}))->setTitle(title)));
+    }
 
-    elements.append(new QuText(xstring("thanks")));
+    auto thanks = new QuText(xstring("thanks"));
+    pages.append(QuPagePtr((new QuPage({thanks}))->setTitle(title)));
 
-    QuPagePtr page((new QuPage(elements))->setTitle(xstring("title_main")));
-
-    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire = new Questionnaire(m_app, pages);
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
@@ -284,39 +286,4 @@ bool Edeq::setHaveMissedPeriods(const QVariant& value)
     }
 
     return changed;
-}
-
-
-QuMcqGrid* Edeq::buildGrid(int first_qnum,
-                           int last_qnum,
-                           const NameValueOptions options,
-                           const QString title)
-{
-    QVector<QuestionWithOneField> q_field_pairs;
-
-    for (int qnum = first_qnum; qnum <= last_qnum; qnum++) {
-        const QString& fieldname = "q" + QString::number(qnum);
-        const QString& description = xstring(fieldname);
-
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
-
-    }
-
-    auto grid = new QuMcqGrid(q_field_pairs, options);
-    grid->setTitle(title);
-    // Repeat options every five lines
-    QVector<McqGridSubtitle> subtitles{
-        {5, title},
-        {10, title},
-        {15, title},
-    };
-    grid->setSubtitles(subtitles);
-
-    const int question_width = 4;
-    const QVector<int> option_widths = {1, 1, 1, 1, 1, 1, 1};
-    grid->setWidth(question_width, option_widths);
-    grid->setQuestionsBold(false);
-
-    return grid;
 }

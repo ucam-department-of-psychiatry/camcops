@@ -65,9 +65,6 @@ protected:
     FieldRefPtr m_have_missed_periods_fr;
     QuElement* m_num_periods_missed_grid;
     QStringList fieldNames() const;
-private:
-    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options, const QString title = "");
-
     // ------------------------------------------------------------------------
     // Getters/setters
     // ------------------------------------------------------------------------
