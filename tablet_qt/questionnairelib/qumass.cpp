@@ -48,6 +48,12 @@ QuMass::QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector) :
 }
 
 
+FieldRefPtrList QuMass::fieldrefs() const
+{
+    return FieldRefPtrList{m_fieldref};
+}
+
+
 QPointer<QWidget> QuMass::makeWidget(Questionnaire* questionnaire)
 {
     setUpFields();

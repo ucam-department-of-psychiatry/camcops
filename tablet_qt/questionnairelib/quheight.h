@@ -44,6 +44,7 @@ public slots:
 
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual FieldRefPtrList fieldrefs() const override;
 
     QVariant m_ft;
     QVariant m_in;

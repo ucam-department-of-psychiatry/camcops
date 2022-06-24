@@ -47,6 +47,12 @@ QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
 }
 
 
+FieldRefPtrList QuHeight::fieldrefs() const
+{
+    return FieldRefPtrList{m_fieldref};
+}
+
+
 QPointer<QWidget> QuHeight::makeWidget(Questionnaire* questionnaire)
 {
     setUpFields();
