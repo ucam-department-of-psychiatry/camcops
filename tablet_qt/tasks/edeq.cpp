@@ -93,7 +93,14 @@ QString Edeq::description() const
 
 QStringList Edeq::fieldNames() const
 {
-    return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
+    auto field_names = strseq(QPREFIX, FIRST_Q, N_QUESTIONS) + QStringList {
+        Q_MASS_KG, Q_HEIGHT_M};
+
+    if (isFemale()) {
+        field_names += {Q_NUM_PERIODS_MISSED, Q_PILL};
+    }
+
+    return field_names;
 }
 
 // ============================================================================
