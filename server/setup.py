@@ -114,7 +114,7 @@ INSTALL_REQUIRES = [
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.3.18",  # database access
     "statsmodels==0.11.1",  # e.g. logistic regression
-    "twilio==6.63.0",  # SMS backend for Multi-factor authentication
+    "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.7",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
