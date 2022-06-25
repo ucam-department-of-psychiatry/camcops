@@ -143,6 +143,8 @@ OpenableWidget* Edeq::editor(const bool read_only)
         {xstring("days_option_5"), 5},
         {xstring("days_option_6"), 6},
     };
+    const int days_min_width_px = 50;
+    const QVector<int> days_min_option_widths_px = {50, 50, 50, 50, 50, 50, 50};
 
     const NameValueOptions freq_options{
         {xstring("freq_option_0"), 0},
@@ -153,6 +155,8 @@ OpenableWidget* Edeq::editor(const bool read_only)
         {xstring("freq_option_5"), 5},
         {xstring("freq_option_6"), 6},
     };
+    const int freq_min_width_px = 50;
+    const QVector<int> freq_min_option_widths_px = {50, 50, 50, 50, 50, 50, 50};
 
     const NameValueOptions how_much_options{
         {xstring("how_much_option_0"), 0},
@@ -163,10 +167,15 @@ OpenableWidget* Edeq::editor(const bool read_only)
         {xstring("how_much_option_5"), 5},
         {xstring("how_much_option_6"), 6},
     };
+    const int how_much_min_width_px = 100;
+    const QVector<int> how_much_min_option_widths_px = {100, 100, 100, 100, 100, 100, 100};
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto instructions1_12 = new QuHeading(xstring("q1_12_instructions"));
-    auto grid1_12 = buildGrid(1, 12, days_options, xstring("q1_12_heading"));
+    auto grid1_12 = buildGrid(1, 12, days_options,
+                              xstring("q1_12_heading"));
+    grid1_12->setMinimumWidthInPixels(days_min_width_px,
+                                      days_min_option_widths_px);
 
     auto instructions13_18 = new QuHeading(xstring("q13_18_instructions"));
     auto heading13_18 = new QuHeading(xstring("q13_18_heading"));
@@ -180,15 +189,25 @@ OpenableWidget* Edeq::editor(const bool read_only)
         grid13_18->addCell(QuGridCell(question_text, row, 0));
         grid13_18->addCell(QuGridCell(number_editor, row, 1));
     }
-    grid13_18->setColumnStretch(0, 4);
+    grid13_18->setColumnStretch(0, 6);
     grid13_18->setColumnStretch(1, 1);
 
     auto instructions19_21 = new QuHeading(xstring("q19_21_instructions"));
     auto grid19 = buildGrid(19, 19, days_options);
+    grid19->setMinimumWidthInPixels(days_min_width_px,
+                                    days_min_option_widths_px);
     auto grid20 = buildGrid(20, 20, freq_options);
+    grid20->setMinimumWidthInPixels(freq_min_width_px,
+                                    freq_min_option_widths_px);
+
     auto grid21 = buildGrid(21, 21, how_much_options);
+    grid21->setMinimumWidthInPixels(how_much_min_width_px,
+                                    how_much_min_option_widths_px);
     auto instructions22_28 = new QuHeading(xstring("q22_28_instructions"));
     auto grid22_28 = buildGrid(22, 28, how_much_options, xstring("q22_28_heading"));
+    grid22_28->setMinimumWidthInPixels(how_much_min_width_px,
+                                       how_much_min_option_widths_px);
+
     auto mass_text = new QuText(xstring(Q_MASS_KG));
     auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
     auto mass_edit = new QuMass(fieldRef(Q_MASS_KG), mass_units);
