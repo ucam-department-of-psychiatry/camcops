@@ -330,6 +330,7 @@ OpenableWidget* Edeq::editor(const bool read_only)
                 {xstring(Q_NUM_PERIODS_MISSED), num_periods_missed_edit}
             }, 1, 1);
         elements.append(m_num_periods_missed_grid);
+        m_have_missed_periods_fr->setValue(valueInt(Q_NUM_PERIODS_MISSED) > 0);
 
         auto pill_edit =
             (new QuMcq(fieldRef(Q_PILL), CommonOptions::yesNoBoolean()));
@@ -345,8 +346,6 @@ OpenableWidget* Edeq::editor(const bool read_only)
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
-
-    m_have_missed_periods_fr->setValue(valueInt(Q_NUM_PERIODS_MISSED) > 0);
 
     return m_questionnaire;
 }
