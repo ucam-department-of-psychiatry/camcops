@@ -19,6 +19,7 @@
 */
 
 #include "edeq.h"
+#include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
@@ -36,11 +37,22 @@
 #include "questionnairelib/quunitselector.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
+using mathfunc::meanOrNull;
+using stringfunc::strnumlist;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 28;
+const int MIN_SCORE = 0;
+const int MAX_SCORE = 7;
+const int MIN_SUBSCALE = 0;
+const int MAX_SUBSCALE = 7;
 const QString QPREFIX("q");
+const QVector<int> RESTRAINT_QUESTIONS{1, 2, 3, 4, 5};
+const QVector<int> EATING_CONCERN_QUESTIONS{7, 9, 19, 20, 21};
+const QVector<int> SHAPE_CONCERN_QUESTIONS{6, 8, 10, 11, 23, 26, 27, 28};
+const QVector<int> WEIGHT_CONCERN_QUESTIONS{8, 12, 22, 24, 25};
+
 const QString Q_MASS_KG("q_mass_kg");
 const QString Q_HEIGHT_M("q_height_m");
 const QString Q_NUM_PERIODS_MISSED("q_num_periods_missed");
@@ -120,7 +132,67 @@ bool Edeq::isComplete() const
 
 QStringList Edeq::summary() const
 {
-    return QStringList{};
+    auto rangeScore = [](const QString& description, const QVariant score,
+                         const int min, const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].").arg(
+                    description,
+                    QString::number(score.toInt()),
+                    QString::number(min),
+                    QString::number(max));
+    };
+
+    return QStringList{
+        rangeScore(TextConst::totalScore(), globalScore(),
+                   MIN_SCORE, MAX_SCORE),
+        rangeScore(xstring("restraint"), restraint(), MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("eating_concern"), eatingConcern(), MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("shape_concern"), shapeConcern(), MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("weight_concern"), weightConcern(), MIN_SUBSCALE, MAX_SUBSCALE),
+    };
+}
+
+
+QVariant Edeq::globalScore() const
+{
+    QVector<QVariant> subscales = {
+        restraint(),
+        eatingConcern(),
+        shapeConcern(),
+        weightConcern(),
+    };
+
+    return meanOrNull(subscales);
+}
+
+QVariant Edeq::restraint() const
+{
+    return subscale(RESTRAINT_QUESTIONS);
+}
+
+
+QVariant Edeq::eatingConcern() const
+{
+    return subscale(EATING_CONCERN_QUESTIONS);
+}
+
+
+QVariant Edeq::shapeConcern() const
+{
+    return subscale(SHAPE_CONCERN_QUESTIONS);
+}
+
+
+QVariant Edeq::weightConcern() const
+{
+    return subscale(WEIGHT_CONCERN_QUESTIONS);
+}
+
+
+QVariant Edeq::subscale(QVector<int> questions) const
+{
+    QVector<QVariant> answers = values(strnumlist(QPREFIX, questions));
+
+    return meanOrNull(answers);
 }
 
 

@@ -57,9 +57,15 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QVariant globalScore() const;
+    QVariant restraint() const;
+    QVariant eatingConcern() const;
+    QVariant shapeConcern() const;
+    QVariant weightConcern() const;
+
 public:
     static const QString EDEQ_TABLENAME;
 protected:
+    QVariant subscale(QVector<int> questions) const;
     QPointer<Questionnaire> m_questionnaire;
     QVariant m_have_missed_periods;
     FieldRefPtr m_have_missed_periods_fr;
