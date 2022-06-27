@@ -198,7 +198,22 @@ QVariant Edeq::subscale(QVector<int> questions) const
 
 QStringList Edeq::detail() const
 {
-    QStringList lines;
+    QStringList lines = completenessInfo();
+
+    const QString spacer = " ";
+    const QString suffix = "";
+
+    const QStringList fieldnames = fieldNames();
+
+    for (int i = 0; i < fieldnames.length(); ++i) {
+        const QString& fieldname = fieldnames.at(i);
+        lines.append(fieldSummary(fieldname, xstring(fieldname),
+                                  spacer, suffix));
+    }
+
+
+    lines.append("");
+    lines += summary();
 
     return lines;
 }
