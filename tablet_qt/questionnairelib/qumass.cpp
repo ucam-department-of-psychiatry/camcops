@@ -50,7 +50,17 @@ QuMass::QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector) :
 
 FieldRefPtrList QuMass::fieldrefs() const
 {
-    return FieldRefPtrList{m_fieldref};
+    FieldRefPtrList fieldrefs;
+
+    if (m_metric_grid->visible()) {
+        fieldrefs.append({m_fr_kg});
+    }
+
+    if (m_imperial_grid->visible()) {
+        fieldrefs.append({m_fr_kg, m_fr_st, m_fr_lb, m_fr_oz});
+    }
+
+    return fieldrefs;
 }
 
 
@@ -131,6 +141,8 @@ void QuMass::unitsChanged(int units)
 
     m_metric_grid->setVisible(metric);
     m_imperial_grid->setVisible(imperial);
+
+    emit elementValueChanged();
 }
 
 
@@ -232,6 +244,7 @@ void QuMass::updateMetric()
                               stones, pounds, ounces));
     }
     m_fr_kg->emitValueChanged();
+    emit elementValueChanged();
 }
 
 
@@ -263,4 +276,5 @@ void QuMass::updateImperial()
     m_fr_st->emitValueChanged();
     m_fr_lb->emitValueChanged();
     m_fr_oz->emitValueChanged();
+    emit elementValueChanged();
 }

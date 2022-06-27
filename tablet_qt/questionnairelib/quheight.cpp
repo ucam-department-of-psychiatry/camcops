@@ -49,7 +49,17 @@ QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
 
 FieldRefPtrList QuHeight::fieldrefs() const
 {
-    return FieldRefPtrList{m_fieldref};
+    FieldRefPtrList fieldrefs;
+
+    if (m_metric_grid->visible()) {
+        fieldrefs.append({m_fr_m});
+    }
+
+    if (m_imperial_grid->visible()) {
+        fieldrefs.append({m_fr_ft, m_fr_in});
+    }
+
+    return fieldrefs;
 }
 
 
@@ -125,6 +135,8 @@ void QuHeight::unitsChanged(int units)
 
     m_metric_grid->setVisible(metric);
     m_imperial_grid->setVisible(imperial);
+
+    emit elementValueChanged();
 }
 
 
@@ -203,6 +215,7 @@ void QuHeight::updateMetric()
         m_fieldref->setValue(convert::metresFromFeetInches(feet, inches));
     }
     m_fr_m->emitValueChanged();
+    emit elementValueChanged();
 }
 
 
@@ -230,4 +243,5 @@ void QuHeight::updateImperial()
     }
     m_fr_ft->emitValueChanged();
     m_fr_in->emitValueChanged();
+    emit elementValueChanged();
 }
