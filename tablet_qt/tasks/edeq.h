@@ -69,6 +69,7 @@ protected:
     QPointer<Questionnaire> m_questionnaire;
     QVariant m_have_missed_periods;
     FieldRefPtr m_have_missed_periods_fr;
+    FieldRefPtr m_num_missed_periods_fr;
     QuElement* m_num_periods_missed_grid;
     QStringList fieldNames() const;
 private:
@@ -79,5 +80,9 @@ private:
     // ------------------------------------------------------------------------
 public:
     QVariant getHaveMissedPeriods();
+    QVariant getNumMissedPeriods();
     bool setHaveMissedPeriods(const QVariant& value);
+    bool setNumMissedPeriods(const QVariant& value);
+    void updateHaveMissedPeriods();
+    void updateNumMissedPeriods();
 };

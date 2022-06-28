@@ -70,14 +70,15 @@ Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, EDEQ_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr),
     m_have_missed_periods_fr(nullptr),
+    m_num_missed_periods_fr(nullptr),
     m_num_periods_missed_grid(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     addField(Q_MASS_KG, QVariant::Double);
     addField(Q_HEIGHT_M, QVariant::Double);
-    addField(Q_NUM_PERIODS_MISSED, QVariant::Int, false, false, false, 0);
-    addField(Q_PILL, QVariant::Bool, false, false, false, false);
+    addField(Q_NUM_PERIODS_MISSED, QVariant::Int);
+    addField(Q_PILL, QVariant::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -325,15 +326,18 @@ OpenableWidget* Edeq::editor(const bool read_only)
 
     if (isFemale()) {
         FieldRef::GetterFunction get_have_missed_periods = std::bind(&Edeq::getHaveMissedPeriods, this);
+        FieldRef::GetterFunction get_num_missed_periods = std::bind(&Edeq::getNumMissedPeriods, this);
         FieldRef::SetterFunction set_have_missed_periods = std::bind(&Edeq::setHaveMissedPeriods, this, std::placeholders::_1);
+        FieldRef::SetterFunction set_num_missed_periods = std::bind(&Edeq::setNumMissedPeriods, this, std::placeholders::_1);
         m_have_missed_periods_fr = FieldRefPtr(new FieldRef(get_have_missed_periods, set_have_missed_periods, true));
+        m_num_missed_periods_fr = FieldRefPtr(new FieldRef(get_num_missed_periods, set_num_missed_periods, true));
         auto have_missed_periods_edit = (
             new QuMcq(
                 m_have_missed_periods_fr,
                 CommonOptions::yesNoBoolean()
                 )
             );
-        auto num_periods_missed_edit = new QuLineEditInteger(fieldRef(Q_NUM_PERIODS_MISSED), 0, 10);
+        auto num_periods_missed_edit = new QuLineEditInteger(m_num_missed_periods_fr, 1, 10);
         auto have_missed_periods_grid = questionnairefunc::defaultGridRawPointer(
             {
                 {xstring("q_have_missed_periods"), have_missed_periods_edit},
@@ -345,7 +349,7 @@ OpenableWidget* Edeq::editor(const bool read_only)
                 {xstring(Q_NUM_PERIODS_MISSED), num_periods_missed_edit}
             }, 1, 1);
         elements.append(m_num_periods_missed_grid);
-        m_have_missed_periods_fr->setValue(valueInt(Q_NUM_PERIODS_MISSED) > 0);
+        updateHaveMissedPeriods();
 
         auto pill_edit =
             (new QuMcq(fieldRef(Q_PILL), CommonOptions::yesNoBoolean()));
@@ -365,6 +369,11 @@ OpenableWidget* Edeq::editor(const bool read_only)
     return m_questionnaire;
 }
 
+QVariant Edeq::getNumMissedPeriods()
+{
+    return value(Q_NUM_PERIODS_MISSED);
+}
+
 
 QVariant Edeq::getHaveMissedPeriods()
 {
@@ -372,23 +381,57 @@ QVariant Edeq::getHaveMissedPeriods()
 }
 
 
-bool Edeq::setHaveMissedPeriods(const QVariant& value)
+bool Edeq::setNumMissedPeriods(const QVariant& value)
 {
-    const bool changed = value != m_have_missed_periods;
+    const bool changed = setValue(Q_NUM_PERIODS_MISSED, value);
+
+    return changed;
+}
+
+
+bool Edeq::setHaveMissedPeriods(const QVariant& new_have_missed_periods)
+{
+    const bool changed = new_have_missed_periods != m_have_missed_periods;
 
     if (changed) {
-        m_have_missed_periods = value;
+        m_have_missed_periods = new_have_missed_periods;
 
-        const bool have_missed = value.toBool();
-
-        if (!have_missed) {
-            setValue(Q_NUM_PERIODS_MISSED, 0);
-        }
-
-        m_num_periods_missed_grid->setVisible(have_missed);
+        updateNumMissedPeriods();
+        m_num_periods_missed_grid->setVisible(m_have_missed_periods.toBool());
     }
 
     return changed;
+}
+
+
+void Edeq::updateNumMissedPeriods()
+{
+    if (m_have_missed_periods.isNull()) {
+        setValue(Q_NUM_PERIODS_MISSED, QVariant());
+    } else {
+        const bool have_missed_periods = m_have_missed_periods.toBool();
+        if (have_missed_periods) {
+            if (valueInt(Q_NUM_PERIODS_MISSED) == 0) {
+                setValue(Q_NUM_PERIODS_MISSED, QVariant());
+            }
+        } else {
+            setValue(Q_NUM_PERIODS_MISSED, 0);
+        }
+    }
+    m_num_missed_periods_fr->emitValueChanged();
+}
+
+
+void Edeq::updateHaveMissedPeriods()
+{
+    const QVariant num_missed_periods = value(Q_NUM_PERIODS_MISSED);
+    if (num_missed_periods.isNull()) {
+        m_have_missed_periods.clear();
+    } else {
+        m_have_missed_periods = num_missed_periods.toInt() > 0;
+    }
+    m_num_periods_missed_grid->setVisible(m_have_missed_periods.toBool());
+    m_have_missed_periods_fr->emitValueChanged();
 }
 
 
