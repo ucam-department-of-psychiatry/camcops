@@ -24,6 +24,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/chit.h"
+#include "tasks/edeq.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/gad7.h"
 #include "tasks/gbogras.h"
@@ -65,7 +66,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
         // todo:: CIA [and add to "eating disorders" menu]
-        // todo:: EDE-Q [and add to "eating disorders" menu]
+        MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
 

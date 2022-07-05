@@ -23,6 +23,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/edeq.h"
 
 EatingDisordersMenu::EatingDisordersMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_DOLPHIN))
@@ -44,7 +45,7 @@ void EatingDisordersMenu::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
         // todo:: CIA
-        // todo:: EDE-Q
     };
 }
