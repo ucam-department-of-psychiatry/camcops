@@ -38,38 +38,38 @@ Subscale Items (the numbers are the item number on the EDE-Q):
 
 Restraint
 ^^^^^^^^^
-    1. Restraint over eating
-    2. Avoidance of eating
-    3. Food avoidance
-    4. Dietary Rules
-    5. Empty stomach
+    - 1. Restraint over eating
+    - 2. Avoidance of eating
+    - 3. Food avoidance
+    - 4. Dietary Rules
+    - 5. Empty stomach
 
 Eating Concern
 ^^^^^^^^^^^^^^
-    7. Preoccupation with food, eating or calories
-    9. Fear of losing control over eating
-    19. Eating in secret
-    21. Social eating
-    20. Guilt about eating
+    - 7. Preoccupation with food, eating or calories
+    - 9. Fear of losing control over eating
+    - 19. Eating in secret
+    - 21. Social eating
+    - 20. Guilt about eating
 
 Shape Concern
 ^^^^^^^^^^^^^
-    6. Flat stomach
-    8. Preoccupation with shape or weight
-    23. Importance of shape
-    10. Fear of weight gain
-    26. Dissatisfaction with shape
-    27. Discomfort seeing body
-    28. Avoidance of exposure
-    11. Feelings of fatness
+    - 6. Flat stomach
+    - 8. Preoccupation with shape or weight
+    - 23. Importance of shape
+    - 10. Fear of weight gain
+    - 26. Dissatisfaction with shape
+    - 27. Discomfort seeing body
+    - 28. Avoidance of exposure
+    - 11. Feelings of fatness
 
 Weight Concern
 ^^^^^^^^^^^^^^
-    22. Importance of weight
-    24. Reaction to prescribed weighing
-    8. Preoccupation with shape or weight
-    25. Dissatisfaction with weight
-    12. Desire to lose weight
+    - 22. Importance of weight
+    - 24. Reaction to prescribed weighing
+    - 8. Preoccupation with shape or weight
+    - 25. Dissatisfaction with weight
+    - 12. Desire to lose weight
 
 
 Intellectual property rights

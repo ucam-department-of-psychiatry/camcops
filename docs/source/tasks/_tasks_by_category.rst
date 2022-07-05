@@ -206,7 +206,9 @@ Eating disorders
 |dolphin|
 
 .. todo:: CIA
-.. todo:: EDE-Q
+
+- :ref:`Eating Disorder Examination Questionnaire (EDE-Q) <edeq>`
+
 .. todo:: ISAAQ
 
 
