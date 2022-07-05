@@ -26,18 +26,11 @@
     <string name="q16">16.</string>
     <string name="q17">17.</string>
     <string name="q18">18.</string>
-    <!-- Original:
-        Questions 19 to 21: Please circle the appropriate number. Please note that for these questions the
-        term “binge eating” means eating what others would regard as an unusually large amount of
-        food for the circumstances, accompanied by a sense of having lost control over eating.
-    -->
+
     <string name="q19_21_instructions">(q19-21 instructions)</string>
     <string name="q19">19.</string>
     <string name="q20">20.</string>
     <string name="q21">21.</string>
-    <!-- Original:
-         Questions 22 to 28: Please circle the appropriate number on the right. Remember that the questions only refer to the past four weeks (28 days).
-    -->
     <string name="q22_28_instructions">(q22-28 instructions)</string>
 
     <string name="q22_28_heading">(q22-28 heading)</string>
@@ -50,13 +43,10 @@
     <string name="q28">28.</string>
     <string name="q_mass_kg">(weight)</string>
     <string name="q_height_m">(height)</string>
-    <!-- Original prefixed with "If female" -->
     <string name="q_have_missed_periods">(have missed periods)</string>
-    <!-- Original "If so, how many" -->
     <string name="q_num_periods_missed">(num missed periods)</string>
     <string name="q_pill">(pill)</string>
     <string name="thanks">(thanks)</string>
-    <!-- All options are numbered 0-6 in the original -->
     <string name="days_option_0">No</string>
     <string name="days_option_1">1-5</string>
     <string name="days_option_2">6-12</string>
