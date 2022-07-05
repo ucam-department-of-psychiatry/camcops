@@ -806,6 +806,7 @@ SOURCES += \
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quunitselector.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quwaist.cpp \
     questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
@@ -1287,6 +1288,7 @@ HEADERS += \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quunitselector.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quwaist.h \
     questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
