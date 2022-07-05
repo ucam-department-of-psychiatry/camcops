@@ -3,8 +3,6 @@
   <task name="bmi">
     <!-- Body Mass Index (BMI) -->
 
-    <string name="height">Height</string>
-    <string name="mass">Mass</string>
     <string name="underweight_under_13">Very severely underweight (WHO grade 3; RCPsych severe AN, high risk)</string>
     <string name="underweight_13_15">Very severely underweight (WHO grade 3; RCPsych severe AN, medium risk)</string>
     <string name="underweight_15_16">Severely underweight (WHO grade 3; AN)</string>
@@ -23,20 +21,5 @@
     <string name="optional">Optional:</string>
     <string name="title_5">Units for waist circumference</string>
     <string name="title_6">Waist circumference</string>
-    <string name="metric_height">Metric (m)</string>
-    <string name="imperial_height">Imperial (ft, in)</string>
-    <string name="m">metres (m)</string>
-    <string name="ft">feet (ft)</string>
-    <string name="in">inches (in)</string>
-    <string name="metric_mass">Metric (kg)</string>
-    <string name="imperial_mass">Imperial (st, lb, oz)</string>
-    <string name="kg">kilograms (kg)</string>
-    <string name="st">stones (st)</string>
-    <string name="lb">pounds (lb)</string>
-    <string name="oz">ounces (oz)</string>
-    <string name="metric_waist">Metric (cm)</string>
-    <string name="imperial_waist">Imperial (in)</string>
-    <string name="cm">centimetres (cm)</string>
-    <string name="units_both">Show both</string>
   </task>
 </resources>
