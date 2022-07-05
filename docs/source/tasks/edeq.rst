@@ -26,23 +26,12 @@
 Eating Disorder Examination Questionnaire (EDE-Q 6.0)
 -----------------------------------------------------
 
-**NOT YET IMPLEMENTED**
-
-The EDE, and its self-report version, the EDE-Q, generate two types of data. First, they provide
-frequency data on key behavioural features of eating disorders in terms of number of episodes of
-the behaviour and in some instances number of days on which the behaviour has occurred.
-Second, they provide subscale scores reflecting the severity of aspects of the psychopathology of
-eating disorders. The subscales are Restraint, Eating Concern, Shape Concern and Weight
-Concern. To obtain a particular subscale score, the ratings for the relevant items (listed below)
-are added together and the sum divided by the total number of items forming the subscale. If
-ratings are only available on some items, a score may nevertheless be obtained by dividing the
-resulting total by the number of rated items so long as more than half the items have been rated.
-To obtain an overall or ‘global’ score, the four subscales scores are summed and the resulting
-total divided by the number of subscales (i.e. four). Subscale scores are reported as means and
-standard deviations.
-
-In our implementation all applicable questions are mandatory so all items will
-have been rated.
+The EDE-Q is the questionnaire version of the Eating Disorder Examination (EDE)
+interview. There are four subscales. To calculate a subscale score, calculate
+the arithmetic mean of the relevant rated items in the scale (listed below). In
+our implementation all applicable questions are mandatory so all items will have
+been rated. The overall 'global' score is the arithmetic mean of the four
+subscales.
 
 Subscale Items (the numbers are the item number on the EDE-Q):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,8 +85,8 @@ Source
 ~~~~~~
 
 
+- https://doi.apa.org/doiLanding?doi=10.1037%2Ft03974-000
+- https://web.archive.org/web/20111124145321/https://www.rcpsych.ac.uk/pdf/EDE-Q.pdf
 - https://www.corc.uk.net/media/1273/ede-q_quesionnaire.pdf
 - https://www.corc.uk.net/media/1274/ede_rcpsychinformation.pdf
-- https://doi.apa.org/doiLanding?doi=10.1037%2Ft03974-000
 - https://www.semanticscholar.org/paper/Eating-Disorder-Examination-Questionnaire-Fairburn-Beglin/627948c2fba5c7f6d5241aaec7e308875ab026a5?p2df
-- https://web.archive.org/web/20111124145321/https://www.rcpsych.ac.uk/pdf/EDE-Q.pdf
