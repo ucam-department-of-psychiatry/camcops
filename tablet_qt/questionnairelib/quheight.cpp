@@ -34,73 +34,49 @@
 #include "questionnairelib/qumcq.h"
 
 
-QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector) :
-    m_fieldref(fieldref),
-    m_unit_selector(unit_selector),
+QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
+    : QuMeasurement(fieldref, unit_selector),
     m_fr_m(nullptr),
     m_fr_ft(nullptr),
-    m_fr_in(nullptr),
-    m_metric_grid(nullptr),
-    m_imperial_grid(nullptr)
+    m_fr_in(nullptr)
 {
-    Q_ASSERT(m_fieldref);
 }
 
 
-FieldRefPtrList QuHeight::fieldrefs() const
+FieldRefPtrList QuHeight::getMetricFieldrefs() const
 {
-    FieldRefPtrList fieldrefs;
-
-    if (m_metric_grid->visible()) {
-        fieldrefs.append({m_fr_m});
-    }
-
-    if (m_imperial_grid->visible()) {
-        fieldrefs.append({m_fr_ft, m_fr_in});
-    }
-
-    return fieldrefs;
+    return FieldRefPtrList({m_fr_m});
 }
 
 
-QPointer<QWidget> QuHeight::makeWidget(Questionnaire* questionnaire)
+FieldRefPtrList QuHeight::getImperialFieldrefs() const
 {
-    setUpFields();
+    return FieldRefPtrList({m_fr_ft, m_fr_in});
+}
 
-    auto layout = new VBoxLayout();
-
+QPointer<QuElement> QuHeight::buildMetricGrid()
+{
     auto metres_edit = new QuLineEditDouble(m_fr_m, 0, 5, 3);
-    m_metric_grid = questionnairefunc::defaultGridRawPointer(
+    return questionnairefunc::defaultGridRawPointer(
         {
             {CommonOptions::metres(), metres_edit},
-        }, 1, 1);
+        },
+        1, 1);
+}
 
-    layout->addWidget(m_metric_grid->widget(questionnaire));
 
+QPointer<QuElement> QuHeight::buildImperialGrid()
+{
     auto ft_edit = new QuLineEditInteger(m_fr_ft, 0, 15);
     auto in_edit = new QuLineEditDouble(m_fr_in, 0, convert::INCHES_PER_FOOT, 2);
 
-    m_imperial_grid = questionnairefunc::defaultGridRawPointer(
+    return questionnairefunc::defaultGridRawPointer(
         {
             {CommonOptions::feet(), ft_edit},
             {CommonOptions::inches(), in_edit},
         }, 1, 1);
-
-    layout->addWidget(m_imperial_grid->widget(questionnaire));
-
-    QPointer<QWidget> widget = new BaseWidget();
-    widget->setLayout(layout);
-
-    if (m_unit_selector) {
-        connect(m_unit_selector, &QuUnitSelector::unitsChanged,
-                this, &QuHeight::unitsChanged);
-        unitsChanged(m_unit_selector->getUnits().toInt());
-    }
-
-    updateImperial();
-
-    return widget;
 }
+
 
 void QuHeight::setUpFields()
 {
@@ -116,33 +92,9 @@ void QuHeight::setUpFields()
 }
 
 
-// ============================================================================
-// Signal handlers
-// ============================================================================
-
-void QuHeight::unitsChanged(int units)
-{
-    // Update the display to show "mass" units: metric/imperial/both.
-#ifdef DEBUG_DATA_FLOW
-    qDebug() << Q_FUNC_INFO;
-#endif
-    const bool imperial = units == CommonOptions::IMPERIAL ||
-        units == CommonOptions::BOTH;
-    const bool metric = units == CommonOptions::METRIC ||
-        units == CommonOptions::BOTH;
-
-    Q_ASSERT(imperial || metric);
-
-    m_metric_grid->setVisible(metric);
-    m_imperial_grid->setVisible(imperial);
-
-    emit elementValueChanged();
-}
-
-
 QVariant QuHeight::getM() const
 {
-    return m_fieldref->value();
+    return getFieldrefValue();
 }
 
 
@@ -163,7 +115,7 @@ bool QuHeight::setM(const QVariant& value)
 #ifdef DEBUG_DATA_FLOW
     qDebug() << Q_FUNC_INFO << value;
 #endif
-    const bool changed = m_fieldref->setValue(value);
+    const bool changed = setFieldrefValue(value);
     if (changed) {
         updateImperial();
     }
@@ -208,11 +160,11 @@ void QuHeight::updateMetric()
 #endif
     Q_ASSERT(m_fr_m);
     if (m_ft.isNull() && m_in.isNull()) {
-        m_fieldref->setValue(QVariant());
+        setFieldrefValue(QVariant());
     } else {
         const int feet = m_ft.toInt();
         const double inches = m_in.toDouble();
-        m_fieldref->setValue(convert::metresFromFeetInches(feet, inches));
+        setFieldrefValue(convert::metresFromFeetInches(feet, inches));
     }
     m_fr_m->emitValueChanged();
     emit elementValueChanged();
@@ -229,7 +181,7 @@ void QuHeight::updateImperial()
 #endif
     Q_ASSERT(m_fr_ft);
     Q_ASSERT(m_fr_in);
-    QVariant height_m_var = m_fieldref->value();
+    QVariant height_m_var = getFieldrefValue();
     if (height_m_var.isNull()) {
         m_ft.clear();
         m_in.clear();

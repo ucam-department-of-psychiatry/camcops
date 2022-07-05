@@ -17,45 +17,35 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #pragma once
 #include "db/fieldref.h"
-#include "questionnairelib/qumeasurement.h"
-#include "questionnairelib/qulineeditdouble.h"
-#include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/quelement.h"
 #include "questionnairelib/quunitselector.h"
 
-class QuHeight : public QuMeasurement
+class QuMeasurement : public QuElement
 {
     Q_OBJECT
 public:
-    QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector);
-    void setUpFields();
-
-protected:
-    virtual FieldRefPtrList getMetricFieldrefs() const;
-    virtual FieldRefPtrList getImperialFieldrefs() const;
+    QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector);
 
 public slots:
-    QVariant getM() const;
-    QVariant getFt() const;
-    QVariant getIn() const;
-    bool setM(const QVariant& value);
-    bool setFt(const QVariant& value);
-    bool setIn(const QVariant& value);
-
+    void unitsChanged(int units);
 protected:
-    QVariant m_ft;
-    QVariant m_in;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual FieldRefPtrList fieldrefs() const override;
+    virtual FieldRefPtrList getMetricFieldrefs() const = 0;
+    virtual FieldRefPtrList getImperialFieldrefs() const = 0;
+    virtual void updateMetric() = 0;
+    virtual void updateImperial() = 0;
+    virtual QPointer<QuElement> buildMetricGrid() = 0;
+    virtual QPointer<QuElement> buildImperialGrid() = 0;
+    virtual void setUpFields() = 0;
+    QVariant getFieldrefValue() const;
+    bool setFieldrefValue(const QVariant& value);
 
-    FieldRefPtr m_fr_m;
-    FieldRefPtr m_fr_ft;
-    FieldRefPtr m_fr_in;
-
-    QPointer<QuElement> buildMetricGrid();
-    QPointer<QuElement> buildImperialGrid();
-
-    void updateMetric();
-    void updateImperial();
-
+private:
+    FieldRefPtr m_fieldref;
+    QPointer<QuUnitSelector> m_unit_selector;
+    QPointer<QuElement> m_metric_grid;
+    QPointer<QuElement> m_imperial_grid;
 };

@@ -20,12 +20,12 @@
 
 #pragma once
 #include "db/fieldref.h"
-#include "questionnairelib/quelement.h"
+#include "questionnairelib/qumeasurement.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quunitselector.h"
 
-class QuMass : public QuElement
+class QuMass : public QuMeasurement
 {
     Q_OBJECT
 public:
@@ -34,7 +34,6 @@ public:
 
 
 public slots:
-    void unitsChanged(int units);
     QVariant getKg() const;
     QVariant getSt() const;
     QVariant getLb() const;
@@ -45,24 +44,21 @@ public slots:
     bool setOz(const QVariant& value);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
-    virtual FieldRefPtrList fieldrefs() const override;
+    virtual FieldRefPtrList getMetricFieldrefs() const ;
+    virtual FieldRefPtrList getImperialFieldrefs() const;
 
     QVariant m_st;
     QVariant m_lb;
     QVariant m_oz;
 
-    FieldRefPtr m_fieldref;
-    QPointer<QuUnitSelector> m_unit_selector;
     FieldRefPtr m_fr_kg;
     FieldRefPtr m_fr_st;
     FieldRefPtr m_fr_lb;
     FieldRefPtr m_fr_oz;
 
+    QPointer<QuElement> buildMetricGrid();
+    QPointer<QuElement> buildImperialGrid();
+
     void updateMetric();
     void updateImperial();
-
-private:
-    QPointer<QuElement> m_metric_grid;
-    QPointer<QuElement> m_imperial_grid;
 };

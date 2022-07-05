@@ -789,6 +789,7 @@ SOURCES += \
     questionnairelib/qumcqgridsignaller.cpp \
     questionnairelib/qumcqgridsingleboolean.cpp \
     questionnairelib/qumcqgridsinglebooleansignaller.cpp \
+    questionnairelib/qumeasurement.cpp \
     questionnairelib/qumultipleresponse.cpp \
     questionnairelib/qupage.cpp \
     questionnairelib/quphoto.cpp \
@@ -1269,6 +1270,7 @@ HEADERS += \
     questionnairelib/qumcqgridsignaller.h \
     questionnairelib/qumcqgridsingleboolean.h \
     questionnairelib/qumcqgridsinglebooleansignaller.h \
+    questionnairelib/qumeasurement.h \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qupage.h \
     questionnairelib/quphoto.h \

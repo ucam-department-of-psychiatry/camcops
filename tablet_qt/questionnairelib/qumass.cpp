@@ -34,75 +34,49 @@
 #include "questionnairelib/qumcq.h"
 
 
-QuMass::QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector) :
-    m_fieldref(fieldref),
-    m_unit_selector(unit_selector),
+QuMass::QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
+    : QuMeasurement(fieldref, unit_selector),
     m_fr_kg(nullptr),
     m_fr_st(nullptr),
     m_fr_lb(nullptr),
-    m_fr_oz(nullptr),
-    m_metric_grid(nullptr),
-    m_imperial_grid(nullptr)
+    m_fr_oz(nullptr)
 {
-    Q_ASSERT(m_fieldref);
 }
 
 
-FieldRefPtrList QuMass::fieldrefs() const
+FieldRefPtrList QuMass::getMetricFieldrefs() const
 {
-    FieldRefPtrList fieldrefs;
-
-    if (m_metric_grid->visible()) {
-        fieldrefs.append({m_fr_kg});
-    }
-
-    if (m_imperial_grid->visible()) {
-        fieldrefs.append({m_fr_kg, m_fr_st, m_fr_lb, m_fr_oz});
-    }
-
-    return fieldrefs;
+    return FieldRefPtrList({m_fr_kg});
 }
 
 
-QPointer<QWidget> QuMass::makeWidget(Questionnaire* questionnaire)
+FieldRefPtrList QuMass::getImperialFieldrefs() const
 {
-    setUpFields();
+    return FieldRefPtrList({m_fr_st, m_fr_lb, m_fr_oz});
+}
 
-    auto layout = new VBoxLayout();
 
+QPointer<QuElement> QuMass::buildMetricGrid()
+{
     auto kg_edit = new QuLineEditDouble(m_fr_kg, 0, 1000, 3);
-    m_metric_grid = questionnairefunc::defaultGridRawPointer(
+    return questionnairefunc::defaultGridRawPointer(
         {
             {CommonOptions::kilograms(), kg_edit},
         }, 1, 1);
+}
 
-    layout->addWidget(m_metric_grid->widget(questionnaire));
-
+QPointer<QuElement> QuMass::buildImperialGrid()
+{
     auto st_edit = new QuLineEditInteger(m_fr_st, 0, 150);
     auto lb_edit = new QuLineEditInteger(m_fr_lb, 0, convert::POUNDS_PER_STONE);
     auto oz_edit = new QuLineEditDouble(m_fr_oz, 0, convert::OUNCES_PER_POUND, 2);
 
-    m_imperial_grid = questionnairefunc::defaultGridRawPointer(
+    return questionnairefunc::defaultGridRawPointer(
         {
             {CommonOptions::stones(), st_edit},
             {CommonOptions::pounds(), lb_edit},
             {CommonOptions::ounces(), oz_edit},
         }, 1, 1);
-
-    layout->addWidget(m_imperial_grid->widget(questionnaire));
-
-    QPointer<QWidget> widget = new BaseWidget();
-    widget->setLayout(layout);
-
-    if (m_unit_selector) {
-        connect(m_unit_selector, &QuUnitSelector::unitsChanged,
-                this, &QuMass::unitsChanged);
-        unitsChanged(m_unit_selector->getUnits().toInt());
-    }
-
-    updateImperial();
-
-    return widget;
 }
 
 void QuMass::setUpFields()
@@ -122,33 +96,9 @@ void QuMass::setUpFields()
 }
 
 
-// ============================================================================
-// Signal handlers
-// ============================================================================
-
-void QuMass::unitsChanged(int units)
-{
-    // Update the display to show "mass" units: metric/imperial/both.
-#ifdef DEBUG_DATA_FLOW
-    qDebug() << Q_FUNC_INFO;
-#endif
-    const bool imperial = units == CommonOptions::IMPERIAL ||
-        units == CommonOptions::BOTH;
-    const bool metric = units == CommonOptions::METRIC ||
-        units == CommonOptions::BOTH;
-
-    Q_ASSERT(imperial || metric);
-
-    m_metric_grid->setVisible(metric);
-    m_imperial_grid->setVisible(imperial);
-
-    emit elementValueChanged();
-}
-
-
 QVariant QuMass::getKg() const
 {
-    return m_fieldref->value();
+    return getFieldrefValue();
 }
 
 
@@ -175,7 +125,7 @@ bool QuMass::setKg(const QVariant& value)
 #ifdef DEBUG_DATA_FLOW
     qDebug() << Q_FUNC_INFO << value;
 #endif
-    const bool changed = m_fieldref->setValue(value);
+    const bool changed = setFieldrefValue(value);
     if (changed) {
         updateImperial();
     }
@@ -235,13 +185,13 @@ void QuMass::updateMetric()
 #endif
     Q_ASSERT(m_fr_kg);
     if (m_st.isNull() && m_lb.isNull() && m_oz.isNull()) {
-        m_fieldref->setValue(QVariant());
+        setFieldrefValue(QVariant());
     } else {
         const int stones = m_st.toInt();
         const int pounds = m_lb.toInt();
         const double ounces = m_oz.toDouble();
-        m_fieldref->setValue(convert::kilogramsFromStonesPoundsOunces(
-                              stones, pounds, ounces));
+        setFieldrefValue(convert::kilogramsFromStonesPoundsOunces(
+                             stones, pounds, ounces));
     }
     m_fr_kg->emitValueChanged();
     emit elementValueChanged();
@@ -259,7 +209,7 @@ void QuMass::updateImperial()
     Q_ASSERT(m_fr_st);
     Q_ASSERT(m_fr_lb);
     Q_ASSERT(m_fr_oz);
-    QVariant mass_kg_var = m_fieldref->value();
+    QVariant mass_kg_var = getFieldrefValue();
     if (mass_kg_var.isNull()) {
         m_st.clear();
         m_lb.clear();
