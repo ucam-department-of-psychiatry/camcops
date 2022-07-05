@@ -200,9 +200,6 @@ void QuMass::updateMetric()
 
 void QuMass::updateImperial()
 {
-    // Called when we create the editor, to set imperial units from the
-    // underlying (database) metric unit. Also called when metric mass has
-    // been changed. Sets the internal imperial representatio.
 #ifdef DEBUG_DATA_FLOW
     qDebug() << Q_FUNC_INFO;
 #endif
