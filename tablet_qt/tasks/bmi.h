@@ -56,85 +56,8 @@ public:
     QVariant bmiVariant() const;
     QString bmiString(int dp = 2) const;  // to specified d.p.
     QString category() const;
-    // ------------------------------------------------------------------------
-    // Signal handlers
-    // ------------------------------------------------------------------------
-public slots:
-    void massUnitsChanged();
-    void heightUnitsChanged();
-    void waistUnitsChanged();
 protected:
     QPointer<Questionnaire> m_questionnaire;
-    // ------------------------------------------------------------------------
-    // Getters/setters
-    // ------------------------------------------------------------------------
-public:
-    QVariant getHeightUnits() const;
-    QVariant getHeightM() const;
-    QVariant getHeightFt() const;
-    QVariant getHeightIn() const;
-    bool setHeightUnits(const QVariant& value);  // returns: changed?
-    bool setHeightM(const QVariant& value);
-    bool setHeightFt(const QVariant& value);
-    bool setHeightIn(const QVariant& value);
-    void updateMetricHeight();
-    void updateImperialHeight();
-
-    QVariant getMassUnits() const;
-    QVariant getMassKg() const;
-    QVariant getMassSt() const;
-    QVariant getMassLb() const;
-    QVariant getMassOz() const;
-    bool setMassUnits(const QVariant& value);  // returns: changed?
-    bool setMassKg(const QVariant& value);
-    bool setMassSt(const QVariant& value);
-    bool setMassLb(const QVariant& value);
-    bool setMassOz(const QVariant& value);
-    void updateMetricMass();
-    void updateImperialMass();
-
-    QVariant getWaistUnits() const;
-    QVariant getWaistCm() const;
-    QVariant getWaistIn() const;
-    bool setWaistUnits(const QVariant& value);  // returns: changed?
-    bool setWaistCm(const QVariant& value);
-    bool setWaistIn(const QVariant& value);
-    void updateMetricWaist();
-    void updateImperialWaist();
-
-
-protected:
-    int m_height_units;
-    QVariant m_height_ft;
-    QVariant m_height_in;
-
-    int m_mass_units;
-    QVariant m_mass_st;
-    QVariant m_mass_lb;
-    QVariant m_mass_oz;
-
-    int m_waist_units;
-    QVariant m_waist_cm;
-    QVariant m_waist_in;
-
-    FieldRefPtr m_fr_height_units;
-    FieldRefPtr m_fr_height_m;
-    FieldRefPtr m_fr_height_ft;
-    FieldRefPtr m_fr_height_in;
-
-    FieldRefPtr m_fr_mass_units;
-    FieldRefPtr m_fr_mass_kg;
-    FieldRefPtr m_fr_mass_st;
-    FieldRefPtr m_fr_mass_lb;
-    FieldRefPtr m_fr_mass_oz;
-
-    FieldRefPtr m_fr_waist_units;
-    FieldRefPtr m_fr_waist_cm;
-    FieldRefPtr m_fr_waist_in;
-private:
-    void setUpHeightFields();
-    void setUpMassFields();
-    void setUpWaistFields();
 public:
     static const QString BMI_TABLENAME;
 };
