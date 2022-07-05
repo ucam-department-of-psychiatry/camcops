@@ -206,29 +206,7 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
             q_field = "q" + str(q_num)
             question_cell = self.xstring(req, q_field)
 
-            score = getattr(self, q_field)
-            if score is None or (q_num >= 13 and q_num <= 18):
-                answer_cell = score
-            else:
-                if q_num <= 12 or q_num == 19:
-                    meaning = self.wxstring(req, f"days_option_{score}")
-                elif q_num == 20:
-                    meaning = self.wxstring(req, f"freq_option_{score}")
-                else:
-                    if score % 2 == 1:
-                        previous = self.wxstring(
-                            req, f"how_much_option_{score-1}"
-                        )
-                        next = self.wxstring(req, f"how_much_option_{score+1}")
-                        meaning = f"{previous}—{next}"
-                    else:
-                        meaning = self.wxstring(
-                            req, f"how_much_option_{score}"
-                        )
-
-                answer_cell = f"{score} [{meaning}]"
-
-            rows += tr_qa(question_cell, answer_cell)
+            rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
 
         for q_field in self.MEASUREMENT_FIELD_NAMES:
             rows += tr_qa(self.xstring(req, q_field), getattr(self, q_field))
@@ -294,6 +272,35 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
             weight_concern_q_nums=",".join(self.WEIGHT_CONCERN_Q_NUMS),
         )
         return html
+
+    def get_answer_cell(self, req: CamcopsRequest, q_num: int) -> str:
+        q_field = "q" + str(q_num)
+
+        score = getattr(self, q_field)
+        if score is None or (q_num >= 13 and q_num <= 18):
+            return score
+
+        meaning = self.get_score_meaning(req, q_num, score)
+
+        answer_cell = f"{score} [{meaning}]"
+
+        return answer_cell
+
+    def get_score_meaning(
+        self, req: CamcopsRequest, q_num: int, score: int
+    ) -> str:
+        if q_num <= 12 or q_num == 19:
+            return self.wxstring(req, f"days_option_{score}")
+
+        if q_num == 20:
+            return self.wxstring(req, f"freq_option_{score}")
+
+        if score % 2 == 1:
+            previous = self.wxstring(req, f"how_much_option_{score-1}")
+            next = self.wxstring(req, f"how_much_option_{score+1}")
+            return f"{previous}—{next}"
+
+        return self.wxstring(req, f"how_much_option_{score}")
 
     def restraint(self) -> Optional[float]:
         return self.subscale(self.RESTRAINT_FIELD_NAMES)
