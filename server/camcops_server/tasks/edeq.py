@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/basdai.py
+camcops_server/tasks/edeq.py
 
 ===============================================================================
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/tests/basdai_tests.py
+camcops_server/tasks/tests/edeq_tests.py
 
 ===============================================================================
 
