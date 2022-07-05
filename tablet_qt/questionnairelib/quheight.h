@@ -27,6 +27,7 @@
 
 class QuHeight : public QuMeasurement
 {
+    // Height in metres question type with imperial conversion
     Q_OBJECT
 public:
     QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector);

@@ -25,6 +25,7 @@
 
 class QuUnitSelector: public QuElement
 {
+    // Used with QuMeasurement to switch between metric and imperial units
     Q_OBJECT
 public:
     QuUnitSelector(NameValueOptions options);

@@ -24,6 +24,9 @@
 
 class QuMeasurement : public QuElement
 {
+    // Abstract base class for any kind of measurement with metric/imperial
+    // conversion
+
     Q_OBJECT
 public:
     QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector);
