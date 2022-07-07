@@ -110,11 +110,11 @@ class EdeqTests(TestCase):
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
-        edeq.q_mass_kg = 67.0
-        edeq.q_height_m = 1.83
+        edeq.mass_kg = 67.0
+        edeq.height_m = 1.83
 
-        edeq.q_num_periods_missed = 1
-        edeq.q_pill = False
+        edeq.num_periods_missed = 1
+        edeq.pill = False
 
         self.assertTrue(edeq.is_complete())
 
@@ -125,11 +125,11 @@ class EdeqTests(TestCase):
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
-        edeq.q_mass_kg = 67.0
-        edeq.q_height_m = 1.83
+        edeq.mass_kg = 67.0
+        edeq.height_m = 1.83
 
-        edeq.q_num_periods_missed = None
-        edeq.q_pill = None
+        edeq.num_periods_missed = None
+        edeq.pill = None
 
         self.assertFalse(edeq.is_complete())
 
@@ -140,11 +140,11 @@ class EdeqTests(TestCase):
         for q_num in range(1, 28 + 1):
             setattr(edeq, f"q{q_num}", 0)
 
-        edeq.q_mass_kg = 67.0
-        edeq.q_height_m = 1.83
+        edeq.mass_kg = 67.0
+        edeq.height_m = 1.83
 
-        edeq.q_num_periods_missed = None
-        edeq.q_pill = None
+        edeq.num_periods_missed = None
+        edeq.pill = None
 
         self.assertTrue(edeq.is_complete())
 

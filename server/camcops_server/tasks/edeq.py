@@ -133,21 +133,21 @@ class EdeqMetaclass(DeclarativeMeta):
 
         setattr(
             cls,
-            "q_mass_kg",
-            Column("q_mass_kg", Float, comment="Mass (kg)"),
+            "mass_kg",
+            Column("mass_kg", Float, comment="Mass (kg)"),
         )
 
         setattr(
             cls,
-            "q_height_m",
-            Column("q_height_m", Float, comment="Height (m)"),
+            "height_m",
+            Column("height_m", Float, comment="Height (m)"),
         )
 
         setattr(
             cls,
-            "q_num_periods_missed",
+            "num_periods_missed",
             Column(
-                "q_num_periods_missed",
+                "num_periods_missed",
                 Integer,
                 comment="Number of periods missed",
             ),
@@ -155,8 +155,8 @@ class EdeqMetaclass(DeclarativeMeta):
 
         setattr(
             cls,
-            "q_pill",
-            Column("q_pill", Boolean, comment="Taking the pill"),
+            "pill",
+            Column("pill", Boolean, comment="Taking the pill"),
         )
 
         super().__init__(name, bases, classdict)
@@ -168,10 +168,10 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
     N_QUESTIONS = 28
 
-    MEASUREMENT_FIELD_NAMES = ["q_mass_kg", "q_height_m"]
+    MEASUREMENT_FIELD_NAMES = ["mass_kg", "height_m"]
     COMMON_FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + MEASUREMENT_FIELD_NAMES
 
-    FEMALE_FIELD_NAMES = ["q_num_periods_missed", "q_pill"]
+    FEMALE_FIELD_NAMES = ["num_periods_missed", "pill"]
 
     RESTRAINT_Q_NUMS = strnumlist("", [1, 2, 3, 4, 5])
     RESTRAINT_FIELD_NAMES = strnumlist("q", RESTRAINT_Q_NUMS)

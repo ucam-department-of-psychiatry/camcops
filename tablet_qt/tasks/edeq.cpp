@@ -53,10 +53,10 @@ const QVector<int> EATING_CONCERN_QUESTIONS{7, 9, 19, 20, 21};
 const QVector<int> SHAPE_CONCERN_QUESTIONS{6, 8, 10, 11, 23, 26, 27, 28};
 const QVector<int> WEIGHT_CONCERN_QUESTIONS{8, 12, 22, 24, 25};
 
-const QString Q_MASS_KG("q_mass_kg");
-const QString Q_HEIGHT_M("q_height_m");
-const QString Q_NUM_PERIODS_MISSED("q_num_periods_missed");
-const QString Q_PILL("q_pill");
+const QString FN_MASS_KG("mass_kg");
+const QString FN_HEIGHT_M("height_m");
+const QString FN_NUM_PERIODS_MISSED("num_periods_missed");
+const QString FN_PILL("pill");
 
 const QString Edeq::EDEQ_TABLENAME("edeq");
 
@@ -75,10 +75,10 @@ Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
-    addField(Q_MASS_KG, QVariant::Double);
-    addField(Q_HEIGHT_M, QVariant::Double);
-    addField(Q_NUM_PERIODS_MISSED, QVariant::Int);
-    addField(Q_PILL, QVariant::Bool);
+    addField(FN_MASS_KG, QVariant::Double);
+    addField(FN_HEIGHT_M, QVariant::Double);
+    addField(FN_NUM_PERIODS_MISSED, QVariant::Int);
+    addField(FN_PILL, QVariant::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -107,10 +107,10 @@ QString Edeq::description() const
 QStringList Edeq::fieldNames() const
 {
     auto field_names = strseq(QPREFIX, FIRST_Q, N_QUESTIONS) + QStringList {
-        Q_MASS_KG, Q_HEIGHT_M};
+        FN_MASS_KG, FN_HEIGHT_M};
 
     if (isFemale()) {
-        field_names += {Q_NUM_PERIODS_MISSED, Q_PILL};
+        field_names += {FN_NUM_PERIODS_MISSED, FN_PILL};
     }
 
     return field_names;
@@ -296,12 +296,12 @@ OpenableWidget* Edeq::editor(const bool read_only)
     grid22_28->setMinimumWidthInPixels(how_much_min_width_px,
                                        how_much_min_option_widths_px);
 
-    auto mass_text = new QuText(xstring(Q_MASS_KG));
+    auto mass_text = new QuText(xstring(FN_MASS_KG));
     auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
-    auto mass_edit = new QuMass(fieldRef(Q_MASS_KG), mass_units);
-    auto height_text = new QuText(xstring(Q_HEIGHT_M));
+    auto mass_edit = new QuMass(fieldRef(FN_MASS_KG), mass_units);
+    auto height_text = new QuText(xstring(FN_HEIGHT_M));
     auto height_units = new QuUnitSelector(CommonOptions::heightUnits());
-    auto height_edit = new QuHeight(fieldRef(Q_HEIGHT_M), height_units);
+    auto height_edit = new QuHeight(fieldRef(FN_HEIGHT_M), height_units);
 
     QVector<QuElement*> elements{
                     instructions,
@@ -340,21 +340,21 @@ OpenableWidget* Edeq::editor(const bool read_only)
         auto num_periods_missed_edit = new QuLineEditInteger(m_num_missed_periods_fr, 1, 10);
         auto have_missed_periods_grid = questionnairefunc::defaultGridRawPointer(
             {
-                {xstring("q_have_missed_periods"), have_missed_periods_edit},
+                {xstring("have_missed_periods"), have_missed_periods_edit},
             }, 1, 1);
         elements.append(have_missed_periods_grid);
 
         m_num_periods_missed_grid = questionnairefunc::defaultGridRawPointer(
             {
-                {xstring(Q_NUM_PERIODS_MISSED), num_periods_missed_edit}
+                {xstring(FN_NUM_PERIODS_MISSED), num_periods_missed_edit}
             }, 1, 1);
         elements.append(m_num_periods_missed_grid);
         updateHaveMissedPeriods();
 
         auto pill_edit =
-            (new QuMcq(fieldRef(Q_PILL), CommonOptions::yesNoBoolean()));
+            (new QuMcq(fieldRef(FN_PILL), CommonOptions::yesNoBoolean()));
         auto pill_grid = questionnairefunc::defaultGridRawPointer(
-            {{xstring("q_pill"), pill_edit}}, 1, 1);
+            {{xstring(FN_PILL), pill_edit}}, 1, 1);
         elements.append(pill_grid);
     };
 
@@ -371,7 +371,7 @@ OpenableWidget* Edeq::editor(const bool read_only)
 
 QVariant Edeq::getNumMissedPeriods()
 {
-    return value(Q_NUM_PERIODS_MISSED);
+    return value(FN_NUM_PERIODS_MISSED);
 }
 
 
@@ -383,7 +383,7 @@ QVariant Edeq::getHaveMissedPeriods()
 
 bool Edeq::setNumMissedPeriods(const QVariant& value)
 {
-    const bool changed = setValue(Q_NUM_PERIODS_MISSED, value);
+    const bool changed = setValue(FN_NUM_PERIODS_MISSED, value);
 
     return changed;
 }
@@ -407,15 +407,15 @@ bool Edeq::setHaveMissedPeriods(const QVariant& new_have_missed_periods)
 void Edeq::updateNumMissedPeriods()
 {
     if (m_have_missed_periods.isNull()) {
-        setValue(Q_NUM_PERIODS_MISSED, QVariant());
+        setValue(FN_NUM_PERIODS_MISSED, QVariant());
     } else {
         const bool have_missed_periods = m_have_missed_periods.toBool();
         if (have_missed_periods) {
-            if (valueInt(Q_NUM_PERIODS_MISSED) == 0) {
-                setValue(Q_NUM_PERIODS_MISSED, QVariant());
+            if (valueInt(FN_NUM_PERIODS_MISSED) == 0) {
+                setValue(FN_NUM_PERIODS_MISSED, QVariant());
             }
         } else {
-            setValue(Q_NUM_PERIODS_MISSED, 0);
+            setValue(FN_NUM_PERIODS_MISSED, 0);
         }
     }
     m_num_missed_periods_fr->emitValueChanged();
@@ -424,7 +424,7 @@ void Edeq::updateNumMissedPeriods()
 
 void Edeq::updateHaveMissedPeriods()
 {
-    const QVariant num_missed_periods = value(Q_NUM_PERIODS_MISSED);
+    const QVariant num_missed_periods = value(FN_NUM_PERIODS_MISSED);
     if (num_missed_periods.isNull()) {
         m_have_missed_periods.clear();
     } else {

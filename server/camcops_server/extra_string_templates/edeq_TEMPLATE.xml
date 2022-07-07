@@ -41,11 +41,11 @@
     <string name="q26">26.</string>
     <string name="q27">27.</string>
     <string name="q28">28.</string>
-    <string name="q_mass_kg">(weight)</string>
-    <string name="q_height_m">(height)</string>
-    <string name="q_have_missed_periods">(have missed periods)</string>
-    <string name="q_num_periods_missed">(num missed periods)</string>
-    <string name="q_pill">(pill)</string>
+    <string name="mass_kg">(weight)</string>
+    <string name="height_m">(height)</string>
+    <string name="have_missed_periods">(have missed periods)</string>
+    <string name="num_periods_missed">(num missed periods)</string>
+    <string name="pill">(pill)</string>
     <string name="thanks">(thanks)</string>
     <string name="days_option_0">No</string>
     <string name="days_option_1">1-5</string>
