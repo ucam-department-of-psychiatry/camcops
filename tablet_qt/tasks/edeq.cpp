@@ -312,6 +312,9 @@ OpenableWidget* Edeq::editor(const bool read_only)
     };
 
     if (isFemale()) {
+        // We only store the number of periods missed but to better reflect the
+        // original questionnaire, there is a preceding question to ask if
+        // the patient has missed any periods in the past 3-4 months.
         FieldRef::GetterFunction get_have_missed_periods = std::bind(&Edeq::getHaveMissedPeriods, this);
         FieldRef::GetterFunction get_num_missed_periods = std::bind(&Edeq::getNumMissedPeriods, this);
         FieldRef::SetterFunction set_have_missed_periods = std::bind(&Edeq::setHaveMissedPeriods, this, std::placeholders::_1);
@@ -378,6 +381,8 @@ bool Edeq::setNumMissedPeriods(const QVariant& value)
 
 bool Edeq::setHaveMissedPeriods(const QVariant& new_have_missed_periods)
 {
+    // If the patient says they have or haven't missed any periods, enable or
+    // disable the "how many" box below
     const bool changed = new_have_missed_periods != m_have_missed_periods;
 
     if (changed) {
@@ -394,6 +399,8 @@ bool Edeq::setHaveMissedPeriods(const QVariant& new_have_missed_periods)
 void Edeq::updateNumMissedPeriods()
 {
     if (m_have_missed_periods.isNull()) {
+        // We don't know if the patient missed any periods so set the number
+        // to undefined
         setValue(FN_NUM_PERIODS_MISSED, QVariant());
     } else {
         const bool have_missed_periods = m_have_missed_periods.toBool();
@@ -411,6 +418,9 @@ void Edeq::updateNumMissedPeriods()
 
 void Edeq::updateHaveMissedPeriods()
 {
+    // Update the "have missed periods" flag depending on the value of
+    // the number of missed periods database field.
+    // Display the grid with the number of missed periods if the flag is true.
     const QVariant num_missed_periods = value(FN_NUM_PERIODS_MISSED);
     if (num_missed_periods.isNull()) {
         m_have_missed_periods.clear();
