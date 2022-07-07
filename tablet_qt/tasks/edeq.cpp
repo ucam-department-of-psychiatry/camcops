@@ -222,39 +222,26 @@ QStringList Edeq::detail() const
 
 OpenableWidget* Edeq::editor(const bool read_only)
 {
-    const NameValueOptions days_options{
-        {xstring("days_option_0"), 0},
-        {xstring("days_option_1"), 1},
-        {xstring("days_option_2"), 2},
-        {xstring("days_option_3"), 3},
-        {xstring("days_option_4"), 4},
-        {xstring("days_option_5"), 5},
-        {xstring("days_option_6"), 6},
-    };
+    NameValueOptions days_options;
+    NameValueOptions freq_options;
+    NameValueOptions how_much_options;
+
+    for (int i = 0; i <= 6; i++) {
+        auto days_name = QString("days_option_%1").arg(i);
+        auto freq_name = QString("freq_option_%1").arg(i);
+        auto how_much_name = QString("how_much_option_%1").arg(i);
+
+        days_options.append({xstring(days_name), i});
+        freq_options.append({xstring(freq_name), i});
+        how_much_options.append({xstring(how_much_name), i});
+    }
+
     const int days_min_width_px = 50;
     const QVector<int> days_min_option_widths_px = {50, 50, 50, 50, 50, 50, 50};
 
-    const NameValueOptions freq_options{
-        {xstring("freq_option_0"), 0},
-        {xstring("freq_option_1"), 1},
-        {xstring("freq_option_2"), 2},
-        {xstring("freq_option_3"), 3},
-        {xstring("freq_option_4"), 4},
-        {xstring("freq_option_5"), 5},
-        {xstring("freq_option_6"), 6},
-    };
     const int freq_min_width_px = 50;
     const QVector<int> freq_min_option_widths_px = {50, 50, 50, 50, 50, 50, 50};
 
-    const NameValueOptions how_much_options{
-        {xstring("how_much_option_0"), 0},
-        {xstring("how_much_option_1"), 1},
-        {xstring("how_much_option_2"), 2},
-        {xstring("how_much_option_3"), 3},
-        {xstring("how_much_option_4"), 4},
-        {xstring("how_much_option_5"), 5},
-        {xstring("how_much_option_6"), 6},
-    };
     const int how_much_min_width_px = 100;
     const QVector<int> how_much_min_option_widths_px = {100, 100, 100, 100, 100, 100, 100};
 
