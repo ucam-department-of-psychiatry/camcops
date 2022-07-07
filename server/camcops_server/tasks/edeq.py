@@ -203,19 +203,24 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
-            q_field = "q" + str(q_num)
-            question_cell = self.xstring(req, q_field)
+            field = "q" + str(q_num)
+            question_cell = self.xstring(req, field)
 
             rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
 
-        for q_field in self.MEASUREMENT_FIELD_NAMES:
-            rows += tr_qa(self.xstring(req, q_field), getattr(self, q_field))
+        mass = getattr(self, "mass_kg")
+        if mass is not None:
+            mass = f"{mass} kg"
+        height = getattr(self, "height_m")
+        if height is not None:
+            height = f"{height} m"
+
+        rows += tr_qa(self.xstring(req, "mass_kg"), mass)
+        rows += tr_qa(self.xstring(req, "height_m"), height)
 
         if self.patient.is_female():
-            for q_field in self.FEMALE_FIELD_NAMES:
-                rows += tr_qa(
-                    self.xstring(req, q_field), getattr(self, q_field)
-                )
+            for field in self.FEMALE_FIELD_NAMES:
+                rows += tr_qa(self.xstring(req, field), getattr(self, field))
 
         html = """
             <div class="{CssClass.SUMMARY}">
