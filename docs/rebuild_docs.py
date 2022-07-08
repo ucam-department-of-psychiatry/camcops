@@ -31,13 +31,19 @@ docs/rebuild_docs.py
 # Imports
 # =============================================================================
 
+import argparse
+import logging
 import os
 import shutil
 import subprocess
 
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVARS_PROHIBITED_DURING_DOC_BUILD,
 )
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -63,6 +69,7 @@ DEST_DIRS = [
 # =============================================================================
 
 if __name__ == "__main__":
+    main_only_quicksetup_rootlogger()
     # Remove anything old
     shutil.rmtree(BUILD_HTML_DIR, ignore_errors=True)
     for destdir in DEST_DIRS:
@@ -72,13 +79,39 @@ if __name__ == "__main__":
     # Build docs
     print("Making HTML version of documentation")
     os.chdir(THIS_DIR)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--warnings_as_errors",
+        action="store_true",
+        help="Treat warnings as errors",
+    )
+    args = parser.parse_args()
+
     # This one first, as it has requirements and may crash:
     for ev in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
         os.environ.pop(ev, None)
     subprocess.check_call(
         ["python", os.path.join(THIS_DIR, "recreate_inclusion_files.py")]
     )
-    subprocess.check_call(["make", "html"])
+
+    cmdargs = ["make", "html"]
+    if args.warnings_as_errors:
+        cmdargs.append('SPHINXOPTS="-W"')
+
+    try:
+        subprocess.check_call(cmdargs)
+    except subprocess.CalledProcessError as e:
+        log.debug(
+            "\n\nTroubleshooting Sphinx/docutils errors:\n\n"
+            "Document may not end with a transition\n"
+            "--------------------------------------\n"
+            "For auto-generated code docs, ensure there is a description "
+            "beneath the row of '=' in the copyright block of the python "
+            "file.\n"
+        )
+
+        raise e
 
     # Copy
     for destdir in DEST_DIRS:
