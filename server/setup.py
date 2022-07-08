@@ -104,7 +104,7 @@ INSTALL_REQUIRES = [
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
     "pyotp==2.6.0",  # Multi-factor authentication
-    "pyramid==1.10.4",  # web framework
+    "pyramid==1.10.8",  # web framework
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
     "pytest==6.0.2",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
