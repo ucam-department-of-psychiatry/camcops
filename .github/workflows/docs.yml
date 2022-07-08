@@ -1,0 +1,13 @@
+---
+# yamllint disable rule:line-length
+name: Build docs
+# yamllint disable-line rule:truthy
+on: push
+
+jobs:
+    build-docs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Build docs
+              run: ${GITHUB_WORKSPACE}/.github/scripts/build_docs.sh
