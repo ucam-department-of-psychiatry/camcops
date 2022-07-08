@@ -13,7 +13,7 @@ python -VV
 python -m site
 python -m pip install -U pip
 echo installing pip packages
-python -m pip install -e .
+python -m pip install -e server/.
 python -m pip install mysqlclient
 export CAMCOPS_CONFIG_FILE=${HOME}/camcops.cfg
 camcops_server demo_camcops_config
