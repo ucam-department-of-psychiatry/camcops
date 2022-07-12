@@ -31,6 +31,7 @@ That is, e.g. "command --help > somefile.txt".
 
 """
 
+import argparse
 import datetime
 import logging
 import os
@@ -153,6 +154,16 @@ def run_cmd(
 
 def main():
     prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--skip_client_help",
+        action="store_true",
+        help="Don't try to build the client help file",
+        default=False,
+    )
+    args = parser.parse_args()
+
     # administrator
     run_cmd(
         ["camcops_backup_mysql_database", "--help"],
@@ -228,12 +239,14 @@ def main():
         ["python", join(TABLET_TOOLS_DIR, "open_sqlcipher.py"), "--help"],
         join(DEV_DIR, "_open_sqlcipher_help.txt"),
     )
-    # user
-    camcops_client_executable = find_camcops_client_executable()
-    run_cmd(
-        [camcops_client_executable, "--help"],
-        join(USER_CLIENT_DIR, "_camcops_client_help.txt"),
-    )
+
+    if not args.skip_client_help:
+        # user
+        camcops_client_executable = find_camcops_client_executable()
+        run_cmd(
+            [camcops_client_executable, "--help"],
+            join(USER_CLIENT_DIR, "_camcops_client_help.txt"),
+        )
 
     log.info("Done.")
 

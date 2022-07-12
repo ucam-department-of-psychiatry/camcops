@@ -82,6 +82,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--skip_client_help",
+        action="store_true",
+        help="Don't try to build the client help file",
+        default=False,
+    )
+
+    parser.add_argument(
         "--warnings_as_errors",
         action="store_true",
         help="Treat warnings as errors",
@@ -91,9 +98,15 @@ if __name__ == "__main__":
     # This one first, as it has requirements and may crash:
     for ev in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
         os.environ.pop(ev, None)
-    subprocess.check_call(
-        ["python", os.path.join(THIS_DIR, "recreate_inclusion_files.py")]
-    )
+    recreate_args = [
+        "python",
+        os.path.join(THIS_DIR, "recreate_inclusion_files.py"),
+    ]
+
+    if args.skip_client_help:
+        recreate_args.append("--skip_client_help")
+
+    subprocess.check_call(recreate_args)
 
     cmdargs = ["make", "html"]
     if args.warnings_as_errors:
