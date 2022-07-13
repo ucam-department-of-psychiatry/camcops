@@ -87,6 +87,8 @@ class IsaaqMetaclass(DeclarativeMeta):
             1,
             10,
             coltype=Integer,
+            minimum=0,
+            maximum=5,
             comment_fmt="b{n} - {s}",
             comment_strings=[
                 "general surfing 0-5 (not at all - all the time)",
