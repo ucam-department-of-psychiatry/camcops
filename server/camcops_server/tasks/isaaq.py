@@ -135,13 +135,13 @@ class Isaaq(TaskHasPatientMixin, Task, metaclass=IsaaqMetaclass):
             field = "a" + str(q_num)
             question_cell = self.xstring(req, field)
 
-            rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
+            rows += tr_qa(question_cell, self.get_answer_cell(req, "a", q_num))
 
         for q_num in range(1, self.N_B_QUESTIONS + 1):
             field = "b" + str(q_num)
             question_cell = self.xstring(req, field)
 
-            rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
+            rows += tr_qa(question_cell, self.get_answer_cell(req, "b", q_num))
 
         html = """
             <div class="{CssClass.SUMMARY}">
@@ -165,8 +165,10 @@ class Isaaq(TaskHasPatientMixin, Task, metaclass=IsaaqMetaclass):
         )
         return html
 
-    def get_answer_cell(self, req: CamcopsRequest, q_num: int) -> str:
-        q_field = "q" + str(q_num)
+    def get_answer_cell(
+        self, req: CamcopsRequest, prefix: str, q_num: int
+    ) -> str:
+        q_field = prefix + str(q_num)
 
         score = getattr(self, q_field)
         if score is None:
