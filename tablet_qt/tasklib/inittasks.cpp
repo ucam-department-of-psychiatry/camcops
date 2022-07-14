@@ -109,6 +109,7 @@
 #include "tasks/iesr.h"
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
+#include "tasks/isaaq.h"
 
 #include "tasks/khandakerinsightmedical.h"
 #include "tasks/khandakermojomedical.h"
@@ -265,6 +266,7 @@ void InitTasks(TaskFactory& factory)
     initializeIesr(factory);
     initializeIfs(factory);
     initializeIrac(factory);
+    initializeIsaaq(factory);
 
     initializeKhandakerInsightMedical(factory);
     initializeKhandakerMojoMedical(factory);
