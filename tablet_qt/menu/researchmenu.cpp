@@ -30,6 +30,7 @@
 #include "tasks/chit.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/ided3d.h"
+#include "tasks/isaaq.h"
 #include "tasks/kirby.h"
 #include "tasks/mfi20.h"
 #include "tasks/qolbasic.h"
@@ -59,6 +60,7 @@ void ResearchMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Isaaq::ISAAQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),

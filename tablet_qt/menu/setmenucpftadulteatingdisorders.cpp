@@ -31,6 +31,7 @@
 #include "tasks/gbogres.h"
 #include "tasks/gbogpc.h"
 #include "tasks/ided3d.h"
+#include "tasks/isaaq.h"
 #include "tasks/phq9.h"
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
@@ -78,7 +79,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         MenuItem(tr("Research")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
-        // todo:: ISAAQ [and add to "research" menu]
+        MAKE_TASK_MENU_ITEM(Isaaq::ISAAQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
     };
 }
