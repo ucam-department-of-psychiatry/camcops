@@ -25,4 +25,20 @@
 Internet Severity and Activities Addiction Questionnaire (ISAAQ)
 ----------------------------------------------------------------
 
-**NOT YET IMPLEMENTED**
+Intellectual property rights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Copyright (C) 2017 Konstantinos Ioannidis, Samuel R. Chamberlain.
+
+- Licensing: apply to authors for permission.
+
+
+History
+~~~~~~~
+
+TODO
+
+Source
+~~~~~~
+
+- Konstantinos Ioannidis, personal communication, 2022.
