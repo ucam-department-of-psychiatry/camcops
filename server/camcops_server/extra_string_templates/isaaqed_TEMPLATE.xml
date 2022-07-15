@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="isaaqed">
+    <string name="title">Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (ISAAQ-ED)</string>
+    <string name="heading">heading</string>
+    <string name="e11">Pro-ED websites</string>
+    <string name="e12">Fitspiration</string>
+    <string name="e13">Thinspiration</string>
+    <string name="e14">Bonespiration</string>
+    <string name="e15">Dating</string>
+    <string name="e16">Calorie tracking</string>
+    <string name="e17">Fitness tracking</string>
+    <string name="e18">Cyberbullying</string>
+    <string name="e19">Mukbang</string>
+    <string name="e20">Appearance-focused gaming</string>
+    <string name="freq_option_0">Not at all</string>
+    <string name="freq_option_1">Rarely</string>
+    <string name="freq_option_2">Occasionally</string>
+    <string name="freq_option_3">Frequently</string>
+    <string name="freq_option_4">Very often</string>
+    <string name="freq_option_5">All the time</string>
+  </task>
+</resources>
