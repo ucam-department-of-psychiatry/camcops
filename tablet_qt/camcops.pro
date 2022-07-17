@@ -962,6 +962,7 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
+    taskxtra/isaaqcommon.cpp \
     taskxtra/khandakermojomedicationitem.cpp \
     taskxtra/khandakermojotherapyitem.cpp \
     taskxtra/kirbyrewardpair.cpp \
@@ -1446,6 +1447,7 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
+    taskxtra/isaaqcommon.h \
     taskxtra/khandakermojomedicationitem.h \
     taskxtra/khandakermojotherapyitem.h \
     taskxtra/kirbyrewardpair.h \

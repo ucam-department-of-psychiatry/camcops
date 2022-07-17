@@ -21,44 +21,29 @@
 #pragma once
 #include <QPointer>
 
+#include "taskxtra/isaaqcommon.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
-class OpenableWidget;
-class Questionnaire;
-class QuMcqGrid;
 
 void initializeIsaaqEd(TaskFactory& factory);
 
-class IsaaqEd : public Task
+class IsaaqEd : public IsaaqCommon
 {
     Q_OBJECT
 public:
     IsaaqEd(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
-        return TaskImplementationType::UpgradableSkeleton;
-    }
-    // ------------------------------------------------------------------------
-    // Instance overrides
-    // ------------------------------------------------------------------------
-    virtual bool isComplete() const override;
-    virtual QStringList summary() const override;
-    virtual QStringList detail() const override;
-    virtual OpenableWidget* editor(bool read_only = false) override;
-    // ------------------------------------------------------------------------
 
 public:
     static const QString ISAAQED_TABLENAME;
 protected:
-    QPointer<Questionnaire> m_questionnaire;
     QStringList fieldNames() const;
-private:
-    QuMcqGrid* buildGrid(const QString prefix, int first_q_num, int last_q_num, const NameValueOptions options, const QString title = "");
+    QVector<QuElement*> buildElements();
 };

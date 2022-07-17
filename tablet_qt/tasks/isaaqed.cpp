@@ -25,12 +25,9 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "tasklib/taskfactory.h"
-using mathfunc::anyNull;
 using stringfunc::strseq;
 
 const int FIRST_Q = 11;
@@ -49,12 +46,11 @@ void initializeIsaaqEd(TaskFactory& factory)
 }
 
 IsaaqEd::IsaaqEd(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ISAAQED_TABLENAME, false, false, false),  // ... anon, clin, resp
-    m_questionnaire(nullptr)
+    IsaaqCommon(app, db, ISAAQED_TABLENAME)
 {
     addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QVariant::Int);
 
-    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+    load(load_pk);
 }
 // ============================================================================
 // Class info
@@ -83,108 +79,14 @@ QStringList IsaaqEd::fieldNames() const
     return strseq(Q_PREFIX, FIRST_Q, LAST_Q);
 }
 
-// ============================================================================
-// Instance info
-// ============================================================================
 
 
-bool IsaaqEd::isComplete() const
+QVector<QuElement*> IsaaqEd::buildElements()
 {
-    if (anyNull(values(fieldNames()))) {
-        return false;
-    }
-
-    return true;
-}
-
-
-QStringList IsaaqEd::summary() const
-{
-    // There are no scores or scales
-    return QStringList{TextConst::noSummarySeeFacsimile()};
-}
-
-
-QStringList IsaaqEd::detail() const
-{
-    QStringList lines = completenessInfo();
-
-    const QString spacer = " ";
-    const QString suffix = "";
-
-    const QStringList fieldnames = fieldNames();
-
-    for (int i = 0; i < fieldnames.length(); ++i) {
-        const QString& fieldname = fieldnames.at(i);
-        lines.append(fieldSummary(fieldname, xstring(fieldname),
-                                  spacer, suffix));
-    }
-
-    return lines;
-}
-
-
-OpenableWidget* IsaaqEd::editor(const bool read_only)
-{
-    NameValueOptions freq_options;
-
-    for (int i = 0; i <= MAX_SCORE; i++) {
-        auto freq_name = QString("freq_option_%1").arg(i);
-
-        freq_options.append({xstring(freq_name), i});
-    }
-
-    const int freq_min_width_px = 100;
-    const QVector<int> freq_min_option_widths_px = {100, 100, 100, 100, 100, 100};
-
     auto heading = new QuHeading(xstring("heading"));
-    auto grid = buildGrid(Q_PREFIX, FIRST_Q, LAST_Q, freq_options,
-                          xstring("grid_title"));
-    grid->setMinimumWidthInPixels(freq_min_width_px, freq_min_option_widths_px);
+    auto grid = buildGrid(Q_PREFIX, FIRST_Q, LAST_Q, xstring("grid_title"));
 
     QVector<QuElement*> elements{heading, grid};
 
-    QuPagePtr page((new QuPage(elements))->setTitle(xstring("title")));
-
-    m_questionnaire = new Questionnaire(m_app, {page});
-    m_questionnaire->setType(QuPage::PageType::Patient);
-    m_questionnaire->setReadOnly(read_only);
-
-    return m_questionnaire;
-}
-
-
-QuMcqGrid* IsaaqEd::buildGrid(const QString prefix,
-                              int first_qnum,
-                              int last_qnum,
-                              const NameValueOptions options,
-                              const QString title)
-{
-    QVector<QuestionWithOneField> q_field_pairs;
-
-    for (int qnum = first_qnum; qnum <= last_qnum; qnum++) {
-        const QString& fieldname = prefix + QString::number(qnum);
-        const QString& description = xstring(fieldname);
-
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
-
-    }
-
-    auto grid = new QuMcqGrid(q_field_pairs, options);
-    grid->setTitle(title);
-    // Repeat options every five lines
-    QVector<McqGridSubtitle> subtitles{
-        {5, title},
-        {10, title},
-        {15, title},
-    };
-    grid->setSubtitles(subtitles);
-
-    const int question_width = 4;
-    const QVector<int> option_widths = {1, 1, 1, 1, 1, 1};
-    grid->setWidth(question_width, option_widths);
-    grid->setQuestionsBold(false);
-
-    return grid;
+    return elements;
 }

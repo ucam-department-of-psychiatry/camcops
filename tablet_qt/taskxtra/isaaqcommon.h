@@ -21,30 +21,39 @@
 #pragma once
 #include <QPointer>
 
-#include "taskxtra/isaaqcommon.h"
 #include "tasklib/task.h"
 
-class CamcopsApp;
+class OpenableWidget;
+class QuMcqGrid;
 
-void initializeIsaaq(TaskFactory& factory);
 
-class Isaaq : public IsaaqCommon
+class IsaaqCommon: public Task
 {
+    // abstract base class
     Q_OBJECT
 public:
-    Isaaq(CamcopsApp& app, DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    IsaaqCommon(CamcopsApp& app, DatabaseManager& db,
+                const QString tableName);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-    virtual QString shortname() const override;
-    virtual QString longname() const override;
-    virtual QString description() const override;
+    virtual QString shortname() const override = 0;
+    virtual QString longname() const override = 0;
+    virtual QString description() const override = 0;
+    virtual TaskImplementationType implementationType() const override {
+        return TaskImplementationType::UpgradableSkeleton;
+    }
     // ------------------------------------------------------------------------
+    // Instance overrides
+    // ------------------------------------------------------------------------
+    virtual bool isComplete() const override;
+    virtual QStringList summary() const override;
+    virtual QStringList detail() const override;
+    virtual OpenableWidget* editor(bool read_only = false) override;
 
-public:
-    static const QString ISAAQ_TABLENAME;
 protected:
-    QStringList fieldNames() const;
-    QVector<QuElement*> buildElements();
+    virtual QStringList fieldNames() const = 0;
+    virtual QVector<QuElement*> buildElements() = 0;
+    QuMcqGrid* buildGrid(const QString prefix, int first_q_num, int last_q_num,
+                         const QString title = "");
 };
