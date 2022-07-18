@@ -36,11 +36,9 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
+from camcops_server.tasks.isaaqcommon import IsaaqCommon
 
 
 class IsaaqEdMetaclass(DeclarativeMeta):
@@ -77,7 +75,7 @@ class IsaaqEdMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class IsaaqEd(TaskHasPatientMixin, Task, metaclass=IsaaqEdMetaclass):
+class IsaaqEd(IsaaqCommon, metaclass=IsaaqEdMetaclass):
     __tablename__ = "isaaqed"
     shortname = "ISAAQ-ED"
 
@@ -101,54 +99,17 @@ class IsaaqEd(TaskHasPatientMixin, Task, metaclass=IsaaqEdMetaclass):
 
         return True
 
-    def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = ""
-        for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
-            field = self.Q_PREFIX + str(q_num)
-            question_cell = self.xstring(req, field)
-
-            rows += tr_qa(
-                question_cell, self.get_answer_cell(req, self.Q_PREFIX, q_num)
-            )
-
-        html = """
-            <div class="{CssClass.SUMMARY}">
-                <table class="{CssClass.SUMMARY}">
-                    {tr_is_complete}
-                </table>
-            </div>
-            <table class="{CssClass.TASKDETAIL}">
-                <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Score</th>
-                </tr>
-                {rows}
-            </table>
-            <div class="{CssClass.FOOTNOTES}">
-            </div>
+    def get_task_html_rows(self, req: CamcopsRequest) -> str:
+        header = """
+            <tr>
+                <th width="70%">{title}</th>
+                <th width="30%">{scale}</th>
+            </tr>
         """.format(
-            CssClass=CssClass,
-            tr_is_complete=self.get_is_complete_tr(req),
-            rows=rows,
+            title=self.xstring(req, "grid_title"),
+            scale=self.xstring(req, "scale"),
         )
-        return html
 
-    def get_answer_cell(
-        self, req: CamcopsRequest, prefix: str, q_num: int
-    ) -> str:
-        q_field = prefix + str(q_num)
-
-        score = getattr(self, q_field)
-        if score is None:
-            return score
-
-        meaning = self.get_score_meaning(req, q_num, score)
-
-        answer_cell = f"{score} [{meaning}]"
-
-        return answer_cell
-
-    def get_score_meaning(
-        self, req: CamcopsRequest, q_num: int, score: int
-    ) -> str:
-        return self.wxstring(req, f"freq_option_{score}")
+        return header + self.get_task_html_rows_for_range(
+            req, self.Q_PREFIX, self.FIRST_Q, self.LAST_Q
+        )

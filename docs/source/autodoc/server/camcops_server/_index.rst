@@ -408,6 +408,7 @@ server/camcops_server
     tasks/ifs.py.rst
     tasks/irac.py.rst
     tasks/isaaq.py.rst
+    tasks/isaaqcommon.py.rst
     tasks/isaaqed.py.rst
     tasks/khandaker_insight_medical.py.rst
     tasks/khandaker_mojo_medical.py.rst
