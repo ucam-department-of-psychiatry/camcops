@@ -52,13 +52,13 @@ class IsaaqMetaclass(DeclarativeMeta):
 
         add_multiple_columns(
             cls,
-            "a",
-            1,
-            15,
+            cls.A_PREFIX,
+            cls.FIRST_Q,
+            cls.LAST_A_Q,
             coltype=Integer,
             minimum=0,
             maximum=5,
-            comment_fmt="a{n} - {s}",
+            comment_fmt=cls.A_PREFIX + "{n} - {s}",
             comment_strings=[
                 "losing track of time 0-5 (not at all - all the time)",
                 "block disturbing thoughts 0-5 (not at all - all the time)",
@@ -83,13 +83,13 @@ class IsaaqMetaclass(DeclarativeMeta):
 
         add_multiple_columns(
             cls,
-            "b",
-            1,
-            10,
+            cls.B_PREFIX,
+            cls.FIRST_Q,
+            cls.LAST_B_Q,
             coltype=Integer,
             minimum=0,
             maximum=5,
-            comment_fmt="b{n} - {s}",
+            comment_fmt=cls.B_PREFIX + "{n} - {s}",
             comment_strings=[
                 "general surfing 0-5 (not at all - all the time)",
                 "internet gaming 0-5 (not at all - all the time)",
@@ -111,11 +111,14 @@ class Isaaq(TaskHasPatientMixin, Task, metaclass=IsaaqMetaclass):
     __tablename__ = "isaaq"
     shortname = "ISAAQ"
 
-    N_A_QUESTIONS = 15
-    N_B_QUESTIONS = 10
+    A_PREFIX = "a"
+    B_PREFIX = "b"
+    FIRST_Q = 1
+    LAST_A_Q = 15
+    LAST_B_Q = 10
 
-    ALL_FIELD_NAMES = strseq("a", 1, N_A_QUESTIONS) + strseq(
-        "b", 1, N_B_QUESTIONS
+    ALL_FIELD_NAMES = strseq(A_PREFIX, FIRST_Q, LAST_A_Q) + strseq(
+        B_PREFIX, FIRST_Q, LAST_B_Q
     )
 
     @staticmethod
@@ -131,17 +134,21 @@ class Isaaq(TaskHasPatientMixin, Task, metaclass=IsaaqMetaclass):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
-        for q_num in range(1, self.N_A_QUESTIONS + 1):
-            field = "a" + str(q_num)
+        for q_num in range(self.FIRST_Q, self.LAST_A_Q + 1):
+            field = self.A_PREFIX + str(q_num)
             question_cell = self.xstring(req, field)
 
-            rows += tr_qa(question_cell, self.get_answer_cell(req, "a", q_num))
+            rows += tr_qa(
+                question_cell, self.get_answer_cell(req, self.A_PREFIX, q_num)
+            )
 
-        for q_num in range(1, self.N_B_QUESTIONS + 1):
-            field = "b" + str(q_num)
+        for q_num in range(self.FIRST_Q, self.LAST_B_Q + 1):
+            field = self.B_PREFIX + str(q_num)
             question_cell = self.xstring(req, field)
 
-            rows += tr_qa(question_cell, self.get_answer_cell(req, "b", q_num))
+            rows += tr_qa(
+                question_cell, self.get_answer_cell(req, self.B_PREFIX, q_num)
+            )
 
         html = """
             <div class="{CssClass.SUMMARY}">
