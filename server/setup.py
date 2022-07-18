@@ -85,11 +85,11 @@ INSTALL_REQUIRES = [
     "Faker==4.1.1",  # create fake data; for dummy database creation
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
-    "flower==1.0.0",  # monitor for Celery
+    "flower==1.1.0",  # monitor for Celery
     "gunicorn==20.1.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
     "lockfile==0.12.2",  # File locking for background tasks
-    "lxml==4.6.5",  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
     "numpy==1.21.5",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
@@ -114,7 +114,7 @@ INSTALL_REQUIRES = [
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.3.18",  # database access
     "statsmodels==0.11.1",  # e.g. logistic regression
-    "twilio==6.63.0",  # SMS backend for Multi-factor authentication
+    "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.7",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
@@ -147,7 +147,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
-    "PyPDF2==1.26.0",  # Used by cardinal_pythonlib.pdf
+    "PyPDF2==1.27.12",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
     "sqlparse==0.4.2",
     # extra
