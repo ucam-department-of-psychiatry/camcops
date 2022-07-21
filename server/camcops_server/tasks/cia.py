@@ -103,6 +103,9 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
 
         return True
 
+    def global_score(self) -> int:
+        return self.sum_fields(self.ALL_FIELD_NAMES)
+
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
