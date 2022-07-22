@@ -131,6 +131,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
+                [1] Sum for all questions
             </div>
         """.format(
             CssClass=CssClass,
