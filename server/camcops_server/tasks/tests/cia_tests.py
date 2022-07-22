@@ -46,10 +46,41 @@ class CiaTests(TestCase):
 
         self.assertFalse(cia.is_complete())
 
-    def test_global_score_is_sum_of_answers(self) -> None:
+    def test_max_global_score_for_all_answers(self) -> None:
         cia = Cia()
 
         for q_num in range(1, 16 + 1):
             setattr(cia, f"q{q_num}", 3)
 
         self.assertEqual(cia.global_score(), 48)
+
+    def test_global_score_is_prorated_for_applicable_questions(self) -> None:
+        cia = Cia()
+
+        for q_num in range(1, 12 + 1):
+            setattr(cia, f"q{q_num}", 3)
+
+        for q_num in range(13, 16 + 1):
+            setattr(cia, f"q{q_num}", Cia.NOT_APPLICABLE)
+
+        self.assertEqual(cia.global_score(), 48)
+
+    def test_global_score_is_not_rated_for_less_than_12_questions(
+        self,
+    ) -> None:
+        cia = Cia()
+
+        for q_num in range(1, 11 + 1):
+            setattr(cia, f"q{q_num}", 3)
+
+        for q_num in range(12, 16 + 1):
+            setattr(cia, f"q{q_num}", Cia.NOT_APPLICABLE)
+
+        self.assertIsNone(cia.global_score())
+
+    def test_global_score_is_not_rated_for_any_unanswered_questions(
+        self,
+    ) -> None:
+        cia = Cia()
+
+        self.assertIsNone(cia.global_score())

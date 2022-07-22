@@ -29,7 +29,7 @@ camcops_server/tasks/cia.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Any, Dict, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -57,7 +57,7 @@ class CiaMetaclass(DeclarativeMeta):
             cls.FIRST_Q,
             cls.LAST_Q,
             coltype=Integer,
-            minimum=0,
+            minimum=-1,
             maximum=3,
             comment_fmt=cls.Q_PREFIX + "{n} - {s}",
             comment_strings=[
@@ -90,7 +90,9 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
     Q_PREFIX = "q"
     FIRST_Q = 1
     LAST_Q = 16
+    MIN_APPLICABLE = 12
     MAX_SCORE = 48
+    NOT_APPLICABLE = -1
 
     ALL_FIELD_NAMES = strseq("q", FIRST_Q, LAST_Q)
 
@@ -105,8 +107,27 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
 
         return True
 
-    def global_score(self) -> int:
-        return self.sum_fields(self.ALL_FIELD_NAMES)
+    def global_score(self) -> Optional[float]:
+        """
+        To obtain the global CIA impairment score the ratings on all items are
+        added together with prorating of missing ratings, so long as at least
+        12 of the 16 items have been rated.
+        """
+        if not self.is_complete():
+            return None
+
+        num_applicable = self.LAST_Q - self.count_where(
+            self.ALL_FIELD_NAMES, [self.NOT_APPLICABLE]
+        )
+
+        if num_applicable < self.MIN_APPLICABLE:
+            return None
+
+        scale_factor = self.LAST_Q / num_applicable
+
+        return scale_factor * self.sum_fields(
+            self.ALL_FIELD_NAMES, ignorevalue=self.NOT_APPLICABLE
+        )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
@@ -131,14 +152,17 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Sum for all questions
+                [1] Sum for all questions with prorating of missing ratings,
+                so long as at least 12 of the 16 items have been rated.
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             global_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + "<sup>[1]</sup>",
-                answer(self.global_score()) + f" / {self.MAX_SCORE}",
+                answer(
+                    "{:.2f} / {}".format(self.global_score(), self.MAX_SCORE)
+                ),
             ),
             rows=rows,
         )
