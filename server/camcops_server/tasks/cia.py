@@ -37,9 +37,10 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
+from camcops_server.cc_modules.cc_text import SS
 
 
 class CiaMetaclass(DeclarativeMeta):
@@ -89,6 +90,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
     Q_PREFIX = "q"
     FIRST_Q = 1
     LAST_Q = 16
+    MAX_SCORE = 48
 
     ALL_FIELD_NAMES = strseq("q", FIRST_Q, LAST_Q)
 
@@ -110,7 +112,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         rows = ""
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
             field = self.Q_PREFIX + str(q_num)
-            question_cell = self.xstring(req, field)
+            question_cell = "{}. {}".format(q_num, self.wxstring(req, field))
 
             rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
 
@@ -118,6 +120,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
+                    {global_score}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -132,6 +135,10 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
+            global_score=tr(
+                req.sstring(SS.TOTAL_SCORE) + "<sup>[1]</sup>",
+                answer(self.global_score()) + f" / {self.MAX_SCORE}",
+            ),
             rows=rows,
         )
         return html
