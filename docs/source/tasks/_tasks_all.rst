@@ -58,6 +58,7 @@ All tasks
     cgi.rst
     cgisch.rst
     chit.rst
+    cia.rst
     cisr.rst
     ciwa.rst
     clinical.rst

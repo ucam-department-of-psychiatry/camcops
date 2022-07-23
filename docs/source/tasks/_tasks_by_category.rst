@@ -205,7 +205,7 @@ Eating disorders
 
 |dolphin|
 
-.. todo:: CIA
+- :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`
 
 - :ref:`Eating Disorder Examination Questionnaire (EDE-Q) <edeq>`
 
