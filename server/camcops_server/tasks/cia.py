@@ -137,6 +137,14 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
 
             rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
 
+        global_score = self.global_score()
+        if global_score is None:
+            global_score_display = "?"
+        else:
+            global_score_display = "{:.2f} / {}".format(
+                global_score, self.MAX_SCORE
+            )
+
         html = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -160,9 +168,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
             tr_is_complete=self.get_is_complete_tr(req),
             global_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + "<sup>[1]</sup>",
-                answer(
-                    "{:.2f} / {}".format(self.global_score(), self.MAX_SCORE)
-                ),
+                answer(global_score_display),
             ),
             rows=rows,
         )
