@@ -37,8 +37,10 @@ const int FIRST_Q = 1;
 const int LAST_Q = 16;
 const int MIN_SCORE = 0;
 const int MAX_SCORE = 3;
+const int NOT_APPLICABLE = -1;
 const int MIN_GLOBAL_SCORE = 0;
 const int MAX_GLOBAL_SCORE = 48;
+const int MIN_APPLICABLE = 12;
 const QString QPREFIX("q");
 
 const QString Cia::CIA_TABLENAME("cia");
@@ -102,9 +104,13 @@ QStringList Cia::summary() const
 {
     auto rangeScore = [](const QString& description, const QVariant score,
                          const int min, const int max) {
+        if (score.isNull()) {
+            return QString("%1: <b>?</b>.").arg(description);
+        }
+
         return QString("%1: <b>%2</b> [%3–%4].").arg(
                     description,
-                    QString::number(score.toInt()),
+                    QString::number(score.toDouble(), 'f', 2),
                     QString::number(min),
                     QString::number(max));
     };
@@ -118,7 +124,37 @@ QStringList Cia::summary() const
 
 QVariant Cia::globalScore() const
 {
-    return sumInt(values(fieldNames()));
+    if (!isComplete()) {
+        return QVariant();
+    }
+
+    int num_applicable = 0;
+    int total = 0;
+
+    const QVector<QVariant> responses = values(fieldNames());
+
+    for (int i = 0; i < responses.length(); i++) {
+        const QVariant& value = responses.at(i);
+
+        if (value.isNull()) {
+            return QVariant();
+        }
+
+        const int score = value.toInt();
+        if (score != NOT_APPLICABLE) {
+            num_applicable++;
+
+            total += score;
+        }
+    }
+
+    if (num_applicable < MIN_APPLICABLE) {
+        return QVariant();
+    }
+
+    float scale_factor = (float) LAST_Q / num_applicable;
+
+    return scale_factor * total;
 }
 
 
@@ -155,9 +191,11 @@ OpenableWidget* Cia::editor(const bool read_only)
 
         options.append({xstring(name), i});
     }
+    options.append({xstring(QString("option_%1").arg(NOT_APPLICABLE)),
+                    NOT_APPLICABLE});
 
     const int min_width_px = 100;
-    const QVector<int> min_option_widths_px = {100, 100, 100, 100};
+    const QVector<int> min_option_widths_px = {100, 100, 100, 100, 100};
 
 
     auto instructions = new QuHeading(xstring("instructions"));
@@ -206,7 +244,7 @@ QuMcqGrid* Cia::buildGrid(int first_qnum,
     grid->setSubtitles(subtitles);
 
     const int question_width = 2;
-    const QVector<int> option_widths = {1, 1, 1, 1};
+    const QVector<int> option_widths = {1, 1, 1, 1, 1};
     grid->setWidth(question_width, option_widths);
     grid->setQuestionsBold(false);
 
