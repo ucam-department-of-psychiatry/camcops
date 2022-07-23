@@ -209,7 +209,7 @@ Eating disorders
 
 - :ref:`Eating Disorder Examination Questionnaire (EDE-Q) <edeq>`
 
-.. todo:: ISAAQ
+- :ref:`Internet Severity and Activities Addiction Questionnaire (ISAAQ) <isaaq>`
 
 
 Executive function
