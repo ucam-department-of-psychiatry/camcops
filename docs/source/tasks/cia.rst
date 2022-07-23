@@ -24,8 +24,6 @@
 The Clinical Impairment Assessment Questionnaire (CIA)
 ------------------------------------------------------
 
-**NOT YET IMPLEMENTED**
-
 A 16-item self-report measure of the severity of psychosocial impairment
 due to eating disorder features.
 
