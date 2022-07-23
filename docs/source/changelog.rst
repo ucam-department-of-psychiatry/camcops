@@ -3675,3 +3675,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire, Easting Disorders Appendix (ISAAQ-ED)
   <isaaqed>`. (Database revision 0074.)
+
+- **New task:** :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`. (Database revision 0075.)
