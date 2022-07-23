@@ -60,7 +60,6 @@ void ResearchMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Isaaq::ISAAQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
@@ -77,7 +76,7 @@ void ResearchMenu::makeItems()
         ),
         MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
-        // todo:: ISAAQ
+        MAKE_TASK_MENU_ITEM(Isaaq::ISAAQ_TABLENAME, m_app),
     };
 }
 
