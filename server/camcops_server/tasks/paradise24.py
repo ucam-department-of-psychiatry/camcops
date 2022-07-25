@@ -111,6 +111,64 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
 
         return True
 
+    def total_score(self) -> int:
+        return self.sum_fields(self.ALL_FIELD_NAMES)
+
+    def metric_score(self) -> int:
+        score_lookup = {
+            0: 0,
+            1: 10,
+            2: 19,
+            3: 25,
+            4: 29,
+            5: 33,
+            6: 36,
+            7: 38,
+            8: 41,
+            9: 43,
+            10: 45,
+            11: 46,
+            12: 48,
+            13: 50,
+            14: 51,
+            15: 53,
+            16: 54,
+            17: 55,
+            18: 57,
+            19: 58,
+            20: 59,
+            21: 60,
+            22: 61,
+            23: 63,
+            24: 64,
+            25: 65,
+            26: 66,
+            27: 67,
+            28: 68,
+            29: 69,
+            30: 71,
+            31: 72,
+            32: 73,
+            33: 74,
+            34: 76,
+            35: 77,
+            36: 78,
+            37: 80,
+            38: 81,
+            39: 83,
+            40: 85,
+            41: 87,
+            42: 89,
+            43: 91,
+            44: 92,
+            45: 94,
+            46: 96,
+            47: 98,
+            48: 100,
+        }
+
+        return score_lookup[self.total_score()]
+
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
