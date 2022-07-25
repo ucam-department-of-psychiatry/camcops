@@ -917,6 +917,7 @@ SOURCES += \
     tasks/npiq.cpp \
     tasks/ors.cpp \
     tasks/panss.cpp \
+    tasks/paradise24.cpp \
     tasks/patientsatisfaction.cpp \
     tasks/pbq.cpp \
     tasks/pcl5.cpp \
@@ -1403,6 +1404,7 @@ HEADERS += \
     tasks/npiq.h \
     tasks/ors.h \
     tasks/panss.h \
+    tasks/paradise24.h \
     tasks/patientsatisfaction.h \
     tasks/pbq.h \
     tasks/pcl5.h \
