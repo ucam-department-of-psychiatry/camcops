@@ -58,6 +58,8 @@ Cia::Cia(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -76,7 +78,7 @@ QString Cia::longname() const
 
 QString Cia::description() const
 {
-    return tr("A 16-item self-report measure of the severity of psychosocial impairment due to eating disorder features");
+    return tr("A 16-item self-report measure of the severity of psychosocial impairment due to eating disorder features.");
 }
 
 
@@ -152,7 +154,7 @@ QVariant Cia::globalScore() const
         return QVariant();
     }
 
-    float scale_factor = (float) LAST_Q / num_applicable;
+    const float scale_factor = (float) LAST_Q / num_applicable;
 
     return scale_factor * total;
 }

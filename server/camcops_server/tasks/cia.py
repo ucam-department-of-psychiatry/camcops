@@ -25,7 +25,7 @@ camcops_server/tasks/cia.py
 
 ===============================================================================
 
-** THE CLINICAL IMPAIRMENT ASSESSMENT QUESTIONNAIRE (CIA) task.**
+**The Clinical Impairment Assessment questionnaire (CIA) task.**
 
 """
 
@@ -178,13 +178,11 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         q_field = self.Q_PREFIX + str(q_num)
 
         score = getattr(self, q_field)
-        meaning = self.get_score_meaning(req, q_num, score)
+        meaning = self.get_score_meaning(req, score)
 
         answer_cell = f"{score} [{meaning}]"
 
         return answer_cell
 
-    def get_score_meaning(
-        self, req: CamcopsRequest, q_num: int, score: int
-    ) -> str:
+    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"option_{score}")
