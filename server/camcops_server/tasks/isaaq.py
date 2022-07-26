@@ -29,7 +29,7 @@ camcops_server/tasks/isaaq.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Any, Dict, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -167,20 +167,18 @@ class Isaaq(TaskHasPatientMixin, Task, metaclass=IsaaqMetaclass):
 
     def get_answer_cell(
         self, req: CamcopsRequest, prefix: str, q_num: int
-    ) -> str:
+    ) -> Optional[str]:
         q_field = prefix + str(q_num)
 
         score = getattr(self, q_field)
         if score is None:
             return score
 
-        meaning = self.get_score_meaning(req, q_num, score)
+        meaning = self.get_score_meaning(req, score)
 
         answer_cell = f"{score} [{meaning}]"
 
         return answer_cell
 
-    def get_score_meaning(
-        self, req: CamcopsRequest, q_num: int, score: int
-    ) -> str:
+    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"freq_option_{score}")

@@ -52,7 +52,6 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
-    // ------------------------------------------------------------------------
 
 public:
     static const QString ISAAQ_TABLENAME;
@@ -60,5 +59,8 @@ protected:
     QPointer<Questionnaire> m_questionnaire;
     QStringList fieldNames() const;
 private:
-    QuMcqGrid* buildGrid(const QString prefix, int first_q_num, int last_q_num, const NameValueOptions options, const QString title = "");
+    QuMcqGrid* buildGrid(
+        const QString prefix, int first_q_num, int last_q_num,
+        const NameValueOptions options, const QString title = ""
+    );
 };

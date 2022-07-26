@@ -59,6 +59,8 @@ Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -71,13 +73,13 @@ QString Isaaq::shortname() const
 
 QString Isaaq::longname() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire (ISAAQ)");
+    return tr("Internet Severity and Activities Addiction Questionnaire");
 }
 
 
 QString Isaaq::description() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire (ISAAQ)");
+    return tr("Questionnaire on problematic internet use");
 }
 
 
@@ -134,7 +136,7 @@ OpenableWidget* Isaaq::editor(const bool read_only)
 {
     NameValueOptions freq_options;
 
-    for (int i = 0; i <= MAX_SCORE; i++) {
+    for (int i = MIN_SCORE; i <= MAX_SCORE; i++) {
         auto freq_name = QString("freq_option_%1").arg(i);
 
         freq_options.append({xstring(freq_name), i});
