@@ -59,7 +59,7 @@ class IsaaqEdMetaclass(DeclarativeMeta):
             maximum=5,
             comment_fmt=cls.Q_PREFIX + "{n} - {s}",
             comment_strings=[
-                "pro-ed websites 0-5 (not at all - all the time)",
+                "pro-ED websites 0-5 (not at all - all the time)",
                 "fitspiration 0-5 (not at all - all the time)",
                 "thinspiration 0-5 (not at all - all the time)",
                 "bonespiration 0-5 (not at all - all the time)",

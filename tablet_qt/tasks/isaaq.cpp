@@ -33,8 +33,6 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_A_QUESTIONS = 15;
 const int N_B_QUESTIONS = 10;
-const int MIN_SCORE = 0;
-const int MAX_SCORE = 5;
 const QString A_PREFIX("a");
 const QString B_PREFIX("b");
 
@@ -55,6 +53,8 @@ Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);
 }
+
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -67,13 +67,13 @@ QString Isaaq::shortname() const
 
 QString Isaaq::longname() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire (ISAAQ)");
+    return tr("Internet Severity and Activities Addiction Questionnaire");
 }
 
 
 QString Isaaq::description() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire (ISAAQ)");
+    return tr("Questionnaire on problematic internet use");
 }
 
 

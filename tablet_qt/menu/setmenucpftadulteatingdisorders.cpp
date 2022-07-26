@@ -23,6 +23,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/bmi.h"
 #include "tasks/chit.h"
 #include "tasks/cia.h"
 #include "tasks/edeq.h"
@@ -68,6 +69,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         // todo:: PARADISE-24 [and add to "global" menu]
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),

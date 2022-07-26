@@ -25,10 +25,16 @@
 Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (ISAAQ-ED)
 ----------------------------------------------------------------------------------------------
 
+.. include:: include_data_collection_plus_local_upgrade.rst
+
+An unpublished questionnaire (supplementary to the :ref:`ISAAQ <isaaq>`) about
+problematic internet use in relation to eating disorders.
+
+
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright (C) 2017 Konstantinos Ioannidis, Samuel R. Chamberlain.
+- Copyright (C) 2022 Konstantinos Ioannidis.
 
 - Licensing: apply to authors for permission.
 
@@ -36,9 +42,28 @@ Intellectual property rights
 History
 ~~~~~~~
 
-TODO
+- Ioannidis K (2022).
+  *Taming the chimera-hydra: A multifaceted analysis of problematic use of the
+  internet and eating disorders.*
+  Unpublished PhD thesis, Maastricht University.
+  https://doi.org/10.26481/dis.20220623ki
+
 
 Source
 ~~~~~~
 
 - Konstantinos Ioannidis, personal communication, 2022.
+
+- Pertinent references from the task document:
+
+  - Ioannidis K, Chamberlain SR (2021). Digital Hazards for Feeding and Eating:
+    What We Know and What We Don't.
+    *Current Psychiatry Reports* 23: 56.
+    https://pubmed.ncbi.nlm.nih.gov/34264408/
+
+  - Ioannidis K, Taylor C, Holt L, Brown K, Lochner C, Fineberg NA, Corazza O,
+    Chamberlain SR, Roman-Urrestarazu A, Czabanowska K (2021). Problematic
+    usage of the internet and eating disorder and related psychopathology: A
+    multifaceted, systematic review and meta-analysis.
+    *Neuroscience and Biobehavioral Reviews* 125: 569-581.
+    https://pubmed.ncbi.nlm.nih.gov/33713700/
