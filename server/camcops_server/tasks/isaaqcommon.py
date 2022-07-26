@@ -102,7 +102,5 @@ class IsaaqCommon(TaskHasPatientMixin, Task):
 
         return answer_cell
 
-    def get_score_meaning(
-        self, req: CamcopsRequest, score: int
-    ) -> str:
+    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"freq_option_{score}")
