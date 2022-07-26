@@ -43,10 +43,12 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 28;
+const int FIRST_OPTION = 0;
+const int LAST_OPTION = 6;
 const int MIN_SCORE = 0;
-const int MAX_SCORE = 7;
-const int MIN_SUBSCALE = 0;
-const int MAX_SUBSCALE = 7;
+const int MAX_SCORE = 6;
+const int MIN_SUBSCALE = MIN_SCORE;
+const int MAX_SUBSCALE = MAX_SCORE;
 const QString QPREFIX("q");
 const QVector<int> RESTRAINT_QUESTIONS{1, 2, 3, 4, 5};
 const QVector<int> EATING_CONCERN_QUESTIONS{7, 9, 19, 20, 21};
@@ -82,6 +84,7 @@ Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -212,7 +215,6 @@ QStringList Edeq::detail() const
                                   spacer, suffix));
     }
 
-
     lines.append("");
     lines += summary();
 
@@ -222,11 +224,14 @@ QStringList Edeq::detail() const
 
 OpenableWidget* Edeq::editor(const bool read_only)
 {
+    auto subheading = [this](const QString& stringname) -> QuElement* {
+        return (new QuText(xstring(stringname)))->setBold();
+    };
+
     NameValueOptions days_options;
     NameValueOptions freq_options;
     NameValueOptions how_much_options;
-
-    for (int i = 0; i <= 6; i++) {
+    for (int i = FIRST_OPTION; i <= LAST_OPTION; i++) {
         auto days_name = QString("days_option_%1").arg(i);
         auto freq_name = QString("freq_option_%1").arg(i);
         auto how_much_name = QString("how_much_option_%1").arg(i);
@@ -253,13 +258,14 @@ OpenableWidget* Edeq::editor(const bool read_only)
                                       days_min_option_widths_px);
 
     auto instructions13_18 = new QuHeading(xstring("q13_18_instructions"));
-    auto heading13_18 = new QuHeading(xstring("q13_18_heading"));
+    auto heading13_18 = subheading("q13_18_heading");
     auto grid13_18 = new QuGridContainer();
     for (int row = 0; row < 6; row++) {
         const int qnum = row + 13;
         const QString& fieldname = "q" + QString::number(qnum);
-        auto number_editor = new QuLineEditInteger(fieldRef(fieldname),
-0, 1000); // TODO: Better maximum
+        auto number_editor = new QuLineEditInteger(
+            fieldRef(fieldname), 0, 1000
+        );  // TODO: Better maximum
         auto question_text = new QuText(xstring(fieldname));
         grid13_18->addCell(QuGridCell(question_text, row, 0));
         grid13_18->addCell(QuGridCell(number_editor, row, 1));
