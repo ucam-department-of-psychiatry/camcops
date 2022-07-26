@@ -94,7 +94,7 @@ QString Suppsp::longname() const
 
 QString Suppsp::description() const
 {
-    return tr("A short English version of the UPPS-P Impulsive Behaviour Scale");
+    return tr("A short English version of the UPPS-P Impulsive Behaviour Scale.");
 }
 
 

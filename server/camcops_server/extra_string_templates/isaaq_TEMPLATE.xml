@@ -3,8 +3,10 @@
   <task name="isaaq">
     <string name="title">Internet Severity and Activities Addiction Questionnaire (ISAAQ)</string>
     <string name="instructions">instructions</string>
+
     <string name="a_title">part A title</string>
     <string name="scale">scale</string>
+
     <string name="a1">losing track of time</string>
     <string name="a2">block disturbing thoughts</string>
     <string name="a3">loneliness or boredom</string>
@@ -20,8 +22,10 @@
     <string name="a13">lose sleep</string>
     <string name="a14">physical or psychological problems</string>
     <string name="a15">try to cut down</string>
+
     <string name="b_heading">part B heading</string>
     <string name="b_title">part B title</string>
+
     <string name="b1">general surfing</string>
     <string name="b2">internet gaming</string>
     <string name="b3">skill games</string>
@@ -32,6 +36,7 @@
     <string name="b8">pornography</string>
     <string name="b9">streaming media</string>
     <string name="b10">cyberbullying</string>
+
     <string name="freq_option_0">0</string>
     <string name="freq_option_1">1</string>
     <string name="freq_option_2">2</string>
