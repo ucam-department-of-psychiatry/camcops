@@ -37,9 +37,10 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
+from camcops_server.cc_modules.cc_text import SS
 
 
 class Paradise24Metaclass(DeclarativeMeta):
@@ -181,6 +182,8 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
+                    {total_score}
+                    {metric_score}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -191,10 +194,20 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
+                [1] Sum of all questions
+                [2] Tranformed metric scale
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
+            total_score=tr(
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
+                f"{answer(self.total_score())} 0-48",
+            ),
+            metric_score=tr(
+                self.wxstring(req, "metric_score") + " <sup>[2]</sup>",
+                f"{answer(self.metric_score())} 0-100",
+            ),
             rows=rows,
         )
         return html
