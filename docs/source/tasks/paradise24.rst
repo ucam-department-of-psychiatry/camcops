@@ -28,17 +28,21 @@ PARADISE-24
 
 PARADISE 24 is a measure to assess the impact of brain disorders on people's lives.
 
-**NOT YET IMPLEMENTED**
-
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED.**
+Copyright © 2015 Cieza et al
+
+This is an open-access article distributed under the terms of the Creative
+Commons Attribution License, which permits unrestricted use, distribution, and
+reproduction in any medium, provided the original author and source are properly
+credited.
 
 
 History
 ~~~~~~~
+
 
 Source
 ~~~~~~
