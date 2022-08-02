@@ -61,7 +61,11 @@ public:
     // Set widths:
     // - question_width: relative width of question column
     // - option_widths: relative widths of option columns
+    // This is what Qt calls "stretch". Columns with a higher stretch factor
+    // take more of the available space.
     QuMcqGrid* setWidth(int question_width, const QVector<int>& option_widths);
+
+    QuMcqGrid* setMinimumWidthInPixels(int question_width, const QVector<int>& option_widths);
 
     // Sets the title
     QuMcqGrid* setTitle(const QString& title);
@@ -121,6 +125,8 @@ protected:
     NameValueOptions m_options;  // Name/value pairs for options
     int m_question_width;  // relative width for question column
     QVector<int> m_option_widths;  // relative widths for option columns
+    int m_question_min_width_px;  // minimum width in pixels for question
+    QVector<int> m_option_min_widths_px;  // minimum width in pixels for option columns
     QString m_title;  // title text
     QVector<McqGridSubtitle> m_subtitles;  // subtitle info
     bool m_expand;  // expand our widgets horizontally?

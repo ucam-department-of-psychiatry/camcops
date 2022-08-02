@@ -103,6 +103,7 @@ server/camcops_server
     alembic/versions/0069_manage_patient_permission.py.rst
     alembic/versions/0070_mfa.py.rst
     alembic/versions/0071_fhir.py.rst
+    alembic/versions/0072_edeq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -120,6 +121,7 @@ server/camcops_server
     cc_modules/cc_constants.py.rst
     cc_modules/cc_convert.py.rst
     cc_modules/cc_ctvinfo.py.rst
+    cc_modules/cc_dataclasses.py.rst
     cc_modules/cc_db.py.rst
     cc_modules/cc_debug.py.rst
     cc_modules/cc_device.py.rst
@@ -232,6 +234,7 @@ server/camcops_server
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/das28_TEMPLATE.xml.rst
+    extra_string_templates/edeq_TEMPLATE.xml.rst
     extra_string_templates/epds_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst
     extra_string_templates/esspri_TEMPLATE.xml.rst
@@ -371,6 +374,7 @@ server/camcops_server
     tasks/demqol.py.rst
     tasks/diagnosis.py.rst
     tasks/distressthermometer.py.rst
+    tasks/edeq.py.rst
     tasks/elixhauserci.py.rst
     tasks/epds.py.rst
     tasks/eq5d5l.py.rst
@@ -442,6 +446,7 @@ server/camcops_server
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/edeq_tests.py.rst
     tasks/tests/maas_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst
     tasks/tests/rapid3_tests.py.rst

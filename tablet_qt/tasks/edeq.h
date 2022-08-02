@@ -20,29 +20,32 @@
 
 #pragma once
 #include <QPointer>
-#include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
-class TaskFactory;
+class QuGridContainer;
+class QuMcqGrid;
 
-void initializeBmi(TaskFactory& factory);
+void initializeEdeq(TaskFactory& factory);
 
-
-class Bmi : public Task
+class Edeq : public Task
 {
     Q_OBJECT
 public:
-    Bmi(CamcopsApp& app, DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK);
+    Edeq(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
+    virtual TaskImplementationType implementationType() const override {
+        return TaskImplementationType::UpgradableSkeleton;
+    }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -53,11 +56,36 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    QVariant bmiVariant() const;
-    QString bmiString(int dp = 2) const;  // to specified d.p.
-    QString category() const;
-protected:
-    QPointer<Questionnaire> m_questionnaire;
+    QVariant globalScore() const;
+    QVariant restraint() const;
+    QVariant eatingConcern() const;
+    QVariant shapeConcern() const;
+    QVariant weightConcern() const;
+
 public:
-    static const QString BMI_TABLENAME;
+    static const QString EDEQ_TABLENAME;
+protected:
+    QVariant subscale(QVector<int> questions) const;
+    QPointer<Questionnaire> m_questionnaire;
+    QVariant m_have_missed_periods;
+    FieldRefPtr m_have_missed_periods_fr;
+    FieldRefPtr m_num_missed_periods_fr;
+    QuElement* m_num_periods_missed_grid;
+    QStringList fieldNames() const;
+private:
+    QuMcqGrid* buildGrid(
+        int first_q_num, int last_q_num,
+        const NameValueOptions options, const QString title = ""
+    );
+
+    // ------------------------------------------------------------------------
+    // Getters/setters
+    // ------------------------------------------------------------------------
+public:
+    QVariant getHaveMissedPeriods();
+    QVariant getNumMissedPeriods();
+    bool setHaveMissedPeriods(const QVariant& value);
+    bool setNumMissedPeriods(const QVariant& value);
+    void updateHaveMissedPeriods();
+    void updateNumMissedPeriods();
 };

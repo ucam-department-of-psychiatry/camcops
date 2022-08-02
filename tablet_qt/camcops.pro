@@ -770,6 +770,7 @@ SOURCES += \
     questionnairelib/qugridcell.cpp \
     questionnairelib/qugridcontainer.cpp \
     questionnairelib/quheading.cpp \
+    questionnairelib/quheight.cpp \
     questionnairelib/quhorizontalcontainer.cpp \
     questionnairelib/quhorizontalline.cpp \
     questionnairelib/quimage.cpp \
@@ -780,6 +781,7 @@ SOURCES += \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
     questionnairelib/qulineedituint64.cpp \
+    questionnairelib/qumass.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/qumcqgriddouble.cpp \
@@ -787,6 +789,7 @@ SOURCES += \
     questionnairelib/qumcqgridsignaller.cpp \
     questionnairelib/qumcqgridsingleboolean.cpp \
     questionnairelib/qumcqgridsinglebooleansignaller.cpp \
+    questionnairelib/qumeasurement.cpp \
     questionnairelib/qumultipleresponse.cpp \
     questionnairelib/qupage.cpp \
     questionnairelib/quphoto.cpp \
@@ -801,7 +804,9 @@ SOURCES += \
     questionnairelib/qutextedit.cpp \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
+    questionnairelib/quunitselector.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quwaist.cpp \
     questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
@@ -860,6 +865,7 @@ SOURCES += \
     tasks/diagnosisicd10.cpp \
     tasks/diagnosisicd9cm.cpp \
     tasks/distressthermometer.cpp \
+    tasks/edeq.cpp \
     tasks/elixhauserci.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
@@ -1246,6 +1252,7 @@ HEADERS += \
     questionnairelib/qugridcell.h \
     questionnairelib/qugridcontainer.h \
     questionnairelib/quheading.h \
+    questionnairelib/quheight.h \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quhorizontalline.h \
     questionnairelib/quimage.h \
@@ -1256,6 +1263,7 @@ HEADERS += \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditnhsnumber.h \
     questionnairelib/qulineedituint64.h \
+    questionnairelib/qumass.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
@@ -1263,6 +1271,7 @@ HEADERS += \
     questionnairelib/qumcqgridsignaller.h \
     questionnairelib/qumcqgridsingleboolean.h \
     questionnairelib/qumcqgridsinglebooleansignaller.h \
+    questionnairelib/qumeasurement.h \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qupage.h \
     questionnairelib/quphoto.h \
@@ -1277,7 +1286,9 @@ HEADERS += \
     questionnairelib/qutextedit.h \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
+    questionnairelib/quunitselector.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quwaist.h \
     questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
@@ -1336,6 +1347,7 @@ HEADERS += \
     tasks/diagnosisicd10.h \
     tasks/diagnosisicd9cm.h \
     tasks/distressthermometer.h \
+    tasks/edeq.h \
     tasks/elixhauserci.h \
     tasks/epds.h \
     tasks/eq5d5l.h \

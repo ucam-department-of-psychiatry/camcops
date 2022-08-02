@@ -45,6 +45,8 @@ class QuElement : public QObject
     friend class QuFlowContainer;
     friend class QuGridContainer;
     friend class QuHorizontalContainer;
+    friend class QuMeasurement;
+    friend class QuUnitSelector;
     friend class QuVerticalContainer;
     friend class QuZoomContainer;
     friend class SettingsMenu;

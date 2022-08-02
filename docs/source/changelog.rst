@@ -3666,3 +3666,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Change ``CELERY_WORKER_EXTRA_ARGS`` ``--maxtasksperchild`` to ``--max-tasks-per-child``
   following removal of --maxtasksperchild in Celery 5.0.
+
+- **New task:** :ref:`Eating Disorder Examination Questionnaire (EDE-Q)
+  <edeq>`. (Database revision 0072.)

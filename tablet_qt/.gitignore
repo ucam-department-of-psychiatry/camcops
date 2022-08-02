@@ -1,3 +1,4 @@
 *.autosave
 camcops.pro.user*
 android-libcamcops.so-deployment-settings.json
+.ccls-cache

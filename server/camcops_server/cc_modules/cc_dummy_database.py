@@ -252,7 +252,7 @@ class DummyDataFactory(DummyDataInserter):
         next_id = self.next_id(Group.id)
 
         self.group = Group()
-        self.group.name = f"dummygroup {next_id}"
+        self.group.name = f"dummygroup{next_id}"
         self.group.description = "Dummy group"
         self.group.upload_policy = "sex AND anyidnum"
         self.group.finalize_policy = "sex AND idnum1001"
