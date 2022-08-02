@@ -104,6 +104,7 @@ server/camcops_server
     alembic/versions/0070_mfa.py.rst
     alembic/versions/0071_fhir.py.rst
     alembic/versions/0072_edeq.py.rst
+    alembic/versions/0073_isaaq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -242,6 +243,7 @@ server/camcops_server
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
+    extra_string_templates/isaaq_TEMPLATE.xml.rst
     extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
     extra_string_templates/moca_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
@@ -403,6 +405,7 @@ server/camcops_server
     tasks/iesr.py.rst
     tasks/ifs.py.rst
     tasks/irac.py.rst
+    tasks/isaaq.py.rst
     tasks/khandaker_insight_medical.py.rst
     tasks/khandaker_mojo_medical.py.rst
     tasks/khandaker_mojo_medicationtherapy.py.rst

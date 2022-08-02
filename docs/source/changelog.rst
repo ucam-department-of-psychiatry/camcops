@@ -3669,3 +3669,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Eating Disorder Examination Questionnaire (EDE-Q)
   <edeq>`. (Database revision 0072.)
+
+- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire (ISAAQ)
+  <isaaq>`. (Database revision 0073.)

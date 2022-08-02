@@ -770,6 +770,8 @@ tablet_qt
     tasks/ifs.h.rst
     tasks/irac.cpp.rst
     tasks/irac.h.rst
+    tasks/isaaq.cpp.rst
+    tasks/isaaq.h.rst
     tasks/khandakerinsightmedical.cpp.rst
     tasks/khandakerinsightmedical.h.rst
     tasks/khandakermojomedical.cpp.rst
