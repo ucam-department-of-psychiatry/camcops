@@ -83,7 +83,7 @@ QString Paradise24::shortname() const
 
 QString Paradise24::longname() const
 {
-    return tr("PARADISE-24");
+    return tr("Psychosocial fActors Relevant to BrAin DISorders in Europe-24");
 }
 
 

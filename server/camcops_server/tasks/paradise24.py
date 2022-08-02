@@ -104,7 +104,9 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("PARADISE-24")
+        return _(
+            "Psychosocial fActors Relevant to BrAin DISorders in Europe-24"
+        )
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.ALL_FIELD_NAMES):
