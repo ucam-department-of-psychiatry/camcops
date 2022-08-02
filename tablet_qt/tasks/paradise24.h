@@ -52,7 +52,11 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
-
+    // ------------------------------------------------------------------------
+    // Task-specific calculations
+    // ------------------------------------------------------------------------
+    QVariant totalScore() const;
+    QVariant metricScore() const;
 public:
     static const QString PARADISE24_TABLENAME;
 protected:

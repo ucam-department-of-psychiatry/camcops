@@ -20,6 +20,7 @@
 
 #include "paradise24.h"
 #include "common/textconst.h"
+#include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
@@ -38,6 +39,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::meanOrNull;
+using mathfunc::sumInt;
 using stringfunc::strnumlist;
 using stringfunc::strseq;
 
@@ -45,6 +47,13 @@ const int FIRST_Q = 1;
 const int LAST_Q = 24;
 const int MIN_SCORE = 0;
 const int MAX_SCORE = 2;
+const int MIN_TOTAL_SCORE = 0;
+const int MAX_TOTAL_SCORE = 48;
+const int MIN_METRIC_SCORE = 0;
+const int MAX_METRIC_SCORE = 100;
+
+
+
 const QString Q_PREFIX("q");
 
 const QString Paradise24::PARADISE24_TABLENAME("paradise24");
@@ -106,9 +115,95 @@ bool Paradise24::isComplete() const
 }
 
 
+QVariant Paradise24::totalScore() const
+{
+    if (!isComplete()) {
+        return QVariant();
+    }
+
+    return sumInt(values(fieldNames()));
+}
+
+
+QVariant Paradise24::metricScore() const
+{
+    auto total_score = totalScore();
+    if (total_score.isNull()) {
+        return QVariant();
+    }
+
+    const QVector<int> score_lookup = {
+        0,  // 0
+        10,
+        19,
+        25,
+        29,
+        33,
+        36,
+        38,
+        41,
+        43,
+        45,  // 10
+        46,
+        48,
+        50,
+        51,
+        53,
+        54,
+        55,
+        57,
+        58,
+        59,  // 20
+        60,
+        61,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        71,  // 30
+        72,
+        73,
+        74,
+        76,
+        77,
+        78,
+        80,
+        81,
+        83,
+        85,  // 40
+        87,
+        89,
+        91,
+        92,
+        94,
+        96,
+        98,
+        100, // 48
+    };
+
+    return score_lookup[total_score.toInt()];
+}
+
+
 QStringList Paradise24::summary() const
 {
-    return QStringList{};
+    auto rangeScore = [](const QString& description, const QVariant score,
+                         const int min, const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].").arg(
+                    description,
+                    convert::prettyValue(score),
+                    QString::number(min),
+                    QString::number(max));
+    };
+    return QStringList{
+        rangeScore(TextConst::totalScore(), totalScore(),
+                   MIN_TOTAL_SCORE, MAX_TOTAL_SCORE),
+        rangeScore(xstring("metric_score"), metricScore(),
+                   MIN_METRIC_SCORE, MAX_METRIC_SCORE),
+    };
 }
 
 
