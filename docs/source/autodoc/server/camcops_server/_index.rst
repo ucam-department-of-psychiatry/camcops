@@ -235,6 +235,7 @@ server/camcops_server
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/basdai_TEMPLATE.xml.rst
     extra_string_templates/chit_TEMPLATE.xml.rst
+    extra_string_templates/cia_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/das28_TEMPLATE.xml.rst
@@ -252,6 +253,7 @@ server/camcops_server
     extra_string_templates/moca_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
+    extra_string_templates/paradise24_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
     extra_string_templates/rapid3_TEMPLATE.xml.rst
     extra_string_templates/sfmpq2_TEMPLATE.xml.rst
