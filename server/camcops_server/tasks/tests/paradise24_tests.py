@@ -46,6 +46,11 @@ class Paradise24Tests(TestCase):
 
         self.assertFalse(paradise24.is_complete())
 
+    def test_total_score_none_when_not_complete(self) -> None:
+        paradise24 = Paradise24()
+
+        self.assertIsNone(paradise24.total_score())
+
     def test_total_score_is_sum_of_all_answers(self) -> None:
         paradise24 = Paradise24()
 
@@ -68,3 +73,6 @@ class Paradise24Tests(TestCase):
 
         paradise24.total_score = mock.Mock(return_value=0)
         self.assertEqual(paradise24.metric_score(), 0)
+
+        paradise24.total_score = mock.Mock(return_value=None)
+        self.assertIsNone(paradise24.metric_score())

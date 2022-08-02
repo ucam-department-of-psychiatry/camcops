@@ -29,7 +29,7 @@ camcops_server/tasks/paradise24.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Any, Dict, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -112,10 +112,18 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
 
         return True
 
-    def total_score(self) -> int:
+    def total_score(self) -> Optional[int]:
+        if not self.is_complete():
+            return None
+
         return self.sum_fields(self.ALL_FIELD_NAMES)
 
-    def metric_score(self) -> int:
+    def metric_score(self) -> Optional[int]:
+        total_score = self.total_score()
+
+        if total_score is None:
+            return None
+
         score_lookup = [
             0,  # 0
             10,
@@ -168,7 +176,7 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
             100,  # 48
         ]
 
-        return score_lookup[self.total_score()]
+        return score_lookup[total_score]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
