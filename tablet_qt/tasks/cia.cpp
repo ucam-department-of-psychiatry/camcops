@@ -37,10 +37,11 @@ const int FIRST_Q = 1;
 const int LAST_Q = 16;
 const int MIN_SCORE = 0;
 const int MAX_SCORE = 3;
-const int NOT_APPLICABLE = -1;
 const int MIN_GLOBAL_SCORE = 0;
 const int MAX_GLOBAL_SCORE = 48;
 const int MIN_APPLICABLE = 12;
+const QVector<int> OPTIONAL_QUESTIONS{3, 4, 7, 10};
+
 const QString QPREFIX("q");
 
 const QString Cia::CIA_TABLENAME("cia");
@@ -135,19 +136,18 @@ QVariant Cia::globalScore() const
 
     const QVector<QVariant> responses = values(fieldNames());
 
-    for (int i = 0; i < responses.length(); i++) {
-        const QVariant& value = responses.at(i);
+    for (int qnum = 0; qnum < responses.length(); ++qnum) {
+        const QVariant& value = responses.at(qnum);
 
         if (value.isNull()) {
-            return QVariant();
-        }
-
-        const int score = value.toInt();
-        if (score != NOT_APPLICABLE) {
+            if (!OPTIONAL_QUESTIONS.contains(qnum)) {
+                return QVariant();
+            }
+        } else {
             num_applicable++;
-
-            total += score;
+            total += value.toInt();
         }
+
     }
 
     if (num_applicable < MIN_APPLICABLE) {
@@ -193,16 +193,9 @@ OpenableWidget* Cia::editor(const bool read_only)
 
         options.append({xstring(name), i});
     }
-    options.append({xstring(QString("option_%1").arg(NOT_APPLICABLE)),
-                    NOT_APPLICABLE});
-
-    const int min_width_px = 100;
-    const QVector<int> min_option_widths_px = {100, 100, 100, 100, 100};
-
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto grid = buildGrid(FIRST_Q, LAST_Q, options, xstring("grid_title"));
-    grid->setMinimumWidthInPixels(min_width_px, min_option_widths_px);
 
     QVector<QuElement*> elements{
         instructions,
@@ -230,8 +223,14 @@ QuMcqGrid* Cia::buildGrid(int first_qnum,
         const QString& fieldname = QPREFIX + QString::number(qnum);
         const QString& description = xstring(fieldname);
 
+        FieldRefPtr fieldref = fieldRef(fieldname);
+
+        if (OPTIONAL_QUESTIONS.contains(qnum)) {
+            fieldref->setMandatory(false);
+        }
+
         q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+                                                  fieldref));
 
     }
 
@@ -246,8 +245,13 @@ QuMcqGrid* Cia::buildGrid(int first_qnum,
     grid->setSubtitles(subtitles);
 
     const int question_width = 2;
-    const QVector<int> option_widths = {1, 1, 1, 1, 1};
+    const QVector<int> option_widths = {1, 1, 1, 1};
     grid->setWidth(question_width, option_widths);
+
+    const int min_width_px = 100;
+    const QVector<int> min_option_widths_px = {100, 100, 100, 100};
+    grid->setMinimumWidthInPixels(min_width_px, min_option_widths_px);
+
     grid->setQuestionsBold(false);
 
     return grid;
