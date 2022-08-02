@@ -34,6 +34,7 @@
 #include "tasks/ided3d.h"
 #include "tasks/isaaq.h"
 #include "tasks/isaaqed.h"
+#include "tasks/paradise24.h"
 #include "tasks/phq9.h"
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
@@ -65,7 +66,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
-        // todo:: PARADISE-24 [and add to "global" menu]
+        MAKE_TASK_MENU_ITEM(Paradise24::PARADISE24_TABLENAME, m_app),
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),
