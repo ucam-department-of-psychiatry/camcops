@@ -900,6 +900,7 @@ SOURCES += \
     tasks/ifs.cpp \
     tasks/irac.cpp \
     tasks/isaaq.cpp \
+    tasks/isaaqed.cpp \
     tasks/khandakerinsightmedical.cpp \
     tasks/khandakermojomedical.cpp \
     tasks/khandakermojomedicationtherapy.cpp \
@@ -961,6 +962,7 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
+    taskxtra/isaaqcommon.cpp \
     taskxtra/khandakermojomedicationitem.cpp \
     taskxtra/khandakermojotherapyitem.cpp \
     taskxtra/kirbyrewardpair.cpp \
@@ -1383,6 +1385,7 @@ HEADERS += \
     tasks/ifs.h \
     tasks/irac.h \
     tasks/isaaq.h \
+    tasks/isaaqed.h \
     tasks/khandakerinsightmedical.h \
     tasks/khandakermojomedical.h \
     tasks/khandakermojomedicationtherapy.h \
@@ -1444,6 +1447,7 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
+    taskxtra/isaaqcommon.h \
     taskxtra/khandakermojomedicationitem.h \
     taskxtra/khandakermojotherapyitem.h \
     taskxtra/kirbyrewardpair.h \

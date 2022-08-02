@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <task name="isaaq">
-    <string name="title">Internet Severity and Activities Addiction Questionnaire</string>
+    <string name="title">Internet Severity and Activities Addiction Questionnaire (ISAAQ)</string>
     <string name="instructions">instructions</string>
 
     <string name="a_title">part A title</string>
+    <string name="scale">scale</string>
 
     <string name="a1">losing track of time</string>
     <string name="a2">block disturbing thoughts</string>
