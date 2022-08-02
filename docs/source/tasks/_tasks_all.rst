@@ -113,6 +113,7 @@ All tasks
     npiq.rst
     ors.rst
     panss.rst
+    paradise24.rst
     pbq.rst
     pcl.rst
     pcl5.rst
