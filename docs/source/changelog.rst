@@ -3677,3 +3677,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <isaaqed>`. (Database revision 0074.)
 
 - **New task:** :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`. (Database revision 0075.)
+
+- **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
