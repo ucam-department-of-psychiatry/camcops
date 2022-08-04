@@ -31,6 +31,7 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
+using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
@@ -88,6 +89,20 @@ QStringList Cia::fieldNames() const
     return strseq(QPREFIX, FIRST_Q, LAST_Q);
 }
 
+
+QStringList Cia::mandatoryFieldNames() const
+{
+    QStringList list;
+    for (int qnum = FIRST_Q; qnum <= LAST_Q; ++qnum) {
+        if (!OPTIONAL_QUESTIONS.contains(qnum)) {
+            list.append(strnum(QPREFIX, qnum));
+        }
+    }
+    return list;
+
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -95,7 +110,7 @@ QStringList Cia::fieldNames() const
 
 bool Cia::isComplete() const
 {
-    if (anyNull(values(fieldNames()))) {
+    if (anyNull(values(mandatoryFieldNames()))) {
         return false;
     }
 
@@ -136,18 +151,17 @@ QVariant Cia::globalScore() const
 
     const QVector<QVariant> responses = values(fieldNames());
 
-    for (int qnum = 0; qnum < responses.length(); ++qnum) {
-        const QVariant& value = responses.at(qnum);
+    for (int i = 0; i < responses.length(); ++i) {
+        const QVariant& value = responses.at(i);
 
         if (value.isNull()) {
-            if (!OPTIONAL_QUESTIONS.contains(qnum)) {
+            if (!OPTIONAL_QUESTIONS.contains(i+1)) {
                 return QVariant();
             }
         } else {
             num_applicable++;
             total += value.toInt();
         }
-
     }
 
     if (num_applicable < MIN_APPLICABLE) {
@@ -220,7 +234,7 @@ QuMcqGrid* Cia::buildGrid(int first_qnum,
     QVector<QuestionWithOneField> q_field_pairs;
 
     for (int qnum = first_qnum; qnum <= last_qnum; qnum++) {
-        const QString& fieldname = QPREFIX + QString::number(qnum);
+        const QString& fieldname = strnum(QPREFIX, qnum);
         const QString& description = xstring(fieldname);
 
         FieldRefPtr fieldref = fieldRef(fieldname);
