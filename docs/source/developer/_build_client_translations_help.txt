@@ -56,7 +56,7 @@ optional arguments:
                        lupdate'. (default: /usr/bin/lupdate)
   --poedit POEDIT      Path to 'poedit' tool. Default is taken from POEDIT
                        environment variable or 'which poedit'. (default:
-                       /snap/bin/poedit)
+                       /path/to/poedit)
   --trim               Remove redundant strings. (default: True)
   --no_trim            Do not remove redundant strings. (default: False)
   --verbose            Be verbose (default: False)
