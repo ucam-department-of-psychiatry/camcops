@@ -39,7 +39,7 @@ from os import DirEntry, environ, scandir
 from os.path import abspath, dirname, exists, join, pardir, realpath
 import subprocess
 import sys
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from camcops_server.cc_modules.cc_baseconstants import (
@@ -83,12 +83,6 @@ def find_camcops_client_executable() -> Optional[str]:
     return None
 
 
-CAMCOPS_CLIENT_EXECUTABLE = find_camcops_client_executable()
-if CAMCOPS_CLIENT_EXECUTABLE is None:
-    log.error("Cannot find a camcops executable. Have you built it?")
-    sys.exit(EXIT_FAILURE)
-
-
 def prohibit_env_vars(envvars: List[str]) -> None:
     """
     Ensure none of the specified environment variables are present (usually
@@ -114,6 +108,7 @@ def run_cmd(
     timestamp: bool = False,
     comment_prefix: str = "# ",
     encoding: str = sys.getdefaultencoding(),
+    replacement_dict: Optional[Dict[str, str]] = None,
 ) -> None:
     """
     Args:
@@ -129,21 +124,25 @@ def run_cmd(
             Comment prefix for this type of output file
         encoding:
             Encoding to use
+        replacement_dict:
+            Optional dictionary of strings to find and replace in the output
     """
     log.info(f"Running: {cmdargs}")
 
+    if replacement_dict is None:
+        replacement_dict = {}
     modified_env = environ.copy()
     modified_env[ENVVAR_GENERATING_CAMCOPS_DOCS] = "True"
     modified_env.pop("CAMCOPS_QT_BASE_DIR", None)
     modified_env[ENVVAR_CONFIG_FILE] = "/path/to/camcops/config_file.ini"
 
-    output = (
-        subprocess.check_output(cmdargs, env=modified_env)
-        .decode(encoding)
-        .replace(
-            CAMCOPS_CLIENT_EXECUTABLE, "/path/to/camcops/client/executable"
-        )
+    output = subprocess.check_output(cmdargs, env=modified_env).decode(
+        encoding
     )
+
+    for search, replace in replacement_dict.items():
+        output = output.replace(search, replace)
+
     log.info(f"... writing to: {output_filename}")
     with open(output_filename, "wt") as f:
         f.write(output)
@@ -163,6 +162,21 @@ def main():
         default=False,
     )
     args = parser.parse_args()
+
+    # Do this first to exit early if not built
+    if not args.skip_client_help:
+        # user
+        camcops_client_executable = find_camcops_client_executable()
+        if camcops_client_executable is None:
+            log.error("Cannot find a camcops executable. Have you built it?")
+            sys.exit(EXIT_FAILURE)
+        run_cmd(
+            [camcops_client_executable, "--help"],
+            join(USER_CLIENT_DIR, "_camcops_client_help.txt"),
+            replacement_dict={
+                camcops_client_executable: "/path/to/camcops/client/executable"
+            },
+        )
 
     # administrator
     run_cmd(
@@ -239,14 +253,6 @@ def main():
         ["python", join(TABLET_TOOLS_DIR, "open_sqlcipher.py"), "--help"],
         join(DEV_DIR, "_open_sqlcipher_help.txt"),
     )
-
-    if not args.skip_client_help:
-        # user
-        camcops_client_executable = find_camcops_client_executable()
-        run_cmd(
-            [camcops_client_executable, "--help"],
-            join(USER_CLIENT_DIR, "_camcops_client_help.txt"),
-        )
 
     log.info("Done.")
 
