@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0072_edeq.py
+camcops_server/alembic/versions/0073_isaaq.py
 
 ===============================================================================
 
@@ -27,11 +27,11 @@ camcops_server/alembic/versions/0072_edeq.py
 
 DATABASE REVISION SCRIPT
 
-edeq
+isaaq
 
-Revision ID: 0072
-Revises: 0071
-Creation date: 2022-05-21 06:42:21.850837
+Revision ID: 0073
+Revises: 0072
+Creation date: 2022-07-12 23:01:37.333379
 
 """
 
@@ -52,8 +52,8 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = "0072"
-down_revision = "0071"
+revision = "0073"
+down_revision = "0072"
 branch_labels = None
 depends_on = None
 
@@ -65,204 +65,183 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     op.create_table(
-        "edeq",
+        "isaaq",
         sa.Column(
-            "q1",
+            "a1",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q1 - days limit the amount of food 0-6 (no days - every day)"
+                "a1 - losing track of time 0-5 (not at all - all the time)"
             ),
         ),
         sa.Column(
-            "q2",
+            "a2",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q2 - days long periods without eating 0-6 "
-                "(no days - every day)"
+                "a2 - block disturbing thoughts 0-5 (not at all - all the"
+                " time)"
             ),
         ),
         sa.Column(
-            "q3",
-            sa.Integer(),
-            nullable=True,
-            comment="Q3 - days exclude from diet 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q4",
-            sa.Integer(),
-            nullable=True,
-            comment="Q4 - days follow rules 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q5",
-            sa.Integer(),
-            nullable=True,
-            comment="Q5 - days desire empty stomach 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q6",
-            sa.Integer(),
-            nullable=True,
-            comment="Q6 - days desire flat stomach 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q7",
-            sa.Integer(),
-            nullable=True,
-            comment="Q7 - days thinking about food 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q8",
-            sa.Integer(),
-            nullable=True,
-            comment="Q8 - days thinking about shape 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q9",
-            sa.Integer(),
-            nullable=True,
-            comment="Q9 - days fear losing control 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q10",
-            sa.Integer(),
-            nullable=True,
-            comment="Q10 - days fear weight gain 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q11",
-            sa.Integer(),
-            nullable=True,
-            comment="Q11 - days felt fat 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q12",
-            sa.Integer(),
-            nullable=True,
-            comment="Q12 - days desire lose weight 0-6 (no days - every day)",
-        ),
-        sa.Column(
-            "q13",
-            sa.Integer(),
-            nullable=True,
-            comment="Q13 - times eaten unusually large amount of food",
-        ),
-        sa.Column(
-            "q14",
-            sa.Integer(),
-            nullable=True,
-            comment="Q14 - times sense lost control",
-        ),
-        sa.Column(
-            "q15",
-            sa.Integer(),
-            nullable=True,
-            comment="Q15 - days episodes of overeating",
-        ),
-        sa.Column(
-            "q16",
-            sa.Integer(),
-            nullable=True,
-            comment="Q16 - times made self sick",
-        ),
-        sa.Column(
-            "q17",
-            sa.Integer(),
-            nullable=True,
-            comment="Q17 - times taken laxatives",
-        ),
-        sa.Column(
-            "q18",
-            sa.Integer(),
-            nullable=True,
-            comment="Q18 - times exercised in driven or compulsive way",
-        ),
-        sa.Column(
-            "q19",
-            sa.Integer(),
-            nullable=True,
-            comment="Q19 - days eaten in secret (no days - every day)",
-        ),
-        sa.Column(
-            "q20",
-            sa.Integer(),
-            nullable=True,
-            comment="Q20 - times felt guilty (none of the times - every time)",
-        ),
-        sa.Column(
-            "q21",
+            "a3",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q21 - concern about people seeing you eat "
-                "(not at all - markedly)"
+                "a3 - loneliness or boredom 0-5 (not at all - all the time)"
             ),
         ),
         sa.Column(
-            "q22",
+            "a4",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q22 - weight influenced how you judge self "
-                "(not at all - markedly)"
+                "a4 - neglect normal activities 0-5 (not at all - all the"
+                " time)"
             ),
         ),
         sa.Column(
-            "q23",
+            "a5",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q23 - shape influenced how you judge self "
-                "(not at all - markedly)"
+                "a5 - choose over intimacy 0-5 (not at all - all the time)"
             ),
         ),
         sa.Column(
-            "q24",
+            "a6",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q24 - upset if asked to weigh self (not at all - markedly)"
+                "a6 - financial consequences 0-5 (not at all - all the time)"
             ),
         ),
         sa.Column(
-            "q25",
-            sa.Integer(),
-            nullable=True,
-            comment=("Q25 - dissatisfied with weight (not at all - markedly)"),
-        ),
-        sa.Column(
-            "q26",
-            sa.Integer(),
-            nullable=True,
-            comment="Q26 - dissatisfied with shape (not at all - markedly)",
-        ),
-        sa.Column(
-            "q27",
-            sa.Integer(),
-            nullable=True,
-            comment="Q27 - uncomfortable seeing body (not at all - markedly)",
-        ),
-        sa.Column(
-            "q28",
+            "a7",
             sa.Integer(),
             nullable=True,
             comment=(
-                "Q28 - uncomfortable others seeing shape "
-                "(not at all - markedly)"
+                "a7 - school/study suffers 0-5 (not at all - all the time)"
             ),
         ),
-        sa.Column("mass_kg", sa.Float(), nullable=True, comment="Mass (kg)"),
-        sa.Column("height_m", sa.Float(), nullable=True, comment="Height (m)"),
         sa.Column(
-            "num_periods_missed",
+            "a8",
             sa.Integer(),
             nullable=True,
-            comment="Number of periods missed",
+            comment=(
+                "a8 - check email or social media 0-5 (not at all - all the"
+                " time)"
+            ),
         ),
         sa.Column(
-            "pill", sa.Boolean(), nullable=True, comment="Taking the pill"
+            "a9",
+            sa.Integer(),
+            nullable=True,
+            comment="a9 - others complain 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "a10",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a10 - defensive or secretive 0-5 (not at all - all the time)"
+            ),
+        ),
+        sa.Column(
+            "a11",
+            sa.Integer(),
+            nullable=True,
+            comment="a11 - try to arrest 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "a12",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a12 - preoccupied when offline 0-5 (not at all - all the"
+                " time)"
+            ),
+        ),
+        sa.Column(
+            "a13",
+            sa.Integer(),
+            nullable=True,
+            comment="a13 - lose sleep 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "a14",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a14 - physical or psychological problems 0-5 (not at all -"
+                " all the time)"
+            ),
+        ),
+        sa.Column(
+            "a15",
+            sa.Integer(),
+            nullable=True,
+            comment="a15 - try to cut down 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b1",
+            sa.Integer(),
+            nullable=True,
+            comment="b1 - general surfing 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b2",
+            sa.Integer(),
+            nullable=True,
+            comment="b2 - internet gaming 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b3",
+            sa.Integer(),
+            nullable=True,
+            comment="b3 - skill games 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b4",
+            sa.Integer(),
+            nullable=True,
+            comment="b4 - online shopping 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b5",
+            sa.Integer(),
+            nullable=True,
+            comment="b5 - online gaming 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b6",
+            sa.Integer(),
+            nullable=True,
+            comment="b6 - social networking 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b7",
+            sa.Integer(),
+            nullable=True,
+            comment="b7 - health and medicine 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b8",
+            sa.Integer(),
+            nullable=True,
+            comment="b8 - pornography 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b9",
+            sa.Integer(),
+            nullable=True,
+            comment="b9 - streaming media 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b10",
+            sa.Integer(),
+            nullable=True,
+            comment="b10 - cyberbullying 0-5 (not at all - all the time)",
         ),
         sa.Column(
             "patient_id",
@@ -291,8 +270,8 @@ def upgrade():
             sa.Boolean(),
             nullable=True,
             comment=(
-                "(TASK) Was the first exit from the task because it was "
-                "finished (1)?"
+                "(TASK) Was the first exit from the task because it was"
+                " finished (1)?"
             ),
         ),
         sa.Column(
@@ -300,8 +279,8 @@ def upgrade():
             sa.Boolean(),
             nullable=True,
             comment=(
-                "(TASK) Was the first exit from this task because it was "
-                "aborted (1)?"
+                "(TASK) Was the first exit from this task because it was"
+                " aborted (1)?"
             ),
         ),
         sa.Column(
@@ -328,8 +307,8 @@ def upgrade():
             sa.String(length=32),
             nullable=False,
             comment=(
-                "(SERVER) 'NOW', or when this row was preserved and removed "
-                "from the source device (UTC ISO 8601)"
+                "(SERVER) 'NOW', or when this row was preserved and removed"
+                " from the source device (UTC ISO 8601)"
             ),
         ),
         sa.Column(
@@ -349,8 +328,8 @@ def upgrade():
             sa.DateTime(),
             nullable=True,
             comment=(
-                "(SERVER) Date/time of the upload batch that added this row "
-                "(DATETIME in UTC)"
+                "(SERVER) Date/time of the upload batch that added this row"
+                " (DATETIME in UTC)"
             ),
         ),
         sa.Column(
@@ -364,8 +343,8 @@ def upgrade():
             PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment=(
-                "(SERVER) Date/time this row was removed, i.e. made not "
-                "current (ISO 8601)"
+                "(SERVER) Date/time this row was removed, i.e. made not"
+                " current (ISO 8601)"
             ),
         ),
         sa.Column(
@@ -373,8 +352,8 @@ def upgrade():
             sa.DateTime(),
             nullable=True,
             comment=(
-                "(SERVER) Date/time of the upload batch that removed this row "
-                "(DATETIME in UTC)"
+                "(SERVER) Date/time of the upload batch that removed this row"
+                " (DATETIME in UTC)"
             ),
         ),
         sa.Column(
@@ -394,8 +373,8 @@ def upgrade():
             sa.Boolean(),
             nullable=True,
             comment=(
-                "(SERVER) Forcibly preserved by superuser (rather than "
-                "normally preserved by tablet)?"
+                "(SERVER) Forcibly preserved by superuser (rather than"
+                " normally preserved by tablet)?"
             ),
         ),
         sa.Column(
@@ -409,8 +388,8 @@ def upgrade():
             sa.Integer(),
             nullable=True,
             comment=(
-                "(SERVER) PK of successor record  (after modification) or "
-                "NULL (whilst live, or after deletion)"
+                "(SERVER) PK of successor record  (after modification) or NULL"
+                " (whilst live, or after deletion)"
             ),
         ),
         sa.Column(
@@ -466,8 +445,8 @@ def upgrade():
             PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment=(
-                "(STANDARD) Date/time this row was last modified on the "
-                "source tablet device (ISO 8601)"
+                "(STANDARD) Date/time this row was last modified on the source"
+                " tablet device (ISO 8601)"
             ),
         ),
         sa.Column(
@@ -479,67 +458,68 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["_adding_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_edeq__adding_user_id"),
+            name=op.f("fk_isaaq__adding_user_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_device_id"],
             ["_security_devices.id"],
-            name=op.f("fk_edeq__device_id"),
+            name=op.f("fk_isaaq__device_id"),
             use_alter=True,
         ),
         sa.ForeignKeyConstraint(
             ["_group_id"],
             ["_security_groups.id"],
-            name=op.f("fk_edeq__group_id"),
+            name=op.f("fk_isaaq__group_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_manually_erasing_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_edeq__manually_erasing_user_id"),
+            name=op.f("fk_isaaq__manually_erasing_user_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_preserving_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_edeq__preserving_user_id"),
+            name=op.f("fk_isaaq__preserving_user_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_removing_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_edeq__removing_user_id"),
+            name=op.f("fk_isaaq__removing_user_id"),
         ),
-        sa.PrimaryKeyConstraint("_pk", name=op.f("pk_edeq")),
+        sa.PrimaryKeyConstraint("_pk", name=op.f("pk_isaaq")),
         mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
         mysql_engine="InnoDB",
         mysql_row_format="DYNAMIC",
     )
-    with op.batch_alter_table("edeq", schema=None) as batch_op:
+    with op.batch_alter_table("isaaq", schema=None) as batch_op:
         batch_op.create_index(
-            batch_op.f("ix_edeq__current"), ["_current"], unique=False
+            batch_op.f("ix_isaaq__current"), ["_current"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_edeq__device_id"), ["_device_id"], unique=False
+            batch_op.f("ix_isaaq__device_id"), ["_device_id"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_edeq__era"), ["_era"], unique=False
+            batch_op.f("ix_isaaq__era"), ["_era"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_edeq__group_id"), ["_group_id"], unique=False
-        )
-        batch_op.create_index(batch_op.f("ix_edeq__pk"), ["_pk"], unique=False)
-        batch_op.create_index(batch_op.f("ix_edeq_id"), ["id"], unique=False)
-        batch_op.create_index(
-            batch_op.f("ix_edeq_patient_id"), ["patient_id"], unique=False
+            batch_op.f("ix_isaaq__group_id"), ["_group_id"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_edeq_when_last_modified"),
+            batch_op.f("ix_isaaq__pk"), ["_pk"], unique=False
+        )
+        batch_op.create_index(batch_op.f("ix_isaaq_id"), ["id"], unique=False)
+        batch_op.create_index(
+            batch_op.f("ix_isaaq_patient_id"), ["patient_id"], unique=False
+        )
+        batch_op.create_index(
+            batch_op.f("ix_isaaq_when_last_modified"),
             ["when_last_modified"],
             unique=False,
         )
 
-    # https://github.com/sqlalchemy/alembic/issues/326
-    with op.batch_alter_table("edeq", schema=None) as batch_op:
+    with op.batch_alter_table("isaaq", schema=None) as batch_op:
         batch_op.create_foreign_key(
-            batch_op.f("fk_edeq__device_id"),
+            batch_op.f("fk_isaaq__device_id"),
             "_security_devices",
             ["_device_id"],
             ["id"],
@@ -549,4 +529,4 @@ def upgrade():
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    op.drop_table("edeq")
+    op.drop_table("isaaq")

@@ -23,6 +23,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/bmi.h"
 #include "tasks/chit.h"
 #include "tasks/edeq.h"
 #include "tasks/eq5d5l.h"
@@ -31,6 +32,8 @@
 #include "tasks/gbogres.h"
 #include "tasks/gbogpc.h"
 #include "tasks/ided3d.h"
+#include "tasks/isaaq.h"
+#include "tasks/isaaqed.h"
 #include "tasks/phq9.h"
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
@@ -66,6 +69,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
         // todo:: CIA [and add to "eating disorders" menu]
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
@@ -78,7 +82,8 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         MenuItem(tr("Research")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
-        // todo:: ISAAQ [and add to "research" menu]
+        MAKE_TASK_MENU_ITEM(Isaaq::ISAAQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(IsaaqEd::ISAAQED_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
     };
 }

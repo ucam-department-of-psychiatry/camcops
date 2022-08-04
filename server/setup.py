@@ -89,7 +89,7 @@ INSTALL_REQUIRES = [
     "gunicorn==20.1.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
     "lockfile==0.12.2",  # File locking for background tasks
-    "lxml==4.6.5",  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
     "numpy==1.21.5",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server

@@ -96,6 +96,8 @@ All tasks
     iesr.rst
     ifs.rst
     irac.rst
+    isaaq.rst
+    isaaqed.rst
     khandaker_insight_medical.rst
     khandaker_mojo.rst
     kirby_mcq.rst
@@ -110,6 +112,7 @@ All tasks
     npiq.rst
     ors.rst
     panss.rst
+    paradise24.rst
     pbq.rst
     pcl.rst
     pcl5.rst

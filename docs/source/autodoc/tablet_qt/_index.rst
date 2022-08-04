@@ -770,6 +770,10 @@ tablet_qt
     tasks/ifs.h.rst
     tasks/irac.cpp.rst
     tasks/irac.h.rst
+    tasks/isaaq.cpp.rst
+    tasks/isaaq.h.rst
+    tasks/isaaqed.cpp.rst
+    tasks/isaaqed.h.rst
     tasks/khandakerinsightmedical.cpp.rst
     tasks/khandakerinsightmedical.h.rst
     tasks/khandakermojomedical.cpp.rst
@@ -894,6 +898,8 @@ tablet_qt
     taskxtra/ided3dstage.h.rst
     taskxtra/ided3dtrial.cpp.rst
     taskxtra/ided3dtrial.h.rst
+    taskxtra/isaaqcommon.cpp.rst
+    taskxtra/isaaqcommon.h.rst
     taskxtra/khandakermojomedicationitem.cpp.rst
     taskxtra/khandakermojomedicationitem.h.rst
     taskxtra/khandakermojotherapyitem.cpp.rst
