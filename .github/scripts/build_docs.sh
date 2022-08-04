@@ -16,7 +16,7 @@ echo installing pip packages
 python -m pip install -e server/.
 python -m pip install mysqlclient
 export CAMCOPS_CONFIG_FILE=${HOME}/camcops.cfg
-camcops_server demo_camcops_config
+camcops_server demo_camcops_config > $CAMCOPS_CONFIG_FILE
 ########################################################################################
 cd "${GITHUB_WORKSPACE}/docs"
 echo Creating autodocs
