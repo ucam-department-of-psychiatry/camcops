@@ -31,7 +31,7 @@ camcops_server/tasks/cia.py
 
 from typing import Any, Dict, Optional, Type, Tuple
 
-from cardinal_pythonlib.stringfunc import strseq
+from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -90,11 +90,11 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
     Q_PREFIX = "q"
     FIRST_Q = 1
     LAST_Q = 16
-    MIN_APPLICABLE = 12
     MAX_SCORE = 48
-    NOT_APPLICABLE = -1
 
-    ALL_FIELD_NAMES = strseq("q", FIRST_Q, LAST_Q)
+    ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
+    MANDATORY_QUESTIONS = [1, 2, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16]
+    MANDATORY_FIELD_NAMES = strnumlist(Q_PREFIX, MANDATORY_QUESTIONS)
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -102,32 +102,30 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         return _("")
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.ALL_FIELD_NAMES):
+        if self.any_fields_none(self.MANDATORY_FIELD_NAMES):
             return False
 
         return True
 
     def global_score(self) -> Optional[float]:
         """
-        To obtain the global CIA impairment score the ratings on all items are
+        The original paper states:
+
+        "To obtain the global CIA impairment score the ratings on all items are
         added together with prorating of missing ratings, so long as at least
-        12 of the 16 items have been rated.
+        12 of the 16 items have been rated."
+
+        In our implementation all questions are mandatory except for 3,4,7 and
+        10. So there won't be fewer than 12 items rated for a complete
+        questionnaire.
         """
         if not self.is_complete():
             return None
 
-        num_applicable = self.LAST_Q - self.count_where(
-            self.ALL_FIELD_NAMES, [self.NOT_APPLICABLE]
-        )
+        num_answered = self.n_fields_not_none(self.ALL_FIELD_NAMES)
+        scale_factor = self.LAST_Q / num_answered
 
-        if num_applicable < self.MIN_APPLICABLE:
-            return None
-
-        scale_factor = self.LAST_Q / num_applicable
-
-        return scale_factor * self.sum_fields(
-            self.ALL_FIELD_NAMES, ignorevalue=self.NOT_APPLICABLE
-        )
+        return scale_factor * self.sum_fields(self.ALL_FIELD_NAMES)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
@@ -178,11 +176,14 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         q_field = self.Q_PREFIX + str(q_num)
 
         score = getattr(self, q_field)
+        if score is None:
+            if q_num in self.MANDATORY_QUESTIONS:
+                return "?"
+
+            return req.sstring(SS.NA)
+
         meaning = self.get_score_meaning(req, score)
-
-        answer_cell = f"{score} [{meaning}]"
-
-        return answer_cell
+        return f"{score} [{meaning}]"
 
     def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"option_{score}")
