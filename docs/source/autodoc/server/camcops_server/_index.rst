@@ -234,6 +234,7 @@ server/camcops_server
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/basdai_TEMPLATE.xml.rst
     extra_string_templates/chit_TEMPLATE.xml.rst
+    extra_string_templates/cia_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/das28_TEMPLATE.xml.rst
