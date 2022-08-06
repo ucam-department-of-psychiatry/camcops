@@ -119,7 +119,13 @@ from cardinal_pythonlib.json.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from celery import Celery, current_task
 from kombu.serialization import register
-from numpy.random import uniform
+
+# TODO: Investigate
+# "from numpy.random import uniform" leads to uniform ending up in the
+# documentation for this file and Sphinx error:
+# celery.py:docstring of camcops_server.cc_modules.celery.uniform:9:
+# undefined label: random-quick-start
+from numpy import random
 
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
@@ -306,7 +312,7 @@ def jittered_delay_s() -> float:
     """
     Returns a retry delay, in seconds, that is jittered.
     """
-    return uniform(RETRY_MIN_DELAY_S, RETRY_MAX_DELAY_S)
+    return random.uniform(RETRY_MIN_DELAY_S, RETRY_MAX_DELAY_S)
 
 
 @contextmanager
