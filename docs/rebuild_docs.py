@@ -121,7 +121,14 @@ if __name__ == "__main__":
             "--------------------------------------\n"
             "For auto-generated code docs, ensure there is a description "
             "beneath the row of '=' in the copyright block of the python "
-            "file.\n"
+            "file.\n\n"
+            'Could not lex literal block as "C++". Highlighting skipped.\n'
+            "-----------------------------------------------------------\n"
+            "The pygments C++ lexer has problems, particularly with comments "
+            "embedded within code containing characters such as \\, #, '. "
+            "v2.12.0 fixed some of these problems but introduced more in "
+            "the process. Use the debug_highlighting.py script to "
+            "troubleshoot."
         )
 
         raise e
