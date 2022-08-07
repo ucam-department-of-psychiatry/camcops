@@ -25,6 +25,7 @@
 
 #include "tasks/bmi.h"
 #include "tasks/chit.h"
+#include "tasks/cia.h"
 #include "tasks/edeq.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/gad7.h"
@@ -68,8 +69,8 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         // todo:: PARADISE-24 [and add to "global" menu]
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
-        // todo:: CIA [and add to "eating disorders" menu]
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),

@@ -660,6 +660,8 @@ tablet_qt
     tasks/cgisch.h.rst
     tasks/chit.cpp.rst
     tasks/chit.h.rst
+    tasks/cia.cpp.rst
+    tasks/cia.h.rst
     tasks/cisr.cpp.rst
     tasks/cisr.h.rst
     tasks/ciwa.cpp.rst

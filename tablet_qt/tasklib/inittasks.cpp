@@ -48,6 +48,7 @@
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
 #include "tasks/chit.h"
+#include "tasks/cia.h"
 #include "tasks/cisr.h"
 #include "tasks/ciwa.h"
 #include "tasks/contactlog.h"
@@ -206,6 +207,7 @@ void InitTasks(TaskFactory& factory)
     initializeCgiI(factory);
     initializeCgiSch(factory);
     initializeChit(factory);
+    initializeCia(factory);
     initializeCisr(factory);
     initializeCiwa(factory);
     initializeContactLog(factory);

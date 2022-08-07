@@ -57,6 +57,7 @@ from camcops_server.tasks.cesdr import Cesdr
 from camcops_server.tasks.cgi_task import Cgi
 from camcops_server.tasks.cgisch import CgiSch
 from camcops_server.tasks.chit import Chit
+from camcops_server.tasks.cia import Cia
 from camcops_server.tasks.cisr import Cisr
 from camcops_server.tasks.ciwa import Ciwa
 from camcops_server.tasks.contactlog import ContactLog
