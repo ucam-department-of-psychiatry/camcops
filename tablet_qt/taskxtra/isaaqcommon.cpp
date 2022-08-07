@@ -32,9 +32,6 @@
 using mathfunc::anyNull;
 using stringfunc::strseq;
 
-const int FIRST_Q = 1;
-const int N_A_QUESTIONS = 15;
-const int N_B_QUESTIONS = 10;
 const int MIN_SCORE = 0;
 const int MAX_SCORE = 5;
 
@@ -117,7 +114,7 @@ QuMcqGrid* IsaaqCommon::buildGrid(const QString prefix,
 
     NameValueOptions options;
 
-    for (int i = 0; i <= MAX_SCORE; i++) {
+    for (int i = MIN_SCORE; i <= MAX_SCORE; i++) {
         auto name = QString("freq_option_%1").arg(i);
 
         options.append({xstring(name), i});

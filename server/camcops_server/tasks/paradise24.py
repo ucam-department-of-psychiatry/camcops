@@ -25,7 +25,7 @@ camcops_server/tasks/paradise24.py
 
 ===============================================================================
 
-** PARADISE-24 task.**
+**PARADISE-24 task.**
 
 """
 
@@ -226,12 +226,10 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
         q_field = self.Q_PREFIX + str(q_num)
 
         score = getattr(self, q_field)
-        meaning = self.get_score_meaning(req, q_num, score)
+        meaning = self.get_score_meaning(req, score)
         answer_cell = f"{score} [{meaning}]"
 
         return answer_cell
 
-    def get_score_meaning(
-        self, req: CamcopsRequest, q_num: int, score: int
-    ) -> str:
+    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"option_{score}")

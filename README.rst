@@ -8,7 +8,7 @@ CamCOPS
 
 .. Build status:
 .. image:: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/push-to-repository.yml/badge.svg
-    :target: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/push-to-repository.yml/badge.svg
+    :target: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/push-to-repository.yml/
 
 .. Code style:
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg

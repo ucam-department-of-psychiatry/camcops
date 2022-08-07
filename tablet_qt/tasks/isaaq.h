@@ -40,11 +40,10 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    // ------------------------------------------------------------------------
 
 public:
     static const QString ISAAQ_TABLENAME;
 protected:
-    QStringList fieldNames() const;
-    QVector<QuElement*> buildElements();
+    QStringList fieldNames() const override;
+    QVector<QuElement*> buildElements() override;
 };

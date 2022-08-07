@@ -52,10 +52,7 @@ const int MAX_TOTAL_SCORE = 48;
 const int MIN_METRIC_SCORE = 0;
 const int MAX_METRIC_SCORE = 100;
 
-
-
 const QString Q_PREFIX("q");
-
 const QString Paradise24::PARADISE24_TABLENAME("paradise24");
 
 
@@ -71,6 +68,8 @@ Paradise24::Paradise24(CamcopsApp& app, DatabaseManager& db, const int load_pk) 
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
+
 // ============================================================================
 // Class info
 // ============================================================================

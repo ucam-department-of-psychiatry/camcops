@@ -63,7 +63,11 @@ public:
 protected:
     QVariant subscale(QVector<int> questions) const;
     QStringList fieldNames() const;
+    QStringList mandatoryFieldNames() const;
 private:
-    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options, const QString title = "");
+    QuMcqGrid* buildGrid(
+        int first_q_num, int last_q_num,
+        const NameValueOptions options, const QString title = ""
+    );
 
 };

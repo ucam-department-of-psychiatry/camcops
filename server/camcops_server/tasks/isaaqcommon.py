@@ -30,16 +30,20 @@ camcops_server/tasks/isaaq.py
 
 """
 
+from typing import Optional
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
+# noinspection PyAbstractClass
 class IsaaqCommon(TaskHasPatientMixin, Task):
     __abstract__ = True
 
     def is_complete(self) -> bool:
+        # noinspection PyUnresolvedReferences
         if self.any_fields_none(self.ALL_FIELD_NAMES):
             return False
 
@@ -85,20 +89,18 @@ class IsaaqCommon(TaskHasPatientMixin, Task):
 
     def get_answer_cell(
         self, req: CamcopsRequest, prefix: str, q_num: int
-    ) -> str:
+    ) -> Optional[str]:
         q_field = prefix + str(q_num)
 
         score = getattr(self, q_field)
         if score is None:
             return score
 
-        meaning = self.get_score_meaning(req, q_num, score)
+        meaning = self.get_score_meaning(req, score)
 
         answer_cell = f"{score} [{meaning}]"
 
         return answer_cell
 
-    def get_score_meaning(
-        self, req: CamcopsRequest, q_num: int, score: int
-    ) -> str:
+    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"freq_option_{score}")

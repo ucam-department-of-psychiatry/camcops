@@ -32,8 +32,6 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 11;
 const int LAST_Q = 20;
-const int MIN_SCORE = 0;
-const int MAX_SCORE = 5;
 const QString Q_PREFIX("e");
 
 
@@ -52,6 +50,8 @@ IsaaqEd::IsaaqEd(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);
 }
+
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -64,13 +64,13 @@ QString IsaaqEd::shortname() const
 
 QString IsaaqEd::longname() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (ISAAQ-ED)");
+    return tr("Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix");
 }
 
 
 QString IsaaqEd::description() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (ISAAQ-ED)");
+    return tr("Supplementary questionnaire (see ISAAQ) on problematic internet use relating to eating disorders.");
 }
 
 
@@ -78,7 +78,6 @@ QStringList IsaaqEd::fieldNames() const
 {
     return strseq(Q_PREFIX, FIRST_Q, LAST_Q);
 }
-
 
 
 QVector<QuElement*> IsaaqEd::buildElements()

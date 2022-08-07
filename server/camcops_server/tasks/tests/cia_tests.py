@@ -41,10 +41,18 @@ class CiaTests(TestCase):
 
         self.assertTrue(cia.is_complete())
 
-    def test_is_complete_false_when_not_finished(self) -> None:
+    def test_not_complete_when_not_started(self) -> None:
         cia = Cia()
 
         self.assertFalse(cia.is_complete())
+
+    def test_complete_when_all_mandatory_answers_valid(self) -> None:
+        cia = Cia()
+
+        for q_num in (1, 2, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16):
+            setattr(cia, f"q{q_num}", 3)
+
+        self.assertTrue(cia.is_complete())
 
     def test_max_global_score_for_all_answers(self) -> None:
         cia = Cia()
@@ -54,27 +62,21 @@ class CiaTests(TestCase):
 
         self.assertEqual(cia.global_score(), 48)
 
-    def test_global_score_is_prorated_for_applicable_questions(self) -> None:
+    def test_global_score_is_prorated_for_mandatory_questions(self) -> None:
         cia = Cia()
 
-        for q_num in range(1, 12 + 1):
+        for q_num in (1, 2, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16):
             setattr(cia, f"q{q_num}", 3)
-
-        for q_num in range(13, 16 + 1):
-            setattr(cia, f"q{q_num}", Cia.NOT_APPLICABLE)
 
         self.assertEqual(cia.global_score(), 48)
 
-    def test_global_score_is_not_rated_for_less_than_12_questions(
+    def test_global_score_is_not_rated_when_mandatory_questions_not_answered(
         self,
     ) -> None:
         cia = Cia()
 
-        for q_num in range(1, 11 + 1):
+        for q_num in (3, 4, 7, 10):
             setattr(cia, f"q{q_num}", 3)
-
-        for q_num in range(12, 16 + 1):
-            setattr(cia, f"q{q_num}", Cia.NOT_APPLICABLE)
 
         self.assertIsNone(cia.global_score())
 

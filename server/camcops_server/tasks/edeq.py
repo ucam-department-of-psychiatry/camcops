@@ -25,7 +25,7 @@ camcops_server/tasks/edeq.py
 
 ===============================================================================
 
-** Eating Disorder Examination Questionnaire (EDE-Q 6.0) task.**
+**Eating Disorder Examination Questionnaire (EDE-Q 6.0) task.**
 
 """
 
@@ -156,7 +156,9 @@ class EdeqMetaclass(DeclarativeMeta):
         setattr(
             cls,
             "pill",
-            Column("pill", Boolean, comment="Taking the pill"),
+            Column(
+                "pill", Boolean, comment="Taking the (oral contraceptive) pill"
+            ),
         )
 
         super().__init__(name, bases, classdict)
@@ -173,13 +175,20 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
     FEMALE_FIELD_NAMES = ["num_periods_missed", "pill"]
 
-    RESTRAINT_Q_NUMS = strnumlist("", [1, 2, 3, 4, 5])
+    RESTRAINT_Q_NUMS = [1, 2, 3, 4, 5]
+    RESTRAINT_Q_STR = ", ".join(str(q) for q in RESTRAINT_Q_NUMS)
     RESTRAINT_FIELD_NAMES = strnumlist("q", RESTRAINT_Q_NUMS)
-    EATING_CONCERN_Q_NUMS = strnumlist("", [7, 9, 19, 20, 21])
+
+    EATING_CONCERN_Q_NUMS = [7, 9, 19, 20, 21]
+    EATING_CONCERN_Q_STR = ", ".join(str(q) for q in EATING_CONCERN_Q_NUMS)
     EATING_CONCERN_FIELD_NAMES = strnumlist("q", EATING_CONCERN_Q_NUMS)
-    SHAPE_CONCERN_Q_NUMS = strnumlist("", [6, 8, 10, 11, 23, 26, 27, 28])
+
+    SHAPE_CONCERN_Q_NUMS = [6, 8, 10, 11, 23, 26, 27, 28]
+    SHAPE_CONCERN_Q_STR = ", ".join(str(q) for q in SHAPE_CONCERN_Q_NUMS)
     SHAPE_CONCERN_FIELD_NAMES = strnumlist("q", SHAPE_CONCERN_Q_NUMS)
-    WEIGHT_CONCERN_Q_NUMS = strnumlist("", [8, 12, 22, 24, 25])
+
+    WEIGHT_CONCERN_Q_NUMS = [8, 12, 22, 24, 25]
+    WEIGHT_CONCERN_Q_STR = ", ".join(str(q) for q in WEIGHT_CONCERN_Q_NUMS)
     WEIGHT_CONCERN_FIELD_NAMES = strnumlist("q", WEIGHT_CONCERN_Q_NUMS)
 
     @staticmethod
@@ -199,7 +208,7 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        score_range = "[0–7]"
+        score_range = "[0–6]"
 
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
@@ -271,18 +280,20 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
                 f"{answer(self.weight_concern())} {score_range}",
             ),
             rows=rows,
-            restraint_q_nums=",".join(self.RESTRAINT_Q_NUMS),
-            eating_concern_q_nums=",".join(self.EATING_CONCERN_Q_NUMS),
-            shape_concern_q_nums=",".join(self.SHAPE_CONCERN_Q_NUMS),
-            weight_concern_q_nums=",".join(self.WEIGHT_CONCERN_Q_NUMS),
+            restraint_q_nums=self.RESTRAINT_Q_STR,
+            eating_concern_q_nums=self.EATING_CONCERN_Q_STR,
+            shape_concern_q_nums=self.SHAPE_CONCERN_Q_STR,
+            weight_concern_q_nums=self.WEIGHT_CONCERN_Q_STR,
         )
         return html
 
-    def get_answer_cell(self, req: CamcopsRequest, q_num: int) -> str:
+    def get_answer_cell(
+        self, req: CamcopsRequest, q_num: int
+    ) -> Optional[str]:
         q_field = "q" + str(q_num)
 
         score = getattr(self, q_field)
-        if score is None or (q_num >= 13 and q_num <= 18):
+        if score is None or (13 <= q_num <= 18):
             return score
 
         meaning = self.get_score_meaning(req, q_num, score)
@@ -302,8 +313,8 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
 
         if score % 2 == 1:
             previous = self.wxstring(req, f"how_much_option_{score-1}")
-            next = self.wxstring(req, f"how_much_option_{score+1}")
-            return f"{previous}—{next}"
+            next_ = self.wxstring(req, f"how_much_option_{score+1}")
+            return f"{previous}—{next_}"
 
         return self.wxstring(req, f"how_much_option_{score}")
 
@@ -320,11 +331,10 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
         return self.subscale(self.WEIGHT_CONCERN_FIELD_NAMES)
 
     def subscale(self, field_names: List[str]) -> Optional[float]:
-        scores = [getattr(self, q) for q in field_names]
-        if None in scores:
+        if self.any_fields_none(field_names):
             return None
 
-        return statistics.mean(scores)
+        return self.mean_fields(field_names)
 
     def global_score(self) -> Optional[float]:
         subscales = [

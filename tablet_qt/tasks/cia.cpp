@@ -31,16 +31,18 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
+using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int LAST_Q = 16;
 const int MIN_SCORE = 0;
 const int MAX_SCORE = 3;
-const int NOT_APPLICABLE = -1;
 const int MIN_GLOBAL_SCORE = 0;
 const int MAX_GLOBAL_SCORE = 48;
 const int MIN_APPLICABLE = 12;
+const QVector<int> OPTIONAL_QUESTIONS{3, 4, 7, 10};
+
 const QString QPREFIX("q");
 
 const QString Cia::CIA_TABLENAME("cia");
@@ -58,6 +60,8 @@ Cia::Cia(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -76,7 +80,7 @@ QString Cia::longname() const
 
 QString Cia::description() const
 {
-    return tr("A 16-item self-report measure of the severity of psychosocial impairment due to eating disorder features");
+    return tr("A 16-item self-report measure of the severity of psychosocial impairment due to eating disorder features.");
 }
 
 
@@ -85,6 +89,20 @@ QStringList Cia::fieldNames() const
     return strseq(QPREFIX, FIRST_Q, LAST_Q);
 }
 
+
+QStringList Cia::mandatoryFieldNames() const
+{
+    QStringList list;
+    for (int qnum = FIRST_Q; qnum <= LAST_Q; ++qnum) {
+        if (!OPTIONAL_QUESTIONS.contains(qnum)) {
+            list.append(strnum(QPREFIX, qnum));
+        }
+    }
+    return list;
+
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -92,7 +110,7 @@ QStringList Cia::fieldNames() const
 
 bool Cia::isComplete() const
 {
-    if (anyNull(values(fieldNames()))) {
+    if (anyNull(values(mandatoryFieldNames()))) {
         return false;
     }
 
@@ -133,18 +151,16 @@ QVariant Cia::globalScore() const
 
     const QVector<QVariant> responses = values(fieldNames());
 
-    for (int i = 0; i < responses.length(); i++) {
+    for (int i = 0; i < responses.length(); ++i) {
         const QVariant& value = responses.at(i);
 
         if (value.isNull()) {
-            return QVariant();
-        }
-
-        const int score = value.toInt();
-        if (score != NOT_APPLICABLE) {
+            if (!OPTIONAL_QUESTIONS.contains(i+1)) {
+                return QVariant();
+            }
+        } else {
             num_applicable++;
-
-            total += score;
+            total += value.toInt();
         }
     }
 
@@ -152,7 +168,7 @@ QVariant Cia::globalScore() const
         return QVariant();
     }
 
-    float scale_factor = (float) LAST_Q / num_applicable;
+    const float scale_factor = (float) LAST_Q / num_applicable;
 
     return scale_factor * total;
 }
@@ -191,16 +207,9 @@ OpenableWidget* Cia::editor(const bool read_only)
 
         options.append({xstring(name), i});
     }
-    options.append({xstring(QString("option_%1").arg(NOT_APPLICABLE)),
-                    NOT_APPLICABLE});
-
-    const int min_width_px = 100;
-    const QVector<int> min_option_widths_px = {100, 100, 100, 100, 100};
-
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto grid = buildGrid(FIRST_Q, LAST_Q, options, xstring("grid_title"));
-    grid->setMinimumWidthInPixels(min_width_px, min_option_widths_px);
 
     QVector<QuElement*> elements{
         instructions,
@@ -225,11 +234,17 @@ QuMcqGrid* Cia::buildGrid(int first_qnum,
     QVector<QuestionWithOneField> q_field_pairs;
 
     for (int qnum = first_qnum; qnum <= last_qnum; qnum++) {
-        const QString& fieldname = QPREFIX + QString::number(qnum);
+        const QString& fieldname = strnum(QPREFIX, qnum);
         const QString& description = xstring(fieldname);
 
+        FieldRefPtr fieldref = fieldRef(fieldname);
+
+        if (OPTIONAL_QUESTIONS.contains(qnum)) {
+            fieldref->setMandatory(false);
+        }
+
         q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+                                                  fieldref));
 
     }
 
@@ -244,8 +259,13 @@ QuMcqGrid* Cia::buildGrid(int first_qnum,
     grid->setSubtitles(subtitles);
 
     const int question_width = 2;
-    const QVector<int> option_widths = {1, 1, 1, 1, 1};
+    const QVector<int> option_widths = {1, 1, 1, 1};
     grid->setWidth(question_width, option_widths);
+
+    const int min_width_px = 100;
+    const QVector<int> min_option_widths_px = {100, 100, 100, 100};
+    grid->setMinimumWidthInPixels(min_width_px, min_option_widths_px);
+
     grid->setQuestionsBold(false);
 
     return grid;
