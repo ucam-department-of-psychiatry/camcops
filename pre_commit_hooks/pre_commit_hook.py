@@ -117,7 +117,7 @@ def check_yml() -> None:
             yml_file = os.path.join(GITHUB_ACTIONS_DIR, name)
             run_with_check(["yamllint", yml_file])
 
-    log.info("...OK")
+    log.info("... OK")
 
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
