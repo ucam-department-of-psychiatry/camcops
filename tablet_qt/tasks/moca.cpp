@@ -45,7 +45,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 28;
-const int MAX_SCORE = 30;
+const int MAX_QUESTION_SCORE = 30;
 const QString QPREFIX("q");
 
 const QString Moca::MOCA_TABLENAME("moca");
@@ -135,7 +135,7 @@ bool Moca::isComplete() const
 
 QStringList Moca::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 
@@ -472,7 +472,7 @@ int Moca::totalScore() const
     //   point... and take the maximum of (your score, 30)".
 
     int score = subScore(FIRST_Q, N_QUESTIONS);
-    if (score < MAX_SCORE) {
+    if (score < MAX_QUESTION_SCORE) {
         score += valueInt(EDUCATION12Y_OR_LESS);  // extra point for this
     }
     return score;

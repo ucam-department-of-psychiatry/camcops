@@ -38,7 +38,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int LAST_SCORED_Q = 9;
 const int N_QUESTIONS = 10;
-const int MAX_SCORE = 27;
+const int MAX_QUESTION_SCORE = 27;
 const QString QPREFIX("q");
 
 const QString Phq9::PHQ9_TABLENAME("phq9");
@@ -105,7 +105,7 @@ bool Phq9::isComplete() const
 
 QStringList Phq9::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

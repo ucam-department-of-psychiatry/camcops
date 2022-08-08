@@ -25,7 +25,7 @@ camcops_server/tasks/paradise24.py
 
 ===============================================================================
 
-**PARADISE-24 task.**
+**PARADISE 24 task.**
 
 """
 
@@ -40,7 +40,6 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
-from camcops_server.cc_modules.cc_text import SS
 
 
 class Paradise24Metaclass(DeclarativeMeta):
@@ -93,7 +92,7 @@ class Paradise24Metaclass(DeclarativeMeta):
 
 class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
     __tablename__ = "paradise24"
-    shortname = "PARADISE-24"
+    shortname = "PARADISE 24"
 
     Q_PREFIX = "q"
     FIRST_Q = 1
@@ -105,7 +104,7 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
         return _(
-            "Psychosocial fActors Relevant to BrAin DISorders in Europe-24"
+            "Psychosocial fActors Relevant to BrAin DISorders in Europe–24"
         )
 
     def is_complete(self) -> bool:
@@ -126,6 +125,10 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
         if total_score is None:
             return None
 
+        # Table 3 of Cieza et al. (2015); see help.
+        # - doi:10.1371/journal.pone.0132410.t003
+        # - Indexes are raw scores.
+        # - Values are transformed scores.
         score_lookup = [
             0,  # 0
             10,
@@ -178,13 +181,16 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
             100,  # 48
         ]
 
-        return score_lookup[total_score]
+        try:
+            return score_lookup[total_score]
+        except (IndexError, TypeError):
+            return None
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
             field = self.Q_PREFIX + str(q_num)
-            question_cell = self.xstring(req, field)
+            question_cell = f"{q_num}. {self.xstring(req, field)}"
 
             rows += tr_qa(question_cell, self.get_answer_cell(req, q_num))
 
@@ -204,19 +210,19 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Sum of all questions
-                [2] Tranformed metric scale
+                [1] Sum of all questions, range 0–48.
+                [2] Transformed metric scale, range 0–100.
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                f"{answer(self.total_score())} 0-48",
+                self.wxstring(req, "raw_score") + " <sup>[1]</sup>",
+                f"{answer(self.total_score())}",
             ),
             metric_score=tr(
                 self.wxstring(req, "metric_score") + " <sup>[2]</sup>",
-                f"{answer(self.metric_score())} 0-100",
+                f"{answer(self.metric_score())}",
             ),
             rows=rows,
         )

@@ -125,20 +125,23 @@ class Isaaq(IsaaqCommon, metaclass=IsaaqMetaclass):
         return _("Internet Severity and Activities Addiction Questionnaire")
 
     def get_task_html_rows(self, req: CamcopsRequest) -> str:
+        _ = req.gettext
         header_format = """
             <tr>
                 <th width="70%">{title}</th>
-                <th width="30%">{scale}</th>
+                <th width="30%">{score}</th>
             </tr>
         """
 
+        # "Scale" is a visual thing for the original; use "score" here.
+        score_text = _("Score")
         a_header = header_format.format(
             title=self.xstring(req, "a_title"),
-            scale=self.xstring(req, "scale"),
+            score=score_text,
         )
         b_header = header_format.format(
             title=self.xstring(req, "b_title"),
-            scale=self.xstring(req, "scale"),
+            score=score_text,
         )
 
         return (

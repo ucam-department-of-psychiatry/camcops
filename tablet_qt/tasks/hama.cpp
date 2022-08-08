@@ -36,7 +36,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 14;
-const int MAX_SCORE = 56;
+const int MAX_QUESTION_SCORE = 56;
 const QString QPREFIX("q");
 
 const QString HamA::HAMA_TABLENAME("hama");
@@ -91,7 +91,7 @@ bool HamA::isComplete() const
 
 QStringList HamA::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

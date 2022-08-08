@@ -43,7 +43,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
-const int MAX_SCORE = 60;
+const int MAX_QUESTION_SCORE = 60;
 const int DEPRESSION_RISK_THRESHOLD = 16;
 
 const QVector<int> REVERSE_SCORED_QUESTIONS{4, 8, 12, 16};
@@ -109,7 +109,7 @@ bool Cesd::isComplete() const
 QStringList Cesd::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         standardResult(xstring("depression_or_risk_of"),
                        uifunc::yesNoUnknown(hasDepressionRisk()))
     };

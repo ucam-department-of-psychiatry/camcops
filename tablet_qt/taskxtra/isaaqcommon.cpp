@@ -32,8 +32,8 @@
 using mathfunc::anyNull;
 using stringfunc::strseq;
 
-const int MIN_SCORE = 0;
-const int MAX_SCORE = 5;
+const int MIN_QUESTION_SCORE = 0;
+const int MAX_QUESTION_SCORE = 5;
 
 IsaaqCommon::IsaaqCommon(CamcopsApp& app, DatabaseManager& db,
                          const QString tableName) :
@@ -114,7 +114,7 @@ QuMcqGrid* IsaaqCommon::buildGrid(const QString prefix,
 
     NameValueOptions options;
 
-    for (int i = MIN_SCORE; i <= MAX_SCORE; i++) {
+    for (int i = MIN_QUESTION_SCORE; i <= MAX_QUESTION_SCORE; i++) {
         auto name = QString("freq_option_%1").arg(i);
 
         options.append({xstring(name), i});

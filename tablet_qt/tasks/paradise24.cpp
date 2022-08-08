@@ -45,10 +45,10 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int LAST_Q = 24;
-const int MIN_SCORE = 0;
-const int MAX_SCORE = 2;
-const int MIN_TOTAL_SCORE = 0;
-const int MAX_TOTAL_SCORE = 48;
+const int MIN_QUESTION_SCORE = 0;
+const int MAX_QUESTION_SCORE = 2;
+const int MIN_RAW_TOTAL_SCORE = 0;
+const int MAX_RAW_TOTAL_SCORE = 48;
 const int MIN_METRIC_SCORE = 0;
 const int MAX_METRIC_SCORE = 100;
 
@@ -76,19 +76,23 @@ Paradise24::Paradise24(CamcopsApp& app, DatabaseManager& db, const int load_pk) 
 
 QString Paradise24::shortname() const
 {
-    return "PARADISE-24";
+    return "PARADISE 24";
 }
 
 
 QString Paradise24::longname() const
 {
-    return tr("Psychosocial fActors Relevant to BrAin DISorders in Europe-24");
+    return tr("Psychosocial fActors Relevant to BrAin DISorders in Europe–24");
 }
 
 
 QString Paradise24::description() const
 {
-    return tr("A Measure to Assess the Impact of Brain Disorders on People’s Lives");
+    return tr(
+        "A measure to assess the the impact of brain disorders on people’s "
+        "lives, based on psychosocial difficulties that are experienced in "
+        "common across brain disorders."
+    );
 }
 
 
@@ -114,7 +118,7 @@ bool Paradise24::isComplete() const
 }
 
 
-QVariant Paradise24::totalScore() const
+QVariant Paradise24::rawTotalScore() const
 {
     if (!isComplete()) {
         return QVariant();
@@ -126,11 +130,15 @@ QVariant Paradise24::totalScore() const
 
 QVariant Paradise24::metricScore() const
 {
-    auto total_score = totalScore();
+    auto total_score = rawTotalScore();
     if (total_score.isNull()) {
         return QVariant();
     }
 
+    // Table 3 of Cieza et al. (2015); see help.
+    // - doi:10.1371/journal.pone.0132410.t003
+    // - Indexes are raw scores.
+    // - Values are transformed scores.
     const QVector<int> score_lookup = {
         0,  // 0
         10,
@@ -198,8 +206,8 @@ QStringList Paradise24::summary() const
                     QString::number(max));
     };
     return QStringList{
-        rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_TOTAL_SCORE, MAX_TOTAL_SCORE),
+        rangeScore(xstring("raw_score"), rawTotalScore(),
+                   MIN_RAW_TOTAL_SCORE, MAX_RAW_TOTAL_SCORE),
         rangeScore(xstring("metric_score"), metricScore(),
                    MIN_METRIC_SCORE, MAX_METRIC_SCORE),
     };
@@ -233,7 +241,7 @@ OpenableWidget* Paradise24::editor(const bool read_only)
 {
     NameValueOptions options;
 
-    for (int i = MIN_SCORE; i <= MAX_SCORE; ++i) {
+    for (int i = MIN_QUESTION_SCORE; i <= MAX_QUESTION_SCORE; ++i) {
         auto name = QString("option_%1").arg(i);
 
         options.append({xstring(name), i});

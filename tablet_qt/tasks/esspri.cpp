@@ -42,7 +42,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 3;
-const int MAX_SCORE = 10;
+const int MAX_QUESTION_SCORE = 10;
 const QString QPREFIX("q");
 
 
@@ -118,7 +118,7 @@ QVariant Esspri::overallScore() const
 QStringList Esspri::summary() const
 {
     return QStringList{
-        scorePhraseVariant(xstring("overall_score"), overallScore(), MAX_SCORE),
+        scorePhraseVariant(xstring("overall_score"), overallScore(), MAX_QUESTION_SCORE),
     };
 }
 

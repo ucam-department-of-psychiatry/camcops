@@ -74,7 +74,7 @@ const QStringList FIELDNAMES{
 
     "depression",
 };
-const int MAX_SCORE = FIELDNAMES.length();
+const int MAX_QUESTION_SCORE = FIELDNAMES.length();
 
 void initializeElixhauserCI(TaskFactory& factory)
 {
@@ -128,7 +128,7 @@ bool ElixhauserCI::isComplete() const
 
 QStringList ElixhauserCI::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 
