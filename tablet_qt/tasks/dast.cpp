@@ -35,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 28;
-const int MAX_SCORE = N_QUESTIONS;
+const int MAX_QUESTION_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
 const QString Dast::DAST_TABLENAME("dast");
@@ -90,7 +90,7 @@ bool Dast::isComplete() const
 
 QStringList Dast::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

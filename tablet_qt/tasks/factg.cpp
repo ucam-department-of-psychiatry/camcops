@@ -67,7 +67,7 @@ const int MAX_SCORE_SOCIAL = 28;
 const int MAX_SCORE_EMOTIONAL = 24;
 const int MAX_SCORE_FUNCTIONAL = 28;
 
-const int MAX_SCORE =    MAX_SCORE_PHYSICAL
+const int MAX_QUESTION_SCORE =    MAX_SCORE_PHYSICAL
                        + MAX_SCORE_SOCIAL
                        + MAX_SCORE_EMOTIONAL
                        + MAX_SCORE_FUNCTIONAL;
@@ -232,7 +232,7 @@ Factg::FactgScore Factg::getScores() const
 QStringList Factg::summary() const
 {
     FactgScore s = getScores();
-    return QStringList{totalScorePhrase(s.total(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(s.total(), MAX_QUESTION_SCORE)};
 }
 
 
@@ -241,7 +241,7 @@ QStringList Factg::detail() const
     FactgScore s = getScores();
 
     QStringList lines{
-        totalScorePhrase(s.total(), MAX_SCORE),
+        totalScorePhrase(s.total(), MAX_QUESTION_SCORE),
         scorePhrase(SUBTITLE_PHYSICAL, s.score_phys,
                     MAX_SCORE_PHYSICAL),
         scorePhrase(SUBTITLE_SOCIAL, s.score_soc,

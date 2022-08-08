@@ -39,7 +39,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 36;
-const int MAX_SCORE = N_QUESTIONS;
+const int MAX_QUESTION_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
 const QString DistressThermometer::DT_TABLENAME("distressthermometer");
@@ -104,7 +104,7 @@ QStringList DistressThermometer::summary() const
 {
     return QStringList{
         scorePhrase(xstring("distress_s"), valueInt(DISTRESS), 10, " "),
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
     };
 }
 

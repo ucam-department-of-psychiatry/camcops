@@ -147,6 +147,7 @@ from camcops_server.tasks.npiq import NpiQ
 from camcops_server.tasks.ors import Ors
 
 from camcops_server.tasks.panss import Panss
+from camcops_server.tasks.paradise24 import Paradise24
 from camcops_server.tasks.pbq import Pbq
 from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS

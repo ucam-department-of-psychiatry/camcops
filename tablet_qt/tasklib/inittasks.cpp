@@ -134,6 +134,7 @@
 #include "tasks/ors.h"
 
 #include "tasks/panss.h"
+#include "tasks/paradise24.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/pbq.h"
 #include "tasks/pcl5.h"
@@ -293,6 +294,7 @@ void InitTasks(TaskFactory& factory)
     initializeOrs(factory);
 
     initializePanss(factory);
+    initializeParadise24(factory);
     initializePatientSatisfaction(factory);
     initializePbq(factory);
     initializePcl5(factory);

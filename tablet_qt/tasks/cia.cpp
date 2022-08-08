@@ -36,8 +36,8 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int LAST_Q = 16;
-const int MIN_SCORE = 0;
-const int MAX_SCORE = 3;
+const int MIN_QUESTION_SCORE = 0;
+const int MAX_QUESTION_SCORE = 3;
 const int MIN_GLOBAL_SCORE = 0;
 const int MAX_GLOBAL_SCORE = 48;
 const int MIN_APPLICABLE = 12;
@@ -202,7 +202,7 @@ OpenableWidget* Cia::editor(const bool read_only)
 {
     NameValueOptions options;
 
-    for (int i = MIN_SCORE; i <= MAX_SCORE; i++) {
+    for (int i = MIN_QUESTION_SCORE; i <= MAX_QUESTION_SCORE; i++) {
         auto name = QString("option_%1").arg(i);
 
         options.append({xstring(name), i});

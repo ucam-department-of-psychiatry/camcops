@@ -57,7 +57,7 @@ class CiaMetaclass(DeclarativeMeta):
             cls.FIRST_Q,
             cls.LAST_Q,
             coltype=Integer,
-            minimum=-1,
+            minimum=0,
             maximum=3,
             comment_fmt=cls.Q_PREFIX + "{n} - {s}",
             comment_strings=[
@@ -115,8 +115,8 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         added together with prorating of missing ratings, so long as at least
         12 of the 16 items have been rated."
 
-        In our implementation all questions are mandatory except for 3,4,7 and
-        10. So there won't be fewer than 12 items rated for a complete
+        In our implementation all questions are mandatory except for 3, 4, 7
+        and 10. So there won't be fewer than 12 items rated for a complete
         questionnaire.
         """
         if not self.is_complete():
