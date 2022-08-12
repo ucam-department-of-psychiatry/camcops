@@ -39,7 +39,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 10;
-const int MAX_SCORE = 40;
+const int MAX_QUESTION_SCORE = 40;
 const QString QPREFIX("q");
 const QVector<int> REVERSE_SCORED_Q{2, 3};  // Q2 and Q3 are reverse-scored
 
@@ -103,7 +103,7 @@ bool Core10::isComplete() const
 QStringList Core10::summary() const
 {
     return QStringList{
-        scorePhrase(tr("Clinical score"), clinicalScore(), MAX_SCORE)
+        scorePhrase(tr("Clinical score"), clinicalScore(), MAX_QUESTION_SCORE)
     };
 }
 

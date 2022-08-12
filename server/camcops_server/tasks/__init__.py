@@ -57,6 +57,7 @@ from camcops_server.tasks.cesdr import Cesdr
 from camcops_server.tasks.cgi_task import Cgi
 from camcops_server.tasks.cgisch import CgiSch
 from camcops_server.tasks.chit import Chit
+from camcops_server.tasks.cia import Cia
 from camcops_server.tasks.cisr import Cisr
 from camcops_server.tasks.ciwa import Ciwa
 from camcops_server.tasks.contactlog import ContactLog
@@ -146,6 +147,7 @@ from camcops_server.tasks.npiq import NpiQ
 from camcops_server.tasks.ors import Ors
 
 from camcops_server.tasks.panss import Panss
+from camcops_server.tasks.paradise24 import Paradise24
 from camcops_server.tasks.pbq import Pbq
 from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS

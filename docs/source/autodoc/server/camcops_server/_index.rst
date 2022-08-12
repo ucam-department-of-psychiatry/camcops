@@ -106,6 +106,8 @@ server/camcops_server
     alembic/versions/0072_edeq.py.rst
     alembic/versions/0073_isaaq.py.rst
     alembic/versions/0074_isaaqed.py.rst
+    alembic/versions/0075_cia.py.rst
+    alembic/versions/0076_paradise24.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -233,6 +235,7 @@ server/camcops_server
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/basdai_TEMPLATE.xml.rst
     extra_string_templates/chit_TEMPLATE.xml.rst
+    extra_string_templates/cia_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/das28_TEMPLATE.xml.rst
@@ -250,6 +253,7 @@ server/camcops_server
     extra_string_templates/moca_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
+    extra_string_templates/paradise24_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
     extra_string_templates/rapid3_TEMPLATE.xml.rst
     extra_string_templates/sfmpq2_TEMPLATE.xml.rst
@@ -361,6 +365,7 @@ server/camcops_server
     tasks/cgi_task.py.rst
     tasks/cgisch.py.rst
     tasks/chit.py.rst
+    tasks/cia.py.rst
     tasks/cisr.py.rst
     tasks/ciwa.py.rst
     tasks/contactlog.py.rst
@@ -426,6 +431,7 @@ server/camcops_server
     tasks/npiq.py.rst
     tasks/ors.py.rst
     tasks/panss.py.rst
+    tasks/paradise24.py.rst
     tasks/pbq.py.rst
     tasks/pcl.py.rst
     tasks/pcl5.py.rst
@@ -450,11 +456,13 @@ server/camcops_server
     tasks/suppsp.py.rst
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
     tasks/tests/basdai_tests.py.rst
+    tasks/tests/cia_tests.py.rst
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
     tasks/tests/edeq_tests.py.rst
     tasks/tests/maas_tests.py.rst
+    tasks/tests/paradise24_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst
     tasks/tests/rapid3_tests.py.rst
     tasks/wemwbs.py.rst

@@ -100,14 +100,16 @@ class IsaaqEd(IsaaqCommon, metaclass=IsaaqEdMetaclass):
         return True
 
     def get_task_html_rows(self, req: CamcopsRequest) -> str:
+        # "Scale" is a visual thing for the original; use "score" here.
+        _ = req.gettext
         header = """
             <tr>
                 <th width="70%">{title}</th>
-                <th width="30%">{scale}</th>
+                <th width="30%">{score}</th>
             </tr>
         """.format(
             title=self.xstring(req, "grid_title"),
-            scale=self.xstring(req, "scale"),
+            score=_("Score"),
         )
 
         return header + self.get_task_html_rows_for_range(

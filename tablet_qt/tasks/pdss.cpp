@@ -37,7 +37,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 7;
-const int MAX_SCORE = 28;
+const int MAX_QUESTION_SCORE = 28;
 const int MAX_COMPOSITE_SCORE = 4;
 const QString QPREFIX("q");
 
@@ -94,7 +94,7 @@ bool Pdss::isComplete() const
 QStringList Pdss::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         scorePhrase("Composite score", compositeScore(), MAX_COMPOSITE_SCORE),
     };
 }

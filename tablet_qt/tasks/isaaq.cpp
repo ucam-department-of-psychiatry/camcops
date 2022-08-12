@@ -73,7 +73,7 @@ QString Isaaq::longname() const
 
 QString Isaaq::description() const
 {
-    return tr("Questionnaire on problematic internet use");
+    return tr("Questionnaire on problematic internet use.");
 }
 
 

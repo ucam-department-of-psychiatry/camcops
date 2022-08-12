@@ -34,7 +34,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 12;
-const int MAX_SCORE = 48;
+const int MAX_QUESTION_SCORE = 48;
 const QString QPREFIX("q");
 
 const QString Honos65::HONOS65_TABLENAME("honos65");
@@ -117,7 +117,7 @@ bool Honos65::isComplete() const
 
 QStringList Honos65::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

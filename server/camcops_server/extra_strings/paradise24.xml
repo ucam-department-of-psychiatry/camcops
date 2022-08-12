@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="paradise24">
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PARADISE 24
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright © 2015 Cieza et al.
+
+"This is an open-access article distributed under the terms of the Creative
+Commons Attribution License, which permits unrestricted use, distribution, and
+reproduction in any medium, provided the original author and source are
+properly credited."
+
+- Cieza A, Sabariego C, Anczewska M, Ballert C, Bickenbach J, Cabello M,
+  Giovannetti A, Kaskela T, Mellor B, Pitkänen T, Quintas R, Raggi A, Świtaj P,
+  Chatterji S; PARADISE Consortium (2015).
+  PARADISE 24: A Measure to Assess the Impact of Brain Disorders on People's
+  Lives.
+  *PLoS One* 10: e0132410.
+  https://www.ncbi.nlm.nih.gov/pubmed/26147343;
+  article https://doi.org/10.1371/journal.pone.0132410;
+  Supplementary File 1 https://doi.org/10.1371/journal.pone.0132410.s001;
+  Supplementary File 2 https://doi.org/10.1371/journal.pone.0132410.s002.
+
+-->
+
+    <string name="title">PARADISE 24</string>
+    <string name="instructions">The following questions address problems and difficulties you might have in different functions of your body and areas of your life. Please, answer them thinking back over the <b>past 30 days</b> and <b>taking both good and bad days into account.</b></string>
+
+    <string name="q1">How much of a problem did you have due to <b>not feeling rested and refreshed</b> during the day (e.g. feeling tired, not having energy)?</string>
+    <string name="q2">How much of a problem did you have with <b>loss of interest</b>?</string>
+    <string name="q3">How much of a problem did you have with your <b>appetite</b>?</string>
+    <string name="q4">How much of a problem did you have with <b>sleeping</b>, such as falling asleep, waking up frequently during the night or waking up too early in the morning?</string>
+    <string name="q5">How much of a problem did you have <b>being so irritable</b> that you started arguments, shouted at people or even hit people?</string>
+    <string name="q6">How much of a problem did you have with being <b>slowed down</b> or feeling as if <b>things were moving too fast</b> around you?</string>
+    <string name="q7">How much of a problem did you have with <b>feeling sad, low or depressed</b>?</string>
+    <string name="q8">How much of a problem did you have with <b>worry or anxiety</b>?</string>
+    <string name="q9">How much of a problem did you have with <b>not being able to cope with all the things</b> that you had to do?</string>
+    <string name="q10">How much <b>bodily ache or pain</b> did you have?</string>
+    <string name="q11">How much difficulty did you have in <b>concentrating on doing something for ten minutes</b>?</string>
+    <string name="q12">How much difficulty did you have in <b>remembering to do important things</b>?</string>
+    <string name="q13">How much difficulty did you have in <b>making decisions</b>?</string>
+    <string name="q14">How much difficulty did you have in <b>starting and maintaining a conversation</b>?</string>
+    <string name="q15">How much difficulty did you have in <b>walking a long distance</b> such as a kilometre (or equivalent)?</string>
+    <string name="q16">How much difficulty did you have in <b>grooming or dressing, toileting or eating</b>?</string>
+    <string name="q17">How much difficulty did you have in <b>sexual activities</b>?</string>
+    <string name="q18">How much difficulty did you have in <b>staying by yourself for a few days</b>?</string>
+    <string name="q19">How much difficulty did you have with <b>looking after your health</b>, such as eating well, exercising and taking your medicines?</string>
+    <string name="q20">How much difficulty did you have in <b>initiating and maintaining a friendship</b>?</string>
+    <string name="q21">How much difficulty did you have in <b>getting along with people who are close to you</b>?</string>
+    <string name="q22">How much difficulty did you have in your <b>day-to-day work or school</b>?</string>
+    <string name="q23">How much difficulty did you have with <b>managing your money</b>?</string>
+    <string name="q24">How much difficulty did you have in <b>joining in community activities</b> (for example, festivities, religious or other activities) in the same way as anyone else can?</string>
+
+    <!--
+        "Row score" is likely a typo for "raw score", as in the paper.
+        <string name="sum_per_column">Sum row score per column</string>
+        <string name="total_row_score">Total row score</string>
+    -->
+    <string name="raw_score">Raw score</string>  <!-- added; this is the phrasing in the paper -->
+    <string name="metric_score">Metric score</string>
+
+    <string name="option_0">None</string>
+    <string name="option_1">Some</string>
+    <string name="option_2">A lot</string>
+  </task>
+</resources>

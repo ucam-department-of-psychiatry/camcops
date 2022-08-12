@@ -48,6 +48,7 @@
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
 #include "tasks/chit.h"
+#include "tasks/cia.h"
 #include "tasks/cisr.h"
 #include "tasks/ciwa.h"
 #include "tasks/contactlog.h"
@@ -133,6 +134,7 @@
 #include "tasks/ors.h"
 
 #include "tasks/panss.h"
+#include "tasks/paradise24.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/pbq.h"
 #include "tasks/pcl5.h"
@@ -206,6 +208,7 @@ void InitTasks(TaskFactory& factory)
     initializeCgiI(factory);
     initializeCgiSch(factory);
     initializeChit(factory);
+    initializeCia(factory);
     initializeCisr(factory);
     initializeCiwa(factory);
     initializeContactLog(factory);
@@ -291,6 +294,7 @@ void InitTasks(TaskFactory& factory)
     initializeOrs(factory);
 
     initializePanss(factory);
+    initializeParadise24(factory);
     initializePatientSatisfaction(factory);
     initializePbq(factory);
     initializePcl5(factory);

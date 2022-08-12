@@ -42,7 +42,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int LAST_SCORED_Q = 15;
 const int N_QUESTIONS = 16;
-const int MAX_SCORE = 45;
+const int MAX_QUESTION_SCORE = 45;
 const QString QPREFIX("q");
 
 const QString Chit::CHIT_TABLENAME("chit");
@@ -81,7 +81,7 @@ QString Chit::longname() const
 
 QString Chit::description() const
 {
-    return tr("A scale designed to measure transdiagnostic compulsivity");
+    return tr("A scale designed to measure transdiagnostic compulsivity.");
 }
 
 
@@ -113,7 +113,7 @@ int Chit::totalScore() const
 
 QStringList Chit::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

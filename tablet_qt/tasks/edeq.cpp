@@ -45,10 +45,10 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 28;
 const int FIRST_OPTION = 0;
 const int LAST_OPTION = 6;
-const int MIN_SCORE = 0;
-const int MAX_SCORE = 6;
-const int MIN_SUBSCALE = MIN_SCORE;
-const int MAX_SUBSCALE = MAX_SCORE;
+const int MIN_QUESTION_SCORE = 0;
+const int MAX_QUESTION_SCORE = 6;
+const int MIN_SUBSCALE = MIN_QUESTION_SCORE;
+const int MAX_SUBSCALE = MAX_QUESTION_SCORE;
 const QString QPREFIX("q");
 const QVector<int> RESTRAINT_QUESTIONS{1, 2, 3, 4, 5};
 const QVector<int> EATING_CONCERN_QUESTIONS{7, 9, 19, 20, 21};
@@ -103,7 +103,7 @@ QString Edeq::longname() const
 
 QString Edeq::description() const
 {
-    return tr("A self-report version of the Eating Disorder Examination (EDE)");
+    return tr("A self-report version of the Eating Disorder Examination (EDE).");
 }
 
 
@@ -147,7 +147,7 @@ QStringList Edeq::summary() const
 
     return QStringList{
         rangeScore(TextConst::totalScore(), globalScore(),
-                   MIN_SCORE, MAX_SCORE),
+                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
         rangeScore(xstring("restraint"), restraint(), MIN_SUBSCALE, MAX_SUBSCALE),
         rangeScore(xstring("eating_concern"), eatingConcern(), MIN_SUBSCALE, MAX_SUBSCALE),
         rangeScore(xstring("shape_concern"), shapeConcern(), MIN_SUBSCALE, MAX_SUBSCALE),

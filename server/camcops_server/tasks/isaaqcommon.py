@@ -96,13 +96,11 @@ class IsaaqCommon(TaskHasPatientMixin, Task):
         if score is None:
             return score
 
-        meaning = self.get_score_meaning(req, q_num, score)
+        meaning = self.get_score_meaning(req, score)
 
         answer_cell = f"{score} [{meaning}]"
 
         return answer_cell
 
-    def get_score_meaning(
-        self, req: CamcopsRequest, q_num: int, score: int
-    ) -> str:
+    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
         return self.wxstring(req, f"freq_option_{score}")

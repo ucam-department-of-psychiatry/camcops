@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cia">
+    <string name="title">(title)</string>
+    <string name="instructions">(instructions)</string>
+    <string name="grid_title">(grid title)</string>
+
+    <string name="q1">(difficult to concentrate)</string>
+    <string name="q2">(critical of self)</string>
+    <string name="q3">(going out)</string>
+    <string name="q4">(affected work performance)</string>
+    <string name="q5">(forgetful)</string>
+    <string name="q6">(everyday decisions)</string>
+    <string name="q7">(meals with family)</string>
+    <string name="q8">(upset)</string>
+    <string name="q9">(ashamed)</string>
+    <string name="q10">(difficult to eat out)</string>
+    <string name="q11">(guilty)</string>
+    <string name="q12">(things used to enjoy)</string>
+    <string name="q13">(absent-minded)</string>
+    <string name="q14">(failure)</string>
+    <string name="q15">(relationships)</string>
+    <string name="q16">(worry)</string>
+
+    <string name="option_0">0</string>
+    <string name="option_1">1</string>
+    <string name="option_2">2</string>
+    <string name="option_3">3</string>
+  </task>
+</resources>

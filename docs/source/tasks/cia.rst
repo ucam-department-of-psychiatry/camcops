@@ -24,7 +24,7 @@
 The Clinical Impairment Assessment Questionnaire (CIA)
 ------------------------------------------------------
 
-**NOT YET IMPLEMENTED**
+.. include:: include_data_collection_plus_local_upgrade.rst
 
 A 16-item self-report measure of the severity of psychosocial impairment
 due to eating disorder features.
@@ -35,9 +35,10 @@ Intellectual property rights
 
 "Investigators are welcome to use the CIA free of charge on three conditions:
 
-1. It is understood that it is an instrument in evolution rather than a final version.
-2. It is understood that it is under copyright.
-3. In any publication the following citation is used for the instrument:
+1.  It is understood that it is an instrument in evolution rather than a final
+    version.
+2.  It is understood that it is under copyright.
+3.  In any publication the following citation is used for the instrument:"
 
 - Bohn K, Fairburn CG. The Clinical Impairment Assessment Questionnaire
   (CIA 3.0). In Fairburn CG (ed). Cognitive Behavior Therapy and Eating

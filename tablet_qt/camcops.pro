@@ -845,6 +845,7 @@ SOURCES += \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
     tasks/chit.cpp \
+    tasks/cia.cpp \
     tasks/cisr.cpp \
     tasks/ciwa.cpp \
     tasks/contactlog.cpp \
@@ -916,6 +917,7 @@ SOURCES += \
     tasks/npiq.cpp \
     tasks/ors.cpp \
     tasks/panss.cpp \
+    tasks/paradise24.cpp \
     tasks/patientsatisfaction.cpp \
     tasks/pbq.cpp \
     tasks/pcl5.cpp \
@@ -1330,6 +1332,7 @@ HEADERS += \
     tasks/cgii.h \
     tasks/cgisch.h \
     tasks/chit.h \
+    tasks/cia.h \
     tasks/cisr.h \
     tasks/ciwa.h \
     tasks/contactlog.h \
@@ -1401,6 +1404,7 @@ HEADERS += \
     tasks/npiq.h \
     tasks/ors.h \
     tasks/panss.h \
+    tasks/paradise24.h \
     tasks/patientsatisfaction.h \
     tasks/pbq.h \
     tasks/pcl5.h \

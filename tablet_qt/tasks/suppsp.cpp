@@ -45,8 +45,8 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MIN_SCORE_PER_Q = 1;
 const int MAX_SCORE_PER_Q = 4;
-const int MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
-const int MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
+const int MIN_QUESTION_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
+const int MAX_QUESTION_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
 const int N_Q_PER_SUBSCALE = 4;  // always
 const int MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE;
 const int MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE;
@@ -166,7 +166,7 @@ QStringList Suppsp::summary() const
     };
     return QStringList{
         rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_SCORE, MAX_SCORE),
+                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
         rangeScore(xstring("negative_urgency"), negativeUrgency(),
                    MIN_SUBSCALE, MAX_SUBSCALE),
         rangeScore(xstring("lack_of_perseverance"), lackOfPerseverance(),

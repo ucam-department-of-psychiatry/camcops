@@ -25,6 +25,7 @@
 
 #include "tasks/bmi.h"
 #include "tasks/chit.h"
+#include "tasks/cia.h"
 #include "tasks/edeq.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/gad7.h"
@@ -34,6 +35,7 @@
 #include "tasks/ided3d.h"
 #include "tasks/isaaq.h"
 #include "tasks/isaaqed.h"
+#include "tasks/paradise24.h"
 #include "tasks/phq9.h"
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
@@ -65,11 +67,11 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
-        // todo:: PARADISE-24 [and add to "global" menu]
+        MAKE_TASK_MENU_ITEM(Paradise24::PARADISE24_TABLENAME, m_app),
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
-        // todo:: CIA [and add to "eating disorders" menu]
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),

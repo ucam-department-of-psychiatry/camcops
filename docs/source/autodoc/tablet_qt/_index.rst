@@ -660,6 +660,8 @@ tablet_qt
     tasks/cgisch.h.rst
     tasks/chit.cpp.rst
     tasks/chit.h.rst
+    tasks/cia.cpp.rst
+    tasks/cia.h.rst
     tasks/cisr.cpp.rst
     tasks/cisr.h.rst
     tasks/ciwa.cpp.rst
@@ -806,6 +808,8 @@ tablet_qt
     tasks/ors.h.rst
     tasks/panss.cpp.rst
     tasks/panss.h.rst
+    tasks/paradise24.cpp.rst
+    tasks/paradise24.h.rst
     tasks/patientsatisfaction.cpp.rst
     tasks/patientsatisfaction.h.rst
     tasks/pbq.cpp.rst
