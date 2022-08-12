@@ -666,10 +666,13 @@ QStringList DatabaseManager::getAllTables()
 
 bool DatabaseManager::tableExists(const QString& tablename)
 {
-    const SqlArgs sqlargs(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
-        {tablename}
-    );
+    // Pygments doesn't like the string inserted directly in the
+    // call to sqlargs()
+    const QString sql("SELECT COUNT(*) FROM sqlite_master "
+                      "WHERE type='table' AND name=?");
+
+    const SqlArgs sqlargs(sql, {tablename});
+
     return fetchInt(sqlargs) > 0;
 }
 
