@@ -3207,20 +3207,16 @@ bool CamcopsApp::tasksInProgress()
 
 NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser() const
 {
-    auto translated_message = tr(
-        "Copy data to server, or move it to server?\n"
-        "\n"
-        "COPY: copies unfinished patients, moves finished patients.\n"
-        "MOVE: moves all patients and their data.\n"
-        "KEEP PATIENTS AND MOVE: moves all task data, keeps only basic "
-        "patient details (for adding more tasks later).\n"
-        "\n"
-        "Please MOVE whenever possible; this reduces the amount of "
-        "patient-identifiable information stored on this device."
-    );
-
-    // Pygments doesn't like the string inserted directly in the tr()
-    QString text(translated_message);
+   QString text(tr(
+            "Copy data to server, or move it to server?\n"
+            "\n"
+            "COPY: copies unfinished patients, moves finished patients.\n"
+            "MOVE: moves all patients and their data.\n"
+            "KEEP PATIENTS AND MOVE: moves all task data, keeps only basic "
+            "patient details (for adding more tasks later).\n"
+            "\n"
+            "Please MOVE whenever possible; this reduces the amount of "
+            "patient-identifiable information stored on this device."));
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Upload to server"),
                             text,
