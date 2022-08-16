@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/dump_sql_offer.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/dump_sql_offer.mako
-    :language: none
+    :language: mako

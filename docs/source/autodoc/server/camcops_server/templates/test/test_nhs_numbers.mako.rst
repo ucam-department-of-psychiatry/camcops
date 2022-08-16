@@ -26,4 +26,4 @@ server/camcops_server/templates/test/test_nhs_numbers.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/test/test_nhs_numbers.mako
-    :language: none
+    :language: mako

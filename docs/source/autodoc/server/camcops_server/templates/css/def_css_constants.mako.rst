@@ -26,4 +26,4 @@ server/camcops_server/templates/css/def_css_constants.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/css/def_css_constants.mako
-    :language: none
+    :language: mako

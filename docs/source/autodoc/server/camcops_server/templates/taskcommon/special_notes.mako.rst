@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/special_notes.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/special_notes.mako
-    :language: none
+    :language: mako

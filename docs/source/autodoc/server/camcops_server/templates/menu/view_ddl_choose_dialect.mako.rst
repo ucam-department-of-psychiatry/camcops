@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/view_ddl_choose_dialect.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/view_ddl_choose_dialect.mako
-    :language: none
+    :language: mako

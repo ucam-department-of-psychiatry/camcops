@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/user_delete.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/user_delete.mako
-    :language: none
+    :language: mako

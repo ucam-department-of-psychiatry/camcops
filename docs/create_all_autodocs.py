@@ -88,8 +88,9 @@ https://github.com/ucam-department-of-psychiatry/camcops.
 SKIP_GLOBS = ["*/static/*", "__init__.py"]
 
 PYGMENTS_OVERRIDE = {
-    # map file extension to Pygments language name
-    ".pro": "none"  # Qt project files, not Prolog
+    # map file specifications to Pygments language name
+    "*.mako": "mako",
+    "*.pro": "none",  # Qt project files, not Prolog
 }
 
 

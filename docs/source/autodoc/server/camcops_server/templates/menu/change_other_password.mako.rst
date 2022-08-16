@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/change_other_password.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/change_other_password.mako
-    :language: none
+    :language: mako

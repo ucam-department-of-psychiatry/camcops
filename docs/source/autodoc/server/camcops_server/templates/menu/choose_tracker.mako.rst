@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/choose_tracker.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/choose_tracker.mako
-    :language: none
+    :language: mako

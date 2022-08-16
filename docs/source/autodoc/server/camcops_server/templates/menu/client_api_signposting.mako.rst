@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/client_api_signposting.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/client_api_signposting.mako
-    :language: none
+    :language: mako

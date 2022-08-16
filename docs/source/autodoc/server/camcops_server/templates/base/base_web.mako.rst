@@ -26,4 +26,4 @@ server/camcops_server/templates/base/base_web.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/base/base_web.mako
-    :language: none
+    :language: mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/task_erase.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/task_erase.mako
-    :language: none
+    :language: mako

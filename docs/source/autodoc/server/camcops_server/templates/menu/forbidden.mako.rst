@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/forbidden.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/forbidden.mako
-    :language: none
+    :language: mako

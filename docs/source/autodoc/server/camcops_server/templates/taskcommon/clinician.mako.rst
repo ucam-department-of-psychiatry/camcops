@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/clinician.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/clinician.mako
-    :language: none
+    :language: mako

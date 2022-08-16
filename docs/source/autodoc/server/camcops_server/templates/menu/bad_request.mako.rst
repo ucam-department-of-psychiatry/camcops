@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/bad_request.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/bad_request.mako
-    :language: none
+    :language: mako

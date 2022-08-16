@@ -26,4 +26,4 @@ server/camcops_server/templates/css/css_pdf_no_paged_media.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/css/css_pdf_no_paged_media.mako
-    :language: none
+    :language: mako

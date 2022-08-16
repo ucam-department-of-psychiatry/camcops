@@ -26,4 +26,4 @@ server/camcops_server/templates/base/base_pdf_landscape.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/base/base_pdf_landscape.mako
-    :language: none
+    :language: mako

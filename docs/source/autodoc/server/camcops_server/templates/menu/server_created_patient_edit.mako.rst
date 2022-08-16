@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/server_created_patient_edit.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/server_created_patient_edit.mako
-    :language: none
+    :language: mako

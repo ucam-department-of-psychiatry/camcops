@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/export_recipient.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/export_recipient.mako
-    :language: none
+    :language: mako

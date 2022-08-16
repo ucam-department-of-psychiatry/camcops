@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/generic_form.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/generic_form.mako
-    :language: none
+    :language: mako

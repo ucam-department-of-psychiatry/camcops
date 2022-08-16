@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/edit_other_user_mfa.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/edit_other_user_mfa.mako
-    :language: none
+    :language: mako

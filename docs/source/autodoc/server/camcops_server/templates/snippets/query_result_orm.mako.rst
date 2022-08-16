@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/query_result_orm.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/query_result_orm.mako
-    :language: none
+    :language: mako

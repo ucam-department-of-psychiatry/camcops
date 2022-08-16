@@ -26,4 +26,4 @@ server/camcops_server/templates/tasks/perinatal_poem_report.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/tasks/perinatal_poem_report.mako
-    :language: none
+    :language: mako

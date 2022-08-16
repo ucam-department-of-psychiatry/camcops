@@ -26,4 +26,4 @@ server/camcops_server/templates/tasks/diagnosis_finder_report.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/tasks/diagnosis_finder_report.mako
-    :language: none
+    :language: mako

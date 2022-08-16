@@ -26,4 +26,4 @@ server/camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
-    :language: none
+    :language: mako
