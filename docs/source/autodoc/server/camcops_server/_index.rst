@@ -253,7 +253,6 @@ server/camcops_server
     extra_string_templates/moca_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
-    extra_string_templates/paradise24_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
     extra_string_templates/rapid3_TEMPLATE.xml.rst
     extra_string_templates/sfmpq2_TEMPLATE.xml.rst
@@ -328,6 +327,7 @@ server/camcops_server
     extra_strings/mast.xml.rst
     extra_strings/mfi20.xml.rst
     extra_strings/panss.xml.rst
+    extra_strings/paradise24.xml.rst
     extra_strings/pbq.xml.rst
     extra_strings/pcl.xml.rst
     extra_strings/pcl5.xml.rst
