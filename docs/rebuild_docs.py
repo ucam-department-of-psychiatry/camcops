@@ -124,11 +124,11 @@ if __name__ == "__main__":
             "file.\n\n"
             'Could not lex literal block as "C++". Highlighting skipped.\n'
             "-----------------------------------------------------------\n"
-            "The pygments C++ lexer has problems, particularly with comments "
-            "embedded within code containing characters such as \\, #, '. "
-            "v2.12.0 fixed some of these problems but introduced more in "
-            "the process. Use the debug_highlighting.py script to "
-            "troubleshoot."
+            "The Pygments C++ lexer is never going to be as good as a "
+            "compiler and has problems with some of our code. Use the "
+            "debug_highlighting.py script to track down bugs for "
+            "reporting. Files can be skipped by adding them to the "
+            "PYGMENTS_OVERRIDE dictionary in create_all_autodocs.py."
         )
 
         raise e
