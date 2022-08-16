@@ -26,4 +26,4 @@ tablet_qt/db/dumpsql.cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/dumpsql.cpp
-    :language: C++
+    :language: none

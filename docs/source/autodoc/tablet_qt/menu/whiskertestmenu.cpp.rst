@@ -26,4 +26,4 @@ tablet_qt/menu/whiskertestmenu.cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/whiskertestmenu.cpp
-    :language: C++
+    :language: none

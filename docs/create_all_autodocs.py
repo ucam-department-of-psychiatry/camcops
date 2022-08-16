@@ -91,6 +91,23 @@ PYGMENTS_OVERRIDE = {
     # map file specifications to Pygments language name
     "*.mako": "mako",
     "*.pro": "none",  # Qt project files, not Prolog
+    # The Pygments C++ Lexer will never be perfect as it doesn't
+    # have the same understanding as a compiler.
+    # Skip anything that fails to highlight here
+    # Use debug_highlighting.py to narrow down problematic code
+    #
+    # See https://github.com/pygments/pygments/issues/2207
+    # https://github.com/pygments/pygments/pull/2208
+    # These are likely to be fixed in pygments 2.13.0
+    "bdi.cpp": "none",
+    "camcopsapp.cpp": "none",
+    "convert.cpp": "none",
+    "databasemanager.cpp": "none",
+    "dumpsql.cpp": "none",
+    "emailvalidator.cpp": "none",
+    "qcustomplot.h": "none",
+    "whiskerconstants.cpp": "none",
+    "whiskertestmenu.cpp": "none",
 }
 
 

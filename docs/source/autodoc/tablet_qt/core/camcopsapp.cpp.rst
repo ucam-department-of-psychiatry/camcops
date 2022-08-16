@@ -26,4 +26,4 @@ tablet_qt/core/camcopsapp.cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/core/camcopsapp.cpp
-    :language: C++
+    :language: none
