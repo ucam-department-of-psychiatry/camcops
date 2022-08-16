@@ -137,6 +137,9 @@ def run_cmd(
     modified_env.pop("CAMCOPS_QT_BASE_DIR", None)
     modified_env[ENVVAR_CONFIG_FILE] = "/path/to/camcops/config_file.ini"
     modified_env["POEDIT"] = "/path/to/poedit"
+    modified_env["LCONVERT"] = "/path/to/lconvert"
+    modified_env["LRELEASE"] = "/path/to/lrelease"
+    modified_env["LUPDATE"] = "/path/to/lupdate"
 
     output = subprocess.check_output(cmdargs, env=modified_env).decode(
         encoding

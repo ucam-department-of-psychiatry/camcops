@@ -42,6 +42,7 @@ from cardinal_pythonlib.uriconst import UriSchemes
 
 from camcops_server.cc_modules.cc_baseconstants import (
     DEFAULT_EXTRA_STRINGS_DIR,
+    ENVVAR_GENERATING_CAMCOPS_DOCS,
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_USER_DOWNLOAD_DIR,
     STATIC_ROOT_DIR,
@@ -765,7 +766,12 @@ class ConfigDefaults(object):
     DEBUG_SHOW_GUNICORN_OPTIONS = False
     DEBUG_TOOLBAR = False
     GUNICORN_DEBUG_RELOAD = False
-    GUNICORN_NUM_WORKERS = 2 * multiprocessing.cpu_count()
+
+    if ENVVAR_GENERATING_CAMCOPS_DOCS in os.environ:
+        GUNICORN_NUM_WORKERS = 16
+    else:
+        GUNICORN_NUM_WORKERS = 2 * multiprocessing.cpu_count()
+
     GUNICORN_TIMEOUT_S = 30
     HOST = "127.0.0.1"
     PORT = Ports.ALTERNATIVE_HTTP_NONSTANDARD
