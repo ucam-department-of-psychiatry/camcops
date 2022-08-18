@@ -4129,7 +4129,6 @@ def main() -> None:
             f"environment variable {ENVVAR_QT_BASE} if present)"
         ),
     )
-
     general.add_argument(
         "--nparallel",
         type=int,
