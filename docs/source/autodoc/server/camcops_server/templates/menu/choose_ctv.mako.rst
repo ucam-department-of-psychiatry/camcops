@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/choose_ctv.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/choose_ctv.mako
-    :language: mako
+    :language: html+mako

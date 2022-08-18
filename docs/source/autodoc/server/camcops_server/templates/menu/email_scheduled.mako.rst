@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/email_scheduled.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/email_scheduled.mako
-    :language: mako
+    :language: html+mako

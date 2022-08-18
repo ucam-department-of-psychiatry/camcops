@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/task_details.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/task_details.mako
-    :language: mako
+    :language: html+mako

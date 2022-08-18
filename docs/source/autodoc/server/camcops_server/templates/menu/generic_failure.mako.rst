@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/generic_failure.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/generic_failure.mako
-    :language: mako
+    :language: html+mako

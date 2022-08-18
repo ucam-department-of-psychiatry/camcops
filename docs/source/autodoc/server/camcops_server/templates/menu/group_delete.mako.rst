@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/group_delete.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/group_delete.mako
-    :language: mako
+    :language: html+mako

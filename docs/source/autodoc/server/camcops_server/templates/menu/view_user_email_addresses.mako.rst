@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/view_user_email_addresses.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/view_user_email_addresses.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/ctv.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/ctv.mako
-    :language: mako
+    :language: html+mako

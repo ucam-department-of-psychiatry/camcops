@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/tracker.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/tracker.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/tasks/average_score_report.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/tasks/average_score_report.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/task_contents_invalid.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/task_contents_invalid.mako
-    :language: mako
+    :language: html+mako

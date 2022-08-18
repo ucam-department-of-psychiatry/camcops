@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/exported_task_redcap.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/exported_task_redcap.mako
-    :language: mako
+    :language: html+mako

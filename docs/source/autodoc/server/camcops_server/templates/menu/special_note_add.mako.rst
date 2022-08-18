@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/special_note_add.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/special_note_add.mako
-    :language: mako
+    :language: html+mako

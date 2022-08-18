@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/query_result_core.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/query_result_core.mako
-    :language: mako
+    :language: html+mako

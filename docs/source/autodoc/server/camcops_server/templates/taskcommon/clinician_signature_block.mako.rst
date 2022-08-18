@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/clinician_signature_block.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/clinician_signature_block.mako
-    :language: mako
+    :language: html+mako

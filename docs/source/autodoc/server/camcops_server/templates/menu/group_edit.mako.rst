@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/group_edit.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/group_edit.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/respondent.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/respondent.mako
-    :language: mako
+    :language: html+mako

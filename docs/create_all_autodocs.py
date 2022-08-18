@@ -89,7 +89,8 @@ SKIP_GLOBS = ["*/static/*", "__init__.py"]
 
 PYGMENTS_OVERRIDE = {
     # map file specifications to Pygments language name
-    "*.mako": "mako",
+    "script.py.mako": "mako",
+    "*.mako": "html+mako",
     "*.pro": "none",  # Qt project files, not Prolog
     # The Pygments C++ Lexer will never be perfect as it doesn't
     # have the same understanding as a compiler.

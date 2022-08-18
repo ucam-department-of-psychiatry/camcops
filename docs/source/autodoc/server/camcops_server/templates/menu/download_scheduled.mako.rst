@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/download_scheduled.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/download_scheduled.mako
-    :language: mako
+    :language: html+mako

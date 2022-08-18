@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/exported_task_file_group.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/exported_task_file_group.mako
-    :language: mako
+    :language: html+mako

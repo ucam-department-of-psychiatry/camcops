@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/fhir_patient_id_system.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/fhir_patient_id_system.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/base/wkhtmltopdf_footer.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/base/wkhtmltopdf_footer.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/to_view_task_schedules.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/to_view_task_schedules.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/login_token.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/login_token.mako
-    :language: mako
+    :language: html+mako

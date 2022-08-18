@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/patient_page_header.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/patient_page_header.mako
-    :language: mako
+    :language: html+mako

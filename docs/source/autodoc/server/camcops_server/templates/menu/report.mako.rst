@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/report.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/report.mako
-    :language: mako
+    :language: html+mako

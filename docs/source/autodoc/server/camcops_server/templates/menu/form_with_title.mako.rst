@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/form_with_title.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/form_with_title.mako
-    :language: mako
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/dump_basic_offer.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/dump_basic_offer.mako
-    :language: mako
+    :language: html+mako

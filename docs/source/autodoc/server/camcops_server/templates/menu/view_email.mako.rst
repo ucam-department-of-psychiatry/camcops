@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/view_email.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/view_email.mako
-    :language: mako
+    :language: html+mako

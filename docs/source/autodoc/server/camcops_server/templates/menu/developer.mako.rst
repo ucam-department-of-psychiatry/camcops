@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/developer.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/developer.mako
-    :language: mako
+    :language: html+mako
