@@ -545,7 +545,7 @@ class VersionReleaser:
             ["git", "log", "origin/master..HEAD"], stdout=PIPE
         ).stdout.decode("utf-8")
         if len(git_log) > 0:
-            self.errors.append("There are unpushed changes")
+            self.errors.append("There are unpushed or unmerged changes")
 
     def check_release_tag(self) -> None:
         release_tag = self.get_release_tag()
