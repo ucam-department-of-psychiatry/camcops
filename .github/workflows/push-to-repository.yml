@@ -7,6 +7,7 @@ on:
         paths:
             - '**.py'
             - .github/workflows/push-to-repository.yml
+            - .github/workflows/scripts/build_packages.sh
 jobs:
     pip-install-and-tests:
         runs-on: ubuntu-latest
@@ -102,24 +103,8 @@ jobs:
                   sudo apt-get update
             - name: Build and install debian package
               run: |
-                  set -xe
-                  sudo apt-get -y install alien fakeroot lintian gdebi
-                  # 429 = Too many requests. Unfortunately wget doesn't read the
-                  # Retry-after header so just wait 5 minutes
-                  wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
-                  fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
-                  sudo dpkg -i rpmrebuild_2.15-2_all.deb
-                  python -m venv ${HOME}/venv
-                  source ${HOME}/venv/bin/activate
-                  python -VV
-                  python -m site
-                  python -m pip install -U pip
-                  echo dumping pre-installed packages
-                  python -m pip freeze
-                  echo installing pip packages
-                  python -m pip install -e server/.
-                  echo building packages
-                  server/tools/MAKE_LINUX_PACKAGES.py
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
                   server/tools/REINSTALL_DEBIAN_PACKAGE.sh
                   echo checking packages for conflicts
