@@ -3650,8 +3650,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_13:
 
-**Client and server v2.4.13, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.13, released 18 Aug 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Option for simplified spreadsheet downloads.
 
