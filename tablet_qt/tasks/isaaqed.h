@@ -44,6 +44,6 @@ public:
 public:
     static const QString ISAAQED_TABLENAME;
 protected:
-    QStringList fieldNames() const;
-    QVector<QuElement*> buildElements();
+    QStringList fieldNames() const override;
+    QVector<QuElement*> buildElements() override;
 };
