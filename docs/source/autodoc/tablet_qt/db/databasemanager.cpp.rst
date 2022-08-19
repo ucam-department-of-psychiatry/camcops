@@ -26,4 +26,4 @@ tablet_qt/db/databasemanager.cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/databasemanager.cpp
-    :language: none
+    :language: C++
