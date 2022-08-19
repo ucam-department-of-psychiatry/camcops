@@ -545,7 +545,7 @@ class VersionReleaser:
             ["git", "log", "origin/master..HEAD"], stdout=PIPE
         ).stdout.decode("utf-8")
         if len(git_log) > 0:
-            self.errors.append("There are unpushed changes")
+            self.errors.append("There are unpushed or unmerged changes")
 
     def check_release_tag(self) -> None:
         release_tag = self.get_release_tag()
@@ -633,9 +633,11 @@ class VersionReleaser:
             print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
-            # Next improvement. GitHub action on pushed "v" tag to create
-            # release and upload to PyPI.
-            print("Now upload the .rpm and .deb files to GitHub")
+            print(
+                "A new release should have been created on GitHub with the "
+                ".rpm and .deb files attached. They are also in "
+                f"{SERVER_PACKAGE_DIR}"
+            )
 
         if self.should_release_client:
             print("Now build the various client apps and upload.")

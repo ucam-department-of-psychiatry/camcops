@@ -1,0 +1,25 @@
+---
+# yamllint disable rule:line-length
+name: Release
+# yamllint disable-line rule:truthy
+on:
+    push:
+        tags:
+            - '*'
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v2
+            - name: Create DEB and RPM packages
+              run: ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
+
+            - name: Create release with artifacts
+              uses: ncipollo/release-action@v1
+              with:
+                  artifacts: "server/packagebuild/*.deb,server/packagebuild/*.rpm"
+                  token: ${{ secrets.GITHUB_TOKEN }}

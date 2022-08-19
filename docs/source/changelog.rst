@@ -3650,8 +3650,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_13:
 
-**Client and server v2.4.13, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.13, released 18 Aug 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Option for simplified spreadsheet downloads.
 
@@ -3679,3 +3679,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **New task:** :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`. (Database revision 0075.)
 
 - **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
+
+
+**Client and server v2.4.14, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
