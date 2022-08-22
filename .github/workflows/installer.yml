@@ -1,0 +1,29 @@
+---
+# yamllint disable rule:line-length
+name: Installer
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - 'server/camcops_server/**'
+            - .github/workflows/installer.yml
+            - .github/scripts/installer_setup.sh
+            - .github/scripts/post_installation_checks.sh
+            - .github/scripts/set_camcops_docker_environment
+            - 'docker/**'
+            - 'installer/**'
+            - setup.py
+jobs:
+    installer:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Run installer
+              run: |
+                set -eux -o pipefail
+                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
+                ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
+                cd ${GITHUB_WORKSPACE}/installer
+                ./installer.sh -d
+                export CAMCOPS_HOME=${GITHUB_WORKSPACE}
+                ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
