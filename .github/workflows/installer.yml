@@ -23,7 +23,7 @@ jobs:
                 set -eux -o pipefail
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
-                cd ${GITHUB_WORKSPACE}/installer
+                cd ${GITHUB_WORKSPACE}/server/installer
                 ./installer.sh -d
                 export CAMCOPS_HOME=${GITHUB_WORKSPACE}
                 ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
