@@ -8,6 +8,7 @@ on:
             - 'server/camcops_server/**'
             - .github/workflows/docker.yml
             - .github/scripts/docker.sh
+            - .github/scripts/set_camcops_docker_environment
             - 'server/docker/**'
             - server/setup.py
 jobs:
