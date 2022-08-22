@@ -422,7 +422,7 @@ class Installer:
 
     def create_database(self) -> None:
         self.run_camcops_command(
-            f"camcops_server upgrade_db --config {self.config_full_path()}"
+            "camcops_server upgrade_db --config $CAMCOPS_CONFIG_FILE"
         )
 
     def create_superuser(self) -> None:
