@@ -63,7 +63,7 @@ volumes:
 
     rabbitmq_volume:
         # Again, we make it explicit (or we get Docker gibberish names).
-        
+
     camcops_config_volume:
         # Should contain a file whose name is set by the environment variable
         # CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME.
@@ -71,14 +71,14 @@ volumes:
         # The alternative to mounting a directory is Docker "configs" but these
         # are a bit different and don't allow single-file bind-mounting under
         # Windows. See https://docs.docker.com/engine/swarm/configs/
-        
+
         driver: local
         driver_opts:
             o: bind
             type: none
             # We use environment variable substitution.
             # https://docs.docker.com/compose/compose-file/#variable-substitution
-            device: "${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAMECAMCOPS_DOCKER_CONFIG_HOST_DIR}"
+            device: "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}"
 
     camcops_tmp_volume:
         # Space to put lock files, user downloads, etc., that need to be shared
@@ -100,7 +100,7 @@ services:
         # Base Docker image. We use a standard MySQL image; see
         # https://hub.docker.com/_/mysql
         image: mysql:5.7
-
+        container_name: camcops_db
         # Restart policy.
         # - I am slightly confused between "when the computer reboots" and
         #   "if the container crashes".
@@ -130,7 +130,13 @@ services:
 
             # Password for user "root" (set at first container startup).
             MYSQL_ROOT_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD}"
-            
+
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+        networks:
+            - camcops_network
+
         # Expose ports from the container, "publishing" them to the host.
         # For example, if you offer a MySQL server via "9999:3306", you should
         # be able to run
@@ -157,6 +163,7 @@ services:
             # Format is "[SOURCE:]TARGET[:MODE]", such as
             # "VOLUME_NAME:CONTAINER_PATH" to use a named volume.
             - db_data_volume:/var/lib/mysql
+            - "./mysqlconf:/etc/mysql/conf.d"
 
 
     # -------------------------------------------------------------------------
@@ -169,6 +176,7 @@ services:
 
         # Base Docker image.
         image: rabbitmq:3.8.5
+        container_name: camcops_rabbitmq
 
         # Restart policy
         restart: "always"
@@ -185,6 +193,10 @@ services:
         volumes:
             - rabbitmq_volume:/var/lib/rabbitmq
 
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        networks:
+            - camcops_network
 
     # -------------------------------------------------------------------------
     # CamCOPS image, with build commands (to create from the Dockerfile),
@@ -196,13 +208,17 @@ services:
         build:
             # Context for Docker to build the image (relative to this file).
             context: ../../
-            
+
             # Filename of the Dockerfile to use, relative to the context.
             dockerfile: docker/dockerfiles/camcops.Dockerfile
-        
+
+            args:
+                - USER_ID=${CAMCOPS_DOCKER_INSTALL_USER_ID}
+
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".
         image: camcops_server
+        container_name: camcops_camcops_server
 
         # Start order. See docs -- note that this is "order to start", not
         # "wait for startup to complete".
@@ -229,6 +245,10 @@ services:
             "/camcops/venv/bin/camcops_server", "launch_workers",
         ]
 
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        networks:
+            - camcops_network
 
     # -------------------------------------------------------------------------
     # Re-use the CamCOPS image, but run the scheduler.
@@ -238,6 +258,7 @@ services:
 
         # Re-use the image built above.
         image: camcops_server
+        container_name: camcops_camcops_scheduler
 
         # Start order.
         depends_on:
@@ -245,6 +266,11 @@ services:
 
         # Restart policy
         restart: "always"
+
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        networks:
+            - camcops_network
 
         # Mount config file directory
         volumes:
@@ -270,6 +296,7 @@ services:
     camcops_server:
         # Re-use the image built above.
         image: camcops_server
+        container_name: camcops_camcops_server
 
         # Start order.
         depends_on:
@@ -277,7 +304,12 @@ services:
 
         # Restart policy
         restart: "always"
-        
+
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        networks:
+            - camcops_network
+
         # Publish port to host.
         ports:
             - "${CAMCOPS_DOCKER_CAMCOPS_HOST_PORT}:${CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT}"
@@ -317,6 +349,7 @@ services:
     flower:
         # Re-use the image built above.
         image: camcops_server
+        container_name: camcops_flower
 
         # Start order.
         depends_on:
@@ -324,6 +357,11 @@ services:
 
         # Restart policy
         restart: "always"
+
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        networks:
+            - camcops_network
 
         # Publish port to host.
         ports:
@@ -343,3 +381,11 @@ services:
             "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
             "/camcops/venv/bin/camcops_server", "launch_monitor",
         ]
+
+# =============================================================================
+# Networks
+# =============================================================================
+
+networks:
+    camcops_network:
+        driver: bridge

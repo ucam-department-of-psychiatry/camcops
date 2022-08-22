@@ -1,0 +1,23 @@
+---
+# yamllint disable rule:line-length
+name: Docker
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - 'server/camcops_server/**'
+            - .github/workflows/docker.yml
+            - .github/scripts/docker.sh
+            - 'server/docker/**'
+            - server/setup.py
+jobs:
+    docker:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Build
+              run: |
+                set -eux -o pipefail
+                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
+                ${GITHUB_WORKSPACE}/.github/scripts/docker.sh

@@ -24,6 +24,14 @@ FROM python:3.9-slim-buster
 # ... note that "-buster" (not "-slim-buster") includes some things we need,
 # but is LARGER overall.
 
+# -----------------------------------------------------------------------------
+# Permissions
+# -----------------------------------------------------------------------------
+# https://vsupalov.com/docker-shared-permissions/
+
+ARG USER_ID
+RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
+
 
 # -----------------------------------------------------------------------------
 # ADD: files to copy
@@ -130,6 +138,7 @@ RUN echo "- Updating package information..." \
     && echo "- Installing operating system packages..." \
     && apt-get install -y --no-install-recommends \
         gcc \
+        g++ \
         gdebi \
         git \
         wget \
@@ -182,3 +191,5 @@ RUN echo "- Updating package information..." \
 
 # CMD ["/camcops/venv/bin/camcops_server" , "serve_gunicorn"]
 # CMD ["/bin/bash"]
+
+USER camcops
