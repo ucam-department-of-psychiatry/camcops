@@ -398,6 +398,7 @@ class Installer:
         if not os.path.exists(config):
             self.info(f"Creating {config}")
             Path(config).touch()
+            self.run_camcops_command("env")
             self.run_camcops_command(
                 "camcops_server demo_camcops_config --docker > "
                 "$CAMCOPS_CONFIG_FILENAME"
