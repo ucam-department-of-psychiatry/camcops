@@ -401,7 +401,7 @@ class Installer:
             self.run_camcops_command("env")
             self.run_camcops_command(
                 "camcops_server demo_camcops_config --docker > "
-                "$CAMCOPS_CONFIG_FILENAME"
+                "$CAMCOPS_CONFIG_FILE"
             )
         self.configure_config()
 
