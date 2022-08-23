@@ -119,11 +119,11 @@ def check_yml() -> None:
 
 
 def run_yamllint(yaml_dir: str) -> None:
-    for name in os.listdir(GITHUB_ACTIONS_DIR):
+    for name in os.listdir(yaml_dir):
         if name.endswith((".yml", ".yaml")):
             log.info(f"Checking {name}...")
 
-            yml_file = os.path.join(GITHUB_ACTIONS_DIR, name)
+            yml_file = os.path.join(yaml_dir, name)
             run_with_check(["yamllint", yml_file])
 
 
