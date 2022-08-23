@@ -125,6 +125,9 @@ class DockerEnvVar:
     CAMCOPS_SSL_CERTIFICATE = f"{PREFIX}_CAMCOPS_SSL_CERTIFICATE"
     CAMCOPS_SSL_PRIVATE_KEY = f"{PREFIX}_CAMCOPS_SSL_PRIVATE_KEY"
     CAMCOPS_SUPERUSER_USERNAME = f"{PREFIX}_CAMCOPS_SUPERUSER_USERNAME"
+    CAMCOPS_SUPERUSER_PASSWORD = (
+        f"{PREFIX}_CAMCOPS_SUPERUSER_{PASSWORD_SUFFIX}"
+    )
     CAMCOPS_USE_HTTPS = f"{PREFIX}_CAMCOPS_USE_HTTPS"
 
     INSTALL_USER_ID = f"{PREFIX}_INSTALL_USER_ID"
@@ -387,6 +390,11 @@ class Installer:
             DockerEnvVar.CAMCOPS_SUPERUSER_USERNAME,
             self.get_docker_camcops_superuser_username,
         )
+        self.setenv(
+            DockerEnvVar.CAMCOPS_SUPERUSER_PASSWORD,
+            self.get_docker_camcops_superuser_password,
+            obscure=True,
+        )
 
     @staticmethod
     def create_directories() -> None:
@@ -433,8 +441,10 @@ class Installer:
         # Will either create a superuser or update an existing one
         # with the given username
         username = os.getenv(DockerEnvVar.CAMCOPS_SUPERUSER_USERNAME)
+        password = os.getenv(DockerEnvVar.CAMCOPS_SUPERUSER_PASSWORD)
         self.run_camcops_command(
-            f"camcops_server make_superuser --username {username}"
+            "camcops_server make_superuser "
+            f"--username {username} --password {password}"
         )
 
     def report_status(self) -> None:
@@ -548,6 +558,11 @@ class Installer:
         return self.get_user_input(
             "Enter the user name for the CamCOPS administrator:",
             default="admin",
+        )
+
+    def get_docker_camcops_superuser_password(self) -> str:
+        return self.get_user_password(
+            "Enter the password for the CamCOPS administrator:",
         )
 
     # -------------------------------------------------------------------------
