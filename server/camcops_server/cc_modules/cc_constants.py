@@ -838,6 +838,7 @@ class ConfigDefaults(object):
             )
             self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
             self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
+            self.DB_PASSWORD = "@@db_password@@"
             self.EXPORT_LOCKDIR = DockerConstants.DEFAULT_LOCKDIR
             self.HOST = DockerConstants.HOST
             self.USER_DOWNLOAD_DIR = DockerConstants.DEFAULT_USER_DOWNLOAD_DIR

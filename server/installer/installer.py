@@ -406,7 +406,11 @@ class Installer:
         self.configure_config()
 
     def configure_config(self) -> None:
-        replace_dict = {}
+        replace_dict = {
+            "db_password": os.getenv(
+                DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
+            ),
+        }
 
         self.search_replace_file(self.config_full_path(), replace_dict)
 
