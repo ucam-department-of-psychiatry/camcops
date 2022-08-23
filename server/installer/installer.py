@@ -434,7 +434,7 @@ class Installer:
         # with the given username
         username = os.getenv(DockerEnvVar.CAMCOPS_SUPERUSER_USERNAME)
         self.run_camcops_command(
-            f"camcops_server makesuperuser --username {username}"
+            f"camcops_server make_superuser --username {username}"
         )
 
     def report_status(self) -> None:
