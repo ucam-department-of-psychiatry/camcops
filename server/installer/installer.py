@@ -499,9 +499,7 @@ class Installer:
         container = docker.container.inspect("camcops_camcops_server")
         network_settings = container.network_settings
 
-        return network_settings.networks[
-            "camcops_camcopsanon_network"
-        ].ip_address
+        return network_settings.networks["camcops_camcops_network"].ip_address
 
     @staticmethod
     def get_camcops_server_port_from_host() -> str:
