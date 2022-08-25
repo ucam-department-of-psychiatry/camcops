@@ -331,6 +331,8 @@ class Installer:
         try:
             self.configure_user()
             self.configure_config_files()
+            self.configure_host_port()
+            self.configure_https()
             self.configure_camcops_db()
             self.configure_superuser()
         except (KeyboardInterrupt, EOFError):
@@ -350,10 +352,12 @@ class Installer:
         )
         self.setenv(DockerEnvVar.CAMCOPS_CONFIG_FILENAME, "camcops.conf")
 
-    def configure_camcops(self) -> None:
+    def configure_host_port(self) -> None:
         self.setenv(
             DockerEnvVar.CAMCOPS_HOST_PORT, self.get_docker_camcops_host_port
         )
+
+    def configure_https(self) -> None:
         self.setenv(
             DockerEnvVar.CAMCOPS_USE_HTTPS, self.get_docker_camcops_use_https
         )
@@ -519,11 +523,13 @@ class Installer:
     def get_docker_camcops_host_port(self) -> str:
         return self.get_user_input(
             ("Enter the port where CamCOPS will appear on the host:"),
-            default="8000",
+            default="443",
         )
 
     def get_docker_camcops_use_https(self) -> str:
-        return self.get_user_boolean("Access CamCOPS over HTTPS (y/n)?")
+        return self.get_user_boolean(
+            "Access CamCOPS directly over HTTPS? (y/n)"
+        )
 
     def get_docker_camcops_ssl_certificate(self) -> str:
         return self.get_user_file("Select the SSL certificate file:")
