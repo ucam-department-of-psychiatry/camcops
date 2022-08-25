@@ -122,6 +122,7 @@ class DockerEnvVar:
     CONFIG_HOST_DIR = f"{PREFIX}_CONFIG_HOST_DIR"
     CAMCOPS_CONFIG_FILENAME = f"{PREFIX}_CAMCOPS_CONFIG_FILENAME"
     CAMCOPS_HOST_PORT = f"{PREFIX}_CAMCOPS_HOST_PORT"
+    CAMCOPS_INTERNAL_PORT = f"{PREFIX}_CAMCOPS_INTERNAL_PORT"
     CAMCOPS_SSL_CERTIFICATE = f"{PREFIX}_CAMCOPS_SSL_CERTIFICATE"
     CAMCOPS_SSL_PRIVATE_KEY = f"{PREFIX}_CAMCOPS_SSL_PRIVATE_KEY"
     CAMCOPS_SUPERUSER_USERNAME = f"{PREFIX}_CAMCOPS_SUPERUSER_USERNAME"
@@ -331,7 +332,7 @@ class Installer:
         try:
             self.configure_user()
             self.configure_config_files()
-            self.configure_host_port()
+            self.configure_camcops_server_ports()
             self.configure_https()
             self.configure_camcops_db()
             self.configure_superuser()
@@ -352,9 +353,13 @@ class Installer:
         )
         self.setenv(DockerEnvVar.CAMCOPS_CONFIG_FILENAME, "camcops.conf")
 
-    def configure_host_port(self) -> None:
+    def configure_camcops_server_ports(self) -> None:
         self.setenv(
             DockerEnvVar.CAMCOPS_HOST_PORT, self.get_docker_camcops_host_port
+        )
+        self.setenv(
+            DockerEnvVar.CAMCOPS_INTERNAL_PORT,
+            self.get_docker_camcops_internal_port,
         )
 
     def configure_https(self) -> None:
@@ -506,6 +511,10 @@ class Installer:
         return network_settings.networks["camcops_camcops_network"].ip_address
 
     @staticmethod
+    def get_camcops_server_port() -> str:
+        return os.getenv(DockerEnvVar.CAMCOPS_INTERNAL_PORT)
+
+    @staticmethod
     def get_camcops_server_port_from_host() -> str:
         return os.getenv(DockerEnvVar.CAMCOPS_HOST_PORT)
 
@@ -525,6 +534,9 @@ class Installer:
             ("Enter the port where CamCOPS will appear on the host:"),
             default="443",
         )
+
+    def get_docker_camcops_internal_port(self) -> str:
+        return "8000"  # Matches PORT in camcops.conf
 
     def get_docker_camcops_use_https(self) -> str:
         return self.get_user_boolean(
@@ -748,8 +760,8 @@ class NativeLinuxInstaller(Installer):
 
     def get_camcops_server_url(self) -> str:
         scheme = self.get_camcops_server_scheme()
-        ip_address = self.get_camcops_server_ip_from_host()
-        port = self.get_camcops_server_port_from_host()
+        ip_address = self.get_camcops_server_ip_address()
+        port = self.get_camcops_server_port()
 
         netloc = f"{ip_address}:{port}"
         path = self.get_camcops_server_path()
@@ -758,9 +770,6 @@ class NativeLinuxInstaller(Installer):
         return urllib.parse.urlunparse(
             (scheme, netloc, path, params, query, fragment)
         )
-
-    def get_camcops_server_ip_from_host(self) -> str:
-        return self.get_camcops_server_ip_address()
 
 
 class MacOsInstaller(Installer):
