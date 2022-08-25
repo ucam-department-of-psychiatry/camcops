@@ -162,6 +162,14 @@ RUN echo "- Updating package information..." \
     && /camcops/venv/bin/python3 -m pip install \
         /camcops/src \
         mysqlclient==1.4.6 \
+    && echo "===============================================================================" \
+    && echo "Creating temp files directory" \
+    && echo "===============================================================================" \
+    && mkdir -p /camcops/tmp \
+    && chown -R camcops:camcops /camcops/tmp \
+    && echo "===============================================================================" \
+    && echo "Cleanup" \
+    && echo "===============================================================================" \
     && echo "- Removing OS packages used only for the installation..." \
     && apt-get purge -y \
         gcc \
