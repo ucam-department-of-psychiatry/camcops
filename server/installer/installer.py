@@ -39,7 +39,6 @@ import re
 import secrets
 import shutil
 import string
-from subprocess import run
 import sys
 from tempfile import NamedTemporaryFile
 import textwrap
@@ -255,16 +254,14 @@ class Installer:
 
     @staticmethod
     def run_shell_in_camcops_container(as_root: bool = False) -> None:
-        # python_on_whales doesn't support docker compose exec yet
         os.chdir(HostPath.DOCKERFILES_DIR)
 
-        command = ["docker", "compose", "exec"]
-        user_option = ["-u", "0"] if as_root else []
+        user = "root" if as_root else None
 
-        run(
-            command
-            + user_option
-            + [DockerComposeServices.CAMCOPS_SERVER, DockerPath.BASH]
+        docker.compose.execute(
+            DockerComposeServices.CAMCOPS_SERVER,
+            [DockerPath.BASH],
+            user=user,
         )
 
     def run_camcops_command(self, camcops_command: str) -> None:
