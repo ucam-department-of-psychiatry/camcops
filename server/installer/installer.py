@@ -109,6 +109,7 @@ class DockerComposeServices:
 
     CAMCOPS_SERVER = "camcops_server"
     CAMCOPS_WORKERS = "camcops_workers"
+    MYSQL = "mysql"
 
 
 class DockerEnvVar:
@@ -270,6 +271,25 @@ class Installer:
         self.run_bash_command_inside_docker(
             f"source /camcops/venv/bin/activate; {camcops_command}"
         )
+
+    @staticmethod
+    def run_dbshell_in_db_container() -> None:
+        os.chdir(HostPath.DOCKERFILES_DIR)
+
+        mysql_user = os.getenv(
+            DockerEnvVar.MYSQL_CAMCOPS_USER_NAME,
+        )
+
+        db_name = os.getenv(
+            DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
+        )
+
+        command = [
+            DockerPath.BASH,
+            "-c",
+            f"mysql -u {mysql_user} -p {db_name}",
+        ]
+        docker.compose.execute(DockerComposeServices.MYSQL, command)
 
     # -------------------------------------------------------------------------
     # Info messages
@@ -812,6 +832,7 @@ def get_installer(verbose: bool) -> Installer:
 
 
 class Command:
+    DBSHELL = "dbshell"
     INSTALL = "install"
     RUN_COMMAND = "run"
     START = "start"
@@ -852,7 +873,7 @@ def main() -> None:
 
     shell = subparsers.add_parser(
         Command.SHELL,
-        help="Start a shell (command prompt) within a already-running "
+        help="Start a shell (command prompt) within an already-running "
         "CamCOPS Docker environment, in the "
         f"{DockerComposeServices.CAMCOPS_SERVER!r} container",
     )
@@ -861,6 +882,15 @@ def main() -> None:
         action="store_true",
         help="Enter as the 'root' user instead of the 'camcops' user",
         default=False,
+    )
+
+    subparsers.add_parser(
+        Command.DBSHELL,
+        help=(
+            "Start a MySQL command-line client within an already-running "
+            "CamCOPS Docker environment, in the "
+            f"{DockerComposeServices.MYSQL!r} container"
+        ),
     )
 
     args = parser.parse_args()
@@ -881,6 +911,9 @@ def main() -> None:
 
     elif args.command == Command.SHELL:
         installer.run_shell_in_camcops_container(as_root=args.as_root)
+
+    elif args.command == Command.DBSHELL:
+        installer.run_dbshell_in_db_container()
 
     else:
         raise AssertionError("Bug")
