@@ -780,6 +780,8 @@ class ConfigDefaults(object):
     SHOW_REQUESTS = False
     SHOW_RESPONSE = False
     SHOW_TIMING = False
+    SSL_CERTIFICATE = ""
+    SSL_PRIVATE_KEY = ""
     STATIC_CACHE_DURATION_S = 1 * 24 * 60 * 60  # 1 day, in seconds = 86400
 
     # [export] section
@@ -841,6 +843,8 @@ class ConfigDefaults(object):
             self.DB_PASSWORD = "@@db_password@@"
             self.EXPORT_LOCKDIR = DockerConstants.DEFAULT_LOCKDIR
             self.HOST = DockerConstants.HOST
+            self.SSL_CERTIFICATE = "@@ssl_certificate@@"
+            self.SSL_PRIVATE_KEY = "@@ssl_private_key@@"
             self.USER_DOWNLOAD_DIR = DockerConstants.DEFAULT_USER_DOWNLOAD_DIR
 
     @property

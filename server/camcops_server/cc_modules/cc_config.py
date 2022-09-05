@@ -451,8 +451,8 @@ def get_demo_config(for_docker: bool = False) -> str:
 # If you host CamCOPS behind Apache, it’s likely that you’ll want Apache to
 # handle HTTPS and CamCOPS to operate unencrypted behind a reverse proxy, in
 # which case don’t set SSL_CERTIFICATE or SSL_PRIVATE_KEY.
-{ConfigParamServer.SSL_CERTIFICATE} =
-{ConfigParamServer.SSL_PRIVATE_KEY} =
+{ConfigParamServer.SSL_CERTIFICATE} = {cd.SSL_CERTIFICATE}
+{ConfigParamServer.SSL_PRIVATE_KEY} = {cd.SSL_PRIVATE_KEY}
 {ConfigParamServer.STATIC_CACHE_DURATION_S} = {cd.STATIC_CACHE_DURATION_S}
 
 # -----------------------------------------------------------------------------

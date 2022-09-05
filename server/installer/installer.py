@@ -32,6 +32,7 @@ environment is NOT available.
 """
 
 from argparse import ArgumentParser
+from datetime import datetime, timedelta
 import os
 from pathlib import Path
 from platform import uname
@@ -46,6 +47,10 @@ from typing import Callable, Dict, Iterable, NoReturn, TextIO, Union
 import urllib.parse
 
 # See installer-requirements.txt
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes, serialization
 from prompt_toolkit import HTML, print_formatted_text, prompt
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.document import Document
@@ -120,6 +125,9 @@ class DockerEnvVar:
     PASSWORD_SUFFIX = "PASSWORD"
 
     CONFIG_HOST_DIR = f"{PREFIX}_CONFIG_HOST_DIR"
+    CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE = (
+        f"{PREFIX}_CREATE_SELF_SIGNED_CERTIFICATE"
+    )
     CAMCOPS_CONFIG_FILENAME = f"{PREFIX}_CAMCOPS_CONFIG_FILENAME"
     CAMCOPS_HOST_PORT = f"{PREFIX}_CAMCOPS_HOST_PORT"
     CAMCOPS_INTERNAL_PORT = f"{PREFIX}_CAMCOPS_INTERNAL_PORT"
@@ -140,6 +148,12 @@ class DockerEnvVar:
     MYSQL_CAMCOPS_USER_PASSWORD = (
         f"{PREFIX}_MYSQL_CAMCOPS_USER_{PASSWORD_SUFFIX}"
     )
+    X509_COMMON_NAME = f"{PREFIX}_X509_COMMON_NAME"
+    X509_COUNTRY_NAME = f"{PREFIX}_X509_COUNTRY_NAME"
+    X509_DNS_NAME = f"{PREFIX}_X509_DNS_NAME"
+    X509_LOCALITY_NAME = f"{PREFIX}_X509_LOCALITY_NAME"
+    X509_ORGANIZATION_NAME = f"{PREFIX}_X509_ORGANIZATION_NAME"
+    X509_STATE_OR_PROVINCE_NAME = f"{PREFIX}_X509_STATE_OR_PROVINCE_NAME"
 
 
 # =============================================================================
@@ -151,6 +165,17 @@ class NotEmptyValidator(Validator):
     def validate(self, document: Document) -> None:
         if not document.text:
             raise ValidationError(message="Must provide an answer")
+
+
+class FixedLengthValidator(Validator):
+    def __init__(self, length: int) -> None:
+        self.length = length
+
+    def validate(self, document: Document) -> None:
+        if len(document.text) != self.length:
+            raise ValidationError(
+                message=f"Must be {self.length} characters long"
+            )
 
 
 class YesNoValidator(Validator):
@@ -234,9 +259,9 @@ class Installer:
         self.configure()
         self.create_directories()
         self.write_environment_variables()
-        self.create_config()
         if self.use_https():
-            self.copy_ssl_files()
+            self.process_ssl_files()
+        self.create_config()
         self.create_database()
         self.create_superuser()
         self.start()
@@ -384,14 +409,53 @@ class Installer:
             DockerEnvVar.CAMCOPS_USE_HTTPS, self.get_docker_camcops_use_https
         )
         if self.use_https():
-            self.setenv(
-                DockerEnvVar.CAMCOPS_SSL_CERTIFICATE,
-                self.get_docker_camcops_ssl_certificate,
-            )
-            self.setenv(
-                DockerEnvVar.CAMCOPS_SSL_PRIVATE_KEY,
-                self.get_docker_camcops_ssl_private_key,
-            )
+            self.configure_ssl_certificate()
+
+    def configure_ssl_certificate(self) -> None:
+        self.setenv(
+            DockerEnvVar.CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE,
+            self.get_docker_camcops_create_self_signed_certificate,
+        )
+        if self.should_create_self_signed_certificate():
+            return self.configure_self_signed_ssl_certificate()
+
+        self.configure_existing_ssl_certificate()
+
+    def configure_self_signed_ssl_certificate(self) -> None:
+        self.setenv(
+            DockerEnvVar.X509_COUNTRY_NAME,
+            self.get_docker_x509_country_name,
+        )
+        self.setenv(
+            DockerEnvVar.X509_STATE_OR_PROVINCE_NAME,
+            self.get_docker_x509_state_or_province_name,
+        )
+        self.setenv(
+            DockerEnvVar.X509_LOCALITY_NAME,
+            self.get_docker_x509_locality_name,
+        )
+        self.setenv(
+            DockerEnvVar.X509_ORGANIZATION_NAME,
+            self.get_docker_x509_organization_name,
+        )
+        self.setenv(
+            DockerEnvVar.X509_COMMON_NAME,
+            self.get_docker_x509_common_name,
+        )
+        self.setenv(
+            DockerEnvVar.X509_DNS_NAME,
+            self.get_docker_x509_dns_name,
+        )
+
+    def configure_existing_ssl_certificate(self) -> None:
+        self.setenv(
+            DockerEnvVar.CAMCOPS_SSL_CERTIFICATE,
+            self.get_docker_camcops_ssl_certificate,
+        )
+        self.setenv(
+            DockerEnvVar.CAMCOPS_SSL_PRIVATE_KEY,
+            self.get_docker_camcops_ssl_private_key,
+        )
 
     def configure_camcops_db(self) -> None:
         self.setenv(
@@ -444,9 +508,93 @@ class Installer:
             "db_password": os.getenv(
                 DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
             ),
+            "ssl_certificate": os.path.join(
+                DockerPath.CONFIG_DIR, "camcops.crt"
+            ),
+            "ssl_private_key": os.path.join(
+                DockerPath.CONFIG_DIR, "camcops.key"
+            ),
         }
 
         self.search_replace_file(self.config_full_path(), replace_dict)
+
+    def process_ssl_files(self) -> None:
+        if self.should_create_self_signed_certificate():
+            self.create_self_signed_certificate()
+
+        self.copy_ssl_files()
+
+    def create_self_signed_certificate(self) -> None:
+        # https://www.misterpki.com/python-self-signed-certificate/
+        key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+        )
+
+        subject = issuer = x509.Name(
+            [
+                x509.NameAttribute(
+                    NameOID.COUNTRY_NAME,
+                    os.getenv(DockerEnvVar.X509_COUNTRY_NAME),
+                ),
+                x509.NameAttribute(
+                    NameOID.STATE_OR_PROVINCE_NAME,
+                    os.getenv(DockerEnvVar.X509_STATE_OR_PROVINCE_NAME),
+                ),
+                x509.NameAttribute(
+                    NameOID.LOCALITY_NAME,
+                    os.getenv(DockerEnvVar.X509_LOCALITY_NAME),
+                ),
+                x509.NameAttribute(
+                    NameOID.ORGANIZATION_NAME,
+                    os.getenv(DockerEnvVar.X509_ORGANIZATION_NAME),
+                ),
+                x509.NameAttribute(
+                    NameOID.COMMON_NAME,
+                    os.getenv(DockerEnvVar.X509_COMMON_NAME),
+                ),
+            ]
+        )
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(issuer)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.utcnow())
+            .not_valid_after(datetime.utcnow() + timedelta(days=365))
+            .add_extension(
+                x509.SubjectAlternativeName(
+                    [x509.DNSName(os.getenv(DockerEnvVar.X509_DNS_NAME))]
+                ),
+                critical=False,
+            )
+            .sign(key, hashes.SHA256())
+        )
+
+        with NamedTemporaryFile(delete=False, mode="wb") as f:
+            key_filename = f.name
+            f.write(
+                key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            )
+
+        with NamedTemporaryFile(delete=False, mode="wb") as f:
+            cert_filename = f.name
+            f.write(cert.public_bytes(encoding=serialization.Encoding.PEM))
+
+        self.setenv(
+            DockerEnvVar.CAMCOPS_SSL_PRIVATE_KEY,
+            key_filename,
+        )
+
+        self.setenv(
+            DockerEnvVar.CAMCOPS_SSL_CERTIFICATE,
+            cert_filename,
+        )
 
     @staticmethod
     def copy_ssl_files() -> None:
@@ -517,6 +665,13 @@ class Installer:
         return os.getenv(DockerEnvVar.CAMCOPS_USE_HTTPS) == "1"
 
     @staticmethod
+    def should_create_self_signed_certificate() -> bool:
+        return (
+            os.getenv(DockerEnvVar.CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE)
+            == "1"
+        )
+
+    @staticmethod
     def get_camcops_server_path() -> str:
         return "/"
 
@@ -560,6 +715,9 @@ class Installer:
             "Access CamCOPS directly over HTTPS? (y/n)"
         )
 
+    def get_docker_camcops_create_self_signed_certificate(self) -> str:
+        return self.get_user_boolean("Create a self-signed certificate? (y/n)")
+
     def get_docker_camcops_ssl_certificate(self) -> str:
         return self.get_user_file("Select the SSL certificate file:")
 
@@ -597,6 +755,31 @@ class Installer:
         return self.get_user_password(
             "Enter the password for the CamCOPS administrator:",
         )
+
+    def get_docker_x509_country_name(self) -> str:
+        return self.get_user_input(
+            "Enter the 2-letter country code:",
+            validator=FixedLengthValidator(2),
+        )
+
+    def get_docker_x509_state_or_province_name(self) -> str:
+        return self.get_user_input("Enter the state or province name:")
+
+    def get_docker_x509_locality_name(self) -> str:
+        return self.get_user_input("Enter the locality name (e.g. city):")
+
+    def get_docker_x509_organization_name(self) -> str:
+        return self.get_user_input(
+            "Enter the organization name (e.g. company):"
+        )
+
+    def get_docker_x509_common_name(self) -> str:
+        return self.get_user_input(
+            "Enter the common name (e.g. your name or server's hostname):"
+        )
+
+    def get_docker_x509_dns_name(self) -> str:
+        return self.get_user_input("Enter the DNS name:", "localhost")
 
     # -------------------------------------------------------------------------
     # Generic input
@@ -639,10 +822,10 @@ class Installer:
     def get_user_email(self, text: str) -> str:
         return self.prompt(text, validator=EmailValidator())
 
-    def get_user_input(self, text: str, default: str = "") -> str:
-        return self.prompt(
-            text, default=default, validator=NotEmptyValidator()
-        )
+    def get_user_input(
+        self, text: str, default: str = "", validator=NotEmptyValidator()
+    ) -> str:
+        return self.prompt(text, default=default, validator=validator)
 
     def prompt(self, text: str, *args, **kwargs) -> str:
         """
