@@ -1,0 +1,146 @@
+---
+# yamllint disable rule:line-length
+# yamllint disable rule:comments-indentation
+# server/docker/dockerfiles/docker-compose-mysql.yaml
+#
+# Overrides for MySQL running from container
+#
+# =============================================================================
+# Environment variables used (see help)
+# =============================================================================
+#
+# Those with defaults in the .env file in this directory:
+#
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME
+#   CAMCOPS_DOCKER_MYSQL_HOST_PORT
+#
+# Those without defaults:
+#
+#   CAMCOPS_DOCKER_CONFIG_HOST_DIR
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
+#   CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD
+
+# =============================================================================
+# Data volumes
+# =============================================================================
+
+volumes:
+    # See Docker Compose "Volume configuration reference". Note that the syntax
+    # here is not the same as for "volumes:" within a service (container).
+
+    db_data_volume:
+        # Without any options, the default driver (usually "local") is used.
+        # This will probably create a volume at
+        # /var/lib/docker/volumes/VOLUME/_data on the host.
+
+
+# =============================================================================
+# Containers (services)
+# =============================================================================
+
+services:
+    # -------------------------------------------------------------------------
+    # MySQL container, providing database services
+    # -------------------------------------------------------------------------
+
+    mysql:
+        # Base Docker image. We use a standard MySQL image; see
+        # https://hub.docker.com/_/mysql
+        image: mysql:5.7
+        container_name: camcops_db
+        # Restart policy.
+        # - I am slightly confused between "when the computer reboots" and
+        #   "if the container crashes".
+        # - See Docker Compose docs, but also
+        #   https://stackoverflow.com/questions/30449313/how-do-i-make-a-docker-container-start-automatically-on-system-boot
+        # - Empirically:
+        #   - "no" means "neither on reboot nor container crash".
+        #   - "always" includes reboots and crashes.
+        #   - The other options are "on-failure" and "unless-stopped".
+        #   - There doesn't appear to be an option for "restart on reboot, but
+        #     leave stopped if it crashed".
+        # - So: always.
+        restart: "always"
+
+        # Environment variables.
+        # See https://hub.docker.com/_/mysql
+        environment:
+            # Create database with this name at first container startup.
+            MYSQL_DATABASE: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME}"
+
+            # Create user with this name at first container startup, with
+            # GRANT ALL access to the database named in MYSQL_DATABASE.
+            MYSQL_USER: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME}"
+
+            # Password for MYSQL_USER (set at first container startup).
+            MYSQL_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD}"
+
+            # Password for user "root" (set at first container startup).
+            MYSQL_ROOT_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD}"
+
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+        networks:
+            - camcops_network
+
+        # Expose ports from the container, "publishing" them to the host.
+        # For example, if you offer a MySQL server via "9999:3306", you should
+        # be able to run
+        #
+        #   $ mysql --host=127.0.0.1 --port=9999 --user=root --password
+        #
+        # on the host, and connect to the server.
+        ports:
+            # Short format is: "HOST_PORT:CONTAINER_PORT".
+            # Should always use explicit string format here.
+            # MySQL offers port 3306 by default.
+            - "${CAMCOPS_DOCKER_MYSQL_HOST_PORT}:3306"
+
+        # Expose ports to linked services without publishing them to the host.
+        # Specify the container (internal) port.
+        expose:
+            - "3306"
+
+        # Note that if you do not specify mount points, some are created
+        # anyway; for example, the MySQL image wants something at
+        # /var/lib/mysql (internally) and on the hose this might actually be
+        # e.g. /var/lib/docker/volumes/<gibberish>/_data
+        volumes:
+            # Format is "[SOURCE:]TARGET[:MODE]", such as
+            # "VOLUME_NAME:CONTAINER_PATH" to use a named volume.
+            - db_data_volume:/var/lib/mysql
+            - "./mysqlconf:/etc/mysql/conf.d"
+
+    camcops_workers:
+
+        # Start order. See docs -- note that this is "order to start", not
+        # "wait for startup to complete".
+        depends_on:
+            - mysql
+            - rabbitmq
+
+        # Command to execute
+        command: [
+            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server", "launch_workers",
+        ]
+
+    camcops_scheduler:
+        # Command to execute
+        command: [
+            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server", "launch_scheduler",
+        ]
+
+    camcops_server:
+        # Command to execute
+        # Can use shell-style or list-style syntax.
+        command: [
+            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server", "serve_cherrypy",
+        ]

@@ -58,7 +58,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.validation import Validator, ValidationError
 
 # noinspection PyUnresolvedReferences
-from python_on_whales import docker, DockerException
+from python_on_whales import docker, DockerClient, DockerException
 from semantic_version import Version
 
 
@@ -221,6 +221,7 @@ class EmailValidator(Validator):
 
 class Installer:
     def __init__(self, verbose: bool = False) -> None:
+        self._docker = None
         self.verbose = verbose
         self.title = "CamCOPS Setup"
         self.intro_style = Style.from_dict(
@@ -249,6 +250,18 @@ class Installer:
             }
         )
 
+    @property
+    def docker(self) -> DockerClient:
+        if self._docker is None:
+            compose_files = ["docker-compose.yaml"]
+
+            if self.should_create_mysql_container():
+                compose_files.append("docker-compose-mysql.yaml")
+
+            self._docker = DockerClient(compose_files=compose_files)
+
+        return self._docker
+
     # -------------------------------------------------------------------------
     # Commands
     # -------------------------------------------------------------------------
@@ -267,23 +280,20 @@ class Installer:
         self.start()
         self.report_status()
 
-    @staticmethod
-    def start() -> None:
+    def start(self) -> None:
         os.chdir(HostPath.DOCKERFILES_DIR)
-        docker.compose.up(detach=True)
+        self.docker.compose.up(detach=True)
 
-    @staticmethod
-    def stop() -> None:
+    def stop(self) -> None:
         os.chdir(HostPath.DOCKERFILES_DIR)
-        docker.compose.down()
+        self.docker.compose.down()
 
-    @staticmethod
-    def run_shell_in_camcops_container(as_root: bool = False) -> None:
+    def run_shell_in_camcops_container(self, as_root: bool = False) -> None:
         os.chdir(HostPath.DOCKERFILES_DIR)
 
         user = "root" if as_root else None
 
-        docker.compose.execute(
+        self.docker.compose.execute(
             DockerComposeServices.CAMCOPS_SERVER,
             [DockerPath.BASH],
             user=user,
@@ -294,8 +304,7 @@ class Installer:
             f"source /camcops/venv/bin/activate; {camcops_command}"
         )
 
-    @staticmethod
-    def run_dbshell_in_db_container() -> None:
+    def run_dbshell_in_db_container(self) -> None:
         os.chdir(HostPath.DOCKERFILES_DIR)
 
         mysql_user = os.getenv(
@@ -311,7 +320,7 @@ class Installer:
             "-c",
             f"mysql -u {mysql_user} -p {db_name}",
         ]
-        docker.compose.execute(DockerComposeServices.MYSQL, command)
+        self.docker.compose.execute(DockerComposeServices.MYSQL, command)
 
     # -------------------------------------------------------------------------
     # Info messages
@@ -672,6 +681,13 @@ class Installer:
         )
 
     @staticmethod
+    def should_create_mysql_container() -> bool:
+        return True
+        # return (
+        #     os.getenv(DockerEnvVar.CAMCOPS_CREATE_MYSQL_CONTAINER) == "1"
+        # )
+
+    @staticmethod
     def get_camcops_server_path() -> str:
         return "/"
 
@@ -897,10 +913,9 @@ class Installer:
     # Shell handling
     # -------------------------------------------------------------------------
 
-    @staticmethod
-    def run_bash_command_inside_docker(bash_command: str) -> None:
+    def run_bash_command_inside_docker(self, bash_command: str) -> None:
         os.chdir(HostPath.DOCKERFILES_DIR)
-        docker.compose.run(
+        self.docker.compose.run(
             DockerComposeServices.CAMCOPS_WORKERS,
             remove=True,
             command=[DockerPath.BASH, "-c", bash_command],
