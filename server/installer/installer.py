@@ -874,7 +874,7 @@ class Installer:
                 DockerEnvVar.PASSWORD_SUFFIX
             ):
                 continue
-            f.write(f"export {key}={value}\n")
+            f.write(f'export {key}="{value}"\n')
 
     def write_environment_variables(
         self, permit_cfg_dir_save: bool = True
