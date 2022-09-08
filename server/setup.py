@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib==1.1.15",  # RNC libraries
+    "cardinal_pythonlib==1.1.23",  # RNC libraries
     "celery==5.2.2",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
@@ -100,11 +100,11 @@ INSTALL_REQUIRES = [
     "py==1.10.0",  # dependency, pinned to avoid CVE-2020-29651
     "pycap==1.1.1",  # REDCap integration
     "Pillow==9.0.1",  # used by a dependency; pin for security warnings
-    "Pygments==2.7.4",  # Syntax highlighting for introspection/DDL
+    "Pygments==2.13.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
     "pyotp==2.6.0",  # Multi-factor authentication
-    "pyramid==1.10.4",  # web framework
+    "pyramid==1.10.8",  # web framework
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
     "pytest==6.0.2",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators

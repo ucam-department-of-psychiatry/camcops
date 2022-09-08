@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/special_note_delete.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/special_note_delete.mako
-    :language: none
+    :language: html+mako

@@ -26,4 +26,4 @@ server/camcops_server/templates/test/testpage.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/test/testpage.mako
-    :language: none
+    :language: html+mako

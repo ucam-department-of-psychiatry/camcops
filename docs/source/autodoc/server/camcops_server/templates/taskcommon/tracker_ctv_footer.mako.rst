@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/tracker_ctv_footer.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/tracker_ctv_footer.mako
-    :language: none
+    :language: html+mako

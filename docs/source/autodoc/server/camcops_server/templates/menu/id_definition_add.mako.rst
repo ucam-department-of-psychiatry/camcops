@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/id_definition_add.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/id_definition_add.mako
-    :language: none
+    :language: html+mako

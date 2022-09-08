@@ -490,6 +490,9 @@ EXIT_FAILURE = 1
 
 if "GENERATING_CAMCOPS_DOCS" in os.environ:
     USER_DIR = "/path/to/user"
+    CPU_COUNT = 8
+else:
+    CPU_COUNT = multiprocessing.cpu_count()
 
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 
@@ -4129,7 +4132,7 @@ def main() -> None:
     general.add_argument(
         "--nparallel",
         type=int,
-        default=multiprocessing.cpu_count(),
+        default=CPU_COUNT,
         help="Number of parallel processes to run",
     )
     general.add_argument("--force", action="store_true", help="Force build")

@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/describe_task_filter.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/describe_task_filter.mako
-    :language: none
+    :language: html+mako

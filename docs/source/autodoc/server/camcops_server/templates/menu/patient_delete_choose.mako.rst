@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/patient_delete_choose.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/patient_delete_choose.mako
-    :language: none
+    :language: html+mako

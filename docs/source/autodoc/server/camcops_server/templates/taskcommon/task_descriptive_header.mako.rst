@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/task_descriptive_header.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/task_descriptive_header.mako
-    :language: none
+    :language: html+mako

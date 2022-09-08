@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako
-    :language: none
+    :language: html+mako

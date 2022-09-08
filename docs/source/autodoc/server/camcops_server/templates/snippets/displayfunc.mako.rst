@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/displayfunc.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/displayfunc.mako
-    :language: none
+    :language: html+mako

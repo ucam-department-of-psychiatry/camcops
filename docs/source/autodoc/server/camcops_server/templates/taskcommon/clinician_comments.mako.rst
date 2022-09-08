@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/clinician_comments.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/clinician_comments.mako
-    :language: none
+    :language: html+mako

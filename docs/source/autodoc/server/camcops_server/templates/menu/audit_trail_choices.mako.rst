@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/audit_trail_choices.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/audit_trail_choices.mako
-    :language: none
+    :language: html+mako
