@@ -831,13 +831,14 @@ class Installer:
 
     def get_external_mysql_camcops_server(self) -> str:
         return self.get_user_input(
-            "Enter the name of the external CamCOPS database server:"
+            "Enter the name of the external CamCOPS database server:",
+            default="camcops",
         )
 
     def get_external_mysql_camcops_port(self) -> str:
         return self.get_user_input(
             "Enter the port number of the external CamCOPS database server:",
-            "3306",
+            default="3306",
         )
 
     def get_external_mysql_camcops_database_name(self) -> str:
