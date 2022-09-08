@@ -25,7 +25,7 @@ server/installer/installer.py
 
 ===============================================================================
 
-Installs CamCOPS running under Docker with demonstration databases.
+Installs CamCOPS running under Docker with optional database.
 Bootstrapped from ``installer.sh``. Note that the full CamCOPS Python
 environment is NOT available.
 
@@ -125,6 +125,7 @@ class DockerEnvVar:
     PASSWORD_SUFFIX = "PASSWORD"
 
     CONFIG_HOST_DIR = f"{PREFIX}_CONFIG_HOST_DIR"
+    CAMCOPS_CREATE_MYSQL_CONTAINER = f"{PREFIX}_CAMCOPS_CREATE_MYSQL_CONTAINER"
     CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE = (
         f"{PREFIX}_CREATE_SELF_SIGNED_CERTIFICATE"
     )
@@ -141,6 +142,8 @@ class DockerEnvVar:
 
     INSTALL_USER_ID = f"{PREFIX}_INSTALL_USER_ID"
 
+    MYSQL_CAMCOPS_SERVER = f"{PREFIX}_MYSQL_CAMCOPS_SERVER"
+    MYSQL_CAMCOPS_PORT = f"{PREFIX}_MYSQL_CAMCOPS_PORT"
     MYSQL_CAMCOPS_DATABASE_NAME = f"{PREFIX}_MYSQL_CAMCOPS_DATABASE_NAME"
     MYSQL_HOST_PORT = f"{PREFIX}_MYSQL_HOST_PORT"
     MYSQL_ROOT_PASSWORD = f"{PREFIX}_MYSQL_ROOT_{PASSWORD_SUFFIX}"
@@ -468,10 +471,23 @@ class Installer:
 
     def configure_camcops_db(self) -> None:
         self.setenv(
+            DockerEnvVar.CAMCOPS_CREATE_MYSQL_CONTAINER,
+            self.get_docker_camcops_create_mysql_container,
+        )
+
+        if self.should_create_mysql_container():
+            return self.configure_mysql_container()
+
+        self.configure_external_db()
+
+    def configure_mysql_container(self) -> None:
+        self.setenv(
             DockerEnvVar.MYSQL_ROOT_PASSWORD,
             self.get_docker_mysql_root_password,
             obscure=True,
         )
+        self.setenv(DockerEnvVar.MYSQL_CAMCOPS_SERVER, "mysql")
+        self.setenv(DockerEnvVar.MYSQL_CAMCOPS_PORT, "3306")
         self.setenv(DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME, "camcops")
         self.setenv(DockerEnvVar.MYSQL_CAMCOPS_USER_NAME, "camcops")
         self.setenv(
@@ -482,6 +498,43 @@ class Installer:
         self.setenv(
             DockerEnvVar.MYSQL_HOST_PORT,
             self.get_docker_mysql_camcops_host_port,
+        )
+
+    def configure_external_db(self) -> None:
+        self.info(
+            "CamCOPS will attempt to connect to the external database during "
+            "installation."
+        )
+        self.info("Before continuing:")
+        self.info(
+            "1. The database server must allow remote connections "
+            "(e.g. bind-address = 0.0.0.0 in mysqld.cnf)."
+        )
+        self.info("2. The database must exist.")
+        self.info(
+            "3. A user must exist with access to the database using "
+            "mysql_native_password authentication."
+        )
+        self.setenv(
+            DockerEnvVar.MYSQL_CAMCOPS_SERVER,
+            self.get_external_mysql_camcops_server,
+        )
+        self.setenv(
+            DockerEnvVar.MYSQL_CAMCOPS_PORT,
+            self.get_external_mysql_camcops_port,
+        )
+        self.setenv(
+            DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
+            self.get_external_mysql_camcops_database_name,
+        )
+        self.setenv(
+            DockerEnvVar.MYSQL_CAMCOPS_USER_NAME,
+            self.get_external_mysql_camcops_user_name,
+        )
+        self.setenv(
+            DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
+            self.get_external_mysql_camcops_user_password,
+            obscure=True,
         )
 
     def configure_superuser(self) -> None:
@@ -514,8 +567,20 @@ class Installer:
 
     def configure_config(self) -> None:
         replace_dict = {
+            "db_server": os.getenv(
+                DockerEnvVar.MYSQL_CAMCOPS_SERVER,
+            ),
+            "db_port": os.getenv(
+                DockerEnvVar.MYSQL_CAMCOPS_PORT,
+            ),
+            "db_user": os.getenv(
+                DockerEnvVar.MYSQL_CAMCOPS_USER_NAME,
+            ),
             "db_password": os.getenv(
                 DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
+            ),
+            "db_database": os.getenv(
+                DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
             ),
             "ssl_certificate": os.path.join(
                 DockerPath.CONFIG_DIR, "camcops.crt"
@@ -682,10 +747,7 @@ class Installer:
 
     @staticmethod
     def should_create_mysql_container() -> bool:
-        return True
-        # return (
-        #     os.getenv(DockerEnvVar.CAMCOPS_CREATE_MYSQL_CONTAINER) == "1"
-        # )
+        return os.getenv(DockerEnvVar.CAMCOPS_CREATE_MYSQL_CONTAINER) == "1"
 
     @staticmethod
     def get_camcops_server_path() -> str:
@@ -740,6 +802,12 @@ class Installer:
     def get_docker_camcops_ssl_private_key(self) -> str:
         return self.get_user_file("Select the SSL private key file:")
 
+    def get_docker_camcops_create_mysql_container(self) -> bool:
+        return self.get_user_boolean(
+            "Create a MySQL container? "
+            "Answer 'n' to use an external database (y/n)"
+        )
+
     def get_docker_mysql_root_password(self) -> str:
         return self.get_user_password(
             "Enter a new root password for the MySQL database:"
@@ -759,6 +827,32 @@ class Installer:
                 "appear on the host:"
             ),
             default="43306",
+        )
+
+    def get_external_mysql_camcops_server(self) -> str:
+        return self.get_user_input(
+            "Enter the name of the external CamCOPS database server:"
+        )
+
+    def get_external_mysql_camcops_port(self) -> str:
+        return self.get_user_input(
+            "Enter the port number of the external CamCOPS database server:",
+            "3306",
+        )
+
+    def get_external_mysql_camcops_database_name(self) -> str:
+        return self.get_user_input(
+            "Enter the name of the external CamCOPS database:"
+        )
+
+    def get_external_mysql_camcops_user_name(self) -> str:
+        return self.get_user_input(
+            "Enter the name of the external CamCOPS database user:"
+        )
+
+    def get_external_mysql_camcops_user_password(self) -> str:
+        return self.get_user_password(
+            "Enter the password of the external CamCOPS database user:"
         )
 
     def get_docker_camcops_superuser_username(self) -> str:

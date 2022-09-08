@@ -838,9 +838,11 @@ class ConfigDefaults(object):
             self.CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
                 DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule"
             )
-            self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
-            self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
+            self.DB_SERVER = "@@db_server@@"
+            self.DB_PORT = "@@db_port@@"
+            self.DB_USER = "@@db_user@@"
             self.DB_PASSWORD = "@@db_password@@"
+            self.DB_DATABASE = "@@db_database@@"
             self.EXPORT_LOCKDIR = DockerConstants.DEFAULT_LOCKDIR
             self.HOST = DockerConstants.HOST
             self.SSL_CERTIFICATE = "@@ssl_certificate@@"

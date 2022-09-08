@@ -7,4 +7,4 @@ set -euxo pipefail
 
 cd server/docker/dockerfiles
 docker compose version
-docker compose build
+docker compose -f docker-compose.yaml -f docker-compose-mysql.yaml build
