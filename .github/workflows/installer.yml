@@ -30,6 +30,7 @@ jobs:
                 export CAMCOPS_HOME=${GITHUB_WORKSPACE}
                 ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
                 # Now do it again with an external MySQL database
+                rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_mysql_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/mysql_setup.sh
                 ./installer.sh -d
