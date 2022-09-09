@@ -33,13 +33,12 @@ gcc  # GCC is not standard on CentOS, but is necessary for installation of other
 openssl-devel
 
 # =============================================================================
-# Python 3.6
+# Python
 # =============================================================================
 
-python
-python36u
-python36u-devel
-python36u-tkinter
+python38
+python38-devel
+python38-tkinter
 
 # =============================================================================
 # Requirements for Python packages
