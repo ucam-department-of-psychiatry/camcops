@@ -603,7 +603,7 @@ def get_preinst() -> str:
     # #!/usr/bin/env bash not allowed?
     return """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
-set -e
+set -eux -o pipefail
 
 {BASHFUNC}
 
@@ -634,7 +634,7 @@ def get_postinst(sdist_basefilename: str) -> str:
     # #!/usr/bin/env bash not allowed?
     return """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
-set -e
+set -eux -o pipefail
 
 echo '{PACKAGE}: postinst file executing'
 
@@ -736,7 +736,7 @@ def get_prerm() -> str:
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
     # #!/usr/bin/env bash not allowed?
     return """#!/bin/bash
-set -e
+set -eux -o pipefail
 
 {BASHFUNC}
 
@@ -773,7 +773,7 @@ def get_postrm() -> str:
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
     # #!/usr/bin/env bash not allowed?
     return """#!/bin/bash
-set -e
+set -eux -o pipefail
 
 {BASHFUNC}
 
@@ -1077,6 +1077,7 @@ def build_package() -> None:
     call(
         [
             "rpmrebuild",
+            "--debug",
             "--define",
             "_topdir " + RPMTOPDIR,
             "--package",
