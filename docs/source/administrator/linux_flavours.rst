@@ -162,95 +162,35 @@ Common administrative commands
      - ``sudo yum remove camcops``
 
 
-.. _centos65_prerequisites:
+.. _rhel86_prerequisites:
 
-Installing CamCOPS prerequisites under CentOS 6.5
--------------------------------------------------
+Installing CamCOPS prerequisites under RHEL 8.6
+-----------------------------------------------
+
+Probably also applicable to CentOS 8.x.
 
 Ensure additional repositories are in use:
 
-.. code-block:: bash
+* EPEL: see e.g. http://fedoraproject.org/wiki/EPEL
+* Erlang: see e.g. https://computingforgeeks.com/how-to-install-latest-erlang-on-rhel-8/
+* RabbitMQ: see e.g. https://computingforgeeks.com/how-to-install-rabbitmq-on-rhel-8/
 
-    # RPMForge: see http://www.tecmint.com/install-and-enable-rpmforge-repository-in-rhel-centos-6-5-4/
-    # Use "cat /etc/centos-release" to see CentOS version; use "uname -a" to detect 32-bit/64-bit version.
-    # For example, for 64-bit CentOS 6.5:
+If accessing the internet through a proxy, where the ``https_proxy`` environment variable is defined, use: ``sudo -E`` to pass the environment to the superuser.
 
-    sudo rpm -Uvh http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+If ``/tmp`` has been securely mounted as ``noexec`` you will need to remount it
+as ``exec``. Remove the ``noexec`` option from ``/etc/fstab`` and ``sudo
+mount -o remount /tmp``. This will allow ``alien`` to execute scripts under
+``/tmp``. Otherwise you will get errors like ``/var/tmp/rpm-tmp.AbCDef: line 96:
+/tmp/alien.nnnnnnn/script: Permission denied`` when installing the package. You
+can remount ``/tmp``as ``noexec`` again after installation.
 
-    # EPEL: see http://fedoraproject.org/wiki/EPEL
-    # For example:
-
-    sudo rpm -Uvh https://anorien.csc.warwick.ac.uk/mirrors/epel/6/i386/epel-release-6-8.noarch.rpm
-
-    # Something providing Python 3 in package form (see http://stackoverflow.com/questions/8087184):
-    sudo yum install https://centos6.iuscommunity.org/ius-release.rpm
-
-    # We need MySQL 5.5 or higher: http://www.webtatic.com/packages/mysql55/
-    sudo rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
 
 Potential prerequisites for what follows:
 
 .. code-block:: bash
 
-    sudo yum install blas-devel lapack-devel libffi-devel libpng-devel links nano openssl-devel python-devel
-
-Install Python 3 (which comes with pip and setuptools). *Note: CentOS 6.5
-(December 2013) provides Python 2.6 (2009). You can’t just replace it, because
-its system scripts need Python 2.6. CentOS is based on Red Hat Enterprise
-Linux. Fedora 14 (another Red Hat derivative) moved to Python 2.7 in 2010.
-CamCOPS needs Python 3 (e.g. 3.4).*
-
-.. code-block:: bash
-
-    # For Python 3.4L
-    sudo yum install python34u
-
-    # For Python 3.5 (with some other helpful things):
-    sudo yum install python35u python35u-pip libxml2-devel libxslt-devel python35u-devel gcc
-
-    # Test:
-    python3 --version
-    pip3 --version
-
-Install MySQL:
-
-.. code-block:: bash
-
-    sudo yum install mysql55 mysql55-server mysql-devel
-
-Install Apache:
-
-.. code-block:: bash
-
-    sudo yum install httpd httpd-devel mod_ssl
-
-Ensure you have Supervisor:
-
-- On CentOS, the default version (via yum installation) is of supervisord==2.1
-  (as reported by `pip freeze`), which is too old for the `[include]` directive
-  (which came in with version 3.0). To upgrade:
-
-    .. code-block:: bash
-
-        pip install requests[security]  # because Python 2.6 doesn't have SSL otherwise
-        pip install supervisor==3.2.0
-        # Don't copy the next line blindly. Do you have an old /etc/supervisord.conf that you want to keep?
-        echo_supervisord_conf > /etc/supervisord.conf  # make a new blank config
-
-- Then add these lines to `/etc/supervisord.conf`:
-
-    .. code-block:: ini
-
-        [include]
-        files = /etc/supervisor/conf.d/*.conf
-
-- Then ensure supervisord restarts on boot. On Ubuntu, this is automatic. On
-  CentOS, run
-
-    .. code-block:: bash
-
-        sudo chkconfig --add supervisord
-        sudo chkconfig supervisord on  # default runlevels (--level 2345) are fine
+    sudo dnf -y install python38 python38-devel python3-pip httpd mariadb-devel mod_ssl
+    sudo update-alternatives --config python3
 
 
 .. _linux_mysql_setup:
