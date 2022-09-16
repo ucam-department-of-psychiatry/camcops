@@ -838,8 +838,11 @@ class Installer:
 
     def get_external_mysql_camcops_server(self) -> str:
         return self.get_user_input(
-            "Enter the name of the external CamCOPS database server:",
-            default="camcops",
+            (
+                "Enter the name of the external CamCOPS database server. "
+                "Use host.docker.internal for the host machine:"
+            ),
+            default="host.docker.internal",
         )
 
     def get_external_mysql_camcops_port(self) -> str:
