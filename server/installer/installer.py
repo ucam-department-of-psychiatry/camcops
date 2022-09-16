@@ -588,6 +588,7 @@ class Installer:
             "db_database": os.getenv(
                 DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
             ),
+            "host": "0.0.0.0",
             "ssl_certificate": os.path.join(
                 DockerPath.CONFIG_DIR, "camcops.crt"
             ),
