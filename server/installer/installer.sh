@@ -48,14 +48,31 @@ set -eux -o pipefail
 
 PRODUCTION=1
 
+usage() {
+    cat <<EOF
+    Usage: $(basename $0) [options]
+
+    -d Development. Run installer on local copy of code instead of
+       downloading from GitHub.
+
+    -h Display this help message.
+EOF
+}
+
+
 while getopts 'dh' OPT; do
   case "$OPT" in
     d)
         PRODUCTION=0
         ;;
     h)
-        echo "Usage: $(basename $0) [-d]"
+        usage
         exit 0
+        ;;
+
+    *)
+        usage
+        exit 1
         ;;
   esac
 done
