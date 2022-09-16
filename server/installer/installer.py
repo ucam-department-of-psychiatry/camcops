@@ -140,6 +140,8 @@ class DockerEnvVar:
     )
     CAMCOPS_USE_HTTPS = f"{PREFIX}_CAMCOPS_USE_HTTPS"
 
+    FLOWER_HOST_PORT = f"{PREFIX}_FLOWER_HOST_PORT"
+
     INSTALL_USER_ID = f"{PREFIX}_INSTALL_USER_ID"
 
     MYSQL_CAMCOPS_SERVER = f"{PREFIX}_MYSQL_CAMCOPS_SERVER"
@@ -390,6 +392,7 @@ class Installer:
             self.configure_https()
             self.configure_camcops_db()
             self.configure_superuser()
+            self.configure_flower_host_port()
         except (KeyboardInterrupt, EOFError):
             # The user pressed CTRL-C or CTRL-D
             self.error("Installation aborted")
@@ -547,6 +550,9 @@ class Installer:
             self.get_docker_camcops_superuser_password,
             obscure=True,
         )
+
+    def configure_flower_host_port(self) -> None:
+        self.setenv(DockerEnvVar.FLOWER_HOST_PORT, self.get_flower_host_port)
 
     @staticmethod
     def create_directories() -> None:
@@ -891,6 +897,15 @@ class Installer:
 
     def get_docker_x509_dns_name(self) -> str:
         return self.get_user_input("Enter the DNS name:", "localhost")
+
+    def get_flower_host_port(self) -> str:
+        return self.get_user_input(
+            (
+                "Enter the port where the Flower event monitoring tool "
+                "will appear on the host:"
+            ),
+            default="5555",
+        )
 
     # -------------------------------------------------------------------------
     # Generic input
