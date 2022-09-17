@@ -48,6 +48,7 @@ set -eux -o pipefail
 
 INSTALLER_ARGS=()
 PRODUCTION=1
+RECREATE_VIRTUALENV=0
 
 usage() {
     cat <<EOF
@@ -56,13 +57,13 @@ usage() {
     -c Recreate CamCOPS config file.
     -d Development. Run installer on local copy of code instead of
        downloading from GitHub.
-
     -h Display this help message.
+    -n Recreate the installer virtual environment.
 EOF
 }
 
 
-while getopts 'cdh' OPT; do
+while getopts 'cdhn' OPT; do
   case "$OPT" in
     c)
         INSTALLER_ARGS+=("--recreate_config")
@@ -74,7 +75,9 @@ while getopts 'cdh' OPT; do
         usage
         exit 0
         ;;
-
+    n)
+        RECREATE_VIRTUALENV=1
+        ;;
     *)
         usage
         exit 1
@@ -126,8 +129,11 @@ fi
 
 
 # Create virtual environment
+if [ ${RECREATE_VIRTUALENV} -eq 1 ]; then
+    rm -rf "${CAMCOPS_INSTALLER_VENV}"
+fi
+
 if [ ! -d "${CAMCOPS_INSTALLER_VENV}" ]; then
-    # TODO: Option to rebuild venv
     "${CAMCOPS_INSTALLER_PYTHON}" -m venv "${CAMCOPS_INSTALLER_VENV}"
 fi
 
