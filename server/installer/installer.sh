@@ -46,12 +46,14 @@ set -eux -o pipefail
 # With the -d (development) option, the installer runs on the local copy of the
 # source code.
 
+INSTALLER_ARGS=()
 PRODUCTION=1
 
 usage() {
     cat <<EOF
     Usage: $(basename $0) [options]
 
+    -c Recreate CamCOPS config file.
     -d Development. Run installer on local copy of code instead of
        downloading from GitHub.
 
@@ -60,8 +62,11 @@ EOF
 }
 
 
-while getopts 'dh' OPT; do
+while getopts 'cdh' OPT; do
   case "$OPT" in
+    c)
+        INSTALLER_ARGS+=("--recreate_config")
+        ;;
     d)
         PRODUCTION=0
         ;;
@@ -76,6 +81,8 @@ while getopts 'dh' OPT; do
         ;;
   esac
 done
+
+INSTALLER_ARGS+=("install")
 
 # -----------------------------------------------------------------------------
 # Directories
@@ -140,4 +147,4 @@ python -m pip install -U pip setuptools
 python -m pip install -r "${INSTALLER_HOME}/installer_requirements.txt"
 
 # Run the Python installer
-python "${INSTALLER_HOME}/installer.py" install
+python "${INSTALLER_HOME}/installer.py" ${INSTALLER_ARGS[*]}

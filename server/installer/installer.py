@@ -43,7 +43,7 @@ import string
 import sys
 from tempfile import NamedTemporaryFile
 import textwrap
-from typing import Callable, Dict, Iterable, NoReturn, TextIO, Union
+from typing import Callable, Dict, Iterable, NoReturn, TextIO, Type, Union
 import urllib.parse
 
 # See installer-requirements.txt
@@ -225,9 +225,13 @@ class EmailValidator(Validator):
 
 
 class Installer:
-    def __init__(self, verbose: bool = False) -> None:
+    def __init__(
+        self, verbose: bool = False, recreate_config: bool = False
+    ) -> None:
         self._docker = None
         self.verbose = verbose
+        self.recreate_config = recreate_config
+
         self.title = "CamCOPS Setup"
         self.intro_style = Style.from_dict(
             {
@@ -561,7 +565,7 @@ class Installer:
 
     def create_config(self) -> None:
         config = self.config_full_path()
-        if not os.path.exists(config):
+        if self.recreate_config or not os.path.exists(config):
             self.info(f"Creating {config}")
             Path(config).touch()
             self.run_camcops_command("env")
@@ -1110,17 +1114,17 @@ class MacOsInstaller(Installer):
 # =============================================================================
 
 
-def get_installer(verbose: bool) -> Installer:
+def get_installer_class() -> Type[Installer]:
     sys_info = uname()
 
     if "microsoft-standard" in sys_info.release:
-        return Wsl2Installer(verbose=verbose)
+        return Wsl2Installer
 
     if sys_info.system == "Linux":
-        return NativeLinuxInstaller(verbose=verbose)
+        return NativeLinuxInstaller
 
     if sys_info.system == "Darwin":
-        return MacOsInstaller(verbose=verbose)
+        return MacOsInstaller
 
     if sys_info.system == "Windows":
         print(
@@ -1152,6 +1156,11 @@ class Command:
 def main() -> None:
     parser = ArgumentParser()
     parser.add_argument("--verbose", action="store_true", help="Be verbose")
+    parser.add_argument(
+        "--recreate_config",
+        action="store_true",
+        help="Recreate the CamCOPS config file",
+    )
     subparsers = parser.add_subparsers(
         title="commands",
         description="Valid CamCOPS installer commands are:",
@@ -1204,7 +1213,10 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    installer = get_installer(verbose=args.verbose)
+    installer = get_installer_class()(
+        verbose=args.verbose,
+        recreate_config=args.recreate_config,
+    )
 
     if args.command == Command.INSTALL:
         installer.install()
