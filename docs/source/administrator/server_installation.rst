@@ -76,11 +76,10 @@ CamCOPS will now be installed in `/usr/share/camcops`.
 You should be able to type ``camcops_server`` and see something relevant.
 
 
-CentOS installation from the CamCOPS RPM package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CentOS/RHEL installation from the CamCOPS RPM package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, to get Centos 6.5 to a basic standard, :ref:`see here
-<centos65_prerequisites>`. Then:
+First of all, :ref:`check the prerequisites for RHEL 8.6 <rhel86_prerequisites>`.
 
 .. code-block:: bash
 
@@ -93,6 +92,10 @@ First, to get Centos 6.5 to a basic standard, :ref:`see here
     #     installation has got stuck (because packages like numpy are very slow
     #     to install); use "watch pstree" or "top" to reassure yourself
     #     that progress is indeed happening.
+
+    # If accessing the internet through a proxy, where the https_proxy environment variable is
+    # defined, use:
+    # sudo -E yum install camcops_VERSION.noarch.rpm
 
 You should be able to type ``camcops_server`` and see something relevant.
 

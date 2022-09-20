@@ -1081,6 +1081,9 @@ def build_package() -> None:
             "_topdir " + RPMTOPDIR,
             "--package",
             "--change-spec-requires=/bin/echo {}".format(echoparam),
+            # Remove / and /usr/bin to stop conflicts on installation
+            "--change-spec-files=sed -e 's#%dir %attr(0755, root, root) \"/\"##'",  # noqa: E501
+            "--change-spec-files=sed -e 's#%dir %attr(0755, root, root) \"/usr/bin\"##'",  # noqa: E501
             full_rpm_path,
         ]
     )
