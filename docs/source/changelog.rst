@@ -3683,3 +3683,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.14, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix RPM build to work with Python 3.8 and RHEL 8.
