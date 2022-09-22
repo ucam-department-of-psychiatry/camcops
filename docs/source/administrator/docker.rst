@@ -274,25 +274,25 @@ The TCP/IP port number used by CamCOPS internally. Must match the :ref:`PORT
 <PORT>` option in the CamCOPS config file.
 
 
-.. _CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME:
+.. _CAMCOPS_DOCKER_MYSQL_DATABASE_NAME:
 
-CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CAMCOPS_DOCKER_MYSQL_DATABASE_NAME
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *Default: camcops*
 
 Name of the MySQL database to be used for CamCOPS data.
 
 
-.. _CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD:
+.. _CAMCOPS_DOCKER_MYSQL_USER_PASSWORD:
 
-CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CAMCOPS_DOCKER_MYSQL_USER_PASSWORD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **No default. Must be set during MySQL container creation.**
 
 MySQL password for the CamCOPS database user (whose name is set by
-CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME_).
+CAMCOPS_DOCKER_MYSQL_USER_NAME_).
 
 .. note::
     This only needs to be set when Docker Compose is creating the MySQL
@@ -300,16 +300,16 @@ CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME_).
     probably best not set for security reasons!).
 
 
-.. _CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME:
+.. _CAMCOPS_DOCKER_MYSQL_USER_NAME:
 
-CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CAMCOPS_DOCKER_MYSQL_USER_NAME
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *Default: camcops*
 
 MySQL username for the main CamCOPS user. This user is given full control over
-the database named in CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME_. See also
-CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD_.
+the database named in CAMCOPS_DOCKER_MYSQL_DATABASE_NAME_. See also
+CAMCOPS_DOCKER_MYSQL_USER_PASSWORD_.
 
 
 CAMCOPS_DOCKER_MYSQL_HOST_PORT
@@ -391,11 +391,11 @@ There are a few special things to note within the Docker environment.
              |     |         |       |                       |     |    |      |
              |     |         |       |                       |     |    |      +- charset options; don't alter
              |     |         |       |                       |     |    +- database name; should match
-             |     |         |       |                       |     |       CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME
+             |     |         |       |                       |     |       CAMCOPS_DOCKER_MYSQL_DATABASE_NAME
              |     |         |       |                       |     +- port; don't alter
              |     |         |       |                       +- container name; don't alter
-             |     |         |       +- MySQL password; should match CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
-             |     |         +- MySQL username; should match CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME
+             |     |         |       +- MySQL password; should match CAMCOPS_DOCKER_MYSQL_USER_PASSWORD
+             |     |         +- MySQL username; should match CAMCOPS_DOCKER_MYSQL_USER_NAME
              |     +- "use mysqldb [mysqlclient] Python driver"
              +- "use MySQL dialect"
 
