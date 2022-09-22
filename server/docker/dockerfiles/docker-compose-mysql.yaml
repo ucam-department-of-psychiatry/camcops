@@ -11,14 +11,14 @@
 #
 # Those with defaults in the .env file in this directory:
 #
-#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME
-#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME
+#   CAMCOPS_DOCKER_MYSQL_DATABASE_NAME
+#   CAMCOPS_DOCKER_MYSQL_USER_NAME
 #   CAMCOPS_DOCKER_MYSQL_HOST_PORT
 #
 # Those without defaults:
 #
 #   CAMCOPS_DOCKER_CONFIG_HOST_DIR
-#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
+#   CAMCOPS_DOCKER_MYSQL_USER_PASSWORD
 #   CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD
 
 # =============================================================================
@@ -67,14 +67,14 @@ services:
         # See https://hub.docker.com/_/mysql
         environment:
             # Create database with this name at first container startup.
-            MYSQL_DATABASE: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME}"
+            MYSQL_DATABASE: "${CAMCOPS_DOCKER_MYSQL_DATABASE_NAME}"
 
             # Create user with this name at first container startup, with
             # GRANT ALL access to the database named in MYSQL_DATABASE.
-            MYSQL_USER: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME}"
+            MYSQL_USER: "${CAMCOPS_DOCKER_MYSQL_USER_NAME}"
 
             # Password for MYSQL_USER (set at first container startup).
-            MYSQL_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD}"
+            MYSQL_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_USER_PASSWORD}"
 
             # Password for user "root" (set at first container startup).
             MYSQL_ROOT_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD}"

@@ -16,12 +16,16 @@
 #   CAMCOPS_DOCKER_CAMCOPS_HOST_PORT
 #   CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT
 #   CAMCOPS_DOCKER_FLOWER_HOST_PORT
+#   CAMCOPS_DOCKER_MYSQL_DATABASE_NAME
+#   CAMCOPS_DOCKER_MYSQL_USER_NAME
+#   CAMCOPS_DOCKER_MYSQL_HOST_PORT
+#
 #   COMPOSE_PROJECT_NAME -- used by Docker Compose itself
 #
 # Those without defaults:
 #
 #   CAMCOPS_DOCKER_CONFIG_HOST_DIR
-
+#   CAMCOPS_DOCKER_INSTALL_USER_ID
 
 # =============================================================================
 # docker-compose file syntax version

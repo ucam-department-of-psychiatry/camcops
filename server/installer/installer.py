@@ -116,43 +116,48 @@ class DockerComposeServices:
     MYSQL = "mysql"
 
 
-class DockerEnvVar:
+class EnvVar:
+    PASSWORD_SUFFIX = "PASSWORD"
+
+
+class DockerEnvVar(EnvVar):
     """
     Environment variables governing the Docker setup.
+    See: server/docker/dockerfiles/docker-compose.yaml
+         server/docker/dockerfiles/docker-compose-mysql.yaml
+         server/docker/dockerfiles/.env
+
+    Any others go in InstallerEnvVar
     """
 
     PREFIX = "CAMCOPS_DOCKER"
-    PASSWORD_SUFFIX = "PASSWORD"
 
-    CONFIG_HOST_DIR = f"{PREFIX}_CONFIG_HOST_DIR"
-    CAMCOPS_CREATE_MYSQL_CONTAINER = f"{PREFIX}_CAMCOPS_CREATE_MYSQL_CONTAINER"
-    CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE = (
-        f"{PREFIX}_CREATE_SELF_SIGNED_CERTIFICATE"
-    )
     CAMCOPS_CONFIG_FILENAME = f"{PREFIX}_CAMCOPS_CONFIG_FILENAME"
     CAMCOPS_HOST_PORT = f"{PREFIX}_CAMCOPS_HOST_PORT"
     CAMCOPS_INTERNAL_PORT = f"{PREFIX}_CAMCOPS_INTERNAL_PORT"
-    CAMCOPS_SSL_CERTIFICATE = f"{PREFIX}_CAMCOPS_SSL_CERTIFICATE"
-    CAMCOPS_SSL_PRIVATE_KEY = f"{PREFIX}_CAMCOPS_SSL_PRIVATE_KEY"
-    CAMCOPS_SUPERUSER_USERNAME = f"{PREFIX}_CAMCOPS_SUPERUSER_USERNAME"
-    CAMCOPS_SUPERUSER_PASSWORD = (
-        f"{PREFIX}_CAMCOPS_SUPERUSER_{PASSWORD_SUFFIX}"
-    )
-    CAMCOPS_USE_HTTPS = f"{PREFIX}_CAMCOPS_USE_HTTPS"
-
+    CONFIG_HOST_DIR = f"{PREFIX}_CONFIG_HOST_DIR"
     FLOWER_HOST_PORT = f"{PREFIX}_FLOWER_HOST_PORT"
-
     INSTALL_USER_ID = f"{PREFIX}_INSTALL_USER_ID"
-
-    MYSQL_CAMCOPS_SERVER = f"{PREFIX}_MYSQL_CAMCOPS_SERVER"
-    MYSQL_CAMCOPS_PORT = f"{PREFIX}_MYSQL_CAMCOPS_PORT"
-    MYSQL_CAMCOPS_DATABASE_NAME = f"{PREFIX}_MYSQL_CAMCOPS_DATABASE_NAME"
+    MYSQL_DATABASE_NAME = f"{PREFIX}_MYSQL_DATABASE_NAME"
+    MYSQL_USER_NAME = f"{PREFIX}_MYSQL_USER_NAME"
     MYSQL_HOST_PORT = f"{PREFIX}_MYSQL_HOST_PORT"
-    MYSQL_ROOT_PASSWORD = f"{PREFIX}_MYSQL_ROOT_{PASSWORD_SUFFIX}"
-    MYSQL_CAMCOPS_USER_NAME = f"{PREFIX}_MYSQL_CAMCOPS_USER_NAME"
-    MYSQL_CAMCOPS_USER_PASSWORD = (
-        f"{PREFIX}_MYSQL_CAMCOPS_USER_{PASSWORD_SUFFIX}"
-    )
+    MYSQL_ROOT_PASSWORD = f"{PREFIX}_MYSQL_ROOT_{EnvVar.PASSWORD_SUFFIX}"
+    MYSQL_USER_PASSWORD = f"{PREFIX}_MYSQL_USER_{EnvVar.PASSWORD_SUFFIX}"
+
+
+class InstallerEnvVar(EnvVar):
+    PREFIX = "CAMCOPS_INSTALLER"
+
+    CREATE_MYSQL_CONTAINER = f"{PREFIX}_CREATE_MYSQL_CONTAINER"
+    CREATE_SELF_SIGNED_CERTIFICATE = f"{PREFIX}_CREATE_SELF_SIGNED_CERTIFICATE"
+    SSL_CERTIFICATE = f"{PREFIX}_SSL_CERTIFICATE"
+    SSL_PRIVATE_KEY = f"{PREFIX}_SSL_PRIVATE_KEY"
+    SUPERUSER_USERNAME = f"{PREFIX}_SUPERUSER_USERNAME"
+    SUPERUSER_PASSWORD = f"{PREFIX}_SUPERUSER_{EnvVar.PASSWORD_SUFFIX}"
+    USE_HTTPS = f"{PREFIX}_USE_HTTPS"
+
+    MYSQL_SERVER = f"{PREFIX}_MYSQL_SERVER"
+    MYSQL_PORT = f"{PREFIX}_MYSQL_PORT"
     X509_COMMON_NAME = f"{PREFIX}_X509_COMMON_NAME"
     X509_COUNTRY_NAME = f"{PREFIX}_X509_COUNTRY_NAME"
     X509_DNS_NAME = f"{PREFIX}_X509_DNS_NAME"
@@ -317,11 +322,11 @@ class Installer:
         os.chdir(HostPath.DOCKERFILES_DIR)
 
         mysql_user = os.getenv(
-            DockerEnvVar.MYSQL_CAMCOPS_USER_NAME,
+            DockerEnvVar.MYSQL_USER_NAME,
         )
 
         db_name = os.getenv(
-            DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
+            DockerEnvVar.MYSQL_DATABASE_NAME,
         )
 
         command = [
@@ -404,36 +409,28 @@ class Installer:
             sys.exit(EXIT_FAILURE)
 
     def configure_user(self) -> None:
-        self.setenv(
-            DockerEnvVar.INSTALL_USER_ID, self.get_docker_install_user_id
-        )
+        self.setenv(DockerEnvVar.INSTALL_USER_ID, self.get_install_user_id)
 
     def configure_config_files(self) -> None:
-        self.setenv(
-            DockerEnvVar.CONFIG_HOST_DIR, self.get_docker_config_host_dir
-        )
+        self.setenv(DockerEnvVar.CONFIG_HOST_DIR, self.get_config_host_dir)
         self.setenv(DockerEnvVar.CAMCOPS_CONFIG_FILENAME, "camcops.conf")
 
     def configure_camcops_server_ports(self) -> None:
-        self.setenv(
-            DockerEnvVar.CAMCOPS_HOST_PORT, self.get_docker_camcops_host_port
-        )
+        self.setenv(DockerEnvVar.CAMCOPS_HOST_PORT, self.get_camcops_host_port)
         self.setenv(
             DockerEnvVar.CAMCOPS_INTERNAL_PORT,
-            self.get_docker_camcops_internal_port,
+            self.get_camcops_internal_port,
         )
 
     def configure_https(self) -> None:
-        self.setenv(
-            DockerEnvVar.CAMCOPS_USE_HTTPS, self.get_docker_camcops_use_https
-        )
+        self.setenv(InstallerEnvVar.USE_HTTPS, self.get_use_https)
         if self.use_https():
             self.configure_ssl_certificate()
 
     def configure_ssl_certificate(self) -> None:
         self.setenv(
-            DockerEnvVar.CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE,
-            self.get_docker_camcops_create_self_signed_certificate,
+            InstallerEnvVar.CREATE_SELF_SIGNED_CERTIFICATE,
+            self.get_create_self_signed_certificate,
         )
         if self.should_create_self_signed_certificate():
             return self.configure_self_signed_ssl_certificate()
@@ -442,44 +439,44 @@ class Installer:
 
     def configure_self_signed_ssl_certificate(self) -> None:
         self.setenv(
-            DockerEnvVar.X509_COUNTRY_NAME,
-            self.get_docker_x509_country_name,
+            InstallerEnvVar.X509_COUNTRY_NAME,
+            self.get_x509_country_name,
         )
         self.setenv(
-            DockerEnvVar.X509_STATE_OR_PROVINCE_NAME,
-            self.get_docker_x509_state_or_province_name,
+            InstallerEnvVar.X509_STATE_OR_PROVINCE_NAME,
+            self.get_x509_state_or_province_name,
         )
         self.setenv(
-            DockerEnvVar.X509_LOCALITY_NAME,
-            self.get_docker_x509_locality_name,
+            InstallerEnvVar.X509_LOCALITY_NAME,
+            self.get_x509_locality_name,
         )
         self.setenv(
-            DockerEnvVar.X509_ORGANIZATION_NAME,
-            self.get_docker_x509_organization_name,
+            InstallerEnvVar.X509_ORGANIZATION_NAME,
+            self.get_x509_organization_name,
         )
         self.setenv(
-            DockerEnvVar.X509_COMMON_NAME,
-            self.get_docker_x509_common_name,
+            InstallerEnvVar.X509_COMMON_NAME,
+            self.get_x509_common_name,
         )
         self.setenv(
-            DockerEnvVar.X509_DNS_NAME,
-            self.get_docker_x509_dns_name,
+            InstallerEnvVar.X509_DNS_NAME,
+            self.get_x509_dns_name,
         )
 
     def configure_existing_ssl_certificate(self) -> None:
         self.setenv(
-            DockerEnvVar.CAMCOPS_SSL_CERTIFICATE,
-            self.get_docker_camcops_ssl_certificate,
+            InstallerEnvVar.SSL_CERTIFICATE,
+            self.get_ssl_certificate,
         )
         self.setenv(
-            DockerEnvVar.CAMCOPS_SSL_PRIVATE_KEY,
-            self.get_docker_camcops_ssl_private_key,
+            InstallerEnvVar.SSL_PRIVATE_KEY,
+            self.get_ssl_private_key,
         )
 
     def configure_camcops_db(self) -> None:
         self.setenv(
-            DockerEnvVar.CAMCOPS_CREATE_MYSQL_CONTAINER,
-            self.get_docker_camcops_create_mysql_container,
+            InstallerEnvVar.CREATE_MYSQL_CONTAINER,
+            self.get_create_mysql_container,
         )
 
         if self.should_create_mysql_container():
@@ -490,21 +487,21 @@ class Installer:
     def configure_mysql_container(self) -> None:
         self.setenv(
             DockerEnvVar.MYSQL_ROOT_PASSWORD,
-            self.get_docker_mysql_root_password,
+            self.get_mysql_root_password,
             obscure=True,
         )
-        self.setenv(DockerEnvVar.MYSQL_CAMCOPS_SERVER, "mysql")
-        self.setenv(DockerEnvVar.MYSQL_CAMCOPS_PORT, "3306")
-        self.setenv(DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME, "camcops")
-        self.setenv(DockerEnvVar.MYSQL_CAMCOPS_USER_NAME, "camcops")
+        self.setenv(InstallerEnvVar.MYSQL_SERVER, "mysql")
+        self.setenv(InstallerEnvVar.MYSQL_PORT, "3306")
+        self.setenv(DockerEnvVar.MYSQL_DATABASE_NAME, "camcops")
+        self.setenv(DockerEnvVar.MYSQL_USER_NAME, "camcops")
         self.setenv(
-            DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
-            self.get_docker_mysql_camcops_user_password,
+            DockerEnvVar.MYSQL_USER_PASSWORD,
+            self.get_mysql_user_password,
             obscure=True,
         )
         self.setenv(
             DockerEnvVar.MYSQL_HOST_PORT,
-            self.get_docker_mysql_camcops_host_port,
+            self.get_mysql_host_port,
         )
 
     def configure_external_db(self) -> None:
@@ -523,35 +520,35 @@ class Installer:
             "mysql_native_password authentication."
         )
         self.setenv(
-            DockerEnvVar.MYSQL_CAMCOPS_SERVER,
-            self.get_external_mysql_camcops_server,
+            InstallerEnvVar.MYSQL_SERVER,
+            self.get_external_mysql_server,
         )
         self.setenv(
-            DockerEnvVar.MYSQL_CAMCOPS_PORT,
-            self.get_external_mysql_camcops_port,
+            InstallerEnvVar.MYSQL_PORT,
+            self.get_external_mysql_port,
         )
         self.setenv(
-            DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
-            self.get_external_mysql_camcops_database_name,
+            DockerEnvVar.MYSQL_DATABASE_NAME,
+            self.get_external_mysql_database_name,
         )
         self.setenv(
-            DockerEnvVar.MYSQL_CAMCOPS_USER_NAME,
-            self.get_external_mysql_camcops_user_name,
+            DockerEnvVar.MYSQL_USER_NAME,
+            self.get_external_mysql_user_name,
         )
         self.setenv(
-            DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
-            self.get_external_mysql_camcops_user_password,
+            DockerEnvVar.MYSQL_USER_PASSWORD,
+            self.get_external_mysql_user_password,
             obscure=True,
         )
 
     def configure_superuser(self) -> None:
         self.setenv(
-            DockerEnvVar.CAMCOPS_SUPERUSER_USERNAME,
-            self.get_docker_camcops_superuser_username,
+            InstallerEnvVar.SUPERUSER_USERNAME,
+            self.get_superuser_username,
         )
         self.setenv(
-            DockerEnvVar.CAMCOPS_SUPERUSER_PASSWORD,
-            self.get_docker_camcops_superuser_password,
+            InstallerEnvVar.SUPERUSER_PASSWORD,
+            self.get_superuser_password,
             obscure=True,
         )
 
@@ -578,19 +575,19 @@ class Installer:
     def configure_config(self) -> None:
         replace_dict = {
             "db_server": os.getenv(
-                DockerEnvVar.MYSQL_CAMCOPS_SERVER,
+                InstallerEnvVar.MYSQL_SERVER,
             ),
             "db_port": os.getenv(
-                DockerEnvVar.MYSQL_CAMCOPS_PORT,
+                InstallerEnvVar.MYSQL_PORT,
             ),
             "db_user": os.getenv(
-                DockerEnvVar.MYSQL_CAMCOPS_USER_NAME,
+                DockerEnvVar.MYSQL_USER_NAME,
             ),
             "db_password": os.getenv(
-                DockerEnvVar.MYSQL_CAMCOPS_USER_PASSWORD,
+                DockerEnvVar.MYSQL_USER_PASSWORD,
             ),
             "db_database": os.getenv(
-                DockerEnvVar.MYSQL_CAMCOPS_DATABASE_NAME,
+                DockerEnvVar.MYSQL_DATABASE_NAME,
             ),
             "host": "0.0.0.0",
             "ssl_certificate": os.path.join(
@@ -620,23 +617,23 @@ class Installer:
             [
                 x509.NameAttribute(
                     NameOID.COUNTRY_NAME,
-                    os.getenv(DockerEnvVar.X509_COUNTRY_NAME),
+                    os.getenv(InstallerEnvVar.X509_COUNTRY_NAME),
                 ),
                 x509.NameAttribute(
                     NameOID.STATE_OR_PROVINCE_NAME,
-                    os.getenv(DockerEnvVar.X509_STATE_OR_PROVINCE_NAME),
+                    os.getenv(InstallerEnvVar.X509_STATE_OR_PROVINCE_NAME),
                 ),
                 x509.NameAttribute(
                     NameOID.LOCALITY_NAME,
-                    os.getenv(DockerEnvVar.X509_LOCALITY_NAME),
+                    os.getenv(InstallerEnvVar.X509_LOCALITY_NAME),
                 ),
                 x509.NameAttribute(
                     NameOID.ORGANIZATION_NAME,
-                    os.getenv(DockerEnvVar.X509_ORGANIZATION_NAME),
+                    os.getenv(InstallerEnvVar.X509_ORGANIZATION_NAME),
                 ),
                 x509.NameAttribute(
                     NameOID.COMMON_NAME,
-                    os.getenv(DockerEnvVar.X509_COMMON_NAME),
+                    os.getenv(InstallerEnvVar.X509_COMMON_NAME),
                 ),
             ]
         )
@@ -650,7 +647,7 @@ class Installer:
             .not_valid_after(datetime.utcnow() + timedelta(days=365))
             .add_extension(
                 x509.SubjectAlternativeName(
-                    [x509.DNSName(os.getenv(DockerEnvVar.X509_DNS_NAME))]
+                    [x509.DNSName(os.getenv(InstallerEnvVar.X509_DNS_NAME))]
                 ),
                 critical=False,
             )
@@ -672,12 +669,12 @@ class Installer:
             f.write(cert.public_bytes(encoding=serialization.Encoding.PEM))
 
         self.setenv(
-            DockerEnvVar.CAMCOPS_SSL_PRIVATE_KEY,
+            InstallerEnvVar.SSL_PRIVATE_KEY,
             key_filename,
         )
 
         self.setenv(
-            DockerEnvVar.CAMCOPS_SSL_CERTIFICATE,
+            InstallerEnvVar.SSL_CERTIFICATE,
             cert_filename,
         )
 
@@ -688,8 +685,8 @@ class Installer:
         cert_dest = os.path.join(config_dir, "camcops.crt")
         key_dest = os.path.join(config_dir, "camcops.key")
 
-        shutil.copy(os.getenv(DockerEnvVar.CAMCOPS_SSL_CERTIFICATE), cert_dest)
-        shutil.copy(os.getenv(DockerEnvVar.CAMCOPS_SSL_PRIVATE_KEY), key_dest)
+        shutil.copy(os.getenv(InstallerEnvVar.SSL_CERTIFICATE), cert_dest)
+        shutil.copy(os.getenv(InstallerEnvVar.SSL_PRIVATE_KEY), key_dest)
 
     def create_database(self) -> None:
         self.run_camcops_command(
@@ -699,8 +696,8 @@ class Installer:
     def create_superuser(self) -> None:
         # Will either create a superuser or update an existing one
         # with the given username
-        username = os.getenv(DockerEnvVar.CAMCOPS_SUPERUSER_USERNAME)
-        password = os.getenv(DockerEnvVar.CAMCOPS_SUPERUSER_PASSWORD)
+        username = os.getenv(InstallerEnvVar.SUPERUSER_USERNAME)
+        password = os.getenv(InstallerEnvVar.SUPERUSER_PASSWORD)
         self.run_camcops_command(
             "camcops_server make_superuser "
             f"--username {username} --password {password}"
@@ -715,7 +712,7 @@ class Installer:
     # -------------------------------------------------------------------------
 
     @staticmethod
-    def get_docker_install_user_id() -> str:
+    def get_install_user_id() -> str:
         return str(os.geteuid())
 
     @staticmethod
@@ -747,18 +744,15 @@ class Installer:
 
     @staticmethod
     def use_https() -> bool:
-        return os.getenv(DockerEnvVar.CAMCOPS_USE_HTTPS) == "1"
+        return os.getenv(InstallerEnvVar.USE_HTTPS) == "1"
 
     @staticmethod
     def should_create_self_signed_certificate() -> bool:
-        return (
-            os.getenv(DockerEnvVar.CAMCOPS_CREATE_SELF_SIGNED_CERTIFICATE)
-            == "1"
-        )
+        return os.getenv(InstallerEnvVar.CREATE_SELF_SIGNED_CERTIFICATE) == "1"
 
     @staticmethod
     def should_create_mysql_container() -> bool:
-        return os.getenv(DockerEnvVar.CAMCOPS_CREATE_MYSQL_CONTAINER) == "1"
+        return os.getenv(InstallerEnvVar.CREATE_MYSQL_CONTAINER) == "1"
 
     @staticmethod
     def get_camcops_server_path() -> str:
@@ -783,55 +777,55 @@ class Installer:
     # Fetching information from the user
     # -------------------------------------------------------------------------
 
-    def get_docker_config_host_dir(self) -> str:
+    def get_config_host_dir(self) -> str:
         return self.get_user_dir(
             "Select the host directory where CamCOPS will store its "
             "configuration:",
             default=HostPath.DEFAULT_HOST_CAMCOPS_CONFIG_DIR,
         )
 
-    def get_docker_camcops_host_port(self) -> str:
+    def get_camcops_host_port(self) -> str:
         return self.get_user_input(
             ("Enter the port where CamCOPS will appear on the host:"),
             default="443",
         )
 
-    def get_docker_camcops_internal_port(self) -> str:
+    def get_camcops_internal_port(self) -> str:
         return "8000"  # Matches PORT in camcops.conf
 
-    def get_docker_camcops_use_https(self) -> str:
+    def get_use_https(self) -> str:
         return self.get_user_boolean(
             "Access CamCOPS directly over HTTPS? (y/n)"
         )
 
-    def get_docker_camcops_create_self_signed_certificate(self) -> str:
+    def get_create_self_signed_certificate(self) -> str:
         return self.get_user_boolean("Create a self-signed certificate? (y/n)")
 
-    def get_docker_camcops_ssl_certificate(self) -> str:
+    def get_ssl_certificate(self) -> str:
         return self.get_user_file("Select the SSL certificate file:")
 
-    def get_docker_camcops_ssl_private_key(self) -> str:
+    def get_ssl_private_key(self) -> str:
         return self.get_user_file("Select the SSL private key file:")
 
-    def get_docker_camcops_create_mysql_container(self) -> bool:
+    def get_create_mysql_container(self) -> bool:
         return self.get_user_boolean(
             "Create a MySQL container? "
             "Answer 'n' to use an external database (y/n)"
         )
 
-    def get_docker_mysql_root_password(self) -> str:
+    def get_mysql_root_password(self) -> str:
         return self.get_user_password(
             "Enter a new root password for the MySQL database:"
         )
 
-    def get_docker_mysql_camcops_user_password(self) -> str:
-        username = os.environ[DockerEnvVar.MYSQL_CAMCOPS_USER_NAME]
+    def get_mysql_user_password(self) -> str:
+        username = os.environ[DockerEnvVar.MYSQL_USER_NAME]
         return self.get_user_password(
             f"Enter a new password for the MySQL user ({username!r}) "
             f"that CamCOPS will create:"
         )
 
-    def get_docker_mysql_camcops_host_port(self) -> str:
+    def get_mysql_host_port(self) -> str:
         return self.get_user_input(
             (
                 "Enter the port where the CamCOPS MySQL database will "
@@ -840,7 +834,7 @@ class Installer:
             default="43306",
         )
 
-    def get_external_mysql_camcops_server(self) -> str:
+    def get_external_mysql_server(self) -> str:
         return self.get_user_input(
             (
                 "Enter the name of the external CamCOPS database server. "
@@ -849,61 +843,61 @@ class Installer:
             default="host.docker.internal",
         )
 
-    def get_external_mysql_camcops_port(self) -> str:
+    def get_external_mysql_port(self) -> str:
         return self.get_user_input(
             "Enter the port number of the external CamCOPS database server:",
             default="3306",
         )
 
-    def get_external_mysql_camcops_database_name(self) -> str:
+    def get_external_mysql_database_name(self) -> str:
         return self.get_user_input(
             "Enter the name of the external CamCOPS database:"
         )
 
-    def get_external_mysql_camcops_user_name(self) -> str:
+    def get_external_mysql_user_name(self) -> str:
         return self.get_user_input(
             "Enter the name of the external CamCOPS database user:"
         )
 
-    def get_external_mysql_camcops_user_password(self) -> str:
+    def get_external_mysql_user_password(self) -> str:
         return self.get_user_password(
             "Enter the password of the external CamCOPS database user:"
         )
 
-    def get_docker_camcops_superuser_username(self) -> str:
+    def get_superuser_username(self) -> str:
         return self.get_user_input(
             "Enter the user name for the CamCOPS administrator:",
             default="admin",
         )
 
-    def get_docker_camcops_superuser_password(self) -> str:
+    def get_superuser_password(self) -> str:
         return self.get_user_password(
             "Enter the password for the CamCOPS administrator:",
         )
 
-    def get_docker_x509_country_name(self) -> str:
+    def get_x509_country_name(self) -> str:
         return self.get_user_input(
             "Enter the 2-letter country code:",
             validator=FixedLengthValidator(2),
         )
 
-    def get_docker_x509_state_or_province_name(self) -> str:
+    def get_x509_state_or_province_name(self) -> str:
         return self.get_user_input("Enter the state or province name:")
 
-    def get_docker_x509_locality_name(self) -> str:
+    def get_x509_locality_name(self) -> str:
         return self.get_user_input("Enter the locality name (e.g. city):")
 
-    def get_docker_x509_organization_name(self) -> str:
+    def get_x509_organization_name(self) -> str:
         return self.get_user_input(
             "Enter the organization name (e.g. company):"
         )
 
-    def get_docker_x509_common_name(self) -> str:
+    def get_x509_common_name(self) -> str:
         return self.get_user_input(
             "Enter the common name (e.g. your name or server's hostname):"
         )
 
-    def get_docker_x509_dns_name(self) -> str:
+    def get_x509_dns_name(self) -> str:
         return self.get_user_input("Enter the DNS name:", "localhost")
 
     def get_flower_host_port(self) -> str:
@@ -1002,11 +996,12 @@ class Installer:
         do contain passwords.
         """
         for key, value in os.environ.items():
-            if not key.startswith(DockerEnvVar.PREFIX):
-                continue
-            if not include_passwords and key.endswith(
-                DockerEnvVar.PASSWORD_SUFFIX
+            if not (
+                key.startswith(DockerEnvVar.PREFIX)
+                or key.startswith(InstallerEnvVar.PREFIX)
             ):
+                continue
+            if not include_passwords and key.endswith(EnvVar.PASSWORD_SUFFIX):
                 continue
             f.write(f'export {key}="{value}"\n')
 
