@@ -4,6 +4,8 @@ name: Installer
 # yamllint disable-line rule:truthy
 on:
     push:
+        tags-ignore:
+            - '**'
         paths:
             - 'server/camcops_server/**'
             - .github/workflows/installer.yml

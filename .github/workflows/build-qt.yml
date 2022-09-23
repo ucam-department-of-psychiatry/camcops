@@ -4,6 +4,8 @@ name: Build Qt
 # yamllint disable-line rule:truthy
 on:
     push:
+        tags-ignore:
+            - '**'
         paths:
             - tablet_qt/tools/build_qt.py
             - .github/workflows/build-qt.yml
