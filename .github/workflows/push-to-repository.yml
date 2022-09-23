@@ -4,8 +4,6 @@ name: Build
 # yamllint disable-line rule:truthy
 on:
     push:
-        tags-ignore:
-            - '**'
         paths:
             - '**.py'
             - .github/workflows/push-to-repository.yml

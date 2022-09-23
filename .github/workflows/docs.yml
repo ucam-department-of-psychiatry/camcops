@@ -2,10 +2,7 @@
 # yamllint disable rule:line-length
 name: Build docs
 # yamllint disable-line rule:truthy
-on:
-    push:
-        tags-ignore:
-            - '**'
+on: push
 
 jobs:
     build-docs:
