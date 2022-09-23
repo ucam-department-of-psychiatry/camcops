@@ -111,6 +111,7 @@ class DockerComposeServices:
     ``server/docker/dockerfiles/docker-compose.yaml``.
     """
 
+    CAMCOPS_SCHEDULER = "camcops_scheduler"
     CAMCOPS_SERVER = "camcops_server"
     CAMCOPS_WORKERS = "camcops_workers"
     MYSQL = "mysql"
@@ -231,11 +232,15 @@ class EmailValidator(Validator):
 
 class Installer:
     def __init__(
-        self, verbose: bool = False, recreate_config: bool = False
+        self,
+        verbose: bool = False,
+        recreate_config: bool = False,
+        update: bool = False,
     ) -> None:
         self._docker = None
         self.verbose = verbose
         self.recreate_config = recreate_config
+        self.update = update
 
         self.title = "CamCOPS Setup"
         self.intro_style = Style.from_dict(
@@ -283,16 +288,41 @@ class Installer:
     def install(self) -> None:
         self.start_message()
         self.check_setup()
+
+        if self.update:
+            self.update_installation()
+        else:
+            self.install_from_scratch()
+
+        self.start()
+        self.report_status()
+
+    def install_from_scratch(self) -> None:
         self.configure()
         self.create_directories()
         self.write_environment_variables()
         if self.use_https():
             self.process_ssl_files()
+
         self.create_config()
-        self.create_database()
+        self.create_or_update_database()
         self.create_superuser()
-        self.start()
-        self.report_status()
+
+    def update_installation(self) -> None:
+        self.rebuild_camcops_image()
+        self.create_or_update_database()
+
+    def rebuild_camcops_image(self) -> None:
+        self.info("Updating existing CamCOPS installation")
+        os.chdir(HostPath.DOCKERFILES_DIR)
+        self.docker.compose.build(
+            services=[
+                DockerComposeServices.CAMCOPS_SCHEDULER,
+                DockerComposeServices.CAMCOPS_SERVER,
+                DockerComposeServices.CAMCOPS_WORKERS,
+            ],
+            cache=False,
+        )
 
     def start(self) -> None:
         os.chdir(HostPath.DOCKERFILES_DIR)
@@ -688,7 +718,7 @@ class Installer:
         shutil.copy(os.getenv(InstallerEnvVar.SSL_CERTIFICATE), cert_dest)
         shutil.copy(os.getenv(InstallerEnvVar.SSL_PRIVATE_KEY), key_dest)
 
-    def create_database(self) -> None:
+    def create_or_update_database(self) -> None:
         self.run_camcops_command(
             "camcops_server upgrade_db --config $CAMCOPS_CONFIG_FILE"
         )
@@ -1156,6 +1186,11 @@ def main() -> None:
         action="store_true",
         help="Recreate the CamCOPS config file",
     )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Rebuild the CamCOPS Docker image",
+    )
     subparsers = parser.add_subparsers(
         title="commands",
         description="Valid CamCOPS installer commands are:",
@@ -1211,6 +1246,7 @@ def main() -> None:
     installer = get_installer_class()(
         verbose=args.verbose,
         recreate_config=args.recreate_config,
+        update=args.update,
     )
 
     if args.command == Command.INSTALL:

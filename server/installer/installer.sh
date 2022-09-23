@@ -59,11 +59,12 @@ usage() {
        downloading from GitHub.
     -h Display this help message.
     -n Recreate the installer virtual environment.
+    -u Upgrade existing CamCOPS installation.
 EOF
 }
 
 
-while getopts 'cdhn' OPT; do
+while getopts 'cdhnu' OPT; do
   case "$OPT" in
     c)
         INSTALLER_ARGS+=("--recreate_config")
@@ -76,6 +77,10 @@ while getopts 'cdhn' OPT; do
         exit 0
         ;;
     n)
+        RECREATE_VIRTUALENV=1
+        ;;
+    u)
+        INSTALLER_ARGS+=(--update)
         RECREATE_VIRTUALENV=1
         ;;
     *)
@@ -118,10 +123,14 @@ if [ ${PRODUCTION} -eq 1 ]; then
     # and upload the tar file so that it can be accessed as "latest".
     CAMCOPS_DOWNLOAD_URL=${CAMCOPS_GITHUB_REPOSITORY}/releases/latest/download/${CAMCOPS_TAR_FILE}
 
+    if [ -d "${CAMCOPS_HOME}" ]; then
+        mv "${CAMCOPS_HOME}" "${CAMCOPS_HOME}.renamed.$(date +%Y%m%d%H%M%S)"
+    fi
+
     # Make directories
     mkdir -p "${CAMCOPS_HOME}"
 
-    # Fetch and unpack CAMCOPS
+    # Fetch and unpack CamCOPS
     cd "${CAMCOPS_HOME}"
     curl -L --retry 10 --fail "${CAMCOPS_DOWNLOAD_URL}"  --output "${CAMCOPS_TAR_FILE}"
     tar xzf "${CAMCOPS_TAR_FILE}" --strip-components=1
