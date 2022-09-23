@@ -72,6 +72,7 @@ body {
     font-size: ${va.MAINFONTSIZE};
     margin: ${va.ZERO} ${va.ZERO} ${va.ZERO} ${va.ZERO};  /* margin here affects form layout too */
     padding: ${va.BODYPADDING};
+    background-color: red;
 }
 code {
     font-size: 0.8em;
