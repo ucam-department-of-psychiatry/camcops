@@ -99,7 +99,7 @@ CAMCOPS_INSTALLER_VENV=${HOME}/.virtualenvs/camcops_installer
 
 if [ ${PRODUCTION} -eq 1 ]; then
     CAMCOPS_HOME=${HOME}/camcops
-    INSTALLER_HOME=${CAMCOPS_HOME}/installer
+    INSTALLER_HOME=${CAMCOPS_HOME}/server/installer
 else
     INSTALLER_HOME="$( cd "$( dirname "$0" )" && pwd )"
 fi
