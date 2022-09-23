@@ -28,7 +28,7 @@ jobs:
             - name: Create release with artifacts
               uses: ncipollo/release-action@v1
               with:
-                  artifacts: "installer/installer.sh,/tmp/crate.tar.gz,server/packagebuild/*.deb,server/packagebuild/*.rpm"
+                  artifacts: "server/installer/installer.sh,/tmp/crate.tar.gz,server/packagebuild/*.deb,server/packagebuild/*.rpm"
                   token: ${{ secrets.GITHUB_TOKEN }}
             - name: Test installer
               run: |
