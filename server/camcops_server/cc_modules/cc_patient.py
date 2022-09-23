@@ -213,6 +213,9 @@ class Patient(GenericTabletRecordMixin, Base):
     other = CamcopsColumn(
         "other", UnicodeText, identifies_patient=True, comment="Other details"
     )
+    test = CamcopsColumn(
+        "test", UnicodeText, identifies_patient=True, comment="Test"
+    )
     idnums = relationship(
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
         # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
