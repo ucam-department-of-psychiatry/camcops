@@ -289,27 +289,23 @@ class Installer:
         self.start_message()
         self.check_setup()
 
-        if self.update:
-            self.update_installation()
-        else:
-            self.install_from_scratch()
-
-        self.start()
-        self.report_status()
-
-    def install_from_scratch(self) -> None:
         self.configure()
-        self.create_directories()
+        self.create_config_directory()
         self.write_environment_variables()
         if self.use_https():
             self.process_ssl_files()
+
+        if self.update:
+            self.rebuild_camcops_image()
 
         self.create_config()
         self.create_or_update_database()
         self.create_superuser()
 
+        self.start()
+        self.report_status()
+
     def update_installation(self) -> None:
-        self.rebuild_camcops_image()
         self.create_or_update_database()
 
     def rebuild_camcops_image(self) -> None:
@@ -586,7 +582,7 @@ class Installer:
         self.setenv(DockerEnvVar.FLOWER_HOST_PORT, self.get_flower_host_port)
 
     @staticmethod
-    def create_directories() -> None:
+    def create_config_directory() -> None:
         camcops_config_dir = os.environ.get(DockerEnvVar.CONFIG_HOST_DIR)
         Path(camcops_config_dir).mkdir(parents=True, exist_ok=True)
 
