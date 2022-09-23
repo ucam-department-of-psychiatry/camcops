@@ -117,7 +117,7 @@ CAMCOPS_INSTALLER_PYTHON=${CAMCOPS_INSTALLER_PYTHON:-python3}
 if [ ${PRODUCTION} -eq 1 ]; then
     # CAMCOPS_GITHUB_REPOSITORY=https://github.com/ucam-department-of-psychiatry/camcops
     CAMCOPS_GITHUB_REPOSITORY=https://github.com/martinburchell/camcops
-    CAMCOPS_TAR_FILE=camcops.tar.gz
+    CAMCOPS_TAR_FILE=camcops_server.tar.gz
 
     # This doesn't work with GitHub generated assets for some reason so we rely
     # on the "release" GitHub action (.github/workflows/release.yml) to create
