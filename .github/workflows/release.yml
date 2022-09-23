@@ -36,7 +36,8 @@ jobs:
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
                 cd ${HOME}
-                curl -L --retry 10 --fail https://github.com/ucam-department-of-psychiatry/camcops/releases/latest/download/installer.sh --output camcops_docker_installer.sh
+                # curl -L --retry 10 --fail https://github.com/ucam-department-of-psychiatry/camcops/releases/latest/download/installer.sh --output camcops_docker_installer.sh
+                curl -L --retry 10 --fail https://github.com/martinburchell/camcops/releases/latest/download/installer.sh --output camcops_docker_installer.sh
                 chmod u+x camcops_docker_installer.sh
                 ./camcops_docker_installer.sh
                 export CAMCOPS_HOME=${HOME}/camcops
