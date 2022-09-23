@@ -189,7 +189,7 @@ DEFAULT_LINUX_CAMCOPS_EXECUTABLE = os.path.join(
 DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
     DEFAULT_LINUX_CAMCOPS_VENV_DIR,
     "lib",
-    "python3.6",
+    "python3.8",
     "site-packages",
     "camcops_server",
     "static",
@@ -756,7 +756,7 @@ programs = camcops_server, camcops_workers, camcops_scheduler
 
 
 def get_demo_apache_config(
-    rootpath: str = "camcops",  # no slash
+    rootpath: str = "",  # no slash
     specimen_internal_port: int = None,
     specimen_socket_file: str = DEFAULT_SOCKET_FILENAME,
 ) -> str:
@@ -765,7 +765,38 @@ def get_demo_apache_config(
     """
     cd = ConfigDefaults()
     specimen_internal_port = specimen_internal_port or cd.PORT
-    urlbase = "/" + rootpath
+    indent_8 = " " * 8
+
+    if rootpath:
+        urlbase = f"/{rootpath}"
+        urlbaseslash = f"{urlbase}/"
+        api_path = f"{urlbase}{MASTER_ROUTE_CLIENT_API}"
+        trailing_slash_notes = f"""{indent_8}#
+        # - Don't specify trailing slashes for the ProxyPass and
+        #   ProxyPassReverse directives.
+        #   If you do, http://camcops.example.com{urlbase} will fail though
+        #              http://camcops.example.com{urlbaseslash} will succeed.
+        #
+        #   - An alternative fix is to enable mod_rewrite (e.g. sudo a2enmod
+        #     rewrite), then add these commands:
+        #
+        #       RewriteEngine on
+        #       RewriteRule ^/{rootpath}$ {rootpath}/ [L,R=301]
+        #
+        #     which will redirect requests without the trailing slash to a
+        #     version with the trailing slash.
+        #"""
+
+        x_script_name = (
+            f"{indent_8}RequestHeader set X-Script-Name {urlbase}\n"
+        )
+    else:
+        urlbase = "/"
+        urlbaseslash = "/"
+        api_path = MASTER_ROUTE_CLIENT_API
+        trailing_slash_notes = " " * 8 + "#"
+        x_script_name = ""
+
     # noinspection HttpUrlsUsage
     return f"""
 # Demonstration Apache config file section for CamCOPS.
@@ -796,13 +827,13 @@ def get_demo_apache_config(
 
         # CHANGE THIS: aim the alias at your own institutional logo.
 
-    Alias {urlbase}/static/logo_local.png {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}/logo_local.png
+    Alias {urlbaseslash}static/logo_local.png {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}/logo_local.png
 
         # We move from more specific to less specific aliases; the first match
         # takes precedence. (Apache will warn about conflicting aliases if
         # specified in a wrong, less-to-more-specific, order.)
 
-    Alias {urlbase}/static/ {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}/
+    Alias {urlbaseslash}static/ {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}/
 
     <Directory {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}>
         Require all granted
@@ -814,7 +845,7 @@ def get_demo_apache_config(
 
         # Don't ProxyPass the static files; we'll serve them via Apache.
 
-    ProxyPassMatch ^{urlbase}/static/ !
+    ProxyPassMatch ^{urlbaseslash}static/ !
 
         # ---------------------------------------------------------------------
         # 2. Proxy requests to the CamCOPS web server and back; allow access
@@ -825,28 +856,14 @@ def get_demo_apache_config(
         #
         # NOTES
         #
-        # - When you ProxyPass {urlbase}, you should browse to
+        # - When you ProxyPass {urlbase}, you should browse to (e.g.)
         #
-        #       https://YOURSITE{urlbase}
+        #       https://camcops.example.com{urlbase}
         #
         #   and point your tablet devices to
         #
-        #       https://YOURSITE{urlbase}{MASTER_ROUTE_CLIENT_API}
-        #
-        # - Don't specify trailing slashes for the ProxyPass and
-        #   ProxyPassReverse directives.
-        #   If you do, http://host/camcops will fail though
-        #              http://host/camcops/ will succeed.
-        #
-        #   - An alternative fix is to enable mod_rewrite (e.g. sudo a2enmod
-        #     rewrite), then add these commands:
-        #
-        #       RewriteEngine on
-        #       RewriteRule ^/{rootpath}$ {rootpath}/ [L,R=301]
-        #
-        #     which will redirect requests without the trailing slash to a
-        #     version with the trailing slash.
-        #
+        #       https://camcops.example.com{api_path}
+{trailing_slash_notes}
         # - Ensure that you put the CORRECT PROTOCOL (http, https) in the rules
         #   below.
         #
@@ -958,7 +975,7 @@ def get_demo_apache_config(
 
     SSLProxyEngine on
 
-    <Location /camcops>
+    <Location {urlbase}>
 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (c) Allow access
@@ -980,8 +997,7 @@ def get_demo_apache_config(
             # Enable mod_headers (e.g. "sudo a2enmod headers") and set:
 
         RequestHeader set X-Forwarded-Proto https
-        RequestHeader set X-Script-Name {urlbase}
-
+{x_script_name}
             # ... then ensure the TRUSTED_PROXY_HEADERS setting in the CamCOPS
             # config file includes:
             #

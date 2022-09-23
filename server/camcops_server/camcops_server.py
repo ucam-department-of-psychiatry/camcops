@@ -141,12 +141,12 @@ def print_demo_supervisor_config() -> None:
     print(get_demo_supervisor_config())
 
 
-def print_demo_apache_config() -> None:
+def print_demo_apache_config(rootpath: str) -> None:
     """
     Prints a demonstration Apache HTTPD config file segment (for CamCOPS)
     to stdout.
     """
-    print(get_demo_apache_config())
+    print(get_demo_apache_config(rootpath=rootpath))
 
 
 # =============================================================================
@@ -737,7 +737,15 @@ def camcops_main() -> int:
         help="Print a demo Apache config file section for CamCOPS",
     )
     demoapacheconf_parser.set_defaults(
-        func=lambda args: print_demo_apache_config()
+        func=lambda args: print_demo_apache_config(rootpath=args.path)
+    )
+    demoapacheconf_parser.add_argument(
+        "--path",
+        default="",
+        help=(
+            "Path where CamCOPS should appear on the server "
+            "e.g. 'camcops' for https://example.com/camcops"
+        ),
     )
 
     # -------------------------------------------------------------------------

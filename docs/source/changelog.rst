@@ -3683,3 +3683,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.14, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix RPM build to work with Python 3.8 and RHEL 8.
+
+- Command ``camcops_server demo_apache_config`` now defaults to the server
+  being hosted at (e.g.) ``https://camcops.example.com/`` instead of ``https://camcops.example.com/camcops``. There is now a ``--path`` argument to generate the demo Apache config file for a particular location. For the old behaviour: ``camcops_server demo_apache_config --path camcops``

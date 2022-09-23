@@ -104,13 +104,15 @@ optional arguments:
 ===============================================================================
 Help for command 'demo_apache_config'
 ===============================================================================
-usage: camcops_server demo_apache_config [-h] [-v]
+usage: camcops_server demo_apache_config [-h] [-v] [--path PATH]
 
 Print a demo Apache config file section for CamCOPS
 
 optional arguments:
   -h, --help     show this help message and exit
   -v, --verbose  Be verbose (default: False)
+  --path PATH    Path where CamCOPS should appear on the server e.g. 'camcops'
+                 for https://example.com/camcops (default: )
 
 ===============================================================================
 Help for command 'upgrade_db'
