@@ -289,7 +289,6 @@ class Installer:
         self.check_setup()
 
         self.configure()
-        self.create_config_directory()
         self.write_environment_variables()
         if self.use_https():
             self.process_ssl_files()
@@ -438,6 +437,7 @@ class Installer:
 
     def configure_config_files(self) -> None:
         self.setenv(DockerEnvVar.CONFIG_HOST_DIR, self.get_config_host_dir)
+        self.create_config_directory()
         self.setenv(DockerEnvVar.CAMCOPS_CONFIG_FILENAME, "camcops.conf")
 
     def configure_camcops_server_ports(self) -> None:
