@@ -915,26 +915,28 @@ class Installer:
 
     def get_x509_country_name(self) -> str:
         return self.get_user_input(
-            "Enter the 2-letter country code:",
+            "Enter the 2-letter country code (e.g. GB):",
             validator=FixedLengthValidator(2),
         )
 
     def get_x509_state_or_province_name(self) -> str:
-        return self.get_user_input("Enter the state or province name:")
+        return self.get_user_input(
+            "Enter the state or province name (e.g. Cambridgeshire):"
+        )
 
     def get_x509_locality_name(self) -> str:
-        return self.get_user_input("Enter the locality name (e.g. city):")
+        return self.get_user_input("Enter the locality name (e.g. Cambridge):")
 
     def get_x509_organization_name(self) -> str:
         return self.get_user_input(
-            "Enter the organization name (e.g. company):"
+            "Enter the organization name (e.g. University of Cambridge):"
         )
 
     def get_x509_dns_name(self) -> str:
         return self.get_user_input(
             "Enter the DNS name. This should match the server name where the "
-            "certificate is installed e.g. ``camcops.example.com`` or "
-            "``localhost``:",
+            "certificate is installed (e.g. camcops.example.com or "
+            "localhost):",
             "localhost",
         )
 
