@@ -273,7 +273,16 @@ class Installer:
         if self._docker is None:
             compose_files = ["docker-compose.yaml"]
 
-            if self.should_create_mysql_container():
+            create_mysql_container = os.getenv(
+                InstallerEnvVar.CREATE_MYSQL_CONTAINER
+            )
+            if create_mysql_container is None:
+                self.fail(
+                    "CAMCOPS_INSTALLER_CREATE_MYSQL_CONTAINER "
+                    "should be set to 0 or 1"
+                )
+
+            if create_mysql_container == "1":
                 compose_files.append("docker-compose-mysql.yaml")
 
             self._docker = DockerClient(compose_files=compose_files)
