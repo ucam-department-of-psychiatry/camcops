@@ -37,9 +37,7 @@ import os
 from pathlib import Path
 from platform import uname
 import re
-import secrets
 import shutil
-import string
 import sys
 from tempfile import NamedTemporaryFile
 import textwrap
@@ -746,11 +744,6 @@ class Installer:
     @staticmethod
     def get_install_user_id() -> str:
         return str(os.geteuid())
-
-    @staticmethod
-    def get_hmac_md5_key() -> str:
-        alphabet = string.ascii_letters + string.digits
-        return "".join(secrets.choice(alphabet) for _ in range(16))
 
     @staticmethod
     def config_full_path() -> str:

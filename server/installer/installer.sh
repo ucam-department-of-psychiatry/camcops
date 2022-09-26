@@ -111,7 +111,7 @@ fi
 CAMCOPS_INSTALLER_PYTHON=${CAMCOPS_INSTALLER_PYTHON:-python3}
 
 # -----------------------------------------------------------------------------
-# Fetching CAMCOPS and boostrap the installer
+# Fetching CamCOPS and boostrap the installer
 # -----------------------------------------------------------------------------
 
 if [ ${PRODUCTION} -eq 1 ]; then
