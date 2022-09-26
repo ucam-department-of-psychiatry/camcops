@@ -159,7 +159,6 @@ class InstallerEnvVar(EnvVar):
 
     MYSQL_SERVER = f"{PREFIX}_MYSQL_SERVER"
     MYSQL_PORT = f"{PREFIX}_MYSQL_PORT"
-    X509_COMMON_NAME = f"{PREFIX}_X509_COMMON_NAME"
     X509_COUNTRY_NAME = f"{PREFIX}_X509_COUNTRY_NAME"
     X509_DNS_NAME = f"{PREFIX}_X509_DNS_NAME"
     X509_LOCALITY_NAME = f"{PREFIX}_X509_LOCALITY_NAME"
@@ -481,10 +480,6 @@ class Installer:
             self.get_x509_organization_name,
         )
         self.setenv(
-            InstallerEnvVar.X509_COMMON_NAME,
-            self.get_x509_common_name,
-        )
-        self.setenv(
             InstallerEnvVar.X509_DNS_NAME,
             self.get_x509_dns_name,
         )
@@ -657,9 +652,11 @@ class Installer:
                     NameOID.ORGANIZATION_NAME,
                     os.getenv(InstallerEnvVar.X509_ORGANIZATION_NAME),
                 ),
+                # It looks like the Common Name can be the same as the DNS name
+                # and some browsers will ignore it if the DNS name is present.
                 x509.NameAttribute(
                     NameOID.COMMON_NAME,
-                    os.getenv(InstallerEnvVar.X509_COMMON_NAME),
+                    os.getenv(InstallerEnvVar.X509_DNS_NAME),
                 ),
             ]
         )
@@ -918,13 +915,13 @@ class Installer:
             "Enter the organization name (e.g. company):"
         )
 
-    def get_x509_common_name(self) -> str:
-        return self.get_user_input(
-            "Enter the common name (e.g. your name or server's hostname):"
-        )
-
     def get_x509_dns_name(self) -> str:
-        return self.get_user_input("Enter the DNS name:", "localhost")
+        return self.get_user_input(
+            "Enter the DNS name. This should match the server name where the "
+            "certificate is installed e.g. ``camcops.example.com`` or "
+            "``localhost``:",
+            "localhost",
+        )
 
     def get_flower_host_port(self) -> str:
         return self.get_user_input(
