@@ -822,7 +822,13 @@ class Installer:
         )
 
     def get_create_self_signed_certificate(self) -> str:
-        return self.get_user_boolean("Create a self-signed certificate? (y/n)")
+        return self.get_user_boolean(
+            "The CamCOPS installer can create a self-signed SSL certificate "
+            "for you. This is for testing only and should not be used in a "
+            "secure production environment. Alternatively you can select the "
+            "location of an existing SSL certificate and private key. "
+            "Create a self-signed certificate? (y/n)"
+        )
 
     def get_ssl_certificate(self) -> str:
         return self.get_user_file("Select the SSL certificate file:")
