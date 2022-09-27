@@ -65,6 +65,8 @@ Compose to set up several containers, specifically:
 
 We provide an installer script as a wrapper to Docker Compose.
 
+.. _quick_start:
+
 Quick start
 -----------
 
