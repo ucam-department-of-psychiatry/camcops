@@ -53,5 +53,4 @@ jobs:
                   cd tablet_qt/tools
                   cmake --version
                   apt list --installed "libclang*-dev"
-                  exit 1
                   ./build_qt.py --build_linux_x86_64 --nparallel 1
