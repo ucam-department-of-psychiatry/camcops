@@ -306,6 +306,8 @@ tablet_qt
     menu/clinicalsetsmenu.h.rst
     menu/cognitivemenu.cpp.rst
     menu/cognitivemenu.h.rst
+    menu/eatingdisordersmenu.cpp.rst
+    menu/eatingdisordersmenu.h.rst
     menu/executivemenu.cpp.rst
     menu/executivemenu.h.rst
     menu/globalmenu.cpp.rst
@@ -330,6 +332,8 @@ tablet_qt
     menu/serviceevaluationmenu.h.rst
     menu/setmenucpftadrd.cpp.rst
     menu/setmenucpftadrd.h.rst
+    menu/setmenucpftadulteatingdisorders.cpp.rst
+    menu/setmenucpftadulteatingdisorders.h.rst
     menu/setmenucpftcovid.cpp.rst
     menu/setmenucpftcovid.h.rst
     menu/setmenucpftperinatal.cpp.rst
@@ -486,6 +490,8 @@ tablet_qt
     questionnairelib/qugridcontainer.h.rst
     questionnairelib/quheading.cpp.rst
     questionnairelib/quheading.h.rst
+    questionnairelib/quheight.cpp.rst
+    questionnairelib/quheight.h.rst
     questionnairelib/quhorizontalcontainer.cpp.rst
     questionnairelib/quhorizontalcontainer.h.rst
     questionnairelib/quhorizontalline.cpp.rst
@@ -506,6 +512,8 @@ tablet_qt
     questionnairelib/qulineeditnhsnumber.h.rst
     questionnairelib/qulineedituint64.cpp.rst
     questionnairelib/qulineedituint64.h.rst
+    questionnairelib/qumass.cpp.rst
+    questionnairelib/qumass.h.rst
     questionnairelib/qumcq.cpp.rst
     questionnairelib/qumcq.h.rst
     questionnairelib/qumcqgrid.cpp.rst
@@ -520,6 +528,8 @@ tablet_qt
     questionnairelib/qumcqgridsingleboolean.h.rst
     questionnairelib/qumcqgridsinglebooleansignaller.cpp.rst
     questionnairelib/qumcqgridsinglebooleansignaller.h.rst
+    questionnairelib/qumeasurement.cpp.rst
+    questionnairelib/qumeasurement.h.rst
     questionnairelib/qumultipleresponse.cpp.rst
     questionnairelib/qumultipleresponse.h.rst
     questionnairelib/qupage.cpp.rst
@@ -548,8 +558,12 @@ tablet_qt
     questionnairelib/quthermometer.h.rst
     questionnairelib/quthermometeritem.cpp.rst
     questionnairelib/quthermometeritem.h.rst
+    questionnairelib/quunitselector.cpp.rst
+    questionnairelib/quunitselector.h.rst
     questionnairelib/quverticalcontainer.cpp.rst
     questionnairelib/quverticalcontainer.h.rst
+    questionnairelib/quwaist.cpp.rst
+    questionnairelib/quwaist.h.rst
     questionnairelib/quzoomcontainer.cpp.rst
     questionnairelib/quzoomcontainer.h.rst
     resources/camcops/camera_qml/CameraButton.qml.rst
@@ -646,6 +660,8 @@ tablet_qt
     tasks/cgisch.h.rst
     tasks/chit.cpp.rst
     tasks/chit.h.rst
+    tasks/cia.cpp.rst
+    tasks/cia.h.rst
     tasks/cisr.cpp.rst
     tasks/cisr.h.rst
     tasks/ciwa.cpp.rst
@@ -688,6 +704,8 @@ tablet_qt
     tasks/diagnosisicd9cm.h.rst
     tasks/distressthermometer.cpp.rst
     tasks/distressthermometer.h.rst
+    tasks/edeq.cpp.rst
+    tasks/edeq.h.rst
     tasks/elixhauserci.cpp.rst
     tasks/elixhauserci.h.rst
     tasks/epds.cpp.rst
@@ -754,6 +772,10 @@ tablet_qt
     tasks/ifs.h.rst
     tasks/irac.cpp.rst
     tasks/irac.h.rst
+    tasks/isaaq.cpp.rst
+    tasks/isaaq.h.rst
+    tasks/isaaqed.cpp.rst
+    tasks/isaaqed.h.rst
     tasks/khandakerinsightmedical.cpp.rst
     tasks/khandakerinsightmedical.h.rst
     tasks/khandakermojomedical.cpp.rst
@@ -786,6 +808,8 @@ tablet_qt
     tasks/ors.h.rst
     tasks/panss.cpp.rst
     tasks/panss.h.rst
+    tasks/paradise24.cpp.rst
+    tasks/paradise24.h.rst
     tasks/patientsatisfaction.cpp.rst
     tasks/patientsatisfaction.h.rst
     tasks/pbq.cpp.rst
@@ -878,6 +902,8 @@ tablet_qt
     taskxtra/ided3dstage.h.rst
     taskxtra/ided3dtrial.cpp.rst
     taskxtra/ided3dtrial.h.rst
+    taskxtra/isaaqcommon.cpp.rst
+    taskxtra/isaaqcommon.h.rst
     taskxtra/khandakermojomedicationitem.cpp.rst
     taskxtra/khandakermojomedicationitem.h.rst
     taskxtra/khandakermojotherapyitem.cpp.rst

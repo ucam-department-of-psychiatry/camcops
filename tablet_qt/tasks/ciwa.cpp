@@ -37,7 +37,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_SCORED_QUESTIONS = 10;
-const int MAX_SCORE = 67;
+const int MAX_QUESTION_SCORE = 67;
 const QString QPREFIX("q");
 
 const QString Ciwa::CIWA_TABLENAME("ciwa");
@@ -103,7 +103,7 @@ bool Ciwa::isComplete() const
 
 QStringList Ciwa::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

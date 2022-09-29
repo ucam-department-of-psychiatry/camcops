@@ -64,30 +64,41 @@ YN_NA_CHECKER = PermittedValueChecker(permitted_values=[YES, NO, NA])
 # DAD
 # =============================================================================
 
+
 class DadMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Dad'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Dad"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
         for colname in cls.ITEMS:
             setattr(
                 cls,
                 colname,
-                CamcopsColumn(colname, Integer,
-                              permitted_value_checker=YN_NA_CHECKER,
-                              comment=colname + explan)
+                CamcopsColumn(
+                    colname,
+                    Integer,
+                    permitted_value_checker=YN_NA_CHECKER,
+                    comment=colname + explan,
+                ),
             )
         super().__init__(name, bases, classdict)
 
 
-class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
-          Task,
-          metaclass=DadMetaclass):
+class Dad(
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    TaskHasClinicianMixin,
+    Task,
+    metaclass=DadMetaclass,
+):
     """
     Server implementation of the DAD task.
     """
+
     __tablename__ = "dad"
     shortname = "DAD"
 
@@ -101,7 +112,7 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
         "outing",
         "finance",
         "medications",
-        "leisure"
+        "leisure",
     ]
     ITEMS = [
         "hygiene_init_wash",
@@ -111,48 +122,39 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
         "hygiene_exec_wash",
         "hygiene_exec_hair",
         "hygiene_exec_teeth",
-
         "dressing_init_dress",
         "dressing_plan_clothing",
         "dressing_plan_order",
         "dressing_exec_dress",
         "dressing_exec_undress",
-
         "continence_init_toilet",
         "continence_exec_toilet",
-
         "eating_init_eat",
         "eating_plan_utensils",
         "eating_exec_eat",
-
         "mealprep_init_meal",
         "mealprep_plan_meal",
         "mealprep_exec_meal",
-
         "telephone_init_phone",
         "telephone_plan_dial",
         "telephone_exec_conversation",
         "telephone_exec_message",
-
         "outing_init_outing",
         "outing_plan_outing",
         "outing_exec_reach_destination",
         "outing_exec_mode_transportation",
         "outing_exec_return_with_shopping",
-
         "finance_init_interest",
         "finance_plan_pay_bills",
         "finance_plan_organise_correspondence",
         "finance_exec_handle_money",
-
         "medications_init_medication",
         "medications_exec_take_medications",
-
         "leisure_init_interest_leisure",
         "leisure_init_interest_chores",
         "leisure_plan_chores",
         "leisure_exec_complete_chores",
-        "leisure_exec_safe_at_home"
+        "leisure_exec_safe_at_home",
     ]
 
     @staticmethod
@@ -164,16 +166,22 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
         d = self.get_score_dict()
         s = self.standard_task_summary_fields()
         for item in d:
-            s.extend([
-                SummaryElement(name=item + "_n",
-                               coltype=Integer(),
-                               value=d[item][0],
-                               comment=item + " (numerator)"),
-                SummaryElement(name=item + "_d",
-                               coltype=Integer(),
-                               value=d[item][1],
-                               comment=item + " (denominator)"),
-            ])
+            s.extend(
+                [
+                    SummaryElement(
+                        name=item + "_n",
+                        coltype=Integer(),
+                        value=d[item][0],
+                        comment=item + " (numerator)",
+                    ),
+                    SummaryElement(
+                        name=item + "_d",
+                        coltype=Integer(),
+                        value=d[item][1],
+                        comment=item + " (denominator)",
+                    ),
+                ]
+            )
         return s
 
     # noinspection PyMethodOverriding
@@ -187,8 +195,11 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     @classmethod
     def get_items_activities(cls, activities: Iterable[str]) -> List[str]:
-        return [item for item in cls.ITEMS
-                if any(item.startswith(activity) for activity in activities)]
+        return [
+            item
+            for item in cls.ITEMS
+            if any(item.startswith(activity) for activity in activities)
+        ]
 
     @classmethod
     def get_items_phase(cls, phase: str) -> List[str]:
@@ -201,24 +212,36 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
 
     def get_score_dict(self) -> Dict:
         total = self.get_score(self.ITEMS)
-        hygiene = self.get_score(self.get_items_activity('hygiene'))
-        dressing = self.get_score(self.get_items_activity('dressing'))
-        continence = self.get_score(self.get_items_activity('continence'))
-        eating = self.get_score(self.get_items_activity('eating'))
-        badl = self.get_score(self.get_items_activities(
-            ['hygiene', 'dressing', 'continence', 'eating']))
-        mealprep = self.get_score(self.get_items_activity('mealprep'))
-        telephone = self.get_score(self.get_items_activity('telephone'))
-        outing = self.get_score(self.get_items_activity('outing'))
-        finance = self.get_score(self.get_items_activity('finance'))
-        medications = self.get_score(self.get_items_activity('medications'))
-        leisure = self.get_score(self.get_items_activity('leisure'))
-        iadl = self.get_score(self.get_items_activities(
-            ['mealprep', 'telephone', 'outing', 'finance',
-             'medications', 'leisure']))
-        initiation = self.get_score(self.get_items_phase('init'))
-        planning = self.get_score(self.get_items_phase('plan'))
-        execution = self.get_score(self.get_items_phase('exec'))
+        hygiene = self.get_score(self.get_items_activity("hygiene"))
+        dressing = self.get_score(self.get_items_activity("dressing"))
+        continence = self.get_score(self.get_items_activity("continence"))
+        eating = self.get_score(self.get_items_activity("eating"))
+        badl = self.get_score(
+            self.get_items_activities(
+                ["hygiene", "dressing", "continence", "eating"]
+            )
+        )
+        mealprep = self.get_score(self.get_items_activity("mealprep"))
+        telephone = self.get_score(self.get_items_activity("telephone"))
+        outing = self.get_score(self.get_items_activity("outing"))
+        finance = self.get_score(self.get_items_activity("finance"))
+        medications = self.get_score(self.get_items_activity("medications"))
+        leisure = self.get_score(self.get_items_activity("leisure"))
+        iadl = self.get_score(
+            self.get_items_activities(
+                [
+                    "mealprep",
+                    "telephone",
+                    "outing",
+                    "finance",
+                    "medications",
+                    "leisure",
+                ]
+            )
+        )
+        initiation = self.get_score(self.get_items_phase("init"))
+        planning = self.get_score(self.get_items_phase("plan"))
+        execution = self.get_score(self.get_items_phase("exec"))
         # n for numerator, d for denominator
         return dict(
             total=total,
@@ -343,11 +366,11 @@ class Dad(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
                 if not item.startswith(group):
                     continue
                 q = self.wxstring(req, item)
-                if '_init_' in item:
+                if "_init_" in item:
                     q += " (I)"
-                elif '_plan_' in item:
+                elif "_plan_" in item:
                     q += " (P)"
-                elif '_exec_' in item:
+                elif "_exec_" in item:
                     q += " (E)"
                 else:
                     # Shouldn't happen

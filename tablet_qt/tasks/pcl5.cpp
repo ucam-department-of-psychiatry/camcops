@@ -43,7 +43,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
-const int MAX_SCORE = 80;
+const int MAX_QUESTION_SCORE = 80;
 
 const QString QPREFIX("q");
 const QString Pcl5::PCL5_TABLENAME("pcl5");
@@ -106,7 +106,7 @@ bool Pcl5::isComplete() const
 QStringList Pcl5::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         standardResult(xstring("dsm_criteria_met"),
                        uifunc::yesNoUnknown(hasPtsd()))
     };

@@ -48,8 +48,12 @@ from camcops_server.cc_modules.cc_simpleobjects import XmlSimpleValue
 from camcops_server.cc_modules.cc_sqla_coltypes import gen_camcops_blob_columns
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_summaryelement import SummaryElement  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+        CamcopsRequest,
+    )
+    from camcops_server.cc_modules.cc_summaryelement import (  # noqa: F401
+        SummaryElement,
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -68,7 +72,7 @@ XML_IGNORE_NAMESPACES = [
     'xmlns:mc="https://schemas.openxmlformats.org/markup-compatibility/2006"',
     'xmlns:ignore="https://camcops.readthedocs.org/ignore"',
     # ... actual URL unimportant
-    'mc:Ignorable="ignore"'
+    'mc:Ignorable="ignore"',
 ]
 # http://www.w3.org/TR/xmlschema-1/
 # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html
@@ -78,6 +82,7 @@ class XmlDataTypes(object):
     """
     Constants representing standard XML data types.
     """
+
     BASE64BINARY = "base64Binary"
     BOOLEAN = "boolean"
     DATE = "date"
@@ -92,12 +97,20 @@ class XmlDataTypes(object):
 # XML element
 # =============================================================================
 
+
 class XmlElement(object):
     """
     Represents XML data in a tree.
     """
-    def __init__(self, name: str, value: Any = None, datatype: str = None,
-                 comment: str = None, literal: str = None) -> None:
+
+    def __init__(
+        self,
+        name: str,
+        value: Any = None,
+        datatype: str = None,
+        comment: str = None,
+        literal: str = None,
+    ) -> None:
         """
         Args:
             name: name of this XML element
@@ -128,6 +141,7 @@ class XmlLiteral(XmlElement):
     """
     Represents literal XML.
     """
+
     def __init__(self, literal: str) -> None:
         super().__init__(name="", literal=literal)
 
@@ -153,9 +167,10 @@ XML_COMMENT_STORED = XmlLiteral("<!-- Stored fields -->")
 # However, they do look quite fiddly and we only want to create something
 # simple. Therefore, let's roll our own:
 
+
 def make_xml_branches_from_columns(
-        obj,
-        skip_fields: List[str] = None) -> List[XmlElement]:
+    obj, skip_fields: List[str] = None
+) -> List[XmlElement]:
     """
     Returns a list of XML branches, each an
     :class:`camcops_server.cc_modules.cc_xml.XmlElement`, from an SQLAlchemy
@@ -173,19 +188,22 @@ def make_xml_branches_from_columns(
         colname = column.name
         if colname in skip_fields:
             continue
-        branches.append(XmlElement(
-            name=colname,
-            value=getattr(obj, attrname),
-            datatype=get_xml_datatype_from_sqla_column(column),
-            comment=column.comment
-        ))
+        branches.append(
+            XmlElement(
+                name=colname,
+                value=getattr(obj, attrname),
+                datatype=get_xml_datatype_from_sqla_column(column),
+                comment=column.comment,
+            )
+        )
     return branches
 
 
 def make_xml_branches_from_summaries(
-        summaries: List["SummaryElement"],
-        skip_fields: List[str] = None,
-        sort_by_name: bool = True) -> List[XmlElement]:
+    summaries: List["SummaryElement"],
+    skip_fields: List[str] = None,
+    sort_by_name: bool = True,
+) -> List[XmlElement]:
     """
     Returns a list of XML branches, each an
     :class:`camcops_server.cc_modules.cc_xml.XmlElement`, from a list of
@@ -202,21 +220,22 @@ def make_xml_branches_from_summaries(
         name = s.name
         if name in skip_fields:
             continue
-        branches.append(XmlElement(
-            name=name,
-            value=s.value,
-            datatype=get_xml_datatype_from_sqla_column_type(s.coltype),
-            comment=s.comment
-        ))
+        branches.append(
+            XmlElement(
+                name=name,
+                value=s.value,
+                datatype=get_xml_datatype_from_sqla_column_type(s.coltype),
+                comment=s.comment,
+            )
+        )
     if sort_by_name:
         branches.sort(key=lambda el: el.name)
     return branches
 
 
 def make_xml_branches_from_blobs(
-        req: "CamcopsRequest",
-        obj,
-        skip_fields: List[str] = None) -> List[XmlElement]:
+    req: "CamcopsRequest", obj, skip_fields: List[str] = None
+) -> List[XmlElement]:
     """
     Return XML branches from those attributes of an SQLAlchemy ORM object
     (e.g. task) that represent BLOBs.
@@ -238,15 +257,17 @@ def make_xml_branches_from_blobs(
             continue
         relationship_attr = column.blob_relationship_attr_name
         blob = getattr(obj, relationship_attr)
-        branches.append(XmlElement(
-            name=relationship_attr,
-            value=None if blob is None else blob.get_xml_element(req),
-            comment=column.comment,
-        ))
+        branches.append(
+            XmlElement(
+                name=relationship_attr,
+                value=None if blob is None else blob.get_xml_element(req),
+                comment=column.comment,
+            )
+        )
     return branches
 
 
-def xml_header(eol: str = '\n') -> str:
+def xml_header(eol: str = "\n") -> str:
     """
     XML declaration header.
     """
@@ -281,7 +302,8 @@ def get_xml_datatype_from_sqla_column_type(coltype: TypeEngine) -> str:
     # BLOBs are handled separately.
     raise NotImplementedError(
         f"Don't know XML type for SQLAlchemy type {coltype!r} with Python "
-        f"type {pt!r}")
+        f"type {pt!r}"
+    )
 
 
 def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
@@ -293,9 +315,9 @@ def get_xml_datatype_from_sqla_column(column: Column) -> Optional[str]:
     return get_xml_datatype_from_sqla_column_type(coltype)
 
 
-def get_xml_blob_element(name: str,
-                         blobdata: Optional[bytes],
-                         comment: str = None) -> XmlElement:
+def get_xml_blob_element(
+    name: str, blobdata: Optional[bytes], comment: str = None
+) -> XmlElement:
     """
     Returns an XmlElement representing a base-64-encoded BLOB.
 
@@ -315,7 +337,7 @@ def get_xml_blob_element(name: str,
         name=name,
         value=value,
         datatype=XmlDataTypes.BASE64BINARY,
-        comment=comment
+        comment=comment,
     )
     # http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#base64Binary
 
@@ -338,12 +360,15 @@ def xml_quote_attribute(attr: str) -> str:
     return xml.sax.saxutils.quoteattr(attr)
 
 
-def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
-                                List[Union[XmlElement, XmlSimpleValue]]],
-                 level: int = 0,
-                 indent_spaces: int = 4,
-                 eol: str = '\n',
-                 include_comments: bool = False) -> str:
+def get_xml_tree(
+    element: Union[
+        XmlElement, XmlSimpleValue, List[Union[XmlElement, XmlSimpleValue]]
+    ],
+    level: int = 0,
+    indent_spaces: int = 4,
+    eol: str = "\n",
+    include_comments: bool = False,
+) -> str:
     # noinspection HttpUrlsUsage
     """
     Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement` as text.
@@ -378,7 +403,7 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
 
     """  # noqa
     xmltext = ""
-    prefix = ' ' * level * indent_spaces
+    prefix = " " * level * indent_spaces
 
     if isinstance(element, XmlElement):
 
@@ -403,21 +428,25 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
                 dt = ""
             cmt = ""
             if include_comments and element.comment:
-                cmt = f' ignore:comment={xml_quote_attribute(element.comment)}'
+                cmt = f" ignore:comment={xml_quote_attribute(element.comment)}"
             attributes = f"{namespace}{dt}{cmt}"
 
             # Assemble
             if element.value is None:
                 # NULL handling
                 xmltext += (
-                    f'{prefix}<{element.name}{attributes} '
+                    f"{prefix}<{element.name}{attributes} "
                     f'xsi:nil="true"/>{eol}'
                 )
             else:
-                complex_value = isinstance(element.value, XmlElement) \
-                    or isinstance(element.value, list)
-                value_to_recurse = element.value if complex_value else \
-                    XmlSimpleValue(element.value)
+                complex_value = isinstance(
+                    element.value, XmlElement
+                ) or isinstance(element.value, list)
+                value_to_recurse = (
+                    element.value
+                    if complex_value
+                    else XmlSimpleValue(element.value)
+                )
                 # ... XmlSimpleValue is a marker that subsequently
                 # distinguishes things that were part of an XmlElement from
                 # user-inserted raw XML.
@@ -428,19 +457,22 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
                     level=level + 1,
                     indent_spaces=indent_spaces,
                     eol=eol,
-                    include_comments=include_comments
+                    include_comments=include_comments,
                 )
                 xmltext += (
-                    f'{prefix}<{element.name}{attributes}>{nl}'
-                    f'{v}{pr2}</{element.name}>{eol}'
+                    f"{prefix}<{element.name}{attributes}>{nl}"
+                    f"{v}{pr2}</{element.name}>{eol}"
                 )
 
     elif isinstance(element, list):
         for subelement in element:
-            xmltext += get_xml_tree(subelement, level,
-                                    indent_spaces=indent_spaces,
-                                    eol=eol,
-                                    include_comments=include_comments)
+            xmltext += get_xml_tree(
+                subelement,
+                level,
+                indent_spaces=indent_spaces,
+                eol=eol,
+                include_comments=include_comments,
+            )
         # recursive
 
     elif isinstance(element, XmlSimpleValue):
@@ -453,10 +485,12 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
     return xmltext
 
 
-def get_xml_document(root: XmlElement,
-                     indent_spaces: int = 4,
-                     eol: str = '\n',
-                     include_comments: bool = False) -> str:
+def get_xml_document(
+    root: XmlElement,
+    indent_spaces: int = 4,
+    eol: str = "\n",
+    include_comments: bool = False,
+) -> str:
     """
     Returns an entire XML document as text, given the root
     :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
@@ -468,11 +502,13 @@ def get_xml_document(root: XmlElement,
         include_comments: include comments describing each field?
     """
     if not isinstance(root, XmlElement):
-        raise AssertionError("get_xml_document: root not an XmlElement; "
-                             "XML requires a single root")
+        raise AssertionError(
+            "get_xml_document: root not an XmlElement; "
+            "XML requires a single root"
+        )
     return xml_header(eol) + get_xml_tree(
         root,
         indent_spaces=indent_spaces,
         eol=eol,
-        include_comments=include_comments
+        include_comments=include_comments,
     )

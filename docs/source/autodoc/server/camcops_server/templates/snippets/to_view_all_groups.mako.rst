@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/to_view_all_groups.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/to_view_all_groups.mako
-    :language: none
+    :language: html+mako

@@ -59,6 +59,7 @@ REGEX_WHITESPACE = re.compile(r"\s")
 # Conversion to/from quoted SQL values
 # =============================================================================
 
+
 def encode_single_value(v: Any, is_blob=False) -> str:
     """
     Encodes a value for incorporation into an SQL CSV value string.
@@ -174,10 +175,11 @@ def decode_values(valuelist: str) -> List[Any]:
 # Escape for HTML/XML
 # =============================================================================
 
+
 def br_html(text: str) -> str:
     r"""
     Filter that escapes text safely whilst also converting \n to <br>.
     """
     # https://stackoverflow.com/questions/2285507/converting-n-to-br-in-mako-files
     # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br
-    return escape(text).replace('\n', Markup('<br>'))
+    return escape(text).replace("\n", Markup("<br>"))

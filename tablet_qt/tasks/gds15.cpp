@@ -33,7 +33,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 15;
-const int MAX_SCORE = N_QUESTIONS;
+const int MAX_QUESTION_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
 const QString Gds15::GDS15_TABLENAME("gds15");
@@ -97,7 +97,7 @@ bool Gds15::isComplete() const
 
 QStringList Gds15::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

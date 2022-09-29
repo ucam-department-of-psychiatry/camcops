@@ -34,6 +34,7 @@ import glob
 import logging
 from typing import Dict, List
 import xml.etree.cElementTree as ElementTree
+
 # ... cElementTree is a faster implementation
 # ... http://docs.python.org/2/library/xml.etree.elementtree.html
 # ... http://effbot.org/zone/celementtree.htm
@@ -56,6 +57,7 @@ MISSING_LOCALE = ""
 # =============================================================================
 # XML helper functions
 # =============================================================================
+
 
 def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
     """
@@ -98,9 +100,9 @@ def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
         result = "".join(e.itertext())  # e.g. "words bold words words"
     else:
         result = (
-            (e.text or "") +
-            "".join(tostring(child, encoding="unicode") for child in e) +
-            (e.tail or "")
+            (e.text or "")
+            + "".join(tostring(child, encoding="unicode") for child in e)
+            + (e.tail or "")
         )
     if strip:
         return result.strip()
@@ -118,6 +120,7 @@ def text_contents(e: Element, plain: bool = False, strip: bool = True) -> str:
 # - and in principle even two different threads coming here may have different
 #   configs...
 # - ... that string requests need to be attached to a Pyramid Request.
+
 
 class AS(object):
     """
@@ -188,7 +191,8 @@ class AS(object):
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def all_extra_strings_as_dicts(
-        config_filename: str) -> Dict[str, Dict[str, Dict[str, str]]]:
+    config_filename: str,
+) -> Dict[str, Dict[str, Dict[str, str]]]:
     r"""
     Returns strings from the all the extra XML string files.
 
@@ -320,8 +324,10 @@ def all_extra_strings_as_dicts(
         filenames.extend(possibles)
     filenames = sorted(set(filenames))  # just unique ones
     if not filenames:
-        raise_runtime_error("No CamCOPS extra string files specified; "
-                            "config is misconfigured; aborting")
+        raise_runtime_error(
+            "No CamCOPS extra string files specified; "
+            "config is misconfigured; aborting"
+        )
     allstrings = {}  # type: Dict[str, Dict[str, Dict[str, str]]]
     for filename in filenames:
         log.info("Loading string XML file: {}", filename)
@@ -335,19 +341,24 @@ def all_extra_strings_as_dicts(
             # named 'name'"
             taskname = taskroot.attrib.get("name")
             locale = taskroot.attrib.get("locale", MISSING_LOCALE)
-            taskstrings = allstrings.setdefault(taskname, {})  # type: Dict[str, Dict[str, str]]  # noqa
+            taskstrings = allstrings.setdefault(
+                taskname, {}
+            )  # type: Dict[str, Dict[str, str]]  # noqa
             for e in taskroot.findall("./string[@name]"):
-                # ... "all elements with the tag 'string' that have an attribute
-                # named 'name'"
+                # ... "all elements with the tag 'string' that have an
+                # attribute named 'name'"
                 stringname = e.attrib.get("name")
                 final_string = text_contents(e)
                 final_string = unescape_newlines(final_string)
-                langversions = taskstrings.setdefault(stringname, {})  # type: Dict[str, str]  # noqa
+                langversions = taskstrings.setdefault(
+                    stringname, {}
+                )  # type: Dict[str, str]  # noqa
                 langversions[locale] = final_string
 
     if APPSTRING_TASKNAME not in allstrings:
         raise_runtime_error(
             "Extra string files do not contain core CamCOPS strings; "
-            "config is misconfigured; aborting")
+            "config is misconfigured; aborting"
+        )
 
     return allstrings

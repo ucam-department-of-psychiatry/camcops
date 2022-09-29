@@ -36,10 +36,12 @@ from camcops_server.cc_modules.cc_xml import XmlElement
 # Unit tests
 # =============================================================================
 
+
 class BlobTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_blob(self) -> None:
         self.announce("test_blob")
         q = self.dbsession.query(Blob)

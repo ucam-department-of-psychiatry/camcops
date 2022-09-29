@@ -29,7 +29,9 @@ camcops_server/cc_modules/cc_password.py
 
 """
 
-from camcops_server.cc_modules.cc_baseconstants import PROHIBITED_PASSWORDS_FILE  # noqa
+from camcops_server.cc_modules.cc_baseconstants import (
+    PROHIBITED_PASSWORDS_FILE,
+)
 
 
 def password_prohibited(password: str) -> bool:

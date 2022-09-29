@@ -48,6 +48,7 @@
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
 #include "tasks/chit.h"
+#include "tasks/cia.h"
 #include "tasks/cisr.h"
 #include "tasks/ciwa.h"
 #include "tasks/contactlog.h"
@@ -71,6 +72,7 @@
 #include "tasks/diagnosisicd10.h"
 #include "tasks/distressthermometer.h"
 
+#include "tasks/edeq.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
@@ -108,6 +110,8 @@
 #include "tasks/iesr.h"
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
+#include "tasks/isaaq.h"
+#include "tasks/isaaqed.h"
 
 #include "tasks/khandakerinsightmedical.h"
 #include "tasks/khandakermojomedical.h"
@@ -130,6 +134,7 @@
 #include "tasks/ors.h"
 
 #include "tasks/panss.h"
+#include "tasks/paradise24.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/pbq.h"
 #include "tasks/pcl5.h"
@@ -203,6 +208,7 @@ void InitTasks(TaskFactory& factory)
     initializeCgiI(factory);
     initializeCgiSch(factory);
     initializeChit(factory);
+    initializeCia(factory);
     initializeCisr(factory);
     initializeCiwa(factory);
     initializeContactLog(factory);
@@ -226,6 +232,7 @@ void InitTasks(TaskFactory& factory)
     initializeDiagnosisIcd10(factory);
     initializeDistressThermometer(factory);
 
+    initializeEdeq(factory);
     initializeElixhauserCI(factory);
     initializeEpds(factory);
     initializeEq5d5l(factory);
@@ -263,6 +270,8 @@ void InitTasks(TaskFactory& factory)
     initializeIesr(factory);
     initializeIfs(factory);
     initializeIrac(factory);
+    initializeIsaaq(factory);
+    initializeIsaaqEd(factory);
 
     initializeKhandakerInsightMedical(factory);
     initializeKhandakerMojoMedical(factory);
@@ -285,6 +294,7 @@ void InitTasks(TaskFactory& factory)
     initializeOrs(factory);
 
     initializePanss(factory);
+    initializeParadise24(factory);
     initializePatientSatisfaction(factory);
     initializePbq(factory);
     initializePcl5(factory);

@@ -38,7 +38,7 @@ import argparse
 import re
 import sys
 
-STRING_RE = re.compile('(<string .*>).*(</string>)', re.MULTILINE)
+STRING_RE = re.compile("(<string .*>).*(</string>)", re.MULTILINE)
 #                       ^^^^^^^^^^^^^  ^^^^^^^^^^^
 #                       capture 1      capture 2
 
@@ -53,14 +53,14 @@ def make_skeleton(xml_filename: str, replacement_text: str) -> str:
     """
     with open(xml_filename, "r") as file:
         original_content = file.read()
-    replacement_re = fr"\1{replacement_text}\2"
+    replacement_re = rf"\1{replacement_text}\2"
     skeleton = STRING_RE.sub(replacement_re, original_content)
     return skeleton
 
 
-def print_skeleton(xml_filename: str,
-                   replacement_text: str,
-                   outfile: TextIO) -> None:
+def print_skeleton(
+    xml_filename: str, replacement_text: str, outfile: TextIO
+) -> None:
     """
     Creates and prints the XML skeleton.
 
@@ -83,18 +83,19 @@ def main() -> None:
         "real but secret string file. Writes to stdout.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+    parser.add_argument("filename", type=str, help="Input filename")
     parser.add_argument(
-        "filename", type=str,
-        help="Input filename"
-    )
-    parser.add_argument(
-        "--replacement", type=str, default="XXX",
-        help="Replace string contents with this"
+        "--replacement",
+        type=str,
+        default="XXX",
+        help="Replace string contents with this",
     )
     args = parser.parse_args()
-    print_skeleton(xml_filename=args.filename,
-                   replacement_text=args.replacement,
-                   outfile=sys.stdout)
+    print_skeleton(
+        xml_filename=args.filename,
+        replacement_text=args.replacement,
+        outfile=sys.stdout,
+    )
 
 
 if __name__ == "__main__":

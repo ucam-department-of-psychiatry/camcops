@@ -680,6 +680,7 @@ SOURCES += \
     menu/clinicalmenu.cpp \
     menu/clinicalsetsmenu.cpp \
     menu/cognitivemenu.cpp \
+    menu/eatingdisordersmenu.cpp \
     menu/executivemenu.cpp \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
@@ -692,6 +693,7 @@ SOURCES += \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
     menu/setmenucpftadrd.cpp \
+    menu/setmenucpftadulteatingdisorders.cpp \
     menu/setmenucpftcovid.cpp \
     menu/setmenucpftperinatal.cpp \
     menu/setmenucpftpsychooncology.cpp \
@@ -770,6 +772,7 @@ SOURCES += \
     questionnairelib/qugridcell.cpp \
     questionnairelib/qugridcontainer.cpp \
     questionnairelib/quheading.cpp \
+    questionnairelib/quheight.cpp \
     questionnairelib/quhorizontalcontainer.cpp \
     questionnairelib/quhorizontalline.cpp \
     questionnairelib/quimage.cpp \
@@ -780,6 +783,7 @@ SOURCES += \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
     questionnairelib/qulineedituint64.cpp \
+    questionnairelib/qumass.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/qumcqgriddouble.cpp \
@@ -787,6 +791,7 @@ SOURCES += \
     questionnairelib/qumcqgridsignaller.cpp \
     questionnairelib/qumcqgridsingleboolean.cpp \
     questionnairelib/qumcqgridsinglebooleansignaller.cpp \
+    questionnairelib/qumeasurement.cpp \
     questionnairelib/qumultipleresponse.cpp \
     questionnairelib/qupage.cpp \
     questionnairelib/quphoto.cpp \
@@ -801,7 +806,9 @@ SOURCES += \
     questionnairelib/qutextedit.cpp \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
+    questionnairelib/quunitselector.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quwaist.cpp \
     questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
@@ -840,6 +847,7 @@ SOURCES += \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
     tasks/chit.cpp \
+    tasks/cia.cpp \
     tasks/cisr.cpp \
     tasks/ciwa.cpp \
     tasks/contactlog.cpp \
@@ -860,6 +868,7 @@ SOURCES += \
     tasks/diagnosisicd10.cpp \
     tasks/diagnosisicd9cm.cpp \
     tasks/distressthermometer.cpp \
+    tasks/edeq.cpp \
     tasks/elixhauserci.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
@@ -893,6 +902,8 @@ SOURCES += \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
+    tasks/isaaq.cpp \
+    tasks/isaaqed.cpp \
     tasks/khandakerinsightmedical.cpp \
     tasks/khandakermojomedical.cpp \
     tasks/khandakermojomedicationtherapy.cpp \
@@ -908,6 +919,7 @@ SOURCES += \
     tasks/npiq.cpp \
     tasks/ors.cpp \
     tasks/panss.cpp \
+    tasks/paradise24.cpp \
     tasks/patientsatisfaction.cpp \
     tasks/pbq.cpp \
     tasks/pcl5.cpp \
@@ -954,6 +966,7 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
+    taskxtra/isaaqcommon.cpp \
     taskxtra/khandakermojomedicationitem.cpp \
     taskxtra/khandakermojotherapyitem.cpp \
     taskxtra/kirbyrewardpair.cpp \
@@ -1154,6 +1167,7 @@ HEADERS += \
     menu/clinicalmenu.h \
     menu/clinicalsetsmenu.h \
     menu/cognitivemenu.h \
+    menu/eatingdisordersmenu.h \
     menu/executivemenu.h \
     menu/globalmenu.h \
     menu/helpmenu.h \
@@ -1166,6 +1180,7 @@ HEADERS += \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
     menu/setmenucpftadrd.h \
+    menu/setmenucpftadulteatingdisorders.h \
     menu/setmenucpftcovid.h \
     menu/setmenucpftperinatal.h \
     menu/setmenucpftpsychooncology.h \
@@ -1243,6 +1258,7 @@ HEADERS += \
     questionnairelib/qugridcell.h \
     questionnairelib/qugridcontainer.h \
     questionnairelib/quheading.h \
+    questionnairelib/quheight.h \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quhorizontalline.h \
     questionnairelib/quimage.h \
@@ -1253,6 +1269,7 @@ HEADERS += \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditnhsnumber.h \
     questionnairelib/qulineedituint64.h \
+    questionnairelib/qumass.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
@@ -1260,6 +1277,7 @@ HEADERS += \
     questionnairelib/qumcqgridsignaller.h \
     questionnairelib/qumcqgridsingleboolean.h \
     questionnairelib/qumcqgridsinglebooleansignaller.h \
+    questionnairelib/qumeasurement.h \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qupage.h \
     questionnairelib/quphoto.h \
@@ -1274,7 +1292,9 @@ HEADERS += \
     questionnairelib/qutextedit.h \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
+    questionnairelib/quunitselector.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quwaist.h \
     questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
@@ -1313,6 +1333,7 @@ HEADERS += \
     tasks/cgii.h \
     tasks/cgisch.h \
     tasks/chit.h \
+    tasks/cia.h \
     tasks/cisr.h \
     tasks/ciwa.h \
     tasks/contactlog.h \
@@ -1333,6 +1354,7 @@ HEADERS += \
     tasks/diagnosisicd10.h \
     tasks/diagnosisicd9cm.h \
     tasks/distressthermometer.h \
+    tasks/edeq.h \
     tasks/elixhauserci.h \
     tasks/epds.h \
     tasks/eq5d5l.h \
@@ -1366,6 +1388,8 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
+    tasks/isaaq.h \
+    tasks/isaaqed.h \
     tasks/khandakerinsightmedical.h \
     tasks/khandakermojomedical.h \
     tasks/khandakermojomedicationtherapy.h \
@@ -1381,6 +1405,7 @@ HEADERS += \
     tasks/npiq.h \
     tasks/ors.h \
     tasks/panss.h \
+    tasks/paradise24.h \
     tasks/patientsatisfaction.h \
     tasks/pbq.h \
     tasks/pcl5.h \
@@ -1427,6 +1452,7 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
+    taskxtra/isaaqcommon.h \
     taskxtra/khandakermojomedicationitem.h \
     taskxtra/khandakermojotherapyitem.h \
     taskxtra/kirbyrewardpair.h \

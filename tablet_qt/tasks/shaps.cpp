@@ -37,8 +37,8 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 14;
-const int MIN_SCORE = 0;
-const int MAX_SCORE = N_QUESTIONS;
+const int MIN_QUESTION_SCORE = 0;
+const int MAX_QUESTION_SCORE = N_QUESTIONS;
 
 const QString QPREFIX("q");
 
@@ -144,7 +144,7 @@ QStringList Shaps::summary() const
     };
     return QStringList{
         rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_SCORE, MAX_SCORE),
+                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
     };
 }
 

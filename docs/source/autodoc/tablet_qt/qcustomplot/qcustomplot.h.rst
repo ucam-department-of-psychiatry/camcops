@@ -26,4 +26,4 @@ tablet_qt/qcustomplot/qcustomplot.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qcustomplot/qcustomplot.h
-    :language: C
+    :language: none

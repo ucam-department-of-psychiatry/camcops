@@ -137,14 +137,18 @@ to users.
 Tables in the CamCOPS database
 ------------------------------
 
-Full details are available via the server’s option to view device definition
-language (DDL, a subset of SQL) for all tables. These are fully commented, for
-DDL dialects that support comments (try MySQL).
+Full details are available via the server’s option to :ref:`inspect table
+definitions <inspect_table_definitions>` for all tables. These are fully
+commented, for DDL dialects that support comments (try MySQL).
 
-Note in particular the following conventions
+Further details, including for fields created dynamically (e.g. :ref:`summary
+information <summary_fields>`) are available from the :ref:`task list
+<task_list>`.
 
-- Tables beginning with an underscore (`_`) are private to the server, i.e. data
-  is not uploaded into them.
+Note in particular the following conventions:
+
+- Tables beginning with an underscore (`_`) are private to the server, i.e.
+  data is not uploaded into them from clients.
 
 - Fields (columns) beginning with an underscore are added by the server.
 

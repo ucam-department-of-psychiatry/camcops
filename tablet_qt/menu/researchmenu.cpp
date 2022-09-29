@@ -30,6 +30,8 @@
 #include "tasks/chit.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/ided3d.h"
+#include "tasks/isaaq.h"
+#include "tasks/isaaqed.h"
 #include "tasks/kirby.h"
 #include "tasks/mfi20.h"
 #include "tasks/qolbasic.h"
@@ -75,6 +77,8 @@ void ResearchMenu::makeItems()
         ),
         MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Isaaq::ISAAQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(IsaaqEd::ISAAQED_TABLENAME, m_app),
     };
 }
 

@@ -52,39 +52,34 @@ from camcops_server.cc_modules.cc_task import (
 # Abstract base class
 # =============================================================================
 
+
 class AbstractSatisfaction(object):
     # noinspection PyMethodParameters
     @declared_attr
     def service(cls) -> Column:
         return Column(
-            "service", UnicodeText,
-            comment="Clinical service being rated"
+            "service", UnicodeText, comment="Clinical service being rated"
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def rating(cls) -> Column:
         return CamcopsColumn(
-            "rating", Integer,
+            "rating",
+            Integer,
             permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-            comment="Rating (0 very poor - 4 excellent)"
+            comment="Rating (0 very poor - 4 excellent)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def good(cls) -> Column:
-        return Column(
-            "good", UnicodeText,
-            comment="What has been good?"
-        )
+        return Column("good", UnicodeText, comment="What has been good?")
 
     # noinspection PyMethodParameters
     @declared_attr
     def bad(cls) -> Column:
-        return Column(
-            "bad", UnicodeText,
-            comment="What could be improved?"
-        )
+        return Column("bad", UnicodeText, comment="What could be improved?")
 
     TASK_FIELDS = ["service", "rating", "good", "bad"]
 
@@ -104,11 +99,9 @@ class AbstractSatisfaction(object):
         }
         return get_from_dict(ratingdict, self.rating)
 
-    def get_common_task_html(self,
-                             req: CamcopsRequest,
-                             rating_q: str,
-                             good_q: str,
-                             bad_q: str) -> str:
+    def get_common_task_html(
+        self, req: CamcopsRequest, rating_q: str, good_q: str, bad_q: str
+    ) -> str:
         if self.rating is not None:
             r = f"{self.rating}. {self.get_rating_text(req)}"
         else:
@@ -142,10 +135,12 @@ class AbstractSatisfaction(object):
 # PatientSatisfaction
 # =============================================================================
 
+
 class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
     """
     Server implementation of the PatientSatisfaction task.
     """
+
     __tablename__ = "pt_satis"
     shortname = "PatientSatisfaction"
     info_filename_stem = "pss"
@@ -160,7 +155,7 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
             req,
             req.wappstring(AS.SATIS_PT_RATING_Q),
             req.wappstring(AS.SATIS_GOOD_Q),
-            req.wappstring(AS.SATIS_BAD_Q)
+            req.wappstring(AS.SATIS_BAD_Q),
         )
 
 
@@ -168,10 +163,12 @@ class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
 # ReferrerSatisfactionGen
 # =============================================================================
 
+
 class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
     """
     Server implementation of the ReferrerSatisfactionSurvey task.
     """
+
     __tablename__ = "ref_satis_gen"
     shortname = "ReferrerSatisfactionSurvey"
     info_filename_stem = "rss"
@@ -186,7 +183,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
             req,
             req.wappstring(AS.SATIS_REF_GEN_RATING_Q),
             req.wappstring(AS.SATIS_GOOD_Q),
-            req.wappstring(AS.SATIS_BAD_Q)
+            req.wappstring(AS.SATIS_BAD_Q),
         )
 
 
@@ -194,11 +191,14 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 # ReferrerSatisfactionSpec
 # =============================================================================
 
-class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
-                               Task):
+
+class ReferrerSatisfactionSpec(
+    TaskHasPatientMixin, AbstractSatisfaction, Task
+):
     """
     Server implementation of the ReferrerSatisfactionSpecific task.
     """
+
     __tablename__ = "ref_satis_spec"
     shortname = "ReferrerSatisfactionSpecific"
     info_filename_stem = "rss"
@@ -213,5 +213,5 @@ class ReferrerSatisfactionSpec(TaskHasPatientMixin, AbstractSatisfaction,
             req,
             req.wappstring(AS.SATIS_REF_SPEC_RATING_Q),
             req.wappstring(AS.SATIS_GOOD_Q),
-            req.wappstring(AS.SATIS_BAD_Q)
+            req.wappstring(AS.SATIS_BAD_Q),
         )

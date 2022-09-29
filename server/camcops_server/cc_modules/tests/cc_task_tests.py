@@ -37,9 +37,7 @@ from pendulum import Date, DateTime as Pendulum
 from camcops_server.cc_modules.cc_dummy_database import DummyDataInserter
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
-from camcops_server.cc_modules.cc_validators import (
-    validate_task_tablename,
-)
+from camcops_server.cc_modules.cc_validators import validate_task_tablename
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -48,13 +46,16 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Unit testing
 # =============================================================================
 
+
 class TaskTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_query_phq9(self) -> None:
         self.announce("test_query_phq9")
         from camcops_server.tasks import Phq9
+
         phq9_query = self.dbsession.query(Phq9)
         results = phq9_query.all()
         log.info("{}", results)
@@ -67,11 +68,17 @@ class TaskTests(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F811
         from camcops_server.cc_modules.cc_patient import Patient  # noqa: F811
         from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-        from camcops_server.cc_modules.cc_snomed import SnomedExpression  # noqa: E501,F811
+        from camcops_server.cc_modules.cc_snomed import (  # noqa: F811
+            SnomedExpression,
+        )
         from camcops_server.cc_modules.cc_string import APPSTRING_TASKNAME
         from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-        from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F811
-        from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage  # noqa: E501,F811
+        from camcops_server.cc_modules.cc_trackerhelpers import (  # noqa: F811
+            TrackerInfo,
+        )
+        from camcops_server.cc_modules.cc_spreadsheet import (  # noqa: F811
+            SpreadsheetPage,
+        )
         from camcops_server.cc_modules.cc_xml import XmlElement
 
         subclasses = Task.all_subclasses_by_tablename()
@@ -101,8 +108,9 @@ class TaskTests(DemoDatabaseTestCase):
                 for ctvinfo in ctvlist:
                     self.assertIsInstance(ctvinfo, CtvInfo)
             for est in t.get_all_summary_tables(req):
-                self.assertIsInstance(est.get_spreadsheet_page(),
-                                      SpreadsheetPage)
+                self.assertIsInstance(
+                    est.get_spreadsheet_page(), SpreadsheetPage
+                )
                 self.assertIsInstance(est.get_xml_element(), XmlElement)
 
             self.assertIsInstance(t.has_patient, bool)
@@ -118,14 +126,18 @@ class TaskTests(DemoDatabaseTestCase):
             for fn in t.get_blob_fields():
                 self.assertIsInstance(fn, str)
 
-            self.assertIsInstance(t.pk, int)  # all our examples do have PKs  # noqa
+            self.assertIsInstance(
+                t.pk, int
+            )  # all our examples do have PKs  # noqa
             self.assertIsInstance(t.is_preserved(), bool)
             self.assertIsInstance(t.was_forcibly_preserved(), bool)
             self.assertIsInstanceOrNone(t.get_creation_datetime(), Pendulum)
             self.assertIsInstanceOrNone(
-                t.get_creation_datetime_utc(), Pendulum)
+                t.get_creation_datetime_utc(), Pendulum
+            )
             self.assertIsInstanceOrNone(
-                t.get_seconds_from_creation_to_first_finish(), float)
+                t.get_seconds_from_creation_to_first_finish(), float
+            )
 
             self.assertIsInstance(t.get_adding_user_id(), int)
             self.assertIsInstance(t.get_adding_user_username(), str)
@@ -157,16 +169,15 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.get_patient_surname(), str)
             dob = t.get_patient_dob()
             assert (
-                dob is None or
-                isinstance(dob, date) or
-                isinstance(dob, Date)
+                dob is None or isinstance(dob, date) or isinstance(dob, Date)
             )
             self.assertIsInstanceOrNone(t.get_patient_dob_first11chars(), str)
             self.assertIsInstance(t.get_patient_sex(), str)
             self.assertIsInstance(t.get_patient_address(), str)
             for idnum in t.get_patient_idnum_objects():
-                self.assertIsInstance(idnum.get_idnum_reference(),
-                                      IdNumReference)
+                self.assertIsInstance(
+                    idnum.get_idnum_reference(), IdNumReference
+                )
                 self.assertIsInstance(idnum.is_superficially_valid(), bool)
                 self.assertIsInstance(idnum.description(req), str)
                 self.assertIsInstance(idnum.short_description(req), str)
@@ -182,8 +193,7 @@ class TaskTests(DemoDatabaseTestCase):
 
             # FHIR
             self.assertIsInstance(
-                t.get_fhir_bundle(req, recipdef).as_json(),
-                dict
+                t.get_fhir_bundle(req, recipdef).as_json(), dict
             )  # the main test is not crashing!
 
             # Other properties
@@ -202,11 +212,13 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.get_pdf_html(req), str)
             self.assertIsInstance(t.suggested_pdf_filename(req), str)
             self.assertIsInstance(
-                t.get_rio_metadata(req,
-                                   which_idnum=1,
-                                   uploading_user_id=self.user.id,
-                                   document_type="some_doc_type"),
-                str
+                t.get_rio_metadata(
+                    req,
+                    which_idnum=1,
+                    uploading_user_id=self.user.id,
+                    document_type="some_doc_type",
+                ),
+                str,
             )
 
             # Help
@@ -214,14 +226,16 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertEqual(
                 urllib.request.urlopen(help_url).getcode(),
                 HttpStatus.OK,
-                msg=f"Task help not found at {help_url}"
+                msg=f"Task help not found at {help_url}",
             )
 
             # Special operations
-            t.apply_special_note(req, "Debug: Special note! (1)",
-                                 from_console=True)
-            t.apply_special_note(req, "Debug: Special note! (2)",
-                                 from_console=False)
+            t.apply_special_note(
+                req, "Debug: Special note! (1)", from_console=True
+            )
+            t.apply_special_note(
+                req, "Debug: Special note! (2)", from_console=False
+            )
             self.assertIsInstance(t.special_notes, list)
             t.cancel_from_export_log(req, from_console=True)
             t.cancel_from_export_log(req, from_console=False)

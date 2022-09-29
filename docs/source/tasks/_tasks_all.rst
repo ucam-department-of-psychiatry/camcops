@@ -58,6 +58,7 @@ All tasks
     cgi.rst
     cgisch.rst
     chit.rst
+    cia.rst
     cisr.rst
     ciwa.rst
     clinical.rst
@@ -73,6 +74,7 @@ All tasks
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
+    edeq.rst
     elixhauserci.rst
     epds.rst
     eq5d5l.rst
@@ -95,6 +97,8 @@ All tasks
     iesr.rst
     ifs.rst
     irac.rst
+    isaaq.rst
+    isaaqed.rst
     khandaker_insight_medical.rst
     khandaker_mojo.rst
     kirby_mcq.rst
@@ -109,6 +113,7 @@ All tasks
     npiq.rst
     ors.rst
     panss.rst
+    paradise24.rst
     pbq.rst
     pcl.rst
     pcl5.rst

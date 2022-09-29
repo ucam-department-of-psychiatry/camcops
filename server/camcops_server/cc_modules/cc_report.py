@@ -31,14 +31,25 @@ camcops_server/cc_modules/cc_report.py
 
 import logging
 from abc import ABC
-from typing import (Any, Callable, Dict, List, Optional, Sequence,
-                    Type, TYPE_CHECKING, Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
-    OdsResponse, TsvResponse, XlsxResponse,
+    OdsResponse,
+    TsvResponse,
+    XlsxResponse,
 )
 from deform.form import Form
 from pyramid.httpexceptions import HTTPBadRequest
@@ -72,7 +83,9 @@ if TYPE_CHECKING:
         ReportParamForm,
         ReportParamSchema,
     )
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+        CamcopsRequest,
+    )
     from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -82,12 +95,15 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Other constants
 # =============================================================================
 
+
 class PlainReportType(object):
     """
     Simple class to hold the results of a plain report.
     """
-    def __init__(self, rows: Sequence[Sequence[Any]],
-                 column_names: Sequence[str]) -> None:
+
+    def __init__(
+        self, rows: Sequence[Sequence[Any]], column_names: Sequence[str]
+    ) -> None:
         self.rows = rows
         self.column_names = column_names
 
@@ -95,6 +111,7 @@ class PlainReportType(object):
 # =============================================================================
 # Report class
 # =============================================================================
+
 
 class Report(object):
     """
@@ -170,8 +187,9 @@ class Report(object):
         """
         return []
 
-    def get_query(self, req: "CamcopsRequest") \
-            -> Union[None, SelectBase, Query]:
+    def get_query(
+        self, req: "CamcopsRequest"
+    ) -> Union[None, SelectBase, Query]:
         """
         Overriding this function is one way of providing a report. (The other
         is :func:`get_rows_colnames`.)
@@ -183,8 +201,9 @@ class Report(object):
         """
         return None
 
-    def get_rows_colnames(self, req: "CamcopsRequest") \
-            -> Optional[PlainReportType]:
+    def get_rows_colnames(
+        self, req: "CamcopsRequest"
+    ) -> Optional[PlainReportType]:
         """
         Overriding this function is one way of providing a report. (The other
         is :func:`get_query`.)
@@ -203,7 +222,10 @@ class Report(object):
         extensive one (an example being in
         :class:`camcops_server.tasks.diagnosis.DiagnosisFinderReportBase`.
         """
-        from camcops_server.cc_modules.cc_forms import ReportParamSchema  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_forms import (
+            ReportParamSchema,
+        )  # delayed import
+
         return ReportParamSchema
 
     def get_form(self, req: "CamcopsRequest") -> Form:
@@ -212,7 +234,10 @@ class Report(object):
         suffices, and it will use the schema specified in
         :func:`get_paramform_schema_class`.
         """
-        from camcops_server.cc_modules.cc_forms import ReportParamForm  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_forms import (  # noqa: F811
+            ReportParamForm,
+        )  # delayed import
+
         schema_class = self.get_paramform_schema_class()
         return ReportParamForm(request=req, schema_class=schema_class)
 
@@ -246,9 +271,7 @@ class Report(object):
                 query.
         """
         # noinspection PyPep8
-        wheres.append(
-            column(FN_CURRENT) == True  # noqa: E712
-        )
+        wheres.append(column(FN_CURRENT) == True)  # noqa: E712
 
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
@@ -264,7 +287,7 @@ class Report(object):
         classes = all_subclasses(cls)  # type: List[Type["Report"]]
         instantiated_report_classes = []  # type: List[Type["Report"]]
         for reportcls in classes:
-            if reportcls.__name__ == 'TestReport':
+            if reportcls.__name__ == "TestReport":
                 continue
 
             try:
@@ -306,8 +329,9 @@ class Report(object):
         # Ah, no... that fails with pagination of reports. Let's redirect
         # things to the HTTP query, as for trackers/audit!
 
-        viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML,
-                                     lower=True)
+        viewtype = req.get_str_param(
+            ViewParam.VIEWTYPE, ViewArg.HTML, lower=True
+        )
         # Run the report (which may take additional parameters from the
         # request)
         # Serve the result
@@ -326,22 +350,23 @@ class Report(object):
         raise HTTPBadRequest("Bad viewtype")
 
     def render_html(self, req: "CamcopsRequest") -> Response:
-        rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
-                                          DEFAULT_ROWS_PER_PAGE)
+        rows_per_page = req.get_int_param(
+            ViewParam.ROWS_PER_PAGE, DEFAULT_ROWS_PER_PAGE
+        )
         page_num = req.get_int_param(ViewParam.PAGE, 1)
 
         plain_report = self._get_plain_report(req)
 
-        page = CamcopsPage(collection=plain_report.rows,
-                           page=page_num,
-                           items_per_page=rows_per_page,
-                           url_maker=PageUrl(req),
-                           request=req)
+        page = CamcopsPage(
+            collection=plain_report.rows,
+            page=page_num,
+            items_per_page=rows_per_page,
+            url_maker=PageUrl(req),
+            request=req,
+        )
 
         return self.render_single_page_html(
-            req=req,
-            column_names=plain_report.column_names,
-            page=page
+            req=req, column_names=plain_report.column_names, page=page
         )
 
     def render_tsv(self, req: "CamcopsRequest") -> TsvResponse:
@@ -367,28 +392,30 @@ class Report(object):
 
         return OdsResponse(body=content, filename=filename)
 
-    def get_spreadsheet_collection(self, req: "CamcopsRequest") \
-            -> SpreadsheetCollection:
+    def get_spreadsheet_collection(
+        self, req: "CamcopsRequest"
+    ) -> SpreadsheetCollection:
         coll = SpreadsheetCollection()
         coll.add_pages(self.get_spreadsheet_pages(req))
 
         return coll
 
-    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
-            -> List[SpreadsheetPage]:
+    def get_spreadsheet_pages(
+        self, req: "CamcopsRequest"
+    ) -> List[SpreadsheetPage]:
         plain_report = self._get_plain_report(req)
 
         page = self.get_spreadsheet_page(
             name=self.title(req),
             column_names=plain_report.column_names,
-            rows=plain_report.rows
+            rows=plain_report.rows,
         )
         return [page]
 
     @staticmethod
-    def get_spreadsheet_page(name: str,
-                             column_names: Sequence[str],
-                             rows: Sequence[Sequence[Any]]) -> SpreadsheetPage:
+    def get_spreadsheet_page(
+        name: str, column_names: Sequence[str], rows: Sequence[Sequence[Any]]
+    ) -> SpreadsheetPage:
         keyed_rows = [dict(zip(column_names, r)) for r in rows]
         page = SpreadsheetPage(name=name, rows=keyed_rows)
 
@@ -396,9 +423,9 @@ class Report(object):
 
     def get_filename(self, req: "CamcopsRequest", viewtype: str) -> str:
         extension_dict = {
-            ViewArg.ODS: 'ods',
-            ViewArg.TSV: 'tsv',
-            ViewArg.XLSX: 'xlsx',
+            ViewArg.ODS: "ods",
+            ViewArg.TSV: "tsv",
+            ViewArg.XLSX: "xlsx",
         }
 
         if viewtype not in extension_dict:
@@ -407,18 +434,20 @@ class Report(object):
         extension = extension_dict.get(viewtype)
 
         return (
-            "CamCOPS_" +
-            self.report_id +
-            "_" +
-            format_datetime(req.now, DateFormat.FILENAME) +
-            "." +
-            extension
+            "CamCOPS_"
+            + self.report_id
+            + "_"
+            + format_datetime(req.now, DateFormat.FILENAME)
+            + "."
+            + extension
         )
 
-    def render_single_page_html(self,
-                                req: "CamcopsRequest",
-                                column_names: Sequence[str],
-                                page: CamcopsPage) -> Response:
+    def render_single_page_html(
+        self,
+        req: "CamcopsRequest",
+        column_names: Sequence[str],
+        page: CamcopsPage,
+    ) -> Response:
         """
         Converts a paginated report into an HTML response.
 
@@ -426,11 +455,13 @@ class Report(object):
         """
         return render_to_response(
             self.template_name,
-            dict(title=self.title(req),
-                 page=page,
-                 column_names=column_names,
-                 report_id=self.report_id),
-            request=req
+            dict(
+                title=self.title(req),
+                page=page,
+                column_names=column_names,
+                report_id=self.report_id,
+            ),
+            request=req,
         )
 
     def _get_plain_report(self, req: "CamcopsRequest") -> PlainReportType:
@@ -445,14 +476,16 @@ class Report(object):
             column_names = rp.keys()
             rows = rp.fetchall()
 
-            plain_report = PlainReportType(rows=rows,
-                                           column_names=column_names)
+            plain_report = PlainReportType(
+                rows=rows, column_names=column_names
+            )
         else:
             plain_report = self.get_rows_colnames(req)
             if plain_report is None:
                 raise NotImplementedError(
                     "Report did not implement either of get_query()"
-                    " or get_rows_colnames()")
+                    " or get_rows_colnames()"
+                )
 
         return plain_report
 
@@ -461,16 +494,19 @@ class PercentageSummaryReportMixin(object):
     """
     Mixin to be used with :class:`Report`.
     """
+
     @classproperty
     def task_class(self) -> Type["Task"]:
         raise NotImplementedError("implement in subclass")
 
-    def get_percentage_summaries(self,
-                                 req: "CamcopsRequest",
-                                 column_dict: Dict[str, str],
-                                 num_answers: int,
-                                 cell_format: str = "{}",
-                                 min_answer: int = 0) -> List[List[str]]:
+    def get_percentage_summaries(
+        self,
+        req: "CamcopsRequest",
+        column_dict: Dict[str, str],
+        num_answers: int,
+        cell_format: str = "{}",
+        min_answer: int = 0,
+    ) -> List[List[str]]:
         """
         Provides a summary of each question, x% of people said each response.
         """
@@ -480,9 +516,7 @@ class PercentageSummaryReportMixin(object):
             """
             e.g. SELECT COUNT(col) FROM perinatal_poem WHERE col IS NOT NULL
             """
-            wheres = [
-                column(column_name).isnot(None)
-            ]
+            wheres = [column(column_name).isnot(None)]
 
             # noinspection PyUnresolvedReferences
             self.add_task_report_filters(wheres)
@@ -506,10 +540,12 @@ class PercentageSummaryReportMixin(object):
             """
             # noinspection PyUnresolvedReferences
             query = (
-                select([
-                    column(column_name),
-                    ((100 * func.count(column_name))/total_responses)
-                ])
+                select(
+                    [
+                        column(column_name),
+                        ((100 * func.count(column_name)) / total_responses),
+                    ]
+                )
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))
                 .group_by(column_name)
@@ -537,7 +573,10 @@ class DateTimeFilteredReportMixin(object):
 
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
-        from camcops_server.cc_modules.cc_forms import DateTimeFilteredReportParamSchema  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_forms import (
+            DateTimeFilteredReportParamSchema,
+        )  # delayed import
+
         return DateTimeFilteredReportParamSchema
 
     @classmethod
@@ -550,12 +589,10 @@ class DateTimeFilteredReportMixin(object):
 
     def get_response(self, req: "CamcopsRequest") -> Response:
         self.start_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.START_DATETIME),
-            DateFormat.ERA
+            req.get_datetime_param(ViewParam.START_DATETIME), DateFormat.ERA
         )
         self.end_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.END_DATETIME),
-            DateFormat.ERA
+            req.get_datetime_param(ViewParam.END_DATETIME), DateFormat.ERA
         )
 
         # noinspection PyUnresolvedReferences
@@ -579,26 +616,25 @@ class DateTimeFilteredReportMixin(object):
         super().add_task_report_filters(wheres)
 
         if self.start_datetime is not None:
-            wheres.append(
-                column(TFN_WHEN_CREATED) >= self.start_datetime
-            )
+            wheres.append(column(TFN_WHEN_CREATED) >= self.start_datetime)
 
         if self.end_datetime is not None:
-            wheres.append(
-                column(TFN_WHEN_CREATED) < self.end_datetime
-            )
+            wheres.append(column(TFN_WHEN_CREATED) < self.end_datetime)
 
 
 class ScoreDetails(object):
     """
     Represents a type of score whose progress we want to track over time.
     """
-    def __init__(self,
-                 name: str,
-                 scorefunc: Callable[["Task"], Union[None, int, float]],
-                 minimum: int,
-                 maximum: int,
-                 higher_score_is_better: bool = False) -> None:
+
+    def __init__(
+        self,
+        name: str,
+        scorefunc: Callable[["Task"], Union[None, int, float]],
+        minimum: int,
+        maximum: int,
+        higher_score_is_better: bool = False,
+    ) -> None:
         """
         Args:
             name:
@@ -620,9 +656,9 @@ class ScoreDetails(object):
         self.maximum = maximum
         self.higher_score_is_better = higher_score_is_better
 
-    def calculate_improvement(self,
-                              first_score: float,
-                              latest_score: float) -> float:
+    def calculate_improvement(
+        self, first_score: float, latest_score: float
+    ) -> float:
         """
         Improvement is positive.
 
@@ -639,6 +675,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
     """
     Used by MAAS, CORE-10 and PBQ to report average scores and progress
     """
+
     template_name = "average_score_report.mako"
 
     def __init__(self, *args, via_index: bool = True, **kwargs) -> None:
@@ -659,16 +696,12 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
     # noinspection PyMethodParameters
     @classproperty
     def task_class(cls) -> Type["Task"]:
-        raise NotImplementedError(
-            "Report did not implement task_class"
-        )
+        raise NotImplementedError("Report did not implement task_class")
 
     # noinspection PyMethodParameters
     @classmethod
     def scoretypes(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
-        raise NotImplementedError(
-            "Report did not implement 'scoretypes'"
-        )
+        raise NotImplementedError("Report did not implement 'scoretypes'")
 
     @staticmethod
     def no_data_value() -> Any:
@@ -684,15 +717,18 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
         pages = self.get_spreadsheet_pages(req)
         return render_to_response(
             self.template_name,
-            dict(title=self.title(req),
-                 mainpage=pages[0],
-                 datepage=pages[1],
-                 report_id=self.report_id),
-            request=req
+            dict(
+                title=self.title(req),
+                mainpage=pages[0],
+                datepage=pages[1],
+                report_id=self.report_id,
+            ),
+            request=req,
         )
 
-    def get_spreadsheet_pages(self, req: "CamcopsRequest") \
-            -> List[SpreadsheetPage]:
+    def get_spreadsheet_pages(
+        self, req: "CamcopsRequest"
+    ) -> List[SpreadsheetPage]:
         """
         We use an SQLAlchemy ORM, rather than Core, method. Why?
 
@@ -706,7 +742,9 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
             TaskCollection,
             task_when_created_sorter,
         )  # delayed import
-        from camcops_server.cc_modules.cc_taskfilter import TaskFilter  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_taskfilter import (
+            TaskFilter,
+        )  # delayed import
 
         # Which tasks?
         taskfilter = TaskFilter()
@@ -762,7 +800,8 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
                     lastscore = scoretype.scorefunc(last)
                     sum_last_by_score[scoreidx] += lastscore
                     improvement = scoretype.calculate_improvement(
-                        firstscore, lastscore)
+                        firstscore, lastscore
+                    )
                     sum_improvement_by_score[scoreidx] += improvement
 
         # Format output
@@ -797,14 +836,12 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
 
         # Create and return report
         mainpage = self.get_spreadsheet_page(
-            name=self.title(req),
-            column_names=column_names,
-            rows=[row]
+            name=self.title(req), column_names=column_names, rows=[row]
         )
         datepage = self.get_spreadsheet_page(
             name=_("Date filters"),
             column_names=[_("Start date"), _("End date")],
-            rows=[[str(self.start_datetime), str(self.end_datetime)]]
+            rows=[[str(self.start_datetime), str(self.end_datetime)]],
         )
         return [mainpage, datepage]
 
@@ -812,6 +849,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
 # =============================================================================
 # Report framework
 # =============================================================================
+
 
 def get_all_report_classes(req: "CamcopsRequest") -> List[Type["Report"]]:
     """

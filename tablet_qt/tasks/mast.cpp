@@ -36,7 +36,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 24;
-const int MAX_SCORE = 53;
+const int MAX_QUESTION_SCORE = 53;
 const QString QPREFIX("q");
 
 const QString Mast::MAST_TABLENAME("mast");
@@ -95,7 +95,7 @@ bool Mast::isComplete() const
 
 QStringList Mast::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

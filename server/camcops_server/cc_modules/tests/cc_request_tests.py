@@ -70,8 +70,9 @@ class RequestTests(DemoRequestTestCase):
     def test_language_iso_639_1_returns_default_if_no_user(self) -> None:
         self.req._debugging_user = None
 
-        self.assertEqual(self.req.language_iso_639_1,
-                         self.DEFAULT_LANGUAGE_ISO_639_1)
+        self.assertEqual(
+            self.req.language_iso_639_1, self.DEFAULT_LANGUAGE_ISO_639_1
+        )
 
     def test_language_iso_639_1_returns_users_if_set(self) -> None:
         self.req._debugging_user = mock.Mock(language="en_GB")
@@ -81,11 +82,15 @@ class RequestTests(DemoRequestTestCase):
     def test_language_iso_639_1_returns_default_if_users_not_set(self) -> None:
         self.req._debugging_user = mock.Mock(language=None)
 
-        self.assertEqual(self.req.language_iso_639_1,
-                         self.DEFAULT_LANGUAGE_ISO_639_1)
+        self.assertEqual(
+            self.req.language_iso_639_1, self.DEFAULT_LANGUAGE_ISO_639_1
+        )
 
-    def test_language_iso_639_1_returns_default_if_users_not_valid(self) -> None:  # noqa: E501
+    def test_language_iso_639_1_returns_default_if_users_not_valid(
+        self,
+    ) -> None:
         self.req._debugging_user = mock.Mock(language="d")
 
-        self.assertEqual(self.req.language_iso_639_1,
-                         self.DEFAULT_LANGUAGE_ISO_639_1)
+        self.assertEqual(
+            self.req.language_iso_639_1, self.DEFAULT_LANGUAGE_ISO_639_1
+        )

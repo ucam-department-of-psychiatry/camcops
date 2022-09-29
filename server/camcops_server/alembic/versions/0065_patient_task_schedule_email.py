@@ -47,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0065'
-down_revision = '0064'
+revision = "0065"
+down_revision = "0064"
 branch_labels = None
 depends_on = None
 
@@ -60,32 +60,47 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     op.create_table(
-        '_patient_task_schedule_email',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False,
-                  comment='Arbitrary primary key'),
-        sa.Column('patient_task_schedule_id', sa.Integer(), nullable=False,
-                  comment='FK to _patient_task_schedule.id'),
-        sa.Column('email_id', sa.BigInteger(), nullable=False,
-                  comment='FK to _emails.id'),
+        "_patient_task_schedule_email",
+        sa.Column(
+            "id",
+            sa.Integer(),
+            autoincrement=True,
+            nullable=False,
+            comment="Arbitrary primary key",
+        ),
+        sa.Column(
+            "patient_task_schedule_id",
+            sa.Integer(),
+            nullable=False,
+            comment="FK to _patient_task_schedule.id",
+        ),
+        sa.Column(
+            "email_id",
+            sa.BigInteger(),
+            nullable=False,
+            comment="FK to _emails.id",
+        ),
         sa.ForeignKeyConstraint(
-            ['email_id'], ['_emails.id'],
-            name=op.f('fk__patient_task_schedule_email_email_id')),
+            ["email_id"],
+            ["_emails.id"],
+            name=op.f("fk__patient_task_schedule_email_email_id"),
+        ),
         sa.ForeignKeyConstraint(
-            ['patient_task_schedule_id'],
-            ['_patient_task_schedule.id'],
+            ["patient_task_schedule_id"],
+            ["_patient_task_schedule.id"],
             name=op.f(
-                'fk__patient_task_schedule_email_patient_task_schedule_id'
-            )
+                "fk__patient_task_schedule_email_patient_task_schedule_id"
+            ),
         ),
         sa.PrimaryKeyConstraint(
-            'id', name=op.f('pk__patient_task_schedule_email')
+            "id", name=op.f("pk__patient_task_schedule_email")
         ),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
+        mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
+        mysql_engine="InnoDB",
+        mysql_row_format="DYNAMIC",
     )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    op.drop_table('_patient_task_schedule_email')
+    op.drop_table("_patient_task_schedule_email")

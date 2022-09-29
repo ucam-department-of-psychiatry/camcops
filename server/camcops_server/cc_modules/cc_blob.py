@@ -61,13 +61,12 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     RelationshipInfo,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_xml import (
-    get_xml_blob_element,
-    XmlElement,
-)
+from camcops_server.cc_modules.cc_xml import get_xml_blob_element, XmlElement
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import (
+        CamcopsRequest,  # noqa: F401
+    )
     from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -87,62 +86,68 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Blob class
 # =============================================================================
 
+
 class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
     """
     Class representing a binary large object (BLOB).
 
     Has helper functions for PNG image processing.
     """
+
     __tablename__ = "blobs"
     id = Column(
-        "id", Integer,
+        "id",
+        Integer,
         nullable=False,
         comment="BLOB (binary large object) primary key on the source "
-                "tablet device"
+        "tablet device",
     )
     tablename = Column(
-        "tablename", TableNameColType,
+        "tablename",
+        TableNameColType,
         nullable=False,
-        comment="Name of the table referring to this BLOB"
+        comment="Name of the table referring to this BLOB",
     )
     tablepk = Column(
-        "tablepk", Integer,
+        "tablepk",
+        Integer,
         nullable=False,
         comment="Client-perspective primary key (id field) of the row "
-                "referring to this BLOB"
+        "referring to this BLOB",
     )
     fieldname = Column(
-        "fieldname", TableNameColType,
+        "fieldname",
+        TableNameColType,
         nullable=False,
-        comment="Field name of the field referring to this BLOB by ID"
+        comment="Field name of the field referring to this BLOB by ID",
     )
     filename = CamcopsColumn(
-        "filename", Text,  # Text is correct; filenames can be long
+        "filename",
+        Text,  # Text is correct; filenames can be long
         exempt_from_anonymisation=True,
         comment="Filename of the BLOB on the source tablet device (on "
-                "the source device, BLOBs are stored in files, not in "
-                "the database)"
+        "the source device, BLOBs are stored in files, not in "
+        "the database)",
     )
     mimetype = Column(
-        "mimetype", MimeTypeColType,
-        comment="MIME type of the BLOB"
+        "mimetype", MimeTypeColType, comment="MIME type of the BLOB"
     )
     image_rotation_deg_cw = Column(
-        "image_rotation_deg_cw", Integer,
-        comment="For images: rotation to be applied, clockwise, in degrees"
+        "image_rotation_deg_cw",
+        Integer,
+        comment="For images: rotation to be applied, clockwise, in degrees",
     )
     theblob = Column(
-        "theblob", LongBlob,
+        "theblob",
+        LongBlob,
         comment="The BLOB itself, a binary object containing arbitrary "
-                "information (such as a picture)"
+        "information (such as a picture)",
     )  # type: Optional[bytes]
 
     @classmethod
-    def get_current_blob_by_client_info(cls,
-                                        dbsession: SqlASession,
-                                        device_id: int,
-                                        clientpk: int,
-                                        era: str) -> Optional['Blob']:
+    def get_current_blob_by_client_info(
+        cls, dbsession: SqlASession, device_id: int, clientpk: int, era: str
+    ) -> Optional["Blob"]:
         """
         Returns the current Blob object, or None.
         """
@@ -159,14 +164,14 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
 
     @classmethod
     def get_contemporaneous_blob_by_client_info(
-            cls,
-            dbsession: SqlASession,
-            device_id: int,
-            clientpk: int,
-            era: str,
-            referrer_added_utc: Pendulum,
-            referrer_removed_utc: Optional[Pendulum]) \
-            -> Optional['Blob']:
+        cls,
+        dbsession: SqlASession,
+        device_id: int,
+        clientpk: int,
+        era: str,
+        referrer_added_utc: Pendulum,
+        referrer_removed_utc: Optional[Pendulum],
+    ) -> Optional["Blob"]:
         """
         Returns a contemporaneous Blob object, or None.
 
@@ -216,16 +221,18 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         Returns an :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         representing this BLOB.
         """
-        options = TaskExportOptions(xml_skip_fields=["theblob"],
-                                    xml_include_plain_columns=True,
-                                    include_blobs=False)
+        options = TaskExportOptions(
+            xml_skip_fields=["theblob"],
+            xml_include_plain_columns=True,
+            include_blobs=False,
+        )
         branches = self._get_xml_branches(req, options)
         blobdata = self._get_xml_theblob_value_binary()
-        branches.append(get_xml_blob_element(
-            name="theblob",
-            blobdata=blobdata,
-            comment=Blob.theblob.comment
-        ))
+        branches.append(
+            get_xml_blob_element(
+                name="theblob", blobdata=blobdata, comment=Blob.theblob.comment
+            )
+        )
         return XmlElement(name=self.__tablename__, value=branches)
 
     def _get_xml_theblob_value_binary(self) -> Optional[bytes]:
@@ -252,7 +259,10 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         return None
 
     def task_ancestor(self) -> Optional["Task"]:
-        from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict  # noqa  # delayed import
+        from camcops_server.cc_modules.cc_task import (
+            tablename_to_task_class_dict,
+        )  # noqa  # delayed import
+
         d = tablename_to_task_class_dict()
         try:
             cls = d[self.tablename]  # may raise KeyError
@@ -265,9 +275,10 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
 # Relationships
 # =============================================================================
 
-def blob_relationship(classname: str,
-                      blob_id_col_attr_name: str,
-                      read_only: bool = True) -> RelationshipProperty:
+
+def blob_relationship(
+    classname: str, blob_id_col_attr_name: str, read_only: bool = True
+) -> RelationshipProperty:
     """
     Simplifies creation of BLOB relationships.
     In a class definition, use like this:
@@ -306,16 +317,11 @@ def blob_relationship(classname: str,
             " remote(Blob._device_id) == foreign({cls}._device_id), "
             " remote(Blob._era) == foreign({cls}._era), "
             " remote(Blob._current) == True "
-            ")".format(
-                cls=classname,
-                fk=blob_id_col_attr_name
-            )
+            ")".format(cls=classname, fk=blob_id_col_attr_name)
         ),
         uselist=False,
         viewonly=read_only,
-        info={
-            RelationshipInfo.IS_BLOB: True,
-        },
+        info={RelationshipInfo.IS_BLOB: True},
     )
 
 
@@ -323,8 +329,10 @@ def blob_relationship(classname: str,
 # Unit tests
 # =============================================================================
 
-def get_blob_img_html(blob: Optional[Blob],
-                      html_if_missing: str = "<i>(No picture)</i>") -> str:
+
+def get_blob_img_html(
+    blob: Optional[Blob], html_if_missing: str = "<i>(No picture)</i>"
+) -> str:
     """
     For the specified BLOB, get an HTML IMG tag with embedded data, or an HTML
     error message.

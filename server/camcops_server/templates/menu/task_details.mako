@@ -1,4 +1,4 @@
-!## -*- coding: utf-8 -*-
+## -*- coding: utf-8 -*-
 <%doc>
 
 camcops_server/templates/menu/task_details.mako

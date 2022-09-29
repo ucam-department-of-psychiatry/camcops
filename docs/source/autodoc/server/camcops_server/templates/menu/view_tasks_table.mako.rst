@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/view_tasks_table.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/view_tasks_table.mako
-    :language: none
+    :language: html+mako

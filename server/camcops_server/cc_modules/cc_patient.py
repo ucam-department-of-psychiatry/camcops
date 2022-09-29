@@ -31,7 +31,15 @@ camcops_server/cc_modules/cc_patient.py
 
 import logging
 from typing import (
-    Any, Dict, Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union,
+    Any,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    TYPE_CHECKING,
+    Union,
 )
 import uuid
 
@@ -134,72 +142,81 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Patient class
 # =============================================================================
 
+
 class Patient(GenericTabletRecordMixin, Base):
     """
     Class representing a patient.
     """
+
     __tablename__ = "patient"
 
     id = Column(
-        TABLET_ID_FIELD, Integer,
+        TABLET_ID_FIELD,
+        Integer,
         nullable=False,
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
     )
     uuid = CamcopsColumn(
-        PFN_UUID, UuidColType,
+        PFN_UUID,
+        UuidColType,
         comment="UUID",
-        default=uuid.uuid4  # generates a random UUID
+        default=uuid.uuid4,  # generates a random UUID
     )  # type: Optional[uuid.UUID]
     forename = CamcopsColumn(
-        "forename", PatientNameColType,
+        "forename",
+        PatientNameColType,
         index=True,
-        identifies_patient=True, include_in_anon_staging_db=True,
-        comment="Forename"
+        identifies_patient=True,
+        include_in_anon_staging_db=True,
+        comment="Forename",
     )  # type: Optional[str]
     surname = CamcopsColumn(
-        "surname", PatientNameColType,
+        "surname",
+        PatientNameColType,
         index=True,
-        identifies_patient=True, include_in_anon_staging_db=True,
-        comment="Surname"
+        identifies_patient=True,
+        include_in_anon_staging_db=True,
+        comment="Surname",
     )  # type: Optional[str]
     dob = CamcopsColumn(
-        "dob", sqltypes.Date,  # verified: merge_db handles this correctly
+        "dob",
+        sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,
-        identifies_patient=True, include_in_anon_staging_db=True,
+        identifies_patient=True,
+        include_in_anon_staging_db=True,
         comment="Date of birth"
         # ... e.g. "2013-02-04"
     )
     sex = CamcopsColumn(
-        "sex", SexColType,
+        "sex",
+        SexColType,
         index=True,
         include_in_anon_staging_db=True,
-        comment="Sex (M, F, X)"
+        comment="Sex (M, F, X)",
     )
     address = CamcopsColumn(
-        "address", UnicodeText,
-        identifies_patient=True,
-        comment="Address"
+        "address", UnicodeText, identifies_patient=True, comment="Address"
     )
     email = CamcopsColumn(
-        "email", EmailAddressColType,
+        "email",
+        EmailAddressColType,
         identifies_patient=True,
-        comment="Patient's e-mail address"
+        comment="Patient's e-mail address",
     )
     gp = CamcopsColumn(
-        "gp", UnicodeText,
+        "gp",
+        UnicodeText,
         identifies_patient=True,
-        comment="General practitioner (GP)"
+        comment="General practitioner (GP)",
     )
     other = CamcopsColumn(
-        "other", UnicodeText,
-        identifies_patient=True,
-        comment="Other details"
+        "other", UnicodeText, identifies_patient=True, comment="Other details"
     )
     idnums = relationship(
-        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
-        # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
-        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
+        # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
         "PatientIdNum",
         primaryjoin=(
             "and_("
@@ -218,13 +235,11 @@ class Patient(GenericTabletRecordMixin, Base):
         # lazy="subquery": 15.2s (31.0s when task-patient also subquery)
         # lazy="selectin": 26.4s
         # See also patient relationship on Task class (cc_task.py)
-        lazy="subquery"
+        lazy="subquery",
     )  # type: List[PatientIdNum]
 
     task_schedules = relationship(
-        "PatientTaskSchedule",
-        back_populates="patient",
-        cascade="all, delete"
+        "PatientTaskSchedule", back_populates="patient", cascade="all, delete"
     )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -282,9 +297,7 @@ class Patient(GenericTabletRecordMixin, Base):
                 " remote(SpecialNote.device_id) == foreign(Patient._device_id), "  # noqa
                 " remote(SpecialNote.era) == foreign(Patient._era), "
                 " not_(SpecialNote.hidden)"
-                ")".format(
-                    repr_patient_tablename=repr(cls.__tablename__),
-                )
+                ")".format(repr_patient_tablename=repr(cls.__tablename__))
             ),
             uselist=True,
             order_by="SpecialNote.note_at",
@@ -296,12 +309,14 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_patients_by_idnum(cls,
-                              dbsession: SqlASession,
-                              which_idnum: int,
-                              idnum_value: int,
-                              group_id: int = None,
-                              current_only: bool = True) -> List['Patient']:
+    def get_patients_by_idnum(
+        cls,
+        dbsession: SqlASession,
+        which_idnum: int,
+        idnum_value: int,
+        group_id: int = None,
+        current_only: bool = True,
+    ) -> List["Patient"]:
         """
         Get all patients matching the specified ID number.
 
@@ -322,7 +337,7 @@ class Patient(GenericTabletRecordMixin, Base):
             return []
         q = dbsession.query(cls).join(cls.idnums)
         # ... the join pre-restricts to current ID numbers
-        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#using-custom-operators-in-join-conditions  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#using-custom-operators-in-join-conditions  # noqa
         q = q.filter(PatientIdNum.which_idnum == which_idnum)
         q = q.filter(PatientIdNum.idnum_value == idnum_value)
         if group_id is not None:
@@ -333,18 +348,18 @@ class Patient(GenericTabletRecordMixin, Base):
         return patients
 
     @classmethod
-    def get_patient_by_pk(cls, dbsession: SqlASession,
-                          server_pk: int) -> Optional["Patient"]:
+    def get_patient_by_pk(
+        cls, dbsession: SqlASession, server_pk: int
+    ) -> Optional["Patient"]:
         """
         Fetch a patient by the server PK.
         """
         return dbsession.query(cls).filter(cls._pk == server_pk).first()
 
     @classmethod
-    def get_patient_by_id_device_era(cls, dbsession: SqlASession,
-                                     client_id: int,
-                                     device_id: int,
-                                     era: str) -> Optional["Patient"]:
+    def get_patient_by_id_device_era(
+        cls, dbsession: SqlASession, client_id: int, device_id: int, era: str
+    ) -> Optional["Patient"]:
         """
         Fetch a patient by the client ID, device ID, and era.
         """
@@ -411,8 +426,9 @@ class Patient(GenericTabletRecordMixin, Base):
         return "{fs} ({dob}, {ids})".format(
             fs=self.get_forename_surname(),
             dob=self.get_dob_str(),
-            ids=", ".join(i.full_prettystr(req)
-                          for i in self.get_idnum_objects()),
+            ids=", ".join(
+                i.full_prettystr(req) for i in self.get_idnum_objects()
+            ),
         )
 
     # -------------------------------------------------------------------------
@@ -447,12 +463,14 @@ class Patient(GenericTabletRecordMixin, Base):
             # log.debug("... same object; equal")
             return True
         # Same device/era/patient ID (client PK)? Test int before str for speed
-        if (self.id == other.id and
-                self._device_id == other._device_id and
-                self._era == other._era and
-                self.id is not None and
-                self._device_id is not None and
-                self._era is not None):
+        if (
+            self.id == other.id
+            and self._device_id == other._device_id
+            and self._era == other._era
+            and self.id is not None
+            and self._device_id is not None
+            and self._era is not None
+        ):
             # log.debug("... same device/era/id; equal")
             return True
         # Shared ID number?
@@ -495,8 +513,11 @@ class Patient(GenericTabletRecordMixin, Base):
         These are simple which_idnum/idnum_value pairs.
         """
         idnums = self.idnums  # type: List[PatientIdNum]
-        return [x.get_idnum_reference() for x in idnums
-                if x.is_superficially_valid()]
+        return [
+            x.get_idnum_reference()
+            for x in idnums
+            if x.is_superficially_valid()
+        ]
 
     def get_idnum_raw_values_only(self) -> List[int]:
         """
@@ -529,8 +550,9 @@ class Patient(GenericTabletRecordMixin, Base):
         idobj = self.get_idnum_object(which_idnum)
         return idobj.idnum_value if idobj else None
 
-    def set_idnum_value(self, req: "CamcopsRequest",
-                        which_idnum: int, idnum_value: int) -> None:
+    def set_idnum_value(
+        self, req: "CamcopsRequest", which_idnum: int, idnum_value: int
+    ) -> None:
         """
         Sets an ID number value.
         """
@@ -554,16 +576,18 @@ class Patient(GenericTabletRecordMixin, Base):
         dbsession.add(newid)
         self.idnums.append(newid)
 
-    def get_iddesc(self, req: "CamcopsRequest",
-                   which_idnum: int) -> Optional[str]:
+    def get_iddesc(
+        self, req: "CamcopsRequest", which_idnum: int
+    ) -> Optional[str]:
         """
         Get value of a specific ID description, if present.
         """
         idobj = self.get_idnum_object(which_idnum)
         return idobj.description(req) if idobj else None
 
-    def get_idshortdesc(self, req: "CamcopsRequest",
-                        which_idnum: int) -> Optional[str]:
+    def get_idshortdesc(
+        self, req: "CamcopsRequest", which_idnum: int
+    ) -> Optional[str]:
         """
         Get value of a specific ID short description, if present.
         """
@@ -662,8 +686,9 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         _ = req.gettext
         if longform:
-            dob = answer(format_datetime(
-                self.dob, DateFormat.LONG_DATE, default=None))
+            dob = answer(
+                format_datetime(self.dob, DateFormat.LONG_DATE, default=None)
+            )
 
             dobtext = _("Date of birth:")
             return f"<br>{dobtext} {dob}"
@@ -672,8 +697,9 @@ class Patient(GenericTabletRecordMixin, Base):
             dob = format_datetime(self.dob, DateFormat.SHORT_DATE)
             return f"{dobtext} {dob}."
 
-    def get_age(self, req: "CamcopsRequest",
-                default: str = "") -> Union[int, str]:
+    def get_age(
+        self, req: "CamcopsRequest", default: str = ""
+    ) -> Union[int, str]:
         """
         Age (in whole years) today, or default.
         """
@@ -698,9 +724,9 @@ class Patient(GenericTabletRecordMixin, Base):
             return None
         return format_datetime(dob_dt, DateFormat.SHORT_DATE)
 
-    def get_age_at(self,
-                   when: PotentialDatetimeType,
-                   default: str = "") -> Union[int, str]:
+    def get_age_at(
+        self, when: PotentialDatetimeType, default: str = ""
+    ) -> Union[int, str]:
         """
         Age (in whole years) at a particular date, or default.
         """
@@ -748,8 +774,9 @@ class Patient(GenericTabletRecordMixin, Base):
     # Other representations
     # -------------------------------------------------------------------------
 
-    def get_xml_root(self, req: "CamcopsRequest",
-                     options: TaskExportOptions = None) -> XmlElement:
+    def get_xml_root(
+        self, req: "CamcopsRequest", options: TaskExportOptions = None
+    ) -> XmlElement:
         """
         Get root of XML tree, as an
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
@@ -762,15 +789,14 @@ class Patient(GenericTabletRecordMixin, Base):
         branches = self._get_xml_branches(req, options=options)
         # Now add new-style IDs:
         pidnum_branches = []  # type: List[XmlElement]
-        pidnum_options = TaskExportOptions(xml_include_plain_columns=True,
-                                           xml_with_header_comments=False)
+        pidnum_options = TaskExportOptions(
+            xml_include_plain_columns=True, xml_with_header_comments=False
+        )
         for pidnum in self.idnums:  # type: PatientIdNum
-            pidnum_branches.append(pidnum._get_xml_root(
-                req, options=pidnum_options))
-        branches.append(XmlElement(
-            name="idnums",
-            value=pidnum_branches
-        ))
+            pidnum_branches.append(
+                pidnum._get_xml_root(req, options=pidnum_options)
+            )
+        branches.append(XmlElement(name="idnums", value=pidnum_branches))
         # Special notes
         branches.append(XML_COMMENT_SPECIAL_NOTES)
         special_notes = self.special_notes  # type: List[SpecialNote]
@@ -785,7 +811,8 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         # 1. Our core fields.
         page = self._get_core_spreadsheet_page(
-            req, heading_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX)
+            req, heading_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX
+        )
         # 2. ID number details
         #    We can't just iterate through the ID numbers; we have to iterate
         #    through all possible ID numbers.
@@ -795,25 +822,33 @@ class Patient(GenericTabletRecordMixin, Base):
             shortdesc = iddef.short_description
             longdesc = iddef.description
             idnum_value = next(
-                (idnum.idnum_value for idnum in self.idnums
-                 if idnum.which_idnum == n and idnum.is_superficially_valid()),
-                None)
+                (
+                    idnum.idnum_value
+                    for idnum in self.idnums
+                    if idnum.which_idnum == n
+                    and idnum.is_superficially_valid()
+                ),
+                None,
+            )
             page.add_or_set_value(
                 heading=SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
-                value=idnum_value)
+                value=idnum_value,
+            )
             page.add_or_set_value(
                 heading=SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
-                value=longdesc)
+                value=longdesc,
+            )
             page.add_or_set_value(
-                heading=(SPREADSHEET_PATIENT_FIELD_PREFIX
-                         + FP_ID_SHORT_DESC + nstr),
-                value=shortdesc)
+                heading=(
+                    SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC + nstr
+                ),
+                value=shortdesc,
+            )
         return page
 
     def get_spreadsheet_schema_elements(
-            self,
-            req: "CamcopsRequest",
-            table_name: str = "") -> Set[SummarySchemaInfo]:
+        self, req: "CamcopsRequest", table_name: str = ""
+    ) -> Set[SummarySchemaInfo]:
         """
         Follows :func:`get_spreadsheet_page`, but retrieving schema
         information.
@@ -821,7 +856,7 @@ class Patient(GenericTabletRecordMixin, Base):
         # 1. Core fields
         items = self._get_core_spreadsheet_schema(
             table_name=table_name,
-            column_name_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX
+            column_name_prefix=SPREADSHEET_PATIENT_FIELD_PREFIX,
         )
         # 2. ID number details
         table_name = table_name or self.__tablename__
@@ -829,31 +864,45 @@ class Patient(GenericTabletRecordMixin, Base):
             n = iddef.which_idnum
             nstr = str(n)
             comment_suffix = f" [ID#{n}]"
-            items.add(SummarySchemaInfo(
-                table_name=table_name,
-                source=SummarySchemaInfo.SSV_DB,
-                column_name=(SPREADSHEET_PATIENT_FIELD_PREFIX
-                             + FP_ID_NUM + nstr),
-                data_type=str(PatientIdNum.idnum_value.type),
-                comment=PatientIdNum.idnum_value.comment + comment_suffix,
-            ))
-            items.add(SummarySchemaInfo(
-                table_name=table_name,
-                source=SummarySchemaInfo.SSV_DB,
-                column_name=(SPREADSHEET_PATIENT_FIELD_PREFIX
-                             + FP_ID_DESC + nstr),
-                data_type=str(IdNumDefinition.description.type),
-                comment=IdNumDefinition.description.comment + comment_suffix,
-            ))
-            items.add(SummarySchemaInfo(
-                table_name=table_name,
-                source=SummarySchemaInfo.SSV_DB,
-                column_name=(SPREADSHEET_PATIENT_FIELD_PREFIX
-                             + FP_ID_SHORT_DESC + nstr),
-                data_type=str(IdNumDefinition.short_description.type),
-                comment=(IdNumDefinition.short_description.comment
-                         + comment_suffix),
-            ))
+            items.add(
+                SummarySchemaInfo(
+                    table_name=table_name,
+                    source=SummarySchemaInfo.SSV_DB,
+                    column_name=(
+                        SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr
+                    ),
+                    data_type=str(PatientIdNum.idnum_value.type),
+                    comment=PatientIdNum.idnum_value.comment + comment_suffix,
+                )
+            )
+            items.add(
+                SummarySchemaInfo(
+                    table_name=table_name,
+                    source=SummarySchemaInfo.SSV_DB,
+                    column_name=(
+                        SPREADSHEET_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr
+                    ),
+                    data_type=str(IdNumDefinition.description.type),
+                    comment=IdNumDefinition.description.comment
+                    + comment_suffix,
+                )
+            )
+            items.add(
+                SummarySchemaInfo(
+                    table_name=table_name,
+                    source=SummarySchemaInfo.SSV_DB,
+                    column_name=(
+                        SPREADSHEET_PATIENT_FIELD_PREFIX
+                        + FP_ID_SHORT_DESC
+                        + nstr
+                    ),
+                    data_type=str(IdNumDefinition.short_description.type),
+                    comment=(
+                        IdNumDefinition.short_description.comment
+                        + comment_suffix
+                    ),
+                )
+            )
         return items
 
     def get_bare_ptinfo(self) -> BarePatientInfo:
@@ -871,12 +920,12 @@ class Patient(GenericTabletRecordMixin, Base):
             email=self.email,
             gp=self.gp,
             otherdetails=self.other,
-            idnum_definitions=self.get_idnum_references()
+            idnum_definitions=self.get_idnum_references(),
         )
 
-    def get_hl7_pid_segment(self,
-                            req: "CamcopsRequest",
-                            recipient: "ExportRecipient") -> hl7.Segment:
+    def get_hl7_pid_segment(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> hl7.Segment:
         """
         Get HL7 patient identifier (PID) segment.
 
@@ -894,11 +943,11 @@ class Patient(GenericTabletRecordMixin, Base):
             HL7PatientIdentifier(
                 pid=str(self.get_idnum_value(recipient.primary_idnum)),
                 id_type=recipient.get_hl7_id_type(
-                    req,
-                    recipient.primary_idnum),
+                    req, recipient.primary_idnum
+                ),
                 assigning_authority=recipient.get_hl7_id_aa(
-                    req,
-                    recipient.primary_idnum)
+                    req, recipient.primary_idnum
+                ),
             )
         ]
         # Then the rest:
@@ -914,7 +963,8 @@ class Patient(GenericTabletRecordMixin, Base):
                     pid=str(idnum_value),
                     id_type=recipient.get_hl7_id_type(req, which_idnum),
                     assigning_authority=recipient.get_hl7_id_aa(
-                        req, which_idnum)
+                        req, which_idnum
+                    ),
                 )
             )
         return make_pid_segment(
@@ -930,9 +980,9 @@ class Patient(GenericTabletRecordMixin, Base):
     # FHIR
     # -------------------------------------------------------------------------
 
-    def get_fhir_bundle_entry(self,
-                              req: "CamcopsRequest",
-                              recipient: "ExportRecipient") -> Dict[str, Any]:
+    def get_fhir_bundle_entry(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> Dict[str, Any]:
         """
         Returns a dictionary, suitable for serializing to JSON, that
         encapsulates patient identity information in a FHIR bundle.
@@ -954,7 +1004,8 @@ class Patient(GenericTabletRecordMixin, Base):
         # DOB
         if self.dob:
             patient_dict[Fc.BIRTHDATE] = format_datetime(
-                self.dob, DateFormat.FILENAME_DATE_ONLY)
+                self.dob, DateFormat.FILENAME_DATE_ONLY
+            )
 
         # Sex/gender (should always be present, per client minimum ID policy)
         if self.sex:
@@ -963,24 +1014,25 @@ class Patient(GenericTabletRecordMixin, Base):
                 SEX_MALE: Fc.GENDER_MALE,
                 SEX_OTHER_UNSPECIFIED: Fc.GENDER_OTHER,
             }
-            patient_dict[Fc.GENDER] = gender_lookup.get(self.sex,
-                                                        Fc.GENDER_UNKNOWN)
+            patient_dict[Fc.GENDER] = gender_lookup.get(
+                self.sex, Fc.GENDER_UNKNOWN
+            )
 
         # Address
         if self.address:
             patient_dict[Fc.ADDRESS] = [
-                Address(jsondict={
-                    Fc.ADDRESS_TEXT: self.address
-                }).as_json()
+                Address(jsondict={Fc.ADDRESS_TEXT: self.address}).as_json()
             ]
 
         # Email
         if self.email:
             patient_dict[Fc.TELECOM] = [
-                ContactPoint(jsondict={
-                    Fc.SYSTEM: Fc.TELECOM_SYSTEM_EMAIL,
-                    Fc.VALUE: self.email
-                }).as_json()
+                ContactPoint(
+                    jsondict={
+                        Fc.SYSTEM: Fc.TELECOM_SYSTEM_EMAIL,
+                        Fc.VALUE: self.email,
+                    }
+                ).as_json()
             ]
 
         # General practitioner (GP): via
@@ -990,12 +1042,12 @@ class Patient(GenericTabletRecordMixin, Base):
         return make_fhir_bundle_entry(
             resource_type_url=Fc.RESOURCE_TYPE_PATIENT,
             identifier=self.get_fhir_identifier(req, recipient),
-            resource=FhirPatient(jsondict=patient_dict).as_json()
+            resource=FhirPatient(jsondict=patient_dict).as_json(),
         )
 
-    def get_fhir_identifier(self,
-                            req: "CamcopsRequest",
-                            recipient: "ExportRecipient") -> Identifier:
+    def get_fhir_identifier(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> Identifier:
         """
         Returns a FHIR identifier for this patient, as a
         :class:`fhirclient.models.identifier.Identifier` object.
@@ -1016,30 +1068,34 @@ class Patient(GenericTabletRecordMixin, Base):
             idnum_value = idnum_object.idnum_value  # may raise AttributeError
             iddef = req.get_idnum_definition(which_idnum)
             idnum_url = iddef.effective_fhir_id_system(req)
-            return Identifier(jsondict={
-                Fc.SYSTEM: idnum_url,
-                Fc.VALUE: str(idnum_value),
-            })
+            return Identifier(
+                jsondict={Fc.SYSTEM: idnum_url, Fc.VALUE: str(idnum_value)}
+            )
         except AttributeError:
             # We are probably in a debugging/drafting situation. Fall back to
             # a default identifier.
             return fhir_pk_identifier(
-                req, self.__tablename__, self.pk,
-                Fc.CAMCOPS_VALUE_PATIENT_WITHIN_TASK
+                req,
+                self.__tablename__,
+                self.pk,
+                Fc.CAMCOPS_VALUE_PATIENT_WITHIN_TASK,
             )
 
     def get_fhir_subject_ref(
-            self,
-            req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> Dict:
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> Dict:
         """
         Returns a FHIRReference (in JSON dict format) used to refer to this
         patient as a "subject" of some other entry (like a questionnaire).
         """
-        return FHIRReference(jsondict={
-            Fc.TYPE: Fc.RESOURCE_TYPE_PATIENT,
-            Fc.IDENTIFIER: self.get_fhir_identifier(req, recipient).as_json(),
-        }).as_json()
+        return FHIRReference(
+            jsondict={
+                Fc.TYPE: Fc.RESOURCE_TYPE_PATIENT,
+                Fc.IDENTIFIER: self.get_fhir_identifier(
+                    req, recipient
+                ).as_json(),
+            }
+        ).as_json()
 
     # -------------------------------------------------------------------------
     # Database status
@@ -1055,27 +1111,31 @@ class Patient(GenericTabletRecordMixin, Base):
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, req: "CamcopsRequest",
-              details: str, from_console: bool = False) -> None:
+    def audit(
+        self, req: "CamcopsRequest", details: str, from_console: bool = False
+    ) -> None:
         """
         Audits an action to this patient.
         """
-        audit(req,
-              details,
-              patient_server_pk=self._pk,
-              table=Patient.__tablename__,
-              server_pk=self._pk,
-              from_console=from_console)
+        audit(
+            req,
+            details,
+            patient_server_pk=self._pk,
+            table=Patient.__tablename__,
+            server_pk=self._pk,
+            from_console=from_console,
+        )
 
     # -------------------------------------------------------------------------
     # Special notes
     # -------------------------------------------------------------------------
 
     def apply_special_note(
-            self,
-            req: "CamcopsRequest",
-            note: str,
-            audit_msg: str = "Special note applied manually") -> None:
+        self,
+        req: "CamcopsRequest",
+        note: str,
+        audit_msg: str = "Special note applied manually",
+    ) -> None:
         """
         Manually applies a special note to a patient.
         WRITES TO DATABASE.
@@ -1097,13 +1157,16 @@ class Patient(GenericTabletRecordMixin, Base):
     # Deletion
     # -------------------------------------------------------------------------
 
-    def gen_patient_idnums_even_noncurrent(self) -> \
-            Generator[PatientIdNum, None, None]:
+    def gen_patient_idnums_even_noncurrent(
+        self,
+    ) -> Generator[PatientIdNum, None, None]:
         """
         Generates all :class:`PatientIdNum` objects, including non-current
         ones.
         """
-        for lineage_member in self._gen_unique_lineage_objects(self.idnums):  # type: PatientIdNum  # noqa
+        for lineage_member in self._gen_unique_lineage_objects(
+            self.idnums
+        ):  # type: PatientIdNum  # noqa
             yield lineage_member
 
     def delete_with_dependants(self, req: "CamcopsRequest") -> None:
@@ -1154,9 +1217,10 @@ class Patient(GenericTabletRecordMixin, Base):
 # Validate candidate patient info for upload
 # =============================================================================
 
-def is_candidate_patient_valid_for_group(ptinfo: BarePatientInfo,
-                                         group: "Group",
-                                         finalizing: bool) -> Tuple[bool, str]:
+
+def is_candidate_patient_valid_for_group(
+    ptinfo: BarePatientInfo, group: "Group", finalizing: bool
+) -> Tuple[bool, str]:
     """
     Is the specified patient acceptable to upload into this group?
 
@@ -1198,8 +1262,8 @@ def is_candidate_patient_valid_for_group(ptinfo: BarePatientInfo,
 
 
 def is_candidate_patient_valid_for_restricted_user(
-        req: "CamcopsRequest",
-        ptinfo: BarePatientInfo) -> Tuple[bool, str]:
+    req: "CamcopsRequest", ptinfo: BarePatientInfo
+) -> Tuple[bool, str]:
     """
     Is the specified patient OK to be uploaded by this user? Performs a check
     for restricted (single-patient) users; if true, ensures that the
@@ -1223,9 +1287,12 @@ def is_candidate_patient_valid_for_restricted_user(
 
     server_patient = user.single_patient
     if not server_patient:
-        return False, (
-            f"Restricted user {user.username} does not have associated "
-            f"patient details"
+        return (
+            False,
+            (
+                f"Restricted user {user.username} does not have associated "
+                f"patient details"
+            ),
         )
 
     server_ptinfo = server_patient.get_bare_ptinfo()
@@ -1238,6 +1305,7 @@ def is_candidate_patient_valid_for_restricted_user(
 # =============================================================================
 # Reports
 # =============================================================================
+
 
 class DistinctPatientReport(Report):
     """
@@ -1252,8 +1320,9 @@ class DistinctPatientReport(Report):
     @classmethod
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("(Server) Patients, distinct by name, sex, DOB, all ID "
-                 "numbers")
+        return _(
+            "(Server) Patients, distinct by name, sex, DOB, all ID " "numbers"
+        )
 
     # noinspection PyMethodParameters
     @classproperty
@@ -1270,7 +1339,9 @@ class DistinctPatientReport(Report):
         ]
         # noinspection PyUnresolvedReferences
         select_from = Patient.__table__
-        wheres = [Patient._current == True]  # type: List[ClauseElement] # noqa: E501,E712
+        wheres = [
+            Patient._current == True  # noqa: E712
+        ]  # type: List[ClauseElement]
         if not req.user.superuser:
             # Restrict to accessible groups
             group_ids = req.user.ids_of_groups_user_may_report_on
@@ -1281,16 +1352,19 @@ class DistinctPatientReport(Report):
             # noinspection PyUnresolvedReferences
             aliased_table = PatientIdNum.__table__.alias(f"i{n}")
             select_fields.append(aliased_table.c.idnum_value.label(desc))
-            select_from = select_from.outerjoin(aliased_table, and_(
-                aliased_table.c.patient_id == Patient.id,
-                aliased_table.c._device_id == Patient._device_id,
-                aliased_table.c._era == Patient._era,
-                # Note: the following are part of the JOIN, not the WHERE:
-                # (or failure to match a row will wipe out the Patient from the
-                # OUTER JOIN):
-                aliased_table.c._current == True,  # noqa: E712
-                aliased_table.c.which_idnum == n,
-            ))  # nopep8
+            select_from = select_from.outerjoin(
+                aliased_table,
+                and_(
+                    aliased_table.c.patient_id == Patient.id,
+                    aliased_table.c._device_id == Patient._device_id,
+                    aliased_table.c._era == Patient._era,
+                    # Note: the following are part of the JOIN, not the WHERE:
+                    # (or failure to match a row will wipe out the Patient from
+                    # the OUTER JOIN):
+                    aliased_table.c._current == True,  # noqa: E712
+                    aliased_table.c.which_idnum == n,
+                ),
+            )  # nopep8
         order_by = [
             Patient.surname,
             Patient.forename,

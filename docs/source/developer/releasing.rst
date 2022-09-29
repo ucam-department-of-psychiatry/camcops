@@ -39,8 +39,8 @@ Releasing a new client and server involves the following steps:
 Code and documentation
 ----------------------
 
-- Push to Github (https://github.com/RudolfCardinal/camcops). This also
-  automatically updates the docs at https://camcops.readthedocs.io/.
+- Push to Github (https://github.com/ucam-department-of-psychiatry/camcops).
+  This also automatically updates the docs at https://camcops.readthedocs.io/.
 
 
 Android client
@@ -163,9 +163,15 @@ Google Play Store release history
 | 2.4.11        | 25 (32-bit ARM);    | 2.4.11              | 2021-10-08         | 23      | 29      |
 |               | 26 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.12        | N/A, server only    | N/A                 | N/A                | 23      | 29      |
+|               |                     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.13        | 27 (32-bit ARM);    | 2.4.13              | 2022-08-19         | 23      | 30      |
+|               | 28 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
 
-Note: target API of 30 required as of Nov 2021:
-https://android-developers.googleblog.com/2020/11/new-android-app-bundle-and-target-api.html
+Note: target API of 31 required as of Nov 2022:
+https://developer.android.com/google/play/requirements/target-sdk
 
 
 iOS client

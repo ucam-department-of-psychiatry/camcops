@@ -31,7 +31,7 @@ using stringfunc::standardResult;
 using stringfunc::strnum;
 
 const int N_SCORED_QUESTIONS = 17;
-const int MAX_SCORE = 52;
+const int MAX_QUESTION_SCORE = 52;
 
 const QString HamD::HAMD_TABLENAME("hamd");
 const QString QPREFIX("q");
@@ -140,7 +140,7 @@ bool HamD::isComplete() const
 QStringList HamD::summary() const
 {
     return QStringList{
-        scorePhrase(xstring("total_score"), totalScore(), MAX_SCORE)
+        scorePhrase(xstring("total_score"), totalScore(), MAX_QUESTION_SCORE)
     };
 }
 

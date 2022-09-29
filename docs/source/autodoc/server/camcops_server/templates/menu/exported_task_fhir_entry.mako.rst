@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/exported_task_fhir_entry.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/exported_task_fhir_entry.mako
-    :language: none
+    :language: html+mako

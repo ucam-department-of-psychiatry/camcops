@@ -51,16 +51,19 @@ from camcops_server.tasks.phq9 import Phq9
 # Unit tests
 # =============================================================================
 
+
 class HL7CoreTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_hl7core_func(self) -> None:
         self.announce("test_hl7core_func")
 
         pitlist = [
-            HL7PatientIdentifier(pid="1", id_type="TT",
-                                 assigning_authority="AA")
+            HL7PatientIdentifier(
+                pid="1", id_type="TT", assigning_authority="AA"
+            )
         ]
         # noinspection PyTypeChecker
         dob = Date.today()  # type: Date
@@ -72,14 +75,17 @@ class HL7CoreTests(DemoDatabaseTestCase):
         self.assertIsInstance(get_mod11_checkdigit("badnumber"), str)
         self.assertIsInstance(get_mod11_checkdigit("None"), str)
         self.assertIsInstance(make_msh_segment(now, "control_id"), hl7.Segment)
-        self.assertIsInstance(make_pid_segment(
-            forename="fname",
-            surname="sname",
-            dob=dob,
-            sex="M",
-            address="Somewhere",
-            patient_id_list=pitlist
-        ), hl7.Segment)
+        self.assertIsInstance(
+            make_pid_segment(
+                forename="fname",
+                surname="sname",
+                dob=dob,
+                sex="M",
+                address="Somewhere",
+                patient_id_list=pitlist,
+            ),
+            hl7.Segment,
+        )
         self.assertIsInstance(make_obr_segment(task), hl7.Segment)
         for task_format in (FileType.PDF, FileType.HTML, FileType.XML):
             for comments in (True, False):
@@ -87,13 +93,16 @@ class HL7CoreTests(DemoDatabaseTestCase):
                     xml_include_comments=comments,
                     xml_with_header_comments=comments,
                 )
-                self.assertIsInstance(make_obx_segment(
-                    req=self.req,
-                    task=task,
-                    task_format=task_format,
-                    observation_identifier="obs_id",
-                    observation_datetime=now,
-                    responsible_observer="responsible_observer",
-                    export_options=export_options,
-                ), hl7.Segment)
+                self.assertIsInstance(
+                    make_obx_segment(
+                        req=self.req,
+                        task=task,
+                        task_format=task_format,
+                        observation_identifier="obs_id",
+                        observation_datetime=now,
+                        responsible_observer="responsible_observer",
+                        export_options=export_options,
+                    ),
+                    hl7.Segment,
+                )
         self.assertIsInstance(escape_hl7_text("blahblah"), str)

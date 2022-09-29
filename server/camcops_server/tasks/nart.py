@@ -100,7 +100,7 @@ WORDLIST = [  # Value is true/1 for CORRECT, false/0 for INCORRECT
     "demesne",
     "syncope",
     "labile",
-    "campanile"
+    "campanile",
 ]
 ACCENTED_WORDLIST = list(WORDLIST)
 # noinspection PyUnresolvedReferences
@@ -113,30 +113,36 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 # NART
 # =============================================================================
 
+
 class NartMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Nart'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Nart"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         for w in WORDLIST:
             setattr(
                 cls,
                 w,
                 CamcopsColumn(
-                    w, Boolean,
+                    w,
+                    Boolean,
                     permitted_value_checker=BIT_CHECKER,
-                    comment=f"Pronounced {w} correctly (0 no, 1 yes)"
-                )
+                    comment=f"Pronounced {w} correctly (0 no, 1 yes)",
+                ),
             )
         super().__init__(name, bases, classdict)
 
 
-class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
-           metaclass=NartMetaclass):
+class Nart(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=NartMetaclass
+):
     """
     Server implementation of the NART task.
     """
+
     __tablename__ = "nart"
     shortname = "NART"
 
@@ -148,26 +154,28 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=(
-                "NART predicted WAIS FSIQ {n_fsiq}, WAIS VIQ {n_viq}, "
-                "WAIS PIQ {n_piq}, WAIS-R FSIQ {nw_fsiq}, "
-                "WAIS-IV FSIQ {b_fsiq}, WAIS-IV GAI {b_gai}, "
-                "WAIS-IV VCI {b_vci}, WAIS-IV PRI {b_pri}, "
-                "WAIS_IV WMI {b_wmi}, WAIS-IV PSI {b_psi}".format(
-                    n_fsiq=self.nelson_full_scale_iq(),
-                    n_viq=self.nelson_verbal_iq(),
-                    n_piq=self.nelson_performance_iq(),
-                    nw_fsiq=self.nelson_willison_full_scale_iq(),
-                    b_fsiq=self.bright_full_scale_iq(),
-                    b_gai=self.bright_general_ability(),
-                    b_vci=self.bright_verbal_comprehension(),
-                    b_pri=self.bright_perceptual_reasoning(),
-                    b_wmi=self.bright_working_memory(),
-                    b_psi=self.bright_perceptual_speed(),
+        return [
+            CtvInfo(
+                content=(
+                    "NART predicted WAIS FSIQ {n_fsiq}, WAIS VIQ {n_viq}, "
+                    "WAIS PIQ {n_piq}, WAIS-R FSIQ {nw_fsiq}, "
+                    "WAIS-IV FSIQ {b_fsiq}, WAIS-IV GAI {b_gai}, "
+                    "WAIS-IV VCI {b_vci}, WAIS-IV PRI {b_pri}, "
+                    "WAIS_IV WMI {b_wmi}, WAIS-IV PSI {b_psi}".format(
+                        n_fsiq=self.nelson_full_scale_iq(),
+                        n_viq=self.nelson_verbal_iq(),
+                        n_piq=self.nelson_performance_iq(),
+                        nw_fsiq=self.nelson_willison_full_scale_iq(),
+                        b_fsiq=self.bright_full_scale_iq(),
+                        b_gai=self.bright_general_ability(),
+                        b_vci=self.bright_verbal_comprehension(),
+                        b_pri=self.bright_perceptual_reasoning(),
+                        b_wmi=self.bright_working_memory(),
+                        b_psi=self.bright_perceptual_speed(),
+                    )
                 )
             )
-        )]
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -175,58 +183,72 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 name="nelson_full_scale_iq",
                 coltype=Float(),
                 value=self.nelson_full_scale_iq(),
-                comment="Predicted WAIS full-scale IQ (Nelson 1982)"),
+                comment="Predicted WAIS full-scale IQ (Nelson 1982)",
+            ),
             SummaryElement(
                 name="nelson_verbal_iq",
                 coltype=Float(),
                 value=self.nelson_verbal_iq(),
-                comment="Predicted WAIS verbal IQ (Nelson 1982)"),
+                comment="Predicted WAIS verbal IQ (Nelson 1982)",
+            ),
             SummaryElement(
                 name="nelson_performance_iq",
                 coltype=Float(),
                 value=self.nelson_performance_iq(),
-                comment="Predicted WAIS performance IQ (Nelson 1982"),
+                comment="Predicted WAIS performance IQ (Nelson 1982",
+            ),
             SummaryElement(
                 name="nelson_willison_full_scale_iq",
                 coltype=Float(),
                 value=self.nelson_willison_full_scale_iq(),
-                comment="Predicted WAIS-R full-scale IQ (Nelson & Willison 1991"),  # noqa
+                comment="Predicted WAIS-R full-scale IQ "
+                "(Nelson & Willison 1991)",
+            ),
             SummaryElement(
                 name="bright_full_scale_iq",
                 coltype=Float(),
                 value=self.bright_full_scale_iq(),
-                comment="Predicted WAIS-IV full-scale IQ (Bright 2016)"),
+                comment="Predicted WAIS-IV full-scale IQ (Bright 2016)",
+            ),
             SummaryElement(
                 name="bright_general_ability",
                 coltype=Float(),
                 value=self.bright_general_ability(),
-                comment="Predicted WAIS-IV General Ability Index (Bright 2016)"),  # noqa
+                comment="Predicted WAIS-IV General Ability Index "
+                "(Bright 2016)",
+            ),
             SummaryElement(
                 name="bright_verbal_comprehension",
                 coltype=Float(),
                 value=self.bright_verbal_comprehension(),
-                comment="Predicted WAIS-IV Verbal Comprehension Index (Bright 2016)"),  # noqa
+                comment="Predicted WAIS-IV Verbal Comprehension Index "
+                "(Bright 2016)",
+            ),
             SummaryElement(
                 name="bright_perceptual_reasoning",
                 coltype=Float(),
                 value=self.bright_perceptual_reasoning(),
-                comment="Predicted WAIS-IV Perceptual Reasoning Index (Bright 2016)"),  # noqa
+                comment="Predicted WAIS-IV Perceptual Reasoning Index "
+                "(Bright 2016)",
+            ),
             SummaryElement(
                 name="bright_working_memory",
                 coltype=Float(),
                 value=self.bright_working_memory(),
-                comment="Predicted WAIS-IV Working Memory Index (Bright 2016)"),  # noqa
+                comment="Predicted WAIS-IV Working Memory Index (Bright 2016)",
+            ),
             SummaryElement(
                 name="bright_perceptual_speed",
                 coltype=Float(),
                 value=self.bright_perceptual_speed(),
-                comment="Predicted WAIS-IV Perceptual Speed Index (Bright 2016)"),  # noqa
+                comment="Predicted WAIS-IV Perceptual Speed Index "
+                "(Bright 2016)",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(WORDLIST) and
-            self.field_contents_valid()
+            self.all_fields_not_none(WORDLIST) and self.field_contents_valid()
         )
 
     def n_errors(self) -> int:
@@ -241,7 +263,7 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         q_a = ""
         nwords = len(WORDLIST)
         ncolumns = 3
-        nrows = int(math.ceil(float(nwords)/float(ncolumns)))
+        nrows = int(math.ceil(float(nwords) / float(ncolumns)))
         column = 0
         row = 0
         # x: word index (shown in top-to-bottom then left-to-right sequence)
@@ -313,52 +335,53 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             tr_total_errors=tr_qa("Total errors", self.n_errors()),
             nelson_full_scale_iq=tr_qa(
-                "Predicted WAIS full-scale IQ = 127.7 – 0.826 × errors" + nelson,  # noqa
-                self.nelson_full_scale_iq()
+                "Predicted WAIS full-scale IQ = 127.7 – 0.826 × errors"
+                + nelson,  # noqa
+                self.nelson_full_scale_iq(),
             ),
             nelson_verbal_iq=tr_qa(
                 "Predicted WAIS verbal IQ = 129.0 – 0.919 × errors" + nelson,
-                self.nelson_verbal_iq()
+                self.nelson_verbal_iq(),
             ),
             nelson_performance_iq=tr_qa(
-                "Predicted WAIS performance IQ = 123.5 – 0.645 × errors" +
-                nelson,
-                self.nelson_performance_iq()
+                "Predicted WAIS performance IQ = 123.5 – 0.645 × errors"
+                + nelson,
+                self.nelson_performance_iq(),
             ),
             nelson_willison_full_scale_iq=tr_qa(
                 "Predicted WAIS-R full-scale IQ "
                 "= 130.6 – 1.24 × errors" + nelson_willison,
-                self.nelson_willison_full_scale_iq()
+                self.nelson_willison_full_scale_iq(),
             ),
             bright_full_scale_iq=tr_qa(
                 "Predicted WAIS-IV full-scale IQ "
                 "= 126.41 – 0.9775 × errors" + bright,
-                self.bright_full_scale_iq()
+                self.bright_full_scale_iq(),
             ),
             bright_general_ability=tr_qa(
                 "Predicted WAIS-IV General Ability Index "
                 "= 126.5 – 0.9656 × errors" + bright,
-                self.bright_general_ability()
+                self.bright_general_ability(),
             ),
             bright_verbal_comprehension=tr_qa(
                 "Predicted WAIS-IV Verbal Comprehension Index "
                 "= 126.81 – 1.0745 × errors" + bright,
-                self.bright_verbal_comprehension()
+                self.bright_verbal_comprehension(),
             ),
             bright_perceptual_reasoning=tr_qa(
                 "Predicted WAIS-IV Perceptual Reasoning Index "
                 "= 120.18 – 0.6242 × errors" + bright,
-                self.bright_perceptual_reasoning()
+                self.bright_perceptual_reasoning(),
             ),
             bright_working_memory=tr_qa(
                 "Predicted WAIS-IV Working Memory Index "
                 "= 120.53 – 0.7901 × errors" + bright,
-                self.bright_working_memory()
+                self.bright_working_memory(),
             ),
             bright_perceptual_speed=tr_qa(
                 "Predicted WAIS-IV Perceptual Speed Index "
                 "= 114.53 – 0.5285 × errors" + bright,
-                self.bright_perceptual_speed()
+                self.bright_perceptual_speed(),
             ),
             q_a=q_a,
         )
@@ -400,13 +423,21 @@ class Nart(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return self.predict(intercept=114.53, slope=-0.5285)
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.NART_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.NART_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.NART_SCALE),
-                {
-                    # Best value debatable:
-                    req.snomed(SnomedLookup.NART_SCORE): self.nelson_full_scale_iq(),  # noqa
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.NART_SCALE),
+                    {
+                        # Best value debatable:
+                        req.snomed(
+                            SnomedLookup.NART_SCORE
+                        ): self.nelson_full_scale_iq()  # noqa
+                    },
+                )
+            )
         return codes

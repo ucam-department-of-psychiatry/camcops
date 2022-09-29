@@ -88,7 +88,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Naming convention; metadata; Base
 # =============================================================================
 # https://alembic.readthedocs.org/en/latest/naming.html
-# http://docs.sqlalchemy.org/en/latest/core/constraints.html#configuring-constraint-naming-conventions  # noqa
+# https://docs.sqlalchemy.org/en/latest/core/constraints.html#configuring-constraint-naming-conventions  # noqa
 
 MYSQL_MAX_IDENTIFIER_LENGTH = 64
 LONG_COLUMN_NAME_WARNING_LIMIT = 30
@@ -99,14 +99,11 @@ NAMING_CONVENTION = {
     #   https://dev.mysql.com/doc/refman/5.6/en/create-table-foreign-keys.html
     # - Index names only have to be unique for the table;
     #   https://stackoverflow.com/questions/30653452/do-index-names-have-to-be-unique-across-entire-database-in-mysql  # noqa
-
     # INDEX:
-    "ix": 'ix_%(column_0_label)s',
-
+    "ix": "ix_%(column_0_label)s",
     # UNIQUE CONSTRAINT:
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     # "uq": "uq_%(column_0_name)s",
-
     # CHECK CONSTRAINT:
     # "ck": "ck_%(table_name)s_%(constraint_name)s",  # too long for MySQL
     # ... https://groups.google.com/forum/#!topic/sqlalchemy/SIT4D8S9dUg
@@ -133,14 +130,12 @@ NAMING_CONVENTION = {
     # ... no...
     # "obs_contamination_bodily_waste_*"
     "ck": "ck_%(table_name)s_%(column_0_name)s",  # unique but maybe too long
-
     # FOREIGN KEY:
     # "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  # too long for MySQL sometimes!  # noqa
     "fk": "fk_%(table_name)s_%(column_0_name)s",
     # "fk": "fk_%(column_0_name)s",
-
     # PRIMARY KEY:
-    "pk": "pk_%(table_name)s"
+    "pk": "pk_%(table_name)s",
 }
 MASTER_META = MetaData(naming_convention=NAMING_CONVENTION)
 
@@ -153,28 +148,22 @@ Base.__table_args__ = {
     # MySQL special options
     # -------------------------------------------------------------------------
     # SQLAlchemy __table_args__:
-    #   http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/table_config.html  # noqa
+    #   https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/table_config.html  # noqa
     # SQLAlchemy sends keyword arguments like 'mysql_keyword_name' to be
     # rendered as KEYWORD_NAME in the CREATE TABLE statement:
-    #   http://docs.sqlalchemy.org/en/latest/dialects/mysql.html
-
+    #   https://docs.sqlalchemy.org/en/latest/dialects/mysql.html
     # Engine: InnoDB
-    'mysql_engine': 'InnoDB',
-
+    "mysql_engine": "InnoDB",
     # Barracuda: COMPRESSED or DYNAMIC
     # https://dev.mysql.com/doc/refman/5.7/en/innodb-row-format-dynamic.html
     # https://xenforo.com/community/threads/anyone-running-their-innodb-tables-with-row_format-compressed.99606/  # noqa
     # We shouldn't compress everything by default; performance hit.
-    'mysql_row_format': 'DYNAMIC',
-
+    "mysql_row_format": "DYNAMIC",
     # SEE server_troubleshooting.rst FOR BUG DISCUSSION
-
-    'mysql_charset': 'utf8mb4 COLLATE utf8mb4_unicode_ci',
-
+    "mysql_charset": "utf8mb4 COLLATE utf8mb4_unicode_ci",
     # Character set
     # REPLACED # 'mysql_charset': 'utf8mb4',
     # https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
-
     # Collation
     # Which collation for MySQL? See
     # - https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci  # noqa
@@ -231,12 +220,14 @@ class DeclarativeAndABCMeta(DeclarativeMeta, ABCMeta):
     """
     Metaclass for classes that want to inherit from Base and also ABC:
     """
+
     pass
 
 
 # =============================================================================
 # Convenience functions
 # =============================================================================
+
 
 def make_memory_sqlite_engine(echo: bool = False) -> Engine:
     """
@@ -301,8 +292,9 @@ def log_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> None:
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_table_ddl(table: Table,
-                  dialect_name: str = SqlaDialectName.MYSQL) -> str:
+def get_table_ddl(
+    table: Table, dialect_name: str = SqlaDialectName.MYSQL
+) -> str:
     """
     Returns the DDL (data definition language; SQL ``CREATE TABLE`` commands)
     for a specific table.
@@ -331,21 +323,20 @@ def assert_constraint_name_ok(table_name: str, column_name: str) -> None:
     Raises:
         AssertionError, if something will break
     """
-    d = {
-        "table_name": table_name,
-        "column_0_name": column_name,
-    }
+    d = {"table_name": table_name, "column_0_name": column_name}
     anticipated_name = NAMING_CONVENTION["ck"] % d
     if len(anticipated_name) > MYSQL_MAX_IDENTIFIER_LENGTH:
         raise AssertionError(
             f"Constraint name too long for table {table_name!r}, column "
             f"{column_name!r}; will be {anticipated_name!r} "
-            f"of length {len(anticipated_name)}")
+            f"of length {len(anticipated_name)}"
+        )
 
 
 # =============================================================================
 # Database engine hacks
 # =============================================================================
+
 
 def hack_pendulum_into_pymysql() -> None:
     """
@@ -357,6 +348,7 @@ def hack_pendulum_into_pymysql() -> None:
     try:
         # noinspection PyUnresolvedReferences
         from pymysql.converters import encoders, escape_datetime
+
         encoders[Pendulum] = escape_datetime
     except ImportError:
         pass

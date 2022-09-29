@@ -39,7 +39,9 @@ from cardinal_pythonlib.logs import (
 )
 from cardinal_pythonlib.sphinxtools import AutodocIndex, AutodocMethod
 
-from camcops_server.cc_modules.cc_pythonversion import assert_minimum_python_version  # noqa
+from camcops_server.cc_modules.cc_pythonversion import (
+    assert_minimum_python_version,
+)
 
 assert_minimum_python_version()
 
@@ -80,23 +82,34 @@ INTRODUCTORY_RST = r"""
 
 This section contains automatic documentation generated from the CamCOPS
 source code. For the source code itself, see
-https://github.com/RudolfCardinal/camcops.
+https://github.com/ucam-department-of-psychiatry/camcops.
 
 """
-SKIP_GLOBS = [
-    "*/static/*",
-    "__init__.py",
-]
+SKIP_GLOBS = ["*/static/*", "__init__.py"]
 
 PYGMENTS_OVERRIDE = {
-    # map file extension to Pygments language name
-    ".pro": "none",  # Qt project files, not Prolog
+    # map file specifications to Pygments language name, specific before
+    # generic
+    "script.py.mako": "mako",
+    "*.mako": "html+mako",
+    "*.pro": "none",  # Qt project files, not Prolog
+    # The Pygments C++ Lexer will never be perfect as it doesn't
+    # have the same understanding as a compiler.
+    # Skip anything that fails to highlight here
+    # Use debug_highlighting.py to narrow down problematic code for reporting
+    # Example:
+    # "foo.cpp": "none".
+    # See https://github.com/pygments/pygments/pull/2210
+    # Should be fixed in pygments > 2.13.0
+    "qcustomplot.h": "none",
 }
 
 
-def make_subindex(directory: str,
-                  skip_globs: List[str] = None,
-                  method: AutodocMethod = AutodocMethod.BEST) -> AutodocIndex:
+def make_subindex(
+    directory: str,
+    skip_globs: List[str] = None,
+    method: AutodocMethod = AutodocMethod.BEST,
+) -> AutodocIndex:
     return AutodocIndex(
         index_filename=os.path.join(AUTODOC_DIR, directory, INDEX_FILENAME),
         project_root_dir=PROJECT_ROOT_DIR,
@@ -124,7 +137,7 @@ def make_subindex(directory: str,
         index_heading_underline_char="~",
         source_rst_heading_underline_char="^",
         method=method,
-        pygments_language_override=PYGMENTS_OVERRIDE
+        pygments_language_override=PYGMENTS_OVERRIDE,
     )
 
 
@@ -134,8 +147,11 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
             log.info("Deleting directory {!r}", AUTODOC_DIR)
             rmtree(AUTODOC_DIR)
         else:
-            log.warning("Would delete directory {!r} (not doing so as in mock "
-                        "mode)", AUTODOC_DIR)
+            log.warning(
+                "Would delete directory {!r} (not doing so as in mock "
+                "mode)",
+                AUTODOC_DIR,
+            )
     top_idx = AutodocIndex(
         index_filename=TOP_AUTODOC_INDEX,
         project_root_dir=PROJECT_ROOT_DIR,
@@ -151,17 +167,18 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
         introductory_rst=INTRODUCTORY_RST,
         pygments_language_override=PYGMENTS_OVERRIDE,
     )
-    top_idx.add_indexes([
-        make_subindex(
-            "tablet_qt",
-            method=AutodocMethod.CONTENTS,
-            skip_globs=SKIP_GLOBS,
-        ),
-        make_subindex(
-            os.path.join("server", "camcops_server"),
-            skip_globs=SKIP_GLOBS,
-        ),
-    ])
+    top_idx.add_indexes(
+        [
+            make_subindex(
+                "tablet_qt",
+                method=AutodocMethod.CONTENTS,
+                skip_globs=SKIP_GLOBS,
+            ),
+            make_subindex(
+                os.path.join("server", "camcops_server"), skip_globs=SKIP_GLOBS
+            ),
+        ]
+    )
     top_idx.write_index_and_rst_files(overwrite=True, mock=not make)
     # print(top_idx.index_content())
 
@@ -169,22 +186,24 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--make", action="store_true",
-        help="Do things! Otherwise will just show its intent.")
+        "--make",
+        action="store_true",
+        help="Do things! Otherwise will just show its intent.",
+    )
     parser.add_argument(
-        "--destroy_first", action="store_true",
-        help="Destroy all existing autodocs first")
-    parser.add_argument(
-        "--verbose", action="store_true",
-        help="Be verbose")
+        "--destroy_first",
+        action="store_true",
+        help="Destroy all existing autodocs first",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Be verbose")
     args = parser.parse_args()
 
     main_only_quicksetup_rootlogger(
-        level=logging.DEBUG if args.verbose else logging.INFO)
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
 
-    make_autodoc(make=args.make,
-                 destroy_first=args.destroy_first)
+    make_autodoc(make=args.make, destroy_first=args.destroy_first)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

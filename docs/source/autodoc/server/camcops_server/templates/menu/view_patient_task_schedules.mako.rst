@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/view_patient_task_schedules.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/view_patient_task_schedules.mako
-    :language: none
+    :language: html+mako

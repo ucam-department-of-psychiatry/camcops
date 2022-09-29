@@ -57,38 +57,58 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # PANSS
 # =============================================================================
 
+
 class PanssMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Panss'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Panss"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "p", 1, cls.NUM_P,
-            minimum=1, maximum=7,
+            cls,
+            "p",
+            1,
+            cls.NUM_P,
+            minimum=1,
+            maximum=7,
             comment_fmt="P{n}: {s} (1 absent - 7 extreme)",
             comment_strings=[
-                "delusions", "conceptual disorganisation",
-                "hallucinatory behaviour", "excitement",
-                "grandiosity", "suspiciousness/persecution",
+                "delusions",
+                "conceptual disorganisation",
+                "hallucinatory behaviour",
+                "excitement",
+                "grandiosity",
+                "suspiciousness/persecution",
                 "hostility",
-            ]
+            ],
         )
         add_multiple_columns(
-            cls, "n", 1, cls.NUM_N,
-            minimum=1, maximum=7,
+            cls,
+            "n",
+            1,
+            cls.NUM_N,
+            minimum=1,
+            maximum=7,
             comment_fmt="N{n}: {s} (1 absent - 7 extreme)",
             comment_strings=[
-                "blunted affect", "emotional withdrawal",
-                "poor rapport", "passive/apathetic social withdrawal",
+                "blunted affect",
+                "emotional withdrawal",
+                "poor rapport",
+                "passive/apathetic social withdrawal",
                 "difficulty in abstract thinking",
                 "lack of spontaneity/conversation flow",
                 "stereotyped thinking",
-            ]
+            ],
         )
         add_multiple_columns(
-            cls, "g", 1, cls.NUM_G,
-            minimum=1, maximum=7,
+            cls,
+            "g",
+            1,
+            cls.NUM_G,
+            minimum=1,
+            maximum=7,
             comment_fmt="G{n}: {s} (1 absent - 7 extreme)",
             comment_strings=[
                 "somatic concern",
@@ -107,16 +127,18 @@ class PanssMetaclass(DeclarativeMeta):
                 "poor impulse control",
                 "preoccupation",
                 "active social avoidance",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
-            metaclass=PanssMetaclass):
+class Panss(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=PanssMetaclass
+):
     """
     Server implementation of the PANSS task.
     """
+
     __tablename__ = "panss"
     shortname = "PANSS"
     provides_trackers = True
@@ -153,47 +175,51 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 plot_label="PANSS total score",
                 axis_label=f"Total score ({self.MIN_TOTAL}-{self.MAX_TOTAL})",
                 axis_min=self.MIN_TOTAL - 0.5,
-                axis_max=self.MAX_TOTAL + 0.5
+                axis_max=self.MAX_TOTAL + 0.5,
             ),
             TrackerInfo(
                 value=self.score_p(),
                 plot_label="PANSS P score",
                 axis_label=f"P score ({self.MIN_P}-{self.MAX_P})",
                 axis_min=self.MIN_P - 0.5,
-                axis_max=self.MAX_P + 0.5
+                axis_max=self.MAX_P + 0.5,
             ),
             TrackerInfo(
                 value=self.score_n(),
                 plot_label="PANSS N score",
                 axis_label=f"N score ({self.MIN_N}-{self.MAX_N})",
                 axis_min=self.MIN_N - 0.5,
-                axis_max=self.MAX_N + 0.5
+                axis_max=self.MAX_N + 0.5,
             ),
             TrackerInfo(
                 value=self.score_g(),
                 plot_label="PANSS G score",
                 axis_label=f"G score ({self.MIN_G}-{self.MAX_G})",
                 axis_min=self.MIN_G - 0.5,
-                axis_max=self.MAX_G + 0.5
+                axis_max=self.MAX_G + 0.5,
             ),
             TrackerInfo(
                 value=self.composite(),
                 plot_label=f"PANSS composite score "
-                           f"({self.MIN_P_MINUS_N} to {self.MAX_P_MINUS_N})",
-                axis_label="P - N"
+                f"({self.MIN_P_MINUS_N} to {self.MAX_P_MINUS_N})",
+                axis_label="P - N",
             ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=(
-                f"PANSS total score {self.total_score()} "
-                f"(P {self.score_p()}, N {self.score_n()}, G {self.score_g()}, "
-                f"composite P–N {self.composite()})"
+        return [
+            CtvInfo(
+                content=(
+                    f"PANSS total score {self.total_score()} "
+                    f"(P {self.score_p()}, "
+                    f"N {self.score_n()}, "
+                    f"G {self.score_g()}, "
+                    f"composite P–N {self.composite()})"
+                )
             )
-        )]
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -201,39 +227,39 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score ({self.MIN_TOTAL}-{self.MAX_TOTAL})"
+                comment=f"Total score ({self.MIN_TOTAL}-{self.MAX_TOTAL})",
             ),
             SummaryElement(
                 name="p",
                 coltype=Integer(),
                 value=self.score_p(),
-                comment=f"Positive symptom (P) score ({self.MIN_P}-{self.MAX_P})"  # noqa
+                comment=f"Positive symptom (P) score ({self.MIN_P}-{self.MAX_P})",  # noqa
             ),
             SummaryElement(
                 name="n",
                 coltype=Integer(),
                 value=self.score_n(),
-                comment=f"Negative symptom (N) score ({self.MIN_N}-{self.MAX_N})"  # noqa
+                comment=f"Negative symptom (N) score ({self.MIN_N}-{self.MAX_N})",  # noqa
             ),
             SummaryElement(
                 name="g",
                 coltype=Integer(),
                 value=self.score_g(),
-                comment=f"General symptom (G) score ({self.MIN_G}-{self.MAX_G})"  # noqa
+                comment=f"General symptom (G) score ({self.MIN_G}-{self.MAX_G})",  # noqa
             ),
             SummaryElement(
                 name="composite",
                 coltype=Integer(),
                 value=self.composite(),
                 comment=f"Composite score (P - N) ({self.MIN_P_MINUS_N} "
-                        f"to {self.MAX_P_MINUS_N})"
+                f"to {self.MAX_P_MINUS_N})",
             ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -271,7 +297,7 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         for q in self.TASK_FIELDS:
             q_a += tr_qa(
                 self.wxstring(req, "" + q + "_s"),
-                get_from_dict(answers, getattr(self, q))
+                get_from_dict(answers, getattr(self, q)),
             )
         h = """
             <div class="{CssClass.SUMMARY}">
@@ -298,24 +324,21 @@ class Panss(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             total_score=tr_qa(
                 f"{req.sstring(SS.TOTAL_SCORE)} "
                 f"({self.MIN_TOTAL}–{self.MAX_TOTAL})",
-                total
+                total,
             ),
             p=tr_qa(
-                f"{self.wxstring(req, 'p')} ({self.MIN_P}–{self.MAX_P})",
-                p
+                f"{self.wxstring(req, 'p')} ({self.MIN_P}–{self.MAX_P})", p
             ),
             n=tr_qa(
-                f"{self.wxstring(req, 'n')} ({self.MIN_N}–{self.MAX_N})",
-                n
+                f"{self.wxstring(req, 'n')} ({self.MIN_N}–{self.MAX_N})", n
             ),
             g=tr_qa(
-                f"{self.wxstring(req, 'g')} ({self.MIN_G}–{self.MAX_G})",
-                g
+                f"{self.wxstring(req, 'g')} ({self.MIN_G}–{self.MAX_G})", g
             ),
             composite=tr_qa(
                 f"{self.wxstring(req, 'composite')} "
                 f"({self.MIN_P_MINUS_N}–{self.MAX_P_MINUS_N})",
-                composite
+                composite,
             ),
             q_a=q_a,
             DATA_COLLECTION_ONLY_DIV=DATA_COLLECTION_ONLY_DIV,

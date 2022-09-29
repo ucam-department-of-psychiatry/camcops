@@ -64,7 +64,7 @@ keyword.
 
 <div class="error">
     %if request.user_id is None:
-        <%block go_to_login>
+        <%block name="go_to_login">
             <div>
                 ${ _("Click") }
                 <a href="${ request.route_url(Routes.LOGIN) | n }">

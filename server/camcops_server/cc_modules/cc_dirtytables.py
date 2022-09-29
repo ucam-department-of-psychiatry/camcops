@@ -42,22 +42,29 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 # DirtyTable
 # =============================================================================
 
+
 class DirtyTable(Base):
     """
     Class to represent tables being modified during a client upload.
     """
+
     __tablename__ = "_dirty_tables"
 
     id = Column(
         # new in 2.1.0; ditch composite PK
-        "id", Integer, primary_key=True, autoincrement=True
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
     )
     device_id = Column(
-        "device_id", Integer,
+        "device_id",
+        Integer,
         ForeignKey(Device.id),
-        comment="Source tablet device ID"
+        comment="Source tablet device ID",
     )
     tablename = Column(
-        "tablename", TableNameColType,
-        comment="Table in the process of being preserved"
+        "tablename",
+        TableNameColType,
+        comment="Table in the process of being preserved",
     )

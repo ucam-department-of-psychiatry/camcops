@@ -34,7 +34,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 24;
-const int MAX_SCORE = 168;
+const int MAX_QUESTION_SCORE = 168;
 const QString QPREFIX("q");
 
 const QString BprsE::BPRSE_TABLENAME("bprse");
@@ -90,7 +90,7 @@ bool BprsE::isComplete() const
 
 QStringList BprsE::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

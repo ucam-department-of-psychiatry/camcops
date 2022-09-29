@@ -80,19 +80,23 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Sorting helpers
 # =============================================================================
 
+
 class TaskClassSortMethod(Enum):
     """
     Enum to represent ways to sort task types (classes).
     """
+
     NONE = 0
     TABLENAME = 1
     SHORTNAME = 2
     LONGNAME = 3
 
 
-def sort_task_classes_in_place(classlist: List[Type[Task]],
-                               sortmethod: TaskClassSortMethod,
-                               req: "CamcopsRequest" = None) -> None:
+def sort_task_classes_in_place(
+    classlist: List[Type[Task]],
+    sortmethod: TaskClassSortMethod,
+    req: "CamcopsRequest" = None,
+) -> None:
     """
     Sort a list of task classes in place.
 
@@ -118,10 +122,11 @@ def sort_task_classes_in_place(classlist: List[Type[Task]],
 # https://stackoverflow.com/questions/11788195/module-function-vs-staticmethod-vs-classmethod-vs-no-decorators-which-idiom-is  # noqa
 # https://stackoverflow.com/questions/15017734/using-static-methods-in-python-best-practice  # noqa
 
+
 def task_classes_from_table_names(
-        tablenames: List[str],
-        sortmethod: TaskClassSortMethod = TaskClassSortMethod.NONE) \
-        -> List[Type[Task]]:
+    tablenames: List[str],
+    sortmethod: TaskClassSortMethod = TaskClassSortMethod.NONE,
+) -> List[Type[Task]]:
     """
     Transforms a list of task base tablenames into a list of task classes,
     appropriately sorted.
@@ -152,18 +157,23 @@ def all_tracker_task_classes() -> List[Type[Task]]:
     """
     Returns a list of all task classes that provide tracker information.
     """
-    return [cls for cls in Task.all_subclasses_by_shortname()
-            if cls.provides_trackers]
+    return [
+        cls
+        for cls in Task.all_subclasses_by_shortname()
+        if cls.provides_trackers
+    ]
 
 
 # =============================================================================
 # Define a filter to apply to tasks
 # =============================================================================
 
+
 class TaskFilter(Base):
     """
     SQLAlchemy ORM object representing task filter criteria.
     """
+
     __tablename__ = "_task_filters"
 
     # Lots of these could be changed into lists; for example, filtering to
@@ -183,76 +193,80 @@ class TaskFilter(Base):
     # - text_contents: might as well make it a list
     # - ID numbers: a list, joined with OR.
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True, index=True,
-        comment="Task filter ID (arbitrary integer)"
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        comment="Task filter ID (arbitrary integer)",
     )
     # Task type filters
     task_types = Column(
-        "task_types", StringListType,
-        comment="Task filter: task type(s), as CSV list of table names"
+        "task_types",
+        StringListType,
+        comment="Task filter: task type(s), as CSV list of table names",
     )
     tasks_offering_trackers_only = Column(
-        "tasks_offering_trackers_only", Boolean,
-        comment="Task filter: restrict to tasks offering trackers only?"
+        "tasks_offering_trackers_only",
+        Boolean,
+        comment="Task filter: restrict to tasks offering trackers only?",
     )
     tasks_with_patient_only = Column(
-        "tasks_with_patient_only", Boolean,
+        "tasks_with_patient_only",
+        Boolean,
         comment="Task filter: restrict to tasks with a patient (non-anonymous "
-                "tasks) only?"
+        "tasks) only?",
     )
     # Patient-related filters
     surname = Column(
-        "surname", PatientNameColType,
-        comment="Task filter: surname"
+        "surname", PatientNameColType, comment="Task filter: surname"
     )
     forename = Column(
-        "forename", PatientNameColType,
-        comment="Task filter: forename"
+        "forename", PatientNameColType, comment="Task filter: forename"
     )
     dob = Column(
-        "dob", Date,
-        comment="Task filter: DOB"
+        "dob", Date, comment="Task filter: DOB"
     )  # type: Optional[datetime.date]
-    sex = Column(
-        "sex", SexColType,
-        comment="Task filter: sex"
-    )
+    sex = Column("sex", SexColType, comment="Task filter: sex")
     idnum_criteria = Column(  # new in v2.0.1
-        "idnum_criteria", IdNumReferenceListColType,
+        "idnum_criteria",
+        IdNumReferenceListColType,
         comment="ID filters as JSON; the ID number definitions are joined "
-                "with OR"
+        "with OR",
     )
     # Other filters
     device_ids = Column(
-        "device_ids", IntListType,
-        comment="Task filter: source device ID(s), as CSV"
+        "device_ids",
+        IntListType,
+        comment="Task filter: source device ID(s), as CSV",
     )
     adding_user_ids = Column(
-        "user_ids", IntListType,
-        comment="Task filter: adding (uploading) user ID(s), as CSV"
+        "user_ids",
+        IntListType,
+        comment="Task filter: adding (uploading) user ID(s), as CSV",
     )
     group_ids = Column(
-        "group_ids", IntListType,
-        comment="Task filter: group ID(s), as CSV"
+        "group_ids", IntListType, comment="Task filter: group ID(s), as CSV"
     )
     start_datetime = Column(
-        "start_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
-        comment="Task filter: start date/time (UTC as ISO8601)"
+        "start_datetime_iso8601",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Task filter: start date/time (UTC as ISO8601)",
     )  # type: Union[None, Pendulum, datetime.datetime]
     end_datetime = Column(
-        "end_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
-        comment="Task filter: end date/time (UTC as ISO8601)"
+        "end_datetime_iso8601",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Task filter: end date/time (UTC as ISO8601)",
     )  # type: Union[None, Pendulum, datetime.datetime]
     # Implemented on the Python side for indexed lookup:
     text_contents = Column(
-        "text_contents", StringListType,
-        comment="Task filter: filter text fields"
+        "text_contents",
+        StringListType,
+        comment="Task filter: filter text fields",
     )  # task must contain ALL the strings in AT LEAST ONE of its text columns
     # Implemented on the Python side for non-indexed lookup:
     complete_only = Column(
-        "complete_only", Boolean,
-        comment="Task filter: task complete?"
+        "complete_only", Boolean, comment="Task filter: task complete?"
     )
 
     def __init__(self) -> None:
@@ -316,13 +330,16 @@ class TaskFilter(Base):
             self._task_classes = []  # type: List[Type[Task]]
             if self.task_types:
                 starting_classes = task_classes_from_table_names(
-                    self.task_types)
+                    self.task_types
+                )
             else:
                 starting_classes = Task.all_subclasses_by_shortname()
             skip_anonymous_tasks = self.skip_anonymous_tasks()
             for cls in starting_classes:
-                if (self.tasks_offering_trackers_only and
-                        not cls.provides_trackers):
+                if (
+                    self.tasks_offering_trackers_only
+                    and not cls.provides_trackers
+                ):
                     # Class doesn't provide trackers; skip
                     continue
                 if skip_anonymous_tasks and not cls.has_patient:
@@ -380,11 +397,11 @@ class TaskFilter(Base):
         Is some sort of patient filtering being applied?
         """
         return (
-            bool(self.surname) or
-            bool(self.forename) or
-            (self.dob is not None) or
-            bool(self.sex) or
-            bool(self.idnum_criteria)
+            bool(self.surname)
+            or bool(self.forename)
+            or (self.dob is not None)
+            or bool(self.sex)
+            or bool(self.idnum_criteria)
         )
 
     def any_specific_patient_filtering(self) -> bool:
@@ -394,10 +411,10 @@ class TaskFilter(Base):
         (Differs from :func:`any_patient_filtering` with respect to sex.)
         """
         return (
-            bool(self.surname) or
-            bool(self.forename) or
-            self.dob is not None or
-            bool(self.idnum_criteria)
+            bool(self.surname)
+            or bool(self.forename)
+            or self.dob is not None
+            or bool(self.idnum_criteria)
         )
 
     def get_only_iddef(self) -> Optional["IdNumReference"]:
@@ -459,8 +476,12 @@ class TaskFilter(Base):
         self.device_ids = []  # type: List[int]
         self.adding_user_ids = []  # type: List[int]
         self.group_ids = []  # type: List[int]
-        self.start_datetime = None  # type: Union[None, Pendulum, datetime.datetime]  # noqa
-        self.end_datetime = None  # type: Union[None, Pendulum, datetime.datetime]  # noqa
+        self.start_datetime = (
+            None
+        )  # type: Union[None, Pendulum, datetime.datetime]
+        self.end_datetime = (
+            None
+        )  # type: Union[None, Pendulum, datetime.datetime]
         self.text_contents = []  # type: List[str]
 
         self.complete_only = None  # type: Optional[bool]
@@ -470,11 +491,13 @@ class TaskFilter(Base):
         Are inconsistent dates specified, such that no tasks should be
         returned?
         """
-        return (self.start_datetime and self.end_datetime and
-                self.end_datetime < self.start_datetime)
+        return (
+            self.start_datetime
+            and self.end_datetime
+            and self.end_datetime < self.start_datetime
+        )
 
-    def filter_query_by_patient(self, q: Query,
-                                via_index: bool) -> Query:
+    def filter_query_by_patient(self, q: Query, via_index: bool) -> Query:
         """
         Restricts an query that has *already been joined* to the
         :class:`camcops_server.cc_modules.cc_patient.Patient` class, according
@@ -497,11 +520,9 @@ class TaskFilter(Base):
 
         """
         if self.surname:
-            q = q.filter(func.upper(Patient.surname) ==
-                         self.surname.upper())
+            q = q.filter(func.upper(Patient.surname) == self.surname.upper())
         if self.forename:
-            q = q.filter(func.upper(Patient.forename) ==
-                         self.forename.upper())
+            q = q.filter(func.upper(Patient.forename) == self.forename.upper())
         if self.dob is not None:
             q = q.filter(Patient.dob == self.dob)
         if self.sex:
@@ -513,37 +534,50 @@ class TaskFilter(Base):
                 q = q.join(PatientIdNumIndexEntry)
                 # "Specify possible ID number values"
                 for iddef in self.idnum_criteria:
-                    id_filter_parts.append(and_(
-                        PatientIdNumIndexEntry.which_idnum == iddef.which_idnum,  # noqa
-                        PatientIdNumIndexEntry.idnum_value == iddef.idnum_value
-                    ))
+                    id_filter_parts.append(
+                        and_(
+                            PatientIdNumIndexEntry.which_idnum
+                            == iddef.which_idnum,  # noqa
+                            PatientIdNumIndexEntry.idnum_value
+                            == iddef.idnum_value,
+                        )
+                    )
                 # Use OR (disjunction) of the specified values:
                 q = q.filter(or_(*id_filter_parts))
                 # "Must have a value for a given ID number type"
                 if self.must_have_idnum_type:
                     # noinspection PyComparisonWithNone,PyPep8
-                    q = q.filter(and_(
-                        PatientIdNumIndexEntry.which_idnum == self.must_have_idnum_type,  # noqa
-                        PatientIdNumIndexEntry.idnum_value != None  # noqa: E711
-                    ))
+                    q = q.filter(
+                        and_(
+                            PatientIdNumIndexEntry.which_idnum
+                            == self.must_have_idnum_type,  # noqa
+                            PatientIdNumIndexEntry.idnum_value
+                            != None,  # noqa: E711
+                        )
+                    )
             else:
                 # q = q.join(PatientIdNum) # fails
                 q = q.join(Patient.idnums)
                 # "Specify possible ID number values"
                 for iddef in self.idnum_criteria:
-                    id_filter_parts.append(and_(
-                        PatientIdNum.which_idnum == iddef.which_idnum,
-                        PatientIdNum.idnum_value == iddef.idnum_value
-                    ))
+                    id_filter_parts.append(
+                        and_(
+                            PatientIdNum.which_idnum == iddef.which_idnum,
+                            PatientIdNum.idnum_value == iddef.idnum_value,
+                        )
+                    )
                 # Use OR (disjunction) of the specified values:
                 q = q.filter(or_(*id_filter_parts))
                 # "Must have a value for a given ID number type"
                 if self.must_have_idnum_type:
                     # noinspection PyComparisonWithNone,PyPep8
-                    q = q.filter(and_(
-                        PatientIdNum.which_idnum == self.must_have_idnum_type,
-                        PatientIdNum.idnum_value != None  # noqa: E711
-                    ))
+                    q = q.filter(
+                        and_(
+                            PatientIdNum.which_idnum
+                            == self.must_have_idnum_type,
+                            PatientIdNum.idnum_value != None,  # noqa: E711
+                        )
+                    )
 
         return q
 
@@ -579,5 +613,5 @@ def decode_task_filter(d: Dict, cls: Type) -> TaskFilter:
 register_class_for_json(
     cls=TaskFilter,
     obj_to_dict_fn=encode_task_filter,
-    dict_to_obj_fn=decode_task_filter
+    dict_to_obj_fn=decode_task_filter,
 )

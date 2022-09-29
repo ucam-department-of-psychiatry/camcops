@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="isaaq">
+    <string name="title">Internet Severity and Activities Addiction Questionnaire (ISAAQ)</string>
+    <string name="instructions">instructions</string>
+
+    <string name="a_title">part A title</string>
+    <string name="scale">scale</string>
+
+    <string name="a1">losing track of time</string>
+    <string name="a2">block disturbing thoughts</string>
+    <string name="a3">loneliness or boredom</string>
+    <string name="a4">neglect normal activities</string>
+    <string name="a5">choose over intimacy</string>
+    <string name="a6">financial consequences</string>
+    <string name="a7">school/study suffers</string>
+    <string name="a8">check email or social media</string>
+    <string name="a9">others complain</string>
+    <string name="a10">defensive or secretive</string>
+    <string name="a11">try to arrest</string>
+    <string name="a12">preoccupied when offline</string>
+    <string name="a13">lose sleep</string>
+    <string name="a14">physical or psychological problems</string>
+    <string name="a15">try to cut down</string>
+
+    <string name="b_heading">part B heading</string>
+    <string name="b_title">part B title</string>
+
+    <string name="b1">general surfing</string>
+    <string name="b2">internet gaming</string>
+    <string name="b3">skill games</string>
+    <string name="b4">online shopping</string>
+    <string name="b5">online gaming</string>
+    <string name="b6">social networking</string>
+    <string name="b7">health and medicine</string>
+    <string name="b8">pornography</string>
+    <string name="b9">streaming media</string>
+    <string name="b10">cyberbullying</string>
+
+    <string name="freq_option_0">0</string>
+    <string name="freq_option_1">1</string>
+    <string name="freq_option_2">2</string>
+    <string name="freq_option_3">3</string>
+    <string name="freq_option_4">4</string>
+    <string name="freq_option_5">5</string>
+  </task>
+</resources>

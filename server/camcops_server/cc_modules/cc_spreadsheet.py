@@ -37,8 +37,18 @@ import logging
 import os
 import random
 import re
-from typing import (Any, BinaryIO, Callable, Container, Dict, Iterable, List,
-                    Optional, Sequence, Union)
+from typing import (
+    Any,
+    BinaryIO,
+    Callable,
+    Container,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Union,
+)
 import zipfile
 
 from cardinal_pythonlib.datetimefunc import (
@@ -59,17 +69,21 @@ XLSX_VIA_PYEXCEL = True
 
 if ODS_VIA_PYEXCEL:
     import pyexcel_ods3  # e.g. pip install pyexcel-ods3==0.5.3
+
     ODSWriter = ODSSheet = None
 else:
     from odswriter import ODSWriter, Sheet as ODSSheet  # noqa
+
     pyexcel_ods3 = None
 
 if XLSX_VIA_PYEXCEL:
     import pyexcel_xlsx  # e.g. pip install pyexcel-xlsx==0.5.7
+
     openpyxl = XLWorkbook = XLWorksheet = None
 else:
     from openpyxl.workbook.workbook import Workbook as XLWorkbook
     from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
+
     pyexcel_xlsx = None
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -79,12 +93,15 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Spreadsheet output holding structures
 # =============================================================================
 
+
 class SpreadsheetPage(object):
     """
     Represents a single "spreadsheet" page, e.g. for TSV/Excel/ODS output.
     """
-    def __init__(self, name: str,
-                 rows: List[Union[Dict[str, Any], OrderedDict]]) -> None:
+
+    def __init__(
+        self, name: str, rows: List[Union[Dict[str, Any], OrderedDict]]
+    ) -> None:
         """
         Args:
             name: name for the whole sheet
@@ -102,8 +119,9 @@ class SpreadsheetPage(object):
         return f"SpreadsheetPage: name={self.name}\n{self.get_tsv()}"
 
     @classmethod
-    def from_headings_rows(cls, name: str, headings: List[str],
-                           rows: List[Sequence[Any]]) -> "SpreadsheetPage":
+    def from_headings_rows(
+        cls, name: str, headings: List[str], rows: List[Sequence[Any]]
+    ) -> "SpreadsheetPage":
         """
         Creates a SpreadsheetPage object using a list of headings and the row
         data as a list of lists.
@@ -130,7 +148,8 @@ class SpreadsheetPage(object):
         column_names = rp.keys()
         rows = rp.fetchall()
         return cls.from_headings_rows(
-            name=name, headings=column_names, rows=rows)
+            name=name, headings=column_names, rows=rows
+        )
 
     @property
     def empty(self) -> bool:
@@ -229,8 +248,9 @@ class SpreadsheetPage(object):
             rows.append([row.get(h) for h in self.headings])
         return rows
 
-    def spreadsheetrows(self, converter: Callable[[Any], Any]) \
-            -> List[List[Any]]:
+    def spreadsheetrows(
+        self, converter: Callable[[Any], Any]
+    ) -> List[List[Any]]:
         """
         Like :meth:`plainrows`, but (a) ensures every cell is converted to a
         value that can be sent to a spreadsheet converted (e.g. ODS, XLSX), and
@@ -238,8 +258,7 @@ class SpreadsheetPage(object):
         """
         rows = [self.headings.copy()]
         for row in self.rows:
-            rows.append([converter(row.get(h))
-                         for h in self.headings])
+            rows.append([converter(row.get(h)) for h in self.headings])
         return rows
 
     def get_tsv(self, dialect: str = "excel-tab") -> str:
@@ -288,8 +307,9 @@ class SpreadsheetPage(object):
         """
         ws.append(self.headings)
         for row in self.rows:
-            ws.append([convert_for_openpyxl(row.get(h))
-                       for h in self.headings])
+            ws.append(
+                [convert_for_openpyxl(row.get(h)) for h in self.headings]
+            )
 
     def write_to_odswriter_ods_worksheet(self, ws: "ODSSheet") -> None:
         """
@@ -320,7 +340,7 @@ class SpreadsheetPage(object):
         """  # noqa
         object_name = self.r_object_name()
         csv_text = self.get_tsv(dialect="excel")
-        csv_text = csv_text.replace('"', r'\"')
+        csv_text = csv_text.replace('"', r"\"")
         definition = (
             f'data.table::fread(sep=",", header=TRUE, text="{csv_text}"\n)'
         )
@@ -333,13 +353,13 @@ class SpreadsheetCollection(object):
     :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage` pages
     (spreadsheets), like an Excel workbook.
     """
+
     def __init__(self) -> None:
         self.pages = []  # type: List[SpreadsheetPage]
 
     def __str__(self) -> str:
-        return (
-            "SpreadsheetCollection:\n" +
-            "\n\n".join(page.get_tsv() for page in self.pages)
+        return "SpreadsheetCollection:\n" + "\n\n".join(
+            page.get_tsv() for page in self.pages
         )
 
     # -------------------------------------------------------------------------
@@ -351,8 +371,9 @@ class SpreadsheetCollection(object):
         Returns the page with the specific name, or ``None`` if no such
         page exists.
         """
-        return next((page for page in self.pages if page.name == page_name),
-                    None)
+        return next(
+            (page for page in self.pages if page.name == page_name), None
+        )
 
     def add_page(self, page: SpreadsheetPage) -> None:
         """
@@ -436,10 +457,12 @@ class SpreadsheetCollection(object):
     # ZIP of TSVs
     # -------------------------------------------------------------------------
 
-    def write_zip(self,
-                  file: Union[str, BinaryIO],
-                  encoding: str = "utf-8",
-                  compression: int = zipfile.ZIP_DEFLATED) -> None:
+    def write_zip(
+        self,
+        file: Union[str, BinaryIO],
+        encoding: str = "utf-8",
+        compression: int = zipfile.ZIP_DEFLATED,
+    ) -> None:
         """
         Writes data to a file, as a ZIP file of TSV files.
 
@@ -532,8 +555,9 @@ class SpreadsheetCollection(object):
 
         return title
 
-    def _get_pyexcel_data(self, converter: Callable[[Any], Any]) \
-            -> Dict[str, List[List[Any]]]:
+    def _get_pyexcel_data(
+        self, converter: Callable[[Any], Any]
+    ) -> Dict[str, List[List[Any]]]:
         """
         Returns data in the format expected by ``pyexcel``, which is an ordered
         dictionary mapping sheet names to a list of rows, where each row is a
@@ -615,13 +639,13 @@ class SpreadsheetCollection(object):
                     )
                     break
 
-                match = re.search(r'\d+$', name)
+                match = re.search(r"\d+$", name)
                 count = 0
                 if match is not None:
                     count = int(match.group())
 
                 new_suffix = str(count + 1)
-                name = name[:-len(new_suffix)] + new_suffix
+                name = name[: -len(new_suffix)] + new_suffix
             name_dict[page] = name
             unique_names.append(name.lower())
 
@@ -636,11 +660,12 @@ class SpreadsheetCollection(object):
         This could be more sophisticated, e.g. creating factors with
         appropriate levels (etc.).
         """
-        now = format_datetime(get_now_localtz_pendulum(),
-                              DateFormat.ISO8601_HUMANIZED_TO_SECONDS_TZ)
+        now = format_datetime(
+            get_now_localtz_pendulum(),
+            DateFormat.ISO8601_HUMANIZED_TO_SECONDS_TZ,
+        )
         table_definition_str = "\n\n".join(
-            page.r_data_table_definition()
-            for page in self.pages
+            page.r_data_table_definition() for page in self.pages
         )
         script = f"""#!/usr/bin/env Rscript
 
@@ -674,20 +699,24 @@ library(data.table)
 
 
 def _make_benchmarking_collection(
-        nsheets: int = 100,
-        nrows: int = 200,
-        ncols: int = 30,
-        mindata: int = 0,
-        maxdata: int = 1000000) -> SpreadsheetCollection:
-    log.info(f"Creating SpreadsheetCollection with nsheets={nsheets}, "
-             f"nrows={nrows}, ncols={ncols}...")
+    nsheets: int = 100,
+    nrows: int = 200,
+    ncols: int = 30,
+    mindata: int = 0,
+    maxdata: int = 1000000,
+) -> SpreadsheetCollection:
+    log.info(
+        f"Creating SpreadsheetCollection with nsheets={nsheets}, "
+        f"nrows={nrows}, ncols={ncols}..."
+    )
     coll = SpreadsheetCollection()
     for sheetnum in range(1, nsheets + 1):
         rows = [
             {
                 f"c{colnum}": str(random.randint(mindata, maxdata))
                 for colnum in range(1, ncols + 1)
-            } for _ in range(1, nrows + 1)
+            }
+            for _ in range(1, nrows + 1)
         ]
         page = SpreadsheetPage(name=f"sheet{sheetnum}", rows=rows)
         coll.add_page(page)
@@ -702,10 +731,12 @@ def file_size(filename: str) -> int:
     return os.stat(filename).st_size
 
 
-def benchmark_save(xlsx_filename: str = "test.xlsx",
-                   ods_filename: str = "test.ods",
-                   tsv_zip_filename: str = "test.zip",
-                   r_filename: str = "test.R") -> None:
+def benchmark_save(
+    xlsx_filename: str = "test.xlsx",
+    ods_filename: str = "test.ods",
+    tsv_zip_filename: str = "test.zip",
+    r_filename: str = "test.R",
+) -> None:
     """
     Use with:
 

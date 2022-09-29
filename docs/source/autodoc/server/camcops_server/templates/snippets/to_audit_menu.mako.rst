@@ -26,4 +26,4 @@ server/camcops_server/templates/snippets/to_audit_menu.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/snippets/to_audit_menu.mako
-    :language: none
+    :language: html+mako

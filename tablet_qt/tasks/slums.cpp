@@ -94,7 +94,7 @@ const QString CLOCKPICTURE_BLOBID("clockpicture_blobid");
 const QString SHAPESPICTURE_BLOBID("shapespicture_blobid");
 const QString COMMENTS("comments");
 
-const int MAX_SCORE = 30;
+const int MAX_QUESTION_SCORE = 30;
 const int NORMAL_IF_GEQ_HIGHSCHOOL = 27;
 const int MCI_IF_GEQ_HIGHSCHOOL = 21;
 const int NORMAL_IF_GEQ_NO_HIGHSCHOOL = 25;
@@ -160,7 +160,7 @@ bool Slums::isComplete() const
 
 QStringList Slums::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

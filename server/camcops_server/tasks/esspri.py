@@ -48,16 +48,14 @@ from typing import List, Type, Tuple, Dict, Any
 
 class EsspriMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Esspri'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Esspri"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
-        comment_strings = [
-            "dryness",
-            "fatigue",
-            "pain",
-        ]
+        comment_strings = ["dryness", "fatigue", "pain"]
 
         for q_index in range(0, cls.N_QUESTIONS):
             q_num = q_index + 1
@@ -65,19 +63,23 @@ class EsspriMetaclass(DeclarativeMeta):
 
             score_comment = "(0 none - 10 maximum imaginable)"
 
-            setattr(cls, q_field, CamcopsColumn(
-                q_field, Integer,
-                permitted_value_checker=ZERO_TO_10_CHECKER,
-                comment="Q{} ({}) {}".format(
-                    q_num, comment_strings[q_index], score_comment)
-            ))
+            setattr(
+                cls,
+                q_field,
+                CamcopsColumn(
+                    q_field,
+                    Integer,
+                    permitted_value_checker=ZERO_TO_10_CHECKER,
+                    comment="Q{} ({}) {}".format(
+                        q_num, comment_strings[q_index], score_comment
+                    ),
+                ),
+            )
 
         super().__init__(name, bases, classdict)
 
 
-class Esspri(TaskHasPatientMixin,
-             Task,
-             metaclass=EsspriMetaclass):
+class Esspri(TaskHasPatientMixin, Task, metaclass=EsspriMetaclass):
     __tablename__ = "esspri"
     shortname = "ESSPRI"
 
@@ -93,9 +95,11 @@ class Esspri(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="overall_score", coltype=Float(),
+                name="overall_score",
+                coltype=Float(),
                 value=self.overall_score(),
-                comment=f"Overall score (/{self.MAX_SCORE})"),
+                comment=f"Overall score (/{self.MAX_SCORE})",
+            )
         ]
 
     def is_complete(self) -> bool:
@@ -142,10 +146,7 @@ class Esspri(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             overall_score=tr(
                 self.wxstring(req, "overall_score") + " <sup>[1]</sup>",
-                "{} / {}".format(
-                    answer(formatted_score),
-                    self.MAX_SCORE
-                )
+                "{} / {}".format(answer(formatted_score), self.MAX_SCORE),
             ),
             rows=rows,
         )

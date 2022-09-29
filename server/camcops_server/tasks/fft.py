@@ -49,22 +49,24 @@ from camcops_server.cc_modules.cc_task import (
 # FFT
 # =============================================================================
 
+
 class Fft(TaskHasPatientMixin, Task):
     """
     Server implementation of the FFT task.
     """
+
     __tablename__ = "fft"
     shortname = "FFT"
 
     service = Column(
-        "service", UnicodeText,
-        comment="Clinical service being rated"
+        "service", UnicodeText, comment="Clinical service being rated"
     )
     rating = CamcopsColumn(
-        "rating", Integer,
+        "rating",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
         comment="Likelihood of recommendation to friends/family (1 "
-                "extremely likely - 5 extremely unlikely, 6 don't know)"
+        "extremely likely - 5 extremely unlikely, 6 don't know)",
     )
 
     @staticmethod

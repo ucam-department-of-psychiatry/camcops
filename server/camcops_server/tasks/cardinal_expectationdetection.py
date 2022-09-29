@@ -106,124 +106,119 @@ def a(x: Any) -> str:
 # Cardinal_ExpectationDetection
 # =============================================================================
 
+
 class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "cardinal_expdet_trials"
 
     cardinal_expdet_id = Column(
-        "cardinal_expdet_id", Integer,
+        "cardinal_expdet_id",
+        Integer,
         nullable=False,
-        comment="FK to cardinal_expdet"
+        comment="FK to cardinal_expdet",
     )
     trial = Column(
-        "trial", Integer,
-        nullable=False,
-        comment="Trial number (0-based)"
+        "trial", Integer, nullable=False, comment="Trial number (0-based)"
     )
 
     # Config determines these (via an autogeneration process):
-    block = Column(
-        "block", Integer,
-        comment="Block number (0-based)"
-    )
-    group_num = Column(
-        "group_num", Integer,
-        comment="Group number (0-based)"
-    )
-    cue = Column(
-        "cue", Integer,
-        comment="Cue number (0-based)"
-    )
+    block = Column("block", Integer, comment="Block number (0-based)")
+    group_num = Column("group_num", Integer, comment="Group number (0-based)")
+    cue = Column("cue", Integer, comment="Cue number (0-based)")
     raw_cue_number = Column(
-        "raw_cue_number", Integer,
-        comment="Raw cue number (following counterbalancing) (0-based)"
+        "raw_cue_number",
+        Integer,
+        comment="Raw cue number (following counterbalancing) (0-based)",
     )
     target_modality = Column(
-        "target_modality", Integer,
-        comment="Target modality (0 auditory, 1 visual)"
+        "target_modality",
+        Integer,
+        comment="Target modality (0 auditory, 1 visual)",
     )
     target_number = Column(
-        "target_number", Integer,
-        comment="Target number (0-based)"
+        "target_number", Integer, comment="Target number (0-based)"
     )
     target_present = Column(
-        "target_present", Integer,
-        comment="Target present? (0 no, 1 yes)"
+        "target_present", Integer, comment="Target present? (0 no, 1 yes)"
     )
     iti_length_s = Column(
-        "iti_length_s", Float,
-        comment="Intertrial interval (s)"
+        "iti_length_s", Float, comment="Intertrial interval (s)"
     )
 
     # Task determines these (on the fly):
     pause_given_before_trial = Column(
-        "pause_given_before_trial", Integer,
-        comment="Pause given before trial? (0 no, 1 yes)"
+        "pause_given_before_trial",
+        Integer,
+        comment="Pause given before trial? (0 no, 1 yes)",
     )
     pause_start_time = Column(
-        "pause_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Pause start time (ISO-8601)"
+        "pause_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Pause start time (ISO-8601)",
     )
     pause_end_time = Column(
-        "pause_end_time", PendulumDateTimeAsIsoTextColType,
-        comment="Pause end time (ISO-8601)"
+        "pause_end_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Pause end time (ISO-8601)",
     )
     trial_start_time = Column(
-        "trial_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Trial start time (ISO-8601)"
+        "trial_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Trial start time (ISO-8601)",
     )
     cue_start_time = Column(
-        "cue_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Cue start time (ISO-8601)"
+        "cue_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Cue start time (ISO-8601)",
     )
     target_start_time = Column(
-        "target_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Target start time (ISO-8601)"
+        "target_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Target start time (ISO-8601)",
     )
     detection_start_time = Column(
-        "detection_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Detection response start time (ISO-8601)"
+        "detection_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Detection response start time (ISO-8601)",
     )
     iti_start_time = Column(
-        "iti_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Intertrial interval start time (ISO-8601)"
+        "iti_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Intertrial interval start time (ISO-8601)",
     )
     iti_end_time = Column(
-        "iti_end_time", PendulumDateTimeAsIsoTextColType,
-        comment="Intertrial interval end time (ISO-8601)"
+        "iti_end_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Intertrial interval end time (ISO-8601)",
     )
     trial_end_time = Column(
-        "trial_end_time", PendulumDateTimeAsIsoTextColType,
-        comment="Trial end time (ISO-8601)"
+        "trial_end_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Trial end time (ISO-8601)",
     )
 
     # Subject decides these:
     responded = Column(
-        "responded", Integer,
-        comment="Responded? (0 no, 1 yes)"
+        "responded", Integer, comment="Responded? (0 no, 1 yes)"
     )
     response_time = Column(
-        "response_time", PendulumDateTimeAsIsoTextColType,
-        comment="Response time (ISO-8601)"
+        "response_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Response time (ISO-8601)",
     )
     response_latency_ms = Column(
-        "response_latency_ms", Integer,
-        comment="Response latency (ms)"
+        "response_latency_ms", Integer, comment="Response latency (ms)"
     )
     rating = Column(
-        "rating", Integer,
-        comment="Rating (0 definitely not - 4 definitely)"
+        "rating", Integer, comment="Rating (0 definitely not - 4 definitely)"
     )
     correct = Column(
-        "correct", Integer,
-        comment="Correct side of the middle rating? (0 no, 1 yes)"
+        "correct",
+        Integer,
+        comment="Correct side of the middle rating? (0 no, 1 yes)",
     )
-    points = Column(
-        "points", Integer,
-        comment="Points earned this trial"
-    )
+    points = Column("points", Integer, comment="Points earned this trial")
     cumulative_points = Column(
-        "cumulative_points", Integer,
-        comment="Cumulative points earned"
+        "cumulative_points", Integer, comment="Cumulative points earned"
     )
 
     @classmethod
@@ -289,39 +284,43 @@ class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return self.rating == 2
 
     def get_html_table_row(self) -> str:
-        return tr(
-            a(self.trial),
-            a(self.block),
-            a(self.group_num),
-            a(self.cue),
-            a(self.raw_cue_number),
-            a(self.target_modality),
-            a(self.target_number),
-            a(self.target_present),
-            a(self.iti_length_s),
-            a(self.pause_given_before_trial),
-        ) + tr(
-            "...",
-            a(self.pause_start_time),
-            a(self.pause_end_time),
-            a(self.trial_start_time),
-            a(self.cue_start_time),
-            a(self.target_start_time),
-            a(self.detection_start_time),
-            a(self.iti_start_time),
-            a(self.iti_end_time),
-            a(self.trial_end_time),
-            tr_class=CssClass.EXTRADETAIL2
-        ) + tr(
-            "...",
-            a(self.responded),
-            a(self.response_time),
-            a(self.response_latency_ms),
-            a(self.rating),
-            a(self.correct),
-            a(self.points),
-            a(self.cumulative_points),
-            tr_class=CssClass.EXTRADETAIL2
+        return (
+            tr(
+                a(self.trial),
+                a(self.block),
+                a(self.group_num),
+                a(self.cue),
+                a(self.raw_cue_number),
+                a(self.target_modality),
+                a(self.target_number),
+                a(self.target_present),
+                a(self.iti_length_s),
+                a(self.pause_given_before_trial),
+            )
+            + tr(
+                "...",
+                a(self.pause_start_time),
+                a(self.pause_end_time),
+                a(self.trial_start_time),
+                a(self.cue_start_time),
+                a(self.target_start_time),
+                a(self.detection_start_time),
+                a(self.iti_start_time),
+                a(self.iti_end_time),
+                a(self.trial_end_time),
+                tr_class=CssClass.EXTRADETAIL2,
+            )
+            + tr(
+                "...",
+                a(self.responded),
+                a(self.response_time),
+                a(self.response_latency_ms),
+                a(self.rating),
+                a(self.correct),
+                a(self.points),
+                a(self.cumulative_points),
+                tr_class=CssClass.EXTRADETAIL2,
+            )
         )
 
     # -------------------------------------------------------------------------
@@ -334,43 +333,38 @@ class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
 
     def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
         return CardinalExpectationDetection.get_linked(
-            self.cardinal_expdet_id, self)
+            self.cardinal_expdet_id, self
+        )
 
 
 class ExpDetTrialGroupSpec(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "cardinal_expdet_trialgroupspec"
 
     cardinal_expdet_id = Column(
-        "cardinal_expdet_id", Integer,
+        "cardinal_expdet_id",
+        Integer,
         nullable=False,
-        comment="FK to cardinal_expdet"
+        comment="FK to cardinal_expdet",
     )
     group_num = Column(
-        "group_num", Integer,
-        nullable=False,
-        comment="Group number (0-based)"
+        "group_num", Integer, nullable=False, comment="Group number (0-based)"
     )
 
     # Group spec
-    cue = Column(
-        "cue", Integer,
-        comment="Cue number (0-based)"
-    )
+    cue = Column("cue", Integer, comment="Cue number (0-based)")
     target_modality = Column(
-        "target_modality", Integer,
-        comment="Target modality (0 auditory, 1 visual)"
+        "target_modality",
+        Integer,
+        comment="Target modality (0 auditory, 1 visual)",
     )
     target_number = Column(
-        "target_number", Integer,
-        comment="Target number (0-based)"
+        "target_number", Integer, comment="Target number (0-based)"
     )
     n_target = Column(
-        "n_target", Integer,
-        comment="Number of trials with target present"
+        "n_target", Integer, comment="Number of trials with target present"
     )
     n_no_target = Column(
-        "n_no_target", Integer,
-        comment="Number of trials with target absent"
+        "n_no_target", Integer, comment="Number of trials with target absent"
     )
 
     DP = 3
@@ -409,103 +403,103 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, TaskDescendant, Base):
 
     def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
         return CardinalExpectationDetection.get_linked(
-            self.cardinal_expdet_id, self)
+            self.cardinal_expdet_id, self
+        )
 
 
 class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     """
     Server implementation of the Cardinal_ExpDet task.
     """
+
     __tablename__ = "cardinal_expdet"
     shortname = "Cardinal_ExpDet"
     use_landscape_for_pdf = True
 
     # Config
-    num_blocks = Column(
-        "num_blocks", Integer,
-        comment="Number of blocks"
-    )
+    num_blocks = Column("num_blocks", Integer, comment="Number of blocks")
     stimulus_counterbalancing = Column(
-        "stimulus_counterbalancing", Integer,
-        comment="Stimulus counterbalancing condition"
+        "stimulus_counterbalancing",
+        Integer,
+        comment="Stimulus counterbalancing condition",
     )
     is_detection_response_on_right = Column(
-        "is_detection_response_on_right", Integer,
-        comment='Is the "detection" response on the right? (0 no, 1 yes)'
+        "is_detection_response_on_right",
+        Integer,
+        comment='Is the "detection" response on the right? (0 no, 1 yes)',
     )
     pause_every_n_trials = Column(
-        "pause_every_n_trials", Integer,
-        comment="Pause every n trials"
+        "pause_every_n_trials", Integer, comment="Pause every n trials"
     )
     # ... cue
     cue_duration_s = Column(
-        "cue_duration_s", Float,
-        comment="Cue duration (s)"
+        "cue_duration_s", Float, comment="Cue duration (s)"
     )
     visual_cue_intensity = Column(
-        "visual_cue_intensity", Float,
-        comment="Visual cue intensity (0.0-1.0)"
+        "visual_cue_intensity", Float, comment="Visual cue intensity (0.0-1.0)"
     )
     auditory_cue_intensity = Column(
-        "auditory_cue_intensity", Float,
-        comment="Auditory cue intensity (0.0-1.0)"
+        "auditory_cue_intensity",
+        Float,
+        comment="Auditory cue intensity (0.0-1.0)",
     )
     # ... ISI
     isi_duration_s = Column(
-        "isi_duration_s", Float,
-        comment="Interstimulus interval (s)"
+        "isi_duration_s", Float, comment="Interstimulus interval (s)"
     )
     # .. target
     visual_target_duration_s = Column(
-        "visual_target_duration_s", Float,
-        comment="Visual target duration (s)"
+        "visual_target_duration_s", Float, comment="Visual target duration (s)"
     )
     visual_background_intensity = Column(
-        "visual_background_intensity", Float,
-        comment="Visual background intensity (0.0-1.0)"
+        "visual_background_intensity",
+        Float,
+        comment="Visual background intensity (0.0-1.0)",
     )
     visual_target_0_intensity = Column(
-        "visual_target_0_intensity", Float,
-        comment="Visual target 0 intensity (0.0-1.0)"
+        "visual_target_0_intensity",
+        Float,
+        comment="Visual target 0 intensity (0.0-1.0)",
     )
     visual_target_1_intensity = Column(
-        "visual_target_1_intensity", Float,
-        comment="Visual target 1 intensity (0.0-1.0)"
+        "visual_target_1_intensity",
+        Float,
+        comment="Visual target 1 intensity (0.0-1.0)",
     )
     auditory_background_intensity = Column(
-        "auditory_background_intensity", Float,
-        comment="Auditory background intensity (0.0-1.0)"
+        "auditory_background_intensity",
+        Float,
+        comment="Auditory background intensity (0.0-1.0)",
     )
     auditory_target_0_intensity = Column(
-        "auditory_target_0_intensity", Float,
-        comment="Auditory target 0 intensity (0.0-1.0)"
+        "auditory_target_0_intensity",
+        Float,
+        comment="Auditory target 0 intensity (0.0-1.0)",
     )
     auditory_target_1_intensity = Column(
-        "auditory_target_1_intensity", Float,
-        comment="Auditory target 1 intensity (0.0-1.0)"
+        "auditory_target_1_intensity",
+        Float,
+        comment="Auditory target 1 intensity (0.0-1.0)",
     )
     # ... ITI
     iti_min_s = Column(
-        "iti_min_s", Float,
-        comment="Intertrial interval minimum (s)"
+        "iti_min_s", Float, comment="Intertrial interval minimum (s)"
     )
     iti_max_s = Column(
-        "iti_max_s", Float,
-        comment="Intertrial interval maximum (s)"
+        "iti_max_s", Float, comment="Intertrial interval maximum (s)"
     )
 
     # Results
     aborted = Column(
-        "aborted", Integer,
-        comment="Was the task aborted? (0 no, 1 yes)"
+        "aborted", Integer, comment="Was the task aborted? (0 no, 1 yes)"
     )
     finished = Column(
-        "finished", Integer,
-        comment="Was the task finished? (0 no, 1 yes)"
+        "finished", Integer, comment="Was the task finished? (0 no, 1 yes)"
     )
     last_trial_completed = Column(
-        "last_trial_completed", Integer,
-        comment="Number of last trial completed"
+        "last_trial_completed",
+        Integer,
+        comment="Number of last trial completed",
     )
 
     # Relationships
@@ -513,13 +507,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
-        ancillary_order_by_attr_name="trial"
+        ancillary_order_by_attr_name="trial",
     )  # type: List[ExpDetTrial]
     groupspecs = ancillary_relationship(
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrialGroupSpec",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
-        ancillary_order_by_attr_name="group_num"
+        ancillary_order_by_attr_name="group_num",
     )  # type: List[ExpDetTrialGroupSpec]
 
     @staticmethod
@@ -532,21 +526,27 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="final_score",
-                           coltype=Integer(),
-                           value=self.get_final_score()),
-            SummaryElement(name="overall_p_detect_present",
-                           coltype=Float(),
-                           value=self.get_overall_p_detect_present()),
-            SummaryElement(name="overall_p_detect_absent",
-                           coltype=Float(),
-                           value=self.get_overall_p_detect_absent()),
-            SummaryElement(name="overall_c",
-                           coltype=Float(),
-                           value=self.get_overall_c()),
-            SummaryElement(name="overall_d",
-                           coltype=Float(),
-                           value=self.get_overall_d()),
+            SummaryElement(
+                name="final_score",
+                coltype=Integer(),
+                value=self.get_final_score(),
+            ),
+            SummaryElement(
+                name="overall_p_detect_present",
+                coltype=Float(),
+                value=self.get_overall_p_detect_present(),
+            ),
+            SummaryElement(
+                name="overall_p_detect_absent",
+                coltype=Float(),
+                value=self.get_overall_p_detect_absent(),
+            ),
+            SummaryElement(
+                name="overall_c", coltype=Float(), value=self.get_overall_c()
+            ),
+            SummaryElement(
+                name="overall_d", coltype=Float(), value=self.get_overall_d()
+            ),
         ]
 
     def get_final_score(self) -> Optional[int]:
@@ -564,10 +564,11 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return html
 
     @staticmethod
-    def get_c_dprime(h: Optional[float],
-                     fa: Optional[float],
-                     two_alternative_forced_choice: bool = False) \
-            -> Tuple[Optional[float], Optional[float]]:
+    def get_c_dprime(
+        h: Optional[float],
+        fa: Optional[float],
+        two_alternative_forced_choice: bool = False,
+    ) -> Tuple[Optional[float], Optional[float]]:
         if h is None or fa is None:
             return None, None
         # In this task, we're only presenting a single alternative.
@@ -592,8 +593,9 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return c, dprime
 
     @staticmethod
-    def get_sdt_values(count_stimulus: Sequence[int],
-                       count_nostimulus: Sequence[int]) -> Dict:
+    def get_sdt_values(
+        count_stimulus: Sequence[int], count_nostimulus: Sequence[int]
+    ) -> Dict:
         # Probabilities and cumulative probabilities
         sum_count_stimulus = numpy.sum(count_stimulus)
         sum_count_nostimulus = numpy.sum(count_nostimulus)
@@ -632,22 +634,19 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         # log.debug("fa: " + str(fa))
         # log.debug("z_h: " + str(z_h))
         # log.debug("z_fa: " + str(z_fa))
-        return {
-            "fa": fa,
-            "h": h,
-            "z_fa": z_fa,
-            "z_h": z_h,
-        }
+        return {"fa": fa, "h": h, "z_fa": z_fa, "z_h": z_h}
 
-    def plot_roc(self,
-                 req: CamcopsRequest,
-                 ax: Axes,
-                 count_stimulus: Sequence[int],
-                 count_nostimulus: Sequence[int],
-                 show_x_label: bool,
-                 show_y_label: bool,
-                 plainroc: bool,
-                 subtitle: str) -> None:
+    def plot_roc(
+        self,
+        req: CamcopsRequest,
+        ax: Axes,
+        count_stimulus: Sequence[int],
+        count_nostimulus: Sequence[int],
+        show_x_label: bool,
+        show_y_label: bool,
+        plainroc: bool,
+        subtitle: str,
+    ) -> None:
         extraspace = 0.05
         sdtval = self.get_sdt_values(count_stimulus, count_nostimulus)
 
@@ -666,10 +665,11 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             ylabel = "Z(H)"
         # Plot
         ax.plot(
-            x, y,
+            x,
+            y,
             marker=MatplotlibConstants.MARKER_PLUS,
             color=MatplotlibConstants.COLOUR_BLUE,
-            linestyle=MatplotlibConstants.LINESTYLE_SOLID
+            linestyle=MatplotlibConstants.LINESTYLE_SOLID,
         )
         ax.set_xlabel(xlabel if show_x_label else "", fontdict=req.fontdict)
         ax.set_ylabel(ylabel if show_y_label else "", fontdict=req.fontdict)
@@ -677,9 +677,11 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         req.set_figure_font_sizes(ax)
 
     @staticmethod
-    def get_roc_info(trialarray: List[ExpDetTrial],
-                     blocks: List[int],
-                     groups: Optional[List[int]]) -> Dict:
+    def get_roc_info(
+        trialarray: List[ExpDetTrial],
+        blocks: List[int],
+        groups: Optional[List[int]],
+    ) -> Dict:
         # Collect counts (Macmillan & Creelman p61)
         total_n = 0
         count_stimulus = numpy.zeros(NRATINGS)
@@ -710,22 +712,24 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             "rating_out_of_range": rating_out_of_range,
         }
 
-    def get_roc_figure_by_group(self,
-                                req: CamcopsRequest,
-                                trialarray: List[ExpDetTrial],
-                                grouparray: List[ExpDetTrialGroupSpec],
-                                plainroc: bool) -> str:
+    def get_roc_figure_by_group(
+        self,
+        req: CamcopsRequest,
+        trialarray: List[ExpDetTrial],
+        grouparray: List[ExpDetTrialGroupSpec],
+        plainroc: bool,
+    ) -> str:
         if not trialarray or not grouparray:
             return WARNING_INSUFFICIENT_DATA
         figsize = (
             PlotDefaults.FULLWIDTH_PLOT_WIDTH * 2,
-            PlotDefaults.FULLWIDTH_PLOT_WIDTH
+            PlotDefaults.FULLWIDTH_PLOT_WIDTH,
         )
         html = ""
         fig = req.create_figure(figsize=figsize)
         warned = False
         for groupnum in range(len(grouparray)):
-            ax = fig.add_subplot(2, 4, groupnum+1)
+            ax = fig.add_subplot(2, 4, groupnum + 1)
             # ... rows, cols, plotnum (in reading order from 1)
             rocinfo = self.get_roc_info(trialarray, [], [groupnum])
             if rocinfo["rating_out_of_range"]:
@@ -733,8 +737,8 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             if rocinfo["rating_missing"] and not warned:
                 html += WARNING_RATING_MISSING
                 warned = True
-            show_x_label = (groupnum > 3)
-            show_y_label = (groupnum % 4 == 0)
+            show_x_label = groupnum > 3
+            show_y_label = groupnum % 4 == 0
             subtitle = f"Group {groupnum} (n = {rocinfo['total_n']})"
             self.plot_roc(
                 req,
@@ -744,7 +748,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 show_x_label,
                 show_y_label,
                 plainroc,
-                subtitle
+                subtitle,
             )
         title = PLAIN_ROC_TITLE if plainroc else Z_ROC_TITLE
         fontprops = req.fontprops
@@ -753,24 +757,29 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         html += req.get_html_from_pyplot_figure(fig)
         return html
 
-    def get_roc_figure_firsthalf_lasthalf(self,
-                                          req: CamcopsRequest,
-                                          trialarray: List[ExpDetTrial],
-                                          plainroc: bool) -> str:
+    def get_roc_figure_firsthalf_lasthalf(
+        self,
+        req: CamcopsRequest,
+        trialarray: List[ExpDetTrial],
+        plainroc: bool,
+    ) -> str:
         if not trialarray or not self.num_blocks:
             return WARNING_INSUFFICIENT_DATA
         figsize = (
             PlotDefaults.FULLWIDTH_PLOT_WIDTH,
-            PlotDefaults.FULLWIDTH_PLOT_WIDTH / 2
+            PlotDefaults.FULLWIDTH_PLOT_WIDTH / 2,
         )
         html = ""
         fig = req.create_figure(figsize=figsize)
         warned = False
         for half in range(2):
-            ax = fig.add_subplot(1, 2, half+1)
+            ax = fig.add_subplot(1, 2, half + 1)
             # ... rows, cols, plotnum (in reading order from 1)
-            blocks = list(range(half * self.num_blocks // 2,
-                                self.num_blocks // (2 - half)))
+            blocks = list(
+                range(
+                    half * self.num_blocks // 2, self.num_blocks // (2 - half)
+                )
+            )
             rocinfo = self.get_roc_info(trialarray, blocks, None)
             if rocinfo["rating_out_of_range"]:
                 return ERROR_RATING_OUT_OF_RANGE
@@ -778,7 +787,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 html += WARNING_RATING_MISSING
                 warned = True
             show_x_label = True
-            show_y_label = (half == 0)
+            show_y_label = half == 0
             subtitle = "First half" if half == 0 else "Second half"
             self.plot_roc(
                 req,
@@ -788,7 +797,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 show_x_label,
                 show_y_label,
                 plainroc,
-                subtitle
+                subtitle,
             )
         title = PLAIN_ROC_TITLE if plainroc else Z_ROC_TITLE
         fontprops = req.fontprops
@@ -831,28 +840,40 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         """
         h += tr_qa("Number of blocks", self.num_blocks)
         h += tr_qa("Stimulus counterbalancing", self.stimulus_counterbalancing)
-        h += tr_qa("“Detection” response on right?",
-                   self.is_detection_response_on_right)
-        h += tr_qa("Pause every <i>n</i> trials (0 = no pauses)",
-                   self.pause_every_n_trials)
+        h += tr_qa(
+            "“Detection” response on right?",
+            self.is_detection_response_on_right,
+        )
+        h += tr_qa(
+            "Pause every <i>n</i> trials (0 = no pauses)",
+            self.pause_every_n_trials,
+        )
         h += tr_qa("Cue duration (s)", self.cue_duration_s)
         h += tr_qa("Visual cue intensity (0–1)", self.visual_cue_intensity)
-        h += tr_qa("Auditory cue intensity (0–1)",
-                   self.auditory_cue_intensity)
+        h += tr_qa("Auditory cue intensity (0–1)", self.auditory_cue_intensity)
         h += tr_qa("ISI duration (s)", self.isi_duration_s)
         h += tr_qa("Visual target duration (s)", self.visual_target_duration_s)
-        h += tr_qa("Visual background intensity",
-                   self.visual_background_intensity)
-        h += tr_qa("Visual target 0 (circle) intensity",
-                   self.visual_target_0_intensity)
-        h += tr_qa("Visual target 1 (“sun”) intensity",
-                   self.visual_target_1_intensity)
-        h += tr_qa("Auditory background intensity",
-                   self.auditory_background_intensity)
-        h += tr_qa("Auditory target 0 (tone) intensity",
-                   self.auditory_target_0_intensity)
-        h += tr_qa("Auditory target 1 (“moon”) intensity",
-                   self.auditory_target_1_intensity)
+        h += tr_qa(
+            "Visual background intensity", self.visual_background_intensity
+        )
+        h += tr_qa(
+            "Visual target 0 (circle) intensity",
+            self.visual_target_0_intensity,
+        )
+        h += tr_qa(
+            "Visual target 1 (“sun”) intensity", self.visual_target_1_intensity
+        )
+        h += tr_qa(
+            "Auditory background intensity", self.auditory_background_intensity
+        )
+        h += tr_qa(
+            "Auditory target 0 (tone) intensity",
+            self.auditory_target_0_intensity,
+        )
+        h += tr_qa(
+            "Auditory target 1 (“moon”) intensity",
+            self.auditory_target_1_intensity,
+        )
         h += tr_qa("ITI minimum (s)", self.iti_min_s)
         h += tr_qa("ITI maximum (s)", self.iti_max_s)
         h += f"""
@@ -870,53 +891,55 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     Trial group specifications (one block is a full set of
                     all these trials):
                 </div>
-            """ +
-            self.get_group_html() +
             """
+            + self.get_group_html()
+            + """
                 <div>
                     Detection probabilities by block and group (c &gt; 0 when
                     miss rate &gt; false alarm rate; c &lt; 0 when false alarm
                     rate &gt; miss rate):
                 </div>
-            """ +
-            self.get_html_correct_by_group_and_block(trialarray) +
-            "<div>Detection probabilities by block:</div>" +
-            self.get_html_correct_by_block(trialarray) +
-            "<div>Detection probabilities by group:</div>" +
-            self.get_html_correct_by_group(trialarray) +
             """
+            + self.get_html_correct_by_group_and_block(trialarray)
+            + "<div>Detection probabilities by block:</div>"
+            + self.get_html_correct_by_block(trialarray)
+            + "<div>Detection probabilities by group:</div>"
+            + self.get_html_correct_by_group(trialarray)
+            + """
                 <div>
                     Detection probabilities by half and high/low association
                     probability:
                 </div>
-            """ +
-            self.get_html_correct_by_half_and_probability(trialarray,
-                                                          grouparray) +
             """
+            + self.get_html_correct_by_half_and_probability(
+                trialarray, grouparray
+            )
+            + """
                 <div>
                     Detection probabilities by block and high/low association
                     probability:
                 </div>
-            """ +
-            self.get_html_correct_by_block_and_probability(trialarray,
-                                                           grouparray) +
             """
+            + self.get_html_correct_by_block_and_probability(
+                trialarray, grouparray
+            )
+            + """
                 <div>
                     Receiver operating characteristic (ROC) curves by group:
                 </div>
-            """ +
-            self.get_roc_figure_by_group(req, trialarray, grouparray, True) +
-            self.get_roc_figure_by_group(req, trialarray, grouparray, False) +
-            "<div>First-half/last-half ROCs:</div>" +
-            self.get_roc_figure_firsthalf_lasthalf(req, trialarray, True) +
-            "<div>Trial-by-trial results:</div>" +
-            self.get_trial_html()
+            """
+            + self.get_roc_figure_by_group(req, trialarray, grouparray, True)
+            + self.get_roc_figure_by_group(req, trialarray, grouparray, False)
+            + "<div>First-half/last-half ROCs:</div>"
+            + self.get_roc_figure_firsthalf_lasthalf(req, trialarray, True)
+            + "<div>Trial-by-trial results:</div>"
+            + self.get_trial_html()
         )
         return h
 
     def get_html_correct_by_group_and_block(
-            self,
-            trialarray: List[ExpDetTrial]) -> str:
+        self, trialarray: List[ExpDetTrial]
+    ) -> str:
         if not trialarray:
             return div(italic("No trials"))
         html = f"""
@@ -939,11 +962,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         for b in range(self.num_blocks):
             html += "<tr>" + td(str(b))
             for g in range(N_CUES):
-                (p_detected_given_present,
-                 p_detected_given_absent,
-                 c,
-                 dprime,
-                 n_trials) = self.get_p_detected(trialarray, [b], [g])
+                (
+                    p_detected_given_present,
+                    p_detected_given_absent,
+                    c,
+                    dprime,
+                    n_trials,
+                ) = self.get_p_detected(trialarray, [b], [g])
                 html += td(a(p_detected_given_present))
                 html += td(a(p_detected_given_absent))
                 html += td(a(c))
@@ -955,19 +980,20 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return html
 
     def get_html_correct_by_half_and_probability(
-            self,
-            trialarray: List[ExpDetTrial],
-            grouparray: List[ExpDetTrialGroupSpec]) -> str:
+        self,
+        trialarray: List[ExpDetTrial],
+        grouparray: List[ExpDetTrialGroupSpec],
+    ) -> str:
         if (not trialarray) or (not grouparray):
             return div(italic("No trials or no groups"))
         n_target_highprob = max([x.n_target for x in grouparray])
         n_target_lowprob = min([x.n_target for x in grouparray])
-        groups_highprob = [x.group_num
-                           for x in grouparray
-                           if x.n_target == n_target_highprob]
-        groups_lowprob = [x.group_num
-                          for x in grouparray
-                          if x.n_target == n_target_lowprob]
+        groups_highprob = [
+            x.group_num for x in grouparray if x.n_target == n_target_highprob
+        ]
+        groups_lowprob = [
+            x.group_num for x in grouparray if x.n_target == n_target_lowprob
+        ]
         html = f"""
             <div><i>
                 High probability groups (cues):
@@ -987,14 +1013,20 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         """
         for half in (0, 1):
             for prob in (0, 1):
-                blocks = list(range(half * self.num_blocks // 2,
-                                    self.num_blocks // (2 - half)))
+                blocks = list(
+                    range(
+                        half * self.num_blocks // 2,
+                        self.num_blocks // (2 - half),
+                    )
+                )
                 groups = groups_lowprob if prob == 0 else groups_highprob
-                (p_detected_given_present,
-                 p_detected_given_absent,
-                 c,
-                 dprime,
-                 n_trials) = self.get_p_detected(trialarray, blocks, groups)
+                (
+                    p_detected_given_present,
+                    p_detected_given_absent,
+                    c,
+                    dprime,
+                    n_trials,
+                ) = self.get_p_detected(trialarray, blocks, groups)
                 html += tr(
                     half,
                     a(prob),
@@ -1009,19 +1041,20 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         return html
 
     def get_html_correct_by_block_and_probability(
-            self,
-            trialarray: List[ExpDetTrial],
-            grouparray: List[ExpDetTrialGroupSpec]) -> str:
+        self,
+        trialarray: List[ExpDetTrial],
+        grouparray: List[ExpDetTrialGroupSpec],
+    ) -> str:
         if (not trialarray) or (not grouparray):
             return div(italic("No trials or no groups"))
         n_target_highprob = max([x.n_target for x in grouparray])
         n_target_lowprob = min([x.n_target for x in grouparray])
-        groups_highprob = [x.group_num
-                           for x in grouparray
-                           if x.n_target == n_target_highprob]
-        groups_lowprob = [x.group_num
-                          for x in grouparray
-                          if x.n_target == n_target_lowprob]
+        groups_highprob = [
+            x.group_num for x in grouparray if x.n_target == n_target_highprob
+        ]
+        groups_lowprob = [
+            x.group_num for x in grouparray if x.n_target == n_target_lowprob
+        ]
         html = f"""
             <div><i>
                 High probability groups (cues):
@@ -1042,11 +1075,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         for b in range(self.num_blocks):
             for prob in (0, 1):
                 groups = groups_lowprob if prob == 0 else groups_highprob
-                (p_detected_given_present,
-                 p_detected_given_absent,
-                 c,
-                 dprime,
-                 n_trials) = self.get_p_detected(trialarray, [b], groups)
+                (
+                    p_detected_given_present,
+                    p_detected_given_absent,
+                    c,
+                    dprime,
+                    n_trials,
+                ) = self.get_p_detected(trialarray, [b], groups)
                 html += tr(
                     b,
                     prob,
@@ -1074,11 +1109,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 </tr>
         """
         for g in range(N_CUES):
-            (p_detected_given_present,
-             p_detected_given_absent,
-             c,
-             dprime,
-             n_trials) = self.get_p_detected(trialarray, None, [g])
+            (
+                p_detected_given_present,
+                p_detected_given_absent,
+                c,
+                dprime,
+                n_trials,
+            ) = self.get_p_detected(trialarray, None, [g])
             html += tr(
                 g,
                 a(p_detected_given_present),
@@ -1105,11 +1142,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                 </tr>
         """
         for b in range(self.num_blocks):
-            (p_detected_given_present,
-             p_detected_given_absent,
-             c,
-             dprime,
-             n_trials) = self.get_p_detected(trialarray, [b], None)
+            (
+                p_detected_given_present,
+                p_detected_given_absent,
+                c,
+                dprime,
+                n_trials,
+            ) = self.get_p_detected(trialarray, [b], None)
             html += tr(
                 b,
                 a(p_detected_given_present),
@@ -1122,22 +1161,25 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         """
         return html
 
-    def get_p_detected(self,
-                       trialarray: List[ExpDetTrial],
-                       blocks: Optional[List[int]],
-                       groups: Optional[List[int]]) -> \
-            Tuple[Optional[float], Optional[float],
-                  Optional[float], Optional[float],
-                  int]:
+    def get_p_detected(
+        self,
+        trialarray: List[ExpDetTrial],
+        blocks: Optional[List[int]],
+        groups: Optional[List[int]],
+    ) -> Tuple[
+        Optional[float], Optional[float], Optional[float], Optional[float], int
+    ]:
         n_present = 0
         n_absent = 0
         n_detected_given_present = 0
         n_detected_given_absent = 0
         n_trials = 0
         for t in trialarray:
-            if (not t.responded or
-                    (blocks is not None and t.block not in blocks) or
-                    (groups is not None and t.group_num not in groups)):
+            if (
+                not t.responded
+                or (blocks is not None and t.block not in blocks)
+                or (groups is not None and t.group_num not in groups)
+            ):
                 continue
             if t.target_present:
                 n_present += 1
@@ -1149,116 +1191,155 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                     n_detected_given_absent += 1
             n_trials += 1
         p_detected_given_present = (
-            float(n_detected_given_present) / float(n_present)
-        ) if n_present > 0 else None
+            (float(n_detected_given_present) / float(n_present))
+            if n_present > 0
+            else None
+        )
         p_detected_given_absent = (
-            float(n_detected_given_absent) / float(n_absent)
-        ) if n_absent > 0 else None
-        (c, dprime) = self.get_c_dprime(p_detected_given_present,
-                                        p_detected_given_absent)
+            (float(n_detected_given_absent) / float(n_absent))
+            if n_absent > 0
+            else None
+        )
+        (c, dprime) = self.get_c_dprime(
+            p_detected_given_present, p_detected_given_absent
+        )
         # hits: p_detected_given_present
         # false alarms: p_detected_given_absent
-        return (p_detected_given_present, p_detected_given_absent, c, dprime,
-                n_trials)
+        return (
+            p_detected_given_present,
+            p_detected_given_absent,
+            c,
+            dprime,
+            n_trials,
+        )
 
-    def get_extra_summary_tables(self, req: CamcopsRequest) \
-            -> List[ExtraSummaryTable]:
+    def get_extra_summary_tables(
+        self, req: CamcopsRequest
+    ) -> List[ExtraSummaryTable]:
         grouparray = self.groupspecs
         trialarray = self.trials
-        trialarray_auditory = [x for x in trialarray
-                               if x.target_modality == AUDITORY]
+        trialarray_auditory = [
+            x for x in trialarray if x.target_modality == AUDITORY
+        ]
         blockprob_values = []  # type: List[Dict[str, Any]]
         halfprob_values = []  # type: List[Dict[str, Any]]
 
         if grouparray and trialarray:
             n_target_highprob = max([x.n_target for x in grouparray])
             n_target_lowprob = min([x.n_target for x in grouparray])
-            groups_highprob = [x.group_num for x in grouparray
-                               if x.n_target == n_target_highprob]
-            groups_lowprob = [x.group_num for x in grouparray
-                              if x.n_target == n_target_lowprob]
+            groups_highprob = [
+                x.group_num
+                for x in grouparray
+                if x.n_target == n_target_highprob
+            ]
+            groups_lowprob = [
+                x.group_num
+                for x in grouparray
+                if x.n_target == n_target_lowprob
+            ]
             for block in range(self.num_blocks):
                 for target_probability_low_high in (0, 1):
                     groups = (
-                        groups_lowprob if target_probability_low_high == 0
+                        groups_lowprob
+                        if target_probability_low_high == 0
                         else groups_highprob
                     )
-                    (p_detected_given_present,
-                     p_detected_given_absent,
-                     c, dprime,
-                     n_trials) = self.get_p_detected(
-                        trialarray, [block], groups)
-                    (auditory_p_detected_given_present,
-                     auditory_p_detected_given_absent,
-                     auditory_c, auditory_dprime,
-                     auditory_n_trials) = self.get_p_detected(
-                        trialarray_auditory, [block], groups)
-                    blockprob_values.append(dict(
-                        cardinal_expdet_pk=self._pk,  # tablename_pk
-                        n_blocks_overall=self.num_blocks,
-                        block=block,
-                        target_probability_low_high=target_probability_low_high,  # noqa
-                        n_trials=n_trials,
-                        p_detect_present=p_detected_given_present,
-                        p_detect_absent=p_detected_given_absent,
-                        c=c,
-                        d=dprime,
-                        auditory_n_trials=auditory_n_trials,
-                        auditory_p_detect_present=auditory_p_detected_given_present,  # noqa
-                        auditory_p_detect_absent=auditory_p_detected_given_absent,  # noqa
-                        auditory_c=auditory_c,
-                        auditory_d=auditory_dprime,
-                    ))
+                    (
+                        p_detected_given_present,
+                        p_detected_given_absent,
+                        c,
+                        dprime,
+                        n_trials,
+                    ) = self.get_p_detected(trialarray, [block], groups)
+                    (
+                        auditory_p_detected_given_present,
+                        auditory_p_detected_given_absent,
+                        auditory_c,
+                        auditory_dprime,
+                        auditory_n_trials,
+                    ) = self.get_p_detected(
+                        trialarray_auditory, [block], groups
+                    )
+                    blockprob_values.append(
+                        dict(
+                            cardinal_expdet_pk=self._pk,  # tablename_pk
+                            n_blocks_overall=self.num_blocks,
+                            block=block,
+                            target_probability_low_high=target_probability_low_high,  # noqa
+                            n_trials=n_trials,
+                            p_detect_present=p_detected_given_present,
+                            p_detect_absent=p_detected_given_absent,
+                            c=c,
+                            d=dprime,
+                            auditory_n_trials=auditory_n_trials,
+                            auditory_p_detect_present=auditory_p_detected_given_present,  # noqa
+                            auditory_p_detect_absent=auditory_p_detected_given_absent,  # noqa
+                            auditory_c=auditory_c,
+                            auditory_d=auditory_dprime,
+                        )
+                    )
 
             # Now another one...
             for half in range(2):
-                blocks = list(range(half * self.num_blocks // 2,
-                                    self.num_blocks // (2 - half)))
+                blocks = list(
+                    range(
+                        half * self.num_blocks // 2,
+                        self.num_blocks // (2 - half),
+                    )
+                )
                 for target_probability_low_high in (0, 1):
                     groups = (
-                        groups_lowprob if target_probability_low_high == 0
+                        groups_lowprob
+                        if target_probability_low_high == 0
                         else groups_highprob
                     )
-                    (p_detected_given_present,
-                     p_detected_given_absent,
-                     c,
-                     dprime,
-                     n_trials) = self.get_p_detected(
-                        trialarray, blocks, groups)
-                    (auditory_p_detected_given_present,
-                     auditory_p_detected_given_absent,
-                     auditory_c, auditory_dprime,
-                     auditory_n_trials) = self.get_p_detected(
-                        trialarray_auditory, blocks, groups)
-                    halfprob_values.append(dict(
-                        cardinal_expdet_pk=self._pk,  # tablename_pk
-                        half=half,
-                        target_probability_low_high=target_probability_low_high,  # noqa
-                        n_trials=n_trials,
-                        p_detect_present=p_detected_given_present,
-                        p_detect_absent=p_detected_given_absent,
-                        c=c,
-                        d=dprime,
-                        auditory_n_trials=auditory_n_trials,
-                        auditory_p_detect_present=auditory_p_detected_given_present,  # noqa
-                        auditory_p_detect_absent=auditory_p_detected_given_absent,  # noqa
-                        auditory_c=auditory_c,
-                        auditory_d=auditory_dprime,
-                    ))
+                    (
+                        p_detected_given_present,
+                        p_detected_given_absent,
+                        c,
+                        dprime,
+                        n_trials,
+                    ) = self.get_p_detected(trialarray, blocks, groups)
+                    (
+                        auditory_p_detected_given_present,
+                        auditory_p_detected_given_absent,
+                        auditory_c,
+                        auditory_dprime,
+                        auditory_n_trials,
+                    ) = self.get_p_detected(
+                        trialarray_auditory, blocks, groups
+                    )
+                    halfprob_values.append(
+                        dict(
+                            cardinal_expdet_pk=self._pk,  # tablename_pk
+                            half=half,
+                            target_probability_low_high=target_probability_low_high,  # noqa
+                            n_trials=n_trials,
+                            p_detect_present=p_detected_given_present,
+                            p_detect_absent=p_detected_given_absent,
+                            c=c,
+                            d=dprime,
+                            auditory_n_trials=auditory_n_trials,
+                            auditory_p_detect_present=auditory_p_detected_given_present,  # noqa
+                            auditory_p_detect_absent=auditory_p_detected_given_absent,  # noqa
+                            auditory_c=auditory_c,
+                            auditory_d=auditory_dprime,
+                        )
+                    )
 
         blockprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_blockprobs",
             xmlname="blockprobs",
             columns=self.get_blockprob_columns(),
             rows=blockprob_values,
-            task=self
+            task=self,
         )
         halfprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_halfprobs",
             xmlname="halfprobs",
             columns=self.get_halfprob_columns(),
             rows=halfprob_values,
-            task=self
+            task=self,
         )
         return [blockprob_table, halfprob_table]
 
@@ -1270,111 +1351,160 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
         # requests with e.g. "sqlalchemy.exc.ArgumentError: Column object 'id'
         # already assigned to Table 'cardinal_expdet_blockprobs'"
         return [
-            Column("id", Integer, primary_key=True, autoincrement=True,
-                   comment="Arbitrary PK"),
-            Column("cardinal_expdet_pk", Integer,
-                   ForeignKey("cardinal_expdet._pk"),
-                   nullable=False,
-                   comment="FK to the source table's _pk field"),
-            Column("n_blocks_overall", Integer,
-                   comment="Number of blocks (OVERALL)"),
-            Column("block", Integer,
-                   comment="Block number"),
-            Column("target_probability_low_high", Integer,
-                   comment="Target probability given stimulus "
-                           "(0 low, 1 high)"),
-            Column("n_trials", Integer,
-                   comment="Number of trials in this condition"),
-            Column("p_detect_present", Float,
-                   comment="P(detect | present)"),
-            Column("p_detect_absent", Float,
-                   comment="P(detect | absent)"),
-            Column("c", Float,
-                   comment="c (bias; c > 0 when miss rate > false alarm rate; "
-                           "c < 0 when false alarm rate > miss rate)"),
-            Column("d", Float,
-                   comment="d' (discriminability)"),
-            Column("auditory_n_trials", Integer,
-                   comment="Number of auditory trials in this condition"),
-            Column("auditory_p_detect_present", Float,
-                   comment="AUDITORY P(detect | present)"),
-            Column("auditory_p_detect_absent", Float,
-                   comment="AUDITORY P(detect | absent)"),
-            Column("auditory_c", Float,
-                   comment="AUDITORY c"),
-            Column("auditory_d", Float,
-                   comment="AUDITORY d'"),
+            Column(
+                "id",
+                Integer,
+                primary_key=True,
+                autoincrement=True,
+                comment="Arbitrary PK",
+            ),
+            Column(
+                "cardinal_expdet_pk",
+                Integer,
+                ForeignKey("cardinal_expdet._pk"),
+                nullable=False,
+                comment="FK to the source table's _pk field",
+            ),
+            Column(
+                "n_blocks_overall",
+                Integer,
+                comment="Number of blocks (OVERALL)",
+            ),
+            Column("block", Integer, comment="Block number"),
+            Column(
+                "target_probability_low_high",
+                Integer,
+                comment="Target probability given stimulus " "(0 low, 1 high)",
+            ),
+            Column(
+                "n_trials",
+                Integer,
+                comment="Number of trials in this condition",
+            ),
+            Column("p_detect_present", Float, comment="P(detect | present)"),
+            Column("p_detect_absent", Float, comment="P(detect | absent)"),
+            Column(
+                "c",
+                Float,
+                comment="c (bias; c > 0 when miss rate > false alarm rate; "
+                "c < 0 when false alarm rate > miss rate)",
+            ),
+            Column("d", Float, comment="d' (discriminability)"),
+            Column(
+                "auditory_n_trials",
+                Integer,
+                comment="Number of auditory trials in this condition",
+            ),
+            Column(
+                "auditory_p_detect_present",
+                Float,
+                comment="AUDITORY P(detect | present)",
+            ),
+            Column(
+                "auditory_p_detect_absent",
+                Float,
+                comment="AUDITORY P(detect | absent)",
+            ),
+            Column("auditory_c", Float, comment="AUDITORY c"),
+            Column("auditory_d", Float, comment="AUDITORY d'"),
         ]
 
     @staticmethod
     def get_halfprob_columns() -> List[Column]:
         return [
-            Column("id", Integer, primary_key=True, autoincrement=True,
-                   comment="Arbitrary PK"),
-            Column("cardinal_expdet_pk", Integer,
-                   ForeignKey("cardinal_expdet._pk"),
-                   nullable=False,
-                   comment="FK to the source table's _pk field"),
-            Column("half", Integer,
-                   comment="Half number"),
-            Column("target_probability_low_high", Integer,
-                   comment="Target probability given stimulus "
-                           "(0 low, 1 high)"),
-            Column("n_trials", Integer,
-                   comment="Number of trials in this condition"),
-            Column("p_detect_present", Float,
-                   comment="P(detect | present)"),
-            Column("p_detect_absent", Float,
-                   comment="P(detect | absent)"),
-            Column("c", Float,
-                   comment="c (bias; c > 0 when miss rate > false alarm rate; "
-                           "c < 0 when false alarm rate > miss rate)"),
-            Column("d", Float,
-                   comment="d' (discriminability)"),
-            Column("auditory_n_trials", Integer,
-                   comment="Number of auditory trials in this condition"),
-            Column("auditory_p_detect_present", Float,
-                   comment="AUDITORY P(detect | present)"),
-            Column("auditory_p_detect_absent", Float,
-                   comment="AUDITORY P(detect | absent)"),
-            Column("auditory_c", Float,
-                   comment="AUDITORY c"),
-            Column("auditory_d", Float,
-                   comment="AUDITORY d'"),
+            Column(
+                "id",
+                Integer,
+                primary_key=True,
+                autoincrement=True,
+                comment="Arbitrary PK",
+            ),
+            Column(
+                "cardinal_expdet_pk",
+                Integer,
+                ForeignKey("cardinal_expdet._pk"),
+                nullable=False,
+                comment="FK to the source table's _pk field",
+            ),
+            Column("half", Integer, comment="Half number"),
+            Column(
+                "target_probability_low_high",
+                Integer,
+                comment="Target probability given stimulus " "(0 low, 1 high)",
+            ),
+            Column(
+                "n_trials",
+                Integer,
+                comment="Number of trials in this condition",
+            ),
+            Column("p_detect_present", Float, comment="P(detect | present)"),
+            Column("p_detect_absent", Float, comment="P(detect | absent)"),
+            Column(
+                "c",
+                Float,
+                comment="c (bias; c > 0 when miss rate > false alarm rate; "
+                "c < 0 when false alarm rate > miss rate)",
+            ),
+            Column("d", Float, comment="d' (discriminability)"),
+            Column(
+                "auditory_n_trials",
+                Integer,
+                comment="Number of auditory trials in this condition",
+            ),
+            Column(
+                "auditory_p_detect_present",
+                Float,
+                comment="AUDITORY P(detect | present)",
+            ),
+            Column(
+                "auditory_p_detect_absent",
+                Float,
+                comment="AUDITORY P(detect | absent)",
+            ),
+            Column("auditory_c", Float, comment="AUDITORY c"),
+            Column("auditory_d", Float, comment="AUDITORY d'"),
         ]
 
     def get_overall_p_detect_present(self) -> Optional[float]:
         trialarray = self.trials
-        (p_detected_given_present,
-         p_detected_given_absent,
-         c,
-         dprime,
-         n_trials) = self.get_p_detected(trialarray, None, None)
+        (
+            p_detected_given_present,
+            p_detected_given_absent,
+            c,
+            dprime,
+            n_trials,
+        ) = self.get_p_detected(trialarray, None, None)
         return p_detected_given_present
 
     def get_overall_p_detect_absent(self) -> Optional[float]:
         trialarray = self.trials
-        (p_detected_given_present,
-         p_detected_given_absent,
-         c,
-         dprime,
-         n_trials) = self.get_p_detected(trialarray, None, None)
+        (
+            p_detected_given_present,
+            p_detected_given_absent,
+            c,
+            dprime,
+            n_trials,
+        ) = self.get_p_detected(trialarray, None, None)
         return p_detected_given_absent
 
     def get_overall_c(self) -> Optional[float]:
         trialarray = self.trials
-        (p_detected_given_present,
-         p_detected_given_absent,
-         c,
-         dprime,
-         n_trials) = self.get_p_detected(trialarray, None, None)
+        (
+            p_detected_given_present,
+            p_detected_given_absent,
+            c,
+            dprime,
+            n_trials,
+        ) = self.get_p_detected(trialarray, None, None)
         return c
 
     def get_overall_d(self) -> Optional[float]:
         trialarray = self.trials
-        (p_detected_given_present,
-         p_detected_given_absent,
-         c,
-         dprime,
-         n_trials) = self.get_p_detected(trialarray, None, None)
+        (
+            p_detected_given_present,
+            p_detected_given_absent,
+            c,
+            dprime,
+            n_trials,
+        ) = self.get_p_detected(trialarray, None, None)
         return dprime

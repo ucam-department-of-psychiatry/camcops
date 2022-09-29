@@ -65,10 +65,12 @@ def divtest(divname: str) -> str:
 
 class DemoQuestionnaireMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['DemoQuestionnaire'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["DemoQuestionnaire"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(cls, "mcq", 1, N_MCQ)
         add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
         add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)
@@ -79,11 +81,11 @@ class DemoQuestionnaireMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class DemoQuestionnaire(Task,
-                        metaclass=DemoQuestionnaireMetaclass):
+class DemoQuestionnaire(Task, metaclass=DemoQuestionnaireMetaclass):
     """
     Server implementation of the demo questionnaire task.
     """
+
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
     is_anonymous = True
@@ -104,37 +106,53 @@ class DemoQuestionnaire(Task,
     thermometer = Column("thermometer", Integer)
     diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
     diagnosticcode_description = CamcopsColumn(
-        "diagnosticcode_description", UnicodeText,
-        exempt_from_anonymisation=True
+        "diagnosticcode_description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )
     diagnosticcode2_code = Column(
         "diagnosticcode2_code", DiagnosticCodeColType
     )  # v2
     diagnosticcode2_description = CamcopsColumn(
-        "diagnosticcode2_description", UnicodeText,
-        exempt_from_anonymisation=True
+        "diagnosticcode2_description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )  # v2
     photo_blobid = CamcopsColumn(
-        "photo_blobid", Integer,
-        is_blob_id_field=True, blob_relationship_attr_name="photo"
+        "photo_blobid",
+        Integer,
+        is_blob_id_field=True,
+        blob_relationship_attr_name="photo",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    photo_rotation = Column("photo_rotation", Integer)  # DEFUNCT as of v2.0.0  # noqa
+    photo_rotation = Column(
+        "photo_rotation", Integer
+    )  # DEFUNCT as of v2.0.0  # noqa
     canvas_blobid = CamcopsColumn(
-        "canvas_blobid", Integer,
-        is_blob_id_field=True, blob_relationship_attr_name="canvas"
+        "canvas_blobid",
+        Integer,
+        is_blob_id_field=True,
+        blob_relationship_attr_name="canvas",
     )
     canvas2_blobid = CamcopsColumn(
-        "canvas2_blobid", Integer,
-        is_blob_id_field=True, blob_relationship_attr_name="canvas2"
+        "canvas2_blobid",
+        Integer,
+        is_blob_id_field=True,
+        blob_relationship_attr_name="canvas2",
     )
     spinbox_int = Column("spinbox_int", Integer)  # v2
     spinbox_real = Column("spinbox_real", Float)  # v2
     time_only = Column("time_only", Time)  # v2
 
-    photo = blob_relationship("DemoQuestionnaire", "photo_blobid")  # type: Optional[Blob]  # noqa
-    canvas = blob_relationship("DemoQuestionnaire", "canvas_blobid")  # type: Optional[Blob]  # noqa
-    canvas2 = blob_relationship("DemoQuestionnaire", "canvas2_blobid")  # type: Optional[Blob]  # noqa
+    photo = blob_relationship(
+        "DemoQuestionnaire", "photo_blobid"
+    )  # type: Optional[Blob]  # noqa
+    canvas = blob_relationship(
+        "DemoQuestionnaire", "canvas_blobid"
+    )  # type: Optional[Blob]  # noqa
+    canvas2 = blob_relationship(
+        "DemoQuestionnaire", "canvas2_blobid"
+    )  # type: Optional[Blob]  # noqa
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -201,7 +219,8 @@ class DemoQuestionnaire(Task,
         h += self.get_twocol_picture_row(self.canvas, "canvas")
         # noinspection PyTypeChecker
         h += self.get_twocol_picture_row(self.canvas2, "canvas2")
-        h += """
+        h += (
+            """
             </table>
 
             <div>
@@ -216,10 +235,15 @@ class DemoQuestionnaire(Task,
             <div>
                 Plain div with <sup>superscript</sup> and <sub>subscript</sub>.
                 <br>
-                Answers look like this: """ + answer("Answer") + """<br>
-                Missing answers look liks this: """ + answer(None) + """<br>
+                Answers look like this: """
+            + answer("Answer")
+            + """<br>
+                Missing answers look liks this: """
+            + answer(None)
+            + """<br>
             </div>
         """
+        )
         h += divtest(CssClass.BAD_ID_POLICY_MILD)
         h += divtest(CssClass.BAD_ID_POLICY_SEVERE)
         h += divtest(CssClass.CLINICIAN)

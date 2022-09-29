@@ -44,13 +44,31 @@ if TYPE_CHECKING:
 # Do not use wappstring in the module-level code; the strings file is only
 # initialized later. However, PV* fields are used at table creation.
 
-PV_NHS_MARITAL_STATUS = ['S', 'M', 'D', 'W', 'P', 'N']
-PV_NHS_ETHNIC_CATEGORY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
-                          'L', 'M', 'N', 'P', 'R', 'S', 'Z']
+PV_NHS_MARITAL_STATUS = ["S", "M", "D", "W", "P", "N"]
+PV_NHS_ETHNIC_CATEGORY = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "P",
+    "R",
+    "S",
+    "Z",
+]
 
 
 def get_nhs_dd_person_marital_status(
-        req: "CamcopsRequest") -> Dict[Optional[str], Optional[str]]:
+    req: "CamcopsRequest",
+) -> Dict[Optional[str], Optional[str]]:
     """
     Returns a dictionary mapping NHS marital status codes to descriptive
     strings.
@@ -67,7 +85,8 @@ def get_nhs_dd_person_marital_status(
 
 
 def get_nhs_dd_ethnic_category_code(
-        req: "CamcopsRequest") -> Dict[Optional[str], Optional[str]]:
+    req: "CamcopsRequest",
+) -> Dict[Optional[str], Optional[str]]:
     """
     Returns a dictionary mapping NHS ethnicity codes to descriptive
     strings.

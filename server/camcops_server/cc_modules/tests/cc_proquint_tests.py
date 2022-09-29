@@ -42,27 +42,28 @@ from camcops_server.cc_modules.cc_proquint import (
 # Unit tests
 # =============================================================================
 
+
 class ProquintTest(TestCase):
     def test_int_encoded_as_proquint(self) -> None:
-        self.assertEqual(proquint_from_int(0x493b05ee, 32), "hohur-bilov-j")
+        self.assertEqual(proquint_from_int(0x493B05EE, 32), "hohur-bilov-j")
 
     def test_uuid_encoded_as_proquint(self) -> None:
         self.assertEqual(
             proquint_from_uuid(
                 uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
             ),
-            "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
+            "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t",
         )
 
     def test_proquint_decoded_as_int(self) -> None:
-        self.assertEqual(int_from_proquint("hohur-bilov-j"), 0x493b05ee)
+        self.assertEqual(int_from_proquint("hohur-bilov-j"), 0x493B05EE)
 
     def test_proquint_decoded_as_uuid(self) -> None:
         self.assertEqual(
             uuid_from_proquint(
                 "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
             ),
-            uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
+            uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee"),
         )
 
     def test_ints_converted_to_proquints_and_back(self) -> None:
@@ -75,9 +76,11 @@ class ProquintTest(TestCase):
                 num_expected_words = bits // 16
                 num_expected_dashes = num_expected_words
                 check_character_length = 1
-                expected_proquint_length = (5 * num_expected_words
-                                            + num_expected_dashes
-                                            + check_character_length)
+                expected_proquint_length = (
+                    5 * num_expected_words
+                    + num_expected_dashes
+                    + check_character_length
+                )
                 self.assertEqual(len(encoded), expected_proquint_length)
 
                 decoded = int_from_proquint(encoded)
@@ -85,16 +88,19 @@ class ProquintTest(TestCase):
                 self.assertEqual(
                     decoded,
                     random_int,
-                    msg=(f"Conversion failed for {random_int}, "
-                         f"encoded={encoded}, decoded={decoded} ")
+                    msg=(
+                        f"Conversion failed for {random_int}, "
+                        f"encoded={encoded}, decoded={decoded} "
+                    ),
                 )
 
     def test_raises_when_bits_not_multiple_of_16(self) -> None:
         with self.assertRaises(ValueError) as cm:
             proquint_from_int(0, 5)
 
-        self.assertEqual(str(cm.exception),
-                         "size_in_bits (5) must be a multiple of 16")
+        self.assertEqual(
+            str(cm.exception), "size_in_bits (5) must be a multiple of 16"
+        )
 
     def test_raises_when_proquint_has_invalid_chars(self) -> None:
         with self.assertRaises(InvalidProquintException) as cm:
@@ -102,7 +108,7 @@ class ProquintTest(TestCase):
 
         self.assertEqual(
             str(cm.exception),
-            "'lusab-rrrrr-s' contains invalid or transposed characters"
+            "'lusab-rrrrr-s' contains invalid or transposed characters",
         )
 
     def test_raises_when_proquint_has_chars_in_wrong_order(self) -> None:
@@ -111,7 +117,7 @@ class ProquintTest(TestCase):
 
         self.assertEqual(
             str(cm.exception),
-            "'lusab-abadu-b' contains invalid or transposed characters"
+            "'lusab-abadu-b' contains invalid or transposed characters",
         )
 
     def test_raises_when_check_character_doesnt_match(self) -> None:
@@ -120,5 +126,5 @@ class ProquintTest(TestCase):
 
         self.assertEqual(
             str(cm.exception),
-            "'hohur-dilov-j' is not valid (check character mismatch)"
+            "'hohur-dilov-j' is not valid (check character mismatch)",
         )

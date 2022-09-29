@@ -26,4 +26,4 @@ server/camcops_server/templates/taskcommon/task_not_current.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/taskcommon/task_not_current.mako
-    :language: none
+    :language: html+mako

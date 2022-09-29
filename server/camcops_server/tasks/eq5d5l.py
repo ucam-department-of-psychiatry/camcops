@@ -59,6 +59,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # EQ-5D-5L
 # =============================================================================
 
+
 class Eq5d5l(TaskHasPatientMixin, Task):
     """
     Server implementation of the EQ-5D-5L task.
@@ -70,42 +71,49 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     - https://euroqol.org/publications/key-euroqol-references/value-sets/
     - https://euroqol.org/eq-5d-instruments/eq-5d-3l-about/valuation/choosing-a-value-set/
     """  # noqa
+
     __tablename__ = "eq5d5l"
     shortname = "EQ-5D-5L"
     provides_trackers = True
 
     q1 = CamcopsColumn(
-        "q1", Integer,
+        "q1",
+        Integer,
         comment="Q1 (mobility) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     q2 = CamcopsColumn(
-        "q2", Integer,
+        "q2",
+        Integer,
         comment="Q2 (self-care) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     q3 = CamcopsColumn(
-        "q3", Integer,
+        "q3",
+        Integer,
         comment="Q3 (usual activities) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     q4 = CamcopsColumn(
-        "q4", Integer,
+        "q4",
+        Integer,
         comment="Q4 (pain/discomfort) (1 none - 5 extreme)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     q5 = CamcopsColumn(
-        "q5", Integer,
+        "q5",
+        Integer,
         comment="Q5 (anxiety/depression) (1 not - 5 extremely)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     health_vas = CamcopsColumn(
-        "health_vas", Integer,
+        "health_vas",
+        Integer,
         comment="Visual analogue scale for overall health (0 worst - 100 best)",  # noqa
         permitted_value_checker=ZERO_TO_100_CHECKER,
     )  # type: Optional[int]
@@ -124,28 +132,34 @@ class Eq5d5l(TaskHasPatientMixin, Task):
         return self.all_fields_not_none(self.QUESTIONS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.health_vas,
-            plot_label="EQ-5D-5L health visual analogue scale",
-            axis_label="Self-rated health today (out of 100)",
-            axis_min=-0.5,
-            axis_max=100.5,
-            axis_ticks=regular_tracker_axis_ticks_int(0, 100, 25),
-            horizontal_lines=equally_spaced_int(0, 100, 25),
-        )]
+        return [
+            TrackerInfo(
+                value=self.health_vas,
+                plot_label="EQ-5D-5L health visual analogue scale",
+                axis_label="Self-rated health today (out of 100)",
+                axis_min=-0.5,
+                axis_max=100.5,
+                axis_ticks=regular_tracker_axis_ticks_int(0, 100, 25),
+                horizontal_lines=equally_spaced_int(0, 100, 25),
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="health_state", coltype=String(length=5),
+                name="health_state",
+                coltype=String(length=5),
                 value=self.get_health_state_code(),
                 comment="Health state as a 5-character string of numbers, "
-                        "with 9 indicating a missing value"),
+                "with 9 indicating a missing value",
+            ),
             SummaryElement(
-                name="visual_task_score", coltype=Integer(),
+                name="visual_task_score",
+                coltype=Integer(),
                 value=self.get_vis_score_or_999(),
                 comment="Visual analogue health score "
-                        "(0-100, with 999 replacing None)")
+                "(0-100, with 999 replacing None)",
+            ),
         ]
 
     def get_health_state_code(self) -> str:
@@ -178,13 +192,18 @@ class Eq5d5l(TaskHasPatientMixin, Task):
                 5: "5 – " + self.wxstring(req, "q" + nstr + "_o5"),
             }
 
-            q_a += tr_qa(nstr + ". " + self.wxstring(req, "q" + nstr + "_h"),
-                         get_from_dict(answers, getattr(self, "q" + str(i))))
+            q_a += tr_qa(
+                nstr + ". " + self.wxstring(req, "q" + nstr + "_h"),
+                get_from_dict(answers, getattr(self, "q" + str(i))),
+            )
 
         q_a += tr_qa(
-            ("Self-rated health on a visual analogue scale (0–100) "
-             "<sup>[2]</sup>"),
-            self.health_vas)
+            (
+                "Self-rated health on a visual analogue scale (0–100) "
+                "<sup>[2]</sup>"
+            ),
+            self.health_vas,
+        )
 
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -215,17 +234,33 @@ class Eq5d5l(TaskHasPatientMixin, Task):
         """  # noqa
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.EQ5D5L_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.EQ5D5L_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.EQ5D5L_SCALE),
-                {
-                    # SnomedLookup.EQ5D5L_INDEX_VALUE: not used; see docstring above  # noqa
-                    req.snomed(SnomedLookup.EQ5D5L_MOBILITY_SCORE): self.q1,
-                    req.snomed(SnomedLookup.EQ5D5L_SELF_CARE_SCORE): self.q2,
-                    req.snomed(SnomedLookup.EQ5D5L_USUAL_ACTIVITIES_SCORE): self.q3,  # noqa
-                    req.snomed(SnomedLookup.EQ5D5L_PAIN_DISCOMFORT_SCORE): self.q4,  # noqa
-                    req.snomed(SnomedLookup.EQ5D5L_ANXIETY_DEPRESSION_SCORE): self.q5,  # noqa
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.EQ5D5L_SCALE),
+                    {
+                        # SnomedLookup.EQ5D5L_INDEX_VALUE: not used; see docstring above  # noqa
+                        req.snomed(
+                            SnomedLookup.EQ5D5L_MOBILITY_SCORE
+                        ): self.q1,
+                        req.snomed(
+                            SnomedLookup.EQ5D5L_SELF_CARE_SCORE
+                        ): self.q2,
+                        req.snomed(
+                            SnomedLookup.EQ5D5L_USUAL_ACTIVITIES_SCORE
+                        ): self.q3,  # noqa
+                        req.snomed(
+                            SnomedLookup.EQ5D5L_PAIN_DISCOMFORT_SCORE
+                        ): self.q4,  # noqa
+                        req.snomed(
+                            SnomedLookup.EQ5D5L_ANXIETY_DEPRESSION_SCORE
+                        ): self.q5,  # noqa
+                    },
+                )
+            )
         return codes

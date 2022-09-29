@@ -36,7 +36,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 7;
-const int MAX_SCORE = 21;
+const int MAX_QUESTION_SCORE = 21;
 const QString QPREFIX("q");
 
 const QString Gad7::GAD7_TABLENAME("gad7");
@@ -91,7 +91,7 @@ bool Gad7::isComplete() const
 
 QStringList Gad7::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

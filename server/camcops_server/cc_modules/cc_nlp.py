@@ -35,15 +35,7 @@ from typing import Dict
 # Processing names
 # =============================================================================
 
-TITLES = [
-    "DR",
-    "PROF",
-    "MR",
-    "MISS",
-    "MRS",
-    "MS",
-    "SR"
-]
+TITLES = ["DR", "PROF", "MR", "MISS", "MRS", "MS", "SR"]
 
 
 def guess_name_components(s: str, uppercase: bool = True) -> Dict[str, str]:
@@ -95,8 +87,4 @@ def guess_name_components(s: str, uppercase: bool = True) -> Dict[str, str]:
         surname = surname.upper()
         forename = forename.upper()
         prefix = prefix.upper()
-    return dict(
-        surname=surname,
-        forename=forename,
-        prefix=prefix
-    )
+    return dict(surname=surname, forename=forename, prefix=prefix)

@@ -58,15 +58,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # MAST
 # =============================================================================
 
+
 class MastMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Mast'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Mast"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, CharColType,
-            pv=['Y', 'N'],
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            CharColType,
+            pv=["Y", "N"],
             comment_fmt="Q{n}: {s} (Y or N)",
             comment_strings=[
                 "feel you are a normal drinker",
@@ -93,16 +100,16 @@ class MastMetaclass(DeclarativeMeta):
                 "clinic visit or professional help",
                 "arrested for drink-driving",
                 "arrested for other drunk behaviour",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Mast(TaskHasPatientMixin, Task,
-           metaclass=MastMetaclass):
+class Mast(TaskHasPatientMixin, Task, metaclass=MastMetaclass):
     """
     Server implementation of the MAST task.
     """
+
     __tablename__ = "mast"
     shortname = "MAST"
     provides_trackers = True
@@ -118,25 +125,33 @@ class Mast(TaskHasPatientMixin, Task,
         return _("Michigan Alcohol Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="MAST total score",
-            axis_label=f"Total score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            horizontal_lines=[self.ROSS_THRESHOLD - 0.5],
-            horizontal_labels=[
-                TrackerLabel(self.ROSS_THRESHOLD,
-                             "Ross threshold", LabelAlignment.bottom)
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="MAST total score",
+                axis_label=f"Total score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                horizontal_lines=[self.ROSS_THRESHOLD - 0.5],
+                horizontal_labels=[
+                    TrackerLabel(
+                        self.ROSS_THRESHOLD,
+                        "Ross threshold",
+                        LabelAlignment.bottom,
+                    )
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"MAST total score {self.total_score()}/{self.MAX_SCORE}"
-        )]
+        return [
+            CtvInfo(
+                content=f"MAST total score "
+                f"{self.total_score()}/{self.MAX_SCORE}"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -144,19 +159,21 @@ class Mast(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.MAX_SCORE})"),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            ),
             SummaryElement(
                 name="exceeds_threshold",
                 coltype=Boolean(),
                 value=self.exceeds_ross_threshold(),
                 comment=f"Exceeds Ross threshold "
-                        f"(total score >= {self.ROSS_THRESHOLD})"),
+                f"(total score >= {self.ROSS_THRESHOLD})",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_score(self, q: int) -> int:
@@ -192,17 +209,18 @@ class Mast(TaskHasPatientMixin, Task,
         main_dict = {
             None: None,
             "Y": req.sstring(SS.YES),
-            "N": req.sstring(SS.NO)
+            "N": req.sstring(SS.NO),
         }
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
             q_a += tr(
                 self.wxstring(req, "q" + str(q)),
                 (
-                    answer(get_from_dict(main_dict,
-                                         getattr(self, "q" + str(q)))) +
-                    answer(" — " + str(self.get_score(q)))
-                )
+                    answer(
+                        get_from_dict(main_dict, getattr(self, "q" + str(q)))
+                    )
+                    + answer(" — " + str(self.get_score(q)))
+                ),
             )
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -224,12 +242,16 @@ class Mast(TaskHasPatientMixin, Task,
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.MAST_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.MAST_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.MAST_SCALE),
-                {
-                    req.snomed(SnomedLookup.MAST_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.MAST_SCALE),
+                    {req.snomed(SnomedLookup.MAST_SCORE): self.total_score()},
+                )
+            )
         return codes

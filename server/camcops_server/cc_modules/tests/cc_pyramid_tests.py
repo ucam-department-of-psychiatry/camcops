@@ -46,7 +46,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         self.req._debugging_user = None
         self.assertEqual(
             CamcopsAuthenticationPolicy.effective_principals(self.req),
-            [Everyone]
+            [Everyone],
         )
 
     def test_principals_for_authenticated_user(self) -> None:
@@ -56,28 +56,26 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         self.req._debugging_user = user
         self.assertIn(
             Authenticated,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
         self.assertIn(
             f"u:{user.id}",
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
 
     def test_principals_when_user_must_change_pasword(self) -> None:
-        user = self.create_user(username="test",
-                                must_change_password=True)
+        user = self.create_user(username="test", must_change_password=True)
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         self.req._debugging_user = user
         self.assertIn(
             Permission.MUST_CHANGE_PASSWORD,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
 
     def test_principals_when_user_must_set_up_mfa(self) -> None:
-        user = self.create_user(username="test",
-                                mfa_method=MfaMethod.NO_MFA)
+        user = self.create_user(username="test", mfa_method=MfaMethod.NO_MFA)
         user.agree_terms(self.req)
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
@@ -86,19 +84,18 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         self.req.config.mfa_methods = [MfaMethod.HOTP_EMAIL]
         self.assertIn(
             Permission.MUST_SET_MFA,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
 
     def test_principals_when_user_must_agree_terms(self) -> None:
-        user = self.create_user(username="test",
-                                when_agreed_terms_of_use=None)
+        user = self.create_user(username="test", when_agreed_terms_of_use=None)
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         self.req._debugging_user = user
         self.assertIn(
             Permission.MUST_AGREE_TERMS,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
 
     def test_principals_when_everything_ok(self) -> None:
@@ -111,7 +108,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         self.req.config.mfa_methods = [MfaMethod.NO_MFA]
         self.assertIn(
             Permission.HAPPY,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
 
     def test_principals_for_superuser(self) -> None:
@@ -121,7 +118,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         self.req._debugging_user = user
         self.assertIn(
             Permission.SUPERUSER,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )
 
     def test_principals_for_groupadmin(self) -> None:
@@ -132,5 +129,5 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         self.req._debugging_user = user
         self.assertIn(
             Permission.GROUPADMIN,
-            CamcopsAuthenticationPolicy.effective_principals(self.req)
+            CamcopsAuthenticationPolicy.effective_principals(self.req),
         )

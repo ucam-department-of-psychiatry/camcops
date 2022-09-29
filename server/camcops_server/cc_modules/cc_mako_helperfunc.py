@@ -41,12 +41,15 @@ if TYPE_CHECKING:
 # Helper functions
 # =============================================================================
 
-def listview(req: "CamcopsRequest",
-             objects: Iterable[Any],
-             route_name: str,
-             description: str,
-             icon: str,
-             sep: str = "<br>") -> str:
+
+def listview(
+    req: "CamcopsRequest",
+    objects: Iterable[Any],
+    route_name: str,
+    description: str,
+    icon: str,
+    sep: str = "<br>",
+) -> str:
     """
     Provides an autolinked catalogue of objects, in HTML, via those objects'
     ``id`` fields and a standard URL format
@@ -71,16 +74,7 @@ def listview(req: "CamcopsRequest",
     parts = []  # type: List[str]
     for obj in objects:
         obj_id = obj.id
-        url = req.route_url(
-            route_name,
-            _query={
-                ViewParam.ID: obj_id
-            }
-        )
+        url = req.route_url(route_name, _query={ViewParam.ID: obj_id})
         text = f"{description} {obj_id}"
-        parts.append(req.icon_text(
-            icon=icon,
-            url=url,
-            text=text,
-        ))
+        parts.append(req.icon_text(icon=icon, url=url, text=text))
     return sep.join(parts)

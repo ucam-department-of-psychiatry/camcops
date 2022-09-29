@@ -30,7 +30,6 @@ camcops_server/tasks/tests/cpft_research_preferences_tests.py
 from unittest import mock
 import unittest
 
-
 from camcops_server.tasks.cpft_research_preferences import (
     CpftResearchPreferences,
 )
@@ -90,4 +89,5 @@ class CpftResearchPreferencesTests(unittest.TestCase):
             setattr(task, invalid_field, 10.5)
             self.assertFalse(
                 task.is_complete(),
-                msg=f"Failed when setting {invalid_field} invalid")
+                msg=f"Failed when setting {invalid_field} invalid",
+            )

@@ -47,6 +47,7 @@ class SS(Enum):
     Server string enumeration. All elements have type ``<enum 'SS'>`` and
     ``isinstance(SS.ANSWER, SS)`` is true.
     """
+
     ABNORMAL = auto()
     ABSENT = auto()
     ABSENT_OR_MILD = auto()
@@ -144,8 +145,10 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
     elif w == SS.DISCLAIMER_TITLE:
         return _("TERMS AND CONDITIONS OF USE")
     elif w == SS.DISCLAIMER_SUBTITLE:
-        return _("You must agree to the following terms and conditions in "
-                 "order to use CamCOPS.")
+        return _(
+            "You must agree to the following terms and conditions in "
+            "order to use CamCOPS."
+        )
     elif w == SS.DISCLAIMER_CONTENT:
         return _(
             "1. By using the Cambridge Cognitive and Psychiatric Assessment "

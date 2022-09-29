@@ -26,4 +26,4 @@ server/camcops_server/alembic/script.py.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../server/camcops_server/alembic/script.py.mako
-    :language: none
+    :language: mako

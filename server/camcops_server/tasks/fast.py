@@ -53,29 +53,38 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # FAST
 # =============================================================================
 
+
 class FastMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Fast'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Fast"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=0, maximum=4,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=4,
             comment_fmt="Q{n}. {s} (0-4, higher worse)",
             comment_strings=[
-                "M>8, F>6 drinks", "unable to remember",
-                "failed to do what was expected", "others concerned"
-            ]
+                "M>8, F>6 drinks",
+                "unable to remember",
+                "failed to do what was expected",
+                "others concerned",
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Fast(TaskHasPatientMixin, Task,
-           metaclass=FastMetaclass):
+class Fast(TaskHasPatientMixin, Task, metaclass=FastMetaclass):
     """
     Server implementation of the FAST task.
     """
+
     __tablename__ = "fast"
     shortname = "FAST"
 
@@ -89,39 +98,49 @@ class Fast(TaskHasPatientMixin, Task,
         return _("Fast Alcohol Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="FAST total score",
-            axis_label=f"Total score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="FAST total score",
+                axis_label=f"Total score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         classification = "positive" if self.is_positive() else "negative"
-        return [CtvInfo(content=(
-            f"FAST total score {self.total_score()}/{self.MAX_SCORE} "
-            f"({classification})"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"FAST total score {self.total_score()}/{self.MAX_SCORE} "
+                    f"({classification})"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment=f"Total score (/{self.MAX_SCORE})"),
-            SummaryElement(name="positive",
-                           coltype=Boolean(),
-                           value=self.is_positive(),
-                           comment="FAST positive?"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            ),
+            SummaryElement(
+                name="positive",
+                coltype=Boolean(),
+                value=self.is_positive(),
+                comment="FAST positive?",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -152,18 +171,24 @@ class Fast(TaskHasPatientMixin, Task,
             2: "2 — " + self.wxstring(req, "q4_option2"),
             4: "4 — " + self.wxstring(req, "q4_option4"),
         }
-        q_a = tr_qa(self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1))  # noqa
-        q_a += tr_qa(self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2))  # noqa
-        q_a += tr_qa(self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3))  # noqa
+        q_a = tr_qa(
+            self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1)
+        )
+        q_a += tr_qa(
+            self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2)
+        )
+        q_a += tr_qa(
+            self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3)
+        )
         q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
 
         tr_total_score = tr(
             req.sstring(SS.TOTAL_SCORE),
-            answer(self.total_score()) + f" / {self.MAX_SCORE}"
+            answer(self.total_score()) + f" / {self.MAX_SCORE}",
         )
         tr_positive = tr_qa(
             self.wxstring(req, "positive") + " <sup>[1]</sup>",
-            get_yes_no(req, self.is_positive())
+            get_yes_no(req, self.is_positive()),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -187,12 +212,16 @@ class Fast(TaskHasPatientMixin, Task,
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.FAST_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.FAST_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.FAST_SCALE),
-                {
-                    req.snomed(SnomedLookup.FAST_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.FAST_SCALE),
+                    {req.snomed(SnomedLookup.FAST_SCORE): self.total_score()},
+                )
+            )
         return codes

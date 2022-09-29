@@ -145,7 +145,7 @@ DB_URL
 *String.*
 
 The SQLAlchemy connection URL for the CamCOPS database. See
-http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
+https://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 
 - MySQL under Linux via mysqlclient:
 
@@ -502,7 +502,7 @@ The possible values are:
 
 - ``hotp_email``: Send a code by email.
 
-- ``hotp_sms``: Send a code by `SMS`_ (text message). For this option, you must
+- ``hotp_sms``: Send a code by SMS_ (text message). For this option, you must
   also configure SMS_BACKEND_.
 
 - ``no_mfa``: permit login with no MFA (i.e. just with a username/password
@@ -1491,7 +1491,7 @@ An example to prevent the :ref:`Celery-related memory leak
 .. code-block:: ini
 
     CELERY_WORKER_EXTRA_ARGS =
-        --maxtasksperchild=20
+        --max-tasks-per-child=20
 
 
 CELERY_EXPORT_TASK_RATE_LIMIT

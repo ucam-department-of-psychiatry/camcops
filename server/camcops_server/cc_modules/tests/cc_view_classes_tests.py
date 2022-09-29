@@ -41,6 +41,7 @@ class TestStateMixin(with_typehint(BasicDatabaseTestCase)):
     """
     For testing FormWizardMixin state.
     """
+
     def assert_state_is_finished(self) -> None:
         """
         Asserts that the state has been marked as "finished", i.e. with the
@@ -51,20 +52,23 @@ class TestStateMixin(with_typehint(BasicDatabaseTestCase)):
         self.assertTrue(
             state[FormWizardMixin.PARAM_FINISHED],
             msg=f"PARAM_FINISHED is "
-                f"{state[FormWizardMixin.PARAM_FINISHED]!r} (should be True)"
+            f"{state[FormWizardMixin.PARAM_FINISHED]!r} (should be True)",
         )
         expected_finished_params = {
             FormWizardMixin.PARAM_FINISHED,
             FormWizardMixin.PARAM_ROUTE_NAME,
-            FormWizardMixin.PARAM_STEP
+            FormWizardMixin.PARAM_STEP,
         }
         state_params = set(state.keys())
         wrong_params = state_params - expected_finished_params
         missing_params = expected_finished_params - state_params
-        self.assertFalse(bool(wrong_params),
-                         msg=f"Inappropriate parameters: {wrong_params!r}")
-        self.assertFalse(bool(missing_params),
-                         msg=f"Missing parameters: {missing_params!r}")
+        self.assertFalse(
+            bool(wrong_params),
+            msg=f"Inappropriate parameters: {wrong_params!r}",
+        )
+        self.assertFalse(
+            bool(missing_params), msg=f"Missing parameters: {missing_params!r}"
+        )
 
     def assert_state_is_clean(self) -> None:
         """
@@ -75,7 +79,7 @@ class TestStateMixin(with_typehint(BasicDatabaseTestCase)):
         permissible_params = {
             FormWizardMixin.PARAM_FINISHED,
             FormWizardMixin.PARAM_ROUTE_NAME,
-            FormWizardMixin.PARAM_STEP
+            FormWizardMixin.PARAM_STEP,
         }
         state_is_none = bool(state is None)
         state_params = set(state.keys())
@@ -83,7 +87,7 @@ class TestStateMixin(with_typehint(BasicDatabaseTestCase)):
         state_contains_only_permissible_params = not wrong_params
         self.assertTrue(
             state_is_none or state_contains_only_permissible_params,
-            msg=f"State contains inappropriate parameters {wrong_params!r}"
+            msg=f"State contains inappropriate parameters {wrong_params!r}",
         )
 
 
@@ -104,8 +108,10 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
         TestView(self.req)
 
         self.assertEqual(
-            self.req.camcops_session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],  # noqa
-            "test_route"
+            self.req.camcops_session.form_state[
+                FormWizardMixin.PARAM_ROUTE_NAME
+            ],  # noqa
+            "test_route",
         )
 
         self.req.dbsession.flush()
@@ -114,19 +120,22 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
 
         self.req.dbsession.commit()
 
-        session = self.req.dbsession.query(CamcopsSession).filter(
-            CamcopsSession.id == session_id
-        ).one()
+        session = (
+            self.req.dbsession.query(CamcopsSession)
+            .filter(CamcopsSession.id == session_id)
+            .one()
+        )
 
-        self.assertEqual(session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],
-                         "test_route")
+        self.assertEqual(
+            session.form_state[FormWizardMixin.PARAM_ROUTE_NAME], "test_route"
+        )
 
     def test_step_is_saved_in_new_session(self) -> None:
         view = TestView(self.req)
         view.step = "test"
         self.assertEqual(
             self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
-            "test"
+            "test",
         )
 
         self.req.dbsession.flush()
@@ -135,19 +144,24 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
 
         self.req.dbsession.commit()
 
-        session = self.req.dbsession.query(CamcopsSession).filter(
-            CamcopsSession.id == session_id
-        ).one()
+        session = (
+            self.req.dbsession.query(CamcopsSession)
+            .filter(CamcopsSession.id == session_id)
+            .one()
+        )
 
-        self.assertEqual(session.form_state[FormWizardMixin.PARAM_STEP],
-                         "test")
+        self.assertEqual(
+            session.form_state[FormWizardMixin.PARAM_STEP], "test"
+        )
 
     def test_route_name_is_saved_in_new_session(self) -> None:
         TestView(self.req)
 
         self.assertEqual(
-            self.req.camcops_session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],  # noqa
-            "test_route"
+            self.req.camcops_session.form_state[
+                FormWizardMixin.PARAM_ROUTE_NAME
+            ],  # noqa
+            "test_route",
         )
 
         self.req.dbsession.flush()
@@ -156,12 +170,15 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
 
         self.req.dbsession.commit()
 
-        session = self.req.dbsession.query(CamcopsSession).filter(
-            CamcopsSession.id == session_id
-        ).one()
+        session = (
+            self.req.dbsession.query(CamcopsSession)
+            .filter(CamcopsSession.id == session_id)
+            .one()
+        )
 
-        self.assertEqual(session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],
-                         "test_route")
+        self.assertEqual(
+            session.form_state[FormWizardMixin.PARAM_ROUTE_NAME], "test_route"
+        )
 
     def test_step_is_updated_for_same_route(self) -> None:
         self.req.camcops_session.form_state = {
@@ -175,7 +192,7 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
         view.step = "next_step"
         self.assertEqual(
             self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
-            "next_step"
+            "next_step",
         )
 
         self.req.dbsession.flush()
@@ -184,19 +201,23 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
 
         self.req.dbsession.commit()
 
-        session = self.req.dbsession.query(CamcopsSession).filter(
-            CamcopsSession.id == session_id
-        ).one()
+        session = (
+            self.req.dbsession.query(CamcopsSession)
+            .filter(CamcopsSession.id == session_id)
+            .one()
+        )
 
-        self.assertEqual(session.form_state[FormWizardMixin.PARAM_STEP],
-                         "next_step")
+        self.assertEqual(
+            session.form_state[FormWizardMixin.PARAM_STEP], "next_step"
+        )
 
     def test_arbitrary_field_is_saved_in_new_session(self) -> None:
         view = TestView(self.req)
         view.state["test_field"] = "test_value"
 
-        self.assertEqual(self.req.camcops_session.form_state["test_field"],
-                         "test_value")
+        self.assertEqual(
+            self.req.camcops_session.form_state["test_field"], "test_value"
+        )
 
         self.req.dbsession.flush()
         session_id = self.req.camcops_session.id
@@ -204,9 +225,11 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
 
         self.req.dbsession.commit()
 
-        session = self.req.dbsession.query(CamcopsSession).filter(
-            CamcopsSession.id == session_id
-        ).one()
+        session = (
+            self.req.dbsession.query(CamcopsSession)
+            .filter(CamcopsSession.id == session_id)
+            .one()
+        )
 
         self.assertEqual(session.form_state["test_field"], "test_value")
 

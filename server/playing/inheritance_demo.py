@@ -65,8 +65,11 @@ class Derived(Base):
         self.x = 15
 
     def foo(self):
-        print("Derived foo, self.x = {}, Derived.sx = {}".format(self.x,
-                                                                 Derived.sx))
+        print(
+            "Derived foo, self.x = {}, Derived.sx = {}".format(
+                self.x, Derived.sx
+            )
+        )
         print("Calling self.bar() from Derived.foo():")
         self.bar()
         print("Calling super.foo() from Derived.foo():")
@@ -110,6 +113,6 @@ class D(B1, B2):
         print("D.foo; calling super().foo()")
         super().foo()
 
+
 x = D()
 x.foo()
-

@@ -35,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 4;
-const int MAX_SCORE = 16;
+const int MAX_QUESTION_SCORE = 16;
 const QString QPREFIX("q");
 
 const QString Fast::FAST_TABLENAME("fast");
@@ -102,7 +102,7 @@ QStringList Fast::detail() const
     lines += fieldSummaries("q", "_s", " ",
                             QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
-    lines.append(totalScorePhrase(totalScore(), MAX_SCORE));
+    lines.append(totalScorePhrase(totalScore(), MAX_QUESTION_SCORE));
     lines += summary();
     return lines;
 }

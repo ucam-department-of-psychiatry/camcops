@@ -31,7 +31,7 @@ Source code
 
 This section contains automatic documentation generated from the CamCOPS
 source code. For the source code itself, see
-https://github.com/RudolfCardinal/camcops.
+https://github.com/ucam-department-of-psychiatry/camcops.
 
 
 

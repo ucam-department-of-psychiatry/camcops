@@ -34,8 +34,16 @@ import datetime
 from enum import Enum
 import logging
 from threading import Thread
-from typing import (Dict, Generator, List, Optional, Tuple, Type,
-                    TYPE_CHECKING, Union)
+from typing import (
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 
 from cardinal_pythonlib.json.serialize import (
     register_class_for_json,
@@ -84,8 +92,10 @@ if DEBUG_QUERY_TIMING:
 # Sorting helpers
 # =============================================================================
 
-def task_when_created_sorter(task: Task) \
-        -> Union[Tuple[Pendulum, datetime.datetime], MinType]:
+
+def task_when_created_sorter(
+    task: Task,
+) -> Union[Tuple[Pendulum, datetime.datetime], MinType]:
     """
     Function to sort tasks by their creation date/time (with upload date/time
     as a tiebreak for consistent ordering).
@@ -102,13 +112,15 @@ class TaskSortMethod(Enum):
     """
     Enum representing ways to sort tasks.
     """
+
     NONE = 0
     CREATION_DATE_ASC = 1
     CREATION_DATE_DESC = 2
 
 
-def sort_tasks_in_place(tasklist: List[Task],
-                        sortmethod: TaskSortMethod) -> None:
+def sort_tasks_in_place(
+    tasklist: List[Task], sortmethod: TaskSortMethod
+) -> None:
     """
     Sort a list of tasks, in place, according to ``sortmethod``.
 
@@ -147,17 +159,21 @@ def sort_tasks_in_place(tasklist: List[Task],
 # HOWEVER, the query time per table drops from ~27ms to 4-8ms if we disable
 # eager loading (lazy="joined") of patients from tasks.
 
+
 class FetchThread(Thread):
     """
     Thread to fetch tasks in parallel.
 
     CURRENTLY UNUSED.
     """
-    def __init__(self,
-                 req: "CamcopsRequest",
-                 task_class: Type[Task],
-                 factory: "TaskCollection",
-                 **kwargs) -> None:
+
+    def __init__(
+        self,
+        req: "CamcopsRequest",
+        task_class: Type[Task],
+        factory: "TaskCollection",
+        **kwargs
+    ) -> None:
         self.req = req
         self.task_class = task_class
         self.factory = factory
@@ -192,6 +208,7 @@ class FetchThread(Thread):
 # Make a set of tasks, deferring work until things are needed
 # =============================================================================
 
+
 class TaskCollection(object):
     """
     Represent a potential or instantiated call to fetch tasks from the
@@ -200,16 +217,18 @@ class TaskCollection(object):
     The caller may want them in a giant list (e.g. task viewer, CTVs), or split
     by task class (e.g. trackers).
     """
-    def __init__(self,
-                 req: Optional["CamcopsRequest"],
-                 taskfilter: TaskFilter = None,
-                 as_dump: bool = False,
-                 sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
-                 sort_method_global: TaskSortMethod = TaskSortMethod.NONE,
-                 current_only: bool = True,
-                 via_index: bool = True,
-                 export_recipient: "ExportRecipient" = None) \
-            -> None:
+
+    def __init__(
+        self,
+        req: Optional["CamcopsRequest"],
+        taskfilter: TaskFilter = None,
+        as_dump: bool = False,
+        sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
+        sort_method_global: TaskSortMethod = TaskSortMethod.NONE,
+        current_only: bool = True,
+        via_index: bool = True,
+        export_recipient: "ExportRecipient" = None,
+    ) -> None:
         """
         Args:
             req:
@@ -251,8 +270,9 @@ class TaskCollection(object):
 
         if export_recipient:
             # We create a new filter to reflect the export recipient.
-            assert self._filter is None, (
-                "Can't supply taskfilter if you supply export_recipient")
+            assert (
+                self._filter is None
+            ), "Can't supply taskfilter if you supply export_recipient"
             # We can do lots of what we need with a TaskFilter().
             self._filter = TaskFilter()
             if not export_recipient.all_groups:
@@ -261,15 +281,22 @@ class TaskCollection(object):
             self._filter.start_datetime = export_recipient.start_datetime_utc
             self._filter.end_datetime = export_recipient.end_datetime_utc
             self._filter.finalized_only = export_recipient.finalized_only
-            self._filter.tasks_with_patient_only = not export_recipient.anonymous_ok()  # noqa
+            self._filter.tasks_with_patient_only = (
+                not export_recipient.anonymous_ok()
+            )
             self._filter.must_have_idnum_type = export_recipient.primary_idnum
         else:
-            assert self._filter, (
-                "Must supply taskfilter unless you supply export_recipient")
+            assert (
+                self._filter
+            ), "Must supply taskfilter unless you supply export_recipient"
 
-        self._tasks_by_class = OrderedDict()  # type: Dict[Type[Task], List[Task]]  # noqa
+        self._tasks_by_class = (
+            OrderedDict()
+        )  # type: Dict[Type[Task], List[Task]]  # noqa
         self._all_tasks = None  # type: Optional[List[Task]]
-        self._all_indexes = None  # type: Optional[Union[List[TaskIndexEntry], Query]]  # noqa
+        self._all_indexes = (
+            None
+        )  # type: Optional[Union[List[TaskIndexEntry], Query]]  # noqa
 
     def __repr__(self) -> str:
         return auto_repr(self)
@@ -287,9 +314,9 @@ class TaskCollection(object):
         Returns the associated request, or raises :exc:`AssertionError` if it's
         not been set.
         """
-        assert self._req is not None, (
-            "Must initialize with a request or call set_request() first"
-        )
+        assert (
+            self._req is not None
+        ), "Must initialize with a request or call set_request() first"
         return self._req
 
     def set_request(self, req: "CamcopsRequest") -> None:
@@ -331,8 +358,9 @@ class TaskCollection(object):
         return self._all_tasks
 
     @property
-    def all_tasks_or_indexes_or_query(self) \
-            -> Union[List[Task], List[TaskIndexEntry], Query]:
+    def all_tasks_or_indexes_or_query(
+        self,
+    ) -> Union[List[Task], List[TaskIndexEntry], Query]:
         """
         Returns a list of all appropriate task instances, or index entries, or
         a query returning them.
@@ -365,8 +393,9 @@ class TaskCollection(object):
     #     # doesn't exist.
     #     # https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary  # noqa
 
-    def gen_all_tasks_or_indexes(self) \
-            -> Generator[Union[Task, TaskIndexEntry], None, None]:
+    def gen_all_tasks_or_indexes(
+        self,
+    ) -> Generator[Union[Task, TaskIndexEntry], None, None]:
         """
         Generates tasks or index entries.
         """
@@ -467,8 +496,9 @@ class TaskCollection(object):
         dbsession = self.req.dbsession
         return self._make_query(dbsession, task_class)
 
-    def _make_query(self, dbsession: SqlASession,
-                    task_class: Type[Task]) -> Optional[Query]:
+    def _make_query(
+        self, dbsession: SqlASession, task_class: Type[Task]
+    ) -> Optional[Query]:
         """
         Make and return an SQLAlchemy ORM query for a specific task class.
 
@@ -484,7 +514,8 @@ class TaskCollection(object):
 
         # Restrict to what is PERMITTED
         q = task_query_restricted_to_permitted_users(
-            self.req, q, task_class, as_dump=self._as_dump)
+            self.req, q, task_class, as_dump=self._as_dump
+        )
 
         # Restrict to what is DESIRED
         if q:
@@ -494,9 +525,9 @@ class TaskCollection(object):
 
         return q
 
-    def _task_query_restricted_by_filter(self,
-                                         q: Query,
-                                         cls: Type[Task]) -> Optional[Query]:
+    def _task_query_restricted_by_filter(
+        self, q: Query, cls: Type[Task]
+    ) -> Optional[Query]:
         """
         Restricts an SQLAlchemy ORM query for a given task class to those
         tasks that our filter permits.
@@ -544,12 +575,15 @@ class TaskCollection(object):
                     return None
                 else:
                     # May see patient data from some, but not all, groups.
-                    liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
+                    liberal_group_ids = (
+                        user.group_ids_nonsuperuser_may_see_when_unfiltered()
+                    )
                     if not permitted_group_ids:  # was unrestricted
                         permitted_group_ids = liberal_group_ids
                     else:  # was restricted; restrict further
                         permitted_group_ids = [
-                            gid for gid in permitted_group_ids
+                            gid
+                            for gid in permitted_group_ids
                             if gid in liberal_group_ids
                         ]
                         if not permitted_group_ids:
@@ -558,7 +592,9 @@ class TaskCollection(object):
             # Patient filtering
             if tf.any_patient_filtering():
                 # q = q.join(Patient) # fails
-                q = q.join(cls.patient)  # use explicitly configured relationship  # noqa
+                q = q.join(
+                    cls.patient
+                )  # use explicitly configured relationship  # noqa
                 q = tf.filter_query_by_patient(q, via_index=False)
 
         # Patient-independent filtering
@@ -591,7 +627,8 @@ class TaskCollection(object):
         return q
 
     def _task_query_restricted_by_export_recipient(
-            self, q: Query, cls: Type[Task]) -> Optional[Query]:
+        self, q: Query, cls: Type[Task]
+    ) -> Optional[Query]:
         """
         For exports.
 
@@ -615,7 +652,9 @@ class TaskCollection(object):
             the original query, a modified query, or ``None`` if no tasks
             would pass the filter
         """
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTask  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+        )  # delayed import
 
         r = self.export_recipient
         if not r.is_incremental():
@@ -625,12 +664,14 @@ class TaskCollection(object):
         # noinspection PyUnresolvedReferences
         q = q.filter(
             # "There is not a successful export record for this task/recipient"
-            ~exists().select_from(
+            ~exists()
+            .select_from(
                 ExportedTask.__table__.join(
                     ExportRecipient.__table__,
-                    ExportedTask.recipient_id == ExportRecipient.id
+                    ExportedTask.recipient_id == ExportRecipient.id,
                 )
-            ).where(
+            )
+            .where(
                 and_(
                     ExportRecipient.recipient_name == r.recipient_name,
                     ExportedTask.basetable == cls.__tablename__,
@@ -654,8 +695,7 @@ class TaskCollection(object):
         if not self._has_python_parts_to_filter():
             return tasks
         return [
-            t for t in tasks
-            if self._task_matches_python_parts_of_filter(t)
+            t for t in tasks if self._task_matches_python_parts_of_filter(t)
         ]
 
     def _has_python_parts_to_filter(self) -> bool:
@@ -688,7 +728,8 @@ class TaskCollection(object):
     # =========================================================================
 
     def _filter_query_for_text_contents(
-            self, q: Query, taskclass: Type[Task]) -> Optional[Query]:
+        self, q: Query, taskclass: Type[Task]
+    ) -> Optional[Query]:
         """
         Returns the query, filtered for the "text contents" filter.
 
@@ -723,9 +764,7 @@ class TaskCollection(object):
                 clauses_over_columns.append(
                     func.lower(textcol).contains(tf_lower, autoescape=True)
                 )
-            clauses_over_text_phrases.append(
-                or_(*clauses_over_columns)
-            )
+            clauses_over_text_phrases.append(or_(*clauses_over_columns))
         return q.filter(and_(*clauses_over_text_phrases))
         # ... thus, e.g.
         # "(col1 LIKE '%paracetamol%' OR col2 LIKE '%paracetamol%') AND
@@ -772,7 +811,9 @@ class TaskCollection(object):
         if isinstance(self._all_indexes, Query):
             # Query built, but indexes not yet fetched.
             # Replace the query with actual indexes
-            self._all_indexes = self._all_indexes.all()  # type: List[TaskIndexEntry]  # noqa
+            self._all_indexes = (
+                self._all_indexes.all()
+            )  # type: List[TaskIndexEntry]  # noqa
         indexes = self._all_indexes
 
         # Fetch tasks
@@ -788,9 +829,8 @@ class TaskCollection(object):
             tasklist = self._tasks_by_class.setdefault(taskclass, [])
             task_pks = [i.task_pk for i in indexes if i.tablename == tablename]
             # noinspection PyProtectedMember
-            qtask = (
-                dbsession.query(taskclass)
-                .filter(taskclass._pk.in_(task_pks))
+            qtask = dbsession.query(taskclass).filter(
+                taskclass._pk.in_(task_pks)
             )
             qtask = self._filter_query_for_text_contents(qtask, taskclass)
             tasks = qtask.all()  # type: List[Task]
@@ -818,7 +858,8 @@ class TaskCollection(object):
         # Restrict to what is PERMITTED
         if not self.export_recipient:
             q = task_query_restricted_to_permitted_users(
-                self.req, q, TaskIndexEntry, as_dump=self._as_dump)
+                self.req, q, TaskIndexEntry, as_dump=self._as_dump
+            )
 
         # Restrict to what is DESIRED
         if q:
@@ -863,10 +904,11 @@ class TaskCollection(object):
 
         if not tf.offers_all_non_anonymous_task_types():
             permitted_task_tablenames = [
-                tc.__tablename__ for tc in tf.task_classes]
-            q = q.filter(TaskIndexEntry.task_table_name.in_(
-                permitted_task_tablenames
-            ))
+                tc.__tablename__ for tc in tf.task_classes
+            ]
+            q = q.filter(
+                TaskIndexEntry.task_table_name.in_(permitted_task_tablenames)
+            )
 
         # Special rules when we've not filtered for any patients
 
@@ -888,10 +930,14 @@ class TaskCollection(object):
                 # This is a little more complex than the equivalent in
                 # _task_query_restricted_by_filter(), because we shouldn't
                 # restrict anonymous tasks.
-                liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
+                liberal_group_ids = (
+                    user.group_ids_nonsuperuser_may_see_when_unfiltered()
+                )
                 # noinspection PyPep8
                 liberal_or_anon_criteria = [
-                    TaskIndexEntry.patient_pk == None  # anonymous OK  # noqa: E501,E711
+                    TaskIndexEntry.patient_pk
+                    == None  # noqa: E711
+                    # anonymous OK
                 ]  # type: List[ClauseElement]
                 for gid in liberal_group_ids:
                     liberal_or_anon_criteria.append(
@@ -926,9 +972,11 @@ class TaskCollection(object):
             q = q.filter(TaskIndexEntry.group_id.in_(permitted_group_ids))
 
         if tf.start_datetime is not None:
-            q = q.filter(TaskIndexEntry.when_created_utc >= tf.start_datetime_utc)  # noqa
+            q = q.filter(
+                TaskIndexEntry.when_created_utc >= tf.start_datetime_utc
+            )
         if tf.end_datetime is not None:
-            q = q.filter(TaskIndexEntry.when_created_utc < tf.end_datetime_utc)  # noqa
+            q = q.filter(TaskIndexEntry.when_created_utc < tf.end_datetime_utc)
 
         # text_contents is managed at the later fetch stage when using indexes
 
@@ -939,16 +987,21 @@ class TaskCollection(object):
 
         # When we use indexes, we embed the global sort criteria in the query.
         if self._sort_method_global == TaskSortMethod.CREATION_DATE_ASC:
-            q = q.order_by(TaskIndexEntry.when_created_utc.asc(),
-                           TaskIndexEntry.when_added_batch_utc.asc())
+            q = q.order_by(
+                TaskIndexEntry.when_created_utc.asc(),
+                TaskIndexEntry.when_added_batch_utc.asc(),
+            )
         elif self._sort_method_global == TaskSortMethod.CREATION_DATE_DESC:
-            q = q.order_by(TaskIndexEntry.when_created_utc.desc(),
-                           TaskIndexEntry.when_added_batch_utc.desc())
+            q = q.order_by(
+                TaskIndexEntry.when_created_utc.desc(),
+                TaskIndexEntry.when_added_batch_utc.desc(),
+            )
 
         return q
 
-    def _index_query_restricted_by_export_recipient(self, q: Query) \
-            -> Optional[Query]:
+    def _index_query_restricted_by_export_recipient(
+        self, q: Query
+    ) -> Optional[Query]:
         """
         For exports.
 
@@ -970,7 +1023,9 @@ class TaskCollection(object):
             would pass the filter
 
         """
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTask  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+        )  # delayed import
 
         r = self.export_recipient
         if not r.is_incremental():
@@ -981,12 +1036,14 @@ class TaskCollection(object):
         # noinspection PyUnresolvedReferences
         q = q.filter(
             # "There is not a successful export record for this task/recipient"
-            ~exists().select_from(
+            ~exists()
+            .select_from(
                 ExportedTask.__table__.join(
                     ExportRecipient.__table__,
-                    ExportedTask.recipient_id == ExportRecipient.id
+                    ExportedTask.recipient_id == ExportRecipient.id,
                 )
-            ).where(
+            )
+            .where(
                 and_(
                     ExportRecipient.recipient_name == r.recipient_name,
                     ExportedTask.basetable == TaskIndexEntry.task_table_name,
@@ -1012,8 +1069,9 @@ def encode_task_collection(coll: TaskCollection) -> Dict:
     return {
         "taskfilter": dumps(coll._filter, serializer="json"),
         "as_dump": coll._as_dump,
-        "sort_method_by_class": dumps(coll._sort_method_by_class,
-                                      serializer="json"),
+        "sort_method_by_class": dumps(
+            coll._sort_method_by_class, serializer="json"
+        ),
     }
 
 
@@ -1029,14 +1087,15 @@ def decode_task_collection(d: Dict, cls: Type) -> TaskCollection:
         "taskfilter": loads(*reorder_args(*d["taskfilter"])),
         "as_dump": d["as_dump"],
         "sort_method_by_class": loads(
-            *reorder_args(*d["sort_method_by_class"])),
+            *reorder_args(*d["sort_method_by_class"])
+        ),
     }
     return TaskCollection(req=None, **kwargs)
 
 
-def reorder_args(content_type: str,
-                 content_encoding: str,
-                 data: str) -> List[str]:
+def reorder_args(
+    content_type: str, content_encoding: str, data: str
+) -> List[str]:
     """
     kombu :func:`SerializerRegistry.dumps` returns data as last element in
     tuple but for :func:`SerializeRegistry.loads` it's the first argument
@@ -1047,5 +1106,5 @@ def reorder_args(content_type: str,
 register_class_for_json(
     cls=TaskCollection,
     obj_to_dict_fn=encode_task_collection,
-    dict_to_obj_fn=decode_task_collection
+    dict_to_obj_fn=decode_task_collection,
 )

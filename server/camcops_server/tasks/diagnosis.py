@@ -32,20 +32,12 @@ import logging
 from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.colander_utils import (
-    get_child_node,
-    OptionalIntNode,
-)
+from cardinal_pythonlib.colander_utils import get_child_node, OptionalIntNode
 from cardinal_pythonlib.datetimefunc import pendulum_date_to_datetime_date
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.dump import get_literal_query
-from colander import (
-    Invalid,
-    SchemaNode,
-    SequenceSchema,
-    String,
-)
+from colander import Invalid, SchemaNode, SequenceSchema, String
 from fhirclient.models.annotation import Annotation
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.coding import Coding
@@ -55,7 +47,13 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import (
-    and_, exists, literal, not_, or_, select, union,
+    and_,
+    exists,
+    literal,
+    not_,
+    or_,
+    select,
+    union,
 )
 from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.schema import Column
@@ -119,6 +117,7 @@ FK_COMMENT = "FK to parent table"
 # DiagnosisBase
 # =============================================================================
 
+
 class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     __abstract__ = True
 
@@ -126,34 +125,32 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     @declared_attr
     def seqnum(cls) -> Column:
         return Column(
-            "seqnum", Integer,
+            "seqnum",
+            Integer,
             nullable=False,
-            comment="Sequence number (consistently 1-based as of 2018-12-01)"
+            comment="Sequence number (consistently 1-based as of 2018-12-01)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def code(cls) -> Column:
-        return Column(
-            "code", DiagnosticCodeColType,
-            comment="Diagnostic code"
-        )
+        return Column("code", DiagnosticCodeColType, comment="Diagnostic code")
 
     # noinspection PyMethodParameters
     @declared_attr
     def description(cls) -> Column:
         return CamcopsColumn(
-            "description", UnicodeText,
+            "description",
+            UnicodeText,
             exempt_from_anonymisation=True,
-            comment="Description of the diagnostic code"
+            comment="Description of the diagnostic code",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def comment(cls) -> Column:
         return Column(  # new in v2.0.0
-            "comment", UnicodeText,
-            comment="Clinician's comment"
+            "comment", UnicodeText, comment="Clinician's comment"
         )
 
     def get_html_table_row(self) -> str:
@@ -181,19 +178,24 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
         return f"{self.code}: {self.description}{suffix}"
 
 
-class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
-                    metaclass=DeclarativeAndABCMeta):
+class DiagnosisBase(
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+    ABC,
+    metaclass=DeclarativeAndABCMeta,
+):
     __abstract__ = True
 
     # noinspection PyMethodParameters
     @declared_attr
     def relates_to_date(cls) -> Column:
         return Column(  # new in v2.0.0
-            "relates_to_date", Date,
-            comment="Date that diagnoses relate to"
+            "relates_to_date", Date, comment="Date that diagnoses relate to"
         )
 
-    items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa: E501
+    items = None  # type: List[DiagnosisItemBase]
+    # ... must be overridden by a relationship
 
     hl7_coding_system = "?"
 
@@ -235,69 +237,82 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         infolist = []
         for item in self.items:
-            infolist.append(CtvInfo(content=(
-                f"<b>{ws.webify(item.code)}</b>: {ws.webify(item.description)}"
-            )))
+            infolist.append(
+                CtvInfo(
+                    content=(
+                        f"<b>{ws.webify(item.code)}</b>: "
+                        f"{ws.webify(item.description)}"
+                    )
+                )
+            )
         return infolist
 
     # noinspection PyUnusedLocal
-    def get_hl7_extra_data_segments(self, recipient_def: ExportRecipient) \
-            -> List[hl7.Segment]:
+    def get_hl7_extra_data_segments(
+        self, recipient_def: ExportRecipient
+    ) -> List[hl7.Segment]:
         segments = []
         clinician = guess_name_components(self.clinician_name)
         for i in range(len(self.items)):
             set_id = i + 1  # make it 1-based, not 0-based
             item = self.items[i]
-            segments.append(make_dg1_segment(
-                set_id=set_id,
-                diagnosis_datetime=self.get_creation_datetime(),
-                coding_system=self.hl7_coding_system,
-                diagnosis_identifier=item.get_code_for_hl7(),
-                diagnosis_text=item.get_text_for_hl7(),
-                clinician_surname=clinician.get("surname") or "",
-                clinician_forename=clinician.get("forename") or "",
-                clinician_prefix=clinician.get("prefix") or "",
-                attestation_datetime=self.get_creation_datetime(),
-            ))
+            segments.append(
+                make_dg1_segment(
+                    set_id=set_id,
+                    diagnosis_datetime=self.get_creation_datetime(),
+                    coding_system=self.hl7_coding_system,
+                    diagnosis_identifier=item.get_code_for_hl7(),
+                    diagnosis_text=item.get_text_for_hl7(),
+                    clinician_surname=clinician.get("surname") or "",
+                    clinician_forename=clinician.get("forename") or "",
+                    clinician_prefix=clinician.get("prefix") or "",
+                    attestation_datetime=self.get_creation_datetime(),
+                )
+            )
         return segments
 
     def _get_fhir_extra_bundle_entries_for_system(
-            self,
-            req: CamcopsRequest,
-            recipient: ExportRecipient,
-            system: str) -> List[Dict]:
+        self, req: CamcopsRequest, recipient: ExportRecipient, system: str
+    ) -> List[Dict]:
         bundle_entries = []  # type: List[Dict]
         for item in self.items:
             display = item.human()
             condition_dict = {
-                Fc.CODE: CodeableConcept(jsondict={
-                    Fc.CODING: [
-                        Coding(jsondict={
-                            Fc.SYSTEM: system,
-                            Fc.CODE: item.code,
-                            Fc.DISPLAY: display,
-                            Fc.USER_SELECTED: True,
-                        }).as_json()
-                    ],
-                    Fc.TEXT: display,
-                }).as_json(),
+                Fc.CODE: CodeableConcept(
+                    jsondict={
+                        Fc.CODING: [
+                            Coding(
+                                jsondict={
+                                    Fc.SYSTEM: system,
+                                    Fc.CODE: item.code,
+                                    Fc.DISPLAY: display,
+                                    Fc.USER_SELECTED: True,
+                                }
+                            ).as_json()
+                        ],
+                        Fc.TEXT: display,
+                    }
+                ).as_json(),
                 Fc.SUBJECT: self._get_fhir_subject_ref(req, recipient),
                 Fc.RECORDER: self._get_fhir_practitioner_ref(req),
             }
             if item.comment:
                 condition_dict[Fc.NOTE] = [
-                    Annotation(jsondict={
-                        Fc.AUTHOR_REFERENCE:
-                            self._get_fhir_practitioner_ref(req),
-                        Fc.AUTHOR_STRING: self.get_clinician_name(),
-                        Fc.TEXT: item.comment,
-                        Fc.TIME: self.fhir_when_task_created,
-                    }).as_json()
+                    Annotation(
+                        jsondict={
+                            Fc.AUTHOR_REFERENCE: self._get_fhir_practitioner_ref(  # noqa
+                                req
+                            ),
+                            Fc.AUTHOR_STRING: self.get_clinician_name(),
+                            Fc.TEXT: item.comment,
+                            Fc.TIME: self.fhir_when_task_created,
+                        }
+                    ).as_json()
                 ]
             bundle_entry = make_fhir_bundle_entry(
                 resource_type_url=Fc.RESOURCE_TYPE_CONDITION,
                 identifier=self._get_fhir_condition_id(req, item.seqnum),
-                resource=Condition(jsondict=condition_dict).as_json()
+                resource=Condition(jsondict=condition_dict).as_json(),
             )
             bundle_entries.append(bundle_entry)
         return bundle_entries
@@ -307,13 +322,12 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
 # DiagnosisIcd10
 # =============================================================================
 
+
 class DiagnosisIcd10Item(DiagnosisItemBase, TaskDescendant):
     __tablename__ = "diagnosis_icd10_item"
 
     diagnosis_icd10_id = Column(
-        "diagnosis_icd10_id", Integer,
-        nullable=False,
-        comment=FK_COMMENT,
+        "diagnosis_icd10_id", Integer, nullable=False, comment=FK_COMMENT
     )
 
     # -------------------------------------------------------------------------
@@ -332,6 +346,7 @@ class DiagnosisIcd10(DiagnosisBase):
     """
     Server implementation of the Diagnosis/ICD-10 task.
     """
+
     __tablename__ = "diagnosis_icd10"
     info_filename_stem = "icd"
 
@@ -339,7 +354,7 @@ class DiagnosisIcd10(DiagnosisBase):
         parent_class_name="DiagnosisIcd10",
         ancillary_class_name="DiagnosisIcd10Item",
         ancillary_fk_to_parent_attr_name="diagnosis_icd10_id",
-        ancillary_order_by_attr_name="seqnum"
+        ancillary_order_by_attr_name="seqnum",
     )  # type: List[DiagnosisIcd10Item]
 
     shortname = "Diagnosis_ICD10"
@@ -352,8 +367,9 @@ class DiagnosisIcd10(DiagnosisBase):
         _ = req.gettext
         return _("Diagnostic codes, ICD-10")
 
-    def get_snomed_codes(self, req: CamcopsRequest,
-                         fallback: bool = True) -> List[SnomedExpression]:
+    def get_snomed_codes(
+        self, req: CamcopsRequest, fallback: bool = True
+    ) -> List[SnomedExpression]:
         """
         Returns all SNOMED-CT codes for this task.
 
@@ -380,9 +396,9 @@ class DiagnosisIcd10(DiagnosisBase):
         return snomed_codes
 
     @staticmethod
-    def _get_snomed_concepts(icd10_code: str,
-                             req: CamcopsRequest,
-                             fallback: bool = True) -> List[SnomedConcept]:
+    def _get_snomed_concepts(
+        icd10_code: str, req: CamcopsRequest, fallback: bool = True
+    ) -> List[SnomedConcept]:
         """
         Internal function to return :class:`SnomedConcept` objects for an
         ICD-10 code.
@@ -412,9 +428,8 @@ class DiagnosisIcd10(DiagnosisBase):
         return concepts
 
     def get_fhir_extra_bundle_entries(
-            self,
-            req: CamcopsRequest,
-            recipient: ExportRecipient) -> List[Dict]:
+        self, req: CamcopsRequest, recipient: ExportRecipient
+    ) -> List[Dict]:
         return self._get_fhir_extra_bundle_entries_for_system(
             req, recipient, Fc.CODE_SYSTEM_ICD10
         )
@@ -424,13 +439,12 @@ class DiagnosisIcd10(DiagnosisBase):
 # DiagnosisIcd9CM
 # =============================================================================
 
+
 class DiagnosisIcd9CMItem(DiagnosisItemBase, TaskDescendant):
     __tablename__ = "diagnosis_icd9cm_item"
 
     diagnosis_icd9cm_id = Column(
-        "diagnosis_icd9cm_id", Integer,
-        nullable=False,
-        comment=FK_COMMENT,
+        "diagnosis_icd9cm_id", Integer, nullable=False, comment=FK_COMMENT
     )
 
     # -------------------------------------------------------------------------
@@ -449,6 +463,7 @@ class DiagnosisIcd9CM(DiagnosisBase):
     """
     Server implementation of the Diagnosis/ICD-9-CM task.
     """
+
     __tablename__ = "diagnosis_icd9cm"
     info_filename_stem = "icd"
 
@@ -456,7 +471,7 @@ class DiagnosisIcd9CM(DiagnosisBase):
         parent_class_name="DiagnosisIcd9CM",
         ancillary_class_name="DiagnosisIcd9CMItem",
         ancillary_fk_to_parent_attr_name="diagnosis_icd9cm_id",
-        ancillary_order_by_attr_name="seqnum"
+        ancillary_order_by_attr_name="seqnum",
     )  # type: List[DiagnosisIcd9CMItem]
 
     shortname = "Diagnosis_ICD9CM"
@@ -486,9 +501,8 @@ class DiagnosisIcd9CM(DiagnosisBase):
         return snomed_codes
 
     def get_fhir_extra_bundle_entries(
-            self,
-            req: CamcopsRequest,
-            recipient: ExportRecipient) -> List[Dict]:
+        self, req: CamcopsRequest, recipient: ExportRecipient
+    ) -> List[Dict]:
         return self._get_fhir_extra_bundle_entries_for_system(
             req, recipient, Fc.CODE_SYSTEM_ICD9_CM
         )
@@ -502,16 +516,25 @@ class DiagnosisIcd9CM(DiagnosisBase):
 # Helpers
 # -----------------------------------------------------------------------------
 
-ORDER_BY = ["surname", "forename", "dob", "sex",
-            "when_created", "system", "code"]
+ORDER_BY = [
+    "surname",
+    "forename",
+    "dob",
+    "sex",
+    "when_created",
+    "system",
+    "code",
+]
 
 
 # noinspection PyProtectedMember,PyUnresolvedReferences
-def get_diagnosis_report_query(req: CamcopsRequest,
-                               diagnosis_class: Type[DiagnosisBase],
-                               item_class: Type[DiagnosisItemBase],
-                               item_fk_fieldname: str,
-                               system: str) -> SelectBase:
+def get_diagnosis_report_query(
+    req: CamcopsRequest,
+    diagnosis_class: Type[DiagnosisBase],
+    item_class: Type[DiagnosisItemBase],
+    item_fk_fieldname: str,
+    system: str,
+) -> SelectBase:
     # SELECT surname, forename, dob, sex, ...
     select_fields = [
         Patient.surname.label("surname"),
@@ -523,17 +546,23 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         # FROM patient
         Patient.__table__
         # INNER JOIN dxset ON (dxtable.patient_id == patient.id AND ...)
-        .join(diagnosis_class.__table__, and_(
-            diagnosis_class.patient_id == Patient.id,
-            diagnosis_class._device_id == Patient._device_id,
-            diagnosis_class._era == Patient._era
-        ))
+        .join(
+            diagnosis_class.__table__,
+            and_(
+                diagnosis_class.patient_id == Patient.id,
+                diagnosis_class._device_id == Patient._device_id,
+                diagnosis_class._era == Patient._era,
+            ),
+        )
         # INNER JOIN dxrow ON (dxrow.fk_dxset = dxset.pk AND ...)
-        .join(item_class.__table__, and_(
-            getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
-            item_class._device_id == diagnosis_class._device_id,
-            item_class._era == diagnosis_class._era
-        ))
+        .join(
+            item_class.__table__,
+            and_(
+                getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
+                item_class._device_id == diagnosis_class._device_id,
+                item_class._era == diagnosis_class._era,
+            ),
+        )
     )
     for iddef in req.idnum_definitions:
         n = iddef.which_idnum
@@ -542,16 +571,19 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         # ... [also] SELECT i1.idnum_value AS 'NHS' (etc.)
         select_fields.append(aliased_table.c.idnum_value.label(desc))
         # ... [from] OUTER JOIN patientidnum AS i1 ON (...)
-        from_clause = from_clause.outerjoin(aliased_table, and_(
-            aliased_table.c.patient_id == Patient.id,
-            aliased_table.c._device_id == Patient._device_id,
-            aliased_table.c._era == Patient._era,
-            # Note: the following are part of the JOIN, not the WHERE:
-            # (or failure to match a row will wipe out the Patient from the
-            # OUTER JOIN):
-            aliased_table.c._current == True,  # noqa: E712
-            aliased_table.c.which_idnum == n,  # noqa: E712
-        ))  # noqa: E712
+        from_clause = from_clause.outerjoin(
+            aliased_table,
+            and_(
+                aliased_table.c.patient_id == Patient.id,
+                aliased_table.c._device_id == Patient._device_id,
+                aliased_table.c._era == Patient._era,
+                # Note: the following are part of the JOIN, not the WHERE:
+                # (or failure to match a row will wipe out the Patient from the
+                # OUTER JOIN):
+                aliased_table.c._current == True,  # noqa: E712
+                aliased_table.c.which_idnum == n,  # noqa: E712
+            ),
+        )  # noqa: E712
     select_fields += [
         diagnosis_class.when_created.label("when_created"),
         literal(system).label("system"),
@@ -574,13 +606,16 @@ def get_diagnosis_report_query(req: CamcopsRequest,
     return query
 
 
-def get_diagnosis_report(req: CamcopsRequest,
-                         diagnosis_class: Type[DiagnosisBase],
-                         item_class: Type[DiagnosisItemBase],
-                         item_fk_fieldname: str,
-                         system: str) -> SelectBase:
-    query = get_diagnosis_report_query(req, diagnosis_class, item_class,
-                                       item_fk_fieldname, system)
+def get_diagnosis_report(
+    req: CamcopsRequest,
+    diagnosis_class: Type[DiagnosisBase],
+    item_class: Type[DiagnosisItemBase],
+    item_fk_fieldname: str,
+    system: str,
+) -> SelectBase:
+    query = get_diagnosis_report_query(
+        req, diagnosis_class, item_class, item_fk_fieldname, system
+    )
     query = query.order_by(*ORDER_BY)
     return query
 
@@ -588,6 +623,7 @@ def get_diagnosis_report(req: CamcopsRequest,
 # -----------------------------------------------------------------------------
 # Plain "all diagnoses" reports
 # -----------------------------------------------------------------------------
+
 
 class DiagnosisICD9CMReport(Report):
     """Report to show ICD-9-CM (DSM-IV-TR) diagnoses."""
@@ -600,8 +636,9 @@ class DiagnosisICD9CMReport(Report):
     @classmethod
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all "
-                 "patients")
+        return _(
+            "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all " "patients"
+        )
 
     # noinspection PyMethodParameters
     @classproperty
@@ -613,8 +650,8 @@ class DiagnosisICD9CMReport(Report):
             req,
             diagnosis_class=DiagnosisIcd9CM,
             item_class=DiagnosisIcd9CMItem,
-            item_fk_fieldname='diagnosis_icd9cm_id',
-            system='ICD-9-CM'
+            item_fk_fieldname="diagnosis_icd9cm_id",
+            system="ICD-9-CM",
         )
 
 
@@ -641,8 +678,8 @@ class DiagnosisICD10Report(Report):
             req,
             diagnosis_class=DiagnosisIcd10,
             item_class=DiagnosisIcd10Item,
-            item_fk_fieldname='diagnosis_icd10_id',
-            system='ICD-10'
+            item_fk_fieldname="diagnosis_icd10_id",
+            system="ICD-10",
         )
 
 
@@ -669,15 +706,15 @@ class DiagnosisAllReport(Report):
             req,
             diagnosis_class=DiagnosisIcd9CM,
             item_class=DiagnosisIcd9CMItem,
-            item_fk_fieldname='diagnosis_icd9cm_id',
-            system='ICD-9-CM'
+            item_fk_fieldname="diagnosis_icd9cm_id",
+            system="ICD-9-CM",
         )
         sql_icd10 = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd10,
             item_class=DiagnosisIcd10Item,
-            item_fk_fieldname='diagnosis_icd10_id',
-            system='ICD-10'
+            item_fk_fieldname="diagnosis_icd10_id",
+            system="ICD-10",
         )
         query = union(sql_icd9cm, sql_icd10)
         query = query.order_by(*ORDER_BY)
@@ -687,6 +724,7 @@ class DiagnosisAllReport(Report):
 # -----------------------------------------------------------------------------
 # "Find me patients matching certain diagnostic criteria"
 # -----------------------------------------------------------------------------
+
 
 class DiagnosisNode(SchemaNode, RequestAwareMixin):
     schema_type = String
@@ -727,10 +765,12 @@ class DiagnosesSequence(SequenceSchema, RequestAwareMixin):
         _ = request.gettext
         self.title = _("Diagnostic codes")
         self.description = (
-            _("Use % as a wildcard (e.g. F32 matches only F32, but F32% "
-              "matches F32, F32.1, F32.2...).") +
-            " " +
-            or_join_description(request)
+            _(
+                "Use % as a wildcard (e.g. F32 matches only F32, but F32% "
+                "matches F32, F32.1, F32.2...)."
+            )
+            + " "
+            + or_join_description(request)
         )
 
     def validator(self, node: SchemaNode, value: List[str]) -> None:
@@ -739,15 +779,20 @@ class DiagnosesSequence(SequenceSchema, RequestAwareMixin):
         if len(value) < self.minimum_number:
             raise Invalid(
                 node,
-                _("You must specify at least") + f" {self.minimum_number}")
+                _("You must specify at least") + f" {self.minimum_number}",
+            )
         if len(value) != len(set(value)):
             raise Invalid(node, _("You have specified duplicate diagnoses"))
 
 
 class DiagnosisFinderReportSchema(ReportParamSchema):
     which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
-    diagnoses_inclusion = DiagnosesSequence(minimum_number=1)  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa: E501
-    diagnoses_exclusion = DiagnosesSequence()  # must match ViewParam.DIAGNOSES_EXCLUSION  # noqa: E501
+    diagnoses_inclusion = DiagnosesSequence(
+        minimum_number=1
+    )  # must match ViewParam.DIAGNOSES_INCLUSION
+    diagnoses_exclusion = (
+        DiagnosesSequence()
+    )  # must match ViewParam.DIAGNOSES_EXCLUSION
     age_minimum = OptionalIntNode()  # must match ViewParam.AGE_MINIMUM
     age_maximum = OptionalIntNode()  # must match ViewParam.AGE_MAXIMUM
 
@@ -765,16 +810,18 @@ class DiagnosisFinderReportSchema(ReportParamSchema):
 
 
 # noinspection PyProtectedMember
-def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
-                                       diagnosis_class: Type[DiagnosisBase],
-                                       item_class: Type[DiagnosisItemBase],
-                                       item_fk_fieldname: str,
-                                       system: str,
-                                       which_idnum: int,
-                                       inclusion_dx: List[str],
-                                       exclusion_dx: List[str],
-                                       age_minimum_y: int,
-                                       age_maximum_y: int) -> SelectBase:
+def get_diagnosis_inc_exc_report_query(
+    req: CamcopsRequest,
+    diagnosis_class: Type[DiagnosisBase],
+    item_class: Type[DiagnosisItemBase],
+    item_fk_fieldname: str,
+    system: str,
+    which_idnum: int,
+    inclusion_dx: List[str],
+    exclusion_dx: List[str],
+    age_minimum_y: int,
+    age_maximum_y: int,
+) -> SelectBase:
     """
     As for get_diagnosis_report_query, but this makes some modifications to
     do inclusion and exclusion criteria.
@@ -798,31 +845,37 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
     ]
     # noinspection PyUnresolvedReferences
     select_from = (
-        Patient.__table__
-        .join(diagnosis_class.__table__, and_(
-            diagnosis_class.patient_id == Patient.id,
-            diagnosis_class._device_id == Patient._device_id,
-            diagnosis_class._era == Patient._era,
-            diagnosis_class._current == True,  # noqa: E712
-        ))
-        .join(item_class.__table__, and_(
-            getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
-            item_class._device_id == diagnosis_class._device_id,
-            item_class._era == diagnosis_class._era,
-            item_class._current == True,
-        ))
-        .join(PatientIdNum.__table__, and_(
-            PatientIdNum.patient_id == Patient.id,
-            PatientIdNum._device_id == Patient._device_id,
-            PatientIdNum._era == Patient._era,
-            PatientIdNum._current == True,
-            PatientIdNum.which_idnum == which_idnum,
-            PatientIdNum.idnum_value.isnot(None),  # NOT NULL
-        ))
+        Patient.__table__.join(
+            diagnosis_class.__table__,
+            and_(
+                diagnosis_class.patient_id == Patient.id,
+                diagnosis_class._device_id == Patient._device_id,
+                diagnosis_class._era == Patient._era,
+                diagnosis_class._current == True,  # noqa: E712
+            ),
+        )
+        .join(
+            item_class.__table__,
+            and_(
+                getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
+                item_class._device_id == diagnosis_class._device_id,
+                item_class._era == diagnosis_class._era,
+                item_class._current == True,
+            ),
+        )
+        .join(
+            PatientIdNum.__table__,
+            and_(
+                PatientIdNum.patient_id == Patient.id,
+                PatientIdNum._device_id == Patient._device_id,
+                PatientIdNum._era == Patient._era,
+                PatientIdNum._current == True,
+                PatientIdNum.which_idnum == which_idnum,
+                PatientIdNum.idnum_value.isnot(None),  # NOT NULL
+            ),
+        )
     )
-    wheres = [
-        Patient._current == True,  # noqa: E712
-    ]
+    wheres = [Patient._current == True]  # noqa: E712
     if not req.user.superuser:
         # Restrict to accessible groups
         group_ids = req.user.ids_of_groups_user_may_report_on
@@ -874,26 +927,34 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
         # noinspection PyUnresolvedReferences
         edx_idnum = PatientIdNum.__table__.alias("edx_idnum")
         edx_joined = (
-            edx_items
-            .join(edx_sets, and_(
-                getattr(edx_items.c, item_fk_fieldname) == edx_sets.c.id,
-                edx_items.c._device_id == edx_sets.c._device_id,
-                edx_items.c._era == edx_sets.c._era,
-                edx_items.c._current == True,  # noqa: E712
-            ))
-            .join(edx_patient, and_(
-                edx_sets.c.patient_id == edx_patient.c.id,
-                edx_sets.c._device_id == edx_patient.c._device_id,
-                edx_sets.c._era == edx_patient.c._era,
-                edx_sets.c._current == True,  # noqa: E712
-            ))
-            .join(edx_idnum, and_(
-                edx_idnum.c.patient_id == edx_patient.c.id,
-                edx_idnum.c._device_id == edx_patient.c._device_id,
-                edx_idnum.c._era == edx_patient.c._era,
-                edx_idnum.c._current == True,  # noqa: E712
-                edx_idnum.c.which_idnum == which_idnum,
-            ))
+            edx_items.join(
+                edx_sets,
+                and_(
+                    getattr(edx_items.c, item_fk_fieldname) == edx_sets.c.id,
+                    edx_items.c._device_id == edx_sets.c._device_id,
+                    edx_items.c._era == edx_sets.c._era,
+                    edx_items.c._current == True,  # noqa: E712
+                ),
+            )
+            .join(
+                edx_patient,
+                and_(
+                    edx_sets.c.patient_id == edx_patient.c.id,
+                    edx_sets.c._device_id == edx_patient.c._device_id,
+                    edx_sets.c._era == edx_patient.c._era,
+                    edx_sets.c._current == True,  # noqa: E712
+                ),
+            )
+            .join(
+                edx_idnum,
+                and_(
+                    edx_idnum.c.patient_id == edx_patient.c.id,
+                    edx_idnum.c._device_id == edx_patient.c._device_id,
+                    edx_idnum.c._era == edx_patient.c._era,
+                    edx_idnum.c._current == True,  # noqa: E712
+                    edx_idnum.c.which_idnum == which_idnum,
+                ),
+            )
         )
         exclusion_criteria = []  # type: List[ColumnElement]
         for edx in exclusion_dx:
@@ -901,7 +962,7 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
         edx_wheres = [
             edx_items.c._current == True,  # noqa: E712
             edx_idnum.c.idnum_value == PatientIdNum.idnum_value,
-            or_(*exclusion_criteria)
+            or_(*exclusion_criteria),
         ]
         # Note the join above between the main and the EXISTS clauses.
         # We don't use an alias for the main copy of the PatientIdNum table,
@@ -916,9 +977,7 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
             edx_wheres.append(edx_sets.c._group_id.in_(group_ids))
             # ... bugfix 2018-06-19: "wheres" -> "edx_wheres"
         exclusion_select = (
-            select(["*"])
-            .select_from(edx_joined)
-            .where(and_(*edx_wheres))
+            select(["*"]).select_from(edx_joined).where(and_(*edx_wheres))
         )
         wheres.append(not_(exists(exclusion_select)))
 
@@ -946,20 +1005,21 @@ class DiagnosisFinderReportBase(Report):
             ViewParam.DIAGNOSES_INCLUSION,
             ViewParam.DIAGNOSES_EXCLUSION,
             ViewParam.AGE_MINIMUM,
-            ViewParam.AGE_MAXIMUM
+            ViewParam.AGE_MAXIMUM,
         ]
 
-    def render_single_page_html(self,
-                                req: "CamcopsRequest",
-                                column_names: List[str],
-                                page: CamcopsPage) -> Response:
+    def render_single_page_html(
+        self, req: "CamcopsRequest", column_names: List[str], page: CamcopsPage
+    ) -> Response:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_INCLUSION,
-            validator=validate_restricted_sql_search_literal)
+            validator=validate_restricted_sql_search_literal,
+        )
         exclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_EXCLUSION,
-            validator=validate_restricted_sql_search_literal)
+            validator=validate_restricted_sql_search_literal,
+        )
         age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
         idnum_desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
@@ -968,17 +1028,19 @@ class DiagnosisFinderReportBase(Report):
 
         return render_to_response(
             "diagnosis_finder_report.mako",
-            dict(title=self.title(req),
-                 page=page,
-                 column_names=column_names,
-                 report_id=self.report_id,
-                 idnum_desc=idnum_desc,
-                 inclusion_dx=inclusion_dx,
-                 exclusion_dx=exclusion_dx,
-                 age_minimum=age_minimum,
-                 age_maximum=age_maximum,
-                 sql=sql),
-            request=req
+            dict(
+                title=self.title(req),
+                page=page,
+                column_names=column_names,
+                report_id=self.report_id,
+                idnum_desc=idnum_desc,
+                inclusion_dx=inclusion_dx,
+                exclusion_dx=exclusion_dx,
+                age_minimum=age_minimum,
+                age_maximum=age_maximum,
+                sql=sql,
+            ),
+            request=req,
         )
 
 
@@ -997,10 +1059,12 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_INCLUSION,
-            validator=validate_restricted_sql_search_literal)
+            validator=validate_restricted_sql_search_literal,
+        )
         exclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_EXCLUSION,
-            validator=validate_restricted_sql_search_literal)
+            validator=validate_restricted_sql_search_literal,
+        )
         age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
 
@@ -1008,8 +1072,8 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
             req,
             diagnosis_class=DiagnosisIcd10,
             item_class=DiagnosisIcd10Item,
-            item_fk_fieldname='diagnosis_icd10_id',
-            system='ICD-10',
+            item_fk_fieldname="diagnosis_icd10_id",
+            system="ICD-10",
             which_idnum=which_idnum,
             inclusion_dx=inclusion_dx,
             exclusion_dx=exclusion_dx,
@@ -1024,7 +1088,7 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
     def get_test_querydict() -> Dict[str, Any]:
         return {
             ViewParam.WHICH_IDNUM: 1,
-            ViewParam.DIAGNOSES_INCLUSION: ['F32%'],
+            ViewParam.DIAGNOSES_INCLUSION: ["F32%"],
             ViewParam.DIAGNOSES_EXCLUSION: [],
             ViewParam.AGE_MINIMUM: None,
             ViewParam.AGE_MAXIMUM: None,
@@ -1048,10 +1112,12 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_INCLUSION,
-            validator=validate_restricted_sql_search_literal)
+            validator=validate_restricted_sql_search_literal,
+        )
         exclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_EXCLUSION,
-            validator=validate_restricted_sql_search_literal)
+            validator=validate_restricted_sql_search_literal,
+        )
         age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
 
@@ -1059,8 +1125,8 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
             req,
             diagnosis_class=DiagnosisIcd9CM,
             item_class=DiagnosisIcd9CMItem,
-            item_fk_fieldname='diagnosis_icd9cm_id',
-            system='ICD-9-CM',
+            item_fk_fieldname="diagnosis_icd9cm_id",
+            system="ICD-9-CM",
             which_idnum=which_idnum,
             inclusion_dx=inclusion_dx,
             exclusion_dx=exclusion_dx,
@@ -1075,7 +1141,7 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
     def get_test_querydict() -> Dict[str, Any]:
         return {
             ViewParam.WHICH_IDNUM: 1,
-            ViewParam.DIAGNOSES_INCLUSION: ['296%'],
+            ViewParam.DIAGNOSES_INCLUSION: ["296%"],
             ViewParam.DIAGNOSES_EXCLUSION: [],
             ViewParam.AGE_MINIMUM: None,
             ViewParam.AGE_MAXIMUM: None,

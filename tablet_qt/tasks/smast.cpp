@@ -35,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 13;
-const int MAX_SCORE = N_QUESTIONS;
+const int MAX_QUESTION_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
 const QVector<int> REVERSE_SCORED_Q{1, 4, 5};
@@ -98,7 +98,7 @@ bool Smast::isComplete() const
 
 QStringList Smast::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

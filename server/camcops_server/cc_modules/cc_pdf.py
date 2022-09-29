@@ -33,7 +33,6 @@ camcops_server/cc_modules/cc_pdf.py
 # Imports
 # =============================================================================
 
-# import logging
 from typing import Any, Dict, TYPE_CHECKING
 
 from cardinal_pythonlib.pdf import get_pdf_from_html
@@ -46,28 +45,34 @@ from camcops_server.cc_modules.cc_constants import (
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
-# log = logging.getLogger(__name__)
-
 
 # =============================================================================
 # pdf_from_html
 # =============================================================================
 
-def pdf_from_html(req: "CamcopsRequest",
-                  html: str,
-                  header_html: str = None,
-                  footer_html: str = None,
-                  extra_wkhtmltopdf_options: Dict[str, Any] = None) -> bytes:
+
+def pdf_from_html(
+    req: "CamcopsRequest",
+    html: str,
+    header_html: str = None,
+    footer_html: str = None,
+    extra_wkhtmltopdf_options: Dict[str, Any] = None,
+) -> bytes:
     """
     Create and return a PDF from the HTML provided.
     """
-    extra_wkhtmltopdf_options = extra_wkhtmltopdf_options or {}  # type: Dict[str, Any]  # noqa
-    wkhtmltopdf_options = dict(WKHTMLTOPDF_OPTIONS,
-                               **extra_wkhtmltopdf_options)
+    extra_wkhtmltopdf_options = (
+        extra_wkhtmltopdf_options or {}
+    )  # type: Dict[str, Any]
+    wkhtmltopdf_options = dict(
+        WKHTMLTOPDF_OPTIONS, **extra_wkhtmltopdf_options
+    )
     cfg = req.config
-    return get_pdf_from_html(html,
-                             header_html=header_html,
-                             footer_html=footer_html,
-                             processor=PDF_ENGINE,
-                             wkhtmltopdf_filename=cfg.wkhtmltopdf_filename,
-                             wkhtmltopdf_options=wkhtmltopdf_options)
+    return get_pdf_from_html(
+        html,
+        header_html=header_html,
+        footer_html=footer_html,
+        processor=PDF_ENGINE,
+        wkhtmltopdf_filename=cfg.wkhtmltopdf_filename,
+        wkhtmltopdf_options=wkhtmltopdf_options,
+    )

@@ -43,6 +43,7 @@
 #include "tasks/honosca.h"
 #include "tasks/npiq.h"
 #include "tasks/ors.h"
+#include "tasks/paradise24.h"
 #include "tasks/rand36.h"
 #include "tasks/swemwbs.h"
 #include "tasks/wemwbs.h"
@@ -86,6 +87,7 @@ void GlobalMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Paradise24::PARADISE24_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Wemwbs::WEMWBS_TABLENAME, m_app),

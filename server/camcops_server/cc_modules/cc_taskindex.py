@@ -83,9 +83,10 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Helper functions
 # =============================================================================
 
-def task_factory_unfiltered(dbsession: SqlASession,
-                            basetable: str,
-                            serverpk: int) -> Optional[Task]:
+
+def task_factory_unfiltered(
+    dbsession: SqlASession, basetable: str, serverpk: int
+) -> Optional[Task]:
     """
     Load a task from the database and return it.
     No permission filtering is performed. (Used by
@@ -116,6 +117,7 @@ def task_factory_unfiltered(dbsession: SqlASession,
 # PatientIdNumIndexEntry
 # =============================================================================
 
+
 class PatientIdNumIndexEntry(Base):
     """
     Represents a server index entry for a
@@ -123,42 +125,51 @@ class PatientIdNumIndexEntry(Base):
 
     - Only current ID numbers are indexed.
     """
+
     __tablename__ = "_idnum_index"
 
     idnum_pk = Column(
-        "idnum_pk", Integer,
-        primary_key=True, index=True,
+        "idnum_pk",
+        Integer,
+        primary_key=True,
+        index=True,
         comment="Server primary key of the PatientIdNum "
-                "(and of the PatientIdNumIndexEntry)"
+        "(and of the PatientIdNumIndexEntry)",
     )
     indexed_at_utc = Column(
-        "indexed_at_utc", DateTime, nullable=False,
-        comment="When this index entry was created"
+        "indexed_at_utc",
+        DateTime,
+        nullable=False,
+        comment="When this index entry was created",
     )
 
     # noinspection PyProtectedMember
     patient_pk = Column(
-        "patient_pk", Integer, ForeignKey(Patient._pk),
+        "patient_pk",
+        Integer,
+        ForeignKey(Patient._pk),
         index=True,
-        comment="Server primary key of the Patient"
+        comment="Server primary key of the Patient",
     )
     which_idnum = Column(
-        "which_idnum", Integer, ForeignKey(IdNumDefinition.which_idnum),
+        "which_idnum",
+        Integer,
+        ForeignKey(IdNumDefinition.which_idnum),
         nullable=False,
         index=True,
-        comment="Which of the server's ID numbers is this?"
+        comment="Which of the server's ID numbers is this?",
     )
     idnum_value = Column(
-        "idnum_value", BigInteger,
-        comment="The value of the ID number"
+        "idnum_value", BigInteger, comment="The value of the ID number"
     )
 
     # Relationships:
     patient = relationship(Patient)
 
     def __repr__(self) -> str:
-        return simple_repr(self, ["idnum_pk", "patient_pk",
-                                  "which_idnum", "idnum_value"])
+        return simple_repr(
+            self, ["idnum_pk", "patient_pk", "which_idnum", "idnum_value"]
+        )
 
     # -------------------------------------------------------------------------
     # Create
@@ -196,8 +207,7 @@ class PatientIdNumIndexEntry(Base):
         session.add(index)
 
     @classmethod
-    def unindex_patient(cls, patient: Patient,
-                        session: SqlASession) -> None:
+    def unindex_patient(cls, patient: Patient, session: SqlASession) -> None:
         """
         Removes all ID number indexes from the database for a patient.
 
@@ -213,8 +223,7 @@ class PatientIdNumIndexEntry(Base):
         idxcols = idxtable.columns
         # noinspection PyProtectedMember
         session.execute(
-            idxtable.delete()
-            .where(idxcols.patient_pk == patient._pk)
+            idxtable.delete().where(idxcols.patient_pk == patient._pk)
         )
 
     # -------------------------------------------------------------------------
@@ -222,8 +231,9 @@ class PatientIdNumIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def rebuild_idnum_index(cls, session: SqlASession,
-                            indexed_at_utc: Pendulum) -> None:
+    def rebuild_idnum_index(
+        cls, session: SqlASession, indexed_at_utc: Pendulum
+    ) -> None:
         """
         Rebuilds the index entirely. Uses SQLAlchemy Core (not ORM) for speed.
 
@@ -243,29 +253,34 @@ class PatientIdNumIndexEntry(Base):
         patientcols = patienttable.columns
 
         # Delete all entries
-        with if_sqlserver_disable_constraints_triggers(session,
-                                                       indextable.name):
-            session.execute(
-                indextable.delete()
-            )
+        with if_sqlserver_disable_constraints_triggers(
+            session, indextable.name
+        ):
+            session.execute(indextable.delete())
 
         # Create new ones
         # noinspection PyProtectedMember,PyPep8
         session.execute(
             indextable.insert().from_select(
                 # Target:
-                [indexcols.idnum_pk,
-                 indexcols.indexed_at_utc,
-                 indexcols.patient_pk,
-                 indexcols.which_idnum,
-                 indexcols.idnum_value],
+                [
+                    indexcols.idnum_pk,
+                    indexcols.indexed_at_utc,
+                    indexcols.patient_pk,
+                    indexcols.which_idnum,
+                    indexcols.idnum_value,
+                ],
                 # Source:
                 (
-                    select([idnumcols._pk,
+                    select(
+                        [
+                            idnumcols._pk,
                             literal(indexed_at_utc),
                             patientcols._pk,
                             idnumcols.which_idnum,
-                            idnumcols.idnum_value])
+                            idnumcols.idnum_value,
+                        ]
+                    )
                     .select_from(
                         join(
                             idnumtable,
@@ -274,13 +289,13 @@ class PatientIdNumIndexEntry(Base):
                                 idnumcols._device_id == patientcols._device_id,
                                 idnumcols._era == patientcols._era,
                                 idnumcols.patient_id == patientcols.id,
-                            )
+                            ),
                         )
                     )
                     .where(idnumcols._current == True)  # noqa: E712
                     .where(idnumcols.idnum_value.isnot(None))
                     .where(patientcols._current == True)  # noqa: E712
-                )
+                ),
             )
         )
 
@@ -288,8 +303,9 @@ class PatientIdNumIndexEntry(Base):
     # Check index
     # -------------------------------------------------------------------------
     @classmethod
-    def check_index(cls, session: SqlASession,
-                    show_all_bad: bool = False) -> bool:
+    def check_index(
+        cls, session: SqlASession, show_all_bad: bool = False
+    ) -> bool:
         """
         Checks the index.
 
@@ -305,7 +321,8 @@ class PatientIdNumIndexEntry(Base):
         ok = True
 
         log.info(
-            "Checking all patient ID number indexes represent valid entries")
+            "Checking all patient ID number indexes represent valid entries"
+        )
         # noinspection PyUnresolvedReferences,PyProtectedMember
         q_idx_without_original = session.query(PatientIdNumIndexEntry).filter(
             ~exists()
@@ -316,18 +333,25 @@ class PatientIdNumIndexEntry(Base):
                     Patient._device_id == PatientIdNum._device_id,
                     Patient._era == PatientIdNum._era,
                 )
-            ).where(and_(
-                PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
-                PatientIdNum._current == True,  # noqa: E712
-                PatientIdNum.which_idnum == PatientIdNumIndexEntry.which_idnum,
-                PatientIdNum.idnum_value == PatientIdNumIndexEntry.idnum_value,
-                Patient._pk == PatientIdNumIndexEntry.patient_pk,
-                Patient._current == True,  # noqa: E712
-            ))
+            )
+            .where(
+                and_(
+                    PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
+                    PatientIdNum._current == True,  # noqa: E712
+                    PatientIdNum.which_idnum
+                    == PatientIdNumIndexEntry.which_idnum,
+                    PatientIdNum.idnum_value
+                    == PatientIdNumIndexEntry.idnum_value,
+                    Patient._pk == PatientIdNumIndexEntry.patient_pk,
+                    Patient._current == True,  # noqa: E712
+                )
+            )
         )
         for index in q_idx_without_original:
-            log.error("Patient ID number index without matching "
-                      "original: {!r}", index)
+            log.error(
+                "Patient ID number index without matching " "original: {!r}",
+                index,
+            )
             ok = False
             if not show_all_bad:
                 return ok
@@ -338,13 +362,16 @@ class PatientIdNumIndexEntry(Base):
             PatientIdNum._current == True,  # noqa: E712
             PatientIdNum.idnum_value.isnot(None),
             ~exists()
-            .select_from(
-                PatientIdNumIndexEntry.__table__
-            ).where(and_(
-                PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
-                PatientIdNum.which_idnum == PatientIdNumIndexEntry.which_idnum,  # noqa
-                PatientIdNum.idnum_value == PatientIdNumIndexEntry.idnum_value,  # noqa
-            ))
+            .select_from(PatientIdNumIndexEntry.__table__)
+            .where(
+                and_(
+                    PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
+                    PatientIdNum.which_idnum
+                    == PatientIdNumIndexEntry.which_idnum,  # noqa
+                    PatientIdNum.idnum_value
+                    == PatientIdNumIndexEntry.idnum_value,  # noqa
+                )
+            ),
         )
         for orig in q_original_with_idx:
             log.error("ID number without index entry: {!r}", orig)
@@ -360,10 +387,11 @@ class PatientIdNumIndexEntry(Base):
 
     @classmethod
     def update_idnum_index_for_upload(
-            cls,
-            session: SqlASession,
-            indexed_at_utc: Pendulum,
-            tablechanges: UploadTableChanges) -> None:
+        cls,
+        session: SqlASession,
+        indexed_at_utc: Pendulum,
+        tablechanges: UploadTableChanges,
+    ) -> None:
         """
         Updates the index for a device's upload.
 
@@ -395,11 +423,13 @@ class PatientIdNumIndexEntry(Base):
         # Delete the old
         removal_pks = tablechanges.idnum_delete_index_pks
         if removal_pks:
-            log.debug("Deleting old ID number indexes: server PKs {}",
-                      removal_pks)
+            log.debug(
+                "Deleting old ID number indexes: server PKs {}", removal_pks
+            )
             session.execute(
-                indextable.delete()
-                .where(indextable.c.idnum_pk.in_(removal_pks))
+                indextable.delete().where(
+                    indextable.c.idnum_pk.in_(removal_pks)
+                )
             )
 
         # Create the new
@@ -410,32 +440,39 @@ class PatientIdNumIndexEntry(Base):
             session.execute(
                 indextable.insert().from_select(
                     # Target:
-                    [indexcols.idnum_pk,
-                     indexcols.indexed_at_utc,
-                     indexcols.patient_pk,
-                     indexcols.which_idnum,
-                     indexcols.idnum_value],
+                    [
+                        indexcols.idnum_pk,
+                        indexcols.indexed_at_utc,
+                        indexcols.patient_pk,
+                        indexcols.which_idnum,
+                        indexcols.idnum_value,
+                    ],
                     # Source:
                     (
-                        select([idnumcols._pk,
+                        select(
+                            [
+                                idnumcols._pk,
                                 literal(indexed_at_utc),
                                 patientcols._pk,
                                 idnumcols.which_idnum,
-                                idnumcols.idnum_value])
+                                idnumcols.idnum_value,
+                            ]
+                        )
                         .select_from(
                             join(
                                 idnumtable,
                                 patienttable,
                                 and_(
-                                    idnumcols._device_id == patientcols._device_id,  # noqa
+                                    idnumcols._device_id
+                                    == patientcols._device_id,  # noqa
                                     idnumcols._era == patientcols._era,
                                     idnumcols.patient_id == patientcols.id,
-                                )
+                                ),
                             )
                         )
                         .where(idnumcols._pk.in_(addition_pks))
                         .where(patientcols._current == True)  # noqa: E712
-                    )
+                    ),
                 )
             )
 
@@ -443,6 +480,7 @@ class PatientIdNumIndexEntry(Base):
 # =============================================================================
 # TaskIndexEntry
 # =============================================================================
+
 
 class TaskIndexEntry(Base):
     """
@@ -452,28 +490,35 @@ class TaskIndexEntry(Base):
     - Only current tasks are indexed. This simplifies direct linking to patient
       PKs.
     """
+
     __tablename__ = "_task_index"
 
     index_entry_pk = Column(
-        "index_entry_pk", Integer,
-        primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key of this index entry"
+        "index_entry_pk",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key of this index entry",
     )
     indexed_at_utc = Column(
-        "indexed_at_utc", DateTime, nullable=False,
-        comment="When this index entry was created"
+        "indexed_at_utc",
+        DateTime,
+        nullable=False,
+        comment="When this index entry was created",
     )
 
     # The next two fields link to our task:
     task_table_name = Column(
-        "task_table_name", TableNameColType,
+        "task_table_name",
+        TableNameColType,
         index=True,
-        comment="Table name of the task's base table"
+        comment="Table name of the task's base table",
     )
     task_pk = Column(
-        "task_pk", Integer,
+        "task_pk",
+        Integer,
         index=True,
-        comment="Server primary key of the task"
+        comment="Server primary key of the task",
     )
     # We can probably even represent this with an SQLAlchemy ORM relationship.
     # This is polymorphic loading (we'll return objects of different types)
@@ -486,51 +531,70 @@ class TaskIndexEntry(Base):
     # This links to the task's patient, if there is one:
     # noinspection PyProtectedMember
     patient_pk = Column(
-        "patient_pk", Integer, ForeignKey(Patient._pk),
+        "patient_pk",
+        Integer,
+        ForeignKey(Patient._pk),
         index=True,
-        comment="Server primary key of the patient (if applicable)"
+        comment="Server primary key of the patient (if applicable)",
     )
 
     # These fields allow us to filter tasks efficiently:
     device_id = Column(
-        "device_id", Integer, ForeignKey("_security_devices.id"),
+        "device_id",
+        Integer,
+        ForeignKey("_security_devices.id"),
         nullable=False,
         index=True,
-        comment="ID of the source tablet device"
+        comment="ID of the source tablet device",
     )
     era = Column(
-        "era", EraColType, nullable=False,
+        "era",
+        EraColType,
+        nullable=False,
         index=True,
         comment="Era (_era) field of the source record",
     )
     when_created_utc = Column(
-        "when_created_utc", DateTime, nullable=False,
+        "when_created_utc",
+        DateTime,
+        nullable=False,
         index=True,
-        comment="Date/time this task instance was created (UTC)"
+        comment="Date/time this task instance was created (UTC)",
     )
     when_created_iso = Column(
-        "when_created_iso", PendulumDateTimeAsIsoTextColType, nullable=False,
+        "when_created_iso",
+        PendulumDateTimeAsIsoTextColType,
+        nullable=False,
         index=True,
-        comment="Date/time this task instance was created (ISO 8601)"
+        comment="Date/time this task instance was created (ISO 8601)",
     )  # Pendulum on the Python side
     when_added_batch_utc = Column(
-        "when_added_batch_utc", DateTime, nullable=False,
+        "when_added_batch_utc",
+        DateTime,
+        nullable=False,
         index=True,
-        comment="Date/time this task index was uploaded (UTC)"
+        comment="Date/time this task index was uploaded (UTC)",
     )
     adding_user_id = Column(
-        "adding_user_id", Integer, ForeignKey("_security_users.id"),
+        "adding_user_id",
+        Integer,
+        ForeignKey("_security_users.id"),
         comment="ID of user that added this task",
     )
     group_id = Column(
-        "group_id", Integer, ForeignKey("_security_groups.id"),
-        nullable=False, index=True,
-        comment="ID of group to which this task belongs"
+        "group_id",
+        Integer,
+        ForeignKey("_security_groups.id"),
+        nullable=False,
+        index=True,
+        comment="ID of group to which this task belongs",
     )
     task_is_complete = Column(
-        "task_is_complete", Boolean, nullable=False,
+        "task_is_complete",
+        Boolean,
+        nullable=False,
         comment="Is the task complete (as judged by the server when the index "
-                "entry was created)?"
+        "entry was created)?",
     )
 
     # Relationships:
@@ -538,12 +602,23 @@ class TaskIndexEntry(Base):
     _adding_user = relationship(User)
 
     def __repr__(self) -> str:
-        return simple_repr(self, [
-            "index_entry_pk", "task_table_name", "task_pk", "patient_pk",
-            "device_id", "era", "when_created_utc", "when_created_iso",
-            "when_added_batch_utc",
-            "adding_user_id", "group_id", "task_is_complete",
-        ])
+        return simple_repr(
+            self,
+            [
+                "index_entry_pk",
+                "task_table_name",
+                "task_pk",
+                "patient_pk",
+                "device_id",
+                "era",
+                "when_created_utc",
+                "when_created_iso",
+                "when_added_batch_utc",
+                "adding_user_id",
+                "group_id",
+                "task_is_complete",
+            ],
+        )
 
     # -------------------------------------------------------------------------
     # Fetch the task
@@ -562,9 +637,11 @@ class TaskIndexEntry(Base):
         dbsession = SqlASession.object_session(self)
         assert dbsession, (
             "TaskIndexEntry.task called on a TaskIndexEntry "
-            "that's not yet in a database session")
+            "that's not yet in a database session"
+        )
         return task_factory_unfiltered(
-            dbsession, self.task_table_name, self.task_pk)
+            dbsession, self.task_table_name, self.task_pk
+        )
 
     # -------------------------------------------------------------------------
     # Other properties mirroring those of Task, for duck typing
@@ -651,8 +728,9 @@ class TaskIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def make_from_task(cls, task: Task,
-                       indexed_at_utc: Pendulum) -> "TaskIndexEntry":
+    def make_from_task(
+        cls, task: Task, indexed_at_utc: Pendulum
+    ) -> "TaskIndexEntry":
         """
         Returns a task index entry for the specified
         :class:`camcops_server.cc_modules.cc_task.Task`. The
@@ -689,8 +767,9 @@ class TaskIndexEntry(Base):
         return index
 
     @classmethod
-    def index_task(cls, task: Task, session: SqlASession,
-                   indexed_at_utc: Pendulum) -> None:
+    def index_task(
+        cls, task: Task, session: SqlASession, indexed_at_utc: Pendulum
+    ) -> None:
         """
         Indexes a task and inserts the index into the database.
 
@@ -702,8 +781,7 @@ class TaskIndexEntry(Base):
             indexed_at_utc:
                 current time in UTC
         """
-        index = cls.make_from_task(task,
-                                   indexed_at_utc=indexed_at_utc)
+        index = cls.make_from_task(task, indexed_at_utc=indexed_at_utc)
         session.add(index)
 
     @classmethod
@@ -733,10 +811,13 @@ class TaskIndexEntry(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def rebuild_index_for_task_type(cls, session: SqlASession,
-                                    taskclass: Type[Task],
-                                    indexed_at_utc: Pendulum,
-                                    delete_first: bool = True) -> None:
+    def rebuild_index_for_task_type(
+        cls,
+        session: SqlASession,
+        taskclass: Type[Task],
+        indexed_at_utc: Pendulum,
+        delete_first: bool = True,
+    ) -> None:
         """
         Rebuilds the index for a particular task type.
 
@@ -757,8 +838,7 @@ class TaskIndexEntry(Base):
         # Delete all entries for this task
         if delete_first:
             session.execute(
-                idxtable.delete()
-                .where(idxcols.table_name == tasktablename)
+                idxtable.delete().where(idxcols.table_name == tasktablename)
             )
         # Create new entries
         # noinspection PyPep8,PyUnresolvedReferences,PyProtectedMember
@@ -772,9 +852,11 @@ class TaskIndexEntry(Base):
 
     @classmethod
     def rebuild_entire_task_index(
-            cls, session: SqlASession,
-            indexed_at_utc: Pendulum,
-            skip_tasks_with_missing_tables: bool = False) -> None:
+        cls,
+        session: SqlASession,
+        indexed_at_utc: Pendulum,
+        skip_tasks_with_missing_tables: bool = False,
+    ) -> None:
         """
         Rebuilds the entire index.
 
@@ -791,11 +873,8 @@ class TaskIndexEntry(Base):
         idxtable = cls.__table__  # type: Table
 
         # Delete all entries
-        with if_sqlserver_disable_constraints_triggers(session,
-                                                       idxtable.name):
-            session.execute(
-                idxtable.delete()
-            )
+        with if_sqlserver_disable_constraints_triggers(session, idxtable.name):
+            session.execute(idxtable.delete())
 
         # Now rebuild:
         for taskclass in Task.all_subclasses_by_tablename():
@@ -804,19 +883,21 @@ class TaskIndexEntry(Base):
                 engine = get_engine_from_session(session)
                 if not table_exists(engine, basetable):
                     continue
-            cls.rebuild_index_for_task_type(session, taskclass,
-                                            indexed_at_utc,
-                                            delete_first=False)
+            cls.rebuild_index_for_task_type(
+                session, taskclass, indexed_at_utc, delete_first=False
+            )
 
     # -------------------------------------------------------------------------
     # Update index at the point of upload from a device
     # -------------------------------------------------------------------------
 
     @classmethod
-    def update_task_index_for_upload(cls,
-                                     session: SqlASession,
-                                     tablechanges: UploadTableChanges,
-                                     indexed_at_utc: Pendulum) -> None:
+    def update_task_index_for_upload(
+        cls,
+        session: SqlASession,
+        tablechanges: UploadTableChanges,
+        indexed_at_utc: Pendulum,
+    ) -> None:
         """
         Updates the index for a device's upload.
 
@@ -847,8 +928,11 @@ class TaskIndexEntry(Base):
         # Delete the old.
         delete_index_pks = tablechanges.task_delete_index_pks
         if delete_index_pks:
-            log.debug("Deleting old task indexes: {}, server PKs {}",
-                      tasktablename, delete_index_pks)
+            log.debug(
+                "Deleting old task indexes: {}, server PKs {}",
+                tasktablename,
+                delete_index_pks,
+            )
             # noinspection PyProtectedMember
             session.execute(
                 idxtable.delete()
@@ -859,23 +943,23 @@ class TaskIndexEntry(Base):
         # Create the new.
         reindex_pks = tablechanges.task_reindex_pks
         if reindex_pks:
-            log.debug("Recreating task indexes: {}, server PKs {}",
-                      tasktablename, reindex_pks)
-            # noinspection PyUnboundLocalVariable,PyProtectedMember
-            q = (
-                session.query(taskclass)
-                .filter(taskclass._pk.in_(reindex_pks))
+            log.debug(
+                "Recreating task indexes: {}, server PKs {}",
+                tasktablename,
+                reindex_pks,
             )
+            # noinspection PyUnboundLocalVariable,PyProtectedMember
+            q = session.query(taskclass).filter(taskclass._pk.in_(reindex_pks))
             for task in q:
-                cls.index_task(task, session,
-                               indexed_at_utc=indexed_at_utc)
+                cls.index_task(task, session, indexed_at_utc=indexed_at_utc)
 
     # -------------------------------------------------------------------------
     # Check index
     # -------------------------------------------------------------------------
     @classmethod
-    def check_index(cls, session: SqlASession,
-                    show_all_bad: bool = False) -> bool:
+    def check_index(
+        cls, session: SqlASession, show_all_bad: bool = False
+    ) -> bool:
         """
         Checks the index.
 
@@ -899,10 +983,12 @@ class TaskIndexEntry(Base):
                 TaskIndexEntry.task_table_name == tasktablename,
                 ~exists()
                 .select_from(taskclass.__table__)
-                .where(and_(
-                    TaskIndexEntry.task_pk == taskclass._pk,
-                    taskclass._current == True,  # noqa: E712
-                ))
+                .where(
+                    and_(
+                        TaskIndexEntry.task_pk == taskclass._pk,
+                        taskclass._current == True,  # noqa: E712
+                    )
+                ),
             )
             # No check for a valid patient at this time.
             for index in q_idx_without_original:
@@ -918,12 +1004,14 @@ class TaskIndexEntry(Base):
             # noinspection PyUnresolvedReferences,PyProtectedMember
             q_original_with_idx = session.query(taskclass).filter(
                 taskclass._current == True,  # noqa: E712
-                ~exists().select_from(
-                    TaskIndexEntry.__table__
-                ).where(and_(
-                    TaskIndexEntry.task_pk == taskclass._pk,
-                    TaskIndexEntry.task_table_name == tasktablename,
-                ))
+                ~exists()
+                .select_from(TaskIndexEntry.__table__)
+                .where(
+                    and_(
+                        TaskIndexEntry.task_pk == taskclass._pk,
+                        TaskIndexEntry.task_table_name == tasktablename,
+                    )
+                ),
             )
             for orig in q_original_with_idx:
                 log.error("Task without index entry: {!r}", orig)
@@ -938,8 +1026,10 @@ class TaskIndexEntry(Base):
 # Wide-ranging index update functions
 # =============================================================================
 
-def reindex_everything(session: SqlASession,
-                       skip_tasks_with_missing_tables: bool = False) -> None:
+
+def reindex_everything(
+    session: SqlASession, skip_tasks_with_missing_tables: bool = False
+) -> None:
     """
     Deletes from and rebuilds all server index tables.
 
@@ -954,13 +1044,17 @@ def reindex_everything(session: SqlASession,
     log.info("Reindexing database; indexed_at_utc = {}", now)
     PatientIdNumIndexEntry.rebuild_idnum_index(session, now)
     TaskIndexEntry.rebuild_entire_task_index(
-        session, now,
-        skip_tasks_with_missing_tables=skip_tasks_with_missing_tables)
+        session,
+        now,
+        skip_tasks_with_missing_tables=skip_tasks_with_missing_tables,
+    )
 
 
-def update_indexes_and_push_exports(req: "CamcopsRequest",
-                                    batchdetails: BatchDetails,
-                                    tablechanges: UploadTableChanges) -> None:
+def update_indexes_and_push_exports(
+    req: "CamcopsRequest",
+    batchdetails: BatchDetails,
+    tablechanges: UploadTableChanges,
+) -> None:
     """
     Update server indexes, if required.
 
@@ -986,7 +1080,7 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
         TaskIndexEntry.update_task_index_for_upload(
             session=req.dbsession,
             tablechanges=tablechanges,
-            indexed_at_utc=batchdetails.batchtime
+            indexed_at_utc=batchdetails.batchtime,
         )
         # Push exports
         recipients = req.all_push_recipients
@@ -994,8 +1088,8 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
         for recipient in recipients:
             recipient_name = recipient.recipient_name
             for pk in tablechanges.get_task_push_export_pks(
-                    recipient=recipient,
-                    uploading_group_id=uploading_group_id):
+                recipient=recipient, uploading_group_id=uploading_group_id
+            ):
                 req.add_export_push_request(recipient_name, tablename, pk)
                 # ... will be transmitted *after* the request performs COMMIT
 

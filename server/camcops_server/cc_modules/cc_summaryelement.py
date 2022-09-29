@@ -52,6 +52,7 @@ if TYPE_CHECKING:
 # SummaryElement
 # =============================================================================
 
+
 class SummaryElement(object):
     """
     Returned by tasks to represent extra summary information that they
@@ -60,11 +61,10 @@ class SummaryElement(object):
     Use this for extra information that can be added to a row represented by a
     task or its ancillary object.
     """
-    def __init__(self,
-                 name: str,
-                 coltype: TypeEngine,
-                 value: Any,
-                 comment: str = None) -> None:
+
+    def __init__(
+        self, name: str, coltype: TypeEngine, value: Any, comment: str = None
+    ) -> None:
         """
         Args:
             name: column name
@@ -87,6 +87,7 @@ class SummaryElement(object):
 # ExtraSummaryTable
 # =============================================================================
 
+
 class ExtraSummaryTable(TaskDescendant):
     """
     Additional summary information returned by a task.
@@ -94,12 +95,15 @@ class ExtraSummaryTable(TaskDescendant):
     Use this to represent an entire table that doesn't have a 1:1 relationship
     with rows of a task or ancillary object.
     """
-    def __init__(self,
-                 tablename: str,
-                 xmlname: str,
-                 columns: List[Column],
-                 rows: List[Union[Dict[str, Any], OrderedDict]],
-                 task: "Task") -> None:
+
+    def __init__(
+        self,
+        tablename: str,
+        xmlname: str,
+        columns: List[Column],
+        rows: List[Union[Dict[str, Any], OrderedDict]],
+        task: "Task",
+    ) -> None:
         """
         Args:
             tablename: name of the additional summary table
@@ -145,8 +149,9 @@ class ExtraSummaryTable(TaskDescendant):
             SummarySchemaInfo.from_column(
                 c,
                 table_name=self.tablename,
-                source=SummarySchemaInfo.SSV_SUMMARY
-            ) for c in self.columns
+                source=SummarySchemaInfo.SSV_SUMMARY,
+            )
+            for c in self.columns
         )
 
     def __repr__(self) -> str:

@@ -80,10 +80,12 @@ def qfieldname_frequency(qnum: int) -> str:
 
 class LynallIamLifeEventsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['LynallIamLifeEvents'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["LynallIamLifeEvents"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         comment_strings = [
             "illness/injury/assault (self)",  # 1
             "illness/injury/assault (relative)",
@@ -104,7 +106,9 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
             i = q - 1
 
             fn_main = qfieldname_main(q)
-            cmt_main = f"Q{q}: in last 6 months: {comment_strings[i]} (0 no, 1 yes)"  # noqa
+            cmt_main = (
+                f"Q{q}: in last 6 months: {comment_strings[i]} (0 no, 1 yes)"
+            )
             setattr(cls, fn_main, BoolColumn(fn_main, comment=cmt_main))
 
             fn_severity = qfieldname_severity(q)
@@ -112,12 +116,16 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
                 f"Q{q}: (if yes) how bad was that "
                 f"(1 not too bad, 2 moderately bad, 3 very bad)"
             )
-            setattr(cls, fn_severity, CamcopsColumn(
+            setattr(
+                cls,
                 fn_severity,
-                Integer,
-                comment=cmt_severity,
-                permitted_value_checker=ONE_TO_THREE_CHECKER
-            ))
+                CamcopsColumn(
+                    fn_severity,
+                    Integer,
+                    comment=cmt_severity,
+                    permitted_value_checker=ONE_TO_THREE_CHECKER,
+                ),
+            )
 
             fn_frequency = qfieldname_frequency(q)
             if q in FREQUENCY_AS_PERCENT_QUESTIONS:
@@ -133,21 +141,27 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
                     f"you in total?"
                 )
                 pv_frequency = MIN_ZERO_CHECKER
-            setattr(cls, fn_frequency, CamcopsColumn(
+            setattr(
+                cls,
                 fn_frequency,
-                Integer,
-                comment=cmt_frequency,
-                permitted_value_checker=pv_frequency
-            ))
+                CamcopsColumn(
+                    fn_frequency,
+                    Integer,
+                    comment=cmt_frequency,
+                    permitted_value_checker=pv_frequency,
+                ),
+            )
 
         super().__init__(name, bases, classdict)
 
 
-class LynallIamLifeEvents(TaskHasPatientMixin, Task,
-                          metaclass=LynallIamLifeEventsMetaclass):
+class LynallIamLifeEvents(
+    TaskHasPatientMixin, Task, metaclass=LynallIamLifeEventsMetaclass
+):
     """
     Server implementation of the LynallIamLifeEvents task.
     """
+
     __tablename__ = "lynall_iam_life"
     shortname = "Lynall_IAM_Life"
 
@@ -165,8 +179,10 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
                 return False
             if not value_main:
                 continue
-            if (getattr(self, qfieldname_severity(q)) is None or
-                    getattr(self, qfieldname_frequency(q)) is None):
+            if (
+                getattr(self, qfieldname_severity(q)) is None
+                or getattr(self, qfieldname_frequency(q)) is None
+            ):
                 return False
         return True
 
@@ -209,7 +225,8 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
                 v_severity = getattr(self, qfieldname_severity(q))
                 a_severity = answer(
                     f"{v_severity}: {options_severity.get(v_severity)}"
-                    if v_severity is not None else None
+                    if v_severity is not None
+                    else None
                 )
                 v_frequency = getattr(self, qfieldname_frequency(q))
                 text_frequency = v_frequency
@@ -221,19 +238,22 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
                     note_frequency = "b"
                 a_frequency = (
                     f"{answer(text_frequency)} <sup>[{note_frequency}]</sup>"
-                    if text_frequency is not None else answer(None)
+                    if text_frequency is not None
+                    else answer(None)
                 )
             else:
                 a_severity = ""
                 a_frequency = ""
-            q_a.append(f"""
+            q_a.append(
+                f"""
                 <tr>
                     <td>{q_main}</td>
                     <td>{a_main}</td>
                     <td>{a_severity}</td>
                     <td>{a_frequency}</td>
                 </tr>
-            """)
+            """
+            )
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">

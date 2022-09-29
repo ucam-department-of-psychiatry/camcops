@@ -102,29 +102,43 @@ class MissingDateException(Exception):
 
 
 class VersionReleaser:
-    #                         (               1                       )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
-    client_version_search = r"(^const Version CAMCOPS_CLIENT_VERSION\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    client_version_search = (
+        # (               1                       )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
+        r"(^const Version CAMCOPS_CLIENT_VERSION\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    )
     client_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                      (               1                        )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
-    client_date_search = r"(^const QDate CAMCOPS_CLIENT_CHANGEDATE\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    client_date_search = (
+        # (               1                        )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
+        r"(^const QDate CAMCOPS_CLIENT_CHANGEDATE\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
+    )
     client_date_replace = r"\g<1>{year}\g<3>{month}\g<5>{day}\g<7>"
 
-    #                          (              1                )( 2 )( 3)( 4 )( 5)( 6 )(7)  # noqa: E501
-    windows_version_search = r'(^#define CamcopsClientVersion ")(\d+)(\.)(\d+)(\.)(\d+)(")'  # noqa: E501
+    windows_version_search = (
+        # (              1                )( 2 )( 3)( 4 )( 5)( 6 )(7)
+        r'(^#define CamcopsClientVersion ")(\d+)(\.)(\d+)(\.)(\d+)(")'
+    )
     windows_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                          (          1          )( 2 )( 3)( 4 )( 5)( 6 )(7)  # noqa: E501
-    android_version_search = r'(android:versionName=")(\d+)(\.)(\d+)(\.)(\d+)(")'  # noqa: E501
+    android_version_search = (
+        # (          1          )( 2 )( 3)( 4 )( 5)( 6 )(7)
+        r'(android:versionName=")(\d+)(\.)(\d+)(\.)(\d+)(")'
+    )
     android_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                            (                      1                         )( 3 )( 3)( 4 )( 5)( 6 )(    7    )  # noqa: E501
-    ios_short_version_search = r"(<key>CFBundleShortVersionString</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    ios_short_version_search = (
+        # (                      1                         )( 3 )( 3)( 4 )( 5)( 6 )(    7    )  # noqa: E501
+        r"(<key>CFBundleShortVersionString</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    )
     ios_short_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                      (                  1                  )( 2 )( 3)( 4 )( 5)( 6 )( 7)( 8 )(    9    )  # noqa: E501
-    ios_version_search = r"(<key>CFBundleVersion</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
-    ios_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>{extra}\g<9>"  # noqa: E501
+    ios_version_search = (
+        # (                  1                  )( 2 )( 3)( 4 )( 5)( 6 )( 7)( 8 )(    9    )  # noqa: E501
+        r"(<key>CFBundleVersion</key>\s+<string>)(\d+)(\.)(\d+)(\.)(\d+)(\.)(\d+)(</string>)"  # noqa: E501
+    )
+    ios_version_replace = (
+        r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>{extra}\g<9>"
+    )
 
     def __init__(
         self,
@@ -168,7 +182,8 @@ class VersionReleaser:
 
     def get_released_versions(self) -> List[Tuple[Version, datetime]]:
         """
-        Returns a list of ``(version, date_released)`` tuples from the changelog.
+        Returns a list of ``(version, date_released)`` tuples from the
+        changelog.
         """
         regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*released\s+(\d+)\s+([a-zA-Z]+)\s+(\d+).*\*\*$"  # noqa: E501
 
@@ -230,9 +245,7 @@ class VersionReleaser:
                         int(m.group(2)), int(m.group(4)), int(m.group(6))
                     ).date()
 
-        raise MissingDateException(
-            "Could not find date in camcopsversion.cpp"
-        )
+        raise MissingDateException("Could not find date in camcopsversion.cpp")
 
     def get_innosetup_version(self) -> Version:
         """
@@ -307,16 +320,15 @@ class VersionReleaser:
                     int(m.group(8)),
                 )
 
-        raise MissingVersionException(
-            "Could not find version in Info.plist"
-        )
+        raise MissingVersionException("Could not find version in Info.plist")
 
     def check_server_version(self) -> None:
         if self.new_server_version == self.progress_version:
             self.errors.append(
                 f"The desired server version ({self.new_server_version}) "
-                "matches the current IN PROGRESS version in the changelog. You "
-                "probably want to mark the version in the changelog as released"
+                "matches the current IN PROGRESS version in the changelog. "
+                "You probably want to mark the version in the changelog as "
+                "released"
             )
 
         current_server_version = Version(CAMCOPS_SERVER_VERSION_STRING)
@@ -480,9 +492,14 @@ class VersionReleaser:
     def check_ios_version(self) -> None:
         current_ios_version = self.get_ios_version()
 
-        if Version(major=current_ios_version[0],
-                   minor=current_ios_version[1],
-                   patch=current_ios_version[2]) == self.new_client_version:
+        if (
+            Version(
+                major=current_ios_version[0],
+                minor=current_ios_version[1],
+                patch=current_ios_version[2],
+            )
+            == self.new_client_version
+        ):
             return
 
         if self.update_versions:
@@ -528,7 +545,7 @@ class VersionReleaser:
             ["git", "log", "origin/master..HEAD"], stdout=PIPE
         ).stdout.decode("utf-8")
         if len(git_log) > 0:
-            self.errors.append("There are unpushed changes")
+            self.errors.append("There are unpushed or unmerged changes")
 
     def check_release_tag(self) -> None:
         release_tag = self.get_release_tag()
@@ -549,8 +566,12 @@ class VersionReleaser:
         try:
             self.run_with_check(["pip", "show", "--quiet", package])
         except CalledProcessError:
-            self.errors.append((f"'{package}' is not installed. "
-                                f"To release to PyPI: pip install {package}"))
+            self.errors.append(
+                (
+                    f"'{package}' is not installed. "
+                    f"To release to PyPI: pip install {package}"
+                )
+            )
 
     def perform_checks(self) -> None:
         releases = self.get_released_versions()
@@ -612,9 +633,11 @@ class VersionReleaser:
             print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
-            # Next improvement. GitHub action on pushed "v" tag to create
-            # release and upload to PyPI.
-            print("Now upload the .rpm and .deb files to GitHub")
+            print(
+                "A new release should have been created on GitHub with the "
+                ".rpm and .deb files attached. They are also in "
+                f"{SERVER_PACKAGE_DIR}"
+            )
 
         if self.should_release_client:
             print("Now build the various client apps and upload.")
@@ -657,7 +680,8 @@ class VersionReleaser:
 
     def get_pypi_builds(self) -> Iterable[Path]:
         """
-        Iterates through old PyPI upload files (e.g. ``camcops_server-*.tar.gz``).
+        Iterates through old PyPI upload files (e.g.
+        ``camcops_server-*.tar.gz``).
         """
         return Path(SERVER_DIST_DIR).glob("camcops_server-*")
 
@@ -688,7 +712,7 @@ def main() -> None:
     - Distribute to Play Store / Apple Store / GitHub
 
     Ideally we want to do all the checks before tagging and building so we
-    don't get the version numbers spiralling out of control this may be
+    don't get the version numbers spiralling out of control. This may be
     impossible for errors when deploying to Apple Store etc.
 
     """
@@ -744,8 +768,10 @@ def main() -> None:
         for error in releaser.errors:
             print(error)
         if not args.update_versions:
-            print("Run the script with --update-versions to automatically "
-                  "update version numbers")
+            print(
+                "Run the script with --update-versions to automatically "
+                "update version numbers"
+            )
         sys.exit(EXIT_FAILURE)
 
     if args.release:

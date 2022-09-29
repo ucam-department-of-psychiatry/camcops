@@ -35,6 +35,7 @@ class TextTestCase(DemoRequestTestCase):
     """
     Unit tests.
     """
+
     def test_server_string(self) -> None:
         for k in SS.__dict__.keys():
             if k.startswith("_"):

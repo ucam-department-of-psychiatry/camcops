@@ -54,33 +54,56 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # BPRS
 # =============================================================================
 
+
 class BprsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Bprs'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Bprs"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=0, maximum=7,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=7,
             comment_fmt="Q{n}, {s} (1-7, higher worse, 0 for unable to rate)",
             comment_strings=[
-                "somatic concern", "anxiety", "emotional withdrawal",
-                "conceptual disorganisation", "guilt", "tension",
-                "mannerisms/posturing", "grandiosity", "depressive mood",
-                "hostility", "suspiciousness", "hallucinatory behaviour",
-                "motor retardation", "uncooperativeness",
-                "unusual thought content", "blunted affect", "excitement",
-                "disorientation", "severity of illness", "global improvement"]
+                "somatic concern",
+                "anxiety",
+                "emotional withdrawal",
+                "conceptual disorganisation",
+                "guilt",
+                "tension",
+                "mannerisms/posturing",
+                "grandiosity",
+                "depressive mood",
+                "hostility",
+                "suspiciousness",
+                "hallucinatory behaviour",
+                "motor retardation",
+                "uncooperativeness",
+                "unusual thought content",
+                "blunted affect",
+                "excitement",
+                "disorientation",
+                "severity of illness",
+                "global improvement",
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
-           metaclass=BprsMetaclass):
+class Bprs(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=BprsMetaclass
+):
     """
     Server implementation of the BPRS task.
     """
+
     __tablename__ = "bprs"
     shortname = "BPRS"
     provides_trackers = True
@@ -96,32 +119,40 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return _("Brief Psychiatric Rating Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="BPRS total score",
-            axis_label=f"Total score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="BPRS total score",
+                axis_label=f"Total score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"BPRS total score {self.total_score()}/{self.MAX_SCORE}"
-        )]
+        return [
+            CtvInfo(
+                content=f"BPRS total score "
+                f"{self.total_score()}/{self.MAX_SCORE}"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total", coltype=Integer(),
-                           value=self.total_score(),
-                           comment=f"Total score (/{self.MAX_SCORE})"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            )
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(Bprs.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(Bprs.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -139,7 +170,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             4: "4 — " + self.wxstring(req, "old_option4"),
             5: "5 — " + self.wxstring(req, "old_option5"),
             6: "6 — " + self.wxstring(req, "old_option6"),
-            7: "7 — " + self.wxstring(req, "old_option7")
+            7: "7 — " + self.wxstring(req, "old_option7"),
         }
         q19_dict = {
             None: None,
@@ -149,7 +180,7 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             4: self.wxstring(req, "q19_option4"),
             5: self.wxstring(req, "q19_option5"),
             6: self.wxstring(req, "q19_option6"),
-            7: self.wxstring(req, "q19_option7")
+            7: self.wxstring(req, "q19_option7"),
         }
         q20_dict = {
             None: None,
@@ -160,25 +191,27 @@ class Bprs(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             4: self.wxstring(req, "q20_option4"),
             5: self.wxstring(req, "q20_option5"),
             6: self.wxstring(req, "q20_option6"),
-            7: self.wxstring(req, "q20_option7")
+            7: self.wxstring(req, "q20_option7"),
         }
 
         q_a = ""
         for i in range(1, Bprs.NQUESTIONS - 1):  # only does 1-18
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(i) + "_title"),
-                get_from_dict(main_dict, getattr(self, "q" + str(i)))
+                get_from_dict(main_dict, getattr(self, "q" + str(i))),
             )
-        q_a += tr_qa(self.wxstring(req, "q19_title"),
-                     get_from_dict(q19_dict, self.q19))
-        q_a += tr_qa(self.wxstring(req, "q20_title"),
-                     get_from_dict(q20_dict, self.q20))
+        q_a += tr_qa(
+            self.wxstring(req, "q19_title"), get_from_dict(q19_dict, self.q19)
+        )
+        q_a += tr_qa(
+            self.wxstring(req, "q20_title"), get_from_dict(q20_dict, self.q20)
+        )
 
         total_score = tr(
-            req.sstring(SS.TOTAL_SCORE) +
-            f" (0–{self.MAX_SCORE}; 18–{self.MAX_SCORE} if all rated) "
+            req.sstring(SS.TOTAL_SCORE)
+            + f" (0–{self.MAX_SCORE}; 18–{self.MAX_SCORE} if all rated) "
             "<sup>[1]</sup>",
-            answer(self.total_score())
+            answer(self.total_score()),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">

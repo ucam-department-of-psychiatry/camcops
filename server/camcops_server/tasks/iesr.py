@@ -58,15 +58,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # IES-R
 # =============================================================================
 
+
 class IesrMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Iesr'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Iesr"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=cls.MIN_SCORE, maximum=cls.MAX_SCORE,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=cls.MIN_SCORE,
+            maximum=cls.MAX_SCORE,
             comment_fmt="Q{n}, {s} (0-4, higher worse)",
             comment_strings=[
                 "reminder feelings",  # 1
@@ -91,16 +98,16 @@ class IesrMetaclass(DeclarativeMeta):
                 "dreams",  # 20
                 "vigilant",
                 "avoided talking",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Iesr(TaskHasPatientMixin, Task,
-           metaclass=IesrMetaclass):
+class Iesr(TaskHasPatientMixin, Task, metaclass=IesrMetaclass):
     """
     Server implementation of the IES-R task.
     """
+
     __tablename__ = "iesr"
     shortname = "IES-R"
     provides_trackers = True
@@ -123,7 +130,8 @@ class Iesr(TaskHasPatientMixin, Task,
     INTRUSION_FIELDS = Task.fieldnames_from_list("q", INTRUSION_QUESTIONS)
     HYPERAROUSAL_QUESTIONS = [4, 10, 14, 15, 18, 19, 21]
     HYPERAROUSAL_FIELDS = Task.fieldnames_from_list(
-        "q", HYPERAROUSAL_QUESTIONS)
+        "q", HYPERAROUSAL_QUESTIONS
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -137,28 +145,28 @@ class Iesr(TaskHasPatientMixin, Task,
                 plot_label="IES-R total score (lower is better)",
                 axis_label=f"Total score (out of {self.MAX_TOTAL})",
                 axis_min=-0.5,
-                axis_max=self.MAX_TOTAL + 0.5
+                axis_max=self.MAX_TOTAL + 0.5,
             ),
             TrackerInfo(
                 value=self.avoidance_score(),
                 plot_label="IES-R avoidance score",
                 axis_label=f"Avoidance score (out of {self.MAX_AVOIDANCE})",
                 axis_min=-0.5,
-                axis_max=self.MAX_AVOIDANCE + 0.5
+                axis_max=self.MAX_AVOIDANCE + 0.5,
             ),
             TrackerInfo(
                 value=self.intrusion_score(),
                 plot_label="IES-R intrusion score",
                 axis_label=f"Intrusion score (out of {self.MAX_INTRUSION})",
                 axis_min=-0.5,
-                axis_max=self.MAX_INTRUSION + 0.5
+                axis_max=self.MAX_INTRUSION + 0.5,
             ),
             TrackerInfo(
                 value=self.hyperarousal_score(),
                 plot_label="IES-R hyperarousal score",
                 axis_label=f"Hyperarousal score (out of {self.MAX_HYPERAROUSAL})",  # noqa
                 axis_min=-0.5,
-                axis_max=self.MAX_HYPERAROUSAL + 0.5
+                axis_max=self.MAX_HYPERAROUSAL + 0.5,
             ),
         ]
 
@@ -168,22 +176,26 @@ class Iesr(TaskHasPatientMixin, Task,
                 name="total_score",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/ {self.MAX_TOTAL})"),
+                comment=f"Total score (/ {self.MAX_TOTAL})",
+            ),
             SummaryElement(
                 name="avoidance_score",
                 coltype=Integer(),
                 value=self.avoidance_score(),
-                comment=f"Avoidance score (/ {self.MAX_AVOIDANCE})"),
+                comment=f"Avoidance score (/ {self.MAX_AVOIDANCE})",
+            ),
             SummaryElement(
                 name="intrusion_score",
                 coltype=Integer(),
                 value=self.intrusion_score(),
-                comment=f"Intrusion score (/ {self.MAX_INTRUSION})"),
+                comment=f"Intrusion score (/ {self.MAX_INTRUSION})",
+            ),
             SummaryElement(
                 name="hyperarousal_score",
                 coltype=Integer(),
                 value=self.hyperarousal_score(),
-                comment=f"Hyperarousal score (/ {self.MAX_HYPERAROUSAL})"),
+                comment=f"Hyperarousal score (/ {self.MAX_HYPERAROUSAL})",
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -193,14 +205,16 @@ class Iesr(TaskHasPatientMixin, Task,
         a = self.avoidance_score()
         i = self.intrusion_score()
         h = self.hyperarousal_score()
-        return [CtvInfo(
-            content=(
-                f"IES-R total score {t}/{self.MAX_TOTAL} "
-                f"(avoidance {a}/{self.MAX_AVOIDANCE} "
-                f"intrusion {i}/{self.MAX_INTRUSION}, "
-                f"hyperarousal {h}/{self.MAX_HYPERAROUSAL})"
+        return [
+            CtvInfo(
+                content=(
+                    f"IES-R total score {t}/{self.MAX_TOTAL} "
+                    f"(avoidance {a}/{self.MAX_AVOIDANCE} "
+                    f"intrusion {i}/{self.MAX_INTRUSION}, "
+                    f"hyperarousal {h}/{self.MAX_HYPERAROUSAL})"
+                )
             )
-        )]
+        ]
 
     def total_score(self) -> int:
         return self.sum_fields(self.QUESTION_FIELDS)
@@ -216,9 +230,9 @@ class Iesr(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return bool(
-            self.field_contents_valid() and
-            self.event and
-            self.all_fields_not_none(self.QUESTION_FIELDS)
+            self.field_contents_valid()
+            and self.event
+            and self.all_fields_not_none(self.QUESTION_FIELDS)
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -258,21 +272,31 @@ class Iesr(TaskHasPatientMixin, Task,
         """  # noqa
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = (f"{a}: {get_from_dict(option_dict, a)}"
-                  if a is not None else None)
+            fa = (
+                f"{a}: {get_from_dict(option_dict, a)}"
+                if a is not None
+                else None
+            )
             h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
-        h += """
+        h += (
+            """
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        """
+            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        )
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.IESR_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.IESR_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.IESR_SCALE),
-                {
-                    req.snomed(SnomedLookup.IESR_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.IESR_SCALE),
+                    {req.snomed(SnomedLookup.IESR_SCORE): self.total_score()},
+                )
+            )
         return codes

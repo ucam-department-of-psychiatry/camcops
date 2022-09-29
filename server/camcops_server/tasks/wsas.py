@@ -57,15 +57,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # WSAS
 # =============================================================================
 
+
 class WsasMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Wsas'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Wsas"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q,
+            maximum=cls.MAX_PER_Q,
             comment_fmt="Q{n}, {s} (0-4, higher worse)",
             comment_strings=[
                 "work",
@@ -73,24 +80,25 @@ class WsasMetaclass(DeclarativeMeta):
                 "social leisure",
                 "private leisure",
                 "relationships",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Wsas(TaskHasPatientMixin, Task,
-           metaclass=WsasMetaclass):
+class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
     """
     Server implementation of the WSAS task.
     """
+
     __tablename__ = "wsas"
     shortname = "WSAS"
     provides_trackers = True
 
     retired_etc = Column(
-        "retired_etc", Boolean,
+        "retired_etc",
+        Boolean,
         comment="Retired or choose not to have job for reason unrelated "
-                "to problem"
+        "to problem",
     )
 
     MIN_PER_Q = 0
@@ -108,14 +116,16 @@ class Wsas(TaskHasPatientMixin, Task,
         return _("Work and Social Adjustment Scale")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="WSAS total score (lower is better)",
-            axis_label=f"Total score (out of "
-                       f"{self.MAX_IF_RETIRED}–{self.MAX_IF_WORKING})",
-            axis_min=-0.5,
-            axis_max=self.MAX_IF_WORKING + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="WSAS total score (lower is better)",
+                axis_label=f"Total score (out of "
+                f"{self.MAX_IF_RETIRED}–{self.MAX_IF_WORKING})",
+                axis_min=-0.5,
+                axis_max=self.MAX_IF_WORKING + 0.5,
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -123,28 +133,34 @@ class Wsas(TaskHasPatientMixin, Task,
                 name="total_score",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/ {self.max_score()})"),
+                comment=f"Total score (/ {self.max_score()})",
+            )
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"WSAS total score {self.total_score()}/{self.max_score()}"
-        )]
+        return [
+            CtvInfo(
+                content=f"WSAS total score "
+                f"{self.total_score()}/{self.max_score()}"
+            )
+        ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.Q2_TO_END if self.retired_etc
-                               else self.QUESTION_FIELDS)
+        return self.sum_fields(
+            self.Q2_TO_END if self.retired_etc else self.QUESTION_FIELDS
+        )
 
     def max_score(self) -> int:
         return self.MAX_IF_RETIRED if self.retired_etc else self.MAX_IF_WORKING
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.Q2_TO_END if self.retired_etc
-                                     else self.QUESTION_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(
+                self.Q2_TO_END if self.retired_etc else self.QUESTION_FIELDS
+            )
+            and self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -186,7 +202,11 @@ class Wsas(TaskHasPatientMixin, Task,
 
     # noinspection PyUnresolvedReferences
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.WSAS_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.WSAS_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
             d = {
                 req.snomed(SnomedLookup.WSAS_SCORE): self.total_score(),
@@ -197,8 +217,7 @@ class Wsas(TaskHasPatientMixin, Task,
             }
             if not self.retired_etc:
                 d[req.snomed(SnomedLookup.WSAS_WORK_SCORE)] = self.q1
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.WSAS_SCALE),
-                d
-            ))
+            codes.append(
+                SnomedExpression(req.snomed(SnomedLookup.WSAS_SCALE), d)
+            )
         return codes

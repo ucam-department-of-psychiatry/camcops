@@ -61,6 +61,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # HADS (crippled unless upgraded locally) - base classes
 # =============================================================================
 
+
 class HadsMetaclass(DeclarativeMeta, ABCMeta):
     """
     We can't make this metaclass inherit from DeclarativeMeta.
@@ -196,29 +197,47 @@ class HadsMetaclass(DeclarativeMeta, ABCMeta):
       add "ABCMeta" to superclass list of HadsMetaclass.
 
     """
+
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['HadsBase'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["HadsBase"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=0, maximum=3,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=3,
             comment_fmt="Q{n}: {s} (0-3)",
             comment_strings=[
-                "tense", "enjoy usual", "apprehensive", "laugh", "worry",
-                "cheerful", "relaxed", "slow", "butterflies", "appearance",
-                "restless", "anticipate", "panic", "book/TV/radio"
-            ]
+                "tense",
+                "enjoy usual",
+                "apprehensive",
+                "laugh",
+                "worry",
+                "cheerful",
+                "relaxed",
+                "slow",
+                "butterflies",
+                "appearance",
+                "restless",
+                "anticipate",
+                "panic",
+                "book/TV/radio",
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class HadsBase(TaskHasPatientMixin, Task, ABC,
-               metaclass=HadsMetaclass):
+class HadsBase(TaskHasPatientMixin, Task, ABC, metaclass=HadsMetaclass):
     """
     Server implementation of the HADS task.
     """
+
     __abstract__ = True
     provides_trackers = True
 
@@ -230,9 +249,8 @@ class HadsBase(TaskHasPatientMixin, Task, ABC,
     MAX_DEP_SCORE = 21
 
     def is_complete(self) -> bool:
-        return (
-            self.field_contents_valid() and
-            self.all_fields_not_none(self.TASK_FIELDS)
+        return self.field_contents_valid() and self.all_fields_not_none(
+            self.TASK_FIELDS
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
@@ -249,28 +267,38 @@ class HadsBase(TaskHasPatientMixin, Task, ABC,
                 plot_label="HADS depression score",
                 axis_label=f"Depression score (out of {self.MAX_DEP_SCORE})",
                 axis_min=-0.5,
-                axis_max=self.MAX_DEP_SCORE + 0.5
+                axis_max=self.MAX_DEP_SCORE + 0.5,
             ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"anxiety score {self.anxiety_score()}/{self.MAX_ANX_SCORE}, "
-            f"depression score {self.depression_score()}/{self.MAX_DEP_SCORE}"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"anxiety score "
+                    f"{self.anxiety_score()}/{self.MAX_ANX_SCORE}, "
+                    f"depression score "
+                    f"{self.depression_score()}/{self.MAX_DEP_SCORE}"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="anxiety", coltype=Integer(),
+                name="anxiety",
+                coltype=Integer(),
                 value=self.anxiety_score(),
-                comment=f"Anxiety score (/{self.MAX_ANX_SCORE})"),
+                comment=f"Anxiety score (/{self.MAX_ANX_SCORE})",
+            ),
             SummaryElement(
-                name="depression", coltype=Integer(),
+                name="depression",
+                coltype=Integer(),
                 value=self.depression_score(),
-                comment=f"Depression score (/{self.MAX_DEP_SCORE})"),
+                comment=f"Depression score (/{self.MAX_DEP_SCORE})",
+            ),
         ]
 
     def score(self, questions: List[int]) -> int:
@@ -328,15 +356,19 @@ class HadsBase(TaskHasPatientMixin, Task, ABC,
             else:
                 a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"
             h += tr_qa(q, a)
-        h += """
+        h += (
+            """
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        """
+            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        )
         return h
 
 
 # =============================================================================
 # Hads
 # =============================================================================
+
 
 class Hads(HadsBase):
     __tablename__ = "hads"
@@ -346,24 +378,36 @@ class Hads(HadsBase):
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
         return _(
-            "Hospital Anxiety and Depression Scale (data collection only)")
+            "Hospital Anxiety and Depression Scale (data collection only)"
+        )
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.HADS_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.HADS_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.HADS_SCALE),
-                {
-                    req.snomed(SnomedLookup.HADS_ANXIETY_SCORE): self.anxiety_score(),  # noqa
-                    req.snomed(SnomedLookup.HADS_DEPRESSION_SCORE): self.depression_score(),  # noqa
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.HADS_SCALE),
+                    {
+                        req.snomed(
+                            SnomedLookup.HADS_ANXIETY_SCORE
+                        ): self.anxiety_score(),  # noqa
+                        req.snomed(
+                            SnomedLookup.HADS_DEPRESSION_SCORE
+                        ): self.depression_score(),  # noqa
+                    },
+                )
+            )
         return codes
 
 
 # =============================================================================
 # HadsRespondent
 # =============================================================================
+
 
 class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     __tablename__ = "hads_respondent"
@@ -374,7 +418,9 @@ class HadsRespondent(TaskHasRespondentMixin, HadsBase):
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Hospital Anxiety and Depression Scale (data collection "
-                 "only), non-patient respondent version")
+        return _(
+            "Hospital Anxiety and Depression Scale (data collection "
+            "only), non-patient respondent version"
+        )
 
     # No SNOMED codes; not for the patient!

@@ -164,7 +164,7 @@ from deform.exception import ValidationFailure
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_pyramid import FlashQueue, FormAction
 from camcops_server.cc_modules.cc_resource_registry import (
-    CamcopsResourceRegistry
+    CamcopsResourceRegistry,
 )
 
 if TYPE_CHECKING:
@@ -178,6 +178,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # View
 # =============================================================================
 
+
 class View(object):
     """
     Simple parent class for all views. Owns the request object and provides a
@@ -185,6 +186,7 @@ class View(object):
 
     Derived classes typically implement ``get()`` and ``post()``.
     """
+
     http_method_names = [HttpMethod.GET.lower(), HttpMethod.POST.lower()]
 
     # -------------------------------------------------------------------------
@@ -223,10 +225,15 @@ class View(object):
         Raise a :exc:`pyramid.httpexceptions.HTTPMethodNotAllowed` (error 405)
         indicating that the selected HTTP method is not allowed.
         """
-        log.warning("Method Not Allowed (%s): %s",
-                    self.request.method, self.request.path,
-                    extra={"status_code": HttpStatus.METHOD_NOT_ALLOWED,
-                           "request": self.request})
+        log.warning(
+            "Method Not Allowed (%s): %s",
+            self.request.method,
+            self.request.path,
+            extra={
+                "status_code": HttpStatus.METHOD_NOT_ALLOWED,
+                "request": self.request,
+            },
+        )
         raise HTTPMethodNotAllowed(
             detail=f"Allowed methods: {self._allowed_methods}"
         )
@@ -242,11 +249,13 @@ class View(object):
 # Basic mixins
 # =============================================================================
 
+
 class ContextMixin(object):
     """
     A default context mixin that passes the keyword arguments received by
     get_context_data() as the template context.
     """
+
     def get_extra_context(self) -> Dict[str, Any]:
         """
         Override to provide extra context, merged in by
@@ -269,6 +278,7 @@ class TemplateResponseMixin(object):
     """
     A mixin that can be used to render a Mako template.
     """
+
     request: "CamcopsRequest"
     template_name: str = None
 
@@ -279,9 +289,7 @@ class TemplateResponseMixin(object):
         :class:`pyramid.response.Response`.
         """
         return render_to_response(
-            self.get_template_name(),
-            context,
-            request=self.request
+            self.get_template_name(), context, request=self.request
         )
 
     def get_template_name(self) -> str:
@@ -289,8 +297,10 @@ class TemplateResponseMixin(object):
         Returns the template filename.
         """
         if self.template_name is None:
-            raise_runtime_error("You must set template_name or override "
-                                f"get_template_name() in {self.__class__}.")
+            raise_runtime_error(
+                "You must set template_name or override "
+                f"get_template_name() in {self.__class__}."
+            )
 
         return self.template_name
 
@@ -299,8 +309,10 @@ class TemplateResponseMixin(object):
 # Form views
 # =============================================================================
 
-class ProcessFormView(View, with_typehints(ContextMixin,
-                                           TemplateResponseMixin)):
+
+class ProcessFormView(
+    View, with_typehints(ContextMixin, TemplateResponseMixin)
+):
     """
     Render a form on GET and processes it on POST.
 
@@ -380,8 +392,9 @@ class ProcessFormView(View, with_typehints(ContextMixin,
         self.form_valid_process_data(form, appstruct)
         return self.form_valid_response(form, appstruct)
 
-    def form_valid_process_data(self, form: "Form",
-                                appstruct: Dict[str, Any]) -> None:
+    def form_valid_process_data(
+        self, form: "Form", appstruct: Dict[str, Any]
+    ) -> None:
         """
         Perform any handling of data from the form.
 
@@ -390,8 +403,9 @@ class ProcessFormView(View, with_typehints(ContextMixin,
         """
         pass
 
-    def form_valid_response(self, form: "Form",
-                            appstruct: Dict[str, Any]) -> Response:
+    def form_valid_response(
+        self, form: "Form", appstruct: Dict[str, Any]
+    ) -> Response:
         """
         Return the response (or raise a redirection exception) following valid
         form submission.
@@ -410,10 +424,12 @@ class ProcessFormView(View, with_typehints(ContextMixin,
 # Form mixin
 # =============================================================================
 
+
 class FormMixin(ContextMixin, with_typehint(ProcessFormView)):
     """
     Provide a way to show and handle a single form in a request.
     """
+
     cancel_url = None
     form_class: Type["Form"] = None
     success_url = None
@@ -470,9 +486,7 @@ class FormMixin(ContextMixin, with_typehint(ProcessFormView)):
         """
         form = self.get_form()
         kwargs["form"] = self.get_rendered_form(form)
-        kwargs["head_form_html"] = get_head_form_html(
-            self.request, [form]
-        )
+        kwargs["head_form_html"] = get_head_form_html(self.request, [form])
         return super().get_context_data(**kwargs)
 
     # -------------------------------------------------------------------------
@@ -509,8 +523,9 @@ class FormMixin(ContextMixin, with_typehint(ProcessFormView)):
     # -------------------------------------------------------------------------
 
     # noinspection PyTypeChecker
-    def form_valid_response(self, form: "Form",
-                            appstruct: Dict[str, Any]) -> Response:
+    def form_valid_response(
+        self, form: "Form", appstruct: Dict[str, Any]
+    ) -> Response:
         """
         Called when the form is submitted via POST and is valid.
         Redirects to the supplied "success" URL.
@@ -525,9 +540,7 @@ class FormMixin(ContextMixin, with_typehint(ProcessFormView)):
         self._error = validation_error
 
         # noinspection PyUnresolvedReferences
-        return self.render_to_response(
-            self.get_context_data()
-        )
+        return self.render_to_response(self.get_context_data())
 
     # -------------------------------------------------------------------------
     # Helper methods
@@ -545,6 +558,7 @@ class BaseFormView(FormMixin, ProcessFormView):
     """
     A base view for displaying a form.
     """
+
     pass
 
 
@@ -552,12 +566,14 @@ class FormView(TemplateResponseMixin, BaseFormView):
     """
     A view for displaying a form and rendering a template response.
     """
+
     pass
 
 
 # =============================================================================
 # Multi-step forms
 # =============================================================================
+
 
 class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
     """
@@ -584,6 +600,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
 
     The logic of changing steps is left to the subclass.
     """
+
     PARAM_FINISHED = "finished"
     PARAM_STEP = "step"
     PARAM_ROUTE_NAME = "route_name"
@@ -618,8 +635,10 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
         # Make sure we save any changes to the form state
         self.request.dbsession.add(self.request.camcops_session)
 
-        if (self.request.method == HttpMethod.GET or
-                self.route_name != self._request_route_name):
+        if (
+            self.request.method == HttpMethod.GET
+            or self.route_name != self._request_route_name
+        ):
             # If self.route_name was None when tested here, it will be
             # initialised to self._request_route_name when first fetched
             # (see getter/setter below) so this "!=" test will be False.
@@ -727,8 +746,9 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
         """
         Get the name of the current route. See class help.
         """
-        return self.state.setdefault(self.PARAM_ROUTE_NAME,
-                                     self._request_route_name)
+        return self.state.setdefault(
+            self.PARAM_ROUTE_NAME, self._request_route_name
+        )
 
     @route_name.setter
     def route_name(self, route_name: str) -> None:
@@ -765,8 +785,9 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
     # Success
     # -------------------------------------------------------------------------
 
-    def form_valid_response(self, form: "Form",
-                            appstruct: Dict[str, Any]) -> Response:
+    def form_valid_response(
+        self, form: "Form", appstruct: Dict[str, Any]
+    ) -> Response:
         """
         Called when the form is submitted via POST and is valid.
         Redirects to the supplied "success" URL.
@@ -799,10 +820,12 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
 # ORM mixins
 # =============================================================================
 
+
 class SingleObjectMixin(ContextMixin):
     """
     Represents a single ORM object, for use as a mixin.
     """
+
     object: Any
     object_class: Optional[Type[Any]]
     pk_param: str
@@ -832,9 +855,11 @@ class SingleObjectMixin(ContextMixin):
 
         pk_property = getattr(self.object_class, self.server_pk_name)
 
-        obj = self.request.dbsession.query(self.object_class).filter(
-            pk_property == pk_value
-        ).one_or_none()
+        obj = (
+            self.request.dbsession.query(self.object_class)
+            .filter(pk_property == pk_value)
+            .one_or_none()
+        )
 
         if obj is None:
             _ = self.request.gettext
@@ -842,10 +867,13 @@ class SingleObjectMixin(ContextMixin):
             assert self.object_class is not None  # type checker
 
             raise HTTPBadRequest(
-                _("Cannot find {object_class} with {server_pk_name}:{pk_value}").format(  # noqa: E501
+                _(
+                    "Cannot find {object_class} with "
+                    "{server_pk_name}:{pk_value}"
+                ).format(
                     object_class=self.object_class.__name__,
                     server_pk_name=self.server_pk_name,
-                    pk_value=pk_value
+                    pk_value=pk_value,
                 )
             )
 
@@ -862,14 +890,16 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
     """
     Represents an ORM object (the model) and an associated form.
     """
+
     object_class: Optional[Type[Any]] = None
 
     model_form_dict: Dict  # maps model attribute name to form param name
     object: Any  # the object being manipulated
     request: "CamcopsRequest"
 
-    def form_valid_process_data(self, form: "Form",
-                                appstruct: Dict[str, Any]) -> None:
+    def form_valid_process_data(
+        self, form: "Form", appstruct: Dict[str, Any]
+    ) -> None:
         """
         Called when the form is valid.
         Saves the associated model.
@@ -938,12 +968,14 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
 # Views involving forms and ORM objects
 # =============================================================================
 
+
 class BaseCreateView(ModelFormMixin, ProcessFormView):
     """
     Base view for creating a new object instance.
 
     Using this base class requires subclassing to provide a response mixin.
     """
+
     def get(self) -> Any:
         self.object = None
         return super().get()
@@ -957,6 +989,7 @@ class CreateView(TemplateResponseMixin, BaseCreateView):
     """
     View for creating a new object, with a response rendered by a template.
     """
+
     pass
 
 
@@ -966,6 +999,7 @@ class BaseUpdateView(ModelFormMixin, ProcessFormView):
 
     Using this base class requires subclassing to provide a response mixin.
     """
+
     pk = None
 
     def get(self) -> Any:
@@ -981,6 +1015,7 @@ class UpdateView(TemplateResponseMixin, BaseUpdateView):
     """
     View for updating an object, with a response rendered by a template.
     """
+
     pass
 
 
@@ -990,6 +1025,7 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, ProcessFormView):
 
     Using this base class requires subclassing to provide a response mixin.
     """
+
     success_url = None
 
     def delete(self) -> None:
@@ -1016,8 +1052,9 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, ProcessFormView):
         self.object = self.get_object()
         return super().post()
 
-    def form_valid_process_data(self, form: "Form",
-                                appstruct: Dict[str, Any]) -> None:
+    def form_valid_process_data(
+        self, form: "Form", appstruct: Dict[str, Any]
+    ) -> None:
         """
         Called when the form is valid.
         Deletes the associated model.
@@ -1036,4 +1073,5 @@ class DeleteView(TemplateResponseMixin, BaseDeleteView):
     View for deleting an object retrieved with self.get_object(), with a
     response rendered by a template.
     """
+
     pass

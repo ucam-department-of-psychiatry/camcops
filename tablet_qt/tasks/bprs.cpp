@@ -35,7 +35,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int LAST_SCORED_Q = 18;
 const int N_QUESTIONS = 20;
-const int MAX_SCORE = 126;
+const int MAX_QUESTION_SCORE = 126;
 const QString QPREFIX("q");
 
 const QString Bprs::BPRS_TABLENAME("bprs");
@@ -94,7 +94,7 @@ bool Bprs::isComplete() const
 QStringList Bprs::summary() const
 {
     return QStringList{scorePhrase(xstring("bprs18_total_score"),
-                                   totalScore(), MAX_SCORE, " ", "")};
+                                   totalScore(), MAX_QUESTION_SCORE, " ", "")};
 }
 
 

@@ -59,45 +59,46 @@ from camcops_server.cc_modules.cc_task import (
 # ContactLog
 # =============================================================================
 
+
 class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the ContactLog task.
     """
+
     __tablename__ = "contactlog"
     shortname = "ContactLog"
     info_filename_stem = "clinical"
 
-    location = Column(
-        "location", UnicodeText,
-        comment="Location"
-    )
+    location = Column("location", UnicodeText, comment="Location")
     start = Column(
-        "start", PendulumDateTimeAsIsoTextColType,
-        comment="Date/time that contact started"
+        "start",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Date/time that contact started",
     )
     end = Column(
-        "end", PendulumDateTimeAsIsoTextColType,
-        comment="Date/time that contact ended"
+        "end",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Date/time that contact ended",
     )
     patient_contact = CamcopsColumn(
-        "patient_contact", Integer,
+        "patient_contact",
+        Integer,
         permitted_value_checker=BIT_CHECKER,
-        comment="Patient contact involved (0 no, 1 yes)?"
+        comment="Patient contact involved (0 no, 1 yes)?",
     )
     staff_liaison = CamcopsColumn(
-        "staff_liaison", Integer,
+        "staff_liaison",
+        Integer,
         permitted_value_checker=BIT_CHECKER,
-        comment="Liaison with staff involved (0 no, 1 yes)?"
+        comment="Liaison with staff involved (0 no, 1 yes)?",
     )
     other_liaison = CamcopsColumn(
-        "other_liaison", Integer,
+        "other_liaison",
+        Integer,
         permitted_value_checker=BIT_CHECKER,
-        comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?"
+        comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?",
     )
-    comment = Column(
-        "comment", UnicodeText,
-        comment="Comment"
-    )
+    comment = Column("comment", UnicodeText, comment="Comment")
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -108,16 +109,20 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         contact_type = "Patient" if self.patient_contact else "Non-patient"
-        return [CtvInfo(content=(
-            f"{contact_type} contact. Duration (hours:minutes) "
-            f"{get_duration_h_m(self.start, self.end)}."
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"{contact_type} contact. Duration (hours:minutes) "
+                    f"{get_duration_h_m(self.start, self.end)}."
+                )
+            )
+        ]
 
     def is_complete(self) -> bool:
         return (
-            self.start is not None and
-            self.end is not None and
-            self.field_contents_valid()
+            self.start is not None
+            and self.end is not None
+            and self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:

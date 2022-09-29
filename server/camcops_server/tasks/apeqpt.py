@@ -46,56 +46,65 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
-    ZERO_TO_FOUR_CHECKER
+    ZERO_TO_FOUR_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import (
-    get_from_dict,
-    Task,
-)
+from camcops_server.cc_modules.cc_task import get_from_dict, Task
 
 
 # =============================================================================
 # APEQPT
 # =============================================================================
 
+
 class Apeqpt(Task):
     """
     Server implementation of the APEQPT task.
     """
+
     __tablename__ = "apeqpt"
     shortname = "APEQPT"
     provides_trackers = True
 
     # todo: remove q_datetime (here and in the C++) -- it duplicates when_created  # noqa
     q_datetime = CamcopsColumn(
-        "q_datetime", PendulumDateTimeAsIsoTextColType,
-        comment="Date/time the assessment tool was completed")
+        "q_datetime",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Date/time the assessment tool was completed",
+    )
 
     N_CHOICE_QUESTIONS = 3
     q1_choice = CamcopsColumn(
-        "q1_choice", Integer,
+        "q1_choice",
+        Integer,
         comment="Enough information was provided (0 no, 1 yes)",
-        permitted_value_checker=ZERO_TO_ONE_CHECKER)
+        permitted_value_checker=ZERO_TO_ONE_CHECKER,
+    )
     q2_choice = CamcopsColumn(
-        "q2_choice", Integer,
+        "q2_choice",
+        Integer,
         comment="Treatment preference (0 no, 1 yes)",
-        permitted_value_checker=ZERO_TO_ONE_CHECKER)
+        permitted_value_checker=ZERO_TO_ONE_CHECKER,
+    )
     q3_choice = CamcopsColumn(
-        "q3_choice", Integer,
+        "q3_choice",
+        Integer,
         comment="Preference offered (0 no, 1 yes, 2 N/A)",
-        permitted_value_checker=ZERO_TO_TWO_CHECKER)
+        permitted_value_checker=ZERO_TO_TWO_CHECKER,
+    )
 
     q1_satisfaction = CamcopsColumn(
-        "q1_satisfaction", Integer,
+        "q1_satisfaction",
+        Integer,
         comment=(
             "Patient satisfaction (0 not at all satisfied - "
             "4 completely satisfied)"
         ),
-        permitted_value_checker=ZERO_TO_FOUR_CHECKER)
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+    )
     q2_satisfaction = CamcopsColumn(
-        "q2_satisfaction", UnicodeText,
-        comment="Service experience")
+        "q2_satisfaction", UnicodeText, comment="Service experience"
+    )
 
     MAIN_QUESTIONS = [
         "q_datetime",
@@ -108,8 +117,10 @@ class Apeqpt(Task):
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Assessment Patient Experience Questionnaire "
-                 "for Psychological Therapies")
+        return _(
+            "Assessment Patient Experience Questionnaire "
+            "for Psychological Therapies"
+        )
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.MAIN_QUESTIONS):
@@ -139,12 +150,18 @@ class Apeqpt(Task):
             nstr = str(i)
             q_a += tr_qa(
                 self.wxstring(req, "q" + nstr + "_choice"),
-                get_from_dict(c_dict, getattr(self, "q" + nstr + "_choice")))
+                get_from_dict(c_dict, getattr(self, "q" + nstr + "_choice")),
+            )
 
-        q_a += tr_qa(self.wxstring(req, "q1_satisfaction"),
-                     get_from_dict(s_dict, self.q1_satisfaction))
-        q_a += tr_qa(self.wxstring(req, "q2_satisfaction"),
-                     self.q2_satisfaction, default="")
+        q_a += tr_qa(
+            self.wxstring(req, "q1_satisfaction"),
+            get_from_dict(s_dict, self.q1_satisfaction),
+        )
+        q_a += tr_qa(
+            self.wxstring(req, "q2_satisfaction"),
+            self.q2_satisfaction,
+            default="",
+        )
 
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -166,60 +183,71 @@ class Apeqpt(Task):
         """
 
     def get_fhir_questionnaire(
-            self,
-            req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
+        self, req: "CamcopsRequest"
+    ) -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
         yes_no_options = {}  # type: Dict[int, str]
         for index in range(2):
             yes_no_options[index] = self.wxstring(req, f"a{index}_choice")
-        items.append(FHIRAnsweredQuestion(
-            qname="q1_choice",
-            qtext=self.wxstring(req, "q1_choice"),
-            qtype=FHIRQuestionType.CHOICE,
-            answer_type=FHIRAnswerType.INTEGER,
-            answer=self.q1_choice,
-            answer_options=yes_no_options
-        ))
-        items.append(FHIRAnsweredQuestion(
-            qname="q2_choice",
-            qtext=self.wxstring(req, "q2_choice"),
-            qtype=FHIRQuestionType.CHOICE,
-            answer_type=FHIRAnswerType.INTEGER,
-            answer=self.q2_choice,
-            answer_options=yes_no_options
-        ))
+        items.append(
+            FHIRAnsweredQuestion(
+                qname="q1_choice",
+                qtext=self.wxstring(req, "q1_choice"),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=self.q1_choice,
+                answer_options=yes_no_options,
+            )
+        )
+        items.append(
+            FHIRAnsweredQuestion(
+                qname="q2_choice",
+                qtext=self.wxstring(req, "q2_choice"),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=self.q2_choice,
+                answer_options=yes_no_options,
+            )
+        )
 
         yes_no_na_options = yes_no_options.copy()
         yes_no_na_options[2] = self.wxstring(req, "a2_choice")
-        items.append(FHIRAnsweredQuestion(
-            qname="q3_choice",
-            qtext=self.wxstring(req, "q3_choice"),
-            qtype=FHIRQuestionType.CHOICE,
-            answer_type=FHIRAnswerType.INTEGER,
-            answer=self.q3_choice,
-            answer_options=yes_no_na_options
-        ))
+        items.append(
+            FHIRAnsweredQuestion(
+                qname="q3_choice",
+                qtext=self.wxstring(req, "q3_choice"),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=self.q3_choice,
+                answer_options=yes_no_na_options,
+            )
+        )
 
         satisfaction_options = {}  # type: Dict[int, str]
         for index in range(5):
             satisfaction_options[index] = self.wxstring(
-                req, f"a{index}_satisfaction")
-        items.append(FHIRAnsweredQuestion(
-            qname="q1_satisfaction",
-            qtext=self.xstring(req, "q1_satisfaction"),
-            qtype=FHIRQuestionType.CHOICE,
-            answer_type=FHIRAnswerType.INTEGER,
-            answer=self.q1_satisfaction,
-            answer_options=satisfaction_options
-        ))
+                req, f"a{index}_satisfaction"
+            )
+        items.append(
+            FHIRAnsweredQuestion(
+                qname="q1_satisfaction",
+                qtext=self.xstring(req, "q1_satisfaction"),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=self.q1_satisfaction,
+                answer_options=satisfaction_options,
+            )
+        )
 
-        items.append(FHIRAnsweredQuestion(
-            qname="q2_satisfaction",
-            qtext=self.xstring(req, "q2_satisfaction"),
-            qtype=FHIRQuestionType.STRING,
-            answer_type=FHIRAnswerType.STRING,
-            answer=self.q2_satisfaction
-        ))
+        items.append(
+            FHIRAnsweredQuestion(
+                qname="q2_satisfaction",
+                qtext=self.xstring(req, "q2_satisfaction"),
+                qtype=FHIRQuestionType.STRING,
+                answer_type=FHIRAnswerType.STRING,
+                answer=self.q2_satisfaction,
+            )
+        )
 
         return items

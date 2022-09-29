@@ -52,13 +52,15 @@ from camcops_server.cc_modules.cc_validators import (
 # Unit tests
 # =============================================================================
 
+
 class ValidatorTests(unittest.TestCase):
     """
     Test our validators.
     """
 
-    def good_bad(self, validator: STRING_VALIDATOR_TYPE,
-                 good: List[str], bad: List[str]) -> None:
+    def good_bad(
+        self, validator: STRING_VALIDATOR_TYPE, good: List[str], bad: List[str]
+    ) -> None:
         """
         Test a validator with a bunch of known-good and known-bad strings.
         """
@@ -77,25 +79,23 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual(anchor("x"), "^x$")
         self.assertEqual(anchor("x", anchor_start=False), "x$")
         self.assertEqual(anchor("x", anchor_end=False), "^x")
-        self.assertEqual(anchor("x", anchor_start=False, anchor_end=False),
-                         "x")
+        self.assertEqual(
+            anchor("x", anchor_start=False, anchor_end=False), "x"
+        )
 
         self.assertEqual(zero_or_more("x"), "x*")
         self.assertEqual(one_or_more("x"), "x+")
         self.assertEqual(min_max_copies("x", max_count=5), "x{1,5}")
-        self.assertEqual(min_max_copies("x", min_count=0, max_count=5),
-                         "x{0,5}")
+        self.assertEqual(
+            min_max_copies("x", min_count=0, max_count=5), "x{0,5}"
+        )
 
     def test_generic_validators(self) -> None:
-        self.good_bad(
-            validate_alphanum,
-            good=["hello123"],
-            bad=["hello!"]
-        )
+        self.good_bad(validate_alphanum, good=["hello123"], bad=["hello!"])
         self.good_bad(
             validate_alphanum_underscore,
             good=["hello123_blah"],
-            bad=["hello!"]
+            bad=["hello!"],
         )
         self.good_bad(
             validate_human_name,
@@ -125,79 +125,51 @@ class ValidatorTests(unittest.TestCase):
                 # "<xss>",
                 # "\"",
                 # "Robert'); DROP TABLE students;--",
-            ]
+            ],
         )
         self.good_bad(
             validate_restricted_sql_search_literal,
-            good=[
-                "F20%",
-                "F2_0",
-                "F200",
-            ],
-            bad=[
-                "F200!",
-            ]
+            good=["F20%", "F2_0", "F200"],
+            bad=["F200!"],
         )
 
     def test_email_validator(self) -> None:
         self.good_bad(
             validate_email,
-            good=[
-                "blah@somewhere.com",
-                "r&d@sillydomain.co.uk",
-            ],
-            bad=[
-                "plaintext",
-                "plain.domain.com",
-                "two@at@symbols.com",
-            ]
+            good=["blah@somewhere.com", "r&d@sillydomain.co.uk"],
+            bad=["plaintext", "plain.domain.com", "two@at@symbols.com"],
         )
 
     def test_ip_address_validator(self) -> None:
         self.good_bad(
             validate_ip_address,
-            good=[
-                "127.0.0.1",
-                "131.141.8.42",
-                "0.0.0.0",
-            ],
+            good=["127.0.0.1", "131.141.8.42", "0.0.0.0"],
             bad=[
                 "plaintext",
                 "plain.domain.com",
                 "two@at@symbols.com",
                 "999.999.999.999",
-            ]
+            ],
         )
 
     def test_password_validator(self) -> None:
         self.good_bad(
             validate_new_password,
-            good=[
-                "gibberishfly93",
-                "myotherarmadilloisintheworkshop",
-            ],
-            bad=[
-                "",
-                "                  ",
-                "aork",
-                "hastalavista",
-            ]
+            good=["gibberishfly93", "myotherarmadilloisintheworkshop"],
+            bad=["", "                  ", "aork", "hastalavista"],
         )
 
     def test_task_tablename_validator(self) -> None:
         self.good_bad(
             validate_task_tablename,
-            good=[
-                "phq9",
-                "gad7_with_extra_bits",
-            ],
+            good=["phq9", "gad7_with_extra_bits"],
             bad=[
                 "7hah",
                 "thing space",
                 "table!",
                 # ... and of course:
                 "Robert'); DROP TABLE students;--",
-            ]
+            ],
         )
 
     def test_download_filename_validator(self) -> None:
@@ -209,10 +181,5 @@ class ValidatorTests(unittest.TestCase):
                 "_blah.txt",
                 "CamCOPS_dump_2021-06-04T100622.zip",
             ],
-            bad=[
-                "/etc/passwd",
-                "_",
-                "a",
-                r"C:\autoexec.bat",
-            ]
+            bad=["/etc/passwd", "_", "a", r"C:\autoexec.bat"],
         )

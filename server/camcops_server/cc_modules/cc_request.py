@@ -37,8 +37,17 @@ import logging
 import os
 import re
 import secrets
-from typing import (Any, Dict, Generator, List, Optional, Set,
-                    Tuple, TYPE_CHECKING, Union)
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    TYPE_CHECKING,
+    Union,
+)
 import urllib.parse
 
 from cardinal_pythonlib.datetimefunc import (
@@ -48,7 +57,6 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     pendulum_to_utc_datetime_without_tz,
 )
-# from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.fileops import get_directory_contents_size, mkdir_p
 from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -103,6 +111,7 @@ from camcops_server.cc_modules.cc_language import (
     GETTEXT_DOMAIN,
     POSSIBLE_LOCALES,
 )
+
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from camcops_server.cc_modules.cc_pyramid import (
@@ -141,10 +150,11 @@ from camcops_server.cc_modules.cc_validators import (
 if TYPE_CHECKING:
     from matplotlib.axis import Axis
     from matplotlib.axes import Axes
-    # from matplotlib.figure import SubplotBase
     from matplotlib.text import Text
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa
+    from camcops_server.cc_modules.cc_exportrecipientinfo import (
+        ExportRecipientInfo,
+    )
     from camcops_server.cc_modules.cc_session import CamcopsSession
     from camcops_server.cc_modules.cc_snomed import SnomedConcept
 
@@ -163,13 +173,17 @@ DEBUG_GETTEXT = False
 DEBUG_REQUEST_CREATION = False
 DEBUG_TABLET_SESSION = False
 
-if any([DEBUG_ADD_ROUTES,
+if any(
+    [
+        DEBUG_ADD_ROUTES,
         DEBUG_AUTHORIZATION,
         DEBUG_CAMCOPS_SESSION,
         DEBUG_DBSESSION_MANAGEMENT,
         DEBUG_GETTEXT,
         DEBUG_REQUEST_CREATION,
-        DEBUG_TABLET_SESSION]):
+        DEBUG_TABLET_SESSION,
+    ]
+):
     log.warning("Debugging options enabled!")
 
 
@@ -191,6 +205,7 @@ FALSE_STRINGS_LOWER_CASE = ["false", "f", "0", "no", "n"]
 #     more than once, we keep getting the same thing
 # ... https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.set_property  # noqa
 
+
 class CamcopsRequest(Request):
     """
     The CamcopsRequest is an object central to all HTTP requests. It is the
@@ -202,6 +217,7 @@ class CamcopsRequest(Request):
     ``os.environ[ENVVAR_CONFIG_FILE]``.
 
     """
+
     def __init__(self, *args, **kwargs):
         """
         This is called as the Pyramid request factory; see
@@ -234,18 +250,27 @@ class CamcopsRequest(Request):
         """  # noqa
         super().__init__(*args, **kwargs)
         self.use_svg = False  # use SVG (not just PNG) for graphics
-        self.provide_png_fallback_for_svg = True  # for SVG: provide PNG fallback image?  # noqa
+        self.provide_png_fallback_for_svg = (
+            True  # for SVG: provide PNG fallback image?
+        )
         self.add_response_callback(complete_request_add_cookies)
         self._camcops_session = None  # type: Optional[CamcopsSession]
-        self._debugging_db_session = None  # type: Optional[SqlASession]  # for unit testing only  # noqa
-        self._debugging_user = None  # type: Optional[User]  # for unit testing only  # noqa
-        self._pending_export_push_requests = []  # type: List[Tuple[str, str, int]]  # noqa
+        self._debugging_db_session = (
+            None
+        )  # type: Optional[SqlASession]  # for unit testing only
+        self._debugging_user = (
+            None
+        )  # type: Optional[User]  # for unit testing only
+        self._pending_export_push_requests = (
+            []
+        )  # type: List[Tuple[str, str, int]]
         self._cached_sstring = {}  # type: Dict[SS, str]
         # Don't make the _camcops_session yet; it will want a Registry, and
         # we may not have one yet; see command_line_request().
         if DEBUG_REQUEST_CREATION:
-            log.debug("CamcopsRequest.__init__: args={!r}, kwargs={!r}",
-                      args, kwargs)
+            log.debug(
+                "CamcopsRequest.__init__: args={!r}, kwargs={!r}", args, kwargs
+            )
 
     # -------------------------------------------------------------------------
     # HTTP nonce
@@ -283,9 +308,13 @@ class CamcopsRequest(Request):
             pyramid_session = request.session  # type: ISession
         """
         if self._camcops_session is None:
-            from camcops_server.cc_modules.cc_session import CamcopsSession  # delayed import  # noqa
+            from camcops_server.cc_modules.cc_session import (
+                CamcopsSession,
+            )  # delayed import
+
             self._camcops_session = CamcopsSession.get_session_using_cookies(
-                self)
+                self
+            )
             if DEBUG_CAMCOPS_SESSION:
                 log.debug("{!r}", self._camcops_session)
         return self._camcops_session
@@ -321,7 +350,7 @@ class CamcopsRequest(Request):
         That looks like we can add a callback in the process of running a
         callback. And when we add a cookie to a Pyramid session, that sets a
         callback. Let's give it a go...
-        """
+        """  # noqa: E501
         # 2019-03-21: If we've not used a CamcopsSession (e.g. for serving
         # a static view), do we care?
         if self._camcops_session is None:
@@ -408,8 +437,9 @@ class CamcopsRequest(Request):
         self.add_finished_callback(end_sqlalchemy_session)
 
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug("Returning SQLAlchemy session as "
-                      "CamcopsRequest.dbsession")
+            log.debug(
+                "Returning SQLAlchemy session as " "CamcopsRequest.dbsession"
+            )
 
         return _dbsession
 
@@ -425,11 +455,14 @@ class CamcopsRequest(Request):
         # But they are neatly subclasses of HTTPException, and isinstance()
         # deals with None, so:
         session = self.dbsession
-        if (self.exception is not None and
-                not isinstance(self.exception, HTTPException)):
-            log.critical("Request raised exception that wasn't an "
-                         "HTTPException; rolling back; exception was: {!r}",
-                         self.exception)
+        if self.exception is not None and not isinstance(
+            self.exception, HTTPException
+        ):
+            log.critical(
+                "Request raised exception that wasn't an "
+                "HTTPException; rolling back; exception was: {!r}",
+                self.exception,
+            )
             session.rollback()
         else:
             if DEBUG_DBSESSION_MANAGEMENT:
@@ -474,7 +507,10 @@ class CamcopsRequest(Request):
         the information provided by the tablet in the POST request, not
         anything already loaded/reset via cookies.
         """
-        from camcops_server.cc_modules.cc_session import CamcopsSession  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_session import (
+            CamcopsSession,
+        )  # delayed import
+
         ts = TabletSession(self)
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
         # ... does login
@@ -483,8 +519,9 @@ class CamcopsRequest(Request):
         if DEBUG_TABLET_SESSION:
             log.debug("CamcopsRequest: {!r}", self)
             log.debug("CamcopsRequest.tabletsession: {!r}", ts)
-            log.debug("CamcopsRequest.camcops_session: {!r}",
-                      self._camcops_session)
+            log.debug(
+                "CamcopsRequest.camcops_session: {!r}", self._camcops_session
+            )
         return ts
 
     # -------------------------------------------------------------------------
@@ -556,8 +593,9 @@ class CamcopsRequest(Request):
         """
         # Cope with reverse proxies, etc.
         # https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.static_url  # noqa
-        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
-                               "favicon_camcops.png")
+        return self.static_url(
+            STATIC_CAMCOPS_PACKAGE_PATH + "favicon_camcops.png"
+        )
 
     @property
     def url_camcops_logo(self) -> str:
@@ -566,8 +604,9 @@ class CamcopsRequest(Request):
         Returns:
 
         """
-        return self.static_url(STATIC_CAMCOPS_PACKAGE_PATH +
-                               "logo_camcops.png")
+        return self.static_url(
+            STATIC_CAMCOPS_PACKAGE_PATH + "logo_camcops.png"
+        )
 
     @property
     def url_local_logo(self) -> str:
@@ -589,12 +628,14 @@ class CamcopsRequest(Request):
     # -------------------------------------------------------------------------
 
     @staticmethod
-    def icon(icon: str,
-             alt: str,
-             url: str = None,
-             extra_classes: List[str] = None,
-             extra_styles: List[str] = None,
-             escape_alt: bool = True) -> str:
+    def icon(
+        icon: str,
+        alt: str,
+        url: str = None,
+        extra_classes: List[str] = None,
+        extra_styles: List[str] = None,
+        escape_alt: bool = True,
+    ) -> str:
         """
         Instantiates a Bootstrap icon, usually with a hyperlink. Returns
         rendered HTML.
@@ -620,21 +661,23 @@ class CamcopsRequest(Request):
             url=url,
             extra_classes=extra_classes,
             extra_styles=extra_styles,
-            escape_alt=escape_alt
+            escape_alt=escape_alt,
         )
 
     @staticmethod
-    def icon_text(icon: str,
-                  text: str,
-                  url: str = None,
-                  alt: str = None,
-                  extra_icon_classes: List[str] = None,
-                  extra_icon_styles: List[str] = None,
-                  extra_a_classes: List[str] = None,
-                  extra_a_styles: List[str] = None,
-                  escape_alt: bool = True,
-                  escape_text: bool = True,
-                  hyperlink_together: bool = False) -> str:
+    def icon_text(
+        icon: str,
+        text: str,
+        url: str = None,
+        alt: str = None,
+        extra_icon_classes: List[str] = None,
+        extra_icon_styles: List[str] = None,
+        extra_a_classes: List[str] = None,
+        extra_a_styles: List[str] = None,
+        escape_alt: bool = True,
+        escape_text: bool = True,
+        hyperlink_together: bool = False,
+    ) -> str:
         """
         Provide an icon and accompanying text. Usually, both are hyperlinked
         (to the same destination URL). Returns rendered HTML.
@@ -676,21 +719,23 @@ class CamcopsRequest(Request):
             extra_a_styles=extra_a_styles,
             escape_alt=escape_alt,
             escape_text=escape_text,
-            hyperlink_together=hyperlink_together
+            hyperlink_together=hyperlink_together,
         )
 
     @staticmethod
-    def icons_text(icons: List[str],
-                   text: str,
-                   url: str = None,
-                   alt: str = None,
-                   extra_icon_classes: List[str] = None,
-                   extra_icon_styles: List[str] = None,
-                   extra_a_classes: List[str] = None,
-                   extra_a_styles: List[str] = None,
-                   escape_alt: bool = True,
-                   escape_text: bool = True,
-                   hyperlink_together: bool = False) -> str:
+    def icons_text(
+        icons: List[str],
+        text: str,
+        url: str = None,
+        alt: str = None,
+        extra_icon_classes: List[str] = None,
+        extra_icon_styles: List[str] = None,
+        extra_a_classes: List[str] = None,
+        extra_a_styles: List[str] = None,
+        escape_alt: bool = True,
+        escape_text: bool = True,
+        hyperlink_together: bool = False,
+    ) -> str:
         """
         Multiple-icon version of :meth:``icon_text``.
         """
@@ -705,7 +750,7 @@ class CamcopsRequest(Request):
             extra_a_styles=extra_a_styles,
             escape_alt=escape_alt,
             escape_text=escape_text,
-            hyperlink_together=hyperlink_together
+            hyperlink_together=hyperlink_together,
         )
 
     # -------------------------------------------------------------------------
@@ -749,13 +794,13 @@ class CamcopsRequest(Request):
         return key in self.params
 
     def get_str_param(
-            self,
-            key: str,
-            default: str = None,
-            lower: bool = False,
-            upper: bool = False,
-            validator: STRING_VALIDATOR_TYPE = validate_alphanum_underscore) \
-            -> Optional[str]:
+        self,
+        key: str,
+        default: str = None,
+        lower: bool = False,
+        upper: bool = False,
+        validator: STRING_VALIDATOR_TYPE = validate_alphanum_underscore,
+    ) -> Optional[str]:
         """
         Returns an HTTP parameter from the request (GET or POST). If it does
         not exist, or is blank, return ``default``. If it fails the validator,
@@ -790,12 +835,12 @@ class CamcopsRequest(Request):
             raise HTTPBadRequest(f"Bad {key!r} parameter: {e}")
 
     def get_str_list_param(
-            self,
-            key: str,
-            lower: bool = False,
-            upper: bool = False,
-            validator: STRING_VALIDATOR_TYPE = validate_alphanum_underscore) \
-            -> List[str]:
+        self,
+        key: str,
+        lower: bool = False,
+        upper: bool = False,
+        validator: STRING_VALIDATOR_TYPE = validate_alphanum_underscore,
+    ) -> List[str]:
         """
         Returns a list of HTTP parameter values from the request. Ensures all
         have been validated.
@@ -820,7 +865,8 @@ class CamcopsRequest(Request):
                 validator(v, self)
         except ValueError as e:
             raise HTTPBadRequest(
-                f"Parameter {key!r} contains a bad value: {e}")
+                f"Parameter {key!r} contains a bad value: {e}"
+            )
         return values
 
     def get_int_param(self, key: str, default: int = None) -> Optional[int]:
@@ -916,9 +962,9 @@ class CamcopsRequest(Request):
         except (KeyError, ParserError, TypeError, ValueError):
             return None
 
-    def get_redirect_url_param(self,
-                               key: str,
-                               default: str = None) -> Optional[str]:
+    def get_redirect_url_param(
+        self, key: str, default: str = None
+    ) -> Optional[str]:
         """
         Returns a redirection URL parameter from the HTTP request, validating
         it. (The validation process does not allow all types of URLs!)
@@ -935,15 +981,17 @@ class CamcopsRequest(Request):
         Returns:
             a URL string, or ``default``
         """
-        return self.get_str_param(key, default=default,
-                                  validator=validate_redirect_url)
+        return self.get_str_param(
+            key, default=default, validator=validate_redirect_url
+        )
 
     # -------------------------------------------------------------------------
     # Routing
     # -------------------------------------------------------------------------
 
-    def route_url_params(self, route_name: str,
-                         paramdict: Dict[str, Any]) -> str:
+    def route_url_params(
+        self, route_name: str, paramdict: Dict[str, Any]
+    ) -> str:
         """
         Provides a simplified interface to :func:`Request.route_url` when you
         have parameters to pass.
@@ -985,12 +1033,14 @@ class CamcopsRequest(Request):
         """
         return all_extra_strings_as_dicts(self.config_filename)
 
-    def xstring(self,
-                taskname: str,
-                stringname: str,
-                default: str = None,
-                provide_default_if_none: bool = True,
-                language: str = None) -> Optional[str]:
+    def xstring(
+        self,
+        taskname: str,
+        stringname: str,
+        default: str = None,
+        provide_default_if_none: bool = True,
+        language: str = None,
+    ) -> Optional[str]:
         """
         Looks up a string from one of the optional extra XML string files.
 
@@ -1039,34 +1089,46 @@ class CamcopsRequest(Request):
             )
         return default
 
-    def wxstring(self,
-                 taskname: str,
-                 stringname: str,
-                 default: str = None,
-                 provide_default_if_none: bool = True,
-                 language: str = None) -> Optional[str]:
+    def wxstring(
+        self,
+        taskname: str,
+        stringname: str,
+        default: str = None,
+        provide_default_if_none: bool = True,
+        language: str = None,
+    ) -> Optional[str]:
         """
         Returns a web-safe version of an :func:`xstring` (q.v.).
         """
-        value = self.xstring(taskname, stringname, default,
-                             provide_default_if_none=provide_default_if_none,
-                             language=language)
+        value = self.xstring(
+            taskname,
+            stringname,
+            default,
+            provide_default_if_none=provide_default_if_none,
+            language=language,
+        )
         if value is None and not provide_default_if_none:
             return None
         return ws.webify(value)
 
-    def wappstring(self,
-                   stringname: str,
-                   default: str = None,
-                   provide_default_if_none: bool = True,
-                   language: str = None) -> Optional[str]:
+    def wappstring(
+        self,
+        stringname: str,
+        default: str = None,
+        provide_default_if_none: bool = True,
+        language: str = None,
+    ) -> Optional[str]:
         """
         Returns a web-safe version of an appstring (an app-wide extra string).
         This uses the XML file shared between the client and the server.
         """
-        value = self.xstring(APPSTRING_TASKNAME, stringname, default,
-                             provide_default_if_none=provide_default_if_none,
-                             language=language)
+        value = self.xstring(
+            APPSTRING_TASKNAME,
+            stringname,
+            default,
+            provide_default_if_none=provide_default_if_none,
+            language=language,
+        )
         if value is None and not provide_default_if_none:
             return None
         return ws.webify(value)
@@ -1095,8 +1157,10 @@ class CamcopsRequest(Request):
         rows = []
         for task, taskstrings in allstrings.items():
             if not task_permitted(task):
-                log.debug(f"Skipping extra string download for task {task}: "
-                          f"not permitted for user {self.user.username}")
+                log.debug(
+                    f"Skipping extra string download for task {task}: "
+                    f"not permitted for user {self.user.username}"
+                )
                 continue
             for name, langversions in taskstrings.items():
                 for language, value in langversions.items():
@@ -1172,7 +1236,7 @@ class CamcopsRequest(Request):
                 translator = gettext.translation(
                     domain=GETTEXT_DOMAIN,
                     localedir=TRANSLATIONS_DIR,
-                    languages=[lang]
+                    languages=[lang],
                 )
                 translated = translator.gettext(message)
             except OSError:  # e.g. translation file not found
@@ -1400,14 +1464,14 @@ class CamcopsRequest(Request):
         """  # noqa
         fontsize = self.config.plot_fontsize
         return dict(
-            family='sans-serif',
+            family="sans-serif",
             # ... serif, sans-serif, cursive, fantasy, monospace
-            style='normal',  # normal (roman), italic, oblique
-            variant='normal',  # normal, small-caps
-            weight='normal',
+            style="normal",  # normal (roman), italic, oblique
+            variant="normal",  # normal, small-caps
+            weight="normal",
             # ... normal [=400], bold [=700], bolder [relative to current],
             # lighter [relative], 100, 200, 300, ..., 900
-            size=fontsize  # in pt (default 12)
+            size=fontsize,  # in pt (default 12)
         )
 
     @reify
@@ -1418,11 +1482,13 @@ class CamcopsRequest(Request):
         """
         return FontProperties(**self.fontdict)
 
-    def set_figure_font_sizes(self,
-                              ax: "Axes",  # "SubplotBase",
-                              fontdict: Dict[str, Any] = None,
-                              x_ticklabels: bool = True,
-                              y_ticklabels: bool = True) -> None:
+    def set_figure_font_sizes(
+        self,
+        ax: "Axes",  # "SubplotBase",
+        fontdict: Dict[str, Any] = None,
+        x_ticklabels: bool = True,
+        y_ticklabels: bool = True,
+    ) -> None:
         """
         Sets font sizes for the axes of the specified Matplotlib figure.
 
@@ -1444,7 +1510,9 @@ class CamcopsRequest(Request):
         if y_ticklabels:  # and hasattr(ax, "yaxis"):
             axes.append(ax.yaxis)
         for axis in axes:
-            for ticklabel in axis.get_ticklabels(which='both'):  # type: Text  # I think!  # noqa
+            for ticklabel in axis.get_ticklabels(
+                which="both"
+            ):  # type: Text  # I think!
                 ticklabel.set_fontproperties(fp)
 
     def get_html_from_pyplot_figure(self, fig: Figure) -> str:
@@ -1459,11 +1527,13 @@ class CamcopsRequest(Request):
                 # deal with SVG; the Javascript header will sort this out
                 # http://www.voormedia.nl/blog/2012/10/displaying-and-detecting-support-for-svg-images  # noqa
                 result += png_img_html_from_pyplot_figure(
-                    fig, PlotDefaults.DEFAULT_PLOT_DPI, "pngfallback")
+                    fig, PlotDefaults.DEFAULT_PLOT_DPI, "pngfallback"
+                )
             return result
         else:
             return png_img_html_from_pyplot_figure(
-                fig, PlotDefaults.DEFAULT_PLOT_DPI)
+                fig, PlotDefaults.DEFAULT_PLOT_DPI
+            )
 
     # -------------------------------------------------------------------------
     # Convenience functions for user information
@@ -1506,39 +1576,58 @@ class CamcopsRequest(Request):
         return [iddef.which_idnum for iddef in self.idnum_definitions]
         # ... pre-sorted
 
-    def get_idnum_definition(self,
-                             which_idnum: int) -> Optional[IdNumDefinition]:
+    def get_idnum_definition(
+        self, which_idnum: int
+    ) -> Optional[IdNumDefinition]:
         """
         Retrieves an
         :class:`camcops_server.cc_modules.cc_idnumdef.IdNumDefinition` for the
         specified ``which_idnum`` value.
         """
-        return next((iddef for iddef in self.idnum_definitions
-                     if iddef.which_idnum == which_idnum), None)
+        return next(
+            (
+                iddef
+                for iddef in self.idnum_definitions
+                if iddef.which_idnum == which_idnum
+            ),
+            None,
+        )
 
-    def get_id_desc(self, which_idnum: int,
-                    default: str = None) -> Optional[str]:
+    def get_id_desc(
+        self, which_idnum: int, default: str = None
+    ) -> Optional[str]:
         """
         Get the server's ID description for the specified ``which_idnum``
         value.
         """
-        return next((iddef.description for iddef in self.idnum_definitions
-                     if iddef.which_idnum == which_idnum),
-                    default)
+        return next(
+            (
+                iddef.description
+                for iddef in self.idnum_definitions
+                if iddef.which_idnum == which_idnum
+            ),
+            default,
+        )
 
-    def get_id_shortdesc(self, which_idnum: int,
-                         default: str = None) -> Optional[str]:
+    def get_id_shortdesc(
+        self, which_idnum: int, default: str = None
+    ) -> Optional[str]:
         """
         Get the server's short ID description for the specified ``which_idnum``
         value.
         """
-        return next((iddef.short_description
-                     for iddef in self.idnum_definitions
-                     if iddef.which_idnum == which_idnum),
-                    default)
+        return next(
+            (
+                iddef.short_description
+                for iddef in self.idnum_definitions
+                if iddef.which_idnum == which_idnum
+            ),
+            default,
+        )
 
-    def is_idnum_valid(self, which_idnum: int,
-                       idnum_value: Optional[int]) -> bool:
+    def is_idnum_valid(
+        self, which_idnum: int, idnum_value: Optional[int]
+    ) -> bool:
         """
         Does the ID number pass any extended validation checks?
 
@@ -1552,12 +1641,14 @@ class CamcopsRequest(Request):
         idnumdef = self.get_idnum_definition(which_idnum)
         if not idnumdef:
             return False
-        valid, _ = validate_id_number(self,
-                                      idnum_value, idnumdef.validation_method)
+        valid, _ = validate_id_number(
+            self, idnum_value, idnumdef.validation_method
+        )
         return valid
 
-    def why_idnum_invalid(self, which_idnum: int,
-                          idnum_value: Optional[int]) -> str:
+    def why_idnum_invalid(
+        self, which_idnum: int, idnum_value: Optional[int]
+    ) -> str:
         """
         Why does the ID number fail any extended validation checks?
 
@@ -1572,8 +1663,9 @@ class CamcopsRequest(Request):
         if not idnumdef:
             _ = self.gettext
             return _("Can't fetch ID number definition")
-        _, why = validate_id_number(self,
-                                    idnum_value, idnumdef.validation_method)
+        _, why = validate_id_number(
+            self, idnum_value, idnumdef.validation_method
+        )
         return why
 
     # -------------------------------------------------------------------------
@@ -1687,13 +1779,14 @@ class CamcopsRequest(Request):
     # Export recipients
     # -------------------------------------------------------------------------
 
-    def get_export_recipients(self,
-                              recipient_names: List[str] = None,
-                              all_recipients: bool = False,
-                              all_push_recipients: bool = False,
-                              save: bool = True,
-                              database_versions: bool = True) \
-            -> List[Union["ExportRecipient", "ExportRecipientInfo"]]:
+    def get_export_recipients(
+        self,
+        recipient_names: List[str] = None,
+        all_recipients: bool = False,
+        all_push_recipients: bool = False,
+        save: bool = True,
+        database_versions: bool = True,
+    ) -> List[Union["ExportRecipient", "ExportRecipientInfo"]]:
         """
         Returns a list of export recipients, with some filtering if desired.
         Validates them against the database.
@@ -1727,8 +1820,9 @@ class CamcopsRequest(Request):
               if an export recipient configuration is invalid
         """  # noqa
         # Delayed imports
-        from camcops_server.cc_modules.cc_exportrecipient import \
-            ExportRecipient  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_exportrecipient import (
+            ExportRecipient,
+        )  # delayed import
 
         # Check parameters
         recipient_names = recipient_names or []  # type: List[str]
@@ -1744,21 +1838,32 @@ class CamcopsRequest(Request):
                 recipientinfolist = [r for r in recipientinfolist if r.push]
             else:
                 # Specified by name
-                duplicates = [name for name, count in
-                              collections.Counter(recipient_names).items()
-                              if count > 1]
+                duplicates = [
+                    name
+                    for name, count in collections.Counter(
+                        recipient_names
+                    ).items()
+                    if count > 1
+                ]
                 if duplicates:
-                    raise ValueError(f"Duplicate export recipients "
-                                     f"specified: {duplicates!r}")
+                    raise ValueError(
+                        f"Duplicate export recipients "
+                        f"specified: {duplicates!r}"
+                    )
                 valid_names = set(r.recipient_name for r in recipientinfolist)
-                bad_names = [name for name in recipient_names
-                             if name not in valid_names]
+                bad_names = [
+                    name for name in recipient_names if name not in valid_names
+                ]
                 if bad_names:
                     raise ValueError(
                         f"Bad export recipients specified: {bad_names!r}. "
-                        f"Valid recipients are: {valid_names!r}")
-                recipientinfolist = [r for r in recipientinfolist
-                                     if r.recipient_name in recipient_names]
+                        f"Valid recipients are: {valid_names!r}"
+                    )
+                recipientinfolist = [
+                    r
+                    for r in recipientinfolist
+                    if r.recipient_name in recipient_names
+                ]
 
         # Complete validation
         for r in recipientinfolist:
@@ -1769,7 +1874,9 @@ class CamcopsRequest(Request):
             return recipientinfolist
 
         # Convert to SQLAlchemy ORM ExportRecipient objects:
-        recipients = [ExportRecipient(x) for x in recipientinfolist]  # type: List[ExportRecipient]  # noqa
+        recipients = [
+            ExportRecipient(x) for x in recipientinfolist
+        ]  # type: List[ExportRecipient]
 
         final_recipients = []  # type: List[ExportRecipient]
         dbsession = self.dbsession
@@ -1777,11 +1884,16 @@ class CamcopsRequest(Request):
         def process_final_recipients(_save: bool) -> None:
             for r in recipients:
                 other = ExportRecipient.get_existing_matching_recipient(
-                    dbsession, r)
+                    dbsession, r
+                )
                 if other:
                     # This other one matches, and is already in the database.
                     # Use it. But first...
-                    for attrname in ExportRecipient.NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES:  # noqa
+                    for (
+                        attrname
+                    ) in (
+                        ExportRecipient.RECOPY_EACH_TIME_FROM_CONFIG_ATTRNAMES
+                    ):
                         setattr(other, attrname, getattr(r, attrname))
                     # OK.
                     final_recipients.append(other)
@@ -1789,14 +1901,19 @@ class CamcopsRequest(Request):
                     # Our new object doesn't match. Use (+/- save) it.
                     if save:
                         log.debug(
-                            "Creating new ExportRecipient record in database")
+                            "Creating new ExportRecipient record in database"
+                        )
                         dbsession.add(r)
                     r.current = True
                     final_recipients.append(r)
 
         if save:
-            lockfilename = self.config.get_master_export_recipient_lockfilename()  # noqa
-            with lockfile.FileLock(lockfilename, timeout=None):  # waits forever if necessary  # noqa
+            lockfilename = (
+                self.config.get_master_export_recipient_lockfilename()
+            )
+            with lockfile.FileLock(
+                lockfilename, timeout=None
+            ):  # waits forever if necessary
                 process_final_recipients(_save=True)
         else:
             process_final_recipients(_save=False)
@@ -1804,9 +1921,9 @@ class CamcopsRequest(Request):
         # OK
         return final_recipients
 
-    def get_export_recipient(self,
-                             recipient_name: str,
-                             save: bool = True) -> "ExportRecipient":
+    def get_export_recipient(
+        self, recipient_name: str, save: bool = True
+    ) -> "ExportRecipient":
         """
         Returns a single validated export recipient, given its name.
 
@@ -1838,10 +1955,9 @@ class CamcopsRequest(Request):
             database_versions=True,  # we need group ID info somehow
         )
 
-    def add_export_push_request(self,
-                                recipient_name: str,
-                                basetable: str,
-                                task_pk: int) -> None:
+    def add_export_push_request(
+        self, recipient_name: str, basetable: str, task_pk: int
+    ) -> None:
         """
         Adds a request to push a task to an export recipient.
 
@@ -1864,15 +1980,25 @@ class CamcopsRequest(Request):
 
         Called after the COMMIT.
         """
-        from camcops_server.cc_modules.celery import export_task_backend  # delayed import  # noqa
+        from camcops_server.cc_modules.celery import (
+            export_task_backend,
+        )  # delayed import
 
-        for recipient_name, basetable, task_pk in self._pending_export_push_requests:  # noqa
-            log.info("Submitting background job to export task {}.{} to {}",
-                     basetable, task_pk, recipient_name)
+        for (
+            recipient_name,
+            basetable,
+            task_pk,
+        ) in self._pending_export_push_requests:
+            log.info(
+                "Submitting background job to export task {}.{} to {}",
+                basetable,
+                task_pk,
+                recipient_name,
+            )
             export_task_backend.delay(
                 recipient_name=recipient_name,
                 basetable=basetable,
-                task_pk=task_pk
+                task_pk=task_pk,
             )
 
     # -------------------------------------------------------------------------
@@ -1936,8 +2062,9 @@ class CamcopsRequest(Request):
 
 
 # noinspection PyUnusedLocal
-def complete_request_add_cookies(req: CamcopsRequest,
-                                 response: Response) -> None:
+def complete_request_add_cookies(
+    req: CamcopsRequest, response: Response
+) -> None:
     """
     Finializes the response by adding session cookies.
 
@@ -1950,10 +2077,11 @@ def complete_request_add_cookies(req: CamcopsRequest,
 # Configurator
 # =============================================================================
 
+
 @contextmanager
 def camcops_pyramid_configurator_context(
-        debug_toolbar: bool = False,
-        static_cache_duration_s: int = 0) -> Configurator:
+    debug_toolbar: bool = False, static_cache_duration_s: int = 0
+) -> Configurator:
     """
     Context manager to create a Pyramid configuration context, for making
     (for example) a WSGI server or a debugging request. That means setting up
@@ -1986,7 +2114,7 @@ def camcops_pyramid_configurator_context(
     # 1. Base app
     # -------------------------------------------------------------------------
     settings = {  # Settings that can't be set directly?
-        'debug_authorization': DEBUG_AUTHORIZATION,
+        "debug_authorization": DEBUG_AUTHORIZATION,
         # ... see https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/security.html#debugging-view-authorization-failures  # noqa
     }
     with Configurator(settings=settings) as config:
@@ -2014,7 +2142,7 @@ def camcops_pyramid_configurator_context(
         # ---------------------------------------------------------------------
         # Renderers
         # ---------------------------------------------------------------------
-        camcops_add_mako_renderer(config, extension='.mako')
+        camcops_add_mako_renderer(config, extension=".mako")
 
         # deform_bootstrap.includeme(config)
 
@@ -2028,8 +2156,12 @@ def camcops_pyramid_configurator_context(
         # we can't provide URLs to them.
         static_filepath = STATIC_CAMCOPS_PACKAGE_PATH
         static_name = RouteCollection.STATIC.route
-        log.debug("... including static files from {!r} at Pyramid static "
-                  "name {!r}", static_filepath, static_name)
+        log.debug(
+            "... including static files from {!r} at Pyramid static "
+            "name {!r}",
+            static_filepath,
+            static_name,
+        )
         # ... does the name needs to start with "/" or the pattern "static/"
         # will override the later "deform_static"? Not sure.
 
@@ -2048,15 +2180,20 @@ def camcops_pyramid_configurator_context(
         # - to https://github.com/Pylons/pyramid/pull/2021
         # - to https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hooks.html#view-derivers  # noqa
 
-        config.add_static_view(name=static_name,
-                               path=static_filepath,
-                               cache_max_age=static_cache_duration_s)
+        config.add_static_view(
+            name=static_name,
+            path=static_filepath,
+            cache_max_age=static_cache_duration_s,
+        )
 
         # Add all the routes:
         for pr in RouteCollection.all_routes():
             if DEBUG_ADD_ROUTES:
-                suffix = (f", pregenerator={pr.pregenerator}"
-                          if pr.pregenerator else "")
+                suffix = (
+                    f", pregenerator={pr.pregenerator}"
+                    if pr.pregenerator
+                    else ""
+                )
                 log.info("Adding route: {} -> {}{}", pr.route, pr.path, suffix)
             config.add_route(pr.route, pr.path, pregenerator=pr.pregenerator)
         # See also:
@@ -2064,15 +2201,18 @@ def camcops_pyramid_configurator_context(
 
         # Routes added EARLIER have priority. So add this AFTER our custom
         # bugfix:
-        config.add_static_view(name='/deform_static',
-                               path='deform:static/',
-                               cache_max_age=static_cache_duration_s)
+        config.add_static_view(
+            name="/deform_static",
+            path="deform:static/",
+            cache_max_age=static_cache_duration_s,
+        )
 
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
         # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
-        config.scan("camcops_server.cc_modules",
-                    ignore=[re.compile("_tests$").search])
+        config.scan(
+            "camcops_server.cc_modules", ignore=[re.compile("_tests$").search]
+        )
 
         # ---------------------------------------------------------------------
         # Add tweens (inner to outer)
@@ -2087,12 +2227,14 @@ def camcops_pyramid_configurator_context(
         # ---------------------------------------------------------------------
         if debug_toolbar:
             log.debug("Enabling Pyramid debug toolbar")
-            config.include('pyramid_debugtoolbar')  # BEWARE! SIDE EFFECTS
+            config.include("pyramid_debugtoolbar")  # BEWARE! SIDE EFFECTS
             # ... Will trigger an import that hooks events into all
             # SQLAlchemy queries. There's a bug somewhere relating to that;
             # see notes below relating to the "mergedb" function.
-            config.add_route(RouteCollection.DEBUG_TOOLBAR.route,
-                             RouteCollection.DEBUG_TOOLBAR.path)
+            config.add_route(
+                RouteCollection.DEBUG_TOOLBAR.route,
+                RouteCollection.DEBUG_TOOLBAR.path,
+            )
 
         yield config
 
@@ -2101,8 +2243,10 @@ def camcops_pyramid_configurator_context(
 # Debugging requests
 # =============================================================================
 
-def make_post_body_from_dict(d: Dict[str, str],
-                             encoding: str = "utf8") -> bytes:
+
+def make_post_body_from_dict(
+    d: Dict[str, str], encoding: str = "utf8"
+) -> bytes:
     """
     Makes an HTTP POST body from a dictionary.
 
@@ -2135,6 +2279,7 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
     - What we do here is to manipulate the underlying GET/POST data.
 
     """
+
     _CACHE_KEY = "webob._parsed_query_vars"
     _QUERY_STRING_KEY = "QUERY_STRING"
 
@@ -2180,8 +2325,9 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
             del env[self._CACHE_KEY]
         env[self._QUERY_STRING_KEY] = ""
 
-    def add_get_params(self, d: Dict[str, str],
-                       set_method_get: bool = True) -> None:
+    def add_get_params(
+        self, d: Dict[str, str], set_method_get: bool = True
+    ) -> None:
         """
         Add GET parameters.
 
@@ -2203,8 +2349,9 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
         if set_method_get:
             self.set_method_get()
 
-    def set_get_params(self, d: Dict[str, str],
-                       set_method_get: bool = True) -> None:
+    def set_get_params(
+        self, d: Dict[str, str], set_method_get: bool = True
+    ) -> None:
         """
         Clear any GET parameters, and then set them to new values.
         See :func:`add_get_params`.
@@ -2212,8 +2359,7 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
         self.clear_get_params()
         self.add_get_params(d, set_method_get=set_method_get)
 
-    def set_post_body(self, body: bytes,
-                      set_method_post: bool = True) -> None:
+    def set_post_body(self, body: bytes, set_method_post: bool = True) -> None:
         """
         Sets the fake POST body.
 
@@ -2227,10 +2373,12 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
         if set_method_post:
             self.set_method_post()
 
-    def fake_request_post_from_dict(self,
-                                    d: Dict[str, str],
-                                    encoding: str = "utf8",
-                                    set_method_post: bool = True) -> None:
+    def fake_request_post_from_dict(
+        self,
+        d: Dict[str, str],
+        encoding: str = "utf8",
+        set_method_post: bool = True,
+    ) -> None:
         """
         Sets the request's POST body according to a dictionary.
 
@@ -2301,11 +2449,11 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
         req = CamcopsDummyRequest(
             environ={
                 # In URL sequence:
-                WsgiEnvVar.WSGI_URL_SCHEME: 'http',
-                WsgiEnvVar.SERVER_NAME: '127.0.0.1',
-                WsgiEnvVar.SERVER_PORT: '8000',
-                WsgiEnvVar.SCRIPT_NAME: '',
-                WsgiEnvVar.PATH_INFO: '/',
+                WsgiEnvVar.WSGI_URL_SCHEME: "http",
+                WsgiEnvVar.SERVER_NAME: "127.0.0.1",
+                WsgiEnvVar.SERVER_PORT: "8000",
+                WsgiEnvVar.SCRIPT_NAME: "",
+                WsgiEnvVar.PATH_INFO: "/",
             }  # environ parameter: goes to pyramid.testing.DummyRequest.__init__  # noqa
         )
         # ... must pass an actual dict to the "environ" parameter; os.environ
@@ -2353,17 +2501,18 @@ def get_command_line_request(user_id: int = None) -> CamcopsRequest:
     if user_id is None:
         req._debugging_user = User.get_system_user(req.dbsession)
     else:
-        req._debugging_user = User.get_user_by_id(
-            req.dbsession, user_id)
+        req._debugging_user = User.get_user_by_id(req.dbsession, user_id)
 
-    log.debug("Command-line request: external URL is {}",
-              req.route_url(Routes.HOME))
+    log.debug(
+        "Command-line request: external URL is {}", req.route_url(Routes.HOME)
+    )
     return req
 
 
 @contextmanager
-def command_line_request_context(user_id: int = None) \
-        -> Generator[CamcopsRequest, None, None]:
+def command_line_request_context(
+    user_id: int = None,
+) -> Generator[CamcopsRequest, None, None]:
     """
     Request objects are ubiquitous, and allow code to refer to the HTTP
     request, config, HTTP session, database session, and so on. Here we make
@@ -2377,8 +2526,9 @@ def command_line_request_context(user_id: int = None) \
     req._finish_dbsession()
 
 
-def get_unittest_request(dbsession: SqlASession,
-                         params: Dict[str, Any] = None) -> CamcopsDummyRequest:
+def get_unittest_request(
+    dbsession: SqlASession, params: Dict[str, Any] = None
+) -> CamcopsDummyRequest:
     """
     Creates a :class:`CamcopsDummyRequest` for use by unit tests.
 

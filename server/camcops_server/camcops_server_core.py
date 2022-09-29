@@ -44,6 +44,7 @@ Importing this module does the following:
 # logs look polluted by ANSI codes; needs checking.
 import logging
 from cardinal_pythonlib.logs import BraceStyleAdapter
+
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("Imports starting")
 
@@ -56,16 +57,24 @@ import subprocess  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
 
 import cherrypy  # noqa: E402
+
 try:
     from gunicorn.app.base import BaseApplication
 except ImportError:
-    BaseApplication = None  # e.g. on Windows: "ImportError: no module named 'fcntl'".  # noqa: E501
+    BaseApplication = (
+        None  # e.g. on Windows: "ImportError: no module named 'fcntl'".
+    )
 from wsgiref.simple_server import make_server  # noqa: E402
 
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
 from cardinal_pythonlib.process import nice_call  # noqa: E402
-from cardinal_pythonlib.ui_commandline import ask_user, ask_user_password  # noqa: E402,E501
-from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
+from cardinal_pythonlib.ui_commandline import (  # noqa: E402
+    ask_user,
+    ask_user_password,
+)
+from cardinal_pythonlib.wsgi.request_logging_mw import (  # noqa: E402
+    RequestLoggingMiddleware,
+)
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
     ReverseProxiedConfig,
     ReverseProxiedMiddleware,
@@ -79,6 +88,7 @@ from camcops_server.cc_modules.cc_anon import (  # noqa: E402
     write_crate_data_dictionary,
     write_cris_data_dictionary,
 )
+
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # noqa: E402,E501,F401
 from camcops_server.cc_modules.cc_config import (  # noqa: E402
@@ -92,7 +102,9 @@ from camcops_server.cc_modules.cc_constants import (  # noqa: E402
     DEFAULT_FLOWER_PORT,
     USER_NAME_FOR_SYSTEM,
 )
-from camcops_server.cc_modules.cc_exception import raise_runtime_error  # noqa: E402,E501
+from camcops_server.cc_modules.cc_exception import (  # noqa: E402
+    raise_runtime_error,
+)
 from camcops_server.cc_modules.cc_export import (  # noqa: E402
     print_export_queue,
     export,
@@ -103,29 +115,37 @@ from camcops_server.cc_modules.cc_request import (  # noqa: E402
     command_line_request_context,
     camcops_pyramid_configurator_context,
 )
-from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
+from camcops_server.cc_modules.cc_string import (  # noqa: E402
+    all_extra_strings_as_dicts,
+)
 from camcops_server.cc_modules.cc_task import Task  # noqa: E402
 from camcops_server.cc_modules.cc_taskindex import (  # noqa: E402
     check_indexes,
     reindex_everything,
 )
+
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_user import (  # noqa: E402
     SecurityLoginFailure,
     set_password_directly,
     User,
 )
-from camcops_server.cc_modules.cc_validators import validate_new_password  # noqa: E402,E501
+from camcops_server.cc_modules.cc_validators import (  # noqa: E402
+    validate_new_password,
+)
 from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
 )
+
 log.info("Imports complete")
 log.info("Using {} task types", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
     from pyramid.router import Router  # noqa: F401
-    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_exportrecipientinfo import (
+        ExportRecipientInfo,
+    )
 
 
 # =============================================================================
@@ -147,6 +167,7 @@ DEFAULT_CLEANUP_TIMEOUT_S = 10.0
 # =============================================================================
 # Helper functions for web server launcher
 # =============================================================================
+
 
 def ensure_database_is_ok() -> None:
     """
@@ -195,14 +216,17 @@ def precache() -> None:
 # WSGI entry point
 # =============================================================================
 
-def make_wsgi_app(debug_toolbar: bool = False,
-                  reverse_proxied_config: ReverseProxiedConfig = None,
-                  debug_reverse_proxy: bool = False,
-                  show_requests: bool = True,
-                  show_request_immediately: bool = True,
-                  show_response: bool = True,
-                  show_timing: bool = True,
-                  static_cache_duration_s: int = 0) -> "Router":
+
+def make_wsgi_app(
+    debug_toolbar: bool = False,
+    reverse_proxied_config: ReverseProxiedConfig = None,
+    debug_reverse_proxy: bool = False,
+    show_requests: bool = True,
+    show_request_immediately: bool = True,
+    show_response: bool = True,
+    show_timing: bool = True,
+    static_cache_duration_s: int = 0,
+) -> "Router":
     """
     Makes and returns a WSGI application, attaching all our special methods.
 
@@ -274,8 +298,9 @@ def make_wsgi_app(debug_toolbar: bool = False,
     # - camcops_pyramid_configurator_context() is our function; see that
     # - config.make_wsgi_app() is then a Pyramid function
     with camcops_pyramid_configurator_context(
-            debug_toolbar=debug_toolbar,
-            static_cache_duration_s=static_cache_duration_s) as config:
+        debug_toolbar=debug_toolbar,
+        static_cache_duration_s=static_cache_duration_s,
+    ) as config:
         app = config.make_wsgi_app()
 
     # Add any middleware above the Pyramid level:
@@ -294,9 +319,8 @@ def make_wsgi_app(debug_toolbar: bool = False,
     if reverse_proxied_config and reverse_proxied_config.necessary():
         # noinspection PyTypeChecker
         app = ReverseProxiedMiddleware(
-            app=app,
-            config=reverse_proxied_config,
-            debug=debug_reverse_proxy)  # type: Router
+            app=app, config=reverse_proxied_config, debug=debug_reverse_proxy
+        )  # type: Router
 
     log.debug("WSGI app created")
     return app
@@ -305,6 +329,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
 # =============================================================================
 # Web server launchers
 # =============================================================================
+
 
 def ensure_ok_for_webserver() -> None:
     """
@@ -315,9 +340,9 @@ def ensure_ok_for_webserver() -> None:
     precache()
 
 
-def test_serve_pyramid(application: "Router",
-                       host: str = None,
-                       port: int = None) -> None:
+def test_serve_pyramid(
+    application: "Router", host: str = None, port: int = None
+) -> None:
     """
     Launches an extremely simple Pyramid web server (via
     ``wsgiref.make_server``).
@@ -331,17 +356,19 @@ def test_serve_pyramid(application: "Router",
     server.serve_forever()
 
 
-def serve_cherrypy(application: "Router",
-                   host: str,
-                   port: int,
-                   unix_domain_socket_filename: str,
-                   threads_start: int,
-                   threads_max: int,  # -1 for no limit
-                   server_name: str,
-                   log_screen: bool,
-                   ssl_certificate: Optional[str],
-                   ssl_private_key: Optional[str],
-                   root_path: str) -> None:
+def serve_cherrypy(
+    application: "Router",
+    host: str,
+    port: int,
+    unix_domain_socket_filename: str,
+    threads_start: int,
+    threads_max: int,  # -1 for no limit
+    server_name: str,
+    log_screen: bool,
+    ssl_certificate: Optional[str],
+    ssl_private_key: Optional[str],
+    root_path: str,
+) -> None:
     """
     Start CherryPy server.
 
@@ -353,39 +380,48 @@ def serve_cherrypy(application: "Router",
     # Report on options
     if unix_domain_socket_filename:
         # If this is specified, it takes priority
-        log.info("Starting CherryPy server via UNIX domain socket at: {}",
-                 unix_domain_socket_filename)
+        log.info(
+            "Starting CherryPy server via UNIX domain socket at: {}",
+            unix_domain_socket_filename,
+        )
     else:
         log.info("Starting CherryPy server on host {}, port {}", host, port)
-    log.info("Within this web server instance, CamCOPS will be at: {}",
-             root_path)
+    log.info(
+        "Within this web server instance, CamCOPS will be at: {}", root_path
+    )
     log.info(
         "... webview at: {}",
         # urllib.parse.urljoin is useless for this
-        join_url_fragments(root_path, RouteCollection.HOME.path))
+        join_url_fragments(root_path, RouteCollection.HOME.path),
+    )
     log.info(
         "... tablet client API at: {}",
-        join_url_fragments(root_path, RouteCollection.CLIENT_API.path))
+        join_url_fragments(root_path, RouteCollection.CLIENT_API.path),
+    )
     log.info("Thread pool starting size: {}", threads_start)
     log.info("Thread pool max size: {}", threads_max)
 
     # Set up CherryPy
-    cherrypy.config.update({
-        # See http://svn.cherrypy.org/trunk/cherrypy/_cpserver.py
-        'server.socket_host': host,
-        'server.socket_port': port,
-        'server.socket_file': unix_domain_socket_filename,
-        'server.thread_pool': threads_start,
-        'server.thread_pool_max': threads_max,
-        'server.server_name': server_name,
-        'server.log_screen': log_screen,
-    })
+    cherrypy.config.update(
+        {
+            # See http://svn.cherrypy.org/trunk/cherrypy/_cpserver.py
+            "server.socket_host": host,
+            "server.socket_port": port,
+            "server.socket_file": unix_domain_socket_filename,
+            "server.thread_pool": threads_start,
+            "server.thread_pool_max": threads_max,
+            "server.server_name": server_name,
+            "server.log_screen": log_screen,
+        }
+    )
     if ssl_certificate and ssl_private_key:
-        cherrypy.config.update({
-            'server.ssl_module': 'builtin',
-            'server.ssl_certificate': ssl_certificate,
-            'server.ssl_private_key': ssl_private_key,
-        })
+        cherrypy.config.update(
+            {
+                "server.ssl_module": "builtin",
+                "server.ssl_certificate": ssl_certificate,
+                "server.ssl_private_key": ssl_private_key,
+            }
+        )
 
     # Mount WSGI application
     cherrypy.tree.graft(application, root_path)
@@ -400,16 +436,18 @@ def serve_cherrypy(application: "Router",
         cherrypy.engine.stop()
 
 
-def serve_gunicorn(application: "Router",
-                   host: str,
-                   port: int,
-                   unix_domain_socket_filename: str,
-                   num_workers: int,
-                   ssl_certificate: Optional[str],
-                   ssl_private_key: Optional[str],
-                   reload: bool = False,
-                   timeout_s: int = 30,
-                   debug_show_gunicorn_options: bool = False) -> None:
+def serve_gunicorn(
+    application: "Router",
+    host: str,
+    port: int,
+    unix_domain_socket_filename: str,
+    num_workers: int,
+    ssl_certificate: Optional[str],
+    ssl_private_key: Optional[str],
+    reload: bool = False,
+    timeout_s: int = 30,
+    debug_show_gunicorn_options: bool = False,
+) -> None:
     """
     Start Gunicorn server
 
@@ -424,16 +462,20 @@ def serve_gunicorn(application: "Router",
       "shan't, because I use global state".
     """  # noqa: E501
     if BaseApplication is None:
-        raise_runtime_error("Gunicorn does not run under Windows. "
-                            "(It relies on the UNIX fork() facility.)")
+        raise_runtime_error(
+            "Gunicorn does not run under Windows. "
+            "(It relies on the UNIX fork() facility.)"
+        )
 
     ensure_ok_for_webserver()
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
         # If this is specified, it takes priority
-        log.info("Starting Gunicorn server via UNIX domain socket at: {}",
-                 unix_domain_socket_filename)
+        log.info(
+            "Starting Gunicorn server via UNIX domain socket at: {}",
+            unix_domain_socket_filename,
+        )
         bind = "unix:" + unix_domain_socket_filename
     else:
         log.info("Starting Gunicorn server on host {}, port {}", host, port)
@@ -446,15 +488,17 @@ def serve_gunicorn(application: "Router",
     # http://docs.gunicorn.org/en/stable/custom.html
 
     class StandaloneApplication(BaseApplication):
-        def __init__(self,
-                     app_: "Router",
-                     options: Dict[str, Any] = None,
-                     debug_show_known_settings: bool = False) -> None:
+        def __init__(
+            self,
+            app_: "Router",
+            options: Dict[str, Any] = None,
+            debug_show_known_settings: bool = False,
+        ) -> None:
             self.options = options or {}  # type: Dict[str, Any]
             self.application = app_
             super().__init__()
             if debug_show_known_settings:
-                # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))
+                # log.info("Gunicorn settings:\n{}", pformat(self.cfg.settings))  # noqa: E501
                 # ... which basically tells us to look in gunicorn/config.py
                 # at every class that inherits from Setting.
                 # Each has helpful documentation, as follows:
@@ -474,16 +518,18 @@ def serve_gunicorn(application: "Router",
             return self.application
 
     opts = {
-        'bind': bind,
-        'certfile': ssl_certificate,
-        'keyfile': ssl_private_key,
-        'reload': reload,
-        'timeout': timeout_s,
-        'workers': num_workers,
+        "bind": bind,
+        "certfile": ssl_certificate,
+        "keyfile": ssl_private_key,
+        "reload": reload,
+        "timeout": timeout_s,
+        "workers": num_workers,
     }
     app = StandaloneApplication(
-        application, opts,
-        debug_show_known_settings=debug_show_gunicorn_options)
+        application,
+        opts,
+        debug_show_known_settings=debug_show_gunicorn_options,
+    )
     app.run()
 
 
@@ -491,11 +537,14 @@ def serve_gunicorn(application: "Router",
 # Helper functions for command-line functions
 # =============================================================================
 
-def get_username_from_cli(req: CamcopsRequest,
-                          prompt: str,
-                          starting_username: str = "",
-                          must_exist: bool = False,
-                          must_not_exist: bool = False) -> str:
+
+def get_username_from_cli(
+    req: CamcopsRequest,
+    prompt: str,
+    starting_username: str = "",
+    must_exist: bool = False,
+    must_not_exist: bool = False,
+) -> str:
     """
     Asks the user (via stdout/stdin) for a username.
 
@@ -545,7 +594,8 @@ def get_new_password_from_cli(username: str) -> str:
             log.error(str(e))
             continue
         password2 = ask_user_password(
-            f"New password for user {username} (again)")
+            f"New password for user {username} (again)"
+        )
         if password1 != password2:
             log.error("... passwords don't match; try again")
             continue
@@ -556,12 +606,15 @@ def get_new_password_from_cli(username: str) -> str:
 # Export command-line functions
 # =============================================================================
 
-def cmd_show_export_queue(recipient_names: List[str] = None,
-                          all_recipients: bool = False,
-                          via_index: bool = True,
-                          pretty: bool = False,
-                          debug_show_fhir: bool = False,
-                          debug_fhir_include_docs: bool = False) -> None:
+
+def cmd_show_export_queue(
+    recipient_names: List[str] = None,
+    all_recipients: bool = False,
+    via_index: bool = True,
+    pretty: bool = False,
+    debug_show_fhir: bool = False,
+    debug_fhir_include_docs: bool = False,
+) -> None:
     """
     Shows tasks that would be exported.
 
@@ -581,19 +634,23 @@ def cmd_show_export_queue(recipient_names: List[str] = None,
             (If debug_show_fhir.) Include document content? Large!
     """
     with command_line_request_context() as req:
-        print_export_queue(req,
-                           recipient_names=recipient_names,
-                           all_recipients=all_recipients,
-                           via_index=via_index,
-                           pretty=pretty,
-                           debug_show_fhir=debug_show_fhir,
-                           debug_fhir_include_docs=debug_fhir_include_docs)
+        print_export_queue(
+            req,
+            recipient_names=recipient_names,
+            all_recipients=all_recipients,
+            via_index=via_index,
+            pretty=pretty,
+            debug_show_fhir=debug_show_fhir,
+            debug_fhir_include_docs=debug_fhir_include_docs,
+        )
 
 
-def cmd_export(recipient_names: List[str] = None,
-               all_recipients: bool = False,
-               via_index: bool = True,
-               schedule_via_backend: bool = False) -> None:
+def cmd_export(
+    recipient_names: List[str] = None,
+    all_recipients: bool = False,
+    via_index: bool = True,
+    schedule_via_backend: bool = False,
+) -> None:
     """
     Send all outbound incremental export messages (e.g. HL7).
 
@@ -608,15 +665,18 @@ def cmd_export(recipient_names: List[str] = None,
             Schedule the export via the backend, rather than performing it now.
     """
     with command_line_request_context() as req:
-        export(req,
-               recipient_names=recipient_names,
-               all_recipients=all_recipients,
-               via_index=via_index,
-               schedule_via_backend=schedule_via_backend)
+        export(
+            req,
+            recipient_names=recipient_names,
+            all_recipients=all_recipients,
+            via_index=via_index,
+            schedule_via_backend=schedule_via_backend,
+        )
 
 
-def make_data_dictionary(filename: str, recipient_name: str,
-                         cris: bool = False) -> None:
+def make_data_dictionary(
+    filename: str, recipient_name: str, cris: bool = False
+) -> None:
     """
     Writes a data dictionary for the CRATE anonymisation tool.
     See :func:`camcops_server.cc_export.write_crate_data_dictionary`.
@@ -631,23 +691,28 @@ def make_data_dictionary(filename: str, recipient_name: str,
         recipients = req.get_export_recipients(
             recipient_names=[recipient_name],
             save=False,
-            database_versions=False
+            database_versions=False,
         )
         recipient = recipients[0]  # type: ExportRecipientInfo
-        log.info(f"Generating {target} data dictionary for export recipient "
-                 f"{recipient_name!r}; writing to {filename!r}")
+        log.info(
+            f"Generating {target} data dictionary for export recipient "
+            f"{recipient_name!r}; writing to {filename!r}"
+        )
         with open(filename, "wt") as file:
             if cris:
-                write_cris_data_dictionary(req=req, file=file,
-                                           recipient=recipient)
+                write_cris_data_dictionary(
+                    req=req, file=file, recipient=recipient
+                )
             else:
-                write_crate_data_dictionary(req=req, file=file,
-                                            recipient=recipient)
+                write_crate_data_dictionary(
+                    req=req, file=file, recipient=recipient
+                )
 
 
 # =============================================================================
 # User management command-line functions
 # =============================================================================
+
 
 def make_superuser(username: str = None) -> bool:
     """
@@ -704,9 +769,7 @@ def enable_user_cli(username: str = None) -> bool:
     with command_line_request_context() as req:
         if username is None:
             username = get_username_from_cli(
-                req=req,
-                prompt="Username to unlock",
-                must_exist=True,
+                req=req, prompt="Username to unlock", must_exist=True
             )
         else:
             if not User.user_exists(req, username):
@@ -721,6 +784,7 @@ def enable_user_cli(username: str = None) -> bool:
 # Other command-line functions
 # =============================================================================
 
+
 def print_database_title() -> None:
     """
     Prints the database title (for the current config) to stdout.
@@ -729,12 +793,14 @@ def print_database_title() -> None:
         print(req.database_title)
 
 
-def show_database_schema(schemastem: str,
-                         make_image: bool = False,
-                         java: str = None,
-                         plantuml: str = None,
-                         height_width_limit: int = 20000,
-                         java_memory_limit_mb: int = 2048) -> None:
+def show_database_schema(
+    schemastem: str,
+    make_image: bool = False,
+    java: str = None,
+    plantuml: str = None,
+    height_width_limit: int = 20000,
+    java_memory_limit_mb: int = 2048,
+) -> None:
     """
     Prints the database schema to a PNG picture.
 
@@ -757,28 +823,30 @@ def show_database_schema(schemastem: str,
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     import sadisplay  # delayed import
     import camcops_server.cc_modules.cc_all_models as models  # delayed import
+
     # ... a re-import to give it a name
     uml_filename = f"{schemastem}.plantuml"
     png_filename = f"{schemastem}.png"
     log.info(f"Making schema PlantUML: {uml_filename}")
-    desc = sadisplay.describe([
-        getattr(models, attr) for attr in dir(models)
-    ])
+    desc = sadisplay.describe([getattr(models, attr) for attr in dir(models)])
     # log.debug(desc)
-    with open(uml_filename, 'w') as f:
+    with open(uml_filename, "w") as f:
         f.write(sadisplay.plantuml(desc))
     if make_image:
         import shutil  # delayed import
+
         assert shutil.which(java), f"Can't find Java executable: {java}"
         assert os.path.isfile(
-            plantuml), f"Can't find PlantUML JAR file: {plantuml}"  # noqa
+            plantuml
+        ), f"Can't find PlantUML JAR file: {plantuml}"  # noqa
         log.info(f"Making schema PNG: {png_filename}")
         cmd = [
             java,
             f"-Xmx{java_memory_limit_mb}m",
             f"-DPLANTUML_LIMIT_SIZE={height_width_limit}",
-            '-jar', plantuml,
-            uml_filename
+            "-jar",
+            plantuml,
+            uml_filename,
         ]
         log.info("Arguments: {}", cmd)
         subprocess.check_call(cmd)
@@ -818,13 +886,15 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
     return ok
 
 
-def add_dummy_data(cfg: CamcopsConfig,
-                   confirm_add_dummy_data: bool = False) -> None:
+def add_dummy_data(
+    cfg: CamcopsConfig, confirm_add_dummy_data: bool = False
+) -> None:
     if not confirm_add_dummy_data:
         log.critical("Destructive action not confirmed! Refusing.")
         return
 
     from camcops_server.cc_modules.cc_dummy_database import DummyDataFactory
+
     factory = DummyDataFactory(cfg)
     factory.add_data()
     reindex(cfg)
@@ -834,9 +904,10 @@ def add_dummy_data(cfg: CamcopsConfig,
 # Celery
 # =============================================================================
 
+
 def launch_celery_workers(
-        verbose: bool = False,
-        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
+    verbose: bool = False, cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S
+) -> None:
     """
     Launch Celery workers.
 
@@ -851,28 +922,29 @@ def launch_celery_workers(
     config = get_default_config_from_os_env()
     cmdargs = [
         CELERY,
-        "--app", CELERY_APP_NAME,
+        "--app",
+        CELERY_APP_NAME,
         "worker",
-        "-O", "fair",  # optimization
-        "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
-        "--loglevel", "DEBUG" if verbose else "INFO",
+        "-O",
+        "fair",  # optimization
+        "--soft-time-limit",
+        str(CELERY_SOFT_TIME_LIMIT_SEC),
+        "--loglevel",
+        "DEBUG" if verbose else "INFO",
     ]
     if WINDOWS:
         # See crate_anon/tools/launch_celery.py, and
         # camcops_server/cc_modules/cc_export.py
         os.environ["FORKED_BY_MULTIPROCESSING"] = "1"
-        cmdargs.extend([
-            "--concurrency", "1",
-            "--pool", "solo",
-        ])
+        cmdargs.extend(["--concurrency", "1", "--pool", "solo"])
     cmdargs += config.celery_worker_extra_args
     log.info("Launching: {!r}", cmdargs)
     nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
 def launch_celery_beat(
-        verbose: bool = False,
-        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
+    verbose: bool = False, cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S
+) -> None:
     """
     Launch the Celery Beat scheduler.
 
@@ -883,11 +955,15 @@ def launch_celery_beat(
     config = get_default_config_from_os_env()
     cmdargs = [
         CELERY,
-        "--app", CELERY_APP_NAME,
+        "--app",
+        CELERY_APP_NAME,
         "beat",
-        "--schedule", config.celery_beat_schedule_database,
-        "--pidfile", config.get_celery_beat_pidfilename(),
-        "--loglevel", "DEBUG" if verbose else "INFO",
+        "--schedule",
+        config.celery_beat_schedule_database,
+        "--pidfile",
+        config.get_celery_beat_pidfilename(),
+        "--loglevel",
+        "DEBUG" if verbose else "INFO",
     ]
     cmdargs += config.celery_beat_extra_args
     log.info("Launching: {!r}", cmdargs)
@@ -895,15 +971,17 @@ def launch_celery_beat(
 
 
 def launch_celery_flower(
-        address: str = DEFAULT_FLOWER_ADDRESS,
-        port: int = DEFAULT_FLOWER_PORT,
-        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
+    address: str = DEFAULT_FLOWER_ADDRESS,
+    port: int = DEFAULT_FLOWER_PORT,
+    cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S,
+) -> None:
     """
     Launch the Celery Flower monitor.
     """
     cmdargs = [
         CELERY,
-        "--app", CELERY_APP_NAME,
+        "--app",
+        CELERY_APP_NAME,
         "flower",
         f"--address {address}",
         f"--port {port}",
@@ -922,13 +1000,16 @@ def dev_cli() -> None:
     with command_line_request_context() as req:
         # noinspection PyUnusedLocal
         dbsession = req.dbsession  # noqa: F841
-        log.error("""Entering developer command-line.
+        log.error(
+            """Entering developer command-line.
     - Config is available in 'config'.
     - Database engine is available in 'engine'.
     - Dummy request is available in 'req'.
     - Database session is available in 'dbsession'.
-        """)
+        """
+        )
         import pdb
+
         pdb.set_trace()
         # There must be a line below this, or the context is not available;
         # maybe a pdb bug; see

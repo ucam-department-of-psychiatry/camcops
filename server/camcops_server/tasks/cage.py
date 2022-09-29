@@ -36,12 +36,7 @@ from sqlalchemy.sql.sqltypes import Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from camcops_server.cc_modules.cc_html import (
-    answer,
-    get_yes_no,
-    tr,
-    tr_qa,
-)
+from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import CharColType
@@ -55,26 +50,33 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # CAGE
 # =============================================================================
 
+
 class CageMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Cage'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Cage"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, CharColType,
-            pv=['Y', 'N'],
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            CharColType,
+            pv=["Y", "N"],
             comment_fmt="Q{n}, {s} (Y, N)",
-            comment_strings=["C", "A", "G", "E"]
+            comment_strings=["C", "A", "G", "E"],
         )
         super().__init__(name, bases, classdict)
 
 
-class Cage(TaskHasPatientMixin, Task,
-           metaclass=CageMetaclass):
+class Cage(TaskHasPatientMixin, Task, metaclass=CageMetaclass):
     """
     Server implementation of the CAGE task.
     """
+
     __tablename__ = "cage"
     shortname = "CAGE"
     provides_trackers = True
@@ -88,34 +90,40 @@ class Cage(TaskHasPatientMixin, Task,
         return _("CAGE Questionnaire")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="CAGE total score",
-            axis_label=f"Total score (out of {self.NQUESTIONS})",
-            axis_min=-0.5,
-            axis_max=self.NQUESTIONS + 0.5,
-            horizontal_lines=[1.5]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="CAGE total score",
+                axis_label=f"Total score (out of {self.NQUESTIONS})",
+                axis_min=-0.5,
+                axis_max=self.NQUESTIONS + 0.5,
+                horizontal_lines=[1.5],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"CAGE score {self.total_score()}/{self.NQUESTIONS}"
-        )]
+        return [
+            CtvInfo(
+                content=f"CAGE score {self.total_score()}/{self.NQUESTIONS}"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.NQUESTIONS})"),
+                comment=f"Total score (/{self.NQUESTIONS})",
+            )
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(Cage.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(Cage.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_value(self, q: int) -> int:
@@ -132,15 +140,17 @@ class Cage(TaskHasPatientMixin, Task,
         exceeds_cutoff = score >= 2
         q_a = ""
         for q in range(1, Cage.NQUESTIONS + 1):
-            q_a += tr_qa(str(q) + " — " + self.wxstring(req, "q" + str(q)),
-                         getattr(self, "q" + str(q)))  # answer is itself Y/N/NULL  # noqa
+            q_a += tr_qa(
+                str(q) + " — " + self.wxstring(req, "q" + str(q)),
+                getattr(self, "q" + str(q)),
+            )  # answer is itself Y/N/NULL  # noqa
         total_score = tr(
             req.sstring(SS.TOTAL_SCORE),
-            answer(score) + f" / {self.NQUESTIONS}"
+            answer(score) + f" / {self.NQUESTIONS}",
         )
         over_threshold = tr_qa(
             self.wxstring(req, "over_threshold"),
-            get_yes_no(req, exceeds_cutoff)
+            get_yes_no(req, exceeds_cutoff),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -160,12 +170,16 @@ class Cage(TaskHasPatientMixin, Task,
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.CAGE_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.CAGE_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.CAGE_SCALE),
-                {
-                    req.snomed(SnomedLookup.CAGE_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.CAGE_SCALE),
+                    {req.snomed(SnomedLookup.CAGE_SCORE): self.total_score()},
+                )
+            )
         return codes

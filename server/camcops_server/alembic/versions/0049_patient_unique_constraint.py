@@ -44,8 +44,8 @@ Creation date: 2020-04-28 11:48:52.826510
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0049'
-down_revision = '0048'
+revision = "0049"
+down_revision = "0048"
 branch_labels = None
 depends_on = None
 

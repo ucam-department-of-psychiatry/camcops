@@ -26,4 +26,4 @@ server/camcops_server/templates/menu/set_user_upload_group.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/menu/set_user_upload_group.mako
-    :language: none
+    :language: html+mako

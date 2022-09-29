@@ -47,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0069'
-down_revision = '0068'
+revision = "0069"
+down_revision = "0068"
 branch_labels = None
 depends_on = None
 
@@ -59,20 +59,26 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('_security_user_group', schema=None) as batch_op:
+    with op.batch_alter_table("_security_user_group", schema=None) as batch_op:
         batch_op.add_column(
-            sa.Column('may_manage_patients', sa.Boolean(),
-                      nullable=True,
-                      comment='May the user add/edit/delete patients?')
+            sa.Column(
+                "may_manage_patients",
+                sa.Boolean(),
+                nullable=True,
+                comment="May the user add/edit/delete patients?",
+            )
         )
         batch_op.add_column(
-            sa.Column('may_email_patients', sa.Boolean(),
-                      nullable=True,
-                      comment='May the user send emails to patients?')
+            sa.Column(
+                "may_email_patients",
+                sa.Boolean(),
+                nullable=True,
+                comment="May the user send emails to patients?",
+            )
         )
 
 
 def downgrade():
-    with op.batch_alter_table('_security_user_group', schema=None) as batch_op:
-        batch_op.drop_column('may_manage_patients')
-        batch_op.drop_column('may_email_patients')
+    with op.batch_alter_table("_security_user_group", schema=None) as batch_op:
+        batch_op.drop_column("may_manage_patients")
+        batch_op.drop_column("may_email_patients")

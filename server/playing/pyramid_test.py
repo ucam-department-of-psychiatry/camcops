@@ -194,10 +194,10 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 CONFIG_FILE_ENVVAR = "CAMCOPS_TEST_ENV_VAR_CONFIGFILE"
 
-TASKNAME_1 = 'camcops'
-TASKNAME_2 = 'phq9'
-STRINGNAME_1 = 'string1'
-STRINGNAME_2 = 'string2'
+TASKNAME_1 = "camcops"
+TASKNAME_2 = "phq9"
+STRINGNAME_1 = "string1"
+STRINGNAME_2 = "string2"
 
 
 # =============================================================================
@@ -209,7 +209,9 @@ static_cache_region = make_region()
 
 Base = declarative_base()
 
-IPAddressColType = String(length=45)  # http://stackoverflow.com/questions/166132  # noqa
+IPAddressColType = String(
+    length=45
+)  # http://stackoverflow.com/questions/166132  # noqa
 SessionTokenColType = String(length=50)
 
 
@@ -234,26 +236,27 @@ class UrlParamType(enum.Enum):
 
 
 class UrlParam(object):
-    def __init__(self, name: str,
-                 paramtype: UrlParamType == UrlParamType.PLAIN_STRING) -> None:
+    def __init__(
+        self, name: str, paramtype: UrlParamType == UrlParamType.PLAIN_STRING
+    ) -> None:
         self.name = name
         self.paramtype = paramtype
         assert valid_replacement_marker(name)
 
     def regex(self) -> str:
         if self.paramtype == UrlParamType.STRING:
-            return ''
+            return ""
         elif self.paramtype == UrlParamType.POSITIVE_INTEGER:
-            return r'\d+'  # digits
+            return r"\d+"  # digits
         elif self.paramtype == UrlParamType.PLAIN_STRING:
-            return r'[a-zA-Z0-9_]+'
+            return r"[a-zA-Z0-9_]+"
 
     def markerdef(self) -> str:
         marker = self.name
         r = self.regex()
         if r:
-            marker += ':' + r
-        return '{' + marker + '}'
+            marker += ":" + r
+        return "{" + marker + "}"
 
 
 def make_url_path(base: str, *args: UrlParam) -> str:
@@ -272,24 +275,26 @@ class ViewParams(object):
     """
     Used as parameter placeholders in URLs, and fetched from the matchdict.
     """
-    PK = 'pk'
-    PATIENT_ID = 'pid'
-    QUERY = '_query'  # built in to Pyramid
+
+    PK = "pk"
+    PATIENT_ID = "pid"
+    QUERY = "_query"  # built in to Pyramid
 
 
 class QueryParams(object):
     """
     Parameters for the request.GET dictionary, and in URL as '...?key=value'
     """
-    SORT = 'sort'
+
+    SORT = "sort"
 
 
-COOKIE_NAME = 'camcops'
+COOKIE_NAME = "camcops"
 
 
 class CookieKeys:
-    SESSION_ID = 'session_id'
-    SESSION_TOKEN = 'session_token'
+    SESSION_ID = "session_id"
+    SESSION_TOKEN = "session_token"
 
 
 class RoutePath(object):
@@ -298,43 +303,52 @@ class RoutePath(object):
     - Pyramid URL paths are URL fragments, like '/thing', and can contain
       placeholders, like '/thing/{bork_id}', which will result in the
       request.matchdict object containing a 'bork_id' key. Those can be
-      further constrained by regular expressions, like '/thing/{bork_id:\d+}'
-      to restrict to digits.
+      further constrained by regular expressions, like
+      '/thing/{bork_id:\\d+}' to restrict to digits.
     """
+
     def __init__(self, route: str, path: str) -> None:
         self.route = route
         self.path = path
 
 
 class Routes(object):
-    DEBUG_TOOLBAR = RoutePath('debug_toolbar', '/_debug_toolbar/')  # hard-coded path  # noqa
-    HOME = RoutePath('home', '/')
-    OTHER = RoutePath('other', '/other')
+    DEBUG_TOOLBAR = RoutePath(
+        "debug_toolbar", "/_debug_toolbar/"
+    )  # hard-coded path  # noqa
+    HOME = RoutePath("home", "/")
+    OTHER = RoutePath("other", "/other")
     VIEW_WITH_PARAMS = RoutePath(
-        'vwp',
+        "vwp",
         make_url_path(
-            'vwp',
+            "vwp",
             UrlParam(ViewParams.PATIENT_ID, UrlParamType.POSITIVE_INTEGER),
-            UrlParam(ViewParams.PK, UrlParamType.POSITIVE_INTEGER)
-        )
+            UrlParam(ViewParams.PK, UrlParamType.POSITIVE_INTEGER),
+        ),
     )
 
     @classmethod
     def all_routes(cls) -> List[RoutePath]:
-        return [v for k, v in cls.__dict__.items()
-                if not (k.startswith('_') or
-                        k == 'all_routes' or
-                        k == 'DEBUG_TOOLBAR')]
+        return [
+            v
+            for k, v in cls.__dict__.items()
+            if not (
+                k.startswith("_") or k == "all_routes" or k == "DEBUG_TOOLBAR"
+            )
+        ]
 
 
 # =============================================================================
 # Config and its caching
 # =============================================================================
 
+
 class DummyConfig(object):
     def __init__(self, filename: str) -> None:
-        log.info("Pretending to load config from {}. Expensive; "
-                 "SHOULD ONLY BE CALLED ONCE.".format(repr(filename)))
+        log.info(
+            "Pretending to load config from {}. Expensive; "
+            "SHOULD ONLY BE CALLED ONCE.".format(repr(filename))
+        )
         self.filename = filename
         self.xstring_filename = "some_extra_strings.xml"
         self.something = 42
@@ -343,7 +357,7 @@ class DummyConfig(object):
         self.secure_cookies = False  # DANGER! Change for any production
         self.session_expiry_duration = datetime.timedelta(minutes=10)
         self.echo_sql = True
-        self.session_cookie_secret = 'xyz'
+        self.session_cookie_secret = "xyz"
 
     def __repr__(self) -> str:
         return auto_repr(self)
@@ -364,12 +378,15 @@ def get_config():  # -> DummyConfig:  # https://bitbucket.org/zzzeek/dogpile.cac
 # Strings and their caching
 # =============================================================================
 
+
 @static_cache_region.cache_on_arguments()
 def get_extra_strings():  # -> Dict[Tuple[str, str], str]:  # https://bitbucket.org/zzzeek/dogpile.cache/issues/96/error-in-python-35-with-use-of-deprecated  # noqa
     cfg = get_config()  # type: DummyConfig
-    log.info("Expensive string-loading function; SHOULD ONLY BE CALLED ONCE; "
-             "pretending to read file {}.".format(cfg.xstring_filename))
-    xstringdict = {}  # type: Dict[Tuple[str, str] -> str]
+    log.info(
+        "Expensive string-loading function; SHOULD ONLY BE CALLED ONCE; "
+        "pretending to read file {}.".format(cfg.xstring_filename)
+    )
+    xstringdict = {}  # type: Dict[Tuple[str, str], str]
     for task in (TASKNAME_1, TASKNAME_2):
         for stringname in (STRINGNAME_1, STRINGNAME_2):
             task_string_pair = (task, stringname)
@@ -387,23 +404,33 @@ def xstring(task: str, stringname: str, default: str = None) -> str:
 # Supposedly interesting things that tax config/strings
 # =============================================================================
 
+
 def do_something() -> None:
     cfg = get_config()  # type: DummyConfig
     log.info("Config filename: {!r}", cfg.filename)
-    log.info("Extra string {}.{}: {}",
-             TASKNAME_1, STRINGNAME_1, xstring(TASKNAME_1, STRINGNAME_1))
+    log.info(
+        "Extra string {}.{}: {}",
+        TASKNAME_1,
+        STRINGNAME_1,
+        xstring(TASKNAME_1, STRINGNAME_1),
+    )
 
 
 def do_something_else() -> None:
     cfg = get_config()  # type: DummyConfig
     log.info("Config something: {!r}", cfg.something)
-    log.info("Extra string {}.{}: {}",
-             TASKNAME_2, STRINGNAME_2, xstring(TASKNAME_2, STRINGNAME_2))
+    log.info(
+        "Extra string {}.{}: {}",
+        TASKNAME_2,
+        STRINGNAME_2,
+        xstring(TASKNAME_2, STRINGNAME_2),
+    )
 
 
 # =============================================================================
 # HTTP views
 # =============================================================================
+
 
 def html_a(url: str, text: str) -> str:
     return "<a href='{}'>{}</a>".format(url, text)
@@ -423,23 +450,30 @@ def home_view(request: Request) -> Response:
             xstring=xstring(task, stringname, default="??"),
         ),
         "View {}?".format(
-            html_a(request.route_url(Routes.OTHER.route), "other"),
+            html_a(request.route_url(Routes.OTHER.route), "other")
         ),
     ]
     if cfg.use_debug_toolbar:
-        lines.append("View {}?".format(
-            html_a(request.route_path(Routes.DEBUG_TOOLBAR.route),
-                   "debug toolbar"),
-        ))
+        lines.append(
+            "View {}?".format(
+                html_a(
+                    request.route_path(Routes.DEBUG_TOOLBAR.route),
+                    "debug toolbar",
+                )
+            )
+        )
     for pk in range(5):
         for pid in range(5):
-            kwargs = {ViewParams.PK: pk,
-                      ViewParams.PATIENT_ID: pid}
+            kwargs = {ViewParams.PK: pk, ViewParams.PATIENT_ID: pid}
             if pid > 3:
-                kwargs[ViewParams.QUERY] = {QueryParams.SORT: 'asc'}
-            lines.append("View with parameters, " + html_a(
-                request.route_url(Routes.VIEW_WITH_PARAMS.route, **kwargs),
-                "vwp_{}_{}".format(pk, pid)))
+                kwargs[ViewParams.QUERY] = {QueryParams.SORT: "asc"}
+            lines.append(
+                "View with parameters, "
+                + html_a(
+                    request.route_url(Routes.VIEW_WITH_PARAMS.route, **kwargs),
+                    "vwp_{}_{}".format(pk, pid),
+                )
+            )
     return Response("<br>".join(lines))
 
 
@@ -448,14 +482,16 @@ def other_view(request: Request) -> Response:
     dbsession = request.dbsession
     lines = [
         "All well. Go <a href='{url_home}'>home</a>?".format(
-            url_home=request.route_url(Routes.HOME.route),
+            url_home=request.route_url(Routes.HOME.route)
         ),
         "request.session (Pyramid): {}".format(repr(request.session)),
         "request.camcops_session: {}".format(repr(request.camcops_session)),
         "request.camcops_session.id: {}".format(
-            repr(request.camcops_session.id)),
+            repr(request.camcops_session.id)
+        ),
         "request.camcops_session.token: {}".format(
-            repr(request.camcops_session.token)),
+            repr(request.camcops_session.token)
+        ),
     ]
     sql = "DESCRIBE information_schema.columns"
     result = dbsession.execute(sql)
@@ -471,13 +507,17 @@ def view_with_params(request: Request) -> Response:
     pk = int(request.matchdict[ViewParams.PK])
     patient_id = int(request.matchdict[ViewParams.PATIENT_ID])
     get = request.GET
-    return Response("View for pk={}, patient_id={}, request.GET={}".format(
-        pk, patient_id, repr(get)))
+    return Response(
+        "View for pk={}, patient_id={}, request.GET={}".format(
+            pk, patient_id, repr(get)
+        )
+    )
 
 
 # =============================================================================
 # Database stuff
 # =============================================================================
+
 
 def dbsession_request_method(request: Request) -> SqlASession:
     """
@@ -517,12 +557,13 @@ def now_arrow_request_method(request: Request) -> arrow.Arrow:
 
 def now_utc_request_method(request: Request) -> datetime.datetime:
     a = request.now_arrow  # type: arrow.Arrow
-    return a.to('utc').datetime
+    return a.to("utc").datetime
 
 
 # =============================================================================
 # HTTP sessions via a tween
 # =============================================================================
+
 
 def generate_token(num_bytes: int = 16) -> str:
     """
@@ -535,32 +576,34 @@ def generate_token(num_bytes: int = 16) -> str:
 class CamcopsHttpSession(Base):
     __tablename__ = "_pretend_security_webviewer_sessions"
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True, index=True,
-        doc="Session ID (internal number for insertion speed)")
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        doc="Session ID (internal number for insertion speed)",
+    )
     token = Column(
-        "token", SessionTokenColType,
+        "token",
+        SessionTokenColType,
         # ... not unique, for speed (slows down updates markedly)
-        doc="Token (base 64 encoded random number)")
+        doc="Token (base 64 encoded random number)",
+    )
     ip_address = Column(
-        "ip_address", IPAddressColType,
-        doc="IP address of user")
-    user_id = Column(
-        "user_id", Integer,
-        doc="User ID")
+        "ip_address", IPAddressColType, doc="IP address of user"
+    )
+    user_id = Column("user_id", Integer, doc="User ID")
     last_activity_utc = Column(
-        "last_activity_utc", DateTime,
-        doc="Date/time of last activity (UTC)")
+        "last_activity_utc", DateTime, doc="Date/time of last activity (UTC)"
+    )
 
-    def __init__(self,
-                 ip_addr: str,
-                 last_activity_utc: datetime.datetime):
+    def __init__(self, ip_addr: str, last_activity_utc: datetime.datetime):
         self.token = generate_token()
         self.ip_address = ip_addr
         self.last_activity_utc = last_activity_utc
 
     @classmethod
-    def get_http_session(cls, request: Request) -> 'CamcopsHttpSession':
+    def get_http_session(cls, request: Request) -> "CamcopsHttpSession":
         dbsession = request.dbsession
         pyramid_session = request.session  # type: ISession
         try:
@@ -569,18 +612,20 @@ class CamcopsHttpSession(Base):
         except (TypeError, ValueError):
             session_id = None
         # noinspection PyArgumentList
-        session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, '')
+        session_token = pyramid_session.get(CookieKeys.SESSION_TOKEN, "")
         ip_addr = request.remote_addr
         now = request.now_utc  # type: datetime.datetime
         if session_id and session_token:
             cfg = get_config()  # type: DummyConfig
             oldest_last_activity_allowed = now - cfg.session_expiry_duration
-            candidate = dbsession.query(cls).\
-                filter(cls.id == session_id).\
-                filter(cls.token == session_token).\
-                filter(cls.ip_address == ip_addr).\
-                filter(cls.last_activity_utc >= oldest_last_activity_allowed).\
-                first()  # type: CamcopsHttpSession
+            candidate = (
+                dbsession.query(cls)
+                .filter(cls.id == session_id)
+                .filter(cls.token == session_token)
+                .filter(cls.ip_address == ip_addr)
+                .filter(cls.last_activity_utc >= oldest_last_activity_allowed)
+                .first()
+            )  # type: CamcopsHttpSession
             if candidate is None:
                 log.debug("Session not found in database")
         else:
@@ -604,9 +649,9 @@ class CamcopsHttpSession(Base):
 
 # noinspection PyUnusedLocal
 def http_session_tween_factory(
-        handler: Callable[[Request], Response],
-        registry: Registry) -> Callable[[Request], Response]:
-    cfg = get_config()  # type: DummyConfig
+    handler: Callable[[Request], Response], registry: Registry
+) -> Callable[[Request], Response]:
+    get_config()  # type: DummyConfig
 
     def http_session_tween(request: Request) -> Response:
         log.debug("Starting http_session_tween")
@@ -622,11 +667,11 @@ def get_session_factory() -> SignedCookieSessionFactory:
     cfg = get_config()  # type: DummyConfig
     return SignedCookieSessionFactory(
         secret=cfg.session_cookie_secret,
-        hashalg='sha512',  # the default
-        salt='camcops_pyramid_session.',
+        hashalg="sha512",  # the default
+        salt="camcops_pyramid_session.",
         cookie_name=COOKIE_NAME,
         max_age=None,  # browser scope; session cookie
-        path='/',  # the default
+        path="/",  # the default
         domain=None,  # the default
         secure=cfg.secure_cookies,
         httponly=cfg.secure_cookies,
@@ -643,6 +688,7 @@ def get_session_factory() -> SignedCookieSessionFactory:
 # WSGI server
 # =============================================================================
 
+
 def make_wsgi_app() -> Router:
     # -------------------------------------------------------------------------
     # 1. Base app
@@ -655,7 +701,8 @@ def make_wsgi_app() -> Router:
         engine = cfg.create_engine()
         config.registry.dbmaker = sessionmaker(bind=engine)
         config.add_request_method(
-            callable=dbsession_request_method, name='dbsession', reify=True)
+            callable=dbsession_request_method, name="dbsession", reify=True
+        )
         # ... makes request.dbsession available, and caches it (reify) so even
         #     if we ask for the dbsession several times, we get the same thing
         # ... https://docs.pylonsproject.org/projects/pyramid/en/latest/api/request.html#pyramid.request.Request.set_property  # noqa
@@ -664,9 +711,11 @@ def make_wsgi_app() -> Router:
         # Other stuff to be cached, if requested, for the lifetime of the req
         # ---------------------------------------------------------------------
         config.add_request_method(
-            callable=now_arrow_request_method, name='now_arrow', reify=True)
+            callable=now_arrow_request_method, name="now_arrow", reify=True
+        )
         config.add_request_method(
-            callable=now_utc_request_method, name='now_utc', reify=True)
+            callable=now_utc_request_method, name="now_utc", reify=True
+        )
 
         # ---------------------------------------------------------------------
         # Routes and accompanying views
@@ -685,16 +734,17 @@ def make_wsgi_app() -> Router:
         # We will use implicit positioning:
         # - https://www.slideshare.net/aconrad/alex-conrad-pyramid-tweens-ploneconf-2011  # noqa
 
-        config.add_tween('__main__.http_session_tween_factory')
+        config.add_tween("__main__.http_session_tween_factory")
         config.set_session_factory(get_session_factory())
 
         # ---------------------------------------------------------------------
         # Debug toolbar
         # ---------------------------------------------------------------------
         if cfg.use_debug_toolbar:
-            config.include('pyramid_debugtoolbar')
-            config.add_route(Routes.DEBUG_TOOLBAR.route,
-                             Routes.DEBUG_TOOLBAR.path)
+            config.include("pyramid_debugtoolbar")
+            config.add_route(
+                Routes.DEBUG_TOOLBAR.route, Routes.DEBUG_TOOLBAR.path
+            )
 
         # ---------------------------------------------------------------------
         # Make app
@@ -714,7 +764,7 @@ def make_wsgi_app() -> Router:
 
 def serve() -> None:
     app = make_wsgi_app()
-    host = '0.0.0.0'
+    host = "0.0.0.0"
     port = 8000
     server = make_server(host, port, app)
     server.serve_forever()
@@ -723,6 +773,7 @@ def serve() -> None:
 # =============================================================================
 # Command-line work
 # =============================================================================
+
 
 @contextmanager
 def session_context():
@@ -735,7 +786,7 @@ def session_context():
         yield dbsession
         log.debug("Command-line database session: committing")
         dbsession.commit()
-    except Exception as e:
+    except Exception:
         log.warning("Exception:\n" + traceback.format_exc())
         log.warning("Command-line database session: rolling back")
         dbsession.rollback()
@@ -756,6 +807,7 @@ def make_tables() -> None:
 # main
 # =============================================================================
 
+
 def main() -> None:
     # -------------------------------------------------------------------------
     # Set up logging
@@ -766,33 +818,36 @@ def main() -> None:
     # Handle command-line arguments
     # -------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument(
-        '--configfile',
-        default=os.environ.get(CONFIG_FILE_ENVVAR, None),
-        help="Specify the CamCOPS configuration file. If this is not "
-             "specified on the command line, the environment variable {} is "
-             "examined.".format(CONFIG_FILE_ENVVAR))
-    parser.add_argument(
-        '--serve', action='store_true',
-        help="Run a WSGI server"
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        '--maketables', action='store_true',
-        help="Make database tables and stop"
+        "--configfile",
+        default=os.environ.get(CONFIG_FILE_ENVVAR, None),
+        help="Specify the CamCOPS configuration file. If this is not "
+        "specified on the command line, the environment variable {} is "
+        "examined.".format(CONFIG_FILE_ENVVAR),
+    )
+    parser.add_argument(
+        "--serve", action="store_true", help="Run a WSGI server"
+    )
+    parser.add_argument(
+        "--maketables",
+        action="store_true",
+        help="Make database tables and stop",
     )
     cmdargs = parser.parse_args()
 
     assert cmdargs.configfile, (
         "Must specify a configuration file, either via the command line or "
-        "through the {} environment variable".format(CONFIG_FILE_ENVVAR))
+        "through the {} environment variable".format(CONFIG_FILE_ENVVAR)
+    )
     os.environ[CONFIG_FILE_ENVVAR] = cmdargs.configfile
 
     # -------------------------------------------------------------------------
     # Configure cache(s)
     # -------------------------------------------------------------------------
     static_cache_region.configure(
-        backend='dogpile.cache.memory'
+        backend="dogpile.cache.memory"
         # Consider later: memcached via dogpile.cache.pylibmc
     )
 
@@ -803,7 +858,7 @@ def main() -> None:
     cfg = get_config()  # caches config, to improve speed of first request
     # ... but we'll use it, too:
     if cfg.echo_sql:
-        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
     if cmdargs.maketables:
         make_tables()
@@ -817,5 +872,5 @@ def main() -> None:
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

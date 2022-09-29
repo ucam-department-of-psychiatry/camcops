@@ -50,27 +50,28 @@ from camcops_server.cc_modules.cc_user import (
 # Unit testing
 # =============================================================================
 
+
 class UserTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_user(self) -> None:
         self.announce("test_user")
         req = self.req
 
         SecurityAccountLockout.delete_old_account_lockouts(req)
         self.assertIsInstance(
-            SecurityAccountLockout.is_user_locked_out(req, "dummy_user"),
-            bool
+            SecurityAccountLockout.is_user_locked_out(req, "dummy_user"), bool
         )
         self.assertIsInstanceOrNone(
             SecurityAccountLockout.user_locked_out_until(req, "dummy_user"),
-            Pendulum
+            Pendulum,
         )
 
         self.assertIsInstance(
             SecurityLoginFailure.how_many_login_failures(req, "dummy_user"),
-            int
+            int,
         )
         SecurityLoginFailure.clear_login_failures_for_nonexistent_users(req)
         SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
@@ -114,12 +115,16 @@ class UserTests(DemoDatabaseTestCase):
         tests = (
             ("simple@example.com", f"s{a}e@example.com"),
             ("very.common@example.com", f"v{a}n@example.com"),
-            ("disposable.style.email.with+symbol@example.com",
-             f"d{a}l@example.com"),
+            (
+                "disposable.style.email.with+symbol@example.com",
+                f"d{a}l@example.com",
+            ),
             ("other.email-with-hyphen@example.com", f"o{a}n@example.com"),
             ("x@example.com", f"x{a}x@example.com"),
-            ("example-indeed@strange-example.com",
-             f"e{a}d@strange-example.com"),
+            (
+                "example-indeed@strange-example.com",
+                f"e{a}d@strange-example.com",
+            ),
             ("test/test@test.com", f"t{a}t@test.com"),
             ("admin@mailserver1", f"a{a}n@mailserver1"),
             ("example@s.example", f"e{a}e@s.example"),
@@ -128,16 +133,16 @@ class UserTests(DemoDatabaseTestCase):
             ("mailhost!username@example.org", f"m{a}e@example.org"),
             ("user%example.com@example.org", f"u{a}m@example.org"),
             ("user-@example.org", f"u{a}-@example.org"),
-            ('very.unusual.”@”.unusual.com@example.com',
-             f"v{a}m@example.com"),
+            ("very.unusual.”@”.unusual.com@example.com", f"v{a}m@example.com"),
         )
 
         user = self.create_user()
 
         for email, expected_partial in tests:
             user.email = email
-            self.assertEqual(user.partial_email, expected_partial,
-                             msg=f"Failed for {email}")
+            self.assertEqual(
+                user.partial_email, expected_partial, msg=f"Failed for {email}"
+            )
 
     def test_partial_phone_number(self) -> None:
         user = self.create_user()
@@ -166,8 +171,10 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, may_manage_patients=True)
         self.create_membership(user, self.group_a, may_manage_patients=False)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_manage_patients_in)
+        self.assertEqual(
+            [self.group_c, self.group_d],
+            user.groups_user_may_manage_patients_in,
+        )
 
     def test_groups_user_may_email_patients_in(self) -> None:
         user = self.create_user(username="test")
@@ -177,8 +184,10 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, may_email_patients=True)
         self.create_membership(user, self.group_a, may_email_patients=False)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_email_patients_in)
+        self.assertEqual(
+            [self.group_c, self.group_d],
+            user.groups_user_may_email_patients_in,
+        )
 
     def test_ids_of_groups_user_may_report_on(self) -> None:
         user = self.create_user(username="test")
@@ -266,8 +275,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, groupadmin=True)
         self.create_membership(user, self.group_d, groupadmin=True)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_is_admin_for)
+        self.assertEqual(
+            [self.group_c, self.group_d], user.groups_user_is_admin_for
+        )
 
     def test_user_may_administer_group(self) -> None:
         user = self.create_user(username="test")
@@ -299,8 +309,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, may_dump_data=True)
         self.create_membership(user, self.group_a, may_dump_data=False)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_dump)
+        self.assertEqual(
+            [self.group_c, self.group_d], user.groups_user_may_dump
+        )
 
     def test_groups_user_may_report_on(self) -> None:
         user = self.create_user(username="test")
@@ -310,8 +321,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, may_run_reports=True)
         self.create_membership(user, self.group_a, may_run_reports=False)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_report_on)
+        self.assertEqual(
+            [self.group_c, self.group_d], user.groups_user_may_report_on
+        )
 
     def test_groups_user_may_upload_into(self) -> None:
         user = self.create_user(username="test")
@@ -321,8 +333,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, may_upload=True)
         self.create_membership(user, self.group_a, may_upload=False)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_upload_into)
+        self.assertEqual(
+            [self.group_c, self.group_d], user.groups_user_may_upload_into
+        )
 
     def test_groups_user_may_add_special_notes(self) -> None:
         user = self.create_user(username="test")
@@ -332,22 +345,29 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_c, may_add_notes=True)
         self.create_membership(user, self.group_a, may_add_notes=False)
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_add_special_notes)
+        self.assertEqual(
+            [self.group_c, self.group_d],
+            user.groups_user_may_add_special_notes,
+        )
 
     def test_groups_user_may_see_all_pts_when_unfiltered(self) -> None:
         user = self.create_user(username="test")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group_d,
-                               view_all_patients_when_unfiltered=True)
-        self.create_membership(user, self.group_c,
-                               view_all_patients_when_unfiltered=True)
-        self.create_membership(user, self.group_a,
-                               view_all_patients_when_unfiltered=False)
+        self.create_membership(
+            user, self.group_d, view_all_patients_when_unfiltered=True
+        )
+        self.create_membership(
+            user, self.group_c, view_all_patients_when_unfiltered=True
+        )
+        self.create_membership(
+            user, self.group_a, view_all_patients_when_unfiltered=False
+        )
 
-        self.assertEqual([self.group_c, self.group_d],
-                         user.groups_user_may_see_all_pts_when_unfiltered)
+        self.assertEqual(
+            [self.group_c, self.group_d],
+            user.groups_user_may_see_all_pts_when_unfiltered,
+        )
 
     def test_is_a_group_admin(self) -> None:
         user = self.create_user(username="test")
@@ -528,10 +548,12 @@ class UserPermissionTests(BasicDatabaseTestCase):
         user = self.create_user(username="test")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group_a,
-                               view_all_patients_when_unfiltered=True)
-        self.create_membership(user, self.group_c,
-                               view_all_patients_when_unfiltered=True)
+        self.create_membership(
+            user, self.group_a, view_all_patients_when_unfiltered=True
+        )
+        self.create_membership(
+            user, self.group_c, view_all_patients_when_unfiltered=True
+        )
         self.dbsession.commit()
 
         self.assertTrue(user.may_view_all_patients_when_unfiltered)
@@ -540,10 +562,12 @@ class UserPermissionTests(BasicDatabaseTestCase):
         user = self.create_user(username="test")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group_a,
-                               view_all_patients_when_unfiltered=True)
-        self.create_membership(user, self.group_c,
-                               view_all_patients_when_unfiltered=False)
+        self.create_membership(
+            user, self.group_a, view_all_patients_when_unfiltered=True
+        )
+        self.create_membership(
+            user, self.group_c, view_all_patients_when_unfiltered=False
+        )
         self.dbsession.commit()
 
         self.assertFalse(user.may_view_all_patients_when_unfiltered)
@@ -564,10 +588,12 @@ class UserPermissionTests(BasicDatabaseTestCase):
         user = self.create_user(username="test")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group_a,
-                               view_all_patients_when_unfiltered=True)
-        self.create_membership(user, self.group_c,
-                               view_all_patients_when_unfiltered=True)
+        self.create_membership(
+            user, self.group_a, view_all_patients_when_unfiltered=True
+        )
+        self.create_membership(
+            user, self.group_c, view_all_patients_when_unfiltered=True
+        )
         self.dbsession.commit()
 
         self.assertFalse(user.may_view_no_patients_when_unfiltered)
@@ -582,14 +608,17 @@ class UserPermissionTests(BasicDatabaseTestCase):
         user = self.create_user(username="test")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group_a,
-                               view_all_patients_when_unfiltered=False)
-        self.create_membership(user, self.group_c,
-                               view_all_patients_when_unfiltered=True)
-        self.create_membership(user, self.group_d,
-                               view_all_patients_when_unfiltered=True)
+        self.create_membership(
+            user, self.group_a, view_all_patients_when_unfiltered=False
+        )
+        self.create_membership(
+            user, self.group_c, view_all_patients_when_unfiltered=True
+        )
+        self.create_membership(
+            user, self.group_d, view_all_patients_when_unfiltered=True
+        )
 
-        ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()
+        ids = user.group_ids_nonsuperuser_may_see_when_unfiltered()
 
         self.assertIn(self.group_c.id, ids)
         self.assertIn(self.group_d.id, ids)
@@ -621,8 +650,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertTrue(user.may_upload_to_group(self.group_a.id))
 
     def test_may_upload_to_upload_group(self) -> None:
-        user = self.create_user(username="test",
-                                upload_group_id=self.group_a.id)
+        user = self.create_user(
+            username="test", upload_group_id=self.group_a.id
+        )
         self.dbsession.flush()
 
         self.create_membership(user, self.group_a, may_upload=True)
@@ -640,8 +670,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertFalse(user.may_upload)
 
     def test_may_not_upload_with_upload_group_but_no_permission(self) -> None:
-        user = self.create_user(username="test",
-                                upload_group_id=self.group_a.id)
+        user = self.create_user(
+            username="test", upload_group_id=self.group_a.id
+        )
         self.dbsession.flush()
 
         self.create_membership(user, self.group_a, may_upload=False)
@@ -650,8 +681,9 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertFalse(user.may_upload)
 
     def test_may_register_devices_with_upload_group(self) -> None:
-        user = self.create_user(username="test",
-                                upload_group_id=self.group_a.id)
+        user = self.create_user(
+            username="test", upload_group_id=self.group_a.id
+        )
         self.dbsession.flush()
 
         self.create_membership(user, self.group_a, may_register_devices=True)
@@ -666,9 +698,11 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertFalse(user.may_register_devices)
 
     def test_may_not_register_devices_with_upload_group_but_no_permission(
-            self) -> None:
-        user = self.create_user(username="test",
-                                upload_group_id=self.group_a.id)
+        self,
+    ) -> None:
+        user = self.create_user(
+            username="test", upload_group_id=self.group_a.id
+        )
         self.dbsession.flush()
 
         self.create_membership(user, self.group_a, may_register_devices=False)
@@ -677,15 +711,16 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertFalse(user.may_register_devices)
 
     def test_superuser_may_register_devices_with_upload_group(self) -> None:
-        user = self.create_user(username="test",
-                                upload_group_id=self.group_a.id,
-                                superuser=True)
+        user = self.create_user(
+            username="test", upload_group_id=self.group_a.id, superuser=True
+        )
         self.dbsession.flush()
 
         self.assertTrue(user.may_register_devices)
 
     def test_superuser_may_not_register_devices_with_no_upload_group(
-            self) -> None:
+        self,
+    ) -> None:
         user = self.create_user(username="test", superuser=True)
         self.dbsession.flush()
 

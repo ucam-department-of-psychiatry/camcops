@@ -41,10 +41,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     ZERO_TO_THREE_CHECKER,
 )
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 class CpftCovidMedicalMetaclass(DeclarativeMeta):
@@ -56,15 +53,19 @@ class CpftCovidMedicalMetaclass(DeclarativeMeta):
         classdict: Dict[str, Any],
     ) -> None:
         setattr(
-            cls, cls.FN_HOW_AND_WHEN_SYMPTOMS,
+            cls,
+            cls.FN_HOW_AND_WHEN_SYMPTOMS,
             CamcopsColumn(
-                cls.FN_HOW_AND_WHEN_SYMPTOMS, Integer,
+                cls.FN_HOW_AND_WHEN_SYMPTOMS,
+                Integer,
                 permitted_value_checker=ZERO_TO_THREE_CHECKER,
-                comment=("0 Present before C-19, "
-                         "1 Within 6 weeks of catching C-19, "
-                         "2 Between 6 weeks and 6 months of catching C-19, "
-                         "3 Following immunisation for C-19")
-            )
+                comment=(
+                    "0 Present before C-19, "
+                    "1 Within 6 weeks of catching C-19, "
+                    "2 Between 6 weeks and 6 months of catching C-19, "
+                    "3 Following immunisation for C-19"
+                ),
+            ),
         )
 
         super().__init__(name, bases, classdict)
@@ -76,6 +77,7 @@ class CpftCovidMedical(
     """
     Server implementation of the CPFT_Covid_Medical task
     """
+
     __tablename__ = "cpft_covid_medical"
     shortname = "CPFT_Covid_Medical"
     provides_trackers = False
@@ -97,9 +99,12 @@ class CpftCovidMedical(
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = [tr_qa(self.wxstring(req,
-                                    f"q_{self.FN_HOW_AND_WHEN_SYMPTOMS}"),
-                      self.get_how_and_when_symptoms_answer(req))]
+        rows = [
+            tr_qa(
+                self.wxstring(req, f"q_{self.FN_HOW_AND_WHEN_SYMPTOMS}"),
+                self.get_how_and_when_symptoms_answer(req),
+            )
+        ]
 
         html = f"""
             <div class="{CssClass.SUMMARY}">
@@ -118,12 +123,14 @@ class CpftCovidMedical(
 
         return html
 
-    def get_how_and_when_symptoms_answer(self,
-                                         req: CamcopsRequest) -> Optional[str]:
+    def get_how_and_when_symptoms_answer(
+        self, req: CamcopsRequest
+    ) -> Optional[str]:
 
         answer = getattr(self, self.FN_HOW_AND_WHEN_SYMPTOMS)
         if answer is None:
             return None
 
-        return self.xstring(req,
-                            f"{self.FN_HOW_AND_WHEN_SYMPTOMS}_option{answer}")
+        return self.xstring(
+            req, f"{self.FN_HOW_AND_WHEN_SYMPTOMS}_option{answer}"
+        )

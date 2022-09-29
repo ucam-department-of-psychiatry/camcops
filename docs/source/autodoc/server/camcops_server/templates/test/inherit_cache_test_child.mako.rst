@@ -26,4 +26,4 @@ server/camcops_server/templates/test/inherit_cache_test_child.mako
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../../../server/camcops_server/templates/test/inherit_cache_test_child.mako
-    :language: none
+    :language: html+mako

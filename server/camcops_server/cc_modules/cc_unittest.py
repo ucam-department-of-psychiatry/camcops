@@ -54,9 +54,7 @@ from camcops_server.cc_modules.cc_request import (
     CamcopsRequest,
     get_unittest_request,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import (
-    sql_from_sqlite_database,
-)
+from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -86,11 +84,13 @@ DEMO_PNG_BYTES = base64.b64decode(
 # Unit testing
 # =============================================================================
 
+
 class ExtendedTestCase(unittest.TestCase):
     """
     A subclass of :class:`unittest.TestCase` that provides some additional
     functionality.
     """
+
     # Logging in unit tests:
     # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o  # noqa
     # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o/15969985#15969985
@@ -161,10 +161,12 @@ class DemoRequestTestCase(ExtendedTestCase):
         connection.close()
         log.log(loglevel, "SQLite database:\n{}", sql_text)
 
-    def dump_table(self,
-                   tablename: str,
-                   column_names: List[str] = None,
-                   loglevel: int = logging.INFO) -> None:
+    def dump_table(
+        self,
+        tablename: str,
+        column_names: List[str] = None,
+        loglevel: int = logging.INFO,
+    ) -> None:
         """
         Writes one table of the in-memory SQLite database to the logging
         stream.
@@ -184,9 +186,13 @@ class DemoRequestTestCase(ExtendedTestCase):
         cursor.execute(sql)
         # noinspection PyTypeChecker
         fieldnames = get_fieldnames_from_cursor(cursor)
-        results = ",".join(fieldnames) + "\n" + "\n".join(
-            ",".join(str(value) for value in row)
-            for row in cursor.fetchall()
+        results = (
+            ",".join(fieldnames)
+            + "\n"
+            + "\n".join(
+                ",".join(str(value) for value in row)
+                for row in cursor.fetchall()
+            )
         )
         connection.close()
         log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
@@ -198,6 +204,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
     ID numbers, user, group, devices etc and has helper methods for
     creating patients and tasks
     """
+
     def setUp(self) -> None:
         super().setUp()
 
@@ -208,21 +215,27 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         idnum_type_nhs = 1
         idnum_type_rio = 2
         idnum_type_study = 3
-        self.nhs_iddef = IdNumDefinition(which_idnum=idnum_type_nhs,
-                                         description="NHS number",
-                                         short_description="NHS#",
-                                         hl7_assigning_authority="NHS",
-                                         hl7_id_type="NHSN")
+        self.nhs_iddef = IdNumDefinition(
+            which_idnum=idnum_type_nhs,
+            description="NHS number",
+            short_description="NHS#",
+            hl7_assigning_authority="NHS",
+            hl7_id_type="NHSN",
+        )
         self.dbsession.add(self.nhs_iddef)
-        self.rio_iddef = IdNumDefinition(which_idnum=idnum_type_rio,
-                                         description="RiO number",
-                                         short_description="RiO",
-                                         hl7_assigning_authority="CPFT",
-                                         hl7_id_type="CPRiO")
+        self.rio_iddef = IdNumDefinition(
+            which_idnum=idnum_type_rio,
+            description="RiO number",
+            short_description="RiO",
+            hl7_assigning_authority="CPFT",
+            hl7_id_type="CPRiO",
+        )
         self.dbsession.add(self.rio_iddef)
-        self.study_iddef = IdNumDefinition(which_idnum=idnum_type_study,
-                                           description="Study number",
-                                           short_description="Study")
+        self.study_iddef = IdNumDefinition(
+            which_idnum=idnum_type_study,
+            description="Study number",
+            short_description="Study",
+        )
         self.dbsession.add(self.study_iddef)
         # ... group
         self.group = Group()
@@ -271,6 +284,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
     def create_patient_with_two_idnums(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+
         # Populate database with two of everything
         patient = Patient()
         patient.id = 1
@@ -299,6 +313,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
     def create_patient_with_one_idnum(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
+
         patient = Patient()
         patient.id = 2
         self.apply_standard_db_fields(patient)
@@ -311,14 +326,16 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
             id=3,
             patient_id=patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=555
+            idnum_value=555,
         )
 
         return patient
 
-    def create_patient_idnum(self, as_server_patient: bool = False,
-                             **kwargs: Any) -> "PatientIdNum":
+    def create_patient_idnum(
+        self, as_server_patient: bool = False, **kwargs: Any
+    ) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+
         patient_idnum = PatientIdNum()
         self.apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
 
@@ -326,8 +343,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
             setattr(patient_idnum, key, value)
 
         if "id" not in kwargs:
-            patient_idnum.save_with_next_available_id(self.req,
-                                                      patient_idnum._device_id)
+            patient_idnum.save_with_next_available_id(
+                self.req, patient_idnum._device_id
+            )
         else:
             self.dbsession.add(patient_idnum)
 
@@ -335,8 +353,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         return patient_idnum
 
-    def create_patient(self, as_server_patient: bool = False,
-                       **kwargs: Any) -> "Patient":
+    def create_patient(
+        self, as_server_patient: bool = False, **kwargs: Any
+    ) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
 
         patient = Patient()
@@ -366,9 +385,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.apply_standard_db_fields(task)
         task.when_created = self.era_time
 
-    def apply_standard_db_fields(self,
-                                 obj: "GenericTabletRecordMixin",
-                                 era_now: bool = False) -> None:
+    def apply_standard_db_fields(
+        self, obj: "GenericTabletRecordMixin", era_now: bool = False
+    ) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.
@@ -404,8 +423,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         return group
 
-    def create_membership(self, user: User, group: Group,
-                          **kwargs) -> UserGroupMembership:
+    def create_membership(
+        self, user: User, group: Group, **kwargs
+    ) -> UserGroupMembership:
         ugm = UserGroupMembership(user_id=user.id, group_id=group.id)
 
         for key, value in kwargs.items():
@@ -424,6 +444,7 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
     Test case that sets up a demonstration CamCOPS database with two tasks of
     each type
     """
+
     def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.tasks.photo import Photo
@@ -445,7 +466,7 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
                 self.apply_standard_db_fields(b)
                 b.tablename = t1.tablename
                 b.tablepk = t1.id
-                b.fieldname = 'photo_blobid'
+                b.fieldname = "photo_blobid"
                 b.filename = "some_picture.png"
                 b.mimetype = MimeType.PNG
                 b.image_rotation_deg_cw = 0

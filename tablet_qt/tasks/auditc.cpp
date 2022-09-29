@@ -34,7 +34,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 3;
-const int MAX_SCORE = N_QUESTIONS * 4;
+const int MAX_QUESTION_SCORE = N_QUESTIONS * 4;
 const QString QPREFIX("q");
 
 const QString AuditC::AUDITC_TABLENAME("audit_c");
@@ -102,7 +102,7 @@ bool AuditC::isComplete() const
 
 QStringList AuditC::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

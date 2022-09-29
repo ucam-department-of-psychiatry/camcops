@@ -35,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 15;
-const int MAX_SCORE = 60;
+const int MAX_QUESTION_SCORE = 60;
 const QString QPREFIX("q");
 
 const QString Honosca::HONOSCA_TABLENAME("honosca");
@@ -102,7 +102,7 @@ bool Honosca::isComplete() const
 
 QStringList Honosca::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

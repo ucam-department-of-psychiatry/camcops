@@ -69,8 +69,9 @@ class SafeFormatter(Formatter):
         """
         return ", ".join(f"{{{k}}}" for k in self._allowed_keys)
 
-    def get_field(self, field_name: str, args: Sequence[Any],
-                  kwargs: Mapping[str, Any]) -> Tuple[Any, str]:
+    def get_field(
+        self, field_name: str, args: Sequence[Any], kwargs: Mapping[str, Any]
+    ) -> Tuple[Any, str]:
         """
         Overrides :meth:`Formatter.get_field` (q.v.).
 

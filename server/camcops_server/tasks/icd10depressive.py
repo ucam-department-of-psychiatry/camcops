@@ -67,191 +67,228 @@ from camcops_server.cc_modules.cc_text import SS
 # Icd10Depressive
 # =============================================================================
 
+
 class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the ICD10-DEPR task.
     """
+
     __tablename__ = "icd10depressive"
     shortname = "ICD10-DEPR"
     info_filename_stem = "icd"
 
     mood = CamcopsColumn(
-        "mood", Boolean,
+        "mood",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Depressed mood to a degree that is definitely abnormal "
-                "for the individual, present for most of the day and  almost "
-                "every day, largely uninfluenced by circumstances, and "
-                "sustained for at least 2 weeks."
+        "for the individual, present for most of the day and  almost "
+        "every day, largely uninfluenced by circumstances, and "
+        "sustained for at least 2 weeks.",
     )
     anhedonia = CamcopsColumn(
-        "anhedonia", Boolean,
+        "anhedonia",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Loss of interest or pleasure in activities  that are "
-                "normally pleasurable."
+        "normally pleasurable.",
     )
     energy = CamcopsColumn(
-        "energy", Boolean,
+        "energy",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Decreased energy or increased fatiguability."
+        comment="Decreased energy or increased fatiguability.",
     )
 
     sleep = CamcopsColumn(
-        "sleep", Boolean,
+        "sleep",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Sleep disturbance of any type."
+        comment="Sleep disturbance of any type.",
     )
     worth = CamcopsColumn(
-        "worth", Boolean,
+        "worth",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Loss of confidence and self-esteem."
+        comment="Loss of confidence and self-esteem.",
     )
     appetite = CamcopsColumn(
-        "appetite", Boolean,
+        "appetite",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Change in appetite (decrease or increase) with "
-                "corresponding weight change."
+        "corresponding weight change.",
     )
     guilt = CamcopsColumn(
-        "guilt", Boolean,
+        "guilt",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Unreasonable feelings of self-reproach or excessive and "
-                "inappropriate guilt."
+        "inappropriate guilt.",
     )
     concentration = CamcopsColumn(
-        "concentration", Boolean,
+        "concentration",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Complaints or evidence of diminished ability to think "
-                "or concentrate, such as indecisiveness or vacillation."
+        "or concentrate, such as indecisiveness or vacillation.",
     )
     activity = CamcopsColumn(
-        "activity", Boolean,
+        "activity",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Change in psychomotor activity, with agitation or "
-                "retardation (either subjective or objective)."
+        "retardation (either subjective or objective).",
     )
     death = CamcopsColumn(
-        "death", Boolean,
+        "death",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Recurrent thoughts of death or suicide, or any "
-                "suicidal behaviour."
+        "suicidal behaviour.",
     )
 
     somatic_anhedonia = CamcopsColumn(
-        "somatic_anhedonia", Boolean,
+        "somatic_anhedonia",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of interest or pleasure in activities that "
-                "are normally pleasurable"
+        "are normally pleasurable",
     )
     somatic_emotional_unreactivity = CamcopsColumn(
-        "somatic_emotional_unreactivity", Boolean,
+        "somatic_emotional_unreactivity",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Lack of emotional reactions to events or "
-                "activities that normally produce an emotional response"
+        "activities that normally produce an emotional response",
     )
     somatic_early_morning_waking = CamcopsColumn(
-        "somatic_early_morning_waking", Boolean,
+        "somatic_early_morning_waking",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Waking in the morning 2 hours or more before "
-                "the usual time"
+        "the usual time",
     )
     somatic_mood_worse_morning = CamcopsColumn(
-        "somatic_mood_worse_morning", Boolean,
+        "somatic_mood_worse_morning",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Depression worse in the morning"
+        comment="Depression worse in the morning",
     )
     somatic_psychomotor = CamcopsColumn(
-        "somatic_psychomotor", Boolean,
+        "somatic_psychomotor",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Objective evidence of marked psychomotor retardation or "
-                "agitation (remarked on or reported by other people)"
+        "agitation (remarked on or reported by other people)",
     )
     somatic_appetite = CamcopsColumn(
-        "somatic_appetite", Boolean,
+        "somatic_appetite",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Marked loss of appetite"
+        comment="Marked loss of appetite",
     )
     somatic_weight = CamcopsColumn(
-        "somatic_weight", Boolean,
+        "somatic_weight",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Weight loss (5 percent or more of body weight in the past "
-                "month)"
+        "month)"
         # 2017-08-24: AVOID A PERCENT SYMBOL (%) FOR NOW; SEE THIS BUG:
         # https://bitbucket.org/zzzeek/sqlalchemy/issues/4052/comment-attribute-causes-crash-during  # noqa
     )
     somatic_libido = CamcopsColumn(
-        "somatic_libido", Boolean,
+        "somatic_libido",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Marked loss of libido"
+        comment="Marked loss of libido",
     )
 
     hallucinations_schizophrenic = CamcopsColumn(
-        "hallucinations_schizophrenic", Boolean,
+        "hallucinations_schizophrenic",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinations that are 'typically schizophrenic' "
-                "(hallucinatory voices giving a running commentary on the "
-                "patient's behaviour, or discussing him between themselves, "
-                "or other types of hallucinatory voices coming from some part "
-                "of the body)."
+        "(hallucinatory voices giving a running commentary on the "
+        "patient's behaviour, or discussing him between themselves, "
+        "or other types of hallucinatory voices coming from some part "
+        "of the body).",
     )
     hallucinations_other = CamcopsColumn(
-        "hallucinations_other", Boolean,
+        "hallucinations_other",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Hallucinations (of any other kind)."
+        comment="Hallucinations (of any other kind).",
     )
     delusions_schizophrenic = CamcopsColumn(
-        "delusions_schizophrenic", Boolean,
+        "delusions_schizophrenic",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions that are 'typically schizophrenic' (delusions "
-                "of control, influence or passivity, clearly referred to body "
-                "or limb movements or specific thoughts, actions, or "
-                "sensations; delusional perception; persistent delusions of "
-                "other kinds that are culturally inappropriate and completely "
-                "impossible).")
+        "of control, influence or passivity, clearly referred to body "
+        "or limb movements or specific thoughts, actions, or "
+        "sensations; delusional perception; persistent delusions of "
+        "other kinds that are culturally inappropriate and completely "
+        "impossible).",
+    )
     delusions_other = CamcopsColumn(
-        "delusions_other", Boolean,
+        "delusions_other",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Delusions (of any other kind)."
+        comment="Delusions (of any other kind).",
     )
     stupor = CamcopsColumn(
-        "stupor", Boolean,
+        "stupor",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Depressive stupor."
+        comment="Depressive stupor.",
     )
 
     date_pertains_to = CamcopsColumn(
-        "date_pertains_to", Date,
-        comment="Date the assessment pertains to"
+        "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
-    comments = Column(
-        "comments", UnicodeText,
-        comment="Clinician's comments"
-    )
+    comments = Column("comments", UnicodeText, comment="Clinician's comments")
     duration_at_least_2_weeks = CamcopsColumn(
-        "duration_at_least_2_weeks", Boolean,
+        "duration_at_least_2_weeks",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Depressive episode lasts at least 2 weeks?"
+        comment="Depressive episode lasts at least 2 weeks?",
     )
     severe_clinically = CamcopsColumn(
-        "severe_clinically", Boolean,
+        "severe_clinically",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Clinical impression of severe depression, in a "
-                "patient unwilling or unable to describe many symptoms in "
-                "detail"
+        "patient unwilling or unable to describe many symptoms in "
+        "detail",
     )
 
     CORE_NAMES = ["mood", "anhedonia", "energy"]
-    ADDITIONAL_NAMES = ["sleep", "worth", "appetite", "guilt", "concentration",
-                        "activity", "death"]
+    ADDITIONAL_NAMES = [
+        "sleep",
+        "worth",
+        "appetite",
+        "guilt",
+        "concentration",
+        "activity",
+        "death",
+    ]
     SOMATIC_NAMES = [
-        "somatic_anhedonia", "somatic_emotional_unreactivity",
-        "somatic_early_morning_waking", "somatic_mood_worse_morning",
-        "somatic_psychomotor", "somatic_appetite",
-        "somatic_weight", "somatic_libido"
+        "somatic_anhedonia",
+        "somatic_emotional_unreactivity",
+        "somatic_early_morning_waking",
+        "somatic_mood_worse_morning",
+        "somatic_psychomotor",
+        "somatic_appetite",
+        "somatic_weight",
+        "somatic_libido",
     ]
     PSYCHOSIS_NAMES = [
-        "hallucinations_schizophrenic", "hallucinations_other",
-        "delusions_schizophrenic", "delusions_other",
-        "stupor"
+        "hallucinations_schizophrenic",
+        "hallucinations_other",
+        "delusions_schizophrenic",
+        "delusions_other",
+        "stupor",
     ]
 
     @staticmethod
@@ -265,12 +302,16 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        infolist = [CtvInfo(
-            content="Pertains to: {}. Category: {}.".format(
-                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE),
-                self.get_full_description(req)
+        infolist = [
+            CtvInfo(
+                content="Pertains to: {}. Category: {}.".format(
+                    format_datetime(
+                        self.date_pertains_to, DateFormat.LONG_DATE
+                    ),
+                    self.get_full_description(req),
+                )
             )
-        )]
+        ]
         if self.comments:
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
@@ -281,32 +322,38 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 name="n_core",
                 coltype=Integer(),
                 value=self.n_core(),
-                comment="Number of core diagnostic symptoms (/3)"),
+                comment="Number of core diagnostic symptoms (/3)",
+            ),
             SummaryElement(
                 name="n_additional",
                 coltype=Integer(),
                 value=self.n_additional(),
-                comment="Number of additional diagnostic symptoms (/7)"),
+                comment="Number of additional diagnostic symptoms (/7)",
+            ),
             SummaryElement(
                 name="n_total",
                 coltype=Integer(),
                 value=self.n_total(),
-                comment="Total number of diagnostic symptoms (/10)"),
+                comment="Total number of diagnostic symptoms (/10)",
+            ),
             SummaryElement(
                 name="n_somatic",
                 coltype=Integer(),
                 value=self.n_somatic(),
-                comment="Number of somatic syndrome symptoms (/8)"),
+                comment="Number of somatic syndrome symptoms (/8)",
+            ),
             SummaryElement(
                 name="category",
                 coltype=SummaryCategoryColType,
                 value=self.get_full_description(req),
-                comment="Diagnostic category"),
+                comment="Diagnostic category",
+            ),
             SummaryElement(
                 name="psychosis_or_stupor",
                 coltype=Boolean(),
                 value=self.is_psychotic_or_stupor(),
-                comment="Psychotic symptoms or stupor present?"),
+                comment="Psychotic symptoms or stupor present?",
+            ),
         ]
 
     # Scoring
@@ -324,12 +371,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def main_complete(self) -> bool:
         return (
-            self.duration_at_least_2_weeks is not None and
-            self.all_fields_not_none(self.CORE_NAMES) and
-            self.all_fields_not_none(self.ADDITIONAL_NAMES)
-        ) or bool(
-            self.severe_clinically
-        )
+            self.duration_at_least_2_weeks is not None
+            and self.all_fields_not_none(self.CORE_NAMES)
+            and self.all_fields_not_none(self.ADDITIONAL_NAMES)
+        ) or bool(self.severe_clinically)
 
     # Meets criteria? These also return null for unknown.
     def meets_criteria_severe_psychotic_schizophrenic(self) -> Optional[bool]:
@@ -338,13 +383,18 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return x
         if self.stupor or self.hallucinations_other or self.delusions_other:
             return False  # that counts as F32.3
-        if (self.stupor is None or self.hallucinations_other is None or
-                self.delusions_other is None):
+        if (
+            self.stupor is None
+            or self.hallucinations_other is None
+            or self.delusions_other is None
+        ):
             return None  # might be F32.3
         if self.hallucinations_schizophrenic or self.delusions_schizophrenic:
             return True
-        if (self.hallucinations_schizophrenic is None or
-                self.delusions_schizophrenic is None):
+        if (
+            self.hallucinations_schizophrenic is None
+            or self.delusions_schizophrenic is None
+        ):
             return None
         return False
 
@@ -354,9 +404,11 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             return x
         if self.stupor or self.hallucinations_other or self.delusions_other:
             return True
-        if (self.stupor is None or
-                self.hallucinations_other is None or
-                self.delusions_other is None):
+        if (
+            self.stupor is None
+            or self.hallucinations_other is None
+            or self.delusions_other is None
+        ):
             return None
         return False
 
@@ -371,8 +423,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def meets_criteria_severe_ignoring_psychosis(self) -> Optional[bool]:
         if self.severe_clinically:
             return True
-        if self.duration_at_least_2_weeks is not None \
-                and not self.duration_at_least_2_weeks:
+        if (
+            self.duration_at_least_2_weeks is not None
+            and not self.duration_at_least_2_weeks
+        ):
             return False  # too short
         if self.n_core() >= 3 and self.n_total() >= 8:
             return True
@@ -383,8 +437,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def meets_criteria_moderate(self) -> Optional[bool]:
         if self.severe_clinically:
             return False  # too severe
-        if self.duration_at_least_2_weeks is not None \
-                and not self.duration_at_least_2_weeks:
+        if (
+            self.duration_at_least_2_weeks is not None
+            and not self.duration_at_least_2_weeks
+        ):
             return False  # too short
         if self.n_core() >= 3 and self.n_total() >= 8:
             return False  # too severe; that's severe
@@ -397,8 +453,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def meets_criteria_mild(self) -> Optional[bool]:
         if self.severe_clinically:
             return False  # too severe
-        if self.duration_at_least_2_weeks is not None \
-                and not self.duration_at_least_2_weeks:
+        if (
+            self.duration_at_least_2_weeks is not None
+            and not self.duration_at_least_2_weeks
+        ):
             return False  # too short
         if self.n_core() >= 2 and self.n_total() >= 6:
             return False  # too severe; that's moderate
@@ -411,8 +469,10 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     def meets_criteria_none(self) -> Optional[bool]:
         if self.severe_clinically:
             return False  # too severe
-        if self.duration_at_least_2_weeks is not None \
-                and not self.duration_at_least_2_weeks:
+        if (
+            self.duration_at_least_2_weeks is not None
+            and not self.duration_at_least_2_weeks
+        ):
             return True  # too short for depression
         if self.n_core() >= 2 and self.n_total() >= 4:
             return False  # too severe
@@ -441,7 +501,9 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_main_description(self, req: CamcopsRequest) -> str:
         if self.meets_criteria_severe_psychotic_schizophrenic():
-            return self.wxstring(req, "category_severe_psychotic_schizophrenic")
+            return self.wxstring(
+                req, "category_severe_psychotic_schizophrenic"
+            )
 
         elif self.meets_criteria_severe_psychotic_icd():
             return self.wxstring(req, "category_severe_psychotic")
@@ -463,9 +525,8 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def get_full_description(self, req: CamcopsRequest) -> str:
         skip_somatic = self.main_complete() and self.meets_criteria_none()
-        return (
-            self.get_main_description(req) +
-            ("" if skip_somatic else " " + self.get_somatic_description(req))
+        return self.get_main_description(req) + (
+            "" if skip_somatic else " " + self.get_somatic_description(req)
         )
 
     def is_psychotic_or_stupor(self) -> Optional[bool]:
@@ -478,9 +539,9 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.date_pertains_to is not None and
-            self.main_complete() and
-            self.field_contents_valid()
+            self.date_pertains_to is not None
+            and self.main_complete()
+            and self.field_contents_valid()
         )
 
     def text_row(self, req: CamcopsRequest, wstringname: str) -> str:
@@ -488,11 +549,13 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def row_true_false(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_true_false(
-            req, fieldname, self.wxstring(req, "" + fieldname))
+            req, fieldname, self.wxstring(req, "" + fieldname)
+        )
 
     def row_present_absent(self, req: CamcopsRequest, fieldname: str) -> str:
         return self.get_twocol_bool_row_present_absent(
-            req, fieldname, self.wxstring(req, "" + fieldname))
+            req, fieldname, self.wxstring(req, "" + fieldname)
+        )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         h = """
@@ -518,38 +581,40 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 </tr>
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(
-                req, self.comments),
+                req, self.comments
+            ),
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             date_pertains_to=tr_qa(
                 req.wappstring(AS.DATE_PERTAINS_TO),
-                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
-                                default=None)
+                format_datetime(
+                    self.date_pertains_to, DateFormat.LONG_DATE, default=None
+                ),
             ),
             category=tr_qa(
                 req.sstring(SS.CATEGORY) + " <sup>[1,2]</sup>",
-                self.get_full_description(req)
+                self.get_full_description(req),
             ),
             n_core=tr(
-                self.wxstring(req, "n_core"),
-                answer(self.n_core()) + " / 3"
+                self.wxstring(req, "n_core"), answer(self.n_core()) + " / 3"
             ),
             n_total=tr(
-                self.wxstring(req, "n_total"),
-                answer(self.n_total()) + " / 10"
+                self.wxstring(req, "n_total"), answer(self.n_total()) + " / 10"
             ),
             n_somatic=tr(
                 self.wxstring(req, "n_somatic"),
-                answer(self.n_somatic()) + " / 8"
+                answer(self.n_somatic()) + " / 8",
             ),
             psychotic_symptoms_or_stupor=tr(
-                self.wxstring(req, "psychotic_symptoms_or_stupor") +
-                " <sup>[2]</sup>",
-                answer(get_present_absent_none(
-                    req, self.is_psychotic_or_stupor()))
+                self.wxstring(req, "psychotic_symptoms_or_stupor")
+                + " <sup>[2]</sup>",
+                answer(
+                    get_present_absent_none(req, self.is_psychotic_or_stupor())
+                ),
             ),
             icd10_symptomatic_disclaimer=req.wappstring(
-                AS.ICD10_SYMPTOMATIC_DISCLAIMER),
+                AS.ICD10_SYMPTOMATIC_DISCLAIMER
+            ),
         )
 
         h += self.text_row(req, "duration_text")

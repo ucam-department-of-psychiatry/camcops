@@ -44,6 +44,7 @@ import cardinal_pythonlib.rnc_web as ws
 # Actual demo application
 # =============================================================================
 
+
 def connect_to_database(environ):
     # Specific to our setup. Select a database engine.
     camcops_db_name = environ.get("CAMCOPS_DB_NAME", "camcops")
@@ -60,7 +61,7 @@ def connect_to_database(environ):
         port=camcops_db_port,
         database=camcops_db_name,
         user=camcops_db_user,
-        password=camcops_db_password
+        password=camcops_db_password,
     )
     return db
 
@@ -68,11 +69,11 @@ def connect_to_database(environ):
 def application_show_environment_test_database(environ, start_response):
     linebreak = "=" * 79 + "\n"
 
-    status = '200 OK'
-    if not environ['mod_wsgi.process_group']:
-        output = 'mod_wsgi EMBEDDED MODE'
+    status = "200 OK"
+    if not environ["mod_wsgi.process_group"]:
+        output = "mod_wsgi EMBEDDED MODE"
     else:
-        output = 'mod_wsgi DAEMON MODE'
+        output = "mod_wsgi DAEMON MODE"
 
     output += "\n\nenviron parameter:\n" + linebreak
     for (k, v) in sorted(environ.iteritems()):
@@ -104,13 +105,16 @@ def application_show_environment_test_database(environ, start_response):
         db = connect_to_database(environ)
         output += "\nCONNECTED TO DATABASE\n" + linebreak
         output += (
-            "Count: " +
-            str(db.fetchvalue("SELECT COUNT(*) FROM expdetthreshold")) + "\n"
+            "Count: "
+            + str(db.fetchvalue("SELECT COUNT(*) FROM expdetthreshold"))
+            + "\n"
         )
 
     # Final output
-    response_headers = [('Content-type', 'text/plain'),
-                        ('Content-Length', str(len(output)))]
+    response_headers = [
+        ("Content-type", "text/plain"),
+        ("Content-Length", str(len(output))),
+    ]
     start_response(status, response_headers)
     return [output]
 
@@ -118,6 +122,7 @@ def application_show_environment_test_database(environ, start_response):
 # =============================================================================
 # Wrapper to print errors
 # =============================================================================
+
 
 class ErrorReportingMiddleware(object):
     def __init__(self, app):
@@ -134,18 +139,20 @@ class ErrorReportingMiddleware(object):
         # noinspection PyBroadException
         try:
             return self.app(environ, start_response)
-        except:
+        except Exception:
             exc_info = sys.exc_info()
             start_response(
-                '500 Internal Server Error',
-                [('content-type', 'text/html')],
-                exc_info
+                "500 Internal Server Error",
+                [("content-type", "text/html")],
+                exc_info,
             )
             return self.format_exception(exc_info)
+
 
 # =============================================================================
 # WSGI entry point
 # =============================================================================
 
 application = ErrorReportingMiddleware(
-    application_show_environment_test_database)
+    application_show_environment_test_database
+)

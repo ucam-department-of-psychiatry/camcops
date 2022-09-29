@@ -53,7 +53,7 @@ class KapowSmsBackendTests(TestCase):
 
         config = {
             KapowSmsBackend.PARAM_USERNAME: "testuser",
-            KapowSmsBackend.PARAM_PASSWORD: "testpass"
+            KapowSmsBackend.PARAM_PASSWORD: "testpass",
         }
 
         backend = get_sms_backend(SmsBackendNames.KAPOW, config)
@@ -61,7 +61,9 @@ class KapowSmsBackendTests(TestCase):
 
         args, kwargs = mock_post.call_args
 
-        self.assertEqual(args[0], "https://www.kapow.co.uk/scripts/sendsms.php")
+        self.assertEqual(
+            args[0], "https://www.kapow.co.uk/scripts/sendsms.php"
+        )
 
         data = kwargs["data"]
         self.assertEqual(data["username"], "testuser")
@@ -75,11 +77,12 @@ class TwilioSmsBackendTests(TestCase):
         config = {
             TwilioSmsBackend.PARAM_SID: "testsid",
             TwilioSmsBackend.PARAM_TOKEN: "testtoken",
-            TwilioSmsBackend.PARAM_FROM_PHONE_NUMBER: TEST_SENDER
+            TwilioSmsBackend.PARAM_FROM_PHONE_NUMBER: TEST_SENDER,
         }
 
-        backend = cast("TwilioSmsBackend",
-                       get_sms_backend(SmsBackendNames.TWILIO, config))
+        backend = cast(
+            "TwilioSmsBackend", get_sms_backend(SmsBackendNames.TWILIO, config)
+        )
 
         self.assertEqual(backend.client.username, "testsid")
         self.assertEqual(backend.client.password, "testtoken")
@@ -88,14 +91,16 @@ class TwilioSmsBackendTests(TestCase):
         config = {
             TwilioSmsBackend.PARAM_SID: "testsid",
             TwilioSmsBackend.PARAM_TOKEN: "testtoken",
-            TwilioSmsBackend.PARAM_FROM_PHONE_NUMBER: TEST_SENDER
+            TwilioSmsBackend.PARAM_FROM_PHONE_NUMBER: TEST_SENDER,
         }
 
-        backend = cast("TwilioSmsBackend",
-                       get_sms_backend(SmsBackendNames.TWILIO, config))
+        backend = cast(
+            "TwilioSmsBackend", get_sms_backend(SmsBackendNames.TWILIO, config)
+        )
 
-        with mock.patch.object(backend.client.messages,
-                               "create") as mock_create:
+        with mock.patch.object(
+            backend.client.messages, "create"
+        ) as mock_create:
             backend.send_sms(TEST_RECIPIENT, TEST_MESSAGE)
 
         args, kwargs = mock_create.call_args
@@ -121,5 +126,5 @@ class ConsoleSmsBackendTests(TestCase):
 
         self.assertIn(
             ConsoleSmsBackend.make_msg(TEST_RECIPIENT, TEST_MESSAGE),
-            logging_cm.output[0]
+            logging_cm.output[0],
         )

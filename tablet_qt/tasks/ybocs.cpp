@@ -44,7 +44,7 @@ const QString QPREFIX("q");
 
 const int MAX_OBSESSION_SCORE = 20;
 const int MAX_COMPULSION_SCORE = 20;
-const int MAX_SCORE = 40;
+const int MAX_QUESTION_SCORE = 40;
 
 const QString Ybocs::YBOCS_TABLENAME("ybocs");
 
@@ -147,7 +147,7 @@ bool Ybocs::isComplete() const
 QStringList Ybocs::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         scorePhrase(tr("Obsession score"),
                     obsessionScore(), MAX_OBSESSION_SCORE),
         scorePhrase(tr("Compulsion score"),

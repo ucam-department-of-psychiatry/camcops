@@ -52,11 +52,13 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Task query helpers
 # =============================================================================
 
+
 def task_query_restricted_to_permitted_users(
-        req: "CamcopsRequest",
-        q: Query,
-        cls: Union[Type[Task], Type[TaskIndexEntry]],
-        as_dump: bool) -> Optional[Query]:
+    req: "CamcopsRequest",
+    q: Query,
+    cls: Union[Type[Task], Type[TaskIndexEntry]],
+    as_dump: bool,
+) -> Optional[Query]:
     """
     Restricts an SQLAlchemy ORM query to permitted users, for a given
     task class. THIS IS A KEY SECURITY FUNCTION.
@@ -104,8 +106,10 @@ def task_query_restricted_to_permitted_users(
 # Make a single task given its base table name and server PK
 # =============================================================================
 
-def task_factory(req: "CamcopsRequest", basetable: str,
-                 serverpk: int) -> Optional[Task]:
+
+def task_factory(
+    req: "CamcopsRequest", basetable: str, serverpk: int
+) -> Optional[Task]:
     """
     Load a task from the database and return it.
     Filters to tasks permitted to the current user.
@@ -134,8 +138,9 @@ def task_factory(req: "CamcopsRequest", basetable: str,
     return q.first()
 
 
-def task_factory_no_security_checks(dbsession: SqlASession, basetable: str,
-                                    serverpk: int) -> Optional[Task]:
+def task_factory_no_security_checks(
+    dbsession: SqlASession, basetable: str, serverpk: int
+) -> Optional[Task]:
     """
     Load a task from the database and return it.
     Filters to tasks permitted to the current user.
@@ -162,11 +167,14 @@ def task_factory_no_security_checks(dbsession: SqlASession, basetable: str,
 # Make a single task given its base table name and server PK
 # =============================================================================
 
-def task_factory_clientkeys_no_security_checks(dbsession: SqlASession,
-                                               basetable: str,
-                                               client_id: int,
-                                               device_id: int,
-                                               era: str) -> Optional[Task]:
+
+def task_factory_clientkeys_no_security_checks(
+    dbsession: SqlASession,
+    basetable: str,
+    client_id: int,
+    device_id: int,
+    era: str,
+) -> Optional[Task]:
     """
     Load a task from the database and return it.
     Filters to tasks permitted to the current user.

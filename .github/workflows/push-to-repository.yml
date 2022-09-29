@@ -5,8 +5,9 @@ name: Build
 on:
     push:
         paths:
-            - 'server/**'
+            - '**.py'
             - .github/workflows/push-to-repository.yml
+            - .github/workflows/scripts/build_packages.sh
 jobs:
     pip-install-and-tests:
         runs-on: ubuntu-latest
@@ -66,8 +67,10 @@ jobs:
                   # 44716 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/19000
                   # 44717 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/18993
                   safety check --full-report --ignore=44715 --ignore=44716 --ignore=44717
+                  echo checking python formatting
+                  black --line-length 79 --diff --check .
                   echo checking python for style and errors
-                  flake8 --config=setup.cfg server/camcops_server
+                  flake8 --config=setup.cfg .
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   camcops_server demo_camcops_config | sed 's/YYY_USERNAME_REPLACE_ME/${{ env.DB_CAMCOPS_USER }}/g' | sed 's/ZZZ_PASSWORD_REPLACE_ME/${{ env.DB_CAMCOPS_PASSWORD }}/g' > "${CAMCOPS_CONFIG_FILE}"
                   echo running tests
@@ -100,24 +103,8 @@ jobs:
                   sudo apt-get update
             - name: Build and install debian package
               run: |
-                  set -xe
-                  sudo apt-get -y install alien fakeroot lintian gdebi
-                  # 429 = Too many requests. Unfortunately wget doesn't read the
-                  # Retry-after header so just wait 5 minutes
-                  wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
-                  fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
-                  sudo dpkg -i rpmrebuild_2.15-2_all.deb
-                  python -m venv ${HOME}/venv
-                  source ${HOME}/venv/bin/activate
-                  python -VV
-                  python -m site
-                  python -m pip install -U pip
-                  echo dumping pre-installed packages
-                  python -m pip freeze
-                  echo installing pip packages
-                  python -m pip install -e server/.
-                  echo building packages
-                  server/tools/MAKE_LINUX_PACKAGES.py
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
                   server/tools/REINSTALL_DEBIAN_PACKAGE.sh
                   echo checking packages for conflicts

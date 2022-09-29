@@ -35,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 7;
-const int MAX_SCORE = 26;
+const int MAX_QUESTION_SCORE = 26;
 
 const QString HamD7::HAMD7_TABLENAME("hamd7");
 const QString QPREFIX("q");
@@ -96,7 +96,7 @@ bool HamD7::isComplete() const
 
 QStringList HamD7::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

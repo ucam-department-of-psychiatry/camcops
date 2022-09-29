@@ -50,15 +50,7 @@ record at the same time.
 from enum import Enum
 import io
 import logging
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    TYPE_CHECKING,
-    Union,
-)
+from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, Union
 import xml.etree.cElementTree as ElementTree
 
 from asteval import Interpreter, make_symbol_table
@@ -131,8 +123,10 @@ class RedcapFieldmap(object):
         root = tree.getroot()
         if root.tag != "fieldmap":
             raise RedcapExportException(
-                (f"Expected the root tag to be 'fieldmap' instead of "
-                 f"'{root.tag}' in {filename}")
+                (
+                    f"Expected the root tag to be 'fieldmap' instead of "
+                    f"'{root.tag}' in {filename}"
+                )
             )
 
         patient_element = root.find("patient")
@@ -147,9 +141,7 @@ class RedcapFieldmap(object):
 
         record_element = root.find("record")
         if record_element is None:
-            raise RedcapExportException(
-                f"'record' is missing from {filename}"
-            )
+            raise RedcapExportException(f"'record' is missing from {filename}")
 
         self.record = self._validate_and_return_attributes(
             record_element, ("instrument", "redcap_field")
@@ -161,7 +153,7 @@ class RedcapFieldmap(object):
             event_attributes = self._validate_and_return_attributes(
                 event_element, ("name",)
             )
-            default_event = event_attributes['name']
+            default_event = event_attributes["name"]
 
         instrument_elements = root.find("instruments")
         if instrument_elements is None:
@@ -178,8 +170,9 @@ class RedcapFieldmap(object):
             instrument_name = instrument_attributes["name"]
             self.fields[task] = {}
             self.files[task] = {}
-            self.events[task] = instrument_attributes.get("event",
-                                                          default_event)
+            self.events[task] = instrument_attributes.get(
+                "event", default_event
+            )
             self.instruments[task] = instrument_name
 
             field_elements = instrument_element.find("fields") or []
@@ -204,8 +197,8 @@ class RedcapFieldmap(object):
                 self.files[task][name] = formula
 
     def _validate_and_return_attributes(
-            self, element: ElementTree.Element,
-            expected_attributes: Iterable[str]) -> Dict[str, str]:
+        self, element: ElementTree.Element, expected_attributes: Iterable[str]
+    ) -> Dict[str, str]:
         """
         Checks that all the expected attributes are present in the XML element
         (from the fieldmap XML file), or raises :exc:`RedcapExportException`.
@@ -214,8 +207,10 @@ class RedcapFieldmap(object):
 
         if not all(a in attributes.keys() for a in expected_attributes):
             raise RedcapExportException(
-                (f"'{element.tag}' must have attributes: "
-                 f"{', '.join(expected_attributes)} in {self.filename}")
+                (
+                    f"'{element.tag}' must have attributes: "
+                    f"{', '.join(expected_attributes)} in {self.filename}"
+                )
             )
 
         return attributes
@@ -232,9 +227,10 @@ class RedcapTaskExporter(object):
     Main entry point for task export to REDCap. Works out which record needs
     updating or creating. Creates the fieldmap and initiates upload.
     """
-    def export_task(self,
-                    req: "CamcopsRequest",
-                    exported_task_redcap: "ExportedTaskRedcap") -> None:
+
+    def export_task(
+        self, req: "CamcopsRequest", exported_task_redcap: "ExportedTaskRedcap"
+    ) -> None:
         """
         Exports a specific task.
 
@@ -265,9 +261,7 @@ class RedcapTaskExporter(object):
 
         existing_records = self._get_existing_records(project, fieldmap)
         existing_record_id = self._get_existing_record_id(
-            existing_records,
-            fieldmap,
-            idnum_object.idnum_value
+            existing_records, fieldmap, idnum_object.idnum_value
         )
 
         if existing_record_id is None:
@@ -279,30 +273,39 @@ class RedcapTaskExporter(object):
             instrument_name = fieldmap.instruments[task.tablename]
         except KeyError:
             raise RedcapExportException(
-                (f"Instrument for task '{task.tablename}' is missing from the "
-                 f"fieldmap")
+                (
+                    f"Instrument for task '{task.tablename}' is missing from "
+                    f"the fieldmap"
+                )
             )
 
         record_id_fieldname = fieldmap.record["redcap_field"]
 
-        next_instance_id = self._get_next_instance_id(existing_records,
-                                                      instrument_name,
-                                                      record_id_fieldname,
-                                                      existing_record_id)
+        next_instance_id = self._get_next_instance_id(
+            existing_records,
+            instrument_name,
+            record_id_fieldname,
+            existing_record_id,
+        )
 
         uploader = uploader_class(req, project)
 
-        new_record_id = uploader.upload(task, existing_record_id,
-                                        next_instance_id,
-                                        fieldmap, idnum_object.idnum_value)
+        new_record_id = uploader.upload(
+            task,
+            existing_record_id,
+            next_instance_id,
+            fieldmap,
+            idnum_object.idnum_value,
+        )
 
         exported_task_redcap.redcap_record_id = new_record_id
         exported_task_redcap.redcap_instrument_name = instrument_name
         exported_task_redcap.redcap_instance_id = next_instance_id
 
     @staticmethod
-    def _get_existing_records(project: redcap.project.Project,
-                              fieldmap: RedcapFieldmap) -> "DataFrame":
+    def _get_existing_records(
+        project: redcap.project.Project, fieldmap: RedcapFieldmap
+    ) -> "DataFrame":
         """
         Returns a Pandas data frame containing existing REDCap records for this
         project, for instruments we are interested in.
@@ -317,7 +320,7 @@ class RedcapTaskExporter(object):
 
         type_dict = {
             # otherwise pandas may infer as int or str
-            fieldmap.record["redcap_field"]: str,
+            fieldmap.record["redcap_field"]: str
         }
 
         df_kwargs = {
@@ -325,13 +328,16 @@ class RedcapTaskExporter(object):
             "dtype": type_dict,
         }
 
-        forms = (fieldmap.instrument_names() +
-                 [fieldmap.patient["instrument"]] +
-                 [fieldmap.record["instrument"]])
+        forms = (
+            fieldmap.instrument_names()
+            + [fieldmap.patient["instrument"]]
+            + [fieldmap.record["instrument"]]
+        )
 
         try:
-            records = project.export_records(format="df", forms=forms,
-                                             df_kwargs=df_kwargs)
+            records = project.export_records(
+                format="df", forms=forms, df_kwargs=df_kwargs
+            )
         except EmptyDataError:
             # Should not happen, but in case of PyCap failing to catch this...
             return DataFrame()
@@ -341,9 +347,9 @@ class RedcapTaskExporter(object):
         return records
 
     @staticmethod
-    def _get_existing_record_id(records: "DataFrame",
-                                fieldmap: RedcapFieldmap,
-                                idnum_value: int) -> Optional[str]:
+    def _get_existing_record_id(
+        records: "DataFrame", fieldmap: RedcapFieldmap, idnum_value: int
+    ) -> Optional[str]:
         """
         Returns the ID of an existing record that matches a specific
         patient, if one can be found.
@@ -368,8 +374,10 @@ class RedcapTaskExporter(object):
 
         if patient_id_fieldname not in records:
             raise RedcapExportException(
-                (f"Field '{patient_id_fieldname}' does not exist in REDCap. "
-                 f"Is the 'patient' tag in the fieldmap correct?")
+                (
+                    f"Field '{patient_id_fieldname}' does not exist in "
+                    f"REDCap. Is the 'patient' tag in the fieldmap correct?"
+                )
             )
 
         with_identifier = records[patient_id_fieldname] == idnum_value
@@ -380,10 +388,12 @@ class RedcapTaskExporter(object):
         return records[with_identifier].iat[0, 0]
 
     @staticmethod
-    def _get_next_instance_id(records: "DataFrame",
-                              instrument: str,
-                              record_id_fieldname: str,
-                              existing_record_id: Optional[str]) -> int:
+    def _get_next_instance_id(
+        records: "DataFrame",
+        instrument: str,
+        record_id_fieldname: str,
+        existing_record_id: Optional[str],
+    ) -> int:
         """
         Returns the next REDCap record ID to use for a particular instrument,
         including for a repeating instrument (the previous highest ID plus 1,
@@ -403,13 +413,15 @@ class RedcapTaskExporter(object):
 
         if record_id_fieldname not in records:
             raise RedcapExportException(
-                (f"Field '{record_id_fieldname}' does not exist in REDCap. "
-                 f"Is the 'record' tag in the fieldmap correct?")
+                (
+                    f"Field '{record_id_fieldname}' does not exist in REDCap. "
+                    f"Is the 'record' tag in the fieldmap correct?"
+                )
             )
 
         previous_instances = records[
-            (records["redcap_repeat_instrument"] == instrument) &
-            (records[record_id_fieldname] == existing_record_id)
+            (records["redcap_repeat_instrument"] == instrument)
+            & (records[record_id_fieldname] == existing_record_id)
         ]
 
         if len(previous_instances) == 0:
@@ -480,6 +492,7 @@ class RedcapRecordStatus(Enum):
     """
     Corresponds to valid values of Form Status -> Complete? field in REDCap
     """
+
     INCOMPLETE = 0
     UNVERIFIED = 1
     COMPLETE = 2
@@ -494,9 +507,10 @@ class RedcapUploader(object):
 
     Knows nothing about ExportedTaskRedcap, ExportedTask, ExportRecipient
     """
-    def __init__(self,
-                 req: "CamcopsRequest",
-                 project: "redcap.project.Project") -> None:
+
+    def __init__(
+        self, req: "CamcopsRequest", project: "redcap.project.Project"
+    ) -> None:
         """
 
         Args:
@@ -570,11 +584,16 @@ class RedcapUploader(object):
         """
         Does this REDCap project have record autonumbering enabled?
         """
-        return self.project_info['record_autonumbering_enabled']
+        return self.project_info["record_autonumbering_enabled"]
 
-    def upload(self, task: "Task", existing_record_id: Optional[str],
-               next_instance_id: int, fieldmap: RedcapFieldmap,
-               idnum_value: int) -> str:
+    def upload(
+        self,
+        task: "Task",
+        existing_record_id: Optional[str],
+        next_instance_id: int,
+        fieldmap: RedcapFieldmap,
+        idnum_value: int,
+    ) -> str:
         """
         Uploads a CamCOPS task to REDCap.
 
@@ -611,7 +630,7 @@ class RedcapUploader(object):
             # assume no one else is writing to this record
             "redcap_repeat_instance": next_instance_id,
             f"{instrument_name}_complete": complete_status.value,
-            "redcap_event_name": fieldmap.events[task.tablename]
+            "redcap_event_name": fieldmap.events[task.tablename],
         }
 
         self.transform_fields(record, task, fieldmap.fields[task.tablename])
@@ -636,37 +655,41 @@ class RedcapUploader(object):
         file_dict = {}
         self.transform_fields(file_dict, task, fieldmap.files[task.tablename])
 
-        self.upload_files(task,
-                          new_record_id,
-                          next_instance_id,
-                          file_dict,
-                          event=fieldmap.events[task.tablename])
+        self.upload_files(
+            task,
+            new_record_id,
+            next_instance_id,
+            file_dict,
+            event=fieldmap.events[task.tablename],
+        )
 
         self.log_success(new_record_id)
 
         return new_record_id
 
-    def upload_record(self, record: Dict[str, Any],
-                      **kwargs) -> Union[Dict, List, str]:
+    def upload_record(
+        self, record: Dict[str, Any], **kwargs
+    ) -> Union[Dict, List, str]:
         """
         Uploads a REDCap record via the pycap
         :func:`redcap.project.Project.import_record` function. Returns its
         response.
         """
         try:
-            response = self.project.import_records(
-                [record],
-                **kwargs
-            )
+            response = self.project.import_records([record], **kwargs)
         except redcap.RedcapError as e:
             raise RedcapExportException(str(e))
 
         return response
 
-    def upload_files(self, task: "Task", record_id: Union[int, str],
-                     repeat_instance: int,
-                     file_dict: Dict[str, bytes],
-                     event: Optional[str] = None) -> None:
+    def upload_files(
+        self,
+        task: "Task",
+        record_id: Union[int, str],
+        repeat_instance: int,
+        file_dict: Dict[str, bytes],
+        event: Optional[str] = None,
+    ) -> None:
         """
         Uploads files attached to a task (e.g. a PDF of the CamCOPS task).
 
@@ -691,17 +714,24 @@ class RedcapUploader(object):
 
                 try:
                     self.project.import_file(
-                        record_id, fieldname, filename, file_obj,
+                        record_id,
+                        fieldname,
+                        filename,
+                        file_obj,
                         event=event,
-                        repeat_instance=repeat_instance
+                        repeat_instance=repeat_instance,
                     )
                 # ValueError if the field does not exist or is not
                 # a file field
                 except (redcap.RedcapError, ValueError) as e:
                     raise RedcapExportException(str(e))
 
-    def transform_fields(self, field_dict: Dict[str, Any], task: "Task",
-                         formula_dict: Dict[str, str]) -> None:
+    def transform_fields(
+        self,
+        field_dict: Dict[str, Any],
+        task: "Task",
+        formula_dict: Dict[str, str],
+    ) -> None:
         """
         Uses the definitions from the fieldmap XML to set up field values to be
         exported to REDCap.
@@ -718,10 +748,7 @@ class RedcapUploader(object):
         """
         extra_symbols = self.get_extra_symbols()
 
-        symbol_table = make_symbol_table(
-            task=task,
-            **extra_symbols
-        )
+        symbol_table = make_symbol_table(task=task, **extra_symbols)
         interpreter = Interpreter(symtable=symbol_table)
 
         for redcap_field, formula in formula_dict.items():
@@ -747,7 +774,7 @@ class RedcapUploader(object):
         return dict(
             format_datetime=format_datetime,
             DateFormat=DateFormat,
-            request=self.req
+            request=self.req,
         )
 
 
@@ -803,6 +830,7 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
     """
     Updates an existing REDCap record.
     """
+
     force_auto_number = False
     # import_records returns {'count': 1}
     return_content = "count"

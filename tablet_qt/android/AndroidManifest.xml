@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.camcops.camcops" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.4.11" android:versionCode="26" android:installLocation="auto">
+<manifest package="org.camcops.camcops" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.4.13" android:versionCode="28" android:installLocation="auto">
     <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="CamCOPS" android:icon="@drawable/icon" android:allowBackup="false">
         <!-- singleTask is necessary to stop a second, inactive window from opening when the app is launched both from URL and icon -->
         <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.camcops.camcops.CamcopsActivity" android:label="CamCOPS" android:screenOrientation="unspecified" android:launchMode="singleTask">
@@ -56,7 +56,7 @@
             <meta-data android:name="android.app.splash_screen_drawable_landscape" android:resource="@drawable/logo_landscape"/>
         </activity>
     </application>
-    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="29"/>
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="30"/>
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.

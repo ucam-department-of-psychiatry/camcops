@@ -146,22 +146,30 @@ SUICIDALITY_QNUM = 9  # Q9 in all versions of the BDI (I, IA, II)
 SUICIDALITY_FN = "q9"  # fieldname
 CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS = [4, 15, 16, 18, 19, 20, 21]
 CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS = Task.fieldnames_from_list(
-    "q", CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS)
+    "q", CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS
+)
 
 
 # =============================================================================
 # BDI (crippled)
 # =============================================================================
 
+
 class BdiMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Bdi'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Bdi"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, NQUESTIONS,
-            minimum=0, maximum=3,
+            cls,
+            "q",
+            1,
+            NQUESTIONS,
+            minimum=0,
+            maximum=3,
             comment_fmt="Q{n} [{s}] (0-3, higher worse)",
             comment_strings=[
                 (
@@ -170,23 +178,24 @@ class BdiMetaclass(DeclarativeMeta):
                     f"BDI-II: {BDI_II_QUESTION_TOPICS[q]}"
                 )
                 for q in range(1, NQUESTIONS + 1)
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Bdi(TaskHasPatientMixin, Task,
-          metaclass=BdiMetaclass):
+class Bdi(TaskHasPatientMixin, Task, metaclass=BdiMetaclass):
     """
     Server implementation of the BDI task.
     """
+
     __tablename__ = "bdi"
     shortname = "BDI"
     provides_trackers = True
 
     bdi_scale = Column(
-        "bdi_scale", String(length=10),  # was Text
-        comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?"
+        "bdi_scale",
+        String(length=10),  # was Text
+        comment="Which BDI scale (BDI-I, BDI-IA, BDI-II)?",
     )
 
     @staticmethod
@@ -196,34 +205,42 @@ class Bdi(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
-            self.bdi_scale is not None and
-            self.all_fields_not_none(TASK_SCORED_FIELDS)
+            self.field_contents_valid()
+            and self.bdi_scale is not None
+            and self.all_fields_not_none(TASK_SCORED_FIELDS)
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="BDI total score (rating depressive symptoms)",
-            axis_label=f"Score for Q1-21 (out of {MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=MAX_SCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="BDI total score (rating depressive symptoms)",
+                axis_label=f"Score for Q1-21 (out of {MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=MAX_SCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"{ws.webify(self.bdi_scale)} "
-            f"total score {self.total_score()}/{MAX_SCORE}"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"{ws.webify(self.bdi_scale)} "
+                    f"total score {self.total_score()}/{MAX_SCORE}"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment=f"Total score (/{MAX_SCORE})"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (/{MAX_SCORE})",
+            )
         ]
 
     def total_score(self) -> int:
@@ -251,7 +268,8 @@ class Bdi(TaskHasPatientMixin, Task,
         somatic_css_class = ""
         if self.is_bdi_ii():
             somatic_values = self.get_values(
-                CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS)
+                CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS
+            )
             somatic_missing = False
             somatic_score = 0
             for v in somatic_values:
@@ -261,8 +279,9 @@ class Bdi(TaskHasPatientMixin, Task,
                     break
                 else:
                     somatic_score += int(v)
-            somatic_text = ("incomplete" if somatic_missing
-                            else str(somatic_score))
+            somatic_text = (
+                "incomplete" if somatic_missing else str(somatic_score)
+            )
         else:
             somatic_text = "N/A"  # not the BDI-II
 
@@ -275,7 +294,7 @@ class Bdi(TaskHasPatientMixin, Task,
                 topic = qdict.get(q, "??")
             q_a += tr_qa(
                 f"{req.sstring(SS.QUESTION)} {q} ({topic})",
-                getattr(self, "q" + str(q))
+                getattr(self, "q" + str(q)),
             )
 
         # HTML:
@@ -283,15 +302,18 @@ class Bdi(TaskHasPatientMixin, Task,
             td(
                 "Custom somatic score for Insight study <sup>[2]</sup> "
                 "(sum of scores for questions {}, for BDI-II only)".format(
-                    ", ".join("Q" + str(qnum) for qnum in
-                              CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS))
+                    ", ".join(
+                        "Q" + str(qnum)
+                        for qnum in CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS
+                    )
+                )
             ),
             td(somatic_text, td_class=somatic_css_class),
-            literal=True
+            literal=True,
         )
         tr_which_scale = tr_qa(
             req.wappstring(AS.BDI_WHICH_SCALE) + " <sup>[3]</sup>",
-            ws.webify(self.bdi_scale)
+            ws.webify(self.bdi_scale),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -358,10 +380,10 @@ class Bdi(TaskHasPatientMixin, Task,
             return []
         codes = [SnomedExpression(req.snomed(proc_lookup))]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(scale_lookup),
-                {
-                    req.snomed(score_lookup): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(scale_lookup),
+                    {req.snomed(score_lookup): self.total_score()},
+                )
+            )
         return codes

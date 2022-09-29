@@ -41,7 +41,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 17;
-const int MAX_SCORE = 85;
+const int MAX_QUESTION_SCORE = 85;
 const QString QPREFIX("q");
 
 const QString EVENT("event");
@@ -107,7 +107,7 @@ bool PclCommon::isComplete() const
 QStringList PclCommon::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         standardResult(xstring("dsm_criteria_met"),
                        uifunc::yesNoUnknown(hasPtsd()))
     };

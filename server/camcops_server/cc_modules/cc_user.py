@@ -88,6 +88,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Constants
 # =============================================================================
 
+_TYPE_LUGM = List[UserGroupMembership]
+
 VALID_USERNAME_REGEX = "^[A-Za-z0-9_-]+$"
 BCRYPT_DEFAULT_LOG_ROUNDS = 6
 # Default is 12, but it does impact on the tablet upload speed (cost per
@@ -101,7 +103,8 @@ BCRYPT_DEFAULT_LOG_ROUNDS = 6
 
 CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS = 7
 CLEAR_DUMMY_LOGIN_PERIOD = datetime.timedelta(
-    days=CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS)
+    days=CLEAR_DUMMY_LOGIN_FREQUENCY_DAYS
+)
 
 
 # =============================================================================
@@ -110,23 +113,29 @@ CLEAR_DUMMY_LOGIN_PERIOD = datetime.timedelta(
 # Note that we record login failures for non-existent users, and pretend
 # they're locked out (to prevent username discovery that way, by timing)
 
+
 class SecurityAccountLockout(Base):
     """
     Represents an account "lockout".
     """
+
     __tablename__ = "_security_account_lockouts"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column(
-        "username", UserNameCamcopsColType,
-        nullable=False, index=True,
+        "username",
+        UserNameCamcopsColType,
+        nullable=False,
+        index=True,
         comment="User name (which may be a non-existent user, to prevent "
-                "subtle username discovery by careful timing)"
+        "subtle username discovery by careful timing)",
     )
     locked_until = Column(
-        "locked_until", DateTime,
-        nullable=False, index=True,
-        comment="Account is locked until (UTC)"
+        "locked_until",
+        DateTime,
+        nullable=False,
+        index=True,
+        comment="Account is locked until (UTC)",
     )
 
     @classmethod
@@ -136,9 +145,9 @@ class SecurityAccountLockout(Base):
         """
         dbsession = req.dbsession
         now = req.now_utc
-        dbsession.query(cls)\
-            .filter(cls.locked_until <= now)\
-            .delete(synchronize_session=False)
+        dbsession.query(cls).filter(cls.locked_until <= now).delete(
+            synchronize_session=False
+        )
 
     @classmethod
     def is_user_locked_out(cls, req: "CamcopsRequest", username: str) -> bool:
@@ -151,13 +160,14 @@ class SecurityAccountLockout(Base):
         """
         dbsession = req.dbsession
         now = req.now_utc
-        return exists_orm(dbsession, cls,
-                          cls.username == username,
-                          cls.locked_until > now)
+        return exists_orm(
+            dbsession, cls, cls.username == username, cls.locked_until > now
+        )
 
     @classmethod
-    def user_locked_out_until(cls, req: "CamcopsRequest",
-                              username: str) -> Optional[Pendulum]:
+    def user_locked_out_until(
+        cls, req: "CamcopsRequest", username: str
+    ) -> Optional[Pendulum]:
         """
         When is the user locked out until?
 
@@ -171,18 +181,21 @@ class SecurityAccountLockout(Base):
         """
         dbsession = req.dbsession
         now = req.now_utc
-        locked_until_utc = dbsession.query(func.max(cls.locked_until))\
-            .filter(cls.username == username)\
-            .filter(cls.locked_until > now)\
-            .scalar()  # type: Optional[Pendulum]
+        locked_until_utc = (
+            dbsession.query(func.max(cls.locked_until))
+            .filter(cls.username == username)
+            .filter(cls.locked_until > now)
+            .scalar()
+        )  # type: Optional[Pendulum]
         # ... NOT first(), which returns (result,); we want just result
         if not locked_until_utc:
             return None
         return convert_datetime_to_local(locked_until_utc)
 
     @classmethod
-    def lock_user_out(cls, req: "CamcopsRequest",
-                      username: str, lockout_minutes: int) -> None:
+    def lock_user_out(
+        cls, req: "CamcopsRequest", username: str, lockout_minutes: int
+    ) -> None:
         """
         Lock user out for a specified number of minutes.
 
@@ -197,8 +210,9 @@ class SecurityAccountLockout(Base):
         # noinspection PyArgumentList
         lock = cls(username=username, locked_until=lock_until)
         dbsession.add(lock)
-        audit(req,
-              f"Account {username} locked out for {lockout_minutes} minutes")
+        audit(
+            req, f"Account {username} locked out for {lockout_minutes} minutes"
+        )
 
     @classmethod
     def unlock_user(cls, req: "CamcopsRequest", username: str) -> None:
@@ -210,14 +224,15 @@ class SecurityAccountLockout(Base):
             username: the user's username
         """
         dbsession = req.dbsession
-        dbsession.query(cls)\
-            .filter(cls.username == username)\
-            .delete(synchronize_session=False)
+        dbsession.query(cls).filter(cls.username == username).delete(
+            synchronize_session=False
+        )
 
 
 # =============================================================================
 # SecurityLoginFailure
 # =============================================================================
+
 
 class SecurityLoginFailure(Base):
     """
@@ -226,24 +241,30 @@ class SecurityLoginFailure(Base):
     Too many failed logins lead to a lockout; see
     :class:`SecurityAccountLockout`.
     """
+
     __tablename__ = "_security_login_failures"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column(
-        "username", UserNameCamcopsColType,
-        nullable=False, index=True,
+        "username",
+        UserNameCamcopsColType,
+        nullable=False,
+        index=True,
         comment="User name (which may be a non-existent user, to prevent "
-                "subtle username discovery by careful timing)"
+        "subtle username discovery by careful timing)",
     )
     login_failure_at = Column(
-        "login_failure_at", DateTime,
-        nullable=False, index=True,
-        comment="Login failure occurred at (UTC)"
+        "login_failure_at",
+        DateTime,
+        nullable=False,
+        index=True,
+        comment="Login failure occurred at (UTC)",
     )
 
     @classmethod
-    def record_login_failure(cls, req: "CamcopsRequest",
-                             username: str) -> None:
+    def record_login_failure(
+        cls, req: "CamcopsRequest", username: str
+    ) -> None:
         """
         Record that a user has failed to log in.
 
@@ -258,8 +279,9 @@ class SecurityLoginFailure(Base):
         dbsession.add(failure)
 
     @classmethod
-    def act_on_login_failure(cls, req: "CamcopsRequest",
-                             username: str) -> None:
+    def act_on_login_failure(
+        cls, req: "CamcopsRequest", username: str
+    ) -> None:
         """
         Record login failure and lock out user if necessary.
 
@@ -275,14 +297,17 @@ class SecurityLoginFailure(Base):
         nfailures_since_last_lockout = nfailures % cfg.lockout_threshold
         if nlockouts >= 1 and nfailures_since_last_lockout == 0:
             # new lockout required
-            lockout_minutes = nlockouts * \
-                              cfg.lockout_duration_increment_minutes
-            SecurityAccountLockout.lock_user_out(req, username,
-                                                 lockout_minutes)
+            lockout_minutes = (
+                nlockouts * cfg.lockout_duration_increment_minutes
+            )
+            SecurityAccountLockout.lock_user_out(
+                req, username, lockout_minutes
+            )
 
     @classmethod
-    def clear_login_failures(cls, req: "CamcopsRequest",
-                             username: str) -> None:
+    def clear_login_failures(
+        cls, req: "CamcopsRequest", username: str
+    ) -> None:
         """
         Clear login failures for a user.
 
@@ -291,13 +316,14 @@ class SecurityLoginFailure(Base):
             username: the user's username
         """
         dbsession = req.dbsession
-        dbsession.query(cls)\
-            .filter(cls.username == username)\
-            .delete(synchronize_session=False)
+        dbsession.query(cls).filter(cls.username == username).delete(
+            synchronize_session=False
+        )
 
     @classmethod
-    def how_many_login_failures(cls, req: "CamcopsRequest",
-                                username: str) -> int:
+    def how_many_login_failures(
+        cls, req: "CamcopsRequest", username: str
+    ) -> int:
         """
         How many times has the user tried and failed to log in (recently)?
 
@@ -306,8 +332,9 @@ class SecurityLoginFailure(Base):
             username: the user's username
         """
         dbsession = req.dbsession
-        q = CountStarSpecializedQuery([cls], session=dbsession)\
-            .filter(cls.username == username)
+        q = CountStarSpecializedQuery([cls], session=dbsession).filter(
+            cls.username == username
+        )
         return q.count_star()
 
     @classmethod
@@ -325,7 +352,8 @@ class SecurityLoginFailure(Base):
 
     @classmethod
     def clear_login_failures_for_nonexistent_users(
-            cls, req: "CamcopsRequest") -> None:
+        cls, req: "CamcopsRequest"
+    ) -> None:
         """
         Clear login failures for nonexistent users.
 
@@ -338,14 +366,15 @@ class SecurityLoginFailure(Base):
         """
         dbsession = req.dbsession
         all_user_names = dbsession.query(User.username)
-        dbsession.query(cls)\
-            .filter(cls.username.notin_(all_user_names))\
-            .delete(synchronize_session=False)
+        dbsession.query(cls).filter(
+            cls.username.notin_(all_user_names)
+        ).delete(synchronize_session=False)
         # https://stackoverflow.com/questions/26182027/how-to-use-not-in-clause-in-sqlalchemy-orm-query  # noqa
 
     @classmethod
-    def clear_dummy_login_failures_if_necessary(cls,
-                                                req: "CamcopsRequest") -> None:
+    def clear_dummy_login_failures_if_necessary(
+        cls, req: "CamcopsRequest"
+    ) -> None:
         """
         Clear dummy login failures if we haven't done so for a while.
 
@@ -356,7 +385,9 @@ class SecurityLoginFailure(Base):
         """
         now = req.now_utc
         ss = req.server_settings
-        last_dummy_login_failure_clearance = ss.get_last_dummy_login_failure_clearance_pendulum()  # noqa
+        last_dummy_login_failure_clearance = (
+            ss.get_last_dummy_login_failure_clearance_pendulum()
+        )
         if last_dummy_login_failure_clearance is not None:
             elapsed = now - last_dummy_login_failure_clearance
             if elapsed < CLEAR_DUMMY_LOGIN_PERIOD:
@@ -372,10 +403,12 @@ class SecurityLoginFailure(Base):
 # User class
 # =============================================================================
 
+
 class User(Base):
     """
     Class representing a user.
     """
+
     __tablename__ = "_security_users"
 
     # -------------------------------------------------------------------------
@@ -383,97 +416,105 @@ class User(Base):
     # -------------------------------------------------------------------------
 
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True, index=True,
-        comment="User ID"
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        comment="User ID",
     )
     username = Column(
-        "username", UserNameCamcopsColType,
-        nullable=False, index=True, unique=True,
-        comment="User name"
+        "username",
+        UserNameCamcopsColType,
+        nullable=False,
+        index=True,
+        unique=True,
+        comment="User name",
     )  # type: str
-    fullname = Column(
-        "fullname", FullNameColType,
-        comment="User's full name"
-    )
+    fullname = Column("fullname", FullNameColType, comment="User's full name")
     email = Column(
-        "email", EmailAddressColType,
-        comment="User's e-mail address"
+        "email", EmailAddressColType, comment="User's e-mail address"
     )
     phone_number = Column(
-        "phone_number", PhoneNumberColType,
-        comment="User's phone number"
+        "phone_number", PhoneNumberColType, comment="User's phone number"
     )
     hashedpw = Column(
-        "hashedpw", HashedPasswordColType,
+        "hashedpw",
+        HashedPasswordColType,
         nullable=False,
-        comment="Password hash"
+        comment="Password hash",
     )
     mfa_secret_key = Column(
         "mfa_secret_key",
         Base32ColType,
         nullable=True,
-        comment="Secret key used for multi-factor authentication"
+        comment="Secret key used for multi-factor authentication",
     )
     mfa_method = Column(
         "mfa_method",
         MfaMethodColType,
         nullable=False,
         server_default=MfaMethod.NO_MFA,
-        comment="Preferred method of multi-factor authentication"
+        comment="Preferred method of multi-factor authentication",
     )
     hotp_counter = Column(
         "hotp_counter",
         Integer,
         nullable=False,
         server_default=text("0"),
-        comment="Counter used for HOTP authentication"
+        comment="Counter used for HOTP authentication",
     )
     last_login_at_utc = Column(
-        "last_login_at_utc", DateTime,
-        comment="Date/time this user last logged in (UTC)"
+        "last_login_at_utc",
+        DateTime,
+        comment="Date/time this user last logged in (UTC)",
     )
     last_password_change_utc = Column(
-        "last_password_change_utc", DateTime,
-        comment="Date/time this user last changed their password (UTC)"
+        "last_password_change_utc",
+        DateTime,
+        comment="Date/time this user last changed their password (UTC)",
     )
     superuser = Column(
-        "superuser", Boolean,
-        default=False,
-        comment="Superuser?"
+        "superuser", Boolean, default=False, comment="Superuser?"
     )
     must_change_password = Column(
-        "must_change_password", Boolean,
+        "must_change_password",
+        Boolean,
         default=False,
-        comment="Must change password at next webview login"
+        comment="Must change password at next webview login",
     )
     when_agreed_terms_of_use = Column(
-        "when_agreed_terms_of_use", PendulumDateTimeAsIsoTextColType,
+        "when_agreed_terms_of_use",
+        PendulumDateTimeAsIsoTextColType,
         comment="Date/time this user acknowledged the Terms and "
-                "Conditions of Use (ISO 8601)"
+        "Conditions of Use (ISO 8601)",
     )
     upload_group_id = Column(
-        "upload_group_id", Integer, ForeignKey("_security_groups.id"),
+        "upload_group_id",
+        Integer,
+        ForeignKey("_security_groups.id"),
         comment="ID of the group to which this user uploads at present",
         # OK to be NULL in the database, but the user will not be able to
         # upload while it is.
     )
     language = Column(
-        "language", LanguageCodeColType,
-        comment="Language code preferred by this user"
+        "language",
+        LanguageCodeColType,
+        comment="Language code preferred by this user",
     )
     auto_generated = Column(
-        "auto_generated", Boolean,
+        "auto_generated",
+        Boolean,
         nullable=False,
         default=False,
-        comment="Is automatically generated user with random password"
+        comment="Is automatically generated user with random password",
     )
     single_patient_pk = Column(
-        "single_patient_pk", Integer, ForeignKey("patient._pk",
-                                                 ondelete="SET NULL",
-                                                 use_alter=True),
+        "single_patient_pk",
+        Integer,
+        ForeignKey("patient._pk", ondelete="SET NULL", use_alter=True),
         comment="For users locked to a single patient, the server PK of the "
-                "server-created patient with which they are associated"
+        "server-created patient with which they are associated",
     )
 
     # -------------------------------------------------------------------------
@@ -481,14 +522,17 @@ class User(Base):
     # -------------------------------------------------------------------------
 
     user_group_memberships = relationship(
-        "UserGroupMembership",
-        back_populates="user")  # type: List[UserGroupMembership]
+        "UserGroupMembership", back_populates="user"
+    )  # type: _TYPE_LUGM
     groups = association_proxy(
-        "user_group_memberships", "group")  # type: List[Group]
+        "user_group_memberships", "group"
+    )  # type: List[Group]
     upload_group = relationship(
-        "Group", foreign_keys=[upload_group_id])  # type: Optional[Group]
+        "Group", foreign_keys=[upload_group_id]
+    )  # type: Optional[Group]
     single_patient = relationship(
-        "Patient", foreign_keys=[single_patient_pk])  # type: Optional[Patient]
+        "Patient", foreign_keys=[single_patient_pk]
+    )  # type: Optional[Patient]
 
     # -------------------------------------------------------------------------
     # __init__
@@ -505,9 +549,7 @@ class User(Base):
 
     def __repr__(self) -> str:
         return simple_repr(
-            self,
-            ["id", "username", "fullname"],
-            with_addr=True
+            self, ["id", "username", "fullname"], with_addr=True
         )
 
     # -------------------------------------------------------------------------
@@ -515,9 +557,9 @@ class User(Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def get_user_by_id(cls,
-                       dbsession: SqlASession,
-                       user_id: Optional[int]) -> Optional['User']:
+    def get_user_by_id(
+        cls, dbsession: SqlASession, user_id: Optional[int]
+    ) -> Optional["User"]:
         """
         Returns a User from their integer ID, or ``None``.
         """
@@ -526,9 +568,9 @@ class User(Base):
         return dbsession.query(cls).filter(cls.id == user_id).first()
 
     @classmethod
-    def get_user_by_name(cls,
-                         dbsession: SqlASession,
-                         username: str) -> Optional['User']:
+    def get_user_by_name(
+        cls, dbsession: SqlASession, username: str
+    ) -> Optional["User"]:
         """
         Returns a User from their username, or ``None``.
         """
@@ -547,8 +589,9 @@ class User(Base):
         return exists_orm(dbsession, cls, cls.username == username)
 
     @classmethod
-    def create_superuser(cls, req: "CamcopsRequest", username: str,
-                         password: str) -> bool:
+    def create_superuser(
+        cls, req: "CamcopsRequest", username: str, password: str
+    ) -> bool:
         """
         Creates a superuser.
 
@@ -564,8 +607,9 @@ class User(Base):
 
         """
         assert username, "Can't create superuser with no name"
-        assert username != USER_NAME_FOR_SYSTEM, (
-            f"Can't create user with name {USER_NAME_FOR_SYSTEM!r}")
+        assert (
+            username != USER_NAME_FOR_SYSTEM
+        ), f"Can't create user with name {USER_NAME_FOR_SYSTEM!r}"
         dbsession = req.dbsession
         user = cls.get_user_by_name(dbsession, username)
         if user:
@@ -581,24 +625,28 @@ class User(Base):
         return True
 
     @classmethod
-    def get_username_from_id(cls, req: "CamcopsRequest",
-                             user_id: int) -> Optional[str]:
+    def get_username_from_id(
+        cls, req: "CamcopsRequest", user_id: int
+    ) -> Optional[str]:
         """
         Looks up a user from their integer ID and returns their name, if found.
         """
         dbsession = req.dbsession
-        return dbsession.query(cls.username)\
-            .filter(cls.id == user_id)\
-            .first()\
+        return (
+            dbsession.query(cls.username)
+            .filter(cls.id == user_id)
+            .first()
             .scalar()
+        )
 
     @classmethod
     def get_user_from_username_password(
-            cls,
-            req: "CamcopsRequest",
-            username: str,
-            password: str,
-            take_time_for_nonexistent_user: bool = True) -> Optional['User']:
+        cls,
+        req: "CamcopsRequest",
+        username: str,
+        password: str,
+        take_time_for_nonexistent_user: bool = True,
+    ) -> Optional["User"]:
         """
         Retrieve a User object from the supplied username, if the password is
         correct; otherwise, return None.
@@ -639,7 +687,7 @@ class User(Base):
             dbsession.add(user)
         user.fullname = "CamCOPS system user"
         user.superuser = True
-        user.hashedpw = ''  # because it's not nullable
+        user.hashedpw = ""  # because it's not nullable
         # ... note that no password will hash to '', in addition to the fact
         # that the system will not allow logon attempts for this user!
         return user
@@ -672,8 +720,9 @@ class User(Base):
         """
         Set a user's password.
         """
-        self.hashedpw = rnc_crypto.hash_password(new_password,
-                                                 BCRYPT_DEFAULT_LOG_ROUNDS)
+        self.hashedpw = rnc_crypto.hash_password(
+            new_password, BCRYPT_DEFAULT_LOG_ROUNDS
+        )
         self.last_password_change_utc = req.now_utc_no_tzinfo
         self.must_change_password = False
         audit(req, "Password changed for user " + self.username)
@@ -690,8 +739,9 @@ class User(Base):
         """
         self.must_change_password = True
 
-    def set_password_change_flag_if_necessary(self,
-                                              req: "CamcopsRequest") -> None:
+    def set_password_change_flag_if_necessary(
+        self, req: "CamcopsRequest"
+    ) -> None:
         """
         If we're requiring users to change their passwords, then check to
         see if they must do so now.
@@ -722,9 +772,9 @@ class User(Base):
         """
         Resets the multi-factor authentication (MFA) method.
         """
-        assert MfaMethod.valid(mfa_method), (
-            f"Invalid MFA method: {mfa_method!r}"
-        )
+        assert MfaMethod.valid(
+            mfa_method
+        ), f"Invalid MFA method: {mfa_method!r}"
 
         # Set the method
         self.mfa_method = mfa_method
@@ -765,8 +815,10 @@ class User(Base):
             return one_time_password == hotp.at(self.hotp_counter)
 
         else:
-            raise ValueError(f"User.verify_one_time_password(): "
-                             f"Bad mfa_method = {mfa_method}")
+            raise ValueError(
+                f"User.verify_one_time_password(): "
+                f"Bad mfa_method = {mfa_method}"
+            )
 
     # -------------------------------------------------------------------------
     # Authentication: logging in
@@ -797,16 +849,14 @@ class User(Base):
         """
         return SecurityAccountLockout.is_user_locked_out(req, self.username)
 
-    def locked_out_until(self,
-                         req: "CamcopsRequest") -> Optional[Pendulum]:
+    def locked_out_until(self, req: "CamcopsRequest") -> Optional[Pendulum]:
         """
         When is the user locked out until?
 
         Returns a Pendulum datetime in local timezone (or ``None`` if the
         user isn't locked out).
         """
-        return SecurityAccountLockout.user_locked_out_until(req,
-                                                            self.username)
+        return SecurityAccountLockout.user_locked_out_until(req, self.username)
 
     def enable(self, req: "CamcopsRequest") -> None:
         """
@@ -844,8 +894,7 @@ class User(Base):
         https://en.wikipedia.org/wiki/E.164
         """
         return phonenumbers.format_number(
-            self.phone_number,
-            phonenumbers.PhoneNumberFormat.E164
+            self.phone_number, phonenumbers.PhoneNumberFormat.E164
         )
 
     @property
@@ -915,8 +964,10 @@ class User(Base):
         ``group_ids`` list, and remove the user from any other groups.
         """
         dbsession = SqlASession.object_session(self)
-        assert dbsession, ("User.set_group_ids() called on a User that's not "
-                           "yet in a session")
+        assert dbsession, (
+            "User.set_group_ids() called on a User that's not "
+            "yet in a session"
+        )
         # groups = Group.get_groups_from_id_list(dbsession, group_ids)
 
         # Remove groups that no longer apply
@@ -925,13 +976,13 @@ class User(Base):
                 dbsession.delete(m)
         # Add new groups
         current_group_ids = [m.group_id for m in self.user_group_memberships]
-        new_group_ids = [gid for gid in group_ids
-                         if gid not in current_group_ids]
+        new_group_ids = [
+            gid for gid in group_ids if gid not in current_group_ids
+        ]
         for gid in new_group_ids:
-            self.user_group_memberships.append(UserGroupMembership(
-                user_id=self.id,
-                group_id=gid,
-            ))
+            self.user_group_memberships.append(
+                UserGroupMembership(user_id=self.id, group_id=gid)
+            )
 
     @property
     def ids_of_groups_user_may_see(self) -> List[int]:
@@ -968,8 +1019,9 @@ class User(Base):
         """
         if self.superuser:
             return Group.all_group_ids(
-                dbsession=SqlASession.object_session(self))
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+                dbsession=SqlASession.object_session(self)
+            )
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return [m.group_id for m in memberships if m.may_dump_data]
 
     @property
@@ -984,8 +1036,9 @@ class User(Base):
         """
         if self.superuser:
             return Group.all_group_ids(
-                dbsession=SqlASession.object_session(self))
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+                dbsession=SqlASession.object_session(self)
+            )
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return [m.group_id for m in memberships if m.may_run_reports]
 
     @property
@@ -996,8 +1049,9 @@ class User(Base):
         """
         if self.superuser:
             return Group.all_group_ids(
-                dbsession=SqlASession.object_session(self))
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+                dbsession=SqlASession.object_session(self)
+            )
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return [m.group_id for m in memberships if m.groupadmin]
 
     @property
@@ -1008,10 +1062,14 @@ class User(Base):
         """
         if self.superuser:
             return Group.all_group_ids(
-                dbsession=SqlASession.object_session(self))
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return [m.group_id for m in memberships
-                if m.may_manage_patients or m.groupadmin]
+                dbsession=SqlASession.object_session(self)
+            )
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return [
+            m.group_id
+            for m in memberships
+            if m.may_manage_patients or m.groupadmin
+        ]
 
     @property
     def ids_of_groups_user_may_email_patients_in(self) -> List[int]:
@@ -1021,10 +1079,14 @@ class User(Base):
         """
         if self.superuser:
             return Group.all_group_ids(
-                dbsession=SqlASession.object_session(self))
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return [m.group_id for m in memberships
-                if m.may_email_patients or m.groupadmin]
+                dbsession=SqlASession.object_session(self)
+            )
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return [
+            m.group_id
+            for m in memberships
+            if m.may_email_patients or m.groupadmin
+        ]
 
     @property
     def names_of_groups_user_is_admin_for(self) -> List[str]:
@@ -1034,8 +1096,9 @@ class User(Base):
         """
         if self.superuser:
             return Group.all_group_names(
-                dbsession=SqlASession.object_session(self))
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+                dbsession=SqlASession.object_session(self)
+            )
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return [m.group.name for m in memberships if m.groupadmin]
 
     @property
@@ -1100,9 +1163,11 @@ class User(Base):
         display (see ``view_own_user_info.mako``).
 
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.may_dump_data],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.may_dump_data],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_may_report_on(self) -> List[Group]:
@@ -1117,9 +1182,11 @@ class User(Base):
         display (see ``view_own_user_info.mako``).
 
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.may_run_reports],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.may_run_reports],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_may_upload_into(self) -> List[Group]:
@@ -1130,9 +1197,11 @@ class User(Base):
         For visual display (see ``view_own_user_info.mako``).
 
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.may_upload],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.may_upload],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_may_add_special_notes(self) -> List[Group]:
@@ -1143,9 +1212,11 @@ class User(Base):
         For visual display (see ``view_own_user_info.mako``).
 
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.may_add_notes],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.may_add_notes],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_may_see_all_pts_when_unfiltered(self) -> List[Group]:
@@ -1156,10 +1227,15 @@ class User(Base):
         For visual display (see ``view_own_user_info.mako``).
 
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships
-                       if m.view_all_patients_when_unfiltered],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [
+                m.group
+                for m in memberships
+                if m.view_all_patients_when_unfiltered
+            ],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_is_admin_for(self) -> List[Group]:
@@ -1171,9 +1247,11 @@ class User(Base):
         ``view_own_user_info.mako``).
 
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.groupadmin],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.groupadmin],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_may_manage_patients_in(self) -> List[Group]:
@@ -1181,9 +1259,11 @@ class User(Base):
         Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
         objects for groups the user may manage patients in.
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.may_manage_patients],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.may_manage_patients],
+            key=lambda g: g.name,
+        )
 
     @property
     def groups_user_may_email_patients_in(self) -> List[Group]:
@@ -1191,16 +1271,18 @@ class User(Base):
         Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
         objects for groups the user may send emails to patients in.
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return sorted([m.group for m in memberships if m.may_email_patients],
-                      key=lambda g: g.name)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return sorted(
+            [m.group for m in memberships if m.may_email_patients],
+            key=lambda g: g.name,
+        )
 
     @property
     def is_a_groupadmin(self) -> bool:
         """
         Is the user a specifically defined group administrator (for any group)?
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.groupadmin for m in memberships)
 
     @property
@@ -1219,16 +1301,19 @@ class User(Base):
         """
         return next(
             (m for m in self.user_group_memberships if m.group_id == group_id),
-            None
+            None,
         )
 
-    def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
+    def group_ids_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
         """
         Which group IDs may this user see all patients for, when unfiltered?
         """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return [m.group_id for m in memberships
-                if m.view_all_patients_when_unfiltered]
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return [
+            m.group_id
+            for m in memberships
+            if m.view_all_patients_when_unfiltered
+        ]
 
     def may_upload_to_group(self, group_id: int) -> bool:
         """
@@ -1236,7 +1321,7 @@ class User(Base):
         """
         if self.superuser:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.may_upload for m in memberships if m.group_id == group_id)
 
     # -------------------------------------------------------------------------
@@ -1257,7 +1342,7 @@ class User(Base):
         """
         if self.superuser:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.may_use_webviewer for m in memberships)
 
     def authorized_to_add_special_note(self, group_id: int) -> bool:
@@ -1291,7 +1376,7 @@ class User(Base):
         """
         if self.superuser:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.may_dump_data for m in memberships)
 
     @property
@@ -1301,7 +1386,7 @@ class User(Base):
         """
         if self.superuser:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.may_run_reports for m in memberships)
 
     @property
@@ -1311,7 +1396,7 @@ class User(Base):
         """
         if self.authorized_as_groupadmin:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.may_manage_patients for m in memberships)
 
     @property
@@ -1321,7 +1406,7 @@ class User(Base):
         """
         if self.authorized_as_groupadmin:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return any(m.may_email_patients for m in memberships)
 
     @property
@@ -1332,7 +1417,7 @@ class User(Base):
         """
         if self.superuser:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
         return all(m.view_all_patients_when_unfiltered for m in memberships)
 
     @property
@@ -1342,9 +1427,10 @@ class User(Base):
         """
         if self.superuser:
             return False
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return all(not m.view_all_patients_when_unfiltered
-                   for m in memberships)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return all(
+            not m.view_all_patients_when_unfiltered for m in memberships
+        )
 
     @property
     def may_upload(self) -> bool:
@@ -1369,9 +1455,12 @@ class User(Base):
             return False
         if self.superuser:
             return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return any(m.may_register_devices for m in memberships
-                   if m.group_id == self.upload_group_id)
+        memberships = self.user_group_memberships  # type: _TYPE_LUGM
+        return any(
+            m.may_register_devices
+            for m in memberships
+            if m.group_id == self.upload_group_id
+        )
 
     # -------------------------------------------------------------------------
     # Managing other users
@@ -1399,25 +1488,25 @@ class User(Base):
             groupadmin_group_ids = self.ids_of_groups_user_is_admin_for
             # noinspection PyUnresolvedReferences
             ugm2 = UserGroupMembership.__table__.alias("ugm2")
-            q = q.join(User.user_group_memberships)\
-                .filter(not_(User.superuser))\
-                .filter(UserGroupMembership.group_id.in_(groupadmin_group_ids))\
+            q = (
+                q.join(User.user_group_memberships)
+                .filter(not_(User.superuser))
+                .filter(UserGroupMembership.group_id.in_(groupadmin_group_ids))
                 .filter(
-                    ~exists().select_from(ugm2).where(
-                        and_(
-                            ugm2.c.user_id == User.id,
-                            ugm2.c.groupadmin
-                        )
-                    )
+                    ~exists()
+                    .select_from(ugm2)
+                    .where(and_(ugm2.c.user_id == User.id, ugm2.c.groupadmin))
                 )
+            )
             # ... no superusers
             # ... user must be a member of one of our groups
             # ... no groupadmins
             # https://stackoverflow.com/questions/14600619/using-not-exists-clause-in-sqlalchemy-orm-query  # noqa
         return q
 
-    def may_edit_user(self, req: "CamcopsRequest",
-                      other: "User") -> Tuple[bool, str]:
+    def may_edit_user(
+        self, req: "CamcopsRequest", other: "User"
+    ) -> Tuple[bool, str]:
         """
         May the ``self`` user edit the ``other`` user?
 
@@ -1440,8 +1529,13 @@ class User(Base):
                 return False, _("You may not edit a group administrator")
             groupadmin_group_ids = self.ids_of_groups_user_is_admin_for
             if not any(gid in groupadmin_group_ids for gid in other.group_ids):
-                return False, _("You are not a group administrator for any "
-                                "groups that this user is in")
+                return (
+                    False,
+                    _(
+                        "You are not a group administrator for any "
+                        "groups that this user is in"
+                    ),
+                )
         return True, ""
 
 
@@ -1449,8 +1543,10 @@ class User(Base):
 # Command-line password control
 # =============================================================================
 
-def set_password_directly(req: "CamcopsRequest",
-                          username: str, password: str) -> bool:
+
+def set_password_directly(
+    req: "CamcopsRequest", username: str, password: str
+) -> bool:
     """
     If the user exists, set its password. Returns Boolean success.
     Used from the command line.

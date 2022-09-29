@@ -33,12 +33,7 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from camcops_server.cc_modules.cc_html import (
-    answer,
-    italic,
-    tr,
-    tr_qa,
-)
+from camcops_server.cc_modules.cc_html import answer, italic, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -58,38 +53,45 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # CGI
 # =============================================================================
 
+
 class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     Server implementation of the CGI task.
     """
+
     __tablename__ = "cgi"
     shortname = "CGI"
     provides_trackers = True
 
     q1 = CamcopsColumn(
-        "q1", Integer,
+        "q1",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-        comment="Q1. Severity (1-7, higher worse, 0 not assessed)"
+        comment="Q1. Severity (1-7, higher worse, 0 not assessed)",
     )
     q2 = CamcopsColumn(
-        "q2", Integer,
+        "q2",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-        comment="Q2. Global improvement (1-7, higher worse, 0 not assessed)"
+        comment="Q2. Global improvement (1-7, higher worse, 0 not assessed)",
     )
     q3t = CamcopsColumn(
-        "q3t", Integer,
+        "q3t",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
-        comment="Q3T. Therapeutic effects (1-4, higher worse, 0 not assessed)"
+        comment="Q3T. Therapeutic effects (1-4, higher worse, 0 not assessed)",
     )
     q3s = CamcopsColumn(
-        "q3s", Integer,
+        "q3s",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
-        comment="Q3S. Side effects (1-4, higher worse, 0 not assessed)"
+        comment="Q3S. Side effects (1-4, higher worse, 0 not assessed)",
     )
     q3 = CamcopsColumn(
-        "q3", Integer,
+        "q3",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=16),
-        comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S]."
+        comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S].",
     )
 
     TASK_FIELDS = ["q1", "q2", "q3t", "q3s", "q3"]
@@ -101,31 +103,39 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         return _("Clinical Global Impressions")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="CGI total score",
-            axis_label=f"Total score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="CGI total score",
+                axis_label=f"Total score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"CGI total score {self.total_score()}/{self.MAX_SCORE}"
-        )]
+        return [
+            CtvInfo(
+                content=(
+                    f"CGI total score {self.total_score()}/{self.MAX_SCORE}"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score()),
+            SummaryElement(
+                name="total", coltype=Integer(), value=self.total_score()
+            )
         ]
 
     def is_complete(self) -> bool:
-        if not (self.all_fields_not_none(self.TASK_FIELDS) and
-                self.field_contents_valid()):
+        if not (
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
+        ):
             return False
         # Requirement for everything to be non-zero removed in v2.0.0
         # if self.q1 == 0 or self.q2 == 0 or self.q3t == 0 or self.q3s == 0:
@@ -176,24 +186,23 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         }
 
         tr_total_score = tr(
-            "Total score <sup>[1]</sup>",
-            answer(self.total_score())
+            "Total score <sup>[1]</sup>", answer(self.total_score())
         )
         tr_q1 = tr_qa(
             self.wxstring(req, "q1_s") + " <sup>[2]</sup>",
-            get_from_dict(q1_dict, self.q1)
+            get_from_dict(q1_dict, self.q1),
         )
         tr_q2 = tr_qa(
             self.wxstring(req, "q2_s") + " <sup>[2]</sup>",
-            get_from_dict(q2_dict, self.q2)
+            get_from_dict(q2_dict, self.q2),
         )
         tr_q3t = tr_qa(
             self.wxstring(req, "q3t_s") + " <sup>[3]</sup>",
-            get_from_dict(q3t_dict, self.q3t)
+            get_from_dict(q3t_dict, self.q3t),
         )
         tr_q3s = tr_qa(
             self.wxstring(req, "q3s_s") + " <sup>[3]</sup>",
-            get_from_dict(q3s_dict, self.q3s)
+            get_from_dict(q3s_dict, self.q3s),
         )
         tr_q3 = tr(
             f"""
@@ -202,7 +211,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                     [(Q3T – 1) × 4 + Q3S]
                 </div>
             """,
-            answer(self.q3, formatter_answer=italic)
+            answer(self.q3, formatter_answer=italic),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -235,6 +244,7 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # CGI-I
 # =============================================================================
 
+
 class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cgi_i"
     shortname = "CGI-I"
@@ -242,9 +252,10 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     info_filename_stem = "cgi"
 
     q = CamcopsColumn(
-        "q", Integer,
+        "q",
+        Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-        comment="Global improvement (1-7, higher worse)"
+        comment="Global improvement (1-7, higher worse)",
     )
 
     TASK_FIELDS = ["q"]
@@ -257,13 +268,17 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="CGI-I rating: {}".format(self.get_rating_text(req))
-        )]
+        return [
+            CtvInfo(
+                content="CGI-I rating: {}".format(self.get_rating_text(req))
+            )
+        ]
 
     def is_complete(self) -> bool:
-        return (self.all_fields_not_none(self.TASK_FIELDS) and
-                self.field_contents_valid())
+        return (
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
+        )
 
     def get_rating_text(self, req: CamcopsRequest) -> str:
         qdict = self.get_q_dict(req)

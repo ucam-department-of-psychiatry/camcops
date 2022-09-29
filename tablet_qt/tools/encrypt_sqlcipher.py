@@ -63,34 +63,48 @@ def main() -> NoReturn:
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Use SQLCipher to make an encrypted copy of a database",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "plaintext",
-        help="Filename of the existing plain-text (decrypted) database")
+        help="Filename of the existing plain-text (decrypted) database",
+    )
     parser.add_argument(
-        "encrypted",
-        help="Filename of the encrypted database to be created")
+        "encrypted", help="Filename of the encrypted database to be created"
+    )
     parser.add_argument(
-        "--password", type=str, default=None,
+        "--password",
+        type=str,
+        default=None,
         help="Password (if blank, environment variable {} will be used, or you"
-             " will be prompted)".format(PASSWORD_ENV_VAR))
+        " will be prompted)".format(PASSWORD_ENV_VAR),
+    )
     parser.add_argument(
-        "--sqlcipher", type=str, default=None,
+        "--sqlcipher",
+        type=str,
+        default=None,
         help=(
             "SQLCipher executable file (if blank, environment variable {} "
             "will be used, or the default of {})"
-        ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)))
+        ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)),
+    )
     parser.add_argument(
-        "--encoding", type=str, default=sys.getdefaultencoding(),
-        help="Encoding to use")
+        "--encoding",
+        type=str,
+        default=sys.getdefaultencoding(),
+        help="Encoding to use",
+    )
     progargs = parser.parse_args()
     # log.debug("Args: " + repr(progargs))
 
     # -------------------------------------------------------------------------
     # SQLCipher executable
     # -------------------------------------------------------------------------
-    sqlcipher = (progargs.sqlcipher or os.environ.get(SQLCIPHER_ENV_VAR) or
-                 SQLCIPHER_DEFAULT)
+    sqlcipher = (
+        progargs.sqlcipher
+        or os.environ.get(SQLCIPHER_ENV_VAR)
+        or SQLCIPHER_DEFAULT
+    )
 
     # -------------------------------------------------------------------------
     # Check file existence
@@ -110,15 +124,21 @@ def main() -> NoReturn:
     # -------------------------------------------------------------------------
     password = progargs.password
     if password:
-        log.debug("Using password from command-line arguments (NB danger: "
-                  "visible to ps and similar tools)")
+        log.debug(
+            "Using password from command-line arguments (NB danger: "
+            "visible to ps and similar tools)"
+        )
     elif PASSWORD_ENV_VAR in os.environ:
         password = os.environ[PASSWORD_ENV_VAR]
-        log.debug("Using password from environment variable {}",
-                  PASSWORD_ENV_VAR)
+        log.debug(
+            "Using password from environment variable {}", PASSWORD_ENV_VAR
+        )
     else:
-        log.info("Password not on command-line or in environment variable {};"
-                 " please enter it manually.", PASSWORD_ENV_VAR)
+        log.info(
+            "Password not on command-line or in environment variable {};"
+            " please enter it manually.",
+            PASSWORD_ENV_VAR,
+        )
         password = getpass.getpass()
 
     # -------------------------------------------------------------------------
@@ -141,8 +161,7 @@ SELECT sqlcipher_export('encrypted');
 DETACH DATABASE encrypted;
 .exit
     """.format(
-        encrypted=progargs.encrypted,
-        key=string_to_sql_literal(password),
+        encrypted=progargs.encrypted, key=string_to_sql_literal(password)
     )
     cmdargs = [sqlcipher, progargs.plaintext]
     # log.debug("cmdargs: " + repr(cmdargs))
@@ -150,20 +169,26 @@ DETACH DATABASE encrypted;
     log.info("Calling SQLCipher ({!r})...", sqlcipher)
     p = Popen(cmdargs, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout_bytes, stderr_bytes = p.communicate(
-        input=sql.encode(progargs.encoding))
+        input=sql.encode(progargs.encoding)
+    )
     stderr_str = stderr_bytes.decode(progargs.encoding)
     retcode = p.returncode
     if retcode > 0:
-        log.critical("SQLCipher returned an error; its output is below. (Not "
-                     "a plain-text database? Wrong passwords give the error "
-                     "'file is encrypted or is not a database', "
-                     "as do non-database files.)")
+        log.critical(
+            "SQLCipher returned an error; its output is below. (Not "
+            "a plain-text database? Wrong passwords give the error "
+            "'file is encrypted or is not a database', "
+            "as do non-database files.)"
+        )
         log.critical(stderr_str)
     else:
-        log.info("Success. (The database {!r} is now an SQLCipher "
-                 " encrypted database.)", progargs.encrypted)
+        log.info(
+            "Success. (The database {!r} is now an SQLCipher "
+            " encrypted database.)",
+            progargs.encrypted,
+        )
     sys.exit(retcode)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -278,12 +278,12 @@ All operating systems
   .. code-block:: bash
 
     # Linux
-    git clone https://github.com/RudolfCardinal/camcops $CAMCOPS_SOURCE_DIR
+    git clone https://github.com/ucam-department-of-psychiatry/camcops $CAMCOPS_SOURCE_DIR
 
   .. code-block:: bat
 
     REM Windows
-    git clone https://github.com/RudolfCardinal/camcops %CAMCOPS_SOURCE_DIR%
+    git clone https://github.com/ucam-department-of-psychiatry/camcops %CAMCOPS_SOURCE_DIR%
 
 - Create a virtual environment and install some Python tools:
 

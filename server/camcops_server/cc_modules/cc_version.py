@@ -54,6 +54,7 @@ FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE = Version("2.0.4")
 # For converting from older formats
 # =============================================================================
 
+
 def make_version(v: Union[str, float, None]) -> Version:
     """
     Returns a :class:`semantic_version.Version` from its input or raises

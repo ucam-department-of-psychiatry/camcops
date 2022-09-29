@@ -47,16 +47,16 @@ optional arguments:
   -h, --help           show this help message and exit
   --lconvert LCONVERT  Path to 'lconvert' tool (part of Qt Linguist). Default
                        is taken from LCONVERT environment variable or 'which
-                       lconvert'. (default: /usr/bin/lconvert)
+                       lconvert'. (default: /path/to/lconvert)
   --lrelease LRELEASE  Path to 'lrelease' tool (part of Qt Linguist). Default
                        is taken from LRELEASE environment variable or 'which
-                       lrelease'. (default: /usr/bin/lrelease)
+                       lrelease'. (default: /path/to/lrelease)
   --lupdate LUPDATE    Path to 'lupdate' tool (part of Qt Linguist). Default
                        is taken from LUPDATE environment variable or 'which
-                       lupdate'. (default: /usr/bin/lupdate)
+                       lupdate'. (default: /path/to/lupdate)
   --poedit POEDIT      Path to 'poedit' tool. Default is taken from POEDIT
                        environment variable or 'which poedit'. (default:
-                       /snap/bin/poedit)
+                       /path/to/poedit)
   --trim               Remove redundant strings. (default: True)
   --no_trim            Do not remove redundant strings. (default: False)
   --verbose            Be verbose (default: False)

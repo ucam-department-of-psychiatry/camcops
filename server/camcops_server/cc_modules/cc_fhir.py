@@ -327,13 +327,15 @@ They are validated in FHIRAbstractBase.update_with_json().
 # Export tasks via FHIR
 # =============================================================================
 
+
 class FhirTaskExporter(object):
     """
     Class that knows how to export a single task to FHIR.
     """
-    def __init__(self,
-                 request: "CamcopsRequest",
-                 exported_task_fhir: "ExportedTaskFhir") -> None:
+
+    def __init__(
+        self, request: "CamcopsRequest", exported_task_fhir: "ExportedTaskFhir"
+    ) -> None:
         self.request = request
         self.exported_task = exported_task_fhir.exported_task
         self.exported_task_fhir = exported_task_fhir
@@ -373,8 +375,7 @@ class FhirTaskExporter(object):
         # supported resource types (statement.rest[0].resource[])
 
         bundle = self.task.get_fhir_bundle(
-            self.request,
-            self.exported_task.recipient
+            self.request, self.exported_task.recipient
         )  # may raise FhirExportException
 
         try:
@@ -390,13 +391,15 @@ class FhirTaskExporter(object):
                 # already have been raised if there was a failure
                 raise FhirExportException(
                     "The FHIR server unexpectedly returned an OK, empty "
-                    "response")
+                    "response"
+                )
 
             self.parse_response(response)
 
         except HTTPError as e:
             raise FhirExportException(
-                f"The FHIR server returned an error: {e.response.text}")
+                f"The FHIR server returned an error: {e.response.text}"
+            )
 
         except Exception as e:
             # Unfortunate that fhirclient doesn't give us anything more
@@ -462,8 +465,9 @@ class FhirTaskExporter(object):
         Record the server's reply components in strucured format.
         """
         from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTaskFhirEntry
+            ExportedTaskFhirEntry,
         )  # delayed import
+
         for entry in bundle.entry:
             saved_entry = ExportedTaskFhirEntry()
             saved_entry.exported_task_fhir_id = self.exported_task_fhir.id
@@ -481,23 +485,23 @@ class FhirTaskExporter(object):
 # Helper functions for building FHIR component objects
 # =============================================================================
 
-def fhir_pk_identifier(req: "CamcopsRequest",
-                       tablename: str,
-                       pk: int,
-                       value_within_task: str) -> Identifier:
+
+def fhir_pk_identifier(
+    req: "CamcopsRequest", tablename: str, pk: int, value_within_task: str
+) -> Identifier:
     """
     Creates a "fallback" identifier -- this is poor, but allows unique
     identification of anything (such as a patient with no proper ID numbers)
     based on its CamCOPS table name and server PK.
     """
-    return Identifier(jsondict={
-        Fc.SYSTEM: req.route_url(
-            Routes.FHIR_TABLENAME_PK_ID,
-            table_name=tablename,
-            server_pk=pk
-        ),
-        Fc.VALUE: value_within_task,
-    })
+    return Identifier(
+        jsondict={
+            Fc.SYSTEM: req.route_url(
+                Routes.FHIR_TABLENAME_PK_ID, table_name=tablename, server_pk=pk
+            ),
+            Fc.VALUE: value_within_task,
+        }
+    )
 
 
 def fhir_system_value(system: str, value: str) -> str:
@@ -521,8 +525,9 @@ def fhir_reference_from_identifier(identifier: Identifier) -> str:
     return f"{Fc.IDENTIFIER}={fhir_sysval_from_id(identifier)}"
 
 
-def fhir_observation_component_from_snomed(req: "CamcopsRequest",
-                                           expr: SnomedExpression) -> Dict:
+def fhir_observation_component_from_snomed(
+    req: "CamcopsRequest", expr: SnomedExpression
+) -> Dict:
     """
     Returns a FHIR ObservationComponent (as a dict in JSON format) for a SNOMED
     CT expression.
@@ -533,45 +538,58 @@ def fhir_observation_component_from_snomed(req: "CamcopsRequest",
     # -- thus, we use "valueCodeableConcept" as the specific value (the generic
     # being "value<something>" or what FHIR calls "value[x]"). But there also
     # needs to be a coding system, specified via "code".
-    return ObservationComponent(jsondict={
-        # code = "the type of thing reported here"
-        # Per https://www.hl7.org/fhir/observation.html#code-interop, we use
-        # SNOMED 363787002 = Observable entity.
-        Fc.CODE: CodeableConcept(jsondict={
-            Fc.CODING: [
-                Coding(jsondict={
-                    Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,
-                    Fc.CODE: str(observable_entity.identifier),
-                    Fc.DISPLAY: observable_entity.as_string(longform=True),
-                    Fc.USER_SELECTED: False,
-                }).as_json()
-            ],
-            Fc.TEXT: observable_entity.term,
-        }).as_json(),
+    return ObservationComponent(
+        jsondict={
+            # code = "the type of thing reported here"
+            # Per https://www.hl7.org/fhir/observation.html#code-interop, we
+            # use SNOMED 363787002 = Observable entity.
+            Fc.CODE: CodeableConcept(
+                jsondict={
+                    Fc.CODING: [
+                        Coding(
+                            jsondict={
+                                Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,
+                                Fc.CODE: str(observable_entity.identifier),
+                                Fc.DISPLAY: observable_entity.as_string(
+                                    longform=True
+                                ),
+                                Fc.USER_SELECTED: False,
+                            }
+                        ).as_json()
+                    ],
+                    Fc.TEXT: observable_entity.term,
+                }
+            ).as_json(),
+            # value = "the value of the thing"; the actual SNOMED code of
+            # interest:
+            Fc.VALUE_CODEABLE_CONCEPT: CodeableConcept(
+                jsondict={
+                    Fc.CODING: [
+                        Coding(
+                            jsondict={
+                                # http://www.hl7.org/fhir/snomedct.html
+                                Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,
+                                Fc.CODE: expr.as_string(longform=False),
+                                Fc.DISPLAY: expr_longform,
+                                Fc.USER_SELECTED: False,
+                                # ... means "did the user choose it themselves?"  # noqa: E501
+                                # version: not used
+                            }
+                        ).as_json()
+                    ],
+                    Fc.TEXT: expr_longform,
+                }
+            ).as_json(),
+        }
+    ).as_json()
 
-        # value = "the value of the thing"; the actual SNOMED code of
-        # interest:
-        Fc.VALUE_CODEABLE_CONCEPT: CodeableConcept(jsondict={
-            Fc.CODING: [
-                Coding(jsondict={
-                    # http://www.hl7.org/fhir/snomedct.html
-                    Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,
-                    Fc.CODE: expr.as_string(longform=False),
-                    Fc.DISPLAY: expr_longform,
-                    Fc.USER_SELECTED: False,
-                    # ... means "did the user choose it themselves?"
-                    # version: not used
-                }).as_json()
-            ],
-            Fc.TEXT: expr_longform,
-        }).as_json(),
-    }).as_json()
 
-
-def make_fhir_bundle_entry(resource_type_url: str,
-                           identifier: Identifier,
-                           resource: Dict,
-                           identifier_is_list: bool = True) -> Dict:
+def make_fhir_bundle_entry(
+    resource_type_url: str,
+    identifier: Identifier,
+    resource: Dict,
+    identifier_is_list: bool = True,
+) -> Dict:
     """
     Builds a FHIR BundleEntry, as a JSON dict.
 
@@ -580,35 +598,41 @@ def make_fhir_bundle_entry(resource_type_url: str,
     an ifNoneExist condition referring to that identifier.
     """
     if Fc.IDENTIFIER in resource:
-        log.warning(f"Duplication: {Fc.IDENTIFIER!r} specified in resource "
-                    f"but would be auto-added by make_fhir_bundle_entry()")
+        log.warning(
+            f"Duplication: {Fc.IDENTIFIER!r} specified in resource "
+            f"but would be auto-added by make_fhir_bundle_entry()"
+        )
     if identifier_is_list:
         # Some, like Observation, Patient, and Questionnaire, need lists here.
         resource[Fc.IDENTIFIER] = [identifier.as_json()]
     else:
         # Others, like QuestionnaireResponse, don't.
         resource[Fc.IDENTIFIER] = identifier.as_json()
-    bundle_request = BundleEntryRequest(jsondict={
-        Fc.METHOD: HttpMethod.POST,
-        Fc.URL: resource_type_url,
-        Fc.IF_NONE_EXIST: fhir_reference_from_identifier(identifier),
-        # "If this resource doesn't exist, as determined by this identifier,
-        # then create it:" https://www.hl7.org/fhir/http.html#ccreate
-    })
-    return BundleEntry(jsondict={
-        Fc.REQUEST: bundle_request.as_json(),
-        Fc.RESOURCE: resource,
-    }).as_json()
+    bundle_request = BundleEntryRequest(
+        jsondict={
+            Fc.METHOD: HttpMethod.POST,
+            Fc.URL: resource_type_url,
+            Fc.IF_NONE_EXIST: fhir_reference_from_identifier(identifier),
+            # "If this resource doesn't exist, as determined by this
+            # identifier, then create it:"
+            # https://www.hl7.org/fhir/http.html#ccreate
+        }
+    )
+    return BundleEntry(
+        jsondict={Fc.REQUEST: bundle_request.as_json(), Fc.RESOURCE: resource}
+    ).as_json()
 
 
 # =============================================================================
 # Helper classes for building FHIR component objects
 # =============================================================================
 
+
 class FHIRQuestionType(Enum):
     """
     An enum for value type keys of QuestionnaireResponseItemAnswer.
     """
+
     ATTACHMENT = Fc.QITEM_TYPE_ATTACHMENT
     BOOLEAN = Fc.QITEM_TYPE_BOOLEAN
     CHOICE = Fc.QITEM_TYPE_CHOICE
@@ -631,6 +655,7 @@ class FHIRAnswerType(Enum):
     """
     An enum for value type keys of QuestionnaireResponseItemAnswer.
     """
+
     ATTACHMENT = Fc.VALUE_ATTACHMENT
     BOOLEAN = Fc.VALUE_BOOLEAN
     CODING = Fc.VALUE_CODING
@@ -661,13 +686,16 @@ class FHIRAnsweredQuestion:
 
     Used for autodiscovery.
     """
-    def __init__(self,
-                 qname: str,
-                 qtext: str,
-                 qtype: FHIRQuestionType,
-                 answer_type: FHIRAnswerType,
-                 answer: Any,
-                 answer_options: Dict[Any, str] = None) -> None:
+
+    def __init__(
+        self,
+        qname: str,
+        qtext: str,
+        qtype: FHIRQuestionType,
+        answer_type: FHIRAnswerType,
+        answer: Any,
+        answer_options: Dict[Any, str] = None,
+    ) -> None:
         """
         Args:
             qname:
@@ -718,8 +746,10 @@ class FHIRAnsweredQuestion:
         """
         Is this a multiple-choice question?
         """
-        return self.qtype in (FHIRQuestionType.CHOICE,
-                              FHIRQuestionType.OPEN_CHOICE)
+        return self.qtype in (
+            FHIRQuestionType.CHOICE,
+            FHIRQuestionType.OPEN_CHOICE,
+        )
 
     # -------------------------------------------------------------------------
     # Abstract (class)
@@ -743,12 +773,16 @@ class FHIRAnsweredQuestion:
             options = []  # type: List[Dict]
             # We asserted mcq_qa earlier.
             for code, display in self.answer_options.items():
-                options.append(QuestionnaireItemAnswerOption(jsondict={
-                    Fc.VALUE_CODING: {
-                        Fc.CODE: str(code),
-                        Fc.DISPLAY: display
-                    }
-                }).as_json())
+                options.append(
+                    QuestionnaireItemAnswerOption(
+                        jsondict={
+                            Fc.VALUE_CODING: {
+                                Fc.CODE: str(code),
+                                Fc.DISPLAY: display,
+                            }
+                        }
+                    ).as_json()
+                )
             qitem_dict[Fc.ANSWER_OPTION] = options
 
         return QuestionnaireItem(jsondict=qitem_dict).as_json()
@@ -777,18 +811,18 @@ class FHIRAnsweredQuestion:
                 format_datetime(raw_answer, DateFormat.FHIR_DATE)
             ).as_json()
         elif answer_type == FHIRAnswerType.DATETIME:
-            fhir_answer = FHIRDate(
-                raw_answer.isoformat()
-            ).as_json()
+            fhir_answer = FHIRDate(raw_answer.isoformat()).as_json()
         elif answer_type == FHIRAnswerType.DECIMAL:
             fhir_answer = float(raw_answer)
         elif answer_type == FHIRAnswerType.INTEGER:
             fhir_answer = int(raw_answer)
         elif answer_type == FHIRAnswerType.QUANTITY:
-            fhir_answer = Quantity(jsondict={
-                Fc.VALUE: float(raw_answer)
-                # More sophistication is possible -- units, for example.
-            }).as_json()
+            fhir_answer = Quantity(
+                jsondict={
+                    Fc.VALUE: float(raw_answer)
+                    # More sophistication is possible -- units, for example.
+                }
+            ).as_json()
         elif answer_type == FHIRAnswerType.STRING:
             fhir_answer = str(raw_answer)
         elif answer_type == FHIRAnswerType.TIME:
@@ -799,21 +833,24 @@ class FHIRAnsweredQuestion:
             fhir_answer = str(raw_answer)
         else:
             raise NotImplementedError(
-                f"Don't know how to handle FHIR answer type {answer_type}")
+                f"Don't know how to handle FHIR answer type {answer_type}"
+            )
 
         # Build the FHIR object
-        return QuestionnaireResponseItemAnswer(jsondict={
-            answer_type.value: fhir_answer
-        })
+        return QuestionnaireResponseItemAnswer(
+            jsondict={answer_type.value: fhir_answer}
+        )
 
     def questionnaire_response_item(self) -> Dict:
         """
         Returns a JSON/dict representation of a FHIR QuestionnaireResponseItem.
         """
         answer = self._qr_item_answer()
-        return QuestionnaireResponseItem(jsondict={
-            Fc.LINK_ID: self.qname,
-            Fc.TEXT: self.qtext,  # question text
-            Fc.ANSWER: [answer.as_json()],
-            # Not supported yet: nesting, via "item".
-        }).as_json()
+        return QuestionnaireResponseItem(
+            jsondict={
+                Fc.LINK_ID: self.qname,
+                Fc.TEXT: self.qtext,  # question text
+                Fc.ANSWER: [answer.as_json()],
+                # Not supported yet: nesting, via "item".
+            }
+        ).as_json()

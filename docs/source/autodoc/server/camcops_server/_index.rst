@@ -103,6 +103,11 @@ server/camcops_server
     alembic/versions/0069_manage_patient_permission.py.rst
     alembic/versions/0070_mfa.py.rst
     alembic/versions/0071_fhir.py.rst
+    alembic/versions/0072_edeq.py.rst
+    alembic/versions/0073_isaaq.py.rst
+    alembic/versions/0074_isaaqed.py.rst
+    alembic/versions/0075_cia.py.rst
+    alembic/versions/0076_paradise24.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -120,6 +125,7 @@ server/camcops_server
     cc_modules/cc_constants.py.rst
     cc_modules/cc_convert.py.rst
     cc_modules/cc_ctvinfo.py.rst
+    cc_modules/cc_dataclasses.py.rst
     cc_modules/cc_db.py.rst
     cc_modules/cc_debug.py.rst
     cc_modules/cc_device.py.rst
@@ -229,9 +235,11 @@ server/camcops_server
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/basdai_TEMPLATE.xml.rst
     extra_string_templates/chit_TEMPLATE.xml.rst
+    extra_string_templates/cia_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/das28_TEMPLATE.xml.rst
+    extra_string_templates/edeq_TEMPLATE.xml.rst
     extra_string_templates/epds_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst
     extra_string_templates/esspri_TEMPLATE.xml.rst
@@ -239,6 +247,8 @@ server/camcops_server
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
+    extra_string_templates/isaaq_TEMPLATE.xml.rst
+    extra_string_templates/isaaqed_TEMPLATE.xml.rst
     extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
     extra_string_templates/moca_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
@@ -317,6 +327,7 @@ server/camcops_server
     extra_strings/mast.xml.rst
     extra_strings/mfi20.xml.rst
     extra_strings/panss.xml.rst
+    extra_strings/paradise24.xml.rst
     extra_strings/pbq.xml.rst
     extra_strings/pcl.xml.rst
     extra_strings/pcl5.xml.rst
@@ -354,6 +365,7 @@ server/camcops_server
     tasks/cgi_task.py.rst
     tasks/cgisch.py.rst
     tasks/chit.py.rst
+    tasks/cia.py.rst
     tasks/cisr.py.rst
     tasks/ciwa.py.rst
     tasks/contactlog.py.rst
@@ -371,6 +383,7 @@ server/camcops_server
     tasks/demqol.py.rst
     tasks/diagnosis.py.rst
     tasks/distressthermometer.py.rst
+    tasks/edeq.py.rst
     tasks/elixhauserci.py.rst
     tasks/epds.py.rst
     tasks/eq5d5l.py.rst
@@ -399,6 +412,9 @@ server/camcops_server
     tasks/iesr.py.rst
     tasks/ifs.py.rst
     tasks/irac.py.rst
+    tasks/isaaq.py.rst
+    tasks/isaaqcommon.py.rst
+    tasks/isaaqed.py.rst
     tasks/khandaker_insight_medical.py.rst
     tasks/khandaker_mojo_medical.py.rst
     tasks/khandaker_mojo_medicationtherapy.py.rst
@@ -415,6 +431,7 @@ server/camcops_server
     tasks/npiq.py.rst
     tasks/ors.py.rst
     tasks/panss.py.rst
+    tasks/paradise24.py.rst
     tasks/pbq.py.rst
     tasks/pcl.py.rst
     tasks/pcl5.py.rst
@@ -439,10 +456,13 @@ server/camcops_server
     tasks/suppsp.py.rst
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
     tasks/tests/basdai_tests.py.rst
+    tasks/tests/cia_tests.py.rst
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/edeq_tests.py.rst
     tasks/tests/maas_tests.py.rst
+    tasks/tests/paradise24_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst
     tasks/tests/rapid3_tests.py.rst
     tasks/wemwbs.py.rst
