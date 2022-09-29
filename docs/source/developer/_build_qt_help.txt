@@ -90,7 +90,7 @@ Qt:
                         Qt build type (release = small and quick) (default:
                         release)
   --qt_src_dirname QT_SRC_DIRNAME
-                        Qt source directory (default: qt5)
+                        Qt source directory (default: qt6)
   --qt_openssl_static   Link OpenSSL statically (ONLY if Qt is statically
                         linked) [True=static, False=dynamic] (default: True)
   --qt_openssl_linked   Link OpenSSL dynamically [True=static, False=dynamic]
