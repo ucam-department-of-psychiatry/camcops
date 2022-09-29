@@ -186,8 +186,6 @@ tablet_qt
     graphics/graphicsfunc.h.rst
     graphics/graphicspixmapitemwithopacity.cpp.rst
     graphics/graphicspixmapitemwithopacity.h.rst
-    graphics/imagefunc.cpp.rst
-    graphics/imagefunc.h.rst
     graphics/linesegment.cpp.rst
     graphics/linesegment.h.rst
     graphics/paintertranslaterotatecontext.cpp.rst
