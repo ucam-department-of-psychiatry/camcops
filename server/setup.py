@@ -129,8 +129,7 @@ INSTALL_REQUIRES = [
     # Direct requirements of CamCOPS development tools
     # -------------------------------------------------------------------------
     "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed  # noqa
-    "black==22.3.0",  # auto code formatter
-    "flake8==3.8.3",  # code checks
+    "pre-commit==2.20.0",  # development only, various sanity checks on code
     "scrapy==2.6.2",  # development only
     "sphinx==4.2.0",  # development only
     "sphinx_rtd_theme==1.0.0",  # development only
