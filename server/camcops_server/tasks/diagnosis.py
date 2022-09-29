@@ -593,9 +593,9 @@ def get_diagnosis_report_query(
     # WHERE...
     wheres = [
         Patient._current == True,  # noqa: E712
-        diagnosis_class._current == True,
-        item_class._current == True,
-    ]  # noqa: E712
+        diagnosis_class._current == True,  # noqa: E712
+        item_class._current == True,  # noqa: E712
+    ]
     if not req.user.superuser:
         # Restrict to accessible groups
         group_ids = req.user.ids_of_groups_user_may_report_on
@@ -860,7 +860,7 @@ def get_diagnosis_inc_exc_report_query(
                 getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
                 item_class._device_id == diagnosis_class._device_id,
                 item_class._era == diagnosis_class._era,
-                item_class._current == True,
+                item_class._current == True,  # noqa: E712
             ),
         )
         .join(
@@ -869,7 +869,7 @@ def get_diagnosis_inc_exc_report_query(
                 PatientIdNum.patient_id == Patient.id,
                 PatientIdNum._device_id == Patient._device_id,
                 PatientIdNum._era == Patient._era,
-                PatientIdNum._current == True,
+                PatientIdNum._current == True,  # noqa: E712
                 PatientIdNum.which_idnum == which_idnum,
                 PatientIdNum.idnum_value.isnot(None),  # NOT NULL
             ),
