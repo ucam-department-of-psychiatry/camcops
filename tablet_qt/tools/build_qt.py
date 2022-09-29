@@ -624,8 +624,6 @@ QT_CONFIG_COMMON_ARGS = [
     "-no-sql-oci",
     "-no-sql-odbc",  # ... for future: maybe re-enable as a plugin
     "-no-sql-psql",  # ... for future: maybe re-enable as a plugin
-    # "-no-sql-sqlite2",  # this is an old SQLite version
-    # "-no-sql-tds",  # this one specifically was causing library problems
     # -------------------------------------------------------------------------
     # Libraries
     # -------------------------------------------------------------------------
