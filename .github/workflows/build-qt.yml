@@ -51,4 +51,6 @@ jobs:
                   export CAMCOPS_QT_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
                   cmake --version
-                  ./build_qt.py --build_linux_x86_64 --nparallel 1
+                  apt list --installed "libclang*-dev"
+                  exit 1
+                  # ./build_qt.py --build_linux_x86_64 --nparallel 1
