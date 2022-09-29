@@ -96,9 +96,8 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: Change apt mirror
               run: |
-                  # azure.archive.ubuntu.com is flaky
-                  sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/' /etc/apt/sources.list
-                  sudo apt-get update
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Build and install debian package
               run: |
                   set -eux -o pipefail
