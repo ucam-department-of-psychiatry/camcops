@@ -46,7 +46,7 @@ void initializeIsaaqEd(TaskFactory& factory)
 IsaaqEd::IsaaqEd(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     IsaaqCommon(app, db, ISAAQED_TABLENAME)
 {
-    addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QVariant::Int);
+    addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QMetaType::Int);
 
     load(load_pk);
 }

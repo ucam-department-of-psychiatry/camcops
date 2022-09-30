@@ -75,12 +75,12 @@ Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_num_missed_periods_fr(nullptr),
     m_num_periods_missed_grid(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
 
-    addField(FN_MASS_KG, QVariant::Double);
-    addField(FN_HEIGHT_M, QVariant::Double);
-    addField(FN_NUM_PERIODS_MISSED, QVariant::Int);
-    addField(FN_PILL, QVariant::Bool);
+    addField(FN_MASS_KG, QMetaType::Double);
+    addField(FN_HEIGHT_M, QMetaType::Double);
+    addField(FN_NUM_PERIODS_MISSED, QMetaType::Int);
+    addField(FN_PILL, QMetaType::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
