@@ -1007,8 +1007,8 @@ void IDED3D::startTask()
         return;
     }
     // ... for rationale, see QuAudioPlayer::makeWidget()
-    m_player_correct->setMedia(uifunc::resourceUrl(SOUND_FILE_CORRECT));
-    m_player_incorrect->setMedia(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
+    m_player_correct->setSource(uifunc::resourceUrl(SOUND_FILE_CORRECT));
+    m_player_incorrect->setSource(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
     soundfunc::setVolume(m_player_correct, valueDouble(FN_VOLUME));
     soundfunc::setVolume(m_player_incorrect, valueDouble(FN_VOLUME));
     connect(m_player_correct.data(), &QMediaPlayer::mediaStatusChanged,
