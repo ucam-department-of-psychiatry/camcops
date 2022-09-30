@@ -172,15 +172,15 @@ QString Rapid3::diseaseSeverity() const
         return xstring("n_a");
     }
 
-    if (rapid3 <= 3.0) {
+    if (rapid3.toDouble() <= 3.0) {
         return xstring("near_remission");
     }
 
-    if (rapid3 <= 6.0) {
+    if (rapid3.toDouble() <= 6.0) {
         return xstring("low_severity");
     }
 
-    if (rapid3 <= 12.0) {
+    if (rapid3.toDouble() <= 12.0) {
         return xstring("moderate_severity");
     }
 
