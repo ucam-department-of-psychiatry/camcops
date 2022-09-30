@@ -81,7 +81,7 @@ QString Gaf::description() const
 bool Gaf::isComplete() const
 {
     const QVariant score = valueInt(SCORE);
-    return score >= 1 && score <= 100;
+    return score.toInt() >= 1 && score.toInt() <= 100;
 }
 
 
