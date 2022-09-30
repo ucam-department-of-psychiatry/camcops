@@ -20,7 +20,7 @@
 
 #pragma once
 #include <QtGui/QOpenGLFunctions>
-#include <QtWidgets/QOpenGLWidget>
+#include <QOpenGLWidget>
 
 namespace openglfunc {
 

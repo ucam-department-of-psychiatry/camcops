@@ -84,6 +84,7 @@ QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
 QT += network  # required to #include <QtNetwork/...>
 QT += opengl
+QT += openglwidgets
 QT += printsupport  # for QCustomPlot
 QT += quick  # for QML, e.g. for camera
 QT += quickwidgets  # for QQuickWidget

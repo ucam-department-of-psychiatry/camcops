@@ -31,8 +31,7 @@
 #include <QtGui/QOpenGLFunctions>
 #include <QtGui/QSurface>
 #include <QtGui/QSurfaceFormat>
-#include <QtOpenGL/QGLFormat>
-#include <QtWidgets/QOpenGLWidget>
+#include <QOpenGLWidget>
 
 static bool s_opengl_presence_checked = false;
 static bool s_opengl_present = false;
