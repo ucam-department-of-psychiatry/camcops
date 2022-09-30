@@ -187,15 +187,15 @@ QString Asdas::activityState(QVariant measurement) const
         return xstring("n_a");
     }
 
-    if (measurement < 1.3) {
+    if (measurement.toDouble() < 1.3) {
         return xstring("inactive");
     }
 
-    if (measurement < 2.1) {
+    if (measurement.toDouble() < 2.1) {
         return xstring("moderate");
     }
 
-    if (measurement > 3.5) {
+    if (measurement.toDouble() > 3.5) {
         return xstring("very_high");
     }
 
