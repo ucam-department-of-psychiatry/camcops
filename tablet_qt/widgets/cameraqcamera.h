@@ -135,15 +135,8 @@ protected slots:
     // "User has clicked the 'Take' button."
     void takeImage();
 
-    // "Update the UI to reflect the camera's state."
-    void updateCameraState(QCamera::State state);
-
     // "Pop up a message showing a camera error."
     void displayCameraError(QCamera::Error value);
-
-    // "Update our indicators to reflect a change in the camera's lock status."
-    void updateLockStatus(QCamera::LockStatus status,
-                          QCamera::LockChangeReason reason);
 
     // "Change the ready-for-capture state."
     void readyForCapture(bool ready);

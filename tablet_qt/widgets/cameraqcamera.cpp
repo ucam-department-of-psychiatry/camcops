@@ -309,20 +309,11 @@ void CameraQCamera::setCamera(const QCameraInfo& camera_info)
              << m_camera->supportedViewfinderResolutions();
     qDebug() << Q_FUNC_INFO << "... done";
 #endif
-    connect(m_camera.data(), &QCamera::stateChanged,
-            this, &CameraQCamera::updateCameraState);
     // QCamera::error is overloaded.
     // Disambiguate like this:
     void (QCamera::*camera_error)(QCamera::Error) = &QCamera::error;
     connect(m_camera.data(), camera_error,
             this, &CameraQCamera::displayCameraError);
-    // QCamera::lockStatusChanged is overloaded.
-    // Disambiguate like this:
-    void (QCamera::*camera_lockstatus)(
-                QCamera::LockStatus,
-                QCamera::LockChangeReason) = &QCamera::lockStatusChanged;
-    connect(m_camera.data(), camera_lockstatus,
-            this, &CameraQCamera::updateLockStatus);
 
     // ------------------------------------------------------------------------
     // QImageCapture
