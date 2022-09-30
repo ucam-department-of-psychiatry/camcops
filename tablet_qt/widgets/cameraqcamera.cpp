@@ -325,25 +325,25 @@ void CameraQCamera::setCamera(const QCameraInfo& camera_info)
             this, &CameraQCamera::updateLockStatus);
 
     // ------------------------------------------------------------------------
-    // QCameraImageCapture
+    // QImageCapture
     // ------------------------------------------------------------------------
-    m_capture = QSharedPointer<QCameraImageCapture>(
-                new QCameraImageCapture(m_camera.data()));
+    m_capture = QSharedPointer<QImageCapture>(
+                new QImageCapture(m_camera.data()));
 
     updateCameraState(m_camera->state());
 
-    connect(m_capture.data(), &QCameraImageCapture::readyForCaptureChanged,
+    connect(m_capture.data(), &QImageCapture::readyForCaptureChanged,
             this, &CameraQCamera::readyForCapture);
-    connect(m_capture.data(), &QCameraImageCapture::imageSaved,
+    connect(m_capture.data(), &QImageCapture::imageSaved,
             this, &CameraQCamera::imageSaved);
-    connect(m_capture.data(), &QCameraImageCapture::imageAvailable,
+    connect(m_capture.data(), &QImageCapture::imageAvailable,
             this, &CameraQCamera::imageAvailable);
-    // QCameraImageCapture::error is overloaded.
+    // QImageCapture::error is overloaded.
     // Disambiguate like this:
-    void (QCameraImageCapture::*capture_error)(
+    void (QImageCapture::*capture_error)(
                 int,
-                QCameraImageCapture::Error,
-                const QString&) = &QCameraImageCapture::error;
+                QImageCapture::Error,
+                const QString&) = &QImageCapture::error;
     connect(m_capture.data(), capture_error,
             this, &CameraQCamera::displayCaptureError);
 
@@ -351,21 +351,21 @@ void CameraQCamera::setCamera(const QCameraInfo& camera_info)
     const bool use_buffer = false;
 #else
     const bool buffer_supported = m_capture->isCaptureDestinationSupported(
-                QCameraImageCapture::CaptureToBuffer);
+                QImageCapture::CaptureToBuffer);
     const bool use_buffer = buffer_supported;
 #endif
     if (use_buffer) {
         qInfo() << Q_FUNC_INFO << "Capturing to buffer";
-        m_capture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+        m_capture->setCaptureDestination(QImageCapture::CaptureToBuffer);
         // BUT... it saves a file anyway, to ~/Pictures/IMG_xxx.jpg.
         // Are we better off using explicit files, to avoid nasty leftovers?
-        // Yes, we are. QCameraImageCapture::capture() appears always to write
+        // Yes, we are. QImageCapture::capture() appears always to write
         // to a file (implied by docs, too), and we do NOT want "leftovers".
         // https://stackoverflow.com/questions/43522004/qcameraimagecapture-saves-to-file-instead-of-buffer
         // http://php.wekeepcoding.com/article/10431109/Why+is+QCameraImageCapture+saving+an+image+to+the+hard+drive%3F
     } else {
         qInfo() << Q_FUNC_INFO << "Capturing to file";
-        m_capture->setCaptureDestination(QCameraImageCapture::CaptureToFile);
+        m_capture->setCaptureDestination(QImageCapture::CaptureToFile);
     }
 
     // ------------------------------------------------------------------------
@@ -502,7 +502,7 @@ void CameraQCamera::takeImage()
 
 
 void CameraQCamera::displayCaptureError(const int id,
-                                        const QCameraImageCapture::Error error,
+                                        const QImageCapture::Error error,
                                         const QString& error_string)
 {
     qWarning() << "Capture error:" << id << error << error_string;

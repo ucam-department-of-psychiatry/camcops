@@ -107,7 +107,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 
         soundfunc::makeMediaPlayer(m_player);
         if (m_player) {
-            m_player->setMedia(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
+            m_player->setSource(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
         }
     }
 

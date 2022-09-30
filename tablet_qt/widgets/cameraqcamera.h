@@ -30,7 +30,6 @@ SUMMARY OF DECISIONS about camera methods: see CameraQml class.
 */
 
 #include <QCamera>
-#include <QCameraImageCapture>
 #include <QImage>
 #include <QPointer>
 #include <QSet>
@@ -156,7 +155,7 @@ protected slots:
     void imageAvailable(int id, const QVideoFrame& buffer);
 
     // "Display an error that occurred during the image capture process."
-    void displayCaptureError(int id, QCameraImageCapture::Error error,
+    void displayCaptureError(int id, QImageCapture::Error error,
                              const QString& error_string);
 
 #ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
@@ -168,7 +167,7 @@ protected:
     QSize m_resolution_preview;  // resolution of our preview image
     QSize m_resolution_main;  // resolution of images we capture
     QSharedPointer<QCamera> m_camera;  // our camera
-    QSharedPointer<QCameraImageCapture> m_capture;  // records images
+    QSharedPointer<QImageCapture> m_capture;  // records images
 #ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
     QPointer<QCameraViewfinder> m_viewfinder;  // our viewfinder
 #endif

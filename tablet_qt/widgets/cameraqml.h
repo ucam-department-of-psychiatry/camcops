@@ -47,7 +47,7 @@ SUMMARY OF DECISIONS about camera methods:
 */
 
 #include <QCamera>
-#include <QCameraImageCapture>
+#include <QImageCapture>
 #include <QImage>
 #include <QPointer>
 #include <QtQuickWidgets/QQuickWidget>
