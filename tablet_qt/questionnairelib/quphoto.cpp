@@ -25,7 +25,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QtMultimedia>
+#include <QMediaDevices>
 #include "core/camcopsapp.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
@@ -49,7 +49,7 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
     m_main_widget(nullptr)
 {
     m_have_opengl = openglfunc::isOpenGLPresent();
-    const int n_cameras = QtMultimedia::QtMultimedia::availableCameras().count();
+    const int n_cameras = QMediaDevices::videoInputs().count();
     m_have_camera = m_have_opengl && n_cameras > 0;
     // We check for OpenGL. If it's absent, and we try to create a camera,
     // we can get an instant segfault/crash. Better to fail gracefully.
