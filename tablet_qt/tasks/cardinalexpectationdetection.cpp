@@ -781,9 +781,9 @@ void CardinalExpectationDetection::startTask()
                          valueDouble(FN_AUDITORY_TARGET_0_INTENSITY));
     soundfunc::setVolume(m_player_target_1,
                          valueDouble(FN_AUDITORY_TARGET_1_INTENSITY));
-    m_player_background->setMedia(getAuditoryBackgroundUrl());
-    m_player_target_0->setMedia(getAuditoryTargetUrl(0));
-    m_player_target_1->setMedia(getAuditoryTargetUrl(1));
+    m_player_background->setSource(getAuditoryBackgroundUrl());
+    m_player_target_0->setSource(getAuditoryTargetUrl(0));
+    m_player_target_1->setSource(getAuditoryTargetUrl(1));
 
     // Double-check we have a PK before we create stages/trials
     save();
@@ -860,7 +860,7 @@ void CardinalExpectationDetection::startTrialProperWithCue()
     // Cues are multimodal.
     const int cue = t->cue();
     // (a) sound
-    m_player_cue->setMedia(getAuditoryCueUrl(cue));
+    m_player_cue->setSource(getAuditoryCueUrl(cue));
     m_player_cue->play();
     // (b) image
     showVisualStimulus(getVisualCueFilenameStem(cue),

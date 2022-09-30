@@ -799,11 +799,11 @@ void CardinalExpDetThreshold::startTask()
 
     // Prep the sounds
     if (auditory) {
-        m_player_background->setMedia(urlFromStem(
+        m_player_background->setSource(urlFromStem(
                                 valueString(FN_BACKGROUND_FILENAME)));
         soundfunc::setVolume(m_player_background,
                              valueDouble(FN_BACKGROUND_INTENSITY));
-        m_player_target->setMedia(urlFromStem(
+        m_player_target->setSource(urlFromStem(
                                 valueString(FN_TARGET_FILENAME)));
         // Volume will be set later.
     }
