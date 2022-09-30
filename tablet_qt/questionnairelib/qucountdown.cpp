@@ -22,6 +22,7 @@
 
 #include "qucountdown.h"
 #include <functional>
+#include <QAudioOutput>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMediaPlayer>
@@ -58,7 +59,7 @@ QuCountdown* QuCountdown::setVolume(const int volume)
 {
     m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
     if (m_player) {
-        m_player->setVolume(m_volume);
+        m_player->audioOutput()->setVolume(m_volume);
     }
     return this;
 }
