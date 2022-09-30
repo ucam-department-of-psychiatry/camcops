@@ -243,15 +243,15 @@ QString Das28::activityStateCrp(const QVariant& measurement) const
         return xstring("n_a");
     }
 
-    if (measurement < 2.4) {
+    if (measurement.toDouble() < 2.4) {
         return xstring("remission");
     }
 
-    if (measurement < 2.9) {
+    if (measurement.toDouble() < 2.9) {
         return xstring("low");
     }
 
-    if (measurement > 4.6) {
+    if (measurement.toDouble() > 4.6) {
         return xstring("high");
     }
 
@@ -268,15 +268,15 @@ QString Das28::activityStateEsr(const QVariant& measurement) const
         return xstring("n_a");
     }
 
-    if (measurement < 2.6) {
+    if (measurement.toDouble() < 2.6) {
         return xstring("remission");
     }
 
-    if (measurement < 3.2) {
+    if (measurement.toDouble() < 3.2) {
         return xstring("low");
     }
 
-    if (measurement > 5.1) {
+    if (measurement.toDouble() > 5.1) {
         return xstring("high");
     }
 
