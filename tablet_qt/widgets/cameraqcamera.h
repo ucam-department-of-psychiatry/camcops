@@ -31,6 +31,7 @@ SUMMARY OF DECISIONS about camera methods: see CameraQml class.
 
 #include <QCamera>
 #include <QImage>
+#include <QImageCapture>
 #include <QPointer>
 #include <QSet>
 #include "widgets/openablewidget.h"
