@@ -25,7 +25,6 @@
 #include "maths/include_eigen_dense.h"
 
 class LinkFunctionFamily;
-class QStringList;
 
 
 namespace statsfunc {
