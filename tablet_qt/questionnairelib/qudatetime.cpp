@@ -389,11 +389,10 @@ void QuDateTime::setField(const QDateTime& datetime,
                           const bool reset_this_widget)
 {
     QVariant newvalue = datetime;
-    int newtype;
+    int newtype = QMetaType::QDateTime;
     switch (m_mode) {
     case DefaultDateTime:
     case CustomDateTime:
-        newtype = QMetaType::QDateTime;
         break;
     case DefaultDate:
     case CustomDate:
