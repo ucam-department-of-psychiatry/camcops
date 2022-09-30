@@ -55,7 +55,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
         return QValidator::Intermediate;
     }
 
-    const QChar decimalPoint = locale().decimalPoint();
+    const QString decimalPoint = locale().decimalPoint();
     int charsAfterPoint = -1;
     if (s.indexOf(decimalPoint) != -1) {
         charsAfterPoint = s.length() - s.indexOf(decimalPoint) - 1;

@@ -312,7 +312,7 @@ QValidator::State numeric::validateInteger(
         return QValidator::Intermediate;
     }
 
-    const QChar decimalPoint = locale.decimalPoint();
+    const QString decimalPoint = locale.decimalPoint();
     if (s.indexOf(decimalPoint) != -1) {
         // Containing a decimal point: not OK
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
