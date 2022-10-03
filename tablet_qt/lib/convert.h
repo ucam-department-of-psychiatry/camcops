@@ -214,18 +214,24 @@ QMap<QString, QString> getReplyDict(const QByteArray& data);
 // Converts UTF-8-encoded bytes into a string.
 QString getReplyString(const QByteArray& data);
 
-extern const QString SSLPROTODESC_SSLV3;
-extern const QString SSLPROTODESC_SSLV2;
 extern const QString SSLPROTODESC_TLSV1_0;
-extern const QString SSLPROTODESC_TLSV1_1;
-extern const QString SSLPROTODESC_TLSV1_2;
-extern const QString SSLPROTODESC_ANYPROTOCOL;
-extern const QString SSLPROTODESC_TLSV1_SSLV3;
-extern const QString SSLPROTODESC_SECUREPROTOCOLS;
 extern const QString SSLPROTODESC_TLSV1_0_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_1;
 extern const QString SSLPROTODESC_TLSV1_1_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_2;
 extern const QString SSLPROTODESC_TLSV1_2_OR_LATER;
+extern const QString SSLPROTODESC_DTLSV1_0;
+extern const QString SSLPROTODESC_DTLSV1_0_OR_LATER;
+extern const QString SSLPROTODESC_DTLSV1_1;
+extern const QString SSLPROTODESC_DTLSV1_1_OR_LATER;
+extern const QString SSLPROTODESC_DTLSV1_2;
+extern const QString SSLPROTODESC_DTLSV1_2_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_3;
+extern const QString SSLPROTODESC_TLSV1_3_OR_LATER;
+extern const QString SSLPROTODESC_ANYPROTOCOL;
+extern const QString SSLPROTODESC_SECUREPROTOCOLS;
 extern const QString SSLPROTODESC_UNKNOWN_PROTOCOL;
+
 
 // Returns a description of an SSL protocol.
 QString describeSslProtocol(QSsl::SslProtocol protocol);
