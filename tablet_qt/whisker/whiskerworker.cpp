@@ -66,7 +66,7 @@ WhiskerWorker::WhiskerWorker() :
             this, &WhiskerWorker::onDataReadyFromMainSocket);
     connect(m_main_socket, &QTcpSocket::disconnected,
             this, &WhiskerWorker::onAnySocketDisconnected);
-    connect(m_main_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
+    connect(m_main_socket, &QTcpSocket::errorOccurred,
             this, &WhiskerWorker::onMainSocketError);
 
     connect(m_immediate_socket, &QTcpSocket::connected,
@@ -75,7 +75,7 @@ WhiskerWorker::WhiskerWorker() :
             this, &WhiskerWorker::onDataReadyFromImmediateSocket);
     connect(m_immediate_socket, &QTcpSocket::disconnected,
             this, &WhiskerWorker::onAnySocketDisconnected);
-    connect(m_immediate_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
+    connect(m_immediate_socket, &QTcpSocket::errorOccurred,
             this, &WhiskerWorker::onImmSocketError);
 
     setConnectionState(WhiskerConnectionState::A_Disconnected);
@@ -419,5 +419,3 @@ QVector<WhiskerInboundMessage> WhiskerWorker::getIncomingMessagesFromBuffer(
     }
     return messages;
 }
-
-
