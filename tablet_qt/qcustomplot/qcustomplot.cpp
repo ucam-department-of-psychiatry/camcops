@@ -6556,7 +6556,7 @@ QCPAxisTickerText::QCPAxisTickerText() :
 
   \see addTicks, addTick, clear
 */
-void QCPAxisTickerText::setTicks(const QMap<double, QString> &ticks)
+void QCPAxisTickerText::setTicks(const QMultiMap<double, QString> &ticks)
 {
   mTicks = ticks;
 }
@@ -6622,7 +6622,7 @@ void QCPAxisTickerText::addTick(double position, const QString &label)
 
   \see addTick, setTicks, clear
 */
-void QCPAxisTickerText::addTicks(const QMap<double, QString> &ticks)
+void QCPAxisTickerText::addTicks(const QMultiMap<double, QString> &ticks)
 {
   mTicks.unite(ticks);
 }
@@ -6698,12 +6698,12 @@ QVector<double> QCPAxisTickerText::createTickVector(double tickStep, const QCPRa
   if (mTicks.isEmpty())
     return result;
 
-  QMap<double, QString>::const_iterator start = mTicks.lowerBound(range.lower);
-  QMap<double, QString>::const_iterator end = mTicks.upperBound(range.upper);
+  QMultiMap<double, QString>::const_iterator start = mTicks.lowerBound(range.lower);
+  QMultiMap<double, QString>::const_iterator end = mTicks.upperBound(range.upper);
   // this method should try to give one tick outside of range so proper subticks can be generated:
   if (start != mTicks.constBegin()) --start;
   if (end != mTicks.constEnd()) ++end;
-  for (QMap<double, QString>::const_iterator it = start; it != end; ++it)
+  for (QMultiMap<double, QString>::const_iterator it = start; it != end; ++it)
     result.append(it.key());
 
   return result;
