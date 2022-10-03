@@ -201,7 +201,7 @@ QVariant Field::value() const
 
 QString Field::prettyValue(const int dp) const
 {
-    return convert::prettyValue(m_value, dp, m_type);
+    return convert::prettyValue(m_value, dp, QMetaType(m_type));
 }
 
 
