@@ -84,7 +84,7 @@ void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
 
     auto vl = new QVBoxLayout(this);
     setLayout(vl);
-    vl->setMargin(margin);
+    vl->setContentsMargins(margin, margin, margin, margin);
     vl->addWidget(widget);
 
     m_subwidget = widget;

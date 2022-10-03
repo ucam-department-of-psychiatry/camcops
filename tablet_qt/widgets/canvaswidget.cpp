@@ -280,10 +280,9 @@ QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
 {
     // Convert from widget coordinates (NB there's a frame) to contentsRect
     // coordinates:
-    int left, top, right, bottom;
-    getContentsMargins(&left, &top, &right, &bottom);
-    point.rx() -= left;
-    point.ry() -= top;
+    auto margins = contentsMargins();
+    point.rx() -= margins.left();
+    point.ry() -= margins.top();
 
     // Now transform, if required, to account for any scaling that we're
     // doing:
