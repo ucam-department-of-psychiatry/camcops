@@ -238,8 +238,6 @@ void QuPhoto::takePhoto()
 
     SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard();
 
-#ifdef QUPHOTO_USE_CAMERA_QML
-
 #ifdef DEBUG_CAMERA
     qDebug() << "Creating new CameraQml()...";
 #endif
@@ -252,24 +250,6 @@ void QuPhoto::takePhoto()
             this, &QuPhoto::rawImageCaptured);
     connect(m_camera, &CameraQml::imageCaptured,
             this, &QuPhoto::imageCaptured);
-
-#else
-
-    QString stylesheet = m_questionnaire->getSubstitutedCss(
-                uiconst::CSS_CAMCOPS_CAMERA);
-#ifdef DEBUG_CAMERA
-    qDebug() << "Creating new CameraQCamera()...";
-#endif
-    m_camera = new CameraQCamera(stylesheet);
-#ifdef DEBUG_CAMERA
-    qDebug() << "... CameraQCamera() created";
-#endif
-    connect(m_camera, &CameraQCamera::imageCaptured,
-            this, &QuPhoto::imageCaptured);
-    connect(m_camera, &CameraQCamera::cancelled,
-            this, &QuPhoto::cameraCancelled);
-
-#endif
 
 #ifdef DEBUG_CAMERA
     qDebug() << "Asking questionnaire to open camera as subwidget...";
