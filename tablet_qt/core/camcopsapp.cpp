@@ -42,7 +42,6 @@
 #include <QNetworkReply>
 #include <QProcessEnvironment>
 #include <QPushButton>
-#include <QRandomGenerator>
 #include <QScreen>
 #include <QSqlDatabase>
 #include <QSqlDriverCreator>
@@ -771,7 +770,6 @@ int CamcopsApp::run()
     announceStartup();
 
     // Baseline C++ things
-    seedRng();
     convert::registerTypesForQVariant();
     convert::registerOtherTypesForSignalsSlots();
 
@@ -1366,22 +1364,6 @@ bool CamcopsApp::encryptExistingPlaintextDatabases(const QString& passphrase)
     qInfo() << "... re-opening databases";
     openOrCreateDatabases();
     return true;
-}
-
-
-void CamcopsApp::seedRng()
-{
-    // ------------------------------------------------------------------------
-    // Seed Qt's build-in RNG, which we may use for QUuid generation
-    // ------------------------------------------------------------------------
-    // QUuid may, if /dev/urandom does not exist, use qrand(). It won't use
-    // OpenSSL or anything else. So we'd better make sure it's seeded first:
-
-    // TODO: qsrand removed in Qt 6.2 and QUuid no longer appears to be using qrand()
-    // Is this still needed?
-    QRandomGenerator::system()->seed((QDateTime::currentMSecsSinceEpoch() & 0xffffffff));
-    // QDateTime::currentMSecsSinceEpoch() -> qint64
-    // qsrand wants uint (= uint32)
 }
 
 
@@ -2421,7 +2403,6 @@ void CamcopsApp::regenerateDeviceId()
     // This is the RANDOM variant of a UUID, not a "hashed something" variant.
     // - http://doc.qt.io/qt-5/quuid.html#createUuid
     // - https://en.wikipedia.org/wiki/Universally_unique_identifier#Variants_and_versions
-    // Note that we seeded Qt's own RNG in CamcopsApp::CamcopsApp.
 }
 
 

@@ -191,9 +191,6 @@ protected:
     // passphrase, then re-opens the databases.
     bool encryptExistingPlaintextDatabases(const QString& passphrase);
 
-    // Seeds the random number generator.
-    void seedRng();
-
     // Creates the stored variable table (in the "system" database)>
     void makeStoredVarTable();
 
