@@ -39,6 +39,8 @@ require the demonstration database should inherit from
 that do not require a database can just inherit from the standard python
 ``unittest.TestCase``
 
+.. _run_all_server_tests:
+
 To run all tests whilst in the CamCOPS virtual environment:
 
   .. code-block:: bash
@@ -63,3 +65,4 @@ Some common standard pytest options:
 -x           Stop on failure
 -k wildcard  Run tests whose classes or files only match the wildcard
 -s           Do not capture stdout and stderr. Necessary when debugging with e.g. pdb
+--ff         Run previously failed tests first

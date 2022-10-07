@@ -947,7 +947,7 @@ class LPSReportReferredNotDischarged(Report):
                 CPFTLPSReferral.patient_id == p1.c.id,
                 CPFTLPSReferral._device_id == p1.c._device_id,
                 CPFTLPSReferral._era == p1.c._era,
-                CPFTLPSReferral._current == True,
+                CPFTLPSReferral._current == True,  # noqa: E712
             ),
         )
         select_from = select_from.join(
@@ -977,7 +977,7 @@ class LPSReportReferredNotDischarged(Report):
                         CPFTLPSDischarge.patient_id == p2.c.id,
                         CPFTLPSDischarge._device_id == p2.c._device_id,
                         CPFTLPSDischarge._era == p2.c._era,
-                        CPFTLPSDischarge._current == True,
+                        CPFTLPSDischarge._current == True,  # noqa: E712
                     ),
                 ).join(
                     i2,
@@ -985,7 +985,7 @@ class LPSReportReferredNotDischarged(Report):
                         i2.c.patient_id == p2.c.id,
                         i2.c._device_id == p2.c._device_id,
                         i2.c._era == p2.c._era,
-                        i2.c._current == True,
+                        i2.c._current == True,  # noqa: E712
                     ),
                 )
             )
@@ -1079,7 +1079,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                 CPFTLPSReferral.patient_id == p1.c.id,
                 CPFTLPSReferral._device_id == p1.c._device_id,
                 CPFTLPSReferral._era == p1.c._era,
-                CPFTLPSReferral._current == True,
+                CPFTLPSReferral._current == True,  # noqa: E712
             ),
         )
         select_from = select_from.join(
@@ -1112,7 +1112,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                         CPFTLPSDischarge.patient_id == p2.c.id,
                         CPFTLPSDischarge._device_id == p2.c._device_id,
                         CPFTLPSDischarge._era == p2.c._era,
-                        CPFTLPSDischarge._current == True,
+                        CPFTLPSDischarge._current == True,  # noqa: E712
                     ),
                 ).join(
                     i2,
@@ -1120,7 +1120,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                         i2.c.patient_id == p2.c.id,
                         i2.c._device_id == p2.c._device_id,
                         i2.c._era == p2.c._era,
-                        i2.c._current == True,
+                        i2.c._current == True,  # noqa: E712
                     ),
                 )
             )
@@ -1160,7 +1160,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                         PsychiatricClerking.patient_id == p3.c.id,
                         PsychiatricClerking._device_id == p3.c._device_id,
                         PsychiatricClerking._era == p3.c._era,
-                        PsychiatricClerking._current == True,
+                        PsychiatricClerking._current == True,  # noqa: E712
                     ),
                 ).join(
                     i3,
@@ -1168,7 +1168,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
                         i3.c.patient_id == p3.c.id,
                         i3.c._device_id == p3.c._device_id,
                         i3.c._era == p3.c._era,
-                        i3.c._current == True,
+                        i3.c._current == True,  # noqa: E712
                     ),
                 )
             )

@@ -9,5 +9,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
+            - name: Change apt mirror
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Build docs
               run: ${GITHUB_WORKSPACE}/.github/scripts/build_docs.sh

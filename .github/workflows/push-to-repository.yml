@@ -67,10 +67,8 @@ jobs:
                   # 44716 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/19000
                   # 44717 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/18993
                   safety check --full-report --ignore=44715 --ignore=44716 --ignore=44717
-                  echo checking python formatting
-                  black --line-length 79 --diff --check .
-                  echo checking python for style and errors
-                  flake8 --config=setup.cfg .
+                  echo running pre-commit checks
+                  pre-commit run --all-files
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   camcops_server demo_camcops_config | sed 's/YYY_USERNAME_REPLACE_ME/${{ env.DB_CAMCOPS_USER }}/g' | sed 's/ZZZ_PASSWORD_REPLACE_ME/${{ env.DB_CAMCOPS_PASSWORD }}/g' > "${CAMCOPS_CONFIG_FILE}"
                   echo running tests
@@ -98,9 +96,8 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: Change apt mirror
               run: |
-                  # azure.archive.ubuntu.com is flaky
-                  sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/' /etc/apt/sources.list
-                  sudo apt-get update
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Build and install debian package
               run: |
                   set -eux -o pipefail

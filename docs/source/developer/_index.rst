@@ -24,6 +24,7 @@ Developer notes
 ..  toctree::
     :maxdepth: 1
 
+    setting_up.rst
     creating_tasks.rst
     seeking_permissions.rst
     cpp_code_style.rst
