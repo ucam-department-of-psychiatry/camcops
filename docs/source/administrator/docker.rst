@@ -607,7 +607,7 @@ argument to be the ``root`` user.
 start
 ^^^^^
 
-Shortcut for ``docker-compose up -d`` with the appropriate ``docker-compose*.yaml`` files. The ``-d`` switch is short for
+Shortcut for ``docker compose up -d`` with the appropriate ``docker-compose*.yaml`` files. The ``-d`` switch is short for
 ``--detach`` (or daemon mode).
 
 .. _stop:
@@ -615,7 +615,7 @@ Shortcut for ``docker-compose up -d`` with the appropriate ``docker-compose*.yam
 stop
 ^^^^
 
-Shortcut for ``docker-compose down`` with the appropriate ``docker-compose*.yaml``.
+Shortcut for ``docker compose down`` with the appropriate ``docker-compose*.yaml``.
 
 .. _run:
 

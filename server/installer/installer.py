@@ -231,12 +231,10 @@ class Installer:
     def __init__(
         self,
         verbose: bool = False,
-        recreate_config: bool = False,
         update: bool = False,
     ) -> None:
         self._docker = None
         self.verbose = verbose
-        self.recreate_config = recreate_config
         self.update = update
 
         self.title = "CamCOPS Setup"
@@ -590,14 +588,23 @@ class Installer:
 
     def create_config(self) -> None:
         config = self.config_full_path()
-        if self.recreate_config or not os.path.exists(config):
-            self.info(f"Creating {config}")
-            Path(config).touch()
-            self.run_camcops_command("env")
-            self.run_camcops_command(
-                "camcops_server demo_camcops_config --docker > "
-                "$CAMCOPS_CONFIG_FILE"
+
+        if os.path.exists(config):
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            backup_filename = f"{config}.saved.{timestamp}"
+            self.info(
+                "Your existing config file has been renamed as "
+                f"{backup_filename}"
             )
+            os.rename(config, backup_filename)
+
+        self.info(f"Creating {config}")
+        Path(config).touch()
+        self.run_camcops_command("env")
+        self.run_camcops_command(
+            "camcops_server demo_camcops_config --docker > "
+            "$CAMCOPS_CONFIG_FILE"
+        )
         self.configure_config()
 
     def configure_config(self) -> None:
@@ -1185,11 +1192,6 @@ def main() -> None:
     parser = ArgumentParser()
     parser.add_argument("--verbose", action="store_true", help="Be verbose")
     parser.add_argument(
-        "--recreate_config",
-        action="store_true",
-        help="Recreate the CamCOPS config file",
-    )
-    parser.add_argument(
         "--update",
         action="store_true",
         help="Rebuild the CamCOPS Docker image",
@@ -1248,7 +1250,6 @@ def main() -> None:
 
     installer = get_installer_class()(
         verbose=args.verbose,
-        recreate_config=args.recreate_config,
         update=args.update,
     )
 

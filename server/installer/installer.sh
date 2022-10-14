@@ -54,7 +54,6 @@ usage() {
     cat <<EOF
     Usage: $(basename $0) [options]
 
-    -c Recreate CamCOPS config file.
     -d Development. Run installer on local copy of code instead of
        downloading from GitHub.
     -h Display this help message.
@@ -64,11 +63,8 @@ EOF
 }
 
 
-while getopts 'cdhnu' OPT; do
+while getopts 'dhnu' OPT; do
   case "$OPT" in
-    c)
-        INSTALLER_ARGS+=("--recreate_config")
-        ;;
     d)
         PRODUCTION=0
         ;;
