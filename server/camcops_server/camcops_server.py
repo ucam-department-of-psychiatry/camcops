@@ -312,10 +312,10 @@ def _check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
 # -----------------------------------------------------------------------------
 
 
-def _make_superuser(username: str = None) -> bool:
+def _make_superuser(username: str = None, password: str = None) -> bool:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
 
-    return core.make_superuser(username=username)
+    return core.make_superuser(username=username, password=password)
 
 
 def _reset_password(username: str = None) -> bool:
@@ -1094,8 +1094,15 @@ def camcops_main() -> int:
         help="Username of superuser to create/promote (if omitted, you will "
         "be asked to type it in)",
     )
+    superuser_parser.add_argument(
+        "--password",
+        help="Password of superuser to create (if omitted, you will "
+        "be asked to type it in)",
+    )
     superuser_parser.set_defaults(
-        func=lambda args: _make_superuser(username=args.username)
+        func=lambda args: _make_superuser(
+            username=args.username, password=args.password
+        )
     )
 
     # Reset a user's password

@@ -351,6 +351,7 @@ Help for command 'make_superuser'
 ===============================================================================
 usage: camcops_server make_superuser [-h] [-v] [--config CONFIG]
                                      [--username USERNAME]
+                                     [--password PASSWORD]
 
 Make superuser, or give superuser status to an existing user
 
@@ -362,6 +363,8 @@ optional arguments:
                        None)
   --username USERNAME  Username of superuser to create/promote (if omitted,
                        you will be asked to type it in) (default: None)
+  --password PASSWORD  Password of superuser to create (if omitted, you will
+                       be asked to type it in) (default: None)
 
 ===============================================================================
 Help for command 'reset_password'
