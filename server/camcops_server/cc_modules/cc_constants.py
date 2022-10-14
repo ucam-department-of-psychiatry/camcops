@@ -780,6 +780,8 @@ class ConfigDefaults(object):
     SHOW_REQUESTS = False
     SHOW_RESPONSE = False
     SHOW_TIMING = False
+    SSL_CERTIFICATE = ""
+    SSL_PRIVATE_KEY = ""
     STATIC_CACHE_DURATION_S = 1 * 24 * 60 * 60  # 1 day, in seconds = 86400
 
     # [export] section
@@ -836,10 +838,15 @@ class ConfigDefaults(object):
             self.CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
                 DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule"
             )
-            self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
-            self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
+            self.DB_SERVER = "@@db_server@@"
+            self.DB_PORT = "@@db_port@@"
+            self.DB_USER = "@@db_user@@"
+            self.DB_PASSWORD = "@@db_password@@"
+            self.DB_DATABASE = "@@db_database@@"
             self.EXPORT_LOCKDIR = DockerConstants.DEFAULT_LOCKDIR
             self.HOST = DockerConstants.HOST
+            self.SSL_CERTIFICATE = "@@ssl_certificate@@"
+            self.SSL_PRIVATE_KEY = "@@ssl_private_key@@"
             self.USER_DOWNLOAD_DIR = DockerConstants.DEFAULT_USER_DOWNLOAD_DIR
 
     @property

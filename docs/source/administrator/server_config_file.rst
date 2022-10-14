@@ -2409,8 +2409,7 @@ Below is a specimen configuration file, generated via the command
 
     camcops_server demo_camcops_config > demo_camcops_config.ini
 
-Note that if you are using Docker, then the command
-:ref:`print_demo_camcops_config <docker_print_demo_camcops_config>` will give
+Note that if you are using Docker, then the installer will give
 you a config file with appropriate defaults for the Docker environment
 (slightly different from what follows).
 

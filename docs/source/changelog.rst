@@ -3688,3 +3688,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Command ``camcops_server demo_apache_config`` now defaults to the server
   being hosted at (e.g.) ``https://camcops.example.com/`` instead of ``https://camcops.example.com/camcops``. There is now a ``--path`` argument to generate the demo Apache config file for a particular location. For the old behaviour: ``camcops_server demo_apache_config --path camcops``
+
+- Installer for CamCOPS running within Docker
+
+  - The Docker version of CamCOPS can now be :ref:`installed with a single script
+    <quick_start>`.

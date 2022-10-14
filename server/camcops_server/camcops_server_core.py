@@ -714,7 +714,7 @@ def make_data_dictionary(
 # =============================================================================
 
 
-def make_superuser(username: str = None) -> bool:
+def make_superuser(username: str = None, password: str = None) -> bool:
     """
     Make a superuser from the command line.
     """
@@ -731,7 +731,8 @@ def make_superuser(username: str = None) -> bool:
             success = True
         else:
             log.info("Creating superuser {!r}", username)
-            password = get_new_password_from_cli(username=username)
+            if password is None:
+                password = get_new_password_from_cli(username=username)
             success = User.create_superuser(req, username, password)
         if success:
             log.info("Success")
