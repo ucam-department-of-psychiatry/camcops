@@ -88,6 +88,9 @@ INSTALL_REQUIRES = [
     "flower==1.1.0",  # monitor for Celery
     "gunicorn==20.1.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
+    # Celery dependency for Python <= 3.7, Workaround import error https://github.com/celery/celery/issues/7783  # noqa: E501
+    # Scheduled to be fixed in Celery 5.3
+    "importlib-metadata<5.0",
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
