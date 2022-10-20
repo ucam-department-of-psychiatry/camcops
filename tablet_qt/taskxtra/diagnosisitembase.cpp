@@ -38,11 +38,11 @@ DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
                    true),  // triggers_need_upload
     m_fkname(fkname)
 {
-    addField(m_fkname, QMetaType::Int);
-    addField(SEQNUM, QMetaType::Int);
-    addField(CODE, QMetaType::QString);
-    addField(DESCRIPTION, QMetaType::QString);
-    addField(COMMENT, QMetaType::QString);  // new in v2.0.0
+    addField(m_fkname, QMetaType::fromType<int>());
+    addField(SEQNUM, QMetaType::fromType<int>());
+    addField(CODE, QMetaType::fromType<QString>());
+    addField(DESCRIPTION, QMetaType::fromType<QString>());
+    addField(COMMENT, QMetaType::fromType<QString>());  // new in v2.0.0
 
     load(load_pk);
 }

@@ -120,15 +120,15 @@ Icd10Depressive::Icd10Depressive(CamcopsApp& app, DatabaseManager& db,
                                  const int load_pk) :
     Task(app, db, ICD10DEP_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(CORE_NAMES, QMetaType::Bool);
-    addFields(ADDITIONAL_NAMES, QMetaType::Bool);
-    addFields(SOMATIC_NAMES, QMetaType::Bool);
-    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QMetaType::Bool);
+    addFields(CORE_NAMES, QMetaType::fromType<bool>());
+    addFields(ADDITIONAL_NAMES, QMetaType::fromType<bool>());
+    addFields(SOMATIC_NAMES, QMetaType::fromType<bool>());
+    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QMetaType::fromType<bool>());
 
-    addField(DATE_PERTAINS_TO, QMetaType::QDate);
-    addField(COMMENTS, QMetaType::QString);
-    addField(DURATION_AT_LEAST_2_WEEKS, QMetaType::Bool);
-    addField(SEVERE_CLINICALLY, QMetaType::Bool);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
+    addField(DURATION_AT_LEAST_2_WEEKS, QMetaType::fromType<bool>());
+    addField(SEVERE_CLINICALLY, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

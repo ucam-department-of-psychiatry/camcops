@@ -66,8 +66,8 @@ Eq5d5l::Eq5d5l(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, EQ5D5L_TABLENAME, false, false, false),
     m_in_tickbox_change(false)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QMetaType::Int);
-    addField(VAS_QUESTION, QMetaType::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
+    addField(VAS_QUESTION, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

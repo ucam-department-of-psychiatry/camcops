@@ -1387,91 +1387,91 @@ void CamcopsApp::createStoredVars()
     DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
     // Client mode
-    createVar(varconst::MODE, QMetaType::Int, varconst::MODE_NOT_SET);
+    createVar(varconst::MODE, QMetaType::fromType<int>(), varconst::MODE_NOT_SET);
 
     // If the mode is single user, store the one and only patient ID here
-    createVar(varconst::SINGLE_PATIENT_ID, QMetaType::Int,
+    createVar(varconst::SINGLE_PATIENT_ID, QMetaType::fromType<int>(),
               dbconst::NONEXISTENT_PK);
-    createVar(varconst::SINGLE_PATIENT_PROQUINT, QMetaType::QString, "");
+    createVar(varconst::SINGLE_PATIENT_PROQUINT, QMetaType::fromType<QString>(), "");
 
     // Language
-    createVar(varconst::LANGUAGE, QMetaType::QString,
+    createVar(varconst::LANGUAGE, QMetaType::fromType<QString>(),
               QLocale::system().name());
 
     // Version
-    createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QMetaType::QString,
+    createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QMetaType::fromType<QString>(),
               camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
 
     // Questionnaire
-    createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QMetaType::Int, 100);
-    createVar(varconst::OVERRIDE_LOGICAL_DPI, QMetaType::Bool, false);
-    createVar(varconst::OVERRIDE_LOGICAL_DPI_X, QMetaType::Double, uiconst::DEFAULT_DPI.x);
-    createVar(varconst::OVERRIDE_LOGICAL_DPI_Y, QMetaType::Double, uiconst::DEFAULT_DPI.y);
-    createVar(varconst::OVERRIDE_PHYSICAL_DPI, QMetaType::Bool, false);
-    createVar(varconst::OVERRIDE_PHYSICAL_DPI_X, QMetaType::Double, uiconst::DEFAULT_DPI.x);
-    createVar(varconst::OVERRIDE_PHYSICAL_DPI_Y, QMetaType::Double, uiconst::DEFAULT_DPI.y);
+    createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QMetaType::fromType<int>(), 100);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI, QMetaType::fromType<bool>(), false);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI_X, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.x);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI_Y, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.y);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI, QMetaType::fromType<bool>(), false);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI_X, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.x);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI_Y, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.y);
 
     // Server
-    createVar(varconst::SERVER_ADDRESS, QMetaType::QString, "");
-    createVar(varconst::SERVER_PORT, QMetaType::Int, DEFAULT_SERVER_PORT);
-    createVar(varconst::SERVER_PATH, QMetaType::QString, "camcops/database");
-    createVar(varconst::SERVER_TIMEOUT_MS, QMetaType::Int, 50000);
-    createVar(varconst::VALIDATE_SSL_CERTIFICATES, QMetaType::Bool, true);
-    createVar(varconst::SSL_PROTOCOL, QMetaType::QString,
+    createVar(varconst::SERVER_ADDRESS, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_PORT, QMetaType::fromType<int>(), DEFAULT_SERVER_PORT);
+    createVar(varconst::SERVER_PATH, QMetaType::fromType<QString>(), "camcops/database");
+    createVar(varconst::SERVER_TIMEOUT_MS, QMetaType::fromType<int>(), 50000);
+    createVar(varconst::VALIDATE_SSL_CERTIFICATES, QMetaType::fromType<bool>(), true);
+    createVar(varconst::SSL_PROTOCOL, QMetaType::fromType<QString>(),
               convert::SSLPROTODESC_SECUREPROTOCOLS);
-    createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QMetaType::Bool, true);
-    createVar(varconst::STORE_SERVER_PASSWORD, QMetaType::Bool, true);
-    createVar(varconst::UPLOAD_METHOD, QMetaType::Int,
+    createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QMetaType::fromType<bool>(), true);
+    createVar(varconst::STORE_SERVER_PASSWORD, QMetaType::fromType<bool>(), true);
+    createVar(varconst::UPLOAD_METHOD, QMetaType::fromType<int>(),
               varconst::DEFAULT_UPLOAD_METHOD);
-    createVar(varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD, QMetaType::LongLong,
+    createVar(varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD, QMetaType::fromType<qlonglong>(),
               varconst::DEFAULT_MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
 
     // Uploading "dirty" flag
-    createVar(varconst::NEEDS_UPLOAD, QMetaType::Bool, false);
+    createVar(varconst::NEEDS_UPLOAD, QMetaType::fromType<bool>(), false);
 
     // Terms and conditions
-    createVar(varconst::AGREED_TERMS_AT, QMetaType::QDateTime);
+    createVar(varconst::AGREED_TERMS_AT, QMetaType::fromType<QDateTime>());
 
     // Intellectual property
-    createVar(varconst::IP_USE_CLINICAL, QMetaType::Int, CommonOptions::UNKNOWN_INT);
-    createVar(varconst::IP_USE_COMMERCIAL, QMetaType::Int, CommonOptions::UNKNOWN_INT);
-    createVar(varconst::IP_USE_EDUCATIONAL, QMetaType::Int, CommonOptions::UNKNOWN_INT);
-    createVar(varconst::IP_USE_RESEARCH, QMetaType::Int, CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_CLINICAL, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_COMMERCIAL, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_EDUCATIONAL, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_RESEARCH, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
 
     // Patients and policies
-    createVar(varconst::ID_POLICY_UPLOAD, QMetaType::QString, "");
-    createVar(varconst::ID_POLICY_FINALIZE, QMetaType::QString, "");
+    createVar(varconst::ID_POLICY_UPLOAD, QMetaType::fromType<QString>(), "");
+    createVar(varconst::ID_POLICY_FINALIZE, QMetaType::fromType<QString>(), "");
 
     // Other information from server
-    createVar(varconst::SERVER_DATABASE_TITLE, QMetaType::QString, "");
-    createVar(varconst::SERVER_CAMCOPS_VERSION, QMetaType::QString, "");
-    createVar(varconst::LAST_SERVER_REGISTRATION, QMetaType::QDateTime);
-    createVar(varconst::LAST_SUCCESSFUL_UPLOAD, QMetaType::QDateTime);
+    createVar(varconst::SERVER_DATABASE_TITLE, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_CAMCOPS_VERSION, QMetaType::fromType<QString>(), "");
+    createVar(varconst::LAST_SERVER_REGISTRATION, QMetaType::fromType<QDateTime>());
+    createVar(varconst::LAST_SUCCESSFUL_UPLOAD, QMetaType::fromType<QDateTime>());
 
     // User
     // ... server interaction
-    createVar(varconst::DEVICE_FRIENDLY_NAME, QMetaType::QString, "");
-    createVar(varconst::SERVER_USERNAME, QMetaType::QString, "");
-    createVar(varconst::SERVER_USERPASSWORD_OBSCURED, QMetaType::QString, "");
-    createVar(varconst::OFFER_UPLOAD_AFTER_EDIT, QMetaType::Bool, false);
+    createVar(varconst::DEVICE_FRIENDLY_NAME, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_USERNAME, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_USERPASSWORD_OBSCURED, QMetaType::fromType<QString>(), "");
+    createVar(varconst::OFFER_UPLOAD_AFTER_EDIT, QMetaType::fromType<bool>(), false);
     // ... default clinician details
-    createVar(varconst::DEFAULT_CLINICIAN_SPECIALTY, QMetaType::QString, "");
-    createVar(varconst::DEFAULT_CLINICIAN_NAME, QMetaType::QString, "");
-    createVar(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::QString, "");
-    createVar(varconst::DEFAULT_CLINICIAN_POST, QMetaType::QString, "");
-    createVar(varconst::DEFAULT_CLINICIAN_SERVICE, QMetaType::QString, "");
-    createVar(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QMetaType::QString, "");
+    createVar(varconst::DEFAULT_CLINICIAN_SPECIALTY, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_NAME, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_POST, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_SERVICE, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QMetaType::fromType<QString>(), "");
 
     // Cryptography
-    createVar(varconst::OBSCURING_KEY, QMetaType::QString, "");
-    createVar(varconst::OBSCURING_IV, QMetaType::QString, "");
+    createVar(varconst::OBSCURING_KEY, QMetaType::fromType<QString>(), "");
+    createVar(varconst::OBSCURING_IV, QMetaType::fromType<QString>(), "");
     // setEncryptedServerPassword("hello I am a password");
     // qDebug() << getPlaintextServerPassword();
-    createVar(varconst::USER_PASSWORD_HASH, QMetaType::QString, "");
-    createVar(varconst::PRIV_PASSWORD_HASH, QMetaType::QString, "");
+    createVar(varconst::USER_PASSWORD_HASH, QMetaType::fromType<QString>(), "");
+    createVar(varconst::PRIV_PASSWORD_HASH, QMetaType::fromType<QString>(), "");
 
     // Device ID
-    createVar(varconst::DEVICE_ID, QMetaType::QUuid);
+    createVar(varconst::DEVICE_ID, QMetaType::fromType<QUuid>());
     if (var(varconst::DEVICE_ID).isNull()) {
         regenerateDeviceId();
     }
@@ -2926,7 +2926,7 @@ Version CamcopsApp::minServerVersionForTable(const QString& tablename)
 // Stored variables: generic
 // ============================================================================
 
-void CamcopsApp::createVar(const QString& name, QMetaType::Type type,
+void CamcopsApp::createVar(const QString& name, QMetaType type,
                            const QVariant& default_value)
 {
     if (name.isEmpty()) {

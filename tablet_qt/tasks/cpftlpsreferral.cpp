@@ -89,39 +89,39 @@ CPFTLPSReferral::CPFTLPSReferral(CamcopsApp& app, DatabaseManager& db,
                                  const int load_pk) :
     Task(app, db, CPFTLPSREFERRAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(REFERRAL_DATE_TIME, QMetaType::QDateTime);
-    addField(LPS_DIVISION, QMetaType::QString);
-    addField(REFERRAL_PRIORITY, QMetaType::QString);
-    addField(REFERRAL_METHOD, QMetaType::QString);
-    addField(REFERRER_NAME, QMetaType::QString);
-    addField(REFERRER_CONTACT_DETAILS, QMetaType::QString);
-    addField(REFERRING_CONSULTANT, QMetaType::QString);
-    addField(REFERRING_SPECIALTY, QMetaType::QString);
-    addField(REFERRING_SPECIALTY_OTHER, QMetaType::QString);
+    addField(REFERRAL_DATE_TIME, QMetaType::fromType<QDateTime>());
+    addField(LPS_DIVISION, QMetaType::fromType<QString>());
+    addField(REFERRAL_PRIORITY, QMetaType::fromType<QString>());
+    addField(REFERRAL_METHOD, QMetaType::fromType<QString>());
+    addField(REFERRER_NAME, QMetaType::fromType<QString>());
+    addField(REFERRER_CONTACT_DETAILS, QMetaType::fromType<QString>());
+    addField(REFERRING_CONSULTANT, QMetaType::fromType<QString>());
+    addField(REFERRING_SPECIALTY, QMetaType::fromType<QString>());
+    addField(REFERRING_SPECIALTY_OTHER, QMetaType::fromType<QString>());
 
-    addField(PATIENT_LOCATION, QMetaType::QString);
-    addField(ADMISSION_DATE, QMetaType::QDate);
-    addField(ESTIMATED_DISCHARGE_DATE, QMetaType::QDate);
-    addField(PATIENT_AWARE_OF_REFERRAL, QMetaType::Bool);
-    addField(INTERPRETER_REQUIRED, QMetaType::Bool);
-    addField(SENSORY_IMPAIRMENT, QMetaType::Bool);
-    addField(MARITAL_STATUS_CODE, QMetaType::QString);
-    addField(ETHNIC_CATEGORY_CODE, QMetaType::QString);
+    addField(PATIENT_LOCATION, QMetaType::fromType<QString>());
+    addField(ADMISSION_DATE, QMetaType::fromType<QDate>());
+    addField(ESTIMATED_DISCHARGE_DATE, QMetaType::fromType<QDate>());
+    addField(PATIENT_AWARE_OF_REFERRAL, QMetaType::fromType<bool>());
+    addField(INTERPRETER_REQUIRED, QMetaType::fromType<bool>());
+    addField(SENSORY_IMPAIRMENT, QMetaType::fromType<bool>());
+    addField(MARITAL_STATUS_CODE, QMetaType::fromType<QString>());
+    addField(ETHNIC_CATEGORY_CODE, QMetaType::fromType<QString>());
 
-    addField(ADMISSION_REASON_OVERDOSE, QMetaType::Bool);
-    addField(ADMISSION_REASON_SELF_HARM_NOT_OVERDOSE, QMetaType::Bool);
-    addField(ADMISSION_REASON_CONFUSION, QMetaType::Bool);
-    addField(ADMISSION_REASON_TRAUMA, QMetaType::Bool);
-    addField(ADMISSION_REASON_FALLS, QMetaType::Bool);
-    addField(ADMISSION_REASON_INFECTION, QMetaType::Bool);
-    addField(ADMISSION_REASON_POOR_ADHERENCE, QMetaType::Bool);
-    addField(ADMISSION_REASON_OTHER, QMetaType::Bool);
+    addField(ADMISSION_REASON_OVERDOSE, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_SELF_HARM_NOT_OVERDOSE, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_CONFUSION, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_TRAUMA, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_FALLS, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_INFECTION, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_POOR_ADHERENCE, QMetaType::fromType<bool>());
+    addField(ADMISSION_REASON_OTHER, QMetaType::fromType<bool>());
 
-    addField(EXISTING_PSYCHIATRIC_TEAMS, QMetaType::QString);
-    addField(CARE_COORDINATOR, QMetaType::QString);
-    addField(OTHER_CONTACT_DETAILS, QMetaType::QString);
+    addField(EXISTING_PSYCHIATRIC_TEAMS, QMetaType::fromType<QString>());
+    addField(CARE_COORDINATOR, QMetaType::fromType<QString>());
+    addField(OTHER_CONTACT_DETAILS, QMetaType::fromType<QString>());
 
-    addField(REFERRAL_REASON, QMetaType::QString);
+    addField(REFERRAL_REASON, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

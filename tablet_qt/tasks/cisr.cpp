@@ -1015,7 +1015,7 @@ Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
         FN_OVERALL2,
     };
     for (const QString& fn : fieldnames) {
-        addField(fn, QMetaType::Int);
+        addField(fn, QMetaType::fromType<int>());
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

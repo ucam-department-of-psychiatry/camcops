@@ -78,26 +78,26 @@ Task::Task(CamcopsApp& app,
     // here; its vtable is incomplete.
     // http://stackoverflow.com/questions/6561429/calling-virtual-function-of-derived-class-from-base-class-constructor
 
-    addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QMetaType::Bool);
-    addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QMetaType::Bool);
-    addField(WHEN_FIRSTEXIT_FIELDNAME, QMetaType::QDateTime);
-    addField(Field(EDITING_TIME_S_FIELDNAME, QMetaType::Double)
+    addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QMetaType::fromType<bool>());
+    addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QMetaType::fromType<bool>());
+    addField(WHEN_FIRSTEXIT_FIELDNAME, QMetaType::fromType<QDateTime>());
+    addField(Field(EDITING_TIME_S_FIELDNAME, QMetaType::fromType<double>())
              .setCppDefaultValue(0.0));
 
     if (!is_anonymous) {
-        addField(PATIENT_FK_FIELDNAME, QMetaType::Int);
+        addField(PATIENT_FK_FIELDNAME, QMetaType::fromType<int>());
     }
     if (has_clinician) {
-        addField(CLINICIAN_SPECIALTY, QMetaType::QString);
-        addField(CLINICIAN_NAME, QMetaType::QString);
-        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::QString);
-        addField(CLINICIAN_POST, QMetaType::QString);
-        addField(CLINICIAN_SERVICE, QMetaType::QString);
-        addField(CLINICIAN_CONTACT_DETAILS, QMetaType::QString);
+        addField(CLINICIAN_SPECIALTY, QMetaType::fromType<QString>());
+        addField(CLINICIAN_NAME, QMetaType::fromType<QString>());
+        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::fromType<QString>());
+        addField(CLINICIAN_POST, QMetaType::fromType<QString>());
+        addField(CLINICIAN_SERVICE, QMetaType::fromType<QString>());
+        addField(CLINICIAN_CONTACT_DETAILS, QMetaType::fromType<QString>());
     }
     if (has_respondent) {
-        addField(RESPONDENT_NAME, QMetaType::QString);
-        addField(RESPONDENT_RELATIONSHIP, QMetaType::QString);
+        addField(RESPONDENT_NAME, QMetaType::fromType<QString>());
+        addField(RESPONDENT_RELATIONSHIP, QMetaType::fromType<QString>());
     }
 
     connect(this, &DatabaseObject::dataChanged,

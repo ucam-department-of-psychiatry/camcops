@@ -86,16 +86,16 @@ void initializeMoca(TaskFactory& factory)
 Moca::Moca(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MOCA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
-    addField(EDUCATION12Y_OR_LESS, QMetaType::Int);
-    addField(TRAILPICTURE_BLOBID, QMetaType::Int);  // FK to BLOB table
-    addField(CUBEPICTURE_BLOBID, QMetaType::Int);  // FK to BLOB table
-    addField(CLOCKPICTURE_BLOBID, QMetaType::Int);  // FK to BLOB table
-    addFields(strseq(REGISTER_TRIAL1_PREFIX, 1, N_REG_RECALL), QMetaType::Int);
-    addFields(strseq(REGISTER_TRIAL2_PREFIX, 1, N_REG_RECALL), QMetaType::Int);
-    addFields(strseq(RECALL_CATEGORY_CUE_PREFIX, 1, N_REG_RECALL), QMetaType::Int);
-    addFields(strseq(RECALL_MC_CUE_PREFIX, 1, N_REG_RECALL), QMetaType::Int);
-    addField(COMMENTS, QMetaType::QString);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(EDUCATION12Y_OR_LESS, QMetaType::fromType<int>());
+    addField(TRAILPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(CUBEPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(CLOCKPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addFields(strseq(REGISTER_TRIAL1_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addFields(strseq(REGISTER_TRIAL2_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addFields(strseq(RECALL_CATEGORY_CUE_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addFields(strseq(RECALL_MC_CUE_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

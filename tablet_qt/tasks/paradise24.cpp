@@ -64,7 +64,7 @@ void initializeParadise24(TaskFactory& factory)
 Paradise24::Paradise24(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PARADISE24_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QMetaType::Int);
+    addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

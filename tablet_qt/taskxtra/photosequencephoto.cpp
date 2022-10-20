@@ -38,10 +38,10 @@ PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
                    true,  // has_move_off_tablet_field
                    true)  // triggers_need_upload
 {
-    addField(FK_NAME, QMetaType::Int);
-    addField(SEQNUM, QMetaType::Int);
-    addField(DESCRIPTION, QMetaType::QString);
-    addField(PHOTO_BLOBID, QMetaType::Int);  // FK to BLOB table
+    addField(FK_NAME, QMetaType::fromType<int>());
+    addField(SEQNUM, QMetaType::fromType<int>());
+    addField(DESCRIPTION, QMetaType::fromType<QString>());
+    addField(PHOTO_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
 
     load(load_pk);
 }

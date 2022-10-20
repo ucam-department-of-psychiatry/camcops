@@ -278,8 +278,8 @@ QStringList csvStringToQStringList(const QString& str);
 // QVariant modifications
 // ============================================================================
 
-extern const char* TYPENAME_QVECTOR_INT;
-extern const char* TYPENAME_VERSION;
+extern int TYPE_ID_QVECTOR_INT;
+extern int TYPE_ID_VERSION;
 
 // Register our custom types with QVariant, via qRegisterMetaType().
 void registerTypesForQVariant();
@@ -287,9 +287,6 @@ void registerTypesForQVariant();
 // Register custom data types that need to be passed via Qt signals/slots, but
 // which don't need to be stored in a QVariant.
 void registerOtherTypesForSignalsSlots();
-
-// "Is this QVariant one of the user-defined QVariant types?"
-bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
 
 // Converts a QVariant that's of the user-registered type QVector<int> into
 // that QVector<int>.

@@ -59,9 +59,9 @@ NpiQ::NpiQ(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NPIQ_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Bool);
-    addFields(strseq(SEVERITY_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
-    addFields(strseq(DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addFields(strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<bool>());
+    addFields(strseq(SEVERITY_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

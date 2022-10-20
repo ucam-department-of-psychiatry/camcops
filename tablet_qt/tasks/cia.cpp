@@ -56,7 +56,7 @@ void initializeCia(TaskFactory& factory)
 Cia::Cia(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CIA_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QMetaType::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

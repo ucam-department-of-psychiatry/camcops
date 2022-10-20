@@ -38,9 +38,9 @@ IdNumDescription::IdNumDescription(CamcopsApp& app, DatabaseManager& db,
                    FN_IDNUM,  // pk
                    false, false, false, false)  // internal tables only
 {
-    addField(FN_IDDESC, QMetaType::QString);
-    addField(FN_IDSHORTDESC, QMetaType::QString);
-    addField(FN_VALIDATION_METHOD, QMetaType::QString);
+    addField(FN_IDDESC, QMetaType::fromType<QString>());
+    addField(FN_IDSHORTDESC, QMetaType::fromType<QString>());
+    addField(FN_VALIDATION_METHOD, QMetaType::fromType<QString>());
 
     load(which_idnum);
     if (!m_exists_in_db) {

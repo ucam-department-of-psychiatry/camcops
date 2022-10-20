@@ -257,18 +257,11 @@ QString toSqlLiteral(const QVariant& value)
         return NULL_STR;
 #endif
 
-    case QMetaType::User:
-        if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
+    default:
+        if (value.typeId() == TYPE_ID_QVECTOR_INT) {
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
         }
-        uifunc::stopApp("toSqlLiteral: Unknown user type");
-#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
-        // We'll never get here, but to stop compilers complaining:
-        return NULL_STR;
-#endif
-
-    default:
         uifunc::stopApp(QString("toSqlLiteral: Unknown user type: %1").arg(variant_type));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
@@ -679,10 +672,12 @@ QString toDp(double x, int dp)
 QString prettyValue(const QVariant& variant,
                     const int dp, const QMetaType type)
 {
+    const int type_id = type.id();
+
     if (variant.isNull()) {
         return NULL_STR;
     }
-    switch (type.id()) {
+    switch (type_id) {
     case QMetaType::QByteArray:
         return "<binary>";
     case QMetaType::QDate:
@@ -711,16 +706,15 @@ QString prettyValue(const QVariant& variant,
             }
             return escaped.join(",");
         }
-    case QMetaType::User:
-        if (isQVariantOfUserType(variant, TYPENAME_QVECTOR_INT)) {
-            QVector<int> intvec = qVariantToIntVector(variant);
-            return numericVectorToCsvString(intvec);
-        }
-        uifunc::stopApp("prettyValue: Unknown user type");
-#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
-        return "";  // will never get here; for clang-tidy
-#endif
     default:
+        if (type_id > QMetaType::User) {
+            if (type_id == TYPE_ID_QVECTOR_INT) {
+                QVector<int> intvec = qVariantToIntVector(variant);
+                return numericVectorToCsvString(intvec);
+            }
+            uifunc::stopApp("prettyValue: Unknown user type");
+        }
+
         return variant.toString();
     }
 }
@@ -978,15 +972,15 @@ QStringList csvStringToQStringList(const QString& str)
 // QVariant modifications
 // ============================================================================
 
-const char* TYPENAME_QVECTOR_INT("QVector<int>");
-const char* TYPENAME_VERSION("Version");
+int TYPE_ID_QVECTOR_INT;
+int TYPE_ID_VERSION;
 
 
 void registerTypesForQVariant()
 {
     // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
-    qRegisterMetaType<QVector<int>>(TYPENAME_QVECTOR_INT);
-    qRegisterMetaType<Version>(TYPENAME_VERSION);
+    TYPE_ID_QVECTOR_INT = qRegisterMetaType<QVector<int>>();
+    TYPE_ID_VERSION = qRegisterMetaType<Version>();
 
     // See also the calls to Q_DECLARE_METATYPE().
     // http://doc.qt.io/qt-5/qtcore-tools-customtype-example.html
@@ -1002,13 +996,6 @@ void registerOtherTypesForSignalsSlots()
     qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
     // qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
     qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");
-}
-
-
-bool isQVariantOfUserType(const QVariant& v, const QString& type_name)
-{
-    // "Is this QVariant one of the user-defined QVariant types?"
-    return v.userType() >= QMetaType::User && v.typeName() == type_name;
 }
 
 

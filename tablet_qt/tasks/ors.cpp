@@ -89,14 +89,14 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ORS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_SESSION, QMetaType::Int);
-    addField(FN_DATE, QMetaType::QDate);
-    addField(FN_WHOSE_GOAL, QMetaType::Int);
-    addField(FN_WHOSE_GOAL_OTHER, QMetaType::QString);
-    addField(FN_INDIVIDUAL, QMetaType::Double);
-    addField(FN_INTERPERSONAL, QMetaType::Double);
-    addField(FN_SOCIAL, QMetaType::Double);
-    addField(FN_OVERALL, QMetaType::Double);
+    addField(FN_SESSION, QMetaType::fromType<int>());
+    addField(FN_DATE, QMetaType::fromType<QDate>());
+    addField(FN_WHOSE_GOAL, QMetaType::fromType<int>());
+    addField(FN_WHOSE_GOAL_OTHER, QMetaType::fromType<QString>());
+    addField(FN_INDIVIDUAL, QMetaType::fromType<double>());
+    addField(FN_INTERPERSONAL, QMetaType::fromType<double>());
+    addField(FN_SOCIAL, QMetaType::fromType<double>());
+    addField(FN_OVERALL, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

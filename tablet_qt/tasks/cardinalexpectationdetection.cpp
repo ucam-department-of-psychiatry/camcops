@@ -194,31 +194,31 @@ CardinalExpectationDetection::CardinalExpectationDetection(
     Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_NUM_BLOCKS, QMetaType::Int);
-    addField(FN_STIMULUS_COUNTERBALANCING, QMetaType::Int);
-    addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QMetaType::Bool);
-    addField(FN_PAUSE_EVERY_N_TRIALS, QMetaType::Int);
+    addField(FN_NUM_BLOCKS, QMetaType::fromType<int>());
+    addField(FN_STIMULUS_COUNTERBALANCING, QMetaType::fromType<int>());
+    addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QMetaType::fromType<bool>());
+    addField(FN_PAUSE_EVERY_N_TRIALS, QMetaType::fromType<int>());
     // ... cue
-    addField(FN_CUE_DURATION_S, QMetaType::Double);
-    addField(FN_VISUAL_CUE_INTENSITY, QMetaType::Double);
-    addField(FN_AUDITORY_CUE_INTENSITY, QMetaType::Double);
+    addField(FN_CUE_DURATION_S, QMetaType::fromType<double>());
+    addField(FN_VISUAL_CUE_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_AUDITORY_CUE_INTENSITY, QMetaType::fromType<double>());
     // ... ISI
-    addField(FN_ISI_DURATION_S, QMetaType::Double);
+    addField(FN_ISI_DURATION_S, QMetaType::fromType<double>());
     // ... target
-    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::Double);
-    addField(FN_VISUAL_BACKGROUND_INTENSITY, QMetaType::Double);  // 0 to 1
-    addField(FN_VISUAL_TARGET_0_INTENSITY, QMetaType::Double);  // 0 to 1
-    addField(FN_VISUAL_TARGET_1_INTENSITY, QMetaType::Double);  // 0 to 1
-    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QMetaType::Double);  // 0 to 1
-    addField(FN_AUDITORY_TARGET_0_INTENSITY, QMetaType::Double);  // 0 to 1
-    addField(FN_AUDITORY_TARGET_1_INTENSITY, QMetaType::Double);  // 0 to 1
+    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::fromType<double>());
+    addField(FN_VISUAL_BACKGROUND_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_VISUAL_TARGET_0_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_VISUAL_TARGET_1_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_AUDITORY_TARGET_0_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_AUDITORY_TARGET_1_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
     // ... ITI
-    addField(FN_ITI_MIN_S, QMetaType::Double);
-    addField(FN_ITI_MAX_S, QMetaType::Double);
+    addField(FN_ITI_MIN_S, QMetaType::fromType<double>());
+    addField(FN_ITI_MAX_S, QMetaType::fromType<double>());
     // Results:
-    addField(FN_ABORTED, QMetaType::Bool, false, false, false, false);
-    addField(FN_FINISHED, QMetaType::Bool, false, false, false, false);
-    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::Int);
+    addField(FN_ABORTED, QMetaType::fromType<bool>(), false, false, false, false);
+    addField(FN_FINISHED, QMetaType::fromType<bool>(), false, false, false, false);
+    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::fromType<int>());
 
     load(load_pk);
 

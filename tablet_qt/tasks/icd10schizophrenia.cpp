@@ -136,17 +136,17 @@ Icd10Schizophrenia::Icd10Schizophrenia(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ICD10SZ_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(A_NAMES, QMetaType::Bool);
-    addFields(B_NAMES, QMetaType::Bool);
-    addFields(C_NAMES, QMetaType::Bool);
-    addFields(D_NAMES, QMetaType::Bool);
-    addFields(E_NAMES, QMetaType::Bool);
-    addFields(F_NAMES, QMetaType::Bool);
-    addFields(G_NAMES, QMetaType::Bool);
-    addFields(H_NAMES, QMetaType::Bool);
+    addFields(A_NAMES, QMetaType::fromType<bool>());
+    addFields(B_NAMES, QMetaType::fromType<bool>());
+    addFields(C_NAMES, QMetaType::fromType<bool>());
+    addFields(D_NAMES, QMetaType::fromType<bool>());
+    addFields(E_NAMES, QMetaType::fromType<bool>());
+    addFields(F_NAMES, QMetaType::fromType<bool>());
+    addFields(G_NAMES, QMetaType::fromType<bool>());
+    addFields(H_NAMES, QMetaType::fromType<bool>());
 
-    addField(DATE_PERTAINS_TO, QMetaType::QDate);
-    addField(COMMENTS, QMetaType::QString);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

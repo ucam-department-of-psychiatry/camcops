@@ -55,7 +55,7 @@ DemqolProxy::DemqolProxy(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

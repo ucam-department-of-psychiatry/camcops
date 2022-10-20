@@ -60,28 +60,28 @@ IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
     m_stage_num_zero_based(-1),
     m_trial_num_zero_based(-1)
 {
-    addField(FN_FK_TO_TASK, QMetaType::Int);
+    addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
     // More keys
-    addField(FN_TRIAL, QMetaType::Int, true);  // 1-based trial number within this session
-    addField(FN_STAGE, QMetaType::Int, true);  // 1-based stage number within this session
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // 1-based trial number within this session
+    addField(FN_STAGE, QMetaType::fromType<int>(), true);  // 1-based stage number within this session
     // Locations
-    addField(FN_CORRECT_LOCATION, QMetaType::Int);
-    addField(FN_INCORRECT_LOCATION, QMetaType::Int);
+    addField(FN_CORRECT_LOCATION, QMetaType::fromType<int>());
+    addField(FN_INCORRECT_LOCATION, QMetaType::fromType<int>());
     // Stimuli
-    addField(FN_CORRECT_SHAPE, QMetaType::Int);
-    addField(FN_CORRECT_COLOUR, QMetaType::Int);  // was string prior to 2.0.0
-    addField(FN_CORRECT_NUMBER, QMetaType::Int);
-    addField(FN_INCORRECT_SHAPE, QMetaType::Int);
-    addField(FN_INCORRECT_COLOUR, QMetaType::Int);  // was string prior to 2.0.0
-    addField(FN_INCORRECT_NUMBER, QMetaType::Int);
+    addField(FN_CORRECT_SHAPE, QMetaType::fromType<int>());
+    addField(FN_CORRECT_COLOUR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_NUMBER, QMetaType::fromType<int>());
+    addField(FN_INCORRECT_SHAPE, QMetaType::fromType<int>());
+    addField(FN_INCORRECT_COLOUR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_INCORRECT_NUMBER, QMetaType::fromType<int>());
     // Trial
-    addField(FN_TRIAL_START_TIME, QMetaType::QDateTime);
+    addField(FN_TRIAL_START_TIME, QMetaType::fromType<QDateTime>());
     // Response
-    addField(FN_RESPONDED, QMetaType::Bool);
-    addField(FN_RESPONSE_TIME, QMetaType::QDateTime);
-    addField(FN_RESPONSE_LATENCY_MS, QMetaType::Int);
-    addField(FN_CORRECT, QMetaType::Bool);
-    addField(FN_INCORRECT, QMetaType::Bool);
+    addField(FN_RESPONDED, QMetaType::fromType<bool>());
+    addField(FN_RESPONSE_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_RESPONSE_LATENCY_MS, QMetaType::fromType<int>());
+    addField(FN_CORRECT, QMetaType::fromType<bool>());
+    addField(FN_INCORRECT, QMetaType::fromType<bool>());
 
     load(load_pk);
 }

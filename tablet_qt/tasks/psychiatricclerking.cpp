@@ -148,13 +148,13 @@ PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
     Task(app, db, PSYCLERK_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // In the Javascript version, EXTRAFIELDS_A was the set of clinician fields.
-    addFields(EXTRAFIELDS_B, QMetaType::QString);
-    addFields(EXTRAFIELDS_C, QMetaType::QString);
-    addFields(EXTRAFIELDS_MSE, QMetaType::QString);
-    addFields(EXTRAFIELDS_PE, QMetaType::QString);
-    addFields(EXTRAFIELDS_D, QMetaType::QString);
-    addFields(EXTRAFIELDS_E, QMetaType::QString);
-    addFields(EXTRAFIELDS_F, QMetaType::QString);
+    addFields(EXTRAFIELDS_B, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_C, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_MSE, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_PE, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_D, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_E, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_F, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

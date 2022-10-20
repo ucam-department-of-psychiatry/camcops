@@ -234,26 +234,26 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_LAST_STAGE, QMetaType::Int);
-    addField(FN_MAX_TRIALS_PER_STAGE, QMetaType::Int);
-    addField(FN_PROGRESS_CRITERION_X, QMetaType::Int);
-    addField(FN_PROGRESS_CRITERION_Y, QMetaType::Int);
-    addField(FN_MIN_NUMBER, QMetaType::Int);
-    addField(FN_MAX_NUMBER, QMetaType::Int);
-    addField(FN_PAUSE_AFTER_BEEP_MS, QMetaType::Int);
-    addField(FN_ITI_MS, QMetaType::Int);
-    addField(FN_COUNTERBALANCE_DIMENSIONS, QMetaType::Int);
-    addField(FN_VOLUME, QMetaType::Double);
-    addField(FN_OFFER_ABORT, QMetaType::Bool);
-    addField(FN_DEBUG_DISPLAY_STIMULI_ONLY, QMetaType::Bool);
-    addField(FN_SHAPE_DEFINITIONS_SVG, QMetaType::QString);
-    addField(FN_COLOUR_DEFINITIONS_RGB, QMetaType::QString);
+    addField(FN_LAST_STAGE, QMetaType::fromType<int>());
+    addField(FN_MAX_TRIALS_PER_STAGE, QMetaType::fromType<int>());
+    addField(FN_PROGRESS_CRITERION_X, QMetaType::fromType<int>());
+    addField(FN_PROGRESS_CRITERION_Y, QMetaType::fromType<int>());
+    addField(FN_MIN_NUMBER, QMetaType::fromType<int>());
+    addField(FN_MAX_NUMBER, QMetaType::fromType<int>());
+    addField(FN_PAUSE_AFTER_BEEP_MS, QMetaType::fromType<int>());
+    addField(FN_ITI_MS, QMetaType::fromType<int>());
+    addField(FN_COUNTERBALANCE_DIMENSIONS, QMetaType::fromType<int>());
+    addField(FN_VOLUME, QMetaType::fromType<double>());
+    addField(FN_OFFER_ABORT, QMetaType::fromType<bool>());
+    addField(FN_DEBUG_DISPLAY_STIMULI_ONLY, QMetaType::fromType<bool>());
+    addField(FN_SHAPE_DEFINITIONS_SVG, QMetaType::fromType<QString>());
+    addField(FN_COLOUR_DEFINITIONS_RGB, QMetaType::fromType<QString>());
     // Results
-    addField(FN_ABORTED, QMetaType::Bool);
+    addField(FN_ABORTED, QMetaType::fromType<bool>());
     getField(FN_ABORTED).setCppDefaultValue(false);
-    addField(FN_FINISHED, QMetaType::Bool);
+    addField(FN_FINISHED, QMetaType::fromType<bool>());
     getField(FN_FINISHED).setCppDefaultValue(false);
-    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::Int);
+    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::fromType<int>());
 
     load(load_pk);
 

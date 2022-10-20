@@ -58,9 +58,9 @@ DistressThermometer::DistressThermometer(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
-    addField(DISTRESS, QMetaType::Int);
-    addField(OTHER, QMetaType::QString);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(DISTRESS, QMetaType::fromType<int>());
+    addField(OTHER, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

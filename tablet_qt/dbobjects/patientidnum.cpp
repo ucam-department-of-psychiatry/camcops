@@ -35,9 +35,9 @@ PatientIdNum::PatientIdNum(CamcopsApp& app, DatabaseManager& db,
                    true,  // has_move_off_tablet_field
                    true)  // triggers_need_upload
 {
-    addField(FK_PATIENT, QMetaType::Int, true);
-    addField(FN_WHICH_IDNUM, QMetaType::Int, true);
-    addField(FN_IDNUM_VALUE, QMetaType::LongLong);
+    addField(FK_PATIENT, QMetaType::fromType<int>(), true);
+    addField(FN_WHICH_IDNUM, QMetaType::fromType<int>(), true);
+    addField(FN_IDNUM_VALUE, QMetaType::fromType<qlonglong>());
 
     load(load_pk);
 }

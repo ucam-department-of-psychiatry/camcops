@@ -59,9 +59,9 @@ void initializePanss(TaskFactory& factory)
 Panss::Panss(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PANSS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(P_PREFIX, 1, N_P), QMetaType::Int);
-    addFields(strseq(N_PREFIX, 1, N_N), QMetaType::Int);
-    addFields(strseq(G_PREFIX, 1, N_G), QMetaType::Int);
+    addFields(strseq(P_PREFIX, 1, N_P), QMetaType::fromType<int>());
+    addFields(strseq(N_PREFIX, 1, N_N), QMetaType::fromType<int>());
+    addFields(strseq(G_PREFIX, 1, N_G), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

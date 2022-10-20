@@ -71,11 +71,11 @@ Das28::Das28(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAS28_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(getJointFieldNames(), QMetaType::Bool);
+    addFields(getJointFieldNames(), QMetaType::fromType<bool>());
 
-    addField(FN_VAS, QMetaType::Int);
-    addField(FN_CRP, QMetaType::Double);
-    addField(FN_ESR, QMetaType::Double);
+    addField(FN_VAS, QMetaType::fromType<int>());
+    addField(FN_CRP, QMetaType::fromType<double>());
+    addField(FN_ESR, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

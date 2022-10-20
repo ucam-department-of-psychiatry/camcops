@@ -61,10 +61,10 @@ Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
                        const int load_pk) :
     Task(app, db, ICD10MIXED_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(DATE_PERTAINS_TO, QMetaType::QDate);
-    addField(COMMENTS, QMetaType::QString);
-    addField(MIXTURE_OR_RAPID_ALTERNATION, QMetaType::Bool);
-    addField(DURATION_AT_LEAST_2_WEEKS, QMetaType::Bool);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
+    addField(MIXTURE_OR_RAPID_ALTERNATION, QMetaType::fromType<bool>());
+    addField(DURATION_AT_LEAST_2_WEEKS, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

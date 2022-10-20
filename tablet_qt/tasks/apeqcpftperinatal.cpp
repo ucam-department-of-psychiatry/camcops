@@ -61,11 +61,11 @@ APEQCPFTPerinatal::APEQCPFTPerinatal(CamcopsApp& app, DatabaseManager& db,
     Task(app, db, APEQCPFTPERINATAL_TABLENAME, true, false, false) // ... anon, clin, resp
 {
     for (const QString& field : strseq(FN_QPREFIX, FIRST_MAIN_Q, LAST_MAIN_Q)) {
-        addField(field, QMetaType::Int);
+        addField(field, QMetaType::fromType<int>());
     }
-    addField(FN_Q_FF_RATING, QMetaType::Int);
-    addField(FN_Q_FF_WHY, QMetaType::QString);
-    addField(FN_Q_COMMENTS, QMetaType::QString);
+    addField(FN_Q_FF_RATING, QMetaType::fromType<int>());
+    addField(FN_Q_FF_WHY, QMetaType::fromType<QString>());
+    addField(FN_Q_COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -123,14 +123,14 @@ Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db,
                        const int load_pk) :
     Task(app, db, ICD10MANIC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(CORE_NAMES, QMetaType::Bool);
-    addFields(HYPOMANIA_MANIA_NAMES, QMetaType::Bool);
-    addFields(MANIA_NAMES, QMetaType::Bool);
-    addFields(OTHER_CRITERIA_NAMES, QMetaType::Bool);
-    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QMetaType::Bool);
+    addFields(CORE_NAMES, QMetaType::fromType<bool>());
+    addFields(HYPOMANIA_MANIA_NAMES, QMetaType::fromType<bool>());
+    addFields(MANIA_NAMES, QMetaType::fromType<bool>());
+    addFields(OTHER_CRITERIA_NAMES, QMetaType::fromType<bool>());
+    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QMetaType::fromType<bool>());
 
-    addField(DATE_PERTAINS_TO, QMetaType::QDate);
-    addField(COMMENTS, QMetaType::QString);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

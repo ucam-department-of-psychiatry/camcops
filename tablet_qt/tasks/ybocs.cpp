@@ -95,18 +95,18 @@ void initializeYbocs(TaskFactory& factory)
 Ybocs::Ybocs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, YBOCS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(Q1B, QMetaType::Int);
-    addField(Q6B, QMetaType::Int);
-    addField(TARGET_OBSESSION_1, QMetaType::QString);
-    addField(TARGET_OBSESSION_2, QMetaType::QString);
-    addField(TARGET_OBSESSION_3, QMetaType::QString);
-    addField(TARGET_COMPULSION_1, QMetaType::QString);
-    addField(TARGET_COMPULSION_2, QMetaType::QString);
-    addField(TARGET_COMPULSION_3, QMetaType::QString);
-    addField(TARGET_AVOIDANCE_1, QMetaType::QString);
-    addField(TARGET_AVOIDANCE_2, QMetaType::QString);
-    addField(TARGET_AVOIDANCE_3, QMetaType::QString);
-    addFields(strseq(QPREFIX, FIRST_Q, N_MAIN_QUESTIONS), QMetaType::Int);
+    addField(Q1B, QMetaType::fromType<int>());
+    addField(Q6B, QMetaType::fromType<int>());
+    addField(TARGET_OBSESSION_1, QMetaType::fromType<QString>());
+    addField(TARGET_OBSESSION_2, QMetaType::fromType<QString>());
+    addField(TARGET_OBSESSION_3, QMetaType::fromType<QString>());
+    addField(TARGET_COMPULSION_1, QMetaType::fromType<QString>());
+    addField(TARGET_COMPULSION_2, QMetaType::fromType<QString>());
+    addField(TARGET_COMPULSION_3, QMetaType::fromType<QString>());
+    addField(TARGET_AVOIDANCE_1, QMetaType::fromType<QString>());
+    addField(TARGET_AVOIDANCE_2, QMetaType::fromType<QString>());
+    addField(TARGET_AVOIDANCE_3, QMetaType::fromType<QString>());
+    addFields(strseq(QPREFIX, FIRST_Q, N_MAIN_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

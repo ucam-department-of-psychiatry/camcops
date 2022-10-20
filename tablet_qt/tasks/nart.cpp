@@ -114,7 +114,7 @@ void initializeNart(TaskFactory& factory)
 Nart::Nart(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NART_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(WORDLIST, QMetaType::Bool);
+    addFields(WORDLIST, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -72,19 +72,19 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
             QString("DatabaseObject::DatabaseObject: Missing pk_fieldname; "
                     "table=%1").arg(m_tablename));
     }
-    addField(pk_fieldname, QMetaType::Int, true, true, true);
+    addField(pk_fieldname, QMetaType::fromType<int>(), true, true, true);
     if (has_move_off_tablet_field) {
         // Will be true for everything in data DB, but not system DB
-        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QMetaType::Bool,
+        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QMetaType::fromType<bool>(),
                  false, false, false);
     }
     if (has_modification_timestamp) {
         addField(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME,
-                 QMetaType::QDateTime);
+                 QMetaType::fromType<QDateTime>());
     }
     if (has_creation_timestamp) {
         addField(dbconst::CREATION_TIMESTAMP_FIELDNAME,
-                 QMetaType::QDateTime);
+                 QMetaType::fromType<QDateTime>());
         QDateTime now = QDateTime::currentDateTime();
         m_record[dbconst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
     }
@@ -96,13 +96,13 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
 // ============================================================================
 
 void DatabaseObject::addField(const QString& fieldname,
-                              const QMetaType::Type type,
+                              const QMetaType type,
                               const bool mandatory,
                               const bool unique,
                               const bool pk,
                               const QVariant& default_value)
 {
-    if (type == QMetaType::ULongLong) {
+    if (type.id() == QMetaType::ULongLong) {
         qWarning() << "SQLite3 does not properly support unsigned 64-bit "
                       "integers; please use signed if possible";
     }
@@ -117,26 +117,8 @@ void DatabaseObject::addField(const QString& fieldname,
 }
 
 
-void DatabaseObject::addField(const QString& fieldname,
-                              const QString& type_name,
-                              const bool mandatory,
-                              const bool unique,
-                              const bool pk,
-                              const QVariant& default_value)
-{
-    if (m_record.contains(fieldname)) {
-        uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
-    }
-    Field field(fieldname, type_name, mandatory, unique, pk,
-                default_value /* cpp_default_value */,
-                default_value /* db_default_value */);
-    m_record.insert(fieldname, field);
-    m_ordered_fieldnames.append(fieldname);
-}
-
-
 void DatabaseObject::addFields(const QStringList& fieldnames,
-                               const QMetaType::Type type,
+                               const QMetaType type,
                                const bool mandatory)
 {
     for (const QString& fieldname : fieldnames) {
@@ -158,11 +140,8 @@ bool DatabaseObject::hasField(const QString& fieldname) const
 }
 
 
-QMetaType::Type DatabaseObject::fieldType(const QString& fieldname) const
+QMetaType DatabaseObject::fieldType(const QString& fieldname) const
 {
-    if (!hasField(fieldname)) {
-        return QMetaType::UnknownType;
-    }
     const Field& field = m_record[fieldname];
     return field.type();
 }
@@ -440,9 +419,9 @@ QJsonValue DatabaseObject::valueAsJsonValue(const QString& fieldname) const
     if (v.isNull()) {
         return QJsonValue();  // null type
     }
-    const QMetaType::Type type = fieldType(fieldname);
+    const QMetaType type = fieldType(fieldname);
     QJsonValue jval;
-    switch (type) {
+    switch (type.id()) {
         case QMetaType::QDate:
             jval = QJsonValue(datetime::dateToIso(v.toDate()));
             break;

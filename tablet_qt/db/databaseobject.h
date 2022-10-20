@@ -104,15 +104,7 @@ public:
     //      value for fields that haven't been written to (or read from the
     //      database)
     void addField(const QString& fieldname,
-                  QMetaType::Type type,
-                  bool mandatory = false,
-                  bool unique = false,
-                  bool pk = false,
-                  const QVariant& default_value = QVariant());
-
-    // Alternative version of addField().
-    void addField(const QString& fieldname,
-                  const QString& type_name,
+                  QMetaType type,
                   bool mandatory = false,
                   bool unique = false,
                   bool pk = false,
@@ -122,15 +114,14 @@ public:
     void addField(const Field& field);
 
     // Bulk field addition.
-    void addFields(const QStringList& fieldnames, QMetaType::Type type,
+    void addFields(const QStringList& fieldnames, QMetaType type,
                    bool mandatory = false);
 
     // Do we have the specified field?
     bool hasField(const QString& fieldname) const;
 
     // What's a field's type?
-    // (Returns QMetaType::UnknownType for non-existent fields.)
-    QMetaType::Type fieldType(const QString& fieldname) const;
+    QMetaType fieldType(const QString& fieldname) const;
 
     // Return all fieldnames.
     QStringList fieldnames() const;

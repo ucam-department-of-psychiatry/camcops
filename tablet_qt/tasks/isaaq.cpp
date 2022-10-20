@@ -48,8 +48,8 @@ void initializeIsaaq(TaskFactory& factory)
 Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     IsaaqCommon(app, db, ISAAQ_TABLENAME)
 {
-    addFields(strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS), QMetaType::Int);
-    addFields(strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS), QMetaType::Int);
+    addFields(strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);
 }

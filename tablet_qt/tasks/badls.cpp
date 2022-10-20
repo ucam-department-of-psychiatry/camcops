@@ -56,7 +56,7 @@ void initializeBadls(TaskFactory& factory)
 Badls::Badls(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BADLS_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::QString);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -49,7 +49,7 @@ DiagnosisTaskBase::DiagnosisTaskBase(
     m_questionnaire(nullptr),
     m_codeset(nullptr)
 {
-    addField(RELATES_TO_DATE, QMetaType::QDate);  // new in v2.0.0
+    addField(RELATES_TO_DATE, QMetaType::fromType<QDate>());  // new in v2.0.0
 
     load(load_pk);
 }

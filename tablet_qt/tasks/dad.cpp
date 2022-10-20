@@ -127,7 +127,7 @@ Dad::Dad(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAD_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
-        addField(item, QMetaType::Int);
+        addField(item, QMetaType::fromType<int>());
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

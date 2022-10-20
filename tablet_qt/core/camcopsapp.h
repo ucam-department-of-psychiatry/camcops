@@ -749,7 +749,7 @@ protected slots:
     void retryUpload();
 
 protected:
-    void createVar(const QString& name, QMetaType::Type type,
+    void createVar(const QString& name, QMetaType type,
                    const QVariant& default_value = QVariant());
 
     // ------------------------------------------------------------------------

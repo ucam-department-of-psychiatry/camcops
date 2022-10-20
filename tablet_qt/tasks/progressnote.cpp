@@ -43,8 +43,8 @@ ProgressNote::ProgressNote(CamcopsApp& app, DatabaseManager& db,
                            const int load_pk) :
     Task(app, db, PROGNOTE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(LOCATION, QMetaType::QString);
-    addField(NOTE, QMetaType::QString);
+    addField(LOCATION, QMetaType::fromType<QString>());
+    addField(NOTE, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

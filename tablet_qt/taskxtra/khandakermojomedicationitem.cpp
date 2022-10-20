@@ -51,15 +51,15 @@ KhandakerMojoMedicationItem::KhandakerMojoMedicationItem(
                    true,  // has_move_off_tablet_field
                    true)  // triggers_need_upload
 {
-    addField(FN_FK_NAME, QMetaType::Int);
-    addField(FN_SEQNUM, QMetaType::Int);
-    addField(FN_BRAND_NAME, QMetaType::QString);
-    addField(FN_CHEMICAL_NAME, QMetaType::QString);
-    addField(FN_DOSE, QMetaType::QString);
-    addField(FN_FREQUENCY, QMetaType::QString);
-    addField(FN_DURATION_MONTHS, QMetaType::Double);
-    addField(FN_INDICATION, QMetaType::QString);
-    addField(FN_RESPONSE, QMetaType::Int);
+    addField(FN_FK_NAME, QMetaType::fromType<int>());
+    addField(FN_SEQNUM, QMetaType::fromType<int>());
+    addField(FN_BRAND_NAME, QMetaType::fromType<QString>());
+    addField(FN_CHEMICAL_NAME, QMetaType::fromType<QString>());
+    addField(FN_DOSE, QMetaType::fromType<QString>());
+    addField(FN_FREQUENCY, QMetaType::fromType<QString>());
+    addField(FN_DURATION_MONTHS, QMetaType::fromType<double>());
+    addField(FN_INDICATION, QMetaType::fromType<QString>());
+    addField(FN_RESPONSE, QMetaType::fromType<int>());
 
     load(load_pk);
 }

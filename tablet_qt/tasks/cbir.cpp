@@ -58,10 +58,10 @@ CbiR::CbiR(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CBIR_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_confirmation_fr(nullptr)
 {
-    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
-    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::Int);
-    addField(FN_CONFIRM_BLANKS, QMetaType::Bool);
-    addField(FN_COMMENTS, QMetaType::QString);
+    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(FN_CONFIRM_BLANKS, QMetaType::fromType<bool>());
+    addField(FN_COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -75,14 +75,14 @@ Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, APEQPT_TABLENAME, true, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_DATETIME, QMetaType::QDateTime);
+    addField(FN_DATETIME, QMetaType::fromType<QDateTime>());
 
     for (const QString& field : strseq("q", 1, CHOICE_QUESTIONS_N, CHOICE_SUFFIX)) {
-        addField(field, QMetaType::Int);
+        addField(field, QMetaType::fromType<int>());
     }
 
-    addField(FN_Q1_SATISFACTION, QMetaType::Int);
-    addField(FN_Q2_SATISFACTION, QMetaType::QString);
+    addField(FN_Q1_SATISFACTION, QMetaType::fromType<int>());
+    addField(FN_Q2_SATISFACTION, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

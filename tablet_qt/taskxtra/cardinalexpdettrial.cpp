@@ -62,36 +62,36 @@ CardinalExpDetTrial::CardinalExpDetTrial(
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
-    addField(FN_FK_TO_TASK, QMetaType::Int);
-    addField(FN_TRIAL, QMetaType::Int);
+    addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
+    addField(FN_TRIAL, QMetaType::fromType<int>());
     // Task determines these (via an autogeneration process from the config):
-    addField(FN_BLOCK, QMetaType::Int);
-    addField(FN_GROUP_NUM, QMetaType::Int);
-    addField(FN_CUE, QMetaType::Int);
-    addField(FN_RAW_CUE_NUMBER, QMetaType::Int); // following counterbalancing
-    addField(FN_TARGET_MODALITY, QMetaType::Int);
-    addField(FN_TARGET_NUMBER, QMetaType::Int);
-    addField(FN_TARGET_PRESENT, QMetaType::Bool);
-    addField(FN_ITI_LENGTH_S, QMetaType::Double);
+    addField(FN_BLOCK, QMetaType::fromType<int>());
+    addField(FN_GROUP_NUM, QMetaType::fromType<int>());
+    addField(FN_CUE, QMetaType::fromType<int>());
+    addField(FN_RAW_CUE_NUMBER, QMetaType::fromType<int>()); // following counterbalancing
+    addField(FN_TARGET_MODALITY, QMetaType::fromType<int>());
+    addField(FN_TARGET_NUMBER, QMetaType::fromType<int>());
+    addField(FN_TARGET_PRESENT, QMetaType::fromType<bool>());
+    addField(FN_ITI_LENGTH_S, QMetaType::fromType<double>());
     // Task determines these (on the fly):
-    addField(FN_PAUSE_GIVEN_BEFORE_TRIAL, QMetaType::Bool);
-    addField(FN_PAUSE_START_TIME, QMetaType::QDateTime);
-    addField(FN_PAUSE_END_TIME, QMetaType::QDateTime);
-    addField(FN_TRIAL_START_TIME, QMetaType::QDateTime);
-    addField(FN_CUE_START_TIME, QMetaType::QDateTime);
-    addField(FN_TARGET_START_TIME, QMetaType::QDateTime);
-    addField(FN_DETECTION_START_TIME, QMetaType::QDateTime);
-    addField(FN_ITI_START_TIME, QMetaType::QDateTime);
-    addField(FN_ITI_END_TIME, QMetaType::QDateTime);
-    addField(FN_TRIAL_END_TIME, QMetaType::QDateTime);
+    addField(FN_PAUSE_GIVEN_BEFORE_TRIAL, QMetaType::fromType<bool>());
+    addField(FN_PAUSE_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_PAUSE_END_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_TRIAL_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_CUE_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_TARGET_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_DETECTION_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_ITI_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_ITI_END_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_TRIAL_END_TIME, QMetaType::fromType<QDateTime>());
     // Subject decides these:
-    addField(FN_RESPONDED, QMetaType::Bool);
-    addField(FN_RESPONSE_TIME, QMetaType::QDateTime);
-    addField(FN_RESPONSE_LATENCY_MS, QMetaType::Int);
-    addField(FN_RATING, QMetaType::Int);
-    addField(FN_CORRECT, QMetaType::Bool);
-    addField(FN_POINTS, QMetaType::Int);
-    addField(FN_CUMULATIVE_POINTS, QMetaType::Int);
+    addField(FN_RESPONDED, QMetaType::fromType<bool>());
+    addField(FN_RESPONSE_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_RESPONSE_LATENCY_MS, QMetaType::fromType<int>());
+    addField(FN_RATING, QMetaType::fromType<int>());
+    addField(FN_CORRECT, QMetaType::fromType<bool>());
+    addField(FN_POINTS, QMetaType::fromType<int>());
+    addField(FN_CUMULATIVE_POINTS, QMetaType::fromType<int>());
 
     load(load_pk);
 }

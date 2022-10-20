@@ -67,19 +67,19 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
                    false,
                    false)
 {
-    addField(FK_TASK_SCHEDULE, QMetaType::Int, true);
-    addField(FN_TASK_TABLE_NAME, QMetaType::QString, true);
-    addField(FN_SETTINGS, QMetaType::QString, true);
-    addField(FN_DUE_FROM, QMetaType::QString, true);
-    addField(FN_DUE_BY, QMetaType::QString, true);
-    addField(FN_COMPLETE, QMetaType::Bool, true);
-    addField(FN_ANONYMOUS, QMetaType::Bool,
+    addField(FK_TASK_SCHEDULE, QMetaType::fromType<int>(), true);
+    addField(FN_TASK_TABLE_NAME, QMetaType::fromType<QString>(), true);
+    addField(FN_SETTINGS, QMetaType::fromType<QString>(), true);
+    addField(FN_DUE_FROM, QMetaType::fromType<QString>(), true);
+    addField(FN_DUE_BY, QMetaType::fromType<QString>(), true);
+    addField(FN_COMPLETE, QMetaType::fromType<bool>(), true);
+    addField(FN_ANONYMOUS, QMetaType::fromType<bool>(),
              true /* mandatory */,
              false /* unique */,
              false /* pk */,
              false /* default_value */);
-    addField(FK_TASK, QMetaType::Int, true);  // PK of task in its table
-    addField(FN_WHEN_COMPLETED, QMetaType::QDateTime);
+    addField(FK_TASK, QMetaType::fromType<int>(), true);  // PK of task in its table
+    addField(FN_WHEN_COMPLETED, QMetaType::fromType<QDateTime>());
 
     load(load_pk);
 }

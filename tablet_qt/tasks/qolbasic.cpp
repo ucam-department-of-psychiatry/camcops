@@ -50,8 +50,8 @@ void initializeQolBasic(TaskFactory& factory)
 QolBasic::QolBasic(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, QOLBASIC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(TTO, QMetaType::Double);
-    addField(RS, QMetaType::Double);
+    addField(TTO, QMetaType::fromType<double>());
+    addField(RS, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

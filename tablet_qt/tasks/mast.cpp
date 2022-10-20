@@ -55,7 +55,7 @@ void initializeMast(TaskFactory& factory)
 Mast::Mast(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::QString);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

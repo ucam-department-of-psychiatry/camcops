@@ -83,12 +83,12 @@ Srs::Srs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SRS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_SESSION, QMetaType::Int);
-    addField(FN_DATE, QMetaType::QDate);
-    addField(FN_RELATIONSHIP, QMetaType::Double);
-    addField(FN_GOALS, QMetaType::Double);
-    addField(FN_APPROACH, QMetaType::Double);
-    addField(FN_OVERALL, QMetaType::Double);
+    addField(FN_SESSION, QMetaType::fromType<int>());
+    addField(FN_DATE, QMetaType::fromType<QDate>());
+    addField(FN_RELATIONSHIP, QMetaType::fromType<double>());
+    addField(FN_GOALS, QMetaType::fromType<double>());
+    addField(FN_APPROACH, QMetaType::fromType<double>());
+    addField(FN_OVERALL, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

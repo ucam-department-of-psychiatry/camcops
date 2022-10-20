@@ -212,20 +212,20 @@ QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_pie_touched_at_least_once(false),
     m_last_p(0)
 {
-    addField(FN_CATEGORY_START_TIME, QMetaType::QDateTime);
-    addField(FN_CATEGORY_RESPONDED, QMetaType::Bool);
-    addField(FN_CATEGORY_RESPONSE_TIME, QMetaType::QDateTime);
-    addField(FN_CATEGORY_CHOSEN, QMetaType::QString);
-    addField(FN_GAMBLE_FIXED_OPTION, QMetaType::QString);
-    addField(FN_GAMBLE_LOTTERY_OPTION_P, QMetaType::QString);
-    addField(FN_GAMBLE_LOTTERY_OPTION_Q, QMetaType::QString);
-    addField(FN_GAMBLE_LOTTERY_ON_LEFT, QMetaType::Bool);
-    addField(FN_GAMBLE_STARTING_P, QMetaType::Double);
-    addField(FN_GAMBLE_START_TIME, QMetaType::QDateTime);
-    addField(FN_GAMBLE_RESPONDED, QMetaType::Bool);
-    addField(FN_GAMBLE_RESPONSE_TIME, QMetaType::QDateTime);
-    addField(FN_GAMBLE_P, QMetaType::Double);
-    addField(FN_UTILITY, QMetaType::Double);
+    addField(FN_CATEGORY_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_CATEGORY_RESPONDED, QMetaType::fromType<bool>());
+    addField(FN_CATEGORY_RESPONSE_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_CATEGORY_CHOSEN, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_FIXED_OPTION, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_LOTTERY_OPTION_P, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_LOTTERY_OPTION_Q, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_LOTTERY_ON_LEFT, QMetaType::fromType<bool>());
+    addField(FN_GAMBLE_STARTING_P, QMetaType::fromType<double>());
+    addField(FN_GAMBLE_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_GAMBLE_RESPONDED, QMetaType::fromType<bool>());
+    addField(FN_GAMBLE_RESPONSE_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_GAMBLE_P, QMetaType::fromType<double>());
+    addField(FN_UTILITY, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

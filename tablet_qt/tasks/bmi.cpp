@@ -55,10 +55,10 @@ Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BMI_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_MASS_KG, QMetaType::Double);
-    addField(FN_HEIGHT_M, QMetaType::Double);
-    addField(FN_WAIST_CM, QMetaType::Double);
-    addField(FN_COMMENT, QMetaType::QString);
+    addField(FN_MASS_KG, QMetaType::fromType<double>());
+    addField(FN_HEIGHT_M, QMetaType::fromType<double>());
+    addField(FN_WAIST_CM, QMetaType::fromType<double>());
+    addField(FN_COMMENT, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

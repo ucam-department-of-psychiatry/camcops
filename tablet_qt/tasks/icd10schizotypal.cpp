@@ -61,10 +61,10 @@ Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
                                    const int load_pk) :
     Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(A_PREFIX, 1, N_A), QMetaType::Bool);
-    addField(B, QMetaType::Bool);
-    addField(DATE_PERTAINS_TO, QMetaType::QDate);
-    addField(COMMENTS, QMetaType::QString);
+    addFields(strseq(A_PREFIX, 1, N_A), QMetaType::fromType<bool>());
+    addField(B, QMetaType::fromType<bool>());
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

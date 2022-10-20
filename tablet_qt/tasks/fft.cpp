@@ -46,8 +46,8 @@ void initializeFft(TaskFactory& factory)
 Fft::Fft(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FFT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(SERVICE, QMetaType::QString);
-    addField(RATING, QMetaType::Int);
+    addField(SERVICE, QMetaType::fromType<QString>());
+    addField(RATING, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

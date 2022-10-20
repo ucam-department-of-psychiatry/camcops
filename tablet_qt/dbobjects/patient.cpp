@@ -135,14 +135,14 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(FORENAME_FIELD, QMetaType::QString);
-    addField(SURNAME_FIELD, QMetaType::QString);
-    addField(SEX_FIELD, QMetaType::QString);
-    addField(DOB_FIELD, QMetaType::QDate);
-    addField(EMAIL_FIELD, QMetaType::QString);
-    addField(ADDRESS_FIELD, QMetaType::QString);
-    addField(GP_FIELD, QMetaType::QString);
-    addField(OTHER_DETAILS_FIELD, QMetaType::QString);
+    addField(FORENAME_FIELD, QMetaType::fromType<QString>());
+    addField(SURNAME_FIELD, QMetaType::fromType<QString>());
+    addField(SEX_FIELD, QMetaType::fromType<QString>());
+    addField(DOB_FIELD, QMetaType::fromType<QDate>());
+    addField(EMAIL_FIELD, QMetaType::fromType<QString>());
+    addField(ADDRESS_FIELD, QMetaType::fromType<QString>());
+    addField(GP_FIELD, QMetaType::fromType<QString>());
+    addField(OTHER_DETAILS_FIELD, QMetaType::fromType<QString>());
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen

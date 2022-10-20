@@ -127,26 +127,26 @@ CardinalExpDetThreshold::CardinalExpDetThreshold(
     Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_MODALITY, QMetaType::Int);
-    addField(FN_TARGET_NUMBER, QMetaType::Int);
-    addField(FN_BACKGROUND_FILENAME, QMetaType::QString);  // set automatically
-    addField(FN_TARGET_FILENAME, QMetaType::QString);  // set automatically
-    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::Double);
-    addField(FN_BACKGROUND_INTENSITY, QMetaType::Double);
-    addField(FN_START_INTENSITY_MIN, QMetaType::Double);
-    addField(FN_START_INTENSITY_MAX, QMetaType::Double);
-    addField(FN_INITIAL_LARGE_INTENSITY_STEP, QMetaType::Double);
-    addField(FN_MAIN_SMALL_INTENSITY_STEP, QMetaType::Double);
-    addField(FN_NUM_TRIALS_IN_MAIN_SEQUENCE, QMetaType::Int);
-    addField(FN_P_CATCH_TRIAL, QMetaType::Double);
-    addField(FN_PROMPT, QMetaType::QString);
-    addField(FN_ITI_S, QMetaType::Double);
+    addField(FN_MODALITY, QMetaType::fromType<int>());
+    addField(FN_TARGET_NUMBER, QMetaType::fromType<int>());
+    addField(FN_BACKGROUND_FILENAME, QMetaType::fromType<QString>());  // set automatically
+    addField(FN_TARGET_FILENAME, QMetaType::fromType<QString>());  // set automatically
+    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::fromType<double>());
+    addField(FN_BACKGROUND_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_START_INTENSITY_MIN, QMetaType::fromType<double>());
+    addField(FN_START_INTENSITY_MAX, QMetaType::fromType<double>());
+    addField(FN_INITIAL_LARGE_INTENSITY_STEP, QMetaType::fromType<double>());
+    addField(FN_MAIN_SMALL_INTENSITY_STEP, QMetaType::fromType<double>());
+    addField(FN_NUM_TRIALS_IN_MAIN_SEQUENCE, QMetaType::fromType<int>());
+    addField(FN_P_CATCH_TRIAL, QMetaType::fromType<double>());
+    addField(FN_PROMPT, QMetaType::fromType<QString>());
+    addField(FN_ITI_S, QMetaType::fromType<double>());
     // Results
-    addField(FN_FINISHED, QMetaType::Bool);
-    addField(FN_INTERCEPT, QMetaType::Double);
-    addField(FN_SLOPE, QMetaType::Double);
-    addField(FN_K, QMetaType::Double);
-    addField(FN_THETA, QMetaType::Double);
+    addField(FN_FINISHED, QMetaType::fromType<bool>());
+    addField(FN_INTERCEPT, QMetaType::fromType<double>());
+    addField(FN_SLOPE, QMetaType::fromType<double>());
+    addField(FN_K, QMetaType::fromType<double>());
+    addField(FN_THETA, QMetaType::fromType<double>());
 
     load(load_pk);
 

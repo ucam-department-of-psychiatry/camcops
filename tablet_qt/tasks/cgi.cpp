@@ -53,11 +53,11 @@ void initializeCgi(TaskFactory& factory)
 Cgi::Cgi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(Q1, QMetaType::Int);
-    addField(Q2, QMetaType::Int);
-    addField(Q3T, QMetaType::Int);
-    addField(Q3S, QMetaType::Int);
-    addField(Q3, QMetaType::Int);
+    addField(Q1, QMetaType::fromType<int>());
+    addField(Q2, QMetaType::fromType<int>());
+    addField(Q3T, QMetaType::fromType<int>());
+    addField(Q3S, QMetaType::fromType<int>());
+    addField(Q3, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -76,33 +76,33 @@ void initializeGmcPq(TaskFactory& factory)
 GmcPq::GmcPq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GMCPQ_TABLENAME, true, false, false)  // ... anon, clin, resp
 {
-    addField(DOCTOR, QMetaType::QString);
-    addField(Q1, QMetaType::Int);
-    addField(Q2A, QMetaType::Bool);
-    addField(Q2B, QMetaType::Bool);
-    addField(Q2C, QMetaType::Bool);
-    addField(Q2D, QMetaType::Bool);
-    addField(Q2E, QMetaType::Bool);
-    addField(Q2F, QMetaType::Bool);
-    addField(Q2F_DETAILS, QMetaType::QString);
-    addField(Q3, QMetaType::Int);
-    addField(Q4A, QMetaType::Int);
-    addField(Q4B, QMetaType::Int);
-    addField(Q4C, QMetaType::Int);
-    addField(Q4D, QMetaType::Int);
-    addField(Q4E, QMetaType::Int);
-    addField(Q4F, QMetaType::Int);
-    addField(Q4G, QMetaType::Int);
-    addField(Q5A, QMetaType::Int);
-    addField(Q5B, QMetaType::Int);
-    addField(Q6, QMetaType::Bool);
-    addField(Q7, QMetaType::Bool);
-    addField(Q8, QMetaType::Bool);
-    addField(Q9, QMetaType::QString);
-    addField(Q10, QMetaType::QString);
-    addField(Q11, QMetaType::Int);
-    addField(Q12, QMetaType::Int);  // ethnicity
-    addField(Q12_DETAILS, QMetaType::QString);
+    addField(DOCTOR, QMetaType::fromType<QString>());
+    addField(Q1, QMetaType::fromType<int>());
+    addField(Q2A, QMetaType::fromType<bool>());
+    addField(Q2B, QMetaType::fromType<bool>());
+    addField(Q2C, QMetaType::fromType<bool>());
+    addField(Q2D, QMetaType::fromType<bool>());
+    addField(Q2E, QMetaType::fromType<bool>());
+    addField(Q2F, QMetaType::fromType<bool>());
+    addField(Q2F_DETAILS, QMetaType::fromType<QString>());
+    addField(Q3, QMetaType::fromType<int>());
+    addField(Q4A, QMetaType::fromType<int>());
+    addField(Q4B, QMetaType::fromType<int>());
+    addField(Q4C, QMetaType::fromType<int>());
+    addField(Q4D, QMetaType::fromType<int>());
+    addField(Q4E, QMetaType::fromType<int>());
+    addField(Q4F, QMetaType::fromType<int>());
+    addField(Q4G, QMetaType::fromType<int>());
+    addField(Q5A, QMetaType::fromType<int>());
+    addField(Q5B, QMetaType::fromType<int>());
+    addField(Q6, QMetaType::fromType<bool>());
+    addField(Q7, QMetaType::fromType<bool>());
+    addField(Q8, QMetaType::fromType<bool>());
+    addField(Q9, QMetaType::fromType<QString>());
+    addField(Q10, QMetaType::fromType<QString>());
+    addField(Q11, QMetaType::fromType<int>());
+    addField(Q12, QMetaType::fromType<int>());  // ethnicity
+    addField(Q12_DETAILS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

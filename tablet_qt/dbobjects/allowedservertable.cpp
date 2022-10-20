@@ -22,6 +22,7 @@
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "lib/convert.h"
+#include "lib/version.h"
 
 const QString ALLOWEDSERVERTABLES_TABLENAME("allowed_server_tables");
 const QString AllowedServerTable::TABLENAME_FIELD("tablename");
@@ -34,8 +35,8 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app, DatabaseManager& db) :
                    true, false, false, false)
 {
     // Define fields
-    addField(TABLENAME_FIELD, QMetaType::QString, true, true, false);  // unique
-    addField(VERSION_FIELD, convert::TYPENAME_VERSION, true, false, false);
+    addField(TABLENAME_FIELD, QMetaType::fromType<QString>(), true, true, false);  // unique
+    addField(VERSION_FIELD, QMetaType::fromType<Version>(), true, false, false);
 }
 
 

@@ -39,16 +39,16 @@ KirbyTrial::KirbyTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     DatabaseObject (app, db, KIRBY_TRIAL_TABLENAME)
 {
     // Keys
-    addField(FN_FK_TO_TASK, QMetaType::Int);
-    addField(FN_TRIAL, QMetaType::Int, true);  // trial number within this session, 1-based
+    addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // trial number within this session, 1-based
     // Choice
-    addField(FN_SIR, QMetaType::Int);  // int for now
-    addField(FN_LDR, QMetaType::Int);  // int for now
-    addField(FN_DELAY_DAYS, QMetaType::Int);  // int for now
-    addField(FN_CURRENCY, QMetaType::QString);
-    addField(FN_CURRENCY_SYMBOL_FIRST, QMetaType::Bool);
+    addField(FN_SIR, QMetaType::fromType<int>());  // int for now
+    addField(FN_LDR, QMetaType::fromType<int>());  // int for now
+    addField(FN_DELAY_DAYS, QMetaType::fromType<int>());  // int for now
+    addField(FN_CURRENCY, QMetaType::fromType<QString>());
+    addField(FN_CURRENCY_SYMBOL_FIRST, QMetaType::fromType<bool>());
     // Response
-    addField(FN_CHOSE_LDR, QMetaType::Bool);
+    addField(FN_CHOSE_LDR, QMetaType::fromType<bool>());
 
     load(load_pk);
 }

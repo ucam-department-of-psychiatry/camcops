@@ -56,13 +56,13 @@ void initializeContactLog(TaskFactory& factory)
 ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CONTACTLOG_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(LOCATION, QMetaType::QString);
-    addField(START, QMetaType::QDateTime);
-    addField(END, QMetaType::QDateTime);
-    addField(PATIENT_CONTACT, QMetaType::Bool);
-    addField(STAFF_LIAISON, QMetaType::Bool);
-    addField(OTHER_LIAISON, QMetaType::Bool);
-    addField(COMMENT, QMetaType::QString);
+    addField(LOCATION, QMetaType::fromType<QString>());
+    addField(START, QMetaType::fromType<QDateTime>());
+    addField(END, QMetaType::fromType<QDateTime>());
+    addField(PATIENT_CONTACT, QMetaType::fromType<bool>());
+    addField(STAFF_LIAISON, QMetaType::fromType<bool>());
+    addField(OTHER_LIAISON, QMetaType::fromType<bool>());
+    addField(COMMENT, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

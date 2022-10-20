@@ -42,7 +42,7 @@ void initializeCgiI(TaskFactory& factory)
 CgiI::CgiI(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_I_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(Q, QMetaType::Int);
+    addField(Q, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
