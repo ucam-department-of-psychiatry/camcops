@@ -569,7 +569,6 @@ tablet_qt
     resources/camcops/camera_qml/CameraListPopup.qml.rst
     resources/camcops/camera_qml/CameraPropertyButton.qml.rst
     resources/camcops/camera_qml/CameraPropertyPopup.qml.rst
-    resources/camcops/camera_qml/FocusButton.qml.rst
     resources/camcops/camera_qml/PhotoCaptureControls.qml.rst
     resources/camcops/camera_qml/PhotoPreview.qml.rst
     resources/camcops/camera_qml/Popup.qml.rst
