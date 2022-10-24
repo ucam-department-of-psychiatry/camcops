@@ -122,6 +122,10 @@ Rectangle {
         id: captureSession
         camera: Camera {
             id: camera
+            onErrorOccurred: {
+                console.log("camera: onErrorOccurred")
+                console.log(errorString)
+            }
         }
         imageCapture: ImageCapture {
             id: imageCapture

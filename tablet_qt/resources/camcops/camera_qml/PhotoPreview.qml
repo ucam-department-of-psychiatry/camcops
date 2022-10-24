@@ -84,6 +84,7 @@ Item {
         }
         text: qsTr("Save")
         onClicked: {
+            console.log("Save button clicked")
             imageSavedToFile()
         }
     }
