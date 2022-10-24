@@ -205,7 +205,7 @@ Windows
     is technically legal but it causes no end of trouble (see :ref:`build_qt`).
     (The usual culprit is MySQL.) The :ref:`build_qt` script will check this.
 
-- Tested in July 2018 with:
+- Tested in October 2022 with:
 
   .. code-block:: none
 
