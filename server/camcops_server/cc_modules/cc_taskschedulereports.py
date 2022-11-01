@@ -37,6 +37,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from sqlalchemy import cast, Integer
+from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import func, select
 from sqlalchemy.sql.functions import FunctionElement
 
@@ -110,6 +111,12 @@ class InvitationCountReport(Report):
 
     """  # noqa: E501
 
+    label_year = "year"
+    label_month = "month"
+    label_group = "group"
+    label_schedule = "schedule"
+    label_tasks = "tasks"
+
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
@@ -138,30 +145,32 @@ class InvitationCountReport(Report):
 
     def get_rows_colnames(self, req: "CamcopsRequest") -> PlainReportType:
         dbsession = req.dbsession
+        colnames = []  # type: List[str]  # for type checker
+
+        registered_patients_query = self._get_registered_patients_query(req)
+        rows, colnames = get_rows_fieldnames_from_query(
+            dbsession, registered_patients_query
+        )
+
+        return PlainReportType(rows=rows, column_names=colnames)
+
+    def _get_registered_patients_query(self, req: "CamcopsRequest") -> Query:
         group_ids = req.user.ids_of_groups_user_may_report_on
         superuser = req.user.superuser
 
         by_year = req.get_bool_param(ViewParam.BY_YEAR, DEFAULT_BY_YEAR)
         by_month = req.get_bool_param(ViewParam.BY_MONTH, DEFAULT_BY_MONTH)
 
-        label_year = "year"
-        label_month = "month"
-        label_group = "group"
-        label_schedule = "schedule"
-        label_n = "tasks"
-
-        colnames = []  # type: List[str]  # for type checker
-
-        groupers = [label_group, label_schedule]  # type: List[str]
+        groupers = [self.label_group, self.label_schedule]  # type: List[str]
         sorters = ["group", "schedule"]  # type: List[Tuple[str, bool]]
         # ... (key, reversed/descending)
 
         if by_year:
-            groupers.append(label_year)
-            sorters.append((label_year, True))
+            groupers.append(self.label_year)
+            sorters.append((self.label_year, True))
         if by_month:
-            groupers.append(label_month)
-            sorters.append((label_month, True))
+            groupers.append(self.label_month)
+            sorters.append((self.label_month, True))
 
         selectors = []  # type: List[FunctionElement]
 
@@ -172,29 +181,27 @@ class InvitationCountReport(Report):
 
         if by_year:
             selectors.append(
-                cast(  # Necessary for SQLite
+                cast(  # Necessary for SQLite tests
                     extract_year(
                         isotzdatetime_to_utcdatetime(pts.c.start_datetime)
                     ),
                     Integer(),
-                ).label(label_year)
+                ).label(self.label_year)
             )
         if by_month:
             selectors.append(
-                cast(  # Necessary for SQLite
+                cast(  # Necessary for SQLite tests
                     extract_month(
                         isotzdatetime_to_utcdatetime(pts.c.start_datetime)
                     ),
                     Integer(),
-                ).label(label_month)
+                ).label(self.label_month)
             )
         # Regardless:
-        selectors.append(group.c.name.label(label_group))
-        selectors.append(ts.c.name.label(label_schedule))
-        selectors.append(func.count().label(label_n))
-
+        selectors.append(group.c.name.label(self.label_group))
+        selectors.append(ts.c.name.label(self.label_schedule))
+        selectors.append(func.count().label(self.label_tasks))
         # noinspection PyUnresolvedReferences
-
         query = (
             select(selectors)
             .select_from(
@@ -209,6 +216,4 @@ class InvitationCountReport(Report):
             # noinspection PyProtectedMember
             query = query.where(group.c.id.in_(group_ids))
 
-        rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
-
-        return PlainReportType(rows=rows, column_names=colnames)
+        return query
