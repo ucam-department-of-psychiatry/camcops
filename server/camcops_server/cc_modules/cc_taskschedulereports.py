@@ -80,33 +80,33 @@ class InvitationCountReport(Report):
     We don't currently record when a patient was assigned to a task schedule
     but we can provide enough clues with the task count report and:
 
-    * Number of incomplete tasks for unregistered patients (all time)
-    * Number of incomplete tasks for registered patients (by month)
+    - Number of incomplete tasks for unregistered patients (all time)
+    - Number of incomplete tasks for registered patients (by month)::
 
-    SELECT substr(start_datetime, 1, 7) AS month,
-        ts.group_id, ts.name, COUNT(tsi.id) AS num_tasks
-    FROM _patient_task_schedule pts
-    JOIN _task_schedule ts ON pts.schedule_id = ts.id
-    JOIN _task_schedule_item tsi ON tsi.schedule_id = ts.id
-    GROUP BY ts.group_id, ts.name, month;
+        SELECT substr(start_datetime, 1, 7) AS month,
+            ts.group_id, ts.name, COUNT(tsi.id) AS num_tasks
+        FROM _patient_task_schedule pts
+        JOIN _task_schedule ts ON pts.schedule_id = ts.id
+        JOIN _task_schedule_item tsi ON tsi.schedule_id = ts.id
+        GROUP BY ts.group_id, ts.name, month;
 
     and, for a particular time frame:
 
-    * Number of server-side patients created
+    - Number of server-side patients created::
 
-    SELECT substr(_when_added_exact, 1, 7) AS month,
-        p._group_id, COUNT(p.id) AS num_patients
-    FROM patient p WHERE p._device_id = 1 GROUP BY p._group_id, month;
+        SELECT substr(_when_added_exact, 1, 7) AS month,
+            p._group_id, COUNT(p.id) AS num_patients
+        FROM patient p WHERE p._device_id = 1 GROUP BY p._group_id, month;
 
-    * Number of emails sent to patients
+    - Number of emails sent to patients::
 
-    SELECT substr(e.sent_at_utc, 1, 7) AS month,
-       ts.group_id, ts.name, COUNT(ptse.id) AS num_emails
-    FROM _patient_task_schedule pts
-    JOIN _task_schedule ts ON pts.schedule_id = ts.id
-    JOIN _patient_task_schedule_email ptse ON ptse.patient_task_schedule_id = pts.id
-    JOIN _emails e ON ptse.email_id = e.id
-    GROUP BY ts.group_id, ts.name, month;
+        SELECT substr(e.sent_at_utc, 1, 7) AS month,
+            ts.group_id, ts.name, COUNT(ptse.id) AS num_emails
+        FROM _patient_task_schedule pts
+        JOIN _task_schedule ts ON pts.schedule_id = ts.id
+        JOIN _patient_task_schedule_email ptse ON ptse.patient_task_schedule_id = pts.id
+        JOIN _emails e ON ptse.email_id = e.id
+        GROUP BY ts.group_id, ts.name, month;
 
     """  # noqa: E501
 
