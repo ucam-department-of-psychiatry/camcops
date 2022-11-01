@@ -163,6 +163,7 @@ server/camcops_server
     cc_modules/cc_pythonversion.py.rst
     cc_modules/cc_redcap.py.rst
     cc_modules/cc_report.py.rst
+    cc_modules/cc_reportschema.py.rst
     cc_modules/cc_request.py.rst
     cc_modules/cc_resource_registry.py.rst
     cc_modules/cc_response.py.rst
@@ -185,6 +186,7 @@ server/camcops_server
     cc_modules/cc_taskindex.py.rst
     cc_modules/cc_taskreports.py.rst
     cc_modules/cc_taskschedule.py.rst
+    cc_modules/cc_taskschedulereports.py.rst
     cc_modules/cc_testfactories.py.rst
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
@@ -222,6 +224,7 @@ server/camcops_server
     cc_modules/tests/cc_task_collection_tests.py.rst
     cc_modules/tests/cc_task_tests.py.rst
     cc_modules/tests/cc_taskschedule_tests.py.rst
+    cc_modules/tests/cc_taskschedulereports_tests.py.rst
     cc_modules/tests/cc_text_tests.py.rst
     cc_modules/tests/cc_tracker_tests.py.rst
     cc_modules/tests/cc_user_tests.py.rst
