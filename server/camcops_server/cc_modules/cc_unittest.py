@@ -37,6 +37,7 @@ import sqlite3
 from typing import Any, List, Type, TYPE_CHECKING
 import unittest
 
+from cardinal_pythonlib.classes import all_subclasses
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -57,6 +58,10 @@ from camcops_server.cc_modules.cc_request import (
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_testfactories import (
+    BaseFactory,
+    DeviceFactory,
+)
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
@@ -123,6 +128,9 @@ class DemoRequestTestCase(ExtendedTestCase):
     dbsession: "Session"
 
     def setUp(self) -> None:
+        for factory in all_subclasses(BaseFactory):
+            factory._meta.sqlalchemy_session = self.dbsession
+
         # config file has already been set up for the session in conftest.py
         os.environ[ENVVAR_CONFIG_FILE] = self.config_file
         self.req = get_unittest_request(self.dbsession)
@@ -255,14 +263,14 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         # ... devices
         self.server_device = Device.get_server_device(self.dbsession)
-        self.other_device = Device()
-        self.other_device.name = "other_device"
-        self.other_device.friendly_name = "Test device that may upload"
-        self.other_device.registered_by_user = self.user
-        self.other_device.when_registered_utc = self.era_time_utc
-        self.other_device.camcops_version = CAMCOPS_SERVER_VERSION
-        self.dbsession.add(self.other_device)
-
+        DeviceFactory.reset_sequence(self.server_device.id + 1)
+        self.other_device = DeviceFactory(
+            name="other_device",
+            friendly_name="Test device that may upload",
+            registered_by_user=self.user,
+            when_registered_utc=self.era_time_utc,
+            camcops_version=CAMCOPS_SERVER_VERSION,
+        )
         # ... export recipient definition (the minimum)
         self.recipdef.primary_idnum = idnum_type_nhs
 

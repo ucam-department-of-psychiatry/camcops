@@ -82,7 +82,8 @@ INSTALL_REQUIRES = [
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     "distro==1.3.0",  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     "dogpile.cache==0.9.2",  # web caching
-    "Faker==4.1.1",  # create fake data; for dummy database creation
+    "factory_boy==3.2.1",  # easier test data creation
+    "Faker==4.1.1",  # create fake data; for test and dummy database creation
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
     "flower==1.1.0",  # monitor for Celery

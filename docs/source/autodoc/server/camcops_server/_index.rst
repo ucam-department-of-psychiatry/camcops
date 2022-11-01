@@ -185,6 +185,7 @@ server/camcops_server
     cc_modules/cc_taskindex.py.rst
     cc_modules/cc_taskreports.py.rst
     cc_modules/cc_taskschedule.py.rst
+    cc_modules/cc_testfactories.py.rst
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
