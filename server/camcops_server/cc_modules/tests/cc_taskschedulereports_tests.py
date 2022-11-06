@@ -34,6 +34,7 @@ from pendulum import local
 from camcops_server.cc_modules.cc_testfactories import (
     GroupFactory,
     PatientTaskScheduleFactory,
+    ServerCreatedPatientFactory,
     TaskScheduleFactory,
     TaskScheduleItemFactory,
 )
@@ -47,6 +48,10 @@ from camcops_server.cc_modules.cc_taskschedulereports import (
 class InvitationCountReportTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         self.report = InvitationCountReport()
+        self.august = local(2022, 8, 1, 12)
+        self.september = local(2022, 9, 1, 12)
+        self.october = local(2022, 10, 1, 12)
+        self.november = local(2022, 11, 1, 12)
 
         super().setUp()
 
@@ -55,7 +60,14 @@ class InvitationCountReportTests(BasicDatabaseTestCase):
 
         self.assertEqual(
             result.column_names,
-            ["year", "month", "group", "schedule", "tasks"],
+            [
+                "year",
+                "month",
+                "group_name",
+                "schedule_name",
+                "patients_created",
+                "tasks",
+            ],
         )
 
     def test_rows_for_no_registered_patients(self) -> None:
@@ -80,20 +92,48 @@ class InvitationCountReportTests(BasicDatabaseTestCase):
         TaskScheduleItemFactory(task_schedule=ts3, task_table_name="wsas")
         TaskScheduleItemFactory(task_schedule=ts3, task_table_name="eq5d5l")
 
-        PatientTaskScheduleFactory.create_batch(3, task_schedule=ts1)
-        PatientTaskScheduleFactory.create_batch(4, task_schedule=ts2)
-        PatientTaskScheduleFactory.create_batch(5, task_schedule=ts3)
+        for i in range(0, 3):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.november
+            )
+
+            PatientTaskScheduleFactory(task_schedule=ts1, patient=patient)
+
+        for i in range(0, 4):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.october
+            )
+
+            PatientTaskScheduleFactory(task_schedule=ts2, patient=patient)
+
+        for i in range(0, 5):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.september
+            )
+            PatientTaskScheduleFactory(task_schedule=ts3, patient=patient)
 
         result = self.report.get_rows_colnames(self.req)
 
-        # 2 tasks, 3 patients
-        self.assertEqual(result.rows[0], (None, None, "group_a", "ts1", 2 * 3))
-        # 6 tasks, 4 patients
-        self.assertEqual(result.rows[1], (None, None, "group_a", "ts2", 6 * 4))
-        # 4 tasks, 5 patients
-        self.assertEqual(result.rows[2], (None, None, "group_b", "ts3", 4 * 5))
+        # 3 patients created, no tasks completed
+        self.assertEqual(result.rows[0], (2022, 11, "group_a", "ts1", 3, 0))
+        # 4 patients created, no tasks completed
+        self.assertEqual(result.rows[1], (2022, 10, "group_a", "ts2", 4, 0))
+        # 5 patients created, no tasks completed
+        self.assertEqual(result.rows[2], (2022, 9, "group_b", "ts3", 5, 0))
+        # 2 tasks assigned to 3 patients
+        self.assertEqual(
+            result.rows[3], (None, None, "group_a", "ts1", 0, 2 * 3)
+        )
+        # 6 tasks assigned to 4 patients
+        self.assertEqual(
+            result.rows[4], (None, None, "group_a", "ts2", 0, 6 * 4)
+        )
+        # 4 tasks assigned to 5 patients
+        self.assertEqual(
+            result.rows[5], (None, None, "group_b", "ts3", 0, 4 * 5)
+        )
 
-        self.assertEqual(len(result.rows), 3)
+        self.assertEqual(len(result.rows), 6)
 
     def test_rows_for_some_registered_patients(self) -> None:
         group_a = GroupFactory(name="group_a")
@@ -117,42 +157,93 @@ class InvitationCountReportTests(BasicDatabaseTestCase):
         TaskScheduleItemFactory(task_schedule=ts3, task_table_name="wsas")
         TaskScheduleItemFactory(task_schedule=ts3, task_table_name="eq5d5l")
 
-        PatientTaskScheduleFactory.create_batch(1, task_schedule=ts1)
-        PatientTaskScheduleFactory.create_batch(2, task_schedule=ts2)
-        PatientTaskScheduleFactory.create_batch(3, task_schedule=ts3)
+        for i in range(0, 1):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(task_schedule=ts1, patient=patient)
 
-        PatientTaskScheduleFactory.create_batch(
-            4, task_schedule=ts1, start_datetime=local(2022, 9, 1, 12)
-        )
-        PatientTaskScheduleFactory.create_batch(
-            5, task_schedule=ts2, start_datetime=local(2022, 9, 1, 12)
-        )
-        PatientTaskScheduleFactory.create_batch(
-            6, task_schedule=ts3, start_datetime=local(2022, 9, 1, 12)
-        )
+        for i in range(0, 2):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(task_schedule=ts2, patient=patient)
 
-        PatientTaskScheduleFactory.create_batch(
-            7, task_schedule=ts1, start_datetime=local(2022, 10, 1, 12)
-        )
-        PatientTaskScheduleFactory.create_batch(
-            8, task_schedule=ts2, start_datetime=local(2022, 10, 1, 12)
-        )
-        PatientTaskScheduleFactory.create_batch(
-            9, task_schedule=ts3, start_datetime=local(2022, 10, 1, 12)
-        )
+        for i in range(0, 3):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(task_schedule=ts3, patient=patient)
+
+        for i in range(0, 4):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=ts1,
+                start_datetime=self.september,
+                patient=patient,
+            )
+
+        for i in range(0, 5):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=ts2,
+                start_datetime=self.september,
+                patient=patient,
+            )
+
+        for i in range(0, 6):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=ts3,
+                start_datetime=self.september,
+                patient=patient,
+            )
+
+        for i in range(0, 7):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=ts1, start_datetime=self.october, patient=patient
+            )
+
+        for i in range(0, 8):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=ts2, start_datetime=self.october, patient=patient
+            )
+
+        for i in range(0, 9):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.august
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=ts3, start_datetime=self.october, patient=patient
+            )
 
         result = self.report.get_rows_colnames(self.req)
 
         expected = [
-            (None, None, "group_a", "ts1", 2 * 1),  # 2 tasks, 1 patient
-            (2022, 9, "group_a", "ts1", 2 * 4),  # 2 tasks, 4 patients
-            (2022, 10, "group_a", "ts1", 2 * 7),  # 2 tasks, 7 patients
-            (None, None, "group_a", "ts2", 6 * 2),  # 6 tasks, 2 patients
-            (2022, 9, "group_a", "ts2", 6 * 5),  # 6 tasks, 5 patients
-            (2022, 10, "group_a", "ts2", 6 * 8),  # 6 tasks, 8 patients
-            (None, None, "group_b", "ts3", 4 * 3),  # 4 tasks, 3 patients
-            (2022, 9, "group_b", "ts3", 4 * 6),  # 4 tasks, 6 patients
-            (2022, 10, "group_b", "ts3", 4 * 9),  # 4 tasks, 9 patients
+            (2022, 10, "group_a", "ts1", 0, 2 * 7),  # 2 tasks, 7 patients
+            (2022, 10, "group_a", "ts2", 0, 6 * 8),  # 6 tasks, 8 patients
+            (2022, 10, "group_b", "ts3", 0, 4 * 9),  # 4 tasks, 9 patients
+            (2022, 9, "group_a", "ts1", 0, 2 * 4),  # 2 tasks, 4 patients
+            (2022, 9, "group_a", "ts2", 0, 6 * 5),  # 6 tasks, 5 patients
+            (2022, 9, "group_b", "ts3", 0, 4 * 6),  # 4 tasks, 6 patients
+            (2022, 8, "group_a", "ts1", 7 + 4 + 1, 0),  # 12 patients created
+            (2022, 8, "group_a", "ts2", 8 + 5 + 2, 0),  # 15 patients created
+            (2022, 8, "group_b", "ts3", 9 + 6 + 3, 0),  # 18 patients created
+            (None, None, "group_a", "ts1", 0, 2 * 1),  # 2 tasks, 1 patient
+            (None, None, "group_a", "ts2", 0, 6 * 2),  # 6 tasks, 2 patients
+            (None, None, "group_b", "ts3", 0, 4 * 3),  # 4 tasks, 3 patients
         ]
 
         self.assertEqual(result.rows, expected)

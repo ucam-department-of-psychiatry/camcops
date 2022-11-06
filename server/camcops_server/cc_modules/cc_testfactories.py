@@ -77,11 +77,15 @@ class UserFactory(BaseFactory):
 
 
 class GenericTabletRecordFactory(BaseFactory):
-    default_iso_datetime = "2010-07-07T13:40+0100"
+    default_iso_datetime = "1970-01-01T12:00"
 
     _device = factory.SubFactory(DeviceFactory)
     _group = factory.SubFactory(GroupFactory)
     _adding_user = factory.SubFactory(UserFactory)
+
+    @factory.lazy_attribute
+    def _when_added_exact(self) -> pendulum.DateTime:
+        return pendulum.parse(self.default_iso_datetime)
 
     @factory.lazy_attribute
     def _when_added_batch_utc(self) -> pendulum.DateTime:
@@ -110,6 +114,15 @@ class PatientFactory(GenericTabletRecordFactory):
     id = factory.Sequence(lambda n: n)
 
 
+class ServerCreatedPatientFactory(PatientFactory):
+    @factory.lazy_attribute
+    def _device(self) -> bool:
+        # Should have been created in BasicDatabaseTestCase.setUp
+        return Device.get_server_device(
+            ServerCreatedPatientFactory._meta.sqlalchemy_session
+        )
+
+
 class TaskScheduleFactory(BaseFactory):
     class Meta:
         model = TaskSchedule
@@ -128,5 +141,11 @@ class PatientTaskScheduleFactory(BaseFactory):
     class Meta:
         model = PatientTaskSchedule
 
-    patient = factory.SubFactory(PatientFactory)
     task_schedule = factory.SubFactory(TaskScheduleFactory)
+    # If patient has not been set explicitly,
+    # ensure Patient and TaskSchedule end up in the same group
+    start_datetime = None
+    patient = factory.SubFactory(
+        ServerCreatedPatientFactory,
+        _group=factory.SelfAttribute("..task_schedule.group"),
+    )
