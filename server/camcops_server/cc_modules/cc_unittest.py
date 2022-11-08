@@ -43,6 +43,7 @@ from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import pytest
+from sqlalchemy.engine.base import Engine
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_constants import ERA_NOW
@@ -65,7 +66,6 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine.base import Engine
     from sqlalchemy.orm import Session
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
