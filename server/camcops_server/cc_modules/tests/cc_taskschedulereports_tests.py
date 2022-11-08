@@ -43,11 +43,11 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 
 from camcops_server.cc_modules.cc_taskschedulereports import (
-    InvitationCountReport,
+    TaskAssignmentReport,
 )
 
 
-class InvitationCountReportTests(BasicDatabaseTestCase):
+class TaskAssignmentReportTests(BasicDatabaseTestCase):
     YEAR_COLUMN = 0
     MONTH_COLUMN = 1
     GROUP_COLUMN = 2
@@ -100,7 +100,7 @@ class InvitationCountReportTests(BasicDatabaseTestCase):
         self.october = local(2022, 10, 1, 12)
         self.november = local(2022, 11, 1, 12)
 
-        self.report = InvitationCountReport()
+        self.report = TaskAssignmentReport()
 
     def test_column_names(self) -> None:
         result = self.report.get_rows_colnames(self.req)

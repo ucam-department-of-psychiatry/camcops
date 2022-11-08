@@ -76,7 +76,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
-class InvitationCountReportSchema(ReportParamSchema):
+class TaskAssignmentReportSchema(ReportParamSchema):
     by_year = ByYearSelector()  # must match ViewParam.BY_YEAR
     by_month = ByMonthSelector()  # must match ViewParam.BY_MONTH
 
@@ -86,19 +86,25 @@ class InvitationCountReportSchema(ReportParamSchema):
 # =============================================================================
 
 
-class InvitationCountReport(Report):
+class TaskAssignmentReport(Report):
     """
-    Report to count invitations to server-side patients to complete tasks.
+    Report to count server-side patients and their assigned tasks.
 
-    We don't currently record when a patient was assigned to a task schedule
-    but we can provide enough clues with the task count report and:
+    We don't currently record when a patient was assigned to a task schedule;
+    we only record when the patient registered themselves on the app, along
+    with any tasks they completed. This report provides:
 
-    - Number of incomplete tasks for unregistered patients (all time)
-    - Number of incomplete tasks for registered patients (by month or year)
     - Number of server-side patients created (by month or year)
+    - Number of tasks assigned to registered patients (by month or year)
+    - Number of tasks assigned to unregistered patients (all time)
     - Number of emails sent to patients (by month or year)
 
+    This along with the task count report should give good data on completed
+    and outstanding tasks.
+
     """
+
+    template_name = "task_assignment_report.mako"
 
     label_year = "year"
     label_month = "month"
@@ -113,12 +119,12 @@ class InvitationCountReport(Report):
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
-        return "invitationcount"
+        return "taskassignment"
 
     @classmethod
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("(Server) Count of invitations to complete tasks")
+        return _("(Server) Count of patients and their assigned tasks")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -127,7 +133,7 @@ class InvitationCountReport(Report):
 
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
-        return InvitationCountReportSchema
+        return TaskAssignmentReportSchema
 
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:

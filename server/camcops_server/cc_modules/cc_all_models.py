@@ -135,7 +135,7 @@ from camcops_server.cc_modules.cc_taskreports import (  # noqa: F401
 
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_taskschedulereports import (  # noqa: F401
-    InvitationCountReport,
+    TaskAssignmentReport,
 )
 
 
