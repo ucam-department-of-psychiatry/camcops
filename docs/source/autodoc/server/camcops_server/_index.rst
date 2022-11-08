@@ -622,6 +622,7 @@ server/camcops_server
     templates/tasks/average_score_report.mako.rst
     templates/tasks/diagnosis_finder_report.mako.rst
     templates/tasks/perinatal_poem_report.mako.rst
+    templates/tasks/task_assignment_report.mako.rst
     templates/test/inherit_cache_test_child.mako.rst
     templates/test/inherit_cache_test_parent.mako.rst
     templates/test/test_nhs_numbers.mako.rst
