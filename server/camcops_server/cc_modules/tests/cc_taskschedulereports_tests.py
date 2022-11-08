@@ -29,7 +29,7 @@ camcops_server/cc_modules/tests/cc_taskschedulereports_tests.py
 
 """
 
-from pendulum import local
+from pendulum import datetime
 
 from camcops_server.cc_modules.cc_testfactories import (
     EmailFactory,
@@ -95,10 +95,10 @@ class TaskAssignmentReportTests(BasicDatabaseTestCase):
                 task_schedule=self.ts3, task_table_name=task_name
             )
 
-        self.august = local(2022, 8, 1, 12)
-        self.september = local(2022, 9, 1, 12)
-        self.october = local(2022, 10, 1, 12)
-        self.november = local(2022, 11, 1, 12)
+        self.august = datetime(2022, 8, 1, 12)
+        self.september = datetime(2022, 9, 1, 12)
+        self.october = datetime(2022, 10, 1, 12)
+        self.november = datetime(2022, 11, 1, 12)
 
         self.report = TaskAssignmentReport()
 
