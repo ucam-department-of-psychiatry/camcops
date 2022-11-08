@@ -113,12 +113,12 @@ class InvitationCountReportTests(BasicDatabaseTestCase):
                 "group_name",
                 "schedule_name",
                 "patients_created",
-                "tasks",
+                "tasks_assigned",
                 "emails_sent",
             ],
         )
 
-    def test_counts_for_no_registered_patients(self) -> None:
+    def test_task_patient_counts_for_no_registered_patients(self) -> None:
         sep_patients = []
         oct_patients = []
         nov_patients = []
@@ -238,7 +238,7 @@ class InvitationCountReportTests(BasicDatabaseTestCase):
         # Check there's nothing else
         self.assertEqual(len(result.rows), row)
 
-    def test_counts_for_some_registered_patients(self) -> None:
+    def test_task_patient_counts_for_some_registered_patients(self) -> None:
         ts1_unregistered_patients = []
         ts2_unregistered_patients = []
         ts3_unregistered_patients = []

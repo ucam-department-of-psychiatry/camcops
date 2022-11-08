@@ -106,7 +106,7 @@ class InvitationCountReport(Report):
     label_group_name = "group_name"
     label_schedule_id = "schedule_id"
     label_schedule_name = "schedule_name"
-    label_tasks = "tasks"
+    label_tasks = "tasks_assigned"
     label_patients_created = "patients_created"
     label_emails_sent = "emails_sent"
 
@@ -181,7 +181,7 @@ class InvitationCountReport(Report):
             func.sum(all_data.c.patients_created).label(
                 self.label_patients_created
             ),
-            func.sum(all_data.c.tasks).label(self.label_tasks),
+            func.sum(all_data.c.tasks_assigned).label(self.label_tasks),
             func.sum(all_data.c.emails_sent).label(self.label_emails_sent),
         ]
         query = (
