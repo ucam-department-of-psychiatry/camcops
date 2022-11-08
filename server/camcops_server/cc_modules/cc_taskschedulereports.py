@@ -98,15 +98,7 @@ class InvitationCountReport(Report):
     - Number of server-side patients created (by month or year)
     - Number of emails sent to patients (by month or year)
 
-        SELECT substr(e.sent_at_utc, 1, 7) AS month,
-            ts.group_id, ts.name, COUNT(ptse.id) AS num_emails
-        FROM _patient_task_schedule pts
-        JOIN _task_schedule ts ON pts.schedule_id = ts.id
-        JOIN _patient_task_schedule_email ptse ON ptse.patient_task_schedule_id = pts.id
-        JOIN _emails e ON ptse.email_id = e.id
-        GROUP BY ts.group_id, ts.name, month;
-
-    """  # noqa: E501
+    """
 
     label_year = "year"
     label_month = "month"
