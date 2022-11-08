@@ -48,12 +48,12 @@ from sqlalchemy.sql.expression import (
     Selectable,
 )
 from sqlalchemy.sql.functions import FunctionElement
-from sqlalchemy.sql.schema import Column
 
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     isotzdatetime_to_utcdatetime,
 )
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_forms import ReportParamSchema
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_patient import Patient
@@ -67,6 +67,7 @@ from camcops_server.cc_modules.cc_reportschema import (
 )
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
+    PatientTaskScheduleEmail,
     TaskSchedule,
     TaskScheduleItem,
 )
@@ -114,7 +115,8 @@ class InvitationCountReport(Report):
     label_schedule_id = "schedule_id"
     label_schedule_name = "schedule_name"
     label_tasks = "tasks"
-    label_patients = "patients_created"
+    label_patients_created = "patients_created"
+    label_emails_sent = "emails_sent"
 
     # noinspection PyMethodParameters
     @classproperty
@@ -154,6 +156,8 @@ class InvitationCountReport(Report):
             req, by_year, by_month
         )
         patients_query.alias("patients_data")
+        emails_query = self._get_emails_sent_query(req, by_year, by_month)
+        emails_query.alias("emails_data")
 
         selectors = []  # type: List[FunctionElement]
         sorters = []  # type: List[Union[str, UnaryExpression]]
@@ -164,7 +168,9 @@ class InvitationCountReport(Report):
             self.label_schedule_name,
         ]  # type: List[str]
 
-        all_data = union_all(tasks_query, patients_query).alias("all_data")
+        all_data = union_all(tasks_query, patients_query, emails_query).alias(
+            "all_data"
+        )
 
         if by_year:
             selectors.append(all_data.c.year)
@@ -180,8 +186,11 @@ class InvitationCountReport(Report):
         selectors += [
             all_data.c.group_name,
             all_data.c.schedule_name,
-            func.sum(all_data.c.patients_created).label(self.label_patients),
+            func.sum(all_data.c.patients_created).label(
+                self.label_patients_created
+            ),
             func.sum(all_data.c.tasks).label(self.label_tasks),
+            func.sum(all_data.c.emails_sent).label(self.label_emails_sent),
         ]
         query = (
             select(selectors)
@@ -209,11 +218,12 @@ class InvitationCountReport(Report):
             .join(group, ts.c.group_id == group.c.id)
         )
 
-        date_column = pts.c.start_datetime
+        date_column = isotzdatetime_to_utcdatetime(pts.c.start_datetime)
         # Order must be consistent across queries
         count_selectors = [
-            literal(0).label(self.label_patients),
+            literal(0).label(self.label_patients_created),
             func.count().label(self.label_tasks),
+            literal(0).label(self.label_emails_sent),
         ]
 
         query = self._build_query(
@@ -238,16 +248,51 @@ class InvitationCountReport(Report):
             .join(patient, pts.c.patient_pk == patient.c._pk)
         )
 
-        date_column = patient.c._when_added_exact
+        date_column = isotzdatetime_to_utcdatetime(patient.c._when_added_exact)
         # Order must be consistent across queries
         count_selectors = [
-            func.count().label(self.label_patients),
+            func.count().label(self.label_patients_created),
             literal(0).label(self.label_tasks),
+            literal(0).label(self.label_emails_sent),
         ]
 
         query = self._build_query(
             req, tables, by_year, by_month, date_column, count_selectors
         ).where(patient.c._device_id == server_device.id)
+
+        return query
+
+    def _get_emails_sent_query(
+        self, req: "CamcopsRequest", by_year: bool, by_month: bool
+    ) -> Query:
+        pts = PatientTaskSchedule.__table__
+        ts = TaskSchedule.__table__
+        group = Group.__table__
+        patient = Patient.__table__
+        ptse = PatientTaskScheduleEmail.__table__
+        email = Email.__table__
+
+        tables = (
+            ptse.join(pts, ptse.c.patient_task_schedule_id == pts.c.id)
+            .join(ts, pts.c.schedule_id == ts.c.id)
+            .join(group, ts.c.group_id == group.c.id)
+            .join(patient, pts.c.patient_pk == patient.c._pk)
+            .join(email, ptse.c.email_id == email.c.id)
+        )
+
+        date_column = email.c.sent_at_utc
+        # Order must be consistent across queries
+        count_selectors = [
+            literal(0).label(self.label_patients_created),
+            literal(0).label(self.label_tasks),
+            func.count().label(self.label_emails_sent),
+        ]
+
+        query = self._build_query(
+            req, tables, by_year, by_month, date_column, count_selectors
+        ).where(
+            email.c.sent == True  # noqa: E712
+        )
 
         return query
 
@@ -257,7 +302,7 @@ class InvitationCountReport(Report):
         tables: Selectable,
         by_year: bool,
         by_month: bool,
-        date_column: Column,
+        date_column: FunctionElement,
         count_selectors: List[FunctionElement],
     ) -> Query:
         group_ids = req.user.ids_of_groups_user_may_report_on
@@ -277,7 +322,7 @@ class InvitationCountReport(Report):
         if by_year:
             selectors.append(
                 cast(  # Necessary for SQLite tests
-                    extract_year(isotzdatetime_to_utcdatetime(date_column)),
+                    extract_year(date_column),
                     Integer(),
                 ).label(self.label_year)
             )
@@ -286,7 +331,7 @@ class InvitationCountReport(Report):
         if by_month:
             selectors.append(
                 cast(  # Necessary for SQLite tests
-                    extract_month(isotzdatetime_to_utcdatetime(date_column)),
+                    extract_month(date_column),
                     Integer(),
                 ).label(self.label_month)
             )

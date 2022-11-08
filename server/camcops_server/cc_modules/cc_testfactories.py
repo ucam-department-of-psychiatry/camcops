@@ -38,10 +38,12 @@ import pendulum
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
+    PatientTaskScheduleEmail,
     TaskSchedule,
     TaskScheduleItem,
 )
@@ -149,3 +151,29 @@ class PatientTaskScheduleFactory(BaseFactory):
         ServerCreatedPatientFactory,
         _group=factory.SelfAttribute("..task_schedule.group"),
     )
+
+
+class EmailFactory(BaseFactory):
+    class Meta:
+        model = Email
+
+    @factory.post_generation
+    def sent_at_utc(
+        self, create: bool, extracted: pendulum.DateTime, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        self.sent_at_utc = extracted
+
+    @factory.post_generation
+    def sent(self, create: bool, extracted: bool, **kwargs) -> None:
+        if not create:
+            return
+
+        self.sent = extracted
+
+
+class PatientTaskScheduleEmailFactory(BaseFactory):
+    class Meta:
+        model = PatientTaskScheduleEmail
