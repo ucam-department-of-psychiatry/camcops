@@ -37,15 +37,15 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from sqlalchemy import cast, Integer
-from sqlalchemy.orm.query import Query
-from sqlalchemy.sql.elements import UnaryExpression
+from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import (
+    FromClause,
+    Select,
     desc,
     func,
     literal,
     select,
     union_all,
-    Selectable,
 )
 from sqlalchemy.sql.functions import FunctionElement
 
@@ -73,6 +73,8 @@ from camcops_server.cc_modules.cc_taskschedule import (
 )
 
 if TYPE_CHECKING:
+    from typing import Any
+    from sqlalchemy.sql.expression import Visitable
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
@@ -157,14 +159,16 @@ class TaskAssignmentReport(Report):
         emails_query = self._get_emails_sent_query(req, by_year, by_month)
         emails_query.alias("emails_data")
 
-        selectors = []  # type: List[FunctionElement]
-        sorters = []  # type: List[Union[str, UnaryExpression]]
+        selectors = (
+            []
+        )  # type: List[Union[ColumnElement[Any], FromClause, int]]
+        sorters = []  # type: List[Union[str, bool, Visitable, None]]
         groupers = [
             self.label_group_id,
             self.label_schedule_id,
             self.label_group_name,
             self.label_schedule_name,
-        ]  # type: List[str]
+        ]  # type: List[Union[str, bool, Visitable, None]]
 
         all_data = union_all(tasks_query, patients_query, emails_query).alias(
             "all_data"
@@ -203,7 +207,7 @@ class TaskAssignmentReport(Report):
 
     def _get_tasks_query(
         self, req: "CamcopsRequest", by_year: bool, by_month: bool
-    ) -> Query:
+    ) -> Select:
 
         pts = PatientTaskSchedule.__table__
         ts = TaskSchedule.__table__
@@ -232,7 +236,7 @@ class TaskAssignmentReport(Report):
 
     def _get_created_patients_query(
         self, req: "CamcopsRequest", by_year: bool, by_month: bool
-    ) -> Query:
+    ) -> Select:
         server_device = Device.get_server_device(req.dbsession)
 
         pts = PatientTaskSchedule.__table__
@@ -262,7 +266,7 @@ class TaskAssignmentReport(Report):
 
     def _get_emails_sent_query(
         self, req: "CamcopsRequest", by_year: bool, by_month: bool
-    ) -> Query:
+    ) -> Select:
         pts = PatientTaskSchedule.__table__
         ts = TaskSchedule.__table__
         group = Group.__table__
@@ -297,12 +301,14 @@ class TaskAssignmentReport(Report):
     def _build_query(
         self,
         req: "CamcopsRequest",
-        tables: Selectable,
+        tables: FromClause,
         by_year: bool,
         by_month: bool,
         date_column: FunctionElement,
         count_selectors: List[FunctionElement],
-    ) -> Query:
+    ) -> Select:
+        assert req.user is not None  # For type checker
+
         group_ids = req.user.ids_of_groups_user_may_report_on
         superuser = req.user.superuser
 
@@ -312,10 +318,11 @@ class TaskAssignmentReport(Report):
         groupers = [
             group.c.id,
             ts.c.id,
-        ]
-        # ... (key, reversed/descending)
+        ]  # type: List[Union[str, bool, Visitable, None]]
 
-        selectors = []  # type: List[FunctionElement]
+        selectors = (
+            []
+        )  # type: List[Union[ColumnElement[Any], FromClause, int]]
 
         if by_year:
             selectors.append(

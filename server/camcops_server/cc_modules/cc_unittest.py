@@ -65,6 +65,7 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
+    from sqlalchemy.engine.base import Engine
     from sqlalchemy.orm import Session
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
@@ -108,7 +109,9 @@ class ExtendedTestCase(unittest.TestCase):
         """
         log.info("{}.{}:{}", cls.__module__, cls.__name__, msg)
 
-    def assertIsInstanceOrNone(self, obj: object, cls: Type, msg: str = None):
+    def assertIsInstanceOrNone(
+        self, obj: object, cls: Type, msg: str = None
+    ) -> None:
         """
         Asserts that ``obj`` is an instance of ``cls`` or is None. The
         parameter ``msg`` is used as part of the failure message if it isn't.
@@ -126,6 +129,10 @@ class DemoRequestTestCase(ExtendedTestCase):
     """
 
     dbsession: "Session"
+    config_file: str
+    engine: Engine
+    database_on_disk: bool
+    db_filename: str
 
     def setUp(self) -> None:
         for factory in all_subclasses(BaseFactory):

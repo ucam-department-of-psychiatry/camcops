@@ -118,7 +118,7 @@ class PatientFactory(GenericTabletRecordFactory):
 
 class ServerCreatedPatientFactory(PatientFactory):
     @factory.lazy_attribute
-    def _device(self) -> bool:
+    def _device(self) -> Device:
         # Should have been created in BasicDatabaseTestCase.setUp
         return Device.get_server_device(
             ServerCreatedPatientFactory._meta.sqlalchemy_session
