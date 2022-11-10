@@ -39,6 +39,8 @@ from camcops_server.cc_modules.cc_testfactories import (
     ServerCreatedPatientFactory,
     TaskScheduleFactory,
     TaskScheduleItemFactory,
+    UserFactory,
+    UserGroupMembershipFactory,
 )
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 
@@ -616,3 +618,36 @@ class TaskAssignmentReportTests(BasicDatabaseTestCase):
         row += 1
 
         self.assertEqual(len(result.rows), row)
+
+    def test_groups_restricted_when_not_superuser(self) -> None:
+        user = UserFactory()
+        UserGroupMembershipFactory(
+            group_id=self.ts1.group.id, user_id=user.id, may_run_reports=True
+        )
+
+        self.req._debugging_user = user
+
+        # Should include these
+        for i in range(0, 3):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.september, _group=self.ts1.group
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=self.ts1,
+                patient=patient,
+                start_datetime=self.september,
+            )
+
+        # Should ignore these
+        for i in range(0, 2):
+            patient = ServerCreatedPatientFactory(
+                _when_added_exact=self.september, _group=self.ts3.group
+            )
+            PatientTaskScheduleFactory(
+                task_schedule=self.ts3,
+                patient=patient,
+                start_datetime=self.september,
+            )
+
+        result = self.report.get_rows_colnames(self.req)
+        self.assertEqual(len(result.rows), 1)

@@ -62,6 +62,8 @@ from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_testfactories import (
     BaseFactory,
     DeviceFactory,
+    GroupFactory,
+    UserFactory,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
@@ -261,6 +263,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.group.ip_use = IpUse()
         self.dbsession.add(self.group)
         self.dbsession.flush()  # sets PK fields
+        GroupFactory.reset_sequence(self.group.id + 1)
 
         # ... users
 
@@ -282,6 +285,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.recipdef.primary_idnum = idnum_type_nhs
 
         self.dbsession.flush()  # sets PK fields
+        UserFactory.reset_sequence(self.user.id + 1)
 
         self.create_tasks()
 

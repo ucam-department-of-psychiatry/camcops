@@ -40,6 +40,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
@@ -67,6 +68,7 @@ class GroupFactory(BaseFactory):
     class Meta:
         model = Group
 
+    id = factory.Sequence(lambda n: n)
     name = factory.Sequence(lambda n: f"Group {n}")
 
 
@@ -74,6 +76,7 @@ class UserFactory(BaseFactory):
     class Meta:
         model = User
 
+    id = factory.Sequence(lambda n: n)
     username = factory.Sequence(lambda n: f"user{n}")
     hashedpw = ""
 
@@ -159,21 +162,35 @@ class EmailFactory(BaseFactory):
 
     @factory.post_generation
     def sent_at_utc(
-        self, create: bool, extracted: pendulum.DateTime, **kwargs
+        self, create: bool, sent_at_utc: pendulum.DateTime, **kwargs
     ) -> None:
         if not create:
             return
 
-        self.sent_at_utc = extracted
+        self.sent_at_utc = sent_at_utc
 
     @factory.post_generation
-    def sent(self, create: bool, extracted: bool, **kwargs) -> None:
+    def sent(self, create: bool, sent: bool, **kwargs) -> None:
         if not create:
             return
 
-        self.sent = extracted
+        self.sent = sent
 
 
 class PatientTaskScheduleEmailFactory(BaseFactory):
     class Meta:
         model = PatientTaskScheduleEmail
+
+
+class UserGroupMembershipFactory(BaseFactory):
+    class Meta:
+        model = UserGroupMembership
+
+    @factory.post_generation
+    def may_run_reports(
+        self, create: bool, may_run_reports: bool, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        self.may_run_reports = may_run_reports
