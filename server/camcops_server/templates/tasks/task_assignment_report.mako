@@ -30,5 +30,15 @@ camcops_server/templates/tasks/task_assignment_report.mako
 <%inherit file="report.mako"/>
 
 <%block name="additional_report_below_results">
-    ${ req.gettext("Unless a specific start time was set by the administrator when assigining a patient to a task schedule, the count of 'tasks_assigned' is for the month/year the patients registered themselves on the CamCOPS app. Patients yet to register appear in the count of 'tasks_assigned' for date 'None'") }
+    <ul>
+        <li>
+            ${ req.gettext("This report counts patients created directly on the server, and scheduled tasks assigned to them.") }
+        </li>
+        <li>
+            ${ req.gettext("Unless a specific start time was set by the administrator when assigining a patient to a task schedule, the count of 'tasks_assigned' is for the month/year the patients registered themselves on the CamCOPS app.") }
+        </li>
+        <li>
+            ${ req.gettext("Tasks for patients who are yet to register appear in the count of 'tasks_assigned' for the date 'None'.") }
+        </li>
+    </ul>
 </%block>

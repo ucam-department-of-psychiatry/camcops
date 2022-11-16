@@ -74,6 +74,8 @@ from camcops_server.cc_modules.cc_taskschedule import (
 
 if TYPE_CHECKING:
     from typing import Any
+
+    # noinspection PyProtectedMember
     from sqlalchemy.sql.expression import Visitable
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
@@ -126,7 +128,9 @@ class TaskAssignmentReport(Report):
     @classmethod
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("(Server) Count of patients and their assigned tasks")
+        return _(
+            "(Server) Count server-created patients and their assigned tasks"
+        )
 
     # noinspection PyMethodParameters
     @classproperty
@@ -148,8 +152,6 @@ class TaskAssignmentReport(Report):
         by_year = req.get_bool_param(ViewParam.BY_YEAR, DEFAULT_BY_YEAR)
         by_month = req.get_bool_param(ViewParam.BY_MONTH, DEFAULT_BY_MONTH)
 
-        colnames = []  # type: List[str]  # for type checker
-
         tasks_query = self._get_tasks_query(req, by_year, by_month)
         tasks_query.alias("tasks_data")
         patients_query = self._get_created_patients_query(
@@ -170,6 +172,7 @@ class TaskAssignmentReport(Report):
             self.label_schedule_name,
         ]  # type: List[Union[str, bool, Visitable, None]]
 
+        # Merge the three queries.
         all_data = union_all(tasks_query, patients_query, emails_query).alias(
             "all_data"
         )
@@ -208,6 +211,11 @@ class TaskAssignmentReport(Report):
     def _get_tasks_query(
         self, req: "CamcopsRequest", by_year: bool, by_month: bool
     ) -> Select:
+        """
+        Returns a query of the number of tasks assigned to (scheduled for)
+        patients created on the server (in a way compatible with being merged
+        with other queries in this report).
+        """
 
         pts = PatientTaskSchedule.__table__
         ts = TaskSchedule.__table__
@@ -237,6 +245,10 @@ class TaskAssignmentReport(Report):
     def _get_created_patients_query(
         self, req: "CamcopsRequest", by_year: bool, by_month: bool
     ) -> Select:
+        """
+        Returns a query of the number of patients created on the server (in a
+        way compatible with being merged with other queries in this report).
+        """
         server_device = Device.get_server_device(req.dbsession)
 
         pts = PatientTaskSchedule.__table__
@@ -244,12 +256,14 @@ class TaskAssignmentReport(Report):
         group = Group.__table__
         patient = Patient.__table__
 
+        # noinspection PyProtectedMember
         tables = (
             pts.join(ts, pts.c.schedule_id == ts.c.id)
             .join(group, ts.c.group_id == group.c.id)
             .join(patient, pts.c.patient_pk == patient.c._pk)
         )
 
+        # noinspection PyProtectedMember
         date_column = isotzdatetime_to_utcdatetime(patient.c._when_added_exact)
         # Order must be consistent across queries
         count_selectors = [
@@ -258,15 +272,20 @@ class TaskAssignmentReport(Report):
             literal(0).label(self.label_emails_sent),
         ]
 
-        query = self._build_query(
+        # noinspection PyProtectedMember,PyTypeChecker
+        return self._build_query(
             req, tables, by_year, by_month, date_column, count_selectors
         ).where(patient.c._device_id == server_device.id)
-
-        return query
 
     def _get_emails_sent_query(
         self, req: "CamcopsRequest", by_year: bool, by_month: bool
     ) -> Select:
+        """
+        Returns a query of the number of e-mails sent to patients created on
+        the server (in a way compatible with being merged with other queries in
+        this report).
+        """
+
         pts = PatientTaskSchedule.__table__
         ts = TaskSchedule.__table__
         group = Group.__table__
@@ -274,6 +293,7 @@ class TaskAssignmentReport(Report):
         ptse = PatientTaskScheduleEmail.__table__
         email = Email.__table__
 
+        # noinspection PyProtectedMember
         tables = (
             ptse.join(pts, ptse.c.patient_task_schedule_id == pts.c.id)
             .join(ts, pts.c.schedule_id == ts.c.id)
@@ -290,13 +310,12 @@ class TaskAssignmentReport(Report):
             func.count().label(self.label_emails_sent),
         ]
 
-        query = self._build_query(
+        # noinspection PyTypeChecker
+        return self._build_query(
             req, tables, by_year, by_month, date_column, count_selectors
         ).where(
             email.c.sent == True  # noqa: E712
         )
-
-        return query
 
     def _build_query(
         self,
