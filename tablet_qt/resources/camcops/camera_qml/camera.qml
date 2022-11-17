@@ -122,15 +122,26 @@ Rectangle {
         id: captureSession
         camera: Camera {
             id: camera
-            onErrorOccurred: {
+            onErrorOccurred: function(error, errorString) {
                 console.log("camera: onErrorOccurred")
+                console.log(error)
                 console.log(errorString)
             }
         }
         imageCapture: ImageCapture {
             id: imageCapture
+            onErrorOccurred: function(requestId, error, message) {
+                console.log("imageCapture: onErrorOccurred")
+                console.log(error)
+                console.log(message)
+            }
+            onImageCaptured: function(requestId, previewImage) {
+                console.log("Image captured")
+                stillControls.previewAvailable = true
+                cameraUI.state = "PhotoPreview"
+            }
             // RNC:
-            onImageSaved: {
+            onImageSaved: function(requestId, path) {
                 console.log("onImageSaved: ", path)
                 stillControls.fileSaved = true
                 stillControls.filePath = path
@@ -149,7 +160,6 @@ Rectangle {
         onClosed: cameraUI.state = "PhotoCapture"
         visible: (cameraUI.state === "PhotoPreview")
         focus: visible
-        source: imageCapture.preview
         onImageSavedToFile: {
             console.log("Returning image with filename:", stillControls.filePath)
             cameraUI.imageSavedToFile(stillControls.filePath)
@@ -177,7 +187,7 @@ Rectangle {
         height: ((stillControls.state === "MobilePortrait") ? parent.height - buttonsPanelPortraitHeight : parent.height)
     }
 
-    PhotoCaptureControls {
+    PhotoCaptureControls {  // See PhotoCaptureControls.qml
         id: stillControls
         state: setState()
         anchors.fill: parent

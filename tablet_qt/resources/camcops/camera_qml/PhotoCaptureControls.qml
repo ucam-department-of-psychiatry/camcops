@@ -100,7 +100,8 @@ FocusScope {
                     fileNoLongerNeeded(filePath)
                     previewAvailable = false
                     fileSaved = false
-                    captureSession.imageCapture.capture()
+                    console.log("Calling imageCapture.captureToFile()")
+                    captureSession.imageCapture.captureToFile()
                 }
             }
 

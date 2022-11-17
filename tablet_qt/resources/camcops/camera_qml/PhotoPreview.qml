@@ -56,7 +56,6 @@ import QtQuick
 import QtMultimedia
 
 Item {
-    property alias source : preview.source
     signal closed
     signal imageSavedToFile  // RNC
 
@@ -66,6 +65,7 @@ Item {
         fillMode: Image.PreserveAspectFit
         smooth: true
         // source is a url: http://doc.qt.io/qt-5/qml-url.html
+        source: imageCapture.preview
     }
 
     MouseArea {

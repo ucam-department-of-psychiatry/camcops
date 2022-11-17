@@ -100,7 +100,7 @@ Popup {
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: {
+                onClicked: function(mouse) {
                     propertyPopup.currentValue = value
                     propertyPopup.selected(value)
                 }
