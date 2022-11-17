@@ -611,6 +611,9 @@ class VersionReleaser:
         self.check_ios_short_version()
         self.check_ios_version()
 
+        # TODO: Check version numbers in docs have been updated
+        # Probably easiest just to rebuid docs
+
         self.check_uncommitted_changes()
         self.check_unpushed_changes()
         self.check_release_tag()
