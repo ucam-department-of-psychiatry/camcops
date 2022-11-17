@@ -438,6 +438,7 @@ class TaskSchedule(Base):
 
     items = relationship(
         "TaskScheduleItem",
+        back_populates="task_schedule",
         order_by=task_schedule_item_sort_order,
         cascade="all, delete",
     )  # type: Iterable[TaskScheduleItem]
@@ -506,6 +507,8 @@ class TaskScheduleItem(Base):
             "completed"
         ),
     )  # type: Optional[Duration]
+
+    task_schedule = relationship("TaskSchedule", back_populates="items")
 
     @property
     def task_shortname(self) -> str:

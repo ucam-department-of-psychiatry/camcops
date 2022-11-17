@@ -21,12 +21,12 @@
 
 ..  This doesn't work (relative path problem):
 .. .. include:: ./user_client/include_tabletdefs.rst
-
 ..    Instead:
+
 ..  |anonymous| image:: _app_icons/anonymous.png
-..    :align: middle
-..    :height: 24px
-..    :width: 24px
+    :align: middle
+    :height: 24px
+    :width: 24px
 
 ..  _AES-256: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 ..  _HTTPS: https://en.wikipedia.org/wiki/HTTPS

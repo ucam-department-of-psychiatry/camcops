@@ -31,15 +31,13 @@ camcops_server/cc_modules/cc_taskreports.py
 
 from collections import Counter, namedtuple
 from operator import attrgetter
-from typing import Any, Dict, List, Sequence, Tuple, Type, TYPE_CHECKING, Union
+from typing import Any, List, Sequence, Tuple, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.colander_utils import BooleanNode
 from cardinal_pythonlib.sqlalchemy.orm_query import (
     get_rows_fieldnames_from_query,
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
-from colander import SchemaNode
 from sqlalchemy.engine.result import RowProxy
 from sqlalchemy.sql.elements import UnaryExpression
 from sqlalchemy.sql.expression import desc, func, literal, select
@@ -50,11 +48,21 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_forms import (
     ReportParamSchema,
-    RequestAwareMixin,
     ViaIndexSelector,
 )
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import Report, PlainReportType
+from camcops_server.cc_modules.cc_reportschema import (
+    ByYearSelector,
+    ByMonthSelector,
+    ByTaskSelector,
+    ByUserSelector,
+    DEFAULT_BY_MONTH,
+    DEFAULT_BY_TASK,
+    DEFAULT_BY_USER,
+    DEFAULT_BY_YEAR,
+)
+
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
 from camcops_server.cc_modules.cc_user import User
@@ -66,67 +74,6 @@ if TYPE_CHECKING:
 # =============================================================================
 # Parameter schema
 # =============================================================================
-
-DEFAULT_BY_YEAR = True
-DEFAULT_BY_MONTH = True
-DEFAULT_BY_TASK = True
-DEFAULT_BY_USER = False
-
-
-class ByYearSelector(BooleanNode, RequestAwareMixin):
-    """
-    Split report by year?
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, default=DEFAULT_BY_YEAR, **kwargs)
-
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        self.title = self.label = _("Split by year?")
-
-
-class ByMonthSelector(BooleanNode, RequestAwareMixin):
-    """
-    Split report by month?
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, default=DEFAULT_BY_MONTH, **kwargs)
-
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        self.title = self.label = _("Split by month?")
-
-
-class ByTaskSelector(BooleanNode, RequestAwareMixin):
-    """
-    Split report by task type?
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, default=DEFAULT_BY_TASK, **kwargs)
-
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        self.title = self.label = _("Split by task type?")
-
-
-class ByUserSelector(BooleanNode, RequestAwareMixin):
-    """
-    Split report by user?
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, default=DEFAULT_BY_USER, **kwargs)
-
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        self.title = self.label = _("Split by user?")
 
 
 class TaskCountReportSchema(ReportParamSchema):

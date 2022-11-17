@@ -611,6 +611,9 @@ class VersionReleaser:
         self.check_ios_short_version()
         self.check_ios_version()
 
+        # TODO: Check version numbers in docs have been updated
+        # Probably easiest just to rebuid docs
+
         self.check_uncommitted_changes()
         self.check_unpushed_changes()
         self.check_release_tag()
@@ -633,6 +636,7 @@ class VersionReleaser:
             print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
+            # TODO: It takes some time so change this message:
             print(
                 "A new release should have been created on GitHub with the "
                 ".rpm and .deb files attached. They are also in "
@@ -706,7 +710,7 @@ def main() -> None:
     / Build the Ubuntu server packages (deb/rpm)
     / Build the PyPI server package
     / Distribute the server packages to PyPI
-    - Distribute the server packages to GitHub (or use GitHub actions)
+    / Use GitHub release action to create the server packages on GitHub
 
     - Build the client (depending on the platform)
     - Distribute to Play Store / Apple Store / GitHub
@@ -768,6 +772,8 @@ def main() -> None:
         for error in releaser.errors:
             print(error)
         if not args.update_versions:
+            # TODO: Don't display this message if the versions are already
+            # updated
             print(
                 "Run the script with --update-versions to automatically "
                 "update version numbers"
