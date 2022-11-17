@@ -37,11 +37,13 @@ import sqlite3
 from typing import Any, List, Type, TYPE_CHECKING
 import unittest
 
+from cardinal_pythonlib.classes import all_subclasses
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import pytest
+from sqlalchemy.engine.base import Engine
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_constants import ERA_NOW
@@ -57,6 +59,12 @@ from camcops_server.cc_modules.cc_request import (
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_testfactories import (
+    BaseFactory,
+    DeviceFactory,
+    GroupFactory,
+    UserFactory,
+)
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
@@ -103,7 +111,9 @@ class ExtendedTestCase(unittest.TestCase):
         """
         log.info("{}.{}:{}", cls.__module__, cls.__name__, msg)
 
-    def assertIsInstanceOrNone(self, obj: object, cls: Type, msg: str = None):
+    def assertIsInstanceOrNone(
+        self, obj: object, cls: Type, msg: str = None
+    ) -> None:
         """
         Asserts that ``obj`` is an instance of ``cls`` or is None. The
         parameter ``msg`` is used as part of the failure message if it isn't.
@@ -121,8 +131,15 @@ class DemoRequestTestCase(ExtendedTestCase):
     """
 
     dbsession: "Session"
+    config_file: str
+    engine: Engine
+    database_on_disk: bool
+    db_filename: str
 
     def setUp(self) -> None:
+        for factory in all_subclasses(BaseFactory):
+            factory._meta.sqlalchemy_session = self.dbsession
+
         # config file has already been set up for the session in conftest.py
         os.environ[ENVVAR_CONFIG_FILE] = self.config_file
         self.req = get_unittest_request(self.dbsession)
@@ -246,6 +263,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.group.ip_use = IpUse()
         self.dbsession.add(self.group)
         self.dbsession.flush()  # sets PK fields
+        GroupFactory.reset_sequence(self.group.id + 1)
 
         # ... users
 
@@ -255,18 +273,19 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         # ... devices
         self.server_device = Device.get_server_device(self.dbsession)
-        self.other_device = Device()
-        self.other_device.name = "other_device"
-        self.other_device.friendly_name = "Test device that may upload"
-        self.other_device.registered_by_user = self.user
-        self.other_device.when_registered_utc = self.era_time_utc
-        self.other_device.camcops_version = CAMCOPS_SERVER_VERSION
-        self.dbsession.add(self.other_device)
-
+        DeviceFactory.reset_sequence(self.server_device.id + 1)
+        self.other_device = DeviceFactory(
+            name="other_device",
+            friendly_name="Test device that may upload",
+            registered_by_user=self.user,
+            when_registered_utc=self.era_time_utc,
+            camcops_version=CAMCOPS_SERVER_VERSION,
+        )
         # ... export recipient definition (the minimum)
         self.recipdef.primary_idnum = idnum_type_nhs
 
         self.dbsession.flush()  # sets PK fields
+        UserFactory.reset_sequence(self.user.id + 1)
 
         self.create_tasks()
 

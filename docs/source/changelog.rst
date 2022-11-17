@@ -3693,3 +3693,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - The Docker version of CamCOPS can now be :ref:`installed with a single script
     <quick_start>`.
+
+- New report to count server-side patients created and their assigned tasks.
