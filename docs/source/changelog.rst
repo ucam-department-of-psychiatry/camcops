@@ -3681,8 +3681,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
 
 
-**Client and server v2.4.14, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Server v2.4.14, released 17 Nov 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fix RPM build to work with Python 3.8 and RHEL 8.
 
@@ -3695,3 +3695,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     <quick_start>`.
 
 - New report to count server-side patients created and their assigned tasks.
+
+
+**Client and server v2.4.15, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
