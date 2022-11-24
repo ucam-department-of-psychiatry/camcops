@@ -3591,21 +3591,21 @@ Troubleshooting Qt 'configure' failures
 
 """
             )
-            output_log = os.path.join(
-                builddir, "CMakeFiles", "CMakeOutput.log"
-            )
-            if os.path.exists(output_log):
-                print(80 * "*", file=sys.stderr)
-                print("Contents of CMakeOutput.log:", file=sys.stderr)
-                with open(output_log) as f:
-                    print(f.read(), file=sys.stderr)
+            # output_log = os.path.join(
+            #     builddir, "CMakeFiles", "CMakeOutput.log"
+            # )
+            # if os.path.exists(output_log):
+            #     print(80 * "*", file=sys.stderr)
+            #     print("Contents of CMakeOutput.log:", file=sys.stderr)
+            #     with open(output_log) as f:
+            #         print(f.read(), file=sys.stderr)
 
-            error_log = os.path.join(builddir, "CMakeFiles", "CMakeError.log")
-            if os.path.exists(error_log):
-                print(80 * "*", file=sys.stderr)
-                print("Contents of CMakeError.log:", file=sys.stderr)
-                with open(error_log) as f:
-                    print(f.read(), file=sys.stderr)
+            # error_log = os.path.join(builddir, "CMakeFiles", "CMakeError.log")  # noqa: E501
+            # if os.path.exists(error_log):
+            #     print(80 * "*", file=sys.stderr)
+            #     print("Contents of CMakeError.log:", file=sys.stderr)
+            #     with open(error_log) as f:
+            #         print(f.read(), file=sys.stderr)
 
             sys.exit(EXIT_FAILURE)
 
