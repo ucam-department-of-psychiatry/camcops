@@ -3533,7 +3533,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # http://doc.qt.io/qt-4.8/ssl.html
         # http://stackoverflow.com/questions/20843180
     else:
-        qt_config_args.append("-openssl")  # OpenSSL
+        qt_config_args += ["-openssl", "yes"]  # OpenSSL
 
     if cfg.verbose >= 1:
         qt_config_args.append("-v")  # verbose
