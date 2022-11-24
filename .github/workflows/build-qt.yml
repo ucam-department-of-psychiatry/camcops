@@ -9,20 +9,32 @@ on:
             - .github/workflows/build-qt.yml
 jobs:
     build-qt:
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                include:
+                    - name: ubuntu-20.04
+                      os: ubuntu-20.04
+                      deps:
+                    - name: ubuntu-22.04
+                      os: ubuntu-22.04
+        runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
             - uses: actions/setup-python@v4
               with:
                   python-version: 3.8
-            - name: Qt prerequisites
+            - name: Common Qt prerequisites
               run: |
-                  # https://wiki.qt.io/Building_Qt_5_from_Git
+                  # https://wiki.qt.io/Building_Qt_6_from_Git
                   set -xe
                   codename=`lsb_release -cs`
                   echo "deb-src http://archive.ubuntu.com/ubuntu ${codename} universe" | sudo tee -a /etc/apt/sources.list
                   echo "deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates universe" | sudo tee -a /etc/apt/sources.list
                   sudo apt-get update
+            - name: Ubuntu 20.04 prerequisites
+              if: matrix.os == 'ubuntu-20.04'
+              run: |
+                  set -xe
                   sudo apt-get -y build-dep qt5-default
                   sudo apt-get -y install build-essential perl python git
                   sudo apt-get -y install ninja-build
@@ -33,6 +45,10 @@ jobs:
                   sudo apt-get -y install libxcb-xinerama0-dev
                   sudo apt-get -y install libdrm-dev libxcb-glx0-dev libzstd-dev
                   sudo apt-get -y install libclang-10-dev libclang-11-dev libclang-12-dev
+            - name: Ubuntu 22.04 prerequisites
+              if: matrix.os == 'ubuntu-22.04'
+              run: |
+                  set -xe
             - name: Pip install
               run: |
                   set -xe
