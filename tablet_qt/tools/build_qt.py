@@ -3427,12 +3427,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             cfg.android_ndk_root,
             "-android-ndk-platform",
             cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
-            "-android-ndk-host",
-            cfg.android_ndk_host,
+            # "-android-ndk-host",
+            # cfg.android_ndk_host,
             "-android-arch",
             android_arch_short,
-            "-android-toolchain-version",
-            cfg.android_toolchain_version,
+            # "-android-toolchain-version",
+            # cfg.android_toolchain_version,
             "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
             # MAY POSSIBLY NEED:
             # (https://wiki.qt.io/Qt5_platform_configurations,
