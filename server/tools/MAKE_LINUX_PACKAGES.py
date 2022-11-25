@@ -1046,7 +1046,16 @@ def build_package() -> None:
     # fail-in-warnings has gone in 2.62.0
     # It isn't clear if lintian now exits with 0 on warnings (the previous
     # default). Future versions seems to have a more flexible --fail-on option
-    call(["lintian", PACKAGENAME])
+    call(
+        [
+            "lintian",
+            PACKAGENAME,
+            "--suppress-tags",
+            # This check has gone from later versions of lintian, presumably
+            # because there is no longer a python package
+            "python-script-but-no-python-dep",
+        ]
+    )
 
     log.info("Converting to RPM")
     call(
