@@ -14,7 +14,6 @@ jobs:
                 include:
                     - name: ubuntu-20.04
                       os: ubuntu-20.04
-                      deps:
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
         runs-on: ${{ matrix.os }}
@@ -40,8 +39,8 @@ jobs:
                   sudo apt-get -y install ninja-build
                   sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
                   sudo apt-get -y install flex bison gperf libicu-dev libxslt-dev ruby
-                  sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev gperf bison nodejs
-                  sudo apt-get -y install libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-bad1.0-dev
+                  sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev nodejs
+                  sudo apt-get -y install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-bad1.0-dev
                   sudo apt-get -y install libxcb-xinerama0-dev
                   sudo apt-get -y install libdrm-dev libxcb-glx0-dev libzstd-dev
                   sudo apt-get -y install libclang-10-dev libclang-11-dev libclang-12-dev
@@ -49,6 +48,21 @@ jobs:
               if: matrix.os == 'ubuntu-22.04'
               run: |
                   set -xe
+                  sudo apt-get -y install build-essential python3 git
+                  sudo apt-get -y install ninja-build clang
+                  sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+                  sudo apt-get -y install flex bison gperf
+                  sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libfontconfig1-dev libpulse-dev libnss3-dev libegl1-mesa-dev nodejs
+                  sudo apt-get -y install libgstreamer1.0-dev
+                  sudo apt-get -y install libdrm-dev
+                  sudo apt-get -y install libatspi2.0-dev libbluetooth-dev libclang-dev libcups2-dev
+                  sudo apt-get -y install libfreetype6-dev
+                  sudo apt-get -y install libhunspell-dev libopengl-dev
+                  sudo apt-get -y install libssl-dev libts-dev libx11-dev
+                  sudo apt-get -y install libxext-dev
+                  sudo apt-get -y install libxfixes-dev
+                  sudo apt-get -y install libxkbfile-dev libxshmfence-dev
+                  sudo apt-get -y install libxshmfence1 llvm
             - name: Pip install
               run: |
                   set -xe
