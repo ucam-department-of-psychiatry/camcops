@@ -11,11 +11,18 @@ jobs:
                 include:
                     - name: ubuntu-20.04
                       os: ubuntu-20.04
+                      python-version: 3.8
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
+                      # Problems with older numpy and 3.10
+                      # https://github.com/numpy/numpy/issues/19033
+                      python-version: 3.9
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
             - name: Change apt mirror
               run: |
                   set -eux -o pipefail
