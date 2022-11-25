@@ -1,19 +1,24 @@
 ---
 # yamllint disable rule:line-length
-name: Build
+name: Pip install and tests
 # yamllint disable-line rule:truthy
 on:
     push:
         paths:
             - '**.py'
-            - .github/workflows/push-to-repository.yml
-            - .github/workflows/scripts/build_packages.sh
+            - .github/workflows/pip-install-and-tests.yml
+            - .github/workflows/scripts/change_apt_mirror.sh
 jobs:
     pip-install-and-tests:
-        runs-on: ubuntu-latest
         strategy:
             matrix:
+                # NumPy 1.21 incompatible with python 3.10
+                # For the time being we're on 1.21.5 (see setup.py)
+                # NumPy >= 1.22 incompatible with python 3.7
                 python-version: [3.7, 3.8, 3.9]
+                # LTS versions
+                os: [ubuntu-20.04, ubuntu-22.04]
+        runs-on: ${{ matrix.os }}
         env:
             DB_DATABASE: camcops
             DB_CAMCOPS_USER: camcops
@@ -35,9 +40,8 @@ jobs:
                   mysql -e 'GRANT ALL PRIVILEGES ON `${{ env.DB_DATABASE }}`.* TO `${{ env.DB_CAMCOPS_USER }}`@`localhost`;' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
             - name: Change apt mirror
               run: |
-                  # azure.archive.ubuntu.com is flaky
-                  sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/' /etc/apt/sources.list
-                  sudo apt-get update
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Pip install and tests
               run: |
                   set -xe
@@ -83,26 +87,3 @@ jobs:
                   camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
-
-    build-and-install-package:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                python-version: [3.7, 3.8, 3.9]
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-python@v4
-              with:
-                  python-version: ${{ matrix.python-version }}
-            - name: Change apt mirror
-              run: |
-                  set -eux -o pipefail
-                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
-            - name: Build and install debian package
-              run: |
-                  set -eux -o pipefail
-                  ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
-                  echo installing debian package
-                  server/tools/REINSTALL_DEBIAN_PACKAGE.sh
-                  echo checking packages for conflicts
-                  /usr/share/camcops/venv/bin/pip check
