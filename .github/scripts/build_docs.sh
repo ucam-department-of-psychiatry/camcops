@@ -14,7 +14,7 @@ python -m site
 python -m pip install -U pip
 # Until numpy is fixed
 # https://github.com/numpy/numpy/issues/22623
-python -m pip install setuptools<60
+python -m pip install "setuptools<60"
 echo installing pip packages
 cd "${GITHUB_WORKSPACE}/server"
 python -m pip install -e .
