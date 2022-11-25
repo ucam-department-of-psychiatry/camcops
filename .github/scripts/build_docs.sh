@@ -14,7 +14,7 @@ python -m site
 python -m pip install -U pip
 python -m pip install -U build
 echo installing pip packages
-cd "${GITHUB_WORKSPACE}/server
+cd "${GITHUB_WORKSPACE}/server"
 python -m build
 python -m pip install mysqlclient
 export CAMCOPS_CONFIG_FILE=${HOME}/camcops.cfg
