@@ -654,6 +654,8 @@ QT_CONFIG_COMMON_ARGS = [
     # Don't need this on any platform, and unsupported on Android:
     "-skip",
     "qtserialport",
+    "-skip",
+    "qtwebengine",
     # Except the webkit stuff, which ends up giving problems with Wayland-EGL:
     # "-skip", "qtwebkit",  # disabled 2017-10-22: "Project ERROR: -skip command line argument used with non-existent module 'qtwebkit'."  # noqa
     # "-skip", "qtwebkit-examples",  # disabled 2017-10-22: ditto
