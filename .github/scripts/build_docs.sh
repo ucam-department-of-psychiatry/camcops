@@ -12,8 +12,10 @@ source "${HOME}/venv/bin/activate"
 python -VV
 python -m site
 python -m pip install -U pip
+python -m pip install -U build
 echo installing pip packages
-python -m pip install -e server/.
+cd "${GITHUB_WORKSPACE}/server
+python -m build
 python -m pip install mysqlclient
 export CAMCOPS_CONFIG_FILE=${HOME}/camcops.cfg
 camcops_server demo_camcops_config > $CAMCOPS_CONFIG_FILE
