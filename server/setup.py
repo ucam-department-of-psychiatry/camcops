@@ -117,7 +117,7 @@ INSTALL_REQUIRES = [
     "scipy==1.9.3",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.3.24",  # database access
-    "statsmodels==0.11.1",  # e.g. logistic regression
+    "statsmodels==0.13.5",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.7",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
