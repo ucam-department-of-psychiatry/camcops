@@ -14,11 +14,7 @@ jobs:
                       python-version: 3.8
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
-                      # Problem with older numpy and 3.10
-                      # https://github.com/numpy/numpy/issues/19033
-                      # Also python 3.9 seems to change (fix?) the output
-                      # of help text for various CLI tools
-                      python-version: 3.8
+                      python-version: 3.10
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3

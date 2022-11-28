@@ -247,9 +247,10 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
+        python3.11 python311
+        python3.10 python310
         python3.9 python39
         python3.8 python38
-        python3.7 python37
         python3
         python
     )
@@ -550,7 +551,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.7, <= 3.9
+X-Python3-Version: >= 3.8, <= 3.11
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.

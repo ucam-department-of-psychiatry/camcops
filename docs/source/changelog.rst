@@ -3699,3 +3699,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.15, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **Minimum Python version now Python 3.8.**

@@ -95,7 +95,7 @@ INSTALL_REQUIRES = [
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-    "numpy==1.21.5",  # Used by some tasks. SLOW INSTALLATION.
+    "numpy==1.23.5",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
     "pendulum==2.1.2",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
@@ -194,9 +194,10 @@ setup(
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
     ],
     keywords="cardinal",
