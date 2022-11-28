@@ -1073,6 +1073,10 @@ def build_package() -> None:
     if tags_to_suppress:
         lintian_args += ["--suppress-tags", ",".join(tags_to_suppress)]
 
+    # Will wrongly generate a warning because of the comment in the prerm
+    # script
+    # tag: uses-dpkg-database-directly
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=995253
     call(lintian_args)
 
     log.info("Converting to RPM")
