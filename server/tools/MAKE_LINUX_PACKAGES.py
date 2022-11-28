@@ -1046,16 +1046,24 @@ def build_package() -> None:
     # fail-in-warnings has gone in 2.62.0
     # It isn't clear if lintian now exits with 0 on warnings (the previous
     # default). Future versions seems to have a more flexible --fail-on option
-    call(
-        [
-            "lintian",
-            PACKAGENAME,
-            "--suppress-tags",
-            # This check has gone from later versions of lintian, presumably
-            # because there is no longer a python package
-            "python-script-but-no-python-dep",
-        ]
+
+    # The package called 'python' is gone from Ubuntu >= 22.04. We only need
+    # python3. If we don't make 'python' a dependency, Lintian will complain
+    # with the tag 'python-script-but-no-python-dep'. In addition, later
+    # versions of Lintian don't have this check. Easiest thing to do is test
+    # for the feature before checking.
+    lintian_args = ["lintian", PACKAGENAME]
+
+    tags_to_suppress = {"python-script-but-no-python-dep"} & set(
+        subprocess.run(["lintian-info", "-l"], stdout=subprocess.PIPE)
+        .stdout.decode("utf-8")
+        .split()
     )
+
+    if tags_to_suppress:
+        lintian_args += ["--suppress-tags", ",".join(tags_to_suppress)]
+
+    call(lintian_args)
 
     log.info("Converting to RPM")
     call(
