@@ -83,6 +83,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
@@ -1049,16 +1050,25 @@ def build_package() -> None:
 
     # The package called 'python' is gone from Ubuntu >= 22.04. We only need
     # python3. If we don't make 'python' a dependency, Lintian will complain
-    # with the tag 'python-script-but-no-python-dep'. In addition, later
-    # versions of Lintian don't have this check. Easiest thing to do is test
-    # for the feature before checking.
+    # with the tag 'python-script-but-no-python-dep'. To complicate things
+    # further, later versions of Lintian don't have this tag and it will
+    # abort if given an unknown tag to skip. Easiest thing to do is test
+    # for the feature before checking... and the name of the command to do this
+    # is different in later versions of Lintian :(
     lintian_args = ["lintian", PACKAGENAME]
 
-    tags_to_suppress = {"python-script-but-no-python-dep"} & set(
-        subprocess.run(["lintian-info", "-l"], stdout=subprocess.PIPE)
-        .stdout.decode("utf-8")
-        .split()
+    lintian_version = Version.coerce(
+        subprocess.check_output(["lintian", "--print-version"]).decode("utf-8")
     )
+    if lintian_version >= Version(major=2, minor=92, patch=0):
+        tags_command = "lintian-explain-tags"
+    else:
+        tags_command = "lintian-info"
+
+    known_tags = set(
+        subprocess.check_output([tags_command, "-l"]).decode("utf-8").split()
+    )
+    tags_to_suppress = set(["python-script-but-no-python-dep"]) & known_tags
 
     if tags_to_suppress:
         lintian_args += ["--suppress-tags", ",".join(tags_to_suppress)]
