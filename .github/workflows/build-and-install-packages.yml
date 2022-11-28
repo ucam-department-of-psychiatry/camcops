@@ -37,6 +37,9 @@ jobs:
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
+                  # Possible scope for confusion here: at this point we should
+                  # be running whatever version of Python the package depends
+                  # on.
                   server/tools/REINSTALL_DEBIAN_PACKAGE.sh
                   echo checking packages for conflicts
                   /usr/share/camcops/venv/bin/pip check

@@ -25,10 +25,10 @@ libssl-dev  # SSL libraries
 # Python
 # =============================================================================
 
-python3
-python3-dev  # for <Python.h>, etc.
-python3-tk  # tkinter, for command-line UI code
-python3-venv  # or venv complains that ensurepip is not available
+python3.8
+python3.8-dev  # for <Python.h>, etc.
+python3.8-tk  # tkinter, for command-line UI code
+python3.8-venv  # or venv complains that ensurepip is not available
 
 # =============================================================================
 # Requirements for Python packages
