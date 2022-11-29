@@ -16,10 +16,7 @@ jobs:
     build-and-install-package:
         strategy:
             matrix:
-                # NumPy 1.21 incompatible with python 3.10
-                # For the time being we're on 1.21.5 (see setup.py)
-                # NumPy >= 1.22 incompatible with python 3.7
-                python-version: [3.7, 3.8, 3.9]
+                python-version: [3.8, 3.9, "3.10"]
                 # LTS versions
                 os: [ubuntu-20.04, ubuntu-22.04]
         runs-on: ${{ matrix.os }}
@@ -37,6 +34,9 @@ jobs:
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
+                  # Possible scope for confusion here: at this point we should
+                  # be running whatever version of Python the package depends
+                  # on.
                   server/tools/REINSTALL_DEBIAN_PACKAGE.sh
                   echo checking packages for conflicts
                   /usr/share/camcops/venv/bin/pip check

@@ -12,10 +12,7 @@ jobs:
     pip-install-and-tests:
         strategy:
             matrix:
-                # NumPy 1.21 incompatible with python 3.10
-                # For the time being we're on 1.21.5 (see setup.py)
-                # NumPy >= 1.22 incompatible with python 3.7
-                python-version: [3.7, 3.8, 3.9]
+                python-version: [3.8, 3.9, "3.10"]
                 # LTS versions
                 os: [ubuntu-20.04, ubuntu-22.04]
         runs-on: ${{ matrix.os }}
@@ -67,11 +64,8 @@ jobs:
                   python -m pip install safety
                   echo checking packages for vulnerabilities
                   # All of these vulnerabilities look either harmless or very low risk
-                  # 44715 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/19038
-                  # 44716 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/19000
-                  # 44717 numpy fixed in 1.22 https://github.com/numpy/numpy/issues/18993
                   # 51457 py no fix yet https://github.com/pytest-dev/py/issues/287
-                  safety check --full-report --ignore=44715 --ignore=44716 --ignore=44717 --ignore=51457
+                  safety check --full-report --ignore=51457
                   echo running pre-commit checks
                   pre-commit run --all-files
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"

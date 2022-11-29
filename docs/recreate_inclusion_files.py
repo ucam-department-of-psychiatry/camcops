@@ -157,6 +157,13 @@ def run_cmd(
 
 
 def main():
+    if sys.version_info >= (3, 9):
+        # TODO: Newer versions will change the formatting of help text
+        # possibly for the better. Needs investigating.
+        raise AssertionError(
+            "This script currently needs to be run with Python < 3.9."
+        )
+
     prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
 
     parser = argparse.ArgumentParser()
