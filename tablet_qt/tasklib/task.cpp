@@ -222,8 +222,10 @@ QString Task::menusubtitle() const
 
 bool Task::isCrippled() const
 {
+    QString failure_reason_dummy;
     return implementationType() == TaskImplementationType::Skeleton ||
-            !hasExtraStrings();
+            !hasExtraStrings() ||
+            !isTaskProperlyCreatable(failure_reason_dummy);
 }
 
 
@@ -278,7 +280,7 @@ bool Task::hasRespondent() const
 }
 
 
-bool Task::isTaskPermissible(QString& why_not_permissible) const
+bool Task::isTaskPermissible(QString& failure_reason) const
 {
     const QVariant commercial = m_app.var(varconst::IP_USE_COMMERCIAL);
     const QVariant clinical = m_app.var(varconst::IP_USE_CLINICAL);
@@ -299,31 +301,30 @@ bool Task::isTaskPermissible(QString& why_not_permissible) const
     const QString PROHIBITED_UNKNOWN(" " + tr(
         "You have NOT SAID whether you are using this "
         "software in that context (see Settings)."));
-    const QString PERMISSIBLE(tr("Task permissible"));
 
     if (prohibitsCommercial() && not_definitely_false(commercial)) {
-        why_not_permissible =
+        failure_reason =
             tr("Task not allowed for commercial use (see Task Information).") +
             (is_unknown(commercial) ? PROHIBITED_UNKNOWN
                                     : PROHIBITED_YES);
         return false;
     }
     if (prohibitsClinical() && not_definitely_false(clinical)) {
-        why_not_permissible =
+        failure_reason =
             tr("Task not allowed for clinical use (see Task Information).") +
             (is_unknown(clinical) ? PROHIBITED_UNKNOWN
                                   : PROHIBITED_YES);
         return false;
     }
     if (prohibitsEducational() && not_definitely_false(educational)) {
-        why_not_permissible =
+        failure_reason =
             tr("Task not allowed for educational use (see Task Information).") +
             (is_unknown(educational) ? PROHIBITED_UNKNOWN
                                      : PROHIBITED_YES);
         return false;
     }
     if (prohibitsResearch() && not_definitely_false(research)) {
-        why_not_permissible =
+        failure_reason =
             tr("Task not allowed for research use (see Task Information).") +
             (is_unknown(research) ? PROHIBITED_UNKNOWN
                                   : PROHIBITED_YES);
@@ -333,14 +334,13 @@ bool Task::isTaskPermissible(QString& why_not_permissible) const
     if (implementationType() == TaskImplementationType::UpgradableSkeleton &&
             prohibitedIfSkeleton() &&
             !hasExtraStrings()) {
-        why_not_permissible = tr(
+        failure_reason = tr(
             "Task may not be created in 'skeleton' form "
             "(strings not downloaded from server)."
         );
         return false;
     }
 
-    why_not_permissible = PERMISSIBLE;
     return true;
 }
 
@@ -351,7 +351,7 @@ Version Task::minimumServerVersion() const
 }
 
 
-bool Task::isTaskUploadable(QString& why_not_uploadable) const
+bool Task::isTaskUploadable(QString& failure_reason) const
 {
     bool server_has_table;
     Version min_client_version;
@@ -359,7 +359,7 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
     const Version overall_min_server_version = Task::minimumServerVersion();
     const Version server_version = m_app.serverVersion();
     const QString table = tablename();
-    bool may_upload = m_app.mayUploadTable(
+    const bool may_upload = m_app.mayUploadTable(
                 table, server_version,
                 server_has_table, min_client_version, min_server_version);
 #if 0
@@ -371,37 +371,70 @@ bool Task::isTaskUploadable(QString& why_not_uploadable) const
              << "min_server_version" << min_server_version;
 #endif
     if (may_upload) {
-        why_not_uploadable = tr("Task uploadable");
-    } else {
-        if (!server_has_table) {
-            why_not_uploadable = tr(
-                    "Table '%1' absent on server.").arg(table);
-        } else if (camcopsversion::CAMCOPS_CLIENT_VERSION < min_client_version) {
-            why_not_uploadable = tr(
-                    "Server requires client version >=%1 for table '%2', "
-                    "but we are only client version %3."
-                    ).arg(min_client_version.toString(),
-                          table,
-                          camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
-        } else if (server_version < overall_min_server_version) {
-            why_not_uploadable = tr(
-                    "This client requires server version >=%1, "
-                    "but the server is only version %2."
-                    ).arg(overall_min_server_version.toString(),
-                          server_version.toString());
-        } else if (server_version < min_server_version) {
-            why_not_uploadable = tr(
-                    "This client requires server version >=%1 for table '%2', "
-                    "but the server is only version %3."
-                    ).arg(min_server_version.toString(),
-                          table,
-                          server_version.toString());
-        } else {
-            why_not_uploadable = "? [bug in Task::isTaskUploadable, "
-                                 "versus CamcopsApp::mayUploadTable]";
-        }
+        return true;
     }
-    return may_upload;
+    if (!server_has_table) {
+        failure_reason = tr(
+            "Table '%1' absent on server."
+        ).arg(table);
+    } else if (camcopsversion::CAMCOPS_CLIENT_VERSION < min_client_version) {
+        failure_reason = tr(
+            "Server requires client version >=%1 for table '%2', "
+            "but we are only client version %3."
+        ).arg(
+            min_client_version.toString(),
+            table,
+            camcopsversion::CAMCOPS_CLIENT_VERSION.toString()
+        );
+    } else if (server_version < overall_min_server_version) {
+        failure_reason = tr(
+            "This client requires server version >=%1, "
+            "but the server is only version %2."
+        ).arg(
+            overall_min_server_version.toString(),
+            server_version.toString()
+        );
+    } else if (server_version < min_server_version) {
+        failure_reason = tr(
+            "This client requires server version >=%1 for table '%2', "
+            "but the server is only version %3."
+        ).arg(
+            min_server_version.toString(),
+            table,
+            server_version.toString()
+        );
+    } else {
+        failure_reason = "? [bug in Task::isTaskUploadable, "
+                         "versus CamcopsApp::mayUploadTable]";
+    }
+    return false;
+}
+
+
+bool Task::isTaskProperlyCreatable(QString& failure_reason) const
+{
+    Q_UNUSED(failure_reason)
+    return true;
+}
+
+
+bool Task::isServerStringVersionEnough(const Version& minimum_server_version,
+                                       QString& failure_reason) const
+{
+    const Version server_version = m_app.serverVersion();
+    if (server_version < minimum_server_version) {
+        failure_reason = tr(
+            "This client requires content strings from server version >=%1, "
+            "but the server is only version %2. If the server has recently "
+            "been updated, re-fetch the server information from the Settings "
+            "menu."
+        ).arg(
+            minimum_server_version.toString(),
+            server_version.toString()
+        );
+        return false;
+    }
+    return true;
 }
 
 

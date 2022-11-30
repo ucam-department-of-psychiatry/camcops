@@ -45,6 +45,8 @@ public:
     virtual QString description() const override;
     virtual bool hasClinician() const override { return true; }
     virtual bool prohibitsCommercial() const override { return true; }
+    virtual Version minimumServerVersion() const override;
+    virtual bool isTaskProperlyCreatable(QString& why_not_creatable) const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------

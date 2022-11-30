@@ -164,22 +164,38 @@ public:
     virtual bool hasExtraStrings() const;
 
     // Is it permissible to create a new instance of the task? (If not, why
-    // not?)
-    virtual bool isTaskPermissible(QString& why_not_permissible) const;
+    // not?) Writes to failure_reason only on failure.
+    virtual bool isTaskPermissible(QString& failure_reason) const;
 
     // What is the minimum CamCOPS server version that will accept this task?
     virtual Version minimumServerVersion() const;
 
     // Is this task uploadable? Reasons that it may not be include:
-    // - the server doesn't have the task's table
-    // - the client says the server is too old (in general, or for this task)
-    // - the server says the client is too old
-    virtual bool isTaskUploadable(QString& why_not_uploadable) const;
+    // - the server doesn't have the task's table;
+    // - the client says the server is too old (in general, or for this task);
+    // - the server says the client is too old.
+    // The user can override these, but gets a warning.
+    // Writes to failure_reason only on failure.
+    virtual bool isTaskUploadable(QString& failure_reason) const;
+
+    // Is there some barrier to creating the task, not dealt with already by
+    // isTaskUploadable()? Reasons may include:
+    // - the server strings are too old.
+    // The user can override these, but gets a warning.
+    // Writes to failure_reason only on failure.
+    virtual bool isTaskProperlyCreatable(QString& failure_reason) const;
+
+protected:
+    // Used internally by isTaskCreatable(): are the server's strings
+    // sufficiently recent? Writes to failure_reason only on failure.
+    bool isServerStringVersionEnough(const Version& minimum_server_version,
+                                     QString& failure_reason) const;
 
     // ------------------------------------------------------------------------
     // Tables and other classmethods
     // ------------------------------------------------------------------------
 
+public:
     // Return a list of names of ancillary tables used by this task. (For
     // example, the PhotoSequence task has an ancillary table to contain its
     // photos. One sequence, lots of photos.)

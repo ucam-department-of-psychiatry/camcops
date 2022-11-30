@@ -22,12 +22,14 @@
 
 #include "ace3.h"
 #include <QDebug>
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/quflowcontainer.h"
@@ -166,6 +168,8 @@ const QString CHOICE_A("A");
 const QString CHOICE_B("B");
 const QString CHOICE_C("C");
 
+const Version SERVER_ACE3_ADDRESS_VARIANT_VERSION(2, 4, 15);
+
 
 void initializeAce3(TaskFactory& factory)
 {
@@ -237,6 +241,23 @@ QString Ace3::description() const
     return tr("100-point clinician-administered assessment of attention/"
               "orientation, memory, fluency, language, and visuospatial "
               "domains.");
+}
+
+
+Version Ace3::minimumServerVersion() const
+{
+    // From v2.4.15 we support ACE-III versions A/B/C (address variations).
+    return SERVER_ACE3_ADDRESS_VARIANT_VERSION;
+}
+
+
+bool Ace3::isTaskProperlyCreatable(QString& why_not_creatable) const
+{
+    if (!isServerStringVersionEnough(SERVER_ACE3_ADDRESS_VARIANT_VERSION,
+                                     why_not_creatable)) {
+        return false;
+    }
+    return Task::isTaskProperlyCreatable(why_not_creatable);
 }
 
 
