@@ -27,8 +27,12 @@ History and guide
 ~~~~~~~~~~~~~~~~~
 
 The PHQ-8 is the :ref:`PHQ-9 <phq9>` with the final question, about suicidal or
-self-injurious thoughts, omitted (Kroenke et al. 2009, p165). The final prompt,
-about daily functioning, is also omitted (Kroenke et al. 2009, p171).
+self-injurious thoughts, omitted (Kroenke et al. 2009, p165). It was omitted
+for situations in which interviewers/data collectors are not able to provide
+adequate intervention (Kroenke et al. 2009, p165). However, the omitted
+question is "by far the least frequently endorsed" and the scoring is the same
+as for the PHQ-9 (Kroenke et al. 2009, p165). The final prompt, about daily
+functioning, is also omitted (Kroenke et al. 2009, p171).
 
 A score of ≥10 is the standard cutoff for likely major depressive disorder
 (MDD); this is the same cutoff as the PHQ-9 (Kroenke et al. 2010). A score of
