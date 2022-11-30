@@ -83,6 +83,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from rich_argparse import RawDescriptionRichHelpFormatter
 
 from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
@@ -1184,7 +1185,7 @@ def main():
             LINUX_DEFAULT_LOCK_DIR=LINUX_DEFAULT_LOCK_DIR,
             LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,  # noqa
         ),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RawDescriptionRichHelpFormatter,
     )
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()

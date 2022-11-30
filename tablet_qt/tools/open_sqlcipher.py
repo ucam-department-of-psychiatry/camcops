@@ -40,6 +40,7 @@ from cardinal_pythonlib.logs import (
     main_only_quicksetup_rootlogger,
 )
 import pexpect
+from rich_argparse import ArgumentDefaultsRichHelpFormatter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -64,7 +65,7 @@ def main() -> None:
     # -------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
         description="Open an encrypted database at the SQLCipher command line",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument(
         "encrypted", help="Filename of the existing encrypted database"

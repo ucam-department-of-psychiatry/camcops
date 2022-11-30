@@ -49,6 +49,7 @@ from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.rate_limiting import rate_limited
 from cardinal_pythonlib.snomed import SnomedConcept
+from rich_argparse import ArgumentDefaultsRichHelpFormatter
 
 from camcops_server.cc_modules.cc_snomed import SnomedLookup
 
@@ -1061,7 +1062,7 @@ def main() -> None:
             "Run tests. "
             "If you specify no arguments, default tests will be run."
         ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     test_parser.add_argument(
         "--concept_id",
@@ -1081,7 +1082,7 @@ def main() -> None:
     fetch_parser = subparsers.add_parser(
         "fetch",
         help="Fetch data relevant to CamCOPS and write to XML",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     fetch_parser.add_argument(
         "--outfile",

@@ -104,7 +104,6 @@ import platform
 import shutil
 import subprocess
 
-# import sys
 import tempfile
 from typing import List, Tuple
 
@@ -112,6 +111,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from rich_argparse import RichHelpFormatter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -620,7 +620,7 @@ def make_splashscreen(
 def main() -> None:
     # http://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--base_dir",
         default=PROJECT_BASE_DIR,

@@ -40,9 +40,11 @@ from os.path import abspath, dirname, exists, join, pardir, realpath
 import re
 import subprocess
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from rich_argparse import RichHelpFormatter
+
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     ENVVAR_GENERATING_CAMCOPS_DOCS,
@@ -67,7 +69,7 @@ SERVER_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "server")  # .../camcops/server
 SERVER_TOOLS_DIR = join(SERVER_ROOT_DIR, "tools")
 
 
-def build_directories() -> DirEntry:
+def build_directories() -> Generator[DirEntry, None, None]:
     with scandir(CAMCOPS_ROOT_DIR) as it:
         for entry in it:
             if entry.name.startswith("build-") and entry.is_dir():
@@ -157,9 +159,10 @@ def run_cmd(
 
 
 def main():
-    prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
-
-    parser = argparse.ArgumentParser()
+    # -------------------------------------------------------------------------
+    # Argument parser
+    # -------------------------------------------------------------------------
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--skip_client_help",
         action="store_true",
@@ -167,6 +170,13 @@ def main():
         default=False,
     )
     args = parser.parse_args()
+
+    # -------------------------------------------------------------------------
+    # Checks
+    # -------------------------------------------------------------------------
+    # After offering help to the command-line user, check the environment is
+    # correct:
+    prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
 
     # Do this first to exit early if not built
     if not args.skip_client_help:
@@ -183,7 +193,13 @@ def main():
             },
         )
 
+    # -------------------------------------------------------------------------
+    # Build the various inclusion files
+    # -------------------------------------------------------------------------
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # administrator
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     run_cmd(
         ["camcops_backup_mysql_database", "--help"],
         join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"),
@@ -218,7 +234,10 @@ def main():
         ["camcops_fetch_snomed_codes", "--allhelp"],
         join(ADMIN_DIR, "_camcops_fetch_snomed_codes_help.txt"),
     )
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # developer
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     run_cmd(
         ["python", join(TABLET_TOOLS_DIR, "build_qt.py"), "--help"],
         join(DEV_DIR, "_build_qt_help.txt"),

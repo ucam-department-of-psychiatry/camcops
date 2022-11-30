@@ -113,6 +113,7 @@ INSTALL_REQUIRES = [
     "pytest==6.0.2",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
     "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
+    "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.5.4",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver

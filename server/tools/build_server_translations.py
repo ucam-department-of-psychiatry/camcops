@@ -39,15 +39,15 @@ import shutil
 import subprocess
 from typing import List
 
-from cardinal_pythonlib.argparse_func import (
-    RawDescriptionArgumentDefaultsHelpFormatter,
-)
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
 from cardinal_pythonlib.subproc import check_call_verbose
 
+from camcops_server.cc_modules.cc_argparse import (
+    RawDescriptionArgumentDefaultsRichHelpFormatter,
+)
 from camcops_server.cc_modules.cc_baseconstants import (
     CAMCOPS_SERVER_DIRECTORY,
     TRANSLATIONS_DIR,
@@ -191,7 +191,7 @@ Operations:
 
     {OP_ALL}
         Executes all other operations, except {OP_POEDIT}, in sequence.""",
-        formatter_class=RawDescriptionArgumentDefaultsHelpFormatter,
+        formatter_class=RawDescriptionArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument(
         "operation",
