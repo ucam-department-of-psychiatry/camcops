@@ -3708,4 +3708,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Rich text for help.
 
-- **New task:** :ref:`PHQ-8 <phq8>` task. (Database revision 0077.)
+- **New task:** :ref:`Patient Health Questionnaire 8-item depression scale
+  (PHQ-8) <phq8>`. (Database revision 0077.)

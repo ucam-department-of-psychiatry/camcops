@@ -1,4 +1,4 @@
-usage: build_server_translations.py [-h] [--verbose] [--poedit POEDIT]
+USAGE: build_server_translations.py [-h] [--verbose] [--poedit POEDIT]
                                     operation
 
 Create translation files for CamCOPS server. CamCOPS knows about the following
@@ -31,11 +31,11 @@ Operations:
     all
         Executes all other operations, except poedit, in sequence.
 
-positional arguments:
+POSITIONAL ARGUMENTS:
   operation        Operation to perform; possibilities are ['extract',
                    'init_missing', 'update', 'poedit', 'compile', 'all']
 
-optional arguments:
+OPTIONAL ARGUMENTS:
   -h, --help       show this help message and exit
   --verbose        Be verbose (default: False)
   --poedit POEDIT  Path to 'poedit' tool. Default is taken from POEDIT

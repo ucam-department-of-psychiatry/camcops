@@ -1,4 +1,4 @@
-usage: create_database_migration.py [-h] [--verbose] message
+USAGE: create_database_migration.py [-h] [--verbose] message
 
 Create database revision. Note:
 
@@ -18,9 +18,9 @@ Create database revision. Note:
   database structure doesn't match the structure that Alembic expects based on
   that version, there's likely to be trouble.
 
-positional arguments:
+POSITIONAL ARGUMENTS:
   message     Revision message
 
-optional arguments:
+OPTIONAL ARGUMENTS:
   -h, --help  show this help message and exit
   --verbose   Be verbose
