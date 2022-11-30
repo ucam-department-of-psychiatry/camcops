@@ -3707,3 +3707,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Rich text for help.
+
+- **New task:** :ref:`PHQ-8 <phq8>` task. (Database revision 0077.)

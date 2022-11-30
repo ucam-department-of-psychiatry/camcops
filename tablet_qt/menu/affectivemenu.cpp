@@ -44,6 +44,7 @@
 #include "tasks/pclm.h"
 #include "tasks/pcls.h"
 #include "tasks/pdss.h"
+#include "tasks/phq8.h"
 #include "tasks/phq9.h"
 #include "tasks/phq15.h"
 #include "tasks/pswq.h"
@@ -90,6 +91,7 @@ void AffectiveMenu::makeItems()
         MAKE_TASK_MENU_ITEM(PclC::PCLC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(PclS::PCLS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Pdss::PDSS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Phq8::PHQ8_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq9::PHQ9_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Phq15::PHQ15_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Pswq::PSWQ_TABLENAME, m_app),

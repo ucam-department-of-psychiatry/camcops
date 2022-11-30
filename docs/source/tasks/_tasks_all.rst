@@ -119,6 +119,7 @@ All tasks
     pcl5.rst
     pdss.rst
     perinatal_poem.rst
+    phq8.rst
     phq9.rst
     phq15.rst
     pss.rst
