@@ -26,6 +26,7 @@ tablet_qt/tools/clazy_camcops.py
 ===============================================================================
 
 Run clazy over all our C++ code.
+
 """
 
 # =============================================================================
@@ -71,15 +72,38 @@ CAMCOPS_CPP_INCLUDE_DIRS.sort()
 # Apply clazy to our source code
 # =============================================================================
 
-WARNINGS_TO_DISABLE = [
+CHECKS = [
+    "level2",  # the basic level
+    # Use the "no-" prefix to disable a check:
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # LEVEL 2 CHECKS TO DISABLE:
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # As clazy points out, (global) static variables are fine in executables,
     # but not in libraries; clazy doesn't know which is being built, so issues
     # the warning. The standard sort of code that generates this warning is
     # file-level code like
     #       const QString SOME_STRING("hello world");
     # https://github.com/KDE/clazy/blob/master/docs/checks/README-non-pod-global-static.md  # noqa: E501
-    "non-pod-global-static",
+    "no-non-pod-global-static",
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # MANUAL LEVEL CHECKS TO DISABLE:
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # e.g. "emit someSignal()"
+    "no-qt-keywords",
 ]
+
+_ = """
+Other things to note:
+
+AVOID:
+    const QString s("text");
+PREFER:
+    const QString s = QStringLiteral("text");
+OR BETTER:
+    const QString s(QStringLiteral("text"));
+See https://github.com/KDE/clazy/blob/master/docs/checks/README-qstring-allocations.md.
+
+"""  # noqa: E501
 
 
 def clazy_camcops_source() -> None:
@@ -188,12 +212,13 @@ def clazy_camcops_source() -> None:
 
     # Additional switches to suppress warnings:
     # https://github.com/KDE/clazy
-    clazy_checks = ",".join(["level2"] + WARNINGS_TO_DISABLE)
+    clazy_checks = ",".join(CHECKS)
     log.info(f"CLAZY_CHECKS: {clazy_checks}")
     os.environ["CLAZY_CHECKS"] = clazy_checks
 
     # Files to process:
-    cmdargs += cpp_files
+    cmdargs += [os.path.abspath(x) for x in cpp_files]
+    # ... absolute path because we'll change directory in a moment.
 
     # -------------------------------------------------------------------------
     # Run it

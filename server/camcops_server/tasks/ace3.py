@@ -414,26 +414,12 @@ class Ace3(
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture1_rotation = Column(
-        # DEFUNCT as of v2.0.0
-        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE
-        "picture1_rotation",
-        Integer,
-        comment="Photo 1/2 rotation (degrees clockwise)",
-    )
     picture2_blobid = CamcopsColumn(
         "picture2_blobid",
         Integer,
         comment="Photo 2/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",
-    )
-    picture2_rotation = Column(
-        # DEFUNCT as of v2.0.0
-        # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE
-        "picture2_rotation",
-        Integer,
-        comment="Photo 2/2 rotation (degrees clockwise)",
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
 

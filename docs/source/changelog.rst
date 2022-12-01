@@ -3724,4 +3724,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   as before. Clients v2.4.15+ therefore require server 2.4.15+ to upload.
   If you create a new task on a client when the server is old (or the tablet
   hasn't fetched server information since the server upgrade) you'll get a
-  warning. **IN PROGRESS**
+  warning. Removed defunct server fields ``picture1_rotation``,
+  ``picture2_rotation``.
+  **IN PROGRESS**
