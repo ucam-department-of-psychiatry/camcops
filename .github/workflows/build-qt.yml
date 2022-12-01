@@ -22,6 +22,14 @@ jobs:
             - uses: actions/setup-python@v4
               with:
                   python-version: 3.8
+            - name: Common Qt prerequisites
+              run: |
+                  # https://wiki.qt.io/Building_Qt_6_from_Git
+                  set -eux -o pipefail
+                  codename=`lsb_release -cs`
+                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename} universe" | sudo tee -a /etc/apt/sources.list
+                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates universe" | sudo tee -a /etc/apt/sources.list
+                  sudo apt-get update
             - name: Change apt mirror
               run: |
                   set -eux -o pipefail
