@@ -523,6 +523,11 @@ QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "6.2"
 QT_GIT_COMMIT = HEAD
 QT_SPECIFIC_VERSION = "6.2.3"
+QT_SUBMODULES_TO_SKIP = [
+    # Don't need this on any platform, and unsupported on Android:
+    "qtserialport",
+    "qtwebengine",
+]
 
 if QT_SPECIFIC_VERSION:
     QT_VERSION = Version(QT_SPECIFIC_VERSION)
@@ -650,15 +655,6 @@ QT_CONFIG_COMMON_ARGS = [
     "examples",
     "-nomake",
     "tests",
-    # "-skip", "qttranslations",
-    # Don't need this on any platform, and unsupported on Android:
-    "-skip",
-    "qtserialport",
-    "-skip",
-    "qtwebengine",
-    # Except the webkit stuff, which ends up giving problems with Wayland-EGL:
-    # "-skip", "qtwebkit",  # disabled 2017-10-22: "Project ERROR: -skip command line argument used with non-existent module 'qtwebkit'."  # noqa
-    # "-skip", "qtwebkit-examples",  # disabled 2017-10-22: ditto
 ]
 
 # -----------------------------------------------------------------------------
@@ -3262,6 +3258,7 @@ def fetch_qt(cfg: Config) -> None:
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
+    run([GIT, "submodule", "deinit", " ".join(QT_SUBMODULES_TO_SKIP)])
 
 
 def build_qt(cfg: Config, target_platform: Platform) -> str:
@@ -3507,6 +3504,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         qt_config_args.extend(["-L", libdir])
 
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
+    for submodule in QT_SUBMODULES_TO_SKIP:
+        qt_config_args.extend(["-skip", submodule])
 
     # Debug or release build of Qt?
     if cfg.qt_build_type == QT_BUILD_DEBUG:
