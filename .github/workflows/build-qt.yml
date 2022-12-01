@@ -22,14 +22,10 @@ jobs:
             - uses: actions/setup-python@v4
               with:
                   python-version: 3.8
-            - name: Common Qt prerequisites
+            - name: Change apt mirror
               run: |
-                  # https://wiki.qt.io/Building_Qt_6_from_Git
-                  set -xe
-                  codename=`lsb_release -cs`
-                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename} universe" | sudo tee -a /etc/apt/sources.list
-                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates universe" | sudo tee -a /etc/apt/sources.list
-                  sudo apt-get update
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Ubuntu 20.04 prerequisites
               if: matrix.os == 'ubuntu-20.04'
               run: |
