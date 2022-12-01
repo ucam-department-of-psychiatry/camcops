@@ -10,7 +10,6 @@ on:
 jobs:
     build-qt:
         strategy:
-            fail-fast: false
             matrix:
                 include:
                     - name: ubuntu-20.04
