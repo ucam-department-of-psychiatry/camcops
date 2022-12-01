@@ -3254,11 +3254,11 @@ def fetch_qt(cfg: Config) -> None:
         return
     chdir(cfg.qt_src_gitdir)
     run([PERL, "init-repository"])
+    run([GIT, "submodule", "deinit", " ".join(QT_SUBMODULES_TO_SKIP)])
     # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
-    run([GIT, "submodule", "deinit", " ".join(QT_SUBMODULES_TO_SKIP)])
 
 
 def build_qt(cfg: Config, target_platform: Platform) -> str:
