@@ -149,8 +149,11 @@ public:
     // Is the task re-editable once it's been created?
     virtual bool isEditable() const { return true; }
 
-    // Is the task less than fully functional, e.g. requiring strings that have
-    // not been downloaded (or are not available) from a CamCOPS server?
+    // Is the task less than fully functional, e.g.
+    // - intrinsically a "skeleton" task at best;
+    // - requiring strings that have not been downloaded (or are not available
+    //   or are too old) from a CamCOPS server;
+    // - or that the server is too old to accept the task?
     virtual bool isCrippled() const;
 
     // Is this an experimental task? (Affects labelling.)

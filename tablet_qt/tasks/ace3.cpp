@@ -22,7 +22,6 @@
 
 #include "ace3.h"
 #include <QDebug>
-#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"
@@ -253,11 +252,8 @@ Version Ace3::minimumServerVersion() const
 
 bool Ace3::isTaskProperlyCreatable(QString& why_not_creatable) const
 {
-    if (!isServerStringVersionEnough(SERVER_ACE3_ADDRESS_VARIANT_VERSION,
-                                     why_not_creatable)) {
-        return false;
-    }
-    return Task::isTaskProperlyCreatable(why_not_creatable);
+    return isServerStringVersionEnough(SERVER_ACE3_ADDRESS_VARIANT_VERSION,
+                                       why_not_creatable);
 }
 
 

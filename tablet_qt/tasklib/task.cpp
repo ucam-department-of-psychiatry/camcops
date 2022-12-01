@@ -225,6 +225,7 @@ bool Task::isCrippled() const
     QString failure_reason_dummy;
     return implementationType() == TaskImplementationType::Skeleton ||
             !hasExtraStrings() ||
+            !isTaskUploadable(failure_reason_dummy) ||
             !isTaskProperlyCreatable(failure_reason_dummy);
 }
 

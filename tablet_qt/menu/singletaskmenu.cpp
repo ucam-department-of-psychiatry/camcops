@@ -240,6 +240,7 @@ void SingleTaskMenu::showTaskStatus() const
     add(tr("If not, why not creatable"), why_not_creatable);
     add(tr("Fully functional"), uifunc::yesNo(!specimen->isCrippled()));
     add(tr("Editable once created"), uifunc::yesNo(specimen->isEditable()));
+
     uifunc::alert(info.join("<br>"), tr("Task status"));
 }
 
