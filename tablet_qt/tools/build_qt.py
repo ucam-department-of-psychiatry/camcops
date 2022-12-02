@@ -3254,6 +3254,12 @@ def fetch_qt(cfg: Config) -> None:
         return
     chdir(cfg.qt_src_gitdir)
     run([PERL, "init-repository"])
+
+    for submodule in QT_SUBMODULES_TO_SKIP:
+        shutil.rmtree(
+            os.path.join(cfg.qt_src_gitdir, submodule), ignore_errors=True
+        )
+
     run([GIT, "submodule", "deinit"] + QT_SUBMODULES_TO_SKIP)
     # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
