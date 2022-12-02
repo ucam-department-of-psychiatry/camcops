@@ -58,7 +58,7 @@ jobs:
                   sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
                   sudo apt-get -y install flex bison gperf
                   sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libfontconfig1-dev libpulse-dev libnss3-dev libegl1-mesa-dev nodejs
-                  sudo apt-get -y install libgstreamer1.0-dev
+                  sudo apt-get -y install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-bad1.0-dev
                   sudo apt-get -y install libdrm-dev
                   sudo apt-get -y install libatspi2.0-dev libbluetooth-dev libclang-dev libcups2-dev
                   sudo apt-get -y install libfreetype6-dev
