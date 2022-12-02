@@ -406,10 +406,11 @@ from os.path import expanduser, isfile, join, split
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, NoReturn, TextIO, Tuple
+from typing import Any, Callable, Dict, List, NoReturn, TextIO, Tuple
 
 try:
     import cardinal_pythonlib
@@ -1007,7 +1008,7 @@ class Platform(object):
             return ".a"
 
     @property
-    def obj_ext(self):
+    def obj_ext(self) -> str:
         """
         What OBJECT file extension is in use?
         """
@@ -3257,7 +3258,7 @@ def fetch_qt(cfg: Config) -> None:
 
     for submodule in QT_SUBMODULES_TO_SKIP:
         shutil.rmtree(
-            os.path.join(cfg.qt_src_gitdir, submodule), ignore_errors=True
+            os.path.join(cfg.qt_src_gitdir, submodule), onerror=remove_readonly
         )
 
     run([GIT, "submodule", "deinit"] + QT_SUBMODULES_TO_SKIP)
@@ -3265,6 +3266,11 @@ def fetch_qt(cfg: Config) -> None:
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
+
+
+def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 
 def build_qt(cfg: Config, target_platform: Platform) -> str:
