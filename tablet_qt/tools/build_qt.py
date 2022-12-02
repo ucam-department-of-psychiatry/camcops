@@ -522,7 +522,7 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "6.2"
 QT_GIT_COMMIT = HEAD
-QT_SPECIFIC_VERSION = "6.2.3"
+QT_SPECIFIC_VERSION = "6.2.4"
 QT_SUBMODULES_TO_SKIP = [
     # Don't need this on any platform, and unsupported on Android:
     "qtserialport",
