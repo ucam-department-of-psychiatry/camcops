@@ -3387,6 +3387,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     includedirs = [openssl_include_root]  # #include files for OpenSSL
     objdirs = []  # type: List[str]
     libdirs = [openssl_lib_root]  # libraries for OpenSSL
+    qt_config_cmake_args = []
     qt_config_args = [
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
@@ -3542,9 +3543,10 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or you
     # have to rebuild Qt every time... extremely slow.
     if qt_openssl_linkage_static:
+        # https://doc-snapshots.qt.io/qt6-6.2/configure-options.html
         qt_config_args.append("-openssl-linked")  # OpenSSL
-        # http://doc.qt.io/qt-4.8/ssl.html
-        # http://stackoverflow.com/questions/20843180
+        qt_config_cmake_args.append("-DOPENSSL_USE_STATIC_LIBS=ON")
+        qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslrootdir}")
     else:
         qt_config_args += ["-openssl", "yes"]  # OpenSSL
 
@@ -3555,6 +3557,10 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 
     # Fix other Qt bugs:
     # ... cleaned up, none relevant at present
+
+    if qt_config_cmake_args:
+        qt_config_args.append("--")
+        qt_config_args.extend(qt_config_cmake_args)
 
     # -------------------------------------------------------------------------
     # Qt: configure
