@@ -5,6 +5,7 @@
 
     <string name="title_main">Patient Health Questionnaire 8-item depression scale (PHQ-8)</string>
     <string name="stem">Over the last 2 weeks, how often have you been bothered by any of the following problems?</string>
+
     <string name="q1">1. Little interest or pleasure in doing things</string>
     <string name="q2">2. Feeling down, depressed, or hopeless</string>
     <string name="q3">3. Trouble falling or staying asleep, or sleeping too much</string>
