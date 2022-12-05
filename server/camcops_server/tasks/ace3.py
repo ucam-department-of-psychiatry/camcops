@@ -1144,17 +1144,20 @@ class Ace3(
             + f"""
                 </table>
                 <div class="{CssClass.FOOTNOTES}">
-                    [1] In the ACE-R (the predecessor of the ACE-III),
-                    scores ≤82 had sensitivity 0.84 and specificity 1.0 for
-                    dementia, and scores ≤88 had sensitivity 0.94 and
-                    specificity 0.89 for dementia, in a context of patients
-                    with AlzD, FTD, LBD, MCI, and controls
-                    (Mioshi et al., 2006, PMID 16977673).
+                    [1] In the ACE-III, scores ≤82 had sensitivity 0.93 and
+                    specificity 1.0 for dementia, and scores ≤88 had
+                    sensitivity 1.0 and specificity 0.98 for dementia, in a
+                    context of patients with Alzheimer’s disease,
+                    frontotemporal dementia, and controls (Hsieh et al., 2013,
+                    PMID 23949210).
+
                     [2] In the mini-ACE, scores ≤21 had sensitivity 0.61 and
                     specificity 1.0 for dementia, and scores ≤25 had
                     sensitivity 0.85 and specificity 0.87 for dementia, in a
-                    context of patients with dementia and controls (Hsieh et
-                    al., 2015, PMID  25227877).
+                    context of patients with Alzheimer’s disease, behavioural
+                    variant frontotemporal dementia, corticobasal syndrome,
+                    primary progressive aphasia, and controls (Hsieh et al.,
+                    2015, PMID 25227877).
                 </div>
                 <div class="{CssClass.COPYRIGHT}">
                     ACE-III: Copyright © 2012, John Hodges.

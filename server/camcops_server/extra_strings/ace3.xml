@@ -15,12 +15,24 @@ ACE-III in clinical practice.” (ACE-III FAQ, 7 July 2013,
 http://www.neura.edu.au/sites/neura.edu.au/files/page-downloads/ACE-III%20FAQ%20July%202013.pdf,
 accessed 2013-07-31.)
 
-Updated to 2017 edition, 2022-12-01, along with support for A/B/C versions.
+Updated to 2017 UK edition (updated 2019-02-12) implemented 2022-12-01, along
+with support for A/B/C versions. Changes are:
+
+    - Support for mini-ACE scoring.
+    - Change "first female Prime Minister" not "the woman who was Prime
+      Minister" (the second was Theresa May, in 2016).
+    - Instructions for sentence writing. See below.
+    - Very slight change to instructions for clock (compared to the 2012
+      edition, this splits one sentence/stage into two, but compared to the
+      previous CamCOPS version, which was likely the original 2017 version,
+      almost identical with no functional difference.)
+    - Not applicable: typo fix for instructions (to clinician, not patient) re
+      address recognition scoring. This is autoscored in CamCOPS anyway.
 -->
 
-    <string name="edition">Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) (UK English version, 2017)</string>
+    <string name="edition">Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) (UK English version, 2017, updated 2019-02-12)</string>
     <!-- Max 100 characters: -->
-    <string name="edition_short">ACE-III, UK English, 2017</string>
+    <string name="edition_short">ACE-III, UK English, 2017, updated 2019-02-12</string>
     <!-- Task address versions available as a comma-separated list like "A" or "A,B,C". Always capital letters in sequence from A. -->
     <string name="task_address_versions">A,B,C</string>
 
@@ -109,8 +121,65 @@ Updated to 2017 edition, 2022-12-01, along with support for A/B/C versions.
     <string name="lang_command2">“Pick up the pencil but not the paper.”</string>
     <string name="lang_command3">“Pass me the pencil after touching the paper.”</string>
     <string name="lang_q_command_2">If incorrect, score 0 and do not continue further. If the subject is correct on the practice trial, continue with the following three commands below. Before beginning each trial, always place the pencil and piece of paper in front of the participant.</string>
-    <string name="lang_q_sentences">Ask the subject to write two (or more) complete sentences about his/her last holiday / weekend / Christmas. Write in complete sentences and do not use abbreviations.</string>
-    <string name="lang_sentences_point1">Two (or more) complete sentences about the one topic?</string>
+    <string name="lang_q_sentences">Say: “I want you to write two sentences. It can be about anything that you like. I want you to write in full sentences and avoid abbreviations.” If the subject does not know what to write about, you could suggest a few topics. (E.g., say: “For instance, you could write about a recent holiday, your hobbies, your family or childhood”). If the subject writes only one sentence, then prompt for a second one.</string>
+
+    <!--
+        Sentence scoring, updated 2022-12-05:
+
+        2012 version
+
+            "Scoring: Give 1 point if there are at least two sentences about
+            the one topic; and, give another 1 point if grammar and spelling
+            are correct."
+
+        2017 version (updated 2019-02-12):
+
+            "Scoring: Sentences must have a subject and a verb. We are looking
+            for spelling and grammar errors. Sentences do not need to be about
+            the same topic—they can be unrelated. If a patient can only write
+            one sentence, despite prompting, then this will be penalised.
+
+            Points      Description of Sentence
+            2           Two sentences with no errors in grammar or spelling.
+                        Note that sentences do not need to be centred on the
+                        one topic.
+
+                        E.g., “I like to go to the beach. I have three
+                        grandchildren.”
+
+            1           Two sentences with either incorrect grammar or spelling.
+                        One sentence with correct grammar and spelling.
+
+                        E.g., “I like to go to the beech. I also like dancing.”
+                        “I like go beach. I like dance.”
+                        “I like swimming.” (The patient does not write another
+                        sentence despite prompting)
+
+            0           One sentence with incorrect grammar and/or spelling.
+
+                        A few words that is a phrase (e.g., “like dancing”),
+                        place (e.g., “Royal Hospital”) or a person’s name.
+
+                        Unable to write a sentence"
+
+        The differences:
+
+            - Instructions: sentences no longer have to be related, and prompt
+              explicitly for a second sentence.
+
+            - Scoring: this is still one point for two sentences, and one point
+              for correct grammar/spelling. (2 is "two sentences with correct
+              grammar/spelling"; 1 is "either two sentences or correct
+              grammar/spelling but not both"; 0 is neither.) There is
+              clarification that "sentences must have a subject and a verb",
+              which is the definition of a sentence in this context.
+
+        Therefore, we continue to score as two 0/1 points, as before, but the
+        phrasing changes slightly.
+
+    -->
+
+    <string name="lang_sentences_point1">Two (or more) complete sentences, with a subject and a verb (not necessarily about the one topic)?</string>
     <string name="lang_sentences_point2">Grammar and spelling are correct?</string>
     <string name="lang_q_repeat">Ask the subject to repeat:</string>
     <string name="lang_repeat_word1">caterpillar</string>
@@ -146,7 +215,7 @@ Updated to 2017 edition, 2022-12-01, along with support for A/B/C versions.
     <string name="vsp_infinity_correct">Infinity diagram correct?</string>
     <string name="vsp_q_cube">Wire cube: Ask the subject to copy this drawing (for scoring, see page 6 or the administration/scoring guide).</string>
     <string name="vsp_score_cube">Score cube</string>
-    <string name="vsp_q_clock">Ask the participant to draw a clock face with numbers on it. When he/she has finished, ask them to put the hands at “ten past five”.</string>
+    <string name="vsp_q_clock">Ask the subject to draw a clock face with numbers. Then, ask the subject to put the hands at ten past five.</string>
     <string name="vsp_instruction_clock">If the participant does not like their first drawing and would like to do it again, you can allow for that and score the second clock. Participants may correct their mistakes by erasing it while drawing.</string>
     <string name="vsp_score_clock">Score clock (see page 6 or the administration/scoring guide; circle = 1, numbers = 2, hands = 2 if all correct):</string>
     <string name="vsp_q_dots">Ask the subject to count the dots without pointing to them:</string>
