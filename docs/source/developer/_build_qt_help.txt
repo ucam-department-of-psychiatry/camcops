@@ -1,4 +1,4 @@
-USAGE: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
+usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
                    [--nparallel NPARALLEL] [--force] [--tee TEE]
                    [--verbose {0,1,2}] [--inherit_os_env]
                    [--no_inherit_os_env] [--build_all]
@@ -19,10 +19,10 @@ USAGE: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
 
 Build Qt and other libraries for CamCOPS
 
-OPTIONAL ARGUMENTS:
+optional arguments:
   -h, --help            show this help message and exit
 
-GENERAL:
+General:
   General options
 
   --show_config_only    Show config, then quit (default: False)
@@ -33,14 +33,14 @@ GENERAL:
                         Number of parallel processes to run (default: 8)
   --force               Force build (default: False)
   --tee TEE             Copy stdout/stderr to this named file (default: None)
-  --verbose, -v {0,1,2}
+  --verbose {0,1,2}, -v {0,1,2}
                         Verbosity level (default: 0)
   --inherit_os_env      Inherit the parent OS environment variables (default:
                         False)
   --no_inherit_os_env   Do not inherit the parent OS environment variables
                         (default: False)
 
-ARCHITECTURE:
+Architecture:
   Choose architecture for which to build
 
   --build_all           Build for all architectures supported on this host
@@ -81,7 +81,7 @@ ARCHITECTURE:
                         An architecture target (iOS with an Intel 64-bit CPU,
                         for the iOS simulator) (default: False)
 
-QT:
+Qt:
   Qt options [Qt must be built from source for SQLite support, and also if
   static OpenSSL linkage is desired; note that static OpenSSL linkage
   requires a Qt rebuild (slow!) if you rebuild OpenSSL]
@@ -96,7 +96,7 @@ QT:
   --qt_openssl_linked   Link OpenSSL dynamically [True=static, False=dynamic]
                         (default: True)
 
-ANDROID:
+Android:
   Android options (NB you must install the Android SDK and NDK separately,
   BEFOREHAND)
 
@@ -114,13 +114,13 @@ ANDROID:
                         JAVA_HOME directory (default:
                         /usr/lib/jvm/java-11-openjdk-amd64)
 
-IOS:
+iOS:
   iOS options
 
   --ios_sdk IOS_SDK     iOS SDK to use (leave blank for system default)
                         (default: )
 
-JOM:
+jom:
   'jom' parallel make tool for Windows
 
   --jom_executable JOM_EXECUTABLE
