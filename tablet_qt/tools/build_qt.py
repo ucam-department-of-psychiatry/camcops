@@ -454,7 +454,6 @@ from cardinal_pythonlib.platformfunc import (
 )
 from cardinal_pythonlib.tee import tee_log
 import cardinal_pythonlib.version
-from rich_argparse import ArgumentDefaultsRichHelpFormatter
 from semantic_version import Version
 
 assert sys.version_info >= (3, 7), "Need Python 3.7 or higher"
@@ -4111,7 +4110,7 @@ def main() -> None:
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Build Qt and other libraries for CamCOPS",
-        formatter_class=ArgumentDefaultsRichHelpFormatter,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     # General
