@@ -3712,3 +3712,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **Minimum Python version now Python 3.8.**
 
 - Rich text for help.
+
+- **New task:** :ref:`Patient Health Questionnaire 8-item depression scale
+  (PHQ-8) <phq8>`. (Database revision 0077.)

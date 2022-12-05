@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-08-08 10:24+0100\n"
-"PO-Revision-Date: 2022-08-08 10:24+0100\n"
+"POT-Creation-Date: 2022-11-30 16:08+0000\n"
+"PO-Revision-Date: 2022-11-30 16:08+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -1189,6 +1189,22 @@ msgstr "Startdato"
 msgid "End date"
 msgstr "Slutdato"
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:57
+msgid "Split by year?"
+msgstr "Opdelt efter år?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:71
+msgid "Split by month?"
+msgstr "Opdelt efter måned?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:85
+msgid "Split by task type?"
+msgstr "Opdelt efter opgavetype?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:99
+msgid "Split by user?"
+msgstr "Opdelt efter bruger?"
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1665
 msgid "Can't fetch ID number definition"
 msgstr "Definitionen af id-nummer kan ikke hentes"
@@ -1197,29 +1213,17 @@ msgstr "Definitionen af id-nummer kan ikke hentes"
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:87
-msgid "Split by year?"
-msgstr "Opdelt efter år?"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:101
-msgid "Split by month?"
-msgstr "Opdelt efter måned?"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:115
-msgid "Split by task type?"
-msgstr "Opdelt efter opgavetype?"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:129
-msgid "Split by user?"
-msgstr "Opdelt efter bruger?"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:158
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:105
 msgid "(Server) Count current task instances"
 msgstr "(Server) Tæl aktuelle opgaveforekomster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:546
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:549
 msgid "{task_name} @ {due_days} days"
 msgstr "{task_name} @ {due_days} dage"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedulereports.py:131
+msgid "(Server) Count server-created patients and their assigned tasks"
+msgstr "(Server) Tæl serveroprettede patienter og deres tildelte opgaver"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:130
 msgid "Abnormal"
@@ -1709,7 +1713,7 @@ msgstr "Denne brugers e-mail-adresse bruges til godkendelse af flere faktorer. H
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3789
 msgid "User {username} enabled"
-msgstr "Bruger {brugernavn} aktiveret"
+msgstr "Bruger {username} aktiveret"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3919
 msgid "Can't delete your own user!"
@@ -2489,6 +2493,10 @@ msgstr "Fotosekvens"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq15.py:118
 msgid "Patient Health Questionnaire-15"
 msgstr "Patient Health Questionnaire-15 [patientundersøgelse spørgeskema-15]"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq8.py:117
+msgid "Patient Health Questionnaire 8-item depression scale"
+msgstr "Patient Health Spørgeskema 8-punkts depression skala"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq9.py:129
 msgid "Patient Health Questionnaire-9"
@@ -4543,4 +4551,16 @@ msgstr "Maksimal alder:"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/diagnosis_finder_report.mako:41
 msgid "Results:"
 msgstr "Resultater:"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/task_assignment_report.mako:35
+msgid "This report counts patients created directly on the server, and scheduled tasks assigned to them."
+msgstr "Denne rapport tæller patienter, der er oprettet direkte på serveren, og planlagte opgaver, der er tildelt dem."
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/task_assignment_report.mako:38
+msgid "Unless a specific start time was set by the administrator when assigining a patient to a task schedule, the count of 'tasks_assigned' is for the month/year the patients registered themselves on the CamCOPS app."
+msgstr "Medmindre administratoren har angivet et bestemt starttidspunkt, når en patient assigineres til en opgaveplan, er antallet af 'tasks_assigned' for den måned/det år, patienterne registrerede sig i CamCOPS-appen."
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/task_assignment_report.mako:41
+msgid "Tasks for patients who are yet to register appear in the count of 'tasks_assigned' for the date 'None'."
+msgstr "Opgaver for patienter, der endnu ikke er registreret, fremgår af optællingen af 'tasks_assigned' for datoen 'None' ('Ingen')."
 

@@ -108,6 +108,7 @@ server/camcops_server
     alembic/versions/0074_isaaqed.py.rst
     alembic/versions/0075_cia.py.rst
     alembic/versions/0076_paradise24.py.rst
+    alembic/versions/0077_phq8.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -338,6 +339,7 @@ server/camcops_server
     extra_strings/pcl5.xml.rst
     extra_strings/perinatal_poem.xml.rst
     extra_strings/phq15.xml.rst
+    extra_strings/phq8.xml.rst
     extra_strings/phq9.xml.rst
     extra_strings/pswq.xml.rst
     extra_strings/psychiatricclerking.xml.rst
@@ -444,6 +446,7 @@ server/camcops_server
     tasks/perinatalpoem.py.rst
     tasks/photo.py.rst
     tasks/phq15.py.rst
+    tasks/phq8.py.rst
     tasks/phq9.py.rst
     tasks/progressnote.py.rst
     tasks/pswq.py.rst
