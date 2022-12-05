@@ -62,6 +62,15 @@ where. The first is going to be simpler for administrators.
 
 */
 
+/*
+
+A note on the clazy-range-loop warning:
+
+- This warning: https://www.kdab.com/blog-qasconst-and-stdas_const/
+- Const vectors of non-const pointers: https://yosefk.com/c++fqa/const.html
+
+*/
+
 #define NOSCROLL_IMAGE_PAGES  // Should be defined. Better UI with it.
 
 #include "ace3.h"
@@ -132,6 +141,8 @@ const QString TAG_PG_MEM_FREE_RECALL(QStringLiteral("pg_mem_free_recall"));
 const QString TAG_PG_MEM_RECOGNITION(QStringLiteral("pg_mem_recog"));
 const QString TAG_EL_CHOOSE_TASK_VERSION(QStringLiteral("choose_addr_version"));
 const QString TAG_EL_SHOW_TASK_VERSION(QStringLiteral("show_addr_version"));
+const QString TAG_REMOTE_INSTRUCTION(QStringLiteral("remote_instr"));
+const QString TAG_STANDARD_INSTRUCTION(QStringLiteral("std_instr"));
 const QString TAG_EL_LANG_OPTIONAL_COMMAND(QStringLiteral("lang_optional_command"));
 const QString TAG_EL_LANG_NOT_SHOWN(QStringLiteral("lang_not_shown"));
 const QString TAG_RECOG_REQUIRED(QStringLiteral("recog_required"));
@@ -140,6 +151,7 @@ const QString TAG_RECOG_SUPERFLUOUS(QStringLiteral("recog_superfluous"));
 // Field names, field prefixes, and field counts
 const QString FN_TASK_EDITION(QStringLiteral("task_edition"));
 const QString FN_TASK_ADDRESS_VERSION(QStringLiteral("task_address_version"));
+const QString FN_REMOTE_ADMINISTRATION(QStringLiteral("remote_administration"));
 const QString FN_AGE_FT_EDUCATION(QStringLiteral("age_at_leaving_full_time_education"));
 const QString FN_OCCUPATION(QStringLiteral("occupation"));
 const QString FN_HANDEDNESS(QStringLiteral("handedness"));
@@ -242,21 +254,29 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
              false, false, false, xstring(QStringLiteral("edition_short")));
     addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
              false, false, false, TASK_DEFAULT_VERSION);
+    addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
+             false, false, false, false);
+
     addField(FN_AGE_FT_EDUCATION, QVariant::Int);
     addField(FN_OCCUPATION, QVariant::String);
     addField(FN_HANDEDNESS, QVariant::String);
+
     addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME), QVariant::Int);
     addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QVariant::Int);
     addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QVariant::Int);
     addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QVariant::Int);
     addFields(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7), QVariant::Int);
+
     addFields(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD), QVariant::Int);
+
     addField(FN_FLUENCY_LETTERS_SCORE, QVariant::Int);
     addField(FN_FLUENCY_ANIMALS_SCORE, QVariant::Int);
+
     addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QVariant::Int);
+
     addField(FN_LANG_FOLLOW_CMD_PRACTICE, QVariant::Int);
     addFields(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD), QVariant::Int);
     addFields(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT), QVariant::Int);
@@ -265,14 +285,17 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addFields(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE), QVariant::Int);
     addFields(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT), QVariant::Int);
     addField(FN_LANG_READ_WORDS_ALOUD, QVariant::Int);
+
     addField(FN_VSP_COPY_INFINITY, QVariant::Int);
     addField(FN_VSP_COPY_CUBE, QVariant::Int);
     addField(FN_VSP_DRAW_CLOCK, QVariant::Int);
     addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QVariant::Int);
     addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QVariant::Int);
+
     addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Char);
+
     addField(FN_PICTURE1_BLOBID, QVariant::Int);  // FK to BLOB table
     addField(FN_PICTURE2_BLOBID, QVariant::Int);  // FK to BLOB table
     addField(FN_COMMENTS, QVariant::String);
@@ -445,7 +468,8 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     NameValueOptions options_task_version;
-    for (const QString& v : addressVersionsAvailable()) {
+    const QStringList versions = addressVersionsAvailable();
+    for (const auto& v : versions) {
         options_task_version.append(NameValuePair(v, v));
     }
     const NameValueOptions options_handedness{
@@ -1052,12 +1076,20 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // Signals and initial dynamic state
     // ------------------------------------------------------------------------
 
+    // When the user changes the task address version (e.g. A/B/C).
     FieldRefPtr fr_task_version = fieldRef(FN_TASK_ADDRESS_VERSION);
     connect(fr_task_version.data(), &FieldRef::valueChanged,
             this, &Ace3::updateTaskVersionAddresses);
     updateTaskVersionAddresses();
 
-    // See isChangingAddressVersionOk()
+    // When the user changes the remote administration status.
+    FieldRefPtr fr_remote = fieldRef(FN_REMOTE_ADMINISTRATION);
+    connect(fr_remote.data(), &FieldRef::valueChanged,
+            this, &Ace3::showStandardOrRemoteInstructions);
+    showStandardOrRemoteInstructions();
+
+    // When the user writes data relating to a specific address, locking in
+    // the address version selection. See isChangingAddressVersionOk().
     for (int i = 1; i <= N_MEM_REPEAT_ADDR; ++i) {
         connect(fieldRef(strnum(FP_MEM_REPEAT_ADDR_TRIAL1, i)).data(),
                 &FieldRef::valueChanged,
@@ -1081,11 +1113,15 @@ OpenableWidget* Ace3::editor(const bool read_only)
     }
     updateTaskVersionEditability();
 
+    // When the user enters data for the practice command to follow,
+    // determining whether we need to bother with other commands.
     FieldRefPtr fr_lang_practice = fieldRef(FN_LANG_FOLLOW_CMD_PRACTICE);
     connect(fr_lang_practice.data(), &FieldRef::valueChanged,
             this, &Ace3::langPracticeChanged);
     langPracticeChanged(fr_lang_practice.data());
 
+    // When the user enters data for some aspect of address recall, determining
+    // whether we need to bother with recognition for that part of the address.
     for (int i = 1; i <= N_MEM_RECALL_ADDRESS; ++i) {
         FieldRefPtr fr = fieldRef(strnum(FP_MEM_RECALL_ADDRESS, i));
         connect(fr.data(), &FieldRef::valueChanged,
@@ -1355,7 +1391,8 @@ QVector<int> Ace3::correctColumnsAddressRecog(
 
 bool Ace3::isAddressRecogCorrectColumnInfoValid() const
 {
-    for (const auto& v : addressVersionsAvailable()) {
+    const QStringList versions = addressVersionsAvailable();
+    for (const auto& v : versions) {
         const QVector<int> correct_cols = correctColumnsAddressRecog(v);
         if (!isAddressRecogCorrectColumnInfoValid(correct_cols)) {
             return false;
@@ -1472,7 +1509,7 @@ void Ace3::updateTaskVersionAddresses()
     // 3. Recognition.
     for (int line = 1; line <= N_MEM_RECOGNIZE_ADDRESS; ++line) {
         const NameValueOptions options_recog = getAddressRecogOptions(line);
-        QVector<QuElement*> candidate_elements =
+        const QVector<QuElement*> candidate_elements =
                 m_questionnaire->getElementsByTag(
                     tagAddressRecog(line),
                     false,
@@ -1485,6 +1522,23 @@ void Ace3::updateTaskVersionAddresses()
             }
             recog->setOptionNames(options_recog);
         }
+    }
+}
+
+
+void Ace3::showStandardOrRemoteInstructions()
+{
+    const bool remote = valueBool(FN_REMOTE_ADMINISTRATION);
+    const bool standard = !remote;
+    const QVector<QuElement*> standard_elements =
+            m_questionnaire->getElementsByTag(TAG_STANDARD_INSTRUCTION, false);
+    for (auto e : standard_elements) {
+        e->setVisible(standard);
+    }
+    const QVector<QuElement*> remote_elements =
+            m_questionnaire->getElementsByTag(TAG_REMOTE_INSTRUCTION, false);
+    for (auto e : remote_elements) {
+        e->setVisible(remote);
     }
 }
 
@@ -1573,4 +1627,3 @@ void Ace3::langPracticeChanged(const FieldRef* fieldref)
     m_questionnaire->setVisibleByTag(TAG_EL_LANG_NOT_SHOWN, !visible,
                                      false, TAG_PG_LANG_COMMANDS_SENTENCES);
 }
-;;
