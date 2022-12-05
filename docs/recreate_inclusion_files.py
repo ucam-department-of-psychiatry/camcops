@@ -86,25 +86,6 @@ def find_camcops_client_executable() -> Optional[str]:
     return None
 
 
-def prohibit_env_vars(envvars: List[str]) -> None:
-    """
-    Ensure none of the specified environment variables are present (usually
-    because they will mess up the default help!).
-    """
-    bad = []
-    for v in envvars:
-        if v in os.environ:
-            bad.append(v)
-    if bad:
-        bad.sort()
-        spacer = "\n    "
-        bad_as_string = spacer.join(bad)
-        raise ValueError(
-            f"Please re-run with the following environment variables UNSET:"
-            f"\n{spacer}{bad_as_string}"
-        )
-
-
 def run_cmd(
     cmdargs: List[str],
     output_filename: str,
@@ -182,8 +163,12 @@ def main():
     # Checks
     # -------------------------------------------------------------------------
     # After offering help to the command-line user, check the environment is
-    # correct:
-    prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
+    # correct. That is, ensure none of the specified environment variables are
+    # present (usually because they will mess up the default help!). But more
+    # helpfully, clear the variables and proceed, rather than complaining
+    # annoyingly.
+    for v in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
+        del os.environ[v]
 
     # Do this first to exit early if not built
     if not args.skip_client_help:
