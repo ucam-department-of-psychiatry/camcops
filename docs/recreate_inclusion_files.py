@@ -167,8 +167,8 @@ def main():
     # present (usually because they will mess up the default help!). But more
     # helpfully, clear the variables and proceed, rather than complaining
     # annoyingly.
-    for v in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
-        del os.environ[v]
+    for k in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
+        os.environ.pop(k, None)  # remove key if present
 
     # Do this first to exit early if not built
     if not args.skip_client_help:
