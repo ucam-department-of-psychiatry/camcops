@@ -26,6 +26,7 @@
 #include "questionnairelib/quelement.h"
 
 class BooleanWidget;
+class ClickableLabelWordWrapWide;
 
 
 class QuMcq : public QuElement
@@ -82,6 +83,16 @@ public:
     // Make text bold?
     QuMcq* setBold(bool bold = true);
 
+    // Change option labels.
+    // Only valid if:
+    // - the new options are of the same size as the original;
+    // - the values are exactly the same and in the same order as the original;
+    // - m_randomize is false
+    // ... in which case it will return true, and update its widget if
+    // required. Otherwise, it will do nothing, return false, and generate a
+    // warning.
+    bool setOptionNames(const NameValueOptions& options);
+
 protected:
     // Set widget state from field data.
     void setFromField();
@@ -105,5 +116,6 @@ protected:
     bool m_horizontal;  // horizontal layout?
     bool m_as_text_button;  // text button (rather than radio button) layout?
     bool m_bold;  // text in bold?
-    QVector<QPointer<BooleanWidget>> m_widgets;  // our widget collection
+    QVector<QPointer<BooleanWidget>> m_boolean_widgets;  // our widget collection
+    QVector<QPointer<ClickableLabelWordWrapWide>> m_label_widgets;
 };

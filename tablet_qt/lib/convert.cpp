@@ -76,9 +76,9 @@ const ushort UNICODE_TAB = TAB.unicode();
 // SQL literals
 // ============================================================================
 
-const QString NULL_STR("NULL");
+const QString NULL_STR(QStringLiteral("NULL"));
 
-const QString RECORD_RE_STR(R"(^([\S]+?):\s*([\s\S]*))");
+const QString RECORD_RE_STR(QStringLiteral(R"(^([\S]+?):\s*([\s\S]*))"));
 // double-backslashes for C++ escaping, or C++ raw string R"(...)"
 // \s whitespace, \S non-whitespace
 // ? makes the + lazy, not greedy
@@ -90,9 +90,9 @@ QString escapeNewlines(QString raw)
 {
     // Raw string literal, from C++ 11 (note the parentheses):
     // http://en.cppreference.com/w/cpp/language/string_literal
-    raw.replace(R"(\)", R"(\\)");  // escape backslashes
-    raw.replace("\n", R"(\n)");  // escape LF (\n) to "\n" two-char literal
-    raw.replace("\r", R"(\r)");  // escape CR (\r) to "\r" two-char literal
+    raw.replace(QStringLiteral(R"(\)"), QStringLiteral(R"(\\)"));  // escape backslashes
+    raw.replace(QStringLiteral("\n"), QStringLiteral(R"(\n)"));  // escape LF (\n) to "\n" two-char literal
+    raw.replace(QStringLiteral("\r"), QStringLiteral(R"(\r)"));  // escape CR (\r) to "\r" two-char literal
     return raw;
 }
 
@@ -110,9 +110,9 @@ QString unescapeNewlines(const QString& escaped)
         if (in_escape) {
             // Can't use switch statement with a QChar
             if (c == 'r') {
-                result += "\r";
+                result += QStringLiteral("\r");
             } else if (c == 'n') {
-                result += "\n";
+                result += QStringLiteral("\n");
             } else {
                 result += c;
             }
@@ -133,8 +133,8 @@ QString sqlQuoteString(QString raw)
 {
     // In: my name's Bob
     // Out: 'my name''s Bob'
-    raw.replace("'", "''");
-    return QString("'%1'").arg(raw);
+    raw.replace(QStringLiteral("'"), QStringLiteral("''"));
+    return QString(QStringLiteral("'%1'")).arg(raw);
 }
 
 
@@ -151,7 +151,7 @@ QString sqlDequoteString(const QString& quoted)
     }
     QString raw = quoted.mid(1, n - 2);
     // De-escape quotes:
-    raw.replace("''", "'");
+    raw.replace(QStringLiteral("''"), QStringLiteral("'"));
     return raw;
 }
 
@@ -159,7 +159,7 @@ QString sqlDequoteString(const QString& quoted)
 QString blobToQuotedBase64(const QByteArray& blob)
 {
     // Returns in the format: 64'...'
-    return QString("64'%1'").arg(QString(blob.toBase64()));
+    return QString(QStringLiteral("64'%1'")).arg(QString(blob.toBase64()));
 }
 
 
@@ -167,7 +167,9 @@ QByteArray quotedBase64ToBlob(const QString& quoted)
 {
     // Reverses blobToQuotedBase64()
     const int n = quoted.length();
-    if (n < 4 || !quoted.startsWith("64'") || !quoted.endsWith(SQUOTE)) {
+    if (n < 4
+            || !quoted.startsWith(QStringLiteral("64'"))
+            || !quoted.endsWith(SQUOTE)) {
         // Wrong format
         return QByteArray();
     }
@@ -178,7 +180,7 @@ QByteArray quotedBase64ToBlob(const QString& quoted)
 
 QString padHexTwo(const QString& input)
 {
-    return input.length() == 1 ? QString("0") + input : input;
+    return input.length() == 1 ? QString(QStringLiteral("0")) + input : input;
 }
 
 
@@ -186,7 +188,7 @@ QString blobToQuotedHex(const QByteArray& blob)
 {
     // Returns in the format: X'01FF76A8'
     // Since Qt is magic:
-    return QString("X'%1'").arg(QString(blob.toHex()));
+    return QString(QStringLiteral("X'%1'")).arg(QString(blob.toHex()));
 }
 
 
@@ -194,7 +196,9 @@ QByteArray quotedHexToBlob(const QString& hex)
 {
     // Reverses blobToQuotedHex()
     const int n = hex.length();
-    if (n < 3 || !hex.startsWith("X'") || !hex.endsWith(SQUOTE)) {
+    if (n < 3
+            || !hex.startsWith(QStringLiteral("X'"))
+            || !hex.endsWith(SQUOTE)) {
         // Wrong format
         return QByteArray();
     }
@@ -209,24 +213,31 @@ QString toSqlLiteral(const QVariant& value)
         return NULL_STR;
     }
     const QVariant::Type variant_type = value.type();
+    QString retval;
     switch (variant_type) {
     // Integer types
     case QVariant::Int:
-        return QString("%1").arg(value.toInt());
+        retval.setNum(value.toInt());
+        return retval;
     case QVariant::LongLong:
-        return QString("%1").arg(value.toLongLong());
+        retval.setNum(value.toLongLong());
+        return retval;
     case QVariant::UInt:
-        return QString("%1").arg(value.toUInt());
+        retval.setNum(value.toUInt());
+        return retval;
     case QVariant::ULongLong:
-        return QString("%1").arg(value.toULongLong());
+        retval.setNum(value.toULongLong());
+        return retval;
 
     // Boolean
     case QVariant::Bool:
-        return QString("%1").arg(value.toInt());  // boolean to integer
+        retval.setNum(value.toInt());  // boolean to integer
+        return retval;
 
     // Floating-point:
     case QVariant::Double:
-        return QString("%1").arg(value.toDouble());
+        retval.setNum(value.toDouble());
+        return retval;
 
     // String
     case QVariant::Char:
@@ -237,11 +248,12 @@ QString toSqlLiteral(const QVariant& value)
 
     // Dates, times
     case QVariant::Date:
-        return value.toDate().toString("'yyyy-MM-dd'");
+        return value.toDate().toString(QStringLiteral("'yyyy-MM-dd'"));
     case QVariant::DateTime:
-        return QString("'%1'").arg(datetime::datetimeToIsoMs(value.toDateTime()));
+        return QString(QStringLiteral("'%1'"))
+                .arg(datetime::datetimeToIsoMs(value.toDateTime()));
     case QVariant::Time:
-        return value.toTime().toString("'HH:mm:ss'");
+        return value.toTime().toString(QStringLiteral("'HH:mm:ss'"));
 
     // BLOB types
     case QVariant::ByteArray:
@@ -250,7 +262,7 @@ QString toSqlLiteral(const QVariant& value)
 
     // Other
     case QVariant::Invalid:
-        uifunc::stopApp("toSqlLiteral: Invalid field type");
+        uifunc::stopApp(QStringLiteral("toSqlLiteral: Invalid field type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -261,14 +273,17 @@ QString toSqlLiteral(const QVariant& value)
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
         }
-        uifunc::stopApp("toSqlLiteral: Unknown user type");
+        uifunc::stopApp(QStringLiteral("toSqlLiteral: Unknown user type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
 
     default:
-        uifunc::stopApp(QString("toSqlLiteral: Unknown user type: %1").arg(variant_type));
+        uifunc::stopApp(
+            QString(QStringLiteral("toSqlLiteral: Unknown user type: %1"))
+                .arg(variant_type)
+        );
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -287,7 +302,9 @@ QVariant fromSqlLiteral(const QString& literal)
 
     const int n = literal.length();
 
-    if (n >= 4 && literal.startsWith("64'") && literal.endsWith(SQUOTE)) {
+    if (n >= 4
+            && literal.startsWith(QStringLiteral("64'"))
+            && literal.endsWith(SQUOTE)) {
         // Base 64-encoded BLOB
         // Waste of time doing a more sophisticated (e.g. regex) check. If it
         // passes this test, it's *claiming* to be a base-64 BLOB, and we're
@@ -295,7 +312,9 @@ QVariant fromSqlLiteral(const QString& literal)
         return quotedBase64ToBlob(literal);
     }
 
-    if (n >= 3 && literal.startsWith("X'") && literal.endsWith(SQUOTE)) {
+    if (n >= 3
+            && literal.startsWith(QStringLiteral("X'"))
+            && literal.endsWith(SQUOTE)) {
         // Hex-encoded BLOB
         return quotedHexToBlob(literal);
     }
@@ -307,7 +326,7 @@ QVariant fromSqlLiteral(const QString& literal)
     }
 
     // Numeric
-    if (literal.contains(".")) {
+    if (literal.contains(QStringLiteral("."))) {
         return literal.toDouble();
     }
 
@@ -371,6 +390,7 @@ QVector<QVariant> csvSqlLiteralsToValues(const QString& csv)
 QString valuesToCsvSqlLiterals(const QVector<QVariant>& values)
 {
     QStringList literals;
+    literals.reserve(values.size());
     for (const QVariant& value : values) {
         literals.append(toSqlLiteral(value));
     }
@@ -396,24 +416,24 @@ QString stringToUnquotedCppLiteral(const QString& raw)
     for (QChar c : raw) {
         const ushort u = c.unicode();
         if (u == UNICODE_NL) {
-            escaped += R"(\n)";
+            escaped += QStringLiteral(R"(\n)");
         } else if (u == UNICODE_CR) {
-            escaped += R"(\r)";
+            escaped += QStringLiteral(R"(\r)");
         } else if (u == UNICODE_TAB) {
-            escaped += R"(\t)";
+            escaped += QStringLiteral(R"(\t)");
         } else if (u == UNICODE_BACKSLASH) {
-            escaped += R"(\\)";
+            escaped += QStringLiteral(R"(\\)");
         } else if (u == UNICODE_DQUOTE) {
-            escaped += R"(\")";
+            escaped += QStringLiteral(R"(\")");
         } else if (u < UNICODE_SPACE) {
 #ifdef ENCODE_LOW_VALUES_AS_HEX
-            const QString hex = QString("\\x%1").arg(u, HEX_NUM_DIGITS,
-                                                     BASE_HEX, ZERO);
+            const QString hex = QString(QStringLiteral("\\x%1"))
+                    .arg(u, HEX_NUM_DIGITS, BASE_HEX, ZERO);
             // ... number, fieldwidth (+ right align, - left align), base, fillchar
             escaped += hex;
 #else
-            const QString octal = QString("\\%1").arg(u, OCTAL_NUM_DIGITS,
-                                                      BASE_OCTAL, ZERO);
+            const QString octal = QString(QStringLiteral("\\%1"))
+                    .arg(u, OCTAL_NUM_DIGITS, BASE_OCTAL, ZERO);
             // ... number, fieldwidth (+ right align, - left align), base, fillchar
             escaped += octal;
 #endif
@@ -483,7 +503,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
             } else if (c == 'x') {
                 // A hex sequence is \xnn
                 in_hex = true;
-                escape_digits = "";
+                escape_digits = QLatin1String("");
             } else {
                 // All the following are two-character escape sequences
                 if (c == 'n') {
@@ -509,7 +529,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
                 in_escape = true;
                 in_octal = false;
                 in_hex = false;
-                escape_digits = "";
+                escape_digits = QLatin1String("");
             } else {
                 raw += c;
             }
@@ -671,7 +691,10 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64)
 
 QString toDp(double x, int dp)
 {
-    return QString("%1").arg(x, 0, 'f', dp);
+    QString retval;
+    retval.setNum(x, 'f', dp);
+    return retval;
+    // return QString("%1").arg(x, 0, 'f', dp);
 }
 
 
@@ -683,7 +706,7 @@ QString prettyValue(const QVariant& variant,
     }
     switch (type) {
     case QVariant::ByteArray:
-        return "<binary>";
+        return QStringLiteral("<binary>");
     case QVariant::Date:
         return datetime::dateToIso(variant.toDate());
     case QVariant::DateTime:
@@ -703,19 +726,20 @@ QString prettyValue(const QVariant& variant,
         {
             QStringList raw = variant.toStringList();
             QStringList escaped;
+            escaped.reserve(raw.size());
             for (const QString& r : raw) {
                 QString e = r.toHtmlEscaped();
                 stringfunc::toHtmlLinebreaks(e, false);
                 escaped.append(e);
             }
-            return escaped.join(",");
+            return escaped.join(QStringLiteral(","));
         }
     case QVariant::UserType:
         if (isQVariantOfUserType(variant, TYPENAME_QVECTOR_INT)) {
             QVector<int> intvec = qVariantToIntVector(variant);
             return numericVectorToCsvString(intvec);
         }
-        uifunc::stopApp("prettyValue: Unknown user type");
+        uifunc::stopApp(QStringLiteral("prettyValue: Unknown user type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         return "";  // will never get here; for clang-tidy
 #endif
@@ -744,14 +768,14 @@ QString prettySize(const double num, const bool space, const bool binary,
     const QStringList& prefixes = binary
             ? (longform ? PREFIXES_LONG_BINARY : PREFIXES_SHORT_BINARY)
             : (longform ? PREFIXES_LONG_DECIMAL : PREFIXES_SHORT_DECIMAL);
-    const QString optional_space = space ? " " : "";
+    const QString optional_space = space ? QStringLiteral(" ") : QStringLiteral("");
     const double base = binary ? 1024 : 1000;
     auto exponent = static_cast<int>(qLn(num) / qLn(base));
     exponent = qBound(0, exponent, prefixes.length() - 1);
     const QString& prefix = prefixes.at(exponent);
     const double converted_num = num / pow(base, exponent);
     const int precision = (exponent == 0) ? 0 : 1;  // decimals, for 'f'
-    return QString("%1%2%3%4")
+    return QString(QStringLiteral("%1%2%3%4"))
             .arg(converted_num, 0, 'f', precision)
             .arg(optional_space,
                  prefix,
@@ -762,8 +786,9 @@ QString prettySize(const double num, const bool space, const bool binary,
 QString prettyPointer(const void* pointer)
 {
     // http://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
-    return QString("0x%1").arg(reinterpret_cast<quintptr>(pointer),
-                               QT_POINTER_SIZE * 2, 16, QChar('0'));
+    return QString(QStringLiteral("0x%1"))
+            .arg(reinterpret_cast<quintptr>(pointer),
+                 QT_POINTER_SIZE * 2, 16, QChar('0'));
 }
 
 
@@ -816,18 +841,18 @@ QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
 
 
 // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
-const QString SSLPROTODESC_SSLV3 = "SslV3";
-const QString SSLPROTODESC_SSLV2 = "SslV2";
-const QString SSLPROTODESC_TLSV1_0 = "TlsV1_0";
-const QString SSLPROTODESC_TLSV1_1 = "TlsV1_1";
-const QString SSLPROTODESC_TLSV1_2 = "TlsV1_2";
-const QString SSLPROTODESC_ANYPROTOCOL = "AnyProtocol";
-const QString SSLPROTODESC_TLSV1_SSLV3 = "TlsV1SslV3";
-const QString SSLPROTODESC_SECUREPROTOCOLS = "SecureProtocols";
-const QString SSLPROTODESC_TLSV1_0_OR_LATER = "TlsV1_0OrLater";
-const QString SSLPROTODESC_TLSV1_1_OR_LATER = "TlsV1_1OrLater";
-const QString SSLPROTODESC_TLSV1_2_OR_LATER = "TlsV1_2OrLater";
-const QString SSLPROTODESC_UNKNOWN_PROTOCOL = "UnknownProtocol";
+const QString SSLPROTODESC_SSLV3(QStringLiteral("SslV3"));
+const QString SSLPROTODESC_SSLV2(QStringLiteral("SslV2"));
+const QString SSLPROTODESC_TLSV1_0(QStringLiteral("TlsV1_0"));
+const QString SSLPROTODESC_TLSV1_1(QStringLiteral("TlsV1_1"));
+const QString SSLPROTODESC_TLSV1_2(QStringLiteral("TlsV1_2"));
+const QString SSLPROTODESC_ANYPROTOCOL(QStringLiteral("AnyProtocol"));
+const QString SSLPROTODESC_TLSV1_SSLV3(QStringLiteral("TlsV1SslV3"));
+const QString SSLPROTODESC_SECUREPROTOCOLS(QStringLiteral("SecureProtocols"));
+const QString SSLPROTODESC_TLSV1_0_OR_LATER(QStringLiteral("TlsV1_0OrLater"));
+const QString SSLPROTODESC_TLSV1_1_OR_LATER(QStringLiteral("TlsV1_1OrLater"));
+const QString SSLPROTODESC_TLSV1_2_OR_LATER(QStringLiteral("TlsV1_2OrLater"));
+const QString SSLPROTODESC_UNKNOWN_PROTOCOL(QStringLiteral("UnknownProtocol"));
 
 
 QString describeSslProtocol(const QSsl::SslProtocol protocol)
@@ -902,8 +927,12 @@ QVector<int> csvStringToIntVector(const QString& str)
         return vec;
     }
     const QStringList strings = str.split(COMMA);
+    vec.reserve(strings.size());
     for (const QString& s : strings) {
         vec.append(s.toInt());
+        // https://doc.qt.io/qt-6/qstring.html#toInt
+        // toInt() ignores leading/trailing whitespace, and returns 0 if the
+        // conversion fails.
     }
     return vec;
 }
@@ -912,6 +941,7 @@ QVector<int> csvStringToIntVector(const QString& str)
 QString qStringListToCsvString(const QStringList& vec)
 {
     QStringList words;
+    words.reserve(vec.size());
     for (const QString& word : vec) {
         words.append(stringToCppLiteral(word));
     }
@@ -948,6 +978,7 @@ QStringList csvStringToQStringList(const QString& str)
                 if (u == UNICODE_COMMA) {
                     // CSV break: MAIN POINT OF ONWARD PROCESSING
                     words.append(cppLiteralToString(word.trimmed()));
+                    // ... trims off start/end whitespace
                     word = "";
                 } else if (u == UNICODE_DQUOTE) {
                     // start of quoted string
@@ -1172,7 +1203,7 @@ void testConversions()
     qDebug() << "Testing conversions...";
 
     const QStringList stringlist{"a", "b", "c1\nc2"};
-    const QString stringlist_to_str(R"("a","b","c1\nc2")");
+    const QString stringlist_as_str(QStringLiteral(R"("a","b","c1\nc2")"));
     QString test_string;
     for (int i = 0; i < 1000; ++i) {
         QChar c(i);
@@ -1197,8 +1228,8 @@ void testConversions()
 
     assert_eq(test_string, cppLiteralToString(stringToCppLiteral(test_string)));
 
-    assert_eq(qStringListToCsvString(stringlist), stringlist_to_str);
-    assert_eq(csvStringToQStringList(stringlist_to_str), stringlist);
+    assert_eq(qStringListToCsvString(stringlist), stringlist_as_str);
+    assert_eq(csvStringToQStringList(stringlist_as_str), stringlist);
 
     int feet = 0;
     double inches = 0;

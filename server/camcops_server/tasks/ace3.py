@@ -91,6 +91,7 @@ MEMORY_MAX = 26
 FLUENCY_MAX = 14
 LANG_MAX = 26
 VSP_MAX = 16
+MINI_ACE_MAX = 30
 
 
 # =============================================================================
@@ -346,6 +347,21 @@ class Ace3(
 
     prohibits_commercial = True
 
+    task_edition = CamcopsColumn(
+        "task_edition",
+        String(length=100),
+        comment="Task edition. Older task instances will have NULL and that "
+        "indicates UK English, 2012 version.",
+    )
+    task_address_version = CamcopsColumn(
+        "task_address_version",
+        String(length=1),
+        comment="Task version, determining the address for recall (A/B/C). "
+        "Older task instances will have NULL and that indicates version A.",
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=["A", "B", "C"]
+        ),
+    )
     age_at_leaving_full_time_education = Column(
         "age_at_leaving_full_time_education",
         Integer,
@@ -370,13 +386,13 @@ class Ace3(
         Integer,
         comment="Fluency, words beginning with P, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )
+    )  # type: Optional[int]
     fluency_animals_score = CamcopsColumn(
         "fluency_animals_score",
         Integer,
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )
+    )  # type: Optional[int]
     lang_follow_command_practice = CamcopsColumn(
         "lang_follow_command_practice",
         Integer,
@@ -388,25 +404,25 @@ class Ace3(
         Integer,
         comment="Language, read five irregular words (0 or 1)",
         permitted_value_checker=BIT_CHECKER,
-    )
+    )  # type: Optional[int]
     vsp_copy_infinity = CamcopsColumn(
         "vsp_copy_infinity",
         Integer,
         comment="Visuospatial, copy infinity (0-1)",
         permitted_value_checker=BIT_CHECKER,
-    )
+    )  # type: Optional[int]
     vsp_copy_cube = CamcopsColumn(
         "vsp_copy_cube",
         Integer,
         comment="Visuospatial, copy cube (0-2)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=2),
-    )
+    )  # type: Optional[int]
     vsp_draw_clock = CamcopsColumn(
         "vsp_draw_clock",
         Integer,
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
-    )
+    )  # type: Optional[int]
     picture1_blobid = CamcopsColumn(
         "picture1_blobid",
         Integer,
@@ -469,6 +485,13 @@ class Ace3(
         + VSP_SIMPLE_SCORE_FIELDS
         + strseq("mem_recall_address", 1, 7)
     )
+    MINI_ACE_FIELDS = (
+        strseq("attn_time", 1, 4)  # 4 points; not season
+        + ["fluency_animals_score"]  # 7 points
+        + strseq("mem_repeat_address_trial3_", 1, 7)  # 7 points
+        + ["vsp_draw_clock"]  # 5 points
+        + strseq("mem_recall_address", 1, 7)  # 7 points
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -480,11 +503,21 @@ class Ace3(
             TrackerInfo(
                 value=self.total_score(),
                 plot_label="ACE-III total score",
-                axis_label="Total score (out of 100)",
+                axis_label=f"Total score (out of {TOTAL_MAX})",
                 axis_min=-0.5,
-                axis_max=100.5,
+                axis_max=TOTAL_MAX + 0.5,
+                # Traditional cutoffs: ≤82, ≤88
                 horizontal_lines=[82.5, 88.5],
-            )
+            ),
+            TrackerInfo(
+                value=self.mini_ace_score(),
+                plot_label="Mini-ACE score",
+                axis_label=f"Mini-ACE score (out of {MINI_ACE_MAX})",
+                axis_min=-0.5,
+                axis_max=MINI_ACE_MAX + 0.5,
+                # Traditional cutoffs: ≤21, ≤25
+                horizontal_lines=[21.5, 25.5],
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -496,11 +529,13 @@ class Ace3(
         lang = self.lang_score()
         v = self.vsp_score()
         t = a + m + f + lang + v
+        mini = self.mini_ace_score()
         text = (
             f"ACE-III total: {t}/{TOTAL_MAX} "
             f"(attention {a}/{ATTN_MAX}, memory {m}/{MEMORY_MAX}, "
             f"fluency {f}/{FLUENCY_MAX}, language {lang}/{LANG_MAX}, "
-            f"visuospatial {v}/{VSP_MAX})"
+            f"visuospatial {v}/{VSP_MAX}, "
+            f"mini-ACE score {mini}/{MINI_ACE_MAX})"
         )
         return [CtvInfo(content=text)]
 
@@ -541,6 +576,12 @@ class Ace3(
                 coltype=Integer(),
                 value=self.vsp_score(),
                 comment=f"Visuospatial (/{VSP_MAX})",
+            ),
+            SummaryElement(
+                name="mini_ace",
+                coltype=Integer(),
+                value=self.mini_ace_score(),
+                comment=f"Mini-ACE (/{MINI_ACE_MAX})",
             ),
         ]
 
@@ -630,6 +671,9 @@ class Ace3(
             + self.vsp_score()
         )
 
+    def mini_ace_score(self) -> int:
+        return self.sum_fields(self.MINI_ACE_FIELDS)
+
     # noinspection PyUnresolvedReferences
     def is_recognition_complete(self) -> bool:
         return (
@@ -683,6 +727,7 @@ class Ace3(
         lang = self.lang_score()
         v = self.vsp_score()
         t = a + m + f + lang + v
+        mini = self.mini_ace_score()
         if self.is_complete():
             figsize = (
                 PlotDefaults.FULLWIDTH_PLOT_WIDTH / 3,
@@ -720,10 +765,13 @@ class Ace3(
                         <tr>
                             {self.get_is_complete_td_pair(req)}
                             <td class="{CssClass.FIGURE}"
-                                rowspan="7">{figurehtml}</td>
+                                rowspan="8">{figurehtml}</td>
                         </tr>
             """
-            + tr("Total ACE-III score <sup>[1]</sup>", answer(t) + " / 100")
+            + tr(
+                "Total ACE-III score <sup>[1]</sup>",
+                answer(t) + f" / {TOTAL_MAX}",
+            )
             + tr(
                 "Attention",
                 answer(a) + f" / {ATTN_MAX} ({percent(a, ATTN_MAX)}%)",
@@ -744,9 +792,22 @@ class Ace3(
                 "Visuospatial",
                 answer(v) + f" / {VSP_MAX} ({percent(v, VSP_MAX)}%)",
             )
+            + tr(
+                "Mini-ACE score <sup>[2]</sup>",
+                answer(mini) + f" / {MINI_ACE_MAX}",
+            )
             + f"""
                     </table>
                 </div>
+                <table class="{CssClass.TASKCONFIG}">
+                    <tr>
+                        <th width="75%">Task aspect</th>
+                        <th width="25%">Setting</td>
+                    </tr>
+            """
+            + tr_qa("Edition", self.task_edition)
+            + tr_qa("Version", self.task_address_version)
+            + f"""
                 <table class="{CssClass.TASKDETAIL}">
                     <tr>
                         <th width="75%">Question</th>
@@ -1089,6 +1150,11 @@ class Ace3(
                     specificity 0.89 for dementia, in a context of patients
                     with AlzD, FTD, LBD, MCI, and controls
                     (Mioshi et al., 2006, PMID 16977673).
+                    [2] In the mini-ACE, scores ≤21 had sensitivity 0.61 and
+                    specificity 1.0 for dementia, and scores ≤25 had
+                    sensitivity 0.85 and specificity 0.87 for dementia, in a
+                    context of patients with dementia and controls (Hsieh et
+                    al., 2015, PMID  25227877).
                 </div>
                 <div class="{CssClass.COPYRIGHT}">
                     ACE-III: Copyright © 2012, John Hodges.
@@ -1137,4 +1203,5 @@ class Ace3(
                     },
                 )
             )
+        # There's no mini-ACE code yet, as of 2022-12-01.
         return codes

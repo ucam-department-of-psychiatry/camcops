@@ -84,24 +84,14 @@ bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
         return false;
     }
 
-    if (!task->isTaskPermissible(failure_reason)) {
+    if (!task->isTaskPermissible(failure_reason)
+            || !task->isTaskUploadable(failure_reason)) {
         const QString reason = QString("%1<br><br>%2: %3").arg(
-            tr("You cannot complete this task with your current settings."),
+            tr("You cannot complete this task at this time."),
             tr("Current reason"),
             stringfunc::bold(failure_reason)
         );
         uifunc::alert(reason, tr("Not permitted to complete task"));
-        return false;
-    }
-
-    if (!task->isTaskUploadable(failure_reason) ||
-            !task->isTaskProperlyCreatable(failure_reason)) {
-        const QString reason = QString("%1<br><br>%2: %3").arg(
-            tr("You cannot complete this task."),
-            tr("Current reason"),
-            stringfunc::bold(failure_reason)
-        );
-        uifunc::alert(reason, tr("Unable to complete task"));
         return false;
     }
 

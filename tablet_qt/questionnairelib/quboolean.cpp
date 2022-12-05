@@ -49,7 +49,10 @@ QuBoolean::QuBoolean(const QString& text, const QString& filename,
     m_allow_unset(false),
     m_as_text_button(false),
     m_false_appears_blank(false),
-    m_indicator(nullptr)
+    m_indicator(nullptr),
+    m_text_widget_clickable(nullptr),
+    m_text_widget_plain(nullptr),
+    m_image_widget(nullptr)
 {
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -69,6 +72,38 @@ QuBoolean::QuBoolean(const QString& filename, const QSize& size,
                      FieldRefPtr fieldref) :
     QuBoolean("", filename, size, fieldref)  // delegating constructor
 {
+}
+
+
+QuBoolean* QuBoolean::setText(const QString& text)
+{
+    m_text = text;
+    m_image_filename = "";
+    m_image_size = QSize();
+
+    // Setting dynamically, if widgets have been created:
+    if (m_text_widget_clickable) {
+        m_text_widget_clickable->setText(text);
+    } else if (m_text_widget_plain) {
+        m_text_widget_plain->setText(text);
+    }
+
+    return this;
+}
+
+
+QuBoolean* QuBoolean::setImage(const QString& filename, const QSize& size)
+{
+    m_text = "";
+    m_image_filename = filename;
+    m_image_size = size;
+
+    // Setting dynamically, if widgets have been created:
+    if (m_image_widget) {
+        m_image_widget->setPixmap(getPixmap());
+    }
+
+    return this;
 }
 
 
@@ -142,6 +177,16 @@ QuBoolean* QuBoolean::setFalseAppearsBlank(const bool false_appears_blank)
 }
 
 
+QPixmap QuBoolean::getPixmap() const
+{
+    QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
+    if (m_adjust_image_for_dpi) {
+        image = image.scaled(convert::convertSizeByLogicalDpi(image.size()));
+    }
+    return image;
+}
+
+
 QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
 {
     const bool read_only = questionnaire->readOnly();
@@ -169,9 +214,11 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
             connect(label, &ClickableLabelWordWrapWide::clicked,
                     this, &QuBoolean::clicked);
             labelwidget = label;
+            m_text_widget_clickable = label;
         } else {
             auto label = new LabelWordWrapWide(m_text);
             labelwidget = label;
+            m_text_widget_plain = label;
         }
         const int fontsize = questionnaire->fontSizePt(
             m_big_text ? uiconst::FontSize::Big : uiconst::FontSize::Normal);
@@ -182,17 +229,15 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         // Image label (accompanying image)
         // --------------------------------------------------------------------
-        QPixmap image = uifunc::getPixmap(m_image_filename, m_image_size);
-        if (m_adjust_image_for_dpi) {
-            image = image.scaled(convert::convertSizeByLogicalDpi(image.size()));
-        }
-        auto label = new AspectRatioPixmap();
-        label->setPixmap(image);
+        QPixmap image = getPixmap();
+        auto imglabel = new AspectRatioPixmap();
+        imglabel->setPixmap(image);
         if (!read_only && m_content_clickable) {
-            connect(label, &AspectRatioPixmap::clicked,
+            connect(imglabel, &AspectRatioPixmap::clicked,
                     this, &QuBoolean::clicked);
         }
-        labelwidget = label;
+        labelwidget = imglabel;
+        m_image_widget = imglabel;
     }
     // otherwise... no label, just the indicator
 

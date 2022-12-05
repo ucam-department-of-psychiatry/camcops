@@ -140,6 +140,9 @@ bool anyNull(const QVector<QVariant>& values);
 // Are none of the values null?
 bool noneNull(const QVector<QVariant>& values);
 
+// Are all of the values null?
+bool allNull(const QVector<QVariant>& values);
+
 // Are any of the values null or empty strings?
 bool anyNullOrEmpty(const QVector<QVariant>& values);
 

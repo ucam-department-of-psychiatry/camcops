@@ -139,6 +139,8 @@ public:
     QVariant valueFromName(const QString& name,
                            const QVariant& default_ = QVariant()) const;
 
+    bool valuesMatch(const NameValueOptions& other) const;
+
 protected:
     // Return the name/value pair at the given (zero-based) index.
     // (That is: index within the UNCHANGING INTERNAL ORDERING, which is

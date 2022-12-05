@@ -181,6 +181,7 @@ public:
     // Writes to failure_reason only on failure.
     virtual bool isTaskUploadable(QString& failure_reason) const;
 
+protected:
     // Is there some barrier to creating the task, not dealt with already by
     // isTaskUploadable()? Reasons may include:
     // - the server strings are too old.
@@ -188,7 +189,6 @@ public:
     // Writes to failure_reason only on failure.
     virtual bool isTaskProperlyCreatable(QString& failure_reason) const;
 
-protected:
     // Used internally by isTaskCreatable(): are the server's strings
     // sufficiently recent? Writes to failure_reason only on failure.
     bool isServerStringVersionEnough(const Version& minimum_server_version,

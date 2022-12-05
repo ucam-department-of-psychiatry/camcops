@@ -225,8 +225,8 @@ bool Task::isCrippled() const
     QString failure_reason_dummy;
     return implementationType() == TaskImplementationType::Skeleton ||
             !hasExtraStrings() ||
-            !isTaskUploadable(failure_reason_dummy) ||
-            !isTaskProperlyCreatable(failure_reason_dummy);
+            !isTaskProperlyCreatable(failure_reason_dummy) ||
+            !isTaskUploadable(failure_reason_dummy);
 }
 
 
@@ -337,8 +337,13 @@ bool Task::isTaskPermissible(QString& failure_reason) const
             !hasExtraStrings()) {
         failure_reason = tr(
             "Task may not be created in 'skeleton' form "
-            "(strings not downloaded from server)."
+            "(strings need to be downloaded from server)."
         );
+        return false;
+    }
+
+    // Task doesn't have its data (e.g. strings present but too old)?
+    if (!isTaskProperlyCreatable(failure_reason)) {
         return false;
     }
 

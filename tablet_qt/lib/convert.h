@@ -258,13 +258,13 @@ QString numericVectorToCsvString(const QVector<T>& vec)
 
 
 // Converts a CSV string into an int vector.
-// (Duff values will be converted to 0.)
+// (Duff values will be converted to 0. Whitespace around commas is ignored.)
 QVector<int> csvStringToIntVector(const QString& str);
 
 // Converts a QStringList to CSV, encoding each string via stringToCppLiteral().
 QString qStringListToCsvString(const QStringList& vec);
 
-// Reverses csvStringToQStringList().
+// Reverses csvStringToQStringList(). Trims off whitespace.
 QStringList csvStringToQStringList(const QString& str);
 
 // ============================================================================

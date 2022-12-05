@@ -44,6 +44,9 @@ By John Hodges and colleagues.
 - Addenbrooke’s Cognitive Examination III (ACE-III): Hsieh et al. 2013,
   https://www.ncbi.nlm.nih.gov/pubmed/23949210.
 
+- Mini-ACE: Hsieh et al. 2015,
+  https://pubmed.ncbi.nlm.nih.gov/25227877/.
+
 
 Source
 ~~~~~~

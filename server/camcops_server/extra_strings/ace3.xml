@@ -14,22 +14,35 @@ research projects. There is no need to contact us if you wish to use the
 ACE-III in clinical practice.” (ACE-III FAQ, 7 July 2013,
 http://www.neura.edu.au/sites/neura.edu.au/files/page-downloads/ACE-III%20FAQ%20July%202013.pdf,
 accessed 2013-07-31.)
+
+Updated to 2017 edition, 2022-12-01, along with support for A/B/C versions.
 -->
+
+    <string name="edition">Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) (UK English version, 2017)</string>
+    <!-- Max 100 characters: -->
+    <string name="edition_short">ACE-III, UK English, 2017</string>
+    <!-- Task address versions available as a comma-separated list like "A" or "A,B,C". Always capital letters in sequence from A. -->
+    <string name="task_address_versions">A,B,C</string>
 
     <string name="cat_attn">Attention</string>
     <string name="cat_mem">Memory</string>
     <string name="cat_fluency">Fluency</string>
     <string name="cat_lang">Language</string>
     <string name="cat_vsp">Visuospatial</string>
+    <string name="mini_ace_score">Mini-ACE score</string>
+
     <string name="title_prefix">ACE-III, page</string>
     <string name="instruction_need_paper">You will need a pencil and paper, (a) for you to write their verbal fluency responses on, (b) for the instructions involving a physical pencil and paper, and (c) for the subject to draw shapes and clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
     <!-- <string name="q_tester">Tester’s name</string> -->
+    <string name="choose_task_version">Choose a task version (determining the address to be remembered):</string>
+    <string name="task_version">Task version:</string>
     <string name="preamble_instruction">Ask the patient:</string>
     <string name="q_age_leaving_fte">Age at leaving full-time education</string>
     <string name="q_occupation">Occupation</string>
     <string name="q_handedness">Handedness</string>
     <string name="left_handed">Left-handed</string>
     <string name="right_handed">Right-handed</string>
+
     <string name="attn_q_time">Ask: What is the</string>
     <string name="attn_time1">Day</string>
     <string name="attn_time2">Date</string>
@@ -58,11 +71,13 @@ accessed 2013-07-31.)
     <string name="attn_subtraction3">Third</string>
     <string name="attn_subtraction4">Fourth</string>
     <string name="attn_subtraction5">Fifth</string>
+
     <string name="mem_q_recall_words">Ask: “Which 3 words did I ask you to repeat and remember?”</string>
     <string name="mem_instruction_recall">Do not prompt the participant for the items.</string>
     <string name="mem_word1">lemon</string>
     <string name="mem_word2">key</string>
     <string name="mem_word3">ball</string>
+
     <string name="fluency_subhead_letters">Letters</string>
     <string name="fluency_q_letters">Say: “I’m going to give you a letter of the alphabet and I’d like you to generate as many words as you can beginning with that letter, but not names of people or places. For example, if I give you the letter ‘C’, you could give me words like ‘cat, cry, clock’ and so on. But, you can’t give me words like Catherine or Canada. Do you understand? Are you ready? You have one minute. The letter I want you to use is the letter ‘P’.”</string>
     <string name="fluency_subheading_animals">Animals</string>
@@ -72,22 +87,22 @@ accessed 2013-07-31.)
     <string name="fluency_prompt_animals_cor">Number of unique, correct animal words generated:</string>
     <string name="fluency_instruction_animals">Again, record the total number of animals that the participant generates. Then, count the total number of correct words, which do not include higher order categories when specific exemplars are given (e.g., “fish” followed by “salmon” and “trout” – total = 3; correct = 2). All types of animals are accepted, including insects, humans, prehistoric, extinct as well as mythical creatures (e.g., unicorn). If the participant misunderstands the instructions and perseverates by naming animals beginning with “p” (e.g., panda, possum, platypus etc), then reiterate to the participant that they should name animals beginning with any letter.</string>
     <!-- <string name="fluency_prompt_inc">Number of incorrect words generated</string> -->
+
     <string name="memory_q_address">Tell: “I’m going to give you a name and address and I’d like you to repeat the name and address after me. So you have a chance to learn, we’ll be doing that 3 times. I’ll ask you the name and address later.”</string>
     <string name="memory_instruction_address_1">If the participant starts repeating along with you, ask them to wait until you give it in full.</string>
     <string name="memory_instruction_address_2">Record all trials (but only the third is scored).</string>
     <string name="trial">Trial</string>
-    <string name="address_1">Harry</string>
-    <string name="address_2">Barnes</string>
-    <string name="address_3">73</string>
-    <string name="address_4">Orchard</string>
-    <string name="address_5">Close</string>
-    <string name="address_6">Kingsbridge</string>
-    <string name="address_7">Devon</string>
+    <!-- Addresses: see below -->
     <string name="famous_1">Name of the current Prime Minister</string>
-    <string name="famous_2">Name of the woman who was Prime Minister</string>
+    <!-- 2012 old version:
+        <string name="famous_2">Name of the woman who was Prime Minister</string>
+    -->
+    <!-- 2017 version: -->
+    <string name="famous_2">Name of the first female Prime Minister</string>
     <string name="famous_3">Name of the USA president</string>
     <string name="famous_4">Name of the USA president who was assassinated in the 1960s</string>
     <string name="instruction_famous">Allow surnames (e.g., “Obama”) and ask for a surname if only the first name is given (e.g., “Maggie”). If the full name given is incorrect (e.g., “June Thatcher”), then the score would be 0. If there has been a recent change in leaders, probe for the name of the outgoing politician.</string>
+
     <string name="lang_q_command_1">Place a pencil and a piece of paper in front of the subject. As a practice trial, ask the subject to:</string>
     <string name="lang_command_practice">“Pick up the pencil and then the paper.”</string>
     <string name="lang_command1">“Place the paper on top of the pencil.”</string>
@@ -126,6 +141,7 @@ accessed 2013-07-31.)
     <string name="lang_instruction_read_aloud">Record the mistakes using the phonetic alphabet, if possible.</string>
     <string name="lang_read_aloud_words">sew\npint\nsoot\ndough\nheight\n</string>
     <string name="lang_read_aloud_all_correct">All correct?</string>
+
     <string name="vsp_q_infinity">Infinity diagram: Ask the subject to copy this diagram:</string>
     <string name="vsp_infinity_correct">Infinity diagram correct?</string>
     <string name="vsp_q_cube">Wire cube: Ask the subject to copy this drawing (for scoring, see page 6 or the administration/scoring guide).</string>
@@ -135,28 +151,132 @@ accessed 2013-07-31.)
     <string name="vsp_score_clock">Score clock (see page 6 or the administration/scoring guide; circle = 1, numbers = 2, hands = 2 if all correct):</string>
     <string name="vsp_q_dots">Ask the subject to count the dots without pointing to them:</string>
     <string name="vsp_q_letters">Ask the subject to identify the letters</string>
+
     <string name="mem_q_recall_address">Ask: “Now tell me what you remember about that name and address we were repeating at the beginning.”</string>
     <string name="mem_q_recognize_address">Test items not recalled by telling the subject “ok, I’ll give you some hints: was the name X, Y or Z?” and so on.</string>
-    <string name="mem_recall_option1_line1">Jerry Barnes</string>
-    <string name="mem_recall_option2_line1">Harry Barnes</string>
-    <string name="mem_recall_option3_line1">Harry Bradford</string>
-    <string name="mem_recall_option1_line2">37</string>
-    <string name="mem_recall_option2_line2">73</string>
-    <string name="mem_recall_option3_line2">76</string>
-    <string name="mem_recall_option1_line3">Orchard Place</string>
-    <string name="mem_recall_option2_line3">Oak Close</string>
-    <string name="mem_recall_option3_line3">Orchard Close</string>
-    <string name="mem_recall_option1_line4">Oakhampton</string>
-    <string name="mem_recall_option2_line4">Kingsbridge</string>
-    <string name="mem_recall_option3_line4">Dartington</string>
-    <string name="mem_recall_option1_line5">Devon</string>
-    <string name="mem_recall_option2_line5">Dorset</string>
-    <string name="mem_recall_option3_line5">Somerset</string>
+    <!-- Addresses: see below -->
     <string name="no_need_for_extra_recall">Nothing to do here (subject has already recalled everything).</string>
+
     <string name="picture1_q">Picture 1 of 2</string>
     <string name="picture2_q">Picture 2 of 2</string>
     <string name="picture_instruction1">Finally, please take up to 2 photos of the subject’s test sheet.</string>
     <string name="picture_instruction2">Include (a) words generated beginning with P, (b) animals generated, (c) subject’s two sentences, (d) infinity, (e) cube, (f) clock.</string>
+
+    <!-- Addresses, for each of the task address versions (e.g. A,B,C) listed in task_address_versions above: -->
+    <string name="task_A_target_address_1">Harry</string>
+    <string name="task_A_target_address_2">Barnes</string>
+    <string name="task_A_target_address_3">73</string>
+    <string name="task_A_target_address_4">Orchard</string>
+    <string name="task_A_target_address_5">Close</string>
+    <string name="task_A_target_address_6">Kingsbridge</string>
+    <string name="task_A_target_address_7">Devon</string>
+
+    <string name="task_A_address_recall_line_1_option_1">Jerry Barnes</string>
+    <string name="task_A_address_recall_line_1_option_2">Harry Barnes</string>
+    <string name="task_A_address_recall_line_1_option_3">Harry Bradford</string>
+
+    <string name="task_A_address_recall_line_2_option_1">37</string>
+    <string name="task_A_address_recall_line_2_option_2">73</string>
+    <string name="task_A_address_recall_line_2_option_3">76</string>
+
+    <string name="task_A_address_recall_line_3_option_1">Orchard Place</string>
+    <string name="task_A_address_recall_line_3_option_2">Oak Close</string>
+    <string name="task_A_address_recall_line_3_option_3">Orchard Close</string>
+
+    <string name="task_A_address_recall_line_4_option_1">Oakhampton</string>
+    <string name="task_A_address_recall_line_4_option_2">Kingsbridge</string>
+    <string name="task_A_address_recall_line_4_option_3">Dartington</string>
+
+    <string name="task_A_address_recall_line_5_option_1">Devon</string>
+    <string name="task_A_address_recall_line_5_option_2">Dorset</string>
+    <string name="task_A_address_recall_line_5_option_3">Somerset</string>
+
+    <string name="task_A_address_recall_correct_options">2,2,3,2,1</string>
+
+    <string name="task_B_target_address_1">Linda</string>
+    <string name="task_B_target_address_2">Clark</string>
+    <string name="task_B_target_address_3">59</string>
+    <string name="task_B_target_address_4">Meadow</string>
+    <string name="task_B_target_address_5">Close</string>
+    <string name="task_B_target_address_6">Milford</string>
+    <string name="task_B_target_address_7">Surrey</string>
+
+    <string name="task_B_address_recall_line_1_option_1">Laura Marshall</string>
+    <string name="task_B_address_recall_line_1_option_2">Linda Clark</string>
+    <string name="task_B_address_recall_line_1_option_3">Linda Crawford</string>
+
+    <string name="task_B_address_recall_line_2_option_1">39</string>
+    <string name="task_B_address_recall_line_2_option_2">52</string>
+    <string name="task_B_address_recall_line_2_option_3">59</string>
+
+    <string name="task_B_address_recall_line_3_option_1">Meadow Close</string>
+    <string name="task_B_address_recall_line_3_option_2">Gardens Close</string>
+    <string name="task_B_address_recall_line_3_option_3">Meadow Street</string>
+
+    <string name="task_B_address_recall_line_4_option_1">Leatherhead</string>
+    <string name="task_B_address_recall_line_4_option_2">Milford</string>
+    <string name="task_B_address_recall_line_4_option_3">Redhill</string>
+
+    <string name="task_B_address_recall_line_5_option_1">Hampshire</string>
+    <string name="task_B_address_recall_line_5_option_2">Sussex</string>
+    <string name="task_B_address_recall_line_5_option_3">Surrey</string>
+
+    <string name="task_B_address_recall_correct_options">2,3,1,2,3</string>
+
+    <string name="task_C_target_address_1">John</string>
+    <string name="task_C_target_address_2">Marshall</string>
+    <string name="task_C_target_address_3">24</string>
+    <string name="task_C_target_address_4">Market</string>
+    <string name="task_C_target_address_5">Street</string>
+    <string name="task_C_target_address_6">Spilsby</string>
+    <string name="task_C_target_address_7">Lincolnshire</string>
+
+    <string name="task_C_address_recall_line_1_option_1">John Simons</string>
+    <string name="task_C_address_recall_line_1_option_2">John Marshall</string>
+    <string name="task_C_address_recall_line_1_option_3">Joseph Marshall</string>
+
+    <string name="task_C_address_recall_line_2_option_1">42</string>
+    <string name="task_C_address_recall_line_2_option_2">28</string>
+    <string name="task_C_address_recall_line_2_option_3">24</string>
+
+    <string name="task_C_address_recall_line_3_option_1">Market Street</string>
+    <string name="task_C_address_recall_line_3_option_2">High Street</string>
+    <string name="task_C_address_recall_line_3_option_3">Market Square</string>
+
+    <string name="task_C_address_recall_line_4_option_1">Spilsby</string>
+    <string name="task_C_address_recall_line_4_option_2">Horncastle</string>
+    <string name="task_C_address_recall_line_4_option_3">Sleaford</string>
+
+    <string name="task_C_address_recall_line_5_option_1">Northamptonshire</string>
+    <string name="task_C_address_recall_line_5_option_2">Lincolnshire</string>
+    <string name="task_C_address_recall_line_5_option_3">Leicestershire</string>
+
+    <string name="task_C_address_recall_correct_options">2,3,1,1,2</string>
+
+    <!-- OLD, prior to 2022-12-01, single "A" version:
+        <string name="address_1">Harry</string>
+        <string name="address_2">Barnes</string>
+        <string name="address_3">73</string>
+        <string name="address_4">Orchard</string>
+        <string name="address_5">Close</string>
+        <string name="address_6">Kingsbridge</string>
+        <string name="address_7">Devon</string>
+        <string name="mem_recall_option1_line1">Jerry Barnes</string>
+        <string name="mem_recall_option2_line1">Harry Barnes</string>
+        <string name="mem_recall_option3_line1">Harry Bradford</string>
+        <string name="mem_recall_option1_line2">37</string>
+        <string name="mem_recall_option2_line2">73</string>
+        <string name="mem_recall_option3_line2">76</string>
+        <string name="mem_recall_option1_line3">Orchard Place</string>
+        <string name="mem_recall_option2_line3">Oak Close</string>
+        <string name="mem_recall_option3_line3">Orchard Close</string>
+        <string name="mem_recall_option1_line4">Oakhampton</string>
+        <string name="mem_recall_option2_line4">Kingsbridge</string>
+        <string name="mem_recall_option3_line4">Dartington</string>
+        <string name="mem_recall_option1_line5">Devon</string>
+        <string name="mem_recall_option2_line5">Dorset</string>
+        <string name="mem_recall_option3_line5">Somerset</string>
+    -->
 
   </task>
 </resources>
