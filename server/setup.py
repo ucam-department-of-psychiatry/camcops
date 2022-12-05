@@ -95,13 +95,13 @@ INSTALL_REQUIRES = [
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-    "numpy==1.21.5",  # Used by some tasks. SLOW INSTALLATION.
+    "numpy==1.23.5",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
     "pendulum==2.1.2",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
-    "py==1.10.0",  # dependency, pinned to avoid CVE-2020-29651
+    "py==1.11.0",  # dependency, pinned to avoid CVE-2020-29651
     "pycap==1.1.1",  # REDCap integration
     "Pillow==9.0.1",  # used by a dependency; pin for security warnings
     "Pygments==2.13.0",  # Syntax highlighting for introspection/DDL
@@ -110,15 +110,15 @@ INSTALL_REQUIRES = [
     "pyotp==2.6.0",  # Multi-factor authentication
     "pyramid==1.10.8",  # web framework
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
-    "pytest==6.0.2",  # automatic testing
+    "pytest==7.2.0",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
     "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
-    "scipy==1.5.4",  # used by some tasks. slow installation.
+    "scipy==1.9.3",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.3.24",  # database access
-    "statsmodels==0.11.1",  # e.g. logistic regression
+    "statsmodels==0.13.5",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.7",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
@@ -195,9 +195,9 @@ setup(
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
     ],
     keywords="cardinal",

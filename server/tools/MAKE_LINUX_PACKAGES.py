@@ -84,6 +84,7 @@ from cardinal_pythonlib.logs import (
     main_only_quicksetup_rootlogger,
 )
 from rich_argparse import RawDescriptionRichHelpFormatter
+from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
@@ -247,9 +248,9 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
+        python3.10 python310
         python3.9 python39
         python3.8 python38
-        python3.7 python37
         python3
         python
     )
@@ -550,7 +551,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.7, <= 3.9
+X-Python3-Version: >= 3.8, <= 3.10
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
@@ -1047,7 +1048,37 @@ def build_package() -> None:
     # fail-in-warnings has gone in 2.62.0
     # It isn't clear if lintian now exits with 0 on warnings (the previous
     # default). Future versions seems to have a more flexible --fail-on option
-    call(["lintian", PACKAGENAME])
+
+    # The package called 'python' is gone from Ubuntu >= 22.04. We only need
+    # python3. If we don't make 'python' a dependency, Lintian will complain
+    # with the tag 'python-script-but-no-python-dep'. To complicate things
+    # further, later versions of Lintian don't have this tag and it will
+    # abort if given an unknown tag to skip. Easiest thing to do is test
+    # for the feature before checking... and the name of the command to do this
+    # is different in later versions of Lintian :(
+    lintian_args = ["lintian", PACKAGENAME]
+
+    lintian_version = Version.coerce(
+        subprocess.check_output(["lintian", "--print-version"]).decode("utf-8")
+    )
+    if lintian_version >= Version(major=2, minor=92, patch=0):
+        tags_command = "lintian-explain-tags"
+    else:
+        tags_command = "lintian-info"
+
+    known_tags = set(
+        subprocess.check_output([tags_command, "-l"]).decode("utf-8").split()
+    )
+    tags_to_suppress = set(["python-script-but-no-python-dep"]) & known_tags
+
+    if tags_to_suppress:
+        lintian_args += ["--suppress-tags", ",".join(tags_to_suppress)]
+
+    # Will wrongly generate a warning because of the comment in the prerm
+    # script
+    # tag: uses-dpkg-database-directly
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=995253
+    call(lintian_args)
 
     log.info("Converting to RPM")
     call(
