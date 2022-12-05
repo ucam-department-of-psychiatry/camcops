@@ -3706,4 +3706,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.15, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Fix Debian package install on Ubuntu 22.04.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/239
+
+- **Minimum Python version now Python 3.8.**
+
 - Rich text for help.

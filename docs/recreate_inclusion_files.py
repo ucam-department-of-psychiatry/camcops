@@ -162,6 +162,13 @@ def main():
     # -------------------------------------------------------------------------
     # Argument parser
     # -------------------------------------------------------------------------
+    if sys.version_info >= (3, 9):
+        # TODO: Newer versions will change the formatting of help text
+        # possibly for the better. Needs investigating.
+        raise AssertionError(
+            "This script currently needs to be run with Python < 3.9."
+        )
+
     parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--skip_client_help",

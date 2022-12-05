@@ -35,11 +35,13 @@ Python v3.7 was required as of CamCOPS v2.4.12, 2021. That enables:
 
 - dataclasses (v3.7)
 
-Not yet available:
+Python 3.8 was required as of CamCOPS v2.4.15, 2022. That enables:
 
 - assignment expressions, the "walrus" operator, ``:=`` (v3.8)
 - positional-only parameters, ``/`` (v3.8)
 - f-string ``=`` syntax to debug a variable (v3.8)
+
+Not yet available:
 
 - new dictionary merge/update syntax (v3.9)
 - string prefix/suffix removal functions (v3.9)
@@ -70,7 +72,7 @@ and separately (not necessarily within a CamCOPS virtual environment) in
 
 import sys
 
-MINIMUM_PYTHON_VERSION = (3, 7)
+MINIMUM_PYTHON_VERSION = (3, 8)
 
 
 def assert_minimum_python_version():
