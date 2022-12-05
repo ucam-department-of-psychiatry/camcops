@@ -34,7 +34,7 @@ import cardinal_pythonlib.rnc_web as ws
 import numpy
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
+from sqlalchemy.sql.sqltypes import Boolean, Integer, String, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
@@ -45,6 +45,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
     answer,
+    get_yes_no_none,
     italic,
     subheading_spanning_two_columns,
     tr,
@@ -361,6 +362,13 @@ class Ace3(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
+    )
+    remote_administration = CamcopsColumn(
+        "remote_administration",
+        Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Task performed using remote (videoconferencing) "
+        "administration?",
     )
     age_at_leaving_full_time_education = Column(
         "age_at_leaving_full_time_education",
@@ -807,6 +815,10 @@ class Ace3(
             """
             + tr_qa("Edition", self.task_edition)
             + tr_qa("Version", self.task_address_version)
+            + tr_qa(
+                "Remote administration?",
+                get_yes_no_none(self, self.remote_administration),
+            )
             + f"""
                 <table class="{CssClass.TASKDETAIL}">
                     <tr>
@@ -954,8 +966,8 @@ class Ace3(
                 self.lang_follow_command3,
             )
             + tr(
-                "Sentence-writing: point for ≥2 complete sentences about "
-                "the one topic? Point for correct grammar and spelling?",
+                "Sentence-writing: point for 2 complete sentences? "
+                "Point for correct grammar and spelling?",
                 ", ".join(
                     answer(x)
                     for x in (
