@@ -3643,8 +3643,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New config option :ref:`SESSION_CHECK_USER_IP <SESSION_CHECK_USER_IP>` to
   check the user's IP address against the previously stored value on every
-  request. There are cases where this may be undesireable if a user's IP address
-  changes before the session timeout is reached.
+  request. There are cases where this may be undesireable if a user's IP
+  address changes before the session timeout is reached.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/226
 
 
@@ -3664,21 +3664,24 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/psf/black/issues/315;
   https://black.readthedocs.io/en/stable/faq.html.
 
-- Change ``CELERY_WORKER_EXTRA_ARGS`` ``--maxtasksperchild`` to ``--max-tasks-per-child``
-  following removal of --maxtasksperchild in Celery 5.0.
+- Change ``CELERY_WORKER_EXTRA_ARGS`` ``--maxtasksperchild`` to
+  ``--max-tasks-per-child`` following removal of --maxtasksperchild in Celery
+  5.0.
 
 - **New task:** :ref:`Eating Disorder Examination Questionnaire (EDE-Q)
   <edeq>`. (Database revision 0072.)
 
-- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire (ISAAQ)
-  <isaaq>`. (Database revision 0073.)
+- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire
+  (ISAAQ) <isaaq>`. (Database revision 0073.)
 
-- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire, Easting Disorders Appendix (ISAAQ-ED)
-  <isaaqed>`. (Database revision 0074.)
+- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire,
+  Eating Disorders Appendix (ISAAQ-ED) <isaaqed>`. (Database revision 0074.)
 
-- **New task:** :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`. (Database revision 0075.)
+- **New task:** :ref:`The Clinical Impairment Assessment questionnaire (CIA)
+  <cia>`. (Database revision 0075.)
 
-- **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
+- **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in
+  Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
 
 
 **Server v2.4.14, released 17 Nov 2022**
@@ -3687,7 +3690,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix RPM build to work with Python 3.8 and RHEL 8.
 
 - Command ``camcops_server demo_apache_config`` now defaults to the server
-  being hosted at (e.g.) ``https://camcops.example.com/`` instead of ``https://camcops.example.com/camcops``. There is now a ``--path`` argument to generate the demo Apache config file for a particular location. For the old behaviour: ``camcops_server demo_apache_config --path camcops``
+  being hosted at (e.g.) ``https://camcops.example.com/`` instead of
+  ``https://camcops.example.com/camcops``. There is now a ``--path`` argument
+  to generate the demo Apache config file for a particular location. For the
+  old behaviour: ``camcops_server demo_apache_config --path camcops``
 
 - Installer for CamCOPS running within Docker
 
@@ -3704,3 +3710,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/239
 
 - **Minimum Python version now Python 3.8.**
+
+- Rich text for help.

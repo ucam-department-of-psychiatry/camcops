@@ -31,7 +31,7 @@ For developer use only.
 
 """
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser
 import logging
 from os import environ, pardir
 from os.path import abspath, dirname, join
@@ -44,6 +44,7 @@ from cardinal_pythonlib.logs import (
 from cardinal_pythonlib.sqlalchemy.alembic_func import (
     create_database_migration_numbered_style,
 )
+from rich_argparse import RawDescriptionRichHelpFormatter
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
@@ -100,7 +101,7 @@ def main() -> None:
     )
     # noinspection PyTypeChecker
     parser = ArgumentParser(
-        description=wrapped, formatter_class=RawDescriptionHelpFormatter
+        description=wrapped, formatter_class=RawDescriptionRichHelpFormatter
     )
     parser.add_argument("message", help="Revision message")
     parser.add_argument("--verbose", action="store_true", help="Be verbose")

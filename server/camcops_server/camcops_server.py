@@ -29,11 +29,7 @@ camcops_server/camcops_server.py
 
 """
 
-from argparse import (
-    ArgumentParser,
-    ArgumentDefaultsHelpFormatter,
-    RawDescriptionHelpFormatter,
-)
+from argparse import ArgumentParser
 import linecache
 import logging
 import os
@@ -62,6 +58,10 @@ from cardinal_pythonlib.sqlalchemy.dialect import (
 )
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedConfig
+from rich_argparse import (
+    ArgumentDefaultsRichHelpFormatter,
+    RawDescriptionRichHelpFormatter,
+)
 
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
@@ -564,7 +564,7 @@ def add_sub(
         cmd,
         help=help,
         description=description,
-        formatter_class=ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )  # type: ArgumentParser
 
     # This needs to be in the top-level parser and the sub-parsers (it does not
@@ -649,7 +649,7 @@ def camcops_main() -> int:
             f"Use 'camcops_server <COMMAND> --help' for more detail on each "
             f"command."
         ),
-        formatter_class=RawDescriptionHelpFormatter,
+        formatter_class=RawDescriptionRichHelpFormatter,
         # add_help=False  # only do this if manually overriding the method
     )
 

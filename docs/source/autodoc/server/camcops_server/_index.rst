@@ -115,6 +115,7 @@ server/camcops_server
     cc_modules/cc_alembic.py.rst
     cc_modules/cc_all_models.py.rst
     cc_modules/cc_anon.py.rst
+    cc_modules/cc_argparse.py.rst
     cc_modules/cc_audit.py.rst
     cc_modules/cc_baseconstants.py.rst
     cc_modules/cc_blob.py.rst

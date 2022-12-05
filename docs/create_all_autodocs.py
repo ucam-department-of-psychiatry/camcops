@@ -38,6 +38,7 @@ from cardinal_pythonlib.logs import (
     main_only_quicksetup_rootlogger,
 )
 from cardinal_pythonlib.sphinxtools import AutodocIndex, AutodocMethod
+from rich_argparse import RichHelpFormatter
 
 from camcops_server.cc_modules.cc_pythonversion import (
     assert_minimum_python_version,
@@ -184,7 +185,7 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--make",
         action="store_true",
