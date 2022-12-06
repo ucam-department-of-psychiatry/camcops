@@ -141,8 +141,8 @@ const QString TAG_PG_MEM_FREE_RECALL(QStringLiteral("pg_mem_free_recall"));
 const QString TAG_PG_MEM_RECOGNITION(QStringLiteral("pg_mem_recog"));
 const QString TAG_EL_CHOOSE_TASK_VERSION(QStringLiteral("choose_addr_version"));
 const QString TAG_EL_SHOW_TASK_VERSION(QStringLiteral("show_addr_version"));
-const QString TAG_REMOTE_INSTRUCTION(QStringLiteral("remote_instr"));
-const QString TAG_STANDARD_INSTRUCTION(QStringLiteral("std_instr"));
+const QString TAG_REMOTE(QStringLiteral("remote_instr"));
+const QString TAG_STANDARD(QStringLiteral("std_instr"));
 const QString TAG_EL_LANG_OPTIONAL_COMMAND(QStringLiteral("lang_optional_command"));
 const QString TAG_EL_LANG_NOT_SHOWN(QStringLiteral("lang_not_shown"));
 const QString TAG_RECOG_REQUIRED(QStringLiteral("recog_required"));
@@ -437,6 +437,12 @@ OpenableWidget* Ace3::editor(const bool read_only)
     auto explanation = [this](const QString& stringname) -> QuElement* {
         return (new QuText(xstring(stringname)))->setItalic();
     };
+    auto stdExplan = [explanation](const QString& stringname) -> QuElement* {
+        return explanation(stringname)->addTag(TAG_STANDARD);
+    };
+    auto remExplan = [explanation](const QString& stringname) -> QuElement* {
+        return explanation(stringname)->addTag(TAG_REMOTE);
+    };
     auto heading = [this](const QString& stringname) -> QuElement* {
         return new QuHeading(xstring(stringname));
     };
@@ -449,11 +455,11 @@ OpenableWidget* Ace3::editor(const bool read_only)
     auto instruction = [this, instructionRaw](const QString& stringname) -> QuElement* {
         return instructionRaw(xstring(stringname));
     };
-    auto stdInstruct = [this, instruction](const QString& stringname) -> QuElement* {
-        return instruction(stringname)->addTag(TAG_STANDARD_INSTRUCTION);
+    auto stdInstruct = [instruction](const QString& stringname) -> QuElement* {
+        return instruction(stringname)->addTag(TAG_STANDARD);
     };
-    auto remoteInstruct = [this, instruction](const QString& stringname) -> QuElement* {
-        return instruction(stringname)->addTag(TAG_REMOTE_INSTRUCTION);
+    auto remInstruct = [instruction](const QString& stringname) -> QuElement* {
+        return instruction(stringname)->addTag(TAG_REMOTE);
     };
     auto boolean = [this](const QString& stringname, const QString& fieldname,
                           bool mandatory = true,
@@ -487,7 +493,6 @@ OpenableWidget* Ace3::editor(const bool read_only)
     QuPagePtr page_preamble(
         (new QuPage{
             heading(QStringLiteral("edition")),
-            instruction(QStringLiteral("instruction_need_paper")),
             getClinicianQuestionnaireBlockRawPointer(),
             instruction(QStringLiteral("choose_task_version")),
             questionnairefunc::defaultGridRawPointer({
@@ -503,7 +508,15 @@ OpenableWidget* Ace3::editor(const bool read_only)
                         ->addTag(TAG_EL_SHOW_TASK_VERSION)
                         ->setVisible(false)
                 },
+                {
+                     "",
+                     boolean(QStringLiteral("q_remote"), FN_REMOTE_ADMINISTRATION)
+                },
             }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
+            remInstruct(QStringLiteral("instruction_remote_read_first")),
+            stdInstruct(QStringLiteral("instruction_need_paper")),
+            remInstruct(QStringLiteral("instruction_need_paper_remote")),
+            remInstruct(QStringLiteral("instruction_remote_camera_to_participant")),
             instruction(QStringLiteral("preamble_instruction")),
             questionnairefunc::defaultGridRawPointer({
                 {
@@ -758,18 +771,24 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_commands_sentences(( new QuPage{
         heading(QStringLiteral("cat_lang")),
-        explanation(QStringLiteral("lang_q_command_1")),
+        stdInstruct(QStringLiteral("lang_q_command_1")),
+        remInstruct(QStringLiteral("lang_q_command_1_remote")),
         boolean(QStringLiteral("lang_command_practice"), FN_LANG_FOLLOW_CMD_PRACTICE, true, true),
-        explanation(QStringLiteral("lang_q_command_2")),
+        stdExplan(QStringLiteral("lang_q_command_2")),
+        remExplan(QStringLiteral("lang_q_command_2_remote")),
         boolean(QStringLiteral("lang_command1"), strnum(FP_LANG_FOLLOW_CMD, 1), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         boolean(QStringLiteral("lang_command2"), strnum(FP_LANG_FOLLOW_CMD, 2), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         boolean(QStringLiteral("lang_command3"), strnum(FP_LANG_FOLLOW_CMD, 3), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         warning(tr("Other commands not shown; subject failed practice trial."))
                                             ->addTag(TAG_EL_LANG_NOT_SHOWN),
         heading(QStringLiteral("cat_lang")),
+        remInstruct(QStringLiteral("lang_instruction_remote_keep_paper")),
+        // ... explicitly before the sentence section in the original
+        remInstruct(QStringLiteral("lang_instruction_remote_camera_to_paper")),
         instruction(QStringLiteral("lang_q_sentences")),
         boolean(QStringLiteral("lang_sentences_point1"), strnum(FP_LANG_WRITE_SENTENCES_POINT, 1)),
         boolean(QStringLiteral("lang_sentences_point2"), strnum(FP_LANG_WRITE_SENTENCES_POINT, 2)),
+        remInstruct(QStringLiteral("lang_instruction_remote_remove_paper")),
     })
         ->setTitle(makeTitle(tr("Commands; writing sentences")))
         ->addTag(TAG_PG_LANG_COMMANDS_SENTENCES)
@@ -816,7 +835,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
     QuPagePtr page_name_pictures((new QuPage{
         // Naming pictures
         heading(QStringLiteral("cat_lang")),
-        instruction(QStringLiteral("lang_q_identify_pic")),
+        remInstruct(QStringLiteral("lang_instruction_remote_share_screen")),
+        stdInstruct(QStringLiteral("lang_q_identify_pic")),
+        remInstruct(QStringLiteral("lang_q_identify_pic_remote")),
         new QuGridContainer(3, {
             boolimg(IMAGE_SPOON, strnum(FP_LANG_NAME_PICTURE, 1)),
             boolimg(IMAGE_BOOK, strnum(FP_LANG_NAME_PICTURE, 2)),
@@ -832,11 +853,16 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolimg(IMAGE_ACCORDION, strnum(FP_LANG_NAME_PICTURE, 12)),
         }),
         // Choosing pictures by concept
-        instruction(QStringLiteral("lang_q_identify_concept")),
-        boolean(QStringLiteral("lang_concept1"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1)),
-        boolean(QStringLiteral("lang_concept2"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2)),
-        boolean(QStringLiteral("lang_concept3"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3)),
-        boolean(QStringLiteral("lang_concept4"), strnum(FP_LANG_IDENTIFY_CONCEPT, 4)),
+        stdInstruct(QStringLiteral("lang_q_identify_concept")),
+        remInstruct(QStringLiteral("lang_q_identify_concept_remote")),
+        boolean(QStringLiteral("lang_concept1"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept2"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept3"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept4"), strnum(FP_LANG_IDENTIFY_CONCEPT, 4))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept1_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1))->addTag(TAG_REMOTE),
+        boolean(QStringLiteral("lang_concept2_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2))->addTag(TAG_REMOTE),
+        boolean(QStringLiteral("lang_concept3_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3))->addTag(TAG_REMOTE),
+        boolean(QStringLiteral("lang_concept4_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 4))->addTag(TAG_REMOTE),
         explanation(QStringLiteral("lang_instruction_identify_concept")),
     })
         ->setTitle(makeTitle(tr("Naming pictures")))
@@ -852,12 +878,13 @@ OpenableWidget* Ace3::editor(const bool read_only)
     QuPagePtr page_read_words_aloud((new QuPage{
         // Reading irregular words aloud
         heading(QStringLiteral("cat_lang")),
-        instruction(QStringLiteral("lang_q_read_aloud")),
+        stdInstruct(QStringLiteral("lang_q_read_aloud")),
+        remInstruct(QStringLiteral("lang_q_read_aloud_remote")),
         new QuSpacer(),
         subheading(QStringLiteral("lang_read_aloud_words")),  // the words
         new QuSpacer(),
         boolean(QStringLiteral("lang_read_aloud_all_correct"), FN_LANG_READ_WORDS_ALOUD),
-        explanation(QStringLiteral("lang_instruction_read_aloud")),
+        stdExplan(QStringLiteral("lang_instruction_read_aloud")),
     })
         ->setTitle(makeTitle(tr("Reading irregular words")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
@@ -868,7 +895,8 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_infinity((new QuPage{
         heading(QStringLiteral("cat_vsp")),
-        instruction(QStringLiteral("vsp_q_infinity")),
+        stdInstruct(QStringLiteral("vsp_q_infinity")),
+        remInstruct(QStringLiteral("vsp_q_infinity_remote")),
         new QuImage(uifunc::resourceFilename(IMAGE_INFINITY)),
         boolean(QStringLiteral("vsp_infinity_correct"), FN_VSP_COPY_INFINITY),
     })
@@ -881,7 +909,8 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     const NameValueOptions options_cube = NameValueOptions::makeNumbers(0, 2);
     QuPagePtr page_cube((new QuPage{
-        instruction(QStringLiteral("vsp_q_cube")),
+        stdInstruct(QStringLiteral("vsp_q_cube")),
+        remInstruct(QStringLiteral("vsp_q_cube_remote")),
         new QuImage(uifunc::resourceFilename(IMAGE_CUBE)),
         text(QStringLiteral("vsp_score_cube")),
         (new QuMcq(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
@@ -895,7 +924,8 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     const NameValueOptions options_clock = NameValueOptions::makeNumbers(0, 5);
     QuPagePtr page_clock((new QuPage{
-        instruction(QStringLiteral("vsp_q_clock")),
+        stdInstruct(QStringLiteral("vsp_q_clock")),
+        remInstruct(QStringLiteral("vsp_q_clock_remote")),
         explanation(QStringLiteral("vsp_instruction_clock")),
         text(QStringLiteral("vsp_score_clock")),
         (new QuMcq(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
@@ -909,7 +939,8 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_dots((new QuPage{
         heading(QStringLiteral("cat_vsp")),
-        instruction(QStringLiteral("vsp_q_dots")),
+        stdInstruct(QStringLiteral("vsp_q_dots")),
+        remInstruct(QStringLiteral("vsp_q_dots_remote")),
         new QuGridContainer(2, {
             boolimg(IMAGE_DOTS8, strnum(FP_VSP_COUNT_DOTS, 1)),
             boolimg(IMAGE_DOTS10, strnum(FP_VSP_COUNT_DOTS, 2)),
@@ -929,7 +960,8 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_letters((new QuPage{
         heading(QStringLiteral("cat_vsp")),
-        instruction(QStringLiteral("vsp_q_letters")),
+        stdInstruct(QStringLiteral("vsp_q_letters")),
+        remInstruct(QStringLiteral("vsp_q_letters_remote")),
         new QuGridContainer(2, {
             boolimg(IMAGE_K, strnum(FP_VSP_IDENTIFY_LETTER, 1)),
             boolimg(IMAGE_M, strnum(FP_VSP_IDENTIFY_LETTER, 2)),
@@ -1538,12 +1570,12 @@ void Ace3::showStandardOrRemoteInstructions()
     const bool remote = valueBool(FN_REMOTE_ADMINISTRATION);
     const bool standard = !remote;
     const QVector<QuElement*> standard_elements =
-            m_questionnaire->getElementsByTag(TAG_STANDARD_INSTRUCTION, false);
+            m_questionnaire->getElementsByTag(TAG_STANDARD, false);
     for (auto e : standard_elements) {
         e->setVisible(standard);
     }
     const QVector<QuElement*> remote_elements =
-            m_questionnaire->getElementsByTag(TAG_REMOTE_INSTRUCTION, false);
+            m_questionnaire->getElementsByTag(TAG_REMOTE, false);
     for (auto e : remote_elements) {
         e->setVisible(remote);
     }
