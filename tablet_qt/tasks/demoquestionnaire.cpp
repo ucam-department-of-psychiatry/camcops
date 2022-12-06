@@ -408,42 +408,42 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuGridContainer{
             QuGridCell(new QuVerticalContainer{
                 new QuFlowContainer{
-                    aceBoolean("address_1", "booltext2"),
-                    aceBoolean("address_2", "booltext3"),
+                    aceBoolean(QStringLiteral("address_1"), QStringLiteral("booltext2")),
+                    aceBoolean(QStringLiteral("address_2"), QStringLiteral("booltext3")),
                 },
                 new QuFlowContainer{
-                    aceBoolean("address_3", "booltext4"),
-                    aceBoolean("address_4", "booltext5"),
-                    aceBoolean("address_5", "booltext6"),
+                    aceBoolean(QStringLiteral("address_3"), QStringLiteral("booltext4")),
+                    aceBoolean(QStringLiteral("address_4"), QStringLiteral("booltext5")),
+                    aceBoolean(QStringLiteral("address_5"), QStringLiteral("booltext6")),
                 },
-                aceBoolean("address_6", "booltext7"),
-                aceBoolean("address_7", "booltext8"),
+                aceBoolean(QStringLiteral("address_6"), QStringLiteral("booltext7")),
+                aceBoolean(QStringLiteral("address_7"), QStringLiteral("booltext8")),
             }, 0, 0),
             QuGridCell(new QuVerticalContainer{
                 new QuFlowContainer{
-                    aceBoolean("address_1", "booltext9"),
-                    aceBoolean("address_2", "booltext10"),
+                    aceBoolean(QStringLiteral("address_1"), QStringLiteral("booltext9")),
+                    aceBoolean(QStringLiteral("address_2"), QStringLiteral("booltext10")),
                 },
                 new QuFlowContainer{
-                    aceBoolean("address_3", "booltext11"),
-                    aceBoolean("address_4", "booltext12"),
-                    aceBoolean("address_5", "booltext13"),
+                    aceBoolean(QStringLiteral("address_3"), QStringLiteral("booltext11")),
+                    aceBoolean(QStringLiteral("address_4"), QStringLiteral("booltext12")),
+                    aceBoolean(QStringLiteral("address_5"), QStringLiteral("booltext13")),
                 },
-                aceBoolean("address_6", "booltext14"),
-                aceBoolean("address_7", "booltext15"),
+                aceBoolean(QStringLiteral("address_6"), QStringLiteral("booltext14")),
+                aceBoolean(QStringLiteral("address_7"), QStringLiteral("booltext15")),
             }, 0, 1),
             QuGridCell(new QuVerticalContainer{
                 new QuFlowContainer{
-                    aceBoolean("address_1", "booltext16"),
-                    aceBoolean("address_2", "booltext17"),
+                    aceBoolean(QStringLiteral("address_1"), QStringLiteral("booltext16")),
+                    aceBoolean(QStringLiteral("address_2"), QStringLiteral("booltext17")),
                 },
                 new QuFlowContainer{
-                    aceBoolean("address_3", "booltext18"),
-                    aceBoolean("address_4", "booltext19"),
-                    aceBoolean("address_5", "booltext20"),
+                    aceBoolean(QStringLiteral("address_3"), QStringLiteral("booltext18")),
+                    aceBoolean(QStringLiteral("address_4"), QStringLiteral("booltext19")),
+                    aceBoolean(QStringLiteral("address_5"), QStringLiteral("booltext20")),
                 },
-                aceBoolean("address_6", "booltext21"),
-                aceBoolean("address_7", "booltext22"),
+                aceBoolean(QStringLiteral("address_6"), QStringLiteral("booltext21")),
+                aceBoolean(QStringLiteral("address_7"), QStringLiteral("booltext22")),
             }, 1, 0),
         },
         (new QuBoolean(
@@ -949,7 +949,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Date/time (custom format):")),
         (new QuDateTime(fr_date_time))
                              ->setMode(QuDateTime::CustomDateTime)
-                             ->setCustomFormat("yyyy MM dd HH:mm:ss:zzz"),
+                             ->setCustomFormat(QStringLiteral("yyyy MM dd HH:mm:ss:zzz")),
         new QuHeading(tr("Date:")),
         (new QuDateTime(fr_date_only))
                              ->setMode(QuDateTime::DefaultDate)
@@ -957,7 +957,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Date (custom format):")),
         (new QuDateTime(fr_date_only))
                              ->setMode(QuDateTime::CustomDate)
-                             ->setCustomFormat("yyyy MM dd")
+                             ->setCustomFormat(QStringLiteral("yyyy MM dd"))
                              ->setOfferNowButton(true),
         new QuHeading(tr("Time:")),
         (new QuDateTime(fr_time_only))
@@ -967,7 +967,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Time (custom format):")),
         (new QuDateTime(fr_time_only))
                              ->setMode(QuDateTime::CustomTime)
-                             ->setCustomFormat("HH:mm:ss")
+                             ->setCustomFormat(QStringLiteral("HH:mm:ss"))
                              ->setOfferNowButton(true),
         new QuHeading(tr("Integer spinbox (range 5–10):")),
         new QuSpinBoxInteger(fieldRef(QStringLiteral("spinbox_int")), 5, 10),
@@ -1043,7 +1043,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Canvas, using files:")),
         new QuCanvas(
             fr_canvas_blobid,
-            uifunc::resourceFilename("ace3/rhinoceros.png")
+            uifunc::resourceFilename(QStringLiteral("ace3/rhinoceros.png"))
         ),
         new QuHeading(tr("Canvas, clone of the first one:")),
         new QuCanvas(fr_canvas2_blobid),
@@ -1055,7 +1055,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("As before, but with scrolling disabled:")),
         new QuCanvas(
             fr_canvas_blobid,
-            uifunc::resourceFilename("ace3/rhinoceros.png")
+            uifunc::resourceFilename(QStringLiteral("ace3/rhinoceros.png"))
         ),
     })
         ->setTitle(tr("Canvas (disabling scrolling)"))
