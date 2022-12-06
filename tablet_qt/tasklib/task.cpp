@@ -65,8 +65,10 @@ Task::Task(CamcopsApp& app,
            const QString& tablename,
            const bool is_anonymous,
            const bool has_clinician,
-           const bool has_respondent) :
-    DatabaseObject(app, db, tablename, dbconst::PK_FIELDNAME, true, true),
+           const bool has_respondent,
+           QObject* parent) :
+    DatabaseObject(app, db, tablename, dbconst::PK_FIELDNAME,
+                   true, true, true, true, parent),
     m_patient(nullptr),
     m_editing(false),
     m_is_complete_is_cached(false),

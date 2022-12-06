@@ -38,9 +38,9 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 8;
 const int MAX_QUESTION_SCORE = 24;  // 8 * 3
-const QString QPREFIX("q");
+const QString QPREFIX(QStringLiteral("q"));
 
-const QString Phq8::PHQ8_TABLENAME("phq8");
+const QString Phq8::PHQ8_TABLENAME(QStringLiteral("phq8"));
 
 
 void initializePhq8(TaskFactory& factory)
@@ -49,8 +49,9 @@ void initializePhq8(TaskFactory& factory)
 }
 
 
-Phq8::Phq8(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PHQ8_TABLENAME, false, false, false),  // ... anon, clin, resp
+Phq8::Phq8(CamcopsApp& app, DatabaseManager& db, const int load_pk,
+           QObject* parent) :
+    Task(app, db, PHQ8_TABLENAME, false, false, false, parent),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
@@ -65,7 +66,7 @@ Phq8::Phq8(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString Phq8::shortname() const
 {
-    return "PHQ-8";
+    return QStringLiteral("PHQ-8");
 }
 
 
@@ -127,15 +128,20 @@ QStringList Phq8::detail() const
 
     const bool ods = (ncore >= 1) && (ntotal >= 2) && (ntotal <= 4);
 
-    const QString spacer = " ";
+    const QString spacer(QStringLiteral(" "));
     QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
-    lines.append("");
+    lines += fieldSummaries(
+        QStringLiteral("q"),
+        QStringLiteral("_s"),
+        spacer,
+        QPREFIX, FIRST_Q, N_QUESTIONS
+    );
+    lines.append(QString());
     lines += summary();
-    lines.append("");
-    lines.append(xstring("mds") + spacer + bold(yesNo(mds)));
-    lines.append(xstring("ods") + spacer + bold(yesNo(ods)));
-    lines.append(xstring("depression_severity") + spacer + bold(sev));
+    lines.append(QString());
+    lines.append(xstring(QStringLiteral("mds")) + spacer + bold(yesNo(mds)));
+    lines.append(xstring(QStringLiteral("ods")) + spacer + bold(yesNo(ods)));
+    lines.append(xstring(QStringLiteral("depression_severity")) + spacer + bold(sev));
     return lines;
 }
 
@@ -143,28 +149,28 @@ QStringList Phq8::detail() const
 OpenableWidget* Phq8::editor(const bool read_only)
 {
     const NameValueOptions options_q1_9{
-        {xstring("a0"), 0},
-        {xstring("a1"), 1},
-        {xstring("a2"), 2},
-        {xstring("a3"), 3},
+        {xstring(QStringLiteral("a0")), 0},
+        {xstring(QStringLiteral("a1")), 1},
+        {xstring(QStringLiteral("a2")), 2},
+        {xstring(QStringLiteral("a3")), 3},
     };
 
     QuPagePtr page((new QuPage{
-        (new QuText(xstring("stem")))->setBold(true),
+        (new QuText(xstring(QStringLiteral("stem"))))->setBold(true),
         new QuMcqGrid(
             {
-                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
-                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
-                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
-                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
-                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
-                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
-                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
+                QuestionWithOneField(xstring(QStringLiteral("q1")), fieldRef(QStringLiteral("q1"))),
+                QuestionWithOneField(xstring(QStringLiteral("q2")), fieldRef(QStringLiteral("q2"))),
+                QuestionWithOneField(xstring(QStringLiteral("q3")), fieldRef(QStringLiteral("q3"))),
+                QuestionWithOneField(xstring(QStringLiteral("q4")), fieldRef(QStringLiteral("q4"))),
+                QuestionWithOneField(xstring(QStringLiteral("q5")), fieldRef(QStringLiteral("q5"))),
+                QuestionWithOneField(xstring(QStringLiteral("q6")), fieldRef(QStringLiteral("q6"))),
+                QuestionWithOneField(xstring(QStringLiteral("q7")), fieldRef(QStringLiteral("q7"))),
+                QuestionWithOneField(xstring(QStringLiteral("q8")), fieldRef(QStringLiteral("q8"))),
             },
             options_q1_9
         ),
-    })->setTitle(xstring("title_main")));
+    })->setTitle(xstring(QStringLiteral("title_main"))));
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);
@@ -187,7 +193,8 @@ int Phq8::totalScore() const
 int Phq8::nCoreSymptoms() const
 {
     int n = 0;
-    for (const QString& fieldname : strseq(QPREFIX, 1, 2)) {
+    const QStringList fieldnames = strseq(QPREFIX, 1, 2);
+    for (const QString& fieldname : fieldnames) {
         if (valueInt(fieldname) >= 2) {
             n += 1;
         }
@@ -199,7 +206,8 @@ int Phq8::nCoreSymptoms() const
 int Phq8::nOtherSymptoms() const
 {
     int n = 0;
-    for (const QString& fieldname : strseq(QPREFIX, 3, 8)) {
+    const QStringList fieldnames = strseq(QPREFIX, 3, 8);
+    for (const QString& fieldname : fieldnames) {
         if (valueInt(fieldname) >= 2) {
             n += 1;
         }

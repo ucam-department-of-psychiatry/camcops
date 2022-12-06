@@ -27,32 +27,32 @@
 #include "widgets/basewidget.h"
 
 
-QuHorizontalContainer::QuHorizontalContainer() :
-    QuSequenceContainerBase(),
+QuHorizontalContainer::QuHorizontalContainer(QObject* parent) :
+    QuSequenceContainerBase(parent),
     m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        const QVector<QuElementPtr>& elements) :
-    QuSequenceContainerBase(elements),
+        const QVector<QuElementPtr>& elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElementPtr> elements) :
-    QuSequenceContainerBase(elements),
+        std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElement*> elements) :
-    QuSequenceContainerBase(elements),
+        std::initializer_list<QuElement*> elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }

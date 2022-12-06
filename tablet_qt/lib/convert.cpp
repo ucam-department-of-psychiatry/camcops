@@ -503,7 +503,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
             } else if (c == 'x') {
                 // A hex sequence is \xnn
                 in_hex = true;
-                escape_digits = QLatin1String("");
+                escape_digits = QString();
             } else {
                 // All the following are two-character escape sequences
                 if (c == 'n') {
@@ -529,7 +529,7 @@ QString unquotedCppLiteralToString(const QString& escaped)
                 in_escape = true;
                 in_octal = false;
                 in_hex = false;
-                escape_digits = QLatin1String("");
+                escape_digits = QString();
             } else {
                 raw += c;
             }

@@ -46,7 +46,7 @@ public:
 public:
 
     // Constructor.
-    QuDateTime(FieldRefPtr fieldref);
+    QuDateTime(FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Sets the mode, as above.
     QuDateTime* setMode(QuDateTime::Mode mode);

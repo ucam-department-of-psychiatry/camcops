@@ -25,29 +25,30 @@
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
-QuVerticalContainer::QuVerticalContainer() :
-    QuSequenceContainerBase()
+QuVerticalContainer::QuVerticalContainer(QObject* parent) :
+    QuSequenceContainerBase(parent)
 {
 }
 
 
 QuVerticalContainer::QuVerticalContainer(
-        const QVector<QuElementPtr>& elements) :
-    QuSequenceContainerBase(elements)
+        const QVector<QuElementPtr>& elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent)
 {
 }
 
 
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElementPtr> elements) :
-    QuSequenceContainerBase(elements)
+        std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent)
 {
 }
 
 
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElement*> elements) :  // takes ownership
-    QuSequenceContainerBase(elements)
+        std::initializer_list<QuElement*> elements,
+        QObject* parent) :  // takes ownership
+    QuSequenceContainerBase(elements, parent)
 {
 }
 

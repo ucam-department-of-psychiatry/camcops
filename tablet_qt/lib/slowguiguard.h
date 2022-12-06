@@ -45,11 +45,13 @@ class SlowGuiGuard
     // careful!
 
 public:
-    SlowGuiGuard(QApplication& app,
-                 QWidget* parent,
-                 const QString& text = "Operation in progress...",
-                 const QString& title = TextConst::pleaseWait(),
-                 int minimum_duration_ms = 100);
+    SlowGuiGuard(
+        QApplication& app,
+        QWidget* parent,
+        const QString& text = QStringLiteral("Operation in progress..."),
+        const QString& title = TextConst::pleaseWait(),
+        int minimum_duration_ms = 100
+    );
     ~SlowGuiGuard();
 protected:
     QPointer<WaitBox> m_wait_box;

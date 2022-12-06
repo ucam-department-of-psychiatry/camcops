@@ -36,7 +36,7 @@ class Phq8 : public Task
     Q_OBJECT
 public:
     Phq8(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+         int load_pk = dbconst::NONEXISTENT_PK, QObject* parent = nullptr);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------

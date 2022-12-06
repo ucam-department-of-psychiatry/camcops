@@ -28,7 +28,8 @@ const Qt::Alignment DEFAULT_QUELEMENT_WIDGET_ALIGNMENT = Qt::Alignment();
 // space.
 
 
-QuElement::QuElement() :
+QuElement::QuElement(QObject* parent) :
+    QObject(parent),
     m_widget(nullptr),
     m_visible(true),
     m_widget_alignment(DEFAULT_QUELEMENT_WIDGET_ALIGNMENT),

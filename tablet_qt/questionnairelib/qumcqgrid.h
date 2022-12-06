@@ -53,7 +53,7 @@ class QuMcqGrid : public QuElement
 public:
     // Constructor
     QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
-              const NameValueOptions& options);
+              const NameValueOptions& options, QObject* parent = nullptr);
 
     // Destructor
     virtual ~QuMcqGrid() override;

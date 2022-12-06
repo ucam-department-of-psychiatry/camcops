@@ -132,7 +132,7 @@ public:
     // Returns the name for a given value, or a default string if there isn't
     // one.
     QString nameFromValue(const QVariant& value,
-                          const QString& default_ = "") const;
+                          const QString& default_ = QString()) const;
 
     // Returns the first value for a given name, or a default if there isn't
     // one.

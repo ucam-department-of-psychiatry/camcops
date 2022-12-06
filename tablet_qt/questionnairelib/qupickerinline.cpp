@@ -31,7 +31,9 @@ const int MAX_LENGTH = 100;
 
 
 QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
-                               const NameValueOptions& options) :
+                               const NameValueOptions& options,
+                               QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),

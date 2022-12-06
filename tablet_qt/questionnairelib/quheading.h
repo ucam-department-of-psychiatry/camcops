@@ -33,14 +33,14 @@ class QuHeading : public QuText
 
 protected:
     // Protected constructor, used internally and by derived classes.
-    QuHeading(const QString& text, FieldRefPtr fieldref);
+    QuHeading(const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr);
 
 public:
     // Constructor to display static text.
-    QuHeading(const QString& text);
+    QuHeading(const QString& text, QObject* parent = nullptr);
 
     // Constructor to display dynamic text, from a field.
-    QuHeading(FieldRefPtr fieldref);
+    QuHeading(FieldRefPtr fieldref, QObject* parent = nullptr);
 
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;

@@ -60,17 +60,17 @@ class QuBoolean : public QuElement
 protected:
     // Protected constructor
     QuBoolean(const QString& text, const QString& filename, const QSize& size,
-              FieldRefPtr fieldref);
+              FieldRefPtr fieldref, QObject* parent = nullptr);
 
 public:
 
     // Construct with: text to display; fieldref
-    QuBoolean(const QString& text, FieldRefPtr fieldref);
+    QuBoolean(const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Construct with: icon filename, icon size, fieldref.
     // If size == QSize(), that means "the file's intrinsic image size"
     QuBoolean(const QString& filename, const QSize& size,
-              FieldRefPtr fieldref);
+              FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Alter the text (but currently does not set it to text mode if a widget
     // had already been created in image mode).

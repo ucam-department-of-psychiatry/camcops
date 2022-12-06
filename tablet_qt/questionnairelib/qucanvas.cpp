@@ -40,7 +40,9 @@ const int WRITE_DELAY_MS = 200;
 
 QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
                    const bool allow_shrink, const QImage::Format format,
-                   const QColor& background_colour) :
+                   const QColor& background_colour,
+                   QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_size(size),
     m_allow_shrink(allow_shrink),
@@ -70,8 +72,10 @@ QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
 
 
 QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
-                   const QSize& size, const bool allow_shrink) :
-    QuCanvas(fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white)
+                   const QSize& size, const bool allow_shrink,
+                   QObject* parent) :
+    QuCanvas(fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white,
+             parent)
 {
     m_template_filename = template_filename;
     m_using_template = true;

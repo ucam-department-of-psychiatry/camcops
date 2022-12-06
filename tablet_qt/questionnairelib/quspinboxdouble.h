@@ -34,7 +34,7 @@ class QuSpinBoxDouble : public QuElement
 public:
     // Constructor, specifying range and maximum number of decimal places.
     QuSpinBoxDouble(FieldRefPtr fieldref, double minimum, double maximum,
-                    int decimals = 2);
+                    int decimals = 2, QObject* parent = nullptr);
 protected:
 
     // Sets the widget state from our fieldref.

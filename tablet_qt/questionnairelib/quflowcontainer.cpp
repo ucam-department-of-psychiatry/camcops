@@ -31,26 +31,29 @@
 #endif
 
 
-QuFlowContainer::QuFlowContainer() :
-    QuSequenceContainerBase()
+QuFlowContainer::QuFlowContainer(QObject* parent) :
+    QuSequenceContainerBase(parent)
 {
 }
 
 
-QuFlowContainer::QuFlowContainer(const QVector<QuElementPtr>& elements) :
-    QuSequenceContainerBase(elements)
+QuFlowContainer::QuFlowContainer(const QVector<QuElementPtr>& elements,
+                                 QObject* parent) :
+    QuSequenceContainerBase(elements, parent)
 {
 }
 
 
-QuFlowContainer::QuFlowContainer(std::initializer_list<QuElementPtr> elements) :
-    QuSequenceContainerBase(elements)
+QuFlowContainer::QuFlowContainer(std::initializer_list<QuElementPtr> elements,
+                                 QObject* parent) :
+    QuSequenceContainerBase(elements, parent)
 {
 }
 
 
-QuFlowContainer::QuFlowContainer(std::initializer_list<QuElement*> elements) :
-    QuSequenceContainerBase(elements)
+QuFlowContainer::QuFlowContainer(std::initializer_list<QuElement*> elements,
+                                 QObject* parent) :
+    QuSequenceContainerBase(elements, parent)
 {
 }
 

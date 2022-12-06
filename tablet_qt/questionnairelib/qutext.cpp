@@ -25,7 +25,8 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuText::QuText(const QString& text, FieldRefPtr fieldref) :
+QuText::QuText(const QString& text, FieldRefPtr fieldref, QObject* parent) :
+    QuElement(parent),
     m_text(text),
     m_fieldref(fieldref),
     m_fontsize( uiconst::FontSize::Normal),
@@ -45,14 +46,14 @@ QuText::QuText(const QString& text, FieldRefPtr fieldref) :
 }
 
 
-QuText::QuText(const QString& text) :
-    QuText(text, nullptr)  // delegating constructor
+QuText::QuText(const QString& text, QObject* parent) :
+    QuText(text, nullptr, parent)  // delegating constructor
 {
 }
 
 
-QuText::QuText(FieldRefPtr fieldref) :
-    QuText("", fieldref)  // delegating constructor
+QuText::QuText(FieldRefPtr fieldref, QObject* parent) :
+    QuText(QString(), fieldref, parent)  // delegating constructor
 {
     Q_ASSERT(m_fieldref);
 }

@@ -246,8 +246,9 @@ void initializeAce3(TaskFactory& factory)
 }
 
 
-Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ACE3_TABLENAME, false, true, false),  // ... anon, clin, resp
+Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
+           QObject* parent) :
+    Task(app, db, ACE3_TABLENAME, false, true, false, parent),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_TASK_EDITION, QVariant::String,
@@ -447,6 +448,12 @@ OpenableWidget* Ace3::editor(const bool read_only)
     };
     auto instruction = [this, instructionRaw](const QString& stringname) -> QuElement* {
         return instructionRaw(xstring(stringname));
+    };
+    auto stdInstruct = [this, instruction](const QString& stringname) -> QuElement* {
+        return instruction(stringname)->addTag(TAG_STANDARD_INSTRUCTION);
+    };
+    auto remoteInstruct = [this, instruction](const QString& stringname) -> QuElement* {
+        return instruction(stringname)->addTag(TAG_REMOTE_INSTRUCTION);
     };
     auto boolean = [this](const QString& stringname, const QString& fieldname,
                           bool mandatory = true,

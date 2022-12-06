@@ -77,11 +77,13 @@ class QuMultipleResponse : public QuElement
 public:
 
     // Construct in the empty state.
-    QuMultipleResponse();
+    QuMultipleResponse(QObject* parent = nullptr);
 
     // Construct from a list of questions/fields.
-    QuMultipleResponse(const QVector<QuestionWithOneField>& items);
-    QuMultipleResponse(std::initializer_list<QuestionWithOneField> items);
+    QuMultipleResponse(const QVector<QuestionWithOneField>& items,
+                       QObject* parent = nullptr);
+    QuMultipleResponse(std::initializer_list<QuestionWithOneField> items,
+                       QObject* parent = nullptr);
 
     // Add an item.
     QuMultipleResponse* addItem(const QuestionWithOneField& item);

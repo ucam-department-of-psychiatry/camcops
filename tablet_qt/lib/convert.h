@@ -193,7 +193,7 @@ QString prettyValue(const QVariant& variant, int dp = -1);
 
 // Formats a size in bytes in a pretty way, e.g. "3 KiB" or "3 kb" etc.
 QString prettySize(double num, bool space = true, bool binary = false,
-                   bool longform = false, const QString& suffix = "B");
+                   bool longform = false, const QString& suffix = QStringLiteral("B"));
 
 // Returns a string form of an arbitrary pointer.
 QString prettyPointer(const void* pointer);

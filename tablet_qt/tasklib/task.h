@@ -63,7 +63,8 @@ public:
          const QString& tablename,
          bool is_anonymous,
          bool has_clinician,
-         bool has_respondent);
+         bool has_respondent,
+         QObject* parent = nullptr);
 
     // Destructor
     virtual ~Task() {}
@@ -206,7 +207,7 @@ public:
 
     // Each ancillary table (if there are any) has a foreign key (FK) to the
     // base table. What's the FK column name?
-    virtual QString ancillaryTableFKToTaskFieldname() const { return ""; }
+    virtual QString ancillaryTableFKToTaskFieldname() const { return QString(); }
 
     // Return all tables used by this task (base + ancillary).
     QStringList allTables() const;
@@ -282,12 +283,12 @@ public:
     // Returns an xstring for this task. This is a named string, downloaded for
     // this task from the server.
     QString xstring(const QString& stringname,
-                    const QString& default_str = "") const;
+                    const QString& default_str = QString()) const;
 
     // Returns an appstring. This is a named string, downloaded from the server
     // for the CamCOPS client in general.
     QString appstring(const QString& stringname,
-                      const QString& default_str = "") const;
+                      const QString& default_str = QString()) const;
 
     // Assistance function for summary() or detail().
     // - Returns a list of strings of the format
@@ -296,27 +297,31 @@ public:
     //   <fieldprefix><first> to <fieldprefix><last>.
     // - The name ranges from <xstringprefix><first><xstringsuffix> to
     //   <xstringprefix><last><xstringsuffix>.
-    QStringList fieldSummaries(const QString& xstringprefix,
-                               const QString& xstringsuffix,
-                               const QString& spacer,
-                               const QString& fieldprefix,
-                               int first,
-                               int last,
-                               const QString& suffix = "") const;
+    QStringList fieldSummaries(
+        const QString& xstringprefix,
+        const QString& xstringsuffix,
+        const QString& spacer,
+        const QString& fieldprefix,
+        int first,
+        int last,
+        const QString& suffix = QString()
+    ) const;
 
     // As for fieldSummaries(), but the value is shown as "Yes"/"No", for
     // Boolean fields.
-    QStringList fieldSummariesYesNo(const QString& xstringprefix,
-                                    const QString& xstringsuffix,
-                                    const QString& spacer,
-                                    const QString& fieldprefix,
-                                    int first,
-                                    int last,
-                                    const QString& suffix = "") const;
+    QStringList fieldSummariesYesNo(
+        const QString& xstringprefix,
+        const QString& xstringsuffix,
+        const QString& spacer,
+        const QString& fieldprefix,
+        int first,
+        int last,
+        const QString& suffix = QString()
+    ) const;
 
     // Returns a string list of the clinician's details (specialty, name,
     // etc.).
-    QStringList clinicianDetails(const QString& separator = ": ") const;
+    QStringList clinicianDetails(const QString& separator = QStringLiteral(": ")) const;
 
     // Returns a string list of the respondent's details (name, relationship).
     QStringList respondentDetails() const;
@@ -336,7 +341,7 @@ protected:
     void setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
 
     // Single user mode: apply any settings (down to task implementation)
-    virtual void applySettings(const QJsonObject settings) {Q_UNUSED(settings)}
+    virtual void applySettings(const QJsonObject& settings) {Q_UNUSED(settings)}
 
     // Set the clinician fields to the app's default clinician information.
     // Called when the task is first created from the menus.
@@ -400,9 +405,11 @@ protected:
 
     // Create a standard set of NameValueOptions from the task's xstrings,
     // in ascending or descending order.
-    NameValueOptions makeOptionsFromXstrings(const QString& xstring_prefix,
-                                             int first, int last,
-                                             const QString& xstring_suffix = "");
+    NameValueOptions makeOptionsFromXstrings(
+            const QString& xstring_prefix,
+            int first,
+            int last,
+            const QString& xstring_suffix = QString());
 
 public slots:
     // "The user has started to edit this task."

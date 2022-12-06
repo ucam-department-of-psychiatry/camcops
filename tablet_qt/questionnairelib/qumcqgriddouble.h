@@ -56,7 +56,8 @@ public:
     // Constructor
     QuMcqGridDouble(const QVector<QuestionWithTwoFields>& questions_with_fields,
                     const NameValueOptions& options1,
-                    const NameValueOptions& options2);
+                    const NameValueOptions& options2,
+                    QObject* parent = nullptr);
 
     // Destructor.
     virtual ~QuMcqGridDouble() override;

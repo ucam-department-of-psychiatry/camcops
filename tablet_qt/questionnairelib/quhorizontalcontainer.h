@@ -30,12 +30,15 @@ class QuHorizontalContainer : public QuSequenceContainerBase
 
 public:
     // Plain constructor
-    QuHorizontalContainer();
+    QuHorizontalContainer(QObject* parent = nullptr);
 
     // Construct with elements
-    QuHorizontalContainer(const QVector<QuElementPtr>& elements);
-    QuHorizontalContainer(std::initializer_list<QuElementPtr> elements);
-    QuHorizontalContainer(std::initializer_list<QuElement*> elements);  // takes ownership
+    QuHorizontalContainer(const QVector<QuElementPtr>& elements,
+                          QObject* parent = nullptr);
+    QuHorizontalContainer(std::initializer_list<QuElementPtr> elements,
+                          QObject* parent = nullptr);
+    QuHorizontalContainer(std::initializer_list<QuElement*> elements,
+                          QObject* parent = nullptr);  // takes ownership
 
     // Should we add a "stretch" to the right-hand side of the layout?
     // This makes the difference between:

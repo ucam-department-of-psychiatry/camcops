@@ -66,13 +66,17 @@ public:
     // ========================================================================
 public:
     // Empty constructor.
-    QuPage();
+    QuPage(QObject* parent = nullptr);
 
     // Construct with a list of QuElement objects.
-    QuPage(const QVector<QuElementPtr>& elements);
-    QuPage(std::initializer_list<QuElementPtr> elements);
-    QuPage(const QVector<QuElement*>& elements);  // takes ownership
-    QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
+    QuPage(const QVector<QuElementPtr>& elements,
+           QObject* parent = nullptr);
+    QuPage(std::initializer_list<QuElementPtr> elements,
+           QObject* parent = nullptr);
+    QuPage(const QVector<QuElement*>& elements,
+           QObject* parent = nullptr);  // takes ownership
+    QuPage(std::initializer_list<QuElement*> elements,
+           QObject* parent = nullptr);  // takes ownership
 
     // Destructor
     virtual ~QuPage();

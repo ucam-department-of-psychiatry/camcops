@@ -34,7 +34,9 @@
 
 
 QuBoolean::QuBoolean(const QString& text, const QString& filename,
-                     const QSize& size, FieldRefPtr fieldref) :
+                     const QSize& size, FieldRefPtr fieldref,
+                     QObject* parent) :
+    QuElement(parent),
     m_text(text),
     m_image_filename(filename),
     m_image_size(size),
@@ -62,15 +64,15 @@ QuBoolean::QuBoolean(const QString& text, const QString& filename,
 }
 
 
-QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref) :
-    QuBoolean(text, "", QSize(), fieldref)  // delegating constructor
+QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref, QObject* parent) :
+    QuBoolean(text, "", QSize(), fieldref, parent)  // delegating constructor
 {
 }
 
 
 QuBoolean::QuBoolean(const QString& filename, const QSize& size,
-                     FieldRefPtr fieldref) :
-    QuBoolean("", filename, size, fieldref)  // delegating constructor
+                     FieldRefPtr fieldref, QObject* parent) :
+    QuBoolean("", filename, size, fieldref, parent)  // delegating constructor
 {
 }
 

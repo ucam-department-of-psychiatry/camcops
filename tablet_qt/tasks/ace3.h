@@ -36,7 +36,7 @@ class Ace3 : public Task
     Q_OBJECT
 public:
     Ace3(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+         int load_pk = dbconst::NONEXISTENT_PK, QObject* parent = nullptr);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -144,6 +144,9 @@ protected:
 public slots:
     // Update addresses according to the task version (A/B/C).
     void updateTaskVersionAddresses();
+
+    // Show standard or remote administration instructions.
+    void showStandardOrRemoteInstructions();
 
     // Update the ability to edit the task version address.
     void updateTaskVersionEditability();

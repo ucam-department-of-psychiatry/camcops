@@ -35,8 +35,9 @@ class PagePickerDialog : public QDialog
 
 public:
     // Constructor
-    PagePickerDialog(QWidget* parent, const PagePickerItemList& pages,
-                     const QString& title = "");
+    PagePickerDialog(QWidget* parent,
+                     const PagePickerItemList& pages,
+                     const QString& title = QString());
 
     // Call this to offer a choice, return the result of exec(), and write the
     // result to new_page_number.

@@ -34,7 +34,8 @@
 
 
 QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
-             const QStringList* label_styles) :
+             const QStringList* label_styles, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),

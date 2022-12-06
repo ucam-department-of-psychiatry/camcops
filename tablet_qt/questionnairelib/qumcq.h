@@ -39,7 +39,8 @@ public:
 
     // Constructor
     QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
-          const QStringList* label_styles = nullptr);
+          const QStringList* label_styles = nullptr,
+          QObject* parent = nullptr);
 
     // Shuffle the options (when making the widget)?
     QuMcq* setRandomize(bool randomize);

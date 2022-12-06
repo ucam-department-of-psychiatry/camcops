@@ -34,15 +34,16 @@ class QuText : public QuElement
 
 protected:
     // Protected constructor, used internally and by derived classes.
-    QuText(const QString& text, FieldRefPtr fieldref);
+    QuText(const QString& text, FieldRefPtr fieldref,
+           QObject* parent = nullptr);
 
 public:
 
     // Constructor for static text.
-    QuText(const QString& text = "");
+    QuText(const QString& text = QString(), QObject* parent = nullptr);
 
     // Constructor for dynamic text, from a field.
-    QuText(FieldRefPtr fieldref);
+    QuText(FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Set visual style of text.
     QuText* setFontSize(uiconst::FontSize fontsize);

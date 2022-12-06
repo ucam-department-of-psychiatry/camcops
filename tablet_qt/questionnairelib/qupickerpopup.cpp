@@ -33,7 +33,9 @@
 
 
 QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
-                             const NameValueOptions& options) :
+                             const NameValueOptions& options,
+                             QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),

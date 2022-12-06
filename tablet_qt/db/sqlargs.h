@@ -29,7 +29,8 @@
 
 struct SqlArgs {
 public:
-    SqlArgs(const QString& sql = "", const ArgList& args = ArgList()) :
+    SqlArgs(const QString& sql = QString(),
+            const ArgList& args = ArgList()) :
         sql(sql), args(args) {}
 
     // Returns an SQL literal with realized parameters -- NOT for proper use

@@ -36,7 +36,7 @@ class QuCountdown : public QuElement
     Q_OBJECT
 public:
     // Construct with the timer's duration.
-    QuCountdown(int time_s);
+    QuCountdown(int time_s, QObject* parent = nullptr);
 
     // Destructor.
     virtual ~QuCountdown() override;

@@ -103,6 +103,9 @@ OR BETTER:
     const QString s(QStringLiteral("text"));
 See https://github.com/KDE/clazy/blob/master/docs/checks/README-qstring-allocations.md.
 
+For empty strings, use QLatin1String(""), QLatin1String(), or QString().
+The last of these is simplest and shortest.
+
 """  # noqa: E501
 
 
