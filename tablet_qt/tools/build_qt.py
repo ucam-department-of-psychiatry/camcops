@@ -3392,6 +3392,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     objdirs = []  # type: List[str]
     libdirs = [openssl_lib_root]  # libraries for OpenSSL
     qt_config_cmake_args = []
+    # qt_config_cmake_args = ["-DCMAKE_MESSAGE_LOG_LEVEL=STATUS"]  # Verbose?
     qt_config_args = [
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
