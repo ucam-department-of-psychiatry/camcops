@@ -14,8 +14,8 @@ jobs:
                 include:
                     - name: ubuntu-20.04
                       os: ubuntu-20.04
-                    - name: ubuntu-22.04
-                      os: ubuntu-22.04
+                    # - name: ubuntu-22.04
+                    #  os: ubuntu-22.04
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
@@ -63,7 +63,7 @@ jobs:
                   sudo apt-get -y install libatspi2.0-dev libbluetooth-dev libclang-dev libcups2-dev
                   sudo apt-get -y install libfreetype6-dev
                   sudo apt-get -y install libhunspell-dev libopengl-dev
-                  sudo apt-get -y install libssl-dev libts-dev libx11-dev
+                  sudo apt-get -y install libts-dev libx11-dev
                   sudo apt-get -y install libxext-dev
                   sudo apt-get -y install libxfixes-dev
                   sudo apt-get -y install libxkbfile-dev libxshmfence-dev
