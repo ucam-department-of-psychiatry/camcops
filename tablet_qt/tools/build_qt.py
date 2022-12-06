@@ -3397,7 +3397,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
         "-prefix",
-        installdir,  # where to install Qt
+        installdir.replace("\\", "\\\\"),  # where to install Qt
         # "OPENSSL_LIBS=" + openssl_libs,
         # "-sysroot": not required; Qt's configure should handle this
         # "-gcc-sysroot": not required
@@ -3519,10 +3519,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         )
 
     for includedir in includedirs:
-        qt_config_args.extend(["-I", includedir])
+        qt_config_args.extend(["-I", includedir.replace("\\", "\\\\")])
     for libdir in libdirs:
-        qt_config_args.extend(["-L", libdir])
-
+        qt_config_args.extend(["-L", libdir.replace("\\", "\\\\")])
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
     for submodule in QT_SUBMODULES_TO_SKIP:
         qt_config_args.extend(["-skip", submodule])
