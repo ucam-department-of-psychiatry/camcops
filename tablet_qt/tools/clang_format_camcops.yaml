@@ -39,13 +39,14 @@ BinPackArguments: false
 BinPackParameters: false
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
-ColumnLimit: 80
+ColumnLimit: 79  # as for Python
 Cpp11BracedListStyle: true
+EmptyLineBeforeAccessModifier: Always
 IncludeBlocks: Regroup
-IncludeCategories:  # Priority 1 is high.
+IncludeCategories:
   # The header file corresponding to the source file always comes top;
-  # see IncludeIsMainRegex.
-  # Regexes are case-insensitive by default.
+  # see IncludeIsMainRegex. Priority 1 is high. Regexes are case-insensitive
+  # by default.
   - Regex:           '<.+>'  #include <...>
     Priority:        1
   - Regex:           '".+/.+">'  #include ".../..."
@@ -60,6 +61,7 @@ PackConstructorInitializers: Never
 SeparateDefinitionBlocks: Always  # includes functions defined in headers
 SpaceBeforeCpp11BracedList: false
 SpacesBeforeTrailingComments: 2
+SpacesInContainerLiterals: false
 
 ...
 
