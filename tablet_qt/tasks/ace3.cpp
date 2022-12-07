@@ -853,12 +853,14 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolimg(IMAGE_ACCORDION, strnum(FP_LANG_NAME_PICTURE, 12)),
         }),
         // Choosing pictures by concept
+        // ... standard version:
         stdInstruct(QStringLiteral("lang_q_identify_concept")),
-        remInstruct(QStringLiteral("lang_q_identify_concept_remote")),
         boolean(QStringLiteral("lang_concept1"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1))->addTag(TAG_STANDARD),
         boolean(QStringLiteral("lang_concept2"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2))->addTag(TAG_STANDARD),
         boolean(QStringLiteral("lang_concept3"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3))->addTag(TAG_STANDARD),
         boolean(QStringLiteral("lang_concept4"), strnum(FP_LANG_IDENTIFY_CONCEPT, 4))->addTag(TAG_STANDARD),
+        // ... remote version (same fields):
+        remInstruct(QStringLiteral("lang_q_identify_concept_remote")),
         boolean(QStringLiteral("lang_concept1_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1))->addTag(TAG_REMOTE),
         boolean(QStringLiteral("lang_concept2_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2))->addTag(TAG_REMOTE),
         boolean(QStringLiteral("lang_concept3_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3))->addTag(TAG_REMOTE),

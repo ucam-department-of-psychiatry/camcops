@@ -214,12 +214,9 @@ Note other popular coding standards:
     char *linux_banner;
     char *some_function();
 
-- Python, PEP8, https://www.python.org/dev/peps/pep-0008/
+- Python, PEP8, https://www.python.org/dev/peps/pep-0008/;
+  use Black (https://black.readthedocs.io/) with 79 characters per line.
 
-  .. code-block:: none
-
-    SomeClass, some_function,
-    some_variable, "_" prefix for "private" members
 
 **Disabling compiler/linter warnings inline**
 
