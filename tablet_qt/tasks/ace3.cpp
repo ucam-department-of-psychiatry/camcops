@@ -18,7 +18,6 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 /*
 
 A note on the address alternatives (2022-12-01):
@@ -104,12 +103,9 @@ using mathfunc::eq;
 using mathfunc::allNull;
 using mathfunc::noneNull;
 using mathfunc::sumInt;
-using mathfunc::scoreStringWithPercent;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
-
-const QString Ace3::ACE3_TABLENAME(QStringLiteral("ace3"));
 
 const QString IMAGE_SPOON(QStringLiteral("ace3/spoon.png"));
 const QString IMAGE_BOOK(QStringLiteral("ace3/book.png"));
@@ -134,29 +130,15 @@ const QString IMAGE_M(QStringLiteral("ace3/m.png"));
 const QString IMAGE_A(QStringLiteral("ace3/a.png"));
 const QString IMAGE_T(QStringLiteral("ace3/t.png"));
 
-const QString TAG_PG_PREAMBLE(QStringLiteral("pg_preamble"));
-const QString TAG_PG_ADDRESS_LEARNING_FAMOUS(QStringLiteral("pg_addr_learn"));
 const QString TAG_PG_LANG_COMMANDS_SENTENCES(QStringLiteral("pg_lang_commands_sentences"));
-const QString TAG_PG_MEM_FREE_RECALL(QStringLiteral("pg_mem_free_recall"));
 const QString TAG_PG_MEM_RECOGNITION(QStringLiteral("pg_mem_recog"));
-const QString TAG_EL_CHOOSE_TASK_VERSION(QStringLiteral("choose_addr_version"));
-const QString TAG_EL_SHOW_TASK_VERSION(QStringLiteral("show_addr_version"));
-const QString TAG_REMOTE(QStringLiteral("remote_instr"));
-const QString TAG_STANDARD(QStringLiteral("std_instr"));
 const QString TAG_EL_LANG_OPTIONAL_COMMAND(QStringLiteral("lang_optional_command"));
 const QString TAG_EL_LANG_NOT_SHOWN(QStringLiteral("lang_not_shown"));
 const QString TAG_RECOG_REQUIRED(QStringLiteral("recog_required"));
 const QString TAG_RECOG_SUPERFLUOUS(QStringLiteral("recog_superfluous"));
 
 // Field names, field prefixes, and field counts
-const QString FN_TASK_EDITION(QStringLiteral("task_edition"));
-const QString FN_TASK_ADDRESS_VERSION(QStringLiteral("task_address_version"));
-const QString FN_REMOTE_ADMINISTRATION(QStringLiteral("remote_administration"));
-const QString FN_AGE_FT_EDUCATION(QStringLiteral("age_at_leaving_full_time_education"));
-const QString FN_OCCUPATION(QStringLiteral("occupation"));
-const QString FN_HANDEDNESS(QStringLiteral("handedness"));
-const QString FP_ATTN_TIME(QStringLiteral("attn_time"));
-const int N_ATTN_TIME = 5;
+const int N_ATTN_TIME_ACE = 5;
 const QString FP_ATTN_PLACE(QStringLiteral("attn_place"));
 const int N_ATTN_PLACE = 5;
 const QString FP_ATTN_REPEAT_WORD(QStringLiteral("attn_repeat_word"));
@@ -164,18 +146,25 @@ const int N_ATTN_REPEAT_WORD = 3;
 const QString FN_ATTN_NUM_REGISTRATION_TRIALS(QStringLiteral("attn_num_registration_trials"));
 const QString FP_ATTN_SERIAL7(QStringLiteral("attn_serial7_subtraction"));
 const int N_ATTN_SERIAL7 = 5;
+
 const QString FP_MEM_RECALL_WORD(QStringLiteral("mem_recall_word"));
 const int N_MEM_RECALL_WORD = 3;
 const QString FN_FLUENCY_LETTERS_SCORE(QStringLiteral("fluency_letters_score"));
 const QString FN_FLUENCY_ANIMALS_SCORE(QStringLiteral("fluency_animals_score"));
-const QString FP_MEM_REPEAT_ADDR_GENERIC(QStringLiteral("mem_repeat_address_trial%1_%2"));
-const QString FP_MEM_REPEAT_ADDR_TRIAL1(QStringLiteral("mem_repeat_address_trial1_"));
-const QString FP_MEM_REPEAT_ADDR_TRIAL2(QStringLiteral("mem_repeat_address_trial2_"));
-const QString FP_MEM_REPEAT_ADDR_TRIAL3(QStringLiteral("mem_repeat_address_trial3_"));
-const int ADDR_LEARN_N_TRIALS = 3;
-const int N_MEM_REPEAT_ADDR = 7;
 const QString FP_MEM_FAMOUS(QStringLiteral("mem_famous"));
 const int N_MEM_FAMOUS = 4;
+const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));  // SCORE; matches versions before 2.0.0
+const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));  // CHOICE; v2.0.0 onwards
+// ... storing raw choices is new in v2.0.0, but the score field is preserved
+//     for backwards compatibility
+const int N_MEM_RECOGNIZE_ADDRESS = 5;
+const int N_ADDRESS_RECOG_OPTIONS = 3;
+const QVector<int> DEFAULT_ADDRESS_RECOG_CORRECT_COLS_ENGLISH_A{2, 2, 3, 2, 1};
+// Choices for address recall phase:
+const QString CHOICE_A(QStringLiteral("A"));
+const QString CHOICE_B(QStringLiteral("B"));
+const QString CHOICE_C(QStringLiteral("C"));
+
 const QString FN_LANG_FOLLOW_CMD_PRACTICE(QStringLiteral("lang_follow_command_practice"));
 const QString FP_LANG_FOLLOW_CMD(QStringLiteral("lang_follow_command"));
 const int N_LANG_FOLLOW_CMD = 3;
@@ -190,25 +179,13 @@ const int N_LANG_NAME_PICTURE = 12;
 const QString FP_LANG_IDENTIFY_CONCEPT(QStringLiteral("lang_identify_concept"));
 const int N_LANG_IDENTIFY_CONCEPT = 4;
 const QString FN_LANG_READ_WORDS_ALOUD(QStringLiteral("lang_read_words_aloud"));
+
 const QString FN_VSP_COPY_INFINITY(QStringLiteral("vsp_copy_infinity"));
 const QString FN_VSP_COPY_CUBE(QStringLiteral("vsp_copy_cube"));
-const QString FN_VSP_DRAW_CLOCK(QStringLiteral("vsp_draw_clock"));
 const QString FP_VSP_COUNT_DOTS(QStringLiteral("vsp_count_dots"));
 const int N_VSP_COUNT_DOTS = 4;
 const QString FP_VSP_IDENTIFY_LETTER(QStringLiteral("vsp_identify_letter"));
 const int N_VSP_IDENTIFY_LETTER = 4;
-const QString FP_MEM_RECALL_ADDRESS(QStringLiteral("mem_recall_address"));
-const int N_MEM_RECALL_ADDRESS = N_MEM_REPEAT_ADDR;
-const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));  // SCORE; matches versions before 2.0.0
-const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));  // CHOICE; v2.0.0 onwards
-// ... storing raw choices is new in v2.0.0, but the score field is preserved
-//     for backwards compatibility
-const int N_MEM_RECOGNIZE_ADDRESS = 5;
-const QString FN_PICTURE1_BLOBID(QStringLiteral("picture1_blobid"));
-// defunct: picture1_rotation
-const QString FN_PICTURE2_BLOBID(QStringLiteral("picture2_blobid"));
-// defunct: picture2_rotation
-const QString FN_COMMENTS(QStringLiteral("comments"));
 
 // Subtotals. No magic numbers...
 const int TOTAL_ATTN = 18;
@@ -217,28 +194,11 @@ const int TOTAL_FLUENCY = 14;
 const int TOTAL_LANG = 26;
 const int TOTAL_VSP = 16;
 const int TOTAL_OVERALL = 100;
-const int TOTAL_MINI_ACE = 30;
 
-const int MIN_AGE = 0;
-const int MAX_AGE_Y = 120;
-const int FLUENCY_TIME_SEC = 60;
 
-// We can't store a char in a variant, so an alternative would be QChar,
-// but QString is just as simple.
-// Choices for address recall phase:
-const QString CHOICE_A(QStringLiteral("A"));
-const QString CHOICE_B(QStringLiteral("B"));
-const QString CHOICE_C(QStringLiteral("C"));
-
-// Task (address) versions are A-C also, so we use a reference for efficiency
-// (but if the number ever changed we'd split the variables).
-const QString& TASK_DEFAULT_VERSION(QStringLiteral("A"));
-
-const int N_ADDRESS_RECOG_OPTIONS = 3;
-const QVector<int> DEFAULT_ADDRESS_RECOG_CORRECT_COLS_ENGLISH_A{2, 2, 3, 2, 1};
-
-const Version SERVER_ACE3_ADDRESS_VARIANT_VERSION(2, 4, 15);
-
+// ============================================================================
+// Ace3
+// ============================================================================
 
 void initializeAce3(TaskFactory& factory)
 {
@@ -248,11 +208,10 @@ void initializeAce3(TaskFactory& factory)
 
 Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
            QObject* parent) :
-    Task(app, db, ACE3_TABLENAME, false, true, false, parent),  // ... anon, clin, resp
-    m_questionnaire(nullptr)
+    AceFamily(app, db, ACE3_TABLENAME, parent)
 {
     addField(FN_TASK_EDITION, QVariant::String,
-             false, false, false, xstring(QStringLiteral("edition_short")));
+             false, false, false, xstring(X_EDITION_SHORT));
     addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
              false, false, false, TASK_DEFAULT_VERSION);
     addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
@@ -262,7 +221,7 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
     addField(FN_OCCUPATION, QVariant::String);
     addField(FN_HANDEDNESS, QVariant::String);
 
-    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME), QVariant::Int);
+    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE), QVariant::Int);
     addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QVariant::Int);
     addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QVariant::Int);
     addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QVariant::Int);
@@ -273,9 +232,9 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
     addField(FN_FLUENCY_LETTERS_SCORE, QVariant::Int);
     addField(FN_FLUENCY_ANIMALS_SCORE, QVariant::Int);
 
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QVariant::Int);
 
     addField(FN_LANG_FOLLOW_CMD_PRACTICE, QVariant::Int);
@@ -293,7 +252,7 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
     addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QVariant::Int);
     addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QVariant::Int);
 
-    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS), QVariant::Int);
+    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Char);
 
@@ -329,24 +288,9 @@ QString Ace3::description() const
 }
 
 
-Version Ace3::minimumServerVersion() const
-{
-    // From v2.4.15 we support ACE-III versions A/B/C (address variations).
-    return SERVER_ACE3_ADDRESS_VARIANT_VERSION;
-}
-
-
 bool Ace3::isTaskProperlyCreatable(QString& why_not_creatable) const
 {
-    if (!isServerStringVersionEnough(SERVER_ACE3_ADDRESS_VARIANT_VERSION,
-                                     why_not_creatable)) {
-        return false;
-    }
-    if (!isAddressVersionInfoValid()) {
-        why_not_creatable = tr(
-            "Server strings are not providing valid information about which "
-            "address versions are available. Try re-fetching server info."
-        );
+    if (!AceFamily::isTaskProperlyCreatable(why_not_creatable)) {
         return false;
     }
     if (!isAddressRecogCorrectColumnInfoValid()) {
@@ -366,14 +310,14 @@ bool Ace3::isTaskProperlyCreatable(QString& why_not_creatable) const
 
 bool Ace3::isComplete() const
 {
-    return noneNull(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME))) &&
+    return noneNull(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE))) &&
         noneNull(values(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE))) &&
         noneNull(values(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD))) &&
         noneNull(values(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7))) &&
         noneNull(values(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD))) &&
         !valueIsNull(FN_FLUENCY_LETTERS_SCORE) &&
         !valueIsNull(FN_FLUENCY_ANIMALS_SCORE) &&
-        noneNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR))) &&
+        noneNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR))) &&
         noneNull(values(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS))) &&
         !valueIsNull(FN_LANG_FOLLOW_CMD_PRACTICE) &&
         (eq(value(FN_LANG_FOLLOW_CMD_PRACTICE), 0) ||
@@ -390,7 +334,7 @@ bool Ace3::isComplete() const
         !valueIsNull(FN_VSP_DRAW_CLOCK) &&
         noneNull(values(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS))) &&
         noneNull(values(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER))) &&
-        noneNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS))) &&
+        noneNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR))) &&
         isRecognitionComplete();
 }
 
@@ -404,17 +348,14 @@ QStringList Ace3::summary() const
     const int v = getVisuospatialScore();
     const int t = a + m + f + l + v;
     const int mini = miniAceScore();
-    auto scorelambda = [](int score, int out_of) -> QString {
-        return ": " + scoreStringWithPercent(score, out_of) + ".";
-    };
     QStringList lines;
     lines.append(totalScorePhrase(t, TOTAL_OVERALL));
-    lines.append(xstring(QStringLiteral("cat_attn")) + scorelambda(a, TOTAL_ATTN));
-    lines.append(xstring(QStringLiteral("cat_mem")) + scorelambda(m, TOTAL_MEM));
-    lines.append(xstring(QStringLiteral("cat_fluency")) + scorelambda(f, TOTAL_FLUENCY));
-    lines.append(xstring(QStringLiteral("cat_lang")) + scorelambda(l, TOTAL_LANG));
-    lines.append(xstring(QStringLiteral("cat_vsp")) + scorelambda(v, TOTAL_VSP));
-    lines.append(xstring(QStringLiteral("mini_ace_score")) + scorelambda(mini, TOTAL_MINI_ACE));
+    lines.append(xstring(QStringLiteral("cat_attn")) + scorePercent(a, TOTAL_ATTN));
+    lines.append(xstring(QStringLiteral("cat_mem")) + scorePercent(m, TOTAL_MEM));
+    lines.append(xstring(QStringLiteral("cat_fluency")) + scorePercent(f, TOTAL_FLUENCY));
+    lines.append(xstring(QStringLiteral("cat_lang")) + scorePercent(l, TOTAL_LANG));
+    lines.append(xstring(QStringLiteral("cat_vsp")) + scorePercent(v, TOTAL_VSP));
+    lines.append(xstring(X_MINI_ACE_SCORE) + scorePercent(mini, TOTAL_MINI_ACE));
     return lines;
 }
 
@@ -427,53 +368,6 @@ OpenableWidget* Ace3::editor(const bool read_only)
                 + QString(QStringLiteral(" %1")).arg(pagenum++)
                 + ": "
                 + title;
-    };
-    auto textRaw = [](const QString& string) -> QuElement* {
-        return new QuText(string);
-    };
-    auto text = [this, textRaw](const QString& stringname) -> QuElement* {
-        return textRaw(xstring(stringname));
-    };
-    auto explanation = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->setItalic();
-    };
-    auto stdExplan = [explanation](const QString& stringname) -> QuElement* {
-        return explanation(stringname)->addTag(TAG_STANDARD);
-    };
-    auto remExplan = [explanation](const QString& stringname) -> QuElement* {
-        return explanation(stringname)->addTag(TAG_REMOTE);
-    };
-    auto heading = [this](const QString& stringname) -> QuElement* {
-        return new QuHeading(xstring(stringname));
-    };
-    auto subheading = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->setBold()->setBig();
-    };
-    auto instructionRaw = [](const QString& string) -> QuElement* {
-        return (new QuText(string))->setBold();
-    };
-    auto instruction = [this, instructionRaw](const QString& stringname) -> QuElement* {
-        return instructionRaw(xstring(stringname));
-    };
-    auto stdInstruct = [instruction](const QString& stringname) -> QuElement* {
-        return instruction(stringname)->addTag(TAG_STANDARD);
-    };
-    auto remInstruct = [instruction](const QString& stringname) -> QuElement* {
-        return instruction(stringname)->addTag(TAG_REMOTE);
-    };
-    auto boolean = [this](const QString& stringname, const QString& fieldname,
-                          bool mandatory = true,
-                          bool bold = false) -> QuElement* {
-        return (new QuBoolean(xstring(stringname),
-                              fieldRef(fieldname, mandatory)))->setBold(bold);
-    };
-    auto boolimg = [this](const QString& filenamestem, const QString& fieldname,
-                          bool mandatory = true) -> QuElement* {
-        return new QuBoolean(uifunc::resourceFilename(filenamestem), QSize(),
-                             fieldRef(fieldname, mandatory));
-    };
-    auto warning = [](const QString& string) -> QuElement* {
-        return (new QuText(string))->setWarning();
     };
 
     // ------------------------------------------------------------------------
@@ -1131,7 +1025,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     // When the user writes data relating to a specific address, locking in
     // the address version selection. See isChangingAddressVersionOk().
-    for (int i = 1; i <= N_MEM_REPEAT_ADDR; ++i) {
+    for (int i = 1; i <= N_MEM_REPEAT_RECALL_ADDR; ++i) {
         connect(fieldRef(strnum(FP_MEM_REPEAT_ADDR_TRIAL1, i)).data(),
                 &FieldRef::valueChanged,
                 this, &Ace3::updateTaskVersionEditability);
@@ -1142,7 +1036,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
                 &FieldRef::valueChanged,
                 this, &Ace3::updateTaskVersionEditability);
     }
-    for (int i = 1; i <= N_MEM_RECALL_ADDRESS; ++i) {
+    for (int i = 1; i <= N_MEM_REPEAT_RECALL_ADDR; ++i) {
         connect(fieldRef(strnum(FP_MEM_RECALL_ADDRESS, i)).data(),
                 &FieldRef::valueChanged,
                 this, &Ace3::updateTaskVersionEditability);
@@ -1163,7 +1057,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     // When the user enters data for some aspect of address recall, determining
     // whether we need to bother with recognition for that part of the address.
-    for (int i = 1; i <= N_MEM_RECALL_ADDRESS; ++i) {
+    for (int i = 1; i <= N_MEM_REPEAT_RECALL_ADDR; ++i) {
         FieldRefPtr fr = fieldRef(strnum(FP_MEM_RECALL_ADDRESS, i));
         connect(fr.data(), &FieldRef::valueChanged,
                 this, &Ace3::updateAddressRecognition);
@@ -1184,43 +1078,19 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
 int Ace3::getAttnScore() const
 {
-    return sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME) +
+    return sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE) +
                          strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE) +
                          strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD) +
                          strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7)));
 }
 
 
-int Ace3::getMemRecognitionScore() const
-{
-    const int recall1 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 1));
-    const int recall2 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 2));
-    const int recall3 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 3));
-    const int recall4 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 4));
-    const int recall5 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 5));
-    const int recall6 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 6));
-    const int recall7 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 7));
-    const int recog1 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1));
-    const int recog2 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 2));
-    const int recog3 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 3));
-    const int recog4 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 4));
-    const int recog5 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 5));
-    int score = 0;
-    score += (recall1 && recall2) ? 1 : recog1;  // forename, surname
-    score += recall3 ? 1 : recog2;  // number
-    score += (recall4 && recall5) ? 1 : recog3;  // streetname, streettype
-    score += recall6 ? 1 : recog4;  // city
-    score += recall7 ? 1 : recog5; // county
-    return score;
-}
-
-
 int Ace3::getMemScore() const
 {
     return sumInt(values(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD) +
-                         strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR) +
+                         strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR) +
                          strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS) +
-                         strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS))) +
+                         strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR))) +
             getMemRecognitionScore();
 }
 
@@ -1229,22 +1099,6 @@ int Ace3::getFluencyScore() const
 {
     return valueInt(FN_FLUENCY_LETTERS_SCORE) +
             valueInt(FN_FLUENCY_ANIMALS_SCORE);
-}
-
-
-int Ace3::getFollowCommandScore() const
-{
-    if (!valueInt(FN_LANG_FOLLOW_CMD_PRACTICE)) {
-        return 0;
-    }
-    return sumInt(values(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD)));
-}
-
-
-int Ace3::getRepeatWordScore() const
-{
-    const int n = sumInt(values(strseq(FP_LANG_REPEAT_WORD, 1, 4)));
-    return n >= 4 ? 2 : (n == 3 ? 1 : 0);
 }
 
 
@@ -1283,12 +1137,56 @@ int Ace3::totalScore() const
 int Ace3::miniAceScore() const
 {
     return (
-        sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME - 1)))  // 4 points; season not used
+        sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE - 1)))  // 4 points; season not used
         + valueInt(FN_FLUENCY_ANIMALS_SCORE)  // 7 points
-        + sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR)))  // 7 points
+        + sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
         + valueInt(FN_VSP_DRAW_CLOCK)  // 5 points
-        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS)))  // 7 points
+        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
     );
+}
+
+
+// ============================================================================
+// Internal scoring/completeness tests
+// ============================================================================
+
+int Ace3::getFollowCommandScore() const
+{
+    if (!valueInt(FN_LANG_FOLLOW_CMD_PRACTICE)) {
+        return 0;
+    }
+    return sumInt(values(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD)));
+}
+
+
+int Ace3::getRepeatWordScore() const
+{
+    const int n = sumInt(values(strseq(FP_LANG_REPEAT_WORD, 1, 4)));
+    return n >= 4 ? 2 : (n == 3 ? 1 : 0);
+}
+
+
+int Ace3::getMemRecognitionScore() const
+{
+    const int recall1 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 1));
+    const int recall2 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 2));
+    const int recall3 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 3));
+    const int recall4 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 4));
+    const int recall5 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 5));
+    const int recall6 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 6));
+    const int recall7 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 7));
+    const int recog1 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1));
+    const int recog2 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 2));
+    const int recog3 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 3));
+    const int recog4 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 4));
+    const int recog5 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 5));
+    int score = 0;
+    score += (recall1 && recall2) ? 1 : recog1;  // forename, surname
+    score += recall3 ? 1 : recog2;  // number
+    score += (recall4 && recall5) ? 1 : recog3;  // streetname, streettype
+    score += recall6 ? 1 : recog4;  // city
+    score += recall7 ? 1 : recog5; // county
+    return score;
 }
 
 
@@ -1316,55 +1214,14 @@ bool Ace3::isRecognitionComplete() const
 }
 
 
-QStringList Ace3::rawAddressVersionsAvailable() const
-{
-    const QString x = QString(QStringLiteral("task_address_versions"));
-    const QString csv_data = xstring(x);
-    return convert::csvStringToQStringList(csv_data);
-}
-
-
-bool Ace3::isAddressVersionInfoValid(const QStringList& versions) const
-{
-    // Must be a sequence of capital letters like A, B, C, ...
-    const int n = versions.size();
-    if (n < 1 || n > 26) {
-        return false;
-    }
-    int base = 'A';
-    for (int i = 0; i < n; ++i) {
-        const QString& v = versions[i];
-        const char c = base + i;
-        const QString expected(c);
-        if (v != expected) {
-            return false;
-        }
-
-    }
-    return true;
-}
-
-
-bool Ace3::isAddressVersionInfoValid() const
-{
-    const QStringList versions = rawAddressVersionsAvailable();
-    return isAddressVersionInfoValid(versions);
-}
-
-
-QStringList Ace3::addressVersionsAvailable() const
-{
-    const QStringList versions = rawAddressVersionsAvailable();
-    if (isAddressVersionInfoValid(versions)) {
-        return versions;
-    }
-    // Default for duff data:
-    return QStringList{TASK_DEFAULT_VERSION};
-}
-
+// ============================================================================
+// Task address version support functions
+// ============================================================================
 
 QString Ace3::taskAddressVersion() const
 {
+    // Could be consolidated into AceFamily, but we follow the rule that access
+    // to class-specific data is not put into the parent.
     const QString selected = valueString(FN_TASK_ADDRESS_VERSION);
     if (addressVersionsAvailable().contains(selected)) {
         return selected;
@@ -1375,22 +1232,39 @@ QString Ace3::taskAddressVersion() const
 
 bool Ace3::isChangingAddressVersionOk() const
 {
-    return allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_ADDR)))
-        && allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_ADDR)))
-        && allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR)))
-        && allNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS)))
+    return allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))
         && allNull(values(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS)));
 }
 
 
-QString Ace3::targetAddressComponent(const int component) const
+bool Ace3::isAddressRecogAnswerCorrect(const int line) const
 {
-    Q_ASSERT(component >= 1 && component <= N_MEM_RECALL_ADDRESS);
-    const QString task_address_version = taskAddressVersion();
-    const QString x = QString(
-        QStringLiteral("task_%1_target_address_%2")
-    ).arg(task_address_version).arg(component);
-    return xstring(x);
+    Q_ASSERT(line >= 1 && line <= N_MEM_RECOGNIZE_ADDRESS);
+    const QVector<int> correct_cols = correctColumnsAddressRecog();
+    // correctColumnsAddressRecog() guarantees a vector of the correct size.
+    const int line_idx = line - 1;
+    const int correct_col_one_based = correct_cols[line_idx];
+    const QString answer = valueString(
+                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, line));
+    switch (correct_col_one_based) {
+        case 1:
+            return answer == CHOICE_A;
+        case 2:
+            return answer == CHOICE_B;
+        case 3:
+            return answer == CHOICE_C;
+    }
+    // If we get here, something went wrong.
+    return false;
+}
+
+
+QString Ace3::tagAddressRecog(int line) const
+{
+    return QString(QStringLiteral("addr_recog_%1")).arg(line);
 }
 
 
@@ -1468,46 +1342,6 @@ NameValueOptions Ace3::getAddressRecogOptions(int line) const
 }
 
 
-bool Ace3::isAddressRecogAnswerCorrect(const int line) const
-{
-    Q_ASSERT(line >= 1 && line <= N_MEM_RECOGNIZE_ADDRESS);
-    const QVector<int> correct_cols = correctColumnsAddressRecog();
-    // correctColumnsAddressRecog() guarantees a vector of the correct size.
-    const int line_idx = line - 1;
-    const int correct_col_one_based = correct_cols[line_idx];
-    const QString answer = valueString(
-                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, line));
-    switch (correct_col_one_based) {
-        case 1:
-            return answer == CHOICE_A;
-        case 2:
-            return answer == CHOICE_B;
-        case 3:
-            return answer == CHOICE_C;
-    }
-    // If we get here, something went wrong.
-    return false;
-}
-
-
-QString Ace3::tagAddressRegistration(int trial, int component) const
-{
-    return QString(QStringLiteral("addr_reg_%1_%2")).arg(trial).arg(component);
-}
-
-
-QString Ace3::tagAddressFreeRecall(int component) const
-{
-    return QString(QStringLiteral("addr_recall_%1")).arg(component);
-}
-
-
-QString Ace3::tagAddressRecog(int line) const
-{
-    return QString(QStringLiteral("addr_recog_%1")).arg(line);
-}
-
-
 // ============================================================================
 // Signal handlers
 // ============================================================================
@@ -1515,7 +1349,7 @@ QString Ace3::tagAddressRecog(int line) const
 void Ace3::updateTaskVersionAddresses()
 {
     // Set address components.
-    for (int component = 1; component <= N_MEM_REPEAT_ADDR; ++component) {
+    for (int component = 1; component <= N_MEM_REPEAT_RECALL_ADDR; ++component) {
 
         // 1. Repetition.
         const QString target_text = targetAddressComponent(component);

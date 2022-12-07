@@ -25,6 +25,8 @@ camcops_server/tasks/ace3.py
 
 ===============================================================================
 
+ACE-III and Mini-ACE.
+
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, TYPE_CHECKING
@@ -93,6 +95,32 @@ FLUENCY_MAX = 14
 LANG_MAX = 26
 VSP_MAX = 16
 MINI_ACE_MAX = 30
+
+AGE_FTE = "Age on leaving full-time education"
+OCCUPATION = "Occupation"
+HANDEDNESS = "Handedness"
+N_ATTN_TIME_ACE = 5
+N_ATTN_TIME_MINIACE = 4
+N_MEM_REPEAT_RECALL_ADDR = 7
+ANIMAL_FLUENCY_SCORING_HTML = (
+    "Score for animals <i>(≥22 scores 7, 17–21 scores 6, 14–16 scores 5, "
+    "11–13 scores 4, 9–10 scores 3, 7–8 scores 2, 5–6 scores 1, "
+    "&lt;5 scores 0)</i>"
+)
+ACE3_COPYRIGHT = """
+ACE-III: Copyright © 2012, John Hodges. “The ACE-III is available for free. The
+copyright is held by Professor John Hodges who is happy for the test to be used
+in clinical practice and research projects. There is no need to contact us if
+you wish to use the ACE-III in clinical practice.” (ACE-III FAQ, 7 July 2013,
+www.neura.edu.au).
+"""
+MINI_ACE_THRESHOLDS = """
+In the mini-ACE, scores ≤21 had sensitivity 0.61 and specificity 1.0 for
+dementia, and scores ≤25 had sensitivity 0.85 and specificity 0.87 for
+dementia, in a context of patients with Alzheimer’s disease, behavioural
+variant frontotemporal dementia, corticobasal syndrome, primary progressive
+aphasia, and controls (Hsieh et al., 2015, PMID 25227877).
+"""
 
 
 # =============================================================================
@@ -173,7 +201,7 @@ class Ace3Metaclass(DeclarativeMeta):
             cls,
             "mem_repeat_address_trial1_",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, address registration trial 1/3 "
             "(not scored), {s} (0 or 1)",
@@ -183,7 +211,7 @@ class Ace3Metaclass(DeclarativeMeta):
             cls,
             "mem_repeat_address_trial2_",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, address registration trial 2/3 "
             "(not scored), {s} (0 or 1)",
@@ -193,7 +221,7 @@ class Ace3Metaclass(DeclarativeMeta):
             cls,
             "mem_repeat_address_trial3_",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, address registration trial 3/3 "
             "(scored), {s} (0 or 1)",
@@ -306,7 +334,7 @@ class Ace3Metaclass(DeclarativeMeta):
             cls,
             "mem_recall_address",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, recall address {n}/7, {s} (0-1)",
             comment_strings=ADDRESS_PARTS,
@@ -449,22 +477,22 @@ class Ace3(
 
     picture1 = blob_relationship(
         "Ace3", "picture1_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
     picture2 = blob_relationship(
         "Ace3", "picture2_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
 
     ATTN_SCORE_FIELDS = (
-        strseq("attn_time", 1, 5)
+        strseq("attn_time", 1, N_ATTN_TIME_ACE)
         + strseq("attn_place", 1, 5)
         + strseq("attn_repeat_word", 1, 3)
         + strseq("attn_serial7_subtraction", 1, 5)
     )
     MEM_NON_RECOG_SCORE_FIELDS = (
         strseq("mem_recall_word", 1, 3)
-        + strseq("mem_repeat_address_trial3_", 1, 7)
+        + strseq("mem_repeat_address_trial3_", 1, N_MEM_REPEAT_RECALL_ADDR)
         + strseq("mem_famous", 1, 4)
-        + strseq("mem_recall_address", 1, 7)
+        + strseq("mem_recall_address", 1, N_MEM_REPEAT_RECALL_ADDR)
     )
     LANG_SIMPLE_SCORE_FIELDS = (
         strseq("lang_write_sentences_point", 1, 2)
@@ -491,14 +519,15 @@ class Ace3(
             "vsp_draw_clock",
         ]
         + VSP_SIMPLE_SCORE_FIELDS
-        + strseq("mem_recall_address", 1, 7)
+        + strseq("mem_recall_address", 1, N_MEM_REPEAT_RECALL_ADDR)
     )
     MINI_ACE_FIELDS = (
-        strseq("attn_time", 1, 4)  # 4 points; not season
+        strseq("attn_time", 1, N_ATTN_TIME_MINIACE)  # 4 points; not season
         + ["fluency_animals_score"]  # 7 points
-        + strseq("mem_repeat_address_trial3_", 1, 7)  # 7 points
+        + strseq("mem_repeat_address_trial3_", 1, N_MEM_REPEAT_RECALL_ADDR)
+        # ... 7 points
         + ["vsp_draw_clock"]  # 5 points
-        + strseq("mem_recall_address", 1, 7)  # 7 points
+        + strseq("mem_recall_address", 1, N_MEM_REPEAT_RECALL_ADDR)  # 7 points
     )
 
     @staticmethod
@@ -827,11 +856,11 @@ class Ace3(
                     </tr>
             """
             + tr_qa(
-                "Age on leaving full-time education",
+                AGE_FTE,
                 self.age_at_leaving_full_time_education,
             )
-            + tr_qa("Occupation", ws.webify(self.occupation))
-            + tr_qa("Handedness", ws.webify(self.handedness))
+            + tr_qa(OCCUPATION, ws.webify(self.occupation))
+            + tr_qa(HANDEDNESS, ws.webify(self.handedness))
             + subheading_spanning_two_columns("Attention")
             + tr(
                 "Day? Date? Month? Year? Season?",
@@ -910,9 +939,7 @@ class Ace3(
                 answer(self.fluency_letters_score) + " / 7",
             )
             + tr(
-                "Score for animals <i>(≥22 scores 7, 17–21 scores 6, "
-                "14–16 scores 5, 11–13 scores 4, 9–10 scores 3, "
-                "7–8 scores 2, 5–6 scores 1, &lt;5 scores 0)</i>",
+                ANIMAL_FLUENCY_SCORING_HTML,
                 answer(self.fluency_animals_score) + " / 7",
             )
             + subheading_spanning_two_columns("Memory (2)")
@@ -1163,22 +1190,10 @@ class Ace3(
                     frontotemporal dementia, and controls (Hsieh et al., 2013,
                     PMID 23949210).
 
-                    [2] In the mini-ACE, scores ≤21 had sensitivity 0.61 and
-                    specificity 1.0 for dementia, and scores ≤25 had
-                    sensitivity 0.85 and specificity 0.87 for dementia, in a
-                    context of patients with Alzheimer’s disease, behavioural
-                    variant frontotemporal dementia, corticobasal syndrome,
-                    primary progressive aphasia, and controls (Hsieh et al.,
-                    2015, PMID 25227877).
+                    [2] {MINI_ACE_THRESHOLDS}
                 </div>
                 <div class="{CssClass.COPYRIGHT}">
-                    ACE-III: Copyright © 2012, John Hodges.
-                    “The ACE-III is available for free. The copyright is held
-                    by Professor John Hodges who is happy for the test to be
-                    used in clinical practice and research projects. There is
-                    no need to contact us if you wish to use the ACE-III in
-                    clinical practice.”
-                    (ACE-III FAQ, 7 July 2013, www.neura.edu.au).
+                    {ACE3_COPYRIGHT}
                 </div>
             """
         )
@@ -1220,3 +1235,324 @@ class Ace3(
             )
         # There's no mini-ACE code yet, as of 2022-12-01.
         return codes
+
+
+# =============================================================================
+# Mini-ACE
+# =============================================================================
+
+
+class MiniAceMetaclass(DeclarativeMeta):
+    # noinspection PyInitNewSignature
+    def __init__(
+        cls: Type["MiniAce"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
+        add_multiple_columns(
+            cls,
+            "attn_time",
+            1,
+            N_ATTN_TIME_MINIACE,  # 4, not 5
+            pv=PV.BIT,
+            comment_fmt="Attention, time, {n}/4, {s} (0 or 1)",
+            comment_strings=["day", "date", "month", "year"],  # not season
+        )
+        add_multiple_columns(
+            cls,
+            "mem_repeat_address_trial1_",
+            1,
+            7,
+            pv=PV.BIT,
+            comment_fmt="Memory, address registration trial 1/3 "
+            "(not scored), {s} (0 or 1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls,
+            "mem_repeat_address_trial2_",
+            1,
+            7,
+            pv=PV.BIT,
+            comment_fmt="Memory, address registration trial 2/3 "
+            "(not scored), {s} (0 or 1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls,
+            "mem_repeat_address_trial3_",
+            1,
+            7,
+            pv=PV.BIT,
+            comment_fmt="Memory, address registration trial 3/3 "
+            "(scored), {s} (0 or 1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+        add_multiple_columns(
+            cls,
+            "mem_recall_address",
+            1,
+            7,
+            pv=PV.BIT,
+            comment_fmt="Memory, recall address {n}/7, {s} (0-1)",
+            comment_strings=ADDRESS_PARTS,
+        )
+
+        super().__init__(name, bases, classdict)
+
+
+class MiniAce(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+    metaclass=MiniAceMetaclass,
+):
+    """
+    Server implementation of the Mini-ACE task.
+    """
+
+    __tablename__ = "miniace"
+    shortname = "Mini-ACE"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    task_edition = CamcopsColumn(
+        "task_edition",
+        String(length=100),
+        comment="Task edition.",
+    )
+    task_address_version = CamcopsColumn(
+        "task_address_version",
+        String(length=1),
+        comment="Task version, determining the address for recall (A/B/C).",
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=["A", "B", "C"]
+        ),
+    )
+    remote_administration = CamcopsColumn(
+        "remote_administration",
+        Boolean,
+        permitted_value_checker=BIT_CHECKER,
+        comment="Task performed using remote (videoconferencing) "
+        "administration?",
+    )
+    age_at_leaving_full_time_education = Column(
+        "age_at_leaving_full_time_education",
+        Integer,
+        comment="Age at leaving full time education",
+    )
+    occupation = Column("occupation", UnicodeText, comment=OCCUPATION)
+    handedness = CamcopsColumn(
+        "handedness",
+        String(length=1),  # was Text
+        comment="Handedness (L or R)",
+        permitted_value_checker=PermittedValueChecker(
+            permitted_values=["L", "R"]
+        ),
+    )
+    fluency_animals_score = CamcopsColumn(
+        "fluency_animals_score",
+        Integer,
+        comment="Fluency, animals, score 0-7",
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
+    )  # type: Optional[int]
+    vsp_draw_clock = CamcopsColumn(
+        "vsp_draw_clock",
+        Integer,
+        comment="Visuospatial, draw clock (0-5)",
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
+    )  # type: Optional[int]
+    picture1_blobid = CamcopsColumn(
+        "picture1_blobid",
+        Integer,
+        comment="Photo 1/2 PNG BLOB ID",
+        is_blob_id_field=True,
+        blob_relationship_attr_name="picture1",
+    )
+    picture2_blobid = CamcopsColumn(
+        "picture2_blobid",
+        Integer,
+        comment="Photo 2/2 PNG BLOB ID",
+        is_blob_id_field=True,
+        blob_relationship_attr_name="picture2",
+    )
+    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+
+    picture1 = blob_relationship(
+        "MiniAce", "picture1_blobid"
+    )  # type: Optional[Blob]
+    picture2 = blob_relationship(
+        "MiniAce", "picture2_blobid"
+    )  # type: Optional[Blob]
+
+    MINI_ACE_FIELDS = (
+        strseq("attn_time", 1, N_ATTN_TIME_MINIACE)  # 4 points; not season
+        + ["fluency_animals_score"]  # 7 points
+        + strseq("mem_repeat_address_trial3_", 1, 7)  # 7 points
+        + ["vsp_draw_clock"]  # 5 points
+        + strseq("mem_recall_address", 1, 7)  # 7 points
+    )
+
+    @staticmethod
+    def longname(req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Mini-Addenbrooke’s Cognitive Examination")
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        return [
+            TrackerInfo(
+                value=self.mini_ace_score(),
+                plot_label="Mini-ACE score",
+                axis_label=f"Mini-ACE score (out of {MINI_ACE_MAX})",
+                axis_min=-0.5,
+                axis_max=MINI_ACE_MAX + 0.5,
+                # Traditional cutoffs: ≤21, ≤25
+                horizontal_lines=[21.5, 25.5],
+            ),
+        ]
+
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
+        if not self.is_complete():
+            return CTV_INCOMPLETE
+        mini = self.mini_ace_score()
+        text = f"Mini-ACE score: {mini}/{MINI_ACE_MAX})"
+        return [CtvInfo(content=text)]
+
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
+        return self.standard_task_summary_fields() + [
+            SummaryElement(
+                name="mini_ace",
+                coltype=Integer(),
+                value=self.mini_ace_score(),
+                comment=f"Mini-ACE (/{MINI_ACE_MAX})",
+            ),
+        ]
+
+    def mini_ace_score(self) -> int:
+        return self.sum_fields(self.MINI_ACE_FIELDS)
+
+    def is_complete(self) -> bool:
+        return (
+            self.all_fields_not_none(self.MINI_ACE_FIELDS)
+            and self.field_contents_valid()
+        )
+
+    def get_task_html(self, req: CamcopsRequest) -> str:
+        def percent(score: int, maximum: int) -> str:
+            return ws.number_to_dp(100 * score / maximum, PERCENT_DP)
+
+        mini = self.mini_ace_score()
+        return (
+            self.get_standard_clinician_comments_block(req, self.comments)
+            + f"""
+                <div class="{CssClass.SUMMARY}">
+                    <table class="{CssClass.SUMMARY}">
+            """
+            + tr(
+                "Mini-ACE score <sup>[1]</sup>",
+                answer(mini) + f" / {MINI_ACE_MAX}",
+            )
+            + f"""
+                    </table>
+                </div>
+                <table class="{CssClass.TASKCONFIG}">
+                    <tr>
+                        <th width="75%">Task aspect</th>
+                        <th width="25%">Setting</td>
+                    </tr>
+            """
+            + tr_qa("Edition", self.task_edition)
+            + tr_qa("Version", self.task_address_version)
+            + tr_qa(
+                "Remote administration?",
+                get_yes_no_none(self, self.remote_administration),
+            )
+            + f"""
+                <table class="{CssClass.TASKDETAIL}">
+                    <tr>
+                        <th width="75%">Question</th>
+                        <th width="25%">Answer/score</td>
+                    </tr>
+            """
+            + tr_qa(
+                AGE_FTE,
+                self.age_at_leaving_full_time_education,
+            )
+            + tr_qa(OCCUPATION, ws.webify(self.occupation))
+            + tr_qa(HANDEDNESS, ws.webify(self.handedness))
+            + subheading_spanning_two_columns("Attention")
+            + tr(
+                "Day? Date? Month? Year?",  # not season
+                ", ".join(
+                    answer(x)
+                    for x in (
+                        self.attn_time1,
+                        self.attn_time2,
+                        self.attn_time3,
+                        self.attn_time4,
+                    )
+                ),
+            )
+            + subheading_spanning_two_columns("Memory")
+            + tr(
+                "Third trial of address registration: Harry? Barnes? 73? "
+                "Orchard? Close? Kingsbridge? Devon?",
+                ", ".join(
+                    answer(x)
+                    for x in (
+                        self.mem_repeat_address_trial3_1,
+                        self.mem_repeat_address_trial3_2,
+                        self.mem_repeat_address_trial3_3,
+                        self.mem_repeat_address_trial3_4,
+                        self.mem_repeat_address_trial3_5,
+                        self.mem_repeat_address_trial3_6,
+                        self.mem_repeat_address_trial3_7,
+                    )
+                ),
+            )
+            + subheading_spanning_two_columns("Fluency – animals")
+            + tr(
+                ANIMAL_FLUENCY_SCORING_HTML,
+                answer(self.fluency_animals_score) + " / 7",
+            )
+            + subheading_spanning_two_columns("Clock drawing")
+            + tr(
+                "Draw clock with numbers and hands at 5:10",
+                answer(self.vsp_draw_clock) + " / 5",
+            )
+            + subheading_spanning_two_columns("Memory recall")
+            + tr(
+                "Recall address: Harry? Barnes? 73? Orchard? Close? "
+                "Kingsbridge? Devon?",
+                ", ".join(
+                    answer(x)
+                    for x in (
+                        self.mem_recall_address1,
+                        self.mem_recall_address2,
+                        self.mem_recall_address3,
+                        self.mem_recall_address4,
+                        self.mem_recall_address5,
+                        self.mem_recall_address6,
+                        self.mem_recall_address7,
+                    )
+                ),
+            )
+            + subheading_spanning_two_columns("Photos of test sheet")
+            + tr_span_col(
+                get_blob_img_html(self.picture1), td_class=CssClass.PHOTO
+            )
+            + tr_span_col(
+                get_blob_img_html(self.picture2), td_class=CssClass.PHOTO
+            )
+            + f"""
+                </table>
+                <div class="{CssClass.FOOTNOTES}">
+                    [1] {MINI_ACE_THRESHOLDS}
+                </div>
+                <div class="{CssClass.COPYRIGHT}">
+                    {ACE3_COPYRIGHT}
+                </div>
+            """
+        )

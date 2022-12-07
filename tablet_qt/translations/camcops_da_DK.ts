@@ -17,7 +17,7 @@
 <context>
     <name>Ace3</name>
     <message>
-        <location filename="../tasks/ace3.cpp" line="+231"/>
+        <location filename="../tasks/ace3.cpp" line="+279"/>
         <source>Addenbrooke’s Cognitive Examination, revision 3</source>
         <translation>Addenbrooke’s Cognitive Examination [Addenbrooke&apos;s kognitive undersøgelse], revision 3</translation>
     </message>
@@ -27,32 +27,37 @@
         <translation>100-point klinisk administreret vurdering af opmærksomhed / orientering, hukommelse, flydende, sprog og visuospatiale domæner.</translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+12"/>
+        <source>Server strings are not providing valid information about which address components are correct. Try re-fetching server info.</source>
+        <translation>Serverstrenge giver ikke gyldige oplysninger om, hvilke adressekomponenter der er korrekte. Prøv at hente serveroplysninger igen.</translation>
+    </message>
+    <message>
+        <location line="+133"/>
         <source>Preamble</source>
         <translation>Præambel</translation>
     </message>
     <message>
-        <location line="+103"/>
+        <location line="+110"/>
         <source>Attention</source>
         <translation>Opmærksomhed</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+48"/>
         <source>Fluency</source>
         <translation>Udtryksevne</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+70"/>
         <source>Address learning; famous people</source>
         <translation>Adresseindlæring: berømte mennesker</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+18"/>
         <source>Other commands not shown; subject failed practice trial.</source>
         <translation>Andre kommandoer vises ikke; personen mislykkedes i praksis.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+11"/>
         <source>Commands; writing sentences</source>
         <translation>Kommandoer; skrive sætninger</translation>
     </message>
@@ -62,37 +67,37 @@
         <translation>Gentagelse</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+42"/>
         <source>Naming pictures</source>
         <translation>Navngivning af billeder</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>Reading irregular words</source>
         <translation>Læsning af uregelmæssige ord</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Infinity</source>
         <translation>Uendeligt symbol</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Cube</source>
         <translation>Cube</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Clock</source>
         <translation>Ur</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+18"/>
         <source>Dot counting</source>
         <translation>Tælle prikker</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>Noisy letters</source>
         <translation>Uklare bogstaver i alfabetet</translation>
     </message>
@@ -107,42 +112,42 @@
         <translation>[påmindelse til kliniker]</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Free recall</source>
         <translation>Uopfordret tilbagekaldelse</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+9"/>
         <source>Name:</source>
         <translation>Navn:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+1"/>
         <source>Number:</source>
         <translation>Nummer:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+1"/>
         <source>Street:</source>
         <translation>Gade:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+1"/>
         <source>Town:</source>
         <translation>By:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+1"/>
         <source>County:</source>
         <translation>Amt:</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Cued recall</source>
-        <translation>Forespurgt tilbagekaldelse</translation>
+        <location line="+32"/>
+        <source>Recognition</source>
+        <translation>Genkendelse</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Comments</source>
         <translation>Kommentarer</translation>
     </message>
@@ -155,6 +160,14 @@
         <location line="+13"/>
         <source>Photo 2</source>
         <translation>Foto 2</translation>
+    </message>
+</context>
+<context>
+    <name>AceFamily</name>
+    <message>
+        <location filename="../tasks/acefamily.cpp" line="+114"/>
+        <source>Server strings are not providing valid information about which address versions are available. Try re-fetching server info.</source>
+        <translation>Serverstrenge giver ikke gyldige oplysninger om, hvilke adresseversioner der er tilgængelige. Prøv at hente serveroplysninger igen.</translation>
     </message>
 </context>
 <context>
@@ -1223,7 +1236,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CognitiveMenu</name>
     <message>
-        <location filename="../menu/cognitivemenu.cpp" line="+40"/>
+        <location filename="../menu/cognitivemenu.cpp" line="+41"/>
         <source>Cognitive assessment</source>
         <translation>Kognitiv vurdering</translation>
     </message>
@@ -1742,7 +1755,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Audio afspillere, nedtællinger</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>On this page, some questions must be completed before the ‘Next’ button appears. &lt;b&gt;Make the yellow disappear to continue!&lt;/b&gt;</source>
         <translation>På denne side skal nogle spørgsmål udfyldes, før knappen ‘Næste‘ vises. &lt;b&gt;Gør den gule forsvinder for at fortsætte!&lt;/b&gt;</translation>
     </message>
@@ -2006,7 +2019,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Multiple-respons spørgsmål</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>Inline picker:</source>
         <translation>Inline plukkere:</translation>
     </message>
@@ -2047,7 +2060,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation> - kølet ud</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+36"/>
         <source>Roses are best when red.</source>
         <translation>Roser er bedst, når de er røde.</translation>
     </message>
@@ -2087,7 +2100,7 @@ enig</translation>
         <translation>Skyderen er indstillet til %1 cm; “kan krympe” = %2</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+14"/>
         <source>Integer slider:</source>
         <translation>Heltal glideskala:</translation>
     </message>
@@ -2152,7 +2165,7 @@ enig</translation>
         <translation>Glidere og termometre</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+14"/>
         <source>Pages for clinicians have a different background colour.</source>
         <translation>Sider for klinikere har en anden baggrundsfarve.</translation>
     </message>
@@ -2277,27 +2290,27 @@ enig</translation>
         <translation>Redigerbar variabel inklusive datoer/tider</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+24"/>
         <source>Diagnostic code, ICD-10:</source>
         <translation>Diagnostisk kode, ICD-10:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+2"/>
         <source>Diagnostic code, clone of the preceding:</source>
         <translation>Diagnostisk kode, klon af det foregående:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+2"/>
         <source>Diagnostic code, ICD-9-CM:</source>
         <translation>Diagnostisk kode, ICD-9-CM:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+2"/>
         <source>Diagnostic codes</source>
         <translation>Diagnostiske koder</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>Page style: ClinicianWithPatient</source>
         <translation>Sidestil: kliniker med patient</translation>
     </message>
@@ -2317,7 +2330,7 @@ enig</translation>
         <translation>Lærred ved hjælp af filer:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Canvas, clone of the first one:</source>
         <translation>Lærred, klon af den første:</translation>
     </message>
@@ -2332,7 +2345,7 @@ enig</translation>
         <translation>Som før, men med scrolling deaktiveret:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Canvas (disabling scrolling)</source>
         <translation>Lærred (deaktiveret rulning)</translation>
     </message>
@@ -3716,6 +3729,74 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>MiniAce</name>
+    <message>
+        <location filename="../tasks/miniace.cpp" line="+127"/>
+        <source>Mini-Addenbrooke’s Cognitive Examination</source>
+        <translation>Mini-Addenbrooke’s Cognitive Examination [Mini-Addenbrooke&apos;s kognitive undersøgelse]</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>30-point clinician-administered assessment of attention/orientation, memory, fluency, and visuospatial domains.</source>
+        <translation>30-punkts klinikeradministreret vurdering af opmærksomhed / orientering, hukommelse, flydende og visuospatial domæner.</translation>
+    </message>
+    <message>
+        <location line="+95"/>
+        <source>Preamble</source>
+        <translation type="unfinished">Præambel</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Attention</source>
+        <translation type="unfinished">Opmærksomhed</translation>
+    </message>
+    <message>
+        <location line="+62"/>
+        <source>Address learning; famous people</source>
+        <translation type="unfinished">Adresseindlæring: berømte mennesker</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Fluency</source>
+        <translation type="unfinished">Udtryksevne</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Clock</source>
+        <translation type="unfinished">Ur</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Please make sure the subject can’t see the screen before you proceed. (Memory prompts coming up.)</source>
+        <translation type="unfinished">Sørg for, at motivet ikke kan se skærmen, før du fortsætter. (Hukommelsesopkald kommer op.)</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>[reminder to clinician]</source>
+        <translation type="unfinished">[påmindelse til kliniker]</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Free recall</source>
+        <translation type="unfinished">Uopfordret tilbagekaldelse</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Comments</source>
+        <translation type="unfinished">Kommentarer</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Photo 1</source>
+        <translation type="unfinished">Foto 1</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Photo 2</source>
+        <translation type="unfinished">Foto 2</translation>
+    </message>
+</context>
+<context>
     <name>Moca</name>
     <message>
         <location filename="../tasks/moca.cpp" line="+116"/>
@@ -4780,7 +4861,7 @@ enig</translation>
 <context>
     <name>Phq8</name>
     <message>
-        <location filename="../tasks/phq8.cpp" line="+74"/>
+        <location filename="../tasks/phq8.cpp" line="+75"/>
         <source>Patient Health Questionnaire 8-item depression scale</source>
         <translation>Patient Health Spørgeskema 8-punkts depression skala</translation>
     </message>
@@ -4907,7 +4988,7 @@ enig</translation>
         <translation>Kunne ikke oprette mappe: </translation>
     </message>
     <message>
-        <location filename="../maths/mathfunc.cpp" line="+778"/>
+        <location filename="../maths/mathfunc.cpp" line="+791"/>
         <source>true</source>
         <translation>sand</translation>
     </message>
@@ -4946,7 +5027,7 @@ enig</translation>
 <context>
     <name>QuCountdown</name>
     <message>
-        <location filename="../questionnairelib/qucountdown.cpp" line="+77"/>
+        <location filename="../questionnairelib/qucountdown.cpp" line="+78"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
@@ -4974,7 +5055,7 @@ enig</translation>
 <context>
     <name>QuDiagnosticCode</name>
     <message>
-        <location filename="../questionnairelib/qudiagnosticcode.cpp" line="+102"/>
+        <location filename="../questionnairelib/qudiagnosticcode.cpp" line="+104"/>
         <source>Set diagnosis</source>
         <translation>Indstil diagnose</translation>
     </message>
@@ -4987,12 +5068,12 @@ enig</translation>
 <context>
     <name>QuLineEditDouble</name>
     <message>
-        <location filename="../questionnairelib/qulineeditdouble.cpp" line="+47"/>
+        <location filename="../questionnairelib/qulineeditdouble.cpp" line="+48"/>
         <source>real number, %1 dp</source>
         <translation>reelt tal, %1 decimaler</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>real number, %1 to %2, %3 dp</source>
         <translation>reelt tal, %1 til %2, %3 decimaler</translation>
     </message>
@@ -5000,7 +5081,7 @@ enig</translation>
 <context>
     <name>QuMcq</name>
     <message>
-        <location filename="../questionnairelib/qumcq.cpp" line="+186"/>
+        <location filename="../questionnairelib/qumcq.cpp" line="+221"/>
         <source>Pick one:</source>
         <translation>Vælg en:</translation>
     </message>
@@ -5008,7 +5089,7 @@ enig</translation>
 <context>
     <name>QuPage</name>
     <message>
-        <location filename="../questionnairelib/qupage.cpp" line="+325"/>
+        <location filename="../questionnairelib/qupage.cpp" line="+326"/>
         <source>Invalid information</source>
         <translation>Ugyldig information</translation>
     </message>
@@ -5016,7 +5097,7 @@ enig</translation>
 <context>
     <name>QuPhoto</name>
     <message>
-        <location filename="../questionnairelib/quphoto.cpp" line="+108"/>
+        <location filename="../questionnairelib/quphoto.cpp" line="+109"/>
         <source>No camera</source>
         <translation>Ikke noget kamera</translation>
     </message>
@@ -5061,7 +5142,7 @@ enig</translation>
 <context>
     <name>Questionnaire</name>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="+462"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="+468"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
@@ -6235,17 +6316,17 @@ enig</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+116"/>
+        <location line="+133"/>
         <source>Task status</source>
         <translation>Opgavestatus</translation>
     </message>
     <message>
-        <location line="-111"/>
+        <location line="-128"/>
         <source>Task instances</source>
         <translation>Opgaveinstanser</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+39"/>
         <source>You cannot add this task with your current settings.</source>
         <translation>Du kan ikke tilføje denne opgave med dine nuværende indstillinger.</translation>
     </message>
@@ -6255,12 +6336,12 @@ enig</translation>
         <translation>Nuværende grund</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Not permitted to add task</source>
         <translation>Ikke tilladt at tilføje opgave</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+21"/>
         <source>Really create?</source>
         <translation>Opret virkelig?</translation>
     </message>
@@ -6275,7 +6356,7 @@ enig</translation>
         <translation>Opret alligevel?</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Yes, create</source>
         <translation>Ja, opret</translation>
     </message>
@@ -6340,7 +6421,7 @@ enig</translation>
         <translation>Forbyder forskningsbrug</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+5"/>
         <source>Permissible (creatable) with current settings</source>
         <translation>Tilladelig (kreativ) med aktuelle indstillinger</translation>
     </message>
@@ -6350,7 +6431,7 @@ enig</translation>
         <translation>Hvis ikke, hvorfor ikke tilladt</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Uploadable to current server</source>
         <translation>Uploades til den aktuelle server</translation>
     </message>
@@ -6360,17 +6441,17 @@ enig</translation>
         <translation>Hvis ikke, hvorfor ikke uploades</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Fully functional</source>
         <translation>Fuldt funktionsdygtig</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-11"/>
         <source>Extra strings present from server</source>
         <translation>Ekstra strings til stede fra serveren</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+12"/>
         <source>Editable once created</source>
         <translation>Redigerbar, når den er oprettet</translation>
     </message>
@@ -6541,7 +6622,7 @@ enig</translation>
 <context>
     <name>Task</name>
     <message>
-        <location filename="../tasklib/task.cpp" line="+258"/>
+        <location filename="../tasklib/task.cpp" line="+263"/>
         <source>MISSING PATIENT</source>
         <translation>MISSENDE PATIENT</translation>
     </message>
@@ -6556,12 +6637,7 @@ enig</translation>
         <translation>Du har ikke sagt, om du bruger denne software i denne sammenhæng (se Indstillinger).</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Task permissible</source>
-        <translation>Opgave er tilladt</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+6"/>
         <source>Task not allowed for commercial use (see Task Information).</source>
         <translation>Opgave ikke tilladt til kommerciel brug (se Opgaveoplysninger).</translation>
     </message>
@@ -6582,33 +6658,33 @@ enig</translation>
     </message>
     <message>
         <location line="+23"/>
-        <source>Task may not be created in &apos;skeleton&apos; form (strings not downloaded from server).</source>
-        <translation>Opgaven må ikke oprettes i &apos;skelet&apos;-form (strenge, der ikke hentes fra serveren).</translation>
+        <source>Task may not be created in &apos;skeleton&apos; form (strings need to be downloaded from server).</source>
+        <translation>Opgaven må ikke oprettes i &apos;skelet&apos;-form (strenge skal downloades fra serveren).</translation>
     </message>
     <message>
-        <location line="+38"/>
-        <source>Task uploadable</source>
-        <translation>Opgave kan uploades</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+45"/>
         <source>Table &apos;%1&apos; absent on server.</source>
         <translation>Tabel &apos;%1&apos; er fraværende på serveren.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Server requires client version &gt;=%1 for table &apos;%2&apos;, but we are only client version %3.</source>
         <translation>Server kræver klientversion &gt;=%1 for tabel &apos;%2&apos;, men vi er kun klientversion %3.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>This client requires server version &gt;=%1, but the server is only version %2.</source>
         <translation>Denne klient kræver serverversion &gt;=%1, men serveren er kun version %2.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>This client requires server version &gt;=%1 for table &apos;%2&apos;, but the server is only version %3.</source>
         <translation>Denne klient kræver serverversion &gt;= %1 for tabel &apos;%2&apos;, men serveren er kun version %3.</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>This client requires content strings from server version &gt;=%1, but the server is only version %2. If the server has recently been updated, re-fetch the server information from the Settings menu.</source>
+        <translation>Denne klient kræver indholdsstrenge fra serverversionen &gt;=%1, men serveren er kun version %2. Hvis serveren for nylig er blevet opdateret, skal du hente serveroplysningerne igen fra menuen Indstillinger.</translation>
     </message>
     <message>
         <location line="+104"/>
@@ -6671,29 +6747,22 @@ Afsluttet</translation>
         <translation>Null-opgavemarkør</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>You cannot complete this task with your current settings.</source>
-        <translation>Du kan ikke gennemføre denne opgave med dine nuværende indstillinger.</translation>
+        <location line="+8"/>
+        <source>You cannot complete this task at this time.</source>
+        <translation>Du kan ikke fuldføre denne opgave på nuværende tidspunkt.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+11"/>
         <source>Current reason</source>
         <translation>Nuværende grund</translation>
     </message>
     <message>
-        <location line="-8"/>
+        <location line="+3"/>
         <source>Not permitted to complete task</source>
         <translation>Det er ikke tilladt at udføre opgaven</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>You cannot complete this task.</source>
-        <translation>Du kan ikke gennemføre denne opgave.</translation>
-    </message>
-    <message>
-        <location line="-17"/>
-        <location line="+21"/>
+        <location line="-11"/>
         <source>Unable to complete task</source>
         <translation>Kan ikke udføre opgaven</translation>
     </message>

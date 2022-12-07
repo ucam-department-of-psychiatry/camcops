@@ -21,17 +21,15 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-#include "tasklib/task.h"
+#include "acefamily.h"
 
-class CamcopsApp;
 class OpenableWidget;
-class Questionnaire;
 class TaskFactory;
 
 void initializeAce3(TaskFactory& factory);
 
 
-class Ace3 : public Task
+class Ace3 : public AceFamily
 {
     Q_OBJECT
 public:
@@ -43,9 +41,6 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool hasClinician() const override { return true; }
-    virtual bool prohibitsCommercial() const override { return true; }
-    virtual Version minimumServerVersion() const override;
     virtual bool isTaskProperlyCreatable(QString& why_not_creatable) const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -67,75 +62,54 @@ protected:
     // ------------------------------------------------------------------------
     // Internal scoring/completeness tests
     // ------------------------------------------------------------------------
-    int getMemRecognitionScore() const;
     int getFollowCommandScore() const;
     int getRepeatWordScore() const;
+    int getMemRecognitionScore() const;
     bool isRecognitionComplete() const;
 
     // ------------------------------------------------------------------------
-    // Task address version: support functions
+    // Task address version support functions
     // ------------------------------------------------------------------------
-
-    // Internal: the CSV-split xstring providing task address version info.
-    QStringList rawAddressVersionsAvailable() const;
-
-    // Is the information provided by the server about available address
-    // versions (e.g. A or A,B,C) valid?
-    bool isAddressVersionInfoValid() const;
-
-    // Internal function to provide the validity check on a specific list
-    // of strings.
-    bool isAddressVersionInfoValid(const QStringList& versions) const;
-
-    // Address versions that are available. Each element is a character,
-    // typically "A", "B", "C" (but this varies with language).
-    // Defaults to "A" alone if the information is invalid.
-    QStringList addressVersionsAvailable() const;
 
     // The task address version currently in use (A/B/C).
     // Guaranteed to be valid (even with missing/incorrect underlying data),
     // by defaulting to 'A'.
-    QString taskAddressVersion() const;
+    QString taskAddressVersion() const override;
 
     // Is it OK to change task address version? (The converse question: have we
     // collected data, such that changing task address version is dubious?)
-    bool isChangingAddressVersionOk() const;
+    bool isChangingAddressVersionOk() const override;
 
-    // One of the seven components of the main (target) address:
-    QString targetAddressComponent(int component) const;
+    // Is a specific answer both present and correct?
+    bool isAddressRecogAnswerCorrect(int line) const;
 
     // An element from the 5-row, 3-alternative-column grid for address
     // recognition (using 1-based numbering):
     QString addressRecogElement(int line, int column) const;
+
+    // Is the "correct column" information for the current task version valid?
+    bool isAddressRecogCorrectColumnInfoValid() const;
+
+    // Is the given "correct column" information valid?
+    bool isAddressRecogCorrectColumnInfoValid(
+            const QVector<int>& correct_cols) const;
 
     // The correct option for each of the 5 lines for address recognition, for
     // the current task version. Guaranteed to return correctly formatted data,
     // by defaulting to English 'A'.
     QVector<int> correctColumnsAddressRecog() const;
 
-    // Same, but for any given task version.
-    // May return invalid data.
+    // The correct option for each of the 5 lines for address recognition, for
+    // any given task version. May return invalid data.
     QVector<int> correctColumnsAddressRecog(
             const QString& task_address_version) const;
-
-    // Is the "correct column" information for the current task version valid?
-    bool isAddressRecogCorrectColumnInfoValid() const;
-
-    // Same, but for any given task version.
-    bool isAddressRecogCorrectColumnInfoValid(
-            const QVector<int>& correct_cols) const;
 
     // MCQ options for a given address recognition line
     NameValueOptions getAddressRecogOptions(int line) const;
 
-    // Is a specific answer both present and correct?
-    bool isAddressRecogAnswerCorrect(int line) const;
-
     // ------------------------------------------------------------------------
     // Automatic tag generation
     // ------------------------------------------------------------------------
-    QString tagAddressRegistration(int trial, int component) const;
-    QString tagAddressFreeRecall(int component) const;
     QString tagAddressRecog(int line) const;
 
     // ------------------------------------------------------------------------
@@ -156,9 +130,4 @@ public slots:
 
     // Update language elements depending on the subject's practice trial.
     void langPracticeChanged(const FieldRef* fieldref);
-
-protected:
-    QPointer<Questionnaire> m_questionnaire;
-public:
-    static const QString ACE3_TABLENAME;
 };

@@ -3726,9 +3726,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   tablet support, this code would just be wasting time.
 
 - ACE-III supports versions A/B/C (address variation), defaulting to version A
-  as before. Clients v2.4.15+ therefore require server 2.4.15+ to upload.
-  If you create a new task on a client when the server is old (or the tablet
-  hasn't fetched server information since the server upgrade) you'll get a
-  warning. Removed defunct server fields ``picture1_rotation``,
-  ``picture2_rotation``.
-  **IN PROGRESS**
+  as before, and upgraded to 2017 edition. Also supports remote administration
+  (UK 2020 edition). **Clients v2.4.15+ therefore require server 2.4.15+ to
+  upload.** If you create a new task on a client when the server is old (or the
+  tablet hasn't fetched server information since the server upgrade) you'll get
+  a warning. Removed defunct server fields ``picture1_rotation``,
+  ``picture2_rotation``. **IN PROGRESS**
+
+- Supports the mini-ACE as a subset of the ACE-III.
+
+- Cosmetic bugfix to CIS-R server display (answers were being
+  double-HTML-escaped).

@@ -29,9 +29,6 @@ Things to do
 Tasks
 -----
 
-- Bugfix: answer column in CISR main data table is double-escaping
-  HTML, e.g. "I don&#x27;t enjoy anything".
-
 - CISR: document current version (2013?) and examine changes required
   for 2020 version (very minor?) -- think about how best to handle this.
 
