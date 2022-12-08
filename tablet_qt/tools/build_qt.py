@@ -3552,7 +3552,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # https://doc-snapshots.qt.io/qt6-6.2/configure-options.html
         qt_config_args.append("-openssl-linked")  # OpenSSL
         qt_config_cmake_args.append("-DOPENSSL_USE_STATIC_LIBS=ON")
-        qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslrootdir}")
+        # Qt's idea of "root" different to our own
+        qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
     else:
         qt_config_args += ["-openssl", "yes"]  # OpenSSL
 
