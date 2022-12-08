@@ -156,6 +156,5 @@ protected:
     static const QString TAG_PG_ADDRESS_LEARNING_FAMOUS;
     static const QString TAG_PG_MEM_FREE_RECALL;
 
-    static const QString X_EDITION_SHORT;
     static const QString X_MINI_ACE_SCORE;
 };

@@ -33,14 +33,17 @@ Remote version: Remote Administration, UK Version (2020), updated 2020-05-10.
 
 Phrasing:
     "subject": 2017 edition
+        (and traditional psychology/research language)
     "participant" (and "carer" and "clinician"): 2020 remote edition
-    "patient": neither
+    "patient": only in scoring instructions for clinicians (e.g. 2017)
+        (and traditional clinical language)
 
 -->
 
+    <!-- Max 255 characters: -->
     <string name="edition">Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) (UK English version, 2017, updated 2019-02-12)</string>
-    <!-- Max 100 characters: -->
-    <string name="edition_short">ACE-III, UK English, 2017, updated 2019-02-12</string>
+    <string name="edition_miniace">Mini-Addenbrooke’s Cognitive Examination (UK English version, 2014, with remote modifications from ACE-III 2019-02-12)</string>
+
     <!-- Task address versions available as a comma-separated list like "A" or "A,B,C". Always capital letters in sequence from A. -->
     <string name="task_address_versions">A,B,C</string>
 
@@ -52,10 +55,11 @@ Phrasing:
     <string name="mini_ace_score">Mini-ACE score</string>
 
     <string name="title_prefix">ACE-III, page</string>
+    <string name="title_prefix_miniace">Mini-ACE, page</string>
     <!-- <string name="q_tester">Tester’s name</string> -->
     <string name="choose_task_version">Choose a task version (determining the address to be remembered):</string>
     <string name="task_version">Task version:</string>
-    <string name="preamble_instruction">Ask the patient:</string>
+    <string name="preamble_instruction">Ask the subject:</string>
     <string name="q_age_leaving_fte">Age at leaving full-time education</string>
     <string name="q_occupation">Occupation</string>
     <string name="q_handedness">Handedness</string>
@@ -63,8 +67,10 @@ Phrasing:
     <string name="right_handed">Right-handed</string>
     <string name="q_remote">Remote administration</string>
     <string name="instruction_remote_read_first"><b>IMPORTANT:</b> Please ensure that the clinician and carer have read the instructions for remote administration.</string>
-    <string name="instruction_need_paper">You will need a pencil and paper, (a) for you to write their verbal fluency responses on, (b) for the instructions involving a physical pencil and paper, and (c) for the subject to draw shapes and clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
+    <string name="instruction_need_paper">You will need a pencil and paper, (a) for you to write the subject’s verbal fluency responses on, (b) for the instructions involving a physical pencil and paper, and (c) for the subject to draw shapes and clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
     <string name="instruction_need_paper_remote">You will need the ACE-III stimulus PDF (including numbered visual stimuli). The carer will need a pencil and 4 sheets of paper (command-following/verbal fluency, three drawings). (You’ll be able to take up to two photographs of them at the end.)</string>
+    <string name="instruction_need_paper_miniace">You will need a pencil and paper, (a) for you to write the subject’s verbal fluency responses on, (c) for the subject to draw a clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
+    <string name="instruction_need_paper_remote_miniace">The subject/carer will need a pencil and a sheet of paper (for the clock drawing). You will need a pencil and paper (for you to write the subject’s verbal fluency responses on). You’ll be able to take up to two photographs of the sheets at the end.</string>
     <string name="instruction_remote_camera_to_participant">Ask the carer to position the video conference camera so that it is facing the participant.</string>
 
     <string name="attn_q_time">► Ask: What is the</string>
@@ -74,6 +80,7 @@ Phrasing:
     <string name="attn_time4">Year</string>
     <string name="attn_time5">Season</string>
     <string name="instruction_time">DATE: allow ±2 days. MONTH: require name, not number. SEASON: offer alternative in transition months. Correct answer today:</string>
+    <string name="instruction_time_miniace">DATE: allow ±2 days. MONTH: require name, not number. Correct answer today:</string>
     <string name="season_spring">Spring</string>
     <string name="season_summer">Summer</string>
     <string name="season_autumn">Autumn</string>
@@ -261,6 +268,7 @@ Phrasing:
     <string name="picture2_q">Picture 2 of 2</string>
     <string name="picture_instruction1">Finally, please take up to 2 photos of the subject’s test sheet(s).</string>
     <string name="picture_instruction2">Include (a) words generated beginning with P, (b) animals generated, (c) subject’s two sentences, (d) infinity, (e) cube, (f) clock.</string>
+    <string name="picture_instruction2_miniace">Include (a) animals generated, (b) clock.</string>
 
     <!-- Addresses, for each of the task address versions (e.g. A,B,C) listed in task_address_versions above: -->
     <string name="task_A_target_address_1">Harry</string>

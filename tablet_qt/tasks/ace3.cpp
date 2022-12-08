@@ -195,6 +195,9 @@ const int TOTAL_LANG = 26;
 const int TOTAL_VSP = 16;
 const int TOTAL_OVERALL = 100;
 
+// xstrings
+const QString X_EDITION(QStringLiteral("edition"));
+
 
 // ============================================================================
 // Ace3
@@ -211,7 +214,7 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
     AceFamily(app, db, ACE3_TABLENAME, parent)
 {
     addField(FN_TASK_EDITION, QVariant::String,
-             false, false, false, xstring(X_EDITION_SHORT));
+             false, false, false, xstring(X_EDITION));
     addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
              false, false, false, TASK_DEFAULT_VERSION);
     addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
@@ -386,7 +389,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
     FieldRefPtr fr_task_addr_version = fieldRef(FN_TASK_ADDRESS_VERSION);
     QuPagePtr page_preamble(
         (new QuPage{
-            heading(QStringLiteral("edition")),
+            heading(X_EDITION),
             getClinicianQuestionnaireBlockRawPointer(),
             instruction(QStringLiteral("choose_task_version")),
             questionnairefunc::defaultGridRawPointer({

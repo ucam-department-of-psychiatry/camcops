@@ -70,6 +70,15 @@ const QString MiniAce::MINIACE_TABLENAME(QStringLiteral("miniace"));
 // Field names, field prefixes, and field counts
 const int N_ATTN_TIME_MINIACE = 4;
 
+// Subtotals. No magic numbers...
+const int TOTAL_ATTN_MINIACE = 4;
+const int TOTAL_MEM_MINIACE = 14;
+const int TOTAL_FLUENCY_MINIACE = 7;
+const int TOTAL_VSP_MINIACE = 5;
+
+// xstrings
+const QString X_EDITION_MINIACE(QStringLiteral("edition_miniace"));
+
 
 void initializeMiniAce(TaskFactory& factory)
 {
@@ -82,7 +91,7 @@ MiniAce::MiniAce(CamcopsApp& app, DatabaseManager& db, const int load_pk,
     AceFamily(app, db, MINIACE_TABLENAME, parent)
 {
     addField(FN_TASK_EDITION, QVariant::String,
-             false, false, false, xstring(X_EDITION_SHORT));
+             false, false, false, xstring(X_EDITION_MINIACE));
     addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
              false, false, false, TASK_DEFAULT_VERSION);
     addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
@@ -151,9 +160,17 @@ bool MiniAce::isComplete() const
 
 QStringList MiniAce::summary() const
 {
-    const int mini = miniAceScore();
     QStringList lines;
-    lines.append(xstring(X_MINI_ACE_SCORE) + scorePercent(mini, TOTAL_MINI_ACE));
+    lines.append(xstring(X_MINI_ACE_SCORE)
+                 + scorePercent(miniAceScore(), TOTAL_MINI_ACE));
+    lines.append(xstring(QStringLiteral("cat_attn"))
+                 + scorePercent(getAttnScore(), TOTAL_ATTN_MINIACE));
+    lines.append(xstring(QStringLiteral("cat_mem"))
+                 + scorePercent(getMemScore(), TOTAL_MEM_MINIACE));
+    lines.append(xstring(QStringLiteral("cat_fluency"))
+                 + scorePercent(getFluencyScore(), TOTAL_FLUENCY_MINIACE));
+    lines.append(xstring(QStringLiteral("cat_vsp"))
+                 + scorePercent(getVisuospatialScore(), TOTAL_VSP_MINIACE));
     return lines;
 }
 
@@ -162,7 +179,7 @@ OpenableWidget* MiniAce::editor(const bool read_only)
 {
     int pagenum = 1;
     auto makeTitle = [this, &pagenum](const QString& title) -> QString {
-        return xstring(QStringLiteral("title_prefix"))
+        return xstring(QStringLiteral("title_prefix_miniace"))
                 + QString(QStringLiteral(" %1")).arg(pagenum++)
                 + ": "
                 + title;
@@ -184,7 +201,7 @@ OpenableWidget* MiniAce::editor(const bool read_only)
     FieldRefPtr fr_task_addr_version = fieldRef(FN_TASK_ADDRESS_VERSION);
     QuPagePtr page_preamble(
         (new QuPage{
-            heading(QStringLiteral("edition")),
+            heading(X_EDITION_MINIACE),
             getClinicianQuestionnaireBlockRawPointer(),
             instruction(QStringLiteral("choose_task_version")),
             questionnairefunc::defaultGridRawPointer({
@@ -205,9 +222,11 @@ OpenableWidget* MiniAce::editor(const bool read_only)
                      boolean(QStringLiteral("q_remote"), FN_REMOTE_ADMINISTRATION)
                 },
             }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-            remInstruct(QStringLiteral("instruction_remote_read_first")),
-            stdInstruct(QStringLiteral("instruction_need_paper")),
-            remInstruct(QStringLiteral("instruction_need_paper_remote")),
+            // remInstruct(QStringLiteral("instruction_remote_read_first")),
+            // Mini-ACE doesn't have an official remote version and therefore
+            // remote instructions. But it is very simple.
+            stdInstruct(QStringLiteral("instruction_need_paper_miniace")),
+            remInstruct(QStringLiteral("instruction_need_paper_remote_miniace")),
             remInstruct(QStringLiteral("instruction_remote_camera_to_participant")),
             instruction(QStringLiteral("preamble_instruction")),
             questionnairefunc::defaultGridRawPointer({
@@ -250,7 +269,7 @@ OpenableWidget* MiniAce::editor(const bool read_only)
             boolean(QStringLiteral("attn_time3"), strnum(FP_ATTN_TIME, 3)),
             boolean(QStringLiteral("attn_time4"), strnum(FP_ATTN_TIME, 4)),
         },
-        explanation(QStringLiteral("instruction_time")),
+        explanation(QStringLiteral("instruction_time_miniace")),
         (new QuText(correct_date))->setItalic(),
 
     })->setTitle(makeTitle(tr("Attention")))->setType(QuPage::PageType::Clinician));
@@ -315,7 +334,7 @@ OpenableWidget* MiniAce::editor(const bool read_only)
             addrReg(3, 7, true),
         },
     })
-        ->setTitle(makeTitle(tr("Address learning; famous people")))
+        ->setTitle(makeTitle(tr("Memory")))
         ->addTag(TAG_PG_ADDRESS_LEARNING_FAMOUS)
         ->setType(QuPage::PageType::Clinician));
 
@@ -417,7 +436,7 @@ OpenableWidget* MiniAce::editor(const bool read_only)
     QuPagePtr page_photo_1((new QuPage{
         instruction(QStringLiteral("picture1_q")),
         explanation(QStringLiteral("picture_instruction1")),
-        explanation(QStringLiteral("picture_instruction2")),
+        explanation(QStringLiteral("picture_instruction2_miniace")),
         new QuPhoto(blobFieldRef(FN_PICTURE1_BLOBID, false)),
     })
         ->setTitle(makeTitle(tr("Photo 1")))
@@ -430,7 +449,7 @@ OpenableWidget* MiniAce::editor(const bool read_only)
     QuPagePtr page_photo_2((new QuPage{
         instruction(QStringLiteral("picture2_q")),
         explanation(QStringLiteral("picture_instruction1")),
-        explanation(QStringLiteral("picture_instruction2")),
+        explanation(QStringLiteral("picture_instruction2_miniace")),
         new QuPhoto(blobFieldRef(FN_PICTURE2_BLOBID, false)),
     })
         ->setTitle(makeTitle(tr("Photo 2")))
@@ -500,15 +519,42 @@ OpenableWidget* MiniAce::editor(const bool read_only)
 // Task-specific calculations
 // ============================================================================
 
+int MiniAce::getAttnScore() const
+{
+    return sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_MINIACE)));
+    // 4 points
+}
+
+
+int MiniAce::getFluencyScore() const
+{
+    return valueInt(FN_FLUENCY_ANIMALS_SCORE);
+    // 7 points
+}
+
+
+int MiniAce::getMemScore() const
+{
+    return sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)));
+    // 14 points
+}
+
+
+int MiniAce::getVisuospatialScore() const
+{
+    return valueInt(FN_VSP_DRAW_CLOCK);
+    // 5 points
+}
+
+
 int MiniAce::miniAceScore() const
 {
-    return (
-        sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_MINIACE)))  // 4 points
-        + valueInt(FN_FLUENCY_ANIMALS_SCORE)  // 7 points
-        + sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
-        + valueInt(FN_VSP_DRAW_CLOCK)  // 5 points
-        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
-    );
+    return getAttnScore()
+            + getFluencyScore()
+            + getMemScore()
+            + getVisuospatialScore();
+    // 30 points
 }
 
 

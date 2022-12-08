@@ -2,9 +2,10 @@
 # clang_format_camcops.yaml
 # Preferred code style for C++ code in CamCOPS.
 #
-# This is a YAML file:
+# Configuration for clang-format:
 # - https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# This is a YAML file:
 # - https://stackoverflow.com/questions/50788277/why-3-dashes-hyphen-in-yaml-file
 # - https://camel.readthedocs.io/en/latest/yamlref.html
 #
@@ -12,22 +13,23 @@
 #   sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main'
 #   sudo apt-get update
 #   apt-search clang-format
-# As of 2022-12-07, v16 doesn't install under Ubuntu 20.04.5 LTS; there is no
-# v15; so v14 is the newest.
-#
+# As of 2022-12-07, v16 doesn't install under Ubuntu 20.04.5 LTS; we're on v14.
 # Test with:
 #   sudo apt install clang-format-14
 #   clang-format-14 --Werror -style=file:clang_format_camcops.yaml MYFILE > NEWFILE
+# Or use clang_format_camcops.py, e.g. with the --diff option.
+# Integrate into Qt Creator with:
+#   https://doc.qt.io/qtcreator/creator-beautifier.html
 
 Language: Cpp
 
 BasedOnStyle: WebKit
-#   There are 7 core styles: Chromium, Default (= LLVM), Google, LLVM,
+# - There are 7 core styles: Chromium, Default (= LLVM), Google, LLVM,
 #   Microsoft, Mozilla, WebKit.
-#   - https://stackoverflow.com/questions/64885633/whats-the-default-basedonstyle-value-for-clang-format
-#   To see the defaults for this style:
+# - To see the defaults for this style:
 #       clang-format-14 -style=webkit -dump-config > clang_format_webkit.txt
-#   To explore:
+#   ... as below.
+# - To explore interactively:
 #       https://clang-format-configurator.site/
 
 AlignAfterOpenBracket: BlockIndent
@@ -47,18 +49,18 @@ IncludeCategories:
   # The header file corresponding to the source file always comes top;
   # see IncludeIsMainRegex. Priority 1 is high. Regexes are case-insensitive
   # by default.
-  - Regex:           '<.+>'  #include <...>
+  - Regex:           '<.+>'       #include <...>
     Priority:        1
-  - Regex:           '".+/.+">'  #include ".../..."
+  - Regex:           '".+/.+">'   #include ".../..."
     Priority:        2
-  - Regex:           '.*'  #include everything else
+  - Regex:           '.*'         #include everything else
     Priority:        3
 IndentCaseLabels: true
 IndentWrappedFunctionNames: true
-# InsertBraces: true  # requires clang-format 15
+# InsertBraces: true  # requires clang-format-15
 MaxEmptyLinesToKeep: 2
 PackConstructorInitializers: Never
-SeparateDefinitionBlocks: Always  # includes functions defined in headers
+SeparateDefinitionBlocks: Always  # includes functions defined in class headers
 SpaceBeforeCpp11BracedList: false
 SpacesBeforeTrailingComments: 2
 SpacesInContainerLiterals: false

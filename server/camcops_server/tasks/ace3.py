@@ -37,6 +37,7 @@ import numpy
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, String, UnicodeText
+from typing import Iterable
 
 from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
@@ -88,12 +89,18 @@ ADDRESS_PARTS = [
 ]
 RECALL_WORDS = ["lemon", "key", "ball"]
 PERCENT_DP = 1
+
 TOTAL_MAX = 100
 ATTN_MAX = 18
 MEMORY_MAX = 26
 FLUENCY_MAX = 14
 LANG_MAX = 26
 VSP_MAX = 16
+
+ATTN_MINIACE_MAX = 4
+MEM_MINIACE_MAX = 14
+FLUENCY_MINIACE_MAX = 7
+VSP_MINIACE_MAX = 5
 MINI_ACE_MAX = 30
 
 AGE_FTE = "Age on leaving full-time education"
@@ -131,6 +138,36 @@ aphasia, and controls (Hsieh et al., 2015, PMID 25227877).
 def score_zero_for_absent(x: Optional[int]) -> int:
     """0 if x is None else x"""
     return 0 if x is None else x
+
+
+def percent(score: int, maximum: int) -> str:
+    return ws.number_to_dp(100 * score / maximum, PERCENT_DP)
+
+
+def tr_score_with_pct(title: str, score: int, maximum: int) -> str:
+    return tr(
+        title,
+        answer(score) + f" / {maximum} ({percent(score, maximum)}%)",
+    )
+
+
+def qsequence(target_addr_parts: Iterable[str]) -> str:
+    """
+    For e.g. "Harry? Barnes? ..."
+    """
+    return " ".join(f"{x}?" for x in target_addr_parts)
+
+
+def tr_heading(left: str, right: str) -> str:
+    """
+    HTML for header row of most tables.
+    """
+    return f"""
+        <tr>
+            <th width="67%">{left}</th>
+            <th width="33%">{right}</th>
+        </tr>
+    """
 
 
 # =============================================================================
@@ -378,7 +415,7 @@ class Ace3(
 
     task_edition = CamcopsColumn(
         "task_edition",
-        String(length=100),
+        String(length=255),
         comment="Task edition. Older task instances will have NULL and that "
         "indicates UK English, 2012 version.",
     )
@@ -390,7 +427,7 @@ class Ace3(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
-    )
+    )  # type: str
     remote_administration = CamcopsColumn(
         "remote_administration",
         Boolean,
@@ -753,11 +790,28 @@ class Ace3(
             return False
         return self.is_recognition_complete()
 
+    @classmethod
+    def get_target_address_parts(
+        cls, req: CamcopsRequest, task_address_version: str
+    ) -> List[str]:
+        """
+        Returns the target address components (7 of them). This requires an
+        xstring (via a request also embodying the currently selected locale)
+        and the version selected for the task.
+
+        We do this as a classmethod so it (a) saves duplication and (b) knows
+        about the xstrings for ACE-III (which are shared with the Mini-ACE). A
+        superclass/mixin would be an alternative.
+        """
+        parts = []  # type: List[str]
+        for i in range(1, N_MEM_REPEAT_RECALL_ADDR + 1):
+            xstringname = f"task_{task_address_version}_target_address_{i}"
+            part = cls.xstring(req, xstringname)
+            parts.append(part)
+        return parts
+
     # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
-        def percent(score: int, maximum: int) -> str:
-            return ws.number_to_dp(100 * score / maximum, PERCENT_DP)
-
         a = self.attn_score()
         m = self.mem_score()
         f = self.fluency_score()
@@ -765,6 +819,11 @@ class Ace3(
         v = self.vsp_score()
         t = a + m + f + lang + v
         mini = self.mini_ace_score()
+        target_addr = qsequence(
+            self.get_target_address_parts(req, self.task_address_version)
+        )
+        lkb = qsequence(RECALL_WORDS)  # lemon, key, ball
+
         if self.is_complete():
             figsize = (
                 PlotDefaults.FULLWIDTH_PLOT_WIDTH / 3,
@@ -794,6 +853,7 @@ class Ace3(
             figurehtml = req.get_html_from_pyplot_figure(fig)
         else:
             figurehtml = "<i>Incomplete; not plotted</i>"
+
         return (
             self.get_standard_clinician_comments_block(req, self.comments)
             + f"""
@@ -809,52 +869,30 @@ class Ace3(
                 "Total ACE-III score <sup>[1]</sup>",
                 answer(t) + f" / {TOTAL_MAX}",
             )
-            + tr(
-                "Attention",
-                answer(a) + f" / {ATTN_MAX} ({percent(a, ATTN_MAX)}%)",
-            )
-            + tr(
-                "Memory",
-                answer(m) + f" / {MEMORY_MAX} ({percent(m, MEMORY_MAX)}%)",
-            )
-            + tr(
-                "Fluency",
-                answer(f) + f" / {FLUENCY_MAX} ({percent(f, FLUENCY_MAX)}%)",
-            )
-            + tr(
-                "Language",
-                answer(lang) + f" / {LANG_MAX} ({percent(lang, LANG_MAX)}%)",
-            )
-            + tr(
-                "Visuospatial",
-                answer(v) + f" / {VSP_MAX} ({percent(v, VSP_MAX)}%)",
-            )
-            + tr(
-                "Mini-ACE score <sup>[2]</sup>",
-                answer(mini) + f" / {MINI_ACE_MAX}",
+            + tr_score_with_pct("Attention", a, ATTN_MAX)
+            + tr_score_with_pct("Memory", m, MEMORY_MAX)
+            + tr_score_with_pct("Fluency", f, FLUENCY_MAX)
+            + tr_score_with_pct("Language", lang, LANG_MAX)
+            + tr_score_with_pct("Visuospatial", v, VSP_MAX)
+            + tr_score_with_pct(
+                "Mini-ACE score <sup>[2]</sup>", mini, MINI_ACE_MAX
             )
             + f"""
                     </table>
                 </div>
                 <table class="{CssClass.TASKCONFIG}">
-                    <tr>
-                        <th width="75%">Task aspect</th>
-                        <th width="25%">Setting</td>
-                    </tr>
             """
+            + tr_heading("Task aspect", "Setting")
             + tr_qa("Edition", self.task_edition)
             + tr_qa("Version", self.task_address_version)
             + tr_qa(
                 "Remote administration?",
-                get_yes_no_none(self, self.remote_administration),
+                get_yes_no_none(req, self.remote_administration),
             )
             + f"""
                 <table class="{CssClass.TASKDETAIL}">
-                    <tr>
-                        <th width="75%">Question</th>
-                        <th width="25%">Answer/score</td>
-                    </tr>
             """
+            + tr_heading("Question", "Answer/score")
             + tr_qa(
                 AGE_FTE,
                 self.age_at_leaving_full_time_education,
@@ -889,7 +927,7 @@ class Ace3(
                 ),
             )
             + tr(
-                "Repeat: Lemon? Key? Ball?",
+                "Repeat: " + lkb,
                 ", ".join(
                     answer(x)
                     for x in (
@@ -921,7 +959,7 @@ class Ace3(
             )
             + subheading_spanning_two_columns("Memory (1)")
             + tr(
-                "Recall: Lemon? Key? Ball?",
+                "Recall: " + lkb,
                 ", ".join(
                     answer(x)
                     for x in (
@@ -944,8 +982,7 @@ class Ace3(
             )
             + subheading_spanning_two_columns("Memory (2)")
             + tr(
-                "Third trial of address registration: Harry? Barnes? 73? "
-                "Orchard? Close? Kingsbridge? Devon?",
+                "Third trial of address registration: " + target_addr,
                 ", ".join(
                     answer(x)
                     for x in (
@@ -960,7 +997,7 @@ class Ace3(
                 ),
             )
             + tr(
-                "Current PM? Woman who was PM? USA president? USA president "
+                "Current PM? First female PM? USA president? USA president "
                 "assassinated in 1960s?",
                 ", ".join(
                     answer(x)
@@ -1117,8 +1154,7 @@ class Ace3(
             )
             + subheading_spanning_two_columns("Memory (3)")
             + tr(
-                "Recall address: Harry? Barnes? 73? Orchard? Close? "
-                "Kingsbridge? Devon?",
+                "Recall address: " + target_addr,
                 ", ".join(
                     answer(x)
                     for x in (
@@ -1133,7 +1169,7 @@ class Ace3(
                 ),
             )
             + tr(
-                "Recognize address: Jerry Barnes/Harry Barnes/Harry Bradford?",
+                "Recognize address: forename and surname?",
                 self.get_recog_text(
                     (
                         self.mem_recall_address1 == 1
@@ -1143,14 +1179,14 @@ class Ace3(
                 ),
             )
             + tr(
-                "Recognize address: 37/73/76?",
+                "Recognize address: house number?",
                 self.get_recog_text(
                     (self.mem_recall_address3 == 1),
                     self.mem_recognize_address2,
                 ),
             )
             + tr(
-                "Recognize address: Orchard Place/Oak Close/Orchard " "Close?",
+                "Recognize address: street?",
                 self.get_recog_text(
                     (
                         self.mem_recall_address4 == 1
@@ -1160,14 +1196,14 @@ class Ace3(
                 ),
             )
             + tr(
-                "Recognize address: Oakhampton/Kingsbridge/Dartington?",
+                "Recognize address: town?",
                 self.get_recog_text(
                     (self.mem_recall_address6 == 1),
                     self.mem_recognize_address4,
                 ),
             )
             + tr(
-                "Recognize address: Devon/Dorset/Somerset?",
+                "Recognize address: county?",
                 self.get_recog_text(
                     (self.mem_recall_address7 == 1),
                     self.mem_recognize_address5,
@@ -1233,7 +1269,7 @@ class Ace3(
                     },
                 )
             )
-        # There's no mini-ACE code yet, as of 2022-12-01.
+        # There's no mini-ACE code in SNOMED-CT yet, as of 2022-12-01.
         return codes
 
 
@@ -1263,7 +1299,7 @@ class MiniAceMetaclass(DeclarativeMeta):
             cls,
             "mem_repeat_address_trial1_",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, address registration trial 1/3 "
             "(not scored), {s} (0 or 1)",
@@ -1273,7 +1309,7 @@ class MiniAceMetaclass(DeclarativeMeta):
             cls,
             "mem_repeat_address_trial2_",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, address registration trial 2/3 "
             "(not scored), {s} (0 or 1)",
@@ -1283,7 +1319,7 @@ class MiniAceMetaclass(DeclarativeMeta):
             cls,
             "mem_repeat_address_trial3_",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, address registration trial 3/3 "
             "(scored), {s} (0 or 1)",
@@ -1293,7 +1329,7 @@ class MiniAceMetaclass(DeclarativeMeta):
             cls,
             "mem_recall_address",
             1,
-            7,
+            N_MEM_REPEAT_RECALL_ADDR,
             pv=PV.BIT,
             comment_fmt="Memory, recall address {n}/7, {s} (0-1)",
             comment_strings=ADDRESS_PARTS,
@@ -1314,13 +1350,14 @@ class MiniAce(
 
     __tablename__ = "miniace"
     shortname = "Mini-ACE"
+    extrastring_taskname = "ace3"  # shares strings with ACE-III
     provides_trackers = True
 
     prohibits_commercial = True
 
     task_edition = CamcopsColumn(
         "task_edition",
-        String(length=100),
+        String(length=255),
         comment="Task edition.",
     )
     task_address_version = CamcopsColumn(
@@ -1330,7 +1367,7 @@ class MiniAce(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
-    )
+    )  # type: str
     remote_administration = CamcopsColumn(
         "remote_administration",
         Boolean,
@@ -1387,12 +1424,17 @@ class MiniAce(
         "MiniAce", "picture2_blobid"
     )  # type: Optional[Blob]
 
+    MACE_ATTN_FIELDS = strseq("attn_time", 1, N_ATTN_TIME_MINIACE)  # 4 points
+    MACE_MEMORY_FIELDS = strseq("mem_repeat_address_trial3_", 1, 7) + strseq(
+        "mem_recall_address", 1, 7
+    )  # 14 points
+    MACE_FLUENCY_FIELDS = ["fluency_animals_score"]  # 7 points
+    MACE_VSP_FIELDS = ["vsp_draw_clock"]  # 5 points
     MINI_ACE_FIELDS = (
-        strseq("attn_time", 1, N_ATTN_TIME_MINIACE)  # 4 points; not season
-        + ["fluency_animals_score"]  # 7 points
-        + strseq("mem_repeat_address_trial3_", 1, 7)  # 7 points
-        + ["vsp_draw_clock"]  # 5 points
-        + strseq("mem_recall_address", 1, 7)  # 7 points
+        MACE_ATTN_FIELDS
+        + MACE_MEMORY_FIELDS
+        + MACE_FLUENCY_FIELDS
+        + MACE_VSP_FIELDS
     )
 
     @staticmethod
@@ -1416,8 +1458,18 @@ class MiniAce(
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        mini = self.mini_ace_score()
-        text = f"Mini-ACE score: {mini}/{MINI_ACE_MAX})"
+        a = self.attn_score()
+        m = self.mem_score()
+        f = self.fluency_score()
+        v = self.vsp_score()
+        mini = a + m + f + v
+        text = (
+            f"Mini-ACE score: {mini}/{MINI_ACE_MAX} "
+            f"(attention {a}/{ATTN_MINIACE_MAX}, "
+            f"memory {m}/{MEM_MINIACE_MAX}, "
+            f"fluency {f}/{FLUENCY_MINIACE_MAX}, "
+            f"visuospatial {v}/{VSP_MINIACE_MAX})"
+        )
         return [CtvInfo(content=text)]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
@@ -1430,6 +1482,18 @@ class MiniAce(
             ),
         ]
 
+    def attn_score(self) -> int:
+        return self.sum_fields(self.MACE_ATTN_FIELDS)
+
+    def mem_score(self) -> int:
+        return self.sum_fields(self.MACE_MEMORY_FIELDS)
+
+    def fluency_score(self) -> int:
+        return self.sum_fields(self.MACE_FLUENCY_FIELDS)
+
+    def vsp_score(self) -> int:
+        return self.sum_fields(self.MACE_VSP_FIELDS)
+
     def mini_ace_score(self) -> int:
         return self.sum_fields(self.MINI_ACE_FIELDS)
 
@@ -1440,42 +1504,84 @@ class MiniAce(
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        def percent(score: int, maximum: int) -> str:
-            return ws.number_to_dp(100 * score / maximum, PERCENT_DP)
+        a = self.attn_score()
+        m = self.mem_score()
+        f = self.fluency_score()
+        v = self.vsp_score()
+        mini = a + m + f + v
+        target_addr = qsequence(
+            Ace3.get_target_address_parts(req, self.task_address_version)
+        )
 
-        mini = self.mini_ace_score()
+        if self.is_complete():
+            figsize = (
+                PlotDefaults.FULLWIDTH_PLOT_WIDTH / 3,
+                PlotDefaults.FULLWIDTH_PLOT_WIDTH / 4,
+            )
+            width = 0.9
+            fig = req.create_figure(figsize=figsize)
+            ax = fig.add_subplot(1, 1, 1)
+            scores = numpy.array([a, m, f, v])
+            maxima = numpy.array(
+                [
+                    ATTN_MINIACE_MAX,
+                    MEM_MINIACE_MAX,
+                    FLUENCY_MINIACE_MAX,
+                    VSP_MINIACE_MAX,
+                ]
+            )
+            y = 100 * scores / maxima
+            x_labels = ["Attn", "Mem", "Flu", "VSp"]
+            # noinspection PyTypeChecker
+            n = len(y)
+            xvar = numpy.arange(n)
+            ax.bar(xvar, y, width, color="g")
+            ax.set_ylabel("%", fontdict=req.fontdict)
+            ax.set_xticks(xvar)
+            x_offset = -0.5
+            ax.set_xlim(0 + x_offset, len(scores) + x_offset)
+            ax.set_xticklabels(x_labels, fontdict=req.fontdict)
+            fig.tight_layout()  # or the ylabel drops off the figure
+            # fig.autofmt_xdate()
+            req.set_figure_font_sizes(ax)
+            figurehtml = req.get_html_from_pyplot_figure(fig)
+        else:
+            figurehtml = "<i>Incomplete; not plotted</i>"
+
         return (
             self.get_standard_clinician_comments_block(req, self.comments)
             + f"""
                 <div class="{CssClass.SUMMARY}">
                     <table class="{CssClass.SUMMARY}">
+                        <tr>
+                            {self.get_is_complete_td_pair(req)}
+                            <td class="{CssClass.FIGURE}"
+                                rowspan="6">{figurehtml}</td>
+                        </tr>
             """
-            + tr(
-                "Mini-ACE score <sup>[1]</sup>",
-                answer(mini) + f" / {MINI_ACE_MAX}",
+            + tr_score_with_pct(
+                "Mini-ACE score <sup>[1]</sup>", mini, MINI_ACE_MAX
             )
+            + tr_score_with_pct("Attention", a, ATTN_MINIACE_MAX)
+            + tr_score_with_pct("Memory", m, MEM_MINIACE_MAX)
+            + tr_score_with_pct("Fluency", f, FLUENCY_MINIACE_MAX)
+            + tr_score_with_pct("Visuospatial", v, VSP_MINIACE_MAX)
             + f"""
                     </table>
                 </div>
                 <table class="{CssClass.TASKCONFIG}">
-                    <tr>
-                        <th width="75%">Task aspect</th>
-                        <th width="25%">Setting</td>
-                    </tr>
             """
+            + tr_heading("Task aspect", "Setting")
             + tr_qa("Edition", self.task_edition)
             + tr_qa("Version", self.task_address_version)
             + tr_qa(
                 "Remote administration?",
-                get_yes_no_none(self, self.remote_administration),
+                get_yes_no_none(req, self.remote_administration),
             )
             + f"""
                 <table class="{CssClass.TASKDETAIL}">
-                    <tr>
-                        <th width="75%">Question</th>
-                        <th width="25%">Answer/score</td>
-                    </tr>
             """
+            + tr_heading("Question", "Answer/score")
             + tr_qa(
                 AGE_FTE,
                 self.age_at_leaving_full_time_education,
@@ -1497,8 +1603,7 @@ class MiniAce(
             )
             + subheading_spanning_two_columns("Memory")
             + tr(
-                "Third trial of address registration: Harry? Barnes? 73? "
-                "Orchard? Close? Kingsbridge? Devon?",
+                "Third trial of address registration: " + target_addr,
                 ", ".join(
                     answer(x)
                     for x in (
@@ -1524,8 +1629,7 @@ class MiniAce(
             )
             + subheading_spanning_two_columns("Memory recall")
             + tr(
-                "Recall address: Harry? Barnes? 73? Orchard? Close? "
-                "Kingsbridge? Devon?",
+                "Recall address: " + target_addr,
                 ", ".join(
                     answer(x)
                     for x in (

@@ -3731,9 +3731,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   upload.** If you create a new task on a client when the server is old (or the
   tablet hasn't fetched server information since the server upgrade) you'll get
   a warning. Removed defunct server fields ``picture1_rotation``,
-  ``picture2_rotation``. **IN PROGRESS**
+  ``picture2_rotation``.  (Database revision 0078.)
 
-- Supports the mini-ACE as a subset of the ACE-III.
+- Supports the mini-ACE as a subset of the ACE-III. (Database revision 0078 as
+  above.)
 
 - Cosmetic bugfix to CIS-R server display (answers were being
   double-HTML-escaped).
+
+- :func:`camcops_server.cc_modules.cc_task.Task.get_extrastring_taskname`
+  changed to a classmethod. Likewise ``extrastrings_exist``, ``wxstring``,
+  ``xstring``, ``make_options_from_xstrings``.

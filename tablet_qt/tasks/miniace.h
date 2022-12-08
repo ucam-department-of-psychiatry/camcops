@@ -52,6 +52,10 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+    int getAttnScore() const;  // out of 4
+    int getMemScore() const;  // out of 14
+    int getFluencyScore() const;  // out of 7
+    int getVisuospatialScore() const;  // out of 5
     int miniAceScore() const;  // out of 30
 
 protected:

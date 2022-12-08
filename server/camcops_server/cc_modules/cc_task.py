@@ -3385,23 +3385,26 @@ class Task(GenericTabletRecordMixin, Base):
     # Extra strings
     # -------------------------------------------------------------------------
 
-    def get_extrastring_taskname(self) -> str:
+    @classmethod
+    def get_extrastring_taskname(cls) -> str:
         """
         Get the taskname used as the top-level key for this task's extra
         strings (loaded by the server from XML files). By default, this is the
         task's primary tablename, but tasks may override that via
         ``extrastring_taskname``.
         """
-        return self.extrastring_taskname or self.tablename
+        return cls.extrastring_taskname or cls.tablename
 
-    def extrastrings_exist(self, req: "CamcopsRequest") -> bool:
+    @classmethod
+    def extrastrings_exist(cls, req: "CamcopsRequest") -> bool:
         """
         Does the server have any extra strings for this task?
         """
-        return req.task_extrastrings_exist(self.get_extrastring_taskname())
+        return req.task_extrastrings_exist(cls.get_extrastring_taskname())
 
+    @classmethod
     def wxstring(
-        self,
+        cls,
         req: "CamcopsRequest",
         name: str,
         defaultvalue: str = None,
@@ -3420,16 +3423,17 @@ class Task(GenericTabletRecordMixin, Base):
                 "string x.y not found"
         """
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = f"[{self.get_extrastring_taskname()}: {name}]"
+            defaultvalue = f"[{cls.get_extrastring_taskname()}: {name}]"
         return req.wxstring(
-            self.get_extrastring_taskname(),
+            cls.get_extrastring_taskname(),
             name,
             defaultvalue,
             provide_default_if_none=provide_default_if_none,
         )
 
+    @classmethod
     def xstring(
-        self,
+        cls,
         req: "CamcopsRequest",
         name: str,
         defaultvalue: str = None,
@@ -3449,16 +3453,17 @@ class Task(GenericTabletRecordMixin, Base):
                 "string x.y not found"
         """
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = f"[{self.get_extrastring_taskname()}: {name}]"
+            defaultvalue = f"[{cls.get_extrastring_taskname()}: {name}]"
         return req.xstring(
-            self.get_extrastring_taskname(),
+            cls.get_extrastring_taskname(),
             name,
             defaultvalue,
             provide_default_if_none=provide_default_if_none,
         )
 
+    @classmethod
     def make_options_from_xstrings(
-        self,
+        cls,
         req: "CamcopsRequest",
         prefix: str,
         first: int,
@@ -3483,10 +3488,10 @@ class Task(GenericTabletRecordMixin, Base):
         d = {}  # type: Dict[int, str]
         if first > last:  # descending order
             for i in range(first, last - 1, -1):
-                d[i] = self.xstring(req, f"{prefix}{i}{suffix}")
+                d[i] = cls.xstring(req, f"{prefix}{i}{suffix}")
         else:  # ascending order
             for i in range(first, last + 1):
-                d[i] = self.xstring(req, f"{prefix}{i}{suffix}")
+                d[i] = cls.xstring(req, f"{prefix}{i}{suffix}")
         return d
 
     @staticmethod

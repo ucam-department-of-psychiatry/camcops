@@ -73,7 +73,6 @@ const QString AceFamily::TAG_STANDARD(QStringLiteral("std_instr"));
 const QString AceFamily::TAG_PG_ADDRESS_LEARNING_FAMOUS(QStringLiteral("pg_addr_learn"));
 const QString AceFamily::TAG_PG_MEM_FREE_RECALL(QStringLiteral("pg_mem_free_recall"));
 
-const QString AceFamily::X_EDITION_SHORT(QStringLiteral("edition_short"));
 const QString AceFamily::X_MINI_ACE_SCORE(QStringLiteral("mini_ace_score"));
 
 
