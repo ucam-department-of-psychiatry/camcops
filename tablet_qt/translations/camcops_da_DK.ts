@@ -168,7 +168,7 @@
 <context>
     <name>AffectiveMenu</name>
     <message>
-        <location filename="../menu/affectivemenu.cpp" line="+62"/>
+        <location filename="../menu/affectivemenu.cpp" line="+63"/>
         <source>Affective (mood and anxiety) disorders</source>
         <translation>Affektive (humør og angst) lidelser</translation>
     </message>
@@ -4775,6 +4775,19 @@ enig</translation>
         <location line="+6"/>
         <source>Self-scoring of 15 common somatic symptoms (relevant to somatoform disorders).</source>
         <translation>Selvscoring af 15 almindelige somatiske symptomer (relevant for somatoformforstyrrelser).</translation>
+    </message>
+</context>
+<context>
+    <name>Phq8</name>
+    <message>
+        <location filename="../tasks/phq8.cpp" line="+74"/>
+        <source>Patient Health Questionnaire 8-item depression scale</source>
+        <translation>Patient Health Spørgeskema 8-punkts depression skala</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Self-scoring of 8 depressive symptoms from DSM-IV.</source>
+        <translation>Selvscoring af 8 depressive symptomer fra DSM-IV.</translation>
     </message>
 </context>
 <context>

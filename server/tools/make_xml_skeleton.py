@@ -38,6 +38,8 @@ import argparse
 import re
 import sys
 
+from rich_argparse import ArgumentDefaultsRichHelpFormatter
+
 STRING_RE = re.compile("(<string .*>).*(</string>)", re.MULTILINE)
 #                       ^^^^^^^^^^^^^  ^^^^^^^^^^^
 #                       capture 1      capture 2
@@ -81,7 +83,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         "Create an XML string file skeleton, with placeholder text, from a "
         "real but secret string file. Writes to stdout.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument("filename", type=str, help="Input filename")
     parser.add_argument(

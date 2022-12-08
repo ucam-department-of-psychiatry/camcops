@@ -40,9 +40,11 @@ from os.path import abspath, dirname, exists, join, pardir, realpath
 import re
 import subprocess
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from rich_argparse import RichHelpFormatter
+
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     ENVVAR_GENERATING_CAMCOPS_DOCS,
@@ -67,7 +69,7 @@ SERVER_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "server")  # .../camcops/server
 SERVER_TOOLS_DIR = join(SERVER_ROOT_DIR, "tools")
 
 
-def build_directories() -> DirEntry:
+def build_directories() -> Generator[DirEntry, None, None]:
     with scandir(CAMCOPS_ROOT_DIR) as it:
         for entry in it:
             if entry.name.startswith("build-") and entry.is_dir():
@@ -82,25 +84,6 @@ def find_camcops_client_executable() -> Optional[str]:
             return camcops_executable
 
     return None
-
-
-def prohibit_env_vars(envvars: List[str]) -> None:
-    """
-    Ensure none of the specified environment variables are present (usually
-    because they will mess up the default help!).
-    """
-    bad = []
-    for v in envvars:
-        if v in os.environ:
-            bad.append(v)
-    if bad:
-        bad.sort()
-        spacer = "\n    "
-        bad_as_string = spacer.join(bad)
-        raise ValueError(
-            f"Please re-run with the following environment variables UNSET:"
-            f"\n{spacer}{bad_as_string}"
-        )
 
 
 def run_cmd(
@@ -157,6 +140,9 @@ def run_cmd(
 
 
 def main():
+    # -------------------------------------------------------------------------
+    # Argument parser
+    # -------------------------------------------------------------------------
     if sys.version_info >= (3, 9):
         # TODO: Newer versions will change the formatting of help text
         # possibly for the better. Needs investigating.
@@ -164,9 +150,7 @@ def main():
             "This script currently needs to be run with Python < 3.9."
         )
 
-    prohibit_env_vars(ENVVARS_PROHIBITED_DURING_DOC_BUILD)
-
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--skip_client_help",
         action="store_true",
@@ -174,6 +158,17 @@ def main():
         default=False,
     )
     args = parser.parse_args()
+
+    # -------------------------------------------------------------------------
+    # Checks
+    # -------------------------------------------------------------------------
+    # After offering help to the command-line user, check the environment is
+    # correct. That is, ensure none of the specified environment variables are
+    # present (usually because they will mess up the default help!). But more
+    # helpfully, clear the variables and proceed, rather than complaining
+    # annoyingly.
+    for k in ENVVARS_PROHIBITED_DURING_DOC_BUILD:
+        os.environ.pop(k, None)  # remove key if present
 
     # Do this first to exit early if not built
     if not args.skip_client_help:
@@ -190,7 +185,13 @@ def main():
             },
         )
 
+    # -------------------------------------------------------------------------
+    # Build the various inclusion files
+    # -------------------------------------------------------------------------
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # administrator
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     run_cmd(
         ["camcops_backup_mysql_database", "--help"],
         join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"),
@@ -225,7 +226,10 @@ def main():
         ["camcops_fetch_snomed_codes", "--allhelp"],
         join(ADMIN_DIR, "_camcops_fetch_snomed_codes_help.txt"),
     )
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # developer
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     run_cmd(
         ["python", join(TABLET_TOOLS_DIR, "build_qt.py"), "--help"],
         join(DEV_DIR, "_build_qt_help.txt"),

@@ -932,6 +932,7 @@ SOURCES += \
     tasks/photo.cpp \
     tasks/photosequence.cpp \
     tasks/phq15.cpp \
+    tasks/phq8.cpp \
     tasks/phq9.cpp \
     tasks/progressnote.cpp \
     tasks/pswq.cpp \
@@ -1417,6 +1418,7 @@ HEADERS += \
     tasks/photo.h \
     tasks/photosequence.h \
     tasks/phq15.h \
+    tasks/phq8.h \
     tasks/phq9.h \
     tasks/progressnote.h \
     tasks/pswq.h \

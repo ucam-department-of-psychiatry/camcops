@@ -38,6 +38,7 @@ import shutil
 import subprocess
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from rich_argparse import RichHelpFormatter
 
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVARS_PROHIBITED_DURING_DOC_BUILD,
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     print("Making HTML version of documentation")
     os.chdir(THIS_DIR)
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--skip_client_help",
         action="store_true",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-docs/debug_highlighting.py
+camcops_server/cc_modules/cc_argparse.py
 
 ===============================================================================
 
@@ -25,34 +25,24 @@ docs/debug_highlighting.py
 
 ===============================================================================
 
-Debug highlighting errors with pygments
+**A combination class for rich-argparse.**
 
 """
 
-from argparse import ArgumentParser
-
-from pygments import highlight
-from pygments.formatters import HtmlFormatter
-from pygments.lexers import get_lexer_by_name
-from rich_argparse import RichHelpFormatter
+from rich_argparse import (
+    ArgumentDefaultsRichHelpFormatter,
+    RawDescriptionRichHelpFormatter,
+)
 
 
-def main() -> None:
-    parser = ArgumentParser(formatter_class=RichHelpFormatter)
-    parser.add_argument("filename")
-    parser.add_argument("lexer")
+class RawDescriptionArgumentDefaultsRichHelpFormatter(
+    ArgumentDefaultsRichHelpFormatter, RawDescriptionRichHelpFormatter
+):
+    """
+    Combines the features of
 
-    args = parser.parse_args()
+    - :class:`RawDescriptionRichHelpFormatter` -- don't mangle the description
+    - :class:`ArgumentDefaultsRichHelpFormatter` -- print argument defaults
+    """
 
-    lexer = get_lexer_by_name(args.lexer)
-    lexer.add_filter("raiseonerror")
-
-    with open(args.filename, "r") as f:
-        source = f.read()
-        formatter = HtmlFormatter(linenos=False, linenostart=1)
-
-        highlight(source, lexer, formatter)
-
-
-if __name__ == "__main__":
-    main()
+    pass

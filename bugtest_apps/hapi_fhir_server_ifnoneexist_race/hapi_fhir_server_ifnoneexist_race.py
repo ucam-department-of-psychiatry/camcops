@@ -58,6 +58,7 @@ from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
 from fhirclient.server import FHIRNotFoundException
+from rich_argparse import RichHelpFormatter
 from requests.exceptions import HTTPError
 
 log = logging.getLogger(__name__)
@@ -132,7 +133,7 @@ def single_test_insert_if_none_exists(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(
         "--url",
         default="http://localhost:8080/fhir",

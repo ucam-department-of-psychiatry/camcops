@@ -38,6 +38,7 @@ import sys
 from typing import NoReturn
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from rich_argparse import ArgumentDefaultsRichHelpFormatter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -63,7 +64,7 @@ def main() -> NoReturn:
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Use SQLCipher to make an encrypted copy of a database",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument(
         "plaintext",

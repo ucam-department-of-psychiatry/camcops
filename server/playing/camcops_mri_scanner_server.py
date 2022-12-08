@@ -36,9 +36,8 @@ import logging
 import random
 from typing import Any, Tuple
 
+from rich_argparse import ArgumentDefaultsRichHelpFormatter
 from twisted.internet import reactor
-
-# from twisted.internet.stdio import StandardIO
 from twisted.internet.protocol import connectionDone, Factory, Protocol
 from twisted.internet.serialport import (
     SerialPort,
@@ -496,6 +495,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="camcops_mri_scanner_server",  # name the user will use to call it
         description="CamCOPS MRI scanner/button box interface server.",
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument(
         "--port",

@@ -86,6 +86,8 @@ Affective (mood and anxiety) disorders
 
 - :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`
 
+- :ref:`Patient Health Questionnaire 8-item depression scale (PHQ-8) <phq8>`
+
 - :ref:`Patient Health Questionnaire-9 (PHQ-9) <phq9>`
 
 - :ref:`Patient Health Questionnaire-15 (PHQ-15) <phq15>`

@@ -43,6 +43,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from rich_argparse import RichHelpFormatter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -64,7 +65,8 @@ def meta_main() -> None:
     Command-line process for ``camcops_server_meta`` tool.
     """
     parser = argparse.ArgumentParser(
-        description="Run commands across multiple CamCOPS databases"
+        description="Run commands across multiple CamCOPS databases",
+        formatter_class=RichHelpFormatter,
     )
     parser.add_argument(
         "cc_command", type=str, help="Main command to pass to CamCOPS"

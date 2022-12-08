@@ -829,6 +829,8 @@ tablet_qt
     tasks/photosequence.h.rst
     tasks/phq15.cpp.rst
     tasks/phq15.h.rst
+    tasks/phq8.cpp.rst
+    tasks/phq8.h.rst
     tasks/phq9.cpp.rst
     tasks/phq9.h.rst
     tasks/progressnote.cpp.rst

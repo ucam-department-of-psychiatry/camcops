@@ -37,12 +37,14 @@ from subprocess import CalledProcessError, PIPE, run
 import sys
 from typing import Iterable, List, Optional, Tuple
 
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from rich_argparse import ArgumentDefaultsRichHelpFormatter
+from semantic_version import Version
+
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_CHANGEDATE,
     CAMCOPS_SERVER_VERSION_STRING,
 )
-from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
-from semantic_version import Version
 
 EXIT_FAILURE = 1
 
@@ -726,7 +728,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(
         description="Release CamCOPS to various places",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument(
         "--client-version",

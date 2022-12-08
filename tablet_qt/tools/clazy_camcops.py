@@ -40,6 +40,7 @@ import shutil
 import subprocess
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from rich_argparse import RichHelpFormatter
 
 log = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ def clazy_camcops_source() -> None:
     """
     Apply clazy to CamCOPS C++ source code, to detect errors.
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument("--verbose", action="store_true", help="Be verbose")
     parser.add_argument(
         "--assemble",

@@ -145,6 +145,7 @@
 #include "tasks/perinatalpoem.h"
 #include "tasks/photo.h"
 #include "tasks/photosequence.h"
+#include "tasks/phq8.h"
 #include "tasks/phq9.h"
 #include "tasks/phq15.h"
 #include "tasks/progressnote.h"
@@ -305,6 +306,7 @@ void InitTasks(TaskFactory& factory)
     initializePerinatalPoem(factory);
     initializePhoto(factory);
     initializePhotoSequence(factory);
+    initializePhq8(factory);
     initializePhq9(factory);
     initializePhq15(factory);
     initializeProgressNote(factory);
