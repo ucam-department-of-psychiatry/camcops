@@ -551,14 +551,8 @@ USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = QT_VERSION >= Version(
 
 # OpenSSL
 
-# -- IF YOU CHANGE THIS, UPDATE camcops.pro
-OPENSSL_VERSION = "1.1.1c"  # as of 2019-06-15, previously 1.1.0g
-# ... formerly "1.0.2h", but Windows 64 builds break
-# ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
-# ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g;
-#     errors relating to "undefined type 'x509_st'"
-# ... OpenSSL 1.1 requires Qt 5.10.0 alpha:
-#     https://bugreports.qt.io/browse/QTBUG-52905
+# -- IF YOU CHANGE THIS, UPDATE camcops.pro AND camcops_windows_innosetup.iss
+OPENSSL_VERSION = "1.1.1s"
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
 OPENSSL_SRC_URL = (

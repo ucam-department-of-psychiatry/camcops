@@ -244,7 +244,7 @@ INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-3.3.3"  # from which: <Eigen/...>
 # =============================================================================
 # https://wiki.qt.io/Technical_FAQ#How_can_I_detect_in_the_.pro_file_if_I_am_compiling_for_a_32_bit_or_a_64_bit_platform.3F
 
-OPENSSL_VERSION = 1.1.1c
+OPENSSL_VERSION = 1.1.1s
 # ... see build_qt.py or changelog.rst for chronology
 
 # -----------------------------------------------------------------------------
