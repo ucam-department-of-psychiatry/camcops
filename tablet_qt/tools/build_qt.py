@@ -524,10 +524,13 @@ QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "6.2"
 QT_GIT_COMMIT = HEAD
 QT_SPECIFIC_VERSION = "6.2.4"
-QT_SUBMODULES_TO_SKIP = [
-    # Don't need this on any platform, and unsupported on Android:
-    "qtserialport",
-    "qtwebengine",
+QT_GIT_SUBMODULES = [
+    "qtbase",  # Core
+    "qtdeclarative",  # Qt Quick and QML
+    "qtmultimedia",  # Camera etc
+    "qtscxml",  # QStateMachine
+    "qtshadertools",  # Required by qtmultimedia
+    "qtsvg",  # SVG support
 ]
 
 if QT_SPECIFIC_VERSION:
@@ -3258,15 +3261,14 @@ def fetch_qt(cfg: Config) -> None:
     ):
         return
     chdir(cfg.qt_src_gitdir)
-    run([PERL, "init-repository"])
+    run(
+        [
+            PERL,
+            "init-repository",
+            f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
+        ]
+    )
 
-    for submodule in QT_SUBMODULES_TO_SKIP:
-        shutil.rmtree(
-            os.path.join(cfg.qt_src_gitdir, submodule), onerror=remove_readonly
-        )
-
-    run([GIT, "submodule", "deinit"] + QT_SUBMODULES_TO_SKIP)
-    # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
@@ -3523,8 +3525,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     for libdir in libdirs:
         qt_config_args.extend(["-L", libdir.replace("\\", "\\\\")])
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
-    for submodule in QT_SUBMODULES_TO_SKIP:
-        qt_config_args.extend(["-skip", submodule])
 
     # Debug or release build of Qt?
     if cfg.qt_build_type == QT_BUILD_DEBUG:
