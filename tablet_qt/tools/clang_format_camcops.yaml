@@ -39,6 +39,26 @@ AllowShortLambdasOnASingleLine: None
 AlwaysBreakBeforeMultilineStrings: true
 BinPackArguments: false
 BinPackParameters: false
+BraceWrapping:  # only applies if BreakBeforeBraces: Custom
+  AfterCaseLabel:  false
+  AfterClass:      true  # modified from WebKit
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterFunction:   true
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     true  # modified from WebKit
+  AfterUnion:      false
+  AfterExternBlock: false
+  BeforeCatch:     false
+  BeforeElse:      false
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakBeforeBraces: Custom
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 ColumnLimit: 79  # as for Python
@@ -56,14 +76,24 @@ IncludeCategories:
   - Regex:           '.*'         #include everything else
     Priority:        3
 IndentCaseLabels: true
+IndentPPDirectives: BeforeHash
 IndentWrappedFunctionNames: true
 # InsertBraces: true  # requires clang-format-15
 MaxEmptyLinesToKeep: 2
 PackConstructorInitializers: Never
+ReflowComments: false
 SeparateDefinitionBlocks: Always  # includes functions defined in class headers
+SortIncludes: CaseInsensitive
+SpaceAfterTemplateKeyword: false
 SpaceBeforeCpp11BracedList: false
 SpacesBeforeTrailingComments: 2
 SpacesInContainerLiterals: false
+
+# NOT WELL SUPPORTED:
+# - Indentation of C++ content within preprocessor #if/#else/#endif statements,
+#   e.g. common/platform.cpp
+# - Not fiddling too much with word wrapping in long comment blocks, though you
+#   can control this with ReflowComments and PenaltyBreakComment.
 
 ...
 
