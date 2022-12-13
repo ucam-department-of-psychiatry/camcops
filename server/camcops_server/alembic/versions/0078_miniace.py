@@ -699,14 +699,4 @@ def downgrade():
         batch_op.drop_column("task_address_version")
         batch_op.drop_column("remote_administration")
 
-    with op.batch_alter_table("miniace", schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f("ix_miniace_when_last_modified"))
-        batch_op.drop_index(batch_op.f("ix_miniace_patient_id"))
-        batch_op.drop_index(batch_op.f("ix_miniace_id"))
-        batch_op.drop_index(batch_op.f("ix_miniace__pk"))
-        batch_op.drop_index(batch_op.f("ix_miniace__group_id"))
-        batch_op.drop_index(batch_op.f("ix_miniace__era"))
-        batch_op.drop_index(batch_op.f("ix_miniace__device_id"))
-        batch_op.drop_index(batch_op.f("ix_miniace__current"))
-
     op.drop_table("miniace")
