@@ -1019,10 +1019,14 @@ class Task(GenericTabletRecordMixin, Base):
 
         The online help is presently only in English.
         """
-        basename = cls.info_filename_stem or cls.tablename
+        basename = cls.help_url_basename()
         language = "en"
         # DOCUMENTATION_URL has a trailing slash already
         return f"{DOCUMENTATION_URL}{language}/latest/tasks/{basename}.html"
+
+    @classmethod
+    def help_url_basename(cls) -> str:
+        return cls.info_filename_stem or cls.tablename
 
     # -------------------------------------------------------------------------
     # More on fields

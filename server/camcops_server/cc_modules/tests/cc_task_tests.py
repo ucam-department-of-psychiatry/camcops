@@ -28,11 +28,9 @@ camcops_server/cc_modules/tests/cc_task_tests.py
 """
 
 import logging
-from time import sleep
-import urllib.error
-import urllib.request
+import os
+from pathlib import Path
 
-from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
@@ -53,23 +51,6 @@ class TaskTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
-
-    def open_url(self, url: str) -> int:
-        num_tries = 0
-        response = None
-        delay = 10
-
-        while response is None:
-            try:
-                response = urllib.request.urlopen(url)
-            except urllib.error.URLError:
-                num_tries += 1
-                if num_tries == 5:
-                    raise
-                sleep(delay)
-                delay = delay * 2
-
-        return response.getcode()
 
     def test_query_phq9(self) -> None:
         self.announce("test_query_phq9")
@@ -106,6 +87,9 @@ class TaskTests(DemoDatabaseTestCase):
         req = self.req
         recipdef = self.recipdef
         dummy_data_factory = DummyDataInserter()
+        task_doc_root = os.path.join(
+            Path(__file__).resolve().parents[4], "docs", "source", "tasks"
+        )
         for cls in subclasses:
             log.info("Testing {}", cls)
             assert cls.extrastring_taskname != APPSTRING_TASKNAME
@@ -241,12 +225,11 @@ class TaskTests(DemoDatabaseTestCase):
             )
 
             # Help
-            help_url = t.help_url()
-            status = self.open_url(help_url)
-            self.assertEqual(
-                status,
-                HttpStatus.OK,
-                msg=f"Task help not found at {help_url}",
+            help_file = f"{t.help_url_basename()}.rst"
+            task_help_file = os.path.join(task_doc_root, help_file)
+            self.assertTrue(
+                os.path.exists(task_help_file),
+                msg=f"Task help not found at {task_help_file}",
             )
 
             # Special operations
