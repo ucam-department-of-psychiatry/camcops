@@ -1,4 +1,4 @@
-..  docs/source/tasks/ace3.rst
+..  docs/source/tasks/miniace.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
