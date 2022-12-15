@@ -25,13 +25,14 @@
 #include "widgets/spacer.h"
 
 
-QuSpacer::QuSpacer() :
-    QuSpacer(QSize(uiconst::SPACE, uiconst::SPACE))
+QuSpacer::QuSpacer(QObject* parent) :
+    QuSpacer(QSize(uiconst::SPACE, uiconst::SPACE), parent)
 {
 }
 
 
-QuSpacer::QuSpacer(const QSize& size) :
+QuSpacer::QuSpacer(const QSize size, QObject* parent) :
+    QuElement(parent),
     m_size(size)
 {
 }

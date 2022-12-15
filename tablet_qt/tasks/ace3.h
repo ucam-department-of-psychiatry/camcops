@@ -21,30 +21,27 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-#include "tasklib/task.h"
+#include "acefamily.h"
 
-class CamcopsApp;
 class OpenableWidget;
-class Questionnaire;
 class TaskFactory;
 
 void initializeAce3(TaskFactory& factory);
 
 
-class Ace3 : public Task
+class Ace3 : public AceFamily
 {
     Q_OBJECT
 public:
     Ace3(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+         int load_pk = dbconst::NONEXISTENT_PK, QObject* parent = nullptr);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool hasClinician() const override { return true; }
-    virtual bool prohibitsCommercial() const override { return true; }
+    virtual bool isTaskProperlyCreatable(QString& why_not_creatable) const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -54,24 +51,83 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    int getAttnScore() const;
-    int getMemRecognitionScore() const;
-    int getMemScore() const;
-    int getFluencyScore() const;
+    int getAttnScore() const;  // out of 18
+    int getMemScore() const;  // out of 26
+    int getFluencyScore() const;  // out of 14
+    int getLangScore() const;  // out of 26
+    int getVisuospatialScore() const;  // out of 16
+    int totalScore() const;  // out of 100
+    int miniAceScore() const;  // out of 30
+protected:
+    // ------------------------------------------------------------------------
+    // Internal scoring/completeness tests
+    // ------------------------------------------------------------------------
     int getFollowCommandScore() const;
     int getRepeatWordScore() const;
-    int getLangScore() const;
-    int getVisuospatialScore() const;
-    int totalScore() const;
+    int getMemRecognitionScore() const;
     bool isRecognitionComplete() const;
+
+    // ------------------------------------------------------------------------
+    // Task address version support functions
+    // ------------------------------------------------------------------------
+
+    // The task address version currently in use (A/B/C).
+    // Guaranteed to be valid (even with missing/incorrect underlying data),
+    // by defaulting to 'A'.
+    QString taskAddressVersion() const override;
+
+    // Is it OK to change task address version? (The converse question: have we
+    // collected data, such that changing task address version is dubious?)
+    bool isChangingAddressVersionOk() const override;
+
+    // Is a specific answer both present and correct?
+    bool isAddressRecogAnswerCorrect(int line) const;
+
+    // An element from the 5-row, 3-alternative-column grid for address
+    // recognition (using 1-based numbering):
+    QString addressRecogElement(int line, int column) const;
+
+    // Is the "correct column" information for the current task version valid?
+    bool isAddressRecogCorrectColumnInfoValid() const;
+
+    // Is the given "correct column" information valid?
+    bool isAddressRecogCorrectColumnInfoValid(
+            const QVector<int>& correct_cols) const;
+
+    // The correct option for each of the 5 lines for address recognition, for
+    // the current task version. Guaranteed to return correctly formatted data,
+    // by defaulting to English 'A'.
+    QVector<int> correctColumnsAddressRecog() const;
+
+    // The correct option for each of the 5 lines for address recognition, for
+    // any given task version. May return invalid data.
+    QVector<int> correctColumnsAddressRecog(
+            const QString& task_address_version) const;
+
+    // MCQ options for a given address recognition line
+    NameValueOptions getAddressRecogOptions(int line) const;
+
+    // ------------------------------------------------------------------------
+    // Automatic tag generation
+    // ------------------------------------------------------------------------
+    QString tagAddressRecog(int line) const;
+
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
 public slots:
-    void langPracticeChanged(const FieldRef* fieldref);
+    // Update addresses according to the task version (A/B/C).
+    void updateTaskVersionAddresses();
+
+    // Show standard or remote administration instructions.
+    void showStandardOrRemoteInstructions();
+
+    // Update the ability to edit the task version address.
+    void updateTaskVersionEditability();
+
+    // Update the recognition display according to what the subject recalled.
     void updateAddressRecognition();
-protected:
-    QPointer<Questionnaire> m_questionnaire;
-public:
-    static const QString ACE3_TABLENAME;
+
+    // Update language elements depending on the subject's practice trial.
+    void langPracticeChanged(const FieldRef* fieldref);
 };

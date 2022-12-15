@@ -24,7 +24,8 @@
 #include "widgets/horizontalline.h"
 
 
-QuHorizontalLine::QuHorizontalLine()
+QuHorizontalLine::QuHorizontalLine(QObject* parent) :
+    QuElement(parent)
 {
 }
 

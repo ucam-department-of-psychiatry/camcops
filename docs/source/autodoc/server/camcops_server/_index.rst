@@ -109,6 +109,7 @@ server/camcops_server
     alembic/versions/0075_cia.py.rst
     alembic/versions/0076_paradise24.py.rst
     alembic/versions/0077_phq8.py.rst
+    alembic/versions/0078_miniace.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst

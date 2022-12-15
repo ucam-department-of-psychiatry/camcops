@@ -69,10 +69,7 @@ def encode_single_value(v: Any, is_blob=False) -> str:
     for the return journey to the tablet/webclient, because those data get sent
     in a one-record-one-line format.
 
-    In the old Titanium client, the client-side counterpart to this function
-    was ``decode_single_sql_literal()`` in ``lib/conversion.js``.
-
-    In the newer C++ client, the client-side counterpart is
+    In the C++ client, the client-side counterpart to this function is
     ``fromSqlLiteral()`` in ``lib/convert.cpp``.
 
     """
@@ -109,12 +106,7 @@ def decode_single_value(v: str) -> Any:
 
     - we use ISO-8601 text for dates/times
 
-    In the old Titanium client, the client-side counterpart to this function
-    was SQLite's ``QUOTE()`` function (see ``getRecordByPK_lowmem()`` in
-    ``lib/dbsqlite.js``), except in the case of BLOBs (when it was
-    ``getEncodedBlob()`` in ``table/Blob.js``); see ``lib/dbupload.js``.
-
-    In the newer C++ client, the client-side counterpart is
+    In the C++ client, the client-side counterpart to this function is
     ``toSqlLiteral()`` in ``lib/convert.cpp``.
 
     """

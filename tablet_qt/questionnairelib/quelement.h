@@ -53,7 +53,7 @@ class QuElement : public QObject
     friend class WidgetTestMenu;
 
 public:
-    QuElement();
+    QuElement(QObject* parent = nullptr);
     virtual ~QuElement();
 
     // Adds an arbitrary tag. Users can use this to retrieve a QuElement from

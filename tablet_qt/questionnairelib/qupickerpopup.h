@@ -34,7 +34,8 @@ class QuPickerPopup : public QuElement
 public:
 
     // Constructor
-    QuPickerPopup(FieldRefPtr fieldref, const NameValueOptions& options);
+    QuPickerPopup(FieldRefPtr fieldref, const NameValueOptions& options,
+                  QObject* parent = nullptr);
 
     // Set the title of the pop-up dialogue.
     QuPickerPopup* setPopupTitle(const QString& popup_title);

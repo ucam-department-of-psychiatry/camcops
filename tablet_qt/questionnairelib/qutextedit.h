@@ -39,7 +39,8 @@ public:
 
     // Constructor.
     // - accept_rich_text: see http://doc.qt.io/qt-5/qtextedit.html#acceptRichText-prop
-    QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text = false);
+    QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text = false,
+               QObject* parent = nullptr);
 
     // Allow tabs in content? Generally a bad idea as users may expect the Tab
     // key to navigate between fields.

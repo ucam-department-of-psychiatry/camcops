@@ -39,6 +39,8 @@ class TaskProxy
     // defines an interface.
     // For example, the PHQ9 task creates a single TaskRegistrar<Phq9> object.
 
+    Q_DISABLE_COPY(TaskProxy)
+
 public:
 
     // Construct the proxy, which registers itself with the factory.

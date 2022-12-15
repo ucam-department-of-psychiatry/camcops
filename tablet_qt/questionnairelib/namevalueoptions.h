@@ -132,12 +132,14 @@ public:
     // Returns the name for a given value, or a default string if there isn't
     // one.
     QString nameFromValue(const QVariant& value,
-                          const QString& default_ = "") const;
+                          const QString& default_ = QString()) const;
 
     // Returns the first value for a given name, or a default if there isn't
     // one.
     QVariant valueFromName(const QString& name,
                            const QVariant& default_ = QVariant()) const;
+
+    bool valuesMatch(const NameValueOptions& other) const;
 
 protected:
     // Return the name/value pair at the given (zero-based) index.

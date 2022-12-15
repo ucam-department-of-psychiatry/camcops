@@ -835,8 +835,8 @@ QVector<QPointF> IDED3D::stimCentres(const int n) const
             QVector<qreal> bottomy = rep(tempy.at(1), nbottom);
             x = topx + bottomx;
             y = topy + bottomy;
+            break;
         }
-        break;
 
     // something wrong:
     default:
@@ -1143,9 +1143,11 @@ void IDED3D::showAnswer(bool correct)
     m_scene->addRect(ANSWER_BACKDROP_RECT, QPen(Qt::NoPen), QBrush(colour));
     makeText(m_scene, SCENE_CENTRE, BASE_TEXT_CONFIG, text);
     if (correct) {
-        m_player_correct->play();  // on completion will go to mediaStatusChanged()
+        m_player_correct->play();
+        // on completion will go to mediaStatusChanged()
     } else {
-        m_player_incorrect->play();  // on completion will go to mediaStatusChanged()
+        m_player_incorrect->play();
+        // on completion will go to mediaStatusChanged()
     }
 }
 

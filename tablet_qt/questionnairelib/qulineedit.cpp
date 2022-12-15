@@ -31,7 +31,8 @@
 const int WRITE_DELAY_MS = 400;
 
 
-QuLineEdit::QuLineEdit(FieldRefPtr fieldref) :
+QuLineEdit::QuLineEdit(FieldRefPtr fieldref, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_hint(TextConst::defaultHintText()),
     m_editor(nullptr),

@@ -30,7 +30,9 @@
 
 
 QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
-                     const NameValueOptions& options) :
+                     const NameValueOptions& options,
+                     QObject* parent) :
+    QuElement(parent),
     m_question_field_pairs(question_field_pairs),
     m_options(options),
     m_question_width(-1),

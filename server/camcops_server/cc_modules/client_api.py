@@ -388,7 +388,6 @@ from camcops_server.cc_modules.cc_client_api_core import (
     fail_unsupported_operation,
     fail_user_error,
     get_server_live_records,
-    IgnoringAntiqueTableException,
     require_keys,
     ServerErrorException,
     ServerRecord,
@@ -491,30 +490,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Constants
 # =============================================================================
 
-COPE_WITH_DELETED_PATIENT_DESCRIPTIONS = True
-# ... as of client 2.0.0, ID descriptions are no longer duplicated.
-# As of server 2.0.0, the fields still exist in the database, but the reporting
-# and consistency check has been removed. In the next version of the server,
-# the fields will be removed, and then the server should cope with old clients,
-# at least for a while.
-
 DUPLICATE_FAILED = "Failed to duplicate record"
 INSERT_FAILED = "Failed to insert record"
-
-# REGEX_INVALID_TABLE_FIELD_CHARS = re.compile("[^a-zA-Z0-9_]")
-# ... the ^ within the [] means the expression will match any character NOT in
-# the specified range
-
-DEVICE_STORED_VAR_TABLENAME_DEFUNCT = "storedvars"
-# ... old table, no longer in use, that Titanium clients used to upload.
-# We recognize and ignore it now so that old clients can still work.
-
-SILENTLY_IGNORE_TABLENAMES = [DEVICE_STORED_VAR_TABLENAME_DEFUNCT]
-
-IGNORING_ANTIQUE_TABLE_MESSAGE = (
-    "Ignoring user request to upload antique/defunct table, but reporting "
-    "success to the client"
-)
 
 SUCCESS_MSG = "Success"
 SUCCESS_CODE = "1"
@@ -846,13 +823,8 @@ def get_table_from_req(req: "CamcopsRequest", var: str) -> Table:
 
     Raises:
         :exc:`UserErrorException` if the variable wasn't provided
-
-        :exc:`IgnoringAntiqueTableException` if the table is one to
-        ignore quietly (requested by an antique client)
     """
     tablename = get_str_var(req, var, mandatory=True)
-    if tablename in SILENTLY_IGNORE_TABLENAMES:
-        raise IgnoringAntiqueTableException(f"Ignoring table {tablename}")
     ensure_valid_table_name(req, tablename)
     return CLIENT_TABLE_MAP[tablename]
 
@@ -884,9 +856,6 @@ def get_tables_from_post_var(
     tablenames = [x.strip() for x in cstables.split(",")]
     tables = []  # type: List[Table]
     for tn in tablenames:
-        if tn in SILENTLY_IGNORE_TABLENAMES:
-            log.warning(IGNORING_ANTIQUE_TABLE_MESSAGE)
-            continue
         ensure_valid_table_name(req, tn)
         tables.append(CLIENT_TABLE_MAP[tn])
     return tables
@@ -2867,7 +2836,8 @@ def op_upload_table(req: "CamcopsRequest") -> str:
         )
     else:
         # Old client. Either (a) old Titanium client, in which the client PK
-        # is in fields[0], or (b) an early C++ client, in which there was no
+        # is in fields[0] [SUCH CLIENTS ARE NO LONGER SUPPORTED AS OF SERVER
+        # v2.4.15], or (b) an early C++ client, in which there was no
         # guaranteed order (and no explicit PK name was sent). However, in
         # either case, the client PK name was (is) always "id".
         clientpk_name = TABLET_ID_FIELD
@@ -3069,10 +3039,10 @@ def op_delete_where_key_not(req: "CamcopsRequest") -> str:
 
 def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     """
-    Intended use: "For my device, and a specified table, here are my client-
-    side PKs (as a CSV list), and the modification dates for each corresponding
-    record (as a CSV list). Please tell me which records have mismatching dates
-    on the server, i.e. those that I need to re-upload."
+    Intended use: "For my device, and a specified table, here are my
+    client-side PKs (as a CSV list), and the modification dates for each
+    corresponding record (as a CSV list). Please tell me which records have
+    mismatching dates on the server, i.e. those that I need to re-upload."
 
     Used particularly for BLOBs, to reduce traffic, i.e. so we don't have to
     send a lot of BLOBs.
@@ -3083,10 +3053,7 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     # -------------------------------------------------------------------------
     # Get details
     # -------------------------------------------------------------------------
-    try:
-        table = get_table_from_req(req, TabletParam.TABLE)
-    except IgnoringAntiqueTableException:
-        raise IgnoringAntiqueTableException("")
+    table = get_table_from_req(req, TabletParam.TABLE)
     clientpk_name = get_single_field_from_post_var(
         req, table, TabletParam.PKNAME
     )
@@ -3430,14 +3397,6 @@ def client_api(req: "CamcopsRequest") -> Response:
     try:
         resultdict = main_client_api(req)
         resultdict[TabletParam.SUCCESS] = SUCCESS_CODE
-        status = "200 OK"
-
-    except IgnoringAntiqueTableException as e:
-        log.warning(IGNORING_ANTIQUE_TABLE_MESSAGE)
-        resultdict = {
-            TabletParam.RESULT: escape_newlines(str(e)),
-            TabletParam.SUCCESS: SUCCESS_CODE,
-        }
         status = "200 OK"
 
     except UserErrorException as e:

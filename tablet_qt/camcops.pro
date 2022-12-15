@@ -823,6 +823,7 @@ SOURCES += \
     tasklib/taskscheduleitemeditor.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
+    tasks/acefamily.cpp \
     tasks/aims.cpp \
     tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
@@ -915,6 +916,7 @@ SOURCES += \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
     tasks/mfi20.cpp \
+    tasks/miniace.cpp \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
@@ -1309,6 +1311,7 @@ HEADERS += \
     tasklib/taskscheduleitemeditor.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \
+    tasks/acefamily.h \
     tasks/aims.h \
     tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
@@ -1401,6 +1404,7 @@ HEADERS += \
     tasks/mast.h \
     tasks/mdsupdrs.h \
     tasks/mfi20.h \
+    tasks/miniace.h \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \

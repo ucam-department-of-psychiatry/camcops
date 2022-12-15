@@ -29,8 +29,9 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref) :
-    QuText(text, fieldref)  // uses protected constructor of base class
+QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref,
+                     QObject* parent) :
+    QuText(text, fieldref, parent)  // uses protected constructor of base class
 {
     m_fontsize = uiconst::FontSize::Heading;
     m_bold = false;
@@ -39,14 +40,14 @@ QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref) :
 }
 
 
-QuHeading::QuHeading(const QString& text) :
-    QuHeading(text, nullptr)
+QuHeading::QuHeading(const QString& text, QObject* parent) :
+    QuHeading(text, nullptr, parent)
 {
 }
 
 
-QuHeading::QuHeading(FieldRefPtr fieldref) :
-    QuText("", fieldref)
+QuHeading::QuHeading(FieldRefPtr fieldref, QObject* parent) :
+    QuText(QString(), fieldref, parent)
 {
 }
 

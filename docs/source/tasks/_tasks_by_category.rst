@@ -135,6 +135,8 @@ Cognitive assessment
 
 - :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
 
+- :ref:`Mini-Addenbrooke’s Cognitive Examination (Mini-ACE) <miniace>`
+
 - :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
 
 - :ref:`National Adult Reading Test (NART) <nart>`

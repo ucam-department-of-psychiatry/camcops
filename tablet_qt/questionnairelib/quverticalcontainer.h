@@ -30,12 +30,15 @@ class QuVerticalContainer : public QuSequenceContainerBase
 
 public:
     // Construct empty.
-    QuVerticalContainer();
+    QuVerticalContainer(QObject* parent = nullptr);
 
     // Construct with elements.
-    QuVerticalContainer(const QVector<QuElementPtr>& elements);
-    QuVerticalContainer(std::initializer_list<QuElementPtr> elements);
-    QuVerticalContainer(std::initializer_list<QuElement*> elements);  // takes ownership
+    QuVerticalContainer(const QVector<QuElementPtr>& elements,
+                        QObject* parent = nullptr);
+    QuVerticalContainer(std::initializer_list<QuElementPtr> elements,
+                        QObject* parent = nullptr);
+    QuVerticalContainer(std::initializer_list<QuElement*> elements,
+                        QObject* parent = nullptr);  // takes ownership
 
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;

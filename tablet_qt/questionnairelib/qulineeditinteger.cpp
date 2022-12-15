@@ -26,8 +26,9 @@
 
 
 QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
-                                     const bool allow_empty) :
-    QuLineEdit(fieldref),
+                                     const bool allow_empty,
+                                     QObject* parent) :
+    QuLineEdit(fieldref, parent),
     m_minimum(std::numeric_limits<int>::min()),
     m_maximum(std::numeric_limits<int>::max()),
     m_allow_empty(allow_empty),
@@ -40,8 +41,9 @@ QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
 QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
                                      const int minimum,
                                      const int maximum,
-                                     const bool allow_empty) :
-    QuLineEdit(fieldref),
+                                     const bool allow_empty,
+                                     QObject* parent) :
+    QuLineEdit(fieldref, parent),
     m_minimum(minimum),
     m_maximum(maximum),
     m_allow_empty(allow_empty),

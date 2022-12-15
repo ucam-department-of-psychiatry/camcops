@@ -27,8 +27,9 @@
 
 
 QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,
-                                   const bool allow_empty) :
-    QuLineEdit(fieldref),
+                                   const bool allow_empty,
+                                   QObject* parent) :
+    QuLineEdit(fieldref, parent),
     /* Compare
        https://en.cppreference.com/w/cpp/types/numeric_limits/min
        https://en.cppreference.com/w/cpp/types/numeric_limits/lowest
@@ -52,8 +53,9 @@ QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,
                                    const double minimum,
                                    const double maximum,
                                    const int decimals,
-                                   const bool allow_empty) :
-    QuLineEdit(fieldref),
+                                   const bool allow_empty,
+                                   QObject* parent) :
+    QuLineEdit(fieldref, parent),
     m_minimum(minimum),
     m_maximum(maximum),
     m_decimals(decimals),

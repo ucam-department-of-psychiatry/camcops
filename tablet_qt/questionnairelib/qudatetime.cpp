@@ -57,7 +57,8 @@ const QTime PSEUDONULL_TIME(0, 0, 0, 0);
 const QDateTime PSEUDONULL_DATETIME(PSEUDONULL_DATE, PSEUDONULL_TIME);
 
 
-QuDateTime::QuDateTime(FieldRefPtr fieldref) :
+QuDateTime::QuDateTime(FieldRefPtr fieldref, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_mode(Mode::DefaultDateTime),
     m_custom_input_method_hint(Qt::ImhNone),

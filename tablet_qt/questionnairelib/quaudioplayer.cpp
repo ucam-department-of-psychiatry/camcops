@@ -33,7 +33,8 @@
 #include "widgets/imagebutton.h"
 
 
-QuAudioPlayer::QuAudioPlayer(const QString& url) :
+QuAudioPlayer::QuAudioPlayer(const QString& url, QObject* parent) :
+    QuElement(parent),
     m_url(url),
     m_volume(50),
     m_offer_volume_control(false),

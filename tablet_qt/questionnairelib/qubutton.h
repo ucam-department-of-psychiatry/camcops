@@ -47,7 +47,8 @@ public:
     //   std::bind(&MyClass::myFunc, this, "someparam")
 
     // Constructor: display text label
-    QuButton(const QString& label, const CallbackFunction& callback);
+    QuButton(const QString& label, const CallbackFunction& callback,
+             QObject* parent = nullptr);
 
     // Constructor: display icon.
     // Args:
@@ -61,7 +62,8 @@ public:
     //  callback
     //      the callback function
     QuButton(const QString& icon_filename, bool filename_is_camcops_stem,
-             bool alter_unpressed_image, const CallbackFunction& callback);
+             bool alter_unpressed_image, const CallbackFunction& callback,
+             QObject* parent = nullptr);
 
     // Should the button respond, or just sit there unresponsive?
     // (It will also be inactive in read-only questionnaires, but this allows
