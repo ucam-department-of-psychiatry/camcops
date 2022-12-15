@@ -30,12 +30,15 @@ class QuFlowContainer : public QuSequenceContainerBase
     Q_OBJECT
 public:
     // Plain constructor
-    QuFlowContainer();
+    QuFlowContainer(QObject* parent = nullptr);
 
     // Construct and add elements
-    QuFlowContainer(const QVector<QuElementPtr>& elements);
-    QuFlowContainer(std::initializer_list<QuElementPtr> elements);
-    QuFlowContainer(std::initializer_list<QuElement*> elements);
+    QuFlowContainer(const QVector<QuElementPtr>& elements,
+                    QObject* parent = nullptr);
+    QuFlowContainer(std::initializer_list<QuElementPtr> elements,
+                    QObject* parent = nullptr);
+    QuFlowContainer(std::initializer_list<QuElement*> elements,
+                    QObject* parent = nullptr);
 
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;

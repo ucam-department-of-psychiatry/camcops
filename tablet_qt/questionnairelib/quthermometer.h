@@ -45,9 +45,11 @@ public:
 
     // Constructors
     QuThermometer(FieldRefPtr fieldref,
-                  const QVector<QuThermometerItem>& items);
+                  const QVector<QuThermometerItem>& items,
+                  QObject* parent = nullptr);
     QuThermometer(FieldRefPtr fieldref,
-                  std::initializer_list<QuThermometerItem> items);
+                  std::initializer_list<QuThermometerItem> items,
+                  QObject* parent = nullptr);
 
     // Rescale the thermometer? (That is, alter its maximum display size?)
     //

@@ -26,6 +26,7 @@ tablet_qt/tools/clazy_camcops.py
 ===============================================================================
 
 Run clazy over all our C++ code.
+
 """
 
 # =============================================================================
@@ -38,6 +39,7 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
@@ -69,6 +71,42 @@ CAMCOPS_CPP_INCLUDE_DIRS.sort()
 # =============================================================================
 # Apply clazy to our source code
 # =============================================================================
+
+CHECKS = [
+    "level2",  # the basic level
+    # Use the "no-" prefix to disable a check:
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # LEVEL 2 CHECKS TO DISABLE:
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # As clazy points out, (global) static variables are fine in executables,
+    # but not in libraries; clazy doesn't know which is being built, so issues
+    # the warning. The standard sort of code that generates this warning is
+    # file-level code like
+    #       const QString SOME_STRING("hello world");
+    # https://github.com/KDE/clazy/blob/master/docs/checks/README-non-pod-global-static.md  # noqa: E501
+    "no-non-pod-global-static",
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # MANUAL LEVEL CHECKS TO DISABLE:
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # e.g. "emit someSignal()"
+    "no-qt-keywords",
+]
+
+_ = """
+Other things to note:
+
+AVOID:
+    const QString s("text");
+PREFER:
+    const QString s = QStringLiteral("text");
+OR BETTER:
+    const QString s(QStringLiteral("text"));
+See https://github.com/KDE/clazy/blob/master/docs/checks/README-qstring-allocations.md.
+
+For empty strings, use QLatin1String(""), QLatin1String(), or QString().
+The last of these is simplest and shortest.
+
+"""  # noqa: E501
 
 
 def clazy_camcops_source() -> None:
@@ -102,7 +140,7 @@ def clazy_camcops_source() -> None:
         help=(
             f"Path to your installed copy of Qt. Priority: (1) this argument, "
             f"(2) the {ENVVAR_QT_INSTALLATION_ROOT} environment variable, "
-            f"(3) {DEFAULT_QT_INSTALLATION_ROOT}."
+            f"(3) a default of {DEFAULT_QT_INSTALLATION_ROOT}."
         ),
     )
     parser.add_argument(
@@ -116,7 +154,6 @@ def clazy_camcops_source() -> None:
     main_only_quicksetup_rootlogger(
         level=logging.DEBUG if args.verbose else logging.INFO
     )
-    log.warning("todo: clean up .s/.o files produced")
 
     # -------------------------------------------------------------------------
     # Environment variables and files
@@ -176,14 +213,25 @@ def clazy_camcops_source() -> None:
     # ... actually, better to disable the linker! See "--compile" above, and
     # https://clang.llvm.org/docs/ClangCommandLineReference.html#actions
 
+    # Additional switches to suppress warnings:
+    # https://github.com/KDE/clazy
+    clazy_checks = ",".join(CHECKS)
+    log.info(f"CLAZY_CHECKS: {clazy_checks}")
+    os.environ["CLAZY_CHECKS"] = clazy_checks
+
     # Files to process:
-    cmdargs += cpp_files
+    cmdargs += [os.path.abspath(x) for x in cpp_files]
+    # ... absolute path because we'll change directory in a moment.
 
     # -------------------------------------------------------------------------
     # Run it
     # -------------------------------------------------------------------------
-    log.debug(cmdargs)
-    subprocess.run(cmdargs)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # clazy creates .s/.o files in the directory you call it from, so this
+        # does automatic cleanup.
+        os.chdir(tmpdir)
+        log.debug(cmdargs)
+        subprocess.run(cmdargs)
 
 
 # =============================================================================

@@ -45,6 +45,9 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
+const QString DBOBJECT_DEFAULT_SEPARATOR(" = ");
+const QString DBOBJECT_DEFAULT_SUFFIX("");
+
 const QString NOT_NULL_ERROR("Error: attempting to save NULL to a NOT NULL "
                              "field:");
 
@@ -56,7 +59,9 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
                                const bool has_modification_timestamp,
                                const bool has_creation_timestamp,
                                const bool has_move_off_tablet_field,
-                               const bool triggers_need_upload) :
+                               const bool triggers_need_upload,
+                               QObject* parent) :
+    QObject(parent),
     m_app(app),
     m_db(db),
     m_tablename(tablename),

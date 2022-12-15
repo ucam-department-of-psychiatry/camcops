@@ -108,6 +108,7 @@ All tasks
     mast.rst
     mds_updrs.rst
     mfi20.rst
+    miniace.rst
     moca.rst
     nart.rst
     npiq.rst

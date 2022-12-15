@@ -53,7 +53,8 @@ public:
     // Constructor
     QuMcqGridSingleBoolean(const QVector<QuestionWithTwoFields>& questions_with_fields,
                            const NameValueOptions& mcq_options,
-                           const QString& boolean_text);
+                           const QString& boolean_text,
+                           QObject* parent = nullptr);
 
     // Destructor
     virtual ~QuMcqGridSingleBoolean() override;

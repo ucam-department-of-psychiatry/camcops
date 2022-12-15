@@ -36,7 +36,7 @@ public:
 
     // Construct with a URL (e.g. a Qt resource URL for an audio file, such as
     // "qrc:///resources/camcops/sounds/bach_brandenburg_3_3.mp3").
-    QuAudioPlayer(const QString& url);
+    QuAudioPlayer(const QString& url, QObject* parent = nullptr);
 
     // Destructor
     virtual ~QuAudioPlayer() override;

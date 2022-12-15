@@ -36,7 +36,8 @@ const int PERIOD_MS = 100;  // should divide into whole seconds!
 const int DP = 1;
 
 
-QuCountdown::QuCountdown(const int time_s) :
+QuCountdown::QuCountdown(const int time_s, QObject* parent) :
+    QuElement(parent),
     m_time_s(time_s),
     m_volume(uiconst::MAX_VOLUME_QT),
     m_running(false),

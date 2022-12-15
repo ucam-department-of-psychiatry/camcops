@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CamCOPS 2.4.14\n"
+"Project-Id-Version: CamCOPS 2.4.15\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-11-30 16:08+0000\n"
+"POT-Creation-Date: 2022-12-07 17:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1510,12 +1510,12 @@ msgstr ""
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2423
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2446
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2392
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2415
 msgid "There is no patient with access key '{access_key}'. Have you entered the key correctly?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2457
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2426
 msgid "Patient has no ID numbers"
 msgstr ""
 
@@ -1853,8 +1853,12 @@ msgstr ""
 msgid "Failed to send email to {patient_email}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:490
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:536
 msgid "Addenbrooke’s Cognitive Examination III"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1401
+msgid "Mini-Addenbrooke’s Cognitive Examination"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aims.py:127

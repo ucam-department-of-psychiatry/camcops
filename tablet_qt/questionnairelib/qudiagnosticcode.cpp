@@ -40,7 +40,9 @@
 
 QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
                                    FieldRefPtr fieldref_code,
-                                   FieldRefPtr fieldref_description) :
+                                   FieldRefPtr fieldref_description,
+                                   QObject* parent) :
+    QuElement(parent),
     m_codeset(codeset),
     m_fieldref_code(fieldref_code),
     m_fieldref_description(fieldref_description),

@@ -183,7 +183,7 @@ public slots:
 
     // "Network operation failed somehow."
     void fail(
-        const ErrorCode error_code  = ErrorCode::NoError,
+        const NetworkManager::ErrorCode error_code = NetworkManager::ErrorCode::NoError,
         const QString& error_string = QString()
     );
 
@@ -404,7 +404,7 @@ protected:
 signals:
     // "Operation was cancelled."
     void cancelled(
-        const ErrorCode error_code,
+        const NetworkManager::ErrorCode error_code,
         const QString& error_string
     );
 

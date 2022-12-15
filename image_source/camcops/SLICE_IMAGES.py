@@ -676,28 +676,17 @@ def main() -> None:
 
     google_play_dir = join(args.base_dir, "working", "google_play_images")
 
-    qt_version = True
-    if qt_version:
-        tablet_icon_dir = join(
-            args.base_dir, "tablet_qt", "resources", "camcops", "images"
-        )
-        android_res_dir = join(
-            args.base_dir, "working", "dummy_image_android_res_dir"
-        )  # !!! # noqa
-        android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
-        ios_dir = join(
-            args.base_dir, "working", "dummy_image_ios_dir"
-        )  # !!! # noqa
-        windows_dir = join(args.base_dir, "tablet_qt", "windows")
-    else:
-        raise Exception("Titanium version no longer supported")
-        # tablet_icon_dir = join(args.base_dir, "tablet_qt", "Resources",
-        #                        "images", "camcops")
-        # android_res_dir = join(args.base_dir, "tablet", "Resources", "android")  # noqa
-        # android_plt_res = join(args.base_dir,
-        #                        "tablet", "platform", "android", "res")
-        # ios_dir = join(args.base_dir, "tablet", "Resources", "iphone")
-        # windows_dir = join(args.base_dir, "tablet", "Resources", "windows")
+    tablet_icon_dir = join(
+        args.base_dir, "tablet_qt", "resources", "camcops", "images"
+    )
+    android_res_dir = join(
+        args.base_dir, "working", "dummy_image_android_res_dir"
+    )  # !!! # noqa
+    android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
+    ios_dir = join(
+        args.base_dir, "working", "dummy_image_ios_dir"
+    )  # !!! # noqa
+    windows_dir = join(args.base_dir, "tablet_qt", "windows")
 
     server_static_dir = join(args.base_dir, "server", "static")
     web_image_dir = join(args.base_dir, "website", "images")

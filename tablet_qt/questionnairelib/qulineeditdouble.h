@@ -33,13 +33,15 @@ class QuLineEditDouble : public QuLineEdit
 public:
 
     // Constructor for unconstrained numbers
-    QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty = true);
+    QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty = true,
+                     QObject* parent = nullptr);
 
     // Constructor for constrained numbers.
     // - decimals: maximum number of decimal places; see above.
     // - allow_empty: OK to be blank?
     QuLineEditDouble(FieldRefPtr fieldref, double minimum, double maximum,
-                     int decimals = 1000, bool allow_empty = true);
+                     int decimals = 1000, bool allow_empty = true,
+                     QObject* parent = nullptr);
 
     // Use StrictDoubleValidator, not QDoubleValidator?
     QuLineEditDouble* setStrictValidator(bool strict);

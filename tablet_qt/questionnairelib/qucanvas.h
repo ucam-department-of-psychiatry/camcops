@@ -42,13 +42,15 @@ public:
              const QSize& size = QSize(100, 100),
              bool allow_shrink = true,  // see setAllowShrink()
              QImage::Format format = QImage::Format_RGB32,  // internal image format
-             const QColor& background_colour = Qt::white);
+             const QColor& background_colour = Qt::white,
+             QObject* parent = nullptr);
 
     // Construct with an image canvas.
     QuCanvas(BlobFieldRefPtr fieldref,
              const QString& template_filename,
              const QSize& size = QSize(),  // = take template's size
-             bool allow_shrink = true);  // see setAllowShrink()
+             bool allow_shrink = true,
+             QObject* parent = nullptr);  // see setAllowShrink()
 
     // Adjust for the current DPI settings?
     QuCanvas* setAdjustForDpi(bool adjust_for_dpi);  // default is true

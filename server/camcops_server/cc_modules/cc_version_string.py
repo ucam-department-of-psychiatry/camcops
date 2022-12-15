@@ -41,8 +41,8 @@ camcops_server/cc_modules/cc_version_string.py
 # -----------------------------------------------------------------------------
 # When you alter the server, it is normal to change these two:
 
-CAMCOPS_SERVER_VERSION_STRING = "2.4.14"
-CAMCOPS_SERVER_CHANGEDATE = "2022-11-17"
+CAMCOPS_SERVER_VERSION_STRING = "2.4.15"
+CAMCOPS_SERVER_CHANGEDATE = "2022-11-30"
 
 # +++ NOW ALSO UPDATE: +++
 #
@@ -54,5 +54,8 @@ CAMCOPS_SERVER_CHANGEDATE = "2022-11-17"
 # -----------------------------------------------------------------------------
 # BEWARE: it is not normal to have to change MINIMUM_TABLET_VERSION_STRING.
 # If you increase it, you may prevent old clients from uploading.
+#
+# 2022-11-30 (v2.4.15): increased from 1.14.0 to 2.0.0; 2.0.0 is the start of
+# C++ clients, so this change eliminates the old Titanium clients.
 
-MINIMUM_TABLET_VERSION_STRING = "1.14.0"
+MINIMUM_TABLET_VERSION_STRING = "2.0.0"

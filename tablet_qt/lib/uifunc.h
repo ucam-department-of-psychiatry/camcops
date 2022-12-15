@@ -106,7 +106,7 @@ QString iconButtonStylesheet(const QString& normal_filename,
 // Returns a button (a QToolButton) that shows one image normally and another
 // when being pressed/touched.
 QAbstractButton* iconButton(const QString& normal_filename,
-                            const QString& pressed_filename = "",
+                            const QString& pressed_filename = QString(),
                             QWidget* parent = nullptr);
 
 // ============================================================================
@@ -171,7 +171,7 @@ bool amInGuiThread();
 // Kill the app. Pops up a modal dialogue, then performs a hard kill.
 [[ noreturn ]] void stopApp(
         const QString& error,
-        const QString& title = "CamCOPS internal bug: stopping");
+        const QString& title = QStringLiteral("CamCOPS internal bug: stopping"));
 
 // ============================================================================
 // Alerts
@@ -244,7 +244,7 @@ void chooseLanguage(CamcopsApp& app, QWidget* parent_window);
 // Generates a CSS string applicable to text, such as
 // "font-size: 11pt; font-weight: bold;"
 QString textCSS(int fontsize_pt, bool bold = false, bool italic = false,
-                const QString& colour = "");
+                const QString& colour = QString());
 
 // ============================================================================
 // Opening URLS

@@ -31,7 +31,9 @@
 QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
         const QVector<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& mcq_options,
-        const QString& boolean_text) :
+        const QString& boolean_text,
+        QObject* parent) :
+    QuElement(parent),
     m_boolean_left(false),
     m_questions_with_fields(questions_with_fields),
     m_mcq_options(mcq_options),

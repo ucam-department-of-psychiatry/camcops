@@ -32,7 +32,8 @@
 
 
 QuMultipleResponse::QuMultipleResponse(
-        const QVector<QuestionWithOneField>& items) :
+        const QVector<QuestionWithOneField>& items, QObject* parent) :
+    QuElement(parent),
     m_items(items),
     m_minimum_answers(0),
     m_maximum_answers(-1),
@@ -48,14 +49,14 @@ QuMultipleResponse::QuMultipleResponse(
 
 
 QuMultipleResponse::QuMultipleResponse(
-        std::initializer_list<QuestionWithOneField> items) :
-    QuMultipleResponse(QVector<QuestionWithOneField>(items))  // delegating constructor
+        std::initializer_list<QuestionWithOneField> items, QObject* parent) :
+    QuMultipleResponse(QVector<QuestionWithOneField>(items), parent)  // delegating constructor
 {
 }
 
 
-QuMultipleResponse::QuMultipleResponse() :
-    QuMultipleResponse(QVector<QuestionWithOneField>())  // delegating constructor
+QuMultipleResponse::QuMultipleResponse(QObject* parent) :
+    QuMultipleResponse(QVector<QuestionWithOneField>(), parent)  // delegating constructor
 {
 }
 

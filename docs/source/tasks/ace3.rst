@@ -44,6 +44,9 @@ By John Hodges and colleagues.
 - Addenbrooke’s Cognitive Examination III (ACE-III): Hsieh et al. 2013,
   https://www.ncbi.nlm.nih.gov/pubmed/23949210.
 
+- Mini-ACE: Hsieh et al. 2015,
+  https://pubmed.ncbi.nlm.nih.gov/25227877/.
+
 
 Source
 ~~~~~~
@@ -79,14 +82,14 @@ Intellectual property rights
 Copyright © John Hodges, 2012. Used under standard (noncommercial) permissions,
 as below.
 
-- “Finally, the ACE-III is available for free. The copyright is held by Professor
-  John Hodges who is happy for the test to be used in clinical practice and
-  research projects.” (www.neura.edu.au/frontier/research/test-downloads,
-  accessed 2013-05-29.)
+- “Finally, the ACE-III is available for free. The copyright is held by
+  Professor John Hodges who is happy for the test to be used in clinical
+  practice and research projects.”
+  (www.neura.edu.au/frontier/research/test-downloads, accessed 2013-05-29.)
 
 - “As you know, we are happy for the ACE to be used widely and modified for use
   in other formats, such as the iPad. The guiding principle of the ACE-III is
-  that it is free for users and we wish therefore that disseminiation in other
+  that it is free for users and we wish therefore that dissemination in other
   forms, such as the tablet, also remains free.” (Sharpley Hsieh of
   Neuroscience Research Australia for John Hodges, to Rudolf Cardinal, 28 Oct
   2012)

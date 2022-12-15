@@ -4887,7 +4887,9 @@ class Cisr(TaskHasPatientMixin, Task):
         # Iterate only once, for efficiency, so don't use get_result().
 
         def qa_row(q_: CisrQuestion, qtext: str, a_: Optional[str]) -> str:
-            return tr(f"{q_.value}. {qtext}", answer(a_))
+            return tr(
+                f"{q_.value}. {qtext}", answer(a_, formatter_answer=bold)
+            )
 
         def max_text(maxval: int) -> str:
             return f" (max. {maxval})"

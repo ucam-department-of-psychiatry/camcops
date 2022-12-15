@@ -246,7 +246,7 @@ public:
 
     int value() const { return m_slider.value(); }
 
-    void triggerAction(QSlider::SliderAction action) { return m_slider.triggerAction(action); }
+    void triggerAction(QSlider::SliderAction action) { m_slider.triggerAction(action); }
 
 public slots:
     void setValue(int value) { m_slider.setValue(value); }

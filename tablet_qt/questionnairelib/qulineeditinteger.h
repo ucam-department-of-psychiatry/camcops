@@ -30,12 +30,13 @@ class QuLineEditInteger : public QuLineEdit
 public:
 
     // Constructor for unconstrained numbers
-    QuLineEditInteger(FieldRefPtr fieldref, bool allow_empty = true);
+    QuLineEditInteger(FieldRefPtr fieldref, bool allow_empty = true,
+                      QObject* parent = nullptr);
 
     // Constructor for constrained numbers.
     // - allow_empty: OK to be blank?
     QuLineEditInteger(FieldRefPtr fieldref, int minimum, int maximum,
-                      bool allow_empty = true);
+                      bool allow_empty = true, QObject* parent = nullptr);
 
     // Use StrictIntValidator, not StrictIntValidator?
     QuLineEditInteger* setStrictValidator(bool strict);

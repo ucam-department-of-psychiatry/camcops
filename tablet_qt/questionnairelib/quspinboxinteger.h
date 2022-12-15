@@ -32,7 +32,8 @@ class QuSpinBoxInteger : public QuElement
     Q_OBJECT
 public:
     // Constructor, specifying range.
-    QuSpinBoxInteger(FieldRefPtr fieldref, int minimum, int maximum);
+    QuSpinBoxInteger(FieldRefPtr fieldref, int minimum, int maximum,
+                     QObject* parent = nullptr);
 
 protected:
 

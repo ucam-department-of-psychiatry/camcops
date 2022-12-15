@@ -45,7 +45,8 @@ public:
     // - a fieldref for the description (e.g. "Paranoid schizophrenia")
     QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
                      FieldRefPtr fieldref_code,
-                     FieldRefPtr fieldref_description);
+                     FieldRefPtr fieldref_description,
+                     QObject* parent = nullptr);
 
     // Should we offer a button to set the code/description to null?
     QuDiagnosticCode* setOfferNullButton(bool offer_null_button);
