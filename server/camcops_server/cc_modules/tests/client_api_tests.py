@@ -64,7 +64,6 @@ from camcops_server.cc_modules.cc_validators import (
 )
 from camcops_server.cc_modules.client_api import (
     client_api,
-    # DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
     FAILURE_CODE,
     make_single_user_mode_username,
     Operations,
@@ -173,22 +172,7 @@ class ClientApiTests(DemoDatabaseTestCase):
 
         # TODO: client_api.ClientApiTests: more tests here... ?
 
-    # def test_client_api_antique_support_1(self) -> None:
-    #     self.announce("test_client_api_antique_support_1")
-    #     self.req.fake_request_post_from_dict(
-    #         {
-    #             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-    #             TabletParam.DEVICE: self.other_device.name,
-    #             TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
-    #             TabletParam.TABLE: DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
-    #         }
-    #     )
-    #     response = client_api(self.req)
-    #     d = get_reply_dict_from_response(response)
-    #     self.assertEqual(d[TabletParam.SUCCESS], SUCCESS_CODE)
-
-    def test_client_api_antique_support_2(self) -> None:
-        self.announce("test_client_api_antique_support_2")
+    def test_non_existent_table_rejected(self) -> None:
         self.req.fake_request_post_from_dict(
             {
                 TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
@@ -200,20 +184,6 @@ class ClientApiTests(DemoDatabaseTestCase):
         response = client_api(self.req)
         d = get_reply_dict_from_response(response)
         self.assertEqual(d[TabletParam.SUCCESS], FAILURE_CODE)
-
-    # def test_client_api_antique_support_3(self) -> None:
-    #     self.announce("test_client_api_antique_support_3")
-    #     self.req.fake_request_post_from_dict(
-    #         {
-    #             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-    #             TabletParam.DEVICE: self.other_device.name,
-    #             TabletParam.OPERATION: Operations.UPLOAD_TABLE,
-    #             TabletParam.TABLE: DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
-    #         }
-    #     )
-    #     response = client_api(self.req)
-    #     d = get_reply_dict_from_response(response)
-    #     self.assertEqual(d[TabletParam.SUCCESS], SUCCESS_CODE)
 
     def test_client_api_validators(self) -> None:
         self.announce("test_client_api_validators")
