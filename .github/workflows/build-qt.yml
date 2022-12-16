@@ -141,11 +141,10 @@ jobs:
                   apt list --installed "libclang*-dev"
                   ./build_qt.py --build_linux_x86_64
 
-            - name: Windows Build Qt
-              uses: ilammy/msvc-dev-cmd@v1
+            - uses: ilammy/msvc-dev-cmd@v1
               with:
                   arch: x64
-
+            - name: Windows Build Qt
               if: runner.os == 'Windows'
               run: |
                   $ErrorActionPreference = "Stop"
