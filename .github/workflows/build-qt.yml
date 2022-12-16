@@ -144,7 +144,7 @@ jobs:
 
             - name: Set up VS Shell
               if: runner.os == 'Windows'
-              uses: egor-tensin/vs-shell@v2
+              uses: ilammy/msvc-dev-cmd@v1
               with:
                   arch: x64
 
