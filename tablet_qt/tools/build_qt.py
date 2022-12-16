@@ -623,6 +623,7 @@ QT_CONFIG_COMMON_ARGS = [
     # "-qt-sqlite",  # v5.9: "qt", rather than "system"
     # 2017-12-01: conflict between SQLite and SQLCipher (symbols duplicated on
     # linking); try disabling it
+    "-ccache",
     "-no-sql-sqlite",
     "-no-sql-db2",  # disable other SQL drivers
     "-no-sql-ibase",

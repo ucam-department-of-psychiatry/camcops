@@ -1,4 +1,5 @@
 ---
+# Inspired by https://github.com/qt/qtbase/blob/dev/.github/workflows/ninja-build.yml
 # yamllint disable rule:line-length
 name: Build Qt
 # yamllint disable-line rule:truthy
@@ -16,31 +17,19 @@ jobs:
                       os: ubuntu-20.04
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
+                    - name: windows-2019
+                      os: windows-2019
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-python@v4
-              with:
-                  python-version: 3.8
-            - name: Common Qt prerequisites
-              run: |
-                  # https://wiki.qt.io/Building_Qt_6_from_Git
-                  set -eux -o pipefail
-                  codename=`lsb_release -cs`
-                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename} universe" | sudo tee -a /etc/apt/sources.list
-                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates universe" | sudo tee -a /etc/apt/sources.list
-                  sudo apt-get update
-            - name: Change apt mirror
-              run: |
-                  set -eux -o pipefail
-                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Ubuntu 20.04 prerequisites
               if: matrix.os == 'ubuntu-20.04'
               run: |
                   set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y build-dep qt5-default
                   sudo apt-get -y install build-essential perl python git
-                  sudo apt-get -y install ninja-build
+                  sudo apt-get -y install ninja-build ccache
                   sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
                   sudo apt-get -y install flex bison gperf libicu-dev libxslt-dev ruby
                   sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev nodejs
@@ -52,9 +41,11 @@ jobs:
               if: matrix.os == 'ubuntu-22.04'
               run: |
                   set -eux -o pipefail
-                  sudo apt install -y libunwind-dev
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install libunwind-dev
                   sudo apt-get -y install build-essential python3 git
-                  sudo apt-get -y install ninja-build clang
+                  sudo apt-get -y install ninja-build clang ccache
                   sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
                   sudo apt-get -y install flex bison gperf
                   sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libfontconfig1-dev libpulse-dev libnss3-dev libegl1-mesa-dev nodejs
@@ -68,7 +59,55 @@ jobs:
                   sudo apt-get -y install libxfixes-dev
                   sudo apt-get -y install libxkbfile-dev libxshmfence-dev
                   sudo apt-get -y install libxshmfence1 llvm
-            - name: Pip install
+            - name: Windows prerequisites
+              if: matrix.os == 'windows-2019'
+              run: |
+                  choco install ninja --yes --no-progress
+                  # Header pthread.h from postgres is included and creates issues.
+                  # Also library zlib.lib is linked instead of the system one.
+                  rm -rf "C:/Program Files/PostgreSQL/"
+                  choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
+
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: 3.8
+
+            - name: restore ccache
+              id: ccache
+              uses: actions/cache@v2
+              with:
+                  path: ${{ runner.temp }}/ccache
+                  # "github.run_id" is unique, which causes the cache to always get
+                  # saved at the end of a successful run.
+                  key:  ccache-${{ matrix.os }}-${{ github.ref }}-${{ github.run_id }}
+                  # As the unique "key" above will never be found in the cache when the
+                  # job starts, we need these broader "restore-keys" in order to match
+                  # and restore the most recent cache.
+                  restore-keys: |
+                      ccache-${{ matrix.os }}-${{ github.ref }}-
+                      ccache-${{ matrix.os }}-
+
+            - name: configure ccache
+              run: |
+                  ccache --set-config sloppiness=file_macro,time_macros
+                  ccache --set-config cache_dir='${{ runner.temp }}'/ccache
+                  ccache --set-config compression=true
+                  ccache --set-config max_size=1G
+
+            - name: print versions and environment
+              run: |
+                  gcc --version    | head -1
+                  cmake --version  | head -1
+                  echo Ninja `ninja --version`
+                  { ninja --help || true ; } 2>&1 | grep "run N jobs in parallel"
+                  ccache --version | head -1
+                  ccache --show-config  ||  echo 'Old ccache version does not support --show-config'
+                  echo Environment:
+                  printenv
+
+            - name: Ubuntu Pip install
+              if: runner.os == 'Linux'
               run: |
                   set -eux -o pipefail
                   python -m venv ${HOME}/venv
@@ -79,18 +118,45 @@ jobs:
                   echo dumping pre-installed packages
                   python -m pip freeze
                   echo installing pip packages
-                  pip install cardinal_pythonlib
-                  pip install distro
-            - name: Build Qt
+                  python -m pip install cardinal_pythonlib
+                  python -m pip install distro
+            - name: Windows Pip install
+              if: runner.os == 'Windows'
+              run: |
+                  $ErrorActionPreference = "Stop"
+                  cd "$env:USERPROFILE"
+                  python -m venv venv
+                  .\venv\bin\activate
+                  python -VV
+                  python -m site
+                  python -m pip install -U pip
+                  echo "dumping pre-installed packages"
+                  python -m pip freeze
+                  echo "installing pip packages"
+                  python -m pip install cardinal_pythonlib
+                  python -m pip install distro
+            - name: Ubuntu Build Qt
+              if: runner.os == 'Linux'
               run: |
                   set -eux -o pipefail
                   source ${HOME}/venv/bin/activate
                   export CAMCOPS_QT_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
-                  cmake --version
                   apt list --installed "libclang*-dev"
-                  (while true; do
-                   df -h
-                   sleep 15
-                   done) &
-                  ./build_qt.py --build_linux_x86_64 --nparallel 1
+                  ./build_qt.py --build_linux_x86_64
+            - name: Windows Build Qt
+              if: runner.os == 'Windows'
+              run: |
+                  $ErrorActionPreference = "Stop"
+                  cd "$env:USERPROFILE"
+                  .\venv\bin\activate
+                  $env:CAMCOPS_QT_BASE_DIR = $env:USERPROFILE\qt_local_build
+                  cd tablet_qt\tools
+                  python build_qt.py --build_windows_x86_64
+
+            - name: Cache stats
+              # Print ccache utilization statistics, then reset them.
+              run: |
+                ccache -s
+                ccache -x 2>/dev/null || true
+                ccache -z
