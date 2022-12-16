@@ -70,7 +70,7 @@ jobs:
                   choco install ninja --yes --no-progress
                   # Header pthread.h from postgres is included and creates issues.
                   # Also library zlib.lib is linked instead of the system one.
-                  rm -rf "C:/Program Files/PostgreSQL/"
+                  rm "C:/Program Files/PostgreSQL/" -r -fo
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
 
             - name: restore ccache
