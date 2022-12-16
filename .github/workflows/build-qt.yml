@@ -148,7 +148,7 @@ jobs:
               if: runner.os == 'Windows'
               run: |
                   $ErrorActionPreference = "Stop"
-                  $Env:Path
+                  $env:Path += ";C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
                   cd "$env:USERPROFILE"
                   .\venv\Scripts\activate
                   $env:CAMCOPS_QT_BASE_DIR = "$env:USERPROFILE\qt_local_build"
