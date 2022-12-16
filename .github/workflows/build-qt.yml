@@ -21,6 +21,11 @@ jobs:
                       os: windows-2019
         runs-on: ${{ matrix.os }}
         steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: 3.8
+
             - name: Ubuntu 20.04 prerequisites
               if: matrix.os == 'ubuntu-20.04'
               run: |
@@ -67,11 +72,6 @@ jobs:
                   # Also library zlib.lib is linked instead of the system one.
                   rm -rf "C:/Program Files/PostgreSQL/"
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
-
-            - uses: actions/checkout@v3
-            - uses: actions/setup-python@v4
-              with:
-                  python-version: 3.8
 
             - name: restore ccache
               id: ccache
