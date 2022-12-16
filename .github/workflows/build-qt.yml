@@ -123,7 +123,7 @@ jobs:
                   $ErrorActionPreference = "Stop"
                   cd "$env:USERPROFILE"
                   python -m venv venv
-                  .\venv\bin\activate
+                  .\venv\Scripts\activate
                   python -VV
                   python -m site
                   python -m pip install -U pip
@@ -146,7 +146,7 @@ jobs:
               run: |
                   $ErrorActionPreference = "Stop"
                   cd "$env:USERPROFILE"
-                  .\venv\bin\activate
+                  .\venv\Scripts\activate
                   $env:CAMCOPS_QT_BASE_DIR = $env:USERPROFILE\qt_local_build
                   cd tablet_qt\tools
                   python build_qt.py --build_windows_x86_64
