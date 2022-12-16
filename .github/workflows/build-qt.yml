@@ -141,11 +141,14 @@ jobs:
                   cd ${GITHUB_WORKSPACE}/tablet_qt/tools
                   apt list --installed "libclang*-dev"
                   ./build_qt.py --build_linux_x86_64
-            - name: Windows Build Qt
+
+            - name: Set up VS Shell
+              if: runner.os == 'Windows'
               uses: egor-tensin/vs-shell@v2
               with:
                   arch: x64
 
+            - name: Windows Build Qt
               if: runner.os == 'Windows'
               run: |
                   $ErrorActionPreference = "Stop"
