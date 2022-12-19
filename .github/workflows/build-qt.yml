@@ -116,8 +116,6 @@ jobs:
                   cmake --version
                   gcc --version
                   git --version
-                  echo "Dumping the path"
-                  $env:Path
                   nasm --version
                   ninja --version
                   perl --version
