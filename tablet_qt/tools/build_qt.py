@@ -3638,17 +3638,14 @@ Troubleshooting Qt 'configure' failures
     with pushd(builddir):
         # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
-            if BUILD_PLATFORM.windows:
-                run(cfg.make_args(env=env), env)
-            else:
-                cmake_args = [
-                    CMAKE,
-                    "--build",
-                    ".",
-                    "--parallel",
-                    f"{cfg.nparallel}",
-                ]
-                run(cmake_args)
+            cmake_args = [
+                CMAKE,
+                "--build",
+                ".",
+                "--parallel",
+                f"{cfg.nparallel}",
+            ]
+            run(cmake_args)
         except subprocess.CalledProcessError:
             log.warning(
                 """Qt 'make' failure.
