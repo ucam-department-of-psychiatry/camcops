@@ -98,7 +98,7 @@ Qt:
                         (default: True)
   --qt_host_path QT_HOST_PATH
                         Location of the host Qt Installation when cross-
-                        compiling (default: /path/to/user/Qt/6.2.4/gcc64)
+                        compiling (default: None)
 
 Android:
   Android options (NB you must install the Android SDK and NDK separately,
