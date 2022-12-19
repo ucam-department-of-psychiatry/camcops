@@ -63,6 +63,9 @@ jobs:
                   sudo apt-get -y install libxfixes-dev
                   sudo apt-get -y install libxkbfile-dev libxshmfence-dev
                   sudo apt-get -y install libxshmfence1 llvm
+            - uses: ilammy/msvc-dev-cmd@v1
+              with:
+                  arch: x64
             - name: Windows prerequisites
               if: matrix.os == 'windows-2019'
               run: |
@@ -70,7 +73,6 @@ jobs:
                   choco install ninja nasm --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
                   refreshenv
-                  nasm --version
 
             - name: restore ccache
               id: ccache
@@ -96,6 +98,8 @@ jobs:
 
             - name: print versions and environment
               run: |
+                  ccache --version
+                  ccache --show-config
                   clang --version
                   cmake --version
                   gcc --version
@@ -104,8 +108,6 @@ jobs:
                   ninja --version
                   perl --version
                   tar --version
-                  ccache --version
-                  ccache --show-config
                   echo Environment:
                   printenv
 
@@ -148,18 +150,17 @@ jobs:
                   apt list --installed "libclang*-dev"
                   ./build_qt.py --build_linux_x86_64
 
-            - uses: ilammy/msvc-dev-cmd@v1
-              with:
-                  arch: x64
             - name: Windows Build Qt
               if: runner.os == 'Windows'
               run: |
                   $ErrorActionPreference = "Stop"
                   $env:Path += ";C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
+                  ccache --version
                   clang --version
                   cmake --version
                   gcc --version
                   git --version
+                  nasm --version
                   ninja --version
                   perl --version
                   tar --version
