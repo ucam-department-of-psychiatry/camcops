@@ -66,6 +66,7 @@ jobs:
             - name: Windows prerequisites
               if: matrix.os == 'windows-2019'
               run: |
+                  $ErrorActionPreference = "Stop"
                   choco install ninja nasm --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
                   refreshenv
@@ -94,12 +95,11 @@ jobs:
 
             - name: print versions and environment
               run: |
-                  gcc --version    | head -1
-                  cmake --version  | head -1
-                  echo Ninja `ninja --version`
-                  { ninja --help || true ; } 2>&1 | grep "run N jobs in parallel"
-                  ccache --version | head -1
-                  ccache --show-config  ||  echo 'Old ccache version does not support --show-config'
+                  gcc --version
+                  cmake --version
+                  ninja --version
+                  ccache --version
+                  ccache --show-config
                   echo Environment:
                   printenv
 
