@@ -512,7 +512,7 @@ DEFAULT_QT_SRC_DIRNAME = "qt6"
 
 # Android
 
-ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17
+ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17, AndroidManifest.xml
 ANDROID_NDK_VERSION = 20  # see above
 
 DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
@@ -538,9 +538,6 @@ if QT_SPECIFIC_VERSION:
 else:
     QT_VERSION = Version(QT_GIT_BRANCH, partial=True)
 
-DEFAULT_QT_HOST_PATH = os.path.join(
-    USER_DIR, "Qt", QT_SPECIFIC_VERSION, "gcc64"
-)
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 
 # https://forum.qt.io/topic/115827/build-on-linux-qt-xcb-option/
@@ -3467,7 +3464,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         else:
             qt_config_args += ["-xplatform", "android-g++"]
 
-        qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
+        qt_config_cmake_args.append(
+            f"-DQT_ANDROID_MIN_SDK_VERSION={cfg.android_sdk_version}"
+        )
 
     elif target_platform.linux:
         # http://doc.qt.io/qt-5/linux-requirements.html
@@ -3502,6 +3501,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         raise NotImplementedError(
             "Don't know how to compile Qt for " + str(target_platform)
         )
+
+    if cfg.qt_host_path:
+        qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
 
     for objdir in objdirs:
         extra_cmake_cxxflags.append(f"-B{objdir}")
@@ -4323,7 +4325,6 @@ def main() -> None:
 
     qt.add_argument(
         "--qt_host_path",
-        default=DEFAULT_QT_HOST_PATH,
         help="Location of the host Qt Installation when cross-compiling",
     )
 
