@@ -68,6 +68,7 @@ jobs:
               run: |
                   choco install ninja nasm --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
+                  refreshenv
 
             - name: restore ccache
               id: ccache
