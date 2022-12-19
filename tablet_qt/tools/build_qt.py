@@ -3683,13 +3683,10 @@ A.  Standard header files like os/log.h should live within
     # Qt: make install
     # -------------------------------------------------------------------------
     with pushd(builddir):
-        if BUILD_PLATFORM.windows:
-            run(cfg.make_args(command="install", env=env), env)
-        else:
-            cmake_args = [CMAKE, "--install", "."]
-            run(cmake_args)
+        cmake_args = [CMAKE, "--install", "."]
+        run(cmake_args)
 
-            # ... installs to installdir because of -prefix earlier
+        # ... installs to installdir because of -prefix earlier
     return installdir
 
 
