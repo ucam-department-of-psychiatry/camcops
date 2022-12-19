@@ -72,7 +72,11 @@ jobs:
                   $ErrorActionPreference = "Stop"
                   choco install ninja nasm --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
+                  # Not sure this makes any difference
                   refreshenv
+                  # Chocolatey uses the Windows installer, which doesn't update Path
+                  # https://bugzilla.nasm.us/show_bug.cgi?id=3392224
+                  $env:Path += ";C:\Program Files\NASM"
 
             - name: restore ccache
               id: ccache
