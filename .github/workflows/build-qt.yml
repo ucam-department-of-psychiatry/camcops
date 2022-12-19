@@ -70,6 +70,7 @@ jobs:
                   choco install ninja nasm --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
                   refreshenv
+                  nasm --version
 
             - name: restore ccache
               id: ccache
@@ -95,9 +96,14 @@ jobs:
 
             - name: print versions and environment
               run: |
-                  gcc --version
+                  clang --version
                   cmake --version
+                  gcc --version
+                  git --version
+                  nasm --version
                   ninja --version
+                  perl --version
+                  tar --version
                   ccache --version
                   ccache --show-config
                   echo Environment:
@@ -150,6 +156,13 @@ jobs:
               run: |
                   $ErrorActionPreference = "Stop"
                   $env:Path += ";C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
+                  clang --version
+                  cmake --version
+                  gcc --version
+                  git --version
+                  ninja --version
+                  perl --version
+                  tar --version
                   cd "$env:USERPROFILE"
                   .\venv\Scripts\activate
                   $env:CAMCOPS_QT_BASE_DIR = "$env:USERPROFILE\qt_local_build"
