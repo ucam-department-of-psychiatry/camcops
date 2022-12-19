@@ -199,15 +199,6 @@ class ServerErrorException(Exception):
     pass
 
 
-class IgnoringAntiqueTableException(Exception):
-    """
-    Special exception to return success when we're ignoring an old tablet's
-    request to upload the "storedvars" table.
-    """
-
-    pass
-
-
 # =============================================================================
 # Return message functions
 # =============================================================================
@@ -218,14 +209,6 @@ def exception_description(e: Exception) -> str:
     Returns a formatted description of a Python exception.
     """
     return f"{type(e).__name__}: {str(e)}"
-
-
-# NO LONGER USED:
-# def succeed_generic(operation: str) -> str:
-#     """
-#     Generic success message to tablet.
-#     """
-#     return "CamCOPS: {}".format(operation)
 
 
 def fail_user_error(msg: str) -> NoReturn:

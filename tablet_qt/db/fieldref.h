@@ -311,11 +311,11 @@ protected:
 signals:
     // "The underlying value has changed."
     void valueChanged(const FieldRef* fieldref,
-                      const QObject* originator) const;
+                      const QObject* originator);
 
     // "The mandatory status has changed."
     void mandatoryChanged(const FieldRef* fieldref,
-                          const QObject* originator) const;
+                          const QObject* originator);
     // You should NOT cause a valueChanged() signal to be emitted whilst in a
     // mandatoryChanged() signal, but it's fine to emit mandatoryChanged()
     // signals (typically on other fields) whilst processing valueChanged()

@@ -353,6 +353,19 @@ bool anyNull(const QVector<QVariant>& values)
 }
 
 
+bool allNull(const QVector<QVariant>& values)
+{
+    const int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (!v.isNull()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 bool noneNull(const QVector<QVariant>& values)
 {
     return !anyNull(values);

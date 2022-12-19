@@ -31,7 +31,9 @@
 QuMcqGridDouble::QuMcqGridDouble(
         const QVector<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& options1,
-        const NameValueOptions& options2) :
+        const NameValueOptions& options2,
+        QObject* parent) :
+    QuElement(parent),
     m_questions_with_fields(questions_with_fields),
     m_options1(options1),
     m_options2(options2),

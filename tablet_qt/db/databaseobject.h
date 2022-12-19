@@ -36,8 +36,8 @@ class NameValueOptions;
 class QueryResult;
 
 
-const QString DBOBJECT_DEFAULT_SEPARATOR = " = ";
-const QString DBOBJECT_DEFAULT_SUFFIX = "";
+extern const QString DBOBJECT_DEFAULT_SEPARATOR;
+extern const QString DBOBJECT_DEFAULT_SUFFIX;
 
 
 // A database object representing a single row of a table.
@@ -85,7 +85,8 @@ public:
                    bool has_modification_timestamp = true,
                    bool has_creation_timestamp = false,
                    bool has_move_off_tablet_field = true,
-                   bool triggers_need_upload = true);
+                   bool triggers_need_upload = true,
+                   QObject* parent = nullptr);
     virtual ~DatabaseObject() = default;
 
     // ========================================================================
@@ -311,7 +312,7 @@ public:
     // Uses prettyValue() to provide the value.
     QString fieldSummary(
             const QString& fieldname,
-            const QString& altname = "",
+            const QString& altname = QString(),
             const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
             const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
 
@@ -364,7 +365,7 @@ public:
     // Returns a list of default field summaries, one per field.
     QString recordSummaryCSVString(
             const QString& equals_separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& comma_separator = ", ") const;
+            const QString& comma_separator = QStringLiteral(", ")) const;
 
     // ========================================================================
     // Loading, saving

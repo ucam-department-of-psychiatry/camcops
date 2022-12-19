@@ -35,7 +35,8 @@ class QuPickerInline : public QuElement
 public:
 
     // Constructor
-    QuPickerInline(FieldRefPtr fieldref, const NameValueOptions& options);
+    QuPickerInline(FieldRefPtr fieldref, const NameValueOptions& options,
+                   QObject* parent = nullptr);
 
     // Shuffle the options (when making the widget)?
     QuPickerInline* setRandomize(bool randomize);

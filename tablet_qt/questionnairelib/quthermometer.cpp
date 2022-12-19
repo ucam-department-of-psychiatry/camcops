@@ -30,7 +30,9 @@ const int DEFAULT_TEXT_GAP_PX = 5;
 
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
-                             const QVector<QuThermometerItem>& items) :
+                             const QVector<QuThermometerItem>& items,
+                             QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_items(items),
     m_rescale(false),
@@ -46,8 +48,9 @@ QuThermometer::QuThermometer(FieldRefPtr fieldref,
 
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
-                             std::initializer_list<QuThermometerItem> items) :
-    QuThermometer(fieldref, QVector<QuThermometerItem>(items))  // delegating constructor
+                             std::initializer_list<QuThermometerItem> items,
+                             QObject* parent) :
+    QuThermometer(fieldref, QVector<QuThermometerItem>(items), parent)  // delegating constructor
 {
 }
 

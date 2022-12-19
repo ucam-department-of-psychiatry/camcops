@@ -14,90 +14,199 @@ research projects. There is no need to contact us if you wish to use the
 ACE-III in clinical practice.” (ACE-III FAQ, 7 July 2013,
 http://www.neura.edu.au/sites/neura.edu.au/files/page-downloads/ACE-III%20FAQ%20July%202013.pdf,
 accessed 2013-07-31.)
+
+Updated to 2017 UK edition (updated 2019-02-12) implemented 2022-12-01, along
+with support for A/B/C versions. Changes are:
+
+    - Support for mini-ACE scoring.
+    - Change "first female Prime Minister" not "the woman who was Prime
+      Minister" (the second was Theresa May, in 2016).
+    - Instructions for sentence writing. See below.
+    - Very slight change to instructions for clock (compared to the 2012
+      edition, this splits one sentence/stage into two, but compared to the
+      previous CamCOPS version, which was likely the original 2017 version,
+      almost identical with no functional difference.)
+    - Not applicable: typo fix for instructions (to clinician, not patient) re
+      address recognition scoring. This is autoscored in CamCOPS anyway.
+
+Remote version: Remote Administration, UK Version (2020), updated 2020-05-10.
+
+Phrasing:
+    "subject": 2017 edition
+        (and traditional psychology/research language)
+    "participant" (and "carer" and "clinician"): 2020 remote edition
+    "patient": only in scoring instructions for clinicians (e.g. 2017)
+        (and traditional clinical language)
+
 -->
+
+    <!-- Max 255 characters: -->
+    <string name="edition">Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) (UK English version, 2017, updated 2019-02-12)</string>
+    <string name="edition_miniace">Mini-Addenbrooke’s Cognitive Examination (UK English version, 2014, with remote modifications from ACE-III 2019-02-12)</string>
+
+    <!-- Task address versions available as a comma-separated list like "A" or "A,B,C". Always capital letters in sequence from A. -->
+    <string name="task_address_versions">A,B,C</string>
 
     <string name="cat_attn">Attention</string>
     <string name="cat_mem">Memory</string>
     <string name="cat_fluency">Fluency</string>
     <string name="cat_lang">Language</string>
     <string name="cat_vsp">Visuospatial</string>
+    <string name="mini_ace_score">Mini-ACE score</string>
+
     <string name="title_prefix">ACE-III, page</string>
-    <string name="instruction_need_paper">You will need a pencil and paper, (a) for you to write their verbal fluency responses on, (b) for the instructions involving a physical pencil and paper, and (c) for the subject to draw shapes and clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
+    <string name="title_prefix_miniace">Mini-ACE, page</string>
     <!-- <string name="q_tester">Tester’s name</string> -->
-    <string name="preamble_instruction">Ask the patient:</string>
+    <string name="choose_task_version">Choose a task version (determining the address to be remembered):</string>
+    <string name="task_version">Task version:</string>
+    <string name="preamble_instruction">Ask the subject:</string>
     <string name="q_age_leaving_fte">Age at leaving full-time education</string>
     <string name="q_occupation">Occupation</string>
     <string name="q_handedness">Handedness</string>
     <string name="left_handed">Left-handed</string>
     <string name="right_handed">Right-handed</string>
-    <string name="attn_q_time">Ask: What is the</string>
+    <string name="q_remote">Remote administration</string>
+    <string name="instruction_remote_read_first"><b>IMPORTANT:</b> Please ensure that the clinician and carer have read the instructions for remote administration.</string>
+    <string name="instruction_need_paper">You will need a pencil and paper, (a) for you to write the subject’s verbal fluency responses on, (b) for the instructions involving a physical pencil and paper, and (c) for the subject to draw shapes and clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
+    <string name="instruction_need_paper_remote">You will need the ACE-III stimulus PDF (including numbered visual stimuli). The carer will need a pencil and 4 sheets of paper (command-following/verbal fluency, three drawings). (You’ll be able to take up to two photographs of them at the end.)</string>
+    <string name="instruction_need_paper_miniace">You will need a pencil and paper, (a) for you to write the subject’s verbal fluency responses on, (c) for the subject to draw a clocks on. You’ll be able to take up to two photographs of it (one of each side) at the end.</string>
+    <string name="instruction_need_paper_remote_miniace">The subject/carer will need a pencil and a sheet of paper (for the clock drawing). You will need a pencil and paper (for you to write the subject’s verbal fluency responses on). You’ll be able to take up to two photographs of the sheets at the end.</string>
+    <string name="instruction_remote_camera_to_participant">Ask the carer to position the video conference camera so that it is facing the participant.</string>
+
+    <string name="attn_q_time">► Ask: What is the</string>
     <string name="attn_time1">Day</string>
     <string name="attn_time2">Date</string>
     <string name="attn_time3">Month</string>
     <string name="attn_time4">Year</string>
     <string name="attn_time5">Season</string>
     <string name="instruction_time">DATE: allow ±2 days. MONTH: require name, not number. SEASON: offer alternative in transition months. Correct answer today:</string>
+    <string name="instruction_time_miniace">DATE: allow ±2 days. MONTH: require name, not number. Correct answer today:</string>
     <string name="season_spring">Spring</string>
     <string name="season_summer">Summer</string>
     <string name="season_autumn">Autumn</string>
     <string name="season_winter">Winter</string>
-    <string name="attn_q_place">Ask: Which</string>
+    <string name="attn_q_place">► Ask: Which</string>
     <string name="attn_place1">No./Floor</string>
     <string name="attn_place2">Street/Hospital</string>
     <string name="attn_place3">Town</string>
     <string name="attn_place4">County</string>
     <string name="attn_place5">Country</string>
     <string name="instruction_place">If the participant is at home, ask for the name of the place such as the apartment complex/retirement village and, for the floor, you might ask for the name of the room (e.g., kitchen, living room, etc). If at a single storey health setting, you could ask about a local landmark.</string>
-    <string name="attn_q_words">Tell: “I’m going to give you three words and I’d like you to repeat them after me: lemon, key and ball.”\nAfter subject repeats, say “Try to remember them because I’m going to ask you later”.</string>
+    <string name="attn_q_words">► Say: “I’m going to give you three words and I’d like you to repeat them after me: lemon, key and ball.”\nAfter subject repeats, say “Try to remember them because I’m going to ask you later”.</string>
     <string name="attn_instruction_words">Score only the first trial (repeat 3 times if necessary).</string>
     <string name="attn_q_register_n_trials">Number of trials it took to learn all 3 words</string>
-    <string name="attn_q_serial_sevens">Ask the subject: “Could you take 7 away from 100? I’d like you to keep taking 7 away from each new number until I tell you to stop.”</string>
+    <string name="attn_q_serial_sevens">► Ask the subject: “Could you take 7 away from 100? I’d like you to keep taking 7 away from each new number until I tell you to stop.”</string>
     <string name="attn_instruction_sevens">If subject makes a mistake, do not stop them. Let the subject carry on and check subsequent answers (e.g., 93, 84, 77, 70, 63 – score 4). Stop after five subtractions (93, 86, 79, 72, 65):</string>
     <string name="attn_subtraction1">First subtraction</string>
     <string name="attn_subtraction2">Second</string>
     <string name="attn_subtraction3">Third</string>
     <string name="attn_subtraction4">Fourth</string>
     <string name="attn_subtraction5">Fifth</string>
-    <string name="mem_q_recall_words">Ask: “Which 3 words did I ask you to repeat and remember?”</string>
+
+    <string name="mem_q_recall_words">► Ask: “Which 3 words did I ask you to repeat and remember?”</string>
     <string name="mem_instruction_recall">Do not prompt the participant for the items.</string>
     <string name="mem_word1">lemon</string>
     <string name="mem_word2">key</string>
     <string name="mem_word3">ball</string>
+
     <string name="fluency_subhead_letters">Letters</string>
-    <string name="fluency_q_letters">Say: “I’m going to give you a letter of the alphabet and I’d like you to generate as many words as you can beginning with that letter, but not names of people or places. For example, if I give you the letter ‘C’, you could give me words like ‘cat, cry, clock’ and so on. But, you can’t give me words like Catherine or Canada. Do you understand? Are you ready? You have one minute. The letter I want you to use is the letter ‘P’.”</string>
+    <string name="fluency_q_letters">► Say: “I’m going to give you a letter of the alphabet and I’d like you to generate as many words as you can beginning with that letter, but not names of people or places. For example, if I give you the letter ‘C’, you could give me words like ‘cat, cry, clock’ and so on. But, you can’t give me words like Catherine or Canada. Do you understand? Are you ready? You have one minute. The letter I want you to use is the letter ‘P’.”</string>
     <string name="fluency_subheading_animals">Animals</string>
     <string name="fluency_instruction_letters">First, record the total number of words that the participant generates. Then, count the number of correct words, which do not include: (1) repetitions, (2) perseverations (e.g., pay, paid, pays – correct = 1), (3) intrusions (i.e., words beginning with other letters), (4) proper names (i.e., names of people or places) and (5) plurals (e.g., pot, pots – total = 2, correct = 1).</string>
-    <string name="fluency_q_animals">Say: “Now can you name as many animals as possible. It can begin with any letter.”</string>
+    <string name="fluency_q_animals">► Say: “Now can you name as many animals as possible. It can begin with any letter.”</string>
     <string name="fluency_prompt_letters_cor">Number of correct, unique P words generated:</string>
     <string name="fluency_prompt_animals_cor">Number of unique, correct animal words generated:</string>
     <string name="fluency_instruction_animals">Again, record the total number of animals that the participant generates. Then, count the total number of correct words, which do not include higher order categories when specific exemplars are given (e.g., “fish” followed by “salmon” and “trout” – total = 3; correct = 2). All types of animals are accepted, including insects, humans, prehistoric, extinct as well as mythical creatures (e.g., unicorn). If the participant misunderstands the instructions and perseverates by naming animals beginning with “p” (e.g., panda, possum, platypus etc), then reiterate to the participant that they should name animals beginning with any letter.</string>
     <!-- <string name="fluency_prompt_inc">Number of incorrect words generated</string> -->
-    <string name="memory_q_address">Tell: “I’m going to give you a name and address and I’d like you to repeat the name and address after me. So you have a chance to learn, we’ll be doing that 3 times. I’ll ask you the name and address later.”</string>
+
+    <string name="memory_q_address">► Say: “I’m going to give you a name and address and I’d like you to repeat the name and address after me. So you have a chance to learn, we’ll be doing that 3 times. I’ll ask you the name and address later.”</string>
     <string name="memory_instruction_address_1">If the participant starts repeating along with you, ask them to wait until you give it in full.</string>
     <string name="memory_instruction_address_2">Record all trials (but only the third is scored).</string>
     <string name="trial">Trial</string>
-    <string name="address_1">Harry</string>
-    <string name="address_2">Barnes</string>
-    <string name="address_3">73</string>
-    <string name="address_4">Orchard</string>
-    <string name="address_5">Close</string>
-    <string name="address_6">Kingsbridge</string>
-    <string name="address_7">Devon</string>
+    <!-- Addresses: see below -->
     <string name="famous_1">Name of the current Prime Minister</string>
-    <string name="famous_2">Name of the woman who was Prime Minister</string>
+    <!-- 2012 old version:
+        <string name="famous_2">Name of the woman who was Prime Minister</string>
+    -->
+    <!-- 2017 version: -->
+    <string name="famous_2">Name of the first female Prime Minister</string>
     <string name="famous_3">Name of the USA president</string>
     <string name="famous_4">Name of the USA president who was assassinated in the 1960s</string>
     <string name="instruction_famous">Allow surnames (e.g., “Obama”) and ask for a surname if only the first name is given (e.g., “Maggie”). If the full name given is incorrect (e.g., “June Thatcher”), then the score would be 0. If there has been a recent change in leaders, probe for the name of the outgoing politician.</string>
-    <string name="lang_q_command_1">Place a pencil and a piece of paper in front of the subject. As a practice trial, ask the subject to:</string>
+
+    <string name="lang_q_command_1">► Place a pencil and a piece of paper in front of the subject. As a practice trial, ask the subject to:</string>
+    <string name="lang_q_command_1_remote">► Ask the carer to place a pencil and a blank piece of paper in front of the participant. Ask the carer to position the camera to show the pencil and paper. As a practice trial, ask the participant to:</string>
     <string name="lang_command_practice">“Pick up the pencil and then the paper.”</string>
     <string name="lang_command1">“Place the paper on top of the pencil.”</string>
     <string name="lang_command2">“Pick up the pencil but not the paper.”</string>
     <string name="lang_command3">“Pass me the pencil after touching the paper.”</string>
-    <string name="lang_q_command_2">If incorrect, score 0 and do not continue further. If the subject is correct on the practice trial, continue with the following three commands below. Before beginning each trial, always place the pencil and piece of paper in front of the participant.</string>
-    <string name="lang_q_sentences">Ask the subject to write two (or more) complete sentences about his/her last holiday / weekend / Christmas. Write in complete sentences and do not use abbreviations.</string>
-    <string name="lang_sentences_point1">Two (or more) complete sentences about the one topic?</string>
+    <string name="lang_q_command_2">► If incorrect, score 0 and do not continue further. If the subject is correct on the practice trial, continue with the following three commands below. Before beginning each trial, always place the pencil and piece of paper in front of the participant.</string>
+    <string name="lang_q_command_2_remote">► If incorrect, score 0 and do not continue further. If the participant is correct on the practice trial, continue with the following three commands below. Ask the carer to place the pencil and paper in front of the participant before each command.</string>
+    <string name="lang_instruction_remote_keep_paper">► Keep the pencil and paper in front of the participant.</string>
+    <string name="lang_q_sentences">► Say: “I want you to write two sentences. It can be about anything that you like. I want you to write in full sentences and avoid abbreviations.” If the subject does not know what to write about, you could suggest a few topics. (E.g., say: “For instance, you could write about a recent holiday, your hobbies, your family or childhood”.) If the subject writes only one sentence, then prompt for a second one. (For scoring, see instructions guide.)</string>
+    <!-- ... fixed trivial full-stop-outside-brackets typo in the original. -->
+    <string name="lang_instruction_remote_camera_to_paper">► Ask the carer to position the video conference camera to show the paper.</string>
+    <string name="lang_instruction_remote_remove_paper">► Ask the carer to remove the pencil and paper from the participant.</string>
+
+    <!--
+        Sentence scoring, updated 2022-12-05:
+
+        2012 version
+
+            "Scoring: Give 1 point if there are at least two sentences about
+            the one topic; and, give another 1 point if grammar and spelling
+            are correct."
+
+        2017 version (updated 2019-02-12):
+
+            "Scoring: Sentences must have a subject and a verb. We are looking
+            for spelling and grammar errors. Sentences do not need to be about
+            the same topic—they can be unrelated. If a patient can only write
+            one sentence, despite prompting, then this will be penalised.
+
+            Points      Description of Sentence
+            2           Two sentences with no errors in grammar or spelling.
+                        Note that sentences do not need to be centred on the
+                        one topic.
+
+                        E.g., “I like to go to the beach. I have three
+                        grandchildren.”
+
+            1           Two sentences with either incorrect grammar or spelling.
+                        One sentence with correct grammar and spelling.
+
+                        E.g., “I like to go to the beech. I also like dancing.”
+                        “I like go beach. I like dance.”
+                        “I like swimming.” (The patient does not write another
+                        sentence despite prompting)
+
+            0           One sentence with incorrect grammar and/or spelling.
+
+                        A few words that is a phrase (e.g., “like dancing”),
+                        place (e.g., “Royal Hospital”) or a person’s name.
+
+                        Unable to write a sentence"
+
+        The differences:
+
+            - Instructions: sentences no longer have to be related, and prompt
+              explicitly for a second sentence.
+
+            - Scoring: this is still one point for two sentences, and one point
+              for correct grammar/spelling. (2 is "two sentences with correct
+              grammar/spelling"; 1 is "either two sentences or correct
+              grammar/spelling but not both"; 0 is neither.) There is
+              clarification that "sentences must have a subject and a verb",
+              which is the definition of a sentence in this context.
+
+        Therefore, we continue to score as two 0/1 points, as before, but the
+        phrasing changes slightly.
+
+    -->
+
+    <string name="lang_sentences_point1">Two (or more) complete sentences, with a subject and a verb (not necessarily about the one topic)?</string>
     <string name="lang_sentences_point2">Grammar and spelling are correct?</string>
-    <string name="lang_q_repeat">Ask the subject to repeat:</string>
+    <string name="lang_q_repeat">► Ask the subject to repeat:</string>
     <string name="lang_repeat_word1">caterpillar</string>
     <string name="lang_repeat_word2">eccentricity</string>
     <string name="lang_repeat_word3">unintelligible</string>
@@ -115,48 +224,167 @@ accessed 2013-07-31.)
     <string name="advance_warning_6">CLOCK SCORING: NUMBERS. 2 points if all numbers are included and well distributed within the circle. 1 point if all numbers are included but poorly distributed or outside of the circle. 0 points if not all numbers are included.</string>
     <string name="advance_warning_7">CLOCK SCORING: HANDS. 2 points if both hands are well drawn, different lengths and placed on correct numbers (you might ask which one is the small and big one). 1 point if both placed on the correct numbers but wrong lengths OR 1 point if one hand is placed on the correct number and drawn with correct length OR 1 point if only one hand is drawn and placed at the correct number i.e. 5 for ‘ten past five’.</string>
     <string name="advance_warning_8">LETTER RECOGNITION: FOR APHASIC PATIENTS. If the participant is unable to say the number of dots or letter name, allow them to write their answer. For the letter, allow them to say the correct letter sounds (e.g., “mmm”).</string>
-    <string name="lang_q_identify_pic">Ask the subject to name the following pictures:</string>
+    <string name="lang_instruction_remote_share_screen">► Naming: Prepare stimuli on computer and share screen with participant.</string>
+    <string name="lang_q_identify_pic">► Ask the subject to name the following pictures:</string>
+    <string name="lang_q_identify_pic_remote">► Ask the participant to name the following pictures from your shared screen:</string>
     <string name="lang_q_identify_concept">Using the pictures above, ask the subject to:</string>
+    <string name="lang_q_identify_concept_remote">The pictures are numbered on the computer stimuli. Using the numbers on the stimuli, ask the participant to identify:</string>
     <string name="lang_instruction_identify_concept">Self-corrections are allowed. Do not provide any feedback regarding the word meaning.</string>
     <string name="lang_concept1">Point to the one which is associated with the monarchy</string>
     <string name="lang_concept2">Point to the one which is a marsupial</string>
     <string name="lang_concept3">Point to the one which is found in the Antarctic</string>
     <string name="lang_concept4">Point to the one which has a nautical connection</string>
+    <string name="lang_concept1_remote">Which one is associated with the monarchy</string>
+    <string name="lang_concept2_remote">Which one is a marsupial</string>
+    <string name="lang_concept3_remote">Which one is found in the Antarctic</string>
+    <string name="lang_concept4_remote">Which one has a nautical connection</string>
     <string name="lang_q_read_aloud">Ask the subject to read the following words:</string>
+    <string name="lang_q_read_aloud_remote">► Reading words: Prepare stimuli on computer and share screen with participant.\n► Ask the participant to read the following words on the share screen.</string>
     <string name="lang_instruction_read_aloud">Record the mistakes using the phonetic alphabet, if possible.</string>
     <string name="lang_read_aloud_words">sew\npint\nsoot\ndough\nheight\n</string>
     <string name="lang_read_aloud_all_correct">All correct?</string>
-    <string name="vsp_q_infinity">Infinity diagram: Ask the subject to copy this diagram:</string>
+
+    <string name="vsp_q_infinity">► Infinity diagram: Ask the subject to copy this diagram:</string>
+    <string name="vsp_q_infinity_remote">► Ask the carer to place a pencil and a blank piece of paper in front of the participant.\n► Ask the carer to position the camera to show the paper.\n► Infinity Diagram: Prepare stimuli on computer and share screen with participant.\n► Ask the participant to copy the image.</string>
     <string name="vsp_infinity_correct">Infinity diagram correct?</string>
-    <string name="vsp_q_cube">Wire cube: Ask the subject to copy this drawing (for scoring, see page 6 or the administration/scoring guide).</string>
+    <string name="vsp_q_cube">► Wire cube: Ask the subject to copy this drawing (for scoring, see page 6 or the administration/scoring guide).</string>
+    <string name="vsp_q_cube_remote">► Ask the carer to place a pencil and a blank piece of paper in front of the participant.\n► Ask the carer to position the camera to show the paper.\n► Wire Cube: Prepare stimuli on computer and share screen with participant.\n► Ask the participant to copy the image (for scoring, see instructions guide).</string>
     <string name="vsp_score_cube">Score cube</string>
-    <string name="vsp_q_clock">Ask the participant to draw a clock face with numbers on it. When he/she has finished, ask them to put the hands at “ten past five”.</string>
+    <string name="vsp_q_clock">► Ask the subject to draw a clock face with numbers. Then, ask the subject to put the hands at ten past five.</string>
+    <string name="vsp_q_clock_remote">► Ask the carer to place a pencil and a blank piece of paper in front of the participant.\n► Ask the carer to position the camera to show the paper.\n► Clock: Ask the participant to draw a clock face with numbers. Then, ask the participant to put the hands at ten past five.</string>
     <string name="vsp_instruction_clock">If the participant does not like their first drawing and would like to do it again, you can allow for that and score the second clock. Participants may correct their mistakes by erasing it while drawing.</string>
     <string name="vsp_score_clock">Score clock (see page 6 or the administration/scoring guide; circle = 1, numbers = 2, hands = 2 if all correct):</string>
-    <string name="vsp_q_dots">Ask the subject to count the dots without pointing to them:</string>
-    <string name="vsp_q_letters">Ask the subject to identify the letters</string>
-    <string name="mem_q_recall_address">Ask: “Now tell me what you remember about that name and address we were repeating at the beginning.”</string>
-    <string name="mem_q_recognize_address">Test items not recalled by telling the subject “ok, I’ll give you some hints: was the name X, Y or Z?” and so on.</string>
-    <string name="mem_recall_option1_line1">Jerry Barnes</string>
-    <string name="mem_recall_option2_line1">Harry Barnes</string>
-    <string name="mem_recall_option3_line1">Harry Bradford</string>
-    <string name="mem_recall_option1_line2">37</string>
-    <string name="mem_recall_option2_line2">73</string>
-    <string name="mem_recall_option3_line2">76</string>
-    <string name="mem_recall_option1_line3">Orchard Place</string>
-    <string name="mem_recall_option2_line3">Oak Close</string>
-    <string name="mem_recall_option3_line3">Orchard Close</string>
-    <string name="mem_recall_option1_line4">Oakhampton</string>
-    <string name="mem_recall_option2_line4">Kingsbridge</string>
-    <string name="mem_recall_option3_line4">Dartington</string>
-    <string name="mem_recall_option1_line5">Devon</string>
-    <string name="mem_recall_option2_line5">Dorset</string>
-    <string name="mem_recall_option3_line5">Somerset</string>
+    <string name="vsp_q_dots">► Ask the subject to count the dots without pointing to them:</string>
+    <string name="vsp_q_dots_remote">► Dot counting: Prepare stimuli on computer and share screen with participant.\n► Ask the participant to count the dots without pointing to them.</string>
+    <string name="vsp_q_letters">► Ask the subject to identify the letters</string>
+    <string name="vsp_q_letters_remote">► Fragmented Letters: Prepare stimuli on computer and share screen with participant.\n► Ask the participant to identify the letters. End share screen after completion.</string>
+
+    <string name="mem_q_recall_address">► Ask: “Now tell me what you remember about that name and address we were repeating at the beginning.”</string>
+    <string name="mem_q_recognize_address">► Test items not recalled by telling the subject “ok, I’ll give you some hints: was the name X, Y or Z?” and so on.</string>
+    <!-- Addresses: see below -->
     <string name="no_need_for_extra_recall">Nothing to do here (subject has already recalled everything).</string>
+
     <string name="picture1_q">Picture 1 of 2</string>
     <string name="picture2_q">Picture 2 of 2</string>
-    <string name="picture_instruction1">Finally, please take up to 2 photos of the subject’s test sheet.</string>
+    <string name="picture_instruction1">Finally, please take up to 2 photos of the subject’s test sheet(s).</string>
     <string name="picture_instruction2">Include (a) words generated beginning with P, (b) animals generated, (c) subject’s two sentences, (d) infinity, (e) cube, (f) clock.</string>
+    <string name="picture_instruction2_miniace">Include (a) animals generated, (b) clock.</string>
+
+    <!-- Addresses, for each of the task address versions (e.g. A,B,C) listed in task_address_versions above: -->
+    <string name="task_A_target_address_1">Harry</string>
+    <string name="task_A_target_address_2">Barnes</string>
+    <string name="task_A_target_address_3">73</string>
+    <string name="task_A_target_address_4">Orchard</string>
+    <string name="task_A_target_address_5">Close</string>
+    <string name="task_A_target_address_6">Kingsbridge</string>
+    <string name="task_A_target_address_7">Devon</string>
+
+    <string name="task_A_address_recall_line_1_option_1">Jerry Barnes</string>
+    <string name="task_A_address_recall_line_1_option_2">Harry Barnes</string>
+    <string name="task_A_address_recall_line_1_option_3">Harry Bradford</string>
+
+    <string name="task_A_address_recall_line_2_option_1">37</string>
+    <string name="task_A_address_recall_line_2_option_2">73</string>
+    <string name="task_A_address_recall_line_2_option_3">76</string>
+
+    <string name="task_A_address_recall_line_3_option_1">Orchard Place</string>
+    <string name="task_A_address_recall_line_3_option_2">Oak Close</string>
+    <string name="task_A_address_recall_line_3_option_3">Orchard Close</string>
+
+    <string name="task_A_address_recall_line_4_option_1">Oakhampton</string>
+    <string name="task_A_address_recall_line_4_option_2">Kingsbridge</string>
+    <string name="task_A_address_recall_line_4_option_3">Dartington</string>
+
+    <string name="task_A_address_recall_line_5_option_1">Devon</string>
+    <string name="task_A_address_recall_line_5_option_2">Dorset</string>
+    <string name="task_A_address_recall_line_5_option_3">Somerset</string>
+
+    <string name="task_A_address_recall_correct_options">2,2,3,2,1</string>
+
+    <string name="task_B_target_address_1">Linda</string>
+    <string name="task_B_target_address_2">Clark</string>
+    <string name="task_B_target_address_3">59</string>
+    <string name="task_B_target_address_4">Meadow</string>
+    <string name="task_B_target_address_5">Close</string>
+    <string name="task_B_target_address_6">Milford</string>
+    <string name="task_B_target_address_7">Surrey</string>
+
+    <string name="task_B_address_recall_line_1_option_1">Laura Marshall</string>
+    <string name="task_B_address_recall_line_1_option_2">Linda Clark</string>
+    <string name="task_B_address_recall_line_1_option_3">Linda Crawford</string>
+
+    <string name="task_B_address_recall_line_2_option_1">39</string>
+    <string name="task_B_address_recall_line_2_option_2">52</string>
+    <string name="task_B_address_recall_line_2_option_3">59</string>
+
+    <string name="task_B_address_recall_line_3_option_1">Meadow Close</string>
+    <string name="task_B_address_recall_line_3_option_2">Gardens Close</string>
+    <string name="task_B_address_recall_line_3_option_3">Meadow Street</string>
+
+    <string name="task_B_address_recall_line_4_option_1">Leatherhead</string>
+    <string name="task_B_address_recall_line_4_option_2">Milford</string>
+    <string name="task_B_address_recall_line_4_option_3">Redhill</string>
+
+    <string name="task_B_address_recall_line_5_option_1">Hampshire</string>
+    <string name="task_B_address_recall_line_5_option_2">Sussex</string>
+    <string name="task_B_address_recall_line_5_option_3">Surrey</string>
+
+    <string name="task_B_address_recall_correct_options">2,3,1,2,3</string>
+
+    <string name="task_C_target_address_1">John</string>
+    <string name="task_C_target_address_2">Marshall</string>
+    <string name="task_C_target_address_3">24</string>
+    <string name="task_C_target_address_4">Market</string>
+    <string name="task_C_target_address_5">Street</string>
+    <string name="task_C_target_address_6">Spilsby</string>
+    <string name="task_C_target_address_7">Lincolnshire</string>
+
+    <string name="task_C_address_recall_line_1_option_1">John Simons</string>
+    <string name="task_C_address_recall_line_1_option_2">John Marshall</string>
+    <string name="task_C_address_recall_line_1_option_3">Joseph Marshall</string>
+
+    <string name="task_C_address_recall_line_2_option_1">42</string>
+    <string name="task_C_address_recall_line_2_option_2">28</string>
+    <string name="task_C_address_recall_line_2_option_3">24</string>
+
+    <string name="task_C_address_recall_line_3_option_1">Market Street</string>
+    <string name="task_C_address_recall_line_3_option_2">High Street</string>
+    <string name="task_C_address_recall_line_3_option_3">Market Square</string>
+
+    <string name="task_C_address_recall_line_4_option_1">Spilsby</string>
+    <string name="task_C_address_recall_line_4_option_2">Horncastle</string>
+    <string name="task_C_address_recall_line_4_option_3">Sleaford</string>
+
+    <string name="task_C_address_recall_line_5_option_1">Northamptonshire</string>
+    <string name="task_C_address_recall_line_5_option_2">Lincolnshire</string>
+    <string name="task_C_address_recall_line_5_option_3">Leicestershire</string>
+
+    <string name="task_C_address_recall_correct_options">2,3,1,1,2</string>
+
+    <!-- OLD, prior to 2022-12-01, single "A" version:
+        <string name="address_1">Harry</string>
+        <string name="address_2">Barnes</string>
+        <string name="address_3">73</string>
+        <string name="address_4">Orchard</string>
+        <string name="address_5">Close</string>
+        <string name="address_6">Kingsbridge</string>
+        <string name="address_7">Devon</string>
+        <string name="mem_recall_option1_line1">Jerry Barnes</string>
+        <string name="mem_recall_option2_line1">Harry Barnes</string>
+        <string name="mem_recall_option3_line1">Harry Bradford</string>
+        <string name="mem_recall_option1_line2">37</string>
+        <string name="mem_recall_option2_line2">73</string>
+        <string name="mem_recall_option3_line2">76</string>
+        <string name="mem_recall_option1_line3">Orchard Place</string>
+        <string name="mem_recall_option2_line3">Oak Close</string>
+        <string name="mem_recall_option3_line3">Orchard Close</string>
+        <string name="mem_recall_option1_line4">Oakhampton</string>
+        <string name="mem_recall_option2_line4">Kingsbridge</string>
+        <string name="mem_recall_option3_line4">Dartington</string>
+        <string name="mem_recall_option1_line5">Devon</string>
+        <string name="mem_recall_option2_line5">Dorset</string>
+        <string name="mem_recall_option3_line5">Somerset</string>
+    -->
 
   </task>
 </resources>

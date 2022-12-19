@@ -512,7 +512,7 @@ DEFAULT_QT_SRC_DIRNAME = "qt6"
 
 # Android
 
-ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17
+ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17, AndroidManifest.xml
 ANDROID_NDK_VERSION = 20  # see above
 
 DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
@@ -538,9 +538,6 @@ if QT_SPECIFIC_VERSION:
 else:
     QT_VERSION = Version(QT_GIT_BRANCH, partial=True)
 
-DEFAULT_QT_HOST_PATH = os.path.join(
-    USER_DIR, "Qt", QT_SPECIFIC_VERSION, "gcc64"
-)
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 
 # https://forum.qt.io/topic/115827/build-on-linux-qt-xcb-option/
@@ -623,6 +620,7 @@ QT_CONFIG_COMMON_ARGS = [
     # "-qt-sqlite",  # v5.9: "qt", rather than "system"
     # 2017-12-01: conflict between SQLite and SQLCipher (symbols duplicated on
     # linking); try disabling it
+    "-ccache",
     "-no-sql-sqlite",
     "-no-sql-db2",  # disable other SQL drivers
     "-no-sql-ibase",
@@ -3466,7 +3464,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         else:
             qt_config_args += ["-xplatform", "android-g++"]
 
-        qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
+        qt_config_cmake_args.append(
+            f"-DQT_ANDROID_MIN_SDK_VERSION={cfg.android_sdk_version}"
+        )
 
     elif target_platform.linux:
         # http://doc.qt.io/qt-5/linux-requirements.html
@@ -3501,6 +3501,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         raise NotImplementedError(
             "Don't know how to compile Qt for " + str(target_platform)
         )
+
+    if cfg.qt_host_path:
+        qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
 
     for objdir in objdirs:
         extra_cmake_cxxflags.append(f"-B{objdir}")
@@ -3546,10 +3549,11 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # https://doc-snapshots.qt.io/qt6-6.2/configure-options.html
         qt_config_args.append("-openssl-linked")  # OpenSSL
         qt_config_cmake_args.append("-DOPENSSL_USE_STATIC_LIBS=ON")
-        # Qt's idea of "root" different to our own
-        qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
     else:
         qt_config_args += ["-openssl", "yes"]  # OpenSSL
+
+    # Qt's idea of "root" different to our own
+    qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
     if cfg.verbose >= 1:
         qt_config_args.append("-v")  # verbose
@@ -4318,7 +4322,6 @@ def main() -> None:
 
     qt.add_argument(
         "--qt_host_path",
-        default=DEFAULT_QT_HOST_PATH,
         help="Location of the host Qt Installation when cross-compiling",
     )
 

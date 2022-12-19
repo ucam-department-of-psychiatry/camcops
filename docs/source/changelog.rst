@@ -3715,3 +3715,30 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Patient Health Questionnaire 8-item depression scale
   (PHQ-8) <phq8>`. (Database revision 0077.)
+
+- Minimum tablet version changed from 1.14.0 (old Titanium clients) to 2.0.0
+  (C++ clients, from 2017 onwards). We think no old Titanium clients are in use
+  anywhere in the world. See MINIMUM_TABLET_VERSION_STRING. Also removed
+  defunct (unused) variable COPE_WITH_DELETED_PATIENT_DESCRIPTIONS, and removed
+  redundant variables DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
+  SILENTLY_IGNORE_TABLENAMES, IGNORING_ANTIQUE_TABLE_MESSAGE,
+  IgnoringAntiqueTableException, and related tests. With the removal of old
+  tablet support, this code would just be wasting time.
+
+- ACE-III supports versions A/B/C (address variation), defaulting to version A
+  as before, and upgraded to 2017 edition. Also supports remote administration
+  (UK 2020 edition). **Clients v2.4.15+ therefore require server 2.4.15+ to
+  upload.** If you create a new task on a client when the server is old (or the
+  tablet hasn't fetched server information since the server upgrade) you'll get
+  a warning. Removed defunct server fields ``picture1_rotation``,
+  ``picture2_rotation``.  (Database revision 0078.)
+
+- Supports the mini-ACE as a subset of the ACE-III. (Database revision 0078 as
+  above.)
+
+- Cosmetic bugfix to CIS-R server display (answers were being
+  double-HTML-escaped).
+
+- :func:`camcops_server.cc_modules.cc_task.Task.get_extrastring_taskname`
+  changed to a classmethod. Likewise ``extrastrings_exist``, ``wxstring``,
+  ``xstring``, ``make_options_from_xstrings``.

@@ -152,7 +152,8 @@ bool extendedDoubleMustExceedTop(const double number,
         return true;
     }
     const int nd_number = numDigitsDouble(number);
-    QString str_number = QString("%1").arg(number);
+    QString str_number;
+    str_number.setNum(number);
     if (number > 0) {
         // Both positive. Extend with zeros, to length of top
         const int nd_top = numDigitsDouble(top);
@@ -187,7 +188,8 @@ bool extendedDoubleMustBeLessThanBottom(const double number,
         return false;
     }
     const int nd_number = numDigitsDouble(number);
-    QString str_number = QString("%1").arg(number);
+    QString str_number;
+    str_number.setNum(number);
     if (number > 0) {
         // Both positive. Extend with nines, to length of top
         const int nd_top = numDigitsDouble(top);

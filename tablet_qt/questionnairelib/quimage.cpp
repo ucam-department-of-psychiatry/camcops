@@ -28,7 +28,8 @@
 
 
 QuImage::QuImage(const QString& filename, FieldRefPtr fieldref,
-                 const QSize& size) :
+                 const QSize& size, QObject* parent) :
+    QuElement(parent),
     m_filename(filename),
     m_fieldref(fieldref),
     m_label(nullptr),
@@ -43,14 +44,14 @@ QuImage::QuImage(const QString& filename, FieldRefPtr fieldref,
 }
 
 
-QuImage::QuImage(const QString& filename, const QSize& size) :
-    QuImage(filename, nullptr, size)  // delegating constructor
+QuImage::QuImage(const QString& filename, const QSize& size, QObject* parent) :
+    QuImage(filename, nullptr, size, parent)  // delegating constructor
 {
 }
 
 
-QuImage::QuImage(FieldRefPtr fieldref, const QSize& size) :
-    QuImage("", fieldref, size)  // delegating constructor
+QuImage::QuImage(FieldRefPtr fieldref, const QSize& size, QObject* parent) :
+    QuImage(QString(), fieldref, size, parent)  // delegating constructor
 {
     Q_ASSERT(m_fieldref);
 }

@@ -32,7 +32,9 @@
 const int WRITE_DELAY_MS = 400;
 
 
-QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text) :
+QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text,
+                       QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
     m_allow_tabs_in_content(false),

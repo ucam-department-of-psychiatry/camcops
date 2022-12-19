@@ -27,7 +27,7 @@ camcops_server/tasks/__init__.py
 
 """
 
-from camcops_server.tasks.ace3 import Ace3
+from camcops_server.tasks.ace3 import Ace3, MiniAce
 from camcops_server.tasks.aims import Aims
 from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 from camcops_server.tasks.apeqpt import Apeqpt

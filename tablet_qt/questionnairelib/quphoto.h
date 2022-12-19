@@ -38,7 +38,7 @@ class QuPhoto : public QuElement
     Q_OBJECT
 public:
     // Constructor
-    QuPhoto(BlobFieldRefPtr fieldref);
+    QuPhoto(BlobFieldRefPtr fieldref, QObject* parent = nullptr);
 
 protected:
     // Set widget state (image) from field data.

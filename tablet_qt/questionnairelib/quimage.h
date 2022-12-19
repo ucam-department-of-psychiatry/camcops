@@ -34,18 +34,21 @@ class QuImage : public QuElement
 
 protected:
     // Protected constructor
-    QuImage(const QString& filename, FieldRefPtr fieldref, const QSize& size);
+    QuImage(const QString& filename, FieldRefPtr fieldref, const QSize& size,
+            QObject* parent = nullptr);
 
 public:
 
     // Constructor to display a static image, from a filename.
-    QuImage(const QString& filename, const QSize& size = QSize());
+    QuImage(const QString& filename, const QSize& size = QSize(),
+            QObject* parent = nullptr);
 
     // Constructor to display a dynamic image, from a field.
     // - "field" provides raw image data
     // - The default value of "size", QSize(), means "take the image's own
     //   size".
-    QuImage(FieldRefPtr fieldref, const QSize& size = QSize());
+    QuImage(FieldRefPtr fieldref, const QSize& size = QSize(),
+            QObject* parent = nullptr);
 
     // Should the image be scaled according to our current DPI settings? Set
     // this to true if you want the image to be roughly the same size

@@ -24,6 +24,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/ace3.h"
+#include "tasks/miniace.h"
 #include "tasks/moca.h"
 #include "tasks/nart.h"
 #include "tasks/slums.h"
@@ -46,6 +47,7 @@ void CognitiveMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(MiniAce::MINIACE_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Moca::MOCA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Slums::SLUMS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, m_app),

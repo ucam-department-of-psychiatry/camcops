@@ -607,6 +607,8 @@ tablet_qt
     tasklib/tasksorter.h.rst
     tasks/ace3.cpp.rst
     tasks/ace3.h.rst
+    tasks/acefamily.cpp.rst
+    tasks/acefamily.h.rst
     tasks/aims.cpp.rst
     tasks/aims.h.rst
     tasks/apeqcpftperinatal.cpp.rst
@@ -795,6 +797,8 @@ tablet_qt
     tasks/mdsupdrs.h.rst
     tasks/mfi20.cpp.rst
     tasks/mfi20.h.rst
+    tasks/miniace.cpp.rst
+    tasks/miniace.h.rst
     tasks/moca.cpp.rst
     tasks/moca.h.rst
     tasks/nart.cpp.rst
@@ -920,6 +924,7 @@ tablet_qt
     tools/build_client_translations.py.rst
     tools/build_qt.py.rst
     tools/chord.py.rst
+    tools/clang_format_camcops.py.rst
     tools/clazy_camcops.py.rst
     tools/decrypt_sqlcipher.py.rst
     tools/encrypt_sqlcipher.py.rst

@@ -243,6 +243,23 @@ QVariant NameValueOptions::valueFromName(const QString& name,
 }
 
 
+bool NameValueOptions::valuesMatch(const NameValueOptions& other) const
+{
+    const int s = size();
+    if (s != other.size()) {
+        return false;
+    }
+    for (int i = 0; i < s; ++i) {
+        const QVariant& self_value = m_options[i].value();
+        const QVariant& other_value = other.m_options[i].value();
+        if (self_value != other_value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 // ========================================================================
 // For friends
 // ========================================================================

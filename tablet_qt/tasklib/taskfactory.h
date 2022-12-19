@@ -130,7 +130,7 @@ public:
     // (if tablename == ""). A KEY SECURITY FUNCTION; determines which tasks
     // users can see according to whether the app has a patient selected and
     // whether it is locked, etc.
-    TaskPtrList fetchTasks(const QString& tablename = "", bool sort = true) const;
+    TaskPtrList fetchTasks(const QString& tablename = QString(), bool sort = true) const;
 
     // Fetch all tasks for a specified patient.
     TaskPtrList fetchAllTasksForPatient(int patient_id) const;

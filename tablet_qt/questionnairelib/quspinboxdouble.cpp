@@ -27,7 +27,9 @@
 
 
 QuSpinBoxDouble::QuSpinBoxDouble(FieldRefPtr fieldref, const double minimum,
-                                 const double maximum, const int decimals) :
+                                 const double maximum, const int decimals,
+                                 QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),

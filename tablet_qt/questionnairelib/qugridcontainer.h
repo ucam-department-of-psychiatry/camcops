@@ -31,23 +31,29 @@ class QuGridContainer : public QuElement
     Q_OBJECT
 public:
     // Default constructor, so it can live in a QVector
-    QuGridContainer();
+    QuGridContainer(QObject* parent = nullptr);
 
     // Initialize with the high-precision QuGridCell:
-    QuGridContainer(const QVector<QuGridCell>& cells);
-    QuGridContainer(std::initializer_list<QuGridCell> cells);
+    QuGridContainer(const QVector<QuGridCell>& cells,
+                    QObject* parent = nullptr);
+    QuGridContainer(std::initializer_list<QuGridCell> cells,
+                    QObject* parent = nullptr);
 
     // Initialize with a simple "n columns" format. Elements will be assigned
     // to each row, cycling around to the next row once n_columns has been
     // reached.
     QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements,
-                    bool override_element_alignment = true);
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);
     QuGridContainer(int n_columns, const QVector<QuElement*>& elements,
-                    bool override_element_alignment = true);
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);
     QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements,
-                    bool override_element_alignment = true);
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);
     QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements,
-                    bool override_element_alignment = true);  // takes ownership
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);  // takes ownership
 
     // Add an individual cell.
     QuGridContainer* addCell(const QuGridCell& cell);

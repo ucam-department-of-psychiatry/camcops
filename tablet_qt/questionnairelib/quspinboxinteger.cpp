@@ -27,7 +27,8 @@
 
 
 QuSpinBoxInteger::QuSpinBoxInteger(FieldRefPtr fieldref, const int minimum,
-                                   const int maximum) :
+                                   const int maximum, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_minimum(minimum),
     m_maximum(maximum)

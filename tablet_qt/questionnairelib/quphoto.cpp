@@ -37,7 +37,8 @@
 #include "widgets/imagebutton.h"
 
 
-QuPhoto::QuPhoto(BlobFieldRefPtr fieldref) :
+QuPhoto::QuPhoto(BlobFieldRefPtr fieldref, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_questionnaire(nullptr),
     m_incomplete_optional_label(nullptr),

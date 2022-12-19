@@ -34,12 +34,15 @@ public:
 
 public:
     // Plain constructor
-    QuSequenceContainerBase();
+    QuSequenceContainerBase(QObject* parent = nullptr);
 
     // Construct and add elements
-    QuSequenceContainerBase(const QVector<QuElementPtr>& elements);
-    QuSequenceContainerBase(std::initializer_list<QuElementPtr> elements);
-    QuSequenceContainerBase(std::initializer_list<QuElement*> elements);
+    QuSequenceContainerBase(const QVector<QuElementPtr>& elements,
+                            QObject* parent = nullptr);
+    QuSequenceContainerBase(std::initializer_list<QuElementPtr> elements,
+                            QObject* parent = nullptr);
+    QuSequenceContainerBase(std::initializer_list<QuElement*> elements,
+                            QObject* parent = nullptr);
 
     // Add an element.
     QuSequenceContainerBase* addElement(const QuElementPtr& element);

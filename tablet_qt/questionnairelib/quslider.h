@@ -41,7 +41,8 @@ public:
     // Create a slider ranging from "minimum" to "maximum" with step size
     // "step". The slider always uses integers internally, but can display as
     // a float (see setConvertForRealField).
-    QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step = 1);
+    QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step = 1,
+             QObject* parent = nullptr);
 
     // Set the "page step" size, if the user uses the PgUp/PgDn keys.
     // The default is twice the slider's step size.

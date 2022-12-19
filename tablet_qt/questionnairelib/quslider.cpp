@@ -35,7 +35,9 @@ const int WRITE_DELAY_MS = 50;  // 10 is a bit low (sliders look slow)
 
 
 QuSlider::QuSlider(FieldRefPtr fieldref,
-                   const int minimum, const int maximum, const int step) :
+                   const int minimum, const int maximum, const int step,
+                   QObject* parent) :
+    QuElement(parent),
     // Core
     m_fieldref(fieldref),
     m_minimum(minimum),

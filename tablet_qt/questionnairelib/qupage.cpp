@@ -26,13 +26,14 @@
 #include "widgets/basewidget.h"
 
 
-QuPage::QuPage() :
-    QuPage(QVector<QuElementPtr>())  // delegating constructor
+QuPage::QuPage(QObject* parent) :
+    QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
 }
 
 
-QuPage::QuPage(const QVector<QuElementPtr>& elements) :
+QuPage::QuPage(const QVector<QuElementPtr>& elements, QObject* parent) :
+    QObject(parent),
     m_type(PageType::Inherit),
     m_elements(elements),
     m_skip(false),
@@ -43,14 +44,14 @@ QuPage::QuPage(const QVector<QuElementPtr>& elements) :
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
-    QuPage(QVector<QuElementPtr>(elements))  // delegating constructor
+QuPage::QuPage(std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    QuPage(QVector<QuElementPtr>(elements), parent)  // delegating constructor
 {
 }
 
 
-QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
-    QuPage(QVector<QuElementPtr>())  // delegating constructor
+QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :  // takes ownership
+    QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);
@@ -58,8 +59,8 @@ QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
-    QuPage(QVector<QuElementPtr>())  // delegating constructor
+QuPage::QuPage(std::initializer_list<QuElement*> elements, QObject* parent) :  // takes ownership
+    QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);

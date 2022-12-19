@@ -27,7 +27,9 @@
 
 
 QuButton::QuButton(const QString& label,
-                   const CallbackFunction& callback) :
+                   const CallbackFunction& callback,
+                   QObject* parent) :
+    QuElement(parent),
     m_label(label),
     m_callback(callback),
     m_active(true)
@@ -38,7 +40,9 @@ QuButton::QuButton(const QString& label,
 QuButton::QuButton(const QString& icon_filename,
                    const bool filename_is_camcops_stem,
                    const bool alter_unpressed_image,
-                   const CallbackFunction& callback) :
+                   const CallbackFunction& callback,
+                   QObject* parent) :
+    QuElement(parent),
     m_icon_filename(icon_filename),
     m_filename_is_camcops_stem(filename_is_camcops_stem),
     m_alter_unpressed_image(alter_unpressed_image),

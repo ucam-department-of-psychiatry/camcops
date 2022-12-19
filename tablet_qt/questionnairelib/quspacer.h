@@ -29,8 +29,8 @@ class QuSpacer : public QuElement
 
     Q_OBJECT
 public:
-    QuSpacer();
-    QuSpacer(const QSize& size);
+    QuSpacer(QObject* parent = nullptr);
+    QuSpacer(const QSize size, QObject* parent = nullptr);
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 protected:
