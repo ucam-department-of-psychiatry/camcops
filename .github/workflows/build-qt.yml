@@ -108,6 +108,11 @@ jobs:
                   ccache --set-config compression=true
                   ccache --set-config max_size=1G
 
+            - name: Windows specific versions
+              if: runner.os == 'Windows'
+              run: |
+                  nasm --version
+
             - name: print versions and environment
               run: |
                   ccache --version
@@ -116,7 +121,6 @@ jobs:
                   cmake --version
                   gcc --version
                   git --version
-                  nasm --version
                   ninja --version
                   perl --version
                   tar --version
