@@ -195,5 +195,4 @@ jobs:
               run: |
                   # This must be valid in bash and PowerShell
                   ccache -s
-                  ccache -x 2>/dev/null || true
                   ccache -z
