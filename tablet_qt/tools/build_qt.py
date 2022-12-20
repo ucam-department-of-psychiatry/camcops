@@ -3420,12 +3420,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # We use a dynamic build of Qt (bundled into the APK), not a static
         # version; see android_compilation.txt
         if target_platform.cpu == Cpu.X86_32:
-            android_arch_short = "x86"
+            android_abi = "x86"
         elif target_platform.cpu == Cpu.ARM_V7_32:
-            android_arch_short = "armeabi-v7a"
+            android_abi = "armeabi-v7a"
         elif target_platform.cpu == Cpu.ARM_V8_64:
             # https://developer.android.com/ndk/guides/abis.html
-            android_arch_short = "arm64-v8a"
+            android_abi = "arm64-v8a"
         else:
             raise NotImplementedError(
                 f"Don't know how to use CPU {target_platform.cpu!r} "
@@ -3440,8 +3440,10 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
             # "-android-ndk-host",
             # cfg.android_ndk_host,
-            "-android-arch",
-            android_arch_short,
+            # Multiple ABIs are supported by Qt but not by us
+            # Defaults is armeabi-v7a, arm64-v8a, x86, x86_64
+            "-android-abis",
+            android_abi,
             # "-android-toolchain-version",
             # cfg.android_toolchain_version,
             "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
