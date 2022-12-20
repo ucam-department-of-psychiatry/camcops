@@ -71,12 +71,12 @@ jobs:
               run: |
                   $ErrorActionPreference = "Stop"
                   choco install ninja nasm --yes --no-progress
-                  choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
+                  choco install ccache --version 3.7.12 --yes --no-progress
                   # Not sure this makes any difference
                   refreshenv
+                  "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
                   # Chocolatey uses the Windows installer, which doesn't update Path
                   # https://bugzilla.nasm.us/show_bug.cgi?id=3392224
-                  "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
                   "C:\Program Files\NASM" >> $env:GITHUB_PATH
 
             - name: restore ccache
@@ -91,7 +91,6 @@ jobs:
                   # job starts, we need these broader "restore-keys" in order to match
                   # and restore the most recent cache.
                   restore-keys: |
-                      # This must be valid in bash and PowerShell
                       ccache-${{ matrix.os }}-${{ github.ref }}-
                       ccache-${{ matrix.os }}-
 
@@ -106,9 +105,7 @@ jobs:
             - name: Windows specific versions
               if: runner.os == 'Windows'
               run: |
-                  echo "Dumping the path"
-                  $env:Path
-                  where nasm
+                  $ErrorActionPreference = "Stop"
                   nasm --version
 
             - name: print versions and environment
@@ -169,17 +166,6 @@ jobs:
               if: runner.os == 'Windows'
               run: |
                   $ErrorActionPreference = "Stop"
-                  ccache --version
-                  clang --version
-                  cmake --version
-                  gcc --version
-                  git --version
-                  nasm --version
-                  ninja --version
-                  perl --version
-                  tar --version
-                  echo Environment:
-                  printenv
                   cd "$env:USERPROFILE"
                   .\venv\Scripts\activate
                   $env:CAMCOPS_QT_BASE_DIR = "$env:USERPROFILE\qt_local_build"
