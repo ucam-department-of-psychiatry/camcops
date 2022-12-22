@@ -25,7 +25,6 @@ jobs:
             - uses: actions/setup-python@v4
               with:
                   python-version: 3.8
-
             - name: Ubuntu 20.04 prerequisites
               if: matrix.os == 'ubuntu-20.04'
               run: |
@@ -64,15 +63,25 @@ jobs:
                   sudo apt-get -y install libxfixes-dev
                   sudo apt-get -y install libxkbfile-dev libxshmfence-dev
                   sudo apt-get -y install libxshmfence1 llvm
+            - uses: ilammy/msvc-dev-cmd@v1
+              with:
+                  arch: x64
             - name: Windows prerequisites
               if: matrix.os == 'windows-2019'
               run: |
-                  choco install ninja --yes --no-progress
-                  choco install ccache --version 3.7.12 --yes --no-progress --not-silent --verbose --debug
+                  $ErrorActionPreference = "Stop"
+                  choco install ninja nasm --yes --no-progress
+                  choco install ccache --version 3.7.12 --yes --no-progress
+                  # Not sure this makes any difference
+                  refreshenv
+                  "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
+                  # Chocolatey uses the Windows installer, which doesn't update Path
+                  # https://bugzilla.nasm.us/show_bug.cgi?id=3392224
+                  "C:\Program Files\NASM" >> $env:GITHUB_PATH
 
             - name: restore ccache
               id: ccache
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               with:
                   path: ${{ runner.temp }}/ccache
                   # "github.run_id" is unique, which causes the cache to always get
@@ -87,19 +96,30 @@ jobs:
 
             - name: configure ccache
               run: |
+                  # This must be valid in bash and PowerShell
                   ccache --set-config sloppiness=file_macro,time_macros
                   ccache --set-config cache_dir='${{ runner.temp }}'/ccache
                   ccache --set-config compression=true
                   ccache --set-config max_size=1G
 
+            - name: Windows specific versions
+              if: runner.os == 'Windows'
+              run: |
+                  $ErrorActionPreference = "Stop"
+                  nasm --version
+
             - name: print versions and environment
               run: |
-                  gcc --version    | head -1
-                  cmake --version  | head -1
-                  echo Ninja `ninja --version`
-                  { ninja --help || true ; } 2>&1 | grep "run N jobs in parallel"
-                  ccache --version | head -1
-                  ccache --show-config  ||  echo 'Old ccache version does not support --show-config'
+                  # This must be valid in bash and PowerShell
+                  ccache --version
+                  ccache --show-config
+                  clang --version
+                  cmake --version
+                  gcc --version
+                  git --version
+                  ninja --version
+                  perl --version
+                  tar --version
                   echo Environment:
                   printenv
 
@@ -142,12 +162,6 @@ jobs:
                   apt list --installed "libclang*-dev"
                   ./build_qt.py --build_linux_x86_64
 
-            - name: Set up VS Shell
-              if: runner.os == 'Windows'
-              uses: egor-tensin/vs-shell@v2
-              with:
-                  arch: x64
-
             - name: Windows Build Qt
               if: runner.os == 'Windows'
               run: |
@@ -161,6 +175,6 @@ jobs:
             - name: Cache stats
               # Print ccache utilization statistics, then reset them.
               run: |
-                ccache -s
-                ccache -x 2>/dev/null || true
-                ccache -z
+                  # This must be valid in bash and PowerShell
+                  ccache -s
+                  ccache -z
