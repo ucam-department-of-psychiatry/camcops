@@ -221,6 +221,10 @@ gcc {
 
 # QMAKE_LFLAGS += --verbose  # make the linker verbose
 
+android {
+    QMAKE_RESOURCE_FLAGS += "-compress-algo zlib"
+}
+
 # =============================================================================
 # Build targets
 # =============================================================================
@@ -537,6 +541,7 @@ LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"  # add .o file
 # -----------------------------------------------------------------------------
 message("QMAKE_CFLAGS=$${QMAKE_CFLAGS}")
 message("QMAKE_CXXFLAGS=$${QMAKE_CXXFLAGS}")
+message("QMAKE_RESOURCE_FLAGS=$${QMAKE_RESOURCE_FLAGS}")
 message("INCLUDEPATH=$${INCLUDEPATH}")
 message("LIBS=$${LIBS}")
 message("... qmake will add more to INCLUDEPATH and LIBS; see Makefile")
