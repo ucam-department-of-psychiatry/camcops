@@ -573,8 +573,8 @@ SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
 # - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
 # Eigen
-
-EIGEN_VERSION = "3.3.3"
+# -- IF YOU CHANGE THIS, UPDATE camcops.pro
+EIGEN_VERSION = "3.4.0"
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
