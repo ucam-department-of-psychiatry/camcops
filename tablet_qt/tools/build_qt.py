@@ -3010,18 +3010,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # OpenSSL: Special mucking around
     # -------------------------------------------------------------------------
 
-    if target_platform.ios:
-        # iOS specials
-        # e.g. https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-        run(
-            [
-                SED,
-                "-ie",
-                "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!",  # noqa
-                join(workdir, "crypto", "ui", "ui_openssl.c"),
-            ]
-        )
-
     # At some point (transiently!) we also got something like:
     #    ar  r ../../libcrypto.a o_names.o obj_dat.o obj_lib.o
     #        obj_err.o obj_xref.
