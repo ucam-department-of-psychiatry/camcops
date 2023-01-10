@@ -513,7 +513,6 @@ DEFAULT_QT_SRC_DIRNAME = "qt6"
 # Android
 
 ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17, AndroidManifest.xml
-ANDROID_NDK_VERSION = 20  # see above
 
 DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
 DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
@@ -1415,7 +1414,7 @@ class Platform(object):
             # Compiling for the platform we're running on.
             return ""
         suffix = ""
-        if self.android and cfg.android_clang_not_gcc:
+        if self.android:
             if self.cpu == Cpu.ARM_V7_32:
                 suffix += "eabi"
             suffix += str(cfg.android_sdk_version)
@@ -1612,8 +1611,6 @@ class Config(object):
         # - installed independently by user
         # - used for cross-compilation to Android targets
         self.android_sdk_version = ANDROID_SDK_VERSION
-        self.android_ndk_version = ANDROID_NDK_VERSION
-        self.android_clang_not_gcc = self.android_ndk_version >= 18
         self.android_sdk_root = args.android_sdk_root  # type: str
         self.android_ndk_root = args.android_ndk_root  # type: str
         self.android_ndk_host = args.android_ndk_host  # type: str
@@ -1907,7 +1904,7 @@ class Config(object):
         env["ARCH"] = target_platform.android_arch_short
         env["CC"] = self._android_cc(
             target_platform,
-            fullpath=self.android_clang_not_gcc or not use_cross_compile_var,
+            fullpath=not use_cross_compile_var,
         )
         if use_cross_compile_var:
             env["CROSS_COMPILE"] = target_platform.cross_compile_prefix(self)
@@ -1955,19 +1952,7 @@ class Config(object):
             # concatenated, I think; for example, this gives the toolchain
             # "x86_64-4.9"
         elif target_platform.cpu_arm_family:
-            if self.android_clang_not_gcc:
-                return "llvm"
-            elif target_platform.cpu == Cpu.ARM_V8_64:
-                # e.g. "aarch64-linux-android-4.9"
-                return "aarch-linux-android-{}".format(
-                    self.android_toolchain_version
-                )
-            else:
-                # but ARM ones look like "arm-linux-androideabi-4.9"
-                return "{}-linux-androideabi-{}".format(
-                    target_platform.android_arch_short,
-                    self.android_toolchain_version,
-                )
+            return "llvm"
         else:
             raise NotImplementedError("Unknown CPU family for Android")
 
@@ -1990,16 +1975,8 @@ class Config(object):
           or android-ndk-r20/sysroot -- they are quite similar but there is
           more in the former.
         """
-        if self.android_clang_not_gcc:
-            # return join(self.android_ndk_root, "sysroot")
-            return join(
-                self.android_toolchain_root_dir(target_platform), "sysroot"
-            )
         return join(
-            self.android_ndk_root,
-            "platforms",
-            self.android_api,
-            target_platform.android_arch_full,
+            self.android_toolchain_root_dir(target_platform), "sysroot"
         )
 
     def android_toolchain_root_dir(self, target_platform: Platform) -> str:
@@ -2038,14 +2015,7 @@ class Config(object):
         """
         # Don't apply the CROSS_COMPILE prefix; that'll be prefixed
         # automatically.
-        if self.android_clang_not_gcc:
-            return target_platform.clang(fullpath, cfg=self)
-        else:
-            return (
-                target_platform.gcc(fullpath, cfg=self)
-                + "-"
-                + self.android_toolchain_version
-            )
+        return target_platform.clang(fullpath, cfg=self)
 
     # -------------------------------------------------------------------------
     # Android conversion functions
@@ -3429,7 +3399,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             # "-android-ndk-host",
             # cfg.android_ndk_host,
             # Multiple ABIs are supported by Qt but not by us
-            # Defaults is armeabi-v7a, arm64-v8a, x86, x86_64
+            # Default is armeabi-v7a, arm64-v8a, x86, x86_64
             "-android-abis",
             android_abi,
             # "-android-toolchain-version",
@@ -3444,19 +3414,17 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             # "-skip", "qtwebkit-examples",
             # we always skip qtserialport (see QT_CONFIG_COMMON_ARGS)
         ]
-        if cfg.android_clang_not_gcc:
-            qt_config_args += ["-xplatform", "android-clang"]
-            # log.critical(sysroot)
-            # libdir1 = join(sysroot, "usr", "lib", target_platform.target_triplet)  # noqa
-            # libdir2 = join(libdir1, str(cfg.android_sdk_version))
-            # libdirs.extend([libdir1, libdir2])
-            # objdirs.append(libdir2)
-        else:
-            qt_config_args += ["-xplatform", "android-g++"]
+        qt_config_args += ["-xplatform", "android-clang"]
+        # log.critical(sysroot)
+        # libdir1 = join(sysroot, "usr", "lib", target_platform.target_triplet)  # noqa
+        # libdir2 = join(libdir1, str(cfg.android_sdk_version))
+        # libdirs.extend([libdir1, libdir2])
+        # objdirs.append(libdir2)
 
-        qt_config_cmake_args.append(
-            f"-DQT_ANDROID_MIN_SDK_VERSION={cfg.android_sdk_version}"
-        )
+        qt_config_cmake_args += [
+            f"-DQT_ANDROID_MIN_SDK_VERSION={cfg.android_sdk_version}",
+            f"-DANDROID_PLATFORM={cfg.android_ndk_platform}",
+        ]
 
     elif target_platform.linux:
         # http://doc.qt.io/qt-5/linux-requirements.html
