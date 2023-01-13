@@ -3568,9 +3568,10 @@ Troubleshooting Qt 'configure' failures
     ... if not executable, permissions have been altered wrongly.
 
 -   NB actual configure scripts are, from local build directory:
-        .../src/qt5/configure
-        .../src/qt5/configure/qtbase/configure
-        .../src/qt5/configure/qtbase/configure.json
+        .../src/qt6/configure
+        .../src/qt6/configure/qtbase/configure
+        .../src/qt6/configure/qtbase/configure.bat
+        .../src/qt6/configure/qtbase/configure.json
 
 -   "recipe for target 'sub-plugins-make_first' failed", or similar:
 
