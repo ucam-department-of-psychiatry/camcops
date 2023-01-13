@@ -3445,7 +3445,14 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # http://doc.qt.io/qt-5/building-from-source-ios.html
         # "A default build builds both the simulator and device libraries."
         qt_config_args += ["-xplatform", "macx-ios-clang"]
-        qt_config_cmake_args.append("-DQT_UIKIT_SDK=iphoneos")
+
+        # Don't build for both simulator and device (the default) as it causes
+        # problems with our OpenSSL setup
+        if target_platform.cpu_x86_family:
+            qt_config_cmake_args.append("-DQT_UIKIT_SDK=iphonesimulator")
+
+        if target_platform.cpu_arm_family:
+            qt_config_cmake_args.append("-DQT_UIKIT_SDK=iphoneos")
 
     elif target_platform.windows:
         if BUILD_PLATFORM.windows:
