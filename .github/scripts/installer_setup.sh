@@ -4,7 +4,7 @@
 
 set -euxo pipefail
 
-sudo apt-get update
+sudo apt-get update -o APT::Update::Error-Mode=any
 sudo apt -y install python3-virtualenv python3-venv wait-for-it
 docker --version
 docker compose version
