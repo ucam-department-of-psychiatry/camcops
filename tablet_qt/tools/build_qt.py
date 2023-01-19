@@ -3522,9 +3522,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
     if cfg.verbose >= 1:
-        qt_config_args.append("-v")  # verbose
-    if cfg.verbose >= 2:
-        qt_config_args.append("-v")  # more verbose
+        # Qt by default sets CMAKE_MESSAGE_LOG_LEVEL to NOTICE.
+        qt_config_cmake_args.append("-DCMAKE_MESSAGE_LOG_LEVEL=STATUS")
 
     # Fix other Qt bugs:
     # ... cleaned up, none relevant at present
