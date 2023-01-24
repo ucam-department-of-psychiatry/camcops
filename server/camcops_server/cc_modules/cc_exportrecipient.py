@@ -388,7 +388,9 @@ class ExportRecipient(ExportRecipientInfo, Base):
         Boolean,
         default=False,
         nullable=False,
-        comment="(HL7 debugging option) Treat messages diverted to file as sent",  # noqa
+        comment=(
+            "(HL7 debugging option) Treat messages diverted to file as sent",
+        ),
     )
 
     # -------------------------------------------------------------------------
@@ -402,7 +404,10 @@ class ExportRecipient(ExportRecipientInfo, Base):
     file_patient_spec_if_anonymous = Column(
         "file_patient_spec_if_anonymous",
         FileSpecColType,
-        comment="(FILE) Patient part of filename specification for anonymous tasks",  # noqa: E501
+        comment=(
+            "(FILE) Patient part of filename specification for anonymous "
+            "tasks",
+        ),
     )
     file_filename_spec = Column(
         "file_filename_spec",

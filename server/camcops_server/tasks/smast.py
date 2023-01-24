@@ -137,7 +137,8 @@ class Smast(TaskHasPatientMixin, Task, metaclass=SmastMetaclass):
         return [
             CtvInfo(
                 content=(
-                    f"SMAST total score {self.total_score()}/{self.NQUESTIONS} "  # noqa: E501
+                    f"SMAST total score "
+                    f"{self.total_score()}/{self.NQUESTIONS} "
                     f"({self.likelihood(req)})"
                 )
             )

@@ -162,7 +162,7 @@ WINDOWS = platform.system() == "Windows"
 # We want to be able to run Celery from our virtual environment, but just
 # running the venv Python (as opposed to using "activate") doesn't set the path
 # correctly. So as per
-# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa: E501
+# https://stackoverflow.com/questions/22003769
 _CELERY_NAME = "celery.exe" if WINDOWS else "celery"
 CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
 

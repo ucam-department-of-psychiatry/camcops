@@ -190,7 +190,7 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Date/time of the upload batch that added this row"
                 " (DATETIME in UTC)"
             ),
@@ -205,7 +205,7 @@ def upgrade():
             "_when_removed_exact",
             PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Date/time this row was removed, i.e. made not"
                 " current (ISO 8601)"
             ),
@@ -214,7 +214,7 @@ def upgrade():
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Date/time of the upload batch that removed this row"
                 " (DATETIME in UTC)"
             ),
@@ -235,7 +235,7 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Forcibly preserved by superuser (rather than"
                 " normally preserved by tablet)?"
             ),
@@ -250,7 +250,7 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) PK of successor record  (after modification) or NULL"
                 " (whilst live, or after deletion)"
             ),
@@ -307,7 +307,7 @@ def upgrade():
             "when_last_modified",
             PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(STANDARD) Date/time this row was last modified on the source"
                 " tablet device (ISO 8601)"
             ),
