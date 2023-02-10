@@ -59,7 +59,7 @@ Item {
     signal closed
     signal imageSavedToFile  // RNC
 
-    Image {  // http://doc.qt.io/qt-5/qml-qtquick-image.html
+    Image {  // http://doc.qt.io/qt-6.2/qml-qtquick-image.html
         id: preview
         anchors.fill : parent
         fillMode: Image.PreserveAspectFit
