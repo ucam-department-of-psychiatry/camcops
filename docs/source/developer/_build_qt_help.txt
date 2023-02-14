@@ -27,7 +27,7 @@ General:
 
   --show_config_only    Show config, then quit (default: False)
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
-                        from environment variable CAMCOPS_QT_BASE_DIR if
+                        from environment variable CAMCOPS_QT5_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)

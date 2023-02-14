@@ -135,7 +135,7 @@ Setting up an iMac for CamCOPS development
 
     export CAMCOPS_SOURCE_DIR=~/camcops
     export CAMCOPS_VENV=~/dev/venvs/camcops
-    export CAMCOPS_QT_BASE_DIR=~/dev/qt_local_build
+    export CAMCOPS_QT5_BASE_DIR=~/dev/qt_local_build
 
     . ${CAMCOPS_VENV}/bin/activate
     cd ${CAMCOPS_SOURCE_DIR}
@@ -151,7 +151,7 @@ Setting up an iMac for CamCOPS development
 
         <key>LSEnvironment</key
         <dict>
-            <key>CAMCOPS_QT_BASE_DIR</key>
+            <key>CAMCOPS_QT5_BASE_DIR</key>
             <string>/Users/camcops/dev/qt_local_build</string>
         </dict>
 

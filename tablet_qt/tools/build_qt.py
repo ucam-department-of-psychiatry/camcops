@@ -479,7 +479,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 USER_DIR = expanduser("~")
 HEAD = "HEAD"  # git commit meaning "the most recent"
 
-ENVVAR_QT_BASE = "CAMCOPS_QT_BASE_DIR"
+ENVVAR_QT_BASE = "CAMCOPS_QT5_BASE_DIR"
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
