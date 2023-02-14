@@ -29,8 +29,8 @@ class QuMeasurement : public QuElement
 
     Q_OBJECT
 public:
-    QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector);
-
+    QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+                  bool mandatory = true);
 public slots:
     void unitsChanged(int units);
 protected:
@@ -45,6 +45,7 @@ protected:
     virtual void setUpFields() = 0;
     QVariant getFieldrefValue() const;
     bool setFieldrefValue(const QVariant& value);
+    bool m_mandatory;
 
 private:
     FieldRefPtr m_fieldref;

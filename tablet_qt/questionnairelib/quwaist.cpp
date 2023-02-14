@@ -34,8 +34,9 @@
 #include "questionnairelib/qumcq.h"
 
 
-QuWaist::QuWaist(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
-    : QuMeasurement(fieldref, unit_selector),
+QuWaist::QuWaist(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+                 bool mandatory)
+    : QuMeasurement(fieldref, unit_selector, mandatory),
     m_fr_cm(nullptr),
     m_fr_in(nullptr)
 {
@@ -81,8 +82,8 @@ void QuWaist::setUpFields()
     FieldRef::GetterFunction get_in = std::bind(&QuWaist::getIn, this);
     FieldRef::SetterFunction set_cm = std::bind(&QuWaist::setCm, this, std::placeholders::_1);
     FieldRef::SetterFunction set_in = std::bind(&QuWaist::setIn, this, std::placeholders::_1);
-    m_fr_cm = FieldRefPtr(new FieldRef(get_cm, set_cm, true));
-    m_fr_in = FieldRefPtr(new FieldRef(get_in, set_in, true));
+    m_fr_cm = FieldRefPtr(new FieldRef(get_cm, set_cm, m_mandatory));
+    m_fr_in = FieldRefPtr(new FieldRef(get_in, set_in, m_mandatory));
 }
 
 

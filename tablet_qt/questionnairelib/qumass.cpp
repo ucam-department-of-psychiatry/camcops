@@ -34,8 +34,9 @@
 #include "questionnairelib/qumcq.h"
 
 
-QuMass::QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
-    : QuMeasurement(fieldref, unit_selector),
+QuMass::QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+               bool mandatory)
+    : QuMeasurement(fieldref, unit_selector, mandatory),
     m_fr_kg(nullptr),
     m_fr_st(nullptr),
     m_fr_lb(nullptr),
@@ -89,10 +90,10 @@ void QuMass::setUpFields()
     FieldRef::SetterFunction set_st = std::bind(&QuMass::setSt, this, std::placeholders::_1);
     FieldRef::SetterFunction set_lb = std::bind(&QuMass::setLb, this, std::placeholders::_1);
     FieldRef::SetterFunction set_oz = std::bind(&QuMass::setOz, this, std::placeholders::_1);
-    m_fr_kg = FieldRefPtr(new FieldRef(get_kg, set_kg, true));
-    m_fr_st = FieldRefPtr(new FieldRef(get_st, set_st, true));
-    m_fr_lb = FieldRefPtr(new FieldRef(get_lb, set_lb, true));
-    m_fr_oz = FieldRefPtr(new FieldRef(get_oz, set_oz, true));
+    m_fr_kg = FieldRefPtr(new FieldRef(get_kg, set_kg, m_mandatory));
+    m_fr_st = FieldRefPtr(new FieldRef(get_st, set_st, m_mandatory));
+    m_fr_lb = FieldRefPtr(new FieldRef(get_lb, set_lb, m_mandatory));
+    m_fr_oz = FieldRefPtr(new FieldRef(get_oz, set_oz, m_mandatory));
 }
 
 
