@@ -86,7 +86,7 @@ INSTALL_REQUIRES = [
     "Faker==4.1.1",  # create fake data; for test and dummy database creation
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
-    "flower==1.1.0",  # monitor for Celery
+    "flower==1.2.0",  # monitor for Celery
     "gunicorn==20.1.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
     # Celery dependency for Python <= 3.7, Workaround import error https://github.com/celery/celery/issues/7783  # noqa: E501
