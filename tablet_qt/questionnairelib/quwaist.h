@@ -27,7 +27,7 @@
 
 class QuWaist : public QuMeasurement
 {
-    // Waist circumference in centimetres queestion type with imperial conversion
+    // Waist circumference in centimetres question type with imperial conversion
     Q_OBJECT
 public:
     QuWaist(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
