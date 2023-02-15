@@ -104,7 +104,7 @@ INSTALL_REQUIRES = [
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "py==1.11.0",  # dependency, pinned to avoid CVE-2020-29651
     "pycap==1.1.1",  # REDCap integration
-    "Pillow==9.0.1",  # used by a dependency; pin for security warnings
+    "Pillow==9.3.0",  # used by a dependency; pin for security warnings
     "Pygments==2.13.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export

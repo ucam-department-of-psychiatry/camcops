@@ -35,3 +35,6 @@ academic standards. The reference peer-reviewed publication is:
   *Frontiers in Psychiatry* 12: 578298.
   doi: `10.3389/fpsyt.2021.578298 <https://doi.org/10.3389/fpsyt.2021.578298>`_;
   PubMed ID `34867492 <https://pubmed.ncbi.nlm.nih.gov/34867492/>`_.
+
+CamCOPS is https://web.www.healthdatagateway.org/tool/503027167798622 at the
+HDR UK Innovation Gateway.

@@ -370,14 +370,4 @@ def upgrade():
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table("phq8", schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f("ix_phq8_when_last_modified"))
-        batch_op.drop_index(batch_op.f("ix_phq8_patient_id"))
-        batch_op.drop_index(batch_op.f("ix_phq8_id"))
-        batch_op.drop_index(batch_op.f("ix_phq8__pk"))
-        batch_op.drop_index(batch_op.f("ix_phq8__group_id"))
-        batch_op.drop_index(batch_op.f("ix_phq8__era"))
-        batch_op.drop_index(batch_op.f("ix_phq8__device_id"))
-        batch_op.drop_index(batch_op.f("ix_phq8__current"))
-
     op.drop_table("phq8")
