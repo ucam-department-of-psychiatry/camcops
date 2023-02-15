@@ -461,10 +461,10 @@ assert sys.version_info >= (3, 7), "Need Python 3.7 or higher"
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(
     MINIMUM_CARDINAL_PYTHONLIB
-):  # noqa
+):
     raise ImportError(
         f"Need cardinal_pythonlib >= {MINIMUM_CARDINAL_PYTHONLIB}"
-    )  # noqa
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1081,23 +1081,23 @@ class Platform(object):
                 elfresult = fetch(elfcmd)
                 arm32_tag_present = bool(
                     re.search(r"Machine:\s+ARM", elfresult)
-                )  # noqa
+                )
                 arm64_tag_present = bool(
                     re.search(r"Machine:\s+AArch64", elfresult)
-                )  # noqa
+                )
                 arm_tag_present = arm32_tag_present or arm64_tag_present
                 if self.cpu_arm_32bit and not arm32_tag_present:
                     raise ValueError(
                         f"File {filename} was not built for 32-bit ARM"
-                    )  # noqa
+                    )
                 if self.cpu_arm_64bit and not arm64_tag_present:
                     raise ValueError(
                         f"File {filename} was not built for 64-bit ARM"
-                    )  # noqa
+                    )
                 if (not self.cpu_arm_family) and arm_tag_present:
                     raise ValueError(
                         f"File {filename} was built for ARM but shouldn't be"
-                    )  # noqa
+                    )
         elif BUILD_PLATFORM.macos:
             if BUILD_PLATFORM.cpu_64bit:
                 dumpcmd = [OTOOL, "-hv", "-arch", "all", filename]
@@ -3317,7 +3317,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 
     opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
         target_platform
-    )  # noqa
+    )
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
 
@@ -3633,7 +3633,7 @@ A.  Standard header files like os/log.h should live within
       That should install SDKs for iOS 11.4 and macOS 10.13.4.
 
 """
-            )  # noqa
+            )
             sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
