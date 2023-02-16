@@ -33,12 +33,10 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
     tr_qa,
-    get_yes_no_unknown,
     tr,
     answer,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
@@ -65,9 +63,9 @@ class ChitMetaclass(DeclarativeMeta):
             "q",
             1,
             cls.N_SCORED_QUESTIONS,
-            minimum=0,
-            maximum=3,
-            comment_fmt="Q{n} ({s}) (0 strongly disagree - 3 strongly agree)",
+            minimum=cls.MIN_ANSWER,
+            maximum=cls.MAX_ANSWER,
+            comment_fmt="Q{n} ({s}) (0 strongly disagree - 4 strongly agree)",
             comment_strings=[
                 "hate unfinished task",
                 "just right",
@@ -87,12 +85,6 @@ class ChitMetaclass(DeclarativeMeta):
             ],
         )
 
-        setattr(
-            cls,
-            "q16",
-            BoolColumn("q16", comment="Q16 (negative effect) (0 no, 1 yes)"),
-        )
-
         super().__init__(name, bases, classdict)
 
 
@@ -101,10 +93,10 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
     shortname = "CHI-T"
 
     N_SCORED_QUESTIONS = 15
-    N_QUESTIONS = 16
-    MAX_SCORE_MAIN = 3 * N_SCORED_QUESTIONS
+    MIN_ANSWER = 0
+    MAX_ANSWER = 4
+    MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
     SCORED_QUESTIONS = strseq("q", 1, N_SCORED_QUESTIONS)
-    ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -122,7 +114,7 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
         ]
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.ALL_QUESTIONS):
+        if self.any_fields_none(self.SCORED_QUESTIONS):
             return False
         if not self.field_contents_valid():
             return False
@@ -134,11 +126,10 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
     def get_task_html(self, req: CamcopsRequest) -> str:
         score_dict = {
             None: None,
-            0: "0 — " + self.wxstring(req, "a0"),
-            1: "1 — " + self.wxstring(req, "a1"),
-            2: "2 — " + self.wxstring(req, "a2"),
-            3: "3 — " + self.wxstring(req, "a3"),
         }
+
+        for i in range(self.MIN_ANSWER, self.MAX_ANSWER + 1):
+            score_dict[i] = f"{i} — " + self.wxstring(req, f"a{i}")
 
         rows = ""
         for i in range(1, self.N_SCORED_QUESTIONS + 1):
@@ -147,10 +138,6 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
             answer_cell = get_from_dict(score_dict, getattr(self, q_field))
 
             rows += tr_qa(question_cell, answer_cell)
-
-        rows += tr_qa(
-            "16. " + self.wxstring(req, "q16"), get_yes_no_unknown(req, "q16")
-        )
 
         html = """
             <div class="{CssClass.SUMMARY}">
