@@ -28,8 +28,8 @@ Cambridge–Chicago Compulsivity Trait Scale (CHI-T)
 
 15-item measure of compulsivity.
 
-15 items, rated on a 4 point scale: strongly disagree - strongly agree. 1
-additional question with yes/no answer. Scored 0 - 3, with higher ratings for
+15 items, rated on a 5 point scale: strongly disagree - strongly agree. 1
+additional question with yes/no answer. Scored 0 - 4, with higher ratings for
 stronger agreement.
 
 
@@ -52,8 +52,14 @@ History
   https://www.ncbi.nlm.nih.gov/pubmed/29730994
   https://doi.org/10.1017/S1092852918000810.
 
+- Tiego J, Trender W, Hellyer PJ, Grant JE, Hampshire A, Chamberlain SR
+  Measuring Compulsivity as a Self-Reported Multidimensional Transdiagnostic
+  Construct: Large-Scale (N = 182,000) Validation of the Cambridge-Chicago
+  Compulsivity Trait Scale.
+  *Assessment* 0(0).
+  https://doi-org/10.1177/10731911221149083
 
 Source
 ~~~~~~
 
-- Sam Chamberlain, personal communication, 2019.
+- Sam Chamberlain, personal communication, 2019 and 2023.
