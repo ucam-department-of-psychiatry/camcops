@@ -36,7 +36,7 @@ Once you have successfully run build_qt.py --build_windows_x86_64
 ENSURE YOU HAVE QT CREATOR 4.6.0 or higher. Earlier versions can fail to
 compile.
 
--   Set the environment variable CAMCOPS_QT_BASE_DIR.
+-   Set the environment variable CAMCOPS_QT5_BASE_DIR.
     It's where you find directories like
         openssl_windows_x86_64_build
         qt_windows_x86_32_build
@@ -46,7 +46,7 @@ compile.
         sqlcipher_windows_x86_32
         sqlcipher_windows_x86_64
         src
-    
+
     By default (as per build_qt.py) it is "dev\qt_local_build" within the
     user's home directory (e.g. C:\Users\MyUser\dev\qt_local_build).
 
@@ -55,18 +55,18 @@ compile.
 -   Open project
 
 -   Define Qt version
-        
+
     Options > Build & Run > Qt Versions
-    
+
         Custom_Qt_5_10_0 (qt_windows_x86_64_install) [or similar name]
             ... qt_windows_x86_64_install\bin\qmake.exe
 
 -   Define kit
 
     Options > Build & Run > Kits
-    
+
         Custom_Qt_5_10_0_x86_64 [or similar name]
-        
+
             File system name = [blank]
             Device type = Desktop
             Device = Local PC (default for Desktop)
@@ -84,12 +84,12 @@ compile.
                 CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}
                 QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}
             Additional Qbs Profile Settings = [blank]
-            
+
 -   Build
-        
+
 PROBLEM:
     Error: dependent 'C:\Users\Rudolf\dev\qt_local_build\qt_windows_x86_64_install\lib\Qt5MultimediaWidgetsd.lib' does not exist.
-        
+
     ... in debug mode
     ... not sure how to say "make a debug program but with the release version
         of the Qt libraries"
@@ -97,7 +97,7 @@ PROBLEM:
     ... may simply need to build debug Qt libraries
 
         python build_qt.py --build_windows_x86_64 --qt_build_type debug
-    
+
 PROBLEM:
 
     C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\utility(448): error C2338: tuple index out of bounds
@@ -109,15 +109,15 @@ PROBLEM:
             ]
 
     from code like
-    
+
         MenuItem(
             tr("Questionnaire font size"),
             std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
                       std::placeholders::_1)
         )
-        
+
     ... this appears to be a VC++ problem; fixable like this:
-    
+
         MenuItem(
             tr("Questionnaire font size"),
             MenuItem::OpenableWidgetMaker(
@@ -125,7 +125,7 @@ PROBLEM:
                           std::placeholders::_1)
             )
         )
-        
+
     ... see also https://stackoverflow.com/questions/25841857
     ... but probably a VC++ bug (works fine in GCC).
 
