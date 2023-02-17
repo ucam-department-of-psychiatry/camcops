@@ -55,6 +55,7 @@ jobs:
                   safety check --full-report --ignore=51668 --ignore=52495
                   echo running pre-commit checks
                   pre-commit run --all-files
+                  export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   echo running tests
                   cd server/camcops_server
