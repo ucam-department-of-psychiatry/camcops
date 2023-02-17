@@ -6,9 +6,11 @@ on:
     push:
         paths:
             - '**.py'
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/create_config_file.sh
+            - .github/scripts/mysql_local_setup.sh
+            - .github/scripts/python_setup.sh
             - .github/workflows/pip-install-and-tests.yml
-            - .github/workflows/scripts/change_apt_mirror.sh
-            - .github/workflows/scripts/python_setup.sh
 jobs:
     pip-install-and-tests:
         strategy:
@@ -17,13 +19,6 @@ jobs:
                 # LTS versions
                 os: [ubuntu-20.04, ubuntu-22.04]
         runs-on: ${{ matrix.os }}
-        env:
-            DB_DATABASE: camcops
-            DB_CAMCOPS_USER: camcops
-            DB_CAMCOPS_PASSWORD: camcops
-            DB_ROOT_USER: root
-            DB_ROOT_PASSWORD: root
-
         steps:
             - uses: actions/checkout@v3
             - uses: actions/setup-python@v4
@@ -31,11 +26,6 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: Set up MySQL
               run: |
-                  set -xe
-                  sudo systemctl start mysql
-                  mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
-                  mysql -e 'CREATE USER `${{ env.DB_CAMCOPS_USER }}`@`localhost` IDENTIFIED BY "${{ env.DB_CAMCOPS_PASSWORD }}";' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
-                  mysql -e 'GRANT ALL PRIVILEGES ON `${{ env.DB_DATABASE }}`.* TO `${{ env.DB_CAMCOPS_USER }}`@`localhost`;' -u${{ env.DB_ROOT_USER  }} -p${{ env.DB_ROOT_PASSWORD }}
             - name: Change apt mirror
               run: |
                   set -eux -o pipefail
@@ -65,8 +55,7 @@ jobs:
                   safety check --full-report --ignore=51668 --ignore=52495
                   echo running pre-commit checks
                   pre-commit run --all-files
-                  export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
-                  camcops_server demo_camcops_config | sed 's/YYY_USERNAME_REPLACE_ME/${{ env.DB_CAMCOPS_USER }}/g' | sed 's/ZZZ_PASSWORD_REPLACE_ME/${{ env.DB_CAMCOPS_PASSWORD }}/g' > "${CAMCOPS_CONFIG_FILE}"
+                  ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   echo running tests
                   cd server/camcops_server
                   pytest -v
