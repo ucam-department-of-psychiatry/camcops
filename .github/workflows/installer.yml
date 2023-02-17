@@ -8,7 +8,7 @@ on:
             - 'server/camcops_server/**'
             - .github/workflows/installer.yml
             - .github/scripts/installer_setup.sh
-            - .github/scripts/mysql_setup.sh
+            - .github/scripts/mysql_docker_setup.sh
             - .github/scripts/post_installation_checks.sh
             - .github/scripts/set_camcops_docker_environment
             - .github/scripts/set_camcops_docker_mysql_environment
