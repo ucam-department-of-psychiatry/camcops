@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib==1.1.23",  # RNC libraries
+    "cardinal_pythonlib==1.1.24",  # RNC libraries
     "celery==5.2.2",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
@@ -86,7 +86,7 @@ INSTALL_REQUIRES = [
     "Faker==4.1.1",  # create fake data; for test and dummy database creation
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
-    "flower==1.1.0",  # monitor for Celery
+    "flower==1.2.0",  # monitor for Celery
     "gunicorn==20.1.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
     # Celery dependency for Python <= 3.7, Workaround import error https://github.com/celery/celery/issues/7783  # noqa: E501
@@ -101,7 +101,6 @@ INSTALL_REQUIRES = [
     "pexpect==4.8.0",  # for open_sqlcipher.py
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
-    "py==1.11.0",  # dependency, pinned to avoid CVE-2020-29651
     "pycap==1.1.1",  # REDCap integration
     "Pillow==9.3.0",  # used by a dependency; pin for security warnings
     "Pygments==2.13.0",  # Syntax highlighting for introspection/DDL
@@ -151,7 +150,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
-    "PyPDF2==1.27.12",  # Used by cardinal_pythonlib.pdf
+    "pypdf==3.1.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
     "sqlparse==0.4.2",
     # extra

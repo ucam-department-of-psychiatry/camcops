@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0079.py
+camcops_server/alembic/versions/0080_chit_update.py.py
 
 ===============================================================================
 
@@ -29,8 +29,8 @@ DATABASE REVISION SCRIPT
 
 chit_update
 
-Revision ID: 0079
-Revises: 0078
+Revision ID: 0080
+Revises: 0079
 Creation date: 2023-02-14 17:03:07.159418
 
 """
@@ -47,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = "0079"
-down_revision = "0078"
+revision = "0080"
+down_revision = "0079"
 branch_labels = None
 depends_on = None
 

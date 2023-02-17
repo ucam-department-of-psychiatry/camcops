@@ -110,7 +110,8 @@ server/camcops_server
     alembic/versions/0076_paradise24.py.rst
     alembic/versions/0077_phq8.py.rst
     alembic/versions/0078_miniace.py.rst
-    alembic/versions/0079_chit_update.py.rst
+    alembic/versions/0079_ed_comment_fixes.py.rst
+    alembic/versions/0080_chit_update.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
