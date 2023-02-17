@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib==1.1.23",  # RNC libraries
+    "cardinal_pythonlib==1.1.24",  # RNC libraries
     "celery==5.2.2",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
@@ -151,7 +151,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
-    "PyPDF2==1.27.12",  # Used by cardinal_pythonlib.pdf
+    "pypdf==3.1.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
     "sqlparse==0.4.2",
     # extra
