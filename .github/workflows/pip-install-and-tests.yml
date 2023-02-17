@@ -26,6 +26,7 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: Set up MySQL
               run: |
+                  ${GITHUB_WORKSPACE}/.github/scripts/mysql_local_setup.sh
             - name: Change apt mirror
               run: |
                   set -eux -o pipefail
