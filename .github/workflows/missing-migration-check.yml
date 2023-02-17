@@ -5,7 +5,9 @@ name: Missing migration check
 on:
     push:
         paths:
-            - .github/workflows/scripts/python_setup.sh
+            - .github/scripts/create_config_file.sh
+            - .github/scripts/mysql_local_setup.sh
+            - .github/scripts/python_setup.sh
             - .github/workflows/missing-migration-check.yml
             - 'server/camcops_server/**'
 jobs:
@@ -19,6 +21,8 @@ jobs:
             - name: Missing migration check
               run: |
                   set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/mysql_local_setup.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   source ${HOME}/venv/bin/activate
                   python ${GITHUB_WORKSPACE}/server/tools/create_database_migration.py test
