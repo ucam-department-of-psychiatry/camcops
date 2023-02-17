@@ -8,6 +8,7 @@ on:
             - '**.py'
             - .github/workflows/pip-install-and-tests.yml
             - .github/workflows/scripts/change_apt_mirror.sh
+            - .github/workflows/scripts/python_setup.sh
 jobs:
     pip-install-and-tests:
         strategy:
@@ -41,7 +42,7 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Pip install and tests
               run: |
-                  set -xe
+                  set -eux -o pipefail
                   # Install wkhtmltopdf on headless ubuntu 18 vps
                   # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
                   # 429 = Too many requests. Unfortunately wget doesn't read the
@@ -49,15 +50,8 @@ jobs:
                   wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
                   sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
                   sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
-                  python -m venv ${HOME}/venv
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   source ${HOME}/venv/bin/activate
-                  python -VV
-                  python -m site
-                  python -m pip install -U pip
-                  echo dumping pre-installed packages
-                  python -m pip freeze
-                  echo installing pip packages
-                  python -m pip install -e server/.
                   echo checking packages for conflicts
                   python -m pip check
                   echo installing vulnerability checker
