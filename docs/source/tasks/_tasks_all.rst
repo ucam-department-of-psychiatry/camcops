@@ -98,6 +98,7 @@ All tasks
     ifs.rst
     irac.rst
     isaaq.rst
+    isaaq10.rst
     isaaqed.rst
     khandaker_insight_medical.rst
     khandaker_mojo.rst

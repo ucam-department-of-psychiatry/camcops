@@ -261,7 +261,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
     def task_ancestor(self) -> Optional["Task"]:
         from camcops_server.cc_modules.cc_task import (
             tablename_to_task_class_dict,
-        )  # noqa  # delayed import
+        )  # delayed import
 
         d = tablename_to_task_class_dict()
         try:

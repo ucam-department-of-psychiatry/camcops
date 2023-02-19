@@ -30,7 +30,8 @@ class QuMass : public QuMeasurement
     // Mass in kilograms question type with imperial conversion
     Q_OBJECT
 public:
-    QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector);
+    QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+           bool mandatory = true);
     void setUpFields();
 
 
