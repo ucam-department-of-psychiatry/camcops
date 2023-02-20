@@ -112,6 +112,7 @@ server/camcops_server
     alembic/versions/0078_miniace.py.rst
     alembic/versions/0079_ed_comment_fixes.py.rst
     alembic/versions/0080_chit_update.py.rst
+    alembic/versions/0081_isaaq10.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -326,6 +327,7 @@ server/camcops_server
     extra_strings/icd9cm.xml.rst
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
+    extra_strings/isaaq10.xml.rst
     extra_strings/khandaker_insight_medical.xml.rst
     extra_strings/khandaker_mojo_medical.xml.rst
     extra_strings/khandaker_mojo_medicationtherapy.xml.rst
@@ -423,6 +425,7 @@ server/camcops_server
     tasks/ifs.py.rst
     tasks/irac.py.rst
     tasks/isaaq.py.rst
+    tasks/isaaq10.py.rst
     tasks/isaaqcommon.py.rst
     tasks/isaaqed.py.rst
     tasks/khandaker_insight_medical.py.rst
