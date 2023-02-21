@@ -26,23 +26,24 @@
 
 class CamcopsApp;
 
-void initializeIsaaq(TaskFactory& factory);
+void initializeIsaaq10(TaskFactory& factory);
 
-class Isaaq : public IsaaqCommon
+class Isaaq10 : public IsaaqCommon
 {
     Q_OBJECT
 public:
-    Isaaq(CamcopsApp& app, DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Isaaq10(CamcopsApp& app, DatabaseManager& db,
+            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
+    virtual bool prohibitsCommercial() const override { return true; }
 
 public:
-    static const QString ISAAQ_TABLENAME;
+    static const QString ISAAQ10_TABLENAME;
 protected:
     QStringList fieldNames() const override;
     QVector<QuElement*> buildElements() override;

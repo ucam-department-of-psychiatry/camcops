@@ -3745,3 +3745,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bug fix: Make BMI waist circumference optional again.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/264
+
+- Remove ISAAQ task and replace with :ref:`ISAAQ-10 <isaaq10>`. (Database
+  revisions 0081-0083.)

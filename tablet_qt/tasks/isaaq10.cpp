@@ -18,7 +18,7 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "isaaq.h"
+#include "isaaq10.h"
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
@@ -31,22 +31,22 @@
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_A_QUESTIONS = 15;
+const int N_A_QUESTIONS = 10;
 const int N_B_QUESTIONS = 10;
 const QString A_PREFIX("a");
 const QString B_PREFIX("b");
 
 
-const QString Isaaq::ISAAQ_TABLENAME("isaaq");
+const QString Isaaq10::ISAAQ10_TABLENAME("isaaq10");
 
 
-void initializeIsaaq(TaskFactory& factory)
+void initializeIsaaq10(TaskFactory& factory)
 {
-    static TaskRegistrar<Isaaq> registered(factory);
+    static TaskRegistrar<Isaaq10> registered(factory);
 }
 
-Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    IsaaqCommon(app, db, ISAAQ_TABLENAME)
+Isaaq10::Isaaq10(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    IsaaqCommon(app, db, ISAAQ10_TABLENAME)
 {
     addFields(strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS), QVariant::Int);
     addFields(strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS), QVariant::Int);
@@ -59,25 +59,25 @@ Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 // Class info
 // ============================================================================
 
-QString Isaaq::shortname() const
+QString Isaaq10::shortname() const
 {
-    return "ISAAQ";
+    return "ISAAQ-10";
 }
 
 
-QString Isaaq::longname() const
+QString Isaaq10::longname() const
 {
     return tr("Internet Severity and Activities Addiction Questionnaire");
 }
 
 
-QString Isaaq::description() const
+QString Isaaq10::description() const
 {
     return tr("Questionnaire on problematic internet use.");
 }
 
 
-QStringList Isaaq::fieldNames() const
+QStringList Isaaq10::fieldNames() const
 {
     return strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS) +
         strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS);
@@ -88,7 +88,7 @@ QStringList Isaaq::fieldNames() const
 // Instance info
 // ============================================================================
 
-QVector<QuElement*> Isaaq::buildElements()
+QVector<QuElement*> Isaaq10::buildElements()
 {
     auto instructions = new QuHeading(xstring("instructions"));
     auto grid_a = buildGrid(A_PREFIX, FIRST_Q, N_A_QUESTIONS, xstring("a_title"));
