@@ -641,6 +641,16 @@ def upgrade():
             unique=False,
         )
 
+    # https://github.com/sqlalchemy/alembic/issues/326
+    with op.batch_alter_table("miniace", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_miniace__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
+        )
+
     with op.batch_alter_table("ace3", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
