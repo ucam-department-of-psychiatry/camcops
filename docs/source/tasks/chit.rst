@@ -28,10 +28,12 @@ Cambridge–Chicago Compulsivity Trait Scale (CHI-T)
 
 15-item measure of compulsivity.
 
-15 items, rated on a 5 point scale: strongly disagree - strongly agree. 1
-additional question with yes/no answer. Scored 0 - 4, with higher ratings for
-stronger agreement.
+15 items, rated on a 5 point scale: strongly disagree - strongly agree. Scored
+0 - 4, with higher ratings for stronger agreement.
 
+Prior to CamCOPS v2.4.15 the 15 items were rated on a 4-point scale (scoring
+0 - 3) and there was an additional question about subjective impairment with a
+yes/no answer.
 
 
 Intellectual property rights
@@ -57,7 +59,7 @@ History
   Construct: Large-Scale (N = 182,000) Validation of the Cambridge-Chicago
   Compulsivity Trait Scale.
   *Assessment* 0(0).
-  https://doi-org/10.1177/10731911221149083
+  https://doi.org/10.1177/10731911221149083
 
 Source
 ~~~~~~
