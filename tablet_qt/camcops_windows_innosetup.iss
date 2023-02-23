@@ -27,9 +27,9 @@
     #error "Must define environment variable CAMCOPS_SOURCE_DIR; e.g. D:\dev\camcops"
 #endif
 
-#define CamcopsQtBaseDir GetEnv("CAMCOPS_QT5_BASE_DIR")
+#define CamcopsQtBaseDir GetEnv("CAMCOPS_QT6_BASE_DIR")
 #if CamcopsQtBaseDir == ""
-    #error "Must define environment variable CAMCOPS_QT5_BASE_DIR; e.g. D:\dev\qt_local_build"
+    #error "Must define environment variable CAMCOPS_QT6_BASE_DIR; e.g. D:\dev\qt_local_build"
 #endif
 
 #define VisualStudioRedistRoot GetEnv("CAMCOPS_VISUAL_STUDIO_REDIST_ROOT")

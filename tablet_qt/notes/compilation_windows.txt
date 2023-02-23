@@ -36,7 +36,7 @@ Once you have successfully run build_qt.py --build_windows_x86_64
 ENSURE YOU HAVE QT CREATOR 4.6.0 or higher. Earlier versions can fail to
 compile.
 
--   Set the environment variable CAMCOPS_QT5_BASE_DIR.
+-   Set the environment variable CAMCOPS_QT6_BASE_DIR.
     It's where you find directories like
         openssl_windows_x86_64_build
         qt_windows_x86_32_build

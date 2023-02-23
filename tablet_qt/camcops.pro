@@ -25,9 +25,9 @@ message("+++ CamCOPS qmake starting.")
 # =============================================================================
 # Prerequisites: environment variables
 # =============================================================================
-# Need environment variable CAMCOPS_QT5_BASE_DIR
+# Need environment variable CAMCOPS_QT6_BASE_DIR
 # Put something like this in your ~/.profile:
-#   export CAMCOPS_QT5_BASE_DIR="/home/rudolf/dev/qt_local_build"
+#   export CAMCOPS_QT6_BASE_DIR="/home/rudolf/dev/qt_local_build"
 
 # This file is read by qmake.
 # Use $$(...) to read an environment variable at the time of qmake.
@@ -37,13 +37,13 @@ message("+++ CamCOPS qmake starting.")
 # - http://doc.qt.io/qt-4.8/qmake-advanced-usage.html#variables
 # - http://doc.qt.io/qt-5/qmake-test-function-reference.html
 # Here, we copy an environment variable to a Qt project file variable:
-# QT_BASE_DIR = $(CAMCOPS_QT5_BASE_DIR)  # value at time of make
+# QT_BASE_DIR = $(CAMCOPS_QT6_BASE_DIR)  # value at time of make
 
-QT_BASE_DIR = $$(CAMCOPS_QT5_BASE_DIR)  # value at time of qmake ("now")
+QT_BASE_DIR = $$(CAMCOPS_QT6_BASE_DIR)  # value at time of qmake ("now")
 isEmpty(QT_BASE_DIR) {
-    error("Environment variable CAMCOPS_QT5_BASE_DIR is undefined")
+    error("Environment variable CAMCOPS_QT6_BASE_DIR is undefined")
 }
-message("From environment variable CAMCOPS_QT5_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
+message("From environment variable CAMCOPS_QT6_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
 message("... Qt version: $$[QT_VERSION]")
 message("... Qt is installed in: $$[QT_INSTALL_PREFIX]")
 message("... Qt resources can be found in the following locations:")

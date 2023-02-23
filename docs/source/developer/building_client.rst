@@ -253,7 +253,7 @@ All operating systems
           - Example value (Windows)
           - Notes
 
-        * - CAMCOPS_QT5_BASE_DIR
+        * - CAMCOPS_QT6_BASE_DIR
           - ``~/dev/qt_local_build``
           - ``%USERPROFILE%\dev\qt_local_build``
           - Read by :ref:`build_qt`.
