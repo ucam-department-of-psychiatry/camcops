@@ -3742,3 +3742,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - :func:`camcops_server.cc_modules.cc_task.Task.get_extrastring_taskname`
   changed to a classmethod. Likewise ``extrastrings_exist``, ``wxstring``,
   ``xstring``, ``make_options_from_xstrings``.
+
+- Bug fix: Make BMI waist circumference optional again.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/264

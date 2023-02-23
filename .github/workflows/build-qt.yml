@@ -157,9 +157,8 @@ jobs:
               run: |
                   set -eux -o pipefail
                   source ${HOME}/venv/bin/activate
-                  export CAMCOPS_QT_BASE_DIR=${HOME}/qt_local_build
-                  cd ${GITHUB_WORKSPACE}/tablet_qt/tools
-                  apt list --installed "libclang*-dev"
+                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  cd tablet_qt/tools
                   ./build_qt.py --build_linux_x86_64
 
             - name: Windows Build Qt
@@ -168,7 +167,7 @@ jobs:
                   $ErrorActionPreference = "Stop"
                   cd "$env:USERPROFILE"
                   .\venv\Scripts\activate
-                  $env:CAMCOPS_QT_BASE_DIR = "$env:USERPROFILE\qt_local_build"
+                  $env:CAMCOPS_QT6_BASE_DIR = "$env:USERPROFILE\qt_local_build"
                   cd "$env:GITHUB_WORKSPACE\tablet_qt\tools"
                   python build_qt.py --build_windows_x86_64
 

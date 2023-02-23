@@ -34,8 +34,9 @@
 #include "questionnairelib/qumcq.h"
 
 
-QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector)
-    : QuMeasurement(fieldref, unit_selector),
+QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+                   bool mandatory)
+    : QuMeasurement(fieldref, unit_selector, mandatory),
     m_fr_m(nullptr),
     m_fr_ft(nullptr),
     m_fr_in(nullptr)
@@ -86,9 +87,9 @@ void QuHeight::setUpFields()
     FieldRef::SetterFunction set_m = std::bind(&QuHeight::setM, this, std::placeholders::_1);
     FieldRef::SetterFunction set_ft = std::bind(&QuHeight::setFt, this, std::placeholders::_1);
     FieldRef::SetterFunction set_in = std::bind(&QuHeight::setIn, this, std::placeholders::_1);
-    m_fr_m = FieldRefPtr(new FieldRef(get_m, set_m, true));
-    m_fr_ft = FieldRefPtr(new FieldRef(get_ft, set_ft, true));
-    m_fr_in = FieldRefPtr(new FieldRef(get_in, set_in, true));
+    m_fr_m = FieldRefPtr(new FieldRef(get_m, set_m, m_mandatory));
+    m_fr_ft = FieldRefPtr(new FieldRef(get_ft, set_ft, m_mandatory));
+    m_fr_in = FieldRefPtr(new FieldRef(get_in, set_in, m_mandatory));
 }
 
 

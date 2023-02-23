@@ -141,7 +141,8 @@ OpenableWidget* Bmi::editor(const bool read_only)
     auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
     auto mass_edit = new QuMass(fieldRef(FN_MASS_KG), mass_units);
     auto waist_units = new QuUnitSelector(CommonOptions::waistUnits());
-    auto waist_edit = new QuWaist(fieldRef(FN_WAIST_CM), waist_units);
+    auto waist_edit = new QuWaist(fieldRef(FN_WAIST_CM), waist_units,
+                                  false); // Not mandatory
 
     // Comments
     FieldRefPtr fr_comment = fieldRef(FN_COMMENT, false);

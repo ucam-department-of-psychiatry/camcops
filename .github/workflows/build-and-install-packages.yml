@@ -7,8 +7,8 @@ on:
         paths:
             - 'server/camcops_server/**'
             - .github/workflows/build-and-install-packages.yml
-            - .github/workflows/scripts/build_packages.sh
-            - .github/workflows/scripts/change_apt_mirror.sh
+            - .github/scripts/build_packages.sh
+            - .github/scripts/change_apt_mirror.sh
             - server/tools/MAKE_LINUX_PACKAGES.py
             - server/requirements-deb.txt
             - server/requirements-rpm.txt

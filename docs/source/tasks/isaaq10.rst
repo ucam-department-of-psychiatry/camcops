@@ -1,4 +1,4 @@
-..  docs/source/citing.rst
+..  docs/source/tasks/isaaq10.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
@@ -19,22 +19,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
-.. _publications:
-.. _citing:
+.. _isaaq10:
 
-Publications; citing CamCOPS
-============================
+Internet Severity and Activities Addiction Questionnaire (ISAAQ)
+----------------------------------------------------------------
 
-If you publish research that uses CamCOPS, please cite it following normal
-academic standards. The reference peer-reviewed publication is:
+.. include:: include_data_collection_plus_local_upgrade.rst
 
-- Cardinal RN, Burchell M (2021).
-  The Cambridge Cognitive and Psychiatric Assessment Kit (CamCOPS): a secure
-  open-source client–server system for mobile research and clinical data
-  capture.
-  *Frontiers in Psychiatry* 12: 578298.
-  doi: `10.3389/fpsyt.2021.578298 <https://doi.org/10.3389/fpsyt.2021.578298>`_;
-  PubMed ID `34867492 <https://pubmed.ncbi.nlm.nih.gov/34867492/>`_.
-
-CamCOPS is https://web.www.healthdatagateway.org/tool/503027167798622 at the
-HDR UK Innovation Gateway.
+TODO: A shorter version of the ISAAQ part A (with 5 fewer questions).
