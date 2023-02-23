@@ -3672,7 +3672,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <edeq>`. (Database revision 0072.)
 
 - **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire
-  (ISAAQ) <isaaq>`. (Database revision 0073.)
+  (ISAAQ) <isaaq10>`. (Database revision 0073.)
 
 - **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire,
   Eating Disorders Appendix (ISAAQ-ED) <isaaqed>`. (Database revision 0074.)
