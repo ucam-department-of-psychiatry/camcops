@@ -149,12 +149,16 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <th width="40%">Answer [2]</th>
                 </tr>
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Sum for questions 1–15.
+                [1] Sum for questions 1–15. Prior to version 2.4.15
+                each question scored 0-3 with a maximum possible score of 45.
+                [2] Prior to version 2.4.15 the responses were:
+                0 — Strongly disagree, 1 — Disagree, 2 — Agree, 3 — Strongly
+                agree.
             </div>
         """.format(
             CssClass=CssClass,

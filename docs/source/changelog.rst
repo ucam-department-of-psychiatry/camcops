@@ -3746,5 +3746,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bug fix: Make BMI waist circumference optional again.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/264
 
+- Update :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>` to
+  remove q16 and add "Neither agree nor disagree" to the responses. This
+  means that the maximum total score is now 60 instead of 45.
+
+  (Database revision 0080.)
+
 - Remove ISAAQ task and replace with :ref:`ISAAQ-10 <isaaq10>`. (Database
   revisions 0081-0083.)
