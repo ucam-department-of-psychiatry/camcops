@@ -29,6 +29,14 @@ camcops_server/tasks/chit.py
 
 """
 
+from typing import List, Type, Tuple, Dict, Any
+
+from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.stringfunc import strseq
+from semantic_version import Version
+from sqlalchemy import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import (
@@ -44,10 +52,6 @@ from camcops_server.cc_modules.cc_task import (
     get_from_dict,
 )
 from camcops_server.cc_modules.cc_text import SS
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
 
 
 class ChitMetaclass(DeclarativeMeta):
@@ -103,6 +107,11 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
         _ = req.gettext
         return _("Cambridge–Chicago Compulsivity Trait Scale")
 
+    # noinspection PyMethodParameters
+    @classproperty
+    def minimum_client_version(cls) -> Version:
+        return Version("2.4.15")
+
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
@@ -149,14 +158,14 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
-                    <th width="40%">Answer [2]</th>
+                    <th width="40%">Answer <sup>[2]</sup></th>
                 </tr>
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Sum for questions 1–15. Prior to version 2.4.15
-                each question scored 0-3 with a maximum possible score of 45.
-                [2] Prior to version 2.4.15 the responses were:
+                [1] Sum for questions 1–15. Prior to CamCOPS version 2.4.15
+                each question scored 0–3 with a maximum possible score of 45.
+                [2] Prior to CamCOPS version 2.4.15 the responses were:
                 0 — Strongly disagree, 1 — Disagree, 2 — Agree, 3 — Strongly
                 agree.
             </div>
