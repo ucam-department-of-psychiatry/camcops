@@ -367,6 +367,16 @@ def upgrade():
             unique=False,
         )
 
+    # https://github.com/sqlalchemy/alembic/issues/326
+    with op.batch_alter_table("phq8", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_phq8__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
+        )
+
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():

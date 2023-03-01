@@ -117,7 +117,7 @@ def run_cmd(
         replacement_dict = {}
     modified_env = environ.copy()
     modified_env[ENVVAR_GENERATING_CAMCOPS_DOCS] = "True"
-    modified_env.pop("CAMCOPS_QT_BASE_DIR", None)
+    modified_env.pop("CAMCOPS_QT5_BASE_DIR", None)
     modified_env[ENVVAR_CONFIG_FILE] = "/path/to/camcops/config_file.ini"
     modified_env["POEDIT"] = "/path/to/poedit"
     modified_env["LCONVERT"] = "/path/to/lconvert"

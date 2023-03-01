@@ -29,7 +29,9 @@
 #include "questionnairelib/quunitselector.h"
 
 
-QuMeasurement::QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector) :
+QuMeasurement::QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+                             bool mandatory) :
+    m_mandatory(mandatory),
     m_fieldref(fieldref),
     m_unit_selector(unit_selector),
     m_metric_grid(nullptr),

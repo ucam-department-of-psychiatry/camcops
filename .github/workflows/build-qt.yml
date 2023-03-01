@@ -47,6 +47,6 @@ jobs:
             - name: Build Qt
               run: |
                   source ${HOME}/venv/bin/activate
-                  export CAMCOPS_QT_BASE_DIR=${HOME}/qt_local_build
+                  export CAMCOPS_QT5_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
                   ./build_qt.py --build_linux_x86_64
