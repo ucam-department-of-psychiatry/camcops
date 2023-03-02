@@ -24,6 +24,7 @@
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -91,6 +92,12 @@ QStringList Chit::scoredFieldNames() const
     return strseq(QPREFIX, FIRST_Q, LAST_Q);
 }
 
+Version Chit::minimumServerVersion() const
+{
+    return Version(2, 4, 15);
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -122,7 +129,7 @@ QStringList Chit::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
-    const QString suffix = "";
+    const QString suffix = QLatin1String("");
     lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, LAST_Q);
     lines.append("");
     lines += summary();

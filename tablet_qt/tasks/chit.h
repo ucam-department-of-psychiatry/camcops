@@ -46,6 +46,7 @@ public:
     virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
+    virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
