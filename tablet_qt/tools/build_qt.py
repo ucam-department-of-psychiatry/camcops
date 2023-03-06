@@ -3205,7 +3205,6 @@ def fetch_qt(cfg: Config) -> None:
         prettyname="Qt",
         url=cfg.qt_git_url,
         branch=cfg.qt_git_branch,
-        commit=cfg.qt_git_commit,
         directory=cfg.qt_src_gitdir,
         run_func=run,
     ):
@@ -3220,7 +3219,7 @@ def fetch_qt(cfg: Config) -> None:
     )
 
     if QT_SPECIFIC_VERSION:
-        run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
+        run([GIT, "checkout", cfg.qt_git_commit])
         run([GIT, "submodule", "update", "--recursive"])
 
 
