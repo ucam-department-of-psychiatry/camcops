@@ -3390,7 +3390,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     objdirs = []  # type: List[str]
     libdirs = []
 
-    if cfg.use_openssl_with_qt:
+    if target_platform.use_openssl_with_qt:
         includedirs.append(openssl_include_root)  # #include files for OpenSSL
         libdirs.append(openssl_lib_root)  # libraries for OpenSSL
 
@@ -3404,7 +3404,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # "-gcc-sysroot": not required
     ]
 
-    if cfg.use_openssl_with_qt:
+    if target_platform.use_openssl_with_qt:
         qt_config_args.append("OPENSSL_LIBS=" + openssl_libs)
     else:
         qt_config_args.append("-no-openssl")
@@ -3555,7 +3555,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # ... http://stackoverflow.com/questions/1999654
         # ... https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7  # noqa: E501
 
-    if cfg.use_openssl_with_qt:
+    if target_platform.use_openssl_with_qt:
         # OpenSSL linkage?
         # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or
         # you have to rebuild Qt every time... extremely slow.
