@@ -984,6 +984,12 @@ class Platform(object):
         # NOT Android; dynamic linkage then bundling into single-file APK.
         return self.desktop or self.ios
 
+    @property
+    def use_openssl_with_qt(self) -> bool:
+        # Although we use SecureTransport instead of OpenSSL on iOS, we still
+        # need it for SQLCipher
+        return not self.ios
+
     # -------------------------------------------------------------------------
     # Library (e.g. .so, DLL) verification
     # -------------------------------------------------------------------------
@@ -3296,10 +3302,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # Qt: Setup
     # -------------------------------------------------------------------------
 
-    # Means by which Qt links to OpenSSL?
-    qt_openssl_linkage_static = (
-        cfg.qt_openssl_static and target_platform.qt_linkage_static
-    )
     # If Qt is linked dynamically, we do not let it link to OpenSSL
     # statically (it won't work).
 
@@ -3314,12 +3316,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # right automatically? Yes.
         # if USE_CLANG_NOT_GCC_FOR_ANDROID_ARM:
         #     require(CLANG)
-
-    opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
-        target_platform
-    )
-    openssl_include_root = join(opensslworkdir, "include")
-    openssl_lib_root = opensslworkdir
 
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
@@ -3352,14 +3348,24 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # Copying openssl/Configurations/10-main.conf
         crypto_dependencies = "-lws2_32 -lgdi32 -ladvapi32 -lcrypt32 -luser32"
 
-    openssl_libs = f"-L{openssl_lib_root} -lssl -lcrypto {crypto_dependencies}"
+    if cfg.use_openssl_with_qt:
+        opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
+            target_platform
+        )
+        openssl_include_root = join(opensslworkdir, "include")
+        openssl_lib_root = opensslworkdir
 
-    # See also https://bugreports.qt.io/browse/QTBUG-62016
-    env["OPENSSL_LIBS"] = openssl_libs
-    # Setting OPENSSL_LIBS as an *environment variable* may be unnecessary,
-    # but is suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
-    # However, it seems necessary to set it as an *option* to configure; see
-    # below.
+        openssl_libs = (
+            f"-L{openssl_lib_root} -lssl -lcrypto {crypto_dependencies}"
+        )
+
+        # See also https://bugreports.qt.io/browse/QTBUG-62016
+        env["OPENSSL_LIBS"] = openssl_libs
+        # Setting OPENSSL_LIBS as an *environment variable* may be unnecessary,
+        # but is suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
+        # However, it seems necessary to set it as an *option* to configure;
+        # see below.
+
     cfg.set_compile_env(env, target_platform)
 
     # -------------------------------------------------------------------------
@@ -3380,19 +3386,29 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     else:
         configure_prog_name = "configure"
     # sysroot = cfg.sysroot(target_platform, env)
-    includedirs = [openssl_include_root]  # #include files for OpenSSL
+    includedirs = []
     objdirs = []  # type: List[str]
-    libdirs = [openssl_lib_root]  # libraries for OpenSSL
+    libdirs = []
+
+    if cfg.use_openssl_with_qt:
+        includedirs.append(openssl_include_root)  # #include files for OpenSSL
+        libdirs.append(openssl_lib_root)  # libraries for OpenSSL
+
     qt_config_args = [
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
         "-prefix",
         installdir,  # where to install Qt
         "-recheck-all",  # don't cache from previous configure runs
-        "OPENSSL_LIBS=" + openssl_libs,
         # "-sysroot": not required; Qt's configure should handle this
         # "-gcc-sysroot": not required
     ]
+
+    if cfg.use_openssl_with_qt:
+        qt_config_args.append("OPENSSL_LIBS=" + openssl_libs)
+    else:
+        qt_config_args.append("-no-openssl")
+
     if target_platform.qt_linkage_static:
         qt_config_args.append("-static")
         # makes a static Qt library (cf. default of "-shared")
@@ -3484,7 +3500,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     elif target_platform.ios:
         # http://doc.qt.io/qt-5/building-from-source-ios.html
         # "A default build builds both the simulator and device libraries."
-        qt_config_args += ["-xplatform", "macx-ios-clang"]
+        # Use Apple's own SSL implementation
+        qt_config_args += ["-securetransport", "-xplatform", "macx-ios-clang"]
 
     elif target_platform.windows:
         if BUILD_PLATFORM.windows:
@@ -3536,17 +3553,22 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # ... release is default in 5.7 (as per "configure -h")
         # ... check with "readelf --debug-dump=decodedline <LIBRARY.so>"
         # ... http://stackoverflow.com/questions/1999654
-        # ... https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7  # noqa
+        # ... https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7  # noqa: E501
 
-    # OpenSSL linkage?
-    # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or you
-    # have to rebuild Qt every time... extremely slow.
-    if qt_openssl_linkage_static:
-        qt_config_args.append("-openssl-linked")  # OpenSSL
-        # http://doc.qt.io/qt-4.8/ssl.html
-        # http://stackoverflow.com/questions/20843180
-    else:
-        qt_config_args.append("-openssl")  # OpenSSL
+    if cfg.use_openssl_with_qt:
+        # OpenSSL linkage?
+        # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or
+        # you have to rebuild Qt every time... extremely slow.
+        # Means by which Qt links to OpenSSL?
+        qt_openssl_linkage_static = (
+            cfg.qt_openssl_static and target_platform.qt_linkage_static
+        )
+        if qt_openssl_linkage_static:
+            qt_config_args.append("-openssl-linked")  # OpenSSL
+            # http://doc.qt.io/qt-4.8/ssl.html
+            # http://stackoverflow.com/questions/20843180
+        else:
+            qt_config_args.append("-openssl")  # OpenSSL
 
     if cfg.verbose >= 1:
         qt_config_args.append("-v")  # verbose
