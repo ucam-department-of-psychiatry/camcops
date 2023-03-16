@@ -3348,7 +3348,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # Copying openssl/Configurations/10-main.conf
         crypto_dependencies = "-lws2_32 -lgdi32 -ladvapi32 -lcrypt32 -luser32"
 
-    if cfg.use_openssl_with_qt:
+    if target_platform.use_openssl_with_qt:
         opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
             target_platform
         )
