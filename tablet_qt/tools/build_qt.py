@@ -984,10 +984,13 @@ class Platform(object):
         # NOT Android; dynamic linkage then bundling into single-file APK.
         return self.desktop or self.ios
 
+    # -------------------------------------------------------------------------
+    # Build Qt with OpenSSL or use native SSL library
+    # -------------------------------------------------------------------------
     @property
     def use_openssl_with_qt(self) -> bool:
         # Although we use SecureTransport instead of OpenSSL on iOS, we still
-        # need it for SQLCipher
+        # need OpenSSL for SQLCipher
         return not self.ios
 
     # -------------------------------------------------------------------------
