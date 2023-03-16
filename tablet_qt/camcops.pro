@@ -350,7 +350,7 @@ ios {
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".dylib"
     CAMCOPS_QT_LINKAGE = "static"
-    CAMCOPS_OPENSSL_LINKAGE = "none"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
 
     # Both iphoneos and iphonesimulator are set ?!
     CONFIG(iphoneos, iphoneos|iphonesimulator) {
@@ -409,8 +409,6 @@ equals(CAMCOPS_OPENSSL_LINKAGE, "static") {
     message("Using static linkage from CamCOPS to OpenSSL")
 } else:equals(CAMCOPS_OPENSSL_LINKAGE, "dynamic") {
     message("Using dynamic linkage from CamCOPS to OpenSSL")
-} else:equals(CAMCOPS_OPENSSL_LINKAGE, "none") {
-    message("Using native SSL library")
 } else {
     error("Linkage method from CamCOPS to OpenSSL not specified")
 }
@@ -508,7 +506,7 @@ equals(CAMCOPS_OPENSSL_LINKAGE, "static") {
     LIBS += "-L$${OPENSSL_DIR}"  # path; shouldn't be necessary for static linkage! Residual problem.
     LIBS += "$${OPENSSL_DIR}/libcrypto$${STATIC_LIB_EXT}"  # raw filename, not -l
     LIBS += "$${OPENSSL_DIR}/libssl$${STATIC_LIB_EXT}"  # raw filename, not -l
-} else:equals(CAMCOPS_QT_LINKAGE, "dynamic") {
+} else {
     LIBS += "-L$${OPENSSL_DIR}"  # path
     LIBS += "-lcrypto"
     LIBS += "-lssl"
