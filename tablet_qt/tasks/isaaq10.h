@@ -41,6 +41,8 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual bool prohibitsCommercial() const override { return true; }
+    virtual void upgradeDatabase(const Version& old_version,
+                                 const Version& new_version) override;
 
 public:
     static const QString ISAAQ10_TABLENAME;
