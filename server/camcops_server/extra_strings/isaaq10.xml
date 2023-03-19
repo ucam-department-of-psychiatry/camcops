@@ -27,8 +27,14 @@
     <string name="a9">How often do you find yourself experiencing physical or psychological problems as a consequence of prolonged internet-related activities?</string>
     <string name="a10">How often do you try to cut down the amount of time you spend on-line and fail?</string>
 
-    <string name="b_heading">Over the <b>last 6 months</b>, I have spent time on <b>non-work or study</b> related online activities as such:</string>
-    <!-- (1) ... note slightly iffy grammar "non-work or study related", not modified; (2) "as such" fixed to "such as" -->
+    <string name="b_heading">Over the <b>last 6 months</b>, I have spent time on <b>non-work or study</b> related online activities such as:</string>
+    <!--
+      (1) ... note slightly iffy grammar "non-work or study related"; strictly
+      should probably be "non-work- or -study-related" or something clearer
+      like "online activities not related to work or study, such as...", but
+      not modified;
+      (2) "as such" fixed to "such as"
+    -->
     <string name="b_title">INTERNET ACTIVITIES SCALE</string>
 
     <string name="b1"><b>General surfing</b> (includes any unstructured online activities)</string>

@@ -67,7 +67,7 @@ QString Isaaq10::shortname() const
 
 QString Isaaq10::longname() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire");
+    return tr("Internet Severity and Activities Addiction Questionnaire, 10-items");
 }
 
 
