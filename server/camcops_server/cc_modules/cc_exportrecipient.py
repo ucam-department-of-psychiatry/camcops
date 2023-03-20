@@ -389,7 +389,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         default=False,
         nullable=False,
         comment=(
-            "(HL7 debugging option) Treat messages diverted to file as sent",
+            "(HL7 debugging option) Treat messages diverted to file as sent"
         ),
     )
 
@@ -406,7 +406,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         FileSpecColType,
         comment=(
             "(FILE) Patient part of filename specification for anonymous "
-            "tasks",
+            "tasks"
         ),
     )
     file_filename_spec = Column(
