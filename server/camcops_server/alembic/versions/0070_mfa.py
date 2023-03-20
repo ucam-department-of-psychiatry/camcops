@@ -109,7 +109,7 @@ def upgrade():
                 "form_state",
                 JsonColType(),
                 nullable=True,
-                comment=(  # noqa: E501
+                comment=(
                     "Any state that needs to be saved temporarily during"
                     " wizard-style form submission"
                 ),

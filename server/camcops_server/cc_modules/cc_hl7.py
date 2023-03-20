@@ -812,33 +812,33 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
     if len(msh_segment) < 9:
         return (
             False,
-            (f"First (MSH) segment has <9 fields (has {len(msh_segment)})"),
+            f"First (MSH) segment has <9 fields (has {len(msh_segment)})",
         )
     msh_segment_id = msh_segment[0]
     msh_message_type = msh_segment[8]
     if msh_segment_id != ["MSH"]:
         return (
             False,
-            (f"First (MSH) segment ID is not 'MSH' (is {msh_segment_id})"),
+            f"First (MSH) segment ID is not 'MSH' (is {msh_segment_id})",
         )
     if msh_message_type != ["ACK"]:
         return (
             False,
-            (f"MSH message type is not 'ACK' (is {msh_message_type})"),
+            f"MSH message type is not 'ACK' (is {msh_message_type})",
         )
 
     # Check MSA segment
     if len(msa_segment) < 2:
         return (
             False,
-            (f"Second (MSA) segment has <2 fields (has {len(msa_segment)})"),
+            f"Second (MSA) segment has <2 fields (has {len(msa_segment)})",
         )
     msa_segment_id = msa_segment[0]
     msa_acknowledgment_code = msa_segment[1]
     if msa_segment_id != ["MSA"]:
         return (
             False,
-            (f"Second (MSA) segment ID is not 'MSA' (is {msa_segment_id})"),
+            f"Second (MSA) segment ID is not 'MSA' (is {msa_segment_id})",
         )
     if msa_acknowledgment_code != ["AA"]:
         # AA for success, AE for error

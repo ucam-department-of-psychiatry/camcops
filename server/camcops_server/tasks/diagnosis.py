@@ -360,7 +360,8 @@ class DiagnosisIcd10(DiagnosisBase):
     shortname = "Diagnosis_ICD10"
     dependent_classes = [DiagnosisIcd10Item]
     hl7_coding_system = "I10"
-    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa: E501
+    # Page A-129 of
+    # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -477,7 +478,8 @@ class DiagnosisIcd9CM(DiagnosisBase):
     shortname = "Diagnosis_ICD9CM"
     dependent_classes = [DiagnosisIcd9CMItem]
     hl7_coding_system = "I9CM"
-    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa: E501
+    # Page A-129 of
+    # https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

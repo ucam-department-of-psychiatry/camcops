@@ -161,8 +161,10 @@ def print_demo_apache_config(rootpath: str) -> None:
 def _upgrade_database_to_head(
     show_sql_only: bool, reindex: bool = False
 ) -> None:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
+
     from camcops_server.cc_modules.cc_alembic import (
         upgrade_database_to_head,
     )  # delayed import
@@ -177,8 +179,10 @@ def _upgrade_database_to_head(
 def _upgrade_database_to_revision(
     revision: str, show_sql_only: bool = False
 ) -> None:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # noqa: F401
+
+    # ... delayed import; import side effects
+
     from camcops_server.cc_modules.cc_alembic import (
         upgrade_database_to_revision,
     )  # delayed import
@@ -193,8 +197,10 @@ def _downgrade_database_to_revision(
     show_sql_only: bool = False,
     confirm_downgrade_db: bool = False,
 ) -> None:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # noqa: F401
+
+    # ... delayed import; import side effects
+
     from camcops_server.cc_modules.cc_alembic import (
         downgrade_database_to_revision,
     )  # delayed import
@@ -209,14 +215,17 @@ def _downgrade_database_to_revision(
 def _add_dummy_data(
     cfg: "CamcopsConfig", confirm_add_dummy_data: bool = False
 ) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.add_dummy_data(cfg, confirm_add_dummy_data=confirm_add_dummy_data)
 
 
 def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # noqa: F401
+
+    # ... delayed import; import side effects
     from camcops_server.cc_modules.cc_alembic import (
         create_database_from_scratch,
     )  # delayed import
@@ -225,7 +234,9 @@ def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
 
 
 def _print_database_title() -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.print_database_title()
 
@@ -238,8 +249,9 @@ def _show_database_schema(
     height_width_limit: int = None,
     java_memory_limit_mb: int = None,
 ) -> None:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.show_database_schema(
         schemastem=schemastem,
@@ -264,8 +276,10 @@ def _merge_camcops_db(
     groupnum_map: Dict[int, int],
     whichidnum_map: Dict[int, int],
 ) -> None:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # noqa: F401
+
+    # ... delayed import; import side effects
+
     from camcops_server.cc_modules.merge_db import (
         merge_camcops_db,
     )  # delayed import
@@ -286,8 +300,10 @@ def _merge_camcops_db(
 
 
 def _get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
-    # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # noqa: F401
+
+    # ... delayed import; import side effects
+
     from camcops_server.cc_modules.cc_sqlalchemy import (
         get_all_ddl,
     )  # delayed import
@@ -296,13 +312,17 @@ def _get_all_ddl(dialect_name: str = SqlaDialectName.MYSQL) -> str:
 
 
 def _reindex(cfg: CamcopsConfig) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.reindex(cfg=cfg)
 
 
 def _check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     return core.check_index(cfg=cfg, show_all_bad=show_all_bad)
 
@@ -313,19 +333,25 @@ def _check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
 
 
 def _make_superuser(username: str = None, password: str = None) -> bool:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     return core.make_superuser(username=username, password=password)
 
 
 def _reset_password(username: str = None) -> bool:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     return core.reset_password(username=username)
 
 
 def _enable_user_cli(username: str = None) -> bool:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     return core.enable_user_cli(username=username)
 
@@ -341,7 +367,9 @@ def _cmd_export(
     via_index: bool = True,
     schedule_via_backend: bool = False,
 ) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     return core.cmd_export(
         recipient_names=recipient_names,
@@ -359,7 +387,9 @@ def _cmd_show_export_queue(
     debug_show_fhir: bool = False,
     debug_fhir_include_docs: bool = False,
 ) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.cmd_show_export_queue(
         recipient_names=recipient_names,
@@ -372,7 +402,9 @@ def _cmd_show_export_queue(
 
 
 def _cmd_crate_dd(filename: str, recipient_name: str) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.make_data_dictionary(
         filename=filename, recipient_name=recipient_name, cris=False
@@ -380,7 +412,9 @@ def _cmd_crate_dd(filename: str, recipient_name: str) -> None:
 
 
 def _cmd_cris_dd(filename: str, recipient_name: str) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.make_data_dictionary(
         filename=filename, recipient_name=recipient_name, cris=True
@@ -396,7 +430,9 @@ def make_wsgi_app_from_config() -> "Router":
     """
     Reads the config file and creates a WSGI application.
     """
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     cfg = get_default_config_from_os_env()
     reverse_proxied_config = ReverseProxiedConfig(
@@ -424,7 +460,9 @@ def make_wsgi_app_from_config() -> "Router":
 
 
 def _test_serve_pyramid() -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     application = make_wsgi_app_from_config()
     cfg = get_default_config_from_os_env()
@@ -434,7 +472,9 @@ def _test_serve_pyramid() -> None:
 
 
 def _serve_cherrypy() -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     application = make_wsgi_app_from_config()
     cfg = get_default_config_from_os_env()
@@ -454,7 +494,9 @@ def _serve_cherrypy() -> None:
 
 
 def _serve_gunicorn() -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     application = make_wsgi_app_from_config()
     cfg = get_default_config_from_os_env()
@@ -478,13 +520,17 @@ def _serve_gunicorn() -> None:
 
 
 def _launch_celery_workers(verbose: bool = False) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.launch_celery_workers(verbose=verbose)
 
 
 def _launch_celery_beat(verbose: bool = False) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.launch_celery_beat(verbose=verbose)
 
@@ -492,7 +538,9 @@ def _launch_celery_beat(verbose: bool = False) -> None:
 def _launch_celery_flower(
     address: str = DEFAULT_FLOWER_ADDRESS, port: int = DEFAULT_FLOWER_PORT
 ) -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.launch_celery_flower(address=address, port=port)
 
@@ -515,9 +563,19 @@ def _purge_jobs() -> None:
 
 
 def _dev_cli() -> None:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
 
     core.dev_cli()
+
+
+def _list_tasks() -> None:
+    import camcops_server.camcops_server_core as core
+
+    # ... delayed import; import side effects
+
+    core.print_tasklist()
 
 
 # =============================================================================
@@ -657,6 +715,7 @@ def camcops_main() -> int:
     # Common arguments
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser.add_argument(
         "--allhelp",
         action=ShowAllSubparserHelpAction,
@@ -1398,6 +1457,14 @@ def camcops_main() -> int:
         "'config'.",
     )
     dev_cli_parser.set_defaults(func=lambda args: _dev_cli())
+
+    # Show tasklist
+    list_tasks_parser = add_sub(
+        subparsers,
+        "list_tasks",
+        help="List supported tasks.",
+    )
+    list_tasks_parser.set_defaults(func=lambda args: _list_tasks())
 
     # -------------------------------------------------------------------------
     # OK; parser built; now parse the arguments

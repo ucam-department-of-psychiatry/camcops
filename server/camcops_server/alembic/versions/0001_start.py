@@ -376,7 +376,8 @@ def upgrade():
         sa.Column("success", sa.Boolean(), nullable=True),
         sa.Column("failure_reason", sa.Text(), nullable=True),
         # Next one altered 2018-11-09 for SQL Server:
-        # sa.Column('message', sa.UnicodeText(length=4294967295), nullable=True),  # noqa: E501
+        # sa.Column('message',
+        #           sa.UnicodeText(length=4294967295), nullable=True),
         sa.Column(
             "message",
             sa.UnicodeText().with_variant(mysql.LONGTEXT, "mysql"),

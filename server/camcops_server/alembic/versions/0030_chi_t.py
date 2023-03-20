@@ -71,7 +71,7 @@ def upgrade():
             "q1",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "Q1 (hate unfinished task) (0 strongly disagree - 3 strongly"
                 " agree)"
             ),
@@ -86,7 +86,7 @@ def upgrade():
             "q3",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "Q3 (keep doing task) (0 strongly disagree - 3 strongly agree)"
             ),
         ),
@@ -112,7 +112,7 @@ def upgrade():
             "q7",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "Q7 (stubborn rigid) (0 strongly disagree - 3 strongly agree)"
             ),
         ),
@@ -126,7 +126,7 @@ def upgrade():
             "q9",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "Q9 (rewarding things) (0 strongly disagree - 3 strongly"
                 " agree)"
             ),
@@ -143,7 +143,7 @@ def upgrade():
             "q11",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "Q11 (higher standards) (0 strongly disagree - 3 strongly"
                 " agree)"
             ),
@@ -166,7 +166,7 @@ def upgrade():
             "q14",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "Q14 (avoid situations) (0 strongly disagree - 3 strongly"
                 " agree)"
             ),
@@ -207,7 +207,7 @@ def upgrade():
             "clinician_professional_registration",
             sa.Text(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(CLINICIAN) Clinician's professional registration (e.g. GMC#"
                 " 12345)"
             ),
@@ -222,7 +222,7 @@ def upgrade():
             "clinician_service",
             sa.Text(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry"
                 " Service)"
             ),
@@ -231,7 +231,7 @@ def upgrade():
             "clinician_contact_details",
             sa.Text(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(CLINICIAN) Clinician's contact details (e.g. bleep,"
                 " extension)"
             ),
@@ -256,7 +256,7 @@ def upgrade():
             "firstexit_is_finish",
             sa.Boolean(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(TASK) Was the first exit from the task because it was"
                 " finished (1)?"
             ),
@@ -265,7 +265,7 @@ def upgrade():
             "firstexit_is_abort",
             sa.Boolean(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(TASK) Was the first exit from this task because it was"
                 " aborted (1)?"
             ),
@@ -293,7 +293,7 @@ def upgrade():
             "_era",
             sa.String(length=32),
             nullable=False,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) 'NOW', or when this row was preserved and removed"
                 " from the source device (UTC ISO 8601)"
             ),
@@ -314,7 +314,7 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Date/time of the upload batch that added this row"
                 " (DATETIME in UTC)"
             ),
@@ -329,7 +329,7 @@ def upgrade():
             "_when_removed_exact",
             PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Date/time this row was removed, i.e. made not"
                 " current (ISO 8601)"
             ),
@@ -338,7 +338,7 @@ def upgrade():
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Date/time of the upload batch that removed this row"
                 " (DATETIME in UTC)"
             ),
@@ -359,7 +359,7 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) Forcibly preserved by superuser (rather than"
                 " normally preserved by tablet)?"
             ),
@@ -374,7 +374,7 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(SERVER) PK of successor record  (after modification) or NULL"
                 " (whilst live, or after deletion)"
             ),
@@ -431,7 +431,7 @@ def upgrade():
             "when_last_modified",
             PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment=(  # noqa: E501
+            comment=(
                 "(STANDARD) Date/time this row was last modified on the source"
                 " tablet device (ISO 8601)"
             ),
