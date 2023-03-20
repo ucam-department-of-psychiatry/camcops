@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-12-07 17:54+0000\n"
-"PO-Revision-Date: 2022-12-07 17:54+0000\n"
+"POT-Creation-Date: 2023-03-19 18:56+0000\n"
+"PO-Revision-Date: 2023-03-19 18:56+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -1209,7 +1209,7 @@ msgstr "Opdelt efter bruger?"
 msgid "Can't fetch ID number definition"
 msgstr "Definitionen af id-nummer kan ikke hentes"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2800
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2804
 msgid "Anonymous"
 msgstr "Anonym"
 
@@ -1877,11 +1877,11 @@ msgstr "E-mail sendt til {patient_email}"
 msgid "Failed to send email to {patient_email}"
 msgstr "Kunne ikke sende e-mail til {patient_email}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:536
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:573
 msgid "Addenbrooke’s Cognitive Examination III"
 msgstr "Addenbrooke’s Cognitive Examination [Addenbrooke's kognitive undersøgelse], revision 3"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1401
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1443
 msgid "Mini-Addenbrooke’s Cognitive Examination"
 msgstr "Mini-Addenbrooke’s Cognitive Examination [Mini-Addenbrooke's kognitive undersøgelse]"
 
@@ -2028,7 +2028,7 @@ msgstr "Clinical Global Impressions – Improvement subscale [kliniske globale i
 msgid "Clinical Global Impression – Schizophrenia"
 msgstr "Clinical Global Impression – Schizophrenia [klinisk global indtryk – skizofreni]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/chit.py:112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/chit.py:108
 msgid "Cambridge–Chicago Compulsivity Trait Scale"
 msgstr "Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]"
 
@@ -2325,11 +2325,11 @@ msgstr "INECO Frontal Screening [frontallappen screening test]"
 msgid "Identify and Rate the Aim of the Contact"
 msgstr "Identify and Rate the Aim of the Contact [identificere og vurdere formålet med kontakten]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq.py:125
-msgid "Internet Severity and Activities Addiction Questionnaire"
-msgstr "Internet Severity and Activities Addiction Questionnaire (internet sværhedsgrad og aktiviteter afhængighed spørgeskema)"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:121
+msgid "Internet Severity and Activities Addiction Questionnaire, 10-items"
+msgstr "Internet Severity and Activities Addiction Questionnaire (internet sværhedsgrad og aktiviteter afhængighed spørgeskema), 10 punkter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq.py:137
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:136
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:112
 msgid "Score"
 msgstr "Score"

@@ -17,7 +17,7 @@
 <context>
     <name>Ace3</name>
     <message>
-        <location filename="../tasks/ace3.cpp" line="+279"/>
+        <location filename="../tasks/ace3.cpp" line="+282"/>
         <source>Addenbrooke’s Cognitive Examination, revision 3</source>
         <translation>Addenbrooke’s Cognitive Examination [Addenbrooke&apos;s kognitive undersøgelse], revision 3</translation>
     </message>
@@ -165,7 +165,7 @@
 <context>
     <name>AceFamily</name>
     <message>
-        <location filename="../tasks/acefamily.cpp" line="+114"/>
+        <location filename="../tasks/acefamily.cpp" line="+113"/>
         <source>Server strings are not providing valid information about which address versions are available. Try re-fetching server info.</source>
         <translation>Serverstrenge giver ikke gyldige oplysninger om, hvilke adresseversioner der er tilgængelige. Prøv at hente serveroplysninger igen.</translation>
     </message>
@@ -1062,7 +1062,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Chit</name>
     <message>
-        <location filename="../tasks/chit.cpp" line="+78"/>
+        <location filename="../tasks/chit.cpp" line="+80"/>
         <source>Cambridge–Chicago Compulsivity Trait Scale</source>
         <translation>Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]</translation>
     </message>
@@ -3293,16 +3293,16 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>Isaaq</name>
+    <name>Isaaq10</name>
     <message>
-        <location filename="../tasks/isaaq.cpp" line="+70"/>
-        <source>Internet Severity and Activities Addiction Questionnaire</source>
-        <translation>Internet Severity and Activities Addiction Questionnaire (internet sværhedsgrad og aktiviteter afhængighed spørgeskema)</translation>
+        <location filename="../tasks/isaaq10.cpp" line="+70"/>
+        <source>Internet Severity and Activities Addiction Questionnaire, 10-items</source>
+        <translation>Internet sværhedsgrad og aktiviteter afhængighed spørgeskema, 10-elementer</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Questionnaire on problematic internet use.</source>
-        <translation>Spørgeskema om problematisk internetbrug.</translation>
+        <translation>Spørgeskema om problematisk brug af internettet.</translation>
     </message>
 </context>
 <context>
@@ -3731,7 +3731,7 @@ enig</translation>
 <context>
     <name>MiniAce</name>
     <message>
-        <location filename="../tasks/miniace.cpp" line="+127"/>
+        <location filename="../tasks/miniace.cpp" line="+136"/>
         <source>Mini-Addenbrooke’s Cognitive Examination</source>
         <translation>Mini-Addenbrooke’s Cognitive Examination [Mini-Addenbrooke&apos;s kognitive undersøgelse]</translation>
     </message>
@@ -3741,59 +3741,59 @@ enig</translation>
         <translation>30-punkts klinikeradministreret vurdering af opmærksomhed / orientering, hukommelse, flydende og visuospatial domæner.</translation>
     </message>
     <message>
-        <location line="+95"/>
+        <location line="+105"/>
         <source>Preamble</source>
-        <translation type="unfinished">Præambel</translation>
+        <translation>Præambel</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Attention</source>
-        <translation type="unfinished">Opmærksomhed</translation>
+        <translation>Opmærksomhed</translation>
     </message>
     <message>
         <location line="+62"/>
-        <source>Address learning; famous people</source>
-        <translation type="unfinished">Adresseindlæring: berømte mennesker</translation>
+        <source>Memory</source>
+        <translation>Hukommelse</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Fluency</source>
-        <translation type="unfinished">Udtryksevne</translation>
+        <translation>Udtryksevne</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Clock</source>
-        <translation type="unfinished">Ur</translation>
+        <translation>Ur</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Please make sure the subject can’t see the screen before you proceed. (Memory prompts coming up.)</source>
-        <translation type="unfinished">Sørg for, at motivet ikke kan se skærmen, før du fortsætter. (Hukommelsesopkald kommer op.)</translation>
+        <translation>Sørg for, at motivet ikke kan se skærmen, før du fortsætter. (Hukommelsesmeddelelser kommer op.)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>[reminder to clinician]</source>
-        <translation type="unfinished">[påmindelse til kliniker]</translation>
+        <translation>[påmindelse til kliniker]</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Free recall</source>
-        <translation type="unfinished">Uopfordret tilbagekaldelse</translation>
+        <translation>Uopfordret tilbagekaldelse</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Comments</source>
-        <translation type="unfinished">Kommentarer</translation>
+        <translation>Kommentarer</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Photo 1</source>
-        <translation type="unfinished">Foto 1</translation>
+        <translation>Foto 1</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Photo 2</source>
-        <translation type="unfinished">Foto 2</translation>
+        <translation>Foto 2</translation>
     </message>
 </context>
 <context>
