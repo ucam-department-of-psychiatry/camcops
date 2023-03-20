@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/isaaq.py
+camcops_server/tasks/isaaq10.py
 
 ===============================================================================
 
@@ -25,7 +25,8 @@ camcops_server/tasks/isaaq.py
 
 ===============================================================================
 
-** Internet Severity and Activities Addiction Questionnaire (ISAAQ) task.**
+** Internet Severity and Activities Addiction Questionnaire, 10-items
+   (ISAAQ-10) task.**
 
 """
 
@@ -40,9 +41,9 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.tasks.isaaqcommon import IsaaqCommon
 
 
-class IsaaqMetaclass(DeclarativeMeta):
+class Isaaq10Metaclass(DeclarativeMeta):
     def __init__(
-        cls: Type["Isaaq"],
+        cls: Type["Isaaq10"],
         name: str,
         bases: Tuple[Type, ...],
         classdict: Dict[str, Any],
@@ -62,19 +63,12 @@ class IsaaqMetaclass(DeclarativeMeta):
                 "block disturbing thoughts 0-5 (not at all - all the time)",
                 "loneliness or boredom 0-5 (not at all - all the time)",
                 "neglect normal activities 0-5 (not at all - all the time)",
-                "choose over intimacy 0-5 (not at all - all the time)",
-                "financial consequences 0-5 (not at all - all the time)",
                 "school/study suffers 0-5 (not at all - all the time)",
-                "check email or social media 0-5 (not at all - all the time)",
-                "others complain 0-5 (not at all - all the time)",
-                "defensive or secretive 0-5 (not at all - all the time)",
-                "try to arrest 0-5 (not at all - all the time)",
+                "try to stop 0-5 (not at all - all the time)",
                 "preoccupied when offline 0-5 (not at all - all the time)",
                 "lose sleep 0-5 (not at all - all the time)",
-                (
-                    "physical or psychological problems 0-5 "
-                    "(not at all - all the time)"
-                ),
+                "physical or psychological problems 0-5 "
+                "(not at all - all the time)",
                 "try to cut down 0-5 (not at all - all the time)",
             ],
         )
@@ -105,14 +99,16 @@ class IsaaqMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Isaaq(IsaaqCommon, metaclass=IsaaqMetaclass):
-    __tablename__ = "isaaq"
-    shortname = "ISAAQ"
+class Isaaq10(IsaaqCommon, metaclass=Isaaq10Metaclass):
+    __tablename__ = "isaaq10"
+    shortname = "ISAAQ-10"
+
+    prohibits_commercial = True
 
     A_PREFIX = "a"
     B_PREFIX = "b"
     FIRST_Q = 1
-    LAST_A_Q = 15
+    LAST_A_Q = 10
     LAST_B_Q = 10
 
     ALL_FIELD_NAMES = strseq(A_PREFIX, FIRST_Q, LAST_A_Q) + strseq(
@@ -122,7 +118,10 @@ class Isaaq(IsaaqCommon, metaclass=IsaaqMetaclass):
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("Internet Severity and Activities Addiction Questionnaire")
+        return _(
+            "Internet Severity and Activities Addiction Questionnaire,"
+            " 10-items"
+        )
 
     def get_task_html_rows(self, req: CamcopsRequest) -> str:
         _ = req.gettext

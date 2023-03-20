@@ -18,9 +18,10 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "isaaq.h"
+#include "isaaq10.h"
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
+#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
@@ -31,22 +32,24 @@
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
-const int N_A_QUESTIONS = 15;
+const int N_A_QUESTIONS = 10;
 const int N_B_QUESTIONS = 10;
 const QString A_PREFIX("a");
 const QString B_PREFIX("b");
 
 
-const QString Isaaq::ISAAQ_TABLENAME("isaaq");
+const QString Isaaq10::ISAAQ10_TABLENAME("isaaq10");
+const QString OLD_ISAAQ_TABLENAME("isaaq");
+const Version ISAAQ10_REPLACES_ISAAQ(2, 4, 15);
 
 
-void initializeIsaaq(TaskFactory& factory)
+void initializeIsaaq10(TaskFactory& factory)
 {
-    static TaskRegistrar<Isaaq> registered(factory);
+    static TaskRegistrar<Isaaq10> registered(factory);
 }
 
-Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    IsaaqCommon(app, db, ISAAQ_TABLENAME)
+Isaaq10::Isaaq10(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    IsaaqCommon(app, db, ISAAQ10_TABLENAME)
 {
     addFields(strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS), QVariant::Int);
     addFields(strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS), QVariant::Int);
@@ -59,28 +62,45 @@ Isaaq::Isaaq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 // Class info
 // ============================================================================
 
-QString Isaaq::shortname() const
+QString Isaaq10::shortname() const
 {
-    return "ISAAQ";
+    return "ISAAQ-10";
 }
 
 
-QString Isaaq::longname() const
+QString Isaaq10::longname() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire");
+    return tr("Internet Severity and Activities Addiction Questionnaire, 10-items");
 }
 
 
-QString Isaaq::description() const
+QString Isaaq10::description() const
 {
     return tr("Questionnaire on problematic internet use.");
 }
 
 
-QStringList Isaaq::fieldNames() const
+QStringList Isaaq10::fieldNames() const
 {
     return strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS) +
         strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS);
+}
+
+
+void Isaaq10::upgradeDatabase(const Version& old_version,
+                              const Version& new_version)
+{
+    Q_UNUSED(old_version)
+    if (old_version < ISAAQ10_REPLACES_ISAAQ
+            && new_version >= ISAAQ10_REPLACES_ISAAQ) {
+        // The actual version check is a bit redundant. In principle we might
+        // care if we ever re-introduce the "isaaq" table, but we shouldn't do
+        // that. The purpose here is that if we upgrade the client in place
+        // from a version before 2.4.15 (when the ISAAQ-10 task arrives and the
+        // old 15-item ISAAQ task is deleted), we must delete the old "isaaq"
+        // table, or the server will fail on upload.
+        m_db.dropTable(OLD_ISAAQ_TABLENAME);
+    }
 }
 
 
@@ -88,7 +108,7 @@ QStringList Isaaq::fieldNames() const
 // Instance info
 // ============================================================================
 
-QVector<QuElement*> Isaaq::buildElements()
+QVector<QuElement*> Isaaq10::buildElements()
 {
     auto instructions = new QuHeading(xstring("instructions"));
     auto grid_a = buildGrid(A_PREFIX, FIRST_Q, N_A_QUESTIONS, xstring("a_title"));

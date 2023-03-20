@@ -117,7 +117,7 @@ from camcops_server.tasks.ided3d import IDED3D
 from camcops_server.tasks.iesr import Iesr
 from camcops_server.tasks.ifs import Ifs
 from camcops_server.tasks.irac import Irac
-from camcops_server.tasks.isaaq import Isaaq
+from camcops_server.tasks.isaaq10 import Isaaq10
 from camcops_server.tasks.isaaqed import IsaaqEd
 
 from camcops_server.tasks.khandaker_insight_medical import (

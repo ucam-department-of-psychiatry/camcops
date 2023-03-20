@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="isaaq10">
+    <string name="title">Internet Severity and Activities Addiction Questionnaire, 10-items (ISAAQ-10)</string>
+    <string name="instructions">Can you please answer the following questions about your internet use?</string>
+
+    <string name="a_title">SEVERITY SCALE: QUESTIONS</string>
+    <string name="scale">SCALE</string>
+
+    <!--
+        Note some variation: online/on-line, internet/Internet; not altered.
+        But these changed:
+        - & to and
+        - "internet related activities" -> "internet-related...
+        - and other specific typos fixed as below.
+    -->
+
+    <string name="a1">How often do you find yourself losing track of time while engaging in an internet-related activity?</string>
+    <!-- ... Typo "loosing" in original text; "engaging on" -> "engaging in" -->
+    <string name="a2">How often do you use internet-related activities to block out disturbing thoughts about your life and to soothe yourself?</string>
+    <string name="a3">How often do you choose to spend time on internet-related activities to battle loneliness or boredom?</string>
+    <string name="a4">How often do you neglect your normal day-to-day activities to spend more time on an internet-related activity?</string>
+    <string name="a5">How often do your school/study suffer because of the amount of time you spend on internet-related activities?</string>
+    <string name="a6">How often do you find yourself trying to stop an excessive or repetitive online activity but feel an urge to continue</string>
+    <string name="a7">How often do you feel preoccupied with the internet when off-line, or fantasize or get repetitive urges to get on-line?</string>
+    <string name="a8">How often do you lose sleep due to late-night internet-related activities?</string>
+    <string name="a9">How often do you find yourself experiencing physical or psychological problems as a consequence of prolonged internet-related activities?</string>
+    <string name="a10">How often do you try to cut down the amount of time you spend on-line and fail?</string>
+
+    <string name="b_heading">Over the <b>last 6 months</b>, I have spent time on <b>non-work or study</b> related online activities such as:</string>
+    <!--
+      (1) ... note slightly iffy grammar "non-work or study related"; strictly
+      should probably be "non-work- or -study-related" or something clearer
+      like "online activities not related to work or study, such as...", but
+      not modified;
+      (2) "as such" fixed to "such as"
+    -->
+    <string name="b_title">INTERNET ACTIVITIES SCALE</string>
+
+    <string name="b1"><b>General surfing</b> (includes any unstructured online activities)</string>
+    <!-- ... Surfing -> surfing for consistency -->
+    <string name="b2"><b>Internet gaming including Massively Multiplayer Online Role-Playing Games</b> (includes online gaming and gaming with multiple other players and role-playing format)</string>
+    <!-- ... hyphenated M M O R-P G, not M-M-O-R-P-G -->
+    <string name="b3"><b>Skill games and time-wasters</b> (includes games and applications on computer, tablet, mobile phone or similar for which activity is without specific benefit)</string>
+    <!-- ... "Time wasters" to "time-wasters" -->
+    <string name="b4"><b>Online shopping</b> (includes activity on online shopping platforms and auction websites)</string>
+    <!-- ... Shopping -> shopping for consistency -->
+    <string name="b5"><b>Online gambling</b> (includes any online activity in which there is a chance for monetary gain or other stakes)</string>
+    <string name="b6"><b>Social networking</b> (includes browsing social media and messaging/communicating over online social platforms)</string>
+    <string name="b7"><b>Health and medicine</b> (includes any online activity relating to reading and researching medical facts, diagnoses, treatments and risks)</string>
+    <string name="b8"><b>Pornography</b> (includes cybersex, cyber-texting, viewing pornography and other online sexual activities)</string>
+    <!-- ... "include" in original -->
+    <string name="b9"><b>Streaming media</b> (includes music or video streaming activities on any platform)</string>
+    <string name="b10"><b>Cyberbullying</b> (includes exchange of insults, nasty texts/emails, unpleasant media, pranks)</string>
+
+    <string name="freq_option_0">Not at all</string>
+    <string name="freq_option_1">Rarely</string>
+    <string name="freq_option_2">Occasionally</string>
+    <string name="freq_option_3">Frequently</string>
+    <string name="freq_option_4">Very often</string>
+    <string name="freq_option_5">All the time</string>
+  </task>
+</resources>
