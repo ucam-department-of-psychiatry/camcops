@@ -111,6 +111,10 @@ server/camcops_server
     alembic/versions/0077_phq8.py.rst
     alembic/versions/0078_miniace.py.rst
     alembic/versions/0079_ed_comment_fixes.py.rst
+    alembic/versions/0080_chit_update.py.rst
+    alembic/versions/0081_isaaq10.py.rst
+    alembic/versions/0082_replace_isaaq_isaaq10.py.rst
+    alembic/versions/0083_delete_isaaq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -255,7 +259,6 @@ server/camcops_server
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
-    extra_string_templates/isaaq_TEMPLATE.xml.rst
     extra_string_templates/isaaqed_TEMPLATE.xml.rst
     extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
     extra_string_templates/moca_TEMPLATE.xml.rst
@@ -325,6 +328,7 @@ server/camcops_server
     extra_strings/icd9cm.xml.rst
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
+    extra_strings/isaaq10.xml.rst
     extra_strings/khandaker_insight_medical.xml.rst
     extra_strings/khandaker_mojo_medical.xml.rst
     extra_strings/khandaker_mojo_medicationtherapy.xml.rst
@@ -421,7 +425,7 @@ server/camcops_server
     tasks/iesr.py.rst
     tasks/ifs.py.rst
     tasks/irac.py.rst
-    tasks/isaaq.py.rst
+    tasks/isaaq10.py.rst
     tasks/isaaqcommon.py.rst
     tasks/isaaqed.py.rst
     tasks/khandaker_insight_medical.py.rst

@@ -23,8 +23,8 @@
 
     <string name="a0">Strongly disagree</string>
     <string name="a1">Disagree</string>
-    <string name="a2">Agree</string>
-    <string name="a3">Strongly agree</string>
-    <string name="q16">(negative effect)</string>
+    <string name="a2">Neither agree nor disagree</string>
+    <string name="a3">Agree</string>
+    <string name="a4">Strongly agree</string>
   </task>
 </resources>

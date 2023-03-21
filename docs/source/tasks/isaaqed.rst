@@ -1,4 +1,4 @@
-..  docs/source/tasks/isaaq.rst
+..  docs/source/tasks/isaaqed.rst
 
 ..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
@@ -27,7 +27,7 @@ Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appen
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 
-An unpublished questionnaire (supplementary to the :ref:`ISAAQ <isaaq>`) about
+An unpublished questionnaire (supplementary to the :ref:`ISAAQ-10 <isaaq10>`) about
 problematic internet use in relation to eating disorders.
 
 

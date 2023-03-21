@@ -80,7 +80,8 @@ QString Cia::longname() const
 
 QString Cia::description() const
 {
-    return tr("A 16-item self-report measure of the severity of psychosocial impairment due to eating disorder features.");
+    return tr("A 16-item self-report measure of the severity of psychosocial "
+              "impairment due to eating disorder features.");
 }
 
 

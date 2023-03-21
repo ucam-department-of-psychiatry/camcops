@@ -154,7 +154,8 @@ class Phq15(TaskHasPatientMixin, Task, metaclass=Phq15Metaclass):
         return [
             CtvInfo(
                 content=(
-                    f"PHQ-15 total score {self.total_score()}/{self.MAX_TOTAL} "  # noqa: E501
+                    f"PHQ-15 total score "
+                    f"{self.total_score()}/{self.MAX_TOTAL} "
                     f"({self.severity( req)})"
                 )
             )

@@ -887,7 +887,7 @@ void CamcopsApp::maybeRegisterPatient()
 void CamcopsApp::backgroundStartup()
 {
     // WORKER THREAD. BEWARE.
-    const Version& old_version = upgradeDatabaseBeforeTablesMade();
+    const Version old_version = upgradeDatabaseBeforeTablesMade();
     makeOtherTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
     upgradeDatabaseAfterTasksRegistered(old_version);  // AFTER tasks registered
@@ -1500,9 +1500,7 @@ Version CamcopsApp::upgradeDatabaseBeforeTablesMade()
     // ------------------------------------------------------------------------
 
     qInfo() << "System-wide database upgrade steps complete";
-    if (new_version != old_version) {
-        setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
-    }
+    setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
     return old_version;
 }
 

@@ -909,7 +909,7 @@ SOURCES += \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
-    tasks/isaaq.cpp \
+    tasks/isaaq10.cpp \
     tasks/isaaqed.cpp \
     tasks/khandakerinsightmedical.cpp \
     tasks/khandakermojomedical.cpp \
@@ -1397,7 +1397,7 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
-    tasks/isaaq.h \
+    tasks/isaaq10.h \
     tasks/isaaqed.h \
     tasks/khandakerinsightmedical.h \
     tasks/khandakermojomedical.h \

@@ -42,7 +42,10 @@ from sqlalchemy import event
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session
 
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: F401,E501
+import camcops_server.cc_modules.cc_all_models  # noqa: F401
+
+# ... import side effects (ensure all models registered)
+
 from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
 from camcops_server.cc_modules.cc_config import get_demo_config
 from camcops_server.cc_modules.cc_sqlalchemy import (

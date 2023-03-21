@@ -170,7 +170,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.compiler import SQLCompiler  # noqa: F401
     from camcops_server.cc_modules.cc_db import (
         GenericTabletRecordMixin,
-    )  # noqa: E501,F401
+    )  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

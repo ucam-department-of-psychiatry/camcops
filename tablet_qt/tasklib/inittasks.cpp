@@ -110,7 +110,7 @@
 #include "tasks/iesr.h"
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
-#include "tasks/isaaq.h"
+#include "tasks/isaaq10.h"
 #include "tasks/isaaqed.h"
 
 #include "tasks/khandakerinsightmedical.h"
@@ -272,7 +272,7 @@ void InitTasks(TaskFactory& factory)
     initializeIesr(factory);
     initializeIfs(factory);
     initializeIrac(factory);
-    initializeIsaaq(factory);
+    initializeIsaaq10(factory);
     initializeIsaaqEd(factory);
 
     initializeKhandakerInsightMedical(factory);

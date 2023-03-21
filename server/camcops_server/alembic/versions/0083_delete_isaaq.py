@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0053_basdai.py
+camcops_server/alembic/versions/0088_delete_isaaq.py
 
 ===============================================================================
 
@@ -27,11 +27,11 @@ camcops_server/alembic/versions/0053_basdai.py
 
 DATABASE REVISION SCRIPT
 
-basdai
+delete_isaaq
 
-Revision ID: 0053
-Revises: 0052
-Creation date: 2020-10-20 10:41:15.389042
+Revision ID: 0083
+Revises: 0082
+Creation date: 2023-02-21 16:27:03.395972
 
 """
 
@@ -52,8 +52,8 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = "0053"
-down_revision = "0052"
+revision = "0083"
+down_revision = "0082"
 branch_labels = None
 depends_on = None
 
@@ -64,47 +64,189 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
+    op.drop_table("isaaq")
+
+
+# noinspection PyPep8,PyTypeChecker
+def downgrade():
     op.create_table(
-        "basdai",
+        "isaaq",
         sa.Column(
-            "q1",
-            sa.Float(),
-            nullable=True,
-            comment="Q1 - fatigue/tiredness 0-10 (None - very severe)",
-        ),
-        sa.Column(
-            "q2",
-            sa.Float(),
-            nullable=True,
-            comment="Q2 - AS neck, back, hip pain 0-10 (None - very severe)",
-        ),
-        sa.Column(
-            "q3",
-            sa.Float(),
-            nullable=True,
-            comment="Q3 - other joint pain/swelling 0-10 (None - very severe)",
-        ),
-        sa.Column(
-            "q4",
-            sa.Float(),
+            "a1",
+            sa.Integer(),
             nullable=True,
             comment=(
-                "Q4 - discomfort from tender areas 0-10 (None - very severe)"
+                "a1 - losing track of time 0-5 (not at all - all the time)"
             ),
         ),
         sa.Column(
-            "q5",
-            sa.Float(),
-            nullable=True,
-            comment="Q5 - morning stiffness level 0-10 (None - very severe)",
-        ),
-        sa.Column(
-            "q6",
-            sa.Float(),
+            "a2",
+            sa.Integer(),
             nullable=True,
             comment=(
-                "Q6 - morning stiffness duration 0-10 (None - 2 or more hours)"
+                "a2 - block disturbing thoughts 0-5 (not at all - all the"
+                " time)"
             ),
+        ),
+        sa.Column(
+            "a3",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a3 - loneliness or boredom 0-5 (not at all - all the time)"
+            ),
+        ),
+        sa.Column(
+            "a4",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a4 - neglect normal activities 0-5 (not at all - all the"
+                " time)"
+            ),
+        ),
+        sa.Column(
+            "a5",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a5 - choose over intimacy 0-5 (not at all - all the time)"
+            ),
+        ),
+        sa.Column(
+            "a6",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a6 - financial consequences 0-5 (not at all - all the time)"
+            ),
+        ),
+        sa.Column(
+            "a7",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a7 - school/study suffers 0-5 (not at all - all the time)"
+            ),
+        ),
+        sa.Column(
+            "a8",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a8 - check email or social media 0-5 (not at all - all the"
+                " time)"
+            ),
+        ),
+        sa.Column(
+            "a9",
+            sa.Integer(),
+            nullable=True,
+            comment="a9 - others complain 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "a10",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a10 - defensive or secretive 0-5 (not at all - all the time)"
+            ),
+        ),
+        sa.Column(
+            "a11",
+            sa.Integer(),
+            nullable=True,
+            comment="a11 - try to arrest 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "a12",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a12 - preoccupied when offline 0-5 (not at all - all the"
+                " time)"
+            ),
+        ),
+        sa.Column(
+            "a13",
+            sa.Integer(),
+            nullable=True,
+            comment="a13 - lose sleep 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "a14",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "a14 - physical or psychological problems 0-5 (not at all -"
+                " all the time)"
+            ),
+        ),
+        sa.Column(
+            "a15",
+            sa.Integer(),
+            nullable=True,
+            comment="a15 - try to cut down 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b1",
+            sa.Integer(),
+            nullable=True,
+            comment="b1 - general surfing 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b2",
+            sa.Integer(),
+            nullable=True,
+            comment="b2 - internet gaming 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b3",
+            sa.Integer(),
+            nullable=True,
+            comment="b3 - skill games 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b4",
+            sa.Integer(),
+            nullable=True,
+            comment="b4 - online shopping 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b5",
+            sa.Integer(),
+            nullable=True,
+            comment="b5 - online gaming 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b6",
+            sa.Integer(),
+            nullable=True,
+            comment="b6 - social networking 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b7",
+            sa.Integer(),
+            nullable=True,
+            comment="b7 - health and medicine 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b8",
+            sa.Integer(),
+            nullable=True,
+            comment="b8 - pornography 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b9",
+            sa.Integer(),
+            nullable=True,
+            comment="b9 - streaming media 0-5 (not at all - all the time)",
+        ),
+        sa.Column(
+            "b10",
+            sa.Integer(),
+            nullable=True,
+            comment="b10 - cyberbullying 0-5 (not at all - all the time)",
         ),
         sa.Column(
             "patient_id",
@@ -321,65 +463,70 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["_adding_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_basdai__adding_user_id"),
+            name=op.f("fk_isaaq__adding_user_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_device_id"],
             ["_security_devices.id"],
-            name=op.f("fk_basdai__device_id"),
+            name=op.f("fk_isaaq__device_id"),
+            use_alter=True,
         ),
         sa.ForeignKeyConstraint(
             ["_group_id"],
             ["_security_groups.id"],
-            name=op.f("fk_basdai__group_id"),
+            name=op.f("fk_isaaq__group_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_manually_erasing_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_basdai__manually_erasing_user_id"),
+            name=op.f("fk_isaaq__manually_erasing_user_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_preserving_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_basdai__preserving_user_id"),
+            name=op.f("fk_isaaq__preserving_user_id"),
         ),
         sa.ForeignKeyConstraint(
             ["_removing_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_basdai__removing_user_id"),
+            name=op.f("fk_isaaq__removing_user_id"),
         ),
-        sa.PrimaryKeyConstraint("_pk", name=op.f("pk_basdai")),
+        sa.PrimaryKeyConstraint("_pk", name=op.f("pk_isaaq")),
         mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
         mysql_engine="InnoDB",
         mysql_row_format="DYNAMIC",
     )
-    with op.batch_alter_table("basdai", schema=None) as batch_op:
+    with op.batch_alter_table("isaaq", schema=None) as batch_op:
         batch_op.create_index(
-            batch_op.f("ix_basdai__current"), ["_current"], unique=False
+            batch_op.f("ix_isaaq__current"), ["_current"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_basdai__device_id"), ["_device_id"], unique=False
+            batch_op.f("ix_isaaq__device_id"), ["_device_id"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_basdai__era"), ["_era"], unique=False
+            batch_op.f("ix_isaaq__era"), ["_era"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_basdai__group_id"), ["_group_id"], unique=False
+            batch_op.f("ix_isaaq__group_id"), ["_group_id"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_basdai__pk"), ["_pk"], unique=False
+            batch_op.f("ix_isaaq__pk"), ["_pk"], unique=False
         )
-        batch_op.create_index(batch_op.f("ix_basdai_id"), ["id"], unique=False)
+        batch_op.create_index(batch_op.f("ix_isaaq_id"), ["id"], unique=False)
         batch_op.create_index(
-            batch_op.f("ix_basdai_patient_id"), ["patient_id"], unique=False
+            batch_op.f("ix_isaaq_patient_id"), ["patient_id"], unique=False
         )
         batch_op.create_index(
-            batch_op.f("ix_basdai_when_last_modified"),
+            batch_op.f("ix_isaaq_when_last_modified"),
             ["when_last_modified"],
             unique=False,
         )
 
-
-# noinspection PyPep8,PyTypeChecker
-def downgrade():
-    op.drop_table("basdai")
+    with op.batch_alter_table("isaaq", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_isaaq__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
+        )
