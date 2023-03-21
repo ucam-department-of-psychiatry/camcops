@@ -3303,30 +3303,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # Qt: Environment
     # -------------------------------------------------------------------------
     env = cfg.get_starting_env()
-    crypto_dependencies = ""
-    if target_platform.linux:
-        crypto_dependencies = "-ldl -lpthread"
-    elif target_platform.windows:
-        # Copying openssl/Configurations/10-main.conf
-        crypto_dependencies = "-lws2_32 -lgdi32 -ladvapi32 -lcrypt32 -luser32"
-
     if target_platform.use_openssl_with_qt:
         opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
             target_platform
         )
         openssl_include_root = join(opensslworkdir, "include")
         openssl_lib_root = opensslworkdir
-
-        openssl_libs = (
-            f"-L{openssl_lib_root} -lssl -lcrypto {crypto_dependencies}"
-        )
-
-        # See also https://bugreports.qt.io/browse/QTBUG-62016
-        env["OPENSSL_LIBS"] = openssl_libs
-        # Setting OPENSSL_LIBS as an *environment variable* may be unnecessary,
-        # but is suggested by Qt; http://doc.qt.io/qt-4.8/ssl.html
-        # However, it seems necessary to set it as an *option* to configure;
-        # see below.
 
     cfg.set_compile_env(env, target_platform)
 
@@ -3363,14 +3345,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # General options:
         "-prefix",
         installdir.replace("\\", "\\\\"),  # where to install Qt
-        "-recheck-all",  # don't cache from previous configure runs
-        # "-sysroot": not required; Qt's configure should handle this
-        # "-gcc-sysroot": not required
     ]
 
-    if target_platform.use_openssl_with_qt:
-        qt_config_args.append("OPENSSL_LIBS=" + openssl_libs)
-    else:
+    if not target_platform.use_openssl_with_qt:
         qt_config_args.append("-no-openssl")
 
     if target_platform.qt_linkage_static:
