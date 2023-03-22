@@ -169,11 +169,11 @@ Google Play Store release history
 | 2.4.13        | 27 (32-bit ARM);    | 2.4.13              | 2022-08-19         | 23      | 30      |
 |               | 28 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.15        | 29 (32-bit ARM);    | 2.4.15              | PENDING            | 23      | ?       |
-|               | 30 (64-bit ARM)     |                     |                    |         |         |
+| 2.4.15        | 29 (32-bit ARM);    | 2.4.15              | PENDING            | 23      | TBC;    |
+|               | 30 (64-bit ARM)     |                     |                    |         | ≥33     |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 
-Note: target API of 31 required as of Nov 2022:
+Note: target API of 33 required as of Aug 2023:
 https://developer.android.com/google/play/requirements/target-sdk
 
 
