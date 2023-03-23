@@ -1644,10 +1644,14 @@ TRANSMISSION_METHOD
 
 One of the following methods:
 
-- ``db``: Exports tasks to a relational database.
-- ``email``: Sends tasks via e-mail.
-- ``hl7``: Sends HL7 (v2) messages across a TCP/IP network.
-- ``file``: Writes files to a local filesystem.
+- ``db``: Exports tasks to a relational database; see
+  :ref:`database exports <config_db>`.
+- ``email``: Sends tasks via e-mail; see :ref:`e-mail exports <config_email>`.
+- ``fhir``: Sends data via FHIR_; see :ref:`FHIR exports <config_fhir>`.
+- ``file``: Writes files to a local filesystem; see
+  :ref:`file exports <config_file>`.
+- ``hl7``: Sends HL7 (v2) messages across a TCP/IP network; see
+  :ref:`HL7 exports <config_hl7>`.
 - ``redcap``: :ref:`Exports tasks to REDCap <redcap>`.
 
 
@@ -1842,6 +1846,8 @@ PRIMARY_IDNUM_ is set.
   that the primary ID number must be present (as above) for *all* groups.
 
 
+.. _config_db:
+
 Options applicable to database export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1901,6 +1907,8 @@ Additionally, tables that represent "sub-tables" of tasks (e.g. trials within
 a task, or similar) add the fields ``_task_tablename`` and ``_task_pk`` as
 part of this denormalization-for-convenience.
 
+
+.. _config_email:
 
 Options applicable to e-mail export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1993,6 +2001,8 @@ EMAIL_KEEP_MESSAGE
 Keep the entire message (including attachments). Turning this option on
 consumes lots of database space! Use only for debugging.
 
+
+.. _config_hl7:
 
 Options applicable to HL7 (v2) only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2191,6 +2201,8 @@ non-concurrent transmission (one task at a time).
 There is no penalty for leaving it at ``False`` except perhaps a slight
 reduction in speed.
 
+
+.. _config_file:
 
 Options applicable to file transfers and attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

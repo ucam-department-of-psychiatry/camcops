@@ -44,16 +44,24 @@ Intellectual property rights
   ISAAQ (all versions) cannot be reproduced, modified, and/or published without
   prior written permission of the copyright holders.
 
+  - Approved for inclusion in CamCOPS on the "non-commercial" basis. "I am
+    happy for the ISAAQ-10 and ISAAQ Part B to be fully public on CamCOPS for
+    those who declare the commercial “no”." (Konstantinos Ioannidis to Martin
+    Burchell and Rudolf Cardinal, and approved by Sam Chamberlain, 13 Feb
+    2023.)
 
 
 History
 ~~~~~~~
 
 - Ioannidis K, Tiego J, Lutz N, Omrawo C, Yücel M, Grant JE, Lochner C,
-  Chamberlain SR.  Internet severity and activities addiction questionnaire
-  (ISAAQ): Psychometrics of item response theory and clustering of online
-  activities.  *Comprehensive Psychiatry* 122: 152366
-  https://doi.org/10.1016/j.comppsych.2023.152366
+  Chamberlain SR (2023). Internet severity and activities addiction
+  questionnaire (ISAAQ): Psychometrics of item response theory and clustering
+  of online activities. *Comprehensive Psychiatry* 122: 152366.
+  https://pubmed.ncbi.nlm.nih.gov/36702061/;
+  https://doi.org/10.1016/j.comppsych.2023.152366.
+
+  - Defines both the original 15-item ISAAQ and the ISAAQ-10.
 
 
 Source
@@ -66,25 +74,32 @@ Source
   - Young KS (1998). Internet Addiction: The Emergence of a New Clinical
     Disorder. *CyberPsychology & Behavior* 1: 237–44.
     https://doi.org/10.1089/cpb.1998.1.237
+
   - American Psychiatric Association (2013). *Diagnostic and Statistical Manual
     of Mental Disorders: DSM-5.*
     American Psychiatric Association, Washington, DC.
+
   - Ioannidis K, Chamberlain SR, Tredder M, Kiraly F, Redden S, Stein DJ,
     Lochner C, Grant JE (2018). Problematic internet use as an age-related
     multifaceted problem: evidence from a two-site survey.
     *Addict Behav* 81: 157.166.
     https://pubmed.ncbi.nlm.nih.gov/29459201/
+
   - Chamberlain SR, Redden SA, Stein DJ, Lochner C, Grant JE (2017). Impact of
     obsessive-compulsive personality disorder symptoms in Internet users.
     *Ann Clin Psychiatry* 29: 173-181.
+    https://pubmed.ncbi.nlm.nih.gov/28738097/
+
   - Ioannidis K, Chamberlain SR, Tredder M, Kiraly F, Leppink E, Redden S,
     Stein DJ, Lochner C, Grant JE (2016). Problematic internet use (PIU):
     Associations with the impulsive-compulsive spectrum. An application of
     machine learning in psychiatry.
     *J Psych Res* 83: 94-102.
     https://pubmed.ncbi.nlm.nih.gov/27580487/
+
   - Fineberg NA, Demetrovics Z, Stein DJ, Ioannidis K, Potenza MN, Grünblatt E,
-    et al (2018). Manifesto for a European research network into Problematic
+    et al. (2018). Manifesto for a European research network into Problematic
     Usage of the Internet.
     *European Neuropsychopharmacology* 28: 1232-1246.
+    https://pubmed.ncbi.nlm.nih.gov/30509450/;
     https://doi.org/10.1016/j.euroneuro.2018.08.004

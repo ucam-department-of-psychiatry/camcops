@@ -572,7 +572,8 @@ def fhir_observation_component_from_snomed(
                                 Fc.CODE: expr.as_string(longform=False),
                                 Fc.DISPLAY: expr_longform,
                                 Fc.USER_SELECTED: False,
-                                # ... means "did the user choose it themselves?"  # noqa: E501
+                                # ... means "did the user choose it
+                                # themselves?"
                                 # version: not used
                             }
                         ).as_json()

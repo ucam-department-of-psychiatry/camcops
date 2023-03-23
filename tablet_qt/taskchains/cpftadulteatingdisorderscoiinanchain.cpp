@@ -34,6 +34,10 @@ CpftAdultEatingDisordersCoiinAnChain::CpftAdultEatingDisordersCoiinAnChain(Camco
         IsaaqEd::ISAAQED_TABLENAME,
         Kirby::KIRBY_TABLENAME,
         IDED3D::IDED3D_TABLENAME,
-    })  // TODO: CreationMethod
+        // Sequence as per JES to MB, 2023-02-27.
+        },
+        TaskChain::CreationMethod::OnDemandOrAbort,  // as per JES 2023-03-14; also the default.
+        tr("COIIN-AN")
+    )
 {
 }

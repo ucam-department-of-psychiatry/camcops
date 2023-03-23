@@ -82,7 +82,9 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
 
 # Import this one early:
 # noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: E402,E501
+import camcops_server.cc_modules.cc_all_models  # noqa: E402
+
+# ... import side effects (ensure all models registered)
 
 from camcops_server.cc_modules.cc_anon import (  # noqa: E402
     write_crate_data_dictionary,
@@ -90,7 +92,10 @@ from camcops_server.cc_modules.cc_anon import (  # noqa: E402
 )
 
 # noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # noqa: E402,E501,F401
+import camcops_server.cc_modules.client_api  # noqa: E402,F401
+
+# ... import side effects (register unit test)
+
 from camcops_server.cc_modules.cc_config import (  # noqa: E402
     CamcopsConfig,
     get_config_filename_from_os_env,
@@ -157,7 +162,7 @@ WINDOWS = platform.system() == "Windows"
 # We want to be able to run Celery from our virtual environment, but just
 # running the venv Python (as opposed to using "activate") doesn't set the path
 # correctly. So as per
-# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa: E501
+# https://stackoverflow.com/questions/22003769
 _CELERY_NAME = "celery.exe" if WINDOWS else "celery"
 CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
 
@@ -991,6 +996,11 @@ def launch_celery_flower(
     nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
+# =============================================================================
+# Development and testing
+# =============================================================================
+
+
 def dev_cli() -> None:
     """
     Fire up a developer debug command-line.
@@ -1016,3 +1026,12 @@ def dev_cli() -> None:
         # maybe a pdb bug; see
         # https://stackoverflow.com/questions/51743057/custom-context-manager-is-left-when-running-pdb-set-trace  # noqa
         pass  # this does the job
+
+
+def print_tasklist() -> None:
+    """
+    Prints the list of tasks to stdout.
+    """
+    with command_line_request_context() as req:
+        for taskcls in Task.all_subclasses_by_tablename():
+            print(f"{taskcls.longname(req)} ({taskcls.shortname})")

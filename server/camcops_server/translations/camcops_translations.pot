@@ -1,14 +1,14 @@
 # Translations template for CamCOPS.
-# Copyright (C) 2022 Rudolf Cardinal
+# Copyright (C) 2023 Rudolf Cardinal
 # This file is distributed under the same license as the CamCOPS project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.15\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2022-12-07 17:54+0000\n"
+"POT-Creation-Date: 2023-03-19 18:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1208,7 +1208,7 @@ msgstr ""
 msgid "Can't fetch ID number definition"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2800
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2804
 msgid "Anonymous"
 msgstr ""
 
@@ -1853,11 +1853,11 @@ msgstr ""
 msgid "Failed to send email to {patient_email}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:536
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:573
 msgid "Addenbrooke’s Cognitive Examination III"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1401
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1443
 msgid "Mini-Addenbrooke’s Cognitive Examination"
 msgstr ""
 
@@ -2004,7 +2004,7 @@ msgstr ""
 msgid "Clinical Global Impression – Schizophrenia"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/chit.py:112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/chit.py:108
 msgid "Cambridge–Chicago Compulsivity Trait Scale"
 msgstr ""
 
@@ -2301,11 +2301,11 @@ msgstr ""
 msgid "Identify and Rate the Aim of the Contact"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq.py:125
-msgid "Internet Severity and Activities Addiction Questionnaire"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:121
+msgid "Internet Severity and Activities Addiction Questionnaire, 10-items"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq.py:137
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:136
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:112
 msgid "Score"
 msgstr ""
