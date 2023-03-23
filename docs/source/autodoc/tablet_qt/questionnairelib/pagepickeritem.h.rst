@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/pagepickeritem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/pagepickeritem.h
-    :language: C
+    :language: C++

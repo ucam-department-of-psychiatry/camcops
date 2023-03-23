@@ -26,4 +26,4 @@ tablet_qt/lib/debugfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/debugfunc.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/edeq.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/edeq.h
-    :language: C
+    :language: C++

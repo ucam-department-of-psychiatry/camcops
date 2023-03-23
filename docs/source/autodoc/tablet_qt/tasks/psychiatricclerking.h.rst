@@ -26,4 +26,4 @@ tablet_qt/tasks/psychiatricclerking.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/psychiatricclerking.h
-    :language: C
+    :language: C++

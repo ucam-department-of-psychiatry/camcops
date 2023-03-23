@@ -26,4 +26,4 @@ tablet_qt/tasks/hamd7.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/hamd7.h
-    :language: C
+    :language: C++

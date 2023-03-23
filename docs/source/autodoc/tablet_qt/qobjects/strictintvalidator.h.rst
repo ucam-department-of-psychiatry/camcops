@@ -26,4 +26,4 @@ tablet_qt/qobjects/strictintvalidator.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/strictintvalidator.h
-    :language: C
+    :language: C++

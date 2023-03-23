@@ -26,4 +26,4 @@ tablet_qt/lib/version.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/version.h
-    :language: C
+    :language: C++

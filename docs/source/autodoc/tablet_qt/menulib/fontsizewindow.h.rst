@@ -26,4 +26,4 @@ tablet_qt/menulib/fontsizewindow.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/fontsizewindow.h
-    :language: C
+    :language: C++

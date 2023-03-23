@@ -26,4 +26,4 @@ tablet_qt/lib/filefunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/filefunc.h
-    :language: C
+    :language: C++

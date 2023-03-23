@@ -26,4 +26,4 @@ tablet_qt/tasks/icd10mixed.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/icd10mixed.h
-    :language: C
+    :language: C++

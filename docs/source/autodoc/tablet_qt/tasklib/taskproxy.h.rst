@@ -26,4 +26,4 @@ tablet_qt/tasklib/taskproxy.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/taskproxy.h
-    :language: C
+    :language: C++

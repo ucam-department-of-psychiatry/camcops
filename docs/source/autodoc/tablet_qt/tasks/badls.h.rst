@@ -26,4 +26,4 @@ tablet_qt/tasks/badls.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/badls.h
-    :language: C
+    :language: C++

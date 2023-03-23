@@ -26,4 +26,4 @@ tablet_qt/tasks/miniace.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/miniace.h
-    :language: C
+    :language: C++

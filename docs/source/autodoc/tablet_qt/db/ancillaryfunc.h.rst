@@ -26,4 +26,4 @@ tablet_qt/db/ancillaryfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/ancillaryfunc.h
-    :language: C
+    :language: C++

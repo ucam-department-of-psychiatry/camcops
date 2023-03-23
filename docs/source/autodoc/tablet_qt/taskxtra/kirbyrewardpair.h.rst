@@ -26,4 +26,4 @@ tablet_qt/taskxtra/kirbyrewardpair.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/kirbyrewardpair.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/maths/mlpackfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/mlpackfunc.h
-    :language: C
+    :language: C++

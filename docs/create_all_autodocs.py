@@ -92,6 +92,8 @@ PYGMENTS_OVERRIDE = {
     # map file specifications to Pygments language name, specific before
     # generic
     "script.py.mako": "mako",
+    "*.h": "C++",  # C++, not C
+    "*.iss": "none",  # remove a warning (InnoSetup file)
     "*.mako": "html+mako",
     "*.pro": "none",  # Qt project files, not Prolog
     # The Pygments C++ Lexer will never be perfect as it doesn't

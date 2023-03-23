@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskercallbackdefinition.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskercallbackdefinition.h
-    :language: C
+    :language: C++

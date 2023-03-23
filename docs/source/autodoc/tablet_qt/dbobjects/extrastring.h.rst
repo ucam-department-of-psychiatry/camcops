@@ -26,4 +26,4 @@ tablet_qt/dbobjects/extrastring.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dbobjects/extrastring.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskerconstants.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskerconstants.h
-    :language: C
+    :language: C++

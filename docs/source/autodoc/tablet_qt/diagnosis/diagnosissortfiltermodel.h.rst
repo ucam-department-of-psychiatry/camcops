@@ -26,4 +26,4 @@ tablet_qt/diagnosis/diagnosissortfiltermodel.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/diagnosis/diagnosissortfiltermodel.h
-    :language: C
+    :language: C++

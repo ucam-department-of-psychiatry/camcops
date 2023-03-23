@@ -26,4 +26,4 @@ tablet_qt/tasks/khandakerinsightmedical.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/khandakerinsightmedical.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/widgets/verticalscrollarea.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/verticalscrollarea.h
-    :language: C
+    :language: C++

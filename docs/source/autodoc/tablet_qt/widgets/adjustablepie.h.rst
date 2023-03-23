@@ -26,4 +26,4 @@ tablet_qt/widgets/adjustablepie.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/adjustablepie.h
-    :language: C
+    :language: C++

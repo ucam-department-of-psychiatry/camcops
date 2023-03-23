@@ -26,4 +26,4 @@ tablet_qt/widgets/booleanwidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/booleanwidget.h
-    :language: C
+    :language: C++

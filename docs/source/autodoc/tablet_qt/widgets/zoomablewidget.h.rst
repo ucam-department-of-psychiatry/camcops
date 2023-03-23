@@ -26,4 +26,4 @@ tablet_qt/widgets/zoomablewidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/zoomablewidget.h
-    :language: C
+    :language: C++

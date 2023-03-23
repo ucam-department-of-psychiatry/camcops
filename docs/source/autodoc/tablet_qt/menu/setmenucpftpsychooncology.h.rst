@@ -26,4 +26,4 @@ tablet_qt/menu/setmenucpftpsychooncology.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenucpftpsychooncology.h
-    :language: C
+    :language: C++

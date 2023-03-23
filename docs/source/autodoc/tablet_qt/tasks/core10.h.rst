@@ -26,4 +26,4 @@ tablet_qt/tasks/core10.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/core10.h
-    :language: C
+    :language: C++

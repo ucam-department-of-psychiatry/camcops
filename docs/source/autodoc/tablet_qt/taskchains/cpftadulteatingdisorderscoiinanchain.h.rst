@@ -26,4 +26,4 @@ tablet_qt/taskchains/cpftadulteatingdisorderscoiinanchain.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskchains/cpftadulteatingdisorderscoiinanchain.h
-    :language: C
+    :language: C++

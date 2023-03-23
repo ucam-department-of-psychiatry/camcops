@@ -26,4 +26,4 @@ tablet_qt/taskchains/khandakermojochain.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskchains/khandakermojochain.h
-    :language: C
+    :language: C++

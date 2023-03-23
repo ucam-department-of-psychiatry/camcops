@@ -26,4 +26,4 @@ tablet_qt/maths/mathfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/mathfunc.h
-    :language: C
+    :language: C++

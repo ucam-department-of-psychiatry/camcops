@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/dynamicquestionnaire.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/dynamicquestionnaire.h
-    :language: C
+    :language: C++

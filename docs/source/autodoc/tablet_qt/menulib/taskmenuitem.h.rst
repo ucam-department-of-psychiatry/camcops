@@ -26,4 +26,4 @@ tablet_qt/menulib/taskmenuitem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/taskmenuitem.h
-    :language: C
+    :language: C++

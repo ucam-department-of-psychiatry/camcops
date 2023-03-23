@@ -26,4 +26,4 @@ tablet_qt/tasks/cardinalexpdetthreshold.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cardinalexpdetthreshold.h
-    :language: C
+    :language: C++

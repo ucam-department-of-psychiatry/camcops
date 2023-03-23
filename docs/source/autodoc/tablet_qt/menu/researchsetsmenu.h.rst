@@ -26,4 +26,4 @@ tablet_qt/menu/researchsetsmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/researchsetsmenu.h
-    :language: C
+    :language: C++

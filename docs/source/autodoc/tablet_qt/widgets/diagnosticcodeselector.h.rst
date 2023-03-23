@@ -26,4 +26,4 @@ tablet_qt/widgets/diagnosticcodeselector.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/diagnosticcodeselector.h
-    :language: C
+    :language: C++

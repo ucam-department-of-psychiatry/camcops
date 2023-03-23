@@ -26,4 +26,4 @@ tablet_qt/dialogs/waitbox.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/waitbox.h
-    :language: C
+    :language: C++

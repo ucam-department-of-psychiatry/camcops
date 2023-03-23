@@ -26,4 +26,4 @@ tablet_qt/menu/setmenufromperinatal.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenufromperinatal.h
-    :language: C
+    :language: C++

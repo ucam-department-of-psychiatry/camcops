@@ -26,4 +26,4 @@ tablet_qt/tasks/referrersatisfactionspec.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/referrersatisfactionspec.h
-    :language: C
+    :language: C++

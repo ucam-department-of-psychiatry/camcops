@@ -26,4 +26,4 @@ tablet_qt/tasks/progressnote.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/progressnote.h
-    :language: C
+    :language: C++

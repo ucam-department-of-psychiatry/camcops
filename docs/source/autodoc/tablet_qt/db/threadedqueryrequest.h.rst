@@ -26,4 +26,4 @@ tablet_qt/db/threadedqueryrequest.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/threadedqueryrequest.h
-    :language: C
+    :language: C++

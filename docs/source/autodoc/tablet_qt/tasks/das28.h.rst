@@ -26,4 +26,4 @@ tablet_qt/tasks/das28.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/das28.h
-    :language: C
+    :language: C++

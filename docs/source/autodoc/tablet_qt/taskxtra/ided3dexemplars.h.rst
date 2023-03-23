@@ -26,4 +26,4 @@ tablet_qt/taskxtra/ided3dexemplars.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/ided3dexemplars.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/layouts/gridlayouthfw.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/gridlayouthfw.h
-    :language: C
+    :language: C++

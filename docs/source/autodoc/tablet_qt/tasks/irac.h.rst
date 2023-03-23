@@ -26,4 +26,4 @@ tablet_qt/tasks/irac.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/irac.h
-    :language: C
+    :language: C++

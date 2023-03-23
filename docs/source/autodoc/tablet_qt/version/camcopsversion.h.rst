@@ -26,4 +26,4 @@ tablet_qt/version/camcopsversion.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/version/camcopsversion.h
-    :language: C
+    :language: C++

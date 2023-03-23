@@ -26,4 +26,4 @@ tablet_qt/tasks/cardinalexpectationdetection.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cardinalexpectationdetection.h
-    :language: C
+    :language: C++

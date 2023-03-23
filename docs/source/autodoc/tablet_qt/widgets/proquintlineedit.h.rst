@@ -26,4 +26,4 @@ tablet_qt/widgets/proquintlineedit.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/proquintlineedit.h
-    :language: C
+    :language: C++

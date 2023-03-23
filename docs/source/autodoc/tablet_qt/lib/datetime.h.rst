@@ -26,4 +26,4 @@ tablet_qt/lib/datetime.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/datetime.h
-    :language: C
+    :language: C++

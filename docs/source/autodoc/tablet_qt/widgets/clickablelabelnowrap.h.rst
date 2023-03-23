@@ -26,4 +26,4 @@ tablet_qt/widgets/clickablelabelnowrap.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/clickablelabelnowrap.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasklib/taskregistrar.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/taskregistrar.h
-    :language: C
+    :language: C++

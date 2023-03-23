@@ -26,4 +26,4 @@ tablet_qt/layouts/qtlayouthelpers.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/qtlayouthelpers.h
-    :language: C
+    :language: C++

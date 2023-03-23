@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qubackground.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qubackground.h
-    :language: C
+    :language: C++

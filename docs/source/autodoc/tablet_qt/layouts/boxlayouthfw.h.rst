@@ -26,4 +26,4 @@ tablet_qt/layouts/boxlayouthfw.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/boxlayouthfw.h
-    :language: C
+    :language: C++

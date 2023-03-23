@@ -26,4 +26,4 @@ tablet_qt/qobjects/slownonguifunctioncaller.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/slownonguifunctioncaller.h
-    :language: C
+    :language: C++

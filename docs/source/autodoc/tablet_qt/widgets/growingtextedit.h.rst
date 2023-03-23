@@ -26,4 +26,4 @@ tablet_qt/widgets/growingtextedit.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/growingtextedit.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/cape42.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cape42.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/common/dpi.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/dpi.h
-    :language: C
+    :language: C++

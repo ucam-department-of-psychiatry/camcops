@@ -26,4 +26,4 @@ tablet_qt/common/cssconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/cssconst.h
-    :language: C
+    :language: C++

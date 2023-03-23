@@ -26,4 +26,4 @@ tablet_qt/common/textconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/textconst.h
-    :language: C
+    :language: C++

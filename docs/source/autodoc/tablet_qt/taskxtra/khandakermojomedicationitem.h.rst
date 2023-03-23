@@ -26,4 +26,4 @@ tablet_qt/taskxtra/khandakermojomedicationitem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/khandakermojomedicationitem.h
-    :language: C
+    :language: C++

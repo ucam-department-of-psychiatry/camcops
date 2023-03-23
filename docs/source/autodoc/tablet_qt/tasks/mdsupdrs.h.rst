@@ -26,4 +26,4 @@ tablet_qt/tasks/mdsupdrs.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/mdsupdrs.h
-    :language: C
+    :language: C++

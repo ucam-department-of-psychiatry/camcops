@@ -26,4 +26,4 @@ tablet_qt/dialogs/patientregistrationdialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/patientregistrationdialog.h
-    :language: C
+    :language: C++

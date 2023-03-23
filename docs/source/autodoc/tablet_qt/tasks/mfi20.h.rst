@@ -26,4 +26,4 @@ tablet_qt/tasks/mfi20.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/mfi20.h
-    :language: C
+    :language: C++

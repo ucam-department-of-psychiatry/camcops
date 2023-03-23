@@ -26,4 +26,4 @@ tablet_qt/dbobjects/idnumdescription.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dbobjects/idnumdescription.h
-    :language: C
+    :language: C++

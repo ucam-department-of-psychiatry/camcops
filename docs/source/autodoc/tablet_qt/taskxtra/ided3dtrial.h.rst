@@ -26,4 +26,4 @@ tablet_qt/taskxtra/ided3dtrial.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/ided3dtrial.h
-    :language: C
+    :language: C++

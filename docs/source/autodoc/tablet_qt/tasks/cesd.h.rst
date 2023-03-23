@@ -26,4 +26,4 @@ tablet_qt/tasks/cesd.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cesd.h
-    :language: C
+    :language: C++

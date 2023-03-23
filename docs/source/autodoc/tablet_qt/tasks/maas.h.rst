@@ -26,4 +26,4 @@ tablet_qt/tasks/maas.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/maas.h
-    :language: C
+    :language: C++

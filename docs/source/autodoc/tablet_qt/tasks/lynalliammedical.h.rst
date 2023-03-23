@@ -26,4 +26,4 @@ tablet_qt/tasks/lynalliammedical.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/lynalliammedical.h
-    :language: C
+    :language: C++

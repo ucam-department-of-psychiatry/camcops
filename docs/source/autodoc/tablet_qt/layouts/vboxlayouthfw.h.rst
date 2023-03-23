@@ -26,4 +26,4 @@ tablet_qt/layouts/vboxlayouthfw.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/vboxlayouthfw.h
-    :language: C
+    :language: C++

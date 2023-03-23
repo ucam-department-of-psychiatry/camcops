@@ -26,4 +26,4 @@ tablet_qt/crypto/zallocator.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/crypto/zallocator.h
-    :language: C
+    :language: C++

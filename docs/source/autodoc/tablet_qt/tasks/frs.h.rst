@@ -26,4 +26,4 @@ tablet_qt/tasks/frs.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/frs.h
-    :language: C
+    :language: C++

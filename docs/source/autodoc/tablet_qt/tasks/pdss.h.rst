@@ -26,4 +26,4 @@ tablet_qt/tasks/pdss.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/pdss.h
-    :language: C
+    :language: C++

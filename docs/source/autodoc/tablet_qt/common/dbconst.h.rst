@@ -26,4 +26,4 @@ tablet_qt/common/dbconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/dbconst.h
-    :language: C
+    :language: C++

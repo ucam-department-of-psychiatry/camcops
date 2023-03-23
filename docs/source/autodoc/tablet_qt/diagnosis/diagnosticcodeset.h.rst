@@ -26,4 +26,4 @@ tablet_qt/diagnosis/diagnosticcodeset.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/diagnosis/diagnosticcodeset.h
-    :language: C
+    :language: C++

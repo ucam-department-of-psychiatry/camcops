@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qupickerpopup.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qupickerpopup.h
-    :language: C
+    :language: C++

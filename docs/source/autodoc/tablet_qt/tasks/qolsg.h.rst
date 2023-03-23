@@ -26,4 +26,4 @@ tablet_qt/tasks/qolsg.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/qolsg.h
-    :language: C
+    :language: C++

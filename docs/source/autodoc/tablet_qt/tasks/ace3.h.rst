@@ -26,4 +26,4 @@ tablet_qt/tasks/ace3.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ace3.h
-    :language: C
+    :language: C++

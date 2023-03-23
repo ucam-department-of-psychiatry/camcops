@@ -26,4 +26,4 @@ tablet_qt/menulib/urlmenuitem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/urlmenuitem.h
-    :language: C
+    :language: C++

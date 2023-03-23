@@ -26,4 +26,4 @@ tablet_qt/tasks/icd10manic.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/icd10manic.h
-    :language: C
+    :language: C++

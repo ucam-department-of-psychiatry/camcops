@@ -26,4 +26,4 @@ tablet_qt/common/preprocessor_aid.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/preprocessor_aid.h
-    :language: C
+    :language: C++

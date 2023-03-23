@@ -26,4 +26,4 @@ tablet_qt/tasks/paradise24.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/paradise24.h
-    :language: C
+    :language: C++

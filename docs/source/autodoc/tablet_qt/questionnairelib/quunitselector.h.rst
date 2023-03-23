@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quunitselector.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quunitselector.h
-    :language: C
+    :language: C++

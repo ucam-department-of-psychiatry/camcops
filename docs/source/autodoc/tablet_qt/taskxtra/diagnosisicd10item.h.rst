@@ -26,4 +26,4 @@ tablet_qt/taskxtra/diagnosisicd10item.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/diagnosisicd10item.h
-    :language: C
+    :language: C++

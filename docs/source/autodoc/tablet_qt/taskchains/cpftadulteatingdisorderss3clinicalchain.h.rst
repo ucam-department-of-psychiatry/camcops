@@ -26,4 +26,4 @@ tablet_qt/taskchains/cpftadulteatingdisorderss3clinicalchain.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskchains/cpftadulteatingdisorderss3clinicalchain.h
-    :language: C
+    :language: C++

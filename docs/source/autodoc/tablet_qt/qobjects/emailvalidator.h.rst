@@ -26,4 +26,4 @@ tablet_qt/qobjects/emailvalidator.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/emailvalidator.h
-    :language: C
+    :language: C++

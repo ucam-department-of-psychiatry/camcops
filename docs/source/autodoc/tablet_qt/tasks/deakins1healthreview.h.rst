@@ -26,4 +26,4 @@ tablet_qt/tasks/deakins1healthreview.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/deakins1healthreview.h
-    :language: C
+    :language: C++

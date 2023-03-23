@@ -26,4 +26,4 @@ tablet_qt/lib/convert.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/convert.h
-    :language: C
+    :language: C++

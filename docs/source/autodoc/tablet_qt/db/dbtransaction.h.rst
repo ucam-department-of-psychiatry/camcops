@@ -26,4 +26,4 @@ tablet_qt/db/dbtransaction.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/dbtransaction.h
-    :language: C
+    :language: C++

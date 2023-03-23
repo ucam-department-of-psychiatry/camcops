@@ -26,4 +26,4 @@ tablet_qt/tasks/demqol.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/demqol.h
-    :language: C
+    :language: C++

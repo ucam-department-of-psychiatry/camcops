@@ -26,4 +26,4 @@ tablet_qt/tasks/pbq.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/pbq.h
-    :language: C
+    :language: C++

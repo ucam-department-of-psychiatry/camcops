@@ -26,4 +26,4 @@ tablet_qt/lib/cloneable.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/cloneable.h
-    :language: C
+    :language: C++

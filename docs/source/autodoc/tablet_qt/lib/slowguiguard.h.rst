@@ -26,4 +26,4 @@ tablet_qt/lib/slowguiguard.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/slowguiguard.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/maths/logisticdescriptives.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/logisticdescriptives.h
-    :language: C
+    :language: C++

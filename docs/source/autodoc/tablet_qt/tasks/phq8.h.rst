@@ -26,4 +26,4 @@ tablet_qt/tasks/phq8.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/phq8.h
-    :language: C
+    :language: C++

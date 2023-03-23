@@ -26,4 +26,4 @@ tablet_qt/graphics/paintertranslaterotatecontext.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/paintertranslaterotatecontext.h
-    :language: C
+    :language: C++

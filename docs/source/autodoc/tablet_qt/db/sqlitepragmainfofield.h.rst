@@ -26,4 +26,4 @@ tablet_qt/db/sqlitepragmainfofield.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/sqlitepragmainfofield.h
-    :language: C
+    :language: C++

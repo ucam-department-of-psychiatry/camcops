@@ -26,4 +26,4 @@ tablet_qt/widgets/heightforwidthlistwidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/heightforwidthlistwidget.h
-    :language: C
+    :language: C++

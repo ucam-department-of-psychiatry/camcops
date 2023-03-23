@@ -26,4 +26,4 @@ tablet_qt/widgets/basewidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/basewidget.h
-    :language: C
+    :language: C++

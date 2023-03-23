@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quzoomcontainer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quzoomcontainer.h
-    :language: C
+    :language: C++

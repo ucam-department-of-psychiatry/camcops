@@ -26,4 +26,4 @@ tablet_qt/menu/personalitymenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/personalitymenu.h
-    :language: C
+    :language: C++

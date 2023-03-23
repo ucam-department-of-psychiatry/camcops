@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qugridcell.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qugridcell.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/widgets/openablewidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/openablewidget.h
-    :language: C
+    :language: C++

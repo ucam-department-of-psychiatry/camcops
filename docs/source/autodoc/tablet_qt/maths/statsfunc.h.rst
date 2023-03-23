@@ -26,4 +26,4 @@ tablet_qt/maths/statsfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/statsfunc.h
-    :language: C
+    :language: C++

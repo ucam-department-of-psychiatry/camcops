@@ -26,4 +26,4 @@ tablet_qt/common/colourdefs.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/colourdefs.h
-    :language: C
+    :language: C++

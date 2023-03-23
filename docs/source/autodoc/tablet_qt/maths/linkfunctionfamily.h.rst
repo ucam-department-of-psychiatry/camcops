@@ -26,4 +26,4 @@ tablet_qt/maths/linkfunctionfamily.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/linkfunctionfamily.h
-    :language: C
+    :language: C++

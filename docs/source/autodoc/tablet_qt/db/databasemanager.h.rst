@@ -26,4 +26,4 @@ tablet_qt/db/databasemanager.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/databasemanager.h
-    :language: C
+    :language: C++

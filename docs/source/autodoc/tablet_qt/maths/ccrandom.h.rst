@@ -26,4 +26,4 @@ tablet_qt/maths/ccrandom.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/ccrandom.h
-    :language: C
+    :language: C++

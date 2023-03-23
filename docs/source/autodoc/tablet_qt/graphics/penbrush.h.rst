@@ -26,4 +26,4 @@ tablet_qt/graphics/penbrush.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/penbrush.h
-    :language: C
+    :language: C++

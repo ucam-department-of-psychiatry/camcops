@@ -26,4 +26,4 @@ tablet_qt/tasks/rand36.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/rand36.h
-    :language: C
+    :language: C++

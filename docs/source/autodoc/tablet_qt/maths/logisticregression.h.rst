@@ -26,4 +26,4 @@ tablet_qt/maths/logisticregression.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/logisticregression.h
-    :language: C
+    :language: C++

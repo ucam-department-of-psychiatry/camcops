@@ -26,4 +26,4 @@ tablet_qt/tasklib/tasksorter.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/tasksorter.h
-    :language: C
+    :language: C++

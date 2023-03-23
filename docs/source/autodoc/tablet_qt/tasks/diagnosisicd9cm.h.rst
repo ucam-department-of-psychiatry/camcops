@@ -26,4 +26,4 @@ tablet_qt/tasks/diagnosisicd9cm.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/diagnosisicd9cm.h
-    :language: C
+    :language: C++

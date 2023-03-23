@@ -26,4 +26,4 @@ tablet_qt/tasks/gad7.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/gad7.h
-    :language: C
+    :language: C++

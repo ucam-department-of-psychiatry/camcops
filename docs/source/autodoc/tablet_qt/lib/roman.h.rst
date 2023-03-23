@@ -26,4 +26,4 @@ tablet_qt/lib/roman.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/roman.h
-    :language: C
+    :language: C++

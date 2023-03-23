@@ -26,4 +26,4 @@ tablet_qt/widgets/clickablelabelwordwrapwide.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/clickablelabelwordwrapwide.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/widgets/imagebutton.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/imagebutton.h
-    :language: C
+    :language: C++

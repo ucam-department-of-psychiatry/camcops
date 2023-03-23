@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qucountdown.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qucountdown.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/mast.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/mast.h
-    :language: C
+    :language: C++

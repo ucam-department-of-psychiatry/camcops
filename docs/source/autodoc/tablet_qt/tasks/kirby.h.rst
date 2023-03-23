@@ -26,4 +26,4 @@ tablet_qt/tasks/kirby.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/kirby.h
-    :language: C
+    :language: C++

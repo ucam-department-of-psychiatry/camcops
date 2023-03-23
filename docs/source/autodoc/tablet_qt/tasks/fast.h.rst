@@ -26,4 +26,4 @@ tablet_qt/tasks/fast.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/fast.h
-    :language: C
+    :language: C++

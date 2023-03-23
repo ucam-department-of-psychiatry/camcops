@@ -26,4 +26,4 @@ tablet_qt/widgets/validatinglineedit.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/validatinglineedit.h
-    :language: C
+    :language: C++

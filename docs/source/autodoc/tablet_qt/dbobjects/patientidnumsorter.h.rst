@@ -26,4 +26,4 @@ tablet_qt/dbobjects/patientidnumsorter.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dbobjects/patientidnumsorter.h
-    :language: C
+    :language: C++

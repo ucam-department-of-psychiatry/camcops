@@ -26,4 +26,4 @@ tablet_qt/tasks/copebrief.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/copebrief.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/common/languages.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/languages.h
-    :language: C
+    :language: C++

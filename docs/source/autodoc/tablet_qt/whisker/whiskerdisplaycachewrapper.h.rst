@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskerdisplaycachewrapper.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskerdisplaycachewrapper.h
-    :language: C
+    :language: C++

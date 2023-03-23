@@ -26,4 +26,4 @@ tablet_qt/tasks/cage.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cage.h
-    :language: C
+    :language: C++
