@@ -27,14 +27,16 @@
 #include "tasks/suppsp.h"
 
 CpftAdultEatingDisordersCoiinAnChain::CpftAdultEatingDisordersCoiinAnChain(CamcopsApp& app) :
-    TaskChain(app, {
-        Chit::CHIT_TABLENAME,
-        Suppsp::SUPPSP_TABLENAME,
-        Isaaq10::ISAAQ10_TABLENAME,
-        IsaaqEd::ISAAQED_TABLENAME,
-        Kirby::KIRBY_TABLENAME,
-        IDED3D::IDED3D_TABLENAME,
-        // Sequence as per JES to MB, 2023-02-27.
+    TaskChain(
+        app,
+        {
+            Chit::CHIT_TABLENAME,
+            Suppsp::SUPPSP_TABLENAME,
+            Isaaq10::ISAAQ10_TABLENAME,
+            IsaaqEd::ISAAQED_TABLENAME,
+            Kirby::KIRBY_TABLENAME,
+            IDED3D::IDED3D_TABLENAME,
+            // Sequence as per JES to MB, 2023-02-27.
         },
         TaskChain::CreationMethod::OnDemandOrAbort,  // as per JES 2023-03-14; also the default.
         tr("COIIN-AN")

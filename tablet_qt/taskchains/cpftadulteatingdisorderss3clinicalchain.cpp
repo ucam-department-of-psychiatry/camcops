@@ -26,13 +26,15 @@
 #include "tasks/phq9.h"
 
 CpftAdultEatingDisordersS3ClinicalChain::CpftAdultEatingDisordersS3ClinicalChain(CamcopsApp& app) :
-    TaskChain(app, {
-        Edeq::EDEQ_TABLENAME,
-        Cia::CIA_TABLENAME,
-        Eq5d5l::EQ5D5L_TABLENAME,
-        Gad7::GAD7_TABLENAME,
-        Phq9::PHQ9_TABLENAME,
-        // Sequence as per JES to MB, 2023-02-27 and 2023-03-17.
+    TaskChain(
+        app,
+        {
+            Edeq::EDEQ_TABLENAME,
+            Cia::CIA_TABLENAME,
+            Eq5d5l::EQ5D5L_TABLENAME,
+            Gad7::GAD7_TABLENAME,
+            Phq9::PHQ9_TABLENAME,
+            // Sequence as per JES to MB, 2023-02-27 and 2023-03-17.
         },
         TaskChain::CreationMethod::OnDemandOrAbort,  // as per JES 2023-03-14; also the default.
         tr("S3 Clinical")
