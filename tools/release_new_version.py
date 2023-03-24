@@ -151,7 +151,9 @@ class VersionReleaser:
     ) -> None:
         self.new_client_version = new_client_version
         self.new_server_version = new_server_version
+        self._progress_version = None
         self.release_date = release_date
+        self._released_versions = None
         self.update_versions = update_versions
         self.errors = []
 
@@ -162,34 +164,41 @@ class VersionReleaser:
         """
         run(args, check=True)
 
-    def get_progress_version(self) -> Optional[Version]:
+    @property
+    def progress_version(self) -> Optional[Version]:
         """
         Return the version number in the changelog marked "IN PROGRESS", or
         ``None``.
         """
-        progress_version = None
+        if self._progress_version is None:
+            regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*(IN PROGRESS).*\*\*$"
+            with open(CHANGELOG, "r") as f:
+                for line in f.readlines():
+                    m = re.match(regex, line)
+                    if m is not None:
+                        self._progress_version = Version(
+                            major=int(m.group(1)),
+                            minor=int(m.group(2)),
+                            patch=int(m.group(3)),
+                        )
 
-        regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*(IN PROGRESS).*\*\*$"
-        with open(CHANGELOG, "r") as f:
-            for line in f.readlines():
-                m = re.match(regex, line)
-                if m is not None:
-                    progress_version = Version(
-                        major=int(m.group(1)),
-                        minor=int(m.group(2)),
-                        patch=int(m.group(3)),
-                    )
+        return self._progress_version
 
-        return progress_version
-
-    def get_released_versions(self) -> List[Tuple[Version, datetime]]:
+    @property
+    def released_versions(self) -> List[Tuple[Version, datetime]]:
         """
         Returns a list of ``(version, date_released)`` tuples from the
         changelog.
         """
+        if self._released_versions is None:
+            self._released_versions = self._get_released_versions()
+
+        return self._released_versions
+
+    def _get_released_versions(self) -> List[Tuple[Version, datetime]]:
         regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*released\s+(\d+)\s+([a-zA-Z]+)\s+(\d+).*\*\*$"  # noqa: E501
 
-        releases = []
+        released_versions = []
 
         with open(CHANGELOG, "r") as f:
             for line in f.readlines():
@@ -212,9 +221,9 @@ class VersionReleaser:
                             f"this line:\n{line}"
                         )
 
-                    releases.append((released_version, release_date))
+                    released_versions.append((released_version, release_date))
 
-        return releases
+        return released_versions
 
     def get_client_version(self) -> Version:
         """
@@ -576,10 +585,7 @@ class VersionReleaser:
             )
 
     def perform_checks(self) -> None:
-        releases = self.get_released_versions()
-        latest_version, latest_date = releases[-1]
-        self.progress_version = self.get_progress_version()
-
+        latest_version, latest_date = self.released_versions[-1]
         if self.progress_version is None:
             print(
                 (
