@@ -92,10 +92,6 @@ PYGMENTS_OVERRIDE = {
     # map file specifications to Pygments language name, specific before
     # generic
     "script.py.mako": "mako",
-    "*.h": "C++",  # C++, not C
-    "*.iss": "none",  # remove a warning (InnoSetup file)
-    "*.mako": "html+mako",
-    "*.pro": "none",  # Qt project files, not Prolog
     # The Pygments C++ Lexer will never be perfect as it doesn't
     # have the same understanding as a compiler.
     # Skip anything that fails to highlight here
@@ -105,6 +101,10 @@ PYGMENTS_OVERRIDE = {
     # See https://github.com/pygments/pygments/pull/2210
     # Should be fixed in pygments > 2.13.0
     "qcustomplot.h": "none",
+    "*.h": "C++",  # C++, not C
+    "*.iss": "none",  # remove a warning (InnoSetup file)
+    "*.mako": "html+mako",
+    "*.pro": "none",  # Qt project files, not Prolog
 }
 
 
