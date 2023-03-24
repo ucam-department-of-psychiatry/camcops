@@ -3754,3 +3754,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Remove ISAAQ task and replace with :ref:`ISAAQ-10 <isaaq10>`. (Database
   revisions 0081-0083.)
+
+- Use SecureTransport instead of OpenSSL with Qt on iOS client.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/278
