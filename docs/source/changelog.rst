@@ -3703,8 +3703,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - New report to count server-side patients created and their assigned tasks.
 
 
-**Client and server v2.4.15, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.15, released 24 Mar 2023**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fix Debian package install on Ubuntu 22.04.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/239
