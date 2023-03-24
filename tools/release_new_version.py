@@ -333,6 +333,70 @@ class VersionReleaser:
 
         raise MissingVersionException("Could not find version in Info.plist")
 
+    def check_quick_links(self) -> None:
+        ref_regex = r"- :ref:`(\d{4}) <changelog_(\d{4})>`$"
+        refs = []
+
+        with open(CHANGELOG, "r") as f:
+            for line in f.readlines():
+                m = re.match(ref_regex, line)
+                if m is not None:
+                    refs.append((m.group(1), m.group(2)))
+
+        release_year = str(self.release_date.year)
+        if (release_year, release_year) not in refs:
+            self.errors.append(f"No :ref: for {release_year} in changelog")
+
+        target_regex = r"\.\. _changelog_(\d{4})\:$"
+        year_regex = r"(\d{4})$"
+
+        targets = []
+        headings = []
+
+        with open(CHANGELOG, "r") as f:
+            year_heading = None
+            for line in f.readlines():
+                m = re.match(target_regex, line)
+                if m is not None:
+                    target_year = m.group(1)
+                    if (target_year, target_year) not in refs:
+                        self.errors.append(
+                            f"No :ref: for year {target_year} in changelog"
+                        )
+                    targets.append((target_year, target_year))
+
+                if year_heading is not None and line == "~~~~\n":
+                    if (year_heading, year_heading) not in refs:
+                        self.errors.append(
+                            f"No :ref:  for year {year_heading} in "
+                            "changelog"
+                        )
+                    if year_heading != target_year:
+                        self.errors.append(
+                            f"{year_heading} appeared after {target_year} in "
+                            "changelog"
+                        )
+                    headings.append((year_heading, year_heading))
+
+                m = re.match(year_regex, line)
+                if m is not None:
+                    year_heading = m.group(1)
+                else:
+                    year_heading = None
+
+            if targets != refs or headings != refs:
+                self.errors.append(":ref: years:")
+                self.errors.append([r[0] for r in refs])
+                self.errors.append("target years:")
+                self.errors.append([t[0] for t in targets])
+
+                self.errors.append("year headings:")
+                self.errors.append([h[0] for h in headings])
+                self.errors.append(
+                    "Mismatch between :ref: years, target years "
+                    "and year headings"
+                )
+
     def check_server_version(self) -> None:
         if self.new_server_version == self.progress_version:
             self.errors.append(
@@ -605,6 +669,8 @@ class VersionReleaser:
                 "The date of the latest version in the changelog "
                 f"({latest_date}) does not match '{self.release_date}'"
             )
+
+        self.check_quick_links()
 
         self.check_server_version()
         if self.should_release_server:
