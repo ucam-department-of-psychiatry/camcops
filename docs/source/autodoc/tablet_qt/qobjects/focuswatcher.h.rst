@@ -26,4 +26,4 @@ tablet_qt/qobjects/focuswatcher.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/focuswatcher.h
-    :language: C
+    :language: C++

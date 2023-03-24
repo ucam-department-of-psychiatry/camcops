@@ -26,4 +26,4 @@ tablet_qt/tasks/smast.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/smast.h
-    :language: C
+    :language: C++

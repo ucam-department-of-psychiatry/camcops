@@ -26,4 +26,4 @@ tablet_qt/tasks/aims.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/aims.h
-    :language: C
+    :language: C++

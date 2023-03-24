@@ -26,4 +26,4 @@ tablet_qt/tasks/cpftlpsdischarge.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cpftlpsdischarge.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/maths/include_eigen_core.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/include_eigen_core.h
-    :language: C
+    :language: C++

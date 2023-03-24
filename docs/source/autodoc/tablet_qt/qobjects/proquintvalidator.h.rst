@@ -26,4 +26,4 @@ tablet_qt/qobjects/proquintvalidator.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/proquintvalidator.h
-    :language: C
+    :language: C++

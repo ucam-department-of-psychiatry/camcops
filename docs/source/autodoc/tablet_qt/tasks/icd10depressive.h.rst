@@ -26,4 +26,4 @@ tablet_qt/tasks/icd10depressive.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/icd10depressive.h
-    :language: C
+    :language: C++

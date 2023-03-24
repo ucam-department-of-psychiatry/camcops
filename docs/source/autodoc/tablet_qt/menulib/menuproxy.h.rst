@@ -26,4 +26,4 @@ tablet_qt/menulib/menuproxy.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/menuproxy.h
-    :language: C
+    :language: C++

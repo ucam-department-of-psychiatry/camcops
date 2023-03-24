@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumultipleresponse.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumultipleresponse.h
-    :language: C
+    :language: C++

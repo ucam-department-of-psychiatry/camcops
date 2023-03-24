@@ -26,4 +26,4 @@ tablet_qt/tasks/gbogras.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/gbogras.h
-    :language: C
+    :language: C++

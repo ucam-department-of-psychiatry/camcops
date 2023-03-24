@@ -26,4 +26,4 @@ tablet_qt/db/sqlcipherdriver.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/sqlcipherdriver.h
-    :language: C
+    :language: C++

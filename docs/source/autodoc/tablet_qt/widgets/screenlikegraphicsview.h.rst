@@ -26,4 +26,4 @@ tablet_qt/widgets/screenlikegraphicsview.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/screenlikegraphicsview.h
-    :language: C
+    :language: C++

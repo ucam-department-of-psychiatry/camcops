@@ -26,4 +26,4 @@ tablet_qt/tasks/pcl5.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/pcl5.h
-    :language: C
+    :language: C++

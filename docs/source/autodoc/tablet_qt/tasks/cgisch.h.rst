@@ -26,4 +26,4 @@ tablet_qt/tasks/cgisch.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cgisch.h
-    :language: C
+    :language: C++

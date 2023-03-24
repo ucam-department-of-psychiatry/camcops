@@ -26,4 +26,4 @@ tablet_qt/tasks/auditc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/auditc.h
-    :language: C
+    :language: C++

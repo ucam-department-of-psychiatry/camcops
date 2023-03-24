@@ -26,4 +26,4 @@ tablet_qt/tasks/ybocs.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ybocs.h
-    :language: C
+    :language: C++

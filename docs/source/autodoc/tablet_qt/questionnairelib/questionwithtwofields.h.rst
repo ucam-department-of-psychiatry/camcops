@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/questionwithtwofields.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/questionwithtwofields.h
-    :language: C
+    :language: C++

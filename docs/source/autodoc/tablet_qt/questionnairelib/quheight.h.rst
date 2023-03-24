@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quheight.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quheight.h
-    :language: C
+    :language: C++

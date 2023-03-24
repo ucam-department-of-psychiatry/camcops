@@ -26,4 +26,4 @@ tablet_qt/taskxtra/cardinalexpdetcommon.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/cardinalexpdetcommon.h
-    :language: C
+    :language: C++

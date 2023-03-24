@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/mcqfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/mcqfunc.h
-    :language: C
+    :language: C++

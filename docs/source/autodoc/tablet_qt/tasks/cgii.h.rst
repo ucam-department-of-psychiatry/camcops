@@ -26,4 +26,4 @@ tablet_qt/tasks/cgii.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cgii.h
-    :language: C
+    :language: C++

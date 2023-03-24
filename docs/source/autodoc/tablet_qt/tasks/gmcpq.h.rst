@@ -26,4 +26,4 @@ tablet_qt/tasks/gmcpq.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/gmcpq.h
-    :language: C
+    :language: C++

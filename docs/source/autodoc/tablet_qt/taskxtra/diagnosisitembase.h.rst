@@ -26,4 +26,4 @@ tablet_qt/taskxtra/diagnosisitembase.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/diagnosisitembase.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/lib/timerfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/timerfunc.h
-    :language: C
+    :language: C++

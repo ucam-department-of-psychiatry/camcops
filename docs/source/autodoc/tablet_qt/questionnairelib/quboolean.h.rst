@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quboolean.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quboolean.h
-    :language: C
+    :language: C++

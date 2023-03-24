@@ -26,4 +26,4 @@ tablet_qt/menu/clinicalsetsmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/clinicalsetsmenu.h
-    :language: C
+    :language: C++

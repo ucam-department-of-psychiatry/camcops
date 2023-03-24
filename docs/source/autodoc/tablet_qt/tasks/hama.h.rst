@@ -26,4 +26,4 @@ tablet_qt/tasks/hama.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/hama.h
-    :language: C
+    :language: C++

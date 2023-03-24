@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskeroutboundcommand.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskeroutboundcommand.h
-    :language: C
+    :language: C++

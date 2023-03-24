@@ -26,4 +26,4 @@ tablet_qt/dialogs/debugdialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/debugdialog.h
-    :language: C
+    :language: C++

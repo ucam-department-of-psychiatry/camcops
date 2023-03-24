@@ -26,4 +26,4 @@ tablet_qt/lib/containers.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/containers.h
-    :language: C
+    :language: C++

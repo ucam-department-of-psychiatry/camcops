@@ -26,4 +26,4 @@ tablet_qt/tasks/eq5d5l.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/eq5d5l.h
-    :language: C
+    :language: C++

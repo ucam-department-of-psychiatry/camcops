@@ -26,4 +26,4 @@ tablet_qt/layouts/widgetitemhfw.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/widgetitemhfw.h
-    :language: C
+    :language: C++

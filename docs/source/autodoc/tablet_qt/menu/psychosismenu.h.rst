@@ -26,4 +26,4 @@ tablet_qt/menu/psychosismenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/psychosismenu.h
-    :language: C
+    :language: C++

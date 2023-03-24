@@ -23,6 +23,8 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "taskchains/cpftadulteatingdisorderss3clinicalchain.h"
+#include "taskchains/cpftadulteatingdisorderscoiinanchain.h"
 #include "tasks/bmi.h"
 #include "tasks/chit.h"
 #include "tasks/cia.h"
@@ -64,6 +66,10 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
+        MenuItem(tr("Task chains")).setLabelOnly(),
+        MAKE_TASK_CHAIN_MENU_ITEM(new CpftAdultEatingDisordersS3ClinicalChain(m_app)),
+        MAKE_TASK_CHAIN_MENU_ITEM(new CpftAdultEatingDisordersCoiinAnChain(m_app)),
+
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),

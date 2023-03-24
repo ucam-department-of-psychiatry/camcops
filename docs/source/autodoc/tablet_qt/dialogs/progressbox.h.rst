@@ -26,4 +26,4 @@ tablet_qt/dialogs/progressbox.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/progressbox.h
-    :language: C
+    :language: C++

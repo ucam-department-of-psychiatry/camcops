@@ -26,4 +26,4 @@ tablet_qt/tasks/cpftlpsresetresponseclock.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cpftlpsresetresponseclock.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/graphics/graphicsfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/graphicsfunc.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/db/whereconditions.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/whereconditions.h
-    :language: C
+    :language: C++

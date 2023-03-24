@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumcqgridsingleboolean.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumcqgridsingleboolean.h
-    :language: C
+    :language: C++

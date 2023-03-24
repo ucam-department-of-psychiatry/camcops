@@ -26,4 +26,4 @@ tablet_qt/widgets/tickslider.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/tickslider.h
-    :language: C
+    :language: C++

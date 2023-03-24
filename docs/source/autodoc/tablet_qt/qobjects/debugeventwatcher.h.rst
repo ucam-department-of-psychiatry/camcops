@@ -26,4 +26,4 @@ tablet_qt/qobjects/debugeventwatcher.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/debugeventwatcher.h
-    :language: C
+    :language: C++

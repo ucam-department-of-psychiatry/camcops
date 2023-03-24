@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qupickerinline.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qupickerinline.h
-    :language: C
+    :language: C++

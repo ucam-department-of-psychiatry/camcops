@@ -26,4 +26,4 @@ tablet_qt/tasks/asdas.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/asdas.h
-    :language: C
+    :language: C++

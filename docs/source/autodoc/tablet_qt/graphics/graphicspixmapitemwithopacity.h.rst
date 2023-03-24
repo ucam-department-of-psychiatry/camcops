@@ -26,4 +26,4 @@ tablet_qt/graphics/graphicspixmapitemwithopacity.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/graphicspixmapitemwithopacity.h
-    :language: C
+    :language: C++

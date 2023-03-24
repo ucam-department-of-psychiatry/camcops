@@ -26,4 +26,4 @@ tablet_qt/tasks/basdai.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/basdai.h
-    :language: C
+    :language: C++

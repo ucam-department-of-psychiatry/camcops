@@ -26,4 +26,4 @@ tablet_qt/graphics/linesegment.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/linesegment.h
-    :language: C
+    :language: C++

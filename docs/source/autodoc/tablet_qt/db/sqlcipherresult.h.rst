@@ -26,4 +26,4 @@ tablet_qt/db/sqlcipherresult.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/sqlcipherresult.h
-    :language: C
+    :language: C++

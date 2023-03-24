@@ -26,4 +26,4 @@ tablet_qt/tasks/cbir.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cbir.h
-    :language: C
+    :language: C++

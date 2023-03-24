@@ -26,4 +26,4 @@ tablet_qt/widgets/canvaswidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/canvaswidget.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/common/design_defines.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/design_defines.h
-    :language: C
+    :language: C++

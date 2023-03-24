@@ -26,4 +26,4 @@ tablet_qt/crypto/secureqbytearray.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/crypto/secureqbytearray.h
-    :language: C
+    :language: C++

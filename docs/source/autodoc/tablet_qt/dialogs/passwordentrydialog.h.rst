@@ -26,4 +26,4 @@ tablet_qt/dialogs/passwordentrydialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/passwordentrydialog.h
-    :language: C
+    :language: C++

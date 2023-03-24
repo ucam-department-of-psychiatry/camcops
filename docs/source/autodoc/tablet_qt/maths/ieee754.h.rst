@@ -26,4 +26,4 @@ tablet_qt/maths/ieee754.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/ieee754.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/menu/patientsummarymenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/patientsummarymenu.h
-    :language: C
+    :language: C++

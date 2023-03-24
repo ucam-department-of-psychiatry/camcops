@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quflowcontainer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quflowcontainer.h
-    :language: C
+    :language: C++

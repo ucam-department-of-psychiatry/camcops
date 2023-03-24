@@ -26,4 +26,4 @@ tablet_qt/dialogs/logbox.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/logbox.h
-    :language: C
+    :language: C++

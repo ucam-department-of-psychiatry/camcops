@@ -26,4 +26,4 @@ tablet_qt/tasks/bdi.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/bdi.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/taskxtra/cardinalexpdetthresholdtrial.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/cardinalexpdetthresholdtrial.h
-    :language: C
+    :language: C++

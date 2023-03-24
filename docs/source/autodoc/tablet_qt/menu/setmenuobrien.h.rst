@@ -26,4 +26,4 @@ tablet_qt/menu/setmenuobrien.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenuobrien.h
-    :language: C
+    :language: C++

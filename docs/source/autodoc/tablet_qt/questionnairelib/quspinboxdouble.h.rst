@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quspinboxdouble.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quspinboxdouble.h
-    :language: C
+    :language: C++

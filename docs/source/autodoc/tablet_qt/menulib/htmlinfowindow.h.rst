@@ -26,4 +26,4 @@ tablet_qt/menulib/htmlinfowindow.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/htmlinfowindow.h
-    :language: C
+    :language: C++

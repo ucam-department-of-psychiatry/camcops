@@ -26,4 +26,4 @@ tablet_qt/layouts/flowlayouthfw.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/flowlayouthfw.h
-    :language: C
+    :language: C++

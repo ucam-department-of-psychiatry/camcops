@@ -26,4 +26,4 @@ tablet_qt/lib/layoutdumper.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/layoutdumper.h
-    :language: C
+    :language: C++

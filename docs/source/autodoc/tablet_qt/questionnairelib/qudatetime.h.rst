@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qudatetime.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qudatetime.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/widgets/horizontalline.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/horizontalline.h
-    :language: C
+    :language: C++

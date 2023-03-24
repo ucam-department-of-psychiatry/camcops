@@ -26,4 +26,4 @@ tablet_qt/tasks/icd10schizophrenia.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/icd10schizophrenia.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/diagnosis/flatproxymodel.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/diagnosis/flatproxymodel.h
-    :language: C
+    :language: C++

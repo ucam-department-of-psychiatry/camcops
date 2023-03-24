@@ -26,4 +26,4 @@ tablet_qt/tasks/bprse.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/bprse.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/common/appstrings.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/appstrings.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/panss.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/panss.h
-    :language: C
+    :language: C++

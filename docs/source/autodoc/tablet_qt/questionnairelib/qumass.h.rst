@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumass.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumass.h
-    :language: C
+    :language: C++

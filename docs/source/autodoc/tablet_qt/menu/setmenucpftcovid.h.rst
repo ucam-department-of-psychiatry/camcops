@@ -26,4 +26,4 @@ tablet_qt/menu/setmenucpftcovid.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenucpftcovid.h
-    :language: C
+    :language: C++

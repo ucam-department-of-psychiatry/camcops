@@ -26,4 +26,4 @@ tablet_qt/widgets/thermometer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/thermometer.h
-    :language: C
+    :language: C++

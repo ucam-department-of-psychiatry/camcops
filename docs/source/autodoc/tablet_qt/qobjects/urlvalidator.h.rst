@@ -26,4 +26,4 @@ tablet_qt/qobjects/urlvalidator.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/urlvalidator.h
-    :language: C
+    :language: C++

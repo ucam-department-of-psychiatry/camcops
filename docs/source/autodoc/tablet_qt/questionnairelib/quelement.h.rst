@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quelement.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quelement.h
-    :language: C
+    :language: C++

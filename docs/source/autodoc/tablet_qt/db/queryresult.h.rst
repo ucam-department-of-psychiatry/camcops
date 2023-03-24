@@ -26,4 +26,4 @@ tablet_qt/db/queryresult.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/queryresult.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/lib/uifunc.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/uifunc.h
-    :language: C
+    :language: C++

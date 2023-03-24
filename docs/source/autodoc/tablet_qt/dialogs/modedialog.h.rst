@@ -26,4 +26,4 @@ tablet_qt/dialogs/modedialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/modedialog.h
-    :language: C
+    :language: C++

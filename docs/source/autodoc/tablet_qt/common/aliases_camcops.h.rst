@@ -26,4 +26,4 @@ tablet_qt/common/aliases_camcops.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/aliases_camcops.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/icd10schizotypal.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/icd10schizotypal.h
-    :language: C
+    :language: C++

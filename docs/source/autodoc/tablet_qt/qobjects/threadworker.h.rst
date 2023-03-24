@@ -26,4 +26,4 @@ tablet_qt/qobjects/threadworker.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/threadworker.h
-    :language: C
+    :language: C++

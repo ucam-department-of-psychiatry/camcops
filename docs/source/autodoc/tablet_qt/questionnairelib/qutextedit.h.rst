@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qutextedit.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qutextedit.h
-    :language: C
+    :language: C++

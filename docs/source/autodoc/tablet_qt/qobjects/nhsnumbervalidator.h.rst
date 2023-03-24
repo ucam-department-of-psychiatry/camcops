@@ -26,4 +26,4 @@ tablet_qt/qobjects/nhsnumbervalidator.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/nhsnumbervalidator.h
-    :language: C
+    :language: C++

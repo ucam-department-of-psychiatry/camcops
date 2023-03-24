@@ -26,4 +26,4 @@ tablet_qt/layouts/layouts.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/layouts.h
-    :language: C
+    :language: C++

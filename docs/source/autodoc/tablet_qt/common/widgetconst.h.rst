@@ -26,4 +26,4 @@ tablet_qt/common/widgetconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/widgetconst.h
-    :language: C
+    :language: C++

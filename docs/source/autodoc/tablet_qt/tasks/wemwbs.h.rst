@@ -26,4 +26,4 @@ tablet_qt/tasks/wemwbs.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/wemwbs.h
-    :language: C
+    :language: C++

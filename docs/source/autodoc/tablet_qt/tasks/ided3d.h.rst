@@ -26,4 +26,4 @@ tablet_qt/tasks/ided3d.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ided3d.h
-    :language: C
+    :language: C++

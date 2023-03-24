@@ -26,4 +26,4 @@ tablet_qt/widgets/verticalline.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/verticalline.h
-    :language: C
+    :language: C++

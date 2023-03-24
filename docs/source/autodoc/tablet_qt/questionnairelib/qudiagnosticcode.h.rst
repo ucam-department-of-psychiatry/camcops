@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qudiagnosticcode.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qudiagnosticcode.h
-    :language: C
+    :language: C++

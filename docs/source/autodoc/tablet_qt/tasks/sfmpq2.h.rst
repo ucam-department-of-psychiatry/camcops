@@ -26,4 +26,4 @@ tablet_qt/tasks/sfmpq2.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/sfmpq2.h
-    :language: C
+    :language: C++

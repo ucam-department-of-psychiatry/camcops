@@ -26,4 +26,4 @@ tablet_qt/dialogs/nvpchoicedialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/nvpchoicedialog.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/perinatalpoem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/perinatalpoem.h
-    :language: C
+    :language: C++

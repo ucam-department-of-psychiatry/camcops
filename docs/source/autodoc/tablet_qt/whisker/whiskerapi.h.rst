@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskerapi.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskerapi.h
-    :language: C
+    :language: C++

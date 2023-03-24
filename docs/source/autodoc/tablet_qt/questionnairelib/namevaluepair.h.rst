@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/namevaluepair.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/namevaluepair.h
-    :language: C
+    :language: C++

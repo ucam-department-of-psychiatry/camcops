@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/namevalueoptions.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/namevalueoptions.h
-    :language: C
+    :language: C++

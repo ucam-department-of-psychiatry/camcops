@@ -26,4 +26,4 @@ tablet_qt/lib/nhs.h
 ^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/nhs.h
-    :language: C
+    :language: C++

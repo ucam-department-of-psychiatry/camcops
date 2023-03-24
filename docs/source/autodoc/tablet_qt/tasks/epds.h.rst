@@ -26,4 +26,4 @@ tablet_qt/tasks/epds.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/epds.h
-    :language: C
+    :language: C++

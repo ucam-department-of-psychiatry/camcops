@@ -26,4 +26,4 @@ tablet_qt/widgets/treeviewcontroldelegate.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/treeviewcontroldelegate.h
-    :language: C
+    :language: C++

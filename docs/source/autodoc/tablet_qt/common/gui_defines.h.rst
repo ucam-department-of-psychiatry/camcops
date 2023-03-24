@@ -26,4 +26,4 @@ tablet_qt/common/gui_defines.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/gui_defines.h
-    :language: C
+    :language: C++

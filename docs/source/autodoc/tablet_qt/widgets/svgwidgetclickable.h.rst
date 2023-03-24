@@ -26,4 +26,4 @@ tablet_qt/widgets/svgwidgetclickable.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/svgwidgetclickable.h
-    :language: C
+    :language: C++

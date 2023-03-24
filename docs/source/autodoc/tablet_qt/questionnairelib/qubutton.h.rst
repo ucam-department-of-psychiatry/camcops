@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qubutton.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qubutton.h
-    :language: C
+    :language: C++

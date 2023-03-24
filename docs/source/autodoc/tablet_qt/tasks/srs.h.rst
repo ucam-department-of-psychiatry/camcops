@@ -26,4 +26,4 @@ tablet_qt/tasks/srs.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/srs.h
-    :language: C
+    :language: C++

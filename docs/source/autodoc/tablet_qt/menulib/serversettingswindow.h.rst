@@ -26,4 +26,4 @@ tablet_qt/menulib/serversettingswindow.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/serversettingswindow.h
-    :language: C
+    :language: C++

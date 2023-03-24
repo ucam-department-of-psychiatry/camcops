@@ -26,4 +26,4 @@ tablet_qt/tasks/cecaq3.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cecaq3.h
-    :language: C
+    :language: C++

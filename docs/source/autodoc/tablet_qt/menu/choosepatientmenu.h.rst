@@ -26,4 +26,4 @@ tablet_qt/menu/choosepatientmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/choosepatientmenu.h
-    :language: C
+    :language: C++

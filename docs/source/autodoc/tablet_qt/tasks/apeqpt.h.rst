@@ -26,4 +26,4 @@ tablet_qt/tasks/apeqpt.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/apeqpt.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/db/dbfunc.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/dbfunc.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/maths/include_eigen_dense.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/include_eigen_dense.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/menu/setmenukhandakermojo.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenukhandakermojo.h
-    :language: C
+    :language: C++

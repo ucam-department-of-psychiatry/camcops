@@ -26,4 +26,4 @@ tablet_qt/tasks/fft.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/fft.h
-    :language: C
+    :language: C++

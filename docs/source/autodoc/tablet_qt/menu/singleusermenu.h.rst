@@ -26,4 +26,4 @@ tablet_qt/menu/singleusermenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/singleusermenu.h
-    :language: C
+    :language: C++

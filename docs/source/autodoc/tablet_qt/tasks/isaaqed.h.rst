@@ -26,4 +26,4 @@ tablet_qt/tasks/isaaqed.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/isaaqed.h
-    :language: C
+    :language: C++

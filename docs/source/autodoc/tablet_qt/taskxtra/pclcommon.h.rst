@@ -26,4 +26,4 @@ tablet_qt/taskxtra/pclcommon.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/pclcommon.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/qobjects/urlhandler.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/urlhandler.h
-    :language: C
+    :language: C++

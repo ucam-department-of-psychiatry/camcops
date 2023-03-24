@@ -26,4 +26,4 @@ tablet_qt/menu/anonymousmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/anonymousmenu.h
-    :language: C
+    :language: C++

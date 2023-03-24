@@ -26,4 +26,4 @@ tablet_qt/tasks/moca.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/moca.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/qobjects/stylenofocusrect.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/stylenofocusrect.h
-    :language: C
+    :language: C++

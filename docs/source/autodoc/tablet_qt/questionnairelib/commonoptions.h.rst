@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/commonoptions.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/commonoptions.h
-    :language: C
+    :language: C++

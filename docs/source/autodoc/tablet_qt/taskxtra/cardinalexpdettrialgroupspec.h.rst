@@ -26,4 +26,4 @@ tablet_qt/taskxtra/cardinalexpdettrialgroupspec.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/cardinalexpdettrialgroupspec.h
-    :language: C
+    :language: C++

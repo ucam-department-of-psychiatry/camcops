@@ -26,4 +26,4 @@ tablet_qt/qobjects/cameraframegrabber.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/cameraframegrabber.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/factg.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/factg.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/crypto/secureqstring.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/crypto/secureqstring.h
-    :language: C
+    :language: C++

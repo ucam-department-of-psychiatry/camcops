@@ -26,4 +26,4 @@ tablet_qt/menu/physicalillnessmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/physicalillnessmenu.h
-    :language: C
+    :language: C++

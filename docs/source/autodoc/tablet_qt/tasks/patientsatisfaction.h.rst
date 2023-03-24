@@ -26,4 +26,4 @@ tablet_qt/tasks/patientsatisfaction.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/patientsatisfaction.h
-    :language: C
+    :language: C++

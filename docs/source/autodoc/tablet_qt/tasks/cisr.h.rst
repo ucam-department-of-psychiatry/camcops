@@ -26,4 +26,4 @@ tablet_qt/tasks/cisr.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cisr.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/graphics/textconfig.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/textconfig.h
-    :language: C
+    :language: C++

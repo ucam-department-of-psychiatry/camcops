@@ -26,4 +26,4 @@ tablet_qt/tasklib/taskscheduleitem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/taskscheduleitem.h
-    :language: C
+    :language: C++

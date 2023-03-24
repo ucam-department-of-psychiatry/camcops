@@ -26,4 +26,4 @@ tablet_qt/tasks/esspri.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/esspri.h
-    :language: C
+    :language: C++

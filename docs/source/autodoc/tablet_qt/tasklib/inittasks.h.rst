@@ -26,4 +26,4 @@ tablet_qt/tasklib/inittasks.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/inittasks.h
-    :language: C
+    :language: C++

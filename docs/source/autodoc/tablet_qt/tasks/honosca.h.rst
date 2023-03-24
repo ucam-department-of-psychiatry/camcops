@@ -26,4 +26,4 @@ tablet_qt/tasks/honosca.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/honosca.h
-    :language: C
+    :language: C++
