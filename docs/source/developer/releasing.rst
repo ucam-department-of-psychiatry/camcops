@@ -280,7 +280,7 @@ For example:
     manually if need be. Check from the development root directory with
     ``dir camcops.exe /s``.
 
-Upload to https://github.com/RudolfCardinal/camcops/releases with a tag named
+Upload to https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
 ``v<VERSION_NUMBER>``.
 
 
@@ -290,7 +290,7 @@ Server
 - Create the Debian (``.deb``) and CentOS (``.rpm``) editions using the
   ``server/tools/MAKE_LINUX_PACKAGES.py`` script. Binaries will end up in
   ``server/packagebuild/``. Upload to
-  https://github.com/RudolfCardinal/camcops/releases with a tag named
+  https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
   ``v<VERSION_NUMBER>``.
 
 - The step above will also create a Python distibution in ``server/dist/``.
