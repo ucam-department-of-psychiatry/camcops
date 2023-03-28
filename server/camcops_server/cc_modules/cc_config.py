@@ -696,6 +696,8 @@ def get_demo_supervisor_config() -> str:
     autorestart = "true"
     startsecs = "30"
     stopwaitsecs = "60"
+    startretries = "10"
+    stopasgroup = "true"
     return f"""
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
@@ -732,6 +734,8 @@ autostart = {autostart}
 autorestart = {autorestart}
 startsecs = {startsecs}
 stopwaitsecs = {stopwaitsecs}
+startretries = {startretries}
+stopasgroup = {stopasgroup}
 
 [program:camcops_scheduler]
 
@@ -747,6 +751,7 @@ autostart = {autostart}
 autorestart = {autorestart}
 startsecs = {startsecs}
 stopwaitsecs = {stopwaitsecs}
+startretries = {startretries}
 
 [group:camcops]
 
