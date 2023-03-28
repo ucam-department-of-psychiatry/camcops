@@ -522,7 +522,7 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "5.12"  # is 5.12.4 as of 2019-06-18 (released 2019-06-17)
 QT_GIT_COMMIT = HEAD
-QT_SPECIFIC_VERSION = "5.12.11"
+QT_SPECIFIC_VERSION = "5.12.12"
 
 if QT_SPECIFIC_VERSION:
     QT_VERSION = Version(QT_SPECIFIC_VERSION)
@@ -3265,7 +3265,6 @@ def fetch_qt(cfg: Config) -> None:
         prettyname="Qt",
         url=cfg.qt_git_url,
         branch=cfg.qt_git_branch,
-        commit=cfg.qt_git_commit,
         directory=cfg.qt_src_gitdir,
         run_func=run,
     ):
@@ -3274,7 +3273,7 @@ def fetch_qt(cfg: Config) -> None:
     run([PERL, "init-repository"])
     # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
-        run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
+        run([GIT, "checkout", cfg.qt_git_commit])
         run([GIT, "submodule", "update", "--recursive"])
 
 
