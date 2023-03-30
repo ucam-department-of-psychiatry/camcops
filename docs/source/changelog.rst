@@ -3767,3 +3767,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.16, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Set default ``max-memory-per-child`` in the arguments passed to Celery workers
+  (``CELERY_WORKER_EXTRA_ARGS``) in the demo CamCOPS config. This should reduce
+  the memory consumption of Celery. Also set ``stopasgroup`` in the demo supervisor
+  config to prevent orphaned processes.

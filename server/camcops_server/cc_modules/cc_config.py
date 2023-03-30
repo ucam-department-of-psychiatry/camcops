@@ -518,8 +518,12 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamExportGeneral.CELERY_BEAT_EXTRA_ARGS} =
 {ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE} = {cd.CELERY_BEAT_SCHEDULE_DATABASE}
 {ConfigParamExportGeneral.CELERY_BROKER_URL} = {cd.CELERY_BROKER_URL}
+# Celery max memory per child set to be
+# celery_max_mem_kilobytes / worker_concurrency (by default number of cpus/cores available)
+# This example: 4GB / 4 = 1GB = 1000000
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
     --max-tasks-per-child=1000
+    --max-memory-per-child=100000
 {ConfigParamExportGeneral.CELERY_EXPORT_TASK_RATE_LIMIT} = 100/m
 {ConfigParamExportGeneral.EXPORT_LOCKDIR} = {cd.EXPORT_LOCKDIR}
 
@@ -696,6 +700,8 @@ def get_demo_supervisor_config() -> str:
     autorestart = "true"
     startsecs = "30"
     stopwaitsecs = "60"
+    startretries = "10"
+    stopasgroup = "true"
     return f"""
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
@@ -732,6 +738,8 @@ autostart = {autostart}
 autorestart = {autorestart}
 startsecs = {startsecs}
 stopwaitsecs = {stopwaitsecs}
+startretries = {startretries}
+stopasgroup = {stopasgroup}
 
 [program:camcops_scheduler]
 
@@ -747,6 +755,7 @@ autostart = {autostart}
 autorestart = {autorestart}
 startsecs = {startsecs}
 stopwaitsecs = {stopwaitsecs}
+startretries = {startretries}
 
 [group:camcops]
 
