@@ -26,4 +26,4 @@ tablet_qt/tasks/ctqsf.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ctqsf.h
-    :language: C
+    :language: C++

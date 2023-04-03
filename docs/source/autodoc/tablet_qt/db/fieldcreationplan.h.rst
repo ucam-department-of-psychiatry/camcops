@@ -26,4 +26,4 @@ tablet_qt/db/fieldcreationplan.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/fieldcreationplan.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/demqolproxy.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/demqolproxy.h
-    :language: C
+    :language: C++

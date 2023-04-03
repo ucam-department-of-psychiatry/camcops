@@ -26,4 +26,4 @@ tablet_qt/tasks/contactlog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/contactlog.h
-    :language: C
+    :language: C++

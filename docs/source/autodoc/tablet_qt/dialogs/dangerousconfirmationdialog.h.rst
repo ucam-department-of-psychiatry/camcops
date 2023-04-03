@@ -26,4 +26,4 @@ tablet_qt/dialogs/dangerousconfirmationdialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/dangerousconfirmationdialog.h
-    :language: C
+    :language: C++

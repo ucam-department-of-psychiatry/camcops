@@ -26,4 +26,4 @@ tablet_qt/layouts/hboxlayouthfw.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/layouts/hboxlayouthfw.h
-    :language: C
+    :language: C++

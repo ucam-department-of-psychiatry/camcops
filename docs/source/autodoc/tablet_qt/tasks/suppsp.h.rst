@@ -26,4 +26,4 @@ tablet_qt/tasks/suppsp.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/suppsp.h
-    :language: C
+    :language: C++

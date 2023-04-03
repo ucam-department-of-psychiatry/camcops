@@ -26,4 +26,4 @@ tablet_qt/menulib/taskchainmenuitem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/taskchainmenuitem.h
-    :language: C
+    :language: C++

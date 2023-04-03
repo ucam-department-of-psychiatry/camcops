@@ -26,4 +26,4 @@ tablet_qt/tasks/cpftcovidmedical.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cpftcovidmedical.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/dbobjects/storedvar.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dbobjects/storedvar.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasklib/taskfactory.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/taskfactory.h
-    :language: C
+    :language: C++

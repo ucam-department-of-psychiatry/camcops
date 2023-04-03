@@ -26,4 +26,4 @@ tablet_qt/menu/widgettestmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/widgettestmenu.h
-    :language: C
+    :language: C++

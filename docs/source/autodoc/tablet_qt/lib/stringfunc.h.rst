@@ -26,4 +26,4 @@ tablet_qt/lib/stringfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/stringfunc.h
-    :language: C
+    :language: C++

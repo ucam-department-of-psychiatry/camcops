@@ -35,6 +35,7 @@ Quick links:
 - :ref:`2020 <changelog_2020>`
 - :ref:`2021 <changelog_2021>`
 - :ref:`2022 <changelog_2022>`
+- :ref:`2023 <changelog_2023>`
 
 
 Contributors
@@ -3702,9 +3703,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New report to count server-side patients created and their assigned tasks.
 
+.. _changelog_2023:
 
-**Client and server v2.4.15, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2023
+~~~~
+
+.. _changelog_v2_4_15:
+
+**Client and server v2.4.15, released 24 Mar 2023**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fix Debian package install on Ubuntu 22.04.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/239
@@ -3754,3 +3761,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Remove ISAAQ task and replace with :ref:`ISAAQ-10 <isaaq10>`. (Database
   revisions 0081-0083.)
+
+- Use SecureTransport instead of OpenSSL with Qt on iOS client.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/278
+
+**Client and server v2.4.16, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Set default ``max-memory-per-child`` in the arguments passed to Celery workers
+  (``CELERY_WORKER_EXTRA_ARGS``) in the demo CamCOPS config. This should reduce
+  the memory consumption of Celery. Also set ``stopasgroup`` in the demo supervisor
+  config to prevent orphaned processes.

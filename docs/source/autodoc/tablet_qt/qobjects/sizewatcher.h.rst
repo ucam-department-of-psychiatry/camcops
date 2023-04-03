@@ -26,4 +26,4 @@ tablet_qt/qobjects/sizewatcher.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/sizewatcher.h
-    :language: C
+    :language: C++

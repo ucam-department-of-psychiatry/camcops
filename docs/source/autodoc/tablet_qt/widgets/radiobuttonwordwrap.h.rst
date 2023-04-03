@@ -26,4 +26,4 @@ tablet_qt/widgets/radiobuttonwordwrap.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/radiobuttonwordwrap.h
-    :language: C
+    :language: C++

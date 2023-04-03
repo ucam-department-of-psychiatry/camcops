@@ -26,4 +26,4 @@ tablet_qt/menu/executivemenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/executivemenu.h
-    :language: C
+    :language: C++

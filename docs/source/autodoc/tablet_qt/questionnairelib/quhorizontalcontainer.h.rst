@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quhorizontalcontainer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quhorizontalcontainer.h
-    :language: C
+    :language: C++

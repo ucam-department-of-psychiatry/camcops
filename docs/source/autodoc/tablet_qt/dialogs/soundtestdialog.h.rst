@@ -26,4 +26,4 @@ tablet_qt/dialogs/soundtestdialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/soundtestdialog.h
-    :language: C
+    :language: C++

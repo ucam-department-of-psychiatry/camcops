@@ -26,4 +26,4 @@ tablet_qt/taskxtra/ided3dstage.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/ided3dstage.h
-    :language: C
+    :language: C++

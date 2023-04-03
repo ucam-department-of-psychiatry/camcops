@@ -26,4 +26,4 @@ tablet_qt/db/blobfieldref.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/blobfieldref.h
-    :language: C
+    :language: C++

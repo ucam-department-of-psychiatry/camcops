@@ -26,4 +26,4 @@ tablet_qt/taskxtra/kirbytrial.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/kirbytrial.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/maths/floatbits.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/floatbits.h
-    :language: C
+    :language: C++

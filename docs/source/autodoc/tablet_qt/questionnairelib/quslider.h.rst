@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quslider.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quslider.h
-    :language: C
+    :language: C++

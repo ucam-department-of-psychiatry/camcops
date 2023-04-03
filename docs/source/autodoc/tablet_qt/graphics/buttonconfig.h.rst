@@ -26,4 +26,4 @@ tablet_qt/graphics/buttonconfig.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/buttonconfig.h
-    :language: C
+    :language: C++

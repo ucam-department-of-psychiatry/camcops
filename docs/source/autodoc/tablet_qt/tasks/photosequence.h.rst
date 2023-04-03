@@ -26,4 +26,4 @@ tablet_qt/tasks/photosequence.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/photosequence.h
-    :language: C
+    :language: C++

@@ -171,7 +171,9 @@ bool amInGuiThread();
 // Kill the app. Pops up a modal dialogue, then performs a hard kill.
 [[ noreturn ]] void stopApp(
         const QString& error,
-        const QString& title = QStringLiteral("CamCOPS internal bug: stopping"));
+        // QStringLiteral() here causing compilation error on Windows
+        // "function declared with 'noreturn' has a return statement"
+        const QString& title = "CamCOPS internal bug: stopping");
 
 // ============================================================================
 // Alerts

@@ -26,4 +26,4 @@ tablet_qt/tasks/swemwbs.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/swemwbs.h
-    :language: C
+    :language: C++

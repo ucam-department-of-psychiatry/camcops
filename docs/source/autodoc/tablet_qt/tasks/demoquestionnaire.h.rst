@@ -26,4 +26,4 @@ tablet_qt/tasks/demoquestionnaire.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/demoquestionnaire.h
-    :language: C
+    :language: C++

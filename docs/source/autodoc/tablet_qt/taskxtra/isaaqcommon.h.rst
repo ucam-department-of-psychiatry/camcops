@@ -26,4 +26,4 @@ tablet_qt/taskxtra/isaaqcommon.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/isaaqcommon.h
-    :language: C
+    :language: C++

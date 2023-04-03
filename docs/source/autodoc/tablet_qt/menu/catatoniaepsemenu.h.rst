@@ -26,4 +26,4 @@ tablet_qt/menu/catatoniaepsemenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/catatoniaepsemenu.h
-    :language: C
+    :language: C++

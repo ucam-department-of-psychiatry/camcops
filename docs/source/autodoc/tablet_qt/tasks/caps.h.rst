@@ -26,4 +26,4 @@ tablet_qt/tasks/caps.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/caps.h
-    :language: C
+    :language: C++

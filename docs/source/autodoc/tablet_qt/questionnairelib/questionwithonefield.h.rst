@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/questionwithonefield.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/questionwithonefield.h
-    :language: C
+    :language: C++

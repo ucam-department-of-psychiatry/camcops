@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quthermometeritem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quthermometeritem.h
-    :language: C
+    :language: C++

@@ -816,6 +816,8 @@ SOURCES += \
     questionnairelib/quverticalcontainer.cpp \
     questionnairelib/quwaist.cpp \
     questionnairelib/quzoomcontainer.cpp \
+    taskchains/cpftadulteatingdisorderscoiinanchain.cpp \
+    taskchains/cpftadulteatingdisorderss3clinicalchain.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
     tasklib/task.cpp \
@@ -1304,6 +1306,8 @@ HEADERS += \
     questionnairelib/quverticalcontainer.h \
     questionnairelib/quwaist.h \
     questionnairelib/quzoomcontainer.h \
+    taskchains/cpftadulteatingdisorderscoiinanchain.h \
+    taskchains/cpftadulteatingdisorderss3clinicalchain.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
     tasklib/task.h \

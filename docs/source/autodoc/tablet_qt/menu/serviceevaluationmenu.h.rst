@@ -26,4 +26,4 @@ tablet_qt/menu/serviceevaluationmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/serviceevaluationmenu.h
-    :language: C
+    :language: C++

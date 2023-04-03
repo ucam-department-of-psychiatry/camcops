@@ -26,4 +26,4 @@ tablet_qt/widgets/fixednumblockshfwtestwidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/fixednumblockshfwtestwidget.h
-    :language: C
+    :language: C++

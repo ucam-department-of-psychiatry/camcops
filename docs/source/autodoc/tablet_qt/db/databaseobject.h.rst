@@ -26,4 +26,4 @@ tablet_qt/db/databaseobject.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/databaseobject.h
-    :language: C
+    :language: C++

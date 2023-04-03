@@ -26,4 +26,4 @@ tablet_qt/menu/cognitivemenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/cognitivemenu.h
-    :language: C
+    :language: C++

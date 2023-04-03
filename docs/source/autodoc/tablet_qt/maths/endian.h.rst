@@ -26,4 +26,4 @@ tablet_qt/maths/endian.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/endian.h
-    :language: C
+    :language: C++

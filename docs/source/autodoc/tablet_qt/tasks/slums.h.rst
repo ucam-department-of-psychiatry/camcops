@@ -26,4 +26,4 @@ tablet_qt/tasks/slums.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/slums.h
-    :language: C
+    :language: C++

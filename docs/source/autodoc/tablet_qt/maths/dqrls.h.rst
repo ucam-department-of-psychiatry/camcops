@@ -26,4 +26,4 @@ tablet_qt/maths/dqrls.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/dqrls.h
-    :language: C
+    :language: C++

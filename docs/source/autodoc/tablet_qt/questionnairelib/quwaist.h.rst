@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quwaist.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quwaist.h
-    :language: C
+    :language: C++

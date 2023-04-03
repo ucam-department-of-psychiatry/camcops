@@ -26,4 +26,4 @@ tablet_qt/qobjects/flickcharm.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/flickcharm.h
-    :language: C
+    :language: C++

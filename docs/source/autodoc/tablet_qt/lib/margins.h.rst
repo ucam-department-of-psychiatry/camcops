@@ -26,4 +26,4 @@ tablet_qt/lib/margins.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/margins.h
-    :language: C
+    :language: C++

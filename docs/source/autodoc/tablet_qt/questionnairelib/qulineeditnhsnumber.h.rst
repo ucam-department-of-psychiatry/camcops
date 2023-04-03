@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qulineeditnhsnumber.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qulineeditnhsnumber.h
-    :language: C
+    :language: C++

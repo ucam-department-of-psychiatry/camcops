@@ -26,4 +26,4 @@ tablet_qt/diagnosis/icd9cm.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/diagnosis/icd9cm.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/lib/sizehelpers.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/sizehelpers.h
-    :language: C
+    :language: C++

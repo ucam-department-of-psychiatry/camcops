@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quspacer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quspacer.h
-    :language: C
+    :language: C++

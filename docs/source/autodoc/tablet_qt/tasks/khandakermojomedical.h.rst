@@ -26,4 +26,4 @@ tablet_qt/tasks/khandakermojomedical.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/khandakermojomedical.h
-    :language: C
+    :language: C++

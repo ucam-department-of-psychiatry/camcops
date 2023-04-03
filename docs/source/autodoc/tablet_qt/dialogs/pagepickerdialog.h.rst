@@ -26,4 +26,4 @@ tablet_qt/dialogs/pagepickerdialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/pagepickerdialog.h
-    :language: C
+    :language: C++

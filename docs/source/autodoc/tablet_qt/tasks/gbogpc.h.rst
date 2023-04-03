@@ -26,4 +26,4 @@ tablet_qt/tasks/gbogpc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/gbogpc.h
-    :language: C
+    :language: C++

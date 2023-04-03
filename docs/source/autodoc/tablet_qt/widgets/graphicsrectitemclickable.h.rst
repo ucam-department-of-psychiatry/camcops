@@ -26,4 +26,4 @@ tablet_qt/widgets/graphicsrectitemclickable.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/graphicsrectitemclickable.h
-    :language: C
+    :language: C++

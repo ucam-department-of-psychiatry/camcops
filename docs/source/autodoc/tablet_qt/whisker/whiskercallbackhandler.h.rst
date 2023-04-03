@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskercallbackhandler.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskercallbackhandler.h
-    :language: C
+    :language: C++

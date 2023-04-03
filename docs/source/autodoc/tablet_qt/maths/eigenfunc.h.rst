@@ -26,4 +26,4 @@ tablet_qt/maths/eigenfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/eigenfunc.h
-    :language: C
+    :language: C++

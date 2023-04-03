@@ -26,4 +26,4 @@ tablet_qt/common/uiconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/uiconst.h
-    :language: C
+    :language: C++

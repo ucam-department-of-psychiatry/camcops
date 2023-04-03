@@ -14,7 +14,7 @@ set -e
 shopt -s nocasematch
 
 # =============================================================================
-# Choose a version here. See https://github.com/RudolfCardinal/camcops/releases
+# Choose a version here. See https://github.com/ucam-department-of-psychiatry/camcops/releases
 # =============================================================================
 
 LATEST_VERSION=$(camcops_print_latest_github_version)

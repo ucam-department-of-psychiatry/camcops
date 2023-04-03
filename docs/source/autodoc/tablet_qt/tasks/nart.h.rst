@@ -26,4 +26,4 @@ tablet_qt/tasks/nart.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/nart.h
-    :language: C
+    :language: C++

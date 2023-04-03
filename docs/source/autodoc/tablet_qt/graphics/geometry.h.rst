@@ -26,4 +26,4 @@ tablet_qt/graphics/geometry.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/graphics/geometry.h
-    :language: C
+    :language: C++

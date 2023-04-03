@@ -26,4 +26,4 @@ tablet_qt/lib/numericfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/numericfunc.h
-    :language: C
+    :language: C++

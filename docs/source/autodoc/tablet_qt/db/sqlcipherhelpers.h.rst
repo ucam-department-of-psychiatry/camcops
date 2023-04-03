@@ -26,4 +26,4 @@ tablet_qt/db/sqlcipherhelpers.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/sqlcipherhelpers.h
-    :language: C
+    :language: C++

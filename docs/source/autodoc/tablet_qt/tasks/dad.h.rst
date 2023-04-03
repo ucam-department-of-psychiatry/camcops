@@ -26,4 +26,4 @@ tablet_qt/tasks/dad.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/dad.h
-    :language: C
+    :language: C++

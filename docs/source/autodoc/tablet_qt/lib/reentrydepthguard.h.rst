@@ -26,4 +26,4 @@ tablet_qt/lib/reentrydepthguard.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/reentrydepthguard.h
-    :language: C
+    :language: C++

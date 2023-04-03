@@ -26,4 +26,4 @@ tablet_qt/tasks/zbi12.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/zbi12.h
-    :language: C
+    :language: C++

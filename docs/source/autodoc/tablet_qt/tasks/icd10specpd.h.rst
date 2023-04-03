@@ -26,4 +26,4 @@ tablet_qt/tasks/icd10specpd.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/icd10specpd.h
-    :language: C
+    :language: C++

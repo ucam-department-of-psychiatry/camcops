@@ -26,4 +26,4 @@ tablet_qt/tasks/cpftresearchpreferences.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cpftresearchpreferences.h
-    :language: C
+    :language: C++

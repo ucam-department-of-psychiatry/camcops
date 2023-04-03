@@ -26,4 +26,4 @@ tablet_qt/tasks/cpftlpsreferral.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cpftlpsreferral.h
-    :language: C
+    :language: C++

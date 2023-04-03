@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumcqgridsinglebooleansignaller.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumcqgridsinglebooleansignaller.h
-    :language: C
+    :language: C++

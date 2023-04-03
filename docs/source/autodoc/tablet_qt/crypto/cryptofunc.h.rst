@@ -26,4 +26,4 @@ tablet_qt/crypto/cryptofunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/crypto/cryptofunc.h
-    :language: C
+    :language: C++

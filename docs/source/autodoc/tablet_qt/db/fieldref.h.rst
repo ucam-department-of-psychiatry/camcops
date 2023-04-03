@@ -26,4 +26,4 @@ tablet_qt/db/fieldref.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/fieldref.h
-    :language: C
+    :language: C++

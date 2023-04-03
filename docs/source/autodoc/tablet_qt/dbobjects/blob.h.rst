@@ -26,4 +26,4 @@ tablet_qt/dbobjects/blob.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dbobjects/blob.h
-    :language: C
+    :language: C++

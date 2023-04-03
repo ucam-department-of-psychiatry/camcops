@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qulineeditemail.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qulineeditemail.h
-    :language: C
+    :language: C++

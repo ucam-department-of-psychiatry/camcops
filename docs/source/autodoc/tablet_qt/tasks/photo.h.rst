@@ -26,4 +26,4 @@ tablet_qt/tasks/photo.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/photo.h
-    :language: C
+    :language: C++

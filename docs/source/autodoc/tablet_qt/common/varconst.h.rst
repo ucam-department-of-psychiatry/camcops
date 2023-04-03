@@ -26,4 +26,4 @@ tablet_qt/common/varconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/varconst.h
-    :language: C
+    :language: C++

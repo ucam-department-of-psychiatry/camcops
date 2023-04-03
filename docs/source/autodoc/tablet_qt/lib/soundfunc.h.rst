@@ -26,4 +26,4 @@ tablet_qt/lib/soundfunc.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/soundfunc.h
-    :language: C
+    :language: C++

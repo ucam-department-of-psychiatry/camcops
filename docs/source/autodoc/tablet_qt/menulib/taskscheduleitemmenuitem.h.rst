@@ -26,4 +26,4 @@ tablet_qt/menulib/taskscheduleitemmenuitem.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menulib/taskscheduleitemmenuitem.h
-    :language: C
+    :language: C++

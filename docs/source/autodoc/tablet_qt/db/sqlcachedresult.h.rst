@@ -26,4 +26,4 @@ tablet_qt/db/sqlcachedresult.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/sqlcachedresult.h
-    :language: C
+    :language: C++

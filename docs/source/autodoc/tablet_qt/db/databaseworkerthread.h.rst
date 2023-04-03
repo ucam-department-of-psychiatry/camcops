@@ -26,4 +26,4 @@ tablet_qt/db/databaseworkerthread.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/databaseworkerthread.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/apeqcpftperinatal.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/apeqcpftperinatal.h
-    :language: C
+    :language: C++

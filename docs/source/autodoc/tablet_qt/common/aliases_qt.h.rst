@@ -26,4 +26,4 @@ tablet_qt/common/aliases_qt.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/aliases_qt.h
-    :language: C
+    :language: C++

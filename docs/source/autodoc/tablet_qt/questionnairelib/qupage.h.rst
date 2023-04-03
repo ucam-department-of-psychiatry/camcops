@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qupage.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qupage.h
-    :language: C
+    :language: C++

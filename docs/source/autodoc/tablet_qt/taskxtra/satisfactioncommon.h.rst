@@ -26,4 +26,4 @@ tablet_qt/taskxtra/satisfactioncommon.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/satisfactioncommon.h
-    :language: C
+    :language: C++

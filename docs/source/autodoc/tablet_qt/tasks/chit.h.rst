@@ -26,4 +26,4 @@ tablet_qt/tasks/chit.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/chit.h
-    :language: C
+    :language: C++

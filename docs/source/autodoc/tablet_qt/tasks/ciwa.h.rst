@@ -26,4 +26,4 @@ tablet_qt/tasks/ciwa.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ciwa.h
-    :language: C
+    :language: C++

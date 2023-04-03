@@ -26,4 +26,4 @@ tablet_qt/tasks/lynalliamlife.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/lynalliamlife.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumcqgriddoublesignaller.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumcqgriddoublesignaller.h
-    :language: C
+    :language: C++

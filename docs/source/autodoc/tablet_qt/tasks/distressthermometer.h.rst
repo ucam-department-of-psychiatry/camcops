@@ -26,4 +26,4 @@ tablet_qt/tasks/distressthermometer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/distressthermometer.h
-    :language: C
+    :language: C++

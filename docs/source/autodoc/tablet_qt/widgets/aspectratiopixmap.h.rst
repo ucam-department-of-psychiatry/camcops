@@ -26,4 +26,4 @@ tablet_qt/widgets/aspectratiopixmap.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/aspectratiopixmap.h
-    :language: C
+    :language: C++

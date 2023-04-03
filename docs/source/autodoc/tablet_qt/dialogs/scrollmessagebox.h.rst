@@ -26,4 +26,4 @@ tablet_qt/dialogs/scrollmessagebox.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/scrollmessagebox.h
-    :language: C
+    :language: C++

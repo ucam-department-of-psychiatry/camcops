@@ -26,4 +26,4 @@ tablet_qt/maths/countingcontainer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/countingcontainer.h
-    :language: C
+    :language: C++

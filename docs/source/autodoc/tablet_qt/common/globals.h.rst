@@ -26,4 +26,4 @@ tablet_qt/common/globals.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/globals.h
-    :language: C
+    :language: C++

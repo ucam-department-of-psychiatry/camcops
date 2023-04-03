@@ -26,4 +26,4 @@ tablet_qt/lib/comparers.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/comparers.h
-    :language: C
+    :language: C++

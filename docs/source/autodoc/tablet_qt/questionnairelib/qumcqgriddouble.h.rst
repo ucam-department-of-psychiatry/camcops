@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumcqgriddouble.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumcqgriddouble.h
-    :language: C
+    :language: C++

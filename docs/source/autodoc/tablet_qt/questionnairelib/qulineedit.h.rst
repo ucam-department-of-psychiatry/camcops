@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qulineedit.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qulineedit.h
-    :language: C
+    :language: C++

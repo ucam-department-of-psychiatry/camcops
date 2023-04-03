@@ -26,4 +26,4 @@ tablet_qt/lib/css.h
 ^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/css.h
-    :language: C
+    :language: C++

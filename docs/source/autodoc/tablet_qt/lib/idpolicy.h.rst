@@ -26,4 +26,4 @@ tablet_qt/lib/idpolicy.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/idpolicy.h
-    :language: C
+    :language: C++

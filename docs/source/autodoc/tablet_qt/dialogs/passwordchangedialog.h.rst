@@ -26,4 +26,4 @@ tablet_qt/dialogs/passwordchangedialog.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dialogs/passwordchangedialog.h
-    :language: C
+    :language: C++

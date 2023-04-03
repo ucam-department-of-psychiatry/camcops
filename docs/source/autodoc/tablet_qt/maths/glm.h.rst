@@ -26,4 +26,4 @@ tablet_qt/maths/glm.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/maths/glm.h
-    :language: C
+    :language: C++

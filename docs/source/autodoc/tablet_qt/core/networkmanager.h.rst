@@ -26,4 +26,4 @@ tablet_qt/core/networkmanager.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/core/networkmanager.h
-    :language: C
+    :language: C++

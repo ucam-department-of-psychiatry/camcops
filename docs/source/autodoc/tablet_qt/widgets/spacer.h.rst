@@ -26,4 +26,4 @@ tablet_qt/widgets/spacer.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/spacer.h
-    :language: C
+    :language: C++

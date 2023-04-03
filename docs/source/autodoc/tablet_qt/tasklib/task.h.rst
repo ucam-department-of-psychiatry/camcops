@@ -26,4 +26,4 @@ tablet_qt/tasklib/task.h
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasklib/task.h
-    :language: C
+    :language: C++

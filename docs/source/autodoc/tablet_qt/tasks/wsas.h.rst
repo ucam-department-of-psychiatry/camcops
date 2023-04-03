@@ -26,4 +26,4 @@ tablet_qt/tasks/wsas.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/wsas.h
-    :language: C
+    :language: C++

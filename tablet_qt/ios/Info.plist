@@ -57,5 +57,7 @@
 	</array>
     <key>NSCameraUsageDescription</key>
     <string>CamCOPS would like to use your camera for taking photos</string>
+    <!-- We use only standard forms of encryption, which are exempt -->
+    <key>ITSAppUsesNonExemptEncryption</key><false/>
   </dict>
 </plist>

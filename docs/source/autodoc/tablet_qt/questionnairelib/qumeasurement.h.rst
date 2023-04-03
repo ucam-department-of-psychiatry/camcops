@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qumeasurement.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qumeasurement.h
-    :language: C
+    :language: C++

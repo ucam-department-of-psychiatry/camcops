@@ -26,4 +26,4 @@ tablet_qt/lib/flagguard.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/lib/flagguard.h
-    :language: C
+    :language: C++

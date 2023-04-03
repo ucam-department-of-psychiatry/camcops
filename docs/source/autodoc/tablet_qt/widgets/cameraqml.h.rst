@@ -26,4 +26,4 @@ tablet_qt/widgets/cameraqml.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/cameraqml.h
-    :language: C
+    :language: C++

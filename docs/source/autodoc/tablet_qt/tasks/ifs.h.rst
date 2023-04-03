@@ -26,4 +26,4 @@ tablet_qt/tasks/ifs.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ifs.h
-    :language: C
+    :language: C++

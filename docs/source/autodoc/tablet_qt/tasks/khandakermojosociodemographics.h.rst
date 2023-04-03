@@ -26,4 +26,4 @@ tablet_qt/tasks/khandakermojosociodemographics.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/khandakermojosociodemographics.h
-    :language: C
+    :language: C++

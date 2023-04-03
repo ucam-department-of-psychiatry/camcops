@@ -26,4 +26,4 @@ tablet_qt/qobjects/shootabug.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/shootabug.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/menu/addictionmenu.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/addictionmenu.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/widgets/labelwordwrapwide.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/labelwordwrapwide.h
-    :language: C
+    :language: C++

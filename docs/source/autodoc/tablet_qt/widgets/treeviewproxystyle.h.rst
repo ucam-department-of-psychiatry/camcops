@@ -26,4 +26,4 @@ tablet_qt/widgets/treeviewproxystyle.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/treeviewproxystyle.h
-    :language: C
+    :language: C++

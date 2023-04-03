@@ -26,4 +26,4 @@ tablet_qt/common/urlconst.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/common/urlconst.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/tasks/pswq.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/pswq.h
-    :language: C
+    :language: C++

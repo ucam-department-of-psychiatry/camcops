@@ -26,4 +26,4 @@ tablet_qt/tasks/shaps.h
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/shaps.h
-    :language: C
+    :language: C++

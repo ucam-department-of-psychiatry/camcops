@@ -26,4 +26,4 @@ tablet_qt/menu/setmenucpftadrd.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenucpftadrd.h
-    :language: C
+    :language: C++

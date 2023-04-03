@@ -26,4 +26,4 @@ tablet_qt/db/sqlargs.h
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/db/sqlargs.h
-    :language: C
+    :language: C++

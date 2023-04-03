@@ -30,16 +30,20 @@
 
 
 KhandakerMojoChain::KhandakerMojoChain(CamcopsApp& app) :
-    TaskChain(app, {
-        KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
-        KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
-        Eq5d5l::EQ5D5L_TABLENAME,
-        Shaps::SHAPS_TABLENAME,
-        Mfi20::MFI20_TABLENAME,
-        Chit::CHIT_TABLENAME,
-        Suppsp::SUPPSP_TABLENAME,
-        Sfmpq2::SFMPQ2_TABLENAME,
-        // Sequence as per Joel Parkinson to Rudolf Cardinal, 2019-10-22.
-    }, TaskChain::CreationMethod::OnDemandOrAbort)  // as per JP 2019-10-22; also the default.
+    TaskChain(
+        app,
+        {
+            KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
+            KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
+            Eq5d5l::EQ5D5L_TABLENAME,
+            Shaps::SHAPS_TABLENAME,
+            Mfi20::MFI20_TABLENAME,
+            Chit::CHIT_TABLENAME,
+            Suppsp::SUPPSP_TABLENAME,
+            Sfmpq2::SFMPQ2_TABLENAME,
+            // Sequence as per Joel Parkinson to Rudolf Cardinal, 2019-10-22.
+        },
+        TaskChain::CreationMethod::OnDemandOrAbort  // as per JP 2019-10-22; also the default.
+    )
 {
 }

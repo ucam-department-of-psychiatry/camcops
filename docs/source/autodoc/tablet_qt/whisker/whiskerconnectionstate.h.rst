@@ -26,4 +26,4 @@ tablet_qt/whisker/whiskerconnectionstate.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/whisker/whiskerconnectionstate.h
-    :language: C
+    :language: C++

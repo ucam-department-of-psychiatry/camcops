@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/mcqgridsubtitle.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/mcqgridsubtitle.h
-    :language: C
+    :language: C++

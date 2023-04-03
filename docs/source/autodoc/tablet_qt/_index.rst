@@ -583,6 +583,10 @@ tablet_qt
     resources/camcops/stylesheets/main.css.rst
     resources/camcops/stylesheets/menu.css.rst
     resources/camcops/stylesheets/questionnaire.css.rst
+    taskchains/cpftadulteatingdisorderscoiinanchain.cpp.rst
+    taskchains/cpftadulteatingdisorderscoiinanchain.h.rst
+    taskchains/cpftadulteatingdisorderss3clinicalchain.cpp.rst
+    taskchains/cpftadulteatingdisorderss3clinicalchain.h.rst
     taskchains/khandakermojochain.cpp.rst
     taskchains/khandakermojochain.h.rst
     tasklib/inittasks.cpp.rst

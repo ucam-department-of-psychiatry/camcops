@@ -26,4 +26,4 @@ tablet_qt/widgets/fixedareahfwtestwidget.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/widgets/fixedareahfwtestwidget.h
-    :language: C
+    :language: C++

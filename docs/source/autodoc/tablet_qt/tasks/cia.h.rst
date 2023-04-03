@@ -26,4 +26,4 @@ tablet_qt/tasks/cia.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/cia.h
-    :language: C
+    :language: C++

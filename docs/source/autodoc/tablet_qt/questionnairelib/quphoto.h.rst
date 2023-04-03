@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/quphoto.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/quphoto.h
-    :language: C
+    :language: C++

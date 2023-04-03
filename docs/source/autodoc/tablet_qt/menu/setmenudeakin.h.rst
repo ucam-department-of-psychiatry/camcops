@@ -26,4 +26,4 @@ tablet_qt/menu/setmenudeakin.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenudeakin.h
-    :language: C
+    :language: C++

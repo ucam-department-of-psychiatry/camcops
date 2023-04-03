@@ -26,4 +26,4 @@ tablet_qt/tasks/hadsrespondent.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/hadsrespondent.h
-    :language: C
+    :language: C++

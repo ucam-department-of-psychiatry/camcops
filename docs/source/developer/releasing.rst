@@ -169,11 +169,11 @@ Google Play Store release history
 | 2.4.13        | 27 (32-bit ARM);    | 2.4.13              | 2022-08-19         | 23      | 30      |
 |               | 28 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.15        | 29 (32-bit ARM);    | 2.4.15              | PENDING            | 23      | ?       |
+| 2.4.15        | 29 (32-bit ARM);    | 2.4.15              | 2023-03-27         | 23      | 31      |
 |               | 30 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 
-Note: target API of 31 required as of Nov 2022:
+Note: target API of 33 required as of Aug 2023:
 https://developer.android.com/google/play/requirements/target-sdk
 
 
@@ -270,7 +270,13 @@ Tools...`. Add a tool called ``signtool`` with a command to sign the executable.
 
 For example:
 
-``C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe sign /f C:\Users\Me\Downloads\certificate.p12 /tr http://timestamp.sectigo.com /td SHA256 /p "password" $f``
+``C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe sign /f C:\Users\Me\certificates\certificate.p12 /tr http://timestamp.sectigo.com /td SHA256 /p "password" $f``
+
+or for a certificate generated from a Certificate Signing Request on the same machine (and installed with ``certreq -accept``):
+
+``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /f C:\Users\Me\certificates\certificate.crt /tr http://timestamp.sectigo.com /td SHA256 $f``
+
+You can use the `/debug` switch for more verbose output when running `signtool` from the command line.
 
 .. warning::
 
@@ -280,7 +286,7 @@ For example:
     manually if need be. Check from the development root directory with
     ``dir camcops.exe /s``.
 
-Upload to https://github.com/RudolfCardinal/camcops/releases with a tag named
+Upload to https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
 ``v<VERSION_NUMBER>``.
 
 
@@ -290,7 +296,7 @@ Server
 - Create the Debian (``.deb``) and CentOS (``.rpm``) editions using the
   ``server/tools/MAKE_LINUX_PACKAGES.py`` script. Binaries will end up in
   ``server/packagebuild/``. Upload to
-  https://github.com/RudolfCardinal/camcops/releases with a tag named
+  https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
   ``v<VERSION_NUMBER>``.
 
 - The step above will also create a Python distibution in ``server/dist/``.

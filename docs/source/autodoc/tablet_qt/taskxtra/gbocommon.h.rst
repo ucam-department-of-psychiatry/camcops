@@ -26,4 +26,4 @@ tablet_qt/taskxtra/gbocommon.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/taskxtra/gbocommon.h
-    :language: C
+    :language: C++

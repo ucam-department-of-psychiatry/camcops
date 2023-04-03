@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qusequencecontainerbase.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qusequencecontainerbase.h
-    :language: C
+    :language: C++

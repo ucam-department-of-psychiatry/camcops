@@ -26,4 +26,4 @@ tablet_qt/dbobjects/allowedservertable.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/dbobjects/allowedservertable.h
-    :language: C
+    :language: C++

@@ -26,4 +26,4 @@ tablet_qt/questionnairelib/qulineeditdouble.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/questionnairelib/qulineeditdouble.h
-    :language: C
+    :language: C++

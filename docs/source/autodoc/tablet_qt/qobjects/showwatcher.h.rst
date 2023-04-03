@@ -26,4 +26,4 @@ tablet_qt/qobjects/showwatcher.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/qobjects/showwatcher.h
-    :language: C
+    :language: C++

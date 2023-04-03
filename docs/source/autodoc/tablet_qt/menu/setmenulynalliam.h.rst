@@ -26,4 +26,4 @@ tablet_qt/menu/setmenulynalliam.h
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/menu/setmenulynalliam.h
-    :language: C
+    :language: C++

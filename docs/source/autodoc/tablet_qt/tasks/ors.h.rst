@@ -26,4 +26,4 @@ tablet_qt/tasks/ors.h
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../../../../tablet_qt/tasks/ors.h
-    :language: C
+    :language: C++
