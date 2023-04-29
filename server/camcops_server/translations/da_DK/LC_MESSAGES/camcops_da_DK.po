@@ -7,16 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2023-03-19 18:56+0000\n"
-"PO-Revision-Date: 2023-03-19 18:56+0000\n"
+"POT-Creation-Date: 2023-04-29 16:01+0100\n"
+"PO-Revision-Date: 2023-04-29 16:02+0100\n"
 "Last-Translator: \n"
-"Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language: da_DK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.9.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:223
 msgid "(Server) Devices registered with the server"
@@ -206,7 +207,7 @@ msgstr "Du har angivet >1 værdi for én ID-nummer type"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1314
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1335
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:282
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:285
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:64
 msgid "Sex"
 msgstr "Køn"
@@ -1205,7 +1206,7 @@ msgstr "Opdelt efter opgavetype?"
 msgid "Split by user?"
 msgstr "Opdelt efter bruger?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1665
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1666
 msgid "Can't fetch ID number definition"
 msgstr "Definitionen af id-nummer kan ikke hentes"
 
@@ -1225,43 +1226,43 @@ msgstr "{task_name} @ {due_days} dage"
 msgid "(Server) Count server-created patients and their assigned tasks"
 msgstr "(Server) Tæl serveroprettede patienter og deres tildelte opgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:130
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:131
 msgid "Abnormal"
 msgstr "Unormal"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:132
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:133
 msgid "Absent"
 msgstr "Fraværende"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:134
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:135
 msgid "Absent or mild"
 msgstr "Fraværende eller mild"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:136
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:137
 msgid "Anonymous task"
 msgstr "Anonym opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:138
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:139
 msgid "Answer"
 msgstr "Svar"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:140
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:141
 msgid "Auditory"
 msgstr "Auditive"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:143
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:144
 msgid "Category"
 msgstr "Kategori"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:146
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:147
 msgid "TERMS AND CONDITIONS OF USE"
 msgstr "VILKÅR OG BETINGELSER FOR BRUG"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:148
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:149
 msgid "You must agree to the following terms and conditions in order to use CamCOPS."
 msgstr "Du skal acceptere følgende vilkår og betingelser for at bruge CamCOPS."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:153
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:154
 msgid ""
 "1. By using the Cambridge Cognitive and Psychiatric Assessment Kit application or web interface (“CamCOPS”), you are agreeing in full to these Terms and Conditions of Use. If you do not agree to these terms, do not use the software.\n"
 "\n"
@@ -1311,88 +1312,92 @@ msgstr ""
 "\n"
 "Disse vilkår og betingelser blev senest revideret i 2020-10-12."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:228
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:229
 msgid "I agree to these terms and conditions"
 msgstr "Jeg accepterer disse vilkår og betingelser"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:231
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:232
 msgid "Event"
 msgstr "Begivenhed"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:234
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:235
 msgid "False"
 msgstr "Falsk"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:236
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:237
 msgid "Female"
 msgstr "Kvinde"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:239
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:240
 msgid "General"
 msgstr "Generelt"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:242
+msgid "Global score"
+msgstr "Global score"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:245
 msgid "If applicable"
 msgstr "Hvis relevant"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:245
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:248
 msgid "Location"
 msgstr "Lokation"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:248
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:251
 msgid "Male"
 msgstr "Mand"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:250
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:253
 msgid "Meets criteria?"
 msgstr "Opfylder kriterier?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:252
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:255
 msgid "Mild"
 msgstr "Mild"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:254
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:257
 msgid "Mild to moderate"
 msgstr "Mild til moderat"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:256
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:259
 msgid "Moderate"
 msgstr "Moderat"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:258
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:261
 msgid "Moderately severe"
 msgstr "Moderat alvorlig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:260
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:263
 msgid "Moderate to severe"
 msgstr "Moderat til alvorlig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:263
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:266
 msgid "N/A"
 msgstr "I/A"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:265
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:268
 msgid "No"
 msgstr "Nej"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:267
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:270
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/clinician_comments.mako:38
 msgid "None"
 msgstr "Ingen"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:269
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:272
 msgid "Normal"
 msgstr "Normal"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:271
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:274
 msgid "Note"
 msgstr "Note"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:274
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:277
 msgid "Present"
 msgstr "Nuværende"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:277
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:280
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:293
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:324
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:561
@@ -1400,36 +1405,36 @@ msgstr "Nuværende"
 msgid "Question"
 msgstr "Spørgsmål"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:280
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:283
 msgid "Severe"
 msgstr "Alvorlig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:285
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:288
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:362
 msgid "Total score"
 msgstr "Samlet score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:287
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:290
 msgid "True"
 msgstr "Sandt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:290
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:293
 msgid "Unknown"
 msgstr "Ukendt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:293
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:296
 msgid "Very severe"
 msgstr "Meget alvorlig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:295
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:298
 msgid "Visual"
 msgstr "Visuel"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:297
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:300
 msgid "Volume (0–1)"
 msgstr "Lydstyrke (0–1)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:300
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:303
 msgid "Yes"
 msgstr "Ja"
 
@@ -2032,6 +2037,10 @@ msgstr "Clinical Global Impression – Schizophrenia [klinisk global indtryk –
 msgid "Cambridge–Chicago Compulsivity Trait Scale"
 msgstr "Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]"
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cia.py:104
+msgid "The Clinical Impairment Assessment questionnaire"
+msgstr "Clinical Impairment Assessment (spørgeskemaet til vurdering af klinisk svækkelse)"
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:3041
 msgid "Clinical Interview Schedule, Revised"
 msgstr "Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]"
@@ -2120,72 +2129,72 @@ msgstr "Demens livskvalitet skala, selvrapporteringsversion"
 msgid "Dementia Quality of Life measure, proxy version"
 msgstr "Demens livskvalitet skala, version besvaret af en fuldmægtig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:368
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:369
 msgid "Diagnostic codes, ICD-10"
 msgstr "Diagnostisk kodning (ICD-10)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:485
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:487
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr "Diagnostisk kodning, ICD-9-CM (DSM-IV-TR)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:639
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:641
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr "Diagnose – ICD-9-CM (DSM-IV-TR) diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:671
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr "Diagnose – ICD-10 diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:697
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:699
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr "Diagnose – alle diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:740
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:742
 msgid "Diagnostic code"
 msgstr "Diagnostisk kode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:741
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:743
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr "Indtast en diagnostik kode. Du kan bruge SQL 'LIKE' syntaks for jokertegn, dvs _ for et tegn og % for nul/en/partier"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:766
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
 msgid "Diagnostic codes"
 msgstr "Diagnostiske koder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:770
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr "Brug % som jokertegn (f. eks. F32 matcher kun F32, men F32% matcher F32, F 32.1, F 32.2...)."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:782
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:784
 msgid "You must specify at least"
 msgstr "Du skal angive mindst"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:785
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:787
 msgid "You have specified duplicate diagnoses"
 msgstr "Du har angivet identiske diagnoser"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:803
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
 msgid "Inclusion diagnoses (lifetime)"
 msgstr "Inklusions diagnoser (levetid)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
 msgid "Exclusion diagnoses (lifetime)"
 msgstr "Udelukkelses diagnoser (levetid)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
 msgid "Minimum age (years) (optional)"
 msgstr "Minimumsalder (år) (valgfrit)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:811
 msgid "Maximum age (years) (optional)"
 msgstr "Maksimal alder (år) (valgfrit)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1056
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1058
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr "Diagnose – Find patienter ved ICD-10 diagnose ± alder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1107
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1109
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr "Diagnose – Find patienter ved ICD-9-CM (DSM-IV-TR) diagnose ± alder"
 
@@ -2193,7 +2202,7 @@ msgstr "Diagnose – Find patienter ved ICD-9-CM (DSM-IV-TR) diagnose ± alder"
 msgid "Distress Thermometer"
 msgstr "Nød termometer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/edeq.py:197
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/edeq.py:199
 msgid "Eating Disorder Examination Questionnaire"
 msgstr "Eating Disorder Examination Questionnaire (spørgeskema til undersøgelse af spiseforstyrrelse)"
 
@@ -4567,4 +4576,3 @@ msgstr "Medmindre administratoren har angivet et bestemt starttidspunkt, når en
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/task_assignment_report.mako:41
 msgid "Tasks for patients who are yet to register appear in the count of 'tasks_assigned' for the date 'None'."
 msgstr "Opgaver for patienter, der endnu ikke er registreret, fremgår af optællingen af 'tasks_assigned' for datoen 'None' ('Ingen')."
-

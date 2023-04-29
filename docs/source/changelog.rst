@@ -3703,6 +3703,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - New report to count server-side patients created and their assigned tasks.
 
+
 .. _changelog_2023:
 
 2023
@@ -3765,10 +3766,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Use SecureTransport instead of OpenSSL with Qt on iOS client.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/278
 
+
 **Client and server v2.4.16, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Set default ``max-memory-per-child`` in the arguments passed to Celery workers
-  (``CELERY_WORKER_EXTRA_ARGS``) in the demo CamCOPS config. This should reduce
-  the memory consumption of Celery. Also set ``stopasgroup`` in the demo supervisor
-  config to prevent orphaned processes.
+- Set default ``max-memory-per-child`` in the arguments passed to Celery
+  workers (``CELERY_WORKER_EXTRA_ARGS``) in the demo CamCOPS config. This
+  should reduce the memory consumption of Celery. Also set ``stopasgroup`` in
+  the demo supervisor config to prevent orphaned processes.
+
+- CIA and EDE-Q provide trackers (and, for EDE-Q, clarified "global" rather
+  than "total" score, since it is a mean).
+
+- Better error message if SSL certificate/key mis-specified.

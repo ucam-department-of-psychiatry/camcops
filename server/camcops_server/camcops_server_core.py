@@ -433,8 +433,7 @@ def serve_cherrypy(
 
     # Start server
     try:
-        # log.debug("cherrypy.server.thread_pool: {}",
-        #           cherrypy.server.thread_pool)
+        # log.debug(f"{cherrypy.server.thread_pool=}")
         cherrypy.engine.start()
         cherrypy.engine.block()
     except KeyboardInterrupt:
