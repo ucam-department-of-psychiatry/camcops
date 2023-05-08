@@ -25,6 +25,8 @@ jobs:
               run: |
                   set -euxo pipefail
 
+                  sudo apt-get update
+                  sudo apt-get -y install wait-for-it
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   source ${HOME}/venv/bin/activate
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
@@ -35,3 +37,5 @@ jobs:
                   sed -i "s|SSL_CERTIFICATE =|SSL_CERTIFICATE = ${SSL_CERTIFICATE}|" ${CAMCOPS_CONFIG_FILE}
                   sed -i "s|SSL_PRIVATE_KEY =|SSL_PRIVATE_KEY = ${SSL_PRIVATE_KEY}|" ${CAMCOPS_CONFIG_FILE}
                   camcops_server serve_cherrypy &
+                  wait-for-it "localhost:8000" --timeout=300
+                  curl -I -L --retry 10 --fail --insecure "https://localhost:8000/"
