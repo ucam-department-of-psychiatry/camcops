@@ -11,7 +11,7 @@ on:
             - .github/scripts/python_setup.sh
             - .github/workflows/python-tests.yml
 jobs:
-    pip-install-and-tests:
+    python-tests:
         strategy:
             matrix:
                 python-version: [3.8, 3.9, "3.10"]

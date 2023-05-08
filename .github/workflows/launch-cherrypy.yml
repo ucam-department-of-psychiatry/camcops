@@ -9,7 +9,7 @@ on:
             - .github/scripts/create_config_file.sh
             - .github/scripts/python_setup.sh
 jobs:
-    pip-install-and-tests:
+    launch-cherrypy:
         strategy:
             matrix:
                 python-version: [3.8, 3.9, "3.10"]
