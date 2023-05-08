@@ -29,4 +29,9 @@ jobs:
                   source ${HOME}/venv/bin/activate
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
-                  camcops_server serve_cherrypy
+                  SSL_CERTIFICATE = ${HOME}/test.crt
+                  SSL_PRIVATE_KEY = ${HOME}/test.key
+                  openssl req -new -newkey rsa:4096 -nodes -keyout ${SSL_PRIVATE_KEY} -out ${SSL_CERTIFICATE} -subj "/C=GB/ST=Cambridgeshire/L=Cambridge/O=University of Cambridge/CN=localhost"
+                  sed -i "s|SSL_CERTIFICATE =|SSL_CERTIFICATE = ${SSL_CERTIFICATE}|" ${CAMCOPS_CONFIG_FILE}
+                  sed -i "s|SSL_PRIVATE_KEY =|SSL_PRIVATE_KEY = ${SSL_PRIVATE_KEY}|" ${CAMCOPS_CONFIG_FILE}
+                  camcops_server serve_cherrypy &
