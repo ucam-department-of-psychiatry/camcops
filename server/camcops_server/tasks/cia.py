@@ -29,7 +29,7 @@ camcops_server/tasks/cia.py
 
 """
 
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Any, Dict, List, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 from camcops_server.cc_modules.cc_text import SS
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class CiaMetaclass(DeclarativeMeta):
@@ -86,6 +87,7 @@ class CiaMetaclass(DeclarativeMeta):
 class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
     __tablename__ = "cia"
     shortname = "CIA"
+    provides_trackers = True
 
     Q_PREFIX = "q"
     FIRST_Q = 1
@@ -106,6 +108,17 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
             return False
 
         return True
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        return [
+            TrackerInfo(
+                value=self.global_score(),
+                plot_label="CIA global impairment score",
+                axis_label=f"Global score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+            ),
+        ]
 
     def global_score(self) -> Optional[float]:
         """

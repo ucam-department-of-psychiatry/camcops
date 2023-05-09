@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 from camcops_server.cc_modules.cc_text import SS
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class EdeqMetaclass(DeclarativeMeta):
@@ -167,6 +168,7 @@ class EdeqMetaclass(DeclarativeMeta):
 class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
     __tablename__ = "edeq"
     shortname = "EDE-Q"
+    provides_trackers = True
 
     N_QUESTIONS = 28
 
@@ -206,6 +208,17 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
             return False
 
         return True
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        return [
+            TrackerInfo(
+                value=self.global_score(),
+                plot_label="EDE-Q global score",
+                axis_label="Global score (0–6)",
+                axis_min=-0.5,
+                axis_max=6.5,
+            ),
+        ]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score_range = "[0–6]"
@@ -260,7 +273,7 @@ class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             global_score=tr(
-                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
+                req.sstring(SS.GLOBAL_SCORE) + " <sup>[1]</sup>",
                 f"{answer(self.global_score())} {score_range}",
             ),
             restraint_score=tr(
