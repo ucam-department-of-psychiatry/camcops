@@ -7,6 +7,7 @@ on:
         paths:
             - '**.py'
             - .github/scripts/create_config_file.sh
+            - .github/scripts/mysql_local_setup.sh
             - .github/scripts/python_setup.sh
             - .github/workflows/launch-cherrypy.yml
 jobs:
@@ -22,16 +23,20 @@ jobs:
             - uses: actions/setup-python@v4
               with:
                   python-version: ${{ matrix.python-version }}
+            - name: Set up MySQL
+              run: |
+                  ${GITHUB_WORKSPACE}/.github/scripts/mysql_local_setup.sh
             - name: Launch CherryPy
               run: |
                   set -euxo pipefail
-
                   sudo apt-get update
                   sudo apt-get -y install wait-for-it
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   source ${HOME}/venv/bin/activate
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
+                  python -m pip install pymysql
+                  camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
                   SSL_CERTIFICATE=${HOME}/test.crt
                   SSL_PRIVATE_KEY=${HOME}/test.key
                   openssl req -new -newkey rsa:4096 -nodes -keyout ${SSL_PRIVATE_KEY} -out ${SSL_CERTIFICATE} -subj "/C=GB/ST=Cambridgeshire/L=Cambridge/O=University of Cambridge/CN=localhost"
