@@ -68,6 +68,7 @@ class SS(Enum):
     FEMALE = auto()
 
     GENERAL = auto()
+    GLOBAL_SCORE = auto()
 
     IF_APPLICABLE = auto()
 
@@ -237,6 +238,8 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
 
     elif w == SS.GENERAL:
         return _("General")
+    elif w == SS.GLOBAL_SCORE:
+        return _("Global score")
 
     elif w == SS.IF_APPLICABLE:
         return _("If applicable")
