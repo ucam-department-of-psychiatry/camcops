@@ -2,7 +2,15 @@
 # yamllint disable rule:line-length
 name: Build docs
 # yamllint disable-line rule:truthy
-on: push
+on:
+    push:
+        paths:
+            - .github/workflows/docs.yml
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/build_docs.sh
+            - docs/**
+            - server/**
+            - tablet_qt/**
 
 jobs:
     build-docs:
