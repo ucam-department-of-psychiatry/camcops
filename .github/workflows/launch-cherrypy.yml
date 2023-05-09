@@ -8,6 +8,7 @@ on:
             - '**.py'
             - .github/scripts/create_config_file.sh
             - .github/scripts/python_setup.sh
+            - .github/workflows/launch-cherrypy.yml
 jobs:
     launch-cherrypy:
         strategy:
