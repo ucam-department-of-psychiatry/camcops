@@ -11,7 +11,7 @@ on:
             - .github/workflows/database-upgrade-downgrade.yml
             - 'server/camcops_server/**'
 jobs:
-    pip-install-and-tests:
+    database-upgrade-downgrade:
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v3
