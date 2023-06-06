@@ -146,7 +146,7 @@ QStringList Edeq::summary() const
     };
 
     return QStringList{
-        rangeScore(TextConst::totalScore(), globalScore(),
+        rangeScore(TextConst::globalScore(), globalScore(),
                    MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
         rangeScore(xstring("restraint"), restraint(), MIN_SUBSCALE, MAX_SUBSCALE),
         rangeScore(xstring("eating_concern"), eatingConcern(), MIN_SUBSCALE, MAX_SUBSCALE),

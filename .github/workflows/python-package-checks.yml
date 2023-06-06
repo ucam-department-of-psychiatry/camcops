@@ -6,11 +6,10 @@ on:
     push:
         paths:
             - '**.py'
-            - .github/scripts/create_config_file.sh
             - .github/scripts/python_setup.sh
             - .github/workflows/python-package-checks.yml
 jobs:
-    pip-install-and-tests:
+    python-package-checks:
         strategy:
             matrix:
                 python-version: [3.8, 3.9, "3.10"]

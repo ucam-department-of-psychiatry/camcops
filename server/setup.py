@@ -135,7 +135,6 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed  # noqa
     "pre-commit==2.20.0",  # development only, various sanity checks on code
-    "scrapy==2.6.2",  # development only
     "sphinx==4.2.0",  # development only
     "sphinx_rtd_theme==1.0.0",  # development only
     # -------------------------------------------------------------------------
@@ -153,7 +152,7 @@ INSTALL_REQUIRES = [
     "pyparsing==2.4.7",
     "pypdf==3.1.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
-    "sqlparse==0.4.2",
+    "sqlparse==0.4.4",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
     # -------------------------------------------------------------------------
