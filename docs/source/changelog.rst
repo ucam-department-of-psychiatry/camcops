@@ -3779,3 +3779,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   than "total" score, since it is a mean).
 
 - Better error message if SSL certificate/key mis-specified.
+
+- Fix display of "How much..." options in EDE-Q so that they fit on to an
+  iPad screen in portrait.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/287
