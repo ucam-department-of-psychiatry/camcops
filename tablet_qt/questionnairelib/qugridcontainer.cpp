@@ -201,6 +201,12 @@ QuGridContainer* QuGridContainer::setColumnStretch(
     return this;
 }
 
+QuGridContainer* QuGridContainer::setColumnMinimumWidthInPixels(
+        const int column, const int width)
+{
+    m_column_minimum_width_in_pixels[column] = width;
+    return this;
+}
 
 QuGridContainer* QuGridContainer::setFixedGrid(const bool fixed_grid)
 {
@@ -280,16 +286,28 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         grid->addWidget(w, c.row, c.column,
                         c.row_span, c.column_span, alignment);
     }
-    QMapIterator<int, int> it(m_column_stretch);
-    while (it.hasNext()) {
-        it.next();
-        const int column = it.key();
-        const int stretch = it.value();
+    QMapIterator<int, int> stretch_it(m_column_stretch);
+    while (stretch_it.hasNext()) {
+        stretch_it.next();
+        const int column = stretch_it.key();
+        const int stretch = stretch_it.value();
 #ifdef DEBUG_GRID_CREATION
         qDebug().nospace() << "... setColumnStretch(" << column
                            << "," << stretch << ")";
 #endif
         grid->setColumnStretch(column, stretch);
+    }
+
+    QMapIterator<int, int> width_it(m_column_minimum_width_in_pixels);
+    while (width_it.hasNext()) {
+        width_it.next();
+        const int column = width_it.key();
+        const int width = width_it.value();
+#ifdef DEBUG_GRID_CREATION
+        qDebug().nospace() << "... setMinimumWidthInPixels(" << column
+                           << "," << width << ")";
+#endif
+        grid->setColumnMinimumWidth(column, width);
     }
 
     return widget;
@@ -311,6 +329,7 @@ QDebug operator<<(QDebug debug, const QuGridContainer& grid)
     debug.nospace()
             << "QuGridContainer(m_cells=" << grid.m_cells
             << ", m_column_stretch=" << grid.m_column_stretch
+            << ", m_column_minimum_width_in_pixels=" << grid.m_column_minimum_width_in_pixels
             << ", m_expand=" << grid.m_expand
             << ", m_fixed_grid=" << grid.m_fixed_grid;
     return debug;
