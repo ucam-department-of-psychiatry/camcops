@@ -96,6 +96,9 @@ public:
     static QString description();
     static QString diagnosis();
 
+    static QString enterTheAnswers();
+    static QString examinerComments();
+    static QString examinerCommentsPrompt();
     static QString EXPERIMENTAL_SYMBOL;
     static QString experimentalSubtitleSuffix();
 
@@ -107,9 +110,7 @@ public:
     static QString finished();
     static QString fullTask();
 
-    static QString enterTheAnswers();
-    static QString examinerComments();
-    static QString examinerCommentsPrompt();
+    static QString globalScore();
 
     static QString icd10();
     static QString idNumberType();

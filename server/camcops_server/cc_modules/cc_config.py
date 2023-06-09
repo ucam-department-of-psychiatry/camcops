@@ -1513,7 +1513,17 @@ class CamcopsConfig(object):
         self.show_response = _get_bool(ws, cw.SHOW_RESPONSE, cd.SHOW_RESPONSE)
         self.show_timing = _get_bool(ws, cw.SHOW_TIMING, cd.SHOW_TIMING)
         self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
+        if self.ssl_certificate and not os.path.isfile(self.ssl_certificate):
+            raise ValueError(
+                f"Invalid {cw.SSL_CERTIFICATE}: {self.ssl_certificate!r} is "
+                f"not a file"
+            )
         self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
+        if self.ssl_private_key and not os.path.isfile(self.ssl_private_key):
+            raise ValueError(
+                f"Invalid {cw.SSL_PRIVATE_KEY}: {self.ssl_private_key!r} is "
+                f"not a file"
+            )
         self.static_cache_duration_s = _get_int(
             ws, cw.STATIC_CACHE_DURATION_S, cd.STATIC_CACHE_DURATION_S
         )

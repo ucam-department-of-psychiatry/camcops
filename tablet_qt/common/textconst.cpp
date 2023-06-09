@@ -77,12 +77,6 @@ QString TextConst::delete_() { return tr("Delete"); }
 QString TextConst::description() { return tr("Description"); }
 QString TextConst::diagnosis() { return tr("Diagnosis"); }
 
-QString TextConst::EXPERIMENTAL_SYMBOL("~");
-QString TextConst::experimentalSubtitleSuffix()
-{
-    return tr("Experimental.");
-}
-
 QString TextConst::enterTheAnswers() { return tr("Enter the answers:"); }
 QString TextConst::examinerComments() { return tr("Examiner’s comments"); }
 QString TextConst::examinerCommentsPrompt()
@@ -90,9 +84,16 @@ QString TextConst::examinerCommentsPrompt()
     return tr("Optional — Examiner’s comments (e.g. "
               "difficulties the subject had with the task):");
 }
+QString TextConst::EXPERIMENTAL_SYMBOL("~");
+QString TextConst::experimentalSubtitleSuffix()
+{
+    return tr("Experimental.");
+}
 
 QString TextConst::finished() { return tr("Finished"); }
 QString TextConst::fullTask() { return tr("Full task without content restriction"); }
+
+QString TextConst::globalScore() { return tr("Global score"); }
 
 QString TextConst::HAS_CLINICIAN_SYMBOL("C");
 QString TextConst::hasClinicianSubtitleSuffix() {

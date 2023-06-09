@@ -491,7 +491,7 @@
         <translation>Nej, jeg kan ikke huske kodeordet</translation>
     </message>
     <message>
-        <location line="+769"/>
+        <location line="+767"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -506,13 +506,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1657"/>
-        <location line="+1659"/>
+        <location line="-1655"/>
+        <location line="+1657"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1828"/>
+        <location line="-1826"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -637,7 +637,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Slet database?</translation>
     </message>
     <message>
-        <location line="+909"/>
+        <location line="+907"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -697,7 +697,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2896"/>
+        <location line="-2894"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -707,7 +707,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2938"/>
+        <location line="+2936"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -1421,6 +1421,22 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <location line="+24"/>
         <source>Clinical score</source>
         <translation>Klinisk score</translation>
+    </message>
+</context>
+<context>
+    <name>CpftAdultEatingDisordersCoiinAnChain</name>
+    <message>
+        <location filename="../taskchains/cpftadulteatingdisorderscoiinanchain.cpp" line="+42"/>
+        <source>COIIN-AN</source>
+        <translation>COIIN-AN</translation>
+    </message>
+</context>
+<context>
+    <name>CpftAdultEatingDisordersS3ClinicalChain</name>
+    <message>
+        <location filename="../taskchains/cpftadulteatingdisorderss3clinicalchain.cpp" line="+40"/>
+        <source>S3 Clinical</source>
+        <translation>S3 Klinisk</translation>
     </message>
 </context>
 <context>
@@ -3295,7 +3311,7 @@ enig</translation>
 <context>
     <name>Isaaq10</name>
     <message>
-        <location filename="../tasks/isaaq10.cpp" line="+70"/>
+        <location filename="../tasks/isaaq10.cpp" line="+73"/>
         <source>Internet Severity and Activities Addiction Questionnaire, 10-items</source>
         <translation>Internet sværhedsgrad og aktiviteter afhængighed spørgeskema, 10-elementer</translation>
     </message>
@@ -4947,7 +4963,7 @@ enig</translation>
         <translation>Fejl ved kryptering af databaser</translation>
     </message>
     <message>
-        <location filename="../lib/uifunc.h" line="+182"/>
+        <location filename="../lib/uifunc.h" line="+184"/>
         <location line="+4"/>
         <source>Alert</source>
         <translation>Opmærksom</translation>
@@ -5520,7 +5536,7 @@ enig</translation>
 <context>
     <name>SetMenuCpftAdultEatingDisorders</name>
     <message>
-        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+52"/>
+        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+54"/>
         <source>CPFT Adult Eating Disorders Service</source>
         <translation>CPFT Voksen Spiseforstyrrelser Service</translation>
     </message>
@@ -5531,6 +5547,11 @@ enig</translation>
     </message>
     <message>
         <location line="+9"/>
+        <source>Task chains</source>
+        <translation>Opgavekæder</translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Generic measures</source>
         <translation>Generiske foranstaltninger</translation>
     </message>
@@ -7156,12 +7177,12 @@ Afsluttet</translation>
         <translation>Hedengangne.</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+16"/>
         <source>Experimental.</source>
         <translation>Eksperimentel.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-10"/>
         <source>Enter the answers:</source>
         <translation>Indtast svarene:</translation>
     </message>
@@ -7176,7 +7197,7 @@ Afsluttet</translation>
         <translation>Valgfrit — Undersøgerens kommentarer (for eksempel problemer med emnet med opgaven):</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>Finished</source>
         <translation>Færdig</translation>
     </message>
@@ -7184,6 +7205,11 @@ Afsluttet</translation>
         <location line="+1"/>
         <source>Full task without content restriction</source>
         <translation>Fuld opgave uden indholdsbegrænsning</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Global score</source>
+        <translation>Global score</translation>
     </message>
     <message>
         <location line="+4"/>

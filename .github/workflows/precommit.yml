@@ -9,7 +9,7 @@ on:
             - .github/scripts/python_setup.sh
             - .github/workflows/precommit.yml
 jobs:
-    pip-install-and-tests:
+    precommit-checks:
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v3
