@@ -27,7 +27,7 @@
 #include "widgets/thermometer.h"
 
 const int DEFAULT_TEXT_GAP_PX = 5;
-const int DEFAULT_TOP_IMAGE_OFFSET_PX = 20;
+const int DEFAULT_IMAGE_PADDING_PX = 20;
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
                              const QVector<QuThermometerItem>& items,
@@ -98,7 +98,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         m_rescale,  // rescale
         m_rescale_factor,  // rescale_factor
         DEFAULT_TEXT_GAP_PX,  // text_gap_px
-        DEFAULT_TOP_IMAGE_OFFSET_PX,
+        DEFAULT_IMAGE_PADDING_PX,
         nullptr  // parent
     );
 
