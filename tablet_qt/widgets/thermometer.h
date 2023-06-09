@@ -98,6 +98,7 @@ public:
             bool rescale_images = false,  // rescale from images' intrinsic size?
             double rescale_image_factor = 1.0,  // if rescale: scale factor
             int text_gap_px = 4,  // gap between images and adjacent text
+            int top_image_offset_px = 0,
             QWidget* parent = nullptr);
 
     // ------------------------------------------------------------------------
@@ -187,6 +188,7 @@ protected:
     bool m_rescale_images;  // rescale images?
     double m_rescale_image_factor;  // if rescale: by what factor?
     int m_text_gap_px;  // gap between images and adjacent text
+    int m_top_image_offset_px;
     // QColor m_unused_space_colour;  // colour for any "unpainted" area
 
     // Details of the current selection:

@@ -96,6 +96,7 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
                          bool rescale_images,
                          double rescale_image_factor,
                          int text_gap_px,
+                         int top_image_offset_px,
                          QWidget* parent) :
     QWidget(parent),
     m_active_images(active_images),
@@ -111,6 +112,7 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
     m_rescale_images(rescale_images),
     m_rescale_image_factor(rescale_image_factor),
     m_text_gap_px(text_gap_px),
+    m_top_image_offset_px(top_image_offset_px),
     // m_unused_space_colour(QColor()),
     m_selected_index(UNSELECTED),
     m_touching_index(UNSELECTED),
@@ -195,6 +197,8 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
     // Set up layout: vertical.
     // Also create "being touched" images.
     // ------------------------------------------------------------------------
+    const int top_offset = m_top_image_offset_px;
+    const qreal scaled_top_offset = imageScale(top_offset);
 
     const bool pressed_marker_behind = false;  // colour on top
     for (int i = 0; i < m_n_rows; ++i) {
@@ -203,8 +207,12 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
         const int unscaled_height = active_image.height();
         const qreal scaled_height = imageScale(unscaled_height);
         if (i == 0) {
-            m_raw_image_tops.append(0);
-            m_image_top_bottom.append(QPair<qreal, qreal>(0, scaled_height));
+            m_raw_image_tops.append(top_offset);
+            m_image_top_bottom.append(
+                QPair<qreal, qreal>(
+                    scaled_top_offset, scaled_top_offset + scaled_height
+                )
+            );
         } else {
             m_raw_image_tops.append(
                         m_raw_image_tops[i - 1] +
@@ -245,7 +253,7 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
             uifunc::addPressedBackground(inactive_image, pressed_marker_behind));
     }
     m_target_total_size.rheight() = qCeil(
-                m_image_top_bottom[m_n_rows - 1].second);
+        m_image_top_bottom[m_n_rows - 1].second + scaled_top_offset);
 
     // ------------------------------------------------------------------------
     // Final layout calculations
