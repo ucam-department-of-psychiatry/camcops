@@ -247,8 +247,8 @@ OpenableWidget* Edeq::editor(const bool read_only)
     const int freq_min_width_px = 50;
     const QVector<int> freq_min_option_widths_px = {50, 50, 50, 50, 50, 50, 50};
 
-    const int how_much_min_width_px = 100;
-    const QVector<int> how_much_min_option_widths_px = {100, 100, 100, 100, 100, 100, 100};
+    const int how_much_min_width_px = 50;
+    const QVector<int> how_much_min_option_widths_px = {50, 50, 50, 50, 50, 50, 50};
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto instructions1_12 = new QuHeading(xstring("q1_12_instructions"));
