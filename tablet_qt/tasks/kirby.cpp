@@ -354,6 +354,12 @@ QVector<KirbyRewardPair> Kirby::allChoiceResults() const
 
 double Kirby::kKirby(const QVector<KirbyRewardPair>& results)
 {
+    if (results.length() == 0) {
+        return std::numeric_limits<double>::quiet_NaN();
+        // ... or it may crash when we try to dereference return value of
+        // max_element
+    }
+
     // 1. For every k value assessed by the questions, establish the degree
     //    of consistency.
     QMap<double, int> consistency;  // maps k to n_consistent_choices
