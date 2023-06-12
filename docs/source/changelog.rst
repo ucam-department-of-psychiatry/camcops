@@ -3783,3 +3783,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix display of "How much..." options in EDE-Q so that they fit on to an
   iPad screen in portrait.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/287
+
+- Fix display of visual analogue scale in EQ-5D-5L in landscape on iPad
+  (and portrait on smaller screens) so that all of the scale is visible.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/126
+
+- Fix clipping of topmost and bottommost Thermometer widget labels when the
+  text is greater in height than the images.
