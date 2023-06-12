@@ -3784,6 +3784,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   iPad screen in portrait.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/287
 
+- Fix crash when the Kirby task is aborted with no results
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/296
+
 - Fix display of visual analogue scale in EQ-5D-5L in landscape on iPad
   (and portrait on smaller screens) so that all of the scale is visible.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/126
