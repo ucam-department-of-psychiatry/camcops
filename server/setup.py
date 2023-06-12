@@ -112,7 +112,7 @@ INSTALL_REQUIRES = [
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
     "pytest==7.2.0",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
-    "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
+    "requests==2.31.0",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.9.3",  # used by some tasks. slow installation.
@@ -161,7 +161,7 @@ INSTALL_REQUIRES = [
     "alabaster==0.7.12",  # for sphinx
     "amqp==5.0.6",  # for celery
     "Chameleon==3.8.1",  # for Deform
-    "tornado==6.1",  # for celery
+    "tornado==6.3.2",  # for celery
     "webob==1.8.6",  # for pyramid
 ]
 

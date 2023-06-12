@@ -699,6 +699,7 @@ void WidgetTestMenu::testThermometer()
         true,  // rescale
         0.25,  // rescale_factor
         4,  // text_gap_px
+        20, // top image offset px
         nullptr  // parent
     );
     debugfunc::debugWidget(widget);
