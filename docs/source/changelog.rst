@@ -3783,3 +3783,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix display of "How much..." options in EDE-Q so that they fit on to an
   iPad screen in portrait.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/287
+
+- Fix crash when the Kirby task is aborted with no results
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/296
