@@ -250,7 +250,10 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
     auto therm = new QuThermometer(fr_vas, items);
     // ... will be owned by the grid when inserted;
-    therm->setRescale(true, 0.4, true);
+    const double unscaled_height = 3200.0;
+    const double rescale_factor = uifunc::screenHeight() / unscaled_height;
+
+    therm->setRescale(true, rescale_factor, true);
 
     const bool allow_scroll = false;
     const bool zoomable = false;
