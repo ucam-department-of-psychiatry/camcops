@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QColor>
+#include <QObject>
 #include <QPen>
 #include <QPointF>
 #include <QRectF>
