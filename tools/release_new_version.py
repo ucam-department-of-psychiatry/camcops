@@ -53,6 +53,9 @@ PROJECT_ROOT = os.path.join(ROOT_TOOLS_DIR, "..")
 DOCS_DIR = os.path.join(PROJECT_ROOT, "docs")
 REBUILD_DOCS = os.path.join(DOCS_DIR, "rebuild_docs.py")
 DOCS_SOURCE_DIR = os.path.join(DOCS_DIR, "source")
+APACHE_CONFIG_FILE = os.path.join(
+    DOCS_SOURCE_DIR, "administrator", "_demo_apache_config.conf"
+)
 CPP_SOURCE_DIR = os.path.join(PROJECT_ROOT, "tablet_qt")
 SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
 SERVER_TOOLS_DIR = os.path.join(SERVER_SOURCE_DIR, "tools")
@@ -142,6 +145,11 @@ class VersionReleaser:
     )
     ios_version_replace = (
         r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>{extra}\g<9>"
+    )
+
+    apache_config_version_search = (
+        # (               1              )( 2 )( 3)( 4 )( 5)( 6 )( 7)
+        r"(^# Created by CamCOPS version )(\d+)(\.)(\d+)(\.)(\d+)(\.)"
     )
 
     def __init__(
@@ -688,7 +696,7 @@ class VersionReleaser:
         self.check_ios_version()
 
         if len(self.errors) == 0:
-            self.rebuild_docs()
+            self.check_docs()
 
         self.check_uncommitted_changes()
         self.check_unpushed_changes()
@@ -696,6 +704,23 @@ class VersionReleaser:
         self.check_unpushed_tags()
         self.check_package_installed("wheel")
         self.check_package_installed("twine")
+
+    def check_docs(self) -> None:
+        # The GitHub docs workflow will do a more thorough check. This
+        # will hopefully be enough.
+        if self.get_apache_config_file_version() != self.new_server_version:
+            self.rebuild_docs()
+
+    def get_apache_config_file_version(self) -> Version:
+        with open(APACHE_CONFIG_FILE, "r") as f:
+            for line in f.readlines():
+                m = re.match(self.apache_config_version_search, line)
+                if m is not None:
+                    return Version(
+                        major=int(m.group(2)),
+                        minor=int(m.group(4)),
+                        patch=int(m.group(6)),
+                    )
 
     def rebuild_docs(self) -> None:
         self.run_with_check([REBUILD_DOCS])
@@ -801,6 +826,10 @@ def main() -> None:
     """
     if not in_virtualenv():
         log.error("release_new_version.py must be run inside virtualenv")
+        sys.exit(EXIT_FAILURE)
+
+    if sys.version_info < (3, 10):
+        log.error("You must run this script with Python 3.10 or later")
         sys.exit(EXIT_FAILURE)
 
     parser = argparse.ArgumentParser(
