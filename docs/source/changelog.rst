@@ -3768,7 +3768,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_16:
 
-**Client and server v2.4.16, released 12 Jun 2023**
+**Client and server v2.4.16, released 13 Jun 2023**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Set default ``max-memory-per-child`` in the arguments passed to Celery
