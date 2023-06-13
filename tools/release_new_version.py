@@ -50,7 +50,9 @@ EXIT_FAILURE = 1
 
 ROOT_TOOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_ROOT = os.path.join(ROOT_TOOLS_DIR, "..")
-DOCS_SOURCE_DIR = os.path.join(PROJECT_ROOT, "docs", "source")
+DOCS_DIR = os.path.join(PROJECT_ROOT, "docs")
+REBUILD_DOCS = os.path.join(DOCS_DIR, "rebuild_docs.py")
+DOCS_SOURCE_DIR = os.path.join(DOCS_DIR, "source")
 CPP_SOURCE_DIR = os.path.join(PROJECT_ROOT, "tablet_qt")
 SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
 SERVER_TOOLS_DIR = os.path.join(SERVER_SOURCE_DIR, "tools")
@@ -685,8 +687,8 @@ class VersionReleaser:
         self.check_ios_short_version()
         self.check_ios_version()
 
-        # TODO: Check version numbers in docs have been updated
-        # Probably easiest just to rebuid docs
+        if len(self.errors) == 0:
+            self.rebuild_docs()
 
         self.check_uncommitted_changes()
         self.check_unpushed_changes()
@@ -694,6 +696,9 @@ class VersionReleaser:
         self.check_unpushed_tags()
         self.check_package_installed("wheel")
         self.check_package_installed("twine")
+
+    def rebuild_docs(self) -> None:
+        self.run_with_check([REBUILD_DOCS])
 
     def release(self) -> None:
         if self.should_release_server:

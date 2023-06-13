@@ -143,12 +143,9 @@ def main():
     # -------------------------------------------------------------------------
     # Argument parser
     # -------------------------------------------------------------------------
-    if sys.version_info >= (3, 9):
-        # TODO: Newer versions will change the formatting of help text
-        # possibly for the better. Needs investigating.
-        raise AssertionError(
-            "This script currently needs to be run with Python < 3.9."
-        )
+    if sys.version_info < (3, 10):
+        log.error("You must run this script with Python 3.10 or later")
+        sys.exit(EXIT_FAILURE)
 
     parser = argparse.ArgumentParser(formatter_class=RichHelpFormatter)
     parser.add_argument(

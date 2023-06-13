@@ -19,7 +19,7 @@ usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
 
 Build Qt and other libraries for CamCOPS
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
 
 General:

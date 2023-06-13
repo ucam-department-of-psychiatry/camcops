@@ -6,7 +6,7 @@ usage: camcops_fetch_snomed_codes [-h] [--allhelp] [--url URL]
 
 Fetch SNOMED CT codes from a SNOMED CT Snapshot REST API provider
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --allhelp             show help for all commands and exit
   --url URL             URL (protocol, host, API root path) for SNOMED-CT API
@@ -30,17 +30,15 @@ commands:
 ===============================================================================
 Help for command 'test'
 ===============================================================================
-USAGE: camcops_fetch_snomed_codes test [-h]
-                                       [--concept_id [CONCEPT_ID [CONCEPT_ID ...]]]
-                                       [--term [TERM [TERM ...]]]
+USAGE: camcops_fetch_snomed_codes test [-h] [--concept_id [CONCEPT_ID ...]]
+                                       [--term [TERM ...]]
                                        [--semantic_area SEMANTIC_AREA]
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help            show this help message and exit
-  --concept_id [CONCEPT_ID [CONCEPT_ID ...]]
+  --concept_id [CONCEPT_ID ...]
                         For tests: Concept ID(s) to test (default: None)
-  --term [TERM [TERM ...]]
-                        For tests: Term(s) to test (default: None)
+  --term [TERM ...]     For tests: Term(s) to test (default: None)
   --semantic_area SEMANTIC_AREA
                         For tests: semantic area to restrict to (default:
                         None)
@@ -51,7 +49,7 @@ Help for command 'fetch'
 USAGE: camcops_fetch_snomed_codes fetch [-h] [--outfile OUTFILE]
                                         [--continue_on_error]
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help           show this help message and exit
   --outfile OUTFILE    XML filename to write (default:
                        camcops_tasks_snomed.xml)

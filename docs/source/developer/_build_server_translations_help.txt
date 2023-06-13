@@ -35,7 +35,7 @@ POSITIONAL ARGUMENTS:
   operation        Operation to perform; possibilities are ['extract',
                    'init_missing', 'update', 'poedit', 'compile', 'all']
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help       show this help message and exit
   --verbose        Be verbose (default: False)
   --poedit POEDIT  Path to 'poedit' tool. Default is taken from POEDIT

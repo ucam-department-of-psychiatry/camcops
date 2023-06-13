@@ -43,7 +43,7 @@ POSITIONAL ARGUMENTS:
   operation            Operation to perform; possibilities are ['po2ts',
                        'update', 'ts2po', 'release', 'poedit', 'all']
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help           show this help message and exit
   --lconvert LCONVERT  Path to 'lconvert' tool (part of Qt Linguist). Default
                        is taken from LCONVERT environment variable or 'which

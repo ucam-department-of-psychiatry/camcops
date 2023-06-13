@@ -4,7 +4,7 @@ USAGE: Create an XML string file skeleton, with placeholder text, from a real bu
 POSITIONAL ARGUMENTS:
   filename              Input filename
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help            show this help message and exit
   --replacement REPLACEMENT
                         Replace string contents with this (default: XXX)
