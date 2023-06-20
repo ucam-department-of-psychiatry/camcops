@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import answer, bold, td, tr, tr_qa
+from camcops_server.cc_modules.cc_html import answer, bold, doi, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_string import AS
@@ -347,8 +347,7 @@ class Bdi(TaskHasPatientMixin, Task, metaclass=BdiMetaclass):
                 [1] Suicidal thoughts are asked about in Q{SUICIDALITY_QNUM}
                     for all of: BDI-I (1961), BDI-IA (1978), and BDI-II (1996).
 
-                [2] Insight study:
-                    <a href="https://doi.org/10.1186/ISRCTN16942542">doi:10.1186/ISRCTN16942542</a>
+                [2] Insight study: {doi("10.1186/ISRCTN16942542")}
 
                 [3] See the
                     <a href="https://camcops.readthedocs.io/en/latest/tasks/bdi.html">CamCOPS

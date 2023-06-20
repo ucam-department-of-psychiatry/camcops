@@ -427,3 +427,33 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
     it's falsy.
     """
     return get_ternary(x, "Correct", "Incorrect", None)
+
+
+def pmid(x: int) -> str:
+    """
+    Returns hyperlinked text to a PubMed ID (PMID).
+
+    Args:
+        p:
+            The integer PMID.
+
+    Returns:
+        Hyperlinked text, as raw HTML.
+
+    """
+    return f'<a href="https://pubmed.ncbi.nlm.nih.gov/{x}/">PMID {x}</a>'
+
+
+def doi(x: str) -> str:
+    """
+    Returns hyperlinked text to a digital object identifier (DOI).
+
+    Args:
+        p:
+            The integer PMID.
+
+    Returns:
+        Hyperlinked text, as raw HTML.
+
+    """
+    return f'<a href="https://doi.org/{x}">doi:{x}</a>'
