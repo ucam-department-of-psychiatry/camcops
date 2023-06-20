@@ -35,7 +35,7 @@ from sqlalchemy.sql.sqltypes import Boolean, Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from camcops_server.cc_modules.cc_html import answer, td, tr_qa
+from camcops_server.cc_modules.cc_html import answer, pmid, td, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -323,9 +323,7 @@ class Nart(
                     NFER-Nelson, Windsor, UK; see [3].
                 [3] Bright P et al (2016). The National Adult Reading Test:
                     restandardisation against the Wechsler Adult Intelligence
-                    Scale—Fourth edition.
-                    <a href="https://www.ncbi.nlm.nih.gov/pubmed/27624393">PMID
-                    27624393</a>.
+                    Scale—Fourth edition. {pmid}.
             </div>
             <div class="{CssClass.COPYRIGHT}">
                 NART: Copyright © Hazel E. Nelson. Used with permission.
@@ -384,6 +382,7 @@ class Nart(
                 self.bright_perceptual_speed(),
             ),
             q_a=q_a,
+            pmid=pmid(27624393),
         )
         return h
 
