@@ -3371,10 +3371,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 
     extra_cmake_cxxflags = []  # type: List[str]
     extra_cmake_lflags = []  # type: List[str]
-    if cfg.verbose >= 2:
-        extra_cmake_cxxflags += ["-v"]  # make clang++ verbose
-        extra_cmake_cxxflags += ["-Xlinker --verbose=2"]  # make linker verbose
-        # extra_cmake_lflags += ["--verbose=2"]  # make ld verbose
 
     if target_platform.android:
         # We use a dynamic build of Qt (bundled into the APK), not a static
