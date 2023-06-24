@@ -3229,24 +3229,15 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
 def fetch_qt(cfg: Config) -> None:
     """
-    Downloads Qt source code.
+    Downloads Qt source code, if not already present.
     """
     log.info("Fetching Qt source...")
-    if not git_clone(
+    git_clone(
         prettyname="Qt",
         url=cfg.qt_git_url,
         branch=cfg.qt_git_commit,
         directory=cfg.qt_src_gitdir,
         run_func=run,
-    ):
-        return
-    chdir(cfg.qt_src_gitdir)
-    run(
-        [
-            PERL,
-            "init-repository",
-            f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
-        ]
     )
 
 
@@ -3257,7 +3248,13 @@ def checkout_qt(cfg: Config) -> None:
     chdir(cfg.qt_src_gitdir)
     run([GIT, "fetch"])
     run([GIT, "checkout", cfg.qt_git_commit])
-    run([GIT, "submodule", "update", "--init", "--recursive"])
+    run(
+        [
+            PERL,
+            "init-repository",
+            f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
+        ]
+    )
 
 
 def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
