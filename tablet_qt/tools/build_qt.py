@@ -575,6 +575,9 @@ SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
 # -- IF YOU CHANGE THIS, UPDATE camcops.pro
 EIGEN_VERSION = "3.4.0"
 
+# FFmpeg
+FFMPEG_VERSION = "n6.0"
+
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
 MIN_MACOS_VERSION = "10.10"  # ... with 10.7, SQLCipher's "configure" fails
@@ -697,6 +700,7 @@ TCLSH = "tclsh"  # used by SQLCipher build process
 VCVARSALL = "vcvarsall.bat"  # sets environment variables for VC++
 XCODE_SELECT = "xcode-select"  # macOS tool to find paths for XCode
 XCRUN = "xcrun"  # macOS XCode tool
+YASM = "yasm"  # Assembler for FFmpeg
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -1678,6 +1682,16 @@ class Config(object):
         )
         self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
+        # FFmpeg
+        self.ffmpeg_version = FFMPEG_VERSION
+        self.ffmpeg_src_url = f"https://github.com/FFmpeg/FFmpeg/archive/refs/tags/{self.ffmpeg_version}.tar.gz"  # noqa: E501
+
+        self.ffmpeg_src_dir = join(self.src_rootdir, "ffmpeg")
+        self.ffmpeg_src_fullpath = join(
+            self.ffmpeg_src_dir, f"ffmpeg-{self.ffmpeg_version}.tar.gz"
+        )
+        self.ffmpeg_unpacked_dir = join(self.root_dir, "ffmpeg")
+
         # jom: comes with QtCreator
         # self.jom_git_url = args.jom_git_url  # type: str
         # self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
@@ -1739,6 +1753,20 @@ class Config(object):
         )
         workdir = join(rootdir, f"openssl-{self.openssl_version}")
         return rootdir, workdir
+
+    def get_ffmpeg_installdir(self, target_platform: Platform) -> str:
+        workdir = self.get_ffmpeg_workdir(target_platform)
+        return join(workdir, "installed", self.get_ffmpeg_name())
+
+    def get_ffmpeg_workdir(self, target_platform: Platform) -> str:
+        rootdir = self.get_ffmpeg_rootdir(target_platform)
+        return join(rootdir, self.get_ffmpeg_name())
+
+    def get_ffmpeg_rootdir(self, target_platform: Platform) -> str:
+        return join(self.root_dir, f"ffmpeg_{target_platform.dirpart}_build")
+
+    def get_ffmpeg_name(self) -> str:
+        return f"FFmpeg-{self.ffmpeg_version}"
 
     # -------------------------------------------------------------------------
     # Compile/make tools
@@ -3425,10 +3453,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         ]
 
     elif target_platform.linux:
-        # http://doc.qt.io/qt-5/linux-requirements.html
-        qt_config_args += [
-            "-gstreamer"
-        ]  # gstreamer version; see troubleshooting below  # noqa
+        pass
 
     elif target_platform.macos:
         if BUILD_PLATFORM.macos:
@@ -3524,6 +3549,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # Qt's idea of "root" different to our own
         qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
+    ffmpeginstalldir = cfg.get_ffmpeg_installdir(target_platform)
+    qt_config_cmake_args.append(f"-DFFMPEG_DIR={ffmpeginstalldir}")
+
     if cfg.verbose >= 1:
         # Qt by default sets CMAKE_MESSAGE_LOG_LEVEL to NOTICE.
         qt_config_cmake_args.append("-DCMAKE_MESSAGE_LOG_LEVEL=STATUS")
@@ -3557,11 +3585,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 ===============================================================================
 Troubleshooting Qt 'configure' failures
 ===============================================================================
-
--   gstreamer (used for Unix audio etc.)
-    gstreamer version 1.0 version (for Unix) requires:
-        sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-    ... NB some things try to remove it, it seems! (Maybe autoremove?)
 
 -   Qt configure can't find make or gmake in PATH...
 
@@ -3933,6 +3956,72 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 
 
 # =============================================================================
+# FFmpeg
+# =============================================================================
+# Audio and video, introduced in Qt 6.5. May solve QML Camera issues in Qt6.2
+#
+# Reference from Qt source:
+# https://github.com/qt/qt5/blob/v6.5.1/coin/provisioning/common/unix/install-ffmpeg.sh  # noqa: E501
+def fetch_ffmpeg(cfg: Config) -> None:
+    log.info("Fetching FFmpeg source...")
+    download_if_not_exists(cfg.ffmpeg_src_url, cfg.ffmpeg_src_fullpath)
+
+
+def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
+    log.info(f"Building FFmpeg for {target_platform}...")
+
+    rootdir = cfg.get_ffmpeg_rootdir(target_platform)
+    workdir = cfg.get_ffmpeg_workdir(target_platform)
+    installdir = cfg.get_ffmpeg_installdir(target_platform)
+    targets_dir = join(installdir, "lib")
+
+    # These are the ones that Qt seems to care about
+    # qtmultimedia/cmake/FindFFmpeg.cmake
+    targets = [
+        "libavcodec.a",
+        "libavformat.a",
+        "libavutil.a",
+    ]
+    if not cfg.force and all(isfile(join(targets_dir, x)) for x in targets):
+        report_all_targets_exist("FFmpeg", targets)
+        return
+
+    require(YASM)
+
+    untar_to_directory(
+        cfg.ffmpeg_src_fullpath, rootdir, run_func=run, chdir_via_python=True
+    )
+
+    env = cfg.get_starting_env()
+    #  TODO: --enable-cross-compile --arch=$arch --cc="$cc"
+    configure = join(workdir, "configure")
+    config_args = [
+        configure,
+        "--disable-programs",
+        "--disable-doc",
+        "--disable-debug",
+        "--enable-network",
+        "--disable-lzma",
+        "--enable-pic",
+        "--prefix=/",
+    ]
+
+    make = MAKE
+
+    make_args = [make]
+    make_install_args = [
+        make,
+        "install",
+        f"DESTDIR={installdir}",
+    ]
+
+    with pushd(workdir):
+        run(config_args, env)
+        run(make_args, env)
+        run(make_install_args, env)
+
+
+# =============================================================================
 # Eigen
 # =============================================================================
 # A better matrix system than mlpack, not least in that Eigen is headers-only
@@ -4008,6 +4097,7 @@ def master_builder(args) -> None:
     fetch_openssl(cfg)
     fetch_sqlcipher(cfg)
     fetch_eigen(cfg)
+    fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4027,6 +4117,7 @@ def master_builder(args) -> None:
         )
         build_openssl(cfg, target_platform)
         build_sqlcipher(cfg, target_platform)
+        build_ffmpeg(cfg, target_platform)
         installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
