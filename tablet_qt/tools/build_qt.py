@@ -3227,9 +3227,15 @@ def fetch_qt(cfg: Config) -> None:
         ]
     )
 
+
+def checkout_qt(cfg: Config) -> None:
+    """
+    If specified, switch to Qt version and update submodules.
+    """
+    chdir(cfg.qt_src_gitdir)
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", cfg.qt_git_commit])
-        run([GIT, "submodule", "update", "--recursive"])
+    run([GIT, "submodule", "update", "--init", "--recursive"])
 
 
 def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
@@ -4002,6 +4008,7 @@ def master_builder(args) -> None:
     # Fetch
     # =========================================================================
     fetch_qt(cfg)
+    checkout_qt(cfg)
     fetch_openssl(cfg)
     fetch_sqlcipher(cfg)
     fetch_eigen(cfg)
