@@ -520,9 +520,10 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 # Qt
 # Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-QT_GIT_BRANCH = "6.5"
-QT_GIT_COMMIT = HEAD
-QT_SPECIFIC_VERSION = "6.5.1"
+# Branch, tag or commit ID to check out when cloning / checking out Qt
+QT_GIT_COMMIT = "v6.5.1"
+# For comparison when selecting tools. Not currently used.
+QT_VERSION = Version("6.5.1")
 QT_GIT_SUBMODULES = [
     "qtbase",  # Core
     "qtdeclarative",  # Qt Quick and QML
@@ -532,18 +533,12 @@ QT_GIT_SUBMODULES = [
     "qtsvg",  # SVG support
 ]
 
-if QT_SPECIFIC_VERSION:
-    QT_VERSION = Version(QT_SPECIFIC_VERSION)
-else:
-    QT_VERSION = Version(QT_GIT_BRANCH, partial=True)
 
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 
 # https://forum.qt.io/topic/115827/build-on-linux-qt-xcb-option/
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
-USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = QT_VERSION >= Version(
-    "5.12.0"
-)  # new feature 2019-06-15
+USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = True
 
 # OpenSSL
 
@@ -1612,7 +1607,6 @@ class Config(object):
         self.qt_build_type = args.qt_build_type  # type: str
         assert self.qt_build_type in QT_POSSIBLE_BUILD_TYPES
         self.qt_git_url = QT_GIT_URL  # type: str
-        self.qt_git_branch = QT_GIT_BRANCH  # type: str
         self.qt_git_commit = QT_GIT_COMMIT  # type: str
         self.qt_openssl_static = args.qt_openssl_static  # type: bool
         self.qt_src_gitdir = join(
@@ -3241,7 +3235,7 @@ def fetch_qt(cfg: Config) -> None:
     if not git_clone(
         prettyname="Qt",
         url=cfg.qt_git_url,
-        branch=cfg.qt_git_branch,
+        branch=cfg.qt_git_commit,
         directory=cfg.qt_src_gitdir,
         run_func=run,
     ):
@@ -3258,11 +3252,11 @@ def fetch_qt(cfg: Config) -> None:
 
 def checkout_qt(cfg: Config) -> None:
     """
-    If specified, switch to Qt version and update submodules.
+    Switch to specified Qt branch/tag/commit and update submodules.
     """
     chdir(cfg.qt_src_gitdir)
-    if QT_SPECIFIC_VERSION:
-        run([GIT, "checkout", cfg.qt_git_commit])
+    run([GIT, "fetch"])
+    run([GIT, "checkout", cfg.qt_git_commit])
     run([GIT, "submodule", "update", "--init", "--recursive"])
 
 
