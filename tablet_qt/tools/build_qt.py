@@ -3252,6 +3252,7 @@ def checkout_qt(cfg: Config) -> None:
         [
             PERL,
             "init-repository",
+            "-f",
             f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
         ]
     )
