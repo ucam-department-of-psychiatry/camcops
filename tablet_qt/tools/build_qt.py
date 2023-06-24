@@ -3339,8 +3339,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     includedirs = []
     objdirs = []  # type: List[str]
     libdirs = []
-    qt_config_cmake_args = []
-    # qt_config_cmake_args = ["-DCMAKE_MESSAGE_LOG_LEVEL=STATUS"]  # Verbose?
+    # Suppress warnings for project developers
+    qt_config_cmake_args = ["-Wno-dev"]
 
     if target_platform.use_openssl_with_qt:
         includedirs.append(openssl_include_root)  # #include files for OpenSSL
