@@ -671,6 +671,7 @@ OPENSSL_COMMON_OPTIONS = [
 ANT = "ant"  # for Android builds; a Java-based make tool
 AR = "ar"  # manipulates archives
 BASH = "bash"  # GNU Bourne-Again SHell
+CCACHE = "ccache"  # Compiler cache
 CL = "cl"  # Visual C++ compiler
 CLANG = "clang"  # macOS XCode compiler; also used under Linux for 64-bit ARM
 CMAKE = "cmake"  # CMake
@@ -4074,6 +4075,7 @@ def master_builder(args) -> None:
     # Common requirements
     # =========================================================================
     # require(CMAKE)
+    require(CCACHE)
     require(GIT)
     require(PERL)
     require(TAR)
