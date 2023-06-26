@@ -154,7 +154,6 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
 {
     int c_hint = 0;
     int c_min = 0;
-    int c_max = 0;
     int sum_stretch = 0;
     int sum_spacing = 0;
     int expanding_count = 0;
@@ -170,7 +169,6 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         data->done = false;
         c_hint += data->smartSizeHint();
         c_min += data->minimum_size;
-        c_max += data->maximum_size;
         sum_stretch += data->stretch;
         if (!data->empty) {
             // Using pending_spacing, we ensure that the spacing for the last

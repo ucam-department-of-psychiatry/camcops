@@ -9,7 +9,7 @@ POSITIONAL ARGUMENTS:
                         database
   encrypted             Filename of the encrypted database to be created
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help            show this help message and exit
   --password PASSWORD   Password (if blank, environment variable
                         ENCRYPT_SQLCIPHER_PASSWORD will be used, or you will

@@ -21,6 +21,6 @@ Create database revision. Note:
 POSITIONAL ARGUMENTS:
   message     Revision message
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help  show this help message and exit
   --verbose   Be verbose

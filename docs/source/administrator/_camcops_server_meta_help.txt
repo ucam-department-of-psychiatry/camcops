@@ -1,5 +1,5 @@
 USAGE: camcops_server_meta [-h] --filespecs FILESPECS [FILESPECS ...]
-                           [--ccargs [CCARGS [CCARGS ...]]] [--python PYTHON]
+                           [--ccargs [CCARGS ...]] [--python PYTHON]
                            [--camcops CAMCOPS] [-d] [-v]
                            cc_command
 
@@ -8,11 +8,11 @@ Run commands across multiple CamCOPS databases
 POSITIONAL ARGUMENTS:
   cc_command            Main command to pass to CamCOPS
 
-OPTIONAL ARGUMENTS:
+OPTIONS:
   -h, --help            show this help message and exit
   --filespecs FILESPECS [FILESPECS ...]
                         List of CamCOPS config files (wildcards OK)
-  --ccargs [CCARGS [CCARGS ...]]
+  --ccargs [CCARGS ...]
                         List of CamCOPS arguments, to which '--' will be
                         prefixed
   --python PYTHON       Python interpreter (default: /path/to/python)

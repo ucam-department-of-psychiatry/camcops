@@ -3766,9 +3766,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Use SecureTransport instead of OpenSSL with Qt on iOS client.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/278
 
+.. _changelog_v2_4_16:
 
-**Client and server v2.4.16, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.16, released 13 Jun 2023**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Set default ``max-memory-per-child`` in the arguments passed to Celery
   workers (``CELERY_WORKER_EXTRA_ARGS``) in the demo CamCOPS config. This
@@ -3793,3 +3794,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix clipping of topmost and bottommost Thermometer widget labels when the
   text is greater in height than the images.
+
+
+**Client and server v2.4.17,  IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

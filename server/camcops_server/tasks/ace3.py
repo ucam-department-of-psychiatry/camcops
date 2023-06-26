@@ -50,6 +50,7 @@ from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no_none,
     italic,
+    pmid,
     subheading_spanning_two_columns,
     tr,
     tr_qa,
@@ -121,12 +122,12 @@ in clinical practice and research projects. There is no need to contact us if
 you wish to use the ACE-III in clinical practice.” (ACE-III FAQ, 7 July 2013,
 www.neura.edu.au).
 """
-MINI_ACE_THRESHOLDS = """
+MINI_ACE_THRESHOLDS = f"""
 In the mini-ACE, scores ≤21 had sensitivity 0.61 and specificity 1.0 for
 dementia, and scores ≤25 had sensitivity 0.85 and specificity 0.87 for
 dementia, in a context of patients with Alzheimer’s disease, behavioural
 variant frontotemporal dementia, corticobasal syndrome, primary progressive
-aphasia, and controls (Hsieh et al., 2015, PMID 25227877).
+aphasia, and controls (Hsieh et al. 2015, {pmid(25227877)}.
 """
 
 
@@ -1223,8 +1224,8 @@ class Ace3(
                     specificity 1.0 for dementia, and scores ≤88 had
                     sensitivity 1.0 and specificity 0.98 for dementia, in a
                     context of patients with Alzheimer’s disease,
-                    frontotemporal dementia, and controls (Hsieh et al., 2013,
-                    PMID 23949210).
+                    frontotemporal dementia, and controls (Hsieh et al. 2013,
+                    {pmid(23949210)}).
 
                     [2] {MINI_ACE_THRESHOLDS}
                 </div>
