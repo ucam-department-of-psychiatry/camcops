@@ -3245,8 +3245,24 @@ def checkout_qt(cfg: Config) -> None:
     """
     Switch to specified Qt branch/tag/commit and update submodules.
     """
+
     chdir(cfg.qt_src_gitdir)
-    run([GIT, "fetch"])
+
+    # First of all check if we're already there
+    for git_test in [
+        [GIT, "symbolic-ref", "-q", "--short", "HEAD"],  # Branch matches
+        [GIT, "describe", "--tags"],  # Tag matches
+        [GIT, "rev-parse", "HEAD"],  # Commit matches
+    ]:
+        (stdout, stderr) = run(
+            git_test, allow_failure=True, capture_stdout=True
+        )
+        name = stdout.strip()
+        if name == cfg.qt_git_commit:
+            log.info("{} already checked out", cfg.qt_git_commit)
+            return
+
+    run([GIT, "fetch", "--no-recurse-submodules"])
     run([GIT, "checkout", cfg.qt_git_commit])
     run(
         [
