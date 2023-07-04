@@ -1685,7 +1685,6 @@ class Config(object):
         self.ffmpeg_src_fullpath = join(
             self.ffmpeg_src_dir, f"ffmpeg-{self.ffmpeg_version}.tar.gz"
         )
-        self.ffmpeg_unpacked_dir = join(self.root_dir, "ffmpeg")
 
         # jom: comes with QtCreator
         # self.jom_git_url = args.jom_git_url  # type: str
