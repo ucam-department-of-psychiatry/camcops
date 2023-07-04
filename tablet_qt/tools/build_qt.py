@@ -1677,7 +1677,10 @@ class Config(object):
         )
         self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
-        # FFmpeg
+        # FFmpeg, currently broken with static Qt
+        # https://bugreports.qt.io/browse/QTBUG-115052
+        # https://bugreports.qt.io/browse/QTBUG-111460
+        self.use_ffmpeg = False
         self.ffmpeg_version = FFMPEG_VERSION
         self.ffmpeg_src_url = f"https://github.com/FFmpeg/FFmpeg/archive/refs/tags/{self.ffmpeg_version}.tar.gz"  # noqa: E501
 
@@ -3557,8 +3560,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # Qt's idea of "root" different to our own
         qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
-    ffmpeginstalldir = cfg.get_ffmpeg_installdir(target_platform)
-    qt_config_cmake_args.append(f"-DFFMPEG_DIR={ffmpeginstalldir}")
+    if cfg.use_ffmpeg:
+        ffmpeginstalldir = cfg.get_ffmpeg_installdir(target_platform)
+        qt_config_cmake_args.append(f"-DFFMPEG_DIR={ffmpeginstalldir}")
 
     if cfg.verbose >= 1:
         # Qt by default sets CMAKE_MESSAGE_LOG_LEVEL to NOTICE.
@@ -4106,7 +4110,8 @@ def master_builder(args) -> None:
     fetch_openssl(cfg)
     fetch_sqlcipher(cfg)
     fetch_eigen(cfg)
-    fetch_ffmpeg(cfg)
+    if cfg.use_ffmpeg:
+        fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4126,7 +4131,8 @@ def master_builder(args) -> None:
         )
         build_openssl(cfg, target_platform)
         build_sqlcipher(cfg, target_platform)
-        build_ffmpeg(cfg, target_platform)
+        if cfg.use_ffmpeg:
+            build_ffmpeg(cfg, target_platform)
         installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
