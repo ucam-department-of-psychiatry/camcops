@@ -104,7 +104,7 @@ INSTALL_REQUIRES = [
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "pycap==1.1.1",  # REDCap integration
     "Pillow==9.3.0",  # used by a dependency; pin for security warnings
-    "Pygments==2.13.0",  # Syntax highlighting for introspection/DDL
+    "Pygments==2.15.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
     "pyotp==2.6.0",  # Multi-factor authentication
@@ -150,7 +150,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
-    "pypdf==3.1.0",  # Used by cardinal_pythonlib.pdf
+    "pypdf==3.9.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
     "sqlparse==0.4.4",
     # extra
