@@ -104,21 +104,13 @@ OpenableWidget* ServerSettingsWindow::editor()
     const NameValueOptions options_ssl_protocol{
         // https://doc.qt.io/qt-6/qssl.html#SslProtocol-enum
         {tr("Known secure [default]"), convert::SSLPROTODESC_SECUREPROTOCOLS},
-        {DEPRECATED + tr("TLS v1.0"), convert::SSLPROTODESC_TLSV1_0},
-        {DEPRECATED + tr("TLS v1.0 or later"), convert::SSLPROTODESC_TLSV1_0_OR_LATER},
-        {tr("TLS v1.1"), convert::SSLPROTODESC_TLSV1_1},
-        {tr("TLS v1.1 or later"), convert::SSLPROTODESC_TLSV1_1_OR_LATER},
         {tr("TLS v1.2"), convert::SSLPROTODESC_TLSV1_2},
         {tr("TLS v1.2 or later"), convert::SSLPROTODESC_TLSV1_2_OR_LATER},
         {tr("TLS v1.3"), convert::SSLPROTODESC_TLSV1_3},
         {tr("TLS v1.3 or later"), convert::SSLPROTODESC_TLSV1_3_OR_LATER},
-        {tr("DTLS v1.0"), convert::SSLPROTODESC_DTLSV1_0},
-        {tr("DTLS v1.0 or later"), convert::SSLPROTODESC_DTLSV1_0_OR_LATER},
-        {tr("DTLS v1.1"), convert::SSLPROTODESC_DTLSV1_1},
-        {tr("DTLS v1.1 or later"), convert::SSLPROTODESC_DTLSV1_1_OR_LATER},
         {tr("DTLS v1.2"), convert::SSLPROTODESC_DTLSV1_2},
         {tr("DTLS v1.2 or later"), convert::SSLPROTODESC_DTLSV1_2_OR_LATER},
-        {DEPRECATED + tr("SSLv2, SSLv3, or TLSv1.0"), convert::SSLPROTODESC_ANYPROTOCOL},
+        {DEPRECATED + tr("Any supported protocol"), convert::SSLPROTODESC_ANYPROTOCOL},
     };
     const QString ssl_proto_explanation = DEPRECATED + "Insecure, deprecated.";
 

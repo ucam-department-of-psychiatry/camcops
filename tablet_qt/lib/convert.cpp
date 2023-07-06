@@ -838,16 +838,8 @@ QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
 
 
 // https://doc.qt.io/qt-6/qssl.html#SslProtocol-enum
-const QString SSLPROTODESC_TLSV1_0 = QStringLiteral("TlsV1_0");
-const QString SSLPROTODESC_TLSV1_0_OR_LATER = QStringLiteral("TlsV1_0OrLater");
-const QString SSLPROTODESC_TLSV1_1 = QStringLiteral("TlsV1_1");
-const QString SSLPROTODESC_TLSV1_1_OR_LATER = QStringLiteral("TlsV1_1OrLater");
 const QString SSLPROTODESC_TLSV1_2 = QStringLiteral("TlsV1_2");
 const QString SSLPROTODESC_TLSV1_2_OR_LATER = QStringLiteral("TlsV1_2OrLater");
-const QString SSLPROTODESC_DTLSV1_0 = QStringLiteral("DtlsV1_0");
-const QString SSLPROTODESC_DTLSV1_0_OR_LATER = QStringLiteral("DtlsV1_0OrLater");
-const QString SSLPROTODESC_DTLSV1_1 = QStringLiteral("DtlsV1_1");
-const QString SSLPROTODESC_DTLSV1_1_OR_LATER = QStringLiteral("DtlsV1_1OrLater");
 const QString SSLPROTODESC_DTLSV1_2 = QStringLiteral("DtlsV1_2");
 const QString SSLPROTODESC_DTLSV1_2_OR_LATER = QStringLiteral("DtlsV1_2OrLater");
 const QString SSLPROTODESC_TLSV1_3 = QStringLiteral("TlsV1_3");
@@ -861,14 +853,8 @@ QString describeSslProtocol(const QSsl::SslProtocol protocol)
 {
     using namespace QSsl;
     switch (protocol) {
-    case TlsV1_0: return SSLPROTODESC_TLSV1_0;
-    case TlsV1_0OrLater: return SSLPROTODESC_TLSV1_0_OR_LATER;
-    case TlsV1_1: return SSLPROTODESC_TLSV1_1;
-    case TlsV1_1OrLater: return SSLPROTODESC_TLSV1_1_OR_LATER;
     case TlsV1_2: return SSLPROTODESC_TLSV1_2;
     case TlsV1_2OrLater: return SSLPROTODESC_TLSV1_2_OR_LATER;
-    case DtlsV1_0: return SSLPROTODESC_DTLSV1_0;
-    case DtlsV1_0OrLater: return SSLPROTODESC_DTLSV1_0_OR_LATER;
     case DtlsV1_2: return SSLPROTODESC_DTLSV1_2;
     case DtlsV1_2OrLater: return SSLPROTODESC_DTLSV1_2_OR_LATER;
     case TlsV1_3: return SSLPROTODESC_TLSV1_3;
@@ -884,14 +870,8 @@ QString describeSslProtocol(const QSsl::SslProtocol protocol)
 QSsl::SslProtocol sslProtocolFromDescription(const QString& desc)
 {
     using namespace QSsl;
-    if (desc == SSLPROTODESC_TLSV1_0) return TlsV1_0;
-    if (desc == SSLPROTODESC_TLSV1_0_OR_LATER) return TlsV1_0OrLater;
-    if (desc == SSLPROTODESC_TLSV1_1) return TlsV1_1;
-    if (desc == SSLPROTODESC_TLSV1_1_OR_LATER) return TlsV1_1OrLater;
     if (desc == SSLPROTODESC_TLSV1_2) return TlsV1_2;
     if (desc == SSLPROTODESC_TLSV1_2_OR_LATER) return TlsV1_2OrLater;
-    if (desc == SSLPROTODESC_DTLSV1_0) return DtlsV1_0;
-    if (desc == SSLPROTODESC_DTLSV1_0_OR_LATER) return DtlsV1_0OrLater;
     if (desc == SSLPROTODESC_DTLSV1_2) return DtlsV1_2;
     if (desc == SSLPROTODESC_DTLSV1_2_OR_LATER) return DtlsV1_2OrLater;
     if (desc == SSLPROTODESC_TLSV1_3) return TlsV1_3;
