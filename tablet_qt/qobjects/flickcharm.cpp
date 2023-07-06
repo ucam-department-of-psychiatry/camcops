@@ -46,6 +46,7 @@
 #include <QAbstractScrollArea>
 #include <QApplication>
 #include <QBasicTimer>
+#include <QCursor>
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QEvent>
@@ -340,11 +341,13 @@ bool FlickCharm::eventFilter(QObject* object, QEvent* event)
         } else if (type == QEvent::MouseButtonRelease) {
             consumed = true;
             auto event1 = new QMouseEvent(QEvent::MouseButtonPress,
-                                          data->pressPos, Qt::LeftButton,
-                                          Qt::LeftButton, Qt::NoModifier);
+                                          data->pressPos, QCursor::pos(),
+                                          Qt::LeftButton, Qt::LeftButton,
+                                          Qt::NoModifier);
             auto event2 = new QMouseEvent(QEvent::MouseButtonRelease,
-                                          data->pressPos, Qt::LeftButton,
-                                          Qt::LeftButton, Qt::NoModifier);
+                                          data->pressPos, QCursor::pos(),
+                                          Qt::LeftButton, Qt::LeftButton,
+                                          Qt::NoModifier);
 
             data->ignored << event1;
             data->ignored << event2;
