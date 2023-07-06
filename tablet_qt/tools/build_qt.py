@@ -3251,7 +3251,10 @@ def checkout_qt(cfg: Config) -> None:
 
     chdir(cfg.qt_src_gitdir)
 
+    run([GIT, "fetch", "--no-recurse-submodules"])
+
     # First of all check if we're already there
+    already_checked_out = False
     for git_test in [
         [GIT, "symbolic-ref", "-q", "--short", "HEAD"],  # Branch matches
         [GIT, "describe", "--tags"],  # Tag matches
@@ -3263,10 +3266,11 @@ def checkout_qt(cfg: Config) -> None:
         name = stdout.strip()
         if name == cfg.qt_git_commit:
             log.info("{} already checked out", cfg.qt_git_commit)
-            return
+            already_checked_out = True
+            break
 
-    run([GIT, "fetch", "--no-recurse-submodules"])
-    run([GIT, "checkout", cfg.qt_git_commit])
+    if not already_checked_out:
+        run([GIT, "checkout", cfg.qt_git_commit])
     run(
         [
             PERL,
