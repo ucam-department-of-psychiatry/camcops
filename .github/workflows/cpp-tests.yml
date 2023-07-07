@@ -10,6 +10,7 @@ on:
             - .github/workflows/cpp-tests.yml
 jobs:
     cpp-tests:
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
             - name: Install Qt
