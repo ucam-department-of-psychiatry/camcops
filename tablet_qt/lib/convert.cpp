@@ -39,7 +39,7 @@
 #include "common/preprocessor_aid.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 #include "lib/stringfunc.h"
 #include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
@@ -263,7 +263,7 @@ QString toSqlLiteral(const QVariant& value)
 
     // Other
     case QMetaType::UnknownType:
-        uifunc::stopApp(QStringLiteral("toSqlLiteral: Invalid field type"));
+        errorfunc::fatalError(QStringLiteral("toSqlLiteral: Invalid field type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -274,7 +274,7 @@ QString toSqlLiteral(const QVariant& value)
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
         }
-        uifunc::stopApp(QStringLiteral("toSqlLiteral: Unknown user type"));
+        errorfunc::fatalError(QStringLiteral("toSqlLiteral: Unknown user type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -738,7 +738,7 @@ QString prettyValue(const QVariant& variant,
                 QVector<int> intvec = qVariantToIntVector(variant);
                 return numericVectorToCsvString(intvec);
             }
-            uifunc::stopApp("prettyValue: Unknown user type");
+            errorfunc::fatalError("prettyValue: Unknown user type");
         }
 
         return variant.toString();

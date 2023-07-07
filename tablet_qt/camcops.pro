@@ -650,6 +650,7 @@ SOURCES += \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
     lib/idpolicy.cpp \
+    lib/errorfunc.cpp \
     lib/layoutdumper.cpp \
     lib/margins.cpp \
     lib/nhs.cpp \
@@ -1134,6 +1135,7 @@ HEADERS += \
     lib/css.h \
     lib/datetime.h \
     lib/debugfunc.h \
+    lib/errorfunc.h \
     lib/filefunc.h \
     lib/flagguard.h \
     lib/idpolicy.h \

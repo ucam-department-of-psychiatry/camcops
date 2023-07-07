@@ -61,6 +61,7 @@
 #include "dialogs/scrollmessagebox.h"
 #include "lib/css.h"
 #include "lib/convert.h"
+#include "lib/errorfunc.h"
 #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
 #include "qobjects/debugeventwatcher.h"
@@ -493,14 +494,7 @@ void stopApp(const QString& error, const QString& title)
 #endif
 
     // 2. Tell the debug stream and die.
-    const QString msg = "ABORTING: " + error;
-    qFatal("%s", qPrintable(msg));  // will not return
-    // If the first argument is not a string literal:
-    // "format not a string literal and no format arguments"
-    // https://bugreports.qt.io/browse/QTBUG-8967
-
-    // qFatal() will kill the app
-    // http://doc.qt.io/qt-4.8/qtglobal.html#qFatal
+    errorfunc::fatalError(error);
 }
 
 
