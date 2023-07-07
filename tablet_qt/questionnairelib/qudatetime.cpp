@@ -390,22 +390,23 @@ void QuDateTime::setField(const QDateTime& datetime,
                           const bool reset_this_widget)
 {
     QVariant newvalue = datetime;
-    int newtype = QMetaType::QDateTime;
+    QMetaType newtype;
     switch (m_mode) {
     case DefaultDateTime:
     case CustomDateTime:
+        newtype = QMetaType::fromType<QDateTime>();
         break;
     case DefaultDate:
     case CustomDate:
-        newtype = QMetaType::QDate;
+        newtype = QMetaType::fromType<QDate>();
         break;
     case DefaultTime:
     case CustomTime:
-        newtype = QMetaType::QTime;
+        newtype = QMetaType::fromType<QTime>();
         break;
     }
 
-    const bool success = newvalue.convert(QMetaType(newtype));
+    const bool success = newvalue.convert(newtype);
     Q_ASSERT(success);
 
     const bool changed = m_fieldref->setValue(newvalue,
