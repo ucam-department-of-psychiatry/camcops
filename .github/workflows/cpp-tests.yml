@@ -21,8 +21,7 @@ jobs:
             - name: C++ tests
               run: |
                   set -euxo pipefail
-                  QMAKE=${QT_ROOT_DIR}/bin/qmake
                   cd ${GITHUB_WORKSPACE}/tablet_qt/tests
-                  QMAKE
+                  qmake
                   make
                   auto/questionnairelib/bin/test_questionnairelib
