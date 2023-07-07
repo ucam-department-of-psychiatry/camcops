@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "quspacer.h"
@@ -24,13 +25,14 @@
 #include "widgets/spacer.h"
 
 
-QuSpacer::QuSpacer() :
-    QuSpacer(QSize(uiconst::SPACE, uiconst::SPACE))
+QuSpacer::QuSpacer(QObject* parent) :
+    QuSpacer(QSize(uiconst::SPACE, uiconst::SPACE), parent)
 {
 }
 
 
-QuSpacer::QuSpacer(const QSize& size) :
+QuSpacer::QuSpacer(const QSize size, QObject* parent) :
+    QuElement(parent),
     m_size(size)
 {
 }

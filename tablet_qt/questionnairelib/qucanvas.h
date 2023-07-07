@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -41,13 +42,15 @@ public:
              const QSize& size = QSize(100, 100),
              bool allow_shrink = true,  // see setAllowShrink()
              QImage::Format format = QImage::Format_RGB32,  // internal image format
-             const QColor& background_colour = Qt::white);
+             const QColor& background_colour = Qt::white,
+             QObject* parent = nullptr);
 
     // Construct with an image canvas.
     QuCanvas(BlobFieldRefPtr fieldref,
              const QString& template_filename,
              const QSize& size = QSize(),  // = take template's size
-             bool allow_shrink = true);  // see setAllowShrink()
+             bool allow_shrink = true,
+             QObject* parent = nullptr);  // see setAllowShrink()
 
     // Adjust for the current DPI settings?
     QuCanvas* setAdjustForDpi(bool adjust_for_dpi);  // default is true

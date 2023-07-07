@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "honosca.h"
@@ -34,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 15;
-const int MAX_SCORE = 60;
+const int MAX_QUESTION_SCORE = 60;
 const QString QPREFIX("q");
 
 const QString Honosca::HONOSCA_TABLENAME("honosca");
@@ -101,7 +102,7 @@ bool Honosca::isComplete() const
 
 QStringList Honosca::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

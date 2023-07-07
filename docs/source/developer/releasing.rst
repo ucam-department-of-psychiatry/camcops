@@ -1,6 +1,7 @@
 ..  docs/source/developer/releasing.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -18,7 +19,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Inno Setup: http://www.jrsoftware.org/isinfo.php
-
+.. _SignTool: https://docs.microsoft.com/en-gb/windows/win32/seccrypto/signtool
 
 .. _dev_releasing:
 
@@ -38,10 +39,8 @@ Releasing a new client and server involves the following steps:
 Code and documentation
 ----------------------
 
-- Push to the development repository.
-
-- Push to Github (https://github.com/RudolfCardinal/camcops). This also
-  automatically updates the docs at https://camcops.readthedocs.io/.
+- Push to Github (https://github.com/ucam-department-of-psychiatry/camcops).
+  This also automatically updates the docs at https://camcops.readthedocs.io/.
 
 
 Android client
@@ -152,12 +151,113 @@ Google Play Store release history
 | 2.4.7         | N/A, server only    | N/A                 | N/A                | 23      | 29      |
 |               |                     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.8         | 21 (32-bit ARM);    | 2.4.8               | 2021-07-09         | 23      | 29      |
+| 2.4.8         | 21 (32-bit ARM);    | 2.4.8               | 2021-07-15         | 23      | 29      |
 |               | 22 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.9         | 23 (32-bit ARM);    | 2.4.9               | 2021-08-10         | 23      | 29      |
+|               | 24 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.10        | N/A, server only    | N/A                 | N/A                | 23      | 29      |
+|               |                     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.11        | 25 (32-bit ARM);    | 2.4.11              | 2021-10-08         | 23      | 29      |
+|               | 26 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.12        | N/A, server only    | N/A                 | N/A                | 23      | 29      |
+|               |                     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.13        | 27 (32-bit ARM);    | 2.4.13              | 2022-08-19         | 23      | 30      |
+|               | 28 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.15        | 29 (32-bit ARM);    | 2.4.15              | 2023-03-27         | 23      | 31      |
+|               | 30 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.16        | 31 (32-bit ARM);    | 2.4.16              | 2023-06-15         | 23      | 31      |
+|               | 32 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
 
-Note: target API of 30 required as of Nov 2021:
-https://android-developers.googleblog.com/2020/11/new-android-app-bundle-and-target-api.html
+
+Note: target API of 33 required as of Aug 2023:
+https://developer.android.com/google/play/requirements/target-sdk
+
+
+iOS client
+----------
+
+To deploy to the Apple Store:
+
+- Up the version numbers in Info.plist
+- Build the project first in QtCreator for iOS (arm64) device, release
+- Start Xcode
+- Load the xcodeproj file for this build into Xcode
+- Set the Active scheme to be Any iOS Device (arm64)
+- Archive the project (Product -> Archive)
+- Open the Organizer (Window -> Organizer)
+- Select the Archive and then Distribute App to App Store Connect, accepting all the defaults
+
+The progress bar shows 100% throughout the upload but you can watch the java
+process on the Network tab of the Activity Monitor.
+
+Validate App does not run the same set of tests as the App Store does. Even if
+after half an hour your package is successfully uploaded to App Store Connect
+there may still be problems, of which you will be notified by email several
+minutes later.
+
+If you want to debug the .ipa file sent to App Store Connect, choose the
+"Export" option. It's a zip file.
+
+The archive process will result in a broken symlink when you next build the project
+in QtCreator (error message mkdir failed). You can just delete it.
+
+
+MacOS client
+------------
+Build in QtCreator as usual then sign for distribution outside the Apple Store as a dmg file:
+
+    .. code-block:: bash
+
+        codesign --verify --verbose --timestamp --sign "Developer ID Application: UNIVERSITY OF CAMBRIDGE DEPARTMENT OF PSYCHIATRY (XXXXXXXXXX)" --options runtime camcops.app
+        /path/to/macos/qt/install/bin/macdeployqt camcops.app -verbose=3 -dmg -no-strip
+
+This should sign with a valid Developer ID certificate, include a secure timestamp and have the hardened runtime enabled.
+``macdeployqt`` can also do code signing but doesn't support all the required options, so we do it separately.
+
+To notarize the app with Apple (to prevent malicious software warnings), you
+need to know the app-specific password for ``altool`` which was generated at
+https://appleid.apple.com/ and then:
+
+    .. code-block:: bash
+
+       xcrun altool -t osx -f camcops.dmg --primary-bundle-id "uk.ac.cam.psychiatry.camcops.dmg" --notarize-app -u <ACCOUNT OWNER APPLE ID>
+
+You will be prompted to enter the app-specific password generated by the account owner.
+
+You can watch the upload progress in the Activity Monitor app (Network tab, look out for ``java`` process after a few minutes).
+
+After the upload has finished, you should see something like:
+
+    .. code-block:: bash
+
+       No errors uploading 'camcops.dmg'
+       RequestUUID = 12345678-9abc-def0-1234-56789abcdef0
+
+You can check progress with:
+
+    .. code-block:: bash
+
+       xcrun altool --notarization-info 12345678-9abc-def0-1234-56789abcdef0 -u <ACCOUNT OWNER APPLE ID>
+
+Again use the app-specific password.
+
+If notarization failed, follow the link to the log file in a browser to see what the problem was.
+
+If it passed, run this command:
+
+   .. code-block:: bash
+
+      xcrun stapler staple -v camcops.dmg
+
+``camcops.dmg`` can now be uploaded to the GitHub release assets.
 
 
 Windows client
@@ -165,6 +265,22 @@ Windows client
 
 The client will be packaged automatically by the
 ``camcops_windows_innosetup.iss`` script, which runs under `Inno Setup`_.
+
+To sign the executables you'll need a valid certificate and a tool such as
+`SignTool`_. This is distributed as part of the Windows 10 SDK.
+
+Within Inno Setup, select :menuselection:`Tools --> Configure Sign
+Tools...`. Add a tool called ``signtool`` with a command to sign the executable.
+
+For example:
+
+``C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe sign /f C:\Users\Me\certificates\certificate.p12 /tr http://timestamp.sectigo.com /td SHA256 /p "password" $f``
+
+or for a certificate generated from a Certificate Signing Request on the same machine (and installed with ``certreq -accept``):
+
+``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /f C:\Users\Me\certificates\certificate.crt /tr http://timestamp.sectigo.com /td SHA256 $f``
+
+You can use the `/debug` switch for more verbose output when running `signtool` from the command line.
 
 .. warning::
 
@@ -174,7 +290,7 @@ The client will be packaged automatically by the
     manually if need be. Check from the development root directory with
     ``dir camcops.exe /s``.
 
-Upload to https://github.com/RudolfCardinal/camcops/releases with a tag named
+Upload to https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
 ``v<VERSION_NUMBER>``.
 
 
@@ -184,7 +300,7 @@ Server
 - Create the Debian (``.deb``) and CentOS (``.rpm``) editions using the
   ``server/tools/MAKE_LINUX_PACKAGES.py`` script. Binaries will end up in
   ``server/packagebuild/``. Upload to
-  https://github.com/RudolfCardinal/camcops/releases with a tag named
+  https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
   ``v<VERSION_NUMBER>``.
 
 - The step above will also create a Python distibution in ``server/dist/``.

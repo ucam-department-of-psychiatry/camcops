@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_TICKS
@@ -35,7 +36,8 @@ const int PERIOD_MS = 100;  // should divide into whole seconds!
 const int DP = 1;
 
 
-QuCountdown::QuCountdown(const int time_s) :
+QuCountdown::QuCountdown(const int time_s, QObject* parent) :
+    QuElement(parent),
     m_time_s(time_s),
     m_volume(uiconst::MAX_VOLUME_QT),
     m_running(false),

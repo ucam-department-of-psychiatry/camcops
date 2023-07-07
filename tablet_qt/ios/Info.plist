@@ -28,9 +28,9 @@
          if the version has been approved by Apple.
     -->
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.8</string>
+        <string>2.4.16</string>
 	<key>CFBundleVersion</key>
-	<string>2.4.8.1</string>
+        <string>2.4.16.1</string>
     <key>CFBundleURLTypes</key>
     <array>
       <dict>
@@ -57,5 +57,7 @@
 	</array>
     <key>NSCameraUsageDescription</key>
     <string>CamCOPS would like to use your camera for taking photos</string>
+    <!-- We use only standard forms of encryption, which are exempt -->
+    <key>ITSAppUsesNonExemptEncryption</key><false/>
   </dict>
 </plist>

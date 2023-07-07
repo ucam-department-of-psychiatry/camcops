@@ -4,9 +4,13 @@
 # Qt
 build-*/
 *.pro.user
+*.stash
+tablet_qt/.qtc_clangd/
+tablet_qt/Makefile
 
 # Temporary
 *~
+*.o
 
 # silver searcher
 .ignore
@@ -30,6 +34,10 @@ __pycache__/
 
 # Test database
 camcops_test.sqlite*
+
+# pytest coverage
+.coverage
+htmlcov/
 
 # Packaging
 server/camcops_server.egg-info

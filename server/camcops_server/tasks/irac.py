@@ -5,7 +5,8 @@ camcops_server/tasks/irac.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -49,21 +50,21 @@ from camcops_server.cc_modules.cc_task import (
 # IRAC
 # =============================================================================
 
+
 class Irac(TaskHasPatientMixin, Task):
     """
     Server implementation of the IRAC task.
     """
+
     __tablename__ = "irac"
     shortname = "IRAC"
 
-    aim = Column(
-        "aim", UnicodeText,
-        comment="Main aim of the contact"
-    )
+    aim = Column("aim", UnicodeText, comment="Main aim of the contact")
     achieved = CamcopsColumn(
-        "achieved", Integer,
+        "achieved",
+        Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
-        comment="Was the aim achieved? (0 not, 1 partially, 2 fully)"
+        comment="Was the aim achieved? (0 not, 1 partially, 2 fully)",
     )
 
     TASK_FIELDS = ["aim", "achieved"]
@@ -74,8 +75,10 @@ class Irac(TaskHasPatientMixin, Task):
         return _("Identify and Rate the Aim of the Contact")
 
     def is_complete(self) -> bool:
-        return (self.all_fields_not_none(self.TASK_FIELDS) and
-                self.field_contents_valid())
+        return (
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
+        )
 
     def get_achieved_text(self, req: CamcopsRequest) -> str:
         achieveddict = {

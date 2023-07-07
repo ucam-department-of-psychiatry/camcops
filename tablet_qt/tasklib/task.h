@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -62,7 +63,8 @@ public:
          const QString& tablename,
          bool is_anonymous,
          bool has_clinician,
-         bool has_respondent);
+         bool has_respondent,
+         QObject* parent = nullptr);
 
     // Destructor
     virtual ~Task() {}
@@ -148,8 +150,11 @@ public:
     // Is the task re-editable once it's been created?
     virtual bool isEditable() const { return true; }
 
-    // Is the task less than fully functional, e.g. requiring strings that have
-    // not been downloaded (or are not available) from a CamCOPS server?
+    // Is the task less than fully functional, e.g.
+    // - intrinsically a "skeleton" task at best;
+    // - requiring strings that have not been downloaded (or are not available
+    //   or are too old) from a CamCOPS server;
+    // - or that the server is too old to accept the task?
     virtual bool isCrippled() const;
 
     // Is this an experimental task? (Affects labelling.)
@@ -163,22 +168,38 @@ public:
     virtual bool hasExtraStrings() const;
 
     // Is it permissible to create a new instance of the task? (If not, why
-    // not?)
-    virtual bool isTaskPermissible(QString& why_not_permissible) const;
+    // not?) Writes to failure_reason only on failure.
+    virtual bool isTaskPermissible(QString& failure_reason) const;
 
     // What is the minimum CamCOPS server version that will accept this task?
     virtual Version minimumServerVersion() const;
 
     // Is this task uploadable? Reasons that it may not be include:
-    // - the server doesn't have the task's table
-    // - the client says the server is too old (in general, or for this task)
-    // - the server says the client is too old
-    virtual bool isTaskUploadable(QString& why_not_uploadable) const;
+    // - the server doesn't have the task's table;
+    // - the client says the server is too old (in general, or for this task);
+    // - the server says the client is too old.
+    // The user can override these, but gets a warning.
+    // Writes to failure_reason only on failure.
+    virtual bool isTaskUploadable(QString& failure_reason) const;
+
+protected:
+    // Is there some barrier to creating the task, not dealt with already by
+    // isTaskUploadable()? Reasons may include:
+    // - the server strings are too old.
+    // The user can override these, but gets a warning.
+    // Writes to failure_reason only on failure.
+    virtual bool isTaskProperlyCreatable(QString& failure_reason) const;
+
+    // Used internally by isTaskCreatable(): are the server's strings
+    // sufficiently recent? Writes to failure_reason only on failure.
+    bool isServerStringVersionEnough(const Version& minimum_server_version,
+                                     QString& failure_reason) const;
 
     // ------------------------------------------------------------------------
     // Tables and other classmethods
     // ------------------------------------------------------------------------
 
+public:
     // Return a list of names of ancillary tables used by this task. (For
     // example, the PhotoSequence task has an ancillary table to contain its
     // photos. One sequence, lots of photos.)
@@ -186,7 +207,7 @@ public:
 
     // Each ancillary table (if there are any) has a foreign key (FK) to the
     // base table. What's the FK column name?
-    virtual QString ancillaryTableFKToTaskFieldname() const { return ""; }
+    virtual QString ancillaryTableFKToTaskFieldname() const { return QString(); }
 
     // Return all tables used by this task (base + ancillary).
     QStringList allTables() const;
@@ -262,12 +283,12 @@ public:
     // Returns an xstring for this task. This is a named string, downloaded for
     // this task from the server.
     QString xstring(const QString& stringname,
-                    const QString& default_str = "") const;
+                    const QString& default_str = QString()) const;
 
     // Returns an appstring. This is a named string, downloaded from the server
     // for the CamCOPS client in general.
     QString appstring(const QString& stringname,
-                      const QString& default_str = "") const;
+                      const QString& default_str = QString()) const;
 
     // Assistance function for summary() or detail().
     // - Returns a list of strings of the format
@@ -276,27 +297,31 @@ public:
     //   <fieldprefix><first> to <fieldprefix><last>.
     // - The name ranges from <xstringprefix><first><xstringsuffix> to
     //   <xstringprefix><last><xstringsuffix>.
-    QStringList fieldSummaries(const QString& xstringprefix,
-                               const QString& xstringsuffix,
-                               const QString& spacer,
-                               const QString& fieldprefix,
-                               int first,
-                               int last,
-                               const QString& suffix = "") const;
+    QStringList fieldSummaries(
+        const QString& xstringprefix,
+        const QString& xstringsuffix,
+        const QString& spacer,
+        const QString& fieldprefix,
+        int first,
+        int last,
+        const QString& suffix = QString()
+    ) const;
 
     // As for fieldSummaries(), but the value is shown as "Yes"/"No", for
     // Boolean fields.
-    QStringList fieldSummariesYesNo(const QString& xstringprefix,
-                                    const QString& xstringsuffix,
-                                    const QString& spacer,
-                                    const QString& fieldprefix,
-                                    int first,
-                                    int last,
-                                    const QString& suffix = "") const;
+    QStringList fieldSummariesYesNo(
+        const QString& xstringprefix,
+        const QString& xstringsuffix,
+        const QString& spacer,
+        const QString& fieldprefix,
+        int first,
+        int last,
+        const QString& suffix = QString()
+    ) const;
 
     // Returns a string list of the clinician's details (specialty, name,
     // etc.).
-    QStringList clinicianDetails(const QString& separator = ": ") const;
+    QStringList clinicianDetails(const QString& separator = QStringLiteral(": ")) const;
 
     // Returns a string list of the respondent's details (name, relationship).
     QStringList respondentDetails() const;
@@ -316,7 +341,7 @@ protected:
     void setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
 
     // Single user mode: apply any settings (down to task implementation)
-    virtual void applySettings(const QJsonObject settings) {Q_UNUSED(settings)}
+    virtual void applySettings(const QJsonObject& settings) {Q_UNUSED(settings)}
 
     // Set the clinician fields to the app's default clinician information.
     // Called when the task is first created from the menus.
@@ -380,9 +405,11 @@ protected:
 
     // Create a standard set of NameValueOptions from the task's xstrings,
     // in ascending or descending order.
-    NameValueOptions makeOptionsFromXstrings(const QString& xstring_prefix,
-                                             int first, int last,
-                                             const QString& xstring_suffix = "");
+    NameValueOptions makeOptionsFromXstrings(
+            const QString& xstring_prefix,
+            int first,
+            int last,
+            const QString& xstring_suffix = QString());
 
 public slots:
     // "The user has started to edit this task."

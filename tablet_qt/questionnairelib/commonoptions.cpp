@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "commonoptions.h"
@@ -33,6 +34,9 @@ const int CommonOptions::CORRECT_INT = 1;
 const QString CommonOptions::SEX_FEMALE("F");
 const QString CommonOptions::SEX_MALE("M");
 const QString CommonOptions::SEX_UNSPECIFIED("X");
+const int CommonOptions::METRIC = 0;
+const int CommonOptions::IMPERIAL = 1;
+const int CommonOptions::BOTH = 2;
 
 
 // ============================================================================
@@ -108,6 +112,96 @@ QString CommonOptions::sexMale()
 QString CommonOptions::sexUnspecified()
 {
     return tr("Other/unspecified (X)");
+}
+
+
+QString CommonOptions::metricM()
+{
+    return tr("Metric (m)");
+}
+
+
+QString CommonOptions::imperialFtIn()
+{
+    return tr("Imperial (ft, in)");
+}
+
+
+QString CommonOptions::metres()
+{
+    return tr("metres (m)");
+}
+
+
+QString CommonOptions::feet()
+{
+    return tr("feet (ft)");
+}
+
+
+QString CommonOptions::inches()
+{
+    return tr("inches (in)");
+}
+
+
+QString CommonOptions::metricKg()
+{
+    return tr("Metric (kg)");
+}
+
+
+QString CommonOptions::imperialStLbOz()
+{
+    return tr("Imperial (st, lb, oz)");
+}
+
+
+QString CommonOptions::kilograms()
+{
+    return tr("kilograms (kg)");
+}
+
+
+QString CommonOptions::stones()
+{
+    return tr("stones (st)");
+}
+
+
+QString CommonOptions::pounds()
+{
+    return tr("pounds (lb)");
+}
+
+
+QString CommonOptions::ounces()
+{
+    return tr("ounces (oz)");
+}
+
+
+QString CommonOptions::metricCm()
+{
+    return tr("Metric (cm)");
+}
+
+
+QString CommonOptions::imperialIn()
+{
+    return tr("Imperial (in)");
+}
+
+
+QString CommonOptions::centimetres()
+{
+    return tr("centimetres (cm)");
+}
+
+
+QString CommonOptions::showBoth()
+{
+    return tr("Show both");
 }
 
 
@@ -233,4 +327,34 @@ NameValueOptions CommonOptions::optionsCopyingDescriptions(
         options.append(NameValuePair(desc, desc));
     }
     return options;
+}
+
+
+NameValueOptions CommonOptions::massUnits()
+{
+    return NameValueOptions{
+        {metricKg(), METRIC},
+        {imperialStLbOz(), IMPERIAL},
+        {showBoth(), BOTH},
+    };
+}
+
+
+NameValueOptions CommonOptions::waistUnits()
+{
+    return NameValueOptions{
+        {metricCm(), METRIC},
+        {imperialIn(), IMPERIAL},
+        {showBoth(), BOTH},
+    };
+}
+
+
+NameValueOptions CommonOptions::heightUnits()
+{
+    return NameValueOptions{
+        {metricM(), METRIC},
+        {imperialFtIn(), IMPERIAL},
+        {showBoth(), BOTH},
+    };
 }

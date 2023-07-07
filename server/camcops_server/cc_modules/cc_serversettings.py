@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_serversettings.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -74,7 +75,11 @@ import pendulum
 from pendulum import DateTime as Pendulum
 from sqlalchemy.sql.schema import Column, MetaData, Table
 from sqlalchemy.sql.sqltypes import (
-    DateTime, Float, Integer, String, UnicodeText,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    UnicodeText,
 )
 
 from camcops_server.cc_modules.cc_sqla_coltypes import DatabaseTitleColType
@@ -91,12 +96,14 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # ServerStoredVars - defunct, but maintained for database imports
 # =============================================================================
 
+
 class StoredVarTypesDefunct(object):
     """
     Variable types for the ServerStoredVars system.
 
     Defunct, but maintained for database imports.
     """
+
     # values for the "type" column
     TYPE_INTEGER = "integer"
     TYPE_TEXT = "text"
@@ -109,6 +116,7 @@ class ServerStoredVarNamesDefunct(object):
 
     Defunct, but maintained for database imports.
     """
+
     # values for the "name" column
     ID_POLICY_UPLOAD = "idPolicyUpload"  # text
     ID_POLICY_FINALIZE = "idPolicyFinalize"  # text
@@ -116,7 +124,9 @@ class ServerStoredVarNamesDefunct(object):
     DATABASE_TITLE = "databaseTitle"  # text
     LAST_ANALYTICS_SENT_AT = "lastAnalyticsSentAt"  # text
     ID_DESCRIPTION_PREFIX = "idDescription"  # text; apply suffixes 1-8
-    ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # text; apply suffixes 1-8  # noqa
+    ID_SHORT_DESCRIPTION_PREFIX = (
+        "idShortDescription"  # text; apply suffixes 1-8
+    )
 
 
 StoredVarNameColTypeDefunct = String(length=255)
@@ -128,27 +138,23 @@ server_stored_var_table_defunct = Table(
     "_server_storedvars",  # table name
     _ssv_metadata,  # metadata separate from everything else
     Column(
-        "name", StoredVarNameColTypeDefunct,
-        primary_key=True, index=True,
-        comment="Variable name"
+        "name",
+        StoredVarNameColTypeDefunct,
+        primary_key=True,
+        index=True,
+        comment="Variable name",
     ),
     Column(
-        "type", StoredVarTypeColTypeDefunct,
+        "type",
+        StoredVarTypeColTypeDefunct,
         nullable=False,
-        comment="Variable type ('integer', 'real', 'text')"
+        comment="Variable type ('integer', 'real', 'text')",
     ),
+    Column("valueInteger", Integer, comment="Value of an integer variable"),
+    Column("valueText", UnicodeText, comment="Value of a text variable"),
     Column(
-        "valueInteger", Integer,
-        comment="Value of an integer variable"
+        "valueReal", Float, comment="Value of a real (floating-point) variable"
     ),
-    Column(
-        "valueText", UnicodeText,
-        comment="Value of a text variable"
-    ),
-    Column(
-        "valueReal", Float,
-        comment="Value of a real (floating-point) variable"
-    )
 )
 
 
@@ -165,28 +171,33 @@ class ServerSettings(Base):
     Singleton SQLAlchemy object (i.e. there is just one row in the database
     table) representing server settings.
     """
+
     __tablename__ = "_server_settings"
 
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True, index=True,
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
         comment=(
             f"PK (arbitrary integer but only a value of "
             f"{SERVER_SETTINGS_SINGLETON_PK} is ever used)"
-        )
+        ),
     )
     database_title = Column(
-        "database_title", DatabaseTitleColType,
-        comment="Database title"
+        "database_title", DatabaseTitleColType, comment="Database title"
     )
     last_dummy_login_failure_clearance_at_utc = Column(
-        "last_dummy_login_failure_clearance_at_utc", DateTime,
+        "last_dummy_login_failure_clearance_at_utc",
+        DateTime,
         comment="Date/time (in UTC) when login failure records were cleared "
-                "for nonexistent users (security feature)"
+        "for nonexistent users (security feature)",
     )
 
-    def get_last_dummy_login_failure_clearance_pendulum(self) \
-            -> Optional[Pendulum]:
+    def get_last_dummy_login_failure_clearance_pendulum(
+        self,
+    ) -> Optional[Pendulum]:
         """
         Returns the time at which login failure records were cleared for
         nonexistent users.
@@ -199,7 +210,9 @@ class ServerSettings(Base):
         Specifically, this function returns an offset-aware (timezone-aware)
         version of the raw UTC DATETIME from the database.
         """
-        dt = self.last_dummy_login_failure_clearance_at_utc  # type: Optional[datetime]  # noqa
+        dt = (
+            self.last_dummy_login_failure_clearance_at_utc
+        )  # type: Optional[datetime]
         if dt is None:
             return None
         return pendulum.instance(dt, tz=pendulum.UTC)
@@ -212,9 +225,11 @@ def get_server_settings(req: "CamcopsRequest") -> ServerSettings:
     for the request.
     """
     dbsession = req.dbsession
-    server_settings = dbsession.query(ServerSettings)\
-        .filter(ServerSettings.id == SERVER_SETTINGS_SINGLETON_PK)\
+    server_settings = (
+        dbsession.query(ServerSettings)
+        .filter(ServerSettings.id == SERVER_SETTINGS_SINGLETON_PK)
         .first()
+    )
     if server_settings is None:
         server_settings = ServerSettings()
         server_settings.id = SERVER_SETTINGS_SINGLETON_PK

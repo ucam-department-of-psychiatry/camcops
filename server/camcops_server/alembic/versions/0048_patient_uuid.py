@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0048_patient_uuid.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -40,15 +41,16 @@ Creation date: 2020-03-17 18:00:33.550294
 
 from alembic import op
 import sqlalchemy as sa
-import camcops_server.cc_modules.cc_sqla_coltypes
+
+from camcops_server.cc_modules.cc_sqla_coltypes import UuidColType
 
 
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0048'
-down_revision = '0047'
+revision = "0048"
+down_revision = "0047"
 branch_labels = None
 depends_on = None
 
@@ -59,11 +61,15 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('patient', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('uuid', camcops_server.cc_modules.cc_sqla_coltypes.UuidColType(length=32), nullable=True, comment='UUID'))
+    with op.batch_alter_table("patient", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "uuid", UuidColType(length=32), nullable=True, comment="UUID"
+            )
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('patient', schema=None) as batch_op:
-        batch_op.drop_column('uuid')
+    with op.batch_alter_table("patient", schema=None) as batch_op:
+        batch_op.drop_column("uuid")

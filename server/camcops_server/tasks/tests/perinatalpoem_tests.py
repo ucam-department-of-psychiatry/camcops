@@ -5,7 +5,8 @@ camcops_server/tasks/tests/perinatalpoem_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -31,7 +32,6 @@ from typing import Generator
 import pendulum
 
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
-
 from camcops_server.tasks.perinatalpoem import (
     PerinatalPoem,
     PerinatalPoemReport,
@@ -41,6 +41,7 @@ from camcops_server.tasks.perinatalpoem import (
 # =============================================================================
 # Unit tests
 # =============================================================================
+
 
 class PerinatalPoemReportTestCase(BasicDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
@@ -69,7 +70,7 @@ class PerinatalPoemReportTestCase(BasicDatabaseTestCase):
         self.apply_standard_task_fields(task)
         task.id = next(self.id_sequence)
 
-        era = kwargs.pop('era', None)
+        era = kwargs.pop("era", None)
         if era is not None:
             task.when_created = pendulum.parse(era)
 
@@ -141,25 +142,33 @@ class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
         self.assertEqual(len(rows[0]), 4)
 
     def test_comments(self) -> None:
-        expected_comments = [
-            "comment 1", "comment 2", "comment 3",
-        ]
+        expected_comments = ["comment 1", "comment 2", "comment 3"]
         comments = self.report._get_comments(self.req)
         self.assertEqual(comments, expected_comments)
 
 
 class PerinatalPoemReportDateRangeTests(PerinatalPoemReportTestCase):
     def create_tasks(self) -> None:
-        self.create_task(general_comments="comments 1",
-                         era="2018-10-01T00:00:00.000000+00:00")
-        self.create_task(general_comments="comments 2",
-                         era="2018-10-02T00:00:00.000000+00:00")
-        self.create_task(general_comments="comments 3",
-                         era="2018-10-03T00:00:00.000000+00:00")
-        self.create_task(general_comments="comments 4",
-                         era="2018-10-04T00:00:00.000000+00:00")
-        self.create_task(general_comments="comments 5",
-                         era="2018-10-05T00:00:00.000000+00:00")
+        self.create_task(
+            general_comments="comments 1",
+            era="2018-10-01T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            general_comments="comments 2",
+            era="2018-10-02T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            general_comments="comments 3",
+            era="2018-10-03T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            general_comments="comments 4",
+            era="2018-10-04T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            general_comments="comments 5",
+            era="2018-10-05T00:00:00.000000+00:00",
+        )
         self.dbsession.commit()
 
     def test_comments_filtered_by_date(self) -> None:

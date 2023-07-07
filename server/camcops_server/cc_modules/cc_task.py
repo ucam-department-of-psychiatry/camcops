@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_task.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -42,12 +43,24 @@ SQL     As part of an SQL or SQLite download.
 
 """
 
-from collections import OrderedDict
+from base64 import b64encode
+from collections import Counter, OrderedDict
 import datetime
 import logging
 import statistics
-from typing import (Any, Dict, Iterable, Generator, List, Optional,
-                    Tuple, Type, TYPE_CHECKING, Union)
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Generator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -55,42 +68,101 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     pendulum_to_utc_datetime_without_tz,
 )
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
     gen_orm_classes_from_base,
 )
-from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
+from cardinal_pythonlib.sqlalchemy.schema import (
+    is_sqlatype_binary,
+    is_sqlatype_string,
+)
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
+from fhirclient.models.attachment import Attachment
+from fhirclient.models.bundle import Bundle
+from fhirclient.models.codeableconcept import CodeableConcept
+from fhirclient.models.coding import Coding
+from fhirclient.models.contactpoint import ContactPoint
+from fhirclient.models.documentreference import (
+    DocumentReference,
+    DocumentReferenceContent,
+)
+from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.humanname import HumanName
+from fhirclient.models.identifier import Identifier
+from fhirclient.models.observation import Observation
+from fhirclient.models.practitioner import Practitioner
+from fhirclient.models.questionnaire import Questionnaire
+from fhirclient.models.questionnaireresponse import QuestionnaireResponse
 import hl7
-from pendulum import Date, DateTime as Pendulum
+from pendulum import Date as PendulumDate, DateTime as Pendulum
 from pyramid.renderers import render
 from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import not_, update
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Float, Integer, Text
+from sqlalchemy.sql.schema import Column, Table
+from sqlalchemy.sql.sqltypes import (
+    Boolean,
+    Date as DateColType,
+    DateTime,
+    Float,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    Time,
+)
 
-# from camcops_server.cc_modules.cc_anon import get_cris_dd_rows_from_fieldspecs
 from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_baseconstants import DOCUMENTATION_URL
 from camcops_server.cc_modules.cc_blob import Blob, get_blob_img_html
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
+    ASCII,
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
+    FHIRConst as Fc,
+    FileType,
     ERA_NOW,
     INVALID_VALUE,
+    UTF8,
 )
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
+    SFN_CAMCOPS_SERVER_VERSION,
+    SFN_IS_COMPLETE,
+    SFN_SECONDS_CREATION_TO_FIRST_FINISH,
+    TASK_FREQUENT_FIELDS,
+    TFN_CLINICIAN_CONTACT_DETAILS,
+    TFN_CLINICIAN_NAME,
+    TFN_CLINICIAN_POST,
+    TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+    TFN_CLINICIAN_SERVICE,
+    TFN_CLINICIAN_SPECIALTY,
     TFN_EDITING_TIME_S,
     TFN_FIRSTEXIT_IS_ABORT,
     TFN_FIRSTEXIT_IS_FINISH,
+    TFN_PATIENT_ID,
+    TFN_RESPONDENT_NAME,
+    TFN_RESPONDENT_RELATIONSHIP,
     TFN_WHEN_CREATED,
     TFN_WHEN_FIRSTEXIT,
+)
+from camcops_server.cc_modules.cc_exception import FhirExportException
+from camcops_server.cc_modules.cc_fhir import (
+    fhir_observation_component_from_snomed,
+    fhir_system_value,
+    fhir_sysval_from_id,
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+    make_fhir_bundle_entry,
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_hl7 import make_obr_segment, make_obx_segment
@@ -103,27 +175,32 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_pdf import pdf_from_html
-from camcops_server.cc_modules.cc_pyramid import ViewArg
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_snomed import SnomedLookup
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    BoolColumn,
     CamcopsColumn,
+    COLATTR_PERMITTED_VALUE_CHECKER,
     gen_ancillary_relationships,
     get_camcops_blob_column_attr_names,
     get_column_attr_names,
     PendulumDateTimeAsIsoTextColType,
     permitted_value_failure_msgs,
     permitted_values_ok,
+    PermittedValueChecker,
     SemanticVersionColType,
     TableNameColType,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base, get_table_ddl
 from camcops_server.cc_modules.cc_summaryelement import (
     ExtraSummaryTable,
     SummaryElement,
 )
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION,
+    CAMCOPS_SERVER_VERSION_STRING,
     MINIMUM_TABLET_VERSION,
 )
 from camcops_server.cc_modules.cc_xml import (
@@ -142,18 +219,48 @@ from camcops_server.cc_modules.cc_xml import (
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F401
-    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_exportrecipient import (  # noqa: F401
+        ExportRecipient,
+    )
     from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_snomed import SnomedExpression  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_tsv import TsvPage  # noqa: F401
+    from camcops_server.cc_modules.cc_patientidnum import (  # noqa: F401
+        PatientIdNum,
+    )
+    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+        CamcopsRequest,
+    )
+    from camcops_server.cc_modules.cc_snomed import (  # noqa: F401
+        SnomedExpression,
+    )
+    from camcops_server.cc_modules.cc_trackerhelpers import (  # noqa: F401
+        TrackerInfo,
+    )
+    from camcops_server.cc_modules.cc_spreadsheet import (  # noqa: F401
+        SpreadsheetPage,
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+
+# =============================================================================
+# Debugging options
+# =============================================================================
+
+DEBUG_SKIP_FHIR_DOCS = False
+DEBUG_SHOW_FHIR_QUESTIONNAIRE = False
+
+if any([DEBUG_SKIP_FHIR_DOCS, DEBUG_SHOW_FHIR_QUESTIONNAIRE]):
+    log.warning("Debugging options enabled!")
+
+
+# =============================================================================
+# Constants
+# =============================================================================
+
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
+
+FHIR_UNKNOWN_TEXT = "[?]"
 
 SNOMED_TABLENAME = "_snomed_ct"
 SNOMED_COLNAME_TASKTABLE = "task_tablename"
@@ -167,11 +274,13 @@ UNUSED_SNOMED_XML_NAME = "snomed_ct_expressions"
 # Patient mixin
 # =============================================================================
 
+
 class TaskHasPatientMixin(object):
     """
     Mixin for tasks that have a patient (aren't anonymous).
     """
-    # http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
+
+    # https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
     # noinspection PyMethodParameters
     @declared_attr
@@ -180,9 +289,11 @@ class TaskHasPatientMixin(object):
         SQLAlchemy :class:`Column` that is a foreign key to the patient table.
         """
         return Column(
-            "patient_id", Integer,
-            nullable=False, index=True,
-            comment="(TASK) Foreign key to patient.id (for this device/era)"
+            TFN_PATIENT_ID,
+            Integer,
+            nullable=False,
+            index=True,
+            comment="(TASK) Foreign key to patient.id (for this device/era)",
         )
 
     # noinspection PyMethodParameters
@@ -206,9 +317,7 @@ class TaskHasPatientMixin(object):
                 " remote(Patient._device_id) == foreign({task}._device_id), "
                 " remote(Patient._era) == foreign({task}._era), "
                 " remote(Patient._current) == True "
-                ")".format(
-                    task=cls.__name__,
-                )
+                ")".format(task=cls.__name__)
             ),
             uselist=False,
             viewonly=True,
@@ -219,7 +328,7 @@ class TaskHasPatientMixin(object):
             # lazy="subquery": 36.9s
             # lazy="selectin": 35.3s
             # See also idnums relationship on Patient class (cc_patient.py)
-            lazy="selectin"
+            lazy="selectin",
         )
         # NOTE: this retrieves the most recent (i.e. the current) information
         # on that patient. Consequently, task version history doesn't show the
@@ -239,6 +348,7 @@ class TaskHasPatientMixin(object):
 # Clinician mixin
 # =============================================================================
 
+
 class TaskHasClinicianMixin(object):
     """
     Mixin to add clinician columns and override clinician-related methods.
@@ -246,62 +356,69 @@ class TaskHasClinicianMixin(object):
     Must be to the LEFT of ``Task`` in the class's base class list, i.e.
     must have higher precedence than ``Task`` in the method resolution order.
     """
+
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_specialty(cls) -> Column:
         return CamcopsColumn(
-            "clinician_specialty", Text,
+            TFN_CLINICIAN_SPECIALTY,
+            Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's specialty "
-                    "(e.g. Liaison Psychiatry)"
+            "(e.g. Liaison Psychiatry)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_name(cls) -> Column:
         return CamcopsColumn(
-            "clinician_name", Text,
+            TFN_CLINICIAN_NAME,
+            Text,
             exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
+            comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_professional_registration(cls) -> Column:
         return CamcopsColumn(
-            "clinician_professional_registration", Text,
+            TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+            Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
-                    "GMC# 12345)"
+            "GMC# 12345)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_post(cls) -> Column:
         return CamcopsColumn(
-            "clinician_post", Text,
+            TFN_CLINICIAN_POST,
+            Text,
             exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
+            comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_service(cls) -> Column:
         return CamcopsColumn(
-            "clinician_service", Text,
+            TFN_CLINICIAN_SERVICE,
+            Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
-                    "Service)"
+            "Service)",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_contact_details(cls) -> Column:
         return CamcopsColumn(
-            "clinician_contact_details", Text,
+            TFN_CLINICIAN_CONTACT_DETAILS,
+            Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
-                    "extension)"
+            "extension)",
         )
 
     # For field order, see also:
@@ -321,10 +438,41 @@ class TaskHasClinicianMixin(object):
         """
         return self.clinician_name or ""
 
+    def get_clinician_fhir_telecom_other(self, req: "CamcopsRequest") -> str:
+        """
+        Return a mishmash of information that doesn't fit neatly into a FHIR
+        Practitioner object, but people might actually want to know.
+        """
+        _ = req.gettext
+        components = []  # type: List[str]
+        # In sequence, e.g.:
+        # - Consultant
+        if self.clinician_post:
+            components.append(f'{_("Post:")} {self.clinician_post}')
+        # - Liaison Psychiatry
+        if self.clinician_specialty:
+            components.append(f'{_("Specialty:")} {self.clinician_specialty}')
+        # - GMC# 12345
+        if self.clinician_professional_registration:
+            components.append(
+                f'{_("Professional registration:")} '
+                f"{self.clinician_professional_registration}"
+            )
+        # - Liaison Psychiatry Service
+        if self.clinician_service:
+            components.append(f'{_("Service:")} {self.clinician_service}')
+        # - tel. x12345
+        if self.clinician_contact_details:
+            components.append(
+                f'{_("Contact details:")} ' f"{self.clinician_contact_details}"
+            )
+        return " | ".join(components)
+
 
 # =============================================================================
 # Respondent mixin
 # =============================================================================
+
 
 class TaskHasRespondentMixin(object):
     """
@@ -346,17 +494,19 @@ class TaskHasRespondentMixin(object):
     @declared_attr
     def respondent_name(cls) -> Column:
         return CamcopsColumn(
-            "respondent_name", Text,
+            TFN_RESPONDENT_NAME,
+            Text,
             identifies_patient=True,
-            comment="(RESPONDENT) Respondent's name"
+            comment="(RESPONDENT) Respondent's name",
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def respondent_relationship(cls) -> Column:
         return Column(
-            "respondent_relationship", Text,
-            comment="(RESPONDENT) Respondent's relationship to patient"
+            TFN_RESPONDENT_RELATIONSHIP,
+            Text,
+            comment="(RESPONDENT) Respondent's relationship to patient",
         )
 
     # noinspection PyMethodParameters
@@ -379,6 +529,7 @@ class TaskHasRespondentMixin(object):
 # Task base class
 # =============================================================================
 
+
 class Task(GenericTabletRecordMixin, Base):
     """
     Abstract base class for all tasks.
@@ -392,15 +543,13 @@ class Task(GenericTabletRecordMixin, Base):
       things.
 
     """
+
     __abstract__ = True
 
     # noinspection PyMethodParameters
     @declared_attr
     def __mapper_args__(cls):
-        return {
-            'polymorphic_identity': cls.__name__,
-            'concrete': True,
-        }
+        return {"polymorphic_identity": cls.__name__, "concrete": True}
 
     # =========================================================================
     # PART 0: COLUMNS COMMON TO ALL TASKS
@@ -415,9 +564,11 @@ class Task(GenericTabletRecordMixin, Base):
         Column representing the task's creation time.
         """
         return Column(
-            TFN_WHEN_CREATED, PendulumDateTimeAsIsoTextColType,
+            TFN_WHEN_CREATED,
+            PendulumDateTimeAsIsoTextColType,
             nullable=False,
-            comment="(TASK) Date/time this task instance was created (ISO 8601)"
+            comment="(TASK) Date/time this task instance was created "
+            "(ISO 8601)",
         )
 
     # noinspection PyMethodParameters
@@ -428,9 +579,10 @@ class Task(GenericTabletRecordMixin, Base):
         (i.e. first "finish" or first "abort").
         """
         return Column(
-            TFN_WHEN_FIRSTEXIT, PendulumDateTimeAsIsoTextColType,
+            TFN_WHEN_FIRSTEXIT,
+            PendulumDateTimeAsIsoTextColType,
             comment="(TASK) Date/time of the first exit from this task "
-                    "(ISO 8601)"
+            "(ISO 8601)",
         )
 
     # noinspection PyMethodParameters
@@ -440,9 +592,10 @@ class Task(GenericTabletRecordMixin, Base):
         Was the first exit from the task's editor a successful "finish"?
         """
         return Column(
-            TFN_FIRSTEXIT_IS_FINISH, Boolean,
+            TFN_FIRSTEXIT_IS_FINISH,
+            Boolean,
             comment="(TASK) Was the first exit from the task because it was "
-                    "finished (1)?"
+            "finished (1)?",
         )
 
     # noinspection PyMethodParameters
@@ -452,9 +605,10 @@ class Task(GenericTabletRecordMixin, Base):
         Was the first exit from the task's editor an "abort"?
         """
         return Column(
-            TFN_FIRSTEXIT_IS_ABORT, Boolean,
+            TFN_FIRSTEXIT_IS_ABORT,
+            Boolean,
             comment="(TASK) Was the first exit from this task because it was "
-                    "aborted (1)?"
+            "aborted (1)?",
         )
 
     # noinspection PyMethodParameters
@@ -465,8 +619,7 @@ class Task(GenericTabletRecordMixin, Base):
         (Calculated by the CamCOPS client.)
         """
         return Column(
-            TFN_EDITING_TIME_S, Float,
-            comment="(TASK) Time spent editing (s)"
+            TFN_EDITING_TIME_S, Float, comment="(TASK) Time spent editing (s)"
         )
 
     # Relationships
@@ -514,7 +667,12 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     # Attributes that can be overridden
     # -------------------------------------------------------------------------
-    extrastring_taskname = None  # type: str  # if None, tablename is used instead  # noqa
+    extrastring_taskname = (
+        None
+    )  # type: str  # if None, tablename is used instead  # noqa
+    info_filename_stem = (
+        None
+    )  # type: str  # if None, tablename is used instead  # noqa
     provides_trackers = False
     use_landscape_for_pdf = False
     dependent_classes = []
@@ -526,10 +684,14 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def prohibits_anything(cls) -> bool:
-        return any([cls.prohibits_clinical,
-                    cls.prohibits_commercial,
-                    cls.prohibits_educational,
-                    cls.prohibits_research])
+        return any(
+            [
+                cls.prohibits_clinical,
+                cls.prohibits_commercial,
+                cls.prohibits_educational,
+                cls.prohibits_research,
+            ]
+        )
 
     # -------------------------------------------------------------------------
     # Methods always overridden by the actual task
@@ -557,7 +719,8 @@ class Task(GenericTabletRecordMixin, Base):
         Must be overridden by derived classes.
         """
         raise NotImplementedError(
-            "No get_task_html() HTML generator for this task class!")
+            "No get_task_html() HTML generator for this task class!"
+        )
 
     # -------------------------------------------------------------------------
     # Implement if you provide trackers
@@ -582,8 +745,9 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_clinical_text(self, req: "CamcopsRequest") \
-            -> Optional[List["CtvInfo"]]:
+    def get_clinical_text(
+        self, req: "CamcopsRequest"
+    ) -> Optional[List["CtvInfo"]]:
         """
         Tasks that provide clinical text information should override this
         to provide a list of
@@ -602,7 +766,8 @@ class Task(GenericTabletRecordMixin, Base):
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_extra_summary_tables(
-            self, req: "CamcopsRequest") -> List[ExtraSummaryTable]:
+        self, req: "CamcopsRequest"
+    ) -> List[ExtraSummaryTable]:
         """
         Override if you wish to create extra summary tables, not just add
         summary columns to task/ancillary tables.
@@ -618,8 +783,9 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_snomed_codes(self,
-                         req: "CamcopsRequest") -> List["SnomedExpression"]:
+    def get_snomed_codes(
+        self, req: "CamcopsRequest"
+    ) -> List["SnomedExpression"]:
         """
         Returns all SNOMED-CT codes for this task.
 
@@ -653,7 +819,8 @@ class Task(GenericTabletRecordMixin, Base):
             pk=self.pk,
             wc=(
                 format_datetime(self.when_created, DateFormat.ERA)
-                if self.when_created else "None"
+                if self.when_created
+                else "None"
             ),
             patient=patient_str,
         )
@@ -664,7 +831,8 @@ class Task(GenericTabletRecordMixin, Base):
             pk=self.pk,
             wc=(
                 format_datetime(self.when_created, DateFormat.ERA)
-                if self.when_created else "None"
+                if self.when_created
+                else "None"
             ),
         )
 
@@ -717,7 +885,8 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     def all_subclasses_by_longname(
-            cls, req: "CamcopsRequest") -> List[Type[TASK_FWD_REF]]:
+        cls, req: "CamcopsRequest"
+    ) -> List[Type[TASK_FWD_REF]]:
         """
         Return all task classes, ordered by long name.
         """
@@ -803,7 +972,7 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     def all_tables_with_min_client_version(cls) -> Dict[str, Version]:
         """
-        Returns a dictionary mapping all this task's tables (primary and
+        Returns a dictionary mapping all this task's table names (primary and
         ancillary) to the corresponding minimum client version.
         """
         v = cls.minimum_client_version
@@ -811,6 +980,53 @@ class Task(GenericTabletRecordMixin, Base):
         for _, _, rel_cls in gen_ancillary_relationships(cls):
             d[rel_cls.__tablename__] = v
         return d
+
+    @classmethod
+    def all_tables(cls) -> List[Table]:
+        """
+        Returns all table classes (primary table plus any ancillary tables).
+        """
+        # noinspection PyUnresolvedReferences
+        return [cls.__table__] + [
+            rel_cls.__table__
+            for _, _, rel_cls in gen_ancillary_relationships(cls)
+        ]
+
+    @classmethod
+    def get_ddl(cls, dialect_name: str = SqlaDialectName.MYSQL) -> str:
+        """
+        Returns DDL for the primary and any ancillary tables.
+        """
+        return "\n\n".join(
+            get_table_ddl(t, dialect_name).strip() for t in cls.all_tables()
+        )
+
+    @classmethod
+    def help_url(cls) -> str:
+        """
+        Returns the URL for task-specific online help.
+
+        By default, this is based on the tablename -- e.g. ``phq9``, giving
+        ``phq9.html`` in the documentation (from ``phq9.rst`` in the source).
+        However, some tasks override this -- which they may do by writing
+
+        .. code-block:: python
+
+            info_filename_stem = "XXX"
+
+        In the C++ code, compare infoFilenameStem() for individual tasks and
+        urlconst::taskDocUrl() overall.
+
+        The online help is presently only in English.
+        """
+        basename = cls.help_url_basename()
+        language = "en"
+        # DOCUMENTATION_URL has a trailing slash already
+        return f"{DOCUMENTATION_URL}{language}/latest/tasks/{basename}.html"
+
+    @classmethod
+    def help_url_basename(cls) -> str:
+        return cls.info_filename_stem or cls.tablename
 
     # -------------------------------------------------------------------------
     # More on fields
@@ -875,8 +1091,9 @@ class Task(GenericTabletRecordMixin, Base):
             return None
         return convert_datetime_to_utc(localtime)
 
-    def get_creation_datetime_utc_tz_unaware(self) -> \
-            Optional[datetime.datetime]:
+    def get_creation_datetime_utc_tz_unaware(
+        self,
+    ) -> Optional[datetime.datetime]:
         """
         Creation time as a :class:`datetime.datetime` object on UTC with no
         timezone (i.e. an "offset-naive" datetime), or None.
@@ -932,7 +1149,11 @@ class Task(GenericTabletRecordMixin, Base):
         Returns the username of the user who erased this task manually on the
         server.
         """
-        return self._manually_erasing_user.username if self._manually_erasing_user else ""  # noqa
+        return (
+            self._manually_erasing_user.username
+            if self._manually_erasing_user
+            else ""
+        )
 
     # -------------------------------------------------------------------------
     # Summary tables
@@ -944,29 +1165,30 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return [
             SummaryElement(
-                name="is_complete",
+                name=SFN_IS_COMPLETE,
                 coltype=Boolean(),
                 value=self.is_complete(),
-                comment="(GENERIC) Task complete?"
+                comment="(GENERIC) Task complete?",
             ),
             SummaryElement(
-                name="seconds_from_creation_to_first_finish",
+                name=SFN_SECONDS_CREATION_TO_FIRST_FINISH,
                 coltype=Float(),
                 value=self.get_seconds_from_creation_to_first_finish(),
                 comment="(GENERIC) Time (in seconds) from record creation to "
-                        "first exit, if that was a finish not an abort",
+                "first exit, if that was a finish not an abort",
             ),
             SummaryElement(
-                name="camcops_server_version",
+                name=SFN_CAMCOPS_SERVER_VERSION,
                 coltype=SemanticVersionColType(),
                 value=CAMCOPS_SERVER_VERSION,
                 comment="(GENERIC) CamCOPS server version that created the "
-                        "summary information",
+                "summary information",
             ),
         ]
 
-    def get_all_summary_tables(self, req: "CamcopsRequest") \
-            -> List[ExtraSummaryTable]:
+    def get_all_summary_tables(
+        self, req: "CamcopsRequest"
+    ) -> List[ExtraSummaryTable]:
         """
         Returns all
         :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`
@@ -978,8 +1200,9 @@ class Task(GenericTabletRecordMixin, Base):
             tables.append(self._get_snomed_extra_summary_table(req))
         return tables
 
-    def _get_snomed_extra_summary_table(self, req: "CamcopsRequest") \
-            -> ExtraSummaryTable:
+    def _get_snomed_extra_summary_table(
+        self, req: "CamcopsRequest"
+    ) -> ExtraSummaryTable:
         """
         Returns a
         :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`
@@ -987,32 +1210,48 @@ class Task(GenericTabletRecordMixin, Base):
         """
         codes = self.get_snomed_codes(req)
         columns = [
-            Column(SNOMED_COLNAME_TASKTABLE, TableNameColType,
-                   comment="Task's base table name"),
-            Column(SNOMED_COLNAME_TASKPK, Integer,
-                   comment="Task's server primary key"),
-            Column(SNOMED_COLNAME_WHENCREATED_UTC, DateTime,
-                   comment="Task's creation date/time (UTC)"),
-            CamcopsColumn(SNOMED_COLNAME_EXPRESSION, Text,
-                          exempt_from_anonymisation=True,
-                          comment="SNOMED CT expression"),
+            Column(
+                SNOMED_COLNAME_TASKTABLE,
+                TableNameColType,
+                comment="Task's base table name",
+            ),
+            Column(
+                SNOMED_COLNAME_TASKPK,
+                Integer,
+                comment="Task's server primary key",
+            ),
+            Column(
+                SNOMED_COLNAME_WHENCREATED_UTC,
+                DateTime,
+                comment="Task's creation date/time (UTC)",
+            ),
+            CamcopsColumn(
+                SNOMED_COLNAME_EXPRESSION,
+                Text,
+                exempt_from_anonymisation=True,
+                comment="SNOMED CT expression",
+            ),
         ]
         rows = []  # type: List[Dict[str, Any]]
         for code in codes:
-            d = OrderedDict([
-                (SNOMED_COLNAME_TASKTABLE, self.tablename),
-                (SNOMED_COLNAME_TASKPK, self.pk),
-                (SNOMED_COLNAME_WHENCREATED_UTC,
-                 self.get_creation_datetime_utc_tz_unaware()),
-                (SNOMED_COLNAME_EXPRESSION, code.as_string()),
-            ])
+            d = OrderedDict(
+                [
+                    (SNOMED_COLNAME_TASKTABLE, self.tablename),
+                    (SNOMED_COLNAME_TASKPK, self.pk),
+                    (
+                        SNOMED_COLNAME_WHENCREATED_UTC,
+                        self.get_creation_datetime_utc_tz_unaware(),
+                    ),
+                    (SNOMED_COLNAME_EXPRESSION, code.as_string()),
+                ]
+            )
             rows.append(d)
         return ExtraSummaryTable(
             tablename=SNOMED_TABLENAME,
             xmlname=UNUSED_SNOMED_XML_NAME,  # though actual XML doesn't use this route  # noqa
             columns=columns,
             rows=rows,
-            task=self
+            task=self,
         )
 
     # -------------------------------------------------------------------------
@@ -1035,10 +1274,9 @@ class Task(GenericTabletRecordMixin, Base):
     # Special notes
     # -------------------------------------------------------------------------
 
-    def apply_special_note(self,
-                           req: "CamcopsRequest",
-                           note: str,
-                           from_console: bool = False) -> None:
+    def apply_special_note(
+        self, req: "CamcopsRequest", note: str, from_console: bool = False
+    ) -> None:
         """
         Manually applies a special note to a task.
 
@@ -1065,9 +1303,14 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodMayBeStatic
     def get_clinician_name(self) -> str:
         """
-        Get the clinician's name.
+        May be overridden by :class:`TaskHasClinicianMixin`; q.v.
+        """
+        return ""
 
-        May be overridden by :class:`TaskHasClinicianMixin`.
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def get_clinician_fhir_telecom_other(self, req: "CamcopsRequest") -> str:
+        """
+        May be overridden by :class:`TaskHasClinicianMixin`; q.v.
         """
         return ""
 
@@ -1128,7 +1371,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self.patient.get_surname() if self.patient else ""
 
-    def get_patient_dob(self) -> Optional[Date]:
+    def get_patient_dob(self) -> Optional[PendulumDate]:
         """
         Get the patient's DOB, or None.
         """
@@ -1166,15 +1409,19 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self.patient.get_idnum_objects() if self.patient else []
 
-    def get_patient_idnum_object(self,
-                                 which_idnum: int) -> Optional["PatientIdNum"]:
+    def get_patient_idnum_object(
+        self, which_idnum: int
+    ) -> Optional["PatientIdNum"]:
         """
         Get the patient's
         :class:`camcops_server.cc_modules.cc_patientidnum.PatientIdNum` for the
         specified ID number type (``which_idnum``), or None.
         """
-        return (self.patient.get_idnum_object(which_idnum) if self.patient
-                else None)
+        return (
+            self.patient.get_idnum_object(which_idnum)
+            if self.patient
+            else None
+        )
 
     def any_patient_idnums_invalid(self, req: "CamcopsRequest") -> bool:
         """
@@ -1197,30 +1444,32 @@ class Task(GenericTabletRecordMixin, Base):
         idobj = self.get_patient_idnum_object(which_idnum=which_idnum)
         return idobj.idnum_value if idobj else None
 
-    def get_patient_hl7_pid_segment(self,
-                                    req: "CamcopsRequest",
-                                    recipient_def: "ExportRecipient") \
-            -> Union[hl7.Segment, str]:
+    def get_patient_hl7_pid_segment(
+        self, req: "CamcopsRequest", recipient_def: "ExportRecipient"
+    ) -> Union[hl7.Segment, str]:
         """
         Get an HL7 PID segment for the patient, or "".
         """
-        return (self.patient.get_hl7_pid_segment(req, recipient_def)
-                if self.patient else "")
+        return (
+            self.patient.get_hl7_pid_segment(req, recipient_def)
+            if self.patient
+            else ""
+        )
 
     # -------------------------------------------------------------------------
-    # HL7
+    # HL7 v2
     # -------------------------------------------------------------------------
 
-    def get_hl7_data_segments(self, req: "CamcopsRequest",
-                              recipient_def: "ExportRecipient") \
-            -> List[hl7.Segment]:
+    def get_hl7_data_segments(
+        self, req: "CamcopsRequest", recipient_def: "ExportRecipient"
+    ) -> List[hl7.Segment]:
         """
         Returns a list of HL7 data segments.
 
         These will be:
 
-        - OBR segment
-        - OBX segment
+        - observation request (OBR) segment
+        - observation result (OBX) segment
         - any extra ones offered by the task
         """
         obr_segment = make_obr_segment(self)
@@ -1234,40 +1483,894 @@ class Task(GenericTabletRecordMixin, Base):
             responsible_observer=self.get_clinician_name(),
             export_options=export_options,
         )
-        return [
-            obr_segment,
-            obx_segment
-        ] + self.get_hl7_extra_data_segments(recipient_def)
+        return [obr_segment, obx_segment] + self.get_hl7_extra_data_segments(
+            recipient_def
+        )
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_hl7_extra_data_segments(self, recipient_def: "ExportRecipient") \
-            -> List[hl7.Segment]:
+    def get_hl7_extra_data_segments(
+        self, recipient_def: "ExportRecipient"
+    ) -> List[hl7.Segment]:
         """
         Return a list of any extra HL7 data segments. (See
-        :func:`get_hl7_data_segments`.)
+        :func:`get_hl7_data_segments`, which calls this function.)
 
         May be overridden.
         """
         return []
 
-    def cancel_from_export_log(self, req: "CamcopsRequest",
-                               from_console: bool = False) -> None:
+    # -------------------------------------------------------------------------
+    # FHIR: framework
+    # -------------------------------------------------------------------------
+
+    def get_fhir_bundle(
+        self,
+        req: "CamcopsRequest",
+        recipient: "ExportRecipient",
+        skip_docs_if_other_content: bool = DEBUG_SKIP_FHIR_DOCS,
+    ) -> Bundle:
+        """
+        Get a single FHIR Bundle with all entries. See
+        :meth:`get_fhir_bundle_entries`.
+        """
+        # Get the content:
+        bundle_entries = self.get_fhir_bundle_entries(
+            req,
+            recipient,
+            skip_docs_if_other_content=skip_docs_if_other_content,
+        )
+        # ... may raise FhirExportException
+
+        # Sanity checks:
+        id_counter = Counter()
+        for entry in bundle_entries:
+            assert (
+                Fc.RESOURCE in entry
+            ), f"Bundle entry has no resource: {entry}"  # just wrong
+            resource = entry[Fc.RESOURCE]
+            assert Fc.IDENTIFIER in resource, (
+                f"Bundle entry has no identifier for its resource: "
+                f"{resource}"
+            )  # might succeed, but would insert an unidentified resource
+            identifier = resource[Fc.IDENTIFIER]
+            if not isinstance(identifier, list):
+                identifier = [identifier]
+            for id_ in identifier:
+                system = id_[Fc.SYSTEM]
+                value = id_[Fc.VALUE]
+                id_counter.update([fhir_system_value(system, value)])
+            most_common = id_counter.most_common(1)[0]
+            assert (
+                most_common[1] == 1
+            ), f"Resources have duplicate IDs: {most_common[0]}"
+
+        # Bundle up the content into a transaction bundle:
+        return Bundle(
+            jsondict={Fc.TYPE: Fc.TRANSACTION, Fc.ENTRY: bundle_entries}
+        )
+        # This is one of the few FHIR objects that we don't return with
+        # ".as_json()", because Bundle objects have useful methods for talking
+        # to the FHIR server.
+
+    def get_fhir_bundle_entries(
+        self,
+        req: "CamcopsRequest",
+        recipient: "ExportRecipient",
+        skip_docs_if_other_content: bool = DEBUG_SKIP_FHIR_DOCS,
+    ) -> List[Dict]:
+        """
+        Get all FHIR bundle entries. This is the "top-level" function to
+        provide all FHIR information for the task. That information includes:
+
+        - the Patient, if applicable;
+        - the Questionnaire (task) itself;
+        - multiple QuestionnaireResponse entries for the specific answers from
+          this task instance.
+
+        If the task refuses to support FHIR, raises :exc:`FhirExportException`.
+
+        Args:
+            req:
+                a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            recipient:
+                an
+                :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+            skip_docs_if_other_content:
+                A debugging option: skip the document (e.g. PDF, HTML, XML),
+                making the FHIR output smaller and more legible for debugging.
+                However, if the task offers no other content, this will raise
+                :exc:`FhirExportException`.
+        """  # noqa
+        bundle_entries = []  # type: List[Dict]
+
+        # Patient (0 or 1)
+        if self.has_patient:
+            bundle_entries.append(
+                self.patient.get_fhir_bundle_entry(req, recipient)
+            )
+
+        # Clinician (0 or 1)
+        if self.has_clinician:
+            bundle_entries.append(self._get_fhir_clinician_bundle_entry(req))
+
+        # Questionnaire, QuestionnaireResponse
+        q_bundle_entry, qr_bundle_entry = self._get_fhir_q_qr_bundle_entries(
+            req, recipient
+        )
+        if q_bundle_entry and qr_bundle_entry:
+            bundle_entries += [
+                # Questionnaire
+                q_bundle_entry,
+                # Collection of QuestionnaireResponse entries
+                qr_bundle_entry,
+            ]
+
+        # Observation (0 or more) -- includes Coding
+        bundle_entries += self._get_fhir_detail_bundle_entries(req, recipient)
+
+        # DocumentReference (0-1; always 1 in normal use )
+        if skip_docs_if_other_content:
+            if not bundle_entries:
+                # We can't have nothing!
+                raise FhirExportException(
+                    "Skipping task because DEBUG_SKIP_FHIR_DOCS set and no "
+                    "other content"
+                )
+        else:
+            bundle_entries.append(
+                self._get_fhir_docref_bundle_entry(req, recipient)
+            )
+
+        return bundle_entries
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Generic
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @property
+    def fhir_when_task_created(self) -> str:
+        """
+        Time of task creation, in a FHIR-compatible format.
+        """
+        return self.when_created.isoformat()
+
+    def _get_fhir_detail_bundle_entries(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> List[Dict]:
+        """
+        Returns a list of bundle entries (0-1 of them) for Observation objects,
+        which may each contain several ObservationComponent objects. This
+        includes any SNOMED codes offered, and any extras.
+
+        See:
+
+        - https://www.hl7.org/fhir/terminologies-systems.html
+        - https://www.hl7.org/fhir/observation.html#code-interop
+        - https://www.hl7.org/fhir/observation.html#gr-comp
+
+        In particular, whether information should be grouped into one
+        Observation (via ObservationComponent objects) or as separate
+        observations depends on whether it is conceptually independent. For
+        example, for BMI, height and weight should be separate.
+        """
+        bundle_entries = []  # type: List[Dict]
+
+        # SNOMED, as one observation with several components:
+        if req.snomed_supported:
+            snomed_components = []  # type: List[Dict]
+            for expr in self.get_snomed_codes(req):
+                snomed_components.append(
+                    fhir_observation_component_from_snomed(req, expr)
+                )
+            if snomed_components:
+                observable_entity = req.snomed(SnomedLookup.OBSERVABLE_ENTITY)
+                snomed_observation = self._get_fhir_observation(
+                    req,
+                    recipient,
+                    obs_dict={
+                        # "code" is mandatory even if there are components.
+                        Fc.CODE: CodeableConcept(
+                            jsondict={
+                                Fc.CODING: [
+                                    Coding(
+                                        jsondict={
+                                            Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,  # noqa
+                                            Fc.CODE: str(
+                                                observable_entity.identifier
+                                            ),
+                                            Fc.DISPLAY: observable_entity.as_string(  # noqa
+                                                longform=True
+                                            ),
+                                            Fc.USER_SELECTED: False,
+                                        }
+                                    ).as_json()
+                                ],
+                                Fc.TEXT: observable_entity.term,
+                            }
+                        ).as_json(),
+                        Fc.COMPONENT: snomed_components,
+                    },
+                )
+                bundle_entries.append(
+                    make_fhir_bundle_entry(
+                        resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                        identifier=self._get_fhir_observation_id(
+                            req, name="snomed"
+                        ),
+                        resource=snomed_observation,
+                    )
+                )
+
+        # Extra -- these can be very varied:
+        bundle_entries += self.get_fhir_extra_bundle_entries(req, recipient)
+
+        # Done
+        return bundle_entries
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Identifiers
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    # Generic:
+
+    def _get_fhir_id_this_task_class(
+        self,
+        req: "CamcopsRequest",
+        route_name: str,
+        value_within_task_class: Union[int, str],
+    ) -> Identifier:
+        """
+        For when we want to refer to something within a specific task class, in
+        the abstract. The URL refers to the task class, not the task instance.
+        """
+        return Identifier(
+            jsondict={
+                Fc.SYSTEM: req.route_url(
+                    route_name,
+                    table_name=self.tablename,  # to match ViewParam.TABLE_NAME
+                ),
+                Fc.VALUE: str(value_within_task_class),
+            }
+        )
+
+    def _get_fhir_id_this_task_instance(
+        self,
+        req: "CamcopsRequest",
+        route_name: str,
+        value_within_task_instance: Union[int, str],
+    ) -> Identifier:
+        """
+        A number of FHIR identifiers refer to "this task" and nothing very much
+        more specific (because they represent a type of thing of which there
+        can only be one per task), but do so through a range of different route
+        names that make the FHIR URLs look sensible. This is a convenience
+        function for them. The intention is to route to the specific task
+        instance concerned.
+        """
+        return Identifier(
+            jsondict={
+                Fc.SYSTEM: req.route_url(
+                    route_name,
+                    table_name=self.tablename,  # to match ViewParam.TABLE_NAME
+                    server_pk=str(self._pk),  # to match ViewParam.SERVER_PK
+                ),
+                Fc.VALUE: str(value_within_task_instance),
+            }
+        )
+
+    # Specific:
+
+    def _get_fhir_condition_id(
+        self, req: "CamcopsRequest", name: Union[int, str]
+    ) -> Identifier:
+        """
+        Returns a FHIR Identifier for an Observation, representing this task
+        instance and a named observation within it.
+        """
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_CONDITION, name
+        )
+
+    def _get_fhir_docref_id(
+        self, req: "CamcopsRequest", task_format: str
+    ) -> Identifier:
+        """
+        Returns a FHIR Identifier (e.g. for a DocumentReference collection)
+        representing the view of this task.
+        """
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_DOCUMENT_REFERENCE, task_format
+        )
+
+    def _get_fhir_observation_id(
+        self, req: "CamcopsRequest", name: str
+    ) -> Identifier:
+        """
+        Returns a FHIR Identifier for an Observation, representing this task
+        instance and a named observation within it.
+        """
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_OBSERVATION, name
+        )
+
+    def _get_fhir_practitioner_id(self, req: "CamcopsRequest") -> Identifier:
+        """
+        Returns a FHIR Identifier for the clinician. (Clinicians are not
+        sensibly made unique across tasks, but are task-specific.)
+        """
+        return self._get_fhir_id_this_task_instance(
+            req,
+            Routes.FHIR_PRACTITIONER,
+            Fc.CAMCOPS_VALUE_CLINICIAN_WITHIN_TASK,
+        )
+
+    def _get_fhir_questionnaire_id(self, req: "CamcopsRequest") -> Identifier:
+        """
+        Returns a FHIR Identifier (e.g. for a Questionnaire) representing this
+        task, in the abstract.
+
+        Incorporates the CamCOPS version, so that if aspects (even the
+        formatting of question text) changes, a new version will be stored
+        despite the "ifNoneExist" clause.
+        """
+        return Identifier(
+            jsondict={
+                Fc.SYSTEM: req.route_url(Routes.FHIR_QUESTIONNAIRE_SYSTEM),
+                Fc.VALUE: f"{self.tablename}/{CAMCOPS_SERVER_VERSION_STRING}",
+            }
+        )
+
+    def _get_fhir_questionnaire_response_id(
+        self, req: "CamcopsRequest"
+    ) -> Identifier:
+        """
+        Returns a FHIR Identifier (e.g. for a QuestionnaireResponse collection)
+        representing this task instance. QuestionnaireResponse items are
+        specific answers, not abstract descriptions.
+        """
+        return self._get_fhir_id_this_task_instance(
+            req,
+            Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+            Fc.CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK,
+        )
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # References to identifiers
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def _get_fhir_subject_ref(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> Dict:
+        """
+        Returns a reference to the patient, for "subject" fields.
+        """
+        assert (
+            self.has_patient
+        ), "Don't call Task._get_fhir_subject_ref() for anonymous tasks"
+        return self.patient.get_fhir_subject_ref(req, recipient)
+
+    def _get_fhir_practitioner_ref(self, req: "CamcopsRequest") -> Dict:
+        """
+        Returns a reference to the clinician, for "practitioner" fields.
+        """
+        assert self.has_clinician, (
+            "Don't call Task._get_fhir_clinician_ref() "
+            "for tasks without a clinician"
+        )
+        return FHIRReference(
+            jsondict={
+                Fc.TYPE: Fc.RESOURCE_TYPE_PRACTITIONER,
+                Fc.IDENTIFIER: self._get_fhir_practitioner_id(req).as_json(),
+            }
+        ).as_json()
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # DocumentReference
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def _get_fhir_docref_bundle_entry(
+        self,
+        req: "CamcopsRequest",
+        recipient: "ExportRecipient",
+        text_encoding: str = UTF8,
+    ) -> Dict:
+        """
+        Returns bundle entries for an attached document, which is a full
+        representation of the task according to the selected task format (e.g.
+        PDF).
+
+        This requires a DocumentReference, which can (in theory) either embed
+        the data, or refer via a URL to an associated Binary object. We do it
+        directly.
+
+        See:
+
+        - https://fhirblog.com/2013/11/06/fhir-and-xds-submitting-a-document-from-a-document-source/
+        - https://fhirblog.com/2013/11/12/the-fhir-documentreference-resource/
+        - https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-documentreference.html
+        - https://build.fhir.org/ig/HL7/US-Core/clinical-notes-guidance.html
+        """  # noqa
+
+        # Establish content_type and binary_data
+        task_format = recipient.task_format
+        if task_format == FileType.PDF:
+            binary_data = self.get_pdf(req)
+            content_type = MimeType.PDF
+        else:
+            if task_format == FileType.XML:
+                txt = self.get_xml(
+                    req,
+                    options=TaskExportOptions(
+                        include_blobs=False,
+                        xml_include_ancillary=True,
+                        xml_include_calculated=True,
+                        xml_include_comments=True,
+                        xml_include_patient=True,
+                        xml_include_plain_columns=True,
+                        xml_include_snomed=True,
+                        xml_with_header_comments=True,
+                    ),
+                )
+                content_type = MimeType.XML
+            elif task_format == FileType.HTML:
+                txt = self.get_html(req)
+                content_type = MimeType.HTML
+            else:
+                raise ValueError(f"Unknown task format: {task_format!r}")
+            binary_data = txt.encode(text_encoding)
+        b64_encoded_bytes = b64encode(binary_data)  # type: bytes
+        b64_encoded_str = b64_encoded_bytes.decode(ASCII)
+
+        # Build the DocumentReference
+        docref_id = self._get_fhir_docref_id(req, task_format)
+        dr_dict = {
+            # Metadata:
+            Fc.DATE: self.fhir_when_task_created,
+            Fc.DESCRIPTION: self.longname(req),
+            Fc.DOCSTATUS: (
+                Fc.DOCSTATUS_FINAL
+                if self.is_finalized()
+                else Fc.DOCSTATUS_PRELIMINARY
+            ),
+            Fc.MASTER_IDENTIFIER: docref_id.as_json(),
+            Fc.STATUS: Fc.DOCSTATUS_CURRENT,
+            # And the content:
+            Fc.CONTENT: [
+                DocumentReferenceContent(
+                    jsondict={
+                        Fc.ATTACHMENT: Attachment(
+                            jsondict={
+                                Fc.CONTENT_TYPE: content_type,
+                                Fc.DATA: b64_encoded_str,
+                            }
+                        ).as_json()
+                    }
+                ).as_json()
+            ],
+        }
+        # Optional metadata:
+        if self.has_clinician:
+            dr_dict[Fc.AUTHOR] = [self._get_fhir_practitioner_ref(req)]
+        if self.has_patient:
+            dr_dict[Fc.SUBJECT] = self._get_fhir_subject_ref(req, recipient)
+
+        # DocumentReference
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_DOCUMENT_REFERENCE,
+            identifier=docref_id,
+            resource=DocumentReference(jsondict=dr_dict).as_json(),
+        )
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Observation
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def _get_fhir_observation(
+        self,
+        req: "CamcopsRequest",
+        recipient: "ExportRecipient",
+        obs_dict: Dict,
+    ) -> Dict:
+        """
+        Given a starting dictionary for an Observation, complete it for this
+        task (by adding "when", "who", and status information) and return the
+        Observation (as a dict in JSON format).
+        """
+        obs_dict.update(
+            {
+                Fc.EFFECTIVE_DATE_TIME: self.fhir_when_task_created,
+                Fc.STATUS: (
+                    Fc.OBSSTATUS_FINAL
+                    if self.is_finalized()
+                    else Fc.OBSSTATUS_PRELIMINARY
+                ),
+            }
+        )
+        if self.has_patient:
+            obs_dict[Fc.SUBJECT] = self._get_fhir_subject_ref(req, recipient)
+        return Observation(jsondict=obs_dict).as_json()
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Practitioner (clinician)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def _get_fhir_clinician_bundle_entry(self, req: "CamcopsRequest") -> Dict:
+        """
+        Supplies information on the clinician associated with this task, as a
+        FHIR Practitioner object (within a bundle).
+        """
+        assert self.has_clinician, (
+            "Don't call Task._get_fhir_practitioner_bundle_entry() "
+            "for tasks without a clinician"
+        )
+        practitioner = Practitioner(
+            jsondict={
+                Fc.NAME: [
+                    HumanName(
+                        jsondict={Fc.TEXT: self.get_clinician_name()}
+                    ).as_json()
+                ],
+                # "qualification" is too structured.
+                # There isn't anywhere to represent our other information, so
+                # we jam it in to "telecom"/"other".
+                Fc.TELECOM: [
+                    ContactPoint(
+                        jsondict={
+                            Fc.SYSTEM: Fc.TELECOM_SYSTEM_OTHER,
+                            Fc.VALUE: self.get_clinician_fhir_telecom_other(
+                                req
+                            ),
+                        }
+                    ).as_json()
+                ],
+            }
+        ).as_json()
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_PRACTITIONER,
+            identifier=self._get_fhir_practitioner_id(req),
+            resource=practitioner,
+        )
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Questionnaire, QuestionnaireResponse
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def _get_fhir_q_qr_bundle_entries(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> Tuple[Optional[Dict], Optional[Dict]]:
+        """
+        Get a tuple of FHIR bundles: ``questionnaire_bundle_entry,
+        questionnaire_response_bundle_entry``.
+
+        A Questionnaire object represents the task in the abstract;
+        QuestionnaireReponse items represent each answered question for a
+        specific task instance.
+        """
+        # Ask the task for its details (which it may provide directly, by
+        # overriding, or rely on autodiscovery for the default).
+        aq_items = self.get_fhir_questionnaire(req)
+        if DEBUG_SHOW_FHIR_QUESTIONNAIRE:
+            if aq_items:
+                qa_str = "\n".join(f"- {str(x)}" for x in aq_items)
+                log.debug(f"FHIR questions/answers:\n{qa_str}")
+            else:
+                log.debug("No FHIR questionnaire data")
+
+        # Do we have data?
+        if not aq_items:
+            return None, None
+
+        # Now finish off:
+        q_items = [aq.questionnaire_item() for aq in aq_items]
+        qr_items = [aq.questionnaire_response_item() for aq in aq_items]
+        q_bundle_entry = self._make_fhir_questionnaire_bundle_entry(
+            req, q_items
+        )
+        qr_bundle_entry = self._make_fhir_questionnaire_response_bundle_entry(
+            req, recipient, qr_items
+        )
+        return q_bundle_entry, qr_bundle_entry
+
+    def _make_fhir_questionnaire_bundle_entry(
+        self, req: "CamcopsRequest", q_items: List[Dict]
+    ) -> Optional[Dict]:
+        """
+        Make a FHIR bundle entry describing this task, as a FHIR Questionnaire,
+        from supplied Questionnaire items. Note: here we mean "abstract task",
+        not "task instance".
+        """
+        # FHIR supports versioning of questionnaires. Might be useful if the
+        # wording of questions change. Could either use FHIR's version
+        # field or include the version in the identifier below. Either way
+        # we'd need the version in the 'ifNoneExist' part of the request.
+        q_identifier = self._get_fhir_questionnaire_id(req)
+
+        # Other things we could add:
+        # https://www.hl7.org/fhir/questionnaire.html
+        #
+        # date: Date last changed
+        # useContext: https://www.hl7.org/fhir/metadatatypes.html#UsageContext
+        help_url = self.help_url()
+        questionnaire = Questionnaire(
+            jsondict={
+                Fc.NAME: self.shortname,  # Computer-friendly name
+                Fc.TITLE: self.longname(req),  # Human name
+                Fc.DESCRIPTION: help_url,  # Natural language description of the questionnaire  # noqa
+                Fc.COPYRIGHT: help_url,  # Use and/or publishing restrictions
+                Fc.VERSION: CAMCOPS_SERVER_VERSION_STRING,
+                Fc.STATUS: Fc.QSTATUS_ACTIVE,  # Could also be: draft, retired, unknown  # noqa
+                Fc.ITEM: q_items,
+            }
+        )
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_QUESTIONNAIRE,
+            identifier=q_identifier,
+            resource=questionnaire.as_json(),
+        )
+
+    def _make_fhir_questionnaire_response_bundle_entry(
+        self,
+        req: "CamcopsRequest",
+        recipient: "ExportRecipient",
+        qr_items: List[Dict],
+    ) -> Dict:
+        """
+        Make a bundle entry from FHIR QuestionnaireResponse items (e.g. one for
+        the response to each question in a quesionnaire-style task).
+        """
+        q_identifier = self._get_fhir_questionnaire_id(req)
+        qr_identifier = self._get_fhir_questionnaire_response_id(req)
+
+        # Status:
+        # https://www.hl7.org/fhir/valueset-questionnaire-answers-status.html
+        # It is probably undesirable to export tasks that are incomplete in the
+        # sense of "not finalized". The user can control this (via the
+        # FINALIZED_ONLY config option for exports). However, we also need to
+        # handle finalized but incomplete data.
+        if self.is_complete():
+            status = Fc.QSTATUS_COMPLETED
+        elif self.is_live_on_tablet():
+            status = Fc.QSTATUS_IN_PROGRESS
+        else:
+            # Incomplete, but finalized.
+            status = Fc.QSTATUS_STOPPED
+
+        qr_jsondict = {
+            # https://r4.smarthealthit.org does not like "questionnaire" in
+            # this form:
+            # FHIR Server; FHIR 4.0.0/R4; HAPI FHIR 4.0.0-SNAPSHOT)
+            # error is:
+            # Invalid resource reference found at
+            # path[QuestionnaireResponse.questionnaire]- Resource type is
+            # unknown or not supported on this server
+            # - http://127.0.0.1:8000/fhir_questionnaire|phq9
+            # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
+            Fc.QUESTIONNAIRE: fhir_sysval_from_id(q_identifier),
+            Fc.AUTHORED: self.fhir_when_task_created,
+            Fc.STATUS: status,
+            # TODO: Could also add:
+            # https://www.hl7.org/fhir/questionnaireresponse.html
+            # author: Person who received and recorded the answers
+            # source: The person who answered the questions
+            Fc.ITEM: qr_items,
+        }
+
+        if self.has_patient:
+            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(
+                req, recipient
+            )
+
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE,
+            identifier=qr_identifier,
+            resource=QuestionnaireResponse(qr_jsondict).as_json(),
+            identifier_is_list=False,
+        )
+
+    # -------------------------------------------------------------------------
+    # FHIR: functions to override if desired
+    # -------------------------------------------------------------------------
+
+    def get_fhir_questionnaire(
+        self, req: "CamcopsRequest"
+    ) -> List[FHIRAnsweredQuestion]:
+        """
+        Return FHIR information about a questionnaire: both about the task in
+        the abstract (the questions) and the answers for this specific
+        instance.
+
+        May be overridden.
+        """
+        return self._fhir_autodiscover(req)
+
+    def get_fhir_extra_bundle_entries(
+        self, req: "CamcopsRequest", recipient: "ExportRecipient"
+    ) -> List[Dict]:
+        """
+        Return a list of extra FHIR bundle entries, if relevant. (SNOMED-CT
+        codes are done automatically; don't repeat those.)
+        """
+        return []
+
+    def get_qtext(self, req: "CamcopsRequest", attrname: str) -> Optional[str]:
+        """
+        Returns the text associated with a particular question.
+        The default implementation is a guess.
+
+        Args:
+            req:
+                A :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+            attrname:
+                Name of the attribute (field) on this task that represents the
+                question.
+        """
+        return self.xstring(req, attrname, provide_default_if_none=False)
+
+    def get_atext(
+        self, req: "CamcopsRequest", attrname: str, answer_value: int
+    ) -> Optional[str]:
+        """
+        Returns the text associated with a particular answer to a question.
+        The default implementation is a guess.
+
+        Args:
+            req:
+                A :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+            attrname:
+                Name of the attribute (field) on this task that represents the
+                question.
+            answer_value:
+                Answer value.
+        """
+        stringname = f"{attrname}_a{answer_value}"
+        return self.xstring(req, stringname, provide_default_if_none=False)
+
+    # -------------------------------------------------------------------------
+    # FHIR automatic interrogation
+    # -------------------------------------------------------------------------
+
+    def _fhir_autodiscover(
+        self, req: "CamcopsRequest"
+    ) -> List[FHIRAnsweredQuestion]:
+        """
+        Inspect this task instance and create information about both the task
+        in the abstract and the answers for this specific instance.
+        """
+        qa_items = []  # type: List[FHIRAnsweredQuestion]
+
+        skip_fields = TASK_FREQUENT_FIELDS
+        for attrname, column in gen_columns(self):
+            if attrname in skip_fields:
+                continue
+            comment = column.comment
+            coltype = column.type
+
+            # Question text:
+            retrieved_qtext = self.get_qtext(req, attrname)
+            qtext_components = []
+            if retrieved_qtext:
+                qtext_components.append(retrieved_qtext)
+            if comment:
+                qtext_components.append(f"[{comment}]")
+            if not qtext_components:
+                qtext_components = (attrname,)
+            if not qtext_components:
+                qtext_components = (FHIR_UNKNOWN_TEXT,)
+            qtext = " ".join(qtext_components)
+            # Note that it's good to get the column comment in somewhere; these
+            # often explain the meaning of the field quite well. It may or may
+            # not be possible to get it into the option values -- many answer
+            # types don't permit those. QuestionnaireItem records don't have a
+            # comment field (see
+            # https://www.hl7.org/fhir/questionnaire-definitions.html#Questionnaire.item),  # noqa
+            # so the best we can do is probably to stuff it into the question
+            # text, even if that causes some visual duplication.
+
+            # Thinking about types:
+            int_type = isinstance(coltype, Integer)
+            bool_type = (
+                is_sqlatype_binary(coltype)
+                or isinstance(coltype, BoolColumn)
+                or isinstance(coltype, Boolean)
+                # For booleans represented as integers: it is better to be as
+                # constraining as possible and say that only 0/1 options are
+                # present by marking these as Boolean, which is less
+                # complicated for the recipient than "integer but with possible
+                # options 0 or 1". We will *also* show the possible options,
+                # just to be clear.
+            )
+            if int_type:
+                qtype = FHIRQuestionType.INTEGER
+                atype = FHIRAnswerType.INTEGER
+            elif isinstance(coltype, String):  # includes its subclass, Text
+                qtype = FHIRQuestionType.STRING
+                atype = FHIRAnswerType.STRING
+            elif isinstance(coltype, Numeric):  # includes Float, Decimal
+                qtype = FHIRQuestionType.QUANTITY
+                atype = FHIRAnswerType.QUANTITY
+            elif isinstance(
+                coltype, (DateTime, PendulumDateTimeAsIsoTextColType)
+            ):
+                qtype = FHIRQuestionType.DATETIME
+                atype = FHIRAnswerType.DATETIME
+            elif isinstance(coltype, DateColType):
+                qtype = FHIRQuestionType.DATE
+                atype = FHIRAnswerType.DATE
+            elif isinstance(coltype, Time):
+                qtype = FHIRQuestionType.TIME
+                atype = FHIRAnswerType.TIME
+            elif bool_type:
+                qtype = FHIRQuestionType.BOOLEAN
+                atype = FHIRAnswerType.BOOLEAN
+            else:
+                raise NotImplementedError(f"Unknown column type: {coltype!r}")
+
+            # Thinking about MCQ options:
+            answer_options = None  # type: Optional[Dict[Any, str]]
+            if (int_type or bool_type) and hasattr(
+                column, COLATTR_PERMITTED_VALUE_CHECKER
+            ):
+                pvc = getattr(
+                    column, COLATTR_PERMITTED_VALUE_CHECKER
+                )  # type: PermittedValueChecker  # noqa
+                if pvc is not None:
+                    pv = pvc.permitted_values_inc_minmax()
+                    if pv:
+                        qtype = FHIRQuestionType.CHOICE
+                        # ... has to be of type "choice" to transmit the
+                        # possible values.
+                        answer_options = {}
+                        for v in pv:
+                            answer_options[v] = (
+                                self.get_atext(req, attrname, v)
+                                or comment
+                                or FHIR_UNKNOWN_TEXT
+                            )
+
+            # Assemble:
+            qa_items.append(
+                FHIRAnsweredQuestion(
+                    qname=attrname,
+                    qtext=qtext,
+                    qtype=qtype,
+                    answer_type=atype,
+                    answer=getattr(self, attrname),
+                    answer_options=answer_options,
+                )
+            )
+
+        # We don't currently put any summary information into FHIR exports. I
+        # think that isn't within the spirit of the system, but am not sure.
+        # todo: Check if summary information should go into FHIR exports.
+
+        return qa_items
+
+    # -------------------------------------------------------------------------
+    # Export (generically)
+    # -------------------------------------------------------------------------
+
+    def cancel_from_export_log(
+        self, req: "CamcopsRequest", from_console: bool = False
+    ) -> None:
         """
         Marks all instances of this task as "cancelled" in the export log, so
         it will be resent.
         """
         if self._pk is None:
             return
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTask  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+        )  # delayed import
+
         # noinspection PyUnresolvedReferences
         statement = (
             update(ExportedTask.__table__)
             .where(ExportedTask.basetable == self.tablename)
             .where(ExportedTask.task_server_pk == self._pk)
-            .where(not_(ExportedTask.cancelled) |
-                   ExportedTask.cancelled.is_(None))
-            .values(cancelled=1,
-                    cancelled_at_utc=req.now_utc)
+            .where(
+                not_(ExportedTask.cancelled) | ExportedTask.cancelled.is_(None)
+            )
+            .values(cancelled=1, cancelled_at_utc=req.now_utc)
         )
         # ... this bit: ... AND (NOT cancelled OR cancelled IS NULL) ...:
         # https://stackoverflow.com/questions/37445041/sqlalchemy-how-to-filter-column-which-contains-both-null-and-integer-values  # noqa
@@ -1275,24 +2378,27 @@ class Task(GenericTabletRecordMixin, Base):
         self.audit(
             req,
             "Task cancelled in export log (may trigger resending)",
-            from_console
+            from_console,
         )
 
     # -------------------------------------------------------------------------
     # Audit
     # -------------------------------------------------------------------------
 
-    def audit(self, req: "CamcopsRequest", details: str,
-              from_console: bool = False) -> None:
+    def audit(
+        self, req: "CamcopsRequest", details: str, from_console: bool = False
+    ) -> None:
         """
         Audits actions to this task.
         """
-        audit(req,
-              details,
-              patient_server_pk=self.get_patient_server_pk(),
-              table=self.tablename,
-              server_pk=self._pk,
-              from_console=from_console)
+        audit(
+            req,
+            details,
+            patient_server_pk=self.get_patient_server_pk(),
+            table=self.tablename,
+            server_pk=self._pk,
+            from_console=from_console,
+        )
 
     # -------------------------------------------------------------------------
     # Erasure (wiping, leaving record as placeholder)
@@ -1333,22 +2439,13 @@ class Task(GenericTabletRecordMixin, Base):
         self.audit(req, "Task deleted")
 
     # -------------------------------------------------------------------------
-    # Viewing the task in the list of tasks
-    # -------------------------------------------------------------------------
-
-    def is_live_on_tablet(self) -> bool:
-        """
-        Is the task instance live on a tablet?
-        """
-        return self._era == ERA_NOW
-
-    # -------------------------------------------------------------------------
     # Filtering tasks for the task list
     # -------------------------------------------------------------------------
 
     @classmethod
-    def gen_text_filter_columns(cls) -> Generator[Tuple[str, Column], None,
-                                                  None]:
+    def gen_text_filter_columns(
+        cls,
+    ) -> Generator[Tuple[str, Column], None, None]:
         """
         Yields tuples of ``attrname, column``, for columns that are suitable
         for text filtering.
@@ -1393,7 +2490,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     def contains_all_strings(self, strings: List[str]) -> bool:
         """
-        Does this task contain all of the specified strings?
+        Does this task contain all the specified strings?
 
         Args:
             strings:
@@ -1406,41 +2503,90 @@ class Task(GenericTabletRecordMixin, Base):
         return all(self.contains_text(text) for text in strings)
 
     # -------------------------------------------------------------------------
-    # TSV export for basic research dump
+    # Spreadsheet export for basic research dump
     # -------------------------------------------------------------------------
 
-    def get_tsv_pages(self, req: "CamcopsRequest") -> List["TsvPage"]:
+    def get_spreadsheet_pages(
+        self, req: "CamcopsRequest"
+    ) -> List["SpreadsheetPage"]:
         """
-        Returns information used for the basic research dump in TSV format.
+        Returns information used for the basic research dump in (e.g.) TSV
+        format.
         """
         # 1. Our core fields, plus summary information
+        main_page = self._get_core_spreadsheet_page(req)
 
-        main_page = self._get_core_tsv_page(req)
         # 2. Patient details.
-
         if self.patient:
             main_page.add_or_set_columns_from_page(
-                self.patient.get_tsv_page(req))
-        tsv_pages = [main_page]
+                self.patient.get_spreadsheet_page(req)
+            )
+        pages = [main_page]
+
         # 3. +/- Ancillary objects
-        for ancillary in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin  # noqa
-            page = ancillary._get_core_tsv_page(req)
-            tsv_pages.append(page)
+        for (
+            ancillary
+        ) in (
+            self.gen_ancillary_instances()
+        ):  # type: GenericTabletRecordMixin  # noqa
+            page = ancillary._get_core_spreadsheet_page(req)
+            pages.append(page)
+
         # 4. +/- Extra summary tables (inc. SNOMED)
         for est in self.get_all_summary_tables(req):
-            tsv_pages.append(est.get_tsv_page())
+            pages.append(est.get_spreadsheet_page())
+
         # Done
-        return tsv_pages
+        return pages
+
+    def get_spreadsheet_schema_elements(
+        self, req: "CamcopsRequest"
+    ) -> Set[SummarySchemaInfo]:
+        """
+        Returns schema information used for spreadsheets -- more than just
+        the database columns, and in the same format as the spreadsheets.
+        """
+        table_name = self.__tablename__
+
+        # 1(a). Database columns: main table
+        items = self._get_core_spreadsheet_schema()
+        # 1(b). Summary information.
+        for summary in self.get_summaries(req):
+            items.add(
+                SummarySchemaInfo.from_summary_element(table_name, summary)
+            )
+
+        # 2. Patient details
+        if self.patient:
+            items.update(
+                self.patient.get_spreadsheet_schema_elements(req, table_name)
+            )
+
+        # 3. Ancillary objects
+        for (
+            ancillary
+        ) in (
+            self.gen_ancillary_instances()
+        ):  # type: GenericTabletRecordMixin  # noqa
+            items.update(ancillary._get_core_spreadsheet_schema())
+
+        # 4. Extra summary tables
+        for est in self.get_all_summary_tables(req):
+            items.update(est.get_spreadsheet_schema_elements())
+
+        return items
 
     # -------------------------------------------------------------------------
     # XML view
     # -------------------------------------------------------------------------
 
-    def get_xml(self,
-                req: "CamcopsRequest",
-                options: TaskExportOptions = None,
-                indent_spaces: int = 4,
-                eol: str = '\n') -> str:
+    def get_xml(
+        self,
+        req: "CamcopsRequest",
+        options: TaskExportOptions = None,
+        indent_spaces: int = 4,
+        eol: str = "\n",
+    ) -> str:
         """
         Returns XML describing the task.
 
@@ -1464,9 +2610,9 @@ class Task(GenericTabletRecordMixin, Base):
             include_comments=options.xml_include_comments,
         )
 
-    def get_xml_root(self,
-                     req: "CamcopsRequest",
-                     options: TaskExportOptions) -> XmlElement:
+    def get_xml_root(
+        self, req: "CamcopsRequest", options: TaskExportOptions
+    ) -> XmlElement:
         """
         Returns an XML tree. The return value is the root
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
@@ -1484,9 +2630,8 @@ class Task(GenericTabletRecordMixin, Base):
         return tree
 
     def _get_xml_core_branches(
-            self,
-            req: "CamcopsRequest",
-            options: TaskExportOptions) -> List[XmlElement]:
+        self, req: "CamcopsRequest", options: TaskExportOptions = None
+    ) -> List[XmlElement]:
         """
         Returns a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         elements representing stored, calculated, patient, and/or BLOB fields,
@@ -1496,16 +2641,18 @@ class Task(GenericTabletRecordMixin, Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
         """  # noqa
+        options = options or TaskExportOptions(
+            xml_include_plain_columns=True,
+            xml_include_ancillary=True,
+            include_blobs=False,
+            xml_include_calculated=True,
+            xml_include_patient=True,
+            xml_include_snomed=True,
+        )
+
         def add_comment(comment: XmlLiteral) -> None:
             if options.xml_with_header_comments:
                 branches.append(comment)
-
-        options = options or TaskExportOptions(xml_include_plain_columns=True,
-                                               xml_include_ancillary=True,
-                                               include_blobs=False,
-                                               xml_include_calculated=True,
-                                               xml_include_patient=True,
-                                               xml_include_snomed=True)
 
         # Stored values +/- calculated values
         core_options = options.clone()
@@ -1519,8 +2666,9 @@ class Task(GenericTabletRecordMixin, Base):
             snomed_branches = []  # type: List[XmlElement]
             for code in snomed_codes:
                 snomed_branches.append(code.xml_element())
-            branches.append(XmlElement(name=XML_NAME_SNOMED_CODES,
-                                       value=snomed_branches))
+            branches.append(
+                XmlElement(name=XML_NAME_SNOMED_CODES, value=snomed_branches)
+            )
 
         # Special notes
         add_comment(XML_COMMENT_SPECIAL_NOTES)
@@ -1534,10 +2682,12 @@ class Task(GenericTabletRecordMixin, Base):
             add_comment(XML_COMMENT_PATIENT)
             patient_options = TaskExportOptions(
                 xml_include_plain_columns=True,
-                xml_with_header_comments=options.xml_with_header_comments)
+                xml_with_header_comments=options.xml_with_header_comments,
+            )
             if self.patient:
-                branches.append(self.patient.get_xml_root(
-                    req, patient_options))
+                branches.append(
+                    self.patient.get_xml_root(req, patient_options)
+                )
 
         # BLOBs
         if options.include_blobs:
@@ -1566,19 +2716,26 @@ class Task(GenericTabletRecordMixin, Base):
             # we iterate through individual ancillaries but clustered by their
             # name (e.g. if we have 50 trials and 5 groups, we do them in
             # collections).
-            for attrname, rel_prop, rel_cls in gen_ancillary_relationships(self):  # noqa
+            for attrname, rel_prop, rel_cls in gen_ancillary_relationships(
+                self
+            ):
                 if not found_ancillary:
                     add_comment(XML_COMMENT_ANCILLARY)
                     found_ancillary = True
                 itembranches = []  # type: List[XmlElement]
                 if rel_prop.uselist:
-                    ancillaries = getattr(self, attrname)  # type: List[GenericTabletRecordMixin]  # noqa
+                    ancillaries = getattr(
+                        self, attrname
+                    )  # type: List[GenericTabletRecordMixin]  # noqa
                 else:
-                    ancillaries = [getattr(self, attrname)]  # type: List[GenericTabletRecordMixin]  # noqa
+                    ancillaries = [
+                        getattr(self, attrname)
+                    ]  # type: List[GenericTabletRecordMixin]  # noqa
                 for ancillary in ancillaries:
                     itembranches.append(
-                        ancillary._get_xml_root(req=req,
-                                                options=ancillary_options)
+                        ancillary._get_xml_root(
+                            req=req, options=ancillary_options
+                        )
                     )
                 itemcollection = XmlElement(name=attrname, value=itembranches)
                 item_collections.append(itemcollection)
@@ -1614,15 +2771,20 @@ class Task(GenericTabletRecordMixin, Base):
             anonymise: hide patient identifying details?
         """
         req.prepare_for_html_figures()
-        return render("task.mako",
-                      dict(task=self,
-                           anonymise=anonymise,
-                           signature=False,
-                           viewtype=ViewArg.HTML),
-                      request=req)
+        return render(
+            "task.mako",
+            dict(
+                task=self,
+                anonymise=anonymise,
+                signature=False,
+                viewtype=ViewArg.HTML,
+            ),
+            request=req,
+        )
 
-    def title_for_html(self, req: "CamcopsRequest",
-                       anonymise: bool = False) -> str:
+    def title_for_html(
+        self, req: "CamcopsRequest", anonymise: bool = False
+    ) -> str:
         """
         Returns the plain text used for the HTML ``<title>`` block (by
         ``task.mako``), and also for the PDF title for PDF exports.
@@ -1641,8 +2803,11 @@ class Task(GenericTabletRecordMixin, Base):
             _ = req.gettext
             patient = _("Anonymous")
         tasktype = self.tablename
-        when = format_datetime(self.get_creation_datetime(),
-                               DateFormat.ISO8601_HUMANIZED_TO_MINUTES, "")
+        when = format_datetime(
+            self.get_creation_datetime(),
+            DateFormat.ISO8601_HUMANIZED_TO_MINUTES,
+            "",
+        )
         return f"CamCOPS: {patient}; {tasktype}; {when}"
 
     # -------------------------------------------------------------------------
@@ -1666,41 +2831,58 @@ class Task(GenericTabletRecordMixin, Base):
                 html=html,
                 header_html=render(
                     "wkhtmltopdf_header.mako",
-                    dict(inner_text=render("task_page_header.mako",
-                                           dict(task=self, anonymise=anonymise),
-                                           request=req)),
-                    request=req
+                    dict(
+                        inner_text=render(
+                            "task_page_header.mako",
+                            dict(task=self, anonymise=anonymise),
+                            request=req,
+                        )
+                    ),
+                    request=req,
                 ),
                 footer_html=render(
                     "wkhtmltopdf_footer.mako",
-                    dict(inner_text=render("task_page_footer.mako",
-                                           dict(task=self),
-                                           request=req)),
-                    request=req
+                    dict(
+                        inner_text=render(
+                            "task_page_footer.mako",
+                            dict(task=self),
+                            request=req,
+                        )
+                    ),
+                    request=req,
                 ),
                 extra_wkhtmltopdf_options={
-                    "orientation": ("Landscape" if self.use_landscape_for_pdf
-                                    else "Portrait")
-                }
+                    "orientation": (
+                        "Landscape"
+                        if self.use_landscape_for_pdf
+                        else "Portrait"
+                    )
+                },
             )
 
-    def get_pdf_html(self, req: "CamcopsRequest",
-                     anonymise: bool = False) -> str:
+    def get_pdf_html(
+        self, req: "CamcopsRequest", anonymise: bool = False
+    ) -> str:
         """
         Gets the HTML used to make the PDF (slightly different from the HTML
         used for the HTML view).
         """
         req.prepare_for_pdf_figures()
-        return render("task.mako",
-                      dict(task=self,
-                           anonymise=anonymise,
-                           pdf_landscape=self.use_landscape_for_pdf,
-                           signature=self.has_clinician,
-                           viewtype=ViewArg.PDF),
-                      request=req)
+        return render(
+            "task.mako",
+            dict(
+                task=self,
+                anonymise=anonymise,
+                pdf_landscape=self.use_landscape_for_pdf,
+                signature=self.has_clinician,
+                viewtype=ViewArg.PDF,
+            ),
+            request=req,
+        )
 
-    def suggested_pdf_filename(self, req: "CamcopsRequest",
-                               anonymise: bool = False) -> str:
+    def suggested_pdf_filename(
+        self, req: "CamcopsRequest", anonymise: bool = False
+    ) -> str:
         """
         Suggested filename for the PDF copy (for downloads).
 
@@ -1728,7 +2910,7 @@ class Task(GenericTabletRecordMixin, Base):
             idnum_objects=patient.get_idnum_objects() if patient else None,
             creation_datetime=self.get_creation_datetime(),
             basetable=self.tablename,
-            serverpk=self._pk
+            serverpk=self._pk,
         )
 
     def write_pdf_to_disk(self, req: "CamcopsRequest", filename: str) -> None:
@@ -1742,11 +2924,13 @@ class Task(GenericTabletRecordMixin, Base):
     # Metadata for e.g. RiO
     # -------------------------------------------------------------------------
 
-    def get_rio_metadata(self,
-                         req: "CamcopsRequest",
-                         which_idnum: int,
-                         uploading_user_id: str,
-                         document_type: str) -> str:
+    def get_rio_metadata(
+        self,
+        req: "CamcopsRequest",
+        which_idnum: int,
+        uploading_user_id: str,
+        document_type: str,
+    ) -> str:
         """
         Returns metadata for the task that Servelec's RiO electronic patient
         record may want.
@@ -1860,12 +3044,13 @@ class Task(GenericTabletRecordMixin, Base):
         title = "CamCOPS_" + self.shortname
         description = self.longname(req)
         author = self.get_clinician_name()  # may be blank
-        document_date = format_datetime(self.when_created,
-                                        DateFormat.RIO_EXPORT_UK)
+        document_date = format_datetime(
+            self.when_created, DateFormat.RIO_EXPORT_UK
+        )
         # This STRIPS the timezone information; i.e. it is in the local
         # timezone but doesn't tell you which timezone that is. (That's fine;
         # it should be local or users would be confused.)
-        final_revision = (0 if self.is_live_on_tablet() else 1)
+        final_revision = 0 if self.is_live_on_tablet() else 1
 
         item_list = [
             client_id,
@@ -1875,11 +3060,12 @@ class Task(GenericTabletRecordMixin, Base):
             description,
             author,
             document_date,
-            final_revision
+            final_revision,
         ]
         # UTF-8 is NOT supported by RiO for metadata. So:
-        csv_line = ",".join([f'"{mangle_unicode_to_ascii(x)}"'
-                             for x in item_list])
+        csv_line = ",".join(
+            [f'"{mangle_unicode_to_ascii(x)}"' for x in item_list]
+        )
         return csv_line + "\n"
 
     # -------------------------------------------------------------------------
@@ -1887,15 +3073,15 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodMayBeStatic
-    def get_standard_clinician_comments_block(self,
-                                              req: "CamcopsRequest",
-                                              comments: str) -> str:
+    def get_standard_clinician_comments_block(
+        self, req: "CamcopsRequest", comments: str
+    ) -> str:
         """
         HTML DIV for clinician's comments.
         """
-        return render("clinician_comments.mako",
-                      dict(comment=comments),
-                      request=req)
+        return render(
+            "clinician_comments.mako", dict(comment=comments), request=req
+        )
 
     def get_is_complete_td_pair(self, req: "CamcopsRequest") -> str:
         """
@@ -1916,10 +3102,9 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return f"<tr>{self.get_is_complete_td_pair(req)}</tr>"
 
-    def get_twocol_val_row(self,
-                           fieldname: str,
-                           default: str = None,
-                           label: str = None) -> str:
+    def get_twocol_val_row(
+        self, fieldname: str, default: str = None, label: str = None
+    ) -> str:
         """
         HTML table row, two columns, without web-safing of value.
 
@@ -1940,9 +3125,7 @@ class Task(GenericTabletRecordMixin, Base):
             label = fieldname
         return tr_qa(label, val)
 
-    def get_twocol_string_row(self,
-                              fieldname: str,
-                              label: str = None) -> str:
+    def get_twocol_string_row(self, fieldname: str, label: str = None) -> str:
         """
         HTML table row, two columns, with web-safing of value.
 
@@ -1958,10 +3141,9 @@ class Task(GenericTabletRecordMixin, Base):
             label = fieldname
         return tr_qa(label, getattr(self, fieldname))
 
-    def get_twocol_bool_row(self,
-                            req: "CamcopsRequest",
-                            fieldname: str,
-                            label: str = None) -> str:
+    def get_twocol_bool_row(
+        self, req: "CamcopsRequest", fieldname: str, label: str = None
+    ) -> str:
         """
         HTML table row, two columns, with Boolean Y/N formatter for value.
 
@@ -1978,10 +3160,9 @@ class Task(GenericTabletRecordMixin, Base):
             label = fieldname
         return tr_qa(label, get_yes_no_none(req, getattr(self, fieldname)))
 
-    def get_twocol_bool_row_true_false(self,
-                                       req: "CamcopsRequest",
-                                       fieldname: str,
-                                       label: str = None) -> str:
+    def get_twocol_bool_row_true_false(
+        self, req: "CamcopsRequest", fieldname: str, label: str = None
+    ) -> str:
         """
         HTML table row, two columns, with Boolean true/false formatter for
         value.
@@ -1999,10 +3180,9 @@ class Task(GenericTabletRecordMixin, Base):
             label = fieldname
         return tr_qa(label, get_true_false_none(req, getattr(self, fieldname)))
 
-    def get_twocol_bool_row_present_absent(self,
-                                           req: "CamcopsRequest",
-                                           fieldname: str,
-                                           label: str = None) -> str:
+    def get_twocol_bool_row_present_absent(
+        self, req: "CamcopsRequest", fieldname: str, label: str = None
+    ) -> str:
         """
         HTML table row, two columns, with Boolean present/absent formatter for
         value.
@@ -2018,8 +3198,9 @@ class Task(GenericTabletRecordMixin, Base):
         """
         if label is None:
             label = fieldname
-        return tr_qa(label, get_present_absent_none(req,
-                                                    getattr(self, fieldname)))
+        return tr_qa(
+            label, get_present_absent_none(req, getattr(self, fieldname))
+        )
 
     @staticmethod
     def get_twocol_picture_row(blob: Optional[Blob], label: str) -> str:
@@ -2123,26 +3304,22 @@ class Task(GenericTabletRecordMixin, Base):
                 return False
         return True
 
-    def count_where(self,
-                    fields: List[str],
-                    wherevalues: List[Any]) -> int:
+    def count_where(self, fields: List[str], wherevalues: List[Any]) -> int:
         """
         Count how many values for the specified fields are in ``wherevalues``.
         """
         return sum(1 for x in self.get_values(fields) if x in wherevalues)
 
-    def count_wherenot(self,
-                       fields: List[str],
-                       notvalues: List[Any]) -> int:
+    def count_wherenot(self, fields: List[str], notvalues: List[Any]) -> int:
         """
         Count how many values for the specified fields are NOT in
         ``notvalues``.
         """
         return sum(1 for x in self.get_values(fields) if x not in notvalues)
 
-    def sum_fields(self,
-                   fields: List[str],
-                   ignorevalue: Any = None) -> Union[int, float]:
+    def sum_fields(
+        self, fields: List[str], ignorevalue: Any = None
+    ) -> Union[int, float]:
         """
         Sum values stored in all specified fields (skipping any whose value is
         ``ignorevalue``; treating fields containing ``None`` as zero).
@@ -2155,9 +3332,9 @@ class Task(GenericTabletRecordMixin, Base):
             total += value if value is not None else 0
         return total
 
-    def mean_fields(self,
-                    fields: List[str],
-                    ignorevalue: Any = None) -> Union[int, float, None]:
+    def mean_fields(
+        self, fields: List[str], ignorevalue: Any = None
+    ) -> Union[int, float, None]:
         """
         Return the mean of the values stored in all specified fields (skipping
         any whose value is ``ignorevalue``).
@@ -2191,8 +3368,9 @@ class Task(GenericTabletRecordMixin, Base):
         return [prefix + str(x) for x in range(start, end + 1)]
 
     @staticmethod
-    def fieldnames_from_list(prefix: str,
-                             suffixes: Iterable[Any]) -> List[str]:
+    def fieldnames_from_list(
+        prefix: str, suffixes: Iterable[Any]
+    ) -> List[str]:
         """
         Returns a list of fieldnames made by appending each suffix to the
         prefix.
@@ -2211,26 +3389,31 @@ class Task(GenericTabletRecordMixin, Base):
     # Extra strings
     # -------------------------------------------------------------------------
 
-    def get_extrastring_taskname(self) -> str:
+    @classmethod
+    def get_extrastring_taskname(cls) -> str:
         """
         Get the taskname used as the top-level key for this task's extra
-        strings (loaded by the server from XML files). By default this is the
+        strings (loaded by the server from XML files). By default, this is the
         task's primary tablename, but tasks may override that via
         ``extrastring_taskname``.
         """
-        return self.extrastring_taskname or self.tablename
+        return cls.extrastring_taskname or cls.tablename
 
-    def extrastrings_exist(self, req: "CamcopsRequest") -> bool:
+    @classmethod
+    def extrastrings_exist(cls, req: "CamcopsRequest") -> bool:
         """
         Does the server have any extra strings for this task?
         """
-        return req.task_extrastrings_exist(self.get_extrastring_taskname())
+        return req.task_extrastrings_exist(cls.get_extrastring_taskname())
 
-    def wxstring(self,
-                 req: "CamcopsRequest",
-                 name: str,
-                 defaultvalue: str = None,
-                 provide_default_if_none: bool = True) -> str:
+    @classmethod
+    def wxstring(
+        cls,
+        req: "CamcopsRequest",
+        name: str,
+        defaultvalue: str = None,
+        provide_default_if_none: bool = True,
+    ) -> str:
         """
         Return a web-safe version of an extra string for this task.
 
@@ -2244,18 +3427,22 @@ class Task(GenericTabletRecordMixin, Base):
                 "string x.y not found"
         """
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = f"[{self.get_extrastring_taskname()}: {name}]"
+            defaultvalue = f"[{cls.get_extrastring_taskname()}: {name}]"
         return req.wxstring(
-            self.get_extrastring_taskname(),
+            cls.get_extrastring_taskname(),
             name,
             defaultvalue,
-            provide_default_if_none=provide_default_if_none)
+            provide_default_if_none=provide_default_if_none,
+        )
 
-    def xstring(self,
-                req: "CamcopsRequest",
-                name: str,
-                defaultvalue: str = None,
-                provide_default_if_none: bool = True) -> str:
+    @classmethod
+    def xstring(
+        cls,
+        req: "CamcopsRequest",
+        name: str,
+        defaultvalue: str = None,
+        provide_default_if_none: bool = True,
+    ) -> str:
         """
         Return a raw (not necessarily web-safe) version of an extra string for
         this task.
@@ -2270,17 +3457,23 @@ class Task(GenericTabletRecordMixin, Base):
                 "string x.y not found"
         """
         if defaultvalue is None and provide_default_if_none:
-            defaultvalue = f"[{self.get_extrastring_taskname()}: {name}]"
+            defaultvalue = f"[{cls.get_extrastring_taskname()}: {name}]"
         return req.xstring(
-            self.get_extrastring_taskname(),
+            cls.get_extrastring_taskname(),
             name,
             defaultvalue,
-            provide_default_if_none=provide_default_if_none)
+            provide_default_if_none=provide_default_if_none,
+        )
 
-    def make_options_from_xstrings(self,
-                                   req: "CamcopsRequest",
-                                   prefix: str, first: int, last: int,
-                                   suffix: str = "") -> Dict[int, str]:
+    @classmethod
+    def make_options_from_xstrings(
+        cls,
+        req: "CamcopsRequest",
+        prefix: str,
+        first: int,
+        last: int,
+        suffix: str = "",
+    ) -> Dict[int, str]:
         """
         Creates a lookup dictionary from xstrings.
 
@@ -2299,10 +3492,10 @@ class Task(GenericTabletRecordMixin, Base):
         d = {}  # type: Dict[int, str]
         if first > last:  # descending order
             for i in range(first, last - 1, -1):
-                d[i] = self.xstring(req, f"{prefix}{i}{suffix}")
+                d[i] = cls.xstring(req, f"{prefix}{i}{suffix}")
         else:  # ascending order
             for i in range(first, last + 1):
-                d[i] = self.xstring(req, f"{prefix}{i}{suffix}")
+                d[i] = cls.xstring(req, f"{prefix}{i}{suffix}")
         return d
 
     @staticmethod
@@ -2336,6 +3529,7 @@ class Task(GenericTabletRecordMixin, Base):
 # https://stackoverflow.com/questions/8108688/in-python-when-should-i-use-a-function-instead-of-a-method  # noqa
 # https://stackoverflow.com/questions/11788195/module-function-vs-staticmethod-vs-classmethod-vs-no-decorators-which-idiom-is  # noqa
 # https://stackoverflow.com/questions/15017734/using-static-methods-in-python-best-practice  # noqa
+
 
 def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     """
@@ -2385,6 +3579,7 @@ def all_task_classes() -> List[Type[Task]]:
 # =============================================================================
 # Support functions
 # =============================================================================
+
 
 def get_from_dict(d: Dict, key: Any, default: Any = INVALID_VALUE) -> Any:
     """

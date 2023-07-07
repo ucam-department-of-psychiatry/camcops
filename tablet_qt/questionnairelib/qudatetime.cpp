@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #define USE_NUMERIC_DATES
@@ -56,7 +57,8 @@ const QTime PSEUDONULL_TIME(0, 0, 0, 0);
 const QDateTime PSEUDONULL_DATETIME(PSEUDONULL_DATE, PSEUDONULL_TIME);
 
 
-QuDateTime::QuDateTime(FieldRefPtr fieldref) :
+QuDateTime::QuDateTime(FieldRefPtr fieldref, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_mode(Mode::DefaultDateTime),
     m_custom_input_method_hint(Qt::ImhNone),

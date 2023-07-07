@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qupickerinline.h"
@@ -30,7 +31,9 @@ const int MAX_LENGTH = 100;
 
 
 QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
-                               const NameValueOptions& options) :
+                               const NameValueOptions& options,
+                               QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),
@@ -74,6 +77,9 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
     // Disambiguate like this:
     void (QComboBox::*ic_signal)(int) = &QComboBox::currentIndexChanged;
     if (!read_only) {
+        // The currentIndex on the QCombobox is what we are calling the position
+        // of the item in the list of options (the index being the original,
+        // unrandomized position).
         connect(m_cbox.data(), ic_signal,
                 this, &QuPickerInline::currentItemChanged);
     }

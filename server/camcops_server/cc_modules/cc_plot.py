@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_plot.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -112,8 +113,9 @@ else:
     _old_home = None
 
 # 5. Import matplotlib
-log.debug("Importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
-          _mpl_config_dir)
+log.debug(
+    "Importing matplotlib (can be slow) (MPLCONFIGDIR={})...", _mpl_config_dir
+)
 # noinspection PyUnresolvedReferences
 import matplotlib  # noqa: E402,F401
 

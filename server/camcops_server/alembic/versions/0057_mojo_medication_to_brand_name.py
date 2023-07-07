@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0057_mojo_medication_to_brand_name.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,12 +42,13 @@ Creation date: 2020-11-17 17:16:16.530685
 from alembic import op
 import sqlalchemy as sa
 
+
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0057'
-down_revision = '0056'
+revision = "0057"
+down_revision = "0056"
 branch_labels = None
 depends_on = None
 
@@ -57,23 +59,27 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('khandaker_mojo_medication_item', schema=None) as batch_op:
+    with op.batch_alter_table(
+        "khandaker_mojo_medication_item", schema=None
+    ) as batch_op:
         batch_op.alter_column(
-            'medication_name',
+            "medication_name",
             existing_type=sa.UnicodeText(),
-            new_column_name='brand_name',
-            existing_comment='Medication name',
-            comment='Brand name'
+            new_column_name="brand_name",
+            existing_comment="Medication name",
+            comment="Brand name",
         )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('khandaker_mojo_medication_item', schema=None) as batch_op:
+    with op.batch_alter_table(
+        "khandaker_mojo_medication_item", schema=None
+    ) as batch_op:
         batch_op.alter_column(
-            'brand_name',
+            "brand_name",
             existing_type=sa.UnicodeText(),
-            new_column_name='medication_name',
-            existing_comment='Brand name',
-            comment='Medication name'
+            new_column_name="medication_name",
+            existing_comment="Brand name",
+            comment="Medication name",
         )

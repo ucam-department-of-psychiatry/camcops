@@ -1,6 +1,7 @@
 ..  docs/source/administrator/server_config_file.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -19,12 +20,21 @@
 
 .. _Apache: https://httpd.apache.org/
 .. _CherryPy: https://cherrypy.org/
+.. _FHIR: https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
+.. _Google Authenticator: https://en.wikipedia.org/wiki/Google_Authenticator
 .. _Gunicorn: https://gunicorn.org/
 .. _HTTPS: https://en.wikipedia.org/wiki/HTTPS
 .. _ISO 8601: https://en.wikipedia.org/wiki/ISO_8601
+.. _Kapow: https://www.kapow.co.uk/
 .. _Pyramid: https://trypyramid.com/
+.. _RFC 4226: https://datatracker.ietf.org/doc/html/rfc4226
 .. _RFC 5322: https://tools.ietf.org/html/rfc5322#section-3.6.2
+.. _RFC 6238: https://datatracker.ietf.org/doc/html/rfc6238
+.. _SMART: https://smarthealthit.org/
+.. _SMS: https://en.wikipedia.org/wiki/SMS
 .. _TCP: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
+.. _Twilio Authy: https://authy.com/
+.. _Twilio SMS: https://www.twilio.com/sms
 .. _WSGI: https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface
 
 .. |use_trusted_headers| replace::
@@ -135,7 +145,7 @@ DB_URL
 *String.*
 
 The SQLAlchemy connection URL for the CamCOPS database. See
-http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
+https://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 
 - MySQL under Linux via mysqlclient:
 
@@ -312,7 +322,8 @@ LANGUAGE
 *String.* Default: ``en_GB``.
 
 This setting determines the language in which the server operates for users
-who have not set a language preference, or who are not logged in.
+who have not set a language preference, or who are not logged in. This language
+also applies to "back-end" work, like exporting tasks.
 
 The language code is in the format ``en_GB`` (two-letter language code,
 underscore, two- or three-letter country code).
@@ -320,6 +331,8 @@ underscore, two- or three-letter country code).
 If the language is not recognized, a warning is given and the server switches
 to its default.
 
+
+.. _SNOMED_TASK_XML_FILENAME:
 
 SNOMED_TASK_XML_FILENAME
 ########################
@@ -372,6 +385,17 @@ CamCOPS, so you shouldn't have to alter this default. A blank parameter here
 usually ends up calling ``/usr/bin/wkhtmltopdf``
 
 
+Server geographical location
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+REGION_CODE
+###########
+
+*String.* Default: GB.
+
+ISO 3166-1 alpha-2 region code. Currently used for parsing telephone numbers.
+
+
 Login and session configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -385,12 +409,32 @@ and keep it secret. (When you make a new CamCOPS demo config, the value shown
 is fresh and random.)
 
 
+.. _SESSION_TIMEOUT_MINUTES:
+
 SESSION_TIMEOUT_MINUTES
 #######################
 
 *Integer.* Default: 30.
 
 Time (in minutes) after which a session will expire.
+
+
+.. _SESSION_CHECK_USER_IP:
+
+SESSION_CHECK_USER_IP
+#####################
+
+*Boolean.* Default: true.
+
+If true: CamCOPS checks the user's IP address on every request, and prohibits
+the user from changing IP address within a session. (A change of IP address
+will require them to log in again.) If False, the IP address is not checked and
+is permitted to change.
+
+Setting this to True is more conservative as a security setting, but can cause
+problems if user IP addresses (as seen by the CamCOPS server) change due to
+e.g. a load balancer, or the user switching networks. Set it to False if users
+are being logged out before SESSION_TIMEOUT_MINUTES_ is reached.
 
 
 PASSWORD_CHANGE_FREQUENCY_DAYS
@@ -440,6 +484,46 @@ main login page. The correct setting for maximum security is debated (don't
 cache passwords, versus allow a password manager so that users can use
 better/unique passwords). Note that some browsers (e.g. Chrome v34 and up) may
 ignore this.
+
+
+.. _MFA_METHODS:
+
+MFA_METHODS
+###########
+
+*Multiline string.*
+
+A multiline list of enabled multi-factor authentication (MFA) methods. Users
+can choose from the options that you enable here.
+
+The possible values are:
+
+- ``totp``: Use an app such as `Google Authenticator`_ or `Twilio Authy`_.
+
+- ``hotp_email``: Send a code by email.
+
+- ``hotp_sms``: Send a code by SMS_ (text message). For this option, you must
+  also configure SMS_BACKEND_.
+
+- ``no_mfa``: permit login with no MFA (i.e. just with a username/password
+  combination).
+
+To enforce multi-factor authentication on the server, do not include ``no_mfa``
+in this list (but include at least one other). If you don't specify anything,
+only ``no_mfa`` is used.
+
+Open MFA standards are defined in `RFC 4226`_ (HOTP: An HMAC-Based One-Time
+Password Algorithm) and in `RFC 6238`_ (TOTP: Time-Based One-Time Password
+Algorithm).
+
+
+MFA_TIMEOUT_S
+#############
+
+*Integer.* Default: 600.
+
+Seconds the user has to enter their six-digit code during multi-factor
+authentication. Zero means never time out.
 
 
 Suggested filenames for saving PDFs from the web view
@@ -646,6 +730,46 @@ EMAIL_REPLY_TO
 "Reply-To:" address used in e-mails. See `RFC 5322`_.
 
 
+SMS options
+~~~~~~~~~~~
+
+.. _SMS_BACKEND:
+
+SMS_BACKEND
+###########
+
+*String.* Default: ``console``.
+
+Back-end service to send `SMS`_ (text) messages as part of multi-factor
+authentication (see MFA_METHODS_).
+
+Options are:
+
+- ``kapow``
+- ``twilio``
+- ``console``
+
+The ``console`` option is only for testing; it prints the SMS to the server's
+console log, but does nothing useful.
+
+Supported backends are Kapow_ and `Twilio SMS`_. A paid account is needed for
+these services, which are then configured as follows:
+
+.. code-block:: ini
+
+    [sms_backend:kapow]
+
+    USERNAME =
+    PASSWORD =
+
+
+    [sms_backend:twilio]
+
+    SID =
+    TOKEN =
+    FROM_PHONE_NUMBER =
+
+
 User download options
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -669,7 +793,7 @@ performance implications for your web site).
 USER_DOWNLOAD_DIR
 #################
 
-*String.* Default: ``""``.
+*String.* Default: none.
 
 Root directory for storing temporary user downloads (when the user asks for
 files to be created for later download). Within this, a directory will be
@@ -704,7 +828,7 @@ Debugging options
 WEBVIEW_LOGLEVEL
 ################
 
-*Loglevel.*
+*Loglevel.* Default: ``info``.
 
 Set the level of detail provided from the webview to ``stderr`` (e.g. to the
 Apache server log).
@@ -716,7 +840,7 @@ Note that for "debug"-level information to show up, you must also provide the
 CLIENT_API_LOGLEVEL
 ###################
 
-*Loglevel.*
+*Loglevel.* Default: ``info``.
 
 Set the log level for the tablet client database access script.
 
@@ -1084,6 +1208,82 @@ Variables that are not marked as trusted will not be used by the reverse-proxy
 middleware.
 
 
+.. _config_external_url:
+
+Determining the externally accessible CamCOPS URL for back-end work
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you browse to the CamCOPS web interface, CamCOPS can work out its own URL
+address, even if you are hosting CamCOPS behind a proxy (see e.g.
+PROXY_SCRIPT_NAME_). However, CamCOPS also has a "back end", used for scheduled
+and/or slow jobs like exporting tasks. If this part of CamCOPS needs to know
+its own address, it can't work that out dynamically. You have to tell it.
+
+Currently, this is primarily applicable to :ref:`FHIR exports <config_fhir>`.
+
+The components of the URL are specified like this:
+
+For a CamCOPS server hosted at the root path (e.g. directly), leave
+EXTERNAL_SCRIPT_NAME_ blank:
+
+.. code-block:: none
+
+    https://camcops.mydomain:443/path_within_camcops_application
+    ^^^^^   ^^^^^^^^^^^^^^^^ ^^^
+    |       |                |
+    |       |                |
+    |       |                EXTERNAL_SERVER_PORT
+    |       EXTERNAL_SERVER_NAME
+    EXTERNAL_URL_SCHEME
+
+For a CamCOPS server hosted at a non-root path (e.g. via Apache as one of many
+pages/applications on a single web site), specify EXTERNAL_SCRIPT_NAME_:
+
+.. code-block:: none
+
+    https://camcops.mydomain:443/camcops/path_within_camcops_application
+    ^^^^^   ^^^^^^^^^^^^^^^^ ^^^ ^^^^^^^
+    |       |                |   |
+    |       |                |   EXTERNAL_SCRIPT_NAME
+    |       |                EXTERNAL_SERVER_PORT
+    |       EXTERNAL_SERVER_NAME
+    EXTERNAL_URL_SCHEME
+
+
+.. _EXTERNAL_URL_SCHEME:
+
+EXTERNAL_URL_SCHEME
+###################
+
+*String.* Default: ``https``.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
+EXTERNAL_SERVER_NAME
+####################
+
+*String.* Default: the value of HOST_.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
+EXTERNAL_SERVER_PORT
+####################
+
+*Integer.* Default: the value of PORT_.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
+EXTERNAL_SCRIPT_NAME
+####################
+
+*String.* Default: none.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
 CherryPy options
 ~~~~~~~~~~~~~~~~
 
@@ -1190,7 +1390,7 @@ called ``perinatal_admin_team`` that e-mails PDFs of tasks from your perinatal
 psychiatry group to your perinatal psychiatry administrative team (including
 immediately on receipt), for manual export to a clinical records system that
 doesn't support incoming electronic messages. You might create another called
-``smith_neutrophil_study`` that sends XML data via HL7 message, and a third
+``smith_neutrophil_study`` that sends XML data via HL7 v2 message, and a third
 called ``regular_database_dump`` that exports the entire CamCOPS database to
 a database on disk.
 
@@ -1291,7 +1491,7 @@ An example to prevent the :ref:`Celery-related memory leak
 .. code-block:: ini
 
     CELERY_WORKER_EXTRA_ARGS =
-        --maxtasksperchild=20
+        --max-tasks-per-child=20
 
 
 CELERY_EXPORT_TASK_RATE_LIMIT
@@ -1444,10 +1644,14 @@ TRANSMISSION_METHOD
 
 One of the following methods:
 
-- ``db``: Exports tasks to a relational database.
-- ``email``: Sends tasks via e-mail.
-- ``hl7``: Sends HL7 messages across a TCP/IP network.
-- ``file``: Writes files to a local filesystem.
+- ``db``: Exports tasks to a relational database; see
+  :ref:`database exports <config_db>`.
+- ``email``: Sends tasks via e-mail; see :ref:`e-mail exports <config_email>`.
+- ``fhir``: Sends data via FHIR_; see :ref:`FHIR exports <config_fhir>`.
+- ``file``: Writes files to a local filesystem; see
+  :ref:`file exports <config_file>`.
+- ``hl7``: Sends HL7 (v2) messages across a TCP/IP network; see
+  :ref:`HL7 exports <config_hl7>`.
 - ``redcap``: :ref:`Exports tasks to REDCap <redcap>`.
 
 
@@ -1597,8 +1801,8 @@ INCLUDE_ANONYMOUS
 
 Include anonymous tasks?
 
-- Note that anonymous tasks cannot be sent via HL7; the HL7 specification is
-  heavily tied to identification.
+- Note that anonymous tasks cannot be sent via HL7 v2; the HL7 v2 specification
+  is heavily tied to identification.
 
 - Note that anonymous tasks cannot be sent via REDCap.
 
@@ -1616,7 +1820,7 @@ PRIMARY_IDNUM
 Which ID number type should be considered the "internal" (primary) ID number?
 If specified, only tasks with this ID number present will be exported.
 
-- Must be specified for HL7 messages.
+- Must be specified for HL7 v2 and FHIR messages.
 - May be blank for file and e-mail transmission.
 - For (e.g.) file/e-mail transmission, this does not control the behaviour of
   anonymous tasks, which are instead controlled by INCLUDE_ANONYMOUS_ (see
@@ -1641,6 +1845,8 @@ PRIMARY_IDNUM_ is set.
 - If you export from multiple groups simultaneously, setting this to true means
   that the primary ID number must be present (as above) for *all* groups.
 
+
+.. _config_db:
 
 Options applicable to database export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1701,6 +1907,8 @@ Additionally, tables that represent "sub-tables" of tasks (e.g. trials within
 a task, or similar) add the fields ``_task_tablename`` and ``_task_pk`` as
 part of this denormalization-for-convenience.
 
+
+.. _config_email:
 
 Options applicable to e-mail export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1794,8 +2002,10 @@ Keep the entire message (including attachments). Turning this option on
 consumes lots of database space! Use only for debugging.
 
 
-Options applicable to HL7 only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _config_hl7:
+
+Options applicable to HL7 (v2) only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _HL7_HOST:
 
@@ -1890,6 +2100,109 @@ BEWARE, though: if you have an automatically scheduled job (for example, to
 send messages every minute) and you divert with this flag set to false, you
 will end up with a great many message attempts!
 
+
+.. _config_fhir:
+
+Options applicable to HL7 FHIR ("FHIR") only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For an overview of FHIR, see `FHIR Overview
+<https://www.hl7.org/fhir/overview.html>`_ from the HL7 site. For an overview
+of SMART on FHIR, see the SMART_ site, or e.g. `J. Coy (2018)
+<https://web.archive.org/web/20210527164832/https://sep.com/blog/smart-on-fhir-what-is-smart-what-is-fhir/>`_.
+
+CamCOPS supports exporting to FHIR_ servers. Thus, CamCOPS operates as a FHIR
+client, or "SMART App" (the system is often called "SMART on FHIR"). The server
+might be an electronic health record (EHR) system.
+
+CamCOPS authenticates using the `SMART App Launch Framework
+<https://www.hl7.org/fhir/smart-app-launch/>`_ or "SMART on FHIR" system, as a
+"confidential app". Authentication is via:
+
+- a ``client_id``, configured via FHIR_APP_ID_;
+- a ``client_secret``, configured via FHIR_APP_SECRET_;
+
+If you wish the exported "system" URLs to work, ensure the CamCOPS back-end is
+configured to know its own address: see :ref:`external URL configuration
+<config_external_url>`.
+
+For standard ID numbers, like UK NHS numbers, you should set the appropriate
+:ref:`FHIR ID system URL <fhir_id_system_url>`.
+
+FHIR_API_URL
+############
+
+*String.*
+
+The base URL of your FHIR server's application programming interface (API),
+like ``https://my.fhir.server/path/to/api``. The server is expected to support
+SMART on FHIR. See:
+
+- https://doi.org/10.1093/jamia/ocv189, describing SMART on FHIR
+- http://www.hl7.org/fhir/smart-app-launch/, the specification
+
+
+.. _FHIR_APP_ID:
+
+FHIR_APP_ID
+###########
+
+*String.* Default: ``camcops``.
+
+A string identifying this "app" (meaning the CamCOPS server) to the FHIR
+server. (The FHIR server needs to recognize this and the corresponding secret,
+FHIR_APP_SECRET_.)
+
+This is passed as the SMART ``client_id`` parameter (via the Python
+``fhirclient`` parameter ``app_id``).
+
+
+.. _FHIR_APP_SECRET:
+
+FHIR_APP_SECRET
+###############
+
+*String.*
+
+A secret code that the FHIR server should recognize to identify CamCOPS as a
+valid client (along with the app identifier, FHIR_APP_ID_).
+
+This is passed as the SMART ``client_secret`` parameter (via the Python
+``fhirclient`` parameter ``app_secret``).
+
+
+FHIR_LAUNCH_TOKEN
+#################
+
+*String.*
+
+This optional extra token can be passed to the FHIR server to set the context
+of the request. However, this may not be applicable (as such context-setting
+tokens may need to be very specific).
+
+This is passed as the SMART ``launch`` parameter (via the Python ``fhirclient``
+parameter ``launch_token``).
+
+
+FHIR_CONCURRENT
+###############
+
+*Boolean.* Default: false.
+
+Does the FHIR server handle fully concurrent (parallel) transactions? If so,
+you can set this to ``True``, and CamCOPS might send lots of tasks
+simultaneously.
+
+However, beware: some servers do not support full concurrency safely (see, for
+example, https://github.com/hapifhir/hapi-fhir/issues/3141). If you leave this
+setting at the default of ``False``, then CamCOPS will switch to serial,
+non-concurrent transmission (one task at a time).
+
+There is no penalty for leaving it at ``False`` except perhaps a slight
+reduction in speed.
+
+
+.. _config_file:
 
 Options applicable to file transfers and attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2108,8 +2421,7 @@ Below is a specimen configuration file, generated via the command
 
     camcops_server demo_camcops_config > demo_camcops_config.ini
 
-Note that if you are using Docker, then the command
-:ref:`print_demo_camcops_config <docker_print_demo_camcops_config>` will give
+Note that if you are using Docker, then the installer will give
 you a config file with appropriate defaults for the Docker environment
 (slightly different from what follows).
 

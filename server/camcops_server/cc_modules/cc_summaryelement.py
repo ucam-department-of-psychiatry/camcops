@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_summaryelement.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -32,14 +33,15 @@ information.
 """
 
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Set, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.reprfunc import auto_repr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import TaskDescendant
-from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 if TYPE_CHECKING:
@@ -50,6 +52,7 @@ if TYPE_CHECKING:
 # SummaryElement
 # =============================================================================
 
+
 class SummaryElement(object):
     """
     Returned by tasks to represent extra summary information that they
@@ -58,11 +61,10 @@ class SummaryElement(object):
     Use this for extra information that can be added to a row represented by a
     task or its ancillary object.
     """
-    def __init__(self,
-                 name: str,
-                 coltype: TypeEngine,
-                 value: Any,
-                 comment: str = None) -> None:
+
+    def __init__(
+        self, name: str, coltype: TypeEngine, value: Any, comment: str = None
+    ) -> None:
         """
         Args:
             name: column name
@@ -85,6 +87,7 @@ class SummaryElement(object):
 # ExtraSummaryTable
 # =============================================================================
 
+
 class ExtraSummaryTable(TaskDescendant):
     """
     Additional summary information returned by a task.
@@ -92,12 +95,15 @@ class ExtraSummaryTable(TaskDescendant):
     Use this to represent an entire table that doesn't have a 1:1 relationship
     with rows of a task or ancillary object.
     """
-    def __init__(self,
-                 tablename: str,
-                 xmlname: str,
-                 columns: List[Column],
-                 rows: List[Union[Dict[str, Any], OrderedDict]],
-                 task: "Task") -> None:
+
+    def __init__(
+        self,
+        tablename: str,
+        xmlname: str,
+        columns: List[Column],
+        rows: List[Union[Dict[str, Any], OrderedDict]],
+        task: "Task",
+    ) -> None:
         """
         Args:
             tablename: name of the additional summary table
@@ -127,12 +133,26 @@ class ExtraSummaryTable(TaskDescendant):
             itembranches.append(branch)
         return XmlElement(name=self.xmlname, value=itembranches)
 
-    def get_tsv_page(self) -> TsvPage:
+    def get_spreadsheet_page(self) -> SpreadsheetPage:
         """
-        Returns an :class:`camcops_server.cc_modules.cc_tsv.TsvPage`
+        Returns an
+        :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage`
         representing this summary table.
         """
-        return TsvPage(name=self.tablename, rows=self.rows)
+        return SpreadsheetPage(name=self.tablename, rows=self.rows)
+
+    def get_spreadsheet_schema_elements(self) -> Set[SummarySchemaInfo]:
+        """
+        Schema equivalent to :func:`get_spreadsheet_page`.
+        """
+        return set(
+            SummarySchemaInfo.from_column(
+                c,
+                table_name=self.tablename,
+                source=SummarySchemaInfo.SSV_SUMMARY,
+            )
+            for c in self.columns
+        )
 
     def __repr__(self) -> str:
         return auto_repr(self)

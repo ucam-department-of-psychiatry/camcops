@@ -5,7 +5,8 @@ camcops_server/tasks_discarded/lshs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -221,4 +222,4 @@ class LshsLaroi2005(TaskHasPatientMixin, Task,
         )
         return h
 
-'''
+'''  # noqa: E501

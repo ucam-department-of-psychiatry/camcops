@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <QJsonObject>
@@ -119,7 +120,7 @@ QVector<DatabaseObjectPtr> TaskSchedule::getAllAncillary() const
 
 TaskScheduleItemPtr TaskSchedule::findItem(const TaskScheduleItemPtr match)
 {
-    for (const TaskScheduleItemPtr& item : m_items) {
+    for (const TaskScheduleItemPtr& item : qAsConst(m_items)) {
         if (item->dueFromUtc() == match->dueFromUtc() &&
             item->dueByUtc() == match->dueByUtc() &&
             item->taskTableName() == match->taskTableName()) {
@@ -157,7 +158,7 @@ QString TaskSchedule::name() const
 
 bool TaskSchedule::hasIncompleteCurrentTasks() const
 {
-    for (const TaskScheduleItemPtr& schedule_item : items()) {
+    for (const TaskScheduleItemPtr& schedule_item : qAsConst(m_items)) {
         if (schedule_item->isIncompleteAndCurrent()) {
             return true;
         }

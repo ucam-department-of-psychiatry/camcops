@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "hamd.h"
@@ -30,7 +31,7 @@ using stringfunc::standardResult;
 using stringfunc::strnum;
 
 const int N_SCORED_QUESTIONS = 17;
-const int MAX_SCORE = 52;
+const int MAX_QUESTION_SCORE = 52;
 
 const QString HamD::HAMD_TABLENAME("hamd");
 const QString QPREFIX("q");
@@ -139,7 +140,7 @@ bool HamD::isComplete() const
 QStringList HamD::summary() const
 {
     return QStringList{
-        scorePhrase(xstring("total_score"), totalScore(), MAX_SCORE)
+        scorePhrase(xstring("total_score"), totalScore(), MAX_QUESTION_SCORE)
     };
 }
 

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,59 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/*
+
+A note on the address alternatives (2022-12-01):
+
+- There are up to three versions of the ACE-III in a given language, versions
+  A/B/C. They differ in their address for memory testing. The purpose is so
+  that you can repeat without a practice effect for this aspect.
+- The target address is presented as 7 components (e.g. Harry, Barnes, 73,
+  Orchard, Close, Kingsbridge, Devon).
+- The three memory phases are repetition/registration, free recall, and
+  recognition (three cues/prompts are offered; one is exactly the right
+  answer). "Recognition" is the preferred term (and matches the scoring guide);
+  better than "cued recall" (normally that refers to an incomplete cue) or
+  "prompted recall".
+- The recognition version is presented as five lines, each with three
+  alternatives (e.g. first line is Jerry Barnes / Harry Barnes / Harry
+  Bradford).
+
+For the English ACE-III, we could store 7 components and build up the
+recognition versions by concatenation (e.g. "Harry" + " " + "Barnes"). However,
+the recognition versons can differ a bit across languages (e.g. French "24 rue
+du Bois" provides the alternatives "Rue du Bois", "Rue du Prince", "Place du
+Marché"). There might be other differences (e.g. might word order change?).
+Certainly the number/street order varies, e.g. Spanish "Calle Castillo 73".
+
+So we'll store the target as 7 components and then 5x3 for the recognition.
+
+Not all languages support A/B/C at present (e.g. Spanish), in which case the
+string versions should be made identical.
+
+Note also that the target/distractor order in the recognition is NOT
+consistent across languages or even versions, e.g.
+
+    English A/French A: correct columns 2, 2, 3, 2, 1
+    English C:          correct columns 2, 3, 1, 1, 2
+    Spanish:            correct columns 2, 3, 2, 2, 1
+
+We could therefore store as rows/columns with an indication of which is
+correct, or target/distractor 1/distractor 2 with an indication of which to put
+where. The first is going to be simpler for administrators.
+
+*/
+
+/*
+
+A note on the clazy-range-loop warning:
+
+- This warning: https://www.kdab.com/blog-qasconst-and-stdas_const/
+- Const vectors of non-const pointers: https://yosefk.com/c++fqa/const.html
+
 */
 
 #define NOSCROLL_IMAGE_PAGES  // Should be defined. Better UI with it.
@@ -23,10 +76,12 @@
 #include <QDebug>
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "lib/convert.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/quflowcontainer.h"
@@ -45,126 +100,108 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::eq;
+using mathfunc::allNull;
 using mathfunc::noneNull;
 using mathfunc::sumInt;
-using mathfunc::scoreStringWithPercent;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-const QString Ace3::ACE3_TABLENAME("ace3");
+const QString IMAGE_SPOON(QStringLiteral("ace3/spoon.png"));
+const QString IMAGE_BOOK(QStringLiteral("ace3/book.png"));
+const QString IMAGE_KANGAROO(QStringLiteral("ace3/kangaroo.png"));
+const QString IMAGE_PENGUIN(QStringLiteral("ace3/penguin.png"));
+const QString IMAGE_ANCHOR(QStringLiteral("ace3/anchor.png"));
+const QString IMAGE_CAMEL(QStringLiteral("ace3/camel.png"));
+const QString IMAGE_HARP(QStringLiteral("ace3/harp.png"));
+const QString IMAGE_RHINOCEROS(QStringLiteral("ace3/rhinoceros.png"));
+const QString IMAGE_BARREL(QStringLiteral("ace3/barrel.png"));
+const QString IMAGE_CROWN(QStringLiteral("ace3/crown.png"));
+const QString IMAGE_CROCODILE(QStringLiteral("ace3/crocodile.png"));
+const QString IMAGE_ACCORDION(QStringLiteral("ace3/accordion.png"));
+const QString IMAGE_INFINITY(QStringLiteral("ace3/infinity.png"));
+const QString IMAGE_CUBE(QStringLiteral("ace3/cube.png"));
+const QString IMAGE_DOTS8(QStringLiteral("ace3/dots8.png"));
+const QString IMAGE_DOTS10(QStringLiteral("ace3/dots10.png"));
+const QString IMAGE_DOTS7(QStringLiteral("ace3/dots7.png"));
+const QString IMAGE_DOTS9(QStringLiteral("ace3/dots9.png"));
+const QString IMAGE_K(QStringLiteral("ace3/k.png"));
+const QString IMAGE_M(QStringLiteral("ace3/m.png"));
+const QString IMAGE_A(QStringLiteral("ace3/a.png"));
+const QString IMAGE_T(QStringLiteral("ace3/t.png"));
 
-const QString IMAGE_SPOON("ace3/spoon.png");
-const QString IMAGE_BOOK("ace3/book.png");
-const QString IMAGE_KANGAROO("ace3/kangaroo.png");
-const QString IMAGE_PENGUIN("ace3/penguin.png");
-const QString IMAGE_ANCHOR("ace3/anchor.png");
-const QString IMAGE_CAMEL("ace3/camel.png");
-const QString IMAGE_HARP("ace3/harp.png");
-const QString IMAGE_RHINOCEROS("ace3/rhinoceros.png");
-const QString IMAGE_BARREL("ace3/barrel.png");
-const QString IMAGE_CROWN("ace3/crown.png");
-const QString IMAGE_CROCODILE("ace3/crocodile.png");
-const QString IMAGE_ACCORDION("ace3/accordion.png");
-const QString IMAGE_INFINITY("ace3/infinity.png");
-const QString IMAGE_CUBE("ace3/cube.png");
-const QString IMAGE_DOTS8("ace3/dots8.png");
-const QString IMAGE_DOTS10("ace3/dots10.png");
-const QString IMAGE_DOTS7("ace3/dots7.png");
-const QString IMAGE_DOTS9("ace3/dots9.png");
-const QString IMAGE_K("ace3/k.png");
-const QString IMAGE_M("ace3/m.png");
-const QString IMAGE_A("ace3/a.png");
-const QString IMAGE_T("ace3/t.png");
-
-const QString TAG_MEM_RECOGNIZE("mem_recognize");
-const QString TAG_PG_LANG_COMMANDS_SENTENCES("pg_lang_commands_sentences");
-const QString TAG_PG_MEM_PROMPTED_RECALL("pg_mem_prompted_recall");
-const QString TAG_EL_LANG_OPTIONAL_COMMAND("lang_optional_command");
-const QString TAG_EL_LANG_NOT_SHOWN("lang_not_shown");
-const QString TAG_RECOG_REQUIRED("recog_required");
-const QString TAG_RECOG_SUPERFLUOUS("recog_superfluous");
-const QString TAG_RECOG_NAME("recog_name");
-const QString TAG_RECOG_NUMBER("recog_number");
-const QString TAG_RECOG_STREET("recog_street");
-const QString TAG_RECOG_TOWN("recog_town");
-const QString TAG_RECOG_COUNTY("recog_county");
+const QString TAG_PG_LANG_COMMANDS_SENTENCES(QStringLiteral("pg_lang_commands_sentences"));
+const QString TAG_PG_MEM_RECOGNITION(QStringLiteral("pg_mem_recog"));
+const QString TAG_EL_LANG_OPTIONAL_COMMAND(QStringLiteral("lang_optional_command"));
+const QString TAG_EL_LANG_NOT_SHOWN(QStringLiteral("lang_not_shown"));
+const QString TAG_RECOG_REQUIRED(QStringLiteral("recog_required"));
+const QString TAG_RECOG_SUPERFLUOUS(QStringLiteral("recog_superfluous"));
 
 // Field names, field prefixes, and field counts
-const QString FN_AGE_FT_EDUCATION("age_at_leaving_full_time_education");
-const QString FN_OCCUPATION("occupation");
-const QString FN_HANDEDNESS("handedness");
-const QString FP_ATTN_TIME("attn_time");
-const int N_ATTN_TIME = 5;
-const QString FP_ATTN_PLACE("attn_place");
+const int N_ATTN_TIME_ACE = 5;
+const QString FP_ATTN_PLACE(QStringLiteral("attn_place"));
 const int N_ATTN_PLACE = 5;
-const QString FP_ATTN_REPEAT_WORD("attn_repeat_word");
+const QString FP_ATTN_REPEAT_WORD(QStringLiteral("attn_repeat_word"));
 const int N_ATTN_REPEAT_WORD = 3;
-const QString FN_ATTN_NUM_REGISTRATION_TRIALS("attn_num_registration_trials");
-const QString FP_ATTN_SERIAL7("attn_serial7_subtraction");
+const QString FN_ATTN_NUM_REGISTRATION_TRIALS(QStringLiteral("attn_num_registration_trials"));
+const QString FP_ATTN_SERIAL7(QStringLiteral("attn_serial7_subtraction"));
 const int N_ATTN_SERIAL7 = 5;
-const QString FP_MEM_RECALL_WORD("mem_recall_word");
+
+const QString FP_MEM_RECALL_WORD(QStringLiteral("mem_recall_word"));
 const int N_MEM_RECALL_WORD = 3;
-const QString FN_FLUENCY_LETTERS_SCORE("fluency_letters_score");
-const QString FN_FLUENCY_ANIMALS_SCORE("fluency_animals_score");
-const QString FP_MEM_REPEAT_ADDR_TRIAL1("mem_repeat_address_trial1_");
-const QString FP_MEM_REPEAT_ADDR_TRIAL2("mem_repeat_address_trial2_");
-const QString FP_MEM_REPEAT_ADDR_TRIAL3("mem_repeat_address_trial3_");
-const int N_MEM_REPEAT_ADDR = 7;
-const QString FP_MEM_FAMOUS("mem_famous");
+const QString FN_FLUENCY_LETTERS_SCORE(QStringLiteral("fluency_letters_score"));
+const QString FN_FLUENCY_ANIMALS_SCORE(QStringLiteral("fluency_animals_score"));
+const QString FP_MEM_FAMOUS(QStringLiteral("mem_famous"));
 const int N_MEM_FAMOUS = 4;
-const QString FN_LANG_FOLLOW_CMD_PRACTICE("lang_follow_command_practice");
-const QString FP_LANG_FOLLOW_CMD("lang_follow_command");
-const int N_LANG_FOLLOW_CMD = 3;
-const QString FP_LANG_WRITE_SENTENCES_POINT("lang_write_sentences_point");
-const int N_LANG_WRITE_SENTENCES_POINT = 2;
-const QString FP_LANG_REPEAT_WORD("lang_repeat_word");
-const int N_LANG_REPEAT_WORD = 4;
-const QString FP_LANG_REPEAT_SENTENCE("lang_repeat_sentence");
-const int N_LANG_REPEAT_SENTENCE = 2;
-const QString FP_LANG_NAME_PICTURE("lang_name_picture");
-const int N_LANG_NAME_PICTURE = 12;
-const QString FP_LANG_IDENTIFY_CONCEPT("lang_identify_concept");
-const int N_LANG_IDENTIFY_CONCEPT = 4;
-const QString FN_LANG_READ_WORDS_ALOUD("lang_read_words_aloud");
-const QString FN_VSP_COPY_INFINITY("vsp_copy_infinity");
-const QString FN_VSP_COPY_CUBE("vsp_copy_cube");
-const QString FN_VSP_DRAW_CLOCK("vsp_draw_clock");
-const QString FP_VSP_COUNT_DOTS("vsp_count_dots");
-const int N_VSP_COUNT_DOTS = 4;
-const QString FP_VSP_IDENTIFY_LETTER("vsp_identify_letter");
-const int N_VSP_IDENTIFY_LETTER = 4;
-const QString FP_MEM_RECALL_ADDRESS("mem_recall_address");
-const int N_MEM_RECALL_ADDRESS = 7;
-const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE("mem_recognize_address");  // SCORE; matches versions before 2.0.0
-const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE("mem_recognize_address_choice");  // CHOICE; v2.0.0 onwards
+const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));  // SCORE; matches versions before 2.0.0
+const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));  // CHOICE; v2.0.0 onwards
 // ... storing raw choices is new in v2.0.0, but the score field is preserved
 //     for backwards compatibility
 const int N_MEM_RECOGNIZE_ADDRESS = 5;
-const QString FN_PICTURE1_BLOBID("picture1_blobid");
-// defunct: picture1_rotation
-const QString FN_PICTURE2_BLOBID("picture2_blobid");
-// defunct: picture2_rotation
-const QString FN_COMMENTS("comments");
+const int N_ADDRESS_RECOG_OPTIONS = 3;
+const QVector<int> DEFAULT_ADDRESS_RECOG_CORRECT_COLS_ENGLISH_A{2, 2, 3, 2, 1};
+// Choices for address recall phase:
+const QString CHOICE_A(QStringLiteral("A"));
+const QString CHOICE_B(QStringLiteral("B"));
+const QString CHOICE_C(QStringLiteral("C"));
+
+const QString FN_LANG_FOLLOW_CMD_PRACTICE(QStringLiteral("lang_follow_command_practice"));
+const QString FP_LANG_FOLLOW_CMD(QStringLiteral("lang_follow_command"));
+const int N_LANG_FOLLOW_CMD = 3;
+const QString FP_LANG_WRITE_SENTENCES_POINT(QStringLiteral("lang_write_sentences_point"));
+const int N_LANG_WRITE_SENTENCES_POINT = 2;
+const QString FP_LANG_REPEAT_WORD(QStringLiteral("lang_repeat_word"));
+const int N_LANG_REPEAT_WORD = 4;
+const QString FP_LANG_REPEAT_SENTENCE(QStringLiteral("lang_repeat_sentence"));
+const int N_LANG_REPEAT_SENTENCE = 2;
+const QString FP_LANG_NAME_PICTURE(QStringLiteral("lang_name_picture"));
+const int N_LANG_NAME_PICTURE = 12;
+const QString FP_LANG_IDENTIFY_CONCEPT(QStringLiteral("lang_identify_concept"));
+const int N_LANG_IDENTIFY_CONCEPT = 4;
+const QString FN_LANG_READ_WORDS_ALOUD(QStringLiteral("lang_read_words_aloud"));
+
+const QString FN_VSP_COPY_INFINITY(QStringLiteral("vsp_copy_infinity"));
+const QString FN_VSP_COPY_CUBE(QStringLiteral("vsp_copy_cube"));
+const QString FP_VSP_COUNT_DOTS(QStringLiteral("vsp_count_dots"));
+const int N_VSP_COUNT_DOTS = 4;
+const QString FP_VSP_IDENTIFY_LETTER(QStringLiteral("vsp_identify_letter"));
+const int N_VSP_IDENTIFY_LETTER = 4;
 
 // Subtotals. No magic numbers...
-const int TOTAL_OVERALL = 100;
 const int TOTAL_ATTN = 18;
 const int TOTAL_MEM = 26;
 const int TOTAL_FLUENCY = 14;
 const int TOTAL_LANG = 26;
 const int TOTAL_VSP = 16;
+const int TOTAL_OVERALL = 100;
 
-const int MIN_AGE = 0;
-const int MAX_AGE_Y = 120;
-const int FLUENCY_TIME_SEC = 60;
+// xstrings
+const QString X_EDITION(QStringLiteral("edition"));
 
-// We can't store a char in a variant, so an alternative would be QChar,
-// but QString is just as simple.
-const QString CHOICE_A("A");
-const QString CHOICE_B("B");
-const QString CHOICE_C("C");
 
+// ============================================================================
+// Ace3
+// ============================================================================
 
 void initializeAce3(TaskFactory& factory)
 {
@@ -172,25 +209,37 @@ void initializeAce3(TaskFactory& factory)
 }
 
 
-Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ACE3_TABLENAME, false, true, false),  // ... anon, clin, resp
-    m_questionnaire(nullptr)
+Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
+           QObject* parent) :
+    AceFamily(app, db, ACE3_TABLENAME, parent)
 {
+    addField(FN_TASK_EDITION, QVariant::String,
+             false, false, false, xstring(X_EDITION));
+    addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
+             false, false, false, TASK_DEFAULT_VERSION);
+    addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
+             false, false, false, false);
+
     addField(FN_AGE_FT_EDUCATION, QVariant::Int);
     addField(FN_OCCUPATION, QVariant::String);
     addField(FN_HANDEDNESS, QVariant::String);
-    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME), QVariant::Int);
+
+    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE), QVariant::Int);
     addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QVariant::Int);
     addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QVariant::Int);
     addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QVariant::Int);
     addFields(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7), QVariant::Int);
+
     addFields(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD), QVariant::Int);
+
     addField(FN_FLUENCY_LETTERS_SCORE, QVariant::Int);
     addField(FN_FLUENCY_ANIMALS_SCORE, QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR), QVariant::Int);
+
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QVariant::Int);
+
     addField(FN_LANG_FOLLOW_CMD_PRACTICE, QVariant::Int);
     addFields(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD), QVariant::Int);
     addFields(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT), QVariant::Int);
@@ -199,14 +248,17 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addFields(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE), QVariant::Int);
     addFields(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT), QVariant::Int);
     addField(FN_LANG_READ_WORDS_ALOUD, QVariant::Int);
+
     addField(FN_VSP_COPY_INFINITY, QVariant::Int);
     addField(FN_VSP_COPY_CUBE, QVariant::Int);
     addField(FN_VSP_DRAW_CLOCK, QVariant::Int);
     addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QVariant::Int);
     addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QVariant::Int);
-    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS), QVariant::Int);
+
+    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Int);
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Char);
+
     addField(FN_PICTURE1_BLOBID, QVariant::Int);  // FK to BLOB table
     addField(FN_PICTURE2_BLOBID, QVariant::Int);  // FK to BLOB table
     addField(FN_COMMENTS, QVariant::String);
@@ -221,7 +273,7 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString Ace3::shortname() const
 {
-    return "ACE-III";
+    return QStringLiteral("ACE-III");
 }
 
 
@@ -239,20 +291,36 @@ QString Ace3::description() const
 }
 
 
+bool Ace3::isTaskProperlyCreatable(QString& why_not_creatable) const
+{
+    if (!AceFamily::isTaskProperlyCreatable(why_not_creatable)) {
+        return false;
+    }
+    if (!isAddressRecogCorrectColumnInfoValid()) {
+        why_not_creatable = tr(
+            "Server strings are not providing valid information about which "
+            "address components are correct. Try re-fetching server info."
+        );
+        return false;
+    }
+    return true;
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================
 
 bool Ace3::isComplete() const
 {
-    return noneNull(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME))) &&
+    return noneNull(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE))) &&
         noneNull(values(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE))) &&
         noneNull(values(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD))) &&
         noneNull(values(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7))) &&
         noneNull(values(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD))) &&
         !valueIsNull(FN_FLUENCY_LETTERS_SCORE) &&
         !valueIsNull(FN_FLUENCY_ANIMALS_SCORE) &&
-        noneNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR))) &&
+        noneNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR))) &&
         noneNull(values(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS))) &&
         !valueIsNull(FN_LANG_FOLLOW_CMD_PRACTICE) &&
         (eq(value(FN_LANG_FOLLOW_CMD_PRACTICE), 0) ||
@@ -269,7 +337,7 @@ bool Ace3::isComplete() const
         !valueIsNull(FN_VSP_DRAW_CLOCK) &&
         noneNull(values(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS))) &&
         noneNull(values(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER))) &&
-        noneNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS))) &&
+        noneNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR))) &&
         isRecognitionComplete();
 }
 
@@ -282,16 +350,15 @@ QStringList Ace3::summary() const
     const int l = getLangScore();
     const int v = getVisuospatialScore();
     const int t = a + m + f + l + v;
-    auto scorelambda = [](int score, int out_of) -> QString {
-        return ": " + scoreStringWithPercent(score, out_of) + ".";
-    };
+    const int mini = miniAceScore();
     QStringList lines;
     lines.append(totalScorePhrase(t, TOTAL_OVERALL));
-    lines.append(xstring("cat_attn") + scorelambda(a, TOTAL_ATTN));
-    lines.append(xstring("cat_mem") + scorelambda(m, TOTAL_MEM));
-    lines.append(xstring("cat_fluency") + scorelambda(f, TOTAL_FLUENCY));
-    lines.append(xstring("cat_lang") + scorelambda(l, TOTAL_LANG));
-    lines.append(xstring("cat_vsp") + scorelambda(v, TOTAL_VSP));
+    lines.append(xstring(QStringLiteral("cat_attn")) + scorePercent(a, TOTAL_ATTN));
+    lines.append(xstring(QStringLiteral("cat_mem")) + scorePercent(m, TOTAL_MEM));
+    lines.append(xstring(QStringLiteral("cat_fluency")) + scorePercent(f, TOTAL_FLUENCY));
+    lines.append(xstring(QStringLiteral("cat_lang")) + scorePercent(l, TOTAL_LANG));
+    lines.append(xstring(QStringLiteral("cat_vsp")) + scorePercent(v, TOTAL_VSP));
+    lines.append(xstring(X_MINI_ACE_SCORE) + scorePercent(mini, TOTAL_MINI_ACE));
     return lines;
 }
 
@@ -300,68 +367,73 @@ OpenableWidget* Ace3::editor(const bool read_only)
 {
     int pagenum = 1;
     auto makeTitle = [this, &pagenum](const QString& title) -> QString {
-        return xstring("title_prefix") + QString(" %1").arg(pagenum++) + ": "
+        return xstring(QStringLiteral("title_prefix"))
+                + QString(QStringLiteral(" %1")).arg(pagenum++)
+                + ": "
                 + title;
-    };
-    auto textRaw = [](const QString& string) -> QuElement* {
-        return new QuText(string);
-    };
-    auto text = [this, textRaw](const QString& stringname) -> QuElement* {
-        return textRaw(xstring(stringname));
-    };
-    auto explanation = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->setItalic();
-    };
-    auto heading = [this](const QString& stringname) -> QuElement* {
-        return new QuHeading(xstring(stringname));
-    };
-    auto subheading = [this](const QString& stringname) -> QuElement* {
-        return (new QuText(xstring(stringname)))->setBold()->setBig();
-    };
-    auto instructionRaw = [](const QString& string) -> QuElement* {
-        return (new QuText(string))->setBold();
-    };
-    auto instruction = [this, instructionRaw](const QString& stringname) -> QuElement* {
-        return instructionRaw(xstring(stringname));
-    };
-    auto boolean = [this](const QString& stringname, const QString& fieldname,
-                          bool mandatory = true,
-                          bool bold = false) -> QuElement* {
-        return (new QuBoolean(xstring(stringname),
-                              fieldRef(fieldname, mandatory)))->setBold(bold);
-    };
-    auto boolimg = [this](const QString& filenamestem, const QString& fieldname,
-                          bool mandatory = true) -> QuElement* {
-        return new QuBoolean(uifunc::resourceFilename(filenamestem), QSize(),
-                             fieldRef(fieldname, mandatory));
-    };
-    auto warning = [](const QString& string) -> QuElement* {
-        return (new QuText(string))->setWarning();
     };
 
     // ------------------------------------------------------------------------
     // Preamble; age-leaving-full-time-education; handedness
     // ------------------------------------------------------------------------
 
+    NameValueOptions options_task_version;
+    const QStringList versions = addressVersionsAvailable();
+    for (const auto& v : versions) {
+        options_task_version.append(NameValuePair(v, v));
+    }
     const NameValueOptions options_handedness{
-        {xstring("left_handed"), "L"},
-        {xstring("right_handed"), "R"},
+        {xstring(QStringLiteral("left_handed")), "L"},
+        {xstring(QStringLiteral("right_handed")), "R"},
     };
-    QuPagePtr page_preamble((new QuPage{
-        instruction("instruction_need_paper"),
-        getClinicianQuestionnaireBlockRawPointer(),
-        instruction("preamble_instruction"),
-        questionnairefunc::defaultGridRawPointer({
-            {xstring("q_age_leaving_fte"),
-             new QuLineEditInteger(fieldRef(FN_AGE_FT_EDUCATION), MIN_AGE, MAX_AGE_Y)},
-            {xstring("q_occupation"),
-             new QuLineEdit(fieldRef(FN_OCCUPATION))},
-            {xstring("q_handedness"),
-             (new QuMcq(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)},
-        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-    })
-        ->setTitle(makeTitle(tr("Preamble")))
-        ->setType(QuPage::PageType::Clinician));
+    FieldRefPtr fr_task_addr_version = fieldRef(FN_TASK_ADDRESS_VERSION);
+    QuPagePtr page_preamble(
+        (new QuPage{
+            heading(X_EDITION),
+            getClinicianQuestionnaireBlockRawPointer(),
+            instruction(QStringLiteral("choose_task_version")),
+            questionnairefunc::defaultGridRawPointer({
+                {
+                    "",
+                    (new QuMcq(fr_task_addr_version, options_task_version))
+                        ->setHorizontal(true)
+                        ->addTag(TAG_EL_CHOOSE_TASK_VERSION)
+                },
+                {
+                    "",
+                    (new QuText(fr_task_addr_version))
+                        ->addTag(TAG_EL_SHOW_TASK_VERSION)
+                        ->setVisible(false)
+                },
+                {
+                     "",
+                     boolean(QStringLiteral("q_remote"), FN_REMOTE_ADMINISTRATION)
+                },
+            }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
+            remInstruct(QStringLiteral("instruction_remote_read_first")),
+            stdInstruct(QStringLiteral("instruction_need_paper")),
+            remInstruct(QStringLiteral("instruction_need_paper_remote")),
+            remInstruct(QStringLiteral("instruction_remote_camera_to_participant")),
+            instruction(QStringLiteral("preamble_instruction")),
+            questionnairefunc::defaultGridRawPointer({
+                {
+                    xstring(QStringLiteral("q_age_leaving_fte")),
+                    new QuLineEditInteger(fieldRef(FN_AGE_FT_EDUCATION), MIN_AGE, MAX_AGE_Y)
+                },
+                {
+                    xstring(QStringLiteral("q_occupation")),
+                    new QuLineEdit(fieldRef(FN_OCCUPATION))
+                },
+                {
+                    xstring(QStringLiteral("q_handedness")),
+                    (new QuMcq(fieldRef(FN_HANDEDNESS), options_handedness))->setHorizontal(true)
+                },
+            }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
+        })
+            ->setTitle(makeTitle(tr("Preamble")))
+            ->setType(QuPage::PageType::Clinician)
+            ->addTag(TAG_PG_PREAMBLE)
+    );
 
     // ------------------------------------------------------------------------
     // Attention/orientation/three word recall
@@ -374,28 +446,29 @@ OpenableWidget* Ace3::editor(const bool read_only)
     case 12:
     case 1:
     case 2:
-        season = xstring("season_winter");
+        season = xstring(QStringLiteral("season_winter"));
         break;
     case 3:
     case 4:
     case 5:
-        season = xstring("season_spring");
+        season = xstring(QStringLiteral("season_spring"));
         break;
     case 6:
     case 7:
     case 8:
-        season = xstring("season_summer");
+        season = xstring(QStringLiteral("season_summer"));
         break;
     case 9:
     case 10:
     case 11:
-        season = xstring("season_autumn");
+        season = xstring(QStringLiteral("season_autumn"));
         break;
     default:
-        season = "?(season_bug)";
+        season = QStringLiteral("?(season_bug)");
         break;
     }
-    const QString correct_date = "     " + now.toString("dddd d MMMM yyyy") +
+    const QString correct_date = "     "
+            + now.toString(QStringLiteral("dddd d MMMM yyyy")) +
             "; " + season;
     // ... e.g. "Monday 2 January 2016; winter";
     // http://doc.qt.io/qt-5/qdate.html#toString
@@ -408,60 +481,64 @@ OpenableWidget* Ace3::editor(const bool read_only)
         {">4", 0},
     };
     QuPagePtr page_attn((new QuPage{
-        heading("cat_attn"),
+        heading(QStringLiteral("cat_attn")),
+
         // Orientation
-        instruction("attn_q_time"),
+        instruction(QStringLiteral("attn_q_time")),
         new QuFlowContainer{
-            boolean("attn_time1", strnum(FP_ATTN_TIME, 1)),
-            boolean("attn_time2", strnum(FP_ATTN_TIME, 2)),
-            boolean("attn_time3", strnum(FP_ATTN_TIME, 3)),
-            boolean("attn_time4", strnum(FP_ATTN_TIME, 4)),
-            boolean("attn_time5", strnum(FP_ATTN_TIME, 5)),
+            boolean(QStringLiteral("attn_time1"), strnum(FP_ATTN_TIME, 1)),
+            boolean(QStringLiteral("attn_time2"), strnum(FP_ATTN_TIME, 2)),
+            boolean(QStringLiteral("attn_time3"), strnum(FP_ATTN_TIME, 3)),
+            boolean(QStringLiteral("attn_time4"), strnum(FP_ATTN_TIME, 4)),
+            boolean(QStringLiteral("attn_time5"), strnum(FP_ATTN_TIME, 5)),
         },
-        explanation("instruction_time"),
+        explanation(QStringLiteral("instruction_time")),
         (new QuText(correct_date))->setItalic(),
-        instruction("attn_q_place"),
+        instruction(QStringLiteral("attn_q_place")),
         new QuFlowContainer{
-            boolean("attn_place1", strnum(FP_ATTN_PLACE, 1)),
-            boolean("attn_place2", strnum(FP_ATTN_PLACE, 2)),
-            boolean("attn_place3", strnum(FP_ATTN_PLACE, 3)),
-            boolean("attn_place4", strnum(FP_ATTN_PLACE, 4)),
-            boolean("attn_place5", strnum(FP_ATTN_PLACE, 5)),
+            boolean(QStringLiteral("attn_place1"), strnum(FP_ATTN_PLACE, 1)),
+            boolean(QStringLiteral("attn_place2"), strnum(FP_ATTN_PLACE, 2)),
+            boolean(QStringLiteral("attn_place3"), strnum(FP_ATTN_PLACE, 3)),
+            boolean(QStringLiteral("attn_place4"), strnum(FP_ATTN_PLACE, 4)),
+            boolean(QStringLiteral("attn_place5"), strnum(FP_ATTN_PLACE, 5)),
         },
-        explanation("instruction_place"),
+        explanation(QStringLiteral("instruction_place")),
+
         // Lemon, key, ball (registration)
-        heading("cat_attn"),
-        instruction("attn_q_words"),
-        explanation("attn_instruction_words"),
+        heading(QStringLiteral("cat_attn")),
+        instruction(QStringLiteral("attn_q_words")),
+        explanation(QStringLiteral("attn_instruction_words")),
         new QuFlowContainer{
-            boolean("mem_word1", strnum(FP_ATTN_REPEAT_WORD, 1)),
-            boolean("mem_word2", strnum(FP_ATTN_REPEAT_WORD, 2)),
-            boolean("mem_word3", strnum(FP_ATTN_REPEAT_WORD, 3)),
+            boolean(QStringLiteral("mem_word1"), strnum(FP_ATTN_REPEAT_WORD, 1)),
+            boolean(QStringLiteral("mem_word2"), strnum(FP_ATTN_REPEAT_WORD, 2)),
+            boolean(QStringLiteral("mem_word3"), strnum(FP_ATTN_REPEAT_WORD, 3)),
         },
         new QuFlowContainer{
-            text("attn_q_register_n_trials"),
+            text(QStringLiteral("attn_q_register_n_trials")),
             (new QuMcq(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
                                  options_registration))->setHorizontal(true),
         },
+
         // Serial 7s
-        heading("cat_attn"),
-        instruction("attn_q_serial_sevens"),
-        explanation("attn_instruction_sevens"),
+        heading(QStringLiteral("cat_attn")),
+        instruction(QStringLiteral("attn_q_serial_sevens")),
+        explanation(QStringLiteral("attn_instruction_sevens")),
         new QuFlowContainer{
-            boolean("attn_subtraction1", strnum(FP_ATTN_SERIAL7, 1)),
-            boolean("attn_subtraction2", strnum(FP_ATTN_SERIAL7, 2)),
-            boolean("attn_subtraction3", strnum(FP_ATTN_SERIAL7, 3)),
-            boolean("attn_subtraction4", strnum(FP_ATTN_SERIAL7, 4)),
-            boolean("attn_subtraction5", strnum(FP_ATTN_SERIAL7, 5)),
+            boolean(QStringLiteral("attn_subtraction1"), strnum(FP_ATTN_SERIAL7, 1)),
+            boolean(QStringLiteral("attn_subtraction2"), strnum(FP_ATTN_SERIAL7, 2)),
+            boolean(QStringLiteral("attn_subtraction3"), strnum(FP_ATTN_SERIAL7, 3)),
+            boolean(QStringLiteral("attn_subtraction4"), strnum(FP_ATTN_SERIAL7, 4)),
+            boolean(QStringLiteral("attn_subtraction5"), strnum(FP_ATTN_SERIAL7, 5)),
         },
+
         // Lemon, key, ball (recall)
-        heading("cat_mem"),
-        instruction("mem_q_recall_words"),
-        explanation("mem_instruction_recall"),
+        heading(QStringLiteral("cat_mem")),
+        instruction(QStringLiteral("mem_q_recall_words")),
+        explanation(QStringLiteral("mem_instruction_recall")),
         new QuFlowContainer{
-            boolean("mem_word1", strnum(FP_MEM_RECALL_WORD, 1)),
-            boolean("mem_word2", strnum(FP_MEM_RECALL_WORD, 2)),
-            boolean("mem_word3", strnum(FP_MEM_RECALL_WORD, 3)),
+            boolean(QStringLiteral("mem_word1"), strnum(FP_MEM_RECALL_WORD, 1)),
+            boolean(QStringLiteral("mem_word2"), strnum(FP_MEM_RECALL_WORD, 2)),
+            boolean(QStringLiteral("mem_word3"), strnum(FP_MEM_RECALL_WORD, 3)),
         },
     })->setTitle(makeTitle(tr("Attention")))->setType(QuPage::PageType::Clinician));
 
@@ -491,22 +568,24 @@ OpenableWidget* Ace3::editor(const bool read_only)
         {"≥22", 7}
     };
     QuPagePtr page_fluency((new QuPage{
-        heading("cat_fluency"),
+        heading(QStringLiteral("cat_fluency")),
+
         // Letters
-        subheading("fluency_subhead_letters"),
-        instruction("fluency_q_letters"),
+        subheading(QStringLiteral("fluency_subhead_letters")),
+        instruction(QStringLiteral("fluency_q_letters")),
         new QuCountdown(FLUENCY_TIME_SEC),
-        explanation("fluency_instruction_letters"),
-        text("fluency_prompt_letters_cor"),
+        explanation(QStringLiteral("fluency_instruction_letters")),
+        text(QStringLiteral("fluency_prompt_letters_cor")),
         (new QuMcq(fieldRef(FN_FLUENCY_LETTERS_SCORE),
                              options_fluency_letters))->setHorizontal(true),
         new QuSpacer(),
+
         // Animals
-        subheading("fluency_subheading_animals"),
-        instruction("fluency_q_animals"),
+        subheading(QStringLiteral("fluency_subheading_animals")),
+        instruction(QStringLiteral("fluency_q_animals")),
         new QuCountdown(FLUENCY_TIME_SEC),
-        explanation("fluency_instruction_animals"),
-        text("fluency_prompt_animals_cor"),
+        explanation(QStringLiteral("fluency_instruction_animals")),
+        text(QStringLiteral("fluency_prompt_animals_cor")),
         (new QuMcq(fieldRef(FN_FLUENCY_ANIMALS_SCORE),
                              options_fluency_animals))->setHorizontal(true),
     })->setTitle(makeTitle(tr("Fluency")))->setType(QuPage::PageType::Clinician));
@@ -515,64 +594,72 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // Learning the address; famous people
     // ------------------------------------------------------------------------
 
+    // Inelegance acknowledged! Address layouts are cosmetic.
+    auto addrReg =
+            [this]
+            (int trial, int component,  bool mandatory = false)
+            -> QuElement*
+    {
+        return (
+            new QuBoolean(
+                targetAddressComponent(component),
+                fieldRef(
+                    FP_MEM_REPEAT_ADDR_GENERIC.arg(trial).arg(component),
+                    mandatory
+                )
+            )
+        )->addTag(tagAddressRegistration(trial, component));
+    };
     QuPagePtr page_repeat_addr_famous((new QuPage{
-        heading("cat_mem"),
-        instruction("memory_q_address"),
-        explanation("memory_instruction_address_1"),
-        explanation("memory_instruction_address_2"),
+        heading(QStringLiteral("cat_mem")),
+        instruction(QStringLiteral("memory_q_address")),
+        explanation(QStringLiteral("memory_instruction_address_1")),
+        explanation(QStringLiteral("memory_instruction_address_2")),
+
         // Address 1
         new QuVerticalContainer{
-            instructionRaw(xstring("trial") + " 1"),
-            new QuFlowContainer{
-                boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 1), false),
-                boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 2), false),
-            },
-            new QuFlowContainer{
-                boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 3), false),
-                boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 4), false),
-                boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 5), false),
-            },
-            boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 6), false),
-            boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL1, 7), false),
+            instructionRaw(xstring(QStringLiteral("trial")) + " 1"),
+            new QuFlowContainer{addrReg(1, 1), addrReg(1, 2)},
+            new QuFlowContainer{addrReg(1, 3), addrReg(1, 4), addrReg(1, 5)},
+            addrReg(1, 6),
+            addrReg(1, 7),
         },
+
         // Address 2
         new QuVerticalContainer{
-            instructionRaw(xstring("trial") + " 2"),
-            new QuFlowContainer{
-                boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 1), false),
-                boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 2), false),
-            },
-            new QuFlowContainer{
-                boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 3), false),
-                boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 4), false),
-                boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 5), false),
-            },
-            boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 6), false),
-            boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL2, 7), false),
+            instructionRaw(xstring(QStringLiteral("trial")) + " 2"),
+            new QuFlowContainer{addrReg(2, 1), addrReg(2, 2)},
+            new QuFlowContainer{addrReg(2, 3), addrReg(2, 4), addrReg(2, 5)},
+            addrReg(2, 6),
+            addrReg(2, 7),
         },
+
         // Address 3
         new QuVerticalContainer{
-            instructionRaw(xstring("trial") + " 3"),
+            instructionRaw(xstring(QStringLiteral("trial")) + " 3"),
             new QuFlowContainer{
-                boolean("address_1", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 1), true),
-                boolean("address_2", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 2), true),
+                addrReg(3, 1, true),
+                addrReg(3, 2, true),
             },
             new QuFlowContainer{
-                boolean("address_3", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 3), true),
-                boolean("address_4", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 4), true),
-                boolean("address_5", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 5), true),
+                addrReg(3, 3, true),
+                addrReg(3, 4, true),
+                addrReg(3, 5, true),
             },
-            boolean("address_6", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 6), true),
-            boolean("address_7", strnum(FP_MEM_REPEAT_ADDR_TRIAL3, 7), true),
+            addrReg(3, 6, true),
+            addrReg(3, 7, true),
         },
-        heading("cat_mem"),
-        boolean("famous_1", strnum(FP_MEM_FAMOUS, 1), true, true),
-        boolean("famous_2", strnum(FP_MEM_FAMOUS, 2), true, true),
-        boolean("famous_3", strnum(FP_MEM_FAMOUS, 3), true, true),
-        boolean("famous_4", strnum(FP_MEM_FAMOUS, 4), true, true),
-        explanation("instruction_famous"),
+
+        // Famous people
+        heading(QStringLiteral("cat_mem")),
+        boolean(QStringLiteral("famous_1"), strnum(FP_MEM_FAMOUS, 1), true, true),
+        boolean(QStringLiteral("famous_2"), strnum(FP_MEM_FAMOUS, 2), true, true),
+        boolean(QStringLiteral("famous_3"), strnum(FP_MEM_FAMOUS, 3), true, true),
+        boolean(QStringLiteral("famous_4"), strnum(FP_MEM_FAMOUS, 4), true, true),
+        explanation(QStringLiteral("instruction_famous")),
     })
         ->setTitle(makeTitle(tr("Address learning; famous people")))
+        ->addTag(TAG_PG_ADDRESS_LEARNING_FAMOUS)
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
@@ -580,19 +667,25 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_commands_sentences(( new QuPage{
-        heading("cat_lang"),
-        explanation("lang_q_command_1"),
-        boolean("lang_command_practice", FN_LANG_FOLLOW_CMD_PRACTICE, true, true),
-        explanation("lang_q_command_2"),
-        boolean("lang_command1", strnum(FP_LANG_FOLLOW_CMD, 1), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
-        boolean("lang_command2", strnum(FP_LANG_FOLLOW_CMD, 2), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
-        boolean("lang_command3", strnum(FP_LANG_FOLLOW_CMD, 3), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        heading(QStringLiteral("cat_lang")),
+        stdInstruct(QStringLiteral("lang_q_command_1")),
+        remInstruct(QStringLiteral("lang_q_command_1_remote")),
+        boolean(QStringLiteral("lang_command_practice"), FN_LANG_FOLLOW_CMD_PRACTICE, true, true),
+        stdExplan(QStringLiteral("lang_q_command_2")),
+        remExplan(QStringLiteral("lang_q_command_2_remote")),
+        boolean(QStringLiteral("lang_command1"), strnum(FP_LANG_FOLLOW_CMD, 1), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        boolean(QStringLiteral("lang_command2"), strnum(FP_LANG_FOLLOW_CMD, 2), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
+        boolean(QStringLiteral("lang_command3"), strnum(FP_LANG_FOLLOW_CMD, 3), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         warning(tr("Other commands not shown; subject failed practice trial."))
                                             ->addTag(TAG_EL_LANG_NOT_SHOWN),
-        heading("cat_lang"),
-        instruction("lang_q_sentences"),
-        boolean("lang_sentences_point1", strnum(FP_LANG_WRITE_SENTENCES_POINT, 1)),
-        boolean("lang_sentences_point2", strnum(FP_LANG_WRITE_SENTENCES_POINT, 2)),
+        heading(QStringLiteral("cat_lang")),
+        remInstruct(QStringLiteral("lang_instruction_remote_keep_paper")),
+        // ... explicitly before the sentence section in the original
+        remInstruct(QStringLiteral("lang_instruction_remote_camera_to_paper")),
+        instruction(QStringLiteral("lang_q_sentences")),
+        boolean(QStringLiteral("lang_sentences_point1"), strnum(FP_LANG_WRITE_SENTENCES_POINT, 1)),
+        boolean(QStringLiteral("lang_sentences_point2"), strnum(FP_LANG_WRITE_SENTENCES_POINT, 2)),
+        remInstruct(QStringLiteral("lang_instruction_remote_remove_paper")),
     })
         ->setTitle(makeTitle(tr("Commands; writing sentences")))
         ->addTag(TAG_PG_LANG_COMMANDS_SENTENCES)
@@ -604,30 +697,30 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_repetition(( new QuPage{
         // Repeating words
-        heading("cat_lang"),
-        instruction("lang_q_repeat"),
-        boolean("lang_repeat_word1", strnum(FP_LANG_REPEAT_WORD, 1)),
-        boolean("lang_repeat_word2", strnum(FP_LANG_REPEAT_WORD, 2)),
-        boolean("lang_repeat_word3", strnum(FP_LANG_REPEAT_WORD, 3)),
-        boolean("lang_repeat_word4", strnum(FP_LANG_REPEAT_WORD, 4)),
-        explanation("lang_instruction_repeat"),
+        heading(QStringLiteral("cat_lang")),
+        instruction(QStringLiteral("lang_q_repeat")),
+        boolean(QStringLiteral("lang_repeat_word1"), strnum(FP_LANG_REPEAT_WORD, 1)),
+        boolean(QStringLiteral("lang_repeat_word2"), strnum(FP_LANG_REPEAT_WORD, 2)),
+        boolean(QStringLiteral("lang_repeat_word3"), strnum(FP_LANG_REPEAT_WORD, 3)),
+        boolean(QStringLiteral("lang_repeat_word4"), strnum(FP_LANG_REPEAT_WORD, 4)),
+        explanation(QStringLiteral("lang_instruction_repeat")),
         // Repeating sentences
-        heading("cat_lang"),
-        instruction("lang_q_repeat"),
-        boolean("lang_sentence1", strnum(FP_LANG_REPEAT_SENTENCE, 1)),
-        boolean("lang_sentence2", strnum(FP_LANG_REPEAT_SENTENCE, 2)),
-        explanation("lang_instruction_sentences_1"),
-        explanation("lang_instruction_sentences_2"),
+        heading(QStringLiteral("cat_lang")),
+        instruction(QStringLiteral("lang_q_repeat")),
+        boolean(QStringLiteral("lang_sentence1"), strnum(FP_LANG_REPEAT_SENTENCE, 1)),
+        boolean(QStringLiteral("lang_sentence2"), strnum(FP_LANG_REPEAT_SENTENCE, 2)),
+        explanation(QStringLiteral("lang_instruction_sentences_1")),
+        explanation(QStringLiteral("lang_instruction_sentences_2")),
         new QuSpacer(),
         // Preparation for clinician for pictures
-        instruction("advance_warning_1"),
-        explanation("advance_warning_2"),
-        explanation("advance_warning_3"),
-        explanation("advance_warning_4"),
-        explanation("advance_warning_5"),
-        explanation("advance_warning_6"),
-        explanation("advance_warning_7"),
-        explanation("advance_warning_8"),
+        instruction(QStringLiteral("advance_warning_1")),
+        explanation(QStringLiteral("advance_warning_2")),
+        explanation(QStringLiteral("advance_warning_3")),
+        explanation(QStringLiteral("advance_warning_4")),
+        explanation(QStringLiteral("advance_warning_5")),
+        explanation(QStringLiteral("advance_warning_6")),
+        explanation(QStringLiteral("advance_warning_7")),
+        explanation(QStringLiteral("advance_warning_8")),
     })
         ->setTitle(makeTitle(tr("Repetition")))
         ->setType(QuPage::PageType::Clinician));
@@ -638,8 +731,10 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_name_pictures((new QuPage{
         // Naming pictures
-        heading("cat_lang"),
-        instruction("lang_q_identify_pic"),
+        heading(QStringLiteral("cat_lang")),
+        remInstruct(QStringLiteral("lang_instruction_remote_share_screen")),
+        stdInstruct(QStringLiteral("lang_q_identify_pic")),
+        remInstruct(QStringLiteral("lang_q_identify_pic_remote")),
         new QuGridContainer(3, {
             boolimg(IMAGE_SPOON, strnum(FP_LANG_NAME_PICTURE, 1)),
             boolimg(IMAGE_BOOK, strnum(FP_LANG_NAME_PICTURE, 2)),
@@ -655,12 +750,19 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolimg(IMAGE_ACCORDION, strnum(FP_LANG_NAME_PICTURE, 12)),
         }),
         // Choosing pictures by concept
-        instruction("lang_q_identify_concept"),
-        boolean("lang_concept1", strnum(FP_LANG_IDENTIFY_CONCEPT, 1)),
-        boolean("lang_concept2", strnum(FP_LANG_IDENTIFY_CONCEPT, 2)),
-        boolean("lang_concept3", strnum(FP_LANG_IDENTIFY_CONCEPT, 3)),
-        boolean("lang_concept4", strnum(FP_LANG_IDENTIFY_CONCEPT, 4)),
-        explanation("lang_instruction_identify_concept"),
+        // ... standard version:
+        stdInstruct(QStringLiteral("lang_q_identify_concept")),
+        boolean(QStringLiteral("lang_concept1"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept2"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept3"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3))->addTag(TAG_STANDARD),
+        boolean(QStringLiteral("lang_concept4"), strnum(FP_LANG_IDENTIFY_CONCEPT, 4))->addTag(TAG_STANDARD),
+        // ... remote version (same fields):
+        remInstruct(QStringLiteral("lang_q_identify_concept_remote")),
+        boolean(QStringLiteral("lang_concept1_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 1))->addTag(TAG_REMOTE),
+        boolean(QStringLiteral("lang_concept2_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 2))->addTag(TAG_REMOTE),
+        boolean(QStringLiteral("lang_concept3_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 3))->addTag(TAG_REMOTE),
+        boolean(QStringLiteral("lang_concept4_remote"), strnum(FP_LANG_IDENTIFY_CONCEPT, 4))->addTag(TAG_REMOTE),
+        explanation(QStringLiteral("lang_instruction_identify_concept")),
     })
         ->setTitle(makeTitle(tr("Naming pictures")))
 #ifdef NOSCROLL_IMAGE_PAGES
@@ -674,13 +776,14 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     QuPagePtr page_read_words_aloud((new QuPage{
         // Reading irregular words aloud
-        heading("cat_lang"),
-        instruction("lang_q_read_aloud"),
+        heading(QStringLiteral("cat_lang")),
+        stdInstruct(QStringLiteral("lang_q_read_aloud")),
+        remInstruct(QStringLiteral("lang_q_read_aloud_remote")),
         new QuSpacer(),
-        subheading("lang_read_aloud_words"),  // the words
+        subheading(QStringLiteral("lang_read_aloud_words")),  // the words
         new QuSpacer(),
-        boolean("lang_read_aloud_all_correct", FN_LANG_READ_WORDS_ALOUD),
-        explanation("lang_instruction_read_aloud"),
+        boolean(QStringLiteral("lang_read_aloud_all_correct"), FN_LANG_READ_WORDS_ALOUD),
+        stdExplan(QStringLiteral("lang_instruction_read_aloud")),
     })
         ->setTitle(makeTitle(tr("Reading irregular words")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
@@ -690,10 +793,11 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_infinity((new QuPage{
-        heading("cat_vsp"),
-        instruction("vsp_q_infinity"),
+        heading(QStringLiteral("cat_vsp")),
+        stdInstruct(QStringLiteral("vsp_q_infinity")),
+        remInstruct(QStringLiteral("vsp_q_infinity_remote")),
         new QuImage(uifunc::resourceFilename(IMAGE_INFINITY)),
-        boolean("vsp_infinity_correct", FN_VSP_COPY_INFINITY),
+        boolean(QStringLiteral("vsp_infinity_correct"), FN_VSP_COPY_INFINITY),
     })
         ->setTitle(makeTitle(tr("Infinity")))
         ->setType(QuPage::PageType::ClinicianWithPatient));
@@ -704,9 +808,10 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     const NameValueOptions options_cube = NameValueOptions::makeNumbers(0, 2);
     QuPagePtr page_cube((new QuPage{
-        instruction("vsp_q_cube"),
+        stdInstruct(QStringLiteral("vsp_q_cube")),
+        remInstruct(QStringLiteral("vsp_q_cube_remote")),
         new QuImage(uifunc::resourceFilename(IMAGE_CUBE)),
-        text("vsp_score_cube"),
+        text(QStringLiteral("vsp_score_cube")),
         (new QuMcq(fieldRef(FN_VSP_COPY_CUBE), options_cube))->setHorizontal(true),
     })
         ->setTitle(makeTitle(tr("Cube")))
@@ -718,10 +823,11 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
     const NameValueOptions options_clock = NameValueOptions::makeNumbers(0, 5);
     QuPagePtr page_clock((new QuPage{
-                              instruction("vsp_q_clock"),
-                              explanation("vsp_instruction_clock"),
-                              text("vsp_score_clock"),
-                              (new QuMcq(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
+        stdInstruct(QStringLiteral("vsp_q_clock")),
+        remInstruct(QStringLiteral("vsp_q_clock_remote")),
+        explanation(QStringLiteral("vsp_instruction_clock")),
+        text(QStringLiteral("vsp_score_clock")),
+        (new QuMcq(fieldRef(FN_VSP_DRAW_CLOCK), options_clock))->setHorizontal(true),
     })
         ->setTitle(makeTitle(tr("Clock")))
         ->setType(QuPage::PageType::Clinician));
@@ -731,8 +837,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_dots((new QuPage{
-        heading("cat_vsp"),
-        instruction("vsp_q_dots"),
+        heading(QStringLiteral("cat_vsp")),
+        stdInstruct(QStringLiteral("vsp_q_dots")),
+        remInstruct(QStringLiteral("vsp_q_dots_remote")),
         new QuGridContainer(2, {
             boolimg(IMAGE_DOTS8, strnum(FP_VSP_COUNT_DOTS, 1)),
             boolimg(IMAGE_DOTS10, strnum(FP_VSP_COUNT_DOTS, 2)),
@@ -751,8 +858,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_letters((new QuPage{
-        heading("cat_vsp"),
-        instruction("vsp_q_letters"),
+        heading(QStringLiteral("cat_vsp")),
+        stdInstruct(QStringLiteral("vsp_q_letters")),
+        remInstruct(QStringLiteral("vsp_q_letters_remote")),
         new QuGridContainer(2, {
             boolimg(IMAGE_K, strnum(FP_VSP_IDENTIFY_LETTER, 1)),
             boolimg(IMAGE_M, strnum(FP_VSP_IDENTIFY_LETTER, 2)),
@@ -781,99 +889,73 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // Address recall: free
     // ------------------------------------------------------------------------
 
+    auto addrFree = [this](int component) -> QuElement* {
+        return (
+            new QuBoolean(
+                targetAddressComponent(component),
+                fieldRef(strnum(FP_MEM_RECALL_ADDRESS, component), true)
+            )
+        )->addTag(tagAddressFreeRecall(component));
+    };
     QuPagePtr page_recall_address_free((new QuPage{
-        heading("cat_mem"),
-        instruction("mem_q_recall_address"),
+        heading(QStringLiteral("cat_mem")),
+        instruction(QStringLiteral("mem_q_recall_address")),
         new QuVerticalContainer{
-            new QuFlowContainer{
-                boolean("address_1", strnum(FP_MEM_RECALL_ADDRESS, 1)),
-                boolean("address_2", strnum(FP_MEM_RECALL_ADDRESS, 2)),
-            },
-            new QuFlowContainer{
-                boolean("address_3", strnum(FP_MEM_RECALL_ADDRESS, 3)),
-                boolean("address_4", strnum(FP_MEM_RECALL_ADDRESS, 4)),
-                boolean("address_5", strnum(FP_MEM_RECALL_ADDRESS, 5)),
-            },
-            boolean("address_6", strnum(FP_MEM_RECALL_ADDRESS, 6)),
-            boolean("address_7", strnum(FP_MEM_RECALL_ADDRESS, 7)),
+            new QuFlowContainer{addrFree(1), addrFree(2)},
+            new QuFlowContainer{addrFree(3), addrFree(4), addrFree(5)},
+            addrFree(6),
+            addrFree(7),
         },
     })
         ->setTitle(makeTitle(tr("Free recall")))
+        ->addTag(TAG_PG_MEM_FREE_RECALL)
         ->setType(QuPage::PageType::Clinician));
 
     // ------------------------------------------------------------------------
-    // Address recall: cued
+    // Address recall: recognition
     // ------------------------------------------------------------------------
 
-    const NameValueOptions options_recall_name({
-        {xstring("mem_recall_option1_line1"), CHOICE_A},
-        {xstring("mem_recall_option2_line1"), CHOICE_B},  // correct
-        {xstring("mem_recall_option3_line1"), CHOICE_C},
-    });
-    const NameValueOptions options_recall_number({
-        {xstring("mem_recall_option1_line2"), CHOICE_A},
-        {xstring("mem_recall_option2_line2"), CHOICE_B},  // correct
-        {xstring("mem_recall_option3_line2"), CHOICE_C},
-    });
-    const NameValueOptions options_recall_street({
-        {xstring("mem_recall_option1_line3"), CHOICE_A},
-        {xstring("mem_recall_option2_line3"), CHOICE_B},
-        {xstring("mem_recall_option3_line3"), CHOICE_C},  // correct
-    });
-    const NameValueOptions options_recall_town({
-        {xstring("mem_recall_option1_line4"), CHOICE_A},
-        {xstring("mem_recall_option2_line4"), CHOICE_B},  // correct
-        {xstring("mem_recall_option3_line4"), CHOICE_C},
-    });
-    const NameValueOptions options_recall_county({
-        {xstring("mem_recall_option1_line5"), CHOICE_A},  // correct
-        {xstring("mem_recall_option2_line5"), CHOICE_B},
-        {xstring("mem_recall_option3_line5"), CHOICE_C},
-    });
-    FieldRefPtr fr_recallprompted_name = fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1));
-    FieldRefPtr fr_recallprompted_number = fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 2));
-    FieldRefPtr fr_recallprompted_street = fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 3));
-    FieldRefPtr fr_recallprompted_town = fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 4));
-    FieldRefPtr fr_recallprompted_county = fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 5));
-    connect(fr_recallprompted_name.data(), &FieldRef::valueChanged,
-            this, &Ace3::updateAddressRecognition);
-    connect(fr_recallprompted_number.data(), &FieldRef::valueChanged,
-            this, &Ace3::updateAddressRecognition);
-    connect(fr_recallprompted_street.data(), &FieldRef::valueChanged,
-            this, &Ace3::updateAddressRecognition);
-    connect(fr_recallprompted_town.data(), &FieldRef::valueChanged,
-            this, &Ace3::updateAddressRecognition);
-    connect(fr_recallprompted_county.data(), &FieldRef::valueChanged,
-            this, &Ace3::updateAddressRecognition);
-
-    QuPagePtr page_recall_address_prompted((new QuPage{
-        instruction("no_need_for_extra_recall")->addTag(TAG_RECOG_SUPERFLUOUS),
-        instruction("mem_q_recognize_address")->addTag(TAG_RECOG_REQUIRED),
-        textRaw(tr("Name:"))->addTag(TAG_RECOG_NAME),
-        (new QuMcq(fr_recallprompted_name, options_recall_name))
-                    ->setHorizontal(true)
-                    ->addTag(TAG_RECOG_NAME),
-        textRaw(tr("Number:"))->addTag(TAG_RECOG_NUMBER),
-        (new QuMcq(fr_recallprompted_number, options_recall_number))
-                    ->setHorizontal(true)
-                    ->addTag(TAG_RECOG_NUMBER),
-        textRaw(tr("Street:"))->addTag(TAG_RECOG_STREET),
-        (new QuMcq(fr_recallprompted_street, options_recall_street))
-                    ->setHorizontal(true)
-                    ->addTag(TAG_RECOG_STREET),
-        textRaw(tr("Town:"))->addTag(TAG_RECOG_TOWN),
-        (new QuMcq(fr_recallprompted_town, options_recall_town))
-                    ->setHorizontal(true)
-                    ->addTag(TAG_RECOG_TOWN),
-        textRaw(tr("County:"))->addTag(TAG_RECOG_COUNTY),
-        (new QuMcq(fr_recallprompted_county, options_recall_county))
-                    ->setHorizontal(true)
-                    ->addTag(TAG_RECOG_COUNTY),
-
-    })
-        ->setTitle(makeTitle(tr("Cued recall")))
-        ->addTag(TAG_PG_MEM_PROMPTED_RECALL)
-        ->setType(QuPage::PageType::Clinician));
+    const QStringList address_component_titles{
+        tr("Name:"),
+        tr("Number:"),
+        tr("Street:"),
+        tr("Town:"),
+        tr("County:"),
+    };
+    QVector<QuElement*> recog_elements;
+    recog_elements.reserve(4);
+    recog_elements.append(
+        instruction(QStringLiteral("no_need_for_extra_recall"))
+                ->addTag(TAG_RECOG_SUPERFLUOUS)
+    );
+    recog_elements.append(
+        instruction(QStringLiteral("mem_q_recognize_address"))
+                ->addTag(TAG_RECOG_REQUIRED)
+    );
+    for (int line = 1; line <= N_MEM_RECOGNIZE_ADDRESS; ++line) {
+        const NameValueOptions options_recog = getAddressRecogOptions(line);
+        FieldRefPtr fr_recog = fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, line));
+        connect(fr_recog.data(), &FieldRef::valueChanged,
+                this, &Ace3::updateAddressRecognition);
+        const QString tag = tagAddressRecog(line);
+        // The mini-prompt, like "Name:":
+        const int line_idx = line - 1;
+        recog_elements.append(
+            textRaw(address_component_titles[line_idx])
+                ->addTag(tag)
+        );
+        // The MCQ element:
+        recog_elements.append(
+            (new QuMcq(fr_recog, options_recog))
+                ->setHorizontal(true)
+                ->addTag(tag)
+        );
+    }
+    QuPagePtr page_recog_address((new QuPage(recog_elements))
+        ->setTitle(makeTitle(tr("Recognition")))
+        ->addTag(TAG_PG_MEM_RECOGNITION)
+        ->setType(QuPage::PageType::Clinician)
+    );
 
     // ------------------------------------------------------------------------
     // Comments
@@ -892,9 +974,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_photo_1((new QuPage{
-        instruction("picture1_q"),
-        explanation("picture_instruction1"),
-        explanation("picture_instruction2"),
+        instruction(QStringLiteral("picture1_q")),
+        explanation(QStringLiteral("picture_instruction1")),
+        explanation(QStringLiteral("picture_instruction2")),
         new QuPhoto(blobFieldRef(FN_PICTURE1_BLOBID, false)),
     })
         ->setTitle(makeTitle(tr("Photo 1")))
@@ -905,9 +987,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     QuPagePtr page_photo_2((new QuPage{
-        instruction("picture2_q"),
-        explanation("picture_instruction1"),
-        explanation("picture_instruction2"),
+        instruction(QStringLiteral("picture2_q")),
+        explanation(QStringLiteral("picture_instruction1")),
+        explanation(QStringLiteral("picture_instruction2")),
         new QuPhoto(blobFieldRef(FN_PICTURE2_BLOBID, false)),
     })
         ->setTitle(makeTitle(tr("Photo 2")))
@@ -923,7 +1005,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         page_name_pictures, page_read_words_aloud,
         page_infinity, page_cube, page_clock,
         page_dots, page_letters, page_back_to_clinician,
-        page_recall_address_free, page_recall_address_prompted,
+        page_recall_address_free, page_recog_address,
         page_comments, page_photo_1, page_photo_2,
     });
     m_questionnaire->setReadOnly(read_only);
@@ -932,17 +1014,57 @@ OpenableWidget* Ace3::editor(const bool read_only)
     // Signals and initial dynamic state
     // ------------------------------------------------------------------------
 
+    // When the user changes the task address version (e.g. A/B/C).
+    FieldRefPtr fr_task_version = fieldRef(FN_TASK_ADDRESS_VERSION);
+    connect(fr_task_version.data(), &FieldRef::valueChanged,
+            this, &Ace3::updateTaskVersionAddresses);
+    updateTaskVersionAddresses();
+
+    // When the user changes the remote administration status.
+    FieldRefPtr fr_remote = fieldRef(FN_REMOTE_ADMINISTRATION);
+    connect(fr_remote.data(), &FieldRef::valueChanged,
+            this, &Ace3::showStandardOrRemoteInstructions);
+    showStandardOrRemoteInstructions();
+
+    // When the user writes data relating to a specific address, locking in
+    // the address version selection. See isChangingAddressVersionOk().
+    for (int i = 1; i <= N_MEM_REPEAT_RECALL_ADDR; ++i) {
+        connect(fieldRef(strnum(FP_MEM_REPEAT_ADDR_TRIAL1, i)).data(),
+                &FieldRef::valueChanged,
+                this, &Ace3::updateTaskVersionEditability);
+        connect(fieldRef(strnum(FP_MEM_REPEAT_ADDR_TRIAL2, i)).data(),
+                &FieldRef::valueChanged,
+                this, &Ace3::updateTaskVersionEditability);
+        connect(fieldRef(strnum(FP_MEM_REPEAT_ADDR_TRIAL3, i)).data(),
+                &FieldRef::valueChanged,
+                this, &Ace3::updateTaskVersionEditability);
+    }
+    for (int i = 1; i <= N_MEM_REPEAT_RECALL_ADDR; ++i) {
+        connect(fieldRef(strnum(FP_MEM_RECALL_ADDRESS, i)).data(),
+                &FieldRef::valueChanged,
+                this, &Ace3::updateTaskVersionEditability);
+    }
+    for (int i = 1; i <= N_MEM_RECOGNIZE_ADDRESS; ++i) {
+        connect(fieldRef(strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, i)).data(),
+                &FieldRef::valueChanged,
+                this, &Ace3::updateTaskVersionEditability);
+    }
+    updateTaskVersionEditability();
+
+    // When the user enters data for the practice command to follow,
+    // determining whether we need to bother with other commands.
     FieldRefPtr fr_lang_practice = fieldRef(FN_LANG_FOLLOW_CMD_PRACTICE);
     connect(fr_lang_practice.data(), &FieldRef::valueChanged,
             this, &Ace3::langPracticeChanged);
     langPracticeChanged(fr_lang_practice.data());
 
-    for (int i = 1; i <= N_MEM_RECALL_ADDRESS; ++i) {
+    // When the user enters data for some aspect of address recall, determining
+    // whether we need to bother with recognition for that part of the address.
+    for (int i = 1; i <= N_MEM_REPEAT_RECALL_ADDR; ++i) {
         FieldRefPtr fr = fieldRef(strnum(FP_MEM_RECALL_ADDRESS, i));
         connect(fr.data(), &FieldRef::valueChanged,
                 this, &Ace3::updateAddressRecognition);
     }
-
     updateAddressRecognition();
 
     // ------------------------------------------------------------------------
@@ -959,43 +1081,19 @@ OpenableWidget* Ace3::editor(const bool read_only)
 
 int Ace3::getAttnScore() const
 {
-    return sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME) +
+    return sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE) +
                          strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE) +
                          strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD) +
                          strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7)));
 }
 
 
-int Ace3::getMemRecognitionScore() const
-{
-    const int recall1 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 1));
-    const int recall2 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 2));
-    const int recall3 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 3));
-    const int recall4 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 4));
-    const int recall5 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 5));
-    const int recall6 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 6));
-    const int recall7 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 7));
-    const int recog1 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1));
-    const int recog2 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 2));
-    const int recog3 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 3));
-    const int recog4 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 4));
-    const int recog5 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 5));
-    int score = 0;
-    score += (recall1 && recall2) ? 1 : recog1;  // forename, surname
-    score += recall3 ? 1 : recog2;  // number
-    score += (recall4 && recall5) ? 1 : recog3;  // streetname, streettype
-    score += recall6 ? 1 : recog4;  // city
-    score += recall7 ? 1 : recog5; // county
-    return score;
-}
-
-
 int Ace3::getMemScore() const
 {
     return sumInt(values(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD) +
-                         strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_ADDR) +
+                         strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR) +
                          strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS) +
-                         strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_RECALL_ADDRESS))) +
+                         strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR))) +
             getMemRecognitionScore();
 }
 
@@ -1004,22 +1102,6 @@ int Ace3::getFluencyScore() const
 {
     return valueInt(FN_FLUENCY_LETTERS_SCORE) +
             valueInt(FN_FLUENCY_ANIMALS_SCORE);
-}
-
-
-int Ace3::getFollowCommandScore() const
-{
-    if (!valueInt(FN_LANG_FOLLOW_CMD_PRACTICE)) {
-        return 0;
-    }
-    return sumInt(values(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD)));
-}
-
-
-int Ace3::getRepeatWordScore() const
-{
-    const int n = sumInt(values(strseq(FP_LANG_REPEAT_WORD, 1, 4)));
-    return n >= 4 ? 2 : (n == 3 ? 1 : 0);
 }
 
 
@@ -1055,6 +1137,62 @@ int Ace3::totalScore() const
 }
 
 
+int Ace3::miniAceScore() const
+{
+    return (
+        sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE - 1)))  // 4 points; season not used
+        + valueInt(FN_FLUENCY_ANIMALS_SCORE)  // 7 points
+        + sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
+        + valueInt(FN_VSP_DRAW_CLOCK)  // 5 points
+        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
+    );
+}
+
+
+// ============================================================================
+// Internal scoring/completeness tests
+// ============================================================================
+
+int Ace3::getFollowCommandScore() const
+{
+    if (!valueInt(FN_LANG_FOLLOW_CMD_PRACTICE)) {
+        return 0;
+    }
+    return sumInt(values(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD)));
+}
+
+
+int Ace3::getRepeatWordScore() const
+{
+    const int n = sumInt(values(strseq(FP_LANG_REPEAT_WORD, 1, 4)));
+    return n >= 4 ? 2 : (n == 3 ? 1 : 0);
+}
+
+
+int Ace3::getMemRecognitionScore() const
+{
+    const int recall1 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 1));
+    const int recall2 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 2));
+    const int recall3 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 3));
+    const int recall4 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 4));
+    const int recall5 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 5));
+    const int recall6 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 6));
+    const int recall7 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 7));
+    const int recog1 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1));
+    const int recog2 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 2));
+    const int recog3 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 3));
+    const int recog4 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 4));
+    const int recog5 = valueInt(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 5));
+    int score = 0;
+    score += (recall1 && recall2) ? 1 : recog1;  // forename, surname
+    score += recall3 ? 1 : recog2;  // number
+    score += (recall4 && recall5) ? 1 : recog3;  // streetname, streettype
+    score += recall6 ? 1 : recog4;  // city
+    score += recall7 ? 1 : recog5; // county
+    return score;
+}
+
+
 bool Ace3::isRecognitionComplete() const
 {
     const int recall1 = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 1));
@@ -1080,8 +1218,275 @@ bool Ace3::isRecognitionComplete() const
 
 
 // ============================================================================
+// Task address version support functions
+// ============================================================================
+
+QString Ace3::taskAddressVersion() const
+{
+    // Could be consolidated into AceFamily, but we follow the rule that access
+    // to class-specific data is not put into the parent.
+    const QString selected = valueString(FN_TASK_ADDRESS_VERSION);
+    if (addressVersionsAvailable().contains(selected)) {
+        return selected;
+    }
+    return TASK_DEFAULT_VERSION;
+}
+
+
+bool Ace3::isChangingAddressVersionOk() const
+{
+    return allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        && allNull(values(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS)));
+}
+
+
+bool Ace3::isAddressRecogAnswerCorrect(const int line) const
+{
+    Q_ASSERT(line >= 1 && line <= N_MEM_RECOGNIZE_ADDRESS);
+    const QVector<int> correct_cols = correctColumnsAddressRecog();
+    // correctColumnsAddressRecog() guarantees a vector of the correct size.
+    const int line_idx = line - 1;
+    const int correct_col_one_based = correct_cols[line_idx];
+    const QString answer = valueString(
+                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, line));
+    switch (correct_col_one_based) {
+        case 1:
+            return answer == CHOICE_A;
+        case 2:
+            return answer == CHOICE_B;
+        case 3:
+            return answer == CHOICE_C;
+    }
+    // If we get here, something went wrong.
+    return false;
+}
+
+
+QString Ace3::tagAddressRecog(int line) const
+{
+    return QString(QStringLiteral("addr_recog_%1")).arg(line);
+}
+
+
+QString Ace3::addressRecogElement(const int line, const int column) const
+{
+    // Five lines, three columns; we use one-based indexing here.
+    Q_ASSERT(line >= 1 && line <= N_MEM_RECOGNIZE_ADDRESS
+             && column >= 1 && column <= N_ADDRESS_RECOG_OPTIONS);
+    const QString task_address_version = taskAddressVersion();
+    const QString x = QString(
+        QStringLiteral("task_%1_address_recall_line_%2_option_%3")
+    ).arg(task_address_version).arg(line).arg(column);
+    return xstring(x);
+}
+
+
+QVector<int> Ace3::correctColumnsAddressRecog() const
+{
+    const QString v = taskAddressVersion();
+    const QVector<int> correct_cols = correctColumnsAddressRecog(v);
+    if (!isAddressRecogCorrectColumnInfoValid(correct_cols)) {
+        // Duff information. Default to the values for English 'A'.
+        return DEFAULT_ADDRESS_RECOG_CORRECT_COLS_ENGLISH_A;
+    }
+    return correct_cols;
+}
+
+
+QVector<int> Ace3::correctColumnsAddressRecog(
+        const QString& task_address_version) const
+{
+    const QString x = QString(
+        QStringLiteral("task_%1_address_recall_correct_options")
+    ).arg(task_address_version);
+    const QString csv_data = xstring(x);
+    return convert::csvStringToIntVector(csv_data);
+}
+
+
+bool Ace3::isAddressRecogCorrectColumnInfoValid() const
+{
+    const QStringList versions = addressVersionsAvailable();
+    for (const auto& v : versions) {
+        const QVector<int> correct_cols = correctColumnsAddressRecog(v);
+        if (!isAddressRecogCorrectColumnInfoValid(correct_cols)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool Ace3::isAddressRecogCorrectColumnInfoValid(
+        const QVector<int>& correct_cols) const
+{
+    if (correct_cols.size() != N_MEM_RECOGNIZE_ADDRESS) {
+        return false;
+    }
+    for (auto c : correct_cols) {
+        if (c < 1 || c > N_ADDRESS_RECOG_OPTIONS) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+NameValueOptions Ace3::getAddressRecogOptions(int line) const
+{
+    return NameValueOptions{
+        {addressRecogElement(line, 1), CHOICE_A},
+        {addressRecogElement(line, 2), CHOICE_B},
+        {addressRecogElement(line, 3), CHOICE_C},
+    };
+}
+
+
+// ============================================================================
 // Signal handlers
 // ============================================================================
+
+void Ace3::updateTaskVersionAddresses()
+{
+    // Set address components.
+    for (int component = 1; component <= N_MEM_REPEAT_RECALL_ADDR; ++component) {
+
+        // 1. Repetition.
+        const QString target_text = targetAddressComponent(component);
+        for (int trial = 1; trial <= ADDR_LEARN_N_TRIALS; ++trial) {
+            auto repet = qobject_cast<QuBoolean*>(
+                m_questionnaire->getFirstElementByTag(
+                    tagAddressRegistration(trial, component),
+                    false,
+                    TAG_PG_ADDRESS_LEARNING_FAMOUS
+                )
+            );
+            if (!repet) {
+                continue;
+            }
+            repet->setText(target_text);
+        }
+
+        // 2. Free recall.
+        auto free_recall = qobject_cast<QuBoolean*>(
+            m_questionnaire->getFirstElementByTag(
+                tagAddressFreeRecall(component),
+                false,
+                TAG_PG_MEM_FREE_RECALL
+            )
+        );
+        if (!free_recall) {
+            continue;
+        }
+        free_recall->setText(target_text);
+    }
+
+    // 3. Recognition.
+    for (int line = 1; line <= N_MEM_RECOGNIZE_ADDRESS; ++line) {
+        const NameValueOptions options_recog = getAddressRecogOptions(line);
+        const QVector<QuElement*> candidate_elements =
+                m_questionnaire->getElementsByTag(
+                    tagAddressRecog(line),
+                    false,
+                    TAG_PG_MEM_RECOGNITION
+                );
+        for (QuElement* e : candidate_elements) {
+            auto recog = qobject_cast<QuMcq*>(e);
+            if (!recog) {
+                continue;
+            }
+            recog->setOptionNames(options_recog);
+        }
+    }
+}
+
+
+void Ace3::showStandardOrRemoteInstructions()
+{
+    const bool remote = valueBool(FN_REMOTE_ADMINISTRATION);
+    const bool standard = !remote;
+    const QVector<QuElement*> standard_elements =
+            m_questionnaire->getElementsByTag(TAG_STANDARD, false);
+    for (auto e : standard_elements) {
+        e->setVisible(standard);
+    }
+    const QVector<QuElement*> remote_elements =
+            m_questionnaire->getElementsByTag(TAG_REMOTE, false);
+    for (auto e : remote_elements) {
+        e->setVisible(remote);
+    }
+}
+
+
+void Ace3::updateTaskVersionEditability()
+{
+    const bool editable = isChangingAddressVersionOk();
+    m_questionnaire->setVisibleByTag(
+                TAG_EL_CHOOSE_TASK_VERSION, editable, false, TAG_PG_PREAMBLE);
+    m_questionnaire->setVisibleByTag(
+                TAG_EL_SHOW_TASK_VERSION, !editable, false, TAG_PG_PREAMBLE);
+}
+
+
+void Ace3::updateAddressRecognition()
+{
+    // Parameter "const FieldRef* fieldref" not needed;
+    // http://doc.qt.io/qt-5/signalsandslots.html
+    // "... a slot may have a shorter signature than the signal it receives"
+
+    if (!m_questionnaire) {
+        return;
+    }
+
+    // Establish what's correct so far, from free recall.
+    const QVector<bool> lines_correct{
+        // Name:
+        valueBool(strnum(FP_MEM_RECALL_ADDRESS, 1))
+            && valueBool(strnum(FP_MEM_RECALL_ADDRESS, 2)),
+        // Number:
+        valueBool(strnum(FP_MEM_RECALL_ADDRESS, 3)),
+        // Street:
+        valueBool(strnum(FP_MEM_RECALL_ADDRESS, 4))
+            && valueBool(strnum(FP_MEM_RECALL_ADDRESS, 5)),
+        // Town:
+        valueBool(strnum(FP_MEM_RECALL_ADDRESS, 6)),
+        // County:
+        valueBool(strnum(FP_MEM_RECALL_ADDRESS, 7)),
+    };
+    Q_ASSERT(lines_correct.size() == N_MEM_RECOGNIZE_ADDRESS);
+    bool recog_required = false;
+    for (const bool line_correct : lines_correct) {
+        if (!line_correct) {
+            recog_required = true;
+            break;
+        }
+    }
+    const bool recog_superfluous = !recog_required;
+
+    // Set visibility and scores
+    for (int line = 1; line <= N_MEM_RECOGNIZE_ADDRESS; ++line) {
+        // Set visibility of all elements: text prompt and three options
+        const int chunk_idx = line - 1;
+        const bool line_correct = lines_correct[chunk_idx];
+        const QString tag = tagAddressRecog(line);
+        m_questionnaire->setVisibleByTag(tag, !line_correct,
+                                         false, TAG_PG_MEM_RECOGNITION);
+        // Update score
+        // - bool to int 0/1 is guaranteed, so no need for " ? 1 : 0";
+        //   http://stackoverflow.com/questions/5369770/bool-to-int-conversion
+        const int recogscore = line_correct || isAddressRecogAnswerCorrect(line);
+        setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, line), recogscore);
+    }
+    // And two instructions:
+    m_questionnaire->setVisibleByTag(TAG_RECOG_REQUIRED, recog_required,
+                                     false, TAG_PG_MEM_RECOGNITION);
+    m_questionnaire->setVisibleByTag(TAG_RECOG_SUPERFLUOUS, recog_superfluous,
+                                     false, TAG_PG_MEM_RECOGNITION);
+}
+
 
 void Ace3::langPracticeChanged(const FieldRef* fieldref)
 {
@@ -1099,61 +1504,4 @@ void Ace3::langPracticeChanged(const FieldRef* fieldref)
                                      false, TAG_PG_LANG_COMMANDS_SENTENCES);
     m_questionnaire->setVisibleByTag(TAG_EL_LANG_NOT_SHOWN, !visible,
                                      false, TAG_PG_LANG_COMMANDS_SENTENCES);
-}
-
-
-void Ace3::updateAddressRecognition()
-{
-    // Parameter "const FieldRef* fieldref" not needed;
-    // http://doc.qt.io/qt-5/signalsandslots.html
-    // "... a slot may have a shorter signature than the signal it receives"
-
-    if (!m_questionnaire) {
-        return;
-    }
-
-    // We show something if we failed to recall all parts of it.
-    // This function also updates the scores, so this code is all in one place.
-    const bool name_correct = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 1)) &&
-            valueInt(strnum(FP_MEM_RECALL_ADDRESS, 2));
-    const bool number_correct = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 3));
-    const bool street_correct = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 4)) &&
-            valueInt(strnum(FP_MEM_RECALL_ADDRESS, 5));
-    const bool town_correct = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 6));
-    const bool county_correct = valueInt(strnum(FP_MEM_RECALL_ADDRESS, 7));
-    const bool recog_required = !name_correct || !number_correct ||
-            !street_correct || !town_correct || !county_correct;
-    const bool recog_superfluous = !recog_required;
-    m_questionnaire->setVisibleByTag(TAG_RECOG_NAME, !name_correct,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_NUMBER, !number_correct,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_STREET, !street_correct,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_TOWN, !town_correct,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_COUNTY, !county_correct,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_REQUIRED, recog_required,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-    m_questionnaire->setVisibleByTag(TAG_RECOG_SUPERFLUOUS, recog_superfluous,
-                                     false, TAG_PG_MEM_PROMPTED_RECALL);
-
-    // - bool to int 0/1 is guaranteed, so no need for " ? 1 : 0";
-    //   http://stackoverflow.com/questions/5369770/bool-to-int-conversion
-    const int recogscore1 = name_correct || valueString(
-                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1)) == CHOICE_B;
-    const int recogscore2 = number_correct || valueString(
-                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 2)) == CHOICE_B;
-    const int recogscore3 = street_correct || valueString(
-                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 3)) == CHOICE_C;
-    const int recogscore4 = town_correct || valueString(
-                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 4)) == CHOICE_B;
-    const int recogscore5 = county_correct || valueString(
-                strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 5)) == CHOICE_A;
-    setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1), recogscore1);
-    setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 2), recogscore2);
-    setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 3), recogscore3);
-    setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 4), recogscore4);
-    setValue(strnum(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 5), recogscore5);
 }

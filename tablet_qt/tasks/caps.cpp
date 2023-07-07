@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "caps.h"
@@ -39,7 +40,7 @@ using uifunc::yesNoNull;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 32;
-const int MAX_TOTAL_SCORE = 32;
+const int MAX_RAW_TOTAL_SCORE = 32;
 const int MAX_SUBSCALE_SCORE = 160;  // distress, intrusiveness, frequency
 
 const QString Caps::CAPS_TABLENAME("caps");
@@ -112,7 +113,7 @@ QStringList Caps::summary() const
     const QString sep(": ");
     const QString suffix(".");
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_TOTAL_SCORE, sep, suffix),
+        totalScorePhrase(totalScore(), MAX_RAW_TOTAL_SCORE, sep, suffix),
         scorePhrase("Distress", distressScore(), MAX_SUBSCALE_SCORE, sep, suffix),
         scorePhrase("Intrusiveness", intrusivenessScore(), MAX_SUBSCALE_SCORE, sep, suffix),
         scorePhrase("Frequency", frequencyScore(), MAX_SUBSCALE_SCORE, sep, suffix),

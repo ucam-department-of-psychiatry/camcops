@@ -5,7 +5,8 @@ camcops_server/tasks/cisr.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -44,6 +45,7 @@ from camcops_server.cc_modules.cc_html import (
     get_yes_no,
     get_yes_no_none,
     italic,
+    pmid,
     subheading_spanning_two_columns,
     td,
     tr,
@@ -62,10 +64,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ONE_TO_NINE_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -85,16 +84,21 @@ NOT_APPLICABLE_TEXT = "—"
 CMT_DEMOGRAPHICS = "(Demographics) "
 CMT_1_NO_2_YES = " (1 no, 2 yes)"
 CMT_1_YES_2_NO = " (1 yes, 2 no)"
-CMT_DURATION = (" (1: <2 weeks; 2: 2 weeks–6 months; 3: 6 months–1 year; "
-                "4: 1–2 years; 5: >2 years)")
+CMT_DURATION = (
+    " (1: <2 weeks; 2: 2 weeks–6 months; 3: 6 months–1 year; "
+    "4: 1–2 years; 5: >2 years)"
+)
 CMT_NEVER_SOMETIMES_ALWAYS = " (1 never, 2 sometimes, 3 always)"
 CMT_DAYS_PER_WEEK = " (1: none, 2: one to three, 3: four or more)"
 CMT_NIGHTS_PER_WEEK = CMT_DAYS_PER_WEEK
-CMT_UNPLEASANT = (" (1 not at all, 2 a little unpleasant, 3 unpleasant, "
-                  "4 very unpleasant)")
+CMT_UNPLEASANT = (
+    " (1 not at all, 2 a little unpleasant, 3 unpleasant, "
+    "4 very unpleasant)"
+)
 CMT_NO_SOMETIMES_OFTEN = " (1 no, 2 sometimes, 3 often)"
-CMT_BOTHERSOME_INTERESTING = (" (1 no, 2 yes, 3 haven't done anything "
-                              "interesting)")
+CMT_BOTHERSOME_INTERESTING = (
+    " (1 no, 2 yes, 3 haven't done anything " "interesting)"
+)
 CMT_DURING_ENJOYABLE = " (1 no, 2 yes, 3 haven't done anything enjoyable)"
 CMT_FATIGUE_CAUSE = (
     " (1 problems with sleep; 2 medication; 3 physical illness; 4 working too "
@@ -107,14 +111,17 @@ CMT_STRESSORS = (
     "of work; 8 legal; 9 political/news)"
 )
 CMT_SLEEP_CHANGE = " (1: <15min, 2: 15–60min, 3: 1–3h, 4: >=3h)"
-CMT_ANHEDONIA = (" (1 yes; 2 no, less enjoyment than usual; "
-                 "3 no, don't enjoy anything)")
+CMT_ANHEDONIA = (
+    " (1 yes; 2 no, less enjoyment than usual; " "3 no, don't enjoy anything)"
+)
 CMT_PANIC_SYMPTOM = "Panic symptom in past week: "
 
 # ... and results:
 DESC_DEPCRIT1 = "Depressive criterion 1 (mood, anhedonia, energy; max. 3)"
-DESC_DEPCRIT2 = ("Depressive criterion 2 (appetite/weight, concentration, "
-                 "sleep, motor, guilt, self-worth, suicidality; max. 7)")
+DESC_DEPCRIT2 = (
+    "Depressive criterion 2 (appetite/weight, concentration, "
+    "sleep, motor, guilt, self-worth, suicidality; max. 7)"
+)
 DESC_DEPCRIT3 = (
     "Depressive criterion 3: somatic syndrome (anhedonia, lack of emotional "
     "reactivity, early-morning waking, depression worse in the morning, "
@@ -574,7 +581,9 @@ class CisrQuestion(Enum):
 
     SLEEP_MAND1_LOSS_PAST_MONTH = next_enum()
     SLEEP_LOSE1_NIGHTS_PAST_WEEK = next_enum()
-    SLEEP_LOSE2_DIS_WORST_DURATION = next_enum()  # DIS = delayed initiation of sleep  # noqa
+    SLEEP_LOSE2_DIS_WORST_DURATION = (
+        next_enum()
+    )  # DIS = delayed initiation of sleep  # noqa
     SLEEP_LOSE3_NIGHTS_GT_3H_DIS_PAST_WEEK = next_enum()
     SLEEP_EMW_PAST_WEEK = next_enum()  # EMW = early-morning waking
     SLEEP_CAUSE = next_enum()
@@ -876,15 +885,12 @@ FIELDNAME_FOR_QUESTION = {
     # CQ.INTRO_1:  # information only
     # CQ.INTRO_2:  # information only
     # CQ.INTRO_DEMOGRAPHICS:  # information only
-
     CQ.ETHNIC: FN_ETHNIC,
     CQ.MARRIED: FN_MARRIED,
     CQ.EMPSTAT: FN_EMPSTAT,
     CQ.EMPTYPE: FN_EMPTYPE,
     CQ.HOME: FN_HOME,
-
     # CQ.HEALTH_WELLBEING: # information only
-
     CQ.APPETITE1_LOSS_PAST_MONTH: FN_APPETITE1,
     CQ.WEIGHT1_LOSS_PAST_MONTH: FN_WEIGHT1,
     CQ.WEIGHT2_TRYING_TO_LOSE: FN_WEIGHT2,
@@ -896,7 +902,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.GP_YEAR: FN_GP_YEAR,
     CQ.DISABLE: FN_DISABLE,
     CQ.ILLNESS: FN_ILLNESS,
-
     CQ.SOMATIC_MAND1_PAIN_PAST_MONTH: FN_SOMATIC_MAND1,
     CQ.SOMATIC_PAIN1_PSYCHOL_EXAC: FN_SOMATIC_PAIN1,
     CQ.SOMATIC_PAIN2_DAYS_PAST_WEEK: FN_SOMATIC_PAIN2,
@@ -910,7 +915,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.SOMATIC_DIS4_UNPLEASANT: FN_SOMATIC_DIS4,
     CQ.SOMATIC_DIS5_INTERRUPTED_INTERESTING: FN_SOMATIC_DIS5,
     CQ.SOMATIC_DUR: FN_SOMATIC_DUR,
-
     CQ.FATIGUE_MAND1_TIRED_PAST_MONTH: FN_FATIGUE_MAND1,
     CQ.FATIGUE_CAUSE1_TIRED: FN_FATIGUE_CAUSE1,
     CQ.FATIGUE_TIRED1_DAYS_PAST_WEEK: FN_FATIGUE_TIRED1,
@@ -924,7 +928,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.FATIGUE_ENERGY3_HAD_TO_PUSH: FN_FATIGUE_ENERGY3,
     CQ.FATIGUE_ENERGY4_DURING_ENJOYABLE: FN_FATIGUE_ENERGY4,
     CQ.FATIGUE_DUR: FN_FATIGUE_DUR,
-
     CQ.CONC_MAND1_POOR_CONC_PAST_MONTH: FN_CONC_MAND1,
     CQ.CONC_MAND2_FORGETFUL_PAST_MONTH: FN_CONC_MAND2,
     CQ.CONC1_CONC_DAYS_PAST_WEEK: FN_CONC1,
@@ -933,7 +936,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.CONC_DUR: FN_CONC_DUR,
     CQ.CONC4_FORGOTTEN_IMPORTANT: FN_CONC4,
     CQ.FORGET_DUR: FN_FORGET_DUR,
-
     CQ.SLEEP_MAND1_LOSS_PAST_MONTH: FN_SLEEP_MAND1,
     CQ.SLEEP_LOSE1_NIGHTS_PAST_WEEK: FN_SLEEP_LOSE1,
     CQ.SLEEP_LOSE2_DIS_WORST_DURATION: FN_SLEEP_LOSE2,
@@ -945,7 +947,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.SLEEP_GAIN2_EXTRA_ON_LONGEST_NIGHT: FN_SLEEP_GAIN2,
     CQ.SLEEP_GAIN3_NIGHTS_GT_3H_EXTRA_PAST_WEEK: FN_SLEEP_GAIN3,
     CQ.SLEEP_DUR: FN_SLEEP_DUR,
-
     CQ.IRRIT_MAND1_PEOPLE_PAST_MONTH: FN_IRRIT_MAND1,
     CQ.IRRIT_MAND2_THINGS_PAST_MONTH: FN_IRRIT_MAND2,
     CQ.IRRIT1_DAYS_PER_WEEK: FN_IRRIT1,
@@ -953,7 +954,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.IRRIT3_WANTED_TO_SHOUT: FN_IRRIT3,
     CQ.IRRIT4_ARGUMENTS: FN_IRRIT4,
     CQ.IRRIT_DUR: FN_IRRIT_DUR,
-
     CQ.HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH: FN_HYPO_MAND1,
     CQ.HYPO_MAND2_WORRIED_RE_SERIOUS_ILLNESS: FN_HYPO_MAND2,
     CQ.HYPO1_DAYS_PAST_WEEK: FN_HYPO1,
@@ -961,7 +961,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.HYPO3_HOW_UNPLEASANT: FN_HYPO3,
     CQ.HYPO4_CAN_DISTRACT: FN_HYPO4,
     CQ.HYPO_DUR: FN_HYPO_DUR,
-
     CQ.DEPR_MAND1_LOW_MOOD_PAST_MONTH: FN_DEPR_MAND1,
     CQ.DEPR1_LOW_MOOD_PAST_WEEK: FN_DEPR1,
     CQ.DEPR_MAND2_ENJOYMENT_PAST_MONTH: FN_DEPR_MAND2,
@@ -984,7 +983,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.DOCTOR: FN_DOCTOR,
     # CQ.DOCTOR2_PLEASE_TALK_TO: # info only
     # CQ.DEPR_OUTRO: # info only
-
     CQ.WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH: FN_WORRY_MAND1,
     CQ.WORRY_MAND2_ANY_WORRIES_PAST_MONTH: FN_WORRY_MAND2,
     CQ.WORRY_CONT1: FN_WORRY_CONT1,
@@ -994,7 +992,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.WORRY4_HOW_UNPLEASANT: FN_WORRY4,
     CQ.WORRY5_GT_3H_ANY_DAY: FN_WORRY5,
     CQ.WORRY_DUR: FN_WORRY_DUR,
-
     CQ.ANX_MAND1_ANXIETY_PAST_MONTH: FN_ANX_MAND1,
     CQ.ANX_MAND2_TENSION_PAST_MONTH: FN_ANX_MAND2,
     CQ.ANX_PHOBIA1_SPECIFIC_PAST_MONTH: FN_ANX_PHOBIA1,
@@ -1005,7 +1002,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.ANX4_GENERAL_PHYSICAL_SYMPTOMS: FN_ANX4,
     CQ.ANX5_GENERAL_GT_3H_ANY_DAY: FN_ANX5,
     CQ.ANX_DUR_GENERAL: FN_ANX_DUR,
-
     CQ.PHOBIAS_MAND_AVOIDANCE_PAST_MONTH: FN_PHOBIAS_MAND,
     CQ.PHOBIAS_TYPE1: FN_PHOBIAS_TYPE1,
     CQ.PHOBIAS1_DAYS_PAST_WEEK: FN_PHOBIAS1,
@@ -1013,7 +1009,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.PHOBIAS3_AVOIDANCE: FN_PHOBIAS3,
     CQ.PHOBIAS4_AVOIDANCE_DAYS_PAST_WEEK: FN_PHOBIAS4,
     CQ.PHOBIAS_DUR: FN_PHOBIAS_DUR,
-
     CQ.PANIC_MAND_PAST_MONTH: FN_PANIC_MAND,
     CQ.PANIC1_NUM_PAST_WEEK: FN_PANIC1,
     CQ.PANIC2_HOW_UNPLEASANT: FN_PANIC2,
@@ -1022,16 +1017,13 @@ FIELDNAME_FOR_QUESTION = {
     # CQ.PANSYM: # multiple stems
     CQ.PANIC5_ALWAYS_SPECIFIC_TRIGGER: FN_PANIC5,
     CQ.PANIC_DUR: FN_PANIC_DUR,
-
     # CQ.ANX_OUTRO: # info only
-
     CQ.COMP_MAND1_COMPULSIONS_PAST_MONTH: FN_COMP_MAND1,
     CQ.COMP1_DAYS_PAST_WEEK: FN_COMP1,
     CQ.COMP2_TRIED_TO_STOP: FN_COMP2,
     CQ.COMP3_UPSETTING: FN_COMP3,
     CQ.COMP4_MAX_N_REPETITIONS: FN_COMP4,
     CQ.COMP_DUR: FN_COMP_DUR,
-
     CQ.OBSESS_MAND1_OBSESSIONS_PAST_MONTH: FN_OBSESS_MAND1,
     CQ.OBSESS_MAND2_SAME_THOUGHTS_OR_GENERAL: FN_OBSESS_MAND2,
     CQ.OBSESS1_DAYS_PAST_WEEK: FN_OBSESS1,
@@ -1039,7 +1031,6 @@ FIELDNAME_FOR_QUESTION = {
     CQ.OBSESS3_UPSETTING: FN_OBSESS3,
     CQ.OBSESS4_MAX_DURATION: FN_OBSESS4,
     CQ.OBSESS_DUR: FN_OBSESS_DUR,
-
     # CQ.OVERALL1: # info only
     CQ.OVERALL2_IMPACT_PAST_WEEK: FN_OVERALL2,
 }
@@ -1153,7 +1144,6 @@ QUESTIONS_PROMPT_ONLY = {
     CQ.INTRO_1: "intro_1",
     CQ.INTRO_2: "intro_2",
     CQ.INTRO_DEMOGRAPHICS: "intro_demographics_statement",
-
     CQ.HEALTH_WELLBEING: "health_wellbeing_statement",
     CQ.DOCTOR2_PLEASE_TALK_TO: "doctor2",
     CQ.DEPR_OUTRO: "depr_outro",
@@ -1228,7 +1218,10 @@ QUESTIONS_MULTIWAY_WITH_EXTRA_STEM = {
     CQ.ETHNIC: (1, 7),  # 7 includes our additional "prefer not to say"
     CQ.MARRIED: (1, 6),  # 6 includes our additional "prefer not to say"
     CQ.EMPSTAT: (1, 8),  # 8 includes our additional "prefer not to say"
-    CQ.EMPTYPE: (1, 7),  # 7 includes our additional "not applicable" + "prefer not to say"  # noqa
+    CQ.EMPTYPE: (
+        1,
+        7,
+    ),  # 7 includes our additional "not applicable" + "prefer not to say"  # noqa
     CQ.HOME: (1, 7),  # 7 includes our additional "prefer not to say"
 }
 QUESTIONS_DAYS_PER_WEEK = [
@@ -1251,7 +1244,7 @@ QUESTIONS_DAYS_PER_WEEK = [
 QUESTIONS_NIGHTS_PER_WEEK = [
     CQ.SLEEP_LOSE1_NIGHTS_PAST_WEEK,
     CQ.SLEEP_LOSE3_NIGHTS_GT_3H_DIS_PAST_WEEK,
-    CQ.SLEEP_GAIN1_NIGHTS_PAST_WEEK,   # (*) see below
+    CQ.SLEEP_GAIN1_NIGHTS_PAST_WEEK,  # (*) see below
     # (*) Probably an error in the original:
     # "On how many nights in the PAST SEVEN NIGHTS did you have problems
     # with your sleep? (1) None. (2) Between one and three days. (3) Four
@@ -1269,10 +1262,7 @@ QUESTIONS_FATIGUE_CAUSES = [
     CQ.FATIGUE_CAUSE1_TIRED,
     CQ.FATIGUE_CAUSE2_LACK_ENERGY,
 ]
-QUESTIONS_STRESSORS = [
-    CQ.DEPR_CONTENT,
-    CQ.WORRY_CONT1,
-]
+QUESTIONS_STRESSORS = [CQ.DEPR_CONTENT, CQ.WORRY_CONT1]
 QUESTIONS_NO_SOMETIMES_OFTEN = [
     CQ.WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH,
     CQ.ANX_MAND2_TENSION_PAST_MONTH,
@@ -1287,6 +1277,7 @@ QUESTIONS_NO_SOMETIMES_OFTEN = [
 # =============================================================================
 # Ancillary functions
 # =============================================================================
+
 
 def fieldname_for_q(q: CisrQuestion) -> str:
     return FIELDNAME_FOR_QUESTION.get(q, "")
@@ -1305,6 +1296,7 @@ def int_to_enum(qi: int) -> CisrQuestion:
 # CisrResult
 # =============================================================================
 
+
 class CisrResult(object):
     def __init__(self, record_decisions: bool = False) -> None:
         self.incomplete = False
@@ -1321,7 +1313,9 @@ class CisrResult(object):
         # when..." question (DEPR5) being the one for "lack of emotional
         # reactions to events or activities that normally produce an
         # emotional response".
-        self.weight_change = WTCHANGE_NONE_OR_APPETITE_INCREASE  # WTCHANGE IN original  # noqa
+        self.weight_change = (
+            WTCHANGE_NONE_OR_APPETITE_INCREASE  # WTCHANGE IN original  # noqa
+        )
         self.somatic_symptoms = 0  # SOMATIC in original
         self.fatigue = 0  # FATIGUE in original
         self.neurasthenia = 0  # NEURAS in original
@@ -1333,7 +1327,9 @@ class CisrResult(object):
         self.diurnal_mood_variation = DIURNAL_MOOD_VAR_NONE  # DVM in original
         self.libido_decreased = False  # LIBID in original
         self.psychomotor_changes = PSYCHOMOTOR_NONE  # PSYCHMOT in original
-        self.suicidality = SUICIDE_INTENT_NONE  # type: int  # SUICID in original  # noqa
+        self.suicidality = (
+            SUICIDE_INTENT_NONE
+        )  # type: int  # SUICID in original  # noqa
         self.depression_at_least_2_weeks = False  # DEPR_DUR >= 2 in original
 
         self.hypochondria = 0  # HYPO in original
@@ -1380,40 +1376,40 @@ class CisrResult(object):
 
     def get_score(self) -> int:  # SCORE in original
         return (
-            self.somatic_symptoms +
-            self.fatigue +
-            self.concentration_poor +
-            self.sleep_problems +
-            self.irritability +
-            self.hypochondria +
-            self.depression +
-            self.depressive_thoughts +
-            self.worry +
-            self.anxiety +
-            self.phobias_score +
-            self.panic +
-            self.compulsions +
-            self.obsessions
+            self.somatic_symptoms
+            + self.fatigue
+            + self.concentration_poor
+            + self.sleep_problems
+            + self.irritability
+            + self.hypochondria
+            + self.depression
+            + self.depressive_thoughts
+            + self.worry
+            + self.anxiety
+            + self.phobias_score
+            + self.panic
+            + self.compulsions
+            + self.obsessions
         )
 
     def needs_impairment_question(self) -> bool:
         # code in OVERALL1 in original
         threshold = 2  # for all symptoms
         return (
-            self.somatic_symptoms >= threshold or
-            self.hypochondria >= threshold or
-            self.fatigue >= threshold or
-            self.sleep_problems >= threshold or
-            self.irritability >= threshold or
-            self.concentration_poor >= threshold or
-            self.depression >= threshold or
-            self.depressive_thoughts >= threshold or
-            self.phobias_score >= threshold or
-            self.worry >= threshold or
-            self.anxiety >= threshold or
-            self.panic >= threshold or
-            self.compulsions >= threshold or
-            self.obsessions >= threshold
+            self.somatic_symptoms >= threshold
+            or self.hypochondria >= threshold
+            or self.fatigue >= threshold
+            or self.sleep_problems >= threshold
+            or self.irritability >= threshold
+            or self.concentration_poor >= threshold
+            or self.depression >= threshold
+            or self.depressive_thoughts >= threshold
+            or self.phobias_score >= threshold
+            or self.worry >= threshold
+            or self.anxiety >= threshold
+            or self.panic >= threshold
+            or self.compulsions >= threshold
+            or self.obsessions >= threshold
         )
 
     def has_somatic_syndrome(self) -> bool:
@@ -1422,7 +1418,8 @@ class CisrResult(object):
     def get_final_page(self) -> CisrQuestion:
         # see chooseFinalPage() in the C++ version
         return (
-            CQ.OVERALL1_INFO_ONLY if self.needs_impairment_question()
+            CQ.OVERALL1_INFO_ONLY
+            if self.needs_impairment_question()
             else CQ.THANKS_FINISHED
         )
 
@@ -1533,120 +1530,169 @@ class CisrResult(object):
         return self.diagnosis_icd10_code(self.diagnosis_2)
 
     def finalize(self) -> None:
-        at_least_1_activity_impaired = (self.functional_impairment >=
-                                        OVERALL_IMPAIRMENT_STOP_1_ACTIVITY)
+        at_least_1_activity_impaired = (
+            self.functional_impairment >= OVERALL_IMPAIRMENT_STOP_1_ACTIVITY
+        )
         score = self.get_score()
 
         # GAD
-        if (self.anxiety >= 2 and
-                self.anxiety_physical_symptoms and
-                self.anxiety_at_least_2_weeks):
+        if (
+            self.anxiety >= 2
+            and self.anxiety_physical_symptoms
+            and self.anxiety_at_least_2_weeks
+        ):
             self.decide(
                 "Anxiety score >= 2 AND physical symptoms of anxiety AND "
                 "anxiety for at least 2 weeks. "
-                "Setting generalized_anxiety_disorder.")
+                "Setting generalized_anxiety_disorder."
+            )
             self.generalized_anxiety_disorder = True
 
         # Panic
         if self.panic >= 3 and self.panic_rapid_onset:
-            self.decide("Panic score >= 3 AND panic_rapid_onset. "
-                        "Setting panic_disorder.")
+            self.decide(
+                "Panic score >= 3 AND panic_rapid_onset. "
+                "Setting panic_disorder."
+            )
             self.panic_disorder = True
 
         # Phobias
-        if (self.phobias_type == PHOBIATYPES_AGORAPHOBIA and
-                self.phobic_avoidance and
-                self.phobias_score >= 2):
-            self.decide("Phobia type is agoraphobia AND phobic avoidance AND"
-                        "phobia score >= 2. Setting phobia_agoraphobia.")
+        if (
+            self.phobias_type == PHOBIATYPES_AGORAPHOBIA
+            and self.phobic_avoidance
+            and self.phobias_score >= 2
+        ):
+            self.decide(
+                "Phobia type is agoraphobia AND phobic avoidance AND"
+                "phobia score >= 2. Setting phobia_agoraphobia."
+            )
             self.phobia_agoraphobia = True
-        if (self.phobias_type == PHOBIATYPES_SOCIAL and
-                self.phobic_avoidance and
-                self.phobias_score >= 2):
-            self.decide("Phobia type is social AND phobic avoidance AND"
-                        "phobia score >= 2. Setting phobia_social.")
+        if (
+            self.phobias_type == PHOBIATYPES_SOCIAL
+            and self.phobic_avoidance
+            and self.phobias_score >= 2
+        ):
+            self.decide(
+                "Phobia type is social AND phobic avoidance AND"
+                "phobia score >= 2. Setting phobia_social."
+            )
             self.phobia_social = True
-        if (self.phobias_type == PHOBIATYPES_SOCIAL and
-                self.phobic_avoidance and
-                self.phobias_score >= 2):
+        if (
+            self.phobias_type == PHOBIATYPES_SOCIAL
+            and self.phobic_avoidance
+            and self.phobias_score >= 2
+        ):
             self.decide(
                 "Phobia type is (animals/enclosed/heights OR other) AND "
                 "phobic avoidance AND phobia score >= 2. "
-                "Setting phobia_specific.")
+                "Setting phobia_specific."
+            )
             self.phobia_specific = True
 
         # OCD
-        if (self.obsessions + self.compulsions >= 6 and
-                self.obsessions_tried_to_stop and
-                self.obsessions_at_least_2_weeks and
-                at_least_1_activity_impaired):
-            self.decide("obsessions + compulsions >= 6 AND "
-                        "tried to stop obsessions AND "
-                        "obsessions for at least 2 weeks AND "
-                        "at least 1 activity impaired. "
-                        "Setting obsessive_compulsive_disorder.")
+        if (
+            self.obsessions + self.compulsions >= 6
+            and self.obsessions_tried_to_stop
+            and self.obsessions_at_least_2_weeks
+            and at_least_1_activity_impaired
+        ):
+            self.decide(
+                "obsessions + compulsions >= 6 AND "
+                "tried to stop obsessions AND "
+                "obsessions for at least 2 weeks AND "
+                "at least 1 activity impaired. "
+                "Setting obsessive_compulsive_disorder."
+            )
             self.obsessive_compulsive_disorder = True
-        if (self.obsessions + self.compulsions >= 6 and
-                self.compulsions_tried_to_stop and
-                self.compulsions_at_least_2_weeks and
-                at_least_1_activity_impaired):
-            self.decide("obsessions + compulsions >= 6 AND "
-                        "tried to stop compulsions AND "
-                        "compulsions for at least 2 weeks AND "
-                        "at least 1 activity impaired. "
-                        "Setting obsessive_compulsive_disorder.")
+        if (
+            self.obsessions + self.compulsions >= 6
+            and self.compulsions_tried_to_stop
+            and self.compulsions_at_least_2_weeks
+            and at_least_1_activity_impaired
+        ):
+            self.decide(
+                "obsessions + compulsions >= 6 AND "
+                "tried to stop compulsions AND "
+                "compulsions for at least 2 weeks AND "
+                "at least 1 activity impaired. "
+                "Setting obsessive_compulsive_disorder."
+            )
             self.obsessive_compulsive_disorder = True
-        if (self.obsessions == 4 and
-                self.obsessions_tried_to_stop and
-                self.obsessions_at_least_2_weeks and
-                at_least_1_activity_impaired):
+        if (
+            self.obsessions == 4
+            and self.obsessions_tried_to_stop
+            and self.obsessions_at_least_2_weeks
+            and at_least_1_activity_impaired
+        ):
             # NOTE: 4 is the maximum for obsessions
-            self.decide("obsessions == 4 AND "
-                        "tried to stop obsessions AND "
-                        "obsessions for at least 2 weeks AND "
-                        "at least 1 activity impaired. "
-                        "Setting obsessive_compulsive_disorder.")
+            self.decide(
+                "obsessions == 4 AND "
+                "tried to stop obsessions AND "
+                "obsessions for at least 2 weeks AND "
+                "at least 1 activity impaired. "
+                "Setting obsessive_compulsive_disorder."
+            )
             self.obsessive_compulsive_disorder = True
-        if (self.compulsions == 4 and
-                self.compulsions_tried_to_stop and
-                self.compulsions_at_least_2_weeks and
-                at_least_1_activity_impaired):
+        if (
+            self.compulsions == 4
+            and self.compulsions_tried_to_stop
+            and self.compulsions_at_least_2_weeks
+            and at_least_1_activity_impaired
+        ):
             # NOTE: 4 is the maximum for compulsions
-            self.decide("compulsions == 4 AND "
-                        "tried to stop compulsions AND "
-                        "compulsions for at least 2 weeks AND "
-                        "at least 1 activity impaired. "
-                        "Setting obsessive_compulsive_disorder.")
+            self.decide(
+                "compulsions == 4 AND "
+                "tried to stop compulsions AND "
+                "compulsions for at least 2 weeks AND "
+                "at least 1 activity impaired. "
+                "Setting obsessive_compulsive_disorder."
+            )
             self.obsessive_compulsive_disorder = True
 
         # Depression
-        if (self.depression_at_least_2_weeks and
-                self.depr_crit_1_mood_anhedonia_energy > 1 and
-                self.depr_crit_1_mood_anhedonia_energy +
-                self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3):
-            self.decide("Depressive symptoms >=2 weeks AND "
-                        "depr_crit_1_mood_anhedonia_energy > 1 AND "
-                        "depr_crit_1_mood_anhedonia_energy + "
-                        "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3. "
-                        "Setting depression_mild.")
+        if (
+            self.depression_at_least_2_weeks
+            and self.depr_crit_1_mood_anhedonia_energy > 1
+            and self.depr_crit_1_mood_anhedonia_energy
+            + self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui
+            > 3
+        ):
+            self.decide(
+                "Depressive symptoms >=2 weeks AND "
+                "depr_crit_1_mood_anhedonia_energy > 1 AND "
+                "depr_crit_1_mood_anhedonia_energy + "
+                "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 3. "
+                "Setting depression_mild."
+            )
             self.depression_mild = True
-        if (self.depression_at_least_2_weeks and
-                self.depr_crit_1_mood_anhedonia_energy > 1 and
-                (self.depr_crit_1_mood_anhedonia_energy +
-                 self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui) > 5):
-            self.decide("Depressive symptoms >=2 weeks AND "
-                        "depr_crit_1_mood_anhedonia_energy > 1 AND "
-                        "depr_crit_1_mood_anhedonia_energy + "
-                        "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 5. "
-                        "Setting depression_moderate.")
+        if (
+            self.depression_at_least_2_weeks
+            and self.depr_crit_1_mood_anhedonia_energy > 1
+            and (
+                self.depr_crit_1_mood_anhedonia_energy
+                + self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui
+            )
+            > 5
+        ):
+            self.decide(
+                "Depressive symptoms >=2 weeks AND "
+                "depr_crit_1_mood_anhedonia_energy > 1 AND "
+                "depr_crit_1_mood_anhedonia_energy + "
+                "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 5. "
+                "Setting depression_moderate."
+            )
             self.depression_moderate = True
-        if (self.depression_at_least_2_weeks and
-                self.depr_crit_1_mood_anhedonia_energy == 3 and
-                self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4):
-            self.decide("Depressive symptoms >=2 weeks AND "
-                        "depr_crit_1_mood_anhedonia_energy == 3 AND "
-                        "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4. "
-                        "Setting depression_severe.")
+        if (
+            self.depression_at_least_2_weeks
+            and self.depr_crit_1_mood_anhedonia_energy == 3
+            and self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4
+        ):
+            self.decide(
+                "Depressive symptoms >=2 weeks AND "
+                "depr_crit_1_mood_anhedonia_energy == 3 AND "
+                "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui > 4. "
+                "Setting depression_severe."
+            )
             self.depression_severe = True
 
         # CFS
@@ -1660,111 +1706,158 @@ class CisrResult(object):
 
         # ... primary diagnosis
         if score >= 12:
-            self.decide("Total score >= 12. Setting diagnosis_1 to "
-                        "DIAG_1_MIXED_ANX_DEPR_DIS_MILD.")
+            self.decide(
+                "Total score >= 12. Setting diagnosis_1 to "
+                "DIAG_1_MIXED_ANX_DEPR_DIS_MILD."
+            )
             self.diagnosis_1 = DIAG_1_MIXED_ANX_DEPR_DIS_MILD
         if self.generalized_anxiety_disorder:
-            self.decide("generalized_anxiety_disorder is true. Setting "
-                        "diagnosis_1 to DIAG_2_GENERALIZED_ANX_DIS_MILD.")
+            self.decide(
+                "generalized_anxiety_disorder is true. Setting "
+                "diagnosis_1 to DIAG_2_GENERALIZED_ANX_DIS_MILD."
+            )
             self.diagnosis_1 = DIAG_2_GENERALIZED_ANX_DIS_MILD
         if self.obsessive_compulsive_disorder:
-            self.decide("obsessive_compulsive_disorder is true. Setting "
-                        "diagnosis_1 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS.")
+            self.decide(
+                "obsessive_compulsive_disorder is true. Setting "
+                "diagnosis_1 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS."
+            )
             self.diagnosis_1 = DIAG_3_OBSESSIVE_COMPULSIVE_DIS
         if score >= 20:
-            self.decide("Total score >= 20. Setting diagnosis_1 to "
-                        "DIAG_4_MIXED_ANX_DEPR_DIS.")
+            self.decide(
+                "Total score >= 20. Setting diagnosis_1 to "
+                "DIAG_4_MIXED_ANX_DEPR_DIS."
+            )
             self.diagnosis_1 = DIAG_4_MIXED_ANX_DEPR_DIS
         if self.phobia_specific:
-            self.decide("phobia_specific is true. Setting diagnosis_1 to "
-                        "DIAG_5_SPECIFIC_PHOBIA.")
+            self.decide(
+                "phobia_specific is true. Setting diagnosis_1 to "
+                "DIAG_5_SPECIFIC_PHOBIA."
+            )
             self.diagnosis_1 = DIAG_5_SPECIFIC_PHOBIA
         if self.phobia_social:
-            self.decide("phobia_social is true. Setting diagnosis_1 to "
-                        "DIAG_6_SOCIAL_PHOBIA.")
+            self.decide(
+                "phobia_social is true. Setting diagnosis_1 to "
+                "DIAG_6_SOCIAL_PHOBIA."
+            )
             self.diagnosis_1 = DIAG_6_SOCIAL_PHOBIA
         if self.phobia_agoraphobia:
-            self.decide("phobia_agoraphobia is true. Setting diagnosis_1 to "
-                        "DIAG_7_AGORAPHOBIA.")
+            self.decide(
+                "phobia_agoraphobia is true. Setting diagnosis_1 to "
+                "DIAG_7_AGORAPHOBIA."
+            )
             self.diagnosis_1 = DIAG_7_AGORAPHOBIA
         if self.generalized_anxiety_disorder and score >= 20:
-            self.decide("generalized_anxiety_disorder is true AND "
-                        "score >= 20. Setting diagnosis_1 to "
-                        "DIAG_8_GENERALIZED_ANX_DIS.")
+            self.decide(
+                "generalized_anxiety_disorder is true AND "
+                "score >= 20. Setting diagnosis_1 to "
+                "DIAG_8_GENERALIZED_ANX_DIS."
+            )
             self.diagnosis_1 = DIAG_8_GENERALIZED_ANX_DIS
         if self.panic_disorder:
-            self.decide("panic_disorder is true. Setting diagnosis_1 to "
-                        "DIAG_9_PANIC_DIS.")
+            self.decide(
+                "panic_disorder is true. Setting diagnosis_1 to "
+                "DIAG_9_PANIC_DIS."
+            )
             self.diagnosis_1 = DIAG_9_PANIC_DIS
         if self.depression_mild:
-            self.decide("depression_mild is true. Setting diagnosis_1 to "
-                        "DIAG_10_MILD_DEPR_EPISODE.")
+            self.decide(
+                "depression_mild is true. Setting diagnosis_1 to "
+                "DIAG_10_MILD_DEPR_EPISODE."
+            )
             self.diagnosis_1 = DIAG_10_MILD_DEPR_EPISODE
         if self.depression_moderate:
-            self.decide("depression_moderate is true. Setting diagnosis_1 to "
-                        "DIAG_11_MOD_DEPR_EPISODE.")
+            self.decide(
+                "depression_moderate is true. Setting diagnosis_1 to "
+                "DIAG_11_MOD_DEPR_EPISODE."
+            )
             self.diagnosis_1 = DIAG_11_MOD_DEPR_EPISODE
         if self.depression_severe:
-            self.decide("depression_severe is true. Setting diagnosis_1 to "
-                        "DIAG_12_SEVERE_DEPR_EPISODE.")
+            self.decide(
+                "depression_severe is true. Setting diagnosis_1 to "
+                "DIAG_12_SEVERE_DEPR_EPISODE."
+            )
             self.diagnosis_1 = DIAG_12_SEVERE_DEPR_EPISODE
 
         # ... secondary diagnosis
         if score >= 12 and self.diagnosis_1 >= 2:
             self.decide(
                 "score >= 12 AND diagnosis_1 >= 2. "
-                "Setting diagnosis_2 to DIAG_1_MIXED_ANX_DEPR_DIS_MILD.")
+                "Setting diagnosis_2 to DIAG_1_MIXED_ANX_DEPR_DIS_MILD."
+            )
             self.diagnosis_2 = DIAG_1_MIXED_ANX_DEPR_DIS_MILD
         if self.generalized_anxiety_disorder and self.diagnosis_1 >= 3:
             self.decide(
                 "generalized_anxiety_disorder is true AND "
                 "diagnosis_1 >= 3. "
-                "Setting diagnosis_2 to DIAG_2_GENERALIZED_ANX_DIS_MILD.")
+                "Setting diagnosis_2 to DIAG_2_GENERALIZED_ANX_DIS_MILD."
+            )
             self.diagnosis_2 = DIAG_2_GENERALIZED_ANX_DIS_MILD
         if self.obsessive_compulsive_disorder and self.diagnosis_1 >= 4:
             self.decide(
                 "obsessive_compulsive_disorder is true AND "
                 "diagnosis_1 >= 4. "
-                "Setting diagnosis_2 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS.")
+                "Setting diagnosis_2 to DIAG_3_OBSESSIVE_COMPULSIVE_DIS."
+            )
             self.diagnosis_2 = DIAG_3_OBSESSIVE_COMPULSIVE_DIS
         if score >= 20 and self.diagnosis_1 >= 5:
-            self.decide("score >= 20 AND diagnosis_1 >= 5. "
-                        "Setting diagnosis_2 to DIAG_4_MIXED_ANX_DEPR_DIS.")
+            self.decide(
+                "score >= 20 AND diagnosis_1 >= 5. "
+                "Setting diagnosis_2 to DIAG_4_MIXED_ANX_DEPR_DIS."
+            )
             self.diagnosis_2 = DIAG_4_MIXED_ANX_DEPR_DIS
         if self.phobia_specific and self.diagnosis_1 >= 6:
-            self.decide("phobia_specific is true AND diagnosis_1 >= 6. "
-                        "Setting diagnosis_2 to DIAG_5_SPECIFIC_PHOBIA.")
+            self.decide(
+                "phobia_specific is true AND diagnosis_1 >= 6. "
+                "Setting diagnosis_2 to DIAG_5_SPECIFIC_PHOBIA."
+            )
             self.diagnosis_2 = DIAG_5_SPECIFIC_PHOBIA
         if self.phobia_social and self.diagnosis_1 >= 7:
-            self.decide("phobia_social is true AND diagnosis_1 >= 7. "
-                        "Setting diagnosis_2 to DIAG_6_SOCIAL_PHOBIA.")
+            self.decide(
+                "phobia_social is true AND diagnosis_1 >= 7. "
+                "Setting diagnosis_2 to DIAG_6_SOCIAL_PHOBIA."
+            )
             self.diagnosis_2 = DIAG_6_SOCIAL_PHOBIA
         if self.phobia_agoraphobia and self.diagnosis_1 >= 8:
-            self.decide("phobia_agoraphobia is true AND diagnosis_1 >= 8. "
-                        "Setting diagnosis_2 to DIAG_7_AGORAPHOBIA.")
+            self.decide(
+                "phobia_agoraphobia is true AND diagnosis_1 >= 8. "
+                "Setting diagnosis_2 to DIAG_7_AGORAPHOBIA."
+            )
             self.diagnosis_2 = DIAG_7_AGORAPHOBIA
-        if (self.generalized_anxiety_disorder and score >= 20 and
-                self.diagnosis_1 >= 9):
-            self.decide("generalized_anxiety_disorder is true AND "
-                        "score >= 20 AND "
-                        "diagnosis_1 >= 9. "
-                        "Setting diagnosis_2 to DIAG_8_GENERALIZED_ANX_DIS.")
+        if (
+            self.generalized_anxiety_disorder
+            and score >= 20
+            and self.diagnosis_1 >= 9
+        ):
+            self.decide(
+                "generalized_anxiety_disorder is true AND "
+                "score >= 20 AND "
+                "diagnosis_1 >= 9. "
+                "Setting diagnosis_2 to DIAG_8_GENERALIZED_ANX_DIS."
+            )
             self.diagnosis_2 = DIAG_8_GENERALIZED_ANX_DIS
         if self.panic_disorder and self.diagnosis_1 >= 9:
-            self.decide("panic_disorder is true AND diagnosis_1 >= 9. "
-                        "Setting diagnosis_2 to DIAG_9_PANIC_DIS.")
+            self.decide(
+                "panic_disorder is true AND diagnosis_1 >= 9. "
+                "Setting diagnosis_2 to DIAG_9_PANIC_DIS."
+            )
             self.diagnosis_2 = DIAG_9_PANIC_DIS
 
         # In summary:
         self.decide("FINISHED.")
         self.decide("--- Final scores:")
         self._showint("depression", self.depression)
-        self._showint("depr_crit_1_mood_anhedonia_energy",
-                      self.depr_crit_1_mood_anhedonia_energy)
-        self._showint("depr_crit_2_app_cnc_slp_mtr_glt_wth_sui",
-                      self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui)
-        self._showint("depr_crit_3_somatic_synd",
-                      self.depr_crit_3_somatic_synd)
+        self._showint(
+            "depr_crit_1_mood_anhedonia_energy",
+            self.depr_crit_1_mood_anhedonia_energy,
+        )
+        self._showint(
+            "depr_crit_2_app_cnc_slp_mtr_glt_wth_sui",
+            self.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui,
+        )
+        self._showint(
+            "depr_crit_3_somatic_synd", self.depr_crit_3_somatic_synd
+        )
         self._showint("weight_change", self.weight_change)
         self._showint("somatic_symptoms", self.somatic_symptoms)
         self._showint("fatigue", self.fatigue)
@@ -1778,16 +1871,19 @@ class CisrResult(object):
         self._showbool("libido_decreased", self.libido_decreased)
         self._showint("psychomotor_changes", self.psychomotor_changes)
         self._showint("suicidality", self.suicidality)
-        self._showbool("depression_at_least_2_weeks",
-                       self.depression_at_least_2_weeks)
+        self._showbool(
+            "depression_at_least_2_weeks", self.depression_at_least_2_weeks
+        )
 
         self._showint("hypochondria", self.hypochondria)
         self._showint("worry", self.worry)
         self._showint("anxiety", self.anxiety)
-        self._showbool("anxiety_physical_symptoms",
-                       self.anxiety_physical_symptoms)
-        self._showbool("anxiety_at_least_2_weeks",
-                       self.anxiety_at_least_2_weeks)
+        self._showbool(
+            "anxiety_physical_symptoms", self.anxiety_physical_symptoms
+        )
+        self._showbool(
+            "anxiety_at_least_2_weeks", self.anxiety_at_least_2_weeks
+        )
         self._showbool("phobias_flag", self.phobias_flag)
         self._showint("phobias_score", self.phobias_score)
         self._showint("phobias_type", self.phobias_type)
@@ -1797,48 +1893,61 @@ class CisrResult(object):
         self._showint("panic_symptoms_total", self.panic_symptoms_total)
 
         self._showint("compulsions", self.compulsions)
-        self._showbool("compulsions_tried_to_stop",
-                       self.compulsions_tried_to_stop)
-        self._showbool("compulsions_at_least_2_weeks",
-                       self.compulsions_at_least_2_weeks)
+        self._showbool(
+            "compulsions_tried_to_stop", self.compulsions_tried_to_stop
+        )
+        self._showbool(
+            "compulsions_at_least_2_weeks", self.compulsions_at_least_2_weeks
+        )
         self._showint("obsessions", self.obsessions)
-        self._showbool("obsessions_tried_to_stop",
-                       self.obsessions_tried_to_stop)
-        self._showbool("obsessions_at_least_2_weeks",
-                       self.obsessions_at_least_2_weeks)
+        self._showbool(
+            "obsessions_tried_to_stop", self.obsessions_tried_to_stop
+        )
+        self._showbool(
+            "obsessions_at_least_2_weeks", self.obsessions_at_least_2_weeks
+        )
 
         self._showint("functional_impairment", self.functional_impairment)
 
         # Disorder flags
-        self._showbool("obsessive_compulsive_disorder",
-                       self.obsessive_compulsive_disorder)
+        self._showbool(
+            "obsessive_compulsive_disorder", self.obsessive_compulsive_disorder
+        )
         self._showbool("depression_mild", self.depression_mild)
         self._showbool("depression_moderate", self.depression_moderate)
         self._showbool("depression_severe", self.depression_severe)
-        self._showbool("chronic_fatigue_syndrome",
-                       self.chronic_fatigue_syndrome)
-        self._showbool("generalized_anxiety_disorder",
-                       self.generalized_anxiety_disorder)
+        self._showbool(
+            "chronic_fatigue_syndrome", self.chronic_fatigue_syndrome
+        )
+        self._showbool(
+            "generalized_anxiety_disorder", self.generalized_anxiety_disorder
+        )
         self._showbool("phobia_agoraphobia", self.phobia_agoraphobia)
         self._showbool("phobia_social", self.phobia_social)
         self._showbool("phobia_specific", self.phobia_specific)
         self._showbool("panic_disorder", self.panic_disorder)
 
         self.decide("--- Final diagnoses:")
-        self.decide("Probable primary diagnosis: " +
-                    self.diagnosis_name(self.diagnosis_1))
-        self.decide("Probable secondary diagnosis: " +
-                    self.diagnosis_name(self.diagnosis_2))
+        self.decide(
+            "Probable primary diagnosis: "
+            + self.diagnosis_name(self.diagnosis_1)
+        )
+        self.decide(
+            "Probable secondary diagnosis: "
+            + self.diagnosis_name(self.diagnosis_2)
+        )
 
 
 # =============================================================================
 # CISR
 # =============================================================================
 
+
 class Cisr(TaskHasPatientMixin, Task):
     """
     Server implementation of the CIS-R task.
     """
+
     __tablename__ = "cisr"
     shortname = "CIS-R"
     provides_trackers = False
@@ -1846,28 +1955,31 @@ class Cisr(TaskHasPatientMixin, Task):
     # Demographics
 
     ethnic = CamcopsColumn(
-        FN_ETHNIC, Integer,
+        FN_ETHNIC,
+        Integer,
         comment=(
-            CMT_DEMOGRAPHICS +
-            "Ethnicity (1 white, 2 mixed, 3 Asian/British Asian, "
+            CMT_DEMOGRAPHICS
+            + "Ethnicity (1 white, 2 mixed, 3 Asian/British Asian, "
             "4 Black/Black British, 5 Chinese, 6 other, 7 prefer not to say)"
         ),
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
     )
     married = CamcopsColumn(
-        FN_MARRIED, Integer,
+        FN_MARRIED,
+        Integer,
         comment=(
-            CMT_DEMOGRAPHICS +
-            "Marital status (1 married/living as married, 2 single, "
+            CMT_DEMOGRAPHICS
+            + "Marital status (1 married/living as married, 2 single, "
             "3 separated, 4 divorced, 5 widowed, 6 prefer not to say)"
         ),
         permitted_value_checker=ONE_TO_SIX_CHECKER,
     )
     empstat = CamcopsColumn(
-        FN_EMPSTAT, Integer,
+        FN_EMPSTAT,
+        Integer,
         comment=(
-            CMT_DEMOGRAPHICS +
-            "Current employment status (1 working full time, "
+            CMT_DEMOGRAPHICS
+            + "Current employment status (1 working full time, "
             "2 working part time, 3 student, 4 retired, 5 houseperson, "
             "6 unemployed job seeker, 7 unemployed due to ill health,"
             "8 prefer not to say)"
@@ -1875,10 +1987,10 @@ class Cisr(TaskHasPatientMixin, Task):
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
     emptype = CamcopsColumn(
-        FN_EMPTYPE, Integer,
+        FN_EMPTYPE,
+        Integer,
         comment=(
-            CMT_DEMOGRAPHICS +
-            "Current/last paid employment "
+            CMT_DEMOGRAPHICS + "Current/last paid employment "
             "(1 self-employed with paid employees, "
             "2 self-employed with no paid employees, 3 employee, "
             "4 foreman/supervisor, 5 manager, 6 not applicable,"
@@ -1887,10 +1999,11 @@ class Cisr(TaskHasPatientMixin, Task):
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
     )
     home = CamcopsColumn(
-        FN_HOME, Integer,
+        FN_HOME,
+        Integer,
         comment=(
-            CMT_DEMOGRAPHICS +
-            "Housing situation (1 home owner, 2 tenant, 3 living with "
+            CMT_DEMOGRAPHICS
+            + "Housing situation (1 home owner, 2 tenant, 3 living with "
             "relative/friend, 4 hostel/care home, 5 homeless, 6 other,"
             "7 prefer not to say)"
         ),
@@ -1900,38 +2013,45 @@ class Cisr(TaskHasPatientMixin, Task):
     # Appetite/weight
 
     appetite1 = CamcopsColumn(
-        FN_APPETITE1, Integer,
+        FN_APPETITE1,
+        Integer,
         comment="Marked appetite loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     weight1 = CamcopsColumn(
-        FN_WEIGHT1, Integer,
+        FN_WEIGHT1,
+        Integer,
         comment="Weight loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     weight2 = CamcopsColumn(
-        FN_WEIGHT2, Integer,
+        FN_WEIGHT2,
+        Integer,
         comment="Weight loss: trying to lose weight?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     weight3 = CamcopsColumn(
-        FN_WEIGHT3, Integer,
+        FN_WEIGHT3,
+        Integer,
         comment="Weight loss amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     appetite2 = CamcopsColumn(
-        FN_APPETITE2, Integer,
+        FN_APPETITE2,
+        Integer,
         comment="Marked increase in appetite in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     weight4 = CamcopsColumn(
         # male/female responses unified (no "weight4a")
-        FN_WEIGHT4, Integer,
+        FN_WEIGHT4,
+        Integer,
         comment="Weight gain in past month (1 yes, 2 no, 3 yes but pregnant)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     weight5 = CamcopsColumn(
-        FN_WEIGHT5, Integer,
+        FN_WEIGHT5,
+        Integer,
         comment="Weight gain amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
@@ -1939,91 +2059,107 @@ class Cisr(TaskHasPatientMixin, Task):
     # Somatic problems
 
     gp_year = CamcopsColumn(
-        FN_GP_YEAR, Integer,
+        FN_GP_YEAR,
+        Integer,
         comment="Consultations with GP in past year (0: none, 1: 1–2, 2: 3–4, "
-                "3: 6–10; 4: >10",
+        "3: 6–10; 4: >10",
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
     )
     disable = CamcopsColumn(
-        FN_DISABLE, Integer,
+        FN_DISABLE,
+        Integer,
         comment="Longstanding illness/disability/infirmity" + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     illness = CamcopsColumn(
-        FN_ILLNESS, Integer,
+        FN_ILLNESS,
+        Integer,
         comment="Conditions (1 diabetes, 2 asthma, 3 arthritis, 4 heart "
-                "disease, 5 high blood pressure, 6 lung disease, 7 more than "
-                "one of the above, 8 none of the above)",
+        "disease, 5 high blood pressure, 6 lung disease, 7 more than "
+        "one of the above, 8 none of the above)",
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
 
     somatic_mand1 = CamcopsColumn(
-        FN_SOMATIC_MAND1, Integer,
+        FN_SOMATIC_MAND1,
+        Integer,
         comment="Any aches/pains in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     somatic_pain1 = CamcopsColumn(
-        FN_SOMATIC_PAIN1, Integer,
+        FN_SOMATIC_PAIN1,
+        Integer,
         comment="Pain/ache brought on or made worse because low/anxious/"
-                "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
+        "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     somatic_pain2 = CamcopsColumn(
-        FN_SOMATIC_PAIN2, Integer,
+        FN_SOMATIC_PAIN2,
+        Integer,
         comment="Pain: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     somatic_pain3 = CamcopsColumn(
-        FN_SOMATIC_PAIN3, Integer,
+        FN_SOMATIC_PAIN3,
+        Integer,
         comment="Pain: lasted >3h on any day in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     somatic_pain4 = CamcopsColumn(
-        FN_SOMATIC_PAIN4, Integer,
+        FN_SOMATIC_PAIN4,
+        Integer,
         comment="Pain: unpleasant in past week?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     somatic_pain5 = CamcopsColumn(
-        FN_SOMATIC_PAIN5, Integer,
+        FN_SOMATIC_PAIN5,
+        Integer,
         comment="Pain: bothersome whilst doing something interesting in past "
-                "week?" + CMT_BOTHERSOME_INTERESTING,
+        "week?" + CMT_BOTHERSOME_INTERESTING,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     somatic_mand2 = CamcopsColumn(
-        FN_SOMATIC_MAND2, Integer,
+        FN_SOMATIC_MAND2,
+        Integer,
         comment="Bodily discomfort in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     somatic_dis1 = CamcopsColumn(
-        FN_SOMATIC_DIS1, Integer,
+        FN_SOMATIC_DIS1,
+        Integer,
         comment="Discomfort brought on or made worse because low/anxious/"
-                "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
+        "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     somatic_dis2 = CamcopsColumn(
-        FN_SOMATIC_DIS2, Integer,
+        FN_SOMATIC_DIS2,
+        Integer,
         comment="Discomfort: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     somatic_dis3 = CamcopsColumn(
-        FN_SOMATIC_DIS3, Integer,
+        FN_SOMATIC_DIS3,
+        Integer,
         comment="Discomfort: lasted >3h on any day in past week"
-                + CMT_1_NO_2_YES,
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     somatic_dis4 = CamcopsColumn(
-        FN_SOMATIC_DIS4, Integer,
+        FN_SOMATIC_DIS4,
+        Integer,
         comment="Discomfort: unpleasant in past week?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     somatic_dis5 = CamcopsColumn(
-        FN_SOMATIC_DIS5, Integer,
+        FN_SOMATIC_DIS5,
+        Integer,
         comment="Discomfort: bothersome whilst doing something interesting in "
-                "past week?" + CMT_BOTHERSOME_INTERESTING,
+        "past week?" + CMT_BOTHERSOME_INTERESTING,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     somatic_dur = CamcopsColumn(
-        FN_SOMATIC_DUR, Integer,
+        FN_SOMATIC_DUR,
+        Integer,
         comment="Duration of ache/pain/discomfort" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2031,71 +2167,84 @@ class Cisr(TaskHasPatientMixin, Task):
     # Fatigue/lacking energy
 
     fatigue_mand1 = CamcopsColumn(
-        FN_FATIGUE_MAND1, Integer,
+        FN_FATIGUE_MAND1,
+        Integer,
         comment="Tired in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     fatigue_cause1 = CamcopsColumn(
-        FN_FATIGUE_CAUSE1, Integer,
+        FN_FATIGUE_CAUSE1,
+        Integer,
         comment="Main reason for feeling tired" + CMT_FATIGUE_CAUSE,
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
     fatigue_tired1 = CamcopsColumn(
-        FN_FATIGUE_TIRED1, Integer,
+        FN_FATIGUE_TIRED1,
+        Integer,
         comment="Tired: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     fatigue_tired2 = CamcopsColumn(
-        FN_FATIGUE_TIRED2, Integer,
+        FN_FATIGUE_TIRED2,
+        Integer,
         comment="Tired: >3h on any one day in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     fatigue_tired3 = CamcopsColumn(
-        FN_FATIGUE_TIRED3, Integer,
+        FN_FATIGUE_TIRED3,
+        Integer,
         comment="So tired you've had to push yourself to get things done in "
-                "past week" + CMT_1_NO_2_YES,
+        "past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     fatigue_tired4 = CamcopsColumn(
-        FN_FATIGUE_TIRED4, Integer,
+        FN_FATIGUE_TIRED4,
+        Integer,
         comment="Tired during an enjoyable activity" + CMT_DURING_ENJOYABLE,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     fatigue_mand2 = CamcopsColumn(
-        FN_FATIGUE_MAND2, Integer,
+        FN_FATIGUE_MAND2,
+        Integer,
         comment="Lacking in energy in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     fatigue_cause2 = CamcopsColumn(
-        FN_FATIGUE_CAUSE2, Integer,
+        FN_FATIGUE_CAUSE2,
+        Integer,
         comment="Main reason for lacking energy" + CMT_FATIGUE_CAUSE,
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
     fatigue_energy1 = CamcopsColumn(
-        FN_FATIGUE_ENERGY1, Integer,
+        FN_FATIGUE_ENERGY1,
+        Integer,
         comment="Lacking energy: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     fatigue_energy2 = CamcopsColumn(
-        FN_FATIGUE_ENERGY2, Integer,
-        comment="Lacking energy: for >3h on any one day in past week" +
-                CMT_1_NO_2_YES,
+        FN_FATIGUE_ENERGY2,
+        Integer,
+        comment="Lacking energy: for >3h on any one day in past week"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     fatigue_energy3 = CamcopsColumn(
-        FN_FATIGUE_ENERGY3, Integer,
+        FN_FATIGUE_ENERGY3,
+        Integer,
         comment="So lacking in energy you've had to push yourself to get "
-                "things done in past week" + CMT_1_NO_2_YES,
+        "things done in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     fatigue_energy4 = CamcopsColumn(
-        FN_FATIGUE_ENERGY4, Integer,
-        comment="Lacking energy during an enjoyable activity" +
-                CMT_DURING_ENJOYABLE,
+        FN_FATIGUE_ENERGY4,
+        Integer,
+        comment="Lacking energy during an enjoyable activity"
+        + CMT_DURING_ENJOYABLE,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     fatigue_dur = CamcopsColumn(
-        FN_FATIGUE_DUR, Integer,
+        FN_FATIGUE_DUR,
+        Integer,
         comment="Feeling tired/lacking energy for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2103,47 +2252,55 @@ class Cisr(TaskHasPatientMixin, Task):
     # Concentration/memory
 
     conc_mand1 = CamcopsColumn(
-        FN_CONC_MAND1, Integer,
-        comment="Problems in concentrating during past monnth?" +
-                CMT_1_NO_2_YES,
+        FN_CONC_MAND1,
+        Integer,
+        comment="Problems in concentrating during past monnth?"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     conc_mand2 = CamcopsColumn(
-        FN_CONC_MAND2, Integer,
-        comment="Problems with forgetting things during past month?" +
-                CMT_1_NO_2_YES,
+        FN_CONC_MAND2,
+        Integer,
+        comment="Problems with forgetting things during past month?"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     conc1 = CamcopsColumn(
-        FN_CONC1, Integer,
-        comment="Concentration/memory problems: days in past week" +
-                CMT_DAYS_PER_WEEK,
+        FN_CONC1,
+        Integer,
+        comment="Concentration/memory problems: days in past week"
+        + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     conc2 = CamcopsColumn(
-        FN_CONC2, Integer,
+        FN_CONC2,
+        Integer,
         comment="In past week, could concentrate on all of: TV, newspaper, "
-                "conversation" + CMT_1_YES_2_NO,
+        "conversation" + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     conc3 = CamcopsColumn(
-        FN_CONC3, Integer,
+        FN_CONC3,
+        Integer,
         comment="Problems with concentration have stopped you from getting on "
-                "with things in past week" + CMT_1_NO_2_YES,
+        "with things in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     conc_dur = CamcopsColumn(
-        FN_CONC_DUR, Integer,
+        FN_CONC_DUR,
+        Integer,
         comment="Problems with concentration: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
     conc4 = CamcopsColumn(
-        FN_CONC4, Integer,
+        FN_CONC4,
+        Integer,
         comment="Forgotten anything important in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     forget_dur = CamcopsColumn(
-        FN_FORGET_DUR, Integer,
+        FN_FORGET_DUR,
+        Integer,
         comment="Problems with memory: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2151,111 +2308,129 @@ class Cisr(TaskHasPatientMixin, Task):
     # Sleep
 
     sleep_mand1 = CamcopsColumn(
-        FN_SLEEP_MAND1, Integer,
+        FN_SLEEP_MAND1,
+        Integer,
         comment="Problems with sleep loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     sleep_lose1 = CamcopsColumn(
-        FN_SLEEP_LOSE1, Integer,
-        comment="Sleep loss: nights in past week with problems" +
-                CMT_NIGHTS_PER_WEEK,
+        FN_SLEEP_LOSE1,
+        Integer,
+        comment="Sleep loss: nights in past week with problems"
+        + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     sleep_lose2 = CamcopsColumn(
-        FN_SLEEP_LOSE2, Integer,
+        FN_SLEEP_LOSE2,
+        Integer,
         comment="On night with least sleep in past week, how long trying to "
-                "get to sleep?" + CMT_SLEEP_CHANGE,
+        "get to sleep?" + CMT_SLEEP_CHANGE,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     sleep_lose3 = CamcopsColumn(
-        FN_SLEEP_LOSE3, Integer,
+        FN_SLEEP_LOSE3,
+        Integer,
         comment="On how many nights in past week did you spend >=3h trying to "
-                "get to sleep?" + CMT_NIGHTS_PER_WEEK,
+        "get to sleep?" + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     sleep_emw = CamcopsColumn(
-        FN_SLEEP_EMW, Integer,
+        FN_SLEEP_EMW,
+        Integer,
         comment="Woken >2h earlier (and couldn't return to sleep) in past "
-                "week?" + CMT_1_NO_2_YES,
+        "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     sleep_cause = CamcopsColumn(
-        FN_SLEEP_CAUSE, Integer,
+        FN_SLEEP_CAUSE,
+        Integer,
         comment="What are your sleep difficulties caused by? (1 noise, "
-                "2 shift work, 3 pain/illness, 4 worries, 5 unknown, 6 other",
+        "2 shift work, 3 pain/illness, 4 worries, 5 unknown, 6 other",
         permitted_value_checker=ONE_TO_SIX_CHECKER,
     )
     sleep_mand2 = CamcopsColumn(
-        FN_SLEEP_MAND2, Integer,
+        FN_SLEEP_MAND2,
+        Integer,
         comment="Problems with excess sleep in past month (1 no, 2 slept more "
-                "than usual but not a problem, 3 yes)",
+        "than usual but not a problem, 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     sleep_gain1 = CamcopsColumn(
-        FN_SLEEP_GAIN1, Integer,
-        comment="Sleep gain: how many nights in past week" +
-                CMT_NIGHTS_PER_WEEK,
+        FN_SLEEP_GAIN1,
+        Integer,
+        comment="Sleep gain: how many nights in past week"
+        + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     sleep_gain2 = CamcopsColumn(
-        FN_SLEEP_GAIN2, Integer,
+        FN_SLEEP_GAIN2,
+        Integer,
         comment="On night with most sleep in past week, how much more than "
-                "usual?" + CMT_SLEEP_CHANGE,
+        "usual?" + CMT_SLEEP_CHANGE,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     sleep_gain3 = CamcopsColumn(
-        FN_SLEEP_GAIN3, Integer,
+        FN_SLEEP_GAIN3,
+        Integer,
         comment="On how many nights in past week did you sleep >3h longer "
-                "than usual?" + CMT_NIGHTS_PER_WEEK,
+        "than usual?" + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     sleep_dur = CamcopsColumn(
-        FN_SLEEP_DUR, Integer,
-        comment="How long have you had these problems with sleep?" +
-                CMT_DURATION,
+        FN_SLEEP_DUR,
+        Integer,
+        comment="How long have you had these problems with sleep?"
+        + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Irritability
 
     irrit_mand1 = CamcopsColumn(
-        FN_IRRIT_MAND1, Integer,
-        comment="Irritable with those around you in past month?" +
-                CMT_1_NO_2_YES,
+        FN_IRRIT_MAND1,
+        Integer,
+        comment="Irritable with those around you in past month?"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     irrit_mand2 = CamcopsColumn(
-        FN_IRRIT_MAND2, Integer,
+        FN_IRRIT_MAND2,
+        Integer,
         comment="Short-tempered/angry over trivial things in past month? "
-                "(1 no, 2 sometimes, 3 yes)",
+        "(1 no, 2 sometimes, 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     irrit1 = CamcopsColumn(
-        FN_IRRIT1, Integer,
-        comment="Irritable/short-tempered/angry: days in past week" +
-                CMT_DAYS_PER_WEEK,
+        FN_IRRIT1,
+        Integer,
+        comment="Irritable/short-tempered/angry: days in past week"
+        + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     irrit2 = CamcopsColumn(
-        FN_IRRIT2, Integer,
+        FN_IRRIT2,
+        Integer,
         comment="Irritable/short-tempered/angry: for >1h on any day in past "
-                "week?" + CMT_1_NO_2_YES,
+        "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     irrit3 = CamcopsColumn(
-        FN_IRRIT3, Integer,
+        FN_IRRIT3,
+        Integer,
         comment="Irritable/short-tempered/angry: wanted to shout at someone? "
-                "(1 no; yes but didn't shout; 3 yes and did shout)",
+        "(1 no; yes but didn't shout; 3 yes and did shout)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     irrit4 = CamcopsColumn(
-        FN_IRRIT4, Integer,
+        FN_IRRIT4,
+        Integer,
         comment="In past week, have you had arguments/rows/lost temper? "
-                "(1 no; 2 yes but justified; 3 yes)",
+        "(1 no; 2 yes but justified; 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     irrit_dur = CamcopsColumn(
-        FN_IRRIT_DUR, Integer,
+        FN_IRRIT_DUR,
+        Integer,
         comment="Irritable/short-tempered/angry: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2263,40 +2438,47 @@ class Cisr(TaskHasPatientMixin, Task):
     # Hypochondriasis
 
     hypo_mand1 = CamcopsColumn(
-        FN_HYPO_MAND1, Integer,
-        comment="Worried about physical health in past month?" +
-                CMT_1_NO_2_YES,
+        FN_HYPO_MAND1,
+        Integer,
+        comment="Worried about physical health in past month?"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     hypo_mand2 = CamcopsColumn(
-        FN_HYPO_MAND2, Integer,
+        FN_HYPO_MAND2,
+        Integer,
         comment="Do you worry you have a serious illness?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     hypo1 = CamcopsColumn(
-        FN_HYPO1, Integer,
+        FN_HYPO1,
+        Integer,
         comment="Worrying about health/having a serious illness: how many "
-                "days in past week?" + CMT_DAYS_PER_WEEK,
+        "days in past week?" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     hypo2 = CamcopsColumn(
-        FN_HYPO2, Integer,
+        FN_HYPO2,
+        Integer,
         comment="Worrying too much about physical health?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     hypo3 = CamcopsColumn(
-        FN_HYPO3, Integer,
+        FN_HYPO3,
+        Integer,
         comment="Worrying about health: how unpleasant?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     hypo4 = CamcopsColumn(
-        FN_HYPO4, Integer,
-        comment="Able to take mind off health worries in past week?" +
-                CMT_1_YES_2_NO,
+        FN_HYPO4,
+        Integer,
+        comment="Able to take mind off health worries in past week?"
+        + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     hypo_dur = CamcopsColumn(
-        FN_HYPO_DUR, Integer,
+        FN_HYPO_DUR,
+        Integer,
         comment="Worrying about physical health: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2304,216 +2486,253 @@ class Cisr(TaskHasPatientMixin, Task):
     # Depression
 
     depr_mand1 = CamcopsColumn(
-        FN_DEPR_MAND1, Integer,
+        FN_DEPR_MAND1,
+        Integer,
         comment="Sad/miserable/depressed in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depr1 = CamcopsColumn(
-        FN_DEPR1, Integer,
+        FN_DEPR1,
+        Integer,
         comment="Sad/miserable/depressed in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depr_mand2 = CamcopsColumn(
-        FN_DEPR_MAND2, Integer,
+        FN_DEPR_MAND2,
+        Integer,
         comment="In the past month, able to enjoy/take an interest in things "
-                "as much as usual?" + CMT_ANHEDONIA,
+        "as much as usual?" + CMT_ANHEDONIA,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     depr2 = CamcopsColumn(
-        FN_DEPR2, Integer,
+        FN_DEPR2,
+        Integer,
         comment="In the past week, able to enjoy/take an interest in things "
-                "as much as usual?" + CMT_ANHEDONIA,
+        "as much as usual?" + CMT_ANHEDONIA,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     depr3 = CamcopsColumn(
-        FN_DEPR3, Integer,
+        FN_DEPR3,
+        Integer,
         comment="[Depressed mood] or [anhedonia] on how many days in past "
-                "week" + CMT_DAYS_PER_WEEK,
+        "week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     depr4 = CamcopsColumn(
-        FN_DEPR4, Integer,
+        FN_DEPR4,
+        Integer,
         comment="[Depressed mood] or [anhedonia] for >3h on any day in past "
-                "week?" + CMT_1_NO_2_YES,
+        "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depr_content = CamcopsColumn(
-        FN_DEPR_CONTENT, Integer,
-        comment="Main reason for [depressed mood] or [anhedonia]?" +
-                CMT_STRESSORS,
+        FN_DEPR_CONTENT,
+        Integer,
+        comment="Main reason for [depressed mood] or [anhedonia]?"
+        + CMT_STRESSORS,
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
     depr5 = CamcopsColumn(
-        FN_DEPR5, Integer,
+        FN_DEPR5,
+        Integer,
         comment="In past week, during [depressed mood] or [anhedonia], did "
-                "nice things/company make you happier? "
-                "(1 always, 2 sometimes, 3 no)",
+        "nice things/company make you happier? "
+        "(1 always, 2 sometimes, 3 no)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     depr_dur = CamcopsColumn(
-        FN_DEPR_DUR, Integer,
+        FN_DEPR_DUR,
+        Integer,
         comment="Depressed mood/anhedonia: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
     depth1 = CamcopsColumn(
-        FN_DEPTH1, Integer,
+        FN_DEPTH1,
+        Integer,
         comment="Diurnal mood variation in past week (1 worse in the morning, "
-                "2 worse in the evening, 3 varies, 4 no difference)",
+        "2 worse in the evening, 3 varies, 4 no difference)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     depth2 = CamcopsColumn(
-        FN_DEPTH2, Integer,
+        FN_DEPTH2,
+        Integer,
         comment="Libido in past month (1 not applicable, 2 no change, "
-                "3 increased, 4 decreased)",
+        "3 increased, 4 decreased)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     depth3 = CamcopsColumn(
-        FN_DEPTH3, Integer,
+        FN_DEPTH3,
+        Integer,
         comment="Restlessness in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depth4 = CamcopsColumn(
-        FN_DEPTH4, Integer,
+        FN_DEPTH4,
+        Integer,
         comment="Psychomotor retardation in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depth5 = CamcopsColumn(
-        FN_DEPTH5, Integer,
+        FN_DEPTH5,
+        Integer,
         comment="Guilt/blamed self in past week (1 never, 2 only when it was "
-                "my fault, 3 sometimes, 4 often)",
+        "my fault, 3 sometimes, 4 often)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     depth6 = CamcopsColumn(
-        FN_DEPTH6, Integer,
-        comment="Feeling not as good as other people in past week" +
-                CMT_1_NO_2_YES,
+        FN_DEPTH6,
+        Integer,
+        comment="Feeling not as good as other people in past week"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depth7 = CamcopsColumn(
-        FN_DEPTH7, Integer,
+        FN_DEPTH7,
+        Integer,
         comment="Hopeless in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     depth8 = CamcopsColumn(
-        FN_DEPTH8, Integer,
+        FN_DEPTH8,
+        Integer,
         comment="Life not worth living in past week (1 no, 2 sometimes, "
-                "3 always)",
+        "3 always)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     depth9 = CamcopsColumn(
-        FN_DEPTH9, Integer,
+        FN_DEPTH9,
+        Integer,
         comment="Thoughts of suicide in past week (1 no; 2 yes, but would "
-                "never commit suicide; 3 yes)",
+        "never commit suicide; 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     depth10 = CamcopsColumn(
-        FN_DEPTH10, Integer,
+        FN_DEPTH10,
+        Integer,
         comment="Thoughts of way to kill self in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     doctor = CamcopsColumn(
-        FN_DOCTOR, Integer,
+        FN_DOCTOR,
+        Integer,
         comment="Have you spoken to your doctor about these thoughts of "
-                "killing yourself (1 yes; 2 no, but have talked to other "
-                "people; 3 no)",
+        "killing yourself (1 yes; 2 no, but have talked to other "
+        "people; 3 no)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
 
     # Worry/generalized anxiety
 
     worry_mand1 = CamcopsColumn(
-        FN_WORRY_MAND1, Integer,
+        FN_WORRY_MAND1,
+        Integer,
         comment="Excessive worry in past month?" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     worry_mand2 = CamcopsColumn(
-        FN_WORRY_MAND2, Integer,
+        FN_WORRY_MAND2,
+        Integer,
         comment="Any worries at all in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     worry_cont1 = CamcopsColumn(
-        FN_WORRY_CONT1, Integer,
+        FN_WORRY_CONT1,
+        Integer,
         comment="Main source of worry in past week?" + CMT_STRESSORS,
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
     worry2 = CamcopsColumn(
-        FN_WORRY2, Integer,
+        FN_WORRY2,
+        Integer,
         comment="Worries (about things other than physical health) on how "
-                "many days in past week" + CMT_DAYS_PER_WEEK,
+        "many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     worry3 = CamcopsColumn(
-        FN_WORRY3, Integer,
+        FN_WORRY3,
+        Integer,
         comment="Worrying too much?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     worry4 = CamcopsColumn(
-        FN_WORRY4, Integer,
+        FN_WORRY4,
+        Integer,
         comment="How unpleasant is worry (about things other than physical "
-                "health)" + CMT_UNPLEASANT,
+        "health)" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     worry5 = CamcopsColumn(
-        FN_WORRY5, Integer,
+        FN_WORRY5,
+        Integer,
         comment="Worry (about things other than physical health) for >3h on "
-                "any day in past week?" + CMT_1_NO_2_YES,
+        "any day in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     worry_dur = CamcopsColumn(
-        FN_WORRY_DUR, Integer,
+        FN_WORRY_DUR,
+        Integer,
         comment="Worry (about things other than physical health): for how "
-                "long?" + CMT_DURATION,
+        "long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     anx_mand1 = CamcopsColumn(
-        FN_ANX_MAND1, Integer,
+        FN_ANX_MAND1,
+        Integer,
         comment="Anxious/nervous in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     anx_mand2 = CamcopsColumn(
-        FN_ANX_MAND2, Integer,
-        comment="Muscle tension/couldn't relax in past month?" +
-                CMT_NO_SOMETIMES_OFTEN,
+        FN_ANX_MAND2,
+        Integer,
+        comment="Muscle tension/couldn't relax in past month?"
+        + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     anx_phobia1 = CamcopsColumn(
-        FN_ANX_PHOBIA1, Integer,
+        FN_ANX_PHOBIA1,
+        Integer,
         comment="Phobic anxiety in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     anx_phobia2 = CamcopsColumn(
-        FN_ANX_PHOBIA2, Integer,
+        FN_ANX_PHOBIA2,
+        Integer,
         comment="Phobic anxiety: always specific? (1 always specific, "
-                "2 sometimes general)",
+        "2 sometimes general)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     anx2 = CamcopsColumn(
-        FN_ANX2, Integer,
-        comment="Anxiety/nervousness/tension: how many days in past week" +
-                CMT_DAYS_PER_WEEK,
+        FN_ANX2,
+        Integer,
+        comment="Anxiety/nervousness/tension: how many days in past week"
+        + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     anx3 = CamcopsColumn(
-        FN_ANX3, Integer,
-        comment="Anxiety/nervousness/tension: how unpleasant in past week" +
-                CMT_UNPLEASANT,
+        FN_ANX3,
+        Integer,
+        comment="Anxiety/nervousness/tension: how unpleasant in past week"
+        + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
     anx4 = CamcopsColumn(
-        FN_ANX4, Integer,
+        FN_ANX4,
+        Integer,
         comment="Anxiety/nervousness/tension: physical symptoms in past "
-                "week?" + CMT_1_NO_2_YES,
+        "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     anx5 = CamcopsColumn(
-        FN_ANX5, Integer,
+        FN_ANX5,
+        Integer,
         comment="Anxiety/nervousness/tension: for >3h on any day in past "
-                "week?" + CMT_1_NO_2_YES,
+        "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     anx_dur = CamcopsColumn(
-        FN_ANX_DUR, Integer,
+        FN_ANX_DUR,
+        Integer,
         comment="Anxiety/nervousness/tension: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2521,42 +2740,49 @@ class Cisr(TaskHasPatientMixin, Task):
     # Specific phobias
 
     phobias_mand = CamcopsColumn(
-        FN_PHOBIAS_MAND, Integer,
+        FN_PHOBIAS_MAND,
+        Integer,
         comment="Phobic avoidance in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     phobias_type1 = CamcopsColumn(
-        FN_PHOBIAS_TYPE1, Integer,
+        FN_PHOBIAS_TYPE1,
+        Integer,
         comment="Which phobia? (1 travelling alone by bus/train; 2 being far "
-                "from home; 3 public eating/speaking; 4 sight of blood; "
-                "5 crowded shops; 6 insects/spiders/animals; 7 being watched; "
-                "8 enclosed spaces or heights; 9 something else)",
+        "from home; 3 public eating/speaking; 4 sight of blood; "
+        "5 crowded shops; 6 insects/spiders/animals; 7 being watched; "
+        "8 enclosed spaces or heights; 9 something else)",
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
     phobias1 = CamcopsColumn(
-        FN_PHOBIAS1, Integer,
+        FN_PHOBIAS1,
+        Integer,
         comment="Phobic anxiety: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     phobias2 = CamcopsColumn(
-        FN_PHOBIAS2, Integer,
-        comment="Phobic anxiety: physical symptoms in past week?" +
-                CMT_1_NO_2_YES,
+        FN_PHOBIAS2,
+        Integer,
+        comment="Phobic anxiety: physical symptoms in past week?"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     phobias3 = CamcopsColumn(
-        FN_PHOBIAS3, Integer,
+        FN_PHOBIAS3,
+        Integer,
         comment="Phobic avoidance in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     phobias4 = CamcopsColumn(
-        FN_PHOBIAS4, Integer,
+        FN_PHOBIAS4,
+        Integer,
         comment="Phobic avoidance: how many times in past week? (1: none, "
-                "2: 1–3, 3: >=4)",
+        "2: 1–3, 3: >=4)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     phobias_dur = CamcopsColumn(
-        FN_PHOBIAS_DUR, Integer,
+        FN_PHOBIAS_DUR,
+        Integer,
         comment="Phobic anxiety: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2564,112 +2790,142 @@ class Cisr(TaskHasPatientMixin, Task):
     # Panic
 
     panic_mand = CamcopsColumn(
-        FN_PANIC_MAND, Integer,
+        FN_PANIC_MAND,
+        Integer,
         comment="Panic in past month (1: no, my anxiety never got that bad; "
-                "2: yes, sometimes; 3: yes, often)",
+        "2: yes, sometimes; 3: yes, often)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     panic1 = CamcopsColumn(
-        FN_PANIC1, Integer,
+        FN_PANIC1,
+        Integer,
         comment="Panic: how often in past week (1 not in past seven days, "
-                "2 once, 3 more than once)",
+        "2 once, 3 more than once)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     panic2 = CamcopsColumn(
-        FN_PANIC2, Integer,
+        FN_PANIC2,
+        Integer,
         comment="Panic: how unpleasant in past week (1 a little "
-                "uncomfortable; 2 unpleasant; 3 unbearable, or very "
-                "unpleasant)",
+        "uncomfortable; 2 unpleasant; 3 unbearable, or very "
+        "unpleasant)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     panic3 = CamcopsColumn(
-        FN_PANIC3, Integer,
+        FN_PANIC3,
+        Integer,
         comment="Panic: in the past week, did the worst panic last >10min "
-                "(1: <10min; 2 >=10min)",
+        "(1: <10min; 2 >=10min)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     panic4 = CamcopsColumn(
-        FN_PANIC4, Integer,
+        FN_PANIC4,
+        Integer,
         comment="Do panics start suddenly?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_a = CamcopsColumn(
-        FN_PANSYM_A, Integer,
+        FN_PANSYM_A,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "heart racing" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_b = CamcopsColumn(
-        FN_PANSYM_B, Integer,
+        FN_PANSYM_B,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "hands sweaty/clammy" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_c = CamcopsColumn(
-        FN_PANSYM_C, Integer,
+        FN_PANSYM_C,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "trembling/shaking" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_d = CamcopsColumn(
-        FN_PANSYM_D, Integer,
+        FN_PANSYM_D,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "short of breath" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_e = CamcopsColumn(
-        FN_PANSYM_E, Integer,
+        FN_PANSYM_E,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "choking sensation" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_f = CamcopsColumn(
-        FN_PANSYM_F, Integer,
-        comment=(CMT_PANIC_SYMPTOM + "chest pain/pressure/discomfort" +
-                 CMT_1_NO_2_YES),
+        FN_PANSYM_F,
+        Integer,
+        comment=(
+            CMT_PANIC_SYMPTOM
+            + "chest pain/pressure/discomfort"
+            + CMT_1_NO_2_YES
+        ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_g = CamcopsColumn(
-        FN_PANSYM_G, Integer,
+        FN_PANSYM_G,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "nausea" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_h = CamcopsColumn(
-        FN_PANSYM_H, Integer,
-        comment=(CMT_PANIC_SYMPTOM + "dizzy/unsteady/lightheaded/faint" +
-                 CMT_1_NO_2_YES),
+        FN_PANSYM_H,
+        Integer,
+        comment=(
+            CMT_PANIC_SYMPTOM
+            + "dizzy/unsteady/lightheaded/faint"
+            + CMT_1_NO_2_YES
+        ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_i = CamcopsColumn(
-        FN_PANSYM_I, Integer,
-        comment=(CMT_PANIC_SYMPTOM + "derealization/depersonalization" +
-                 CMT_1_NO_2_YES),
+        FN_PANSYM_I,
+        Integer,
+        comment=(
+            CMT_PANIC_SYMPTOM
+            + "derealization/depersonalization"
+            + CMT_1_NO_2_YES
+        ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_j = CamcopsColumn(
-        FN_PANSYM_J, Integer,
-        comment=(CMT_PANIC_SYMPTOM + "losing control/going crazy" +
-                 CMT_1_NO_2_YES),
+        FN_PANSYM_J,
+        Integer,
+        comment=(
+            CMT_PANIC_SYMPTOM + "losing control/going crazy" + CMT_1_NO_2_YES
+        ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_k = CamcopsColumn(
-        FN_PANSYM_K, Integer,
+        FN_PANSYM_K,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "fear were dying" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_l = CamcopsColumn(
-        FN_PANSYM_L, Integer,
+        FN_PANSYM_L,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "tingling/numbness" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     pansym_m = CamcopsColumn(
-        FN_PANSYM_M, Integer,
+        FN_PANSYM_M,
+        Integer,
         comment=CMT_PANIC_SYMPTOM + "hot flushes/chills" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     panic5 = CamcopsColumn(
-        FN_PANIC5, Integer,
-        comment="Is panic always brought on by specific things?" +
-                CMT_1_NO_2_YES,
+        FN_PANIC5,
+        Integer,
+        comment="Is panic always brought on by specific things?"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     panic_dur = CamcopsColumn(
-        FN_PANIC_DUR, Integer,
+        FN_PANIC_DUR,
+        Integer,
         comment="Panic: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2677,35 +2933,41 @@ class Cisr(TaskHasPatientMixin, Task):
     # Compulsions
 
     comp_mand1 = CamcopsColumn(
-        FN_COMP_MAND1, Integer,
+        FN_COMP_MAND1,
+        Integer,
         comment="Compulsions in past month" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     comp1 = CamcopsColumn(
-        FN_COMP1, Integer,
+        FN_COMP1,
+        Integer,
         comment="Compulsions: how many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     comp2 = CamcopsColumn(
-        FN_COMP2, Integer,
+        FN_COMP2,
+        Integer,
         comment="Compulsions: tried to stop in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     comp3 = CamcopsColumn(
-        FN_COMP3, Integer,
-        comment="Compulsions: upsetting/annoying in past week" +
-                CMT_1_NO_2_YES,
+        FN_COMP3,
+        Integer,
+        comment="Compulsions: upsetting/annoying in past week"
+        + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     comp4 = CamcopsColumn(
-        FN_COMP4, Integer,
+        FN_COMP4,
+        Integer,
         comment="Compulsions: greatest number of repeats in past week "
-                "(1: once, i.e. two times altogether; 2: two repeats; "
-                "3: three or more repeats)",
+        "(1: once, i.e. two times altogether; 2: two repeats; "
+        "3: three or more repeats)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     comp_dur = CamcopsColumn(
-        FN_COMP_DUR, Integer,
+        FN_COMP_DUR,
+        Integer,
         comment="Compulsions: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2713,40 +2975,47 @@ class Cisr(TaskHasPatientMixin, Task):
     # Obsessions
 
     obsess_mand1 = CamcopsColumn(
-        FN_OBSESS_MAND1, Integer,
+        FN_OBSESS_MAND1,
+        Integer,
         comment="Obsessions in past month" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     obsess_mand2 = CamcopsColumn(
-        FN_OBSESS_MAND2, Integer,
+        FN_OBSESS_MAND2,
+        Integer,
         comment="Obsessions: same thoughts repeating or general worries (1 "
-                "same thoughts over and over, 2 worrying about something in "
-                "general)",
+        "same thoughts over and over, 2 worrying about something in "
+        "general)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     obsess1 = CamcopsColumn(
-        FN_OBSESS1, Integer,
+        FN_OBSESS1,
+        Integer,
         comment="Obsessions: how many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
     obsess2 = CamcopsColumn(
-        FN_OBSESS2, Integer,
+        FN_OBSESS2,
+        Integer,
         comment="Obsessions: tried to stop in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     obsess3 = CamcopsColumn(
-        FN_OBSESS3, Integer,
+        FN_OBSESS3,
+        Integer,
         comment="Obsessions: upsetting/annoying in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     obsess4 = CamcopsColumn(
-        FN_OBSESS4, Integer,
+        FN_OBSESS4,
+        Integer,
         comment="Obsessions: longest time spent thinking these thoughts, in "
-                "past week (1: <15min; 2: >=15min)",
+        "past week (1: <15min; 2: >=15min)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
     obsess_dur = CamcopsColumn(
-        FN_OBSESS_DUR, Integer,
+        FN_OBSESS_DUR,
+        Integer,
         comment="Obsessions: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
@@ -2754,11 +3023,12 @@ class Cisr(TaskHasPatientMixin, Task):
     # Overall impact
 
     overall2 = CamcopsColumn(
-        FN_OVERALL2, Integer,
+        FN_OVERALL2,
+        Integer,
         comment="Overall impact on normal activities in past week (1 not at "
-                "all; 2 they have made things more difficult but I get "
-                "everything done; 3 they have stopped one activity; 4 they "
-                "have stopped >1 activity)",
+        "all; 2 they have made things more difficult but I get "
+        "everything done; 3 they have stopped one activity; 4 they "
+        "have stopped >1 activity)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
 
@@ -2793,8 +3063,9 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q in QUESTIONS_1_YES_2_NO:
             return value == 2
         else:
-            raise ValueError("answer_is_no() called for inappropriate "
-                             f"question {q}")
+            raise ValueError(
+                "answer_is_no() called for inappropriate " f"question {q}"
+            )
 
     def answer_is_yes(self, q: CisrQuestion, value: int = V_UNKNOWN) -> bool:
         if value == V_UNKNOWN:  # "Please look it up for me"
@@ -2804,16 +3075,18 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q in QUESTIONS_1_YES_2_NO:
             return value == 1
         else:
-            raise ValueError("answer_is_yes() called for inappropriate "
-                             f"question {q}")
+            raise ValueError(
+                "answer_is_yes() called for inappropriate " f"question {q}"
+            )
 
     def answered(self, q: CisrQuestion, value: int = V_UNKNOWN) -> bool:
         if value == V_UNKNOWN:  # "Please look it up for me"
             value = self.int_value_for_question(q)
         return value != V_MISSING
 
-    def get_textual_answer(self, req: CamcopsRequest,
-                           q: CisrQuestion) -> Optional[str]:
+    def get_textual_answer(
+        self, req: CamcopsRequest, q: CisrQuestion
+    ) -> Optional[str]:
         value = self.value_for_question(q)
         if value is None or value == V_MISSING:
             return None
@@ -2824,9 +3097,11 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q in QUESTIONS_PROMPT_ONLY:
             return NOT_APPLICABLE_TEXT
         fieldname = fieldname_for_q(q)
-        if (q in QUESTIONS_YN_SPECIFIC_TEXT or
-                q in QUESTIONS_MULTIWAY or
-                q in QUESTIONS_MULTIWAY_WITH_EXTRA_STEM):
+        if (
+            q in QUESTIONS_YN_SPECIFIC_TEXT
+            or q in QUESTIONS_MULTIWAY
+            or q in QUESTIONS_MULTIWAY_WITH_EXTRA_STEM
+        ):
             return self.wxstring(req, fieldname + f"_a{value}")
         elif q in QUESTIONS_OVERALL_DURATION:
             return self.wxstring(req, f"duration_a{value}")
@@ -2897,8 +3172,10 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No loss of appetite in past month.")
                 jump_to(CQ.APPETITE2_INCREASE_PAST_MONTH)
             elif self.answer_is_yes(q, v):
-                r.decide("Loss of appetite in past month. "
-                         "Incrementing depr_crit_3_somatic_synd.")
+                r.decide(
+                    "Loss of appetite in past month. "
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 r.depr_crit_3_somatic_synd += 1
                 r.weight_change = WTCHANGE_APPETITE_LOSS
 
@@ -2917,12 +3194,16 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.WEIGHT3_LOST_LOTS:
             if v == V_WEIGHT3_WTLOSS_GE_HALF_STONE:
-                r.decide("Weight loss ≥0.5st in past month. "
-                         "Incrementing depr_crit_3_somatic_synd.")
+                r.decide(
+                    "Weight loss ≥0.5st in past month. "
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 r.weight_change = WTCHANGE_WTLOSS_GE_HALF_STONE
                 r.depr_crit_3_somatic_synd += 1
-            r.decide("Loss of weight, so skipping appetite/weight gain "
-                     "questions.")
+            r.decide(
+                "Loss of weight, so skipping appetite/weight gain "
+                "questions."
+            )
             jump_to(CQ.GP_YEAR)
 
         elif q == CQ.APPETITE2_INCREASE_PAST_MONTH:
@@ -2939,8 +3220,10 @@ class Cisr(TaskHasPatientMixin, Task):
                 jump_to(CQ.GP_YEAR)
 
         elif q == CQ.WEIGHT5_GAINED_LOTS:
-            if (v == V_WEIGHT5_WTGAIN_GE_HALF_STONE and
-                    r.weight_change == WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN):  # noqa
+            if (
+                v == V_WEIGHT5_WTGAIN_GE_HALF_STONE
+                and r.weight_change == WTCHANGE_NONDELIBERATE_WTLOSS_OR_WTGAIN
+            ):
                 # ... redundant check on weight_change, I think!
                 r.decide("Weight gain ≥0.5 st in past month.")
                 r.weight_change = WTCHANGE_WTGAIN_GE_HALF_STONE
@@ -2951,17 +3234,23 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.GP_YEAR:
             # Score the preceding block:
-            if (r.weight_change == WTCHANGE_WTLOSS_GE_HALF_STONE and
-                    self.answer_is_yes(CQ.APPETITE1_LOSS_PAST_MONTH)):
+            if (
+                r.weight_change == WTCHANGE_WTLOSS_GE_HALF_STONE
+                and self.answer_is_yes(CQ.APPETITE1_LOSS_PAST_MONTH)
+            ):
                 r.decide(
                     "Appetite loss and weight loss ≥0.5st in past month. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
-            if (r.weight_change == WTCHANGE_WTGAIN_GE_HALF_STONE and
-                    self.answer_is_yes(CQ.APPETITE2_INCREASE_PAST_MONTH)):
+            if (
+                r.weight_change == WTCHANGE_WTGAIN_GE_HALF_STONE
+                and self.answer_is_yes(CQ.APPETITE2_INCREASE_PAST_MONTH)
+            ):
                 r.decide(
                     "Appetite gain and weight gain ≥0.5st in past month. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DISABLE:
@@ -2987,27 +3276,35 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No pain in last 7 days.")
                 jump_to(CQ.SOMATIC_MAND2_DISCOMFORT)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Pain on >=4 of last 7 days. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Pain on >=4 of last 7 days. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         elif q == CQ.SOMATIC_PAIN3_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Pain for >3h on any day in past week. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Pain for >3h on any day in past week. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         elif q == CQ.SOMATIC_PAIN4_UNPLEASANT:
             if v >= V_HOW_UNPLEASANT_UNPLEASANT:
-                r.decide("Pain 'unpleasant' or worse in past week. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Pain 'unpleasant' or worse in past week. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         elif q == CQ.SOMATIC_PAIN5_INTERRUPTED_INTERESTING:
             if self.answer_is_yes(q, v):
-                r.decide("Pain interrupted an interesting activity in past "
-                         "week. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Pain interrupted an interesting activity in past "
+                    "week. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
             r.decide("There was pain, so skip 'discomfort' section.")
             jump_to(CQ.SOMATIC_DUR)  # skip SOMATIC_MAND2
@@ -3019,8 +3316,10 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.SOMATIC_DIS1_PSYCHOL_EXAC:
             if v == V_SOMATIC_DIS1_NEVER:
-                r.decide("Discomfort never exacerbated by being "
-                         "low/anxious/stressed.")
+                r.decide(
+                    "Discomfort never exacerbated by being "
+                    "low/anxious/stressed."
+                )
                 jump_to(CQ.FATIGUE_MAND1_TIRED_PAST_MONTH)
 
         elif q == CQ.SOMATIC_DIS2_DAYS_PAST_WEEK:
@@ -3028,27 +3327,35 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No discomfort in last 7 days.")
                 jump_to(CQ.FATIGUE_MAND1_TIRED_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Discomfort on >=4 days in past week. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Discomfort on >=4 days in past week. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         elif q == CQ.SOMATIC_DIS3_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Discomfort for >3h on any day in past week. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Discomfort for >3h on any day in past week. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         elif q == CQ.SOMATIC_DIS4_UNPLEASANT:
             if v >= V_HOW_UNPLEASANT_UNPLEASANT:
-                r.decide("Discomfort 'unpleasant' or worse in past week. "
-                         "Incrementing somatic_symptoms.")
+                r.decide(
+                    "Discomfort 'unpleasant' or worse in past week. "
+                    "Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         elif q == CQ.SOMATIC_DIS5_INTERRUPTED_INTERESTING:
             if self.answer_is_yes(q, v):
-                r.decide("Discomfort interrupted an interesting activity in "
-                         "past "
-                         "week. Incrementing somatic_symptoms.")
+                r.decide(
+                    "Discomfort interrupted an interesting activity in "
+                    "past "
+                    "week. Incrementing somatic_symptoms."
+                )
                 r.somatic_symptoms += 1
 
         # --------------------------------------------------------------------
@@ -3070,27 +3377,34 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("Not tired in past week.")
                 jump_to(CQ.FATIGUE_MAND2_LACK_ENERGY_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Tired on >=4 days in past week. "
-                         "Incrementing fatigue.")
+                r.decide(
+                    "Tired on >=4 days in past week. " "Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_TIRED2_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Tired for >3h on any day in past week. "
-                         "Incrementing fatigue.")
+                r.decide(
+                    "Tired for >3h on any day in past week. "
+                    "Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_TIRED3_HAD_TO_PUSH:
             if self.answer_is_yes(q, v):
-                r.decide("Tired enough to have to push self during past week. "
-                         "Incrementing fatigue.")
+                r.decide(
+                    "Tired enough to have to push self during past week. "
+                    "Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_TIRED4_DURING_ENJOYABLE:
             if self.answer_is_yes(q, v):
-                r.decide("Tired during an enjoyable activity during past "
-                         "week. "
-                         "Incrementing fatigue.")
+                r.decide(
+                    "Tired during an enjoyable activity during past "
+                    "week. "
+                    "Incrementing fatigue."
+                )
                 r.fatigue += 1
             r.decide("There was tiredness, so skip 'lack of energy' section.")
             jump_to(CQ.FATIGUE_DUR)  # skip FATIGUE_MAND2
@@ -3110,34 +3424,44 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("Not lacking in energy during last week.")
                 jump_to(CQ.CONC_MAND1_POOR_CONC_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Lacking in energy on >=4 days in past week. "
-                         "Incrementing fatigue.")
+                r.decide(
+                    "Lacking in energy on >=4 days in past week. "
+                    "Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_ENERGY2_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Lacking in energy for >3h on any day in past week. "
-                         "Incrementing fatigue.")
+                r.decide(
+                    "Lacking in energy for >3h on any day in past week. "
+                    "Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_ENERGY3_HAD_TO_PUSH:
             if self.answer_is_yes(q, v):
-                r.decide("Lacking in energy enough to have to push self during "
-                         "past week. Incrementing fatigue.")
+                r.decide(
+                    "Lacking in energy enough to have to push self during "
+                    "past week. Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_ENERGY4_DURING_ENJOYABLE:
             if self.answer_is_yes(q, v):
-                r.decide("Lacking in energy during an enjoyable activity "
-                         "during "
-                         "past week. Incrementing fatigue.")
+                r.decide(
+                    "Lacking in energy during an enjoyable activity "
+                    "during "
+                    "past week. Incrementing fatigue."
+                )
                 r.fatigue += 1
 
         elif q == CQ.FATIGUE_DUR:
             # Score preceding:
             if r.somatic_symptoms >= 2 and r.fatigue >= 2:
-                r.decide("somatic >= 2 and fatigue >= 2. "
-                         "Incrementing neurasthenia.")
+                r.decide(
+                    "somatic >= 2 and fatigue >= 2. "
+                    "Incrementing neurasthenia."
+                )
                 r.neurasthenia += 1
 
         # --------------------------------------------------------------------
@@ -3147,13 +3471,16 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q == CQ.CONC_MAND1_POOR_CONC_PAST_MONTH:
             # Score preceding:
             if r.fatigue >= 2:
-                r.decide("fatigue >= 2. "
-                         "Incrementing depr_crit_1_mood_anhedonia_energy.")
+                r.decide(
+                    "fatigue >= 2. "
+                    "Incrementing depr_crit_1_mood_anhedonia_energy."
+                )
                 r.depr_crit_1_mood_anhedonia_energy += 1
 
         elif q == CQ.CONC_MAND2_FORGETFUL_PAST_MONTH:
-            if (self.answer_is_no(CQ.CONC_MAND1_POOR_CONC_PAST_MONTH)
-                    and self.answer_is_no(q, v)):
+            if self.answer_is_no(
+                CQ.CONC_MAND1_POOR_CONC_PAST_MONTH
+            ) and self.answer_is_no(q, v):
                 r.decide("No problems with concentration or forgetfulness.")
                 jump_to(CQ.SLEEP_MAND1_LOSS_PAST_MONTH)
 
@@ -3162,26 +3489,37 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No concentration/memory problems in past week.")
                 jump_to(CQ.SLEEP_MAND1_LOSS_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Problems with concentration/memory problems on >=4 "
-                         "days in past week. Incrementing concentration_poor.")
+                r.decide(
+                    "Problems with concentration/memory problems on >=4 "
+                    "days in past week. Incrementing concentration_poor."
+                )
                 r.concentration_poor += 1
-            if (self.answer_is_no(CQ.CONC_MAND1_POOR_CONC_PAST_MONTH) and
-                    self.answer_is_yes(CQ.CONC_MAND2_FORGETFUL_PAST_MONTH)):
-                r.decide("Forgetfulness, not concentration, problems; skip "
-                         "over more detailed concentration questions.")
-                jump_to(CQ.CONC4_FORGOTTEN_IMPORTANT)  # skip CONC2, CONC3, CONC_DUR  # noqa
+            if self.answer_is_no(
+                CQ.CONC_MAND1_POOR_CONC_PAST_MONTH
+            ) and self.answer_is_yes(CQ.CONC_MAND2_FORGETFUL_PAST_MONTH):
+                r.decide(
+                    "Forgetfulness, not concentration, problems; skip "
+                    "over more detailed concentration questions."
+                )
+                jump_to(
+                    CQ.CONC4_FORGOTTEN_IMPORTANT
+                )  # skip CONC2, CONC3, CONC_DUR  # noqa
 
         elif q == CQ.CONC2_CONC_FOR_TV_READING_CONVERSATION:
             if self.answer_is_no(q, v):
-                r.decide("Couldn't concentrate on at least one of {TV, "
-                         "newspaper, "
-                         "conversation}. Incrementing concentration_poor.")
+                r.decide(
+                    "Couldn't concentrate on at least one of {TV, "
+                    "newspaper, "
+                    "conversation}. Incrementing concentration_poor."
+                )
                 r.concentration_poor += 1
 
         elif q == CQ.CONC3_CONC_PREVENTED_ACTIVITIES:
             if self.answer_is_yes(q, v):
-                r.decide("Problems with concentration stopped usual/desired "
-                         "activity. Incrementing concentration_poor.")
+                r.decide(
+                    "Problems with concentration stopped usual/desired "
+                    "activity. Incrementing concentration_poor."
+                )
                 r.concentration_poor += 1
 
         elif q == CQ.CONC_DUR:
@@ -3190,8 +3528,10 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.CONC4_FORGOTTEN_IMPORTANT:
             if self.answer_is_yes(q, v):
-                r.decide("Forgotten something important in past week. "
-                         "Incrementing concentration_poor.")
+                r.decide(
+                    "Forgotten something important in past week. "
+                    "Incrementing concentration_poor."
+                )
                 r.concentration_poor += 1
 
         elif q == CQ.FORGET_DUR:
@@ -3206,12 +3546,14 @@ class Cisr(TaskHasPatientMixin, Task):
             if r.concentration_poor >= 2:
                 r.decide(
                     "concentration >= 2. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
             # This question:
             if self.answer_is_no(q, v):
-                r.decide("No problems with sleep loss in past month. "
-                         "Moving on.")
+                r.decide(
+                    "No problems with sleep loss in past month. " "Moving on."
+                )
                 jump_to(CQ.SLEEP_MAND2_GAIN_PAST_MONTH)
 
         elif q == CQ.SLEEP_LOSE1_NIGHTS_PAST_WEEK:
@@ -3219,51 +3561,67 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No problems with sleep in past week. Moving on.")
                 jump_to(CQ.IRRIT_MAND1_PEOPLE_PAST_MONTH)
             elif v == V_NIGHTS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Problems with sleep on >=4 nights in past week. "
-                         "Incrementing sleep_problems.")
+                r.decide(
+                    "Problems with sleep on >=4 nights in past week. "
+                    "Incrementing sleep_problems."
+                )
                 r.sleep_problems += 1
 
         elif q == CQ.SLEEP_LOSE2_DIS_WORST_DURATION:
             if v == V_SLEEP_CHANGE_LT_15_MIN:
-                r.decide("Less than 15min maximum delayed initiation of sleep "
-                         "in past week. Moving on.")
+                r.decide(
+                    "Less than 15min maximum delayed initiation of sleep "
+                    "in past week. Moving on."
+                )
                 jump_to(CQ.IRRIT_MAND1_PEOPLE_PAST_MONTH)
             elif v == V_SLEEP_CHANGE_15_MIN_TO_1_H:
-                r.decide("15min-1h maximum delayed initiation of sleep in past "
-                         "week. Incrementing sleep_problems.")
+                r.decide(
+                    "15min-1h maximum delayed initiation of sleep in past "
+                    "week. Incrementing sleep_problems."
+                )
                 r.sleep_problems += 1
             elif v == V_SLEEP_CHANGE_1_TO_3_H or v == V_SLEEP_CHANGE_GT_3_H:
-                r.decide(">=1h maximum delayed initiation of sleep in past "
-                         "week. Adding 2 to sleep_problems.")
+                r.decide(
+                    ">=1h maximum delayed initiation of sleep in past "
+                    "week. Adding 2 to sleep_problems."
+                )
                 r.sleep_problems += 2
 
         elif q == CQ.SLEEP_LOSE3_NIGHTS_GT_3H_DIS_PAST_WEEK:
             if v == V_NIGHTS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide(">=4 nights in past week with >=3h delayed "
-                         "initiation of "
-                         "sleep. Incrementing sleep_problems.")
+                r.decide(
+                    ">=4 nights in past week with >=3h delayed "
+                    "initiation of "
+                    "sleep. Incrementing sleep_problems."
+                )
                 r.sleep_problems += 1
 
         elif q == CQ.SLEEP_EMW_PAST_WEEK:
             if self.answer_is_yes(q, v):
-                r.decide("EMW of >2h in past week. "
-                         "Setting sleep_change to SLEEPCHANGE_EMW. "
-                         "Incrementing depr_crit_3_somatic_synd.")
+                r.decide(
+                    "EMW of >2h in past week. "
+                    "Setting sleep_change to SLEEPCHANGE_EMW. "
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 # Was: SLEEPCH += answer - 1 (which only does anything for a
                 # "yes" (2) answer).
                 # ... but at this point, SLEEPCH is always 0.
                 r.sleep_change = SLEEPCHANGE_EMW  # LIKELY REDUNDANT.
                 r.depr_crit_3_somatic_synd += 1
                 if r.sleep_problems >= 1:
-                    r.decide("EMW of >2h in past week and sleep_problems >= 1; "
-                             "setting sleep_change to SLEEPCHANGE_EMW.")
+                    r.decide(
+                        "EMW of >2h in past week and sleep_problems >= 1; "
+                        "setting sleep_change to SLEEPCHANGE_EMW."
+                    )
                     r.sleep_change = SLEEPCHANGE_EMW
             elif self.answer_is_no(q, v):
                 r.decide("No EMW of >2h in past week.")
                 if r.sleep_problems >= 1:
-                    r.decide("No EMW of >2h in past week, and sleep_problems "
-                             ">= 1. Setting sleep_change to "
-                             "SLEEPCHANGE_INSOMNIA_NOT_EMW.")
+                    r.decide(
+                        "No EMW of >2h in past week, and sleep_problems "
+                        ">= 1. Setting sleep_change to "
+                        "SLEEPCHANGE_INSOMNIA_NOT_EMW."
+                    )
                     r.sleep_change = SLEEPCHANGE_INSOMNIA_NOT_EMW
 
         elif q == CQ.SLEEP_CAUSE:
@@ -3271,8 +3629,10 @@ class Cisr(TaskHasPatientMixin, Task):
             jump_to(CQ.SLEEP_DUR)
 
         elif q == CQ.SLEEP_MAND2_GAIN_PAST_MONTH:
-            if (v == V_SLEEP_MAND2_NO or
-                    v == V_SLEEP_MAND2_YES_BUT_NOT_A_PROBLEM):
+            if (
+                v == V_SLEEP_MAND2_NO
+                or v == V_SLEEP_MAND2_YES_BUT_NOT_A_PROBLEM
+            ):
                 r.decide("No problematic sleep gain. Moving on.")
                 jump_to(CQ.IRRIT_MAND1_PEOPLE_PAST_MONTH)
 
@@ -3281,8 +3641,10 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No nights with sleep problems [gain] in past week.")
                 jump_to(CQ.IRRIT_MAND1_PEOPLE_PAST_MONTH)
             elif v == V_NIGHTS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Problems with sleep [gain] on >=4 nights in past "
-                         "week. Incrementing sleep_problems.")
+                r.decide(
+                    "Problems with sleep [gain] on >=4 nights in past "
+                    "week. Incrementing sleep_problems."
+                )
                 r.sleep_problems += 1
 
         elif q == CQ.SLEEP_GAIN2_EXTRA_ON_LONGEST_NIGHT:
@@ -3293,9 +3655,11 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("Sleep gain 15min-1h. Incrementing sleep_problems.")
                 r.sleep_problems += 1
             elif v >= V_SLEEP_CHANGE_1_TO_3_H:
-                r.decide("Sleep gain >=1h. "
-                         "Adding 2 to sleep_problems. "
-                         "Setting sleep_change to SLEEPCHANGE_INCREASE.")
+                r.decide(
+                    "Sleep gain >=1h. "
+                    "Adding 2 to sleep_problems. "
+                    "Setting sleep_change to SLEEPCHANGE_INCREASE."
+                )
                 r.sleep_problems += 2
                 r.sleep_change = SLEEPCHANGE_INCREASE
                 # Note that in the original, if the answer was 3
@@ -3306,8 +3670,10 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.SLEEP_GAIN3_NIGHTS_GT_3H_EXTRA_PAST_WEEK:
             if v == V_NIGHTS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Sleep gain of >3h on >=4 nights in past week. "
-                         "Incrementing sleep_problems.")
+                r.decide(
+                    "Sleep gain of >3h on >=4 nights in past week. "
+                    "Incrementing sleep_problems."
+                )
                 r.sleep_problems += 1
 
         elif q == CQ.SLEEP_DUR:
@@ -3322,18 +3688,23 @@ class Cisr(TaskHasPatientMixin, Task):
             if r.sleep_problems >= 2:
                 r.decide(
                     "sleep_problems >= 2. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
             # This bit erroneously lived under IRRIT_DUR in the original; see
             # discussion there:
             if r.sleep_problems >= 2 and r.fatigue >= 2:
-                r.decide("sleep_problems >=2 and fatigue >=2. "
-                         "Incrementing neurasthenia.")
+                r.decide(
+                    "sleep_problems >=2 and fatigue >=2. "
+                    "Incrementing neurasthenia."
+                )
                 r.neurasthenia += 1
             # This question:
             if self.answer_is_yes(q, v):
-                r.decide("Irritability (people) in past month; exploring "
-                         "further.")
+                r.decide(
+                    "Irritability (people) in past month; exploring "
+                    "further."
+                )
                 jump_to(CQ.IRRIT1_DAYS_PER_WEEK)
 
         elif q == CQ.IRRIT_MAND2_THINGS_PAST_MONTH:
@@ -3341,22 +3712,28 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No irritability. Moving on.")
                 jump_to(CQ.HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH)
             elif self.answered(q, v):
-                r.decide("Irritability (things) in past month; exploring "
-                         "further.")
+                r.decide(
+                    "Irritability (things) in past month; exploring "
+                    "further."
+                )
 
         elif q == CQ.IRRIT1_DAYS_PER_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_0:
                 r.decide("No irritability in past week. Moving on.")
                 jump_to(CQ.HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Irritable on >=4 days in past week. "
-                         "Incrementing irritability.")
+                r.decide(
+                    "Irritable on >=4 days in past week. "
+                    "Incrementing irritability."
+                )
                 r.irritability += 1
 
         elif q == CQ.IRRIT2_GT_1H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Irritable for >1h on any day in past week. "
-                         "Incrementing irritability.")
+                r.decide(
+                    "Irritable for >1h on any day in past week. "
+                    "Incrementing irritability."
+                )
                 r.irritability += 1
 
         elif q == CQ.IRRIT3_WANTED_TO_SHOUT:
@@ -3366,15 +3743,19 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.IRRIT4_ARGUMENTS:
             if v == V_IRRIT4_ARGUMENTS_YES_UNJUSTIFIED:
-                r.decide("Arguments without justification. "
-                         "Incrementing irritability.")
+                r.decide(
+                    "Arguments without justification. "
+                    "Incrementing irritability."
+                )
                 r.irritability += 1
 
         elif q == CQ.IRRIT_DUR:
             # Score recent things:
             if r.irritability >= 2 and r.fatigue >= 2:
-                r.decide("irritability >=2 and fatigue >=2. "
-                         "Incrementing neurasthenia.")
+                r.decide(
+                    "irritability >=2 and fatigue >=2. "
+                    "Incrementing neurasthenia."
+                )
                 r.neurasthenia += 1
             # In the original, we had the rule "sleep_problems >=2 and
             # fatigue >=2 -> incrementing neurasthenia" here, but that would mean  # noqa
@@ -3392,42 +3773,54 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH:
             if self.answer_is_yes(q, v):
-                r.decide("No worries about physical health in past month. "
-                         "Moving on.")
+                r.decide(
+                    "No worries about physical health in past month. "
+                    "Moving on."
+                )
                 jump_to(CQ.HYPO1_DAYS_PAST_WEEK)
 
         elif q == CQ.HYPO_MAND2_WORRIED_RE_SERIOUS_ILLNESS:
             if self.answer_is_no(q, v):
-                r.decide("No worries about having a serious illness. "
-                         "Moving on.")
+                r.decide(
+                    "No worries about having a serious illness. " "Moving on."
+                )
                 jump_to(CQ.DEPR_MAND1_LOW_MOOD_PAST_MONTH)
 
         elif q == CQ.HYPO1_DAYS_PAST_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_0:
-                r.decide("No days in past week worrying about health. "
-                         "Moving on.")
+                r.decide(
+                    "No days in past week worrying about health. " "Moving on."
+                )
                 jump_to(CQ.DEPR_MAND1_LOW_MOOD_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Worries about health on >=4 days in past week. "
-                         "Incrementing hypochondria.")
+                r.decide(
+                    "Worries about health on >=4 days in past week. "
+                    "Incrementing hypochondria."
+                )
                 r.hypochondria += 1
 
         elif q == CQ.HYPO2_WORRY_TOO_MUCH:
             if self.answer_is_yes(q, v):
-                r.decide("Worrying too much about health. "
-                         "Incrementing hypochondria.")
+                r.decide(
+                    "Worrying too much about health. "
+                    "Incrementing hypochondria."
+                )
                 r.hypochondria += 1
 
         elif q == CQ.HYPO3_HOW_UNPLEASANT:
             if v >= V_HOW_UNPLEASANT_UNPLEASANT:
-                r.decide("Worrying re health 'unpleasant' or worse in past "
-                         "week. Incrementing hypochondria.")
+                r.decide(
+                    "Worrying re health 'unpleasant' or worse in past "
+                    "week. Incrementing hypochondria."
+                )
                 r.hypochondria += 1
 
         elif q == CQ.HYPO4_CAN_DISTRACT:
             if self.answer_is_no(q, v):
-                r.decide("Cannot take mind off health worries by doing "
-                         "something else. Incrementing hypochondria.")
+                r.decide(
+                    "Cannot take mind off health worries by doing "
+                    "something else. Incrementing hypochondria."
+                )
                 r.hypochondria += 1
 
         elif q == CQ.HYPO_DUR:
@@ -3446,46 +3839,61 @@ class Cisr(TaskHasPatientMixin, Task):
             pass
 
         elif q == CQ.DEPR_MAND2_ENJOYMENT_PAST_MONTH:
-            if (v == V_ANHEDONIA_ENJOYING_NORMALLY and
-                    self.answer_is_no(CQ.DEPR1_LOW_MOOD_PAST_WEEK)):
-                r.decide("Neither low mood nor anhedonia in past month. "
-                         "Moving on.")
+            if v == V_ANHEDONIA_ENJOYING_NORMALLY and self.answer_is_no(
+                CQ.DEPR1_LOW_MOOD_PAST_WEEK
+            ):
+                r.decide(
+                    "Neither low mood nor anhedonia in past month. "
+                    "Moving on."
+                )
                 jump_to(CQ.WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH)
 
         elif q == CQ.DEPR2_ENJOYMENT_PAST_WEEK:
-            if (v == V_ANHEDONIA_ENJOYING_NORMALLY and
-                    self.answer_is_no(CQ.DEPR_MAND1_LOW_MOOD_PAST_MONTH)):
-                r.decide("No anhedonia in past week and no low mood in past "
-                         "month. Moving on.")
+            if v == V_ANHEDONIA_ENJOYING_NORMALLY and self.answer_is_no(
+                CQ.DEPR_MAND1_LOW_MOOD_PAST_MONTH
+            ):
+                r.decide(
+                    "No anhedonia in past week and no low mood in past "
+                    "month. Moving on."
+                )
                 jump_to(CQ.WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH)
             elif v >= V_ANHEDONIA_ENJOYING_LESS:
-                r.decide("Partial or complete anhedonia in past week. "
-                         "Incrementing depression. "
-                         "Incrementing depr_crit_1_mood_anhedonia_energy. "
-                         "Incrementing depr_crit_3_somatic_synd.")
+                r.decide(
+                    "Partial or complete anhedonia in past week. "
+                    "Incrementing depression. "
+                    "Incrementing depr_crit_1_mood_anhedonia_energy. "
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 r.depression += 1
                 r.depr_crit_1_mood_anhedonia_energy += 1
                 r.depr_crit_3_somatic_synd += 1
 
         elif q == CQ.DEPR3_DAYS_PAST_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Low mood or anhedonia on >=4 days in past week. "
-                         "Incrementing depression.")
+                r.decide(
+                    "Low mood or anhedonia on >=4 days in past week. "
+                    "Incrementing depression."
+                )
                 r.depression += 1
 
         elif q == CQ.DEPR4_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Low mood or anhedonia for >3h/day on at least one "
-                         "day in past week. Incrementing depression.")
+                r.decide(
+                    "Low mood or anhedonia for >3h/day on at least one "
+                    "day in past week. Incrementing depression."
+                )
                 r.depression += 1
-                if (self.int_value_for_question(CQ.DEPR3_DAYS_PAST_WEEK) and
-                        self.answer_is_yes(CQ.DEPR1_LOW_MOOD_PAST_WEEK)):
-                    r.decide("(A) Low mood in past week, and "
-                             "(B) low mood or anhedonia for >3h/day on at "
-                             "least one day in past week, and "
-                             "(C) low mood or anhedonia on >=4 days in past "
-                             "week. "
-                             "Incrementing depr_crit_1_mood_anhedonia_energy.")
+                if self.int_value_for_question(
+                    CQ.DEPR3_DAYS_PAST_WEEK
+                ) and self.answer_is_yes(CQ.DEPR1_LOW_MOOD_PAST_WEEK):
+                    r.decide(
+                        "(A) Low mood in past week, and "
+                        "(B) low mood or anhedonia for >3h/day on at "
+                        "least one day in past week, and "
+                        "(C) low mood or anhedonia on >=4 days in past "
+                        "week. "
+                        "Incrementing depr_crit_1_mood_anhedonia_energy."
+                    )
                     r.depr_crit_1_mood_anhedonia_energy += 1
 
         elif q == CQ.DEPR_CONTENT:
@@ -3493,28 +3901,36 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.DEPR5_COULD_CHEER_UP:
             if v >= V_DEPR5_COULD_CHEER_UP_SOMETIMES:
-                r.decide("'Sometimes' or 'never' cheered up by nice things. "
-                         "Incrementing depression. "
-                         "Incrementing depr_crit_3_somatic_synd.")
+                r.decide(
+                    "'Sometimes' or 'never' cheered up by nice things. "
+                    "Incrementing depression. "
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 r.depression += 1
                 r.depr_crit_3_somatic_synd += 1
 
         elif q == CQ.DEPR_DUR:
             if v >= V_DURATION_2W_6M:
-                r.decide("Depressive symptoms for >=2 weeks. "
-                         "Setting depression_at_least_2_weeks.")
+                r.decide(
+                    "Depressive symptoms for >=2 weeks. "
+                    "Setting depression_at_least_2_weeks."
+                )
                 r.depression_at_least_2_weeks = True
             # This code was at the start of DEPTH1, but involves skipping over
             # DEPTH1; since we never get to DEPTH1 without coming here, we can
             # move it here:
             if r.depression == 0:
-                r.decide("Score for 'depression' is 0; skipping over "
-                         "depressive thought content questions.")
+                r.decide(
+                    "Score for 'depression' is 0; skipping over "
+                    "depressive thought content questions."
+                )
                 jump_to(CQ.WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH)
 
         elif q == CQ.DEPTH1_DIURNAL_VARIATION:
-            if (v == V_DEPTH1_DMV_WORSE_MORNING or
-                    v == V_DEPTH1_DMV_WORSE_EVENING):
+            if (
+                v == V_DEPTH1_DMV_WORSE_MORNING
+                or v == V_DEPTH1_DMV_WORSE_EVENING
+            ):
                 r.decide("Diurnal mood variation present.")
                 r.diurnal_mood_variation = (
                     DIURNAL_MOOD_VAR_WORSE_MORNING
@@ -3522,15 +3938,19 @@ class Cisr(TaskHasPatientMixin, Task):
                     else DIURNAL_MOOD_VAR_WORSE_EVENING
                 )
                 if v == V_DEPTH1_DMV_WORSE_MORNING:
-                    r.decide("Diurnal mood variation, worse in the mornings. "
-                             "Incrementing depr_crit_3_somatic_synd.")
+                    r.decide(
+                        "Diurnal mood variation, worse in the mornings. "
+                        "Incrementing depr_crit_3_somatic_synd."
+                    )
                     r.depr_crit_3_somatic_synd += 1
 
         elif q == CQ.DEPTH2_LIBIDO:
             if v == V_DEPTH2_LIBIDO_DECREASED:
-                r.decide("Libido decreased over past month. "
-                         "Setting libido_decreased. "
-                         "Incrementing depr_crit_3_somatic_synd.")
+                r.decide(
+                    "Libido decreased over past month. "
+                    "Setting libido_decreased. "
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 r.libido_decreased = True
                 r.depr_crit_3_somatic_synd += 1
 
@@ -3547,7 +3967,8 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide(
                     "Psychomotor agitation or retardation. "
                     "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui. "
-                    "Incrementing depr_crit_3_somatic_synd.")
+                    "Incrementing depr_crit_3_somatic_synd."
+                )
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
                 r.depr_crit_3_somatic_synd += 1
 
@@ -3556,7 +3977,8 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide(
                     "Feel guilty when not at fault sometimes or often. "
                     "Incrementing depressive_thoughts. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depressive_thoughts += 1
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
@@ -3565,65 +3987,83 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide(
                     "Feeling not as good as other people. "
                     "Incrementing depressive_thoughts. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depressive_thoughts += 1
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DEPTH7_HOPELESS:
             if self.answer_is_yes(q, v):
-                r.decide("Hopelessness. "
-                         "Incrementing depressive_thoughts. "
-                         "Setting suicidality to "
-                         "SUICIDE_INTENT_HOPELESS_NO_SUICIDAL_THOUGHTS.")
+                r.decide(
+                    "Hopelessness. "
+                    "Incrementing depressive_thoughts. "
+                    "Setting suicidality to "
+                    "SUICIDE_INTENT_HOPELESS_NO_SUICIDAL_THOUGHTS."
+                )
                 r.depressive_thoughts += 1
                 r.suicidality = SUICIDE_INTENT_HOPELESS_NO_SUICIDAL_THOUGHTS
 
         elif q == CQ.DEPTH8_LNWL:
             if v == V_DEPTH8_LNWL_NO:
-                r.decide("No thoughts of life not being worth living. "
-                         "Skipping to end of depression section.")
+                r.decide(
+                    "No thoughts of life not being worth living. "
+                    "Skipping to end of depression section."
+                )
                 jump_to(CQ.DEPR_OUTRO)
             elif v >= V_DEPTH8_LNWL_SOMETIMES:
-                r.decide("Sometimes or always feeling life isn't worth living. "
-                         "Incrementing depressive_thoughts. "
-                         "Setting suicidality to "
-                         "SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING.")
+                r.decide(
+                    "Sometimes or always feeling life isn't worth living. "
+                    "Incrementing depressive_thoughts. "
+                    "Setting suicidality to "
+                    "SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING."
+                )
                 r.depressive_thoughts += 1
                 r.suicidality = SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING
 
         elif q == CQ.DEPTH9_SUICIDE_THOUGHTS:
             if v == V_DEPTH9_SUICIDAL_THOUGHTS_NO:
-                r.decide("No thoughts of suicide. Skipping to end of "
-                         "depression section.")
+                r.decide(
+                    "No thoughts of suicide. Skipping to end of "
+                    "depression section."
+                )
                 jump_to(CQ.DEPR_OUTRO)
             if v >= V_DEPTH9_SUICIDAL_THOUGHTS_YES_BUT_NEVER_WOULD:
-                r.decide("Suicidal thoughts present. "
-                         "Setting suicidality to "
-                         "SUICIDE_INTENT_SUICIDAL_THOUGHTS.")
+                r.decide(
+                    "Suicidal thoughts present. "
+                    "Setting suicidality to "
+                    "SUICIDE_INTENT_SUICIDAL_THOUGHTS."
+                )
                 r.suicidality = SUICIDE_INTENT_SUICIDAL_THOUGHTS
             if v == V_DEPTH9_SUICIDAL_THOUGHTS_YES_BUT_NEVER_WOULD:
-                r.decide("Suicidal thoughts present but denies would ever act. "
-                         "Skipping to talk-to-doctor section.")
+                r.decide(
+                    "Suicidal thoughts present but denies would ever act. "
+                    "Skipping to talk-to-doctor section."
+                )
                 jump_to(CQ.DOCTOR)
             if v == V_DEPTH9_SUICIDAL_THOUGHTS_YES:
                 r.decide(
                     "Thoughts of suicide in past week. "
                     "Incrementing depressive_thoughts. "
-                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui.")
+                    "Incrementing depr_crit_2_app_cnc_slp_mtr_glt_wth_sui."
+                )
                 r.depressive_thoughts += 1
                 r.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui += 1
 
         elif q == CQ.DEPTH10_SUICIDE_METHOD:
             if self.answer_is_yes(q, v):
-                r.decide("Suicidal thoughts without denying might ever act. "
-                         "Setting suicidality to "
-                         "SUICIDE_INTENT_SUICIDAL_PLANS.")
+                r.decide(
+                    "Suicidal thoughts without denying might ever act. "
+                    "Setting suicidality to "
+                    "SUICIDE_INTENT_SUICIDAL_PLANS."
+                )
                 r.suicidality = SUICIDE_INTENT_SUICIDAL_PLANS
 
         elif q == CQ.DOCTOR:
             if v == V_DOCTOR_YES:
-                r.decide("Has spoken to doctor about suicidality. Skipping "
-                         "exhortation to do so.")
+                r.decide(
+                    "Has spoken to doctor about suicidality. Skipping "
+                    "exhortation to do so."
+                )
                 jump_to(CQ.DEPR_OUTRO)
 
         elif q == CQ.DOCTOR2_PLEASE_TALK_TO:
@@ -3638,8 +4078,10 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH:
             if v >= V_NSO_SOMETIMES:
-                r.decide("Worrying excessively 'sometimes' or 'often'. "
-                         "Exploring further.")
+                r.decide(
+                    "Worrying excessively 'sometimes' or 'often'. "
+                    "Exploring further."
+                )
                 jump_to(CQ.WORRY_CONT1)
 
         elif q == CQ.WORRY_MAND2_ANY_WORRIES_PAST_MONTH:
@@ -3655,12 +4097,16 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.WORRY2_DAYS_PAST_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_0:
-                r.decide("Worry [other than re physical health] on 0 days in "
-                         "past week. Moving on.")
+                r.decide(
+                    "Worry [other than re physical health] on 0 days in "
+                    "past week. Moving on."
+                )
                 jump_to(CQ.ANX_MAND1_ANXIETY_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Worry [other than re physical health] on >=4 days in "
-                         "past week. Incrementing worry.")
+                r.decide(
+                    "Worry [other than re physical health] on >=4 days in "
+                    "past week. Incrementing worry."
+                )
                 r.worry += 1
 
         elif q == CQ.WORRY3_TOO_MUCH:
@@ -3670,14 +4116,18 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.WORRY4_HOW_UNPLEASANT:
             if v >= V_HOW_UNPLEASANT_UNPLEASANT:
-                r.decide("Worry [other than re physical health] 'unpleasant' "
-                         "or worse in past week. Incrementing worry.")
+                r.decide(
+                    "Worry [other than re physical health] 'unpleasant' "
+                    "or worse in past week. Incrementing worry."
+                )
                 r.worry += 1
 
         elif q == CQ.WORRY5_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Worry [other than re physical health] for >3h on any "
-                         "day in past week. Incrementing worry.")
+                r.decide(
+                    "Worry [other than re physical health] for >3h on any "
+                    "day in past week. Incrementing worry."
+                )
                 r.worry += 1
 
         elif q == CQ.WORRY_DUR:
@@ -3685,14 +4135,18 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.ANX_MAND1_ANXIETY_PAST_MONTH:
             if self.answer_is_yes(q, v):
-                r.decide("Anxious/nervous in past month. "
-                         "Skipping tension question.")
+                r.decide(
+                    "Anxious/nervous in past month. "
+                    "Skipping tension question."
+                )
                 jump_to(CQ.ANX_PHOBIA1_SPECIFIC_PAST_MONTH)
 
         elif q == CQ.ANX_MAND2_TENSION_PAST_MONTH:
             if v == V_NSO_NO:
-                r.decide("No tension in past month (and no anxiety, from "
-                         "previous question). Moving on.")
+                r.decide(
+                    "No tension in past month (and no anxiety, from "
+                    "previous question). Moving on."
+                )
                 jump_to(CQ.PHOBIAS_MAND_AVOIDANCE_PAST_MONTH)
 
         elif q == CQ.ANX_PHOBIA1_SPECIFIC_PAST_MONTH:
@@ -3701,14 +4155,16 @@ class Cisr(TaskHasPatientMixin, Task):
                 jump_to(CQ.ANX2_GENERAL_DAYS_PAST_WEEK)
             elif self.answer_is_yes(q, v):
                 # This was in ANX_PHOBIA2; PHOBIAS_FLAG was set by arriving
-                # there (but that only happens when we get a 'yes' answer here).
+                # there (but that only happens when we get a 'yes' answer
+                # here).
                 r.decide("Phobias. Exploring further. Setting phobias flag.")
                 r.phobias_flag = True
 
         elif q == CQ.ANX_PHOBIA2_SPECIFIC_OR_GENERAL:
             if v == V_ANX_PHOBIA2_ALWAYS_SPECIFIC:
-                r.decide("Anxiety always specific. "
-                         "Skipping generalized anxiety.")
+                r.decide(
+                    "Anxiety always specific. " "Skipping generalized anxiety."
+                )
                 jump_to(CQ.PHOBIAS_TYPE1)
 
         elif q == CQ.ANX1_INFO_ONLY:
@@ -3717,41 +4173,53 @@ class Cisr(TaskHasPatientMixin, Task):
         elif q == CQ.ANX2_GENERAL_DAYS_PAST_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_0:
                 if r.phobias_flag:
-                    r.decide("No generalized anxiety in past week. "
-                             "Skipping further generalized anxiety questions.")
+                    r.decide(
+                        "No generalized anxiety in past week. "
+                        "Skipping further generalized anxiety questions."
+                    )
                     jump_to(CQ.PHOBIAS1_DAYS_PAST_WEEK)
                 else:
                     r.decide("No generalized anxiety in past week. Moving on.")
                     jump_to(CQ.COMP_MAND1_COMPULSIONS_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Generalized anxiety on >=4 days in past week. "
-                         "Incrementing anxiety.")
+                r.decide(
+                    "Generalized anxiety on >=4 days in past week. "
+                    "Incrementing anxiety."
+                )
                 r.anxiety += 1
 
         elif q == CQ.ANX3_GENERAL_HOW_UNPLEASANT:
             if v >= V_HOW_UNPLEASANT_UNPLEASANT:
-                r.decide("Anxiety 'unpleasant' or worse in past week. "
-                         "Incrementing anxiety.")
+                r.decide(
+                    "Anxiety 'unpleasant' or worse in past week. "
+                    "Incrementing anxiety."
+                )
                 r.anxiety += 1
 
         elif q == CQ.ANX4_GENERAL_PHYSICAL_SYMPTOMS:
             if self.answer_is_yes(q, v):
-                r.decide("Physical symptoms of anxiety. "
-                         "Setting anxiety_physical_symptoms. "
-                         "Incrementing anxiety.")
+                r.decide(
+                    "Physical symptoms of anxiety. "
+                    "Setting anxiety_physical_symptoms. "
+                    "Incrementing anxiety."
+                )
                 r.anxiety_physical_symptoms = True
                 r.anxiety += 1
 
         elif q == CQ.ANX5_GENERAL_GT_3H_ANY_DAY:
             if self.answer_is_yes(q, v):
-                r.decide("Anxiety for >3h on any day in past week. "
-                         "Incrementing anxiety.")
+                r.decide(
+                    "Anxiety for >3h on any day in past week. "
+                    "Incrementing anxiety."
+                )
                 r.anxiety += 1
 
         elif q == CQ.ANX_DUR_GENERAL:
             if v >= V_DURATION_2W_6M:
-                r.decide("Anxiety for >=2 weeks. "
-                         "Setting anxiety_at_least_2_weeks.")
+                r.decide(
+                    "Anxiety for >=2 weeks. "
+                    "Setting anxiety_at_least_2_weeks."
+                )
                 r.anxiety_at_least_2_weeks = True
             if r.phobias_flag:
                 r.decide("Phobias flag set. Exploring further.")
@@ -3774,14 +4242,18 @@ class Cisr(TaskHasPatientMixin, Task):
                     jump_to(CQ.PANIC_MAND_PAST_MONTH)
 
         elif q == CQ.PHOBIAS_TYPE1:
-            if v in [V_PHOBIAS_TYPE1_ALONE_PUBLIC_TRANSPORT,
-                     V_PHOBIAS_TYPE1_FAR_FROM_HOME,
-                     V_PHOBIAS_TYPE1_CROWDED_SHOPS]:
+            if v in (
+                V_PHOBIAS_TYPE1_ALONE_PUBLIC_TRANSPORT,
+                V_PHOBIAS_TYPE1_FAR_FROM_HOME,
+                V_PHOBIAS_TYPE1_CROWDED_SHOPS,
+            ):
                 r.decide("Phobia type category: agoraphobia.")
                 r.phobias_type = PHOBIATYPES_AGORAPHOBIA
 
-            elif v in [V_PHOBIAS_TYPE1_PUBLIC_SPEAKING_EATING,
-                       V_PHOBIAS_TYPE1_BEING_WATCHED]:
+            elif v in (
+                V_PHOBIAS_TYPE1_PUBLIC_SPEAKING_EATING,
+                V_PHOBIAS_TYPE1_BEING_WATCHED,
+            ):
                 r.decide("Phobia type category: social.")
                 r.phobias_type = PHOBIATYPES_SOCIAL
 
@@ -3789,10 +4261,13 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("Phobia type category: blood/injury.")
                 r.phobias_type = PHOBIATYPES_BLOOD_INJURY
 
-            elif v in [V_PHOBIAS_TYPE1_ANIMALS,
-                       V_PHOBIAS_TYPE1_ENCLOSED_SPACES_HEIGHTS]:
-                r.decide("Phobia type category: animals/enclosed spaces/"
-                         "heights.")
+            elif v in (
+                V_PHOBIAS_TYPE1_ANIMALS,
+                V_PHOBIAS_TYPE1_ENCLOSED_SPACES_HEIGHTS,
+            ):
+                r.decide(
+                    "Phobia type category: animals/enclosed spaces/" "heights."
+                )
                 r.phobias_type = PHOBIATYPES_ANIMALS_ENCLOSED_HEIGHTS
 
             elif v == V_PHOBIAS_TYPE1_OTHER:
@@ -3804,27 +4279,35 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.PHOBIAS1_DAYS_PAST_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Phobic anxiety on >=4 days in past week. "
-                         "Incrementing phobias_score.")
+                r.decide(
+                    "Phobic anxiety on >=4 days in past week. "
+                    "Incrementing phobias_score."
+                )
                 r.phobias_score += 1
 
         elif q == CQ.PHOBIAS2_PHYSICAL_SYMPTOMS:
             if self.answer_is_yes(q, v):
-                r.decide("Physical symptoms during phobic anxiety in past "
-                         "week. Incrementing phobias_score.")
+                r.decide(
+                    "Physical symptoms during phobic anxiety in past "
+                    "week. Incrementing phobias_score."
+                )
                 r.phobias_score += 1
 
         elif q == CQ.PHOBIAS3_AVOIDANCE:
             if self.answer_is_no(q, v):  # no avoidance in past week
                 if r.anxiety <= 1 and r.phobias_score == 0:
-                    r.decide("No avoidance in past week; "
-                             "anxiety <= 1 and phobias_score == 0. "
-                             "Finishing anxiety section.")
+                    r.decide(
+                        "No avoidance in past week; "
+                        "anxiety <= 1 and phobias_score == 0. "
+                        "Finishing anxiety section."
+                    )
                     jump_to(CQ.ANX_OUTRO)
                 else:
-                    r.decide("No avoidance in past week; "
-                             "anxiety >= 2 or phobias_score >= 1. "
-                             "Moving to panic section.")
+                    r.decide(
+                        "No avoidance in past week; "
+                        "anxiety >= 2 or phobias_score >= 1. "
+                        "Moving to panic section."
+                    )
                     jump_to(CQ.PANIC_MAND_PAST_MONTH)
             elif self.answer_is_yes(q, v):
                 r.decide("Setting phobic_avoidance.")
@@ -3832,18 +4315,26 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.PHOBIAS4_AVOIDANCE_DAYS_PAST_WEEK:
             if v == V_DAYS_IN_PAST_WEEK_1_TO_3:
-                r.decide("Phobic avoidance on 1-3 days in past week. "
-                         "Incrementing phobias_score.")
+                r.decide(
+                    "Phobic avoidance on 1-3 days in past week. "
+                    "Incrementing phobias_score."
+                )
                 r.phobias_score += 1
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Phobic avoidance on >=4 days in past week. "
-                         "Adding 2 to phobias_score.")
+                r.decide(
+                    "Phobic avoidance on >=4 days in past week. "
+                    "Adding 2 to phobias_score."
+                )
                 r.phobias_score += 2
-            if (r.anxiety <= 1 and
-                    self.int_value_for_question(CQ.PHOBIAS1_DAYS_PAST_WEEK) ==
-                    V_DAYS_IN_PAST_WEEK_0):
-                r.decide("anxiety <= 1 and no phobic anxiety in past week. "
-                         "Finishing anxiety section.")
+            if (
+                r.anxiety <= 1
+                and self.int_value_for_question(CQ.PHOBIAS1_DAYS_PAST_WEEK)
+                == V_DAYS_IN_PAST_WEEK_0
+            ):
+                r.decide(
+                    "anxiety <= 1 and no phobic anxiety in past week. "
+                    "Finishing anxiety section."
+                )
                 jump_to(CQ.ANX_OUTRO)
 
         elif q == CQ.PHOBIAS_DUR:
@@ -3851,8 +4342,9 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.PANIC_MAND_PAST_MONTH:
             if v == V_NSO_NO:
-                r.decide("No panic in the past month. Finishing anxiety "
-                         "section.")
+                r.decide(
+                    "No panic in the past month. Finishing anxiety " "section."
+                )
                 jump_to(CQ.ANX_OUTRO)
 
         elif q == CQ.PANIC1_NUM_PAST_WEEK:
@@ -3863,25 +4355,33 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("One panic in past week. Incrementing panic.")
                 r.panic += 1
             elif v == V_PANIC1_N_PANICS_PAST_WEEK_GT_1:
-                r.decide("More than one panic in past week. Adding 2 to panic.")
+                r.decide(
+                    "More than one panic in past week. Adding 2 to panic."
+                )
                 r.panic += 2
 
         elif q == CQ.PANIC2_HOW_UNPLEASANT:
             if v >= V_HOW_UNPLEASANT_UNPLEASANT:
-                r.decide("Panic 'unpleasant' or worse in past week. "
-                         "Incrementing panic.")
+                r.decide(
+                    "Panic 'unpleasant' or worse in past week. "
+                    "Incrementing panic."
+                )
                 r.panic += 1
 
         elif q == CQ.PANIC3_PANIC_GE_10_MIN:
             if v == V_PANIC3_WORST_GE_10_MIN:
-                r.decide("Worst panic in past week lasted >=10 min. "
-                         "Incrementing panic.")
+                r.decide(
+                    "Worst panic in past week lasted >=10 min. "
+                    "Incrementing panic."
+                )
                 r.panic += 1
 
         elif q == CQ.PANIC4_RAPID_ONSET:
             if self.answer_is_yes(q, v):
-                r.decide("Rapid onset of panic symptoms. "
-                         "Setting panic_rapid_onset.")
+                r.decide(
+                    "Rapid onset of panic symptoms. "
+                    "Setting panic_rapid_onset."
+                )
                 r.panic_rapid_onset = True
 
         elif q == CQ.PANSYM:
@@ -3894,7 +4394,8 @@ class Cisr(TaskHasPatientMixin, Task):
                     n_panic_symptoms += 1
             r.decide(
                 f"{n_panic_symptoms} out of "
-                f"{NUM_PANIC_SYMPTOMS} specific panic symptoms endorsed.")
+                f"{NUM_PANIC_SYMPTOMS} specific panic symptoms endorsed."
+            )
             # The next bit was coded in PANIC5, but lives more naturally here:
             if self.answer_is_no(CQ.ANX_PHOBIA1_SPECIFIC_PAST_MONTH):
                 jump_to(CQ.PANIC_DUR)
@@ -3922,22 +4423,28 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No compulsions in past week. Moving to obesssions.")
                 jump_to(CQ.OBSESS_MAND1_OBSESSIONS_PAST_MONTH)
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Obsessions on >=4 days in past week. "
-                         "Incrementing compulsions.")
+                r.decide(
+                    "Obsessions on >=4 days in past week. "
+                    "Incrementing compulsions."
+                )
                 r.compulsions += 1
 
         elif q == CQ.COMP2_TRIED_TO_STOP:
             if self.answer_is_yes(q, v):
-                r.decide("Attempts to stop compulsions in past week. "
-                         "Setting compulsions_tried_to_stop. "
-                         "Incrementing compulsions.")
+                r.decide(
+                    "Attempts to stop compulsions in past week. "
+                    "Setting compulsions_tried_to_stop. "
+                    "Incrementing compulsions."
+                )
                 r.compulsions_tried_to_stop = True
                 r.compulsions += 1
 
         elif q == CQ.COMP3_UPSETTING:
             if self.answer_is_yes(q, v):
-                r.decide("Compulsions upsetting/annoying. "
-                         "Incrementing compulsions.")
+                r.decide(
+                    "Compulsions upsetting/annoying. "
+                    "Incrementing compulsions."
+                )
                 r.compulsions += 1
 
         elif q == CQ.COMP4_MAX_N_REPETITIONS:
@@ -3947,8 +4454,10 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.COMP_DUR:
             if v >= V_DURATION_2W_6M:
-                r.decide("Compulsions for >=2 weeks. "
-                         "Setting compulsions_at_least_2_weeks.")
+                r.decide(
+                    "Compulsions for >=2 weeks. "
+                    "Setting compulsions_at_least_2_weeks."
+                )
                 r.compulsions_at_least_2_weeks = True
 
         elif q == CQ.OBSESS_MAND1_OBSESSIONS_PAST_MONTH:
@@ -3958,8 +4467,10 @@ class Cisr(TaskHasPatientMixin, Task):
 
         elif q == CQ.OBSESS_MAND2_SAME_THOUGHTS_OR_GENERAL:
             if v == V_OBSESS_MAND1_GENERAL_WORRIES:
-                r.decide("Worrying about something in general, not the same "
-                         "thoughts over and over again. Moving on.")
+                r.decide(
+                    "Worrying about something in general, not the same "
+                    "thoughts over and over again. Moving on."
+                )
                 jump_to(r.get_final_page())
 
         elif q == CQ.OBSESS1_DAYS_PAST_WEEK:
@@ -3967,34 +4478,44 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.decide("No obsessions in past week. Moving on.")
                 jump_to(r.get_final_page())
             elif v == V_DAYS_IN_PAST_WEEK_4_OR_MORE:
-                r.decide("Obsessions on >=4 days in past week. "
-                         "Incrementing obsessions.")
+                r.decide(
+                    "Obsessions on >=4 days in past week. "
+                    "Incrementing obsessions."
+                )
                 r.obsessions += 1
 
         elif q == CQ.OBSESS2_TRIED_TO_STOP:
             if self.answer_is_yes(q, v):
-                r.decide("Tried to stop obsessional thoughts in past week. "
-                         "Setting obsessions_tried_to_stop. "
-                         "Incrementing obsessions.")
+                r.decide(
+                    "Tried to stop obsessional thoughts in past week. "
+                    "Setting obsessions_tried_to_stop. "
+                    "Incrementing obsessions."
+                )
                 r.obsessions_tried_to_stop = True
                 r.obsessions += 1
 
         elif q == CQ.OBSESS3_UPSETTING:
             if self.answer_is_yes(q, v):
-                r.decide("Obsessions upsetting/annoying in past week. "
-                         "Incrementing obsessions.")
+                r.decide(
+                    "Obsessions upsetting/annoying in past week. "
+                    "Incrementing obsessions."
+                )
                 r.obsessions += 1
 
         elif q == CQ.OBSESS4_MAX_DURATION:
             if v == V_OBSESS4_GE_15_MIN:
-                r.decide("Obsessions lasting >=15 min in past week. "
-                         "Incrementing obsessions.")
+                r.decide(
+                    "Obsessions lasting >=15 min in past week. "
+                    "Incrementing obsessions."
+                )
                 r.obsessions += 1
 
         elif q == CQ.OBSESS_DUR:
             if v >= V_DURATION_2W_6M:
-                r.decide("Obsessions for >=2 weeks. "
-                         "Setting obsessions_at_least_2_weeks.")
+                r.decide(
+                    "Obsessions for >=2 weeks. "
+                    "Setting obsessions_at_least_2_weeks."
+                )
                 r.obsessions_at_least_2_weeks = True
 
         # --------------------------------------------------------------------
@@ -4009,7 +4530,8 @@ class Cisr(TaskHasPatientMixin, Task):
                 r.functional_impairment = v - 1
                 r.decide(
                     f"Setting functional_impairment to "
-                    f"{r.functional_impairment}")
+                    f"{r.functional_impairment}"
+                )
 
         elif q == CQ.THANKS_FINISHED:
             pass
@@ -4038,234 +4560,270 @@ class Cisr(TaskHasPatientMixin, Task):
         return result
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        result = self.get_result()
-        if result.incomplete:
+        res = self.get_result()
+        if res.incomplete:
             return CTV_INCOMPLETE
         return [
-            CtvInfo(content=(
-                f"Probable primary diagnosis: "
-                f"{bold(result.diagnosis_1_name())} "
-                f"({result.diagnosis_1_icd10_code()})")),
-            CtvInfo(content=(
-                f"Probable secondary diagnosis: "
-                f"{bold(result.diagnosis_2_name())} "
-                f"({result.diagnosis_2_icd10_code()})")),
-            CtvInfo(content=(
-                f"CIS-R suicide intent: "
-                f"{self.get_suicide_intent(req, result, with_warning=False)}")),
+            CtvInfo(
+                content=(
+                    f"Probable primary diagnosis: "
+                    f"{bold(res.diagnosis_1_name())} "
+                    f"({res.diagnosis_1_icd10_code()})"
+                )
+            ),
+            CtvInfo(
+                content=(
+                    f"Probable secondary diagnosis: "
+                    f"{bold(res.diagnosis_2_name())} "
+                    f"({res.diagnosis_2_icd10_code()})"
+                )
+            ),
+            CtvInfo(
+                content=(
+                    f"CIS-R suicide intent: "
+                    f"{self.get_suicide_intent(req, res, with_warning=False)}"
+                )
+            ),
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         result = self.get_result()
         return self.standard_task_summary_fields() + [
-
             # Diagnoses
-
             SummaryElement(
                 name="diagnosis_1_code",
                 coltype=Integer(),
                 value=result.diagnosis_1,
-                comment="Probable primary diagnosis (CIS-R code)"),
+                comment="Probable primary diagnosis (CIS-R code)",
+            ),
             SummaryElement(
                 name="diagnosis_1_text",
                 coltype=UnicodeText(),
                 value=result.diagnosis_1_name(),
-                comment="Probable primary diagnosis (text)"),
+                comment="Probable primary diagnosis (text)",
+            ),
             SummaryElement(
                 name="diagnosis_1_icd10",
                 coltype=UnicodeText(),
                 value=result.diagnosis_1_icd10_code(),
-                comment="Probable primary diagnosis (ICD-10 code/codes)"),
+                comment="Probable primary diagnosis (ICD-10 code/codes)",
+            ),
             SummaryElement(
                 name="diagnosis_2_code",
                 coltype=Integer(),
                 value=result.diagnosis_2,
-                comment="Probable secondary diagnosis (CIS-R code)"),
+                comment="Probable secondary diagnosis (CIS-R code)",
+            ),
             SummaryElement(
                 name="diagnosis_2_text",
                 coltype=UnicodeText(),
                 value=result.diagnosis_2_icd10_code(),
-                comment="Probable secondary diagnosis (text)"),
+                comment="Probable secondary diagnosis (text)",
+            ),
             SummaryElement(
                 name="diagnosis_2_icd10",
                 coltype=UnicodeText(),
                 value=result.diagnosis_2_icd10_code(),
-                comment="Probable secondary diagnosis (ICD-10 code/codes)"),
-
+                comment="Probable secondary diagnosis (ICD-10 code/codes)",
+            ),
             # Suicidality/doctell: directly encoded in data
-
             # Total score
-
             SummaryElement(
                 name="score_total",
                 coltype=Integer(),
                 value=result.get_score(),
-                comment=f"CIS-R total score (max. {MAX_TOTAL})"),
+                comment=f"CIS-R total score (max. {MAX_TOTAL})",
+            ),
             # Functional impairment: directly encoded in data
-
             # Subscores
-
             SummaryElement(
                 name="score_somatic_symptoms",
                 coltype=Integer(),
                 value=result.somatic_symptoms,
-                comment="Score: somatic symptoms (max. 4)"),
+                comment="Score: somatic symptoms (max. 4)",
+            ),
             SummaryElement(
                 name="score_hypochondria",
                 coltype=Integer(),
                 value=result.hypochondria,
-                comment="Score: worry over physical health (max. 4)"),
+                comment="Score: worry over physical health (max. 4)",
+            ),
             SummaryElement(
                 name="score_irritability",
                 coltype=Integer(),
                 value=result.irritability,
-                comment="Score: irritability (max. 4)"),
+                comment="Score: irritability (max. 4)",
+            ),
             SummaryElement(
                 name="score_concentration_poor",
                 coltype=Integer(),
                 value=result.concentration_poor,
-                comment="Score: poor concentration (max. 4)"),
+                comment="Score: poor concentration (max. 4)",
+            ),
             SummaryElement(
                 name="score_fatigue",
                 coltype=Integer(),
                 value=result.fatigue,
-                comment="Score: fatigue (max. 4)"),
+                comment="Score: fatigue (max. 4)",
+            ),
             SummaryElement(
                 name="score_sleep_problems",
                 coltype=Integer(),
                 value=result.sleep_problems,
-                comment="Score: sleep problems (max. 4)"),
+                comment="Score: sleep problems (max. 4)",
+            ),
             SummaryElement(
                 name="score_depression",
                 coltype=Integer(),
                 value=result.depression,
-                comment="Score: depression (max. 4)"),
+                comment="Score: depression (max. 4)",
+            ),
             SummaryElement(
                 name="score_depressive_thoughts",
                 coltype=Integer(),
                 value=result.depressive_thoughts,
-                comment="Score: depressive ideas (max. 5)"),
+                comment="Score: depressive ideas (max. 5)",
+            ),
             SummaryElement(
                 name="score_phobias",
                 coltype=Integer(),
                 value=result.phobias_score,
-                comment="Score: phobias (max. 4)"),
+                comment="Score: phobias (max. 4)",
+            ),
             SummaryElement(
                 name="score_worry",
                 coltype=Integer(),
                 value=result.worry,
-                comment="Score: worry (max. 4)"),
+                comment="Score: worry (max. 4)",
+            ),
             SummaryElement(
                 name="score_anxiety",
                 coltype=Integer(),
                 value=result.anxiety,
-                comment="Score: anxiety (max. 4)"),
+                comment="Score: anxiety (max. 4)",
+            ),
             SummaryElement(
                 name="score_panic",
                 coltype=Integer(),
                 value=result.panic,
-                comment="Score: panic (max. 4)"),
+                comment="Score: panic (max. 4)",
+            ),
             SummaryElement(
                 name="score_compulsions",
                 coltype=Integer(),
                 value=result.compulsions,
-                comment="Score: compulsions (max. 4)"),
+                comment="Score: compulsions (max. 4)",
+            ),
             SummaryElement(
                 name="score_obsessions",
                 coltype=Integer(),
                 value=result.obsessions,
-                comment="Score: obsessions (max. 4)"),
-
+                comment="Score: obsessions (max. 4)",
+            ),
             # Other
-
             SummaryElement(
                 name="sleep_change",
                 coltype=Integer(),
                 value=result.sleep_change,
-                comment=DESC_SLEEP_CHANGE),
+                comment=DESC_SLEEP_CHANGE,
+            ),
             SummaryElement(
                 name="weight_change",
                 coltype=Integer(),
                 value=result.weight_change,
-                comment=DESC_WEIGHT_CHANGE),
+                comment=DESC_WEIGHT_CHANGE,
+            ),
             SummaryElement(
                 name="depcrit1_score",
                 coltype=Integer(),
                 value=result.depr_crit_1_mood_anhedonia_energy,
-                comment=DESC_DEPCRIT1),
+                comment=DESC_DEPCRIT1,
+            ),
             SummaryElement(
                 name="depcrit2_score",
                 coltype=Integer(),
                 value=result.depr_crit_2_app_cnc_slp_mtr_glt_wth_sui,
-                comment=DESC_DEPCRIT2),
+                comment=DESC_DEPCRIT2,
+            ),
             SummaryElement(
                 name="depcrit3_score",
                 coltype=Integer(),
                 value=result.depr_crit_3_somatic_synd,
-                comment=DESC_DEPCRIT3),
+                comment=DESC_DEPCRIT3,
+            ),
             SummaryElement(
                 name="depcrit3_met_somatic_syndrome",
                 coltype=Boolean(),
                 value=result.has_somatic_syndrome(),
-                comment=DESC_DEPCRIT3_MET),
+                comment=DESC_DEPCRIT3_MET,
+            ),
             SummaryElement(
                 name="neurasthenia_score",
                 coltype=Integer(),
                 value=result.neurasthenia,
-                comment=DESC_NEURASTHENIA_SCORE),
-
+                comment=DESC_NEURASTHENIA_SCORE,
+            ),
             # Disorder flags
-
             SummaryElement(
                 name="disorder_ocd",
                 coltype=Boolean(),
                 value=result.obsessive_compulsive_disorder,
-                comment=DISORDER_OCD),
+                comment=DISORDER_OCD,
+            ),
             SummaryElement(
                 name="disorder_depression_mild",
                 coltype=Boolean(),
                 value=result.depression_mild,
-                comment=DISORDER_DEPR_MILD),
+                comment=DISORDER_DEPR_MILD,
+            ),
             SummaryElement(
                 name="disorder_depression_moderate",
                 coltype=Boolean(),
                 value=result.depression_moderate,
-                comment=DISORDER_DEPR_MOD),
+                comment=DISORDER_DEPR_MOD,
+            ),
             SummaryElement(
                 name="disorder_depression_severe",
                 coltype=Boolean(),
                 value=result.depression_severe,
-                comment=DISORDER_DEPR_SEV),
+                comment=DISORDER_DEPR_SEV,
+            ),
             SummaryElement(
                 name="disorder_cfs",
                 coltype=Boolean(),
                 value=result.chronic_fatigue_syndrome,
-                comment=DISORDER_CFS),
+                comment=DISORDER_CFS,
+            ),
             SummaryElement(
                 name="disorder_gad",
                 coltype=Boolean(),
                 value=result.generalized_anxiety_disorder,
-                comment=DISORDER_GAD),
+                comment=DISORDER_GAD,
+            ),
             SummaryElement(
                 name="disorder_agoraphobia",
                 coltype=Boolean(),
                 value=result.phobia_agoraphobia,
-                comment=DISORDER_AGORAPHOBIA),
+                comment=DISORDER_AGORAPHOBIA,
+            ),
             SummaryElement(
                 name="disorder_social_phobia",
                 coltype=Boolean(),
                 value=result.phobia_social,
-                comment=DISORDER_SOCIAL_PHOBIA),
+                comment=DISORDER_SOCIAL_PHOBIA,
+            ),
             SummaryElement(
                 name="disorder_specific_phobia",
                 coltype=Boolean(),
                 value=result.phobia_specific,
-                comment=DISORDER_SPECIFIC_PHOBIA),
+                comment=DISORDER_SPECIFIC_PHOBIA,
+            ),
             SummaryElement(
                 name="disorder_panic_disorder",
                 coltype=Boolean(),
                 value=result.panic_disorder,
-                comment=DISORDER_PANIC),
+                comment=DISORDER_PANIC,
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -4276,21 +4834,27 @@ class Cisr(TaskHasPatientMixin, Task):
         xstring_name = f"diag_{diagnosis_code}_desc"
         return self.wxstring(req, xstring_name)
 
-    def diagnosis_reason(self, req: CamcopsRequest,
-                         diagnosis_code: int) -> str:
+    def diagnosis_reason(
+        self, req: CamcopsRequest, diagnosis_code: int
+    ) -> str:
         xstring_name = f"diag_{diagnosis_code}_explan"
         return self.wxstring(req, xstring_name)
 
-    def get_suicide_intent(self, req: CamcopsRequest,
-                           result: CisrResult,
-                           with_warning: bool = True) -> str:
+    def get_suicide_intent(
+        self,
+        req: CamcopsRequest,
+        result: CisrResult,
+        with_warning: bool = True,
+    ) -> str:
         if result.incomplete:
             html = "TASK INCOMPLETE. SO FAR: "
         else:
             html = ""
         html += self.wxstring(req, f"suicid_{result.suicidality}")
-        if (with_warning and
-                result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING):
+        if (
+            with_warning
+            and result.suicidality >= SUICIDE_INTENT_LIFE_NOT_WORTH_LIVING
+        ):
             html += f" <i>{self.wxstring(req, 'suicid_instruction')}</i>"
         if result.suicidality != SUICIDE_INTENT_NONE:
             html = bold(html)
@@ -4307,22 +4871,26 @@ class Cisr(TaskHasPatientMixin, Task):
             return ""
         return self.wxstring(req, f"sleepch_{result.sleep_change}")
 
-    def get_weight_change(self, req: CamcopsRequest, result: CisrResult) -> str:
-        if result.weight_change in [WTCHANGE_NONE_OR_APPETITE_INCREASE,
-                                    WTCHANGE_APPETITE_LOSS]:
+    def get_weight_change(
+        self, req: CamcopsRequest, result: CisrResult
+    ) -> str:
+        if result.weight_change in (
+            WTCHANGE_NONE_OR_APPETITE_INCREASE,
+            WTCHANGE_APPETITE_LOSS,
+        ):
             return ""
         return self.wxstring(req, f"wtchange_{result.weight_change}")
 
     def get_impairment(self, req: CamcopsRequest, result: CisrResult) -> str:
-        return self.wxstring(
-            req, f"impair_{result.functional_impairment}")
+        return self.wxstring(req, f"impair_{result.functional_impairment}")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         # Iterate only once, for efficiency, so don't use get_result().
 
-        def qa_row(q_: CisrQuestion, qtext: str,
-                   a_: Optional[str]) -> str:
-            return tr(f"{q_.value}. {qtext}", answer(a_))
+        def qa_row(q_: CisrQuestion, qtext: str, a_: Optional[str]) -> str:
+            return tr(
+                f"{q_.value}. {qtext}", answer(a_, formatter_answer=bold)
+            )
 
         def max_text(maxval: int) -> str:
             return f" (max. {maxval})"
@@ -4336,22 +4904,27 @@ class Cisr(TaskHasPatientMixin, Task):
             # incomplete.
             # noinspection PyTypeChecker
             target_list = (
-                demographics_html_list if q.value < CQ.HEALTH_WELLBEING.value
-                else question_html_list)
+                demographics_html_list
+                if q.value < CQ.HEALTH_WELLBEING.value
+                else question_html_list
+            )
             if q in QUESTIONS_PROMPT_ONLY:
                 question = self.wxstring(req, QUESTIONS_PROMPT_ONLY[q])
-                target_list.append(
-                    qa_row(q, question, NOT_APPLICABLE_TEXT))
+                target_list.append(qa_row(q, question, NOT_APPLICABLE_TEXT))
             elif q == CQ.PANSYM:  # special!
-                target_list.append(qa_row(
-                    q,
-                    self.wxstring(req, "pansym_q_prefix"),
-                    NOT_APPLICABLE_TEXT))
+                target_list.append(
+                    qa_row(
+                        q,
+                        self.wxstring(req, "pansym_q_prefix"),
+                        NOT_APPLICABLE_TEXT,
+                    )
+                )
                 for fieldname in PANIC_SYMPTOM_FIELDNAMES:
                     question = self.wxstring(req, fieldname + "_q")
                     value = getattr(self, fieldname)
                     a = get_yes_no_none(
-                        req, value == 2 if value is not None else None)
+                        req, value == 2 if value is not None else None
+                    )
                     target_list.append(qa_row(q, question, a))
             else:
                 fieldname = fieldname_for_q(q)
@@ -4366,87 +4939,120 @@ class Cisr(TaskHasPatientMixin, Task):
 
         is_complete = not result.incomplete
         is_complete_html_td = """{}<b>{}</b></td>""".format(
-            "<td>" if is_complete
+            "<td>"
+            if is_complete
             else f"""<td class="{CssClass.INCOMPLETE}">""",
-            get_yes_no(req, is_complete)
+            get_yes_no(req, is_complete),
         )
 
         summary_rows = [
-
             subheading_spanning_two_columns("Diagnoses"),
-
             tr(
                 "Probable primary diagnosis",
                 (
-                    bold(self.diagnosis_name(req, result.diagnosis_1)) +
-                    (f" ({result.diagnosis_1_icd10_code()})"
-                     if result.has_diagnosis_1() else "")
-                )
+                    bold(self.diagnosis_name(req, result.diagnosis_1))
+                    + (
+                        f" ({result.diagnosis_1_icd10_code()})"
+                        if result.has_diagnosis_1()
+                        else ""
+                    )
+                ),
             ),
-            tr(italic("... summary of reasons/description"),
-               italic(self.diagnosis_reason(req, result.diagnosis_1))),
+            tr(
+                italic("... summary of reasons/description"),
+                italic(self.diagnosis_reason(req, result.diagnosis_1)),
+            ),
             tr(
                 "Probable secondary diagnosis",
                 (
-                    bold(self.diagnosis_name(req, result.diagnosis_2)) +
-                    (f" ({result.diagnosis_2_icd10_code()})"
-                     if result.has_diagnosis_2() else "")
-                )
+                    bold(self.diagnosis_name(req, result.diagnosis_2))
+                    + (
+                        f" ({result.diagnosis_2_icd10_code()})"
+                        if result.has_diagnosis_2()
+                        else ""
+                    )
+                ),
             ),
-            tr(italic("... summary of reasons/description"),
-               italic(self.diagnosis_reason(req, result.diagnosis_2))),
-
+            tr(
+                italic("... summary of reasons/description"),
+                italic(self.diagnosis_reason(req, result.diagnosis_2)),
+            ),
             subheading_spanning_two_columns("Suicidality"),
-
-            tr(td(self.wxstring(req, "suicid_heading")),
-               td(self.get_suicide_intent(req, result)),
-               literal=True),
-            tr("... spoken to doctor?",
-               self.get_doctell(req)),
-
+            tr(
+                td(self.wxstring(req, "suicid_heading")),
+                td(self.get_suicide_intent(req, result)),
+                literal=True,
+            ),
+            tr("... spoken to doctor?", self.get_doctell(req)),
             subheading_spanning_two_columns("Total score/overall impairment"),
-
             tr(
                 f"CIS-R total score (max. {MAX_TOTAL}) <sup>[1]</sup>",
-                result.get_score()
+                result.get_score(),
             ),
-            tr(self.wxstring(req, "impair_label"),
-               self.get_impairment(req, result)),
-
-            subheading_spanning_two_columns("Subscores contributing to total "
-                                            "<sup>[2]</sup>"),
-
-            tr(self.wxstring(req, "somatic_label") + max_text(MAX_SOMATIC),
-               result.somatic_symptoms),
-            tr(self.wxstring(req, "hypo_label") + max_text(MAX_HYPO),
-               result.hypochondria),
-            tr(self.wxstring(req, "irrit_label") + max_text(MAX_IRRIT),
-               result.irritability),
-            tr(self.wxstring(req, "conc_label") + max_text(MAX_CONC),
-               result.concentration_poor),
-            tr(self.wxstring(req, "fatigue_label") + max_text(MAX_FATIGUE),
-               result.fatigue),
-            tr(self.wxstring(req, "sleep_label") + max_text(MAX_SLEEP),
-               result.sleep_problems),
-            tr(self.wxstring(req, "depr_label") + max_text(MAX_DEPR),
-               result.depression),
-            tr(self.wxstring(req, "depthts_label") + max_text(MAX_DEPTHTS),
-               result.depressive_thoughts),
-            tr(self.wxstring(req, "phobias_label") + max_text(MAX_PHOBIAS),
-               result.phobias_score),
-            tr(self.wxstring(req, "worry_label") + max_text(MAX_WORRY),
-               result.worry),
-            tr(self.wxstring(req, "anx_label") + max_text(MAX_ANX),
-               result.anxiety),
-            tr(self.wxstring(req, "panic_label") + max_text(MAX_PANIC),
-               result.panic),
-            tr(self.wxstring(req, "comp_label") + max_text(MAX_COMP),
-               result.compulsions),
-            tr(self.wxstring(req, "obsess_label") + max_text(MAX_OBSESS),
-               result.obsessions),
-
+            tr(
+                self.wxstring(req, "impair_label"),
+                self.get_impairment(req, result),
+            ),
+            subheading_spanning_two_columns(
+                "Subscores contributing to total " "<sup>[2]</sup>"
+            ),
+            tr(
+                self.wxstring(req, "somatic_label") + max_text(MAX_SOMATIC),
+                result.somatic_symptoms,
+            ),
+            tr(
+                self.wxstring(req, "hypo_label") + max_text(MAX_HYPO),
+                result.hypochondria,
+            ),
+            tr(
+                self.wxstring(req, "irrit_label") + max_text(MAX_IRRIT),
+                result.irritability,
+            ),
+            tr(
+                self.wxstring(req, "conc_label") + max_text(MAX_CONC),
+                result.concentration_poor,
+            ),
+            tr(
+                self.wxstring(req, "fatigue_label") + max_text(MAX_FATIGUE),
+                result.fatigue,
+            ),
+            tr(
+                self.wxstring(req, "sleep_label") + max_text(MAX_SLEEP),
+                result.sleep_problems,
+            ),
+            tr(
+                self.wxstring(req, "depr_label") + max_text(MAX_DEPR),
+                result.depression,
+            ),
+            tr(
+                self.wxstring(req, "depthts_label") + max_text(MAX_DEPTHTS),
+                result.depressive_thoughts,
+            ),
+            tr(
+                self.wxstring(req, "phobias_label") + max_text(MAX_PHOBIAS),
+                result.phobias_score,
+            ),
+            tr(
+                self.wxstring(req, "worry_label") + max_text(MAX_WORRY),
+                result.worry,
+            ),
+            tr(
+                self.wxstring(req, "anx_label") + max_text(MAX_ANX),
+                result.anxiety,
+            ),
+            tr(
+                self.wxstring(req, "panic_label") + max_text(MAX_PANIC),
+                result.panic,
+            ),
+            tr(
+                self.wxstring(req, "comp_label") + max_text(MAX_COMP),
+                result.compulsions,
+            ),
+            tr(
+                self.wxstring(req, "obsess_label") + max_text(MAX_OBSESS),
+                result.obsessions,
+            ),
             subheading_spanning_two_columns("Other"),
-
             tr("Sleep change", self.get_sleep_change(req, result)),
             tr("Weight change", self.get_weight_change(req, result)),
             tr(DESC_DEPCRIT1, result.depr_crit_1_mood_anhedonia_energy),
@@ -4454,9 +5060,7 @@ class Cisr(TaskHasPatientMixin, Task):
             tr(DESC_DEPCRIT3, result.depr_crit_3_somatic_synd),
             tr(DESC_DEPCRIT3_MET, result.has_somatic_syndrome()),  # RNC
             tr(DESC_NEURASTHENIA_SCORE, result.neurasthenia),
-
             subheading_spanning_two_columns("Disorder flags"),
-
             tr(DISORDER_OCD, result.obsessive_compulsive_disorder),
             tr(DISORDER_DEPR_MILD, result.depression_mild),
             tr(DISORDER_DEPR_MOD, result.depression_moderate),
@@ -4519,14 +5123,12 @@ class Cisr(TaskHasPatientMixin, Task):
                 ▶ Lewis G, Pelosi AJ, Aray R, Dunn G (1992).
                 Measuring psychiatric disorder in the community: a standardized
                 assessment for use by lay interviewers.
-                Psychological Medicine 22: 465-486. PubMed ID 
-                <a href="https://www.ncbi.nlm.nih.gov/pubmed/1615114">1615114</a>.
+                Psychological Medicine 22: 465-486. {pmid(1615114)}.
 
                 ▶ Lewis G (1994).
                 Assessing psychiatric disorder with a human interviewer or a
                 computer.
-                J Epidemiol Community Health 48: 207-210. PubMed ID 
-                <a href="https://www.ncbi.nlm.nih.gov/pubmed/8189180">8189180</a>.
+                J Epidemiol Community Health 48: 207-210. {pmid(8189180)}.
 
                 • Source/copyright: Glyn Lewis.
 

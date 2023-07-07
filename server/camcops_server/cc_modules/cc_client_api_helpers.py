@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_client_api_helpers.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,6 +42,7 @@ from camcops_server.cc_modules.cc_patient import Patient, PatientIdNum
 # Table sort order
 # =============================================================================
 
+
 def upload_commit_order_sorter(x: Table) -> Tuple[bool, bool, bool, str]:
     """
     Function to sort tables for the commit phase of the upload.
@@ -68,7 +70,9 @@ def upload_commit_order_sorter(x: Table) -> Tuple[bool, bool, bool, str]:
     Note that ``False`` sorts before ``True``, and see
     https://stackoverflow.com/questions/23090664/sorting-a-list-of-string-in-python-such-that-a-specific-string-if-present-appea.
     """  # noqa
-    return (x.name != Patient.__tablename__,
-            x.name != PatientIdNum.__tablename__,
-            x.name not in NONTASK_CLIENT_TABLENAMES,
-            x.name)
+    return (
+        x.name != Patient.__tablename__,
+        x.name != PatientIdNum.__tablename__,
+        x.name not in NONTASK_CLIENT_TABLENAMES,
+        x.name,
+    )

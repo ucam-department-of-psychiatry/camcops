@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -310,11 +311,11 @@ protected:
 signals:
     // "The underlying value has changed."
     void valueChanged(const FieldRef* fieldref,
-                      const QObject* originator) const;
+                      const QObject* originator);
 
     // "The mandatory status has changed."
     void mandatoryChanged(const FieldRef* fieldref,
-                          const QObject* originator) const;
+                          const QObject* originator);
     // You should NOT cause a valueChanged() signal to be emitted whilst in a
     // mandatoryChanged() signal, but it's fine to emit mandatoryChanged()
     // signals (typically on other fields) whilst processing valueChanged()

@@ -5,7 +5,8 @@ camcops_server/tasks/zbi.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -54,15 +55,22 @@ from camcops_server.cc_modules.cc_task import (
 # ZBI
 # =============================================================================
 
+
 class Zbi12Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Zbi12'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Zbi12"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=cls.MIN_PER_Q,
+            maximum=cls.MAX_PER_Q,
             comment_fmt="Q{n}, {s} (0-4, higher worse)",
             comment_strings=[
                 "insufficient time for self",  # 1
@@ -76,19 +84,22 @@ class Zbi12Metaclass(DeclarativeMeta):
                 "lost control",
                 "uncertain",  # 10
                 "should do more",
-                "could care better"
-            ]
+                "could care better",
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
-            metaclass=Zbi12Metaclass):
+class Zbi12(
+    TaskHasRespondentMixin, TaskHasPatientMixin, Task, metaclass=Zbi12Metaclass
+):
     """
     Server implementation of the ZBI-12 task.
     """
+
     __tablename__ = "zbi12"
     shortname = "ZBI-12"
+    info_filename_stem = "zbi"
 
     MIN_PER_Q = 0
     MAX_PER_Q = 4
@@ -104,27 +115,31 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total_score", coltype=Integer(),
+                name="total_score",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/ {self.MAX_TOTAL})"
-            ),
+                comment=f"Total score (/ {self.MAX_TOTAL})",
+            )
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"ZBI-12 total score {self.total_score()}/{self.MAX_TOTAL}"
-        )]
+        return [
+            CtvInfo(
+                content=f"ZBI-12 total score "
+                f"{self.total_score()}/{self.MAX_TOTAL}"
+            )
+        ]
 
     def total_score(self) -> int:
         return self.sum_fields(self.TASK_FIELDS)
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
-            self.is_respondent_complete() and
-            self.all_fields_not_none(self.TASK_FIELDS)
+            self.field_contents_valid()
+            and self.is_respondent_complete()
+            and self.all_fields_not_none(self.TASK_FIELDS)
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -150,10 +165,16 @@ class Zbi12(TaskHasRespondentMixin, TaskHasPatientMixin, Task,
         """
         for q in range(1, self.NQUESTIONS + 1):
             a = getattr(self, "q" + str(q))
-            fa = (f"{a}: {get_from_dict(option_dict, a)}"
-                  if a is not None else None)
+            fa = (
+                f"{a}: {get_from_dict(option_dict, a)}"
+                if a is not None
+                else None
+            )
             h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
-        h += """
+        h += (
+            """
             </table>
-        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        """
+            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
+        )
         return h

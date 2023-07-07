@@ -5,7 +5,8 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -39,13 +40,8 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
-)
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -84,50 +80,48 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
         # Reads "self.medicationtable_id" from derived class.
         # noinspection PyUnresolvedReferences
         return KhandakerMojoMedicationTherapy.get_linked(
-            self.medicationtable_id, self)
+            self.medicationtable_id, self
+        )
 
 
 class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_medication_item"
 
     medicationtable_id = CamcopsColumn(
-        "medicationtable_id", Integer, nullable=False,
-        comment="FK to medicationtable"
+        "medicationtable_id",
+        Integer,
+        nullable=False,
+        comment="FK to medicationtable",
     )
     seqnum = CamcopsColumn(
-        "seqnum", Integer, nullable=False,
-        comment="Sequence number of this medication"
+        "seqnum",
+        Integer,
+        nullable=False,
+        comment="Sequence number of this medication",
     )
-    brand_name = CamcopsColumn(
-        "brand_name", UnicodeText,
-        comment="Brand name"
-    )
+    brand_name = CamcopsColumn("brand_name", UnicodeText, comment="Brand name")
     chemical_name = CamcopsColumn(
-        "chemical_name", UnicodeText,
-        comment="Chemical name for study team"
+        "chemical_name", UnicodeText, comment="Chemical name for study team"
     )
-    dose = CamcopsColumn(
-        "dose", UnicodeText,
-        comment="Dose"
-    )
-    frequency = CamcopsColumn(
-        "frequency", UnicodeText,
-        comment="Frequency"
-    )
+    dose = CamcopsColumn("dose", UnicodeText, comment="Dose")
+    frequency = CamcopsColumn("frequency", UnicodeText, comment="Frequency")
     duration_months = CamcopsColumn(
-        "duration_months", Float,
-        comment="Duration (months)"
+        "duration_months", Float, comment="Duration (months)"
     )
     indication = CamcopsColumn(
-        "indication", UnicodeText,
-        comment="Indication (what is the medication used for?)"
+        "indication",
+        UnicodeText,
+        comment="Indication (what is the medication used for?)",
     )
     response = CamcopsColumn(
-        "response", Integer,
-        comment=("1 = treats all symptoms, "
-                 "2 = most symptoms, "
-                 "3 = some symptoms, "
-                 "4 = no symptoms)")
+        "response",
+        Integer,
+        comment=(
+            "1 = treats all symptoms, "
+            "2 = most symptoms, "
+            "3 = some symptoms, "
+            "4 = no symptoms)"
+        ),
     )
 
     @classmethod
@@ -160,39 +154,39 @@ class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_therapy_item"
 
     medicationtable_id = CamcopsColumn(
-        "medicationtable_id", Integer, nullable=False,
-        comment="FK to medicationtable"
+        "medicationtable_id",
+        Integer,
+        nullable=False,
+        comment="FK to medicationtable",
     )
     seqnum = CamcopsColumn(
-        "seqnum", Integer, nullable=False,
-        comment="Sequence number of this therapy"
+        "seqnum",
+        Integer,
+        nullable=False,
+        comment="Sequence number of this therapy",
     )
-    therapy = CamcopsColumn(
-        "therapy", UnicodeText,
-        comment="Therapy"
-    )
-    frequency = CamcopsColumn(
-        "frequency", UnicodeText,
-        comment="Frequency"
-    )
+    therapy = CamcopsColumn("therapy", UnicodeText, comment="Therapy")
+    frequency = CamcopsColumn("frequency", UnicodeText, comment="Frequency")
     sessions_completed = CamcopsColumn(
-        "sessions_completed", Integer,
-        comment="Sessions completed"
+        "sessions_completed", Integer, comment="Sessions completed"
     )
     sessions_planned = CamcopsColumn(
-        "sessions_planned", Integer,
-        comment="Sessions planned"
+        "sessions_planned", Integer, comment="Sessions planned"
     )
     indication = CamcopsColumn(
-        "indication", UnicodeText,
-        comment="Indication (what is the medication used for?)"
+        "indication",
+        UnicodeText,
+        comment="Indication (what is the medication used for?)",
     )
     response = CamcopsColumn(
-        "response", Integer,
-        comment=("1 = treats all symptoms, "
-                 "2 = most symptoms, "
-                 "3 = some symptoms, "
-                 "4 = no symptoms)")
+        "response",
+        Integer,
+        comment=(
+            "1 = treats all symptoms, "
+            "2 = most symptoms, "
+            "3 = some symptoms, "
+            "4 = no symptoms)"
+        ),
     )
 
     @classmethod
@@ -223,22 +217,24 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
     """
     Server implementation of the KhandakerMojoMedicationTherapy task
     """
+
     __tablename__ = "khandaker_mojo_medicationtherapy"
     shortname = "Khandaker_MOJO_MedicationTherapy"
+    info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
     medication_items = ancillary_relationship(
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoMedicationItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
-        ancillary_order_by_attr_name="seqnum"
+        ancillary_order_by_attr_name="seqnum",
     )  # type: List[KhandakerMojoMedicationItem]
 
     therapy_items = ancillary_relationship(
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoTherapyItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
-        ancillary_order_by_attr_name="seqnum"
+        ancillary_order_by_attr_name="seqnum",
     )  # type: List[KhandakerMojoTherapyItem]
 
     @staticmethod

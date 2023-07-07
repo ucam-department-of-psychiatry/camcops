@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "core10.h"
@@ -38,7 +39,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 10;
-const int MAX_SCORE = 40;
+const int MAX_QUESTION_SCORE = 40;
 const QString QPREFIX("q");
 const QVector<int> REVERSE_SCORED_Q{2, 3};  // Q2 and Q3 are reverse-scored
 
@@ -102,7 +103,7 @@ bool Core10::isComplete() const
 QStringList Core10::summary() const
 {
     return QStringList{
-        scorePhrase(tr("Clinical score"), clinicalScore(), MAX_SCORE)
+        scorePhrase(tr("Clinical score"), clinicalScore(), MAX_QUESTION_SCORE)
     };
 }
 

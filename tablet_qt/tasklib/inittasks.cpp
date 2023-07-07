@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "tasklib/inittasks.h"
@@ -47,11 +48,13 @@
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
 #include "tasks/chit.h"
+#include "tasks/cia.h"
 #include "tasks/cisr.h"
 #include "tasks/ciwa.h"
 #include "tasks/contactlog.h"
 #include "tasks/copebrief.h"
 #include "tasks/core10.h"
+#include "tasks/cpftcovidmedical.h"
 #include "tasks/cpftlpsdischarge.h"
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
@@ -69,6 +72,7 @@
 #include "tasks/diagnosisicd10.h"
 #include "tasks/distressthermometer.h"
 
+#include "tasks/edeq.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
@@ -106,6 +110,8 @@
 #include "tasks/iesr.h"
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
+#include "tasks/isaaq10.h"
+#include "tasks/isaaqed.h"
 
 #include "tasks/khandakerinsightmedical.h"
 #include "tasks/khandakermojomedical.h"
@@ -120,6 +126,7 @@
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
 #include "tasks/mfi20.h"
+#include "tasks/miniace.h"
 #include "tasks/moca.h"
 
 #include "tasks/nart.h"
@@ -128,6 +135,7 @@
 #include "tasks/ors.h"
 
 #include "tasks/panss.h"
+#include "tasks/paradise24.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/pbq.h"
 #include "tasks/pcl5.h"
@@ -138,6 +146,7 @@
 #include "tasks/perinatalpoem.h"
 #include "tasks/photo.h"
 #include "tasks/photosequence.h"
+#include "tasks/phq8.h"
 #include "tasks/phq9.h"
 #include "tasks/phq15.h"
 #include "tasks/progressnote.h"
@@ -201,11 +210,13 @@ void InitTasks(TaskFactory& factory)
     initializeCgiI(factory);
     initializeCgiSch(factory);
     initializeChit(factory);
+    initializeCia(factory);
     initializeCisr(factory);
     initializeCiwa(factory);
     initializeContactLog(factory);
     initializeCopeBrief(factory);
     initializeCore10(factory);
+    initializeCPFTCovidMedical(factory);
     initializeCPFTLPSDischarge(factory);
     initializeCPFTLPSReferral(factory);
     initializeCPFTLPSResetResponseClock(factory);
@@ -223,6 +234,7 @@ void InitTasks(TaskFactory& factory)
     initializeDiagnosisIcd10(factory);
     initializeDistressThermometer(factory);
 
+    initializeEdeq(factory);
     initializeElixhauserCI(factory);
     initializeEpds(factory);
     initializeEq5d5l(factory);
@@ -260,6 +272,8 @@ void InitTasks(TaskFactory& factory)
     initializeIesr(factory);
     initializeIfs(factory);
     initializeIrac(factory);
+    initializeIsaaq10(factory);
+    initializeIsaaqEd(factory);
 
     initializeKhandakerInsightMedical(factory);
     initializeKhandakerMojoMedical(factory);
@@ -274,6 +288,7 @@ void InitTasks(TaskFactory& factory)
     initializeMast(factory);
     initializeMdsUpdrs(factory);
     initializeMfi20(factory);
+    initializeMiniAce(factory);
     initializeMoca(factory);
 
     initializeNart(factory);
@@ -282,6 +297,7 @@ void InitTasks(TaskFactory& factory)
     initializeOrs(factory);
 
     initializePanss(factory);
+    initializeParadise24(factory);
     initializePatientSatisfaction(factory);
     initializePbq(factory);
     initializePcl5(factory);
@@ -292,6 +308,7 @@ void InitTasks(TaskFactory& factory)
     initializePerinatalPoem(factory);
     initializePhoto(factory);
     initializePhotoSequence(factory);
+    initializePhq8(factory);
     initializePhq9(factory);
     initializePhq15(factory);
     initializeProgressNote(factory);

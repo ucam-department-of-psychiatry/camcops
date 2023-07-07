@@ -5,7 +5,8 @@ camcops_server/tasks/tests/maas_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -27,12 +28,12 @@ camcops_server/tasks/tests/maas_tests.py
 """
 
 import pendulum
-from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.tasks.maas import Maas, MaasReport
 
+from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.tests.cc_report_tests import (
-    AverageScoreReportTestCase
+    AverageScoreReportTestCase,
 )
+from camcops_server.tasks.maas import Maas, MaasReport
 
 
 class MaasReportTests(AverageScoreReportTestCase):
@@ -44,10 +45,12 @@ class MaasReportTests(AverageScoreReportTestCase):
     def create_tasks(self) -> None:
         self.patient_1 = self.create_patient()
 
-        self.create_task(patient=self.patient_1, q1=2, q2=2,
-                         era="2019-03-01")  # total 17 + 2 + 2
-        self.create_task(patient=self.patient_1, q1=5, q2=5,
-                         era="2019-06-01")  # total 17 + 5 + 5
+        self.create_task(
+            patient=self.patient_1, q1=2, q2=2, era="2019-03-01"
+        )  # total 17 + 2 + 2
+        self.create_task(
+            patient=self.patient_1, q1=5, q2=5, era="2019-06-01"
+        )  # total 17 + 5 + 5
         self.dbsession.commit()
 
     def create_task(self, patient: Patient, era: str = None, **kwargs) -> None:
@@ -66,9 +69,9 @@ class MaasReportTests(AverageScoreReportTestCase):
         self.dbsession.add(task)
 
     def test_average_progress_is_positive(self) -> None:
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        pages = self.report.get_spreadsheet_pages(req=self.req)
 
         expected_progress = 27 - 21
-        actual_progress = tsv_pages[0].plainrows[0][self.PROGRESS_COL]
+        actual_progress = pages[0].plainrows[0][self.PROGRESS_COL]
 
         self.assertEqual(actual_progress, expected_progress)

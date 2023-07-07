@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0056_mojo_medical_infection_fields.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -38,8 +39,8 @@ Creation date: 2020-11-16 11:28:45.597495
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0056'
-down_revision = '0055'
+revision = "0056"
+down_revision = "0055"
 branch_labels = None
 depends_on = None
 
@@ -48,11 +49,12 @@ depends_on = None
 # The upgrade/downgrade steps
 # =============================================================================
 
+
 def upgrade():
     # We considered changing the wording of the questions about having had an
     # infection in the past month / two months preceding last month but decided
-    # against it so that old data is comparable with new data. So this migration
-    # now does nothing.
+    # against it so that old data is comparable with new data. So this
+    # migration now does nothing.
     pass
 
 

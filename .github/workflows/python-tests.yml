@@ -1,0 +1,46 @@
+---
+# yamllint disable rule:line-length
+name: Python tests
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.py'
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/create_config_file.sh
+            - .github/scripts/python_setup.sh
+            - .github/workflows/python-tests.yml
+jobs:
+    python-tests:
+        strategy:
+            matrix:
+                python-version: [3.8, 3.9, "3.10"]
+                # LTS versions
+                os: [ubuntu-20.04, ubuntu-22.04]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Change apt mirror
+              run: |
+                  set -euxo pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+            - name: Python tests
+              run: |
+                  set -euxo pipefail
+                  # Install wkhtmltopdf on headless ubuntu 18 vps
+                  # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
+                  # 429 = Too many requests. Unfortunately wget doesn't read the
+                  # Retry-after header so just wait 5 minutes
+                  wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+                  sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
+                  sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+                  source ${HOME}/venv/bin/activate
+                  export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
+                  ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
+                  echo running tests
+                  cd server/camcops_server
+                  pytest -v

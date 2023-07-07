@@ -4,7 +4,8 @@
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -34,7 +35,9 @@ import redcap
 
 from camcops_server.cc_modules.cc_constants import ConfigParamExportRecipient
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
+from camcops_server.cc_modules.cc_exportrecipientinfo import (
+    ExportRecipientInfo,
+)
 from camcops_server.cc_modules.cc_redcap import (
     MISSING_EVENT_TAG_OR_ATTRIBUTE,
     RedcapExportException,
@@ -87,18 +90,25 @@ class RedcapExporterTests(TestCase):
     def test_next_instance_id_converted_to_int(self) -> None:
         import numpy
 
-        records = DataFrame({
-            "record_id": ["1", "1", "1", "1", "1"],
-            "redcap_repeat_instrument": ["bmi", "bmi", "bmi", "bmi", "bmi"],
-            "redcap_repeat_instance": [
-                numpy.float64(1.0),
-                numpy.float64(2.0),
-                numpy.float64(3.0),
-                numpy.float64(4.0),
-                numpy.float64(5.0),
-            ],
-
-        })
+        records = DataFrame(
+            {
+                "record_id": ["1", "1", "1", "1", "1"],
+                "redcap_repeat_instrument": [
+                    "bmi",
+                    "bmi",
+                    "bmi",
+                    "bmi",
+                    "bmi",
+                ],
+                "redcap_repeat_instance": [
+                    numpy.float64(1.0),
+                    numpy.float64(2.0),
+                    numpy.float64(3.0),
+                    numpy.float64(4.0),
+                    numpy.float64(5.0),
+                ],
+            }
+        )
 
         next_instance_id = RedcapTaskExporter._get_next_instance_id(
             records, "bmi", "record_id", "1"
@@ -135,8 +145,11 @@ class RedcapExportErrorTests(TestCase):
             exporter.get_fieldmap_filename(recipient)
 
         message = str(cm.exception)
-        self.assertIn(f"{ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} "
-                      f"is empty in the config file", message)
+        self.assertIn(
+            f"{ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} "
+            f"is empty in the config file",
+            message,
+        )
 
     def test_raises_when_fieldmap_not_set_in_config(self) -> None:
 
@@ -147,8 +160,11 @@ class RedcapExportErrorTests(TestCase):
             exporter.get_fieldmap_filename(recipient)
 
         message = str(cm.exception)
-        self.assertIn(f"{ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} "
-                      f"is not set in the config file", message)
+        self.assertIn(
+            f"{ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} "
+            f"is not set in the config file",
+            message,
+        )
 
     def test_raises_when_error_from_redcap_on_import(self) -> None:
         exporter = MockRedcapNewRecordUploader()
@@ -165,9 +181,7 @@ class RedcapExportErrorTests(TestCase):
 
     def test_raises_when_error_from_redcap_on_init(self) -> None:
         with mock.patch("redcap.project.Project.__init__") as mock_init:
-            mock_init.side_effect = redcap.RedcapError(
-                "Something went wrong"
-            )
+            mock_init.side_effect = redcap.RedcapError("Something went wrong")
 
             with self.assertRaises(RedcapExportException) as cm:
                 exporter = RedcapTaskExporter()
@@ -225,25 +239,36 @@ class RedcapFieldmapTests(TestCase):
 
     def test_raises_when_fieldmap_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
-            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
 <someothertag></someothertag>
-""")
+"""
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
                 RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn(("Expected the root tag to be 'fieldmap' instead of "
-                       "'someothertag'"), message)
+        self.assertIn(
+            (
+                "Expected the root tag to be 'fieldmap' instead of "
+                "'someothertag'"
+            ),
+            message,
+        )
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_root_tag_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
-            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
-""")
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+"""
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -255,12 +280,14 @@ class RedcapFieldmapTests(TestCase):
 
     def test_raises_when_patient_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                 </fieldmap>
-                """)
+                """
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -272,13 +299,15 @@ class RedcapFieldmapTests(TestCase):
 
     def test_raises_when_patient_missing_attributes(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                 <patient />
                 </fieldmap>
-                """)
+                """
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -286,20 +315,21 @@ class RedcapFieldmapTests(TestCase):
 
         message = str(cm.exception)
         self.assertIn(
-            "'patient' must have attributes: instrument, redcap_field",
-            message
+            "'patient' must have attributes: instrument, redcap_field", message
         )
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_record_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                 </fieldmap>
-                """)  # noqa: E501
+                """  # noqa: E501
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -311,14 +341,16 @@ class RedcapFieldmapTests(TestCase):
 
     def test_raises_when_record_missing_attributes(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                    <patient instrument="patient_record" redcap_field="patient_id" />
                    <record />
                 </fieldmap>
-                """)  # noqa: E501
+                """  # noqa: E501
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -326,21 +358,22 @@ class RedcapFieldmapTests(TestCase):
 
         message = str(cm.exception)
         self.assertIn(
-            "'record' must have attributes: instrument, redcap_field",
-            message
+            "'record' must have attributes: instrument, redcap_field", message
         )
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_instruments_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                     <record instrument="patient_record" redcap_field="record_id" />
                 </fieldmap>
-                """)  # noqa: E501
+                """  # noqa: E501
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -352,7 +385,8 @@ class RedcapFieldmapTests(TestCase):
 
     def test_raises_when_instruments_missing_attributes(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
@@ -362,22 +396,21 @@ class RedcapFieldmapTests(TestCase):
                         <instrument />
                     </instruments>
                 </fieldmap>
-                """)  # noqa: E501
+                """  # noqa: E501
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
                 RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn(
-            "'instrument' must have attributes: name, task",
-            message
-        )
+        self.assertIn("'instrument' must have attributes: name, task", message)
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_file_fields_missing_attributes(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
@@ -391,22 +424,21 @@ class RedcapFieldmapTests(TestCase):
                         </instrument>
                     </instruments>
                 </fieldmap>
-                """)  # noqa: E501
+                """  # noqa: E501
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
                 RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn(
-            "'field' must have attributes: name, formula",
-            message
-        )
+        self.assertIn("'field' must have attributes: name, formula", message)
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_fields_missing_attributes(self) -> None:
         with tempfile.NamedTemporaryFile(
-                mode="w", suffix="xml") as fieldmap_file:
+            mode="w", suffix="xml"
+        ) as fieldmap_file:
             fieldmap_file.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
@@ -420,23 +452,22 @@ class RedcapFieldmapTests(TestCase):
                         </instrument>
                     </instruments>
                 </fieldmap>
-                """)  # noqa: E501
+                """  # noqa: E501
+            )
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
                 RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn(
-            "'field' must have attributes: name, formula",
-            message
-        )
+        self.assertIn("'field' must have attributes: name, formula", message)
         self.assertIn(fieldmap_file.name, message)
 
 
 # =============================================================================
 # Integration testing
 # =============================================================================
+
 
 class RedcapExportTestCase(BasicDatabaseTestCase):
     fieldmap = ""
@@ -545,7 +576,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
     def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -566,9 +597,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         args, kwargs = project.export_records.call_args
 
-        self.assertIn("bmi", kwargs['forms'])
-        self.assertIn("patient_record", kwargs['forms'])
-        self.assertIn("instrument_with_record_id", kwargs['forms'])
+        self.assertIn("bmi", kwargs["forms"])
+        self.assertIn("patient_record", kwargs["forms"])
+        self.assertIn("instrument_with_record_id", kwargs["forms"])
 
         # Initial call with original record
         args, kwargs = project.import_records.call_args_list[0]
@@ -579,8 +610,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEqual(record["redcap_repeat_instrument"], "bmi")
         self.assertEqual(record["redcap_repeat_instance"], 1)
         self.assertEqual(record["record_id"], "0")
-        self.assertEqual(record["bmi_complete"],
-                         RedcapRecordStatus.COMPLETE.value)
+        self.assertEqual(
+            record["bmi_complete"], RedcapRecordStatus.COMPLETE.value
+        )
         self.assertEqual(record["bmi_date"], "2010-07-07")
 
         self.assertEqual(record["pa_height"], "1.8")
@@ -599,7 +631,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
     def test_record_exported_with_non_integer_id(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -619,7 +651,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
     def test_record_id_generated_when_no_autonumbering(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -672,6 +704,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
     def create_tasks(self) -> None:
         from camcops_server.tasks.bmi import Bmi
+
         patient = self.create_patient_with_idnum_1001()
         self.task1 = Bmi()
         self.apply_standard_task_fields(self.task1)
@@ -704,20 +737,26 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
             "record_autonumbering_enabled": 1
         }
 
-        exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
+        exported_task1 = ExportedTask(
+            task=self.task1, recipient=self.recipient
+        )
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
         exporter.export_task(self.req, exported_task_redcap1)
         self.assertEqual(exported_task_redcap1.redcap_record_id, "123")
         self.assertEqual(exported_task_redcap1.redcap_instrument_name, "bmi")
         self.assertEqual(exported_task_redcap1.redcap_instance_id, 1)
 
-        project.export_records.return_value = DataFrame({
-            "record_id": ["123"],
-            "patient_id": [555],
-            "redcap_repeat_instrument": ["bmi"],
-            "redcap_repeat_instance": [1],
-        })
-        exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
+        project.export_records.return_value = DataFrame(
+            {
+                "record_id": ["123"],
+                "patient_id": [555],
+                "redcap_repeat_instrument": ["bmi"],
+                "redcap_repeat_instance": [1],
+            }
+        )
+        exported_task2 = ExportedTask(
+            task=self.task2, recipient=self.recipient
+        )
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
         exporter.export_task(self.req, exported_task_redcap2)
@@ -743,6 +782,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
     related to the PHQ9 task. For these we have also renamed the record_id
     field.
     """
+
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
@@ -783,6 +823,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
     def create_tasks(self) -> None:
         from camcops_server.tasks.phq9 import Phq9
+
         patient = self.create_patient_with_idnum_1001()
         self.task = Phq9()
         self.apply_standard_task_fields(self.task)
@@ -820,8 +861,10 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEqual(exported_task_redcap.redcap_record_id, "123")
-        self.assertEqual(exported_task_redcap.redcap_instrument_name,
-                         "patient_health_questionnaire_9")
+        self.assertEqual(
+            exported_task_redcap.redcap_instrument_name,
+            "patient_health_questionnaire_9",
+        )
         self.assertEqual(exported_task_redcap.redcap_instance_id, 1)
 
         # Initial call with new record
@@ -830,11 +873,15 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEqual(record["redcap_repeat_instrument"],
-                         "patient_health_questionnaire_9")
+        self.assertEqual(
+            record["redcap_repeat_instrument"],
+            "patient_health_questionnaire_9",
+        )
         self.assertEqual(record["my_record_id"], "0")
-        self.assertEqual(record["patient_health_questionnaire_9_complete"],
-                         RedcapRecordStatus.COMPLETE.value)
+        self.assertEqual(
+            record["patient_health_questionnaire_9_complete"],
+            RedcapRecordStatus.COMPLETE.value,
+        )
         self.assertEqual(record["phq9_how_difficult"], 4)
         self.assertEqual(record["phq9_total_score"], 12)
         self.assertEqual(record["phq9_first_name"], "Forename2")
@@ -867,6 +914,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     These are more of a test of the file upload code than anything
     related to the KhandakerMojoMedicationTherapy task
     """
+
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <event name="event_1_arm_1" />
@@ -909,7 +957,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -935,8 +983,9 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEqual(exported_task_redcap.redcap_record_id, "123")
-        self.assertEqual(exported_task_redcap.redcap_instrument_name,
-                         "medication_table")
+        self.assertEqual(
+            exported_task_redcap.redcap_instrument_name, "medication_table"
+        )
         self.assertEqual(exported_task_redcap.redcap_instance_id, 1)
 
         args, kwargs = project.import_file.call_args
@@ -949,7 +998,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         self.assertEqual(fieldname, "medtbl_medication_items")
         self.assertEqual(
             filename,
-            "khandaker_mojo_medicationtherapy_123_medtbl_medication_items"
+            "khandaker_mojo_medicationtherapy_123_medtbl_medication_items",
         )
 
         self.assertEqual(kwargs["repeat_instance"], 1)
@@ -1006,6 +1055,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         self.dbsession.commit()
 
         from camcops_server.tasks.bmi import Bmi
+
         self.bmi_task = Bmi()
         self.apply_standard_task_fields(self.bmi_task)
         self.bmi_task.id = next(self.id_sequence)
@@ -1020,6 +1070,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
             ExportedTask,
             ExportedTaskRedcap,
         )
+
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
@@ -1028,8 +1079,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
             "record_autonumbering_enabled": 1
         }
 
-        exported_task_mojo = ExportedTask(task=self.mojo_task,
-                                          recipient=self.recipient)
+        exported_task_mojo = ExportedTask(
+            task=self.mojo_task, recipient=self.recipient
+        )
         exported_task_redcap_mojo = ExportedTaskRedcap(exported_task_mojo)
         exporter.export_task(self.req, exported_task_redcap_mojo)
         self.assertEqual(exported_task_redcap_mojo.redcap_record_id, "123")
@@ -1037,14 +1089,19 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
         self.assertEqual(kwargs["repeat_instance"], 1)
 
-        project.export_records.return_value = DataFrame({
-            "record_id": ["123"],
-            "patient_id": [555],
-            "redcap_repeat_instrument": ["khandaker_mojo_medicationtherapy"],
-            "redcap_repeat_instance": [1],
-        })
-        exported_task_bmi = ExportedTask(task=self.bmi_task,
-                                         recipient=self.recipient)
+        project.export_records.return_value = DataFrame(
+            {
+                "record_id": ["123"],
+                "patient_id": [555],
+                "redcap_repeat_instrument": [
+                    "khandaker_mojo_medicationtherapy"
+                ],
+                "redcap_repeat_instance": [1],
+            }
+        )
+        exported_task_bmi = ExportedTask(
+            task=self.bmi_task, recipient=self.recipient
+        )
         exported_task_redcap_bmi = ExportedTaskRedcap(exported_task_bmi)
 
         exporter.export_task(self.req, exported_task_redcap_bmi)
@@ -1063,6 +1120,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
             ExportedTask,
             ExportedTaskRedcap,
         )
+
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
 
@@ -1073,8 +1131,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
             "record_autonumbering_enabled": 1
         }
 
-        exported_task_mojo = ExportedTask(task=self.mojo_task,
-                                          recipient=self.recipient)
+        exported_task_mojo = ExportedTask(
+            task=self.mojo_task, recipient=self.recipient
+        )
         exported_task_redcap_mojo = ExportedTaskRedcap(exported_task_mojo)
 
         exporter.export_task(self.req, exported_task_redcap_mojo)
@@ -1088,8 +1147,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
         self.assertEqual(kwargs["event"], "mojo_event")
 
-        exported_task_bmi = ExportedTask(task=self.bmi_task,
-                                         recipient=self.recipient)
+        exported_task_bmi = ExportedTask(
+            task=self.bmi_task, recipient=self.recipient
+        )
         exported_task_redcap_bmi = ExportedTaskRedcap(exported_task_bmi)
 
         exporter.export_task(self.req, exported_task_redcap_bmi)
@@ -1116,6 +1176,7 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
 
     def create_tasks(self) -> None:
         from camcops_server.tasks.bmi import Bmi
+
         patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
         self.apply_standard_task_fields(self.task)
@@ -1143,7 +1204,7 @@ class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
     def test_raises_when_instrument_missing_from_fieldmap(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -1158,8 +1219,9 @@ class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
             exporter.export_task(self.req, exported_task_redcap)
 
         message = str(cm.exception)
-        self.assertIn("Instrument for task 'bmi' is missing from the fieldmap",
-                      message)
+        self.assertIn(
+            "Instrument for task 'bmi' is missing from the fieldmap", message
+        )
 
 
 class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
@@ -1178,7 +1240,7 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
     def test_raises_when_record_id_is_incorrect(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -1186,12 +1248,14 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
-        project.export_records.return_value = DataFrame({
-            "record_id": ["123"],
-            "patient_id": [555],
-            "redcap_repeat_instrument": ["bmi"],
-            "redcap_repeat_instance": [1],
-        })
+        project.export_records.return_value = DataFrame(
+            {
+                "record_id": ["123"],
+                "patient_id": [555],
+                "redcap_repeat_instrument": ["bmi"],
+                "redcap_repeat_instance": [1],
+            }
+        )
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
             "record_autonumbering_enabled": 1
@@ -1201,8 +1265,7 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
             exporter.export_task(self.req, exported_task_redcap)
 
         message = str(cm.exception)
-        self.assertIn("Field 'my_record_id' does not exist in REDCap",
-                      message)
+        self.assertIn("Field 'my_record_id' does not exist in REDCap", message)
 
 
 class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
@@ -1221,7 +1284,7 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
     def test_raises_when_patient_id_is_incorrect(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -1229,12 +1292,14 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
-        project.export_records.return_value = DataFrame({
-            "record_id": ["123"],
-            "patient_id": [555],
-            "redcap_repeat_instrument": ["bmi"],
-            "redcap_repeat_instance": [1],
-        })
+        project.export_records.return_value = DataFrame(
+            {
+                "record_id": ["123"],
+                "patient_id": [555],
+                "redcap_repeat_instrument": ["bmi"],
+                "redcap_repeat_instance": [1],
+            }
+        )
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
             "record_autonumbering_enabled": 1
@@ -1244,8 +1309,9 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
             exporter.export_task(self.req, exported_task_redcap)
 
         message = str(cm.exception)
-        self.assertIn("Field 'my_patient_id' does not exist in REDCap",
-                      message)
+        self.assertIn(
+            "Field 'my_patient_id' does not exist in REDCap", message
+        )
 
 
 class MissingPatientInstrumentRedcapTests(BadConfigurationRedcapTests):
@@ -1264,7 +1330,7 @@ class MissingPatientInstrumentRedcapTests(BadConfigurationRedcapTests):
     def test_raises_when_instrument_is_missing(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -1299,7 +1365,7 @@ class MissingEventRedcapTests(BadConfigurationRedcapTests):
     def test_raises_for_longitudinal_project(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -1337,7 +1403,7 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
     def test_raises_when_instrument_missing_event(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -1358,6 +1424,7 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
 class AnonymousTaskRedcapTests(RedcapExportTestCase):
     def create_tasks(self) -> None:
         from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
+
         self.task = APEQCPFTPerinatal()
         self.apply_standard_task_fields(self.task)
         self.task.id = 1
@@ -1367,7 +1434,7 @@ class AnonymousTaskRedcapTests(RedcapExportTestCase):
     def test_raises_when_task_is_anonymous(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
-            ExportedTaskRedcap
+            ExportedTaskRedcap,
         )
 
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)

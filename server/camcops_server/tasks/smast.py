@@ -5,7 +5,8 @@ camcops_server/tasks/smast.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -59,15 +60,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # SMAST
 # =============================================================================
 
+
 class SmastMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Smast'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Smast"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, CharColType,
-            pv=['Y', 'N'],
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            CharColType,
+            pv=["Y", "N"],
             comment_fmt="Q{n}: {s} (Y or N)",
             comment_strings=[
                 "believe you are a normal drinker",
@@ -83,18 +91,19 @@ class SmastMetaclass(DeclarativeMeta):
                 "hospitalized",
                 "arrested for drink-driving",
                 "arrested for other drunken behaviour",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Smast(TaskHasPatientMixin, Task,
-            metaclass=SmastMetaclass):
+class Smast(TaskHasPatientMixin, Task, metaclass=SmastMetaclass):
     """
     Server implementation of the SMAST task.
     """
+
     __tablename__ = "smast"
     shortname = "SMAST"
+    info_filename_stem = "mast"
     provides_trackers = True
 
     NQUESTIONS = 13
@@ -106,30 +115,34 @@ class Smast(TaskHasPatientMixin, Task,
         return _("Short Michigan Alcohol Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="SMAST total score",
-            axis_label=f"Total score (out of {self.NQUESTIONS})",
-            axis_min=-0.5,
-            axis_max=self.NQUESTIONS + 0.5,
-            horizontal_lines=[
-                2.5,
-                1.5,
-            ],
-            horizontal_labels=[
-                TrackerLabel(4, self.wxstring(req, "problem_probable")),
-                TrackerLabel(2, self.wxstring(req, "problem_possible")),
-                TrackerLabel(0.75, self.wxstring(req, "problem_unlikely")),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="SMAST total score",
+                axis_label=f"Total score (out of {self.NQUESTIONS})",
+                axis_min=-0.5,
+                axis_max=self.NQUESTIONS + 0.5,
+                horizontal_lines=[2.5, 1.5],
+                horizontal_labels=[
+                    TrackerLabel(4, self.wxstring(req, "problem_probable")),
+                    TrackerLabel(2, self.wxstring(req, "problem_possible")),
+                    TrackerLabel(0.75, self.wxstring(req, "problem_unlikely")),
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"SMAST total score {self.total_score()}/{self.NQUESTIONS} "
-            f"({self.likelihood(req)})"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"SMAST total score "
+                    f"{self.total_score()}/{self.NQUESTIONS} "
+                    f"({self.likelihood(req)})"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -137,18 +150,20 @@ class Smast(TaskHasPatientMixin, Task,
                 name="total",
                 coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.NQUESTIONS})"),
+                comment=f"Total score (/{self.NQUESTIONS})",
+            ),
             SummaryElement(
                 name="likelihood",
                 coltype=SummaryCategoryColType,
                 value=self.likelihood(req),
-                comment="Likelihood of problem"),
+                comment="Likelihood of problem",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_score(self, q: int) -> int:
@@ -182,14 +197,15 @@ class Smast(TaskHasPatientMixin, Task,
         main_dict = {
             None: None,
             "Y": req.sstring(SS.YES),
-            "N": req.sstring(SS.NO)
+            "N": req.sstring(SS.NO),
         }
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
             q_a += tr(
                 self.wxstring(req, "q" + str(q)),
-                answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
-                " — " + str(self.get_score(q))
+                answer(get_from_dict(main_dict, getattr(self, "q" + str(q))))
+                + " — "
+                + str(self.get_score(q)),
             )
         h = """
             <div class="{CssClass.SUMMARY}">
@@ -214,11 +230,11 @@ class Smast(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE),
-                answer(score) + f" / {self.NQUESTIONS}"
+                answer(score) + f" / {self.NQUESTIONS}",
             ),
             problem_likelihood=tr_qa(
                 self.wxstring(req, "problem_likelihood") + " <sup>[1]</sup>",
-                likelihood
+                likelihood,
             ),
             q_a=q_a,
         )

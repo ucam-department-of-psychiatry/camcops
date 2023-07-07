@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_password.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,7 +29,9 @@ camcops_server/cc_modules/cc_password.py
 
 """
 
-from camcops_server.cc_modules.cc_baseconstants import PROHIBITED_PASSWORDS_FILE  # noqa
+from camcops_server.cc_modules.cc_baseconstants import (
+    PROHIBITED_PASSWORDS_FILE,
+)
 
 
 def password_prohibited(password: str) -> bool:

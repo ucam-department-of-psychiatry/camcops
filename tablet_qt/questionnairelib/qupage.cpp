@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qupage.h"
@@ -25,13 +26,14 @@
 #include "widgets/basewidget.h"
 
 
-QuPage::QuPage() :
-    QuPage(QVector<QuElementPtr>())  // delegating constructor
+QuPage::QuPage(QObject* parent) :
+    QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
 }
 
 
-QuPage::QuPage(const QVector<QuElementPtr>& elements) :
+QuPage::QuPage(const QVector<QuElementPtr>& elements, QObject* parent) :
+    QObject(parent),
     m_type(PageType::Inherit),
     m_elements(elements),
     m_skip(false),
@@ -42,14 +44,14 @@ QuPage::QuPage(const QVector<QuElementPtr>& elements) :
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElementPtr> elements) :
-    QuPage(QVector<QuElementPtr>(elements))  // delegating constructor
+QuPage::QuPage(std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    QuPage(QVector<QuElementPtr>(elements), parent)  // delegating constructor
 {
 }
 
 
-QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
-    QuPage(QVector<QuElementPtr>())  // delegating constructor
+QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :  // takes ownership
+    QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);
@@ -57,8 +59,8 @@ QuPage::QuPage(const QVector<QuElement*>& elements) :  // takes ownership
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElement*> elements) :  // takes ownership
-    QuPage(QVector<QuElementPtr>())  // delegating constructor
+QuPage::QuPage(std::initializer_list<QuElement*> elements, QObject* parent) :  // takes ownership
+    QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);
@@ -248,7 +250,8 @@ QVector<QuElement*> QuPage::allElements() const
 QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 {
     QVector<QuElement*> matching_elements;
-    for (QuElement* e : allElements()) {
+    const auto all_elements = allElements();
+    for (QuElement* e : all_elements) {
         if (e->hasTag(tag)) {
             matching_elements.append(e);
         }
@@ -265,7 +268,7 @@ bool QuPage::mayProgressIgnoringValidators() const
 
 bool QuPage::missingInput() const
 {
-    const QVector<QuElement*> elements = allElements();
+    const auto elements = allElements();
     for (QuElement* e : elements) {
         // Not this:
         /*

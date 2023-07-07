@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_ctvinfo.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -33,16 +34,20 @@ camcops_server/cc_modules/cc_ctvinfo.py
 # CtvInfo
 # =============================================================================
 
+
 class CtvInfo(object):
     """
     Snippet of information for incorporating into a CTV.
     """
-    def __init__(self,
-                 heading: str = None,
-                 subheading: str = None,
-                 description: str = None,
-                 content: str = None,
-                 skip_if_no_content: bool = True):
+
+    def __init__(
+        self,
+        heading: str = None,
+        subheading: str = None,
+        description: str = None,
+        content: str = None,
+        skip_if_no_content: bool = True,
+    ):
         """
         Args:
             heading: optional text used for heading

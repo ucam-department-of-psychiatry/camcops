@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "cage.h"
@@ -35,7 +36,7 @@ using uifunc::yesNo;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 4;
-const int MAX_SCORE = N_QUESTIONS;
+const int MAX_QUESTION_SCORE = N_QUESTIONS;
 const QString QPREFIX("q");
 
 const QString Cage::CAGE_TABLENAME("cage");
@@ -92,7 +93,7 @@ bool Cage::isComplete() const
 
 QStringList Cage::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

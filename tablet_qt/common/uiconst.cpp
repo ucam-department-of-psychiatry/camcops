@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "uiconst.h"
@@ -114,6 +115,7 @@ const QString ICON_CHAIN("chain.png");
 const QString ICON_CHOOSE_PATIENT("choose_patient.png");
 const QString ICON_CLINICAL("clinical.png");
 const QString ICON_COGNITIVE("cognitive.png");
+const QString ICON_DOLPHIN("dolphin.png");
 const QString ICON_EXECUTIVE("executive.png");
 const QString ICON_FIELD_INCOMPLETE_MANDATORY("field_incomplete_mandatory.png");
 const QString ICON_FIELD_INCOMPLETE_OPTIONAL("field_incomplete_optional.png");

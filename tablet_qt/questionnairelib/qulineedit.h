@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -34,7 +35,7 @@ class QuLineEdit : public QuElement
     Q_OBJECT
 public:
     // Constructor
-    QuLineEdit(FieldRefPtr fieldref);
+    QuLineEdit(FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Sets the hint text (what's shown, greyed out, in the editor when the
     // line editor has no user-entered text in it).

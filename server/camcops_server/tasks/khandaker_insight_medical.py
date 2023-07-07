@@ -5,7 +5,8 @@ camcops_server/tasks/khandaker_insight_medical.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -26,6 +27,10 @@ camcops_server/tasks/khandaker_insight_medical.py
 
 """
 
+# =============================================================================
+# Imports
+# =============================================================================
+
 from typing import Any, Dict, Tuple, Type
 
 import cardinal_pythonlib.rnc_web as ws
@@ -42,6 +47,11 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+
+
+# =============================================================================
+# Constants
+# =============================================================================
 
 
 class KQInfo(object):
@@ -87,26 +97,35 @@ X_COMMENT_HINT = "comment_hint"
 # Khandaker_1_MedicalHistory
 # =============================================================================
 
+
 class KhandakerInsightMedicalMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['KhandakerInsightMedical'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["KhandakerInsightMedical"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         for qinfo in QUESTIONS:
             setattr(cls, qinfo.fieldname_yn, BoolColumn(qinfo.fieldname_yn))
-            setattr(cls, qinfo.fieldname_comment,
-                    Column(qinfo.fieldname_comment, UnicodeText))
+            setattr(
+                cls,
+                qinfo.fieldname_comment,
+                Column(qinfo.fieldname_comment, UnicodeText),
+            )
         super().__init__(name, bases, classdict)
 
 
-class KhandakerInsightMedical(TaskHasPatientMixin, Task,
-                              metaclass=KhandakerInsightMedicalMetaclass):
+class KhandakerInsightMedical(
+    TaskHasPatientMixin, Task, metaclass=KhandakerInsightMedicalMetaclass
+):
     """
     Server implementation of the Khandaker_1_MedicalHistory task.
     """
+
     __tablename__ = "khandaker_1_medicalhistory"  # NB historical name
     shortname = "Khandaker_Insight_Medical"
+    info_filename_stem = "khandaker_insight_medical"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

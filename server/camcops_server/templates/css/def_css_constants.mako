@@ -5,7 +5,8 @@ camcops_server/templates/css/def_css_constants.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -58,20 +59,20 @@ class CssArgsBase(object):
 
 
 class CssVarArgsBase(CssArgsBase):
-    MAINFONTSIZE = 'medium' 
-    SMALLGAP = '2px' 
+    MAINFONTSIZE = 'medium'
+    SMALLGAP = '2px'
     ELEMENTGAP = '5px'
     TWICE_ELEMENTGAP = '10px'
-    NORMALPAD = '2px' 
-    TABLEPAD = '2px' 
-    INDENT_NORMAL = '20px' 
-    INDENT_LARGE = '75px' 
-    THINLINE = '1px' 
-    ZERO = '0px' 
+    NORMALPAD = '2px'
+    TABLEPAD = '2px'
+    INDENT_NORMAL = '20px'
+    INDENT_LARGE = '75px'
+    THINLINE = '1px'
+    ZERO = '0px'
     MAINMARGIN = '10px'
-    BODYPADDING = '5px' 
-    BANNER_PADDING = '25px' 
-    
+    BODYPADDING = '5px'
+    BANNER_PADDING = '25px'
+
     PDF_LOGO_HEIGHT = '20mm'  # irrelevant for HTML; PDF only
 
     paged_media = False  # irrelevant for HTML; PDF only

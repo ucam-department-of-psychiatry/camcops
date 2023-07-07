@@ -1,5 +1,7 @@
-usage: build_client_translations.py [-h] [--lconvert] [--lrelease] [--lupdate]
-                                    [--trim] [--no_trim] [--verbose]
+USAGE: build_client_translations.py [-h] [--lconvert LCONVERT]
+                                    [--lrelease LRELEASE] [--lupdate LUPDATE]
+                                    [--poedit POEDIT] [--trim] [--no_trim]
+                                    [--verbose]
                                     operation
 
 Create translation files for CamCOPS client.
@@ -29,26 +31,32 @@ Operations:
         Updates all .qm files (which are binary) from the corresponding .ts
         files (discovered via the .pro file).
 
+    poedit
+        Launch (spawn) Poedit to edit the .po files.
+
     all
-        Executes all other operations in sequence. This should be safe, and
-        allow you to use .po editors like Poedit. Run this script before and
-        after editing.
+        Executes all other operations in sequence, except poedit.
+        This should be safe, and allow you to use .po editors like Poedit. Run
+        this script before and after editing.
 
-positional arguments:
-  operation   Operation to perform; possibilities are ['po2ts', 'update',
-              'ts2po', 'release', 'all']
+POSITIONAL ARGUMENTS:
+  operation            Operation to perform; possibilities are ['po2ts',
+                       'update', 'ts2po', 'release', 'poedit', 'all']
 
-optional arguments:
-  -h, --help  show this help message and exit
-  --lconvert  Path to 'lconvert' tool (part of Qt Linguist). Default is taken
-              from LCONVERT environment variable or 'which lconvert'.
-              (default: /usr/bin/lconvert)
-  --lrelease  Path to 'lrelease' tool (part of Qt Linguist). Default is taken
-              from LRELEASE environment variable or 'which lrelease'.
-              (default: /usr/bin/lrelease)
-  --lupdate   Path to 'lupdate' tool (part of Qt Linguist). Default is taken
-              from LUPDATE environment variable or 'which lupdate'. (default:
-              /usr/bin/lupdate)
-  --trim      Remove redundant strings. (default: True)
-  --no_trim   Do not remove redundant strings. (default: False)
-  --verbose   Be verbose (default: False)
+OPTIONS:
+  -h, --help           show this help message and exit
+  --lconvert LCONVERT  Path to 'lconvert' tool (part of Qt Linguist). Default
+                       is taken from LCONVERT environment variable or 'which
+                       lconvert'. (default: /path/to/lconvert)
+  --lrelease LRELEASE  Path to 'lrelease' tool (part of Qt Linguist). Default
+                       is taken from LRELEASE environment variable or 'which
+                       lrelease'. (default: /path/to/lrelease)
+  --lupdate LUPDATE    Path to 'lupdate' tool (part of Qt Linguist). Default
+                       is taken from LUPDATE environment variable or 'which
+                       lupdate'. (default: /path/to/lupdate)
+  --poedit POEDIT      Path to 'poedit' tool. Default is taken from POEDIT
+                       environment variable or 'which poedit'. (default:
+                       /path/to/poedit)
+  --trim               Remove redundant strings. (default: True)
+  --no_trim            Do not remove redundant strings. (default: False)
+  --verbose            Be verbose (default: False)

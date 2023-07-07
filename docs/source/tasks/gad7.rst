@@ -1,6 +1,7 @@
 ..  docs/source/tasks/gad7.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -26,6 +27,7 @@ Generalized Anxiety Disorder Assessment (GAD-7)
 
 .. include:: include_from_perinatal_common.rst
 
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 
@@ -45,10 +47,12 @@ A score of ≥10 identifies social anxiety with sensitivity 72%, specificity 80%
 A score of ≥10 identifies post-traumatic stress disorder (PTSD) with
 sensitivity 66%, specificity 81% (Kroenke et al. 2010).
 
+
 Source
 ~~~~~~
 
 Original source is at www.phqscreeners.com.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,3 +68,15 @@ Public domain.
   permission is required to reproduce, translate, display or distribute.”
   (http://www.phqscreeners.com/instructions/instructions.pdf, accessed
   2012-09-04.)
+
+
+Notes
+-----
+
+- CamCOPS does not suffer and has not suffered from the GAD-7 reproduction
+  error noted by Zorowitz et al. (2021), *Lancet Psychiatry* 8: 180,
+  https://pubmed.ncbi.nlm.nih.gov/33610220/,
+  https://doi.org/10.1016/S2215-0366(21)00001-8.
+  (The error, noted in a large number of publications, was to use “not at all
+  sure” as the “zero” or lowest-value response, which is incorrect, rather than
+  the correct option of “not at all”.) Checked on 2022-01-05.

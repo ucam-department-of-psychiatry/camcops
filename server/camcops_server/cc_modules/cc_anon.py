@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_anon.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -33,9 +34,7 @@ Largely superseded by CRATE (https://doi.org/10.1186%2Fs12911-017-0437-1).
 from collections import OrderedDict
 import csv
 import sys
-from typing import (
-    Dict, List, Generator, TextIO, Tuple, TYPE_CHECKING, Union,
-)
+from typing import Dict, List, Generator, TextIO, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.sqlalchemy.orm_inspect import coltype_as_typeengine
 from cardinal_pythonlib.sqlalchemy.schema import (
@@ -46,6 +45,7 @@ from cardinal_pythonlib.sqlalchemy.schema import (
     RE_COLTYPE_WITH_ONE_PARAM,
 )
 from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
+
 # from sqlalchemy.dialects.mssql.base import MSDialect
 from sqlalchemy.dialects.mysql.base import MySQLDialect
 from sqlalchemy.engine import create_engine
@@ -65,8 +65,11 @@ from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa
+    from camcops_server.cc_modules.cc_exportrecipientinfo import (
+        ExportRecipientInfo,
+    )
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+
 
 # =============================================================================
 # Constants
@@ -79,9 +82,10 @@ MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING = 256
 # Write data dictionaries for anonymisation tools
 # =============================================================================
 
-def _gen_columns_for_anon_staging_db(req: "CamcopsRequest",
-                                     recipient: "ExportRecipientInfo") \
-        -> Generator[Union[Column, CamcopsColumn], None, None]:
+
+def _gen_columns_for_anon_staging_db(
+    req: "CamcopsRequest", recipient: "ExportRecipientInfo"
+) -> Generator[Union[Column, CamcopsColumn], None, None]:
     """
     Generates all columns for an anonymisation staging database.
     """
@@ -95,10 +99,12 @@ def _gen_columns_for_anon_staging_db(req: "CamcopsRequest",
         db_include_summaries=recipient.db_add_summaries,
     )
 
-    dc = DumpController(dst_engine=engine,
-                        dst_session=session,
-                        export_options=export_options,
-                        req=req)
+    dc = DumpController(
+        dst_engine=engine,
+        dst_session=session,
+        export_options=export_options,
+        req=req,
+    )
     for col in dc.gen_all_dest_columns():
         yield col
 
@@ -106,6 +112,7 @@ def _gen_columns_for_anon_staging_db(req: "CamcopsRequest",
 # -----------------------------------------------------------------------------
 # CRIS
 # -----------------------------------------------------------------------------
+
 
 def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     """
@@ -115,8 +122,8 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     """
     m = RE_COLTYPE_WITH_ONE_PARAM.match(sqltype)
     if m is not None:
-        finaltype = m.group('type').upper()
-        size = m.group('size').strip().upper()
+        finaltype = m.group("type").upper()
+        size = m.group("size").strip().upper()
     else:
         size = ""
         finaltype = sqltype
@@ -124,9 +131,11 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
 
 
 # noinspection PyUnusedLocal
-def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
-                     recipient: "ExportRecipientInfo",
-                     dest_dialect: Dialect = None) -> Dict:
+def _get_cris_dd_row(
+    column: Union[Column, CamcopsColumn, None],
+    recipient: "ExportRecipientInfo",
+    dest_dialect: Dialect = None,
+) -> Dict:
     """
     Args:
         column:
@@ -159,7 +168,8 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
         comment = column.comment
         coltype = coltype_as_typeengine(column.type)
         is_free_text = is_sqlatype_text_of_length_at_least(
-            coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING)
+            coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING
+        )
         exempt_from_anonymisation = False
         identifies_patient = False
 
@@ -167,7 +177,9 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
             exempt_from_anonymisation = column.exempt_from_anonymisation
             identifies_patient = column.identifies_patient
             if column.permitted_value_checker:
-                valid_values = column.permitted_value_checker.permitted_values_csv()  # noqa
+                valid_values = (
+                    column.permitted_value_checker.permitted_values_csv()
+                )
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
 
@@ -185,14 +197,12 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
         finaltype, size = _get_type_size_as_text_from_sqltype(destsqltype)
 
         # Security status
-        system_id = (
-            colname == TABLET_ID_FIELD or
-            colname.endswith("_id")
-        )
+        system_id = colname == TABLET_ID_FIELD or colname.endswith("_id")
         patient_idnum_field = colname.startswith(EXTRA_IDNUM_FIELD_PREFIX)
         internal_field = colname.startswith("_")
-        if identifies_patient and (tablename == Patient.__tablename__ and
-                                   colname == Patient.dob.name):
+        if identifies_patient and (
+            tablename == Patient.__tablename__ and colname == Patient.dob.name
+        ):
             security_status = 3  # truncate (e.g. DOB, postcode)
         elif identifies_patient and tablename == Patient.__tablename__:
             security_status = 2  # use to scrub
@@ -213,40 +223,44 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
         else:
             feft = 1  # text, numbers
 
-    return OrderedDict([
-        ("Tab", "CamCOPS"),
-        ("Form name", taskname),
-        ("CRIS tree label", colname),
-        ("Source system table name", tablename),
-        ("SQL column name", colname),
-        ("Front end field type", feft),
-        ("Valid values", valid_values),
-        ("Result column name", colname),
-        ("Family doc tab name", ""),
-        ("Family doc form name", ""),
-        ("Security status", security_status),
-        ("Exclude", ""),
-        ("End SQL Type", finaltype),
-        ("Header field (Y/N)", ""),
-        ("Header field name", ""),
-        ("Header field active (Y/N)", ""),
-        ("View name", ""),
-        ("Exclude from family doc", ""),
-        ("Tag list - fields anon", tlfa),
-        ("Anon type", ""),  # formerly "Additional info"
-        ("Form start date", ""),
-        ("Form end date", ""),
-        ("Source", ""),
-        ("Size", size),
-        ("Header logic", ""),
-        ("Patient/contact", ""),
-        ("Comments", comment),
-    ])
+    return OrderedDict(
+        [
+            ("Tab", "CamCOPS"),
+            ("Form name", taskname),
+            ("CRIS tree label", colname),
+            ("Source system table name", tablename),
+            ("SQL column name", colname),
+            ("Front end field type", feft),
+            ("Valid values", valid_values),
+            ("Result column name", colname),
+            ("Family doc tab name", ""),
+            ("Family doc form name", ""),
+            ("Security status", security_status),
+            ("Exclude", ""),
+            ("End SQL Type", finaltype),
+            ("Header field (Y/N)", ""),
+            ("Header field name", ""),
+            ("Header field active (Y/N)", ""),
+            ("View name", ""),
+            ("Exclude from family doc", ""),
+            ("Tag list - fields anon", tlfa),
+            ("Anon type", ""),  # formerly "Additional info"
+            ("Form start date", ""),
+            ("Form end date", ""),
+            ("Source", ""),
+            ("Size", size),
+            ("Header logic", ""),
+            ("Patient/contact", ""),
+            ("Comments", comment),
+        ]
+    )
 
 
-def write_cris_data_dictionary(req: "CamcopsRequest",
-                               recipient: "ExportRecipientInfo",
-                               file: TextIO = sys.stdout) -> None:
+def write_cris_data_dictionary(
+    req: "CamcopsRequest",
+    recipient: "ExportRecipientInfo",
+    file: TextIO = sys.stdout,
+) -> None:
     """
     Generates a draft CRIS data dictionary.
 
@@ -283,16 +297,19 @@ def write_cris_data_dictionary(req: "CamcopsRequest",
 # CRATE
 # -----------------------------------------------------------------------------
 
-def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
-                      recipient: "ExportRecipientInfo",
-                      dest_dialect: Dialect = None,
-                      src_db: str = "camcops",
-                      default_indexlen: int = 100) -> Dict:
+
+def _get_crate_dd_row(
+    column: Union[Column, CamcopsColumn, None],
+    recipient: "ExportRecipientInfo",
+    dest_dialect: Dialect = None,
+    src_db: str = "camcops",
+    default_indexlen: int = 100,
+) -> Dict:
     """
     Args:
         column:
             A column specification (or ``None`` to create a dummy dictionary).
-        recipient: 
+        recipient:
             a :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
         dest_dialect:
             The SQL dialect of the destination database. If ``None``, then
@@ -326,7 +343,8 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
         comment = column.comment
         coltype = coltype_as_typeengine(column.type)
         is_free_text = is_sqlatype_text_of_length_at_least(
-            coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING)
+            coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING
+        )
 
         if isinstance(column, CamcopsColumn):
             exempt_from_anonymisation = column.exempt_from_anonymisation
@@ -348,9 +366,9 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
     if primary_key:
         src_flags.extend(["K", "C"])
     primary_pid = (
-        recipient.db_patient_id_per_row and  # otherwise just in PatientIdNum
-        recipient.primary_idnum and
-        colname == extra_id_colname(recipient.primary_idnum)
+        recipient.db_patient_id_per_row
+        and recipient.primary_idnum  # otherwise just in PatientIdNum
+        and colname == extra_id_colname(recipient.primary_idnum)
     )
     if primary_pid:
         src_flags.append("P")
@@ -374,11 +392,11 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
 
     # Include in output?
     include = (
-        force_include or
-        primary_key or
-        primary_pid or
-        master_pid or
-        not (identifies_patient or identifies_respondent)
+        force_include
+        or primary_key
+        or primary_pid
+        or master_pid
+        or not (identifies_patient or identifies_respondent)
     )
 
     # alter_method
@@ -397,33 +415,37 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
         if does_sqlatype_require_index_len(desttype):
             crate_indexlen = default_indexlen
 
-    return OrderedDict([
-        ("src_db", src_db),
-        ("src_table", tablename),
-        ("src_field", colname),
-        ("src_datatype", str(coltype)),
-        ("src_flags", "".join(src_flags) if src_flags else None),
-        ("scrub_src", scrub_src),
-        ("scrub_method", scrub_method),
-        ("decision", "include" if include else "OMIT"),
-        ("inclusion_values", None),
-        ("exclusion_values", None),
-        ("alter_method", alter_method),
-        ("dest_table", tablename),
-        ("dest_field", colname),
-        ("dest_datatype", destsqltype),
-        ("index", crate_index),
-        ("indexlen", crate_indexlen),
-        ("comment", comment),
-    ])
+    return OrderedDict(
+        [
+            ("src_db", src_db),
+            ("src_table", tablename),
+            ("src_field", colname),
+            ("src_datatype", str(coltype)),
+            ("src_flags", "".join(src_flags) if src_flags else None),
+            ("scrub_src", scrub_src),
+            ("scrub_method", scrub_method),
+            ("decision", "include" if include else "OMIT"),
+            ("inclusion_values", None),
+            ("exclusion_values", None),
+            ("alter_method", alter_method),
+            ("dest_table", tablename),
+            ("dest_field", colname),
+            ("dest_datatype", destsqltype),
+            ("index", crate_index),
+            ("indexlen", crate_indexlen),
+            ("comment", comment),
+        ]
+    )
 
 
-def write_crate_data_dictionary(req: "CamcopsRequest",
-                                recipient: "ExportRecipientInfo",
-                                file: TextIO = sys.stdout) -> None:
+def write_crate_data_dictionary(
+    req: "CamcopsRequest",
+    recipient: "ExportRecipientInfo",
+    file: TextIO = sys.stdout,
+) -> None:
     """
     Generates a draft CRATE data dictionary.
-    
+
     CRATE is an anonymisation tool. See:
 
     - Cardinal RN (2017).

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_version.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -53,6 +54,7 @@ FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE = Version("2.0.4")
 # For converting from older formats
 # =============================================================================
 
+
 def make_version(v: Union[str, float, None]) -> Version:
     """
     Returns a :class:`semantic_version.Version` from its input or raises
@@ -98,7 +100,7 @@ TEST_CODE = """
 
 from camcops_server.cc_modules.cc_version import make_version
 
-for v in ["1.0", "1.01", "1.14", "1.5", "1"]:
+for v in ("1.0", "1.01", "1.14", "1.5", "1"):
     print(make_version(v))
 
 """

@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0061_fix_up_patient_idnum_ids.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -63,8 +64,8 @@ log = logging.getLogger(__name__)
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0061'
-down_revision = '0060'
+revision = "0061"
+down_revision = "0060"
 branch_labels = None
 depends_on = None
 
@@ -75,25 +76,18 @@ Base = declarative_base()
 class PatientIdNum(Base):
     __tablename__ = "patient_idnum"
 
-    _pk = Column(
-        "_pk", Integer,
-        primary_key=True,
-        autoincrement=True
-    )
+    _pk = Column("_pk", Integer, primary_key=True, autoincrement=True)
 
     id = Column(
-        "id", Integer,
+        "id",
+        Integer,
         nullable=False,
-        comment="Primary key on the source tablet device"
+        comment="Primary key on the source tablet device",
     )
 
-    _device_id = Column(
-        "_device_id", Integer, nullable=False
-    )
+    _device_id = Column("_device_id", Integer, nullable=False)
 
-    _era = Column(
-        "_era", EraColType, nullable=False, index=True
-    )
+    _era = Column("_era", EraColType, nullable=False, index=True)
 
 
 # =============================================================================
@@ -120,8 +114,7 @@ def downgrade():
     pass
 
 
-def save_with_next_available_id(obj: Base,
-                                dbsession: SqlASession) -> None:
+def save_with_next_available_id(obj: Base, dbsession: SqlASession) -> None:
     """
     Deliberately copied from cc_db.py and maintained separately
 

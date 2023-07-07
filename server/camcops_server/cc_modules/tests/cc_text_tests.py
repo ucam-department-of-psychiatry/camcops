@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_text_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -34,6 +35,7 @@ class TextTestCase(DemoRequestTestCase):
     """
     Unit tests.
     """
+
     def test_server_string(self) -> None:
         for k in SS.__dict__.keys():
             if k.startswith("_"):

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,16 +15,27 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+// #define HANDLE_ORIENTATION_EVENTS
+// The width reported in the QScreen orientationChanged event
+// seems incorrect on Android and iOS so don't try to redraw the
+// questionnaire on orientation change.
+// TODO: See if this is fixed when we move to Qt6.2
+
 #include "wsas.h"
+#include <QScreen>
 #include "common/appstrings.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "lib/uifunc.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionwithonefield.h"
+#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
@@ -36,6 +48,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 5;
 const int MAX_PER_Q = 8;
+const qreal MIN_WIDTH_INCHES_FOR_GRID = 7.0;
 const QString QPREFIX("q");
 const QString Wsas::WSAS_TABLENAME("wsas");
 const QString RETIRED_ETC("retired_etc");
@@ -105,6 +118,60 @@ QStringList Wsas::detail() const
 
 OpenableWidget* Wsas::editor(const bool read_only)
 {
+    FieldRefPtr fr_retired = fieldRef(RETIRED_ETC, false);
+
+    auto page = (new QuPage())->setTitle(longname());
+
+    rebuildPage(page);
+
+    connect(fr_retired.data(), &FieldRef::valueChanged,
+            this, &Wsas::workChanged);
+
+    m_questionnaire = new Questionnaire(m_app, {page});
+    m_questionnaire->setType(QuPage::PageType::Patient);
+    m_questionnaire->setReadOnly(read_only);
+
+    workChanged();
+
+#ifdef HANDLE_ORIENTATION_EVENTS
+    QScreen *screen = uifunc::screen();
+    screen->setOrientationUpdateMask(
+         Qt::LandscapeOrientation |
+         Qt::PortraitOrientation |
+         Qt::InvertedLandscapeOrientation |
+         Qt::InvertedPortraitOrientation
+    );
+
+    connect(screen, &QScreen::orientationChanged,
+            this, &Wsas::orientationChanged);
+#endif
+
+    return m_questionnaire;
+}
+
+
+void Wsas::orientationChanged(Qt::ScreenOrientation orientation)
+{
+    Q_UNUSED(orientation)
+
+    refreshQuestionnaire();
+}
+
+
+void Wsas::refreshQuestionnaire()
+{
+    if (!m_questionnaire) {
+        return;
+    }
+    QuPage* page = m_questionnaire->currentPagePtr();
+    rebuildPage(page);
+
+    m_questionnaire->refreshCurrentPage();
+}
+
+
+void Wsas::rebuildPage(QuPage* page)
+{
     const NameValueOptions options{
         {appstring(appstrings::WSAS_A_PREFIX + "0"), 0},
         {appstring(appstrings::WSAS_A_PREFIX + "1"), 1},
@@ -116,37 +183,50 @@ OpenableWidget* Wsas::editor(const bool read_only)
         {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
         {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
     };
+    QVector<QuestionWithOneField> q1_fields{
+        QuestionWithOneField(
+            xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
+            fieldRef(strnum(QPREFIX, FIRST_Q))
+        )
+    };
 
-    QVector<QuestionWithOneField> q1fields{QuestionWithOneField(
-                    xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
-                    fieldRef(strnum(QPREFIX, FIRST_Q)))};
-
-    QVector<QuestionWithOneField> otherqfields;
+    QVector<QuestionWithOneField> other_q_fields;
     for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
-        otherqfields.append(QuestionWithOneField(
-                           xstring(strnum("q", i), strnum("Q", i)),
-                           fieldRef(strnum(QPREFIX, i))));
+        other_q_fields.append(
+            QuestionWithOneField(
+                xstring(strnum("q", i), strnum("Q", i)),
+                fieldRef(strnum(QPREFIX, i))
+            )
+        );
     }
 
-    FieldRefPtr fr_retired = fieldRef(RETIRED_ETC, false);
+    QVector<QuElement*> elements;
+    elements.append((new QuText(xstring("instruction")))->setBold());
+    elements.append(new QuBoolean(xstring("q_retired_etc"),
+                                  fieldRef(RETIRED_ETC, false)));
 
-    QuPagePtr page((new QuPage{
-        (new QuText(xstring("instruction")))->setBold(),
-        new QuBoolean(xstring("q_retired_etc"), fr_retired),
-        (new QuMcqGrid(q1fields, options))->addTag(Q1_TAG),
-        new QuMcqGrid(otherqfields, options),
-    })->setTitle(longname()));
+    const qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
+    const bool use_grid = width_inches > MIN_WIDTH_INCHES_FOR_GRID;
 
-    connect(fr_retired.data(), &FieldRef::valueChanged,
-            this, &Wsas::workChanged);
+    if (use_grid) {
+        elements.append((new QuMcqGrid(q1_fields, options))->addTag(Q1_TAG));
+        elements.append(new QuMcqGrid(other_q_fields, options));
+    } else {
+        for (const auto& field : qAsConst(q1_fields)) {
+            // re qAsConst():
+            // https://stackoverflow.com/questions/35811053/using-c11-range-based-for-loop-correctly-in-qt
+            // https://doc.qt.io/qt-5/qtglobal.html#qAsConst
+            elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
+            elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
+        }
+        for (const auto& field : qAsConst(other_q_fields)) {
+            elements.append((new QuText(field.question()))->setBold());
+            elements.append(new QuMcq(field.fieldref(), options));
+        }
+    }
 
-    m_questionnaire = new Questionnaire(m_app, {page});
-    m_questionnaire->setType(QuPage::PageType::Patient);
-    m_questionnaire->setReadOnly(read_only);
-
-    workChanged();
-
-    return m_questionnaire;
+    page->clearElements();
+    page->addElements(elements);
 }
 
 
@@ -166,6 +246,7 @@ int Wsas::maxScore() const
     return MAX_PER_Q * (valueBool(RETIRED_ETC) ? (N_QUESTIONS - 1)
                                                : N_QUESTIONS);
 }
+
 
 // ============================================================================
 // Task-specific calculations

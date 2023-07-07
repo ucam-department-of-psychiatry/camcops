@@ -5,7 +5,8 @@ camcops_server/tasks/tests/rapid3_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -35,6 +36,7 @@ from camcops_server.tasks.rapid3 import Rapid3
 # =============================================================================
 # Unit tests
 # =============================================================================
+
 
 class Rapid3Tests(unittest.TestCase):
     def setUp(self) -> None:
@@ -124,8 +126,10 @@ class Rapid3Tests(unittest.TestCase):
                 setattr(rapid3, field, 0.0)
 
             setattr(rapid3, none_field, None)
-            self.assertFalse(rapid3.is_complete(),
-                             msg=f"Failed when setting {none_field} to None")
+            self.assertFalse(
+                rapid3.is_complete(),
+                msg=f"Failed when setting {none_field} to None",
+            )
 
     def test_incomplete_when_any_field_invalid(self) -> None:
         all_fields = [
@@ -155,7 +159,8 @@ class Rapid3Tests(unittest.TestCase):
             setattr(rapid3, invalid_field, 10.5)
             self.assertFalse(
                 rapid3.is_complete(),
-                msg=f"Failed when setting {invalid_field} invalid")
+                msg=f"Failed when setting {invalid_field} invalid",
+            )
 
     def test_disease_severity_n_a_for_none(self) -> None:
         rapid3 = Rapid3()
@@ -195,7 +200,9 @@ class Rapid3Tests(unittest.TestCase):
             with mock.patch.object(rapid3, "wxstring") as mock_wxstring:
                 rapid3.disease_severity(self.request)
 
-        mock_wxstring.assert_called_once_with(self.request, "moderate_severity")
+        mock_wxstring.assert_called_once_with(
+            self.request, "moderate_severity"
+        )
 
     def test_disease_severity_high_for_12point1(self) -> None:
         rapid3 = Rapid3()

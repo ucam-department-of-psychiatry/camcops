@@ -5,7 +5,8 @@ camcops_server/tasks/dast.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -35,12 +36,7 @@ from sqlalchemy.sql.sqltypes import Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import (
-    answer,
-    get_yes_no,
-    tr,
-    tr_qa,
-)
+from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import CharColType
@@ -58,15 +54,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # DAST
 # =============================================================================
 
+
 class DastMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Dast'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Dast"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, CharColType,
-            pv=['Y', 'N'],
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            CharColType,
+            pv=["Y", "N"],
             comment_fmt='Q{n}. {s} ("+" = Y scores 1, "-" = N scores 1)',
             comment_strings=[
                 "non-medical drug use (+)",
@@ -97,16 +100,16 @@ class DastMetaclass(DeclarativeMeta):
                 "hospital for medical problems (+)",
                 "drug treatment program (+)",
                 "outpatient treatment for drug abuse (+)",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Dast(TaskHasPatientMixin, Task,
-           metaclass=DastMetaclass):
+class Dast(TaskHasPatientMixin, Task, metaclass=DastMetaclass):
     """
     Server implementation of the DAST task.
     """
+
     __tablename__ = "dast"
     shortname = "DAST"
     provides_trackers = True
@@ -122,34 +125,41 @@ class Dast(TaskHasPatientMixin, Task,
         return _("Drug Abuse Screening Test")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="DAST total score",
-            axis_label=f"Total score (out of {self.NQUESTIONS})",
-            axis_min=-0.5,
-            axis_max=self.NQUESTIONS + 0.5,
-            horizontal_lines=[10.5, 5.5]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="DAST total score",
+                axis_label=f"Total score (out of {self.NQUESTIONS})",
+                axis_min=-0.5,
+                axis_max=self.NQUESTIONS + 0.5,
+                horizontal_lines=[10.5, 5.5],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"DAST total score {self.total_score()}/{self.NQUESTIONS}"
-        )]
+        return [
+            CtvInfo(
+                content=f"DAST total score "
+                f"{self.total_score()}/{self.NQUESTIONS}"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score",
+            )
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(Dast.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(Dast.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_score(self, q: int) -> int:
@@ -175,14 +185,15 @@ class Dast(TaskHasPatientMixin, Task,
         main_dict = {
             None: None,
             "Y": req.sstring(SS.YES),
-            "N": req.sstring(SS.NO)
+            "N": req.sstring(SS.NO),
         }
         q_a = ""
         for q in range(1, Dast.NQUESTIONS + 1):
             q_a += tr(
                 self.wxstring(req, "q" + str(q)),
-                answer(get_from_dict(main_dict, getattr(self, "q" + str(q)))) +
-                " — " + answer(str(self.get_score(q)))
+                answer(get_from_dict(main_dict, getattr(self, "q" + str(q))))
+                + " — "
+                + answer(str(self.get_score(q))),
             )
 
         h = """
@@ -211,15 +222,17 @@ class Dast(TaskHasPatientMixin, Task,
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(req.sstring(SS.TOTAL_SCORE),
-                           answer(score) + f" / {self.NQUESTIONS}"),
+            total_score=tr(
+                req.sstring(SS.TOTAL_SCORE),
+                answer(score) + f" / {self.NQUESTIONS}",
+            ),
             exceeds_standard_cutoff_1=tr_qa(
                 self.wxstring(req, "exceeds_standard_cutoff_1"),
-                get_yes_no(req, exceeds_cutoff_1)
+                get_yes_no(req, exceeds_cutoff_1),
             ),
             exceeds_standard_cutoff_2=tr_qa(
                 self.wxstring(req, "exceeds_standard_cutoff_2"),
-                get_yes_no(req, exceeds_cutoff_2)
+                get_yes_no(req, exceeds_cutoff_2),
             ),
             q_a=q_a,
         )

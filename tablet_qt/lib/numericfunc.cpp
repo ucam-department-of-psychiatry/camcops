@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "numericfunc.h"
@@ -151,7 +152,8 @@ bool extendedDoubleMustExceedTop(const double number,
         return true;
     }
     const int nd_number = numDigitsDouble(number);
-    QString str_number = QString("%1").arg(number);
+    QString str_number;
+    str_number.setNum(number);
     if (number > 0) {
         // Both positive. Extend with zeros, to length of top
         const int nd_top = numDigitsDouble(top);
@@ -186,7 +188,8 @@ bool extendedDoubleMustBeLessThanBottom(const double number,
         return false;
     }
     const int nd_number = numDigitsDouble(number);
-    QString str_number = QString("%1").arg(number);
+    QString str_number;
+    str_number.setNum(number);
     if (number > 0) {
         // Both positive. Extend with nines, to length of top
         const int nd_top = numDigitsDouble(top);

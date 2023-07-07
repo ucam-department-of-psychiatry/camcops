@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_taskschedule_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,6 +29,7 @@ camcops_server/cc_modules/tests/cc_taskschedule_tests.py
 
 from urllib.parse import parse_qs, urlsplit
 
+from cardinal_pythonlib.uriconst import UriSchemes
 from pendulum import Duration
 
 from camcops_server.cc_modules.cc_email import Email
@@ -47,6 +49,7 @@ from camcops_server.cc_modules.cc_unittest import (
 # =============================================================================
 # Unit tests
 # =============================================================================
+
 
 class TaskScheduleTests(DemoDatabaseTestCase):
     def test_deleting_deletes_related_objects(self) -> None:
@@ -81,32 +84,54 @@ class TaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.add(pts_email)
         self.dbsession.commit()
 
-        self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
-            TaskScheduleItem.id == item.id).one_or_none())
-        self.assertIsNotNone(self.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.id == pts.id).one_or_none())
         self.assertIsNotNone(
-            self.dbsession.query(PatientTaskScheduleEmail).filter(
-                PatientTaskScheduleEmail.patient_task_schedule_id == pts.id
-            ).one_or_none()
+            self.dbsession.query(TaskScheduleItem)
+            .filter(TaskScheduleItem.id == item.id)
+            .one_or_none()
         )
-        self.assertIsNotNone(self.dbsession.query(Email).filter(
-            Email.id == email.id).one_or_none())
+        self.assertIsNotNone(
+            self.dbsession.query(PatientTaskSchedule)
+            .filter(PatientTaskSchedule.id == pts.id)
+            .one_or_none()
+        )
+        self.assertIsNotNone(
+            self.dbsession.query(PatientTaskScheduleEmail)
+            .filter(
+                PatientTaskScheduleEmail.patient_task_schedule_id == pts.id
+            )
+            .one_or_none()
+        )
+        self.assertIsNotNone(
+            self.dbsession.query(Email)
+            .filter(Email.id == email.id)
+            .one_or_none()
+        )
 
         self.dbsession.delete(schedule)
         self.dbsession.commit()
 
-        self.assertIsNone(self.dbsession.query(TaskScheduleItem).filter(
-            TaskScheduleItem.id == item.id).one_or_none())
-        self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.id == pts.id).one_or_none())
         self.assertIsNone(
-            self.dbsession.query(PatientTaskScheduleEmail).filter(
-                PatientTaskScheduleEmail.patient_task_schedule_id == pts.id
-            ).one_or_none()
+            self.dbsession.query(TaskScheduleItem)
+            .filter(TaskScheduleItem.id == item.id)
+            .one_or_none()
         )
-        self.assertIsNone(self.dbsession.query(Email).filter(
-            Email.id == email.id).one_or_none())
+        self.assertIsNone(
+            self.dbsession.query(PatientTaskSchedule)
+            .filter(PatientTaskSchedule.id == pts.id)
+            .one_or_none()
+        )
+        self.assertIsNone(
+            self.dbsession.query(PatientTaskScheduleEmail)
+            .filter(
+                PatientTaskScheduleEmail.patient_task_schedule_id == pts.id
+            )
+            .one_or_none()
+        )
+        self.assertIsNone(
+            self.dbsession.query(Email)
+            .filter(Email.id == email.id)
+            .one_or_none()
+        )
 
 
 class TaskScheduleItemTests(DemoRequestTestCase):
@@ -154,9 +179,14 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.add(self.schedule)
 
         self.patient = self.create_patient(
-            id=1, forename="Jo", surname="Patient",
+            id=1,
+            forename="Jo",
+            surname="Patient",
             dob=datetime.date(1958, 4, 19),
-            sex="F", address="Address", gp="GP", other="Other"
+            sex="F",
+            address="Address",
+            gp="GP",
+            other="Other",
         )
 
         self.pts = PatientTaskSchedule()
@@ -170,8 +200,9 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        self.assertIn(f"{self.patient.uuid_as_proquint}",
-                      self.pts.email_body(self.req))
+        self.assertIn(
+            f"{self.patient.uuid_as_proquint}", self.pts.email_body(self.req)
+        )
 
     def test_email_body_contains_server_url(self) -> None:
         self.schedule.email_template = "{server_url}"
@@ -187,16 +218,18 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        self.assertIn(f"{self.pts.patient.forename}",
-                      self.pts.email_body(self.req))
+        self.assertIn(
+            f"{self.pts.patient.forename}", self.pts.email_body(self.req)
+        )
 
     def test_email_body_contains_patient_surname(self) -> None:
         self.schedule.email_template = "{surname}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        self.assertIn(f"{self.pts.patient.surname}",
-                      self.pts.email_body(self.req))
+        self.assertIn(
+            f"{self.pts.patient.surname}", self.pts.email_body(self.req)
+        )
 
     def test_email_body_contains_android_launch_url(self) -> None:
         self.schedule.email_template = "{android_launch_url}"
@@ -205,15 +238,18 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
 
         url = self.pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
-        self.assertEqual(scheme, "http")
+        self.assertEqual(scheme, UriSchemes.HTTP)
         self.assertEqual(netloc, "camcops.org")
         self.assertEqual(path, "/register/")
         query_dict = parse_qs(query)
         self.assertEqual(query_dict["default_single_user_mode"], ["true"])
-        self.assertEqual(query_dict["default_server_location"],
-                         [self.req.route_url(Routes.CLIENT_API)])
-        self.assertEqual(query_dict["default_access_key"],
-                         [self.patient.uuid_as_proquint])
+        self.assertEqual(
+            query_dict["default_server_location"],
+            [self.req.route_url(Routes.CLIENT_API)],
+        )
+        self.assertEqual(
+            query_dict["default_access_key"], [self.patient.uuid_as_proquint]
+        )
 
     def test_email_body_contains_ios_launch_url(self) -> None:
         self.schedule.email_template = "{ios_launch_url}"
@@ -227,10 +263,13 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.assertEqual(path, "/register/")
         query_dict = parse_qs(query)
         self.assertEqual(query_dict["default_single_user_mode"], ["true"])
-        self.assertEqual(query_dict["default_server_location"],
-                         [self.req.route_url(Routes.CLIENT_API)])
-        self.assertEqual(query_dict["default_access_key"],
-                         [self.patient.uuid_as_proquint])
+        self.assertEqual(
+            query_dict["default_server_location"],
+            [self.req.route_url(Routes.CLIENT_API)],
+        )
+        self.assertEqual(
+            query_dict["default_access_key"], [self.patient.uuid_as_proquint]
+        )
 
     def test_email_body_disallows_invalid_template(self) -> None:
         self.schedule.email_template = "{foobar}"

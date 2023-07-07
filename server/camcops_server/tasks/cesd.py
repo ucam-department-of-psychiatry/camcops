@@ -5,7 +5,8 @@ camcops_server/tasks/cesd.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -61,18 +62,26 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # CESD
 # =============================================================================
 
+
 class CesdMetaclass(DeclarativeMeta):
     """
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
+
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Cesd'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Cesd"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS,
-            minimum=0, maximum=4,
+            cls,
+            "q",
+            1,
+            cls.N_QUESTIONS,
+            minimum=0,
+            maximum=4,
             comment_fmt=(
                 "Q{n} ({s}) (0 rarely/none of the time - 4 all of the time)"
             ),
@@ -97,18 +106,18 @@ class CesdMetaclass(DeclarativeMeta):
                 "sadness",
                 "feeling disliked",
                 "could not get going",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Cesd(TaskHasPatientMixin, Task,
-           metaclass=CesdMetaclass):
+class Cesd(TaskHasPatientMixin, Task, metaclass=CesdMetaclass):
     """
     Server implementation of the CESD task.
     """
-    __tablename__ = 'cesd'
-    shortname = 'CESD'
+
+    __tablename__ = "cesd"
+    shortname = "CESD"
     provides_trackers = True
     extrastring_taskname = "cesd"
     N_QUESTIONS = 20
@@ -123,7 +132,7 @@ class Cesd(TaskHasPatientMixin, Task,
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _('Center for Epidemiologic Studies Depression Scale')
+        return _("Center for Epidemiologic Studies Depression Scale")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -132,8 +141,8 @@ class Cesd(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -153,34 +162,35 @@ class Cesd(TaskHasPatientMixin, Task,
         line_step = 20
         threshold_line = self.DEPRESSION_RISK_THRESHOLD - 0.5
         # noinspection PyTypeChecker
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="CESD total score",
-            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
-            axis_min=self.MIN_SCORE - 0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            axis_ticks=regular_tracker_axis_ticks_int(
-                self.MIN_SCORE,
-                self.MAX_SCORE,
-                step=line_step
-            ),
-            horizontal_lines=equally_spaced_int(
-                self.MIN_SCORE + line_step,
-                self.MAX_SCORE - line_step,
-                step=line_step
-            ) + [threshold_line],
-            horizontal_labels=[
-                TrackerLabel(threshold_line,
-                             self.wxstring(req, "depression_or_risk_of")),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="CESD total score",
+                axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
+                axis_min=self.MIN_SCORE - 0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                axis_ticks=regular_tracker_axis_ticks_int(
+                    self.MIN_SCORE, self.MAX_SCORE, step=line_step
+                ),
+                horizontal_lines=equally_spaced_int(
+                    self.MIN_SCORE + line_step,
+                    self.MAX_SCORE - line_step,
+                    step=line_step,
+                )
+                + [threshold_line],
+                horizontal_labels=[
+                    TrackerLabel(
+                        threshold_line,
+                        self.wxstring(req, "depression_or_risk_of"),
+                    )
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"CESD total score {self.total_score()}"
-        )]
+        return [CtvInfo(content=f"CESD total score {self.total_score()}")]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -188,7 +198,8 @@ class Cesd(TaskHasPatientMixin, Task,
                 name="depression_risk",
                 coltype=Boolean(),
                 value=self.has_depression_risk(),
-                comment="Has depression or at risk of depression"),
+                comment="Has depression or at risk of depression",
+            )
         ]
 
     def has_depression_risk(self) -> bool:
@@ -198,24 +209,26 @@ class Cesd(TaskHasPatientMixin, Task,
         score = self.total_score()
         answer_dict = {None: None}
         for option in range(self.N_ANSWERS):
-            answer_dict[option] = str(option) + " – " + \
-                self.wxstring(req, "a" + str(option))
+            answer_dict[option] = (
+                str(option) + " – " + self.wxstring(req, "a" + str(option))
+            )
         q_a = ""
         for q in range(1, self.N_QUESTIONS):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             )
 
-        tr_total_score = tr_qa(
-            f"{req.sstring(SS.TOTAL_SCORE)} (0–60)",
-            score
-        ),
-        tr_depression_or_risk_of = tr_qa(
-            self.wxstring(req, "depression_or_risk_of") +
-            "? <sup>[1]</sup>",
-            get_yes_no(req, self.has_depression_risk())
-        ),
+        tr_total_score = (
+            tr_qa(f"{req.sstring(SS.TOTAL_SCORE)} (0–60)", score),
+        )
+        tr_depression_or_risk_of = (
+            tr_qa(
+                self.wxstring(req, "depression_or_risk_of")
+                + "? <sup>[1]</sup>",
+                get_yes_no(req, self.has_depression_risk()),
+            ),
+        )
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">

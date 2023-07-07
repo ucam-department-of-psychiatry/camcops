@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_trackerhelpers.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,6 +42,7 @@ class LabelAlignment(Enum):
     """
     Enum representing figure label alignment.
     """
+
     center = "center"
     top = "top"
     bottom = "bottom"
@@ -52,10 +54,13 @@ class TrackerLabel(object):
     Representation of a label on a
     :class:`camcops_server.cc_modules.cc_tracker.Tracker` figure.
     """
-    def __init__(self,
-                 y: float,
-                 label: str,
-                 vertical_alignment: LabelAlignment = LabelAlignment.center):
+
+    def __init__(
+        self,
+        y: float,
+        label: str,
+        vertical_alignment: LabelAlignment = LabelAlignment.center,
+    ):
         """
         Args:
             y: Y axis (vertical) position
@@ -66,12 +71,16 @@ class TrackerLabel(object):
         self.label = label
         self.vertical_alignment = vertical_alignment
 
+    def __str__(self) -> str:
+        return f"{self.y}: {self.label}"
+
 
 class TrackerAxisTick(object):
     """
     Representation of a Y-axis tick mark and associated label on a
     :class:`camcops_server.cc_modules.cc_tracker.Tracker` figure.
     """
+
     def __init__(self, y: float, label: str):
         self.y = y
         self.label = label
@@ -83,16 +92,19 @@ class TrackerInfo(object):
     which :class:`camcops_server.cc_modules.cc_tracker.Tracker` displays are
     created.
     """
-    def __init__(self,
-                 value: float,
-                 plot_label: str = None,
-                 axis_label: str = None,
-                 axis_min: float = None,
-                 axis_max: float = None,
-                 axis_ticks: Optional[List[TrackerAxisTick]] = None,
-                 horizontal_lines: Optional[List[float]] = None,
-                 horizontal_labels: Optional[List[TrackerLabel]] = None,
-                 aspect_ratio: Optional[float] = DEFAULT_TRACKER_ASPECT_RATIO):
+
+    def __init__(
+        self,
+        value: float,
+        plot_label: str = None,
+        axis_label: str = None,
+        axis_min: float = None,
+        axis_max: float = None,
+        axis_ticks: Optional[List[TrackerAxisTick]] = None,
+        horizontal_lines: Optional[List[float]] = None,
+        horizontal_labels: Optional[List[TrackerLabel]] = None,
+        aspect_ratio: Optional[float] = DEFAULT_TRACKER_ASPECT_RATIO,
+    ):
         """
         Args:
             value: numerical value
@@ -120,8 +132,9 @@ class TrackerInfo(object):
         self.aspect_ratio = aspect_ratio
 
 
-def equally_spaced_ndarray(start: float, stop: float, num: int,
-                           endpoint: bool = True) -> np.ndarray:
+def equally_spaced_ndarray(
+    start: float, stop: float, num: int, endpoint: bool = True
+) -> np.ndarray:
     """
     Produces equally spaced numbers. See
     https://stackoverflow.com/questions/477486/how-to-use-a-decimal-range-step-value.
@@ -139,16 +152,18 @@ def equally_spaced_ndarray(start: float, stop: float, num: int,
     return np.linspace(start, stop, num, endpoint=endpoint, dtype=float)
 
 
-def equally_spaced_float(start: float, stop: float, num: int,
-                         endpoint: bool = True) -> List[float]:
+def equally_spaced_float(
+    start: float, stop: float, num: int, endpoint: bool = True
+) -> List[float]:
     """
     Returns a float equivalent of :func:`equally_spaced_float` (q.v.).
     """
     return list(equally_spaced_ndarray(start, stop, num, endpoint=endpoint))
 
 
-def equally_spaced_int(start: int, stop: int, step: int,
-                       endpoint: bool = True) -> List[int]:
+def equally_spaced_int(
+    start: int, stop: int, step: int, endpoint: bool = True
+) -> List[int]:
     """
     Almost a synonym for :func:`range`!
 
@@ -172,8 +187,8 @@ def equally_spaced_int(start: int, stop: int, step: int,
 
 
 def regular_tracker_axis_ticks_float(
-        start: float, stop: float, num: int,
-        endpoint: bool = True) -> List[TrackerAxisTick]:
+    start: float, stop: float, num: int, endpoint: bool = True
+) -> List[TrackerAxisTick]:
     """
     Args:
         start: starting value
@@ -192,8 +207,8 @@ def regular_tracker_axis_ticks_float(
 
 
 def regular_tracker_axis_ticks_int(
-        start: int, stop: int, step: int,
-        endpoint: bool = True) -> List[TrackerAxisTick]:
+    start: int, stop: int, step: int, endpoint: bool = True
+) -> List[TrackerAxisTick]:
     """
     Args:
         start: starting value

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "pbq.h"
@@ -33,7 +34,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 25;
 const int MAX_PER_QUESTION = 5;  // each question scored 0-5
-const int MAX_SCORE = N_QUESTIONS * MAX_PER_QUESTION;
+const int MAX_QUESTION_SCORE = N_QUESTIONS * MAX_PER_QUESTION;
 const QString QPREFIX("q");
 const QVector<int> SCORED_A0N5_Q{1, 4, 8, 9, 11, 16, 22, 25};  // rest scored A5N0
 
@@ -90,7 +91,7 @@ bool Pbq::isComplete() const
 QStringList Pbq::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
     };
 }
 

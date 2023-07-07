@@ -5,7 +5,8 @@ playing/scrapy/camcops/spiders/add_patient.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -59,7 +60,7 @@ class AddPatientSpider(Spider):
         return FormRequest.from_response(
             response,
             formdata={"username": "admin", "password": "adminadmin"},
-            callback=self.go_to_add_patient
+            callback=self.go_to_add_patient,
         )
 
     def go_to_add_patient(self, response):
@@ -73,11 +74,10 @@ class AddPatientSpider(Spider):
         assert response.status == 200
 
         for i in range(1, 10):
-            faker = Faker('en_GB')
+            faker = Faker("en_GB")
 
             sex = faker.random.choices(
-                ["M", "F", "X"],
-                weights=[49.8, 49.8, 0.4]
+                ["M", "F", "X"], weights=[49.8, 49.8, 0.4]
             )[0]
 
             if sex == "M":
@@ -122,7 +122,7 @@ class AddPatientSpider(Spider):
                     ("__end__", "task_schedules:sequence"),
                     ("submit", "submit"),
                 ],
-                callback=self.patient_added
+                callback=self.patient_added,
             )
 
     def patient_added(self, response):

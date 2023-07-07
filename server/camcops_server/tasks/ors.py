@@ -5,7 +5,8 @@ camcops_server/tasks/ors.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -37,23 +38,22 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
-    ZERO_TO_10_CHECKER
+    ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # ORS
 # =============================================================================
 
+
 class Ors(TaskHasPatientMixin, Task):
     """
     Server implementation of the PHQ9 task.
     """
+
     __tablename__ = "ors"
     shortname = "ORS"
     provides_trackers = True
@@ -68,23 +68,32 @@ class Ors(TaskHasPatientMixin, Task):
     q_date = CamcopsColumn("q_date", Date, comment="Session date")
     q_who = CamcopsColumn("q_who", Integer, comment="Completed by")
     q_who_other = CamcopsColumn(
-        "q_who_other", UnicodeText, comment="Completed by other: who?")
+        "q_who_other", UnicodeText, comment="Completed by other: who?"
+    )
     q_individual = CamcopsColumn(
-        "q_individual", Float,
+        "q_individual",
+        Float,
         comment="Individual rating (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
     q_interpersonal = CamcopsColumn(
-        "q_interpersonal", Float,
+        "q_interpersonal",
+        Float,
         comment="Interpersonal rating (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
     q_social = CamcopsColumn(
-        "q_social", Float,
+        "q_social",
+        Float,
         comment="Social rating (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
     q_overall = CamcopsColumn(
-        "q_overall", Float,
+        "q_overall",
+        Float,
         comment="Overall rating (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "researchmenu.h"
@@ -29,6 +30,8 @@
 #include "tasks/chit.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/ided3d.h"
+#include "tasks/isaaq10.h"
+#include "tasks/isaaqed.h"
 #include "tasks/kirby.h"
 #include "tasks/mfi20.h"
 #include "tasks/qolbasic.h"
@@ -74,6 +77,8 @@ void ResearchMenu::makeItems()
         ),
         MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Isaaq10::ISAAQ10_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(IsaaqEd::ISAAQED_TABLENAME, m_app),
     };
 }
 

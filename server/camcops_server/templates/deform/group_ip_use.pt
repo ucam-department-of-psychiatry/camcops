@@ -1,10 +1,11 @@
+<div tal:replace="nothing">
 <!--
-
 camcops_server/templates/deform/group_ip_use.pt
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -19,11 +20,11 @@ camcops_server/templates/deform/group_ip_use.pt
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
-
 -->
+</div>
 <div i18n:domain="deform"
       tal:omit-tag=""
       tal:define="oid oid|field.oid;

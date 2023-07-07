@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -129,7 +130,7 @@ public:
     // (if tablename == ""). A KEY SECURITY FUNCTION; determines which tasks
     // users can see according to whether the app has a patient selected and
     // whether it is locked, etc.
-    TaskPtrList fetchTasks(const QString& tablename = "", bool sort = true) const;
+    TaskPtrList fetchTasks(const QString& tablename = QString(), bool sort = true) const;
 
     // Fetch all tasks for a specified patient.
     TaskPtrList fetchAllTasksForPatient(int patient_id) const;

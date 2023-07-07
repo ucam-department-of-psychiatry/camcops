@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "rapid3.h"
@@ -235,7 +236,8 @@ OpenableWidget* Rapid3::editor(const bool read_only)
 
     QVector<QuestionWithOneField> q_field_pairs;
 
-    for (const QString& fieldname : q1Fieldnames()) {
+    const auto q1fieldnames = q1Fieldnames();
+    for (const QString& fieldname : q1fieldnames) {
         const QString& description = xstring(fieldname);
         q_field_pairs.append(QuestionWithOneField(description,
                                                   fieldRef(fieldname)));

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "mfi20.h"
@@ -42,8 +43,8 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MIN_SCORE_PER_Q = 1;
 const int MAX_SCORE_PER_Q = 5;
-const int MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
-const int MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
+const int MIN_QUESTION_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
+const int MAX_QUESTION_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
 const int N_Q_PER_SUBSCALE = 4;  // always
 const int MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE;
 const int MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE;
@@ -54,9 +55,9 @@ const QStringList REVERSE_QUESTIONS = strnumlist(
 
 const QVector<int> GENERAL_FATIGUE_QUESTIONS{1, 5, 12, 16};
 const QVector<int> PHYSICAL_FATIGUE_QUESTIONS{2, 8, 14, 20};
-const QVector<int> REDUCED_ACTIVITY_QUESTIONS{7, 11, 13, 19};
-const QVector<int> REDUCED_MOTIVATION_QUESTIONS{3, 6, 10, 17};
-const QVector<int> MENTAL_FATIGUE_QUESTIONS{4, 9, 15, 18};
+const QVector<int> REDUCED_ACTIVITY_QUESTIONS{3, 6, 10, 17};
+const QVector<int> REDUCED_MOTIVATION_QUESTIONS{4, 9, 15, 18};
+const QVector<int> MENTAL_FATIGUE_QUESTIONS{7, 11, 13, 19};
 
 
 const QString Mfi20::MFI20_TABLENAME("mfi20");
@@ -185,7 +186,7 @@ QStringList Mfi20::summary() const
     };
     return QStringList{
         rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_SCORE, MAX_SCORE),
+                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
         rangeScore(xstring("general_fatigue"), generalFatigue(),
                    MIN_SUBSCALE, MAX_SUBSCALE),
         rangeScore(xstring("physical_fatigue"), physicalFatigue(),

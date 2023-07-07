@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "globalmenu.h"
@@ -42,6 +43,7 @@
 #include "tasks/honosca.h"
 #include "tasks/npiq.h"
 #include "tasks/ors.h"
+#include "tasks/paradise24.h"
 #include "tasks/rand36.h"
 #include "tasks/swemwbs.h"
 #include "tasks/wemwbs.h"
@@ -85,6 +87,7 @@ void GlobalMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Honosca::HONOSCA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Ors::ORS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(NpiQ::NPIQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Paradise24::PARADISE24_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Swemwbs::SWEMWBS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Wemwbs::WEMWBS_TABLENAME, m_app),

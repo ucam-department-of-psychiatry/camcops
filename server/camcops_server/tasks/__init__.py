@@ -5,7 +5,8 @@ camcops_server/tasks/__init__.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -26,7 +27,7 @@ camcops_server/tasks/__init__.py
 
 """
 
-from camcops_server.tasks.ace3 import Ace3
+from camcops_server.tasks.ace3 import Ace3, MiniAce
 from camcops_server.tasks.aims import Aims
 from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 from camcops_server.tasks.apeqpt import Apeqpt
@@ -56,6 +57,7 @@ from camcops_server.tasks.cesdr import Cesdr
 from camcops_server.tasks.cgi_task import Cgi
 from camcops_server.tasks.cgisch import CgiSch
 from camcops_server.tasks.chit import Chit
+from camcops_server.tasks.cia import Cia
 from camcops_server.tasks.cisr import Cisr
 from camcops_server.tasks.ciwa import Ciwa
 from camcops_server.tasks.contactlog import ContactLog
@@ -66,9 +68,11 @@ from camcops_server.tasks.cpft_lps import (
     CPFTLPSResetResponseClock,
     CPFTLPSDischarge,
 )
+from camcops_server.tasks.cpft_covid_medical import CpftCovidMedical
 from camcops_server.tasks.cpft_research_preferences import (
     CpftResearchPreferences,
 )
+
 # todo: # from camcops_server.tasks.ctqsf import Ctqsf
 
 from camcops_server.tasks.dad import Dad
@@ -80,6 +84,7 @@ from camcops_server.tasks.demqol import Demqol
 from camcops_server.tasks.diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
 from camcops_server.tasks.distressthermometer import DistressThermometer
 
+from camcops_server.tasks.edeq import Edeq
 from camcops_server.tasks.elixhauserci import ElixhauserCI
 from camcops_server.tasks.epds import Epds
 from camcops_server.tasks.eq5d5l import Eq5d5l
@@ -112,15 +117,15 @@ from camcops_server.tasks.ided3d import IDED3D
 from camcops_server.tasks.iesr import Iesr
 from camcops_server.tasks.ifs import Ifs
 from camcops_server.tasks.irac import Irac
+from camcops_server.tasks.isaaq10 import Isaaq10
+from camcops_server.tasks.isaaqed import IsaaqEd
 
 from camcops_server.tasks.khandaker_insight_medical import (
     KhandakerInsightMedical,
 )
-from camcops_server.tasks.khandaker_mojo_medical import (
-    KhandakerMojoMedical,
-)
+from camcops_server.tasks.khandaker_mojo_medical import KhandakerMojoMedical
 from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
-     KhandakerMojoMedicationTherapy,
+    KhandakerMojoMedicationTherapy,
 )
 from camcops_server.tasks.kirby_mcq import Kirby
 from camcops_server.tasks.khandaker_mojo_sociodemographics import (
@@ -142,12 +147,14 @@ from camcops_server.tasks.npiq import NpiQ
 from camcops_server.tasks.ors import Ors
 
 from camcops_server.tasks.panss import Panss
+from camcops_server.tasks.paradise24 import Paradise24
 from camcops_server.tasks.pbq import Pbq
 from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS
 from camcops_server.tasks.pdss import Pdss
 from camcops_server.tasks.perinatalpoem import PerinatalPoem
 from camcops_server.tasks.photo import Photo, PhotoSequence
+from camcops_server.tasks.phq8 import Phq8
 from camcops_server.tasks.phq9 import Phq9
 from camcops_server.tasks.phq15 import Phq15
 from camcops_server.tasks.progressnote import ProgressNote

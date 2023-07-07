@@ -5,7 +5,8 @@ camcops_server/__init__.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -31,5 +32,5 @@ The mere existence of this file makes Python treat the directory as a package.
 # Create camcops_server.__version__:
 # noinspection PyPep8Naming
 from camcops_server.cc_modules.cc_version_string import (
-    CAMCOPS_SERVER_VERSION_STRING as __version__
+    CAMCOPS_SERVER_VERSION_STRING as __version__,
 )

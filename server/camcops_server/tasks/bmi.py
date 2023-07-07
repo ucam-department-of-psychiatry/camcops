@@ -5,7 +5,8 @@ camcops_server/tasks/bmi.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -26,14 +27,18 @@ camcops_server/tasks/bmi.py
 
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
+from fhirclient.models.codeableconcept import CodeableConcept
+from fhirclient.models.coding import Coding
+from fhirclient.models.quantity import Quantity
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_fhir import make_fhir_bundle_entry
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import (
@@ -51,7 +56,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     LabelAlignment,
     TrackerInfo,
     TrackerLabel,
-)  # noqa
+)
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 
 
 # =============================================================================
@@ -68,29 +76,30 @@ class Bmi(TaskHasPatientMixin, Task):
     """
     Server implementation of the BMI task.
     """
+
     __tablename__ = "bmi"
     shortname = "BMI"
     provides_trackers = True
 
     height_m = CamcopsColumn(
-        "height_m", Float,
+        "height_m",
+        Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
-        comment="height (m)"
+        comment="height (m)",
     )
     mass_kg = CamcopsColumn(
-        "mass_kg", Float,
+        "mass_kg",
+        Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
-        comment="mass (kg)"
+        comment="mass (kg)",
     )
     waist_cm = CamcopsColumn(
-        "waist_cm", Float,
+        "waist_cm",
+        Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
-        comment="waist circumference (cm)"
+        comment="waist circumference (cm)",
     )
-    comment = Column(
-        "comment", UnicodeText,
-        comment="Clinician's comment"
-    )
+    comment = Column("comment", UnicodeText, comment="Clinician's comment")
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -99,9 +108,9 @@ class Bmi(TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.height_m is not None and
-            self.mass_kg is not None and
-            self.field_contents_valid()
+            self.height_m is not None
+            and self.mass_kg is not None
+            and self.field_contents_valid()
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
@@ -113,71 +122,76 @@ class Bmi(TaskHasPatientMixin, Task):
                 axis_label="BMI (kg/m^2)",
                 axis_min=10,
                 axis_max=42,
-                horizontal_lines=[
-                    13,
-                    15,
-                    16,
-                    17,
-                    17.5,
-                    18.5,
-                    25,
-                    30,
-                    35,
-                    40
-                ],
+                horizontal_lines=[13, 15, 16, 17, 17.5, 18.5, 25, 30, 35, 40],
                 horizontal_labels=[
                     # positioned near the mid-range for some:
-                    TrackerLabel(12.5,
-                                 self.wxstring(req, "underweight_under_13"),
-                                 LabelAlignment.top),
+                    TrackerLabel(
+                        12.5,
+                        self.wxstring(req, "underweight_under_13"),
+                        LabelAlignment.top,
+                    ),
                     TrackerLabel(14, self.wxstring(req, "underweight_13_15")),
-                    TrackerLabel(15.5,
-                                 self.wxstring(req, "underweight_15_16")),
-                    TrackerLabel(16.5,
-                                 self.wxstring(req, "underweight_16_17")),
-                    TrackerLabel(17.25,
-                                 self.wxstring(req, "underweight_17_17.5")),
-                    TrackerLabel(18,
-                                 self.wxstring(req, "underweight_17.5_18.5")),
+                    TrackerLabel(
+                        15.5, self.wxstring(req, "underweight_15_16")
+                    ),
+                    TrackerLabel(
+                        16.5, self.wxstring(req, "underweight_16_17")
+                    ),
+                    TrackerLabel(
+                        17.25, self.wxstring(req, "underweight_17_17.5")
+                    ),
+                    TrackerLabel(
+                        18, self.wxstring(req, "underweight_17.5_18.5")
+                    ),
                     TrackerLabel(21.75, self.wxstring(req, "normal")),
                     TrackerLabel(27.5, self.wxstring(req, "overweight")),
                     TrackerLabel(32.5, self.wxstring(req, "obese_1")),
                     TrackerLabel(37.6, self.wxstring(req, "obese_2")),
-                    TrackerLabel(40.5, self.wxstring(req, "obese_3"),
-                                 LabelAlignment.bottom),
+                    TrackerLabel(
+                        40.5,
+                        self.wxstring(req, "obese_3"),
+                        LabelAlignment.bottom,
+                    ),
                 ],
                 aspect_ratio=1.0,
             ),
             TrackerInfo(
                 value=self.mass_kg,
                 plot_label="Mass (kg)",
-                axis_label="Mass (kg)"
+                axis_label="Mass (kg)",
             ),
             TrackerInfo(
                 value=self.waist_cm,
                 plot_label="Waist circumference (cm)",
-                axis_label="Waist circumference (cm)"
+                axis_label="Waist circumference (cm)",
             ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=(
-                f"BMI: {ws.number_to_dp(self.bmi(), BMI_DP)} kg⋅m<sup>–2</sup>"
-                f" [{self.category(req)}]."
-                f" Mass: {ws.number_to_dp(self.mass_kg, KG_DP)} kg. "
-                f" Height: {ws.number_to_dp(self.height_m, M_DP)} m."
-                f" Waist circumference:"
-                f" {ws.number_to_dp(self.waist_cm, CM_DP)} cm."
+        return [
+            CtvInfo(
+                content=(
+                    f"BMI: {ws.number_to_dp(self.bmi(), BMI_DP)} "
+                    f"kg⋅m<sup>–2</sup>"
+                    f" [{self.category(req)}]."
+                    f" Mass: {ws.number_to_dp(self.mass_kg, KG_DP)} kg. "
+                    f" Height: {ws.number_to_dp(self.height_m, M_DP)} m."
+                    f" Waist circumference:"
+                    f" {ws.number_to_dp(self.waist_cm, CM_DP)} cm."
+                )
             )
-        )]
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="bmi", coltype=Float(),
-                           value=self.bmi(), comment="BMI (kg/m^2)"),
+            SummaryElement(
+                name="bmi",
+                coltype=Float(),
+                value=self.bmi(),
+                comment="BMI (kg/m^2)",
+            )
         ]
 
     def bmi(self) -> Optional[float]:
@@ -320,32 +334,196 @@ class Bmi(TaskHasPatientMixin, Task):
             qty_bmi = req.snomed(SnomedLookup.BMI_OBSERVABLE)
             qty_height = req.snomed(SnomedLookup.BODY_HEIGHT_OBSERVABLE)
             qty_weight = req.snomed(SnomedLookup.BODY_WEIGHT_OBSERVABLE)
-            expressions.append(SnomedExpression(procedure_bmi, [
-                SnomedAttributeGroup({
-                    qty_bmi: self.bmi(),
-                    unit: kg_per_sq_m,
-                }),
-                SnomedAttributeGroup({
-                    qty_weight: self.mass_kg,
-                    unit: kg,
-                }),
-                SnomedAttributeGroup({
-                    qty_height: self.height_m,
-                    unit: m,
-                }),
-            ]))
+            expressions.append(
+                SnomedExpression(
+                    procedure_bmi,
+                    [
+                        SnomedAttributeGroup(
+                            {qty_bmi: self.bmi(), unit: kg_per_sq_m}
+                        ),
+                        SnomedAttributeGroup(
+                            {qty_weight: self.mass_kg, unit: kg}
+                        ),
+                        SnomedAttributeGroup(
+                            {qty_height: self.height_m, unit: m}
+                        ),
+                    ],
+                )
+            )
         else:
             expressions.append(SnomedExpression(procedure_bmi))
         if self.waist_cm is not None:
             procedure_waist = req.snomed(
-                SnomedLookup.WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT)
+                SnomedLookup.WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT
+            )
             cm = req.snomed(SnomedLookup.CENTIMETRE)
             qty_waist_circum = req.snomed(
-                SnomedLookup.WAIST_CIRCUMFERENCE_OBSERVABLE)
-            expressions.append(SnomedExpression(procedure_waist, [
-                SnomedAttributeGroup({
-                    qty_waist_circum: self.waist_cm,
-                    unit: cm,
-                }),
-            ]))
+                SnomedLookup.WAIST_CIRCUMFERENCE_OBSERVABLE
+            )
+            expressions.append(
+                SnomedExpression(
+                    procedure_waist,
+                    [
+                        SnomedAttributeGroup(
+                            {qty_waist_circum: self.waist_cm, unit: cm}
+                        )
+                    ],
+                )
+            )
         return expressions
+
+    def get_fhir_extra_bundle_entries(
+        self, req: CamcopsRequest, recipient: "ExportRecipient"
+    ) -> List[Dict]:
+        """
+        See https://www.hl7.org/fhir/bmi.html
+        """
+        bundle_entries = []  # type: List[Dict]
+
+        # Height
+        if self.height_m:
+            bundle_entries.append(
+                make_fhir_bundle_entry(
+                    resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                    identifier=self._get_fhir_observation_id(
+                        req, name="height_m"
+                    ),
+                    resource=self._get_fhir_observation(
+                        req,
+                        recipient,
+                        obs_dict={
+                            Fc.CODE: CodeableConcept(
+                                jsondict={
+                                    Fc.CODING: [
+                                        Coding(
+                                            jsondict={
+                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,  # noqa: E501
+                                                Fc.CODE: Fc.LOINC_HEIGHT_CODE,
+                                                Fc.DISPLAY: Fc.LOINC_HEIGHT_TEXT,  # noqa: E501
+                                            }
+                                        ).as_json()
+                                    ]
+                                }
+                            ).as_json(),
+                            Fc.VALUE_QUANTITY: Quantity(
+                                jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                                    Fc.CODE: Fc.UCUM_CODE_METRE,
+                                    Fc.VALUE: self.height_m,
+                                }
+                            ).as_json(),
+                        },
+                    ),
+                )
+            )
+
+        # Mass
+        if self.mass_kg:
+            bundle_entries.append(
+                make_fhir_bundle_entry(
+                    resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                    identifier=self._get_fhir_observation_id(
+                        req, name="mass_kg"
+                    ),
+                    resource=self._get_fhir_observation(
+                        req,
+                        recipient,
+                        obs_dict={
+                            Fc.CODE: CodeableConcept(
+                                jsondict={
+                                    Fc.CODING: [
+                                        Coding(
+                                            jsondict={
+                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,  # noqa: E501
+                                                Fc.CODE: Fc.LOINC_BODY_WEIGHT_CODE,  # noqa: E501
+                                                Fc.DISPLAY: Fc.LOINC_BODY_WEIGHT_TEXT,  # noqa: E501
+                                            }
+                                        ).as_json()
+                                    ]
+                                }
+                            ).as_json(),
+                            Fc.VALUE_QUANTITY: Quantity(
+                                jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                                    Fc.CODE: Fc.UCUM_CODE_KG,
+                                    Fc.VALUE: self.mass_kg,
+                                }
+                            ).as_json(),
+                        },
+                    ),
+                )
+            )
+
+        # BMI
+        if self.is_complete():
+            bundle_entries.append(
+                make_fhir_bundle_entry(
+                    resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                    identifier=self._get_fhir_observation_id(req, name="bmi"),
+                    resource=self._get_fhir_observation(
+                        req,
+                        recipient,
+                        obs_dict={
+                            Fc.CODE: CodeableConcept(
+                                jsondict={
+                                    Fc.CODING: [
+                                        Coding(
+                                            jsondict={
+                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,  # noqa
+                                                Fc.CODE: Fc.LOINC_BMI_CODE,
+                                                Fc.DISPLAY: Fc.LOINC_BMI_TEXT,
+                                            }
+                                        ).as_json()
+                                    ]
+                                }
+                            ).as_json(),
+                            Fc.VALUE_QUANTITY: Quantity(
+                                jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                                    Fc.CODE: Fc.UCUM_CODE_KG_PER_SQ_M,
+                                    Fc.VALUE: self.bmi(),
+                                }
+                            ).as_json(),
+                        },
+                    ),
+                )
+            )
+
+        # Waist circumference
+        if self.waist_cm:
+            bundle_entries.append(
+                make_fhir_bundle_entry(
+                    resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                    identifier=self._get_fhir_observation_id(
+                        req, name="waist_cm"
+                    ),
+                    resource=self._get_fhir_observation(
+                        req,
+                        recipient,
+                        obs_dict={
+                            Fc.CODE: CodeableConcept(
+                                jsondict={
+                                    Fc.CODING: [
+                                        Coding(
+                                            jsondict={
+                                                Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,  # noqa
+                                                Fc.CODE: Fc.LOINC_WAIST_CIRCUMFERENCE_CODE,  # noqa
+                                                Fc.DISPLAY: Fc.LOINC_WAIST_CIRCUMFERENCE_TEXT,  # noqa
+                                            }
+                                        ).as_json()
+                                    ]
+                                }
+                            ).as_json(),
+                            Fc.VALUE_QUANTITY: Quantity(
+                                jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                                    Fc.CODE: Fc.UCUM_CODE_CENTIMETRE,
+                                    Fc.VALUE: self.waist_cm,
+                                }
+                            ).as_json(),
+                        },
+                    ),
+                )
+            )
+
+        return bundle_entries

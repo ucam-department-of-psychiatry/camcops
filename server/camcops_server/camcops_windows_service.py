@@ -5,7 +5,8 @@ camcops_server/camcops_windows_service.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -50,10 +51,12 @@ WINSERVICE_LOGDIR_ENVVAR = "CAMCOPS_WINSERVICE_LOGDIR"
 # Windows service framework
 # =============================================================================
 
+
 class CamcopsWinService(WindowsService):
     """
     Windows service class for CamCOPS.
     """
+
     # you can NET START/STOP the service by the following name
     _svc_name_ = "CamCOPS"
     # this text shows up as the service name in the Service
@@ -88,11 +91,13 @@ class CamcopsWinService(WindowsService):
         except KeyError:
             raise ValueError(
                 f"Must specify {WINSERVICE_LOGDIR_ENVVAR} "
-                f"system environment variable")
+                f"system environment variable"
+            )
         if ENVVAR_CONFIG_FILE not in os.environ:
             raise ValueError(
                 f"Must specify {ENVVAR_CONFIG_FILE} "
-                f"system environment variable")
+                f"system environment variable"
+            )
 
         # Define processes
         camcops_server = os.path.join(CURRENT_DIR, "camcops_server.py")
@@ -102,31 +107,19 @@ class CamcopsWinService(WindowsService):
         procdetails = [
             ProcessDetails(
                 name="CherryPy web server",
-                procargs=[
-                    sys.executable,
-                    camcops_server,
-                    "serve_cherrypy",
-                ],
+                procargs=[sys.executable, camcops_server, "serve_cherrypy"],
                 logfile_out=weblog,
                 logfile_err=weblog,
             ),
             ProcessDetails(
                 name="Celery scheduler",
-                procargs=[
-                    sys.executable,
-                    camcops_server,
-                    "launch_scheduler",
-                ],
+                procargs=[sys.executable, camcops_server, "launch_scheduler"],
                 logfile_out=schedulerlog,
                 logfile_err=schedulerlog,
             ),
             ProcessDetails(
                 name="Celery workers",
-                procargs=[
-                    sys.executable,
-                    camcops_server,
-                    "launch_workers",
-                ],
+                procargs=[sys.executable, camcops_server, "launch_workers"],
                 logfile_out=workerlog,
                 logfile_err=workerlog,
             ),
@@ -140,14 +133,15 @@ class CamcopsWinService(WindowsService):
 # Main
 # =============================================================================
 
+
 def main():
     """
     Command-line entry point.
     """
     # Called as an entry point (see setup.py).
     logging.basicConfig(level=logging.DEBUG)
-    generic_service_main(CamcopsWinService, 'CamcopsWinService')
+    generic_service_main(CamcopsWinService, "CamcopsWinService")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

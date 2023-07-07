@@ -5,7 +5,8 @@ camcops_server/conftest.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -30,6 +31,8 @@ camcops_server/conftest.py
 
 # https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
 
+import configparser
+from io import StringIO
 import os
 import tempfile
 from typing import Generator, TYPE_CHECKING
@@ -39,8 +42,12 @@ from sqlalchemy import event
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session
 
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: F401,E501
+import camcops_server.cc_modules.cc_all_models  # noqa: F401
+
+# ... import side effects (ensure all models registered)
+
 from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
+from camcops_server.cc_modules.cc_config import get_demo_config
 from camcops_server.cc_modules.cc_sqlalchemy import (
     Base,
     make_memory_sqlite_engine,
@@ -49,14 +56,16 @@ from camcops_server.cc_modules.cc_sqlalchemy import (
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.base import Engine
+
     # Should not need to import from _pytest in later versions of pytest
     # https://github.com/pytest-dev/pytest/issues/7469
     from _pytest.config.argparsing import Parser
     from _pytest.fixtures import FixtureRequest
 
 
-TEST_DATABASE_FILENAME = os.path.join(CAMCOPS_SERVER_DIRECTORY,
-                                      "camcops_test.sqlite")
+TEST_DATABASE_FILENAME = os.path.join(
+    CAMCOPS_SERVER_DIRECTORY, "camcops_test.sqlite"
+)
 
 
 def pytest_addoption(parser: "Parser"):
@@ -65,7 +74,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_false",
         dest="database_on_disk",
         default=True,
-        help="Make SQLite database in memory"
+        help="Make SQLite database in memory",
     )
 
     # Borrowed from pytest-django
@@ -74,7 +83,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_true",
         dest="create_db",
         default=False,
-        help="Create the database even if it already exists"
+        help="Create the database even if it already exists",
     )
 
     parser.addoption(
@@ -82,15 +91,17 @@ def pytest_addoption(parser: "Parser"):
         action="store_true",
         dest="mysql",
         default=False,
-        help="Use MySQL database instead of SQLite"
+        help="Use MySQL database instead of SQLite",
     )
 
     parser.addoption(
         "--db-url",
         dest="db_url",
-        default=("mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops"
-                 "?charset=utf8"),
-        help="SQLAlchemy test database URL (MySQL only)"
+        default=(
+            "mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops"
+            "?charset=utf8"
+        ),
+        help="SQLAlchemy test database URL (MySQL only)",
     )
 
     parser.addoption(
@@ -98,7 +109,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_true",
         dest="echo",
         default=False,
-        help="Log all SQL statments to the default log handler"
+        help="Log all SQL statments to the default log handler",
     )
 
 
@@ -142,8 +153,9 @@ def db_url(request: "FixtureRequest") -> bool:
 
 
 @pytest.fixture(scope="session")
-def tmpdir_obj(request: "FixtureRequest") -> Generator[
-        tempfile.TemporaryDirectory, None, None]:
+def tmpdir_obj(
+    request: "FixtureRequest",
+) -> Generator[tempfile.TemporaryDirectory, None, None]:
     tmpdir_obj = tempfile.TemporaryDirectory()
 
     yield tmpdir_obj
@@ -151,33 +163,56 @@ def tmpdir_obj(request: "FixtureRequest") -> Generator[
     tmpdir_obj.cleanup()
 
 
+@pytest.fixture(scope="session")
+def config_file(
+    request: "FixtureRequest", tmpdir_obj: tempfile.TemporaryDirectory
+) -> str:
+    # We're going to be using a test (SQLite) database, but we want to
+    # be very sure that nothing writes to a real database! Also, we will
+    # want to read from this dummy config at some point.
+
+    tmpconfigfilename = os.path.join(tmpdir_obj.name, "dummy_config.conf")
+    with open(tmpconfigfilename, "w") as file:
+        file.write(get_config_text())
+
+    return tmpconfigfilename
+
+
+def get_config_text() -> str:
+    config_text = get_demo_config()
+    parser = configparser.ConfigParser()
+    parser.read_string(config_text)
+
+    with StringIO() as buffer:
+        parser.write(buffer)
+        config_text = buffer.getvalue()
+
+    return config_text
+
+
 # https://gist.github.com/kissgyorgy/e2365f25a213de44b9a2
 # Author says "no [license], feel free to use it"
 # noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
-def engine(request: "FixtureRequest",
-           create_db: bool,
-           database_on_disk: bool,
-           echo: bool,
-           mysql: bool,
-           db_url: str) -> Generator["Engine", None, None]:
+def engine(
+    request: "FixtureRequest",
+    create_db: bool,
+    database_on_disk: bool,
+    echo: bool,
+    mysql: bool,
+    db_url: str,
+) -> Generator["Engine", None, None]:
 
     if mysql:
-        engine = create_engine_mysql(db_url,
-                                     create_db,
-                                     echo)
+        engine = create_engine_mysql(db_url, create_db, echo)
     else:
-        engine = create_engine_sqlite(create_db,
-                                      echo,
-                                      database_on_disk)
+        engine = create_engine_sqlite(create_db, echo, database_on_disk)
 
     yield engine
     engine.dispose()
 
 
-def create_engine_mysql(db_url: str,
-                        create_db: bool,
-                        echo: bool):
+def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
 
     # The database and the user with the given password from db_url
     # need to exist.
@@ -192,9 +227,7 @@ def create_engine_mysql(db_url: str,
     return engine
 
 
-def create_engine_sqlite(create_db: bool,
-                         echo: bool,
-                         database_on_disk: bool):
+def create_engine_sqlite(create_db: bool, echo: bool, database_on_disk: bool):
     if create_db and database_on_disk:
         try:
             os.remove(TEST_DATABASE_FILENAME)
@@ -202,8 +235,7 @@ def create_engine_sqlite(create_db: bool,
             pass
 
     if database_on_disk:
-        engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME,
-                                         echo=echo)
+        engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME, echo=echo)
     else:
         engine = make_memory_sqlite_engine(echo=echo)
 
@@ -214,9 +246,9 @@ def create_engine_sqlite(create_db: bool,
 
 # noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
-def tables(request: "FixtureRequest",
-           engine: "Engine",
-           create_db: bool) -> Generator[None, None, None]:
+def tables(
+    request: "FixtureRequest", engine: "Engine", create_db: bool
+) -> Generator[None, None, None]:
     if create_db:
         Base.metadata.create_all(engine)
     yield
@@ -230,9 +262,9 @@ def tables(request: "FixtureRequest",
 
 # noinspection PyUnusedLocal
 @pytest.fixture
-def dbsession(request: "FixtureRequest",
-              engine: "Engine",
-              tables: None) -> Generator[Session, None, None]:
+def dbsession(
+    request: "FixtureRequest", engine: "Engine", tables: None
+) -> Generator[Session, None, None]:
     """
     Returns an sqlalchemy session, and after the test tears down everything
     properly.
@@ -254,12 +286,15 @@ def dbsession(request: "FixtureRequest",
 
 
 @pytest.fixture
-def setup(request: "FixtureRequest",
-          engine: "Engine",
-          database_on_disk: bool,
-          mysql: bool,
-          dbsession: Session,
-          tmpdir_obj: tempfile.TemporaryDirectory) -> None:
+def setup(
+    request: "FixtureRequest",
+    engine: "Engine",
+    database_on_disk: bool,
+    mysql: bool,
+    dbsession: Session,
+    tmpdir_obj: tempfile.TemporaryDirectory,
+    config_file: str,
+) -> None:
     # Pytest prefers function-based tests over unittest.TestCase subclasses and
     # methods, but it still supports the latter perfectly well.
     # We use this fixture in cc_unittest.py to store these values into
@@ -270,3 +305,4 @@ def setup(request: "FixtureRequest",
     request.cls.tmpdir_obj = tmpdir_obj
     request.cls.db_filename = TEST_DATABASE_FILENAME
     request.cls.mysql = mysql
+    request.cls.config_file = config_file

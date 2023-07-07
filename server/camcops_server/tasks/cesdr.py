@@ -5,7 +5,8 @@ camcops_server/tasks/cesdr.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -37,9 +38,7 @@ from sqlalchemy.sql.sqltypes import Boolean
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import (
-    get_yes_no, tr, tr_qa
-)
+from camcops_server.cc_modules.cc_html import get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -61,20 +60,30 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # CESD-R
 # =============================================================================
 
+
 class CesdrMetaclass(DeclarativeMeta):
     """
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
+
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Cesdr'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Cesdr"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS,
-            minimum=0, maximum=4,
-            comment_fmt=("Q{n} ({s}) (0 not at all - "
-                         "4 nearly every day for two weeks)"),
+            cls,
+            "q",
+            1,
+            cls.N_QUESTIONS,
+            minimum=0,
+            maximum=4,
+            comment_fmt=(
+                "Q{n} ({s}) (0 not at all - "
+                "4 nearly every day for two weeks)"
+            ),
             comment_strings=[
                 "poor appetite",
                 "unshakable blues",
@@ -96,20 +105,20 @@ class CesdrMetaclass(DeclarativeMeta):
                 "unintended weight loss",
                 "difficulty getting to sleep",
                 "lack of focus",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Cesdr(TaskHasPatientMixin, Task,
-            metaclass=CesdrMetaclass):
+class Cesdr(TaskHasPatientMixin, Task, metaclass=CesdrMetaclass):
     """
     Server implementation of the CESD task.
     """
-    __tablename__ = 'cesdr'
-    shortname = 'CESD-R'
+
+    __tablename__ = "cesdr"
+    shortname = "CESD-R"
+    info_filename_stem = "cesd"
     provides_trackers = True
-    extrastring_taskname = "cesdr"
 
     CAT_NONCLINICAL = 0
     CAT_SUB = 1
@@ -140,7 +149,7 @@ class Cesdr(TaskHasPatientMixin, Task,
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _('Center for Epidemiologic Studies Depression Scale (Revised)')
+        return _("Center for Epidemiologic Studies Depression Scale (Revised)")
 
     # noinspection PyMethodParameters
     @classproperty
@@ -149,14 +158,13 @@ class Cesdr(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
-        return (
-            self.sum_fields(self.SCORED_FIELDS) -
-            self.count_where(self.SCORED_FIELDS, [self.FREQ_DAILY_2_WEEKS])
+        return self.sum_fields(self.SCORED_FIELDS) - self.count_where(
+            self.SCORED_FIELDS, [self.FREQ_DAILY_2_WEEKS]
         )
 
     def get_depression_category(self) -> int:
@@ -167,20 +175,20 @@ class Cesdr(TaskHasPatientMixin, Task,
         q_group_anhedonia = [8, 10]
         q_group_dysphoria = [2, 4, 6]
         other_q_groups = {
-            'appetite': [1, 18],
-            'sleep': [5, 11, 19],
-            'thinking': [3, 20],
-            'guilt': [9, 17],
-            'tired': [7, 16],
-            'movement': [12, 13],
-            'suicidal': [14, 15]
+            "appetite": [1, 18],
+            "sleep": [5, 11, 19],
+            "thinking": [3, 20],
+            "guilt": [9, 17],
+            "tired": [7, 16],
+            "movement": [12, 13],
+            "suicidal": [14, 15],
         }
 
-        # Dysphoria or anhedonia must be present at frequency FREQ_DAILY_2_WEEKS
-        anhedonia_criterion = (
-            self.fulfils_group_criteria(q_group_anhedonia, True) or
-            self.fulfils_group_criteria(q_group_dysphoria, True)
-        )
+        # Dysphoria or anhedonia must be present at frequency
+        # FREQ_DAILY_2_WEEKS
+        anhedonia_criterion = self.fulfils_group_criteria(
+            q_group_anhedonia, True
+        ) or self.fulfils_group_criteria(q_group_dysphoria, True)
         if anhedonia_criterion:
             category_count_high_freq = 0
             category_count_lower_freq = 0
@@ -214,14 +222,17 @@ class Cesdr(TaskHasPatientMixin, Task,
 
         return self.CAT_NONCLINICAL
 
-    def fulfils_group_criteria(self, qnums: List[int],
-                               nearly_every_day_2w: bool) -> bool:
+    def fulfils_group_criteria(
+        self, qnums: List[int], nearly_every_day_2w: bool
+    ) -> bool:
         qstrings = ["q" + str(qnum) for qnum in qnums]
         if nearly_every_day_2w:
             possible_values = [self.FREQ_DAILY_2_WEEKS]
         else:
-            possible_values = [self.FREQ_5_7_DAYS_LAST_WEEK,
-                               self.FREQ_DAILY_2_WEEKS]
+            possible_values = [
+                self.FREQ_5_7_DAYS_LAST_WEEK,
+                self.FREQ_DAILY_2_WEEKS,
+            ]
         count = self.count_where(qstrings, possible_values)
         return count > 0
 
@@ -229,34 +240,35 @@ class Cesdr(TaskHasPatientMixin, Task,
         line_step = 20
         threshold_line = self.DEPRESSION_RISK_THRESHOLD - 0.5
         # noinspection PyTypeChecker
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="CESD-R total score",
-            axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
-            axis_min=self.MIN_SCORE - 0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            axis_ticks=regular_tracker_axis_ticks_int(
-                self.MIN_SCORE,
-                self.MAX_SCORE,
-                step=line_step
-            ),
-            horizontal_lines=equally_spaced_int(
-                self.MIN_SCORE + line_step,
-                self.MAX_SCORE - line_step,
-                step=line_step
-            ) + [threshold_line],
-            horizontal_labels=[
-                TrackerLabel(threshold_line,
-                             self.wxstring(req, "depression_or_risk_of")),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="CESD-R total score",
+                axis_label=f"Total score ({self.MIN_SCORE}-{self.MAX_SCORE})",
+                axis_min=self.MIN_SCORE - 0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                axis_ticks=regular_tracker_axis_ticks_int(
+                    self.MIN_SCORE, self.MAX_SCORE, step=line_step
+                ),
+                horizontal_lines=equally_spaced_int(
+                    self.MIN_SCORE + line_step,
+                    self.MAX_SCORE - line_step,
+                    step=line_step,
+                )
+                + [threshold_line],
+                horizontal_labels=[
+                    TrackerLabel(
+                        threshold_line,
+                        self.wxstring(req, "depression_or_risk_of"),
+                    )
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"CESD-R total score {self.total_score()}"
-        )]
+        return [CtvInfo(content=f"CESD-R total score {self.total_score()}")]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -264,7 +276,8 @@ class Cesdr(TaskHasPatientMixin, Task,
                 name="depression_risk",
                 coltype=Boolean(),
                 value=self.has_depression_risk(),
-                comment="Has depression or at risk of depression"),
+                comment="Has depression or at risk of depression",
+            )
         ]
 
     def has_depression_risk(self) -> bool:
@@ -274,28 +287,26 @@ class Cesdr(TaskHasPatientMixin, Task,
         score = self.total_score()
         answer_dict = {None: None}
         for option in range(self.N_ANSWERS):
-            answer_dict[option] = str(option) + " – " + \
-                self.wxstring(req, "a" + str(option))
+            answer_dict[option] = (
+                str(option) + " – " + self.wxstring(req, "a" + str(option))
+            )
         q_a = ""
         for q in range(1, self.N_QUESTIONS):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             )
 
-        tr_total_score = tr_qa(
-            f"{req.sstring(SS.TOTAL_SCORE)} (0–60)",
-            score
-        )
+        tr_total_score = tr_qa(f"{req.sstring(SS.TOTAL_SCORE)} (0–60)", score)
         tr_depression_or_risk_of = tr_qa(
-            self.wxstring(req, "depression_or_risk_of") +
-            "? <sup>[1]</sup>",
-            get_yes_no(req, self.has_depression_risk())
+            self.wxstring(req, "depression_or_risk_of") + "? <sup>[1]</sup>",
+            get_yes_no(req, self.has_depression_risk()),
         )
         tr_provisional_diagnosis = tr(
-            'Provisional diagnosis <sup>[2]</sup>',
-            self.wxstring(req,
-                          "category_" + str(self.get_depression_category()))
+            "Provisional diagnosis <sup>[2]</sup>",
+            self.wxstring(
+                req, "category_" + str(self.get_depression_category())
+            ),
         )
         return f"""
             <div class="{CssClass.SUMMARY}">

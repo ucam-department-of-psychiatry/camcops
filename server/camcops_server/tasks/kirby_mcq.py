@@ -5,7 +5,8 @@ camcops_server/tasks/kirby.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -36,6 +37,7 @@ from scipy.stats.mstats import gmean
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer
 import statsmodels.api as sm
+
 # noinspection PyProtectedMember
 from statsmodels.discrete.discrete_model import BinaryResultsWrapper
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
@@ -46,10 +48,7 @@ from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
     TaskDescendant,
 )
-from camcops_server.cc_modules.cc_html import (
-    answer,
-    tr_qa,
-)
+from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -66,18 +65,22 @@ log = logging.getLogger(__name__)
 # KirbyRewardPair
 # =============================================================================
 
+
 class KirbyRewardPair(object):
     """
     Represents a pair of rewards: a small immediate reward (SIR) and a large
     delayed reward (LDR).
     """
-    def __init__(self,
-                 sir: int,
-                 ldr: int,
-                 delay_days: int,
-                 chose_ldr: bool = None,
-                 currency: str = "£",
-                 currency_symbol_first: bool = True) -> None:
+
+    def __init__(
+        self,
+        sir: int,
+        ldr: int,
+        delay_days: int,
+        chose_ldr: bool = None,
+        currency: str = "£",
+        currency_symbol_first: bool = True,
+    ) -> None:
         """
         Args:
             sir: amount of the small immediate reward (SIR)
@@ -118,8 +121,7 @@ class KirbyRewardPair(object):
         """
         _ = req.gettext
         return _("{money} in {days} days").format(
-            money=self.money(self.ldr),
-            days=self.delay_days,
+            money=self.money(self.ldr), days=self.delay_days
         )
 
     def question(self, req: CamcopsRequest) -> str:
@@ -128,8 +130,7 @@ class KirbyRewardPair(object):
         """
         _ = req.gettext
         return _("Would you prefer {sir}, or {ldr}?").format(
-            sir=self.sir_string(req),
-            ldr=self.ldr_string(req),
+            sir=self.sir_string(req), ldr=self.ldr_string(req)
         )
 
     def answer(self, req: CamcopsRequest) -> str:
@@ -179,42 +180,26 @@ class KirbyRewardPair(object):
 # KirbyTrial
 # =============================================================================
 
+
 class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "kirby_mcq_trials"
 
     kirby_mcq_id = Column(
-        "kirby_mcq_id", Integer,
-        nullable=False,
-        comment="FK to kirby_mcq"
+        "kirby_mcq_id", Integer, nullable=False, comment="FK to kirby_mcq"
     )
     trial = Column(
-        "trial", Integer,
-        nullable=False,
-        comment="Trial number (1-based)"
+        "trial", Integer, nullable=False, comment="Trial number (1-based)"
     )
-    sir = Column(
-        "sir", Integer,
-        comment="Small immediate reward"
-    )
-    ldr = Column(
-        "ldr", Integer,
-        comment="Large delayed reward"
-    )
-    delay_days = Column(
-        "delay_days", Integer,
-        comment="Delay in days"
-    )
-    currency = Column(
-        "currency", CurrencyColType,
-        comment="Currency symbol"
-    )
+    sir = Column("sir", Integer, comment="Small immediate reward")
+    ldr = Column("ldr", Integer, comment="Large delayed reward")
+    delay_days = Column("delay_days", Integer, comment="Delay in days")
+    currency = Column("currency", CurrencyColType, comment="Currency symbol")
     currency_symbol_first = BoolColumn(
         "currency_symbol_first",
-        comment="Does the currency symbol come before the amount?"
+        comment="Does the currency symbol come before the amount?",
     )
     chose_ldr = BoolColumn(
-        "chose_ldr",
-        comment="Did the subject choose the large delayed reward?"
+        "chose_ldr", comment="Did the subject choose the large delayed reward?"
     )
 
     def info(self) -> KirbyRewardPair:
@@ -252,10 +237,12 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
 # Kirby
 # =============================================================================
 
+
 class Kirby(TaskHasPatientMixin, Task):
     """
     Server implementation of the Kirby Monetary Choice Questionnaire task.
     """
+
     __tablename__ = "kirby_mcq"
     shortname = "KirbyMCQ"
 
@@ -268,7 +255,7 @@ class Kirby(TaskHasPatientMixin, Task):
         parent_class_name="Kirby",
         ancillary_class_name="KirbyTrial",
         ancillary_fk_to_parent_attr_name="kirby_mcq_id",
-        ancillary_order_by_attr_name="trial"
+        ancillary_order_by_attr_name="trial",
     )  # type: List[KirbyTrial]
 
     @staticmethod
@@ -324,8 +311,9 @@ class Kirby(TaskHasPatientMixin, Task):
 
         # 2. Restrict to the results that are equally and maximally consistent.
         max_consistency = max(consistency.values())
-        good_k_values = [k for k, v in consistency.items()
-                         if v == max_consistency]
+        good_k_values = [
+            k for k, v in consistency.items() if v == max_consistency
+        ]
 
         # 3. Take the geometric mean of those good k values.
         # noinspection PyTypeChecker
@@ -358,8 +346,10 @@ class Kirby(TaskHasPatientMixin, Task):
         lr = sm.Logit(y, x)
         try:
             result = lr.fit()  # type: BinaryResultsWrapper
-        except (LinAlgError,  # e.g. "singular matrix"
-                PerfectSeparationError) as e:
+        except (
+            LinAlgError,  # e.g. "singular matrix"
+            PerfectSeparationError,
+        ) as e:
             log.debug(f"sm.Logit error: {e}")
             return None
         coeffs = result.params
@@ -377,13 +367,17 @@ class Kirby(TaskHasPatientMixin, Task):
         results = self.all_choice_results()
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="k_kirby", coltype=Float(),
+                name="k_kirby",
+                coltype=Float(),
                 value=self.k_kirby(results),
-                comment="k (days^-1, Kirby 2000 method)"),
+                comment="k (days^-1, Kirby 2000 method)",
+            ),
             SummaryElement(
-                name="k_wileyto", coltype=Float(),
+                name="k_wileyto",
+                coltype=Float(),
                 value=self.k_wileyto(results),
-                comment="k (days^-1, Wileyto 2004 method)"),
+                comment="k (days^-1, Wileyto 2004 method)",
+            ),
         ]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -392,10 +386,12 @@ class Kirby(TaskHasPatientMixin, Task):
         for t in self.trials:
             info = t.info()
             qlines.append(
-                tr_qa(f"{t.trial}. {info.question(req)} "
-                      f"<i>(k<sub>indiff</sub> = "
-                      f"{round(info.k_indifference(), dp)})</i>",
-                      info.answer(req))
+                tr_qa(
+                    f"{t.trial}. {info.question(req)} "
+                    f"<i>(k<sub>indiff</sub> = "
+                    f"{round(info.k_indifference(), dp)})</i>",
+                    info.answer(req),
+                )
             )
         q_a = "\n".join(qlines)
         results = self.all_choice_results()

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_SHOW_K
@@ -353,6 +354,12 @@ QVector<KirbyRewardPair> Kirby::allChoiceResults() const
 
 double Kirby::kKirby(const QVector<KirbyRewardPair>& results)
 {
+    if (results.length() == 0) {
+        return std::numeric_limits<double>::quiet_NaN();
+        // ... or it may crash when we try to dereference return value of
+        // max_element
+    }
+
     // 1. For every k value assessed by the questions, establish the degree
     //    of consistency.
     QMap<double, int> consistency;  // maps k to n_consistent_choices

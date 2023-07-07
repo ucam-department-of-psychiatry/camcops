@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
@@ -30,6 +31,7 @@
 #include "urlhandler.h"
 
 UrlHandler* UrlHandler::m_instance = NULL;
+
 
 UrlHandler::UrlHandler()
 {
@@ -51,6 +53,7 @@ UrlHandler::UrlHandler()
     // See also CFBundleURLSchemes in tablet_qt/ios/Info.plist
     QDesktopServices::setUrlHandler("camcops", this, "handleUrl");
 }
+
 
 void UrlHandler::handleUrl(const QUrl& url)
 {

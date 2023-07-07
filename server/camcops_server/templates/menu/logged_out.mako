@@ -5,7 +5,8 @@ camcops_server/templates/menu/logged_out.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,14 +30,16 @@ camcops_server/templates/menu/logged_out.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <div>
     ${ _("You have logged out.") }
 </div>
 <div>
-    ${ _("Click") }
-    <a href="${ request.route_url(Routes.LOGIN) | n }">${ _("here") }</a>
-    ${ _("to log in again") }.
+    ${ req.icon_text(
+            icon=Icons.LOGIN,
+            url=request.route_url(Routes.LOGIN),
+            text=_("Log in again")
+    ) | n }
 </div>

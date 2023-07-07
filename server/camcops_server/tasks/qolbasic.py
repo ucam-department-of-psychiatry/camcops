@@ -5,7 +5,8 @@ camcops_server/tasks/qolbasic.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -57,23 +58,27 @@ class QolBasic(TaskHasPatientMixin, Task):
     """
     Server implementation of the QoL-Basic task.
     """
+
     __tablename__ = "qolbasic"
     shortname = "QoL-Basic"
+    info_filename_stem = "qol"
     provides_trackers = True
 
     tto = CamcopsColumn(
-        "tto", Float,
+        "tto",
+        Float,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
         comment="Time trade-off (QoL * 10). Prompt: ... Indicate... the "
-                "number of years in full health [0-10] that you think is "
-                "of equal value to 10 years in your current health state."
+        "number of years in full health [0-10] that you think is "
+        "of equal value to 10 years in your current health state.",
     )
     rs = CamcopsColumn(
-        "rs", Float,
+        "rs",
+        Float,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
         comment="Rating scale (QoL * 100). Prompt: Mark the point on the "
-                "scale [0-100] that you feel best illustrates your current "
-                "quality of life."
+        "scale [0-100] that you feel best illustrates your current "
+        "quality of life.",
     )
 
     TASK_FIELDS = ["tto", "rs"]
@@ -90,14 +95,14 @@ class QolBasic(TaskHasPatientMixin, Task):
                 plot_label="Quality of life: time trade-off",
                 axis_label="TTO QoL (0-1)",
                 axis_min=0,
-                axis_max=1
+                axis_max=1,
             ),
             TrackerInfo(
                 value=self.get_rs_qol(),
                 plot_label="Quality of life: rating scale",
                 axis_label="RS QoL (0-1)",
                 axis_min=0,
-                axis_max=1
+                axis_max=1,
             ),
         ]
 
@@ -107,31 +112,37 @@ class QolBasic(TaskHasPatientMixin, Task):
         tto_qol = self.get_tto_qol()
         rs_qol = self.get_rs_qol()
         mean_qol = mean([tto_qol, rs_qol])
-        return [CtvInfo(
-            content=(
-                f"Quality of life: time trade-off "
-                f"{ws.number_to_dp(tto_qol, DP)}, "
-                f"rating scale {ws.number_to_dp(rs_qol, DP)}, "
-                f"mean {ws.number_to_dp(mean_qol, DP)}."
+        return [
+            CtvInfo(
+                content=(
+                    f"Quality of life: time trade-off "
+                    f"{ws.number_to_dp(tto_qol, DP)}, "
+                    f"rating scale {ws.number_to_dp(rs_qol, DP)}, "
+                    f"mean {ws.number_to_dp(mean_qol, DP)}."
+                )
             )
-        )]
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="tto_qol", coltype=Float(),
+                name="tto_qol",
+                coltype=Float(),
                 value=self.get_tto_qol(),
-                comment="Quality of life (0-1), from time trade-off method"),
+                comment="Quality of life (0-1), from time trade-off method",
+            ),
             SummaryElement(
-                name="rs_qol", coltype=Float(),
+                name="rs_qol",
+                coltype=Float(),
                 value=self.get_rs_qol(),
-                comment="Quality of life (0-1), from rating scale method"),
+                comment="Quality of life (0-1), from rating scale method",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(QolBasic.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(QolBasic.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_tto_qol(self) -> Optional[float]:
@@ -169,20 +180,26 @@ class QolBasic(TaskHasPatientMixin, Task):
             tr_is_complete=self.get_is_complete_tr(req),
             mean_qol=tr(
                 "Mean QoL",
-                answer(ws.number_to_dp(mean_qol, DP, default=None),
-                       formatter_answer=identity)
+                answer(
+                    ws.number_to_dp(mean_qol, DP, default=None),
+                    formatter_answer=identity,
+                ),
             ),
             tto=tr(
                 self.wxstring(req, "tto_q_s"),
                 answer(ws.number_to_dp(self.tto, DP, default=None)),
-                answer(ws.number_to_dp(tto_qol, DP, default=None),
-                       formatter_answer=identity)
+                answer(
+                    ws.number_to_dp(tto_qol, DP, default=None),
+                    formatter_answer=identity,
+                ),
             ),
             rs=tr(
                 self.wxstring(req, "rs_q_s"),
                 answer(ws.number_to_dp(self.rs, DP, default=None)),
-                answer(ws.number_to_dp(rs_qol, DP, default=None),
-                       formatter_answer=identity)
+                answer(
+                    ws.number_to_dp(rs_qol, DP, default=None),
+                    formatter_answer=identity,
+                ),
             ),
         )
         return h

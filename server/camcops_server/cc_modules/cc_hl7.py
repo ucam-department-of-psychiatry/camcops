@@ -6,7 +6,8 @@ camcops_server/cc_modules/cc_hl7.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -25,7 +26,7 @@ camcops_server/cc_modules/cc_hl7.py
 
 ===============================================================================
 
-**Core HL7 functions, e.g. to build HL7 messages.**
+**Core HL7 functions, e.g. to build HL7 v2 messages.**
 
 General HL7 sources:
 
@@ -113,6 +114,7 @@ ESCAPE_CHARACTER = "\\"
 # HL7 helper functions
 # =============================================================================
 
+
 def get_mod11_checkdigit(strnum: str) -> str:
     # noinspection HttpUrlsUsage
     """
@@ -143,8 +145,9 @@ def get_mod11_checkdigit(strnum: str) -> str:
         return ""
 
 
-def make_msh_segment(message_datetime: Pendulum,
-                     message_control_id: str) -> hl7.Segment:
+def make_msh_segment(
+    message_datetime: Pendulum, message_control_id: str
+) -> hl7.Segment:
     """
     Creates an HL7 message header (MSH) segment.
 
@@ -159,20 +162,28 @@ def make_msh_segment(message_datetime: Pendulum,
     """  # noqa
 
     segment_id = "MSH"
-    encoding_characters = (COMPONENT_SEPARATOR + REPETITION_SEPARATOR +
-                           ESCAPE_CHARACTER + SUBCOMPONENT_SEPARATOR)
+    encoding_characters = (
+        COMPONENT_SEPARATOR
+        + REPETITION_SEPARATOR
+        + ESCAPE_CHARACTER
+        + SUBCOMPONENT_SEPARATOR
+    )
     sending_application = "CamCOPS"
     sending_facility = ""
     receiving_application = ""
     receiving_facility = ""
-    date_time_of_message = format_datetime(message_datetime,
-                                           DateFormat.HL7_DATETIME)
+    date_time_of_message = format_datetime(
+        message_datetime, DateFormat.HL7_DATETIME
+    )
     security = ""
-    message_type = hl7.Field(COMPONENT_SEPARATOR, [
-        "ORU",  # message type ID = Observ result/unsolicited
-        "R01"   # trigger event ID = ORU/ACK - Unsolicited transmission
-                # of an observation message
-    ])
+    message_type = hl7.Field(
+        COMPONENT_SEPARATOR,
+        [
+            "ORU",  # message type ID = Observ result/unsolicited
+            "R01"  # trigger event ID = ORU/ACK - Unsolicited transmission
+            # of an observation message
+        ],
+    )
     processing_id = "P"  # production (processing mode: current)
     version_id = "2.3"  # HL7 version
     sequence_number = ""
@@ -212,12 +223,13 @@ def make_msh_segment(message_datetime: Pendulum,
 
 
 def make_pid_segment(
-        forename: str,
-        surname: str,
-        dob: Date,
-        sex: str,
-        address: str,
-        patient_id_list: List[HL7PatientIdentifier] = None) -> hl7.Segment:
+    forename: str,
+    surname: str,
+    dob: Date,
+    sex: str,
+    address: str,
+    patient_id_list: List[HL7PatientIdentifier] = None,
+) -> hl7.Segment:
     """
     Creates an HL7 patient identification (PID) segment.
 
@@ -251,30 +263,37 @@ def make_pid_segment(
         assigning_authority = patient_id_list[i].assigning_authority
         # Now, as per Table 4.6 "Extended composite ID" of
         # hl7guide-1-4-2012-08.pdf:
-        internal_id_element = hl7.Field(COMPONENT_SEPARATOR, [
-            pid,
-            check_digit,
-            check_digit_scheme,
-            assigning_authority,
-            type_id  # length "2..5" meaning 2-5
-        ])
+        internal_id_element = hl7.Field(
+            COMPONENT_SEPARATOR,
+            [
+                pid,
+                check_digit,
+                check_digit_scheme,
+                assigning_authority,
+                type_id,  # length "2..5" meaning 2-5
+            ],
+        )
         internal_id_element_list.append(internal_id_element)
-    patient_internal_id = hl7.Field(REPETITION_SEPARATOR,
-                                    internal_id_element_list)
+    patient_internal_id = hl7.Field(
+        REPETITION_SEPARATOR, internal_id_element_list
+    )
 
     # Alternate ID
     alternate_patient_id = ""
     # ... this one is deprecated
     # http://www.j4jayant.com/articles/hl7/16-patient-id
 
-    patient_name = hl7.Field(COMPONENT_SEPARATOR, [
-        forename,  # surname
-        surname,  # forename
-        "",  # middle initial/name
-        "",  # suffix (e.g. Jr, III)
-        "",  # prefix (e.g. Dr)
-        "",  # degree (e.g. MD)
-    ])
+    patient_name = hl7.Field(
+        COMPONENT_SEPARATOR,
+        [
+            forename,  # surname
+            surname,  # forename
+            "",  # middle initial/name
+            "",  # suffix (e.g. Jr, III)
+            "",  # prefix (e.g. Dr)
+            "",  # degree (e.g. MD)
+        ],
+    )
     mothers_maiden_name = ""
     date_of_birth = format_datetime(dob, DateFormat.HL7_DATE)
     alias = ""
@@ -345,10 +364,10 @@ def make_obr_segment(task: "Task") -> hl7.Segment:
     set_id = "1"
     placer_order_number = "CamCOPS"
     filler_order_number = "CamCOPS"
-    universal_service_id = hl7.Field(COMPONENT_SEPARATOR, [
-        "CamCOPS",
-        "CamCOPS psychiatric/cognitive assessment"
-    ])
+    universal_service_id = hl7.Field(
+        COMPONENT_SEPARATOR,
+        ["CamCOPS", "CamCOPS psychiatric/cognitive assessment"],
+    )
     # unused below here, apparently
     priority = ""
     requested_date_time = ""
@@ -438,13 +457,15 @@ def make_obr_segment(task: "Task") -> hl7.Segment:
     return segment
 
 
-def make_obx_segment(req: "CamcopsRequest",
-                     task: "Task",
-                     task_format: str,
-                     observation_identifier: str,
-                     observation_datetime: Pendulum,
-                     responsible_observer: str,
-                     export_options: "TaskExportOptions") -> hl7.Segment:
+def make_obx_segment(
+    req: "CamcopsRequest",
+    task: "Task",
+    task_format: str,
+    observation_identifier: str,
+    observation_datetime: Pendulum,
+    responsible_observer: str,
+    export_options: "TaskExportOptions",
+) -> hl7.Segment:
     # noinspection HttpUrlsUsage
     """
     Creates an HL7 observation result (OBX) segment.
@@ -465,39 +486,48 @@ def make_obx_segment(req: "CamcopsRequest",
     source_application = "CamCOPS"
     if task_format == FileType.PDF:
         value_type = "ED"  # Encapsulated data (ED) field
-        observation_value = hl7.Field(COMPONENT_SEPARATOR, [
-            source_application,
-            "Application",  # type of data
-            "PDF",  # data subtype
-            "Base64",  # base 64 encoding
-            base64.standard_b64encode(task.get_pdf(req))  # data
-        ])
+        observation_value = hl7.Field(
+            COMPONENT_SEPARATOR,
+            [
+                source_application,
+                "Application",  # type of data
+                "PDF",  # data subtype
+                "Base64",  # base 64 encoding
+                base64.standard_b64encode(task.get_pdf(req)),  # data
+            ],
+        )
     elif task_format == FileType.HTML:
         value_type = "ED"  # Encapsulated data (ED) field
-        observation_value = hl7.Field(COMPONENT_SEPARATOR, [
-            source_application,
-            "TEXT",  # type of data
-            "HTML",  # data subtype
-            "A",  # no encoding (see table 0299), but need to escape
-            escape_hl7_text(task.get_html(req))  # data
-        ])
+        observation_value = hl7.Field(
+            COMPONENT_SEPARATOR,
+            [
+                source_application,
+                "TEXT",  # type of data
+                "HTML",  # data subtype
+                "A",  # no encoding (see table 0299), but need to escape
+                escape_hl7_text(task.get_html(req)),  # data
+            ],
+        )
     elif task_format == FileType.XML:
         value_type = "ED"  # Encapsulated data (ED) field
-        observation_value = hl7.Field(COMPONENT_SEPARATOR, [
-            source_application,
-            "TEXT",  # type of data
-            "XML",  # data subtype
-            "A",  # no encoding (see table 0299), but need to escape
-            escape_hl7_text(task.get_xml(
-                req,
-                indent_spaces=0,
-                eol="",
-                options=export_options,
-            ))  # data
-        ])
+        observation_value = hl7.Field(
+            COMPONENT_SEPARATOR,
+            [
+                source_application,
+                "TEXT",  # type of data
+                "XML",  # data subtype
+                "A",  # no encoding (see table 0299), but need to escape
+                escape_hl7_text(
+                    task.get_xml(
+                        req, indent_spaces=0, eol="", options=export_options
+                    )
+                ),  # data
+            ],
+        )
     else:
         raise AssertionError(
-            f"make_obx_segment: invalid task_format: {task_format}")
+            f"make_obx_segment: invalid task_format: {task_format}"
+        )
 
     observation_sub_id = ""
     units = ""
@@ -509,7 +539,8 @@ def make_obx_segment(req: "CamcopsRequest",
     date_of_last_observation_normal_values = ""
     user_defined_access_checks = ""
     date_and_time_of_observation = format_datetime(
-        observation_datetime, DateFormat.HL7_DATETIME)
+        observation_datetime, DateFormat.HL7_DATETIME
+    )
     producer_id = ""
     observation_method = ""
     equipment_instance_identifier = ""
@@ -541,31 +572,32 @@ def make_obx_segment(req: "CamcopsRequest",
     return segment
 
 
-def make_dg1_segment(set_id: int,
-                     diagnosis_datetime: Pendulum,
-                     coding_system: str,
-                     diagnosis_identifier: str,
-                     diagnosis_text: str,
-                     alternate_coding_system: str = "",
-                     alternate_diagnosis_identifier: str = "",
-                     alternate_diagnosis_text: str = "",
-                     diagnosis_type: str = "F",
-                     diagnosis_classification: str = "D",
-                     confidential_indicator: str = "N",
-                     clinician_id_number: Union[str, int] = None,
-                     clinician_surname: str = "",
-                     clinician_forename: str = "",
-                     clinician_middle_name_or_initial: str = "",
-                     clinician_suffix: str = "",
-                     clinician_prefix: str = "",
-                     clinician_degree: str = "",
-                     clinician_source_table: str = "",
-                     clinician_assigning_authority: str = "",
-                     clinician_name_type_code: str = "",
-                     clinician_identifier_type_code: str = "",
-                     clinician_assigning_facility: str = "",
-                     attestation_datetime: Pendulum = None) \
-        -> hl7.Segment:
+def make_dg1_segment(
+    set_id: int,
+    diagnosis_datetime: Pendulum,
+    coding_system: str,
+    diagnosis_identifier: str,
+    diagnosis_text: str,
+    alternate_coding_system: str = "",
+    alternate_diagnosis_identifier: str = "",
+    alternate_diagnosis_text: str = "",
+    diagnosis_type: str = "F",
+    diagnosis_classification: str = "D",
+    confidential_indicator: str = "N",
+    clinician_id_number: Union[str, int] = None,
+    clinician_surname: str = "",
+    clinician_forename: str = "",
+    clinician_middle_name_or_initial: str = "",
+    clinician_suffix: str = "",
+    clinician_prefix: str = "",
+    clinician_degree: str = "",
+    clinician_source_table: str = "",
+    clinician_assigning_authority: str = "",
+    clinician_name_type_code: str = "",
+    clinician_identifier_type_code: str = "",
+    clinician_assigning_facility: str = "",
+    attestation_datetime: Pendulum = None,
+) -> hl7.Segment:
     # noinspection HttpUrlsUsage
     """
     Creates an HL7 diagnosis (DG1) segment.
@@ -618,18 +650,22 @@ def make_dg1_segment(set_id: int,
     except Exception:
         raise AssertionError("make_dg1_segment: set_id invalid")
     diagnosis_coding_method = ""
-    diagnosis_code = hl7.Field(COMPONENT_SEPARATOR, [
-        diagnosis_identifier,
-        diagnosis_text,
-        coding_system,
-        alternate_diagnosis_identifier,
-        alternate_diagnosis_text,
-        alternate_coding_system,
-    ])
+    diagnosis_code = hl7.Field(
+        COMPONENT_SEPARATOR,
+        [
+            diagnosis_identifier,
+            diagnosis_text,
+            coding_system,
+            alternate_diagnosis_identifier,
+            alternate_diagnosis_text,
+            alternate_coding_system,
+        ],
+    )
     diagnosis_description = ""
-    diagnosis_datetime = format_datetime(diagnosis_datetime,
-                                         DateFormat.HL7_DATETIME)
-    if diagnosis_type not in ["A", "W", "F"]:
+    diagnosis_datetime = format_datetime(
+        diagnosis_datetime, DateFormat.HL7_DATETIME
+    )
+    if diagnosis_type not in ("A", "W", "F"):
         raise AssertionError("make_dg1_segment: diagnosis_type invalid")
     major_diagnostic_category = ""
     diagnostic_related_group = ""
@@ -644,44 +680,60 @@ def make_dg1_segment(set_id: int,
     try:
         clinician_id_number = (
             str(int(clinician_id_number))
-            if clinician_id_number is not None else ""
+            if clinician_id_number is not None
+            else ""
         )
     except Exception:
-        raise AssertionError("make_dg1_segment: diagnosing_clinician_id_number"
-                             " invalid")
+        raise AssertionError(
+            "make_dg1_segment: diagnosing_clinician_id_number" " invalid"
+        )
     if clinician_id_number:
         clinician_id_check_digit = get_mod11_checkdigit(clinician_id_number)
         clinician_checkdigit_scheme = "M11"  # Mod 11 algorithm
     else:
         clinician_id_check_digit = ""
         clinician_checkdigit_scheme = ""
-    diagnosing_clinician = hl7.Field(COMPONENT_SEPARATOR, [
-        clinician_id_number,
-        clinician_surname or "",
-        clinician_forename or "",
-        clinician_middle_name_or_initial or "",
-        clinician_suffix or "",
-        clinician_prefix or "",
-        clinician_degree or "",
-        clinician_source_table or "",
-        clinician_assigning_authority or "",
-        clinician_name_type_code or "",
-        clinician_id_check_digit or "",
-        clinician_checkdigit_scheme or "",
-        clinician_identifier_type_code or "",
-        clinician_assigning_facility or "",
-    ])
+    diagnosing_clinician = hl7.Field(
+        COMPONENT_SEPARATOR,
+        [
+            clinician_id_number,
+            clinician_surname or "",
+            clinician_forename or "",
+            clinician_middle_name_or_initial or "",
+            clinician_suffix or "",
+            clinician_prefix or "",
+            clinician_degree or "",
+            clinician_source_table or "",
+            clinician_assigning_authority or "",
+            clinician_name_type_code or "",
+            clinician_id_check_digit or "",
+            clinician_checkdigit_scheme or "",
+            clinician_identifier_type_code or "",
+            clinician_assigning_facility or "",
+        ],
+    )
 
-    if diagnosis_classification not in ["C", "D", "M", "O", "R", "S", "T",
-                                        "I"]:
+    if diagnosis_classification not in (
+        "C",
+        "D",
+        "M",
+        "O",
+        "R",
+        "S",
+        "T",
+        "I",
+    ):
         raise AssertionError(
-            "make_dg1_segment: diagnosis_classification invalid")
-    if confidential_indicator not in ["Y", "N"]:
+            "make_dg1_segment: diagnosis_classification invalid"
+        )
+    if confidential_indicator not in ("Y", "N"):
         raise AssertionError(
-            "make_dg1_segment: confidential_indicator invalid")
+            "make_dg1_segment: confidential_indicator invalid"
+        )
     attestation_datetime = (
         format_datetime(attestation_datetime, DateFormat.HL7_DATETIME)
-        if attestation_datetime else ""
+        if attestation_datetime
+        else ""
     )
 
     fields = [
@@ -740,6 +792,7 @@ def escape_hl7_text(s: str) -> str:
 
 
 def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
+    # noinspection HttpUrlsUsage
     """
     Checks whether msg represents a successful acknowledgement message.
 
@@ -757,36 +810,44 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 
     # Check MSH segment
     if len(msh_segment) < 9:
-        return False, (
-            f"First (MSH) segment has <9 fields (has {len(msh_segment)})"
+        return (
+            False,
+            f"First (MSH) segment has <9 fields (has {len(msh_segment)})",
         )
     msh_segment_id = msh_segment[0]
     msh_message_type = msh_segment[8]
     if msh_segment_id != ["MSH"]:
-        return False, (
-            f"First (MSH) segment ID is not 'MSH' (is {msh_segment_id})"
+        return (
+            False,
+            f"First (MSH) segment ID is not 'MSH' (is {msh_segment_id})",
         )
     if msh_message_type != ["ACK"]:
-        return False, (
-            f"MSH message type is not 'ACK' (is {msh_message_type})"
+        return (
+            False,
+            f"MSH message type is not 'ACK' (is {msh_message_type})",
         )
 
     # Check MSA segment
     if len(msa_segment) < 2:
-        return False, (
-            f"Second (MSA) segment has <2 fields (has {len(msa_segment)})"
+        return (
+            False,
+            f"Second (MSA) segment has <2 fields (has {len(msa_segment)})",
         )
     msa_segment_id = msa_segment[0]
     msa_acknowledgment_code = msa_segment[1]
     if msa_segment_id != ["MSA"]:
-        return False, (
-            f"Second (MSA) segment ID is not 'MSA' (is {msa_segment_id})"
+        return (
+            False,
+            f"Second (MSA) segment ID is not 'MSA' (is {msa_segment_id})",
         )
     if msa_acknowledgment_code != ["AA"]:
         # AA for success, AE for error
-        return False, (
-            f"MSA acknowledgement code is not 'AA' "
-            f"(is {msa_acknowledgment_code})"
+        return (
+            False,
+            (
+                f"MSA acknowledgement code is not 'AA' "
+                f"(is {msa_acknowledgment_code})"
+            ),
         )
 
     return True, None
@@ -797,10 +858,10 @@ def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
 # =============================================================================
 # Modification of MLLPClient from python-hl7, to allow timeouts and failure.
 
-SB = '\x0b'  # <SB>, vertical tab
-EB = '\x1c'  # <EB>, file separator
-CR = '\x0d'  # <CR>, \r
-FF = '\x0c'  # <FF>, new page form feed
+SB = "\x0b"  # <SB>, vertical tab
+EB = "\x1c"  # <EB>, file separator
+CR = "\x0d"  # <CR>, \r
+FF = "\x0c"  # <FF>, new page form feed
 
 RECV_BUFFER = 4096
 
@@ -813,8 +874,9 @@ class MLLPTimeoutClient(object):
     def __init__(self, host: str, port: int, timeout_ms: int = None) -> None:
         """Creates MLLP client and opens socket."""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        timeout_s = float(timeout_ms) / float(1000) \
-            if timeout_ms is not None else None
+        timeout_s = (
+            float(timeout_ms) / float(1000) if timeout_ms is not None else None
+        )
         self.socket.settimeout(timeout_s)
         self.socket.connect((host, port))
         self.encoding = "utf-8"
@@ -838,8 +900,9 @@ class MLLPTimeoutClient(object):
         """
         self.socket.close()
 
-    def send_message(self, message: Union[str, hl7.Message]) \
-            -> Tuple[bool, Optional[str]]:
+    def send_message(
+        self, message: Union[str, hl7.Message]
+    ) -> Tuple[bool, Optional[str]]:
         """
         Wraps a string or :class:`hl7.Message` in a MLLP container
         and sends the message to the server.

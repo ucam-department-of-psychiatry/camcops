@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -68,6 +69,12 @@ class Thermometer : public QWidget
         [5] m_rstring_left
         [6]
 
+    left_text and right_text are vertically aligned with the centre of each
+    image. The images may well be shorter vertically than the text label. To
+    prevent the labels at the top and bottom from being clipped, the images may
+    be padded with image_padding_px (m_image_padding_px). The padding is
+    included when calculating the total height of the widget.
+
     Widths:
         [a] m_lstring_width;
             left_string_span / (left_string_span + image_span + right_string_span)
@@ -97,6 +104,7 @@ public:
             bool rescale_images = false,  // rescale from images' intrinsic size?
             double rescale_image_factor = 1.0,  // if rescale: scale factor
             int text_gap_px = 4,  // gap between images and adjacent text
+            int image_padding_px = 0,
             QWidget* parent = nullptr);
 
     // ------------------------------------------------------------------------
@@ -186,6 +194,7 @@ protected:
     bool m_rescale_images;  // rescale images?
     double m_rescale_image_factor;  // if rescale: by what factor?
     int m_text_gap_px;  // gap between images and adjacent text
+    int m_image_padding_px;  // gap above and below the stack of images
     // QColor m_unused_space_colour;  // colour for any "unpainted" area
 
     // Details of the current selection:

@@ -1,6 +1,7 @@
 ..  docs/source/developer/_index.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -23,6 +24,7 @@ Developer notes
 ..  toctree::
     :maxdepth: 1
 
+    setting_up.rst
     creating_tasks.rst
     seeking_permissions.rst
     cpp_code_style.rst

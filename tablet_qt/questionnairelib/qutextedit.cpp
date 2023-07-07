@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qutextedit.h"
@@ -31,7 +32,9 @@
 const int WRITE_DELAY_MS = 400;
 
 
-QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text) :
+QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text,
+                       QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
     m_allow_tabs_in_content(false),

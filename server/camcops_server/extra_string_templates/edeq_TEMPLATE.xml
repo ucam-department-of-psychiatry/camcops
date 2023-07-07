@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="edeq">
+    <string name="title_main">Eating Disorder Examination Questionnaire (EDE-Q 6.0)</string>
+    <string name="instructions">(general instructions)</string>
+
+    <string name="q1_12_instructions">(q1-12 instructions)</string>
+    <string name="q1_12_heading">(q1-12 heading)</string>
+
+    <string name="q1">1.</string>
+    <string name="q2">2.</string>
+    <string name="q3">3.</string>
+    <string name="q4">4.</string>
+    <string name="q5">5.</string>
+    <string name="q6">6.</string>
+    <string name="q7">7.</string>
+    <string name="q8">8.</string>
+    <string name="q9">9.</string>
+    <string name="q10">10.</string>
+    <string name="q11">11.</string>
+    <string name="q12">12.</string>
+
+    <string name="q13_18_instructions">(q13-18 instructions)</string>
+    <string name="q13_18_heading">(q13-18 heading)</string>
+
+    <string name="q13">13.</string>
+    <string name="q14">14.</string>
+    <string name="q15">15.</string>
+    <string name="q16">16.</string>
+    <string name="q17">17.</string>
+    <string name="q18">18.</string>
+
+    <string name="q19_21_instructions">(q19-21 instructions)</string>
+
+    <string name="q19">19.</string>
+    <string name="q20">20.</string>
+    <string name="q21">21.</string>
+
+    <string name="q22_28_instructions">(q22-28 instructions)</string>
+    <string name="q22_28_heading">(q22-28 heading)</string>
+
+    <string name="q22">22.</string>
+    <string name="q23">23.</string>
+    <string name="q24">24.</string>
+    <string name="q25">25.</string>
+    <string name="q26">26.</string>
+    <string name="q27">27.</string>
+    <string name="q28">28.</string>
+
+    <string name="mass_kg">(weight)</string>
+    <string name="height_m">(height)</string>
+    <string name="have_missed_periods">(have missed periods)</string>
+    <string name="num_periods_missed">(num missed periods)</string>
+    <string name="pill">(pill)</string>
+    <string name="thanks">(thanks)</string>
+
+    <string name="days_option_0">No</string>
+    <string name="days_option_1">1-5</string>
+    <string name="days_option_2">6-12</string>
+    <string name="days_option_3">13-15</string>
+    <string name="days_option_4">16-22</string>
+    <string name="days_option_5">23-27</string>
+    <string name="days_option_6">Every</string>
+
+    <string name="freq_option_0">None</string>
+    <string name="freq_option_1">Few</string>
+    <string name="freq_option_2">Less</string>
+    <string name="freq_option_3">Half</string>
+    <string name="freq_option_4">More</string>
+    <string name="freq_option_5">Most</string>
+    <string name="freq_option_6">Every</string>
+
+    <string name="how_much_option_0">(0)</string>
+    <string name="how_much_option_1">(1)</string>
+    <string name="how_much_option_2">(2)</string>
+    <string name="how_much_option_3">(3)</string>
+    <string name="how_much_option_4">(4)</string>
+    <string name="how_much_option_5">(5)</string>
+    <string name="how_much_option_6">(6)</string>
+
+    <string name="restraint">Restraint</string>
+    <string name="eating_concern">Eating</string>
+    <string name="shape_concern">Shape</string>
+    <string name="weight_concern">Weight</string>
+  </task>
+</resources>

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_formatter.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -25,7 +26,7 @@ camcops_server/cc_modules/cc_formatter.py
 ===============================================================================
 
 **Safe alternative to str.format() that rejects anything not in the list of
-  allowed keys.**
+allowed keys.**
 
 """
 
@@ -68,8 +69,9 @@ class SafeFormatter(Formatter):
         """
         return ", ".join(f"{{{k}}}" for k in self._allowed_keys)
 
-    def get_field(self, field_name: str, args: Sequence[Any],
-                  kwargs: Mapping[str, Any]) -> Tuple[Any, str]:
+    def get_field(
+        self, field_name: str, args: Sequence[Any], kwargs: Mapping[str, Any]
+    ) -> Tuple[Any, str]:
         """
         Overrides :meth:`Formatter.get_field` (q.v.).
 

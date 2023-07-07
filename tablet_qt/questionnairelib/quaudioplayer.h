@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -35,7 +36,7 @@ public:
 
     // Construct with a URL (e.g. a Qt resource URL for an audio file, such as
     // "qrc:///resources/camcops/sounds/bach_brandenburg_3_3.mp3").
-    QuAudioPlayer(const QString& url);
+    QuAudioPlayer(const QString& url, QObject* parent = nullptr);
 
     // Destructor
     virtual ~QuAudioPlayer() override;

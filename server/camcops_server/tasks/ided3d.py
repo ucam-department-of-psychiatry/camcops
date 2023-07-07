@@ -5,7 +5,8 @@ camcops_server/tasks/ided3d.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -56,8 +57,15 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
 
 
+# =============================================================================
+# Helper functions
+# =============================================================================
+
+
 def a(x: Any) -> str:
-    """Answer formatting for this task."""
+    """
+    Answer formatting for this task.
+    """
     return answer(x, formatter_answer=identity, default="")
 
 
@@ -65,93 +73,95 @@ def a(x: Any) -> str:
 # IDED3D
 # =============================================================================
 
+
 class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "ided3d_trials"
 
     ided3d_id = Column(
-        "ided3d_id", Integer,
-        nullable=False,
-        comment="FK to ided3d"
+        "ided3d_id", Integer, nullable=False, comment="FK to ided3d"
     )
     trial = Column(
-        "trial", Integer,
-        nullable=False,
-        comment="Trial number (1-based)"
+        "trial", Integer, nullable=False, comment="Trial number (1-based)"
     )
-    stage = Column(
-        "stage", Integer,
-        comment="Stage number (1-based)"
-    )
+    stage = Column("stage", Integer, comment="Stage number (1-based)")
 
     # Locations
     correct_location = Column(
-        "correct_location", Integer,
+        "correct_location",
+        Integer,
         comment="Location of correct stimulus "
-                "(0 top, 1 right, 2 bottom, 3 left)"
+        "(0 top, 1 right, 2 bottom, 3 left)",
     )
     incorrect_location = Column(
-        "incorrect_location", Integer,
+        "incorrect_location",
+        Integer,
         comment="Location of incorrect stimulus "
-                "(0 top, 1 right, 2 bottom, 3 left)"
+        "(0 top, 1 right, 2 bottom, 3 left)",
     )
 
     # Stimuli
     correct_shape = Column(
-        "correct_shape", Integer,
-        comment="Shape# of correct stimulus"
+        "correct_shape", Integer, comment="Shape# of correct stimulus"
     )
     correct_colour = CamcopsColumn(
-        "correct_colour", Text,
+        "correct_colour",
+        Text,
         exempt_from_anonymisation=True,
-        comment="HTML colour of correct stimulus"
+        comment="HTML colour of correct stimulus",
     )
     correct_number = Column(
-        "correct_number", Integer,
-        comment="Number of copies of correct stimulus"
+        "correct_number",
+        Integer,
+        comment="Number of copies of correct stimulus",
     )
     incorrect_shape = Column(
-        "incorrect_shape", Integer,
-        comment="Shape# of incorrect stimulus"
+        "incorrect_shape", Integer, comment="Shape# of incorrect stimulus"
     )
     incorrect_colour = CamcopsColumn(
-        "incorrect_colour", Text,
+        "incorrect_colour",
+        Text,
         exempt_from_anonymisation=True,
-        comment="HTML colour of incorrect stimulus"
+        comment="HTML colour of incorrect stimulus",
     )
     incorrect_number = Column(
-        "incorrect_number", Integer,
-        comment="Number of copies of incorrect stimulus"
+        "incorrect_number",
+        Integer,
+        comment="Number of copies of incorrect stimulus",
     )
 
     # Trial
     trial_start_time = Column(
-        "trial_start_time", PendulumDateTimeAsIsoTextColType,
-        comment="Trial start time / stimuli presented at (ISO-8601)"
+        "trial_start_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Trial start time / stimuli presented at (ISO-8601)",
     )
 
     # Response
     responded = CamcopsColumn(
-        "responded", Boolean,
+        "responded",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Did the subject respond?"
+        comment="Did the subject respond?",
     )
     response_time = Column(
-        "response_time", PendulumDateTimeAsIsoTextColType,
-        comment="Time of response (ISO-8601)"
+        "response_time",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Time of response (ISO-8601)",
     )
     response_latency_ms = Column(
-        "response_latency_ms", Integer,
-        comment="Response latency (ms)"
+        "response_latency_ms", Integer, comment="Response latency (ms)"
     )
     correct = CamcopsColumn(
-        "correct", Boolean,
+        "correct",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Response was correct"
+        comment="Response was correct",
     )
     incorrect = CamcopsColumn(
-        "incorrect", Boolean,
+        "incorrect",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Response was incorrect"
+        comment="Response was incorrect",
     )
 
     @classmethod
@@ -214,100 +224,108 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "ided3d_stages"
 
     ided3d_id = Column(
-        "ided3d_id", Integer,
-        nullable=False,
-        comment="FK to ided3d"
+        "ided3d_id", Integer, nullable=False, comment="FK to ided3d"
     )
     stage = Column(
-        "stage", Integer,
-        nullable=False,
-        comment="Stage number (1-based)"
+        "stage", Integer, nullable=False, comment="Stage number (1-based)"
     )
 
     # Config
     stage_name = CamcopsColumn(
-        "stage_name", Text,
+        "stage_name",
+        Text,
         exempt_from_anonymisation=True,
-        comment="Name of the stage (e.g. SD, EDr)"
+        comment="Name of the stage (e.g. SD, EDr)",
     )
     relevant_dimension = CamcopsColumn(
-        "relevant_dimension", Text,
+        "relevant_dimension",
+        Text,
         exempt_from_anonymisation=True,
-        comment="Relevant dimension (e.g. shape, colour, number)"
+        comment="Relevant dimension (e.g. shape, colour, number)",
     )
     correct_exemplar = CamcopsColumn(
-        "correct_exemplar", Text,
+        "correct_exemplar",
+        Text,
         exempt_from_anonymisation=True,
-        comment="Correct exemplar (from relevant dimension)"
+        comment="Correct exemplar (from relevant dimension)",
     )
     incorrect_exemplar = CamcopsColumn(
-        "incorrect_exemplar", Text,
+        "incorrect_exemplar",
+        Text,
         exempt_from_anonymisation=True,
-        comment="Incorrect exemplar (from relevant dimension)"
+        comment="Incorrect exemplar (from relevant dimension)",
     )
     correct_stimulus_shapes = CamcopsColumn(
-        "correct_stimulus_shapes", Text,
+        "correct_stimulus_shapes",
+        Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for correct stimulus "
-                "(CSV list of shape numbers)"
+        "(CSV list of shape numbers)",
     )
     correct_stimulus_colours = CamcopsColumn(
-        "correct_stimulus_colours", Text,
+        "correct_stimulus_colours",
+        Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for correct stimulus "
-                "(CSV list of HTML colours)"
+        "(CSV list of HTML colours)",
     )
     correct_stimulus_numbers = CamcopsColumn(
-        "correct_stimulus_numbers", Text,
+        "correct_stimulus_numbers",
+        Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for correct stimulus "
-                "(CSV list of numbers)"
+        "(CSV list of numbers)",
     )
     incorrect_stimulus_shapes = CamcopsColumn(
-        "incorrect_stimulus_shapes", Text,
+        "incorrect_stimulus_shapes",
+        Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for incorrect stimulus "
-                "(CSV list of shape numbers)"
+        "(CSV list of shape numbers)",
     )
     incorrect_stimulus_colours = CamcopsColumn(
-        "incorrect_stimulus_colours", Text,
+        "incorrect_stimulus_colours",
+        Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for incorrect stimulus "
-                "(CSV list of HTML colours)"
+        "(CSV list of HTML colours)",
     )
     incorrect_stimulus_numbers = CamcopsColumn(
-        "incorrect_stimulus_numbers", Text,
+        "incorrect_stimulus_numbers",
+        Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for incorrect stimulus "
-                "(CSV list of numbers)"
+        "(CSV list of numbers)",
     )
 
     # Results
     first_trial_num = Column(
-        "first_trial_num", Integer,
-        comment="Number of the first trial of the stage (1-based)"
+        "first_trial_num",
+        Integer,
+        comment="Number of the first trial of the stage (1-based)",
     )
     n_completed_trials = Column(
-        "n_completed_trials", Integer,
-        comment="Number of trials completed"
+        "n_completed_trials", Integer, comment="Number of trials completed"
     )
     n_correct = Column(
-        "n_correct", Integer,
-        comment="Number of trials performed correctly"
+        "n_correct", Integer, comment="Number of trials performed correctly"
     )
     n_incorrect = Column(
-        "n_incorrect", Integer,
-        comment="Number of trials performed incorrectly"
+        "n_incorrect",
+        Integer,
+        comment="Number of trials performed incorrectly",
     )
     stage_passed = CamcopsColumn(
-        "stage_passed", Boolean,
+        "stage_passed",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Subject met criterion and passed stage"
+        comment="Subject met criterion and passed stage",
     )
     stage_failed = CamcopsColumn(
-        "stage_failed", Boolean,
+        "stage_failed",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Subject took too many trials and failed stage"
+        comment="Subject took too many trials and failed stage",
     )
 
     @classmethod
@@ -372,91 +390,95 @@ class IDED3D(TaskHasPatientMixin, Task):
     """
     Server implementation of the ID/ED-3D task.
     """
+
     __tablename__ = "ided3d"
     shortname = "ID/ED-3D"
 
     # Config
     last_stage = Column(
-        "last_stage", Integer,
-        comment="Last stage to offer (1 [SD] - 8 [EDR])"
+        "last_stage", Integer, comment="Last stage to offer (1 [SD] - 8 [EDR])"
     )
     max_trials_per_stage = Column(
-        "max_trials_per_stage", Integer,
+        "max_trials_per_stage",
+        Integer,
         comment="Maximum number of trials allowed per stage before "
-                "the task aborts"
+        "the task aborts",
     )
     progress_criterion_x = Column(
-        "progress_criterion_x", Integer,
-        comment='Criterion to proceed to next stage: X correct out of'
-                ' the last Y trials, where this is X'
+        "progress_criterion_x",
+        Integer,
+        comment="Criterion to proceed to next stage: X correct out of"
+        " the last Y trials, where this is X",
     )
     progress_criterion_y = Column(
-        "progress_criterion_y", Integer,
-        comment='Criterion to proceed to next stage: X correct out of'
-                ' the last Y trials, where this is Y'
+        "progress_criterion_y",
+        Integer,
+        comment="Criterion to proceed to next stage: X correct out of"
+        " the last Y trials, where this is Y",
     )
     min_number = Column(
-        "min_number", Integer,
-        comment="Minimum number of stimulus element to use"
+        "min_number",
+        Integer,
+        comment="Minimum number of stimulus element to use",
     )
     max_number = Column(
-        "max_number", Integer,
-        comment="Maximum number of stimulus element to use"
+        "max_number",
+        Integer,
+        comment="Maximum number of stimulus element to use",
     )
     pause_after_beep_ms = Column(
-        "pause_after_beep_ms", Integer,
+        "pause_after_beep_ms",
+        Integer,
         comment="Time to continue visual feedback after auditory "
-                "feedback finished (ms)"
+        "feedback finished (ms)",
     )
-    iti_ms = Column(
-        "iti_ms", Integer,
-        comment="Intertrial interval (ms)"
-    )
+    iti_ms = Column("iti_ms", Integer, comment="Intertrial interval (ms)")
     counterbalance_dimensions = Column(
-        "counterbalance_dimensions", Integer,
-        comment="Dimensional counterbalancing condition (0-5)"
+        "counterbalance_dimensions",
+        Integer,
+        comment="Dimensional counterbalancing condition (0-5)",
     )
-    volume = Column(
-        "volume", Float,
-        comment="Sound volume (0.0-1.0)"
-    )
+    volume = Column("volume", Float, comment="Sound volume (0.0-1.0)")
     offer_abort = CamcopsColumn(
-        "offer_abort", Boolean,
+        "offer_abort",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Offer an abort button?"
+        comment="Offer an abort button?",
     )
     debug_display_stimuli_only = CamcopsColumn(
-        "debug_display_stimuli_only", Boolean,
+        "debug_display_stimuli_only",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="DEBUG: show stimuli only, don't run task"
+        comment="DEBUG: show stimuli only, don't run task",
     )
 
     # Intrinsic config
     shape_definitions_svg = CamcopsColumn(
-        "shape_definitions_svg", Text,
+        "shape_definitions_svg",
+        Text,
         exempt_from_anonymisation=True,
         comment="JSON-encoded version of shape definition"
-                " array in SVG format (with arbitrary scale of -60 to"
-                " +60 in both X and Y dimensions)"
+        " array in SVG format (with arbitrary scale of -60 to"
+        " +60 in both X and Y dimensions)",
     )
     colour_definitions_rgb = CamcopsColumn(  # v2.0.0
-        "colour_definitions_rgb", Text,
+        "colour_definitions_rgb",
+        Text,
         exempt_from_anonymisation=True,
-        comment="JSON-encoded version of colour RGB definitions"
+        comment="JSON-encoded version of colour RGB definitions",
     )
 
     # Results
     aborted = Column(
-        "aborted", Integer,
-        comment="Was the task aborted? (0 no, 1 yes)"
+        "aborted", Integer, comment="Was the task aborted? (0 no, 1 yes)"
     )
     finished = Column(
-        "finished", Integer,
-        comment="Was the task finished? (0 no, 1 yes)"
+        "finished", Integer, comment="Was the task finished? (0 no, 1 yes)"
     )
     last_trial_completed = Column(
-        "last_trial_completed", Integer,
-        comment="Number of last trial completed"
+        "last_trial_completed",
+        Integer,
+        comment="Number of last trial completed",
     )
 
     # Relationships
@@ -464,13 +486,13 @@ class IDED3D(TaskHasPatientMixin, Task):
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
-        ancillary_order_by_attr_name="trial"
+        ancillary_order_by_attr_name="trial",
     )  # type: List[IDED3DTrial]
     stages = ancillary_relationship(
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",
-        ancillary_order_by_attr_name="stage"
+        ancillary_order_by_attr_name="stage",
     )  # type: List[IDED3DStage]
 
     @staticmethod
@@ -517,27 +539,39 @@ class IDED3D(TaskHasPatientMixin, Task):
                 </tr>
         """
         h += tr_qa(self.wxstring(req, "last_stage"), self.last_stage)
-        h += tr_qa(self.wxstring(req, "max_trials_per_stage"),
-                   self.max_trials_per_stage)
-        h += tr_qa(self.wxstring(req, "progress_criterion_x"),
-                   self.progress_criterion_x)
-        h += tr_qa(self.wxstring(req, "progress_criterion_y"),
-                   self.progress_criterion_y)
+        h += tr_qa(
+            self.wxstring(req, "max_trials_per_stage"),
+            self.max_trials_per_stage,
+        )
+        h += tr_qa(
+            self.wxstring(req, "progress_criterion_x"),
+            self.progress_criterion_x,
+        )
+        h += tr_qa(
+            self.wxstring(req, "progress_criterion_y"),
+            self.progress_criterion_y,
+        )
         h += tr_qa(self.wxstring(req, "min_number"), self.min_number)
         h += tr_qa(self.wxstring(req, "max_number"), self.max_number)
-        h += tr_qa(self.wxstring(req, "pause_after_beep_ms"),
-                   self.pause_after_beep_ms)
+        h += tr_qa(
+            self.wxstring(req, "pause_after_beep_ms"), self.pause_after_beep_ms
+        )
         h += tr_qa(self.wxstring(req, "iti_ms"), self.iti_ms)
         h += tr_qa(
             self.wxstring(req, "counterbalance_dimensions") + "<sup>[1]</sup>",
-            self.counterbalance_dimensions)
+            self.counterbalance_dimensions,
+        )
         h += tr_qa(req.sstring(SS.VOLUME_0_TO_1), self.volume)
         h += tr_qa(self.wxstring(req, "offer_abort"), self.offer_abort)
-        h += tr_qa(self.wxstring(req, "debug_display_stimuli_only"),
-                   self.debug_display_stimuli_only)
-        h += tr_qa("Shapes (as a JSON-encoded array of SVG "
-                   "definitions; X and Y range both –60 to +60)",
-                   ws.webify(self.shape_definitions_svg))
+        h += tr_qa(
+            self.wxstring(req, "debug_display_stimuli_only"),
+            self.debug_display_stimuli_only,
+        )
+        h += tr_qa(
+            "Shapes (as a JSON-encoded array of SVG "
+            "definitions; X and Y range both –60 to +60)",
+            ws.webify(self.shape_definitions_svg),
+        )
         h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
@@ -550,11 +584,11 @@ class IDED3D(TaskHasPatientMixin, Task):
             """
                 </table>
                 <div>Stage specifications and results:</div>
-            """ +
-            self.get_stage_html() +
-            "<div>Trial-by-trial results:</div>" +
-            self.get_trial_html() +
-            f"""
+            """
+            + self.get_stage_html()
+            + "<div>Trial-by-trial results:</div>"
+            + self.get_trial_html()
+            + f"""
                 <div class="{CssClass.FOOTNOTES}">
                     [1] Counterbalancing of dimensions is as follows, with
                     notation X/Y indicating that X is the first relevant

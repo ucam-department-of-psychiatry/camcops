@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "elixhauserci.h"
@@ -73,7 +74,7 @@ const QStringList FIELDNAMES{
 
     "depression",
 };
-const int MAX_SCORE = FIELDNAMES.length();
+const int MAX_QUESTION_SCORE = FIELDNAMES.length();
 
 void initializeElixhauserCI(TaskFactory& factory)
 {
@@ -127,7 +128,7 @@ bool ElixhauserCI::isComplete() const
 
 QStringList ElixhauserCI::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

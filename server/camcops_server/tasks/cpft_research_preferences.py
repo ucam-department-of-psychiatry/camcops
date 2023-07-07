@@ -5,7 +5,8 @@ camcops_server/tasks/cpft_research_preferences.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,10 +42,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CharColType,
     PermittedValueChecker,
 )
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 class CpftResearchPreferencesMetaclass(DeclarativeMeta):
@@ -82,6 +80,7 @@ class CpftResearchPreferences(
     """
     Server implementation of the CPFT_Research_Preferences task
     """
+
     __tablename__ = "cpft_research_preferences"
     shortname = "CPFT_Research_Preferences"
     provides_trackers = False
@@ -102,23 +101,33 @@ class CpftResearchPreferences(
         return _("CPFT Research Preferences")
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.MANDATORY_FIELD_NAMES):
-            return False
-
         if not self.field_contents_valid():
             return False
+
+        contact_preference = getattr(self, self.FN_CONTACT_PREFERENCE)
+        if contact_preference is None:
+            return False
+
+        if contact_preference != "R":
+            return getattr(self, self.FN_CONTACT_BY_EMAIL) is not None
 
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = ""
-
-        rows = [tr_qa(self.wxstring(req, f"q_{self.FN_CONTACT_PREFERENCE}"),
-                      self.get_contact_preference_answer(req)),
-                tr_qa(self.wxstring(req, f"q_{self.FN_CONTACT_BY_EMAIL}"),
-                      self.get_contact_by_email_answer(req)),
-                tr_qa(self.wxstring(req, f"q_{self.FN_RESEARCH_OPT_OUT}"),
-                      self.get_research_opt_out_answer(req))]
+        rows = [
+            tr_qa(
+                self.wxstring(req, f"q_{self.FN_CONTACT_PREFERENCE}_short"),
+                self.get_contact_preference_answer(req),
+            ),
+            tr_qa(
+                self.wxstring(req, f"q_{self.FN_CONTACT_BY_EMAIL}_short"),
+                self.get_contact_by_email_answer(req),
+            ),
+            tr_qa(
+                self.wxstring(req, f"q_{self.FN_RESEARCH_OPT_OUT}_short"),
+                self.get_research_opt_out_answer(req),
+            ),
+        ]
 
         html = f"""
             <div class="{CssClass.SUMMARY}">
@@ -137,8 +146,9 @@ class CpftResearchPreferences(
 
         return html
 
-    def get_contact_preference_answer(self,
-                                      req: CamcopsRequest) -> Optional[str]:
+    def get_contact_preference_answer(
+        self, req: CamcopsRequest
+    ) -> Optional[str]:
 
         answer = getattr(self, self.FN_CONTACT_PREFERENCE)
         if answer is None:
@@ -146,12 +156,12 @@ class CpftResearchPreferences(
 
         return self.xstring(req, answer)
 
-    def get_contact_by_email_answer(self,
-                                    req: CamcopsRequest) -> Optional[str]:
-        return get_yes_no_unknown(req,
-                                  getattr(self, self.FN_CONTACT_BY_EMAIL))
+    def get_contact_by_email_answer(
+        self, req: CamcopsRequest
+    ) -> Optional[str]:
+        return get_yes_no_unknown(req, getattr(self, self.FN_CONTACT_BY_EMAIL))
 
-    def get_research_opt_out_answer(self,
-                                    req: CamcopsRequest) -> Optional[str]:
-        return get_yes_no_unknown(req,
-                                  getattr(self, self.FN_RESEARCH_OPT_OUT))
+    def get_research_opt_out_answer(
+        self, req: CamcopsRequest
+    ) -> Optional[str]:
+        return get_yes_no_unknown(req, getattr(self, self.FN_RESEARCH_OPT_OUT))

@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_patient_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -38,8 +39,11 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleItem,
 )
-from camcops_server.cc_modules.cc_tsv import TsvPage
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
+from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
+    DemoDatabaseTestCase,
+)
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 
@@ -47,10 +51,12 @@ from camcops_server.cc_modules.cc_xml import XmlElement
 # Unit tests
 # =============================================================================
 
+
 class PatientTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_patient(self) -> None:
         self.announce("test_patient")
         from camcops_server.cc_modules.cc_group import Group
@@ -67,7 +73,7 @@ class PatientTests(DemoDatabaseTestCase):
         for idnum in p.get_idnum_raw_values_only():
             self.assertIsInstance(idnum, int)
         self.assertIsInstance(p.get_xml_root(req), XmlElement)
-        self.assertIsInstance(p.get_tsv_page(req), TsvPage)
+        self.assertIsInstance(p.get_spreadsheet_page(req), SpreadsheetPage)
         self.assertIsInstance(p.get_bare_ptinfo(), BarePatientInfo)
         self.assertIsInstanceOrNone(p.group, Group)
         self.assertIsInstance(p.satisfies_upload_id_policy(), bool)
@@ -75,24 +81,28 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_surname(), str)
         self.assertIsInstance(p.get_forename(), str)
         self.assertIsInstance(p.get_surname_forename_upper(), str)
-        for longform in [True, False]:
+        for longform in (True, False):
             self.assertIsInstance(p.get_dob_html(req, longform), str)
         age_str_int = p.get_age(req)
         assert isinstance(age_str_int, str) or isinstance(age_str_int, int)
         self.assertIsInstanceOrNone(p.get_dob(), pendulum.Date)
         self.assertIsInstanceOrNone(p.get_dob_str(), str)
         age_at_str_int = p.get_age_at(req.now)
-        assert isinstance(age_at_str_int, str) or isinstance(age_at_str_int, int)  # noqa
+        assert isinstance(age_at_str_int, str) or isinstance(
+            age_at_str_int, int
+        )
         self.assertIsInstance(p.is_female(), bool)
         self.assertIsInstance(p.is_male(), bool)
         self.assertIsInstance(p.get_sex(), str)
         self.assertIsInstance(p.get_sex_verbose(), str)
         self.assertIsInstance(p.get_address(), str)
         self.assertIsInstance(p.get_email(), str)
-        self.assertIsInstance(p.get_hl7_pid_segment(req, self.recipdef),
-                              hl7.Segment)
-        self.assertIsInstanceOrNone(p.get_idnum_object(which_idnum=1),
-                                    PatientIdNum)
+        self.assertIsInstance(
+            p.get_hl7_pid_segment(req, self.recipdef), hl7.Segment
+        )
+        self.assertIsInstanceOrNone(
+            p.get_idnum_object(which_idnum=1), PatientIdNum
+        )
         self.assertIsInstanceOrNone(p.get_idnum_value(which_idnum=1), int)
         self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
         self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
@@ -105,22 +115,25 @@ class PatientTests(DemoDatabaseTestCase):
         patient.forename = "Forename"
         patient.surname = "Surname"
 
-        self.assertEqual(patient.get_surname_forename_upper(),
-                         "SURNAME, FORENAME")
+        self.assertEqual(
+            patient.get_surname_forename_upper(), "SURNAME, FORENAME"
+        )
 
     def test_surname_forename_upper_no_forename(self) -> None:
         patient = Patient()
         patient.surname = "Surname"
 
-        self.assertEqual(patient.get_surname_forename_upper(),
-                         "SURNAME, (UNKNOWN)")
+        self.assertEqual(
+            patient.get_surname_forename_upper(), "SURNAME, (UNKNOWN)"
+        )
 
     def test_surname_forename_upper_no_surname(self) -> None:
         patient = Patient()
         patient.forename = "Forename"
 
-        self.assertEqual(patient.get_surname_forename_upper(),
-                         "(UNKNOWN), FORENAME")
+        self.assertEqual(
+            patient.get_surname_forename_upper(), "(UNKNOWN), FORENAME"
+        )
 
 
 class LineageTests(DemoDatabaseTestCase):
@@ -187,20 +200,98 @@ class PatientDeleteTests(DemoDatabaseTestCase):
         self.dbsession.add(pts)
         self.dbsession.commit()
 
-        self.assertIsNotNone(self.dbsession.query(TaskSchedule).filter(
-            TaskSchedule.id == schedule.id).one_or_none())
-        self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
-            TaskScheduleItem.id == item.id).one_or_none())
-        self.assertIsNotNone(self.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.id == pts.id).one_or_none())
+        self.assertIsNotNone(
+            self.dbsession.query(TaskSchedule)
+            .filter(TaskSchedule.id == schedule.id)
+            .one_or_none()
+        )
+        self.assertIsNotNone(
+            self.dbsession.query(TaskScheduleItem)
+            .filter(TaskScheduleItem.id == item.id)
+            .one_or_none()
+        )
+        self.assertIsNotNone(
+            self.dbsession.query(PatientTaskSchedule)
+            .filter(PatientTaskSchedule.id == pts.id)
+            .one_or_none()
+        )
 
         self.dbsession.delete(patient)
         self.dbsession.commit()
 
-        self.assertIsNotNone(self.dbsession.query(TaskSchedule).filter(
-            TaskSchedule.id == schedule.id).one_or_none())
-        self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
-            TaskScheduleItem.id == item.id).one_or_none())
+        self.assertIsNotNone(
+            self.dbsession.query(TaskSchedule)
+            .filter(TaskSchedule.id == schedule.id)
+            .one_or_none()
+        )
+        self.assertIsNotNone(
+            self.dbsession.query(TaskScheduleItem)
+            .filter(TaskScheduleItem.id == item.id)
+            .one_or_none()
+        )
 
-        self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.id == pts.id).one_or_none())
+        self.assertIsNone(
+            self.dbsession.query(PatientTaskSchedule)
+            .filter(PatientTaskSchedule.id == pts.id)
+            .one_or_none()
+        )
+
+
+class PatientPermissionTests(BasicDatabaseTestCase):
+    def test_group_administrator_may_edit_server_created(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(
+            _group=self.group, as_server_patient=True
+        )
+
+        self.create_membership(user, self.group, groupadmin=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
+
+    def test_group_administrator_may_edit_finalized(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(
+            _group=self.group, as_server_patient=False
+        )
+
+        self.create_membership(user, self.group, groupadmin=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
+
+    def test_group_member_with_permission_may_edit_server_created(
+        self,
+    ) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(
+            _group=self.group, as_server_patient=True
+        )
+
+        self.create_membership(user, self.group, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
+
+    def test_group_member_with_permission_may_not_edit_finalized(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(
+            _group=self.group, as_server_patient=False
+        )
+
+        self.create_membership(user, self.group, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertFalse(patient.user_may_edit(self.req))

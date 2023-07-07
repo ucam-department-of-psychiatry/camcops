@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -192,7 +193,7 @@ QString prettyValue(const QVariant& variant, int dp = -1);
 
 // Formats a size in bytes in a pretty way, e.g. "3 KiB" or "3 kb" etc.
 QString prettySize(double num, bool space = true, bool binary = false,
-                   bool longform = false, const QString& suffix = "B");
+                   bool longform = false, const QString& suffix = QStringLiteral("B"));
 
 // Returns a string form of an arbitrary pointer.
 QString prettyPointer(const void* pointer);
@@ -257,13 +258,13 @@ QString numericVectorToCsvString(const QVector<T>& vec)
 
 
 // Converts a CSV string into an int vector.
-// (Duff values will be converted to 0.)
+// (Duff values will be converted to 0. Whitespace around commas is ignored.)
 QVector<int> csvStringToIntVector(const QString& str);
 
 // Converts a QStringList to CSV, encoding each string via stringToCppLiteral().
 QString qStringListToCsvString(const QStringList& vec);
 
-// Reverses csvStringToQStringList().
+// Reverses csvStringToQStringList(). Trims off whitespace.
 QStringList csvStringToQStringList(const QString& str);
 
 // ============================================================================

@@ -5,7 +5,8 @@ playing/inheritance_demo.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -64,8 +65,11 @@ class Derived(Base):
         self.x = 15
 
     def foo(self):
-        print("Derived foo, self.x = {}, Derived.sx = {}".format(self.x,
-                                                                 Derived.sx))
+        print(
+            "Derived foo, self.x = {}, Derived.sx = {}".format(
+                self.x, Derived.sx
+            )
+        )
         print("Calling self.bar() from Derived.foo():")
         self.bar()
         print("Calling super.foo() from Derived.foo():")
@@ -109,6 +113,6 @@ class D(B1, B2):
         print("D.foo; calling super().foo()")
         super().foo()
 
+
 x = D()
 x.foo()
-

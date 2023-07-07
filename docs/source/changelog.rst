@@ -1,6 +1,7 @@
 ..  docs/source/changelog.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -33,6 +34,8 @@ Quick links:
 - :ref:`2019 <changelog_2019>`
 - :ref:`2020 <changelog_2020>`
 - :ref:`2021 <changelog_2021>`
+- :ref:`2022 <changelog_2022>`
+- :ref:`2023 <changelog_2023>`
 
 
 Contributors
@@ -71,6 +74,7 @@ Contributors
   - Task scheduling.
   - Single-user mode.
   - Improvements to web site front end.
+  - FHIR framework.
   - ... and lots more.
 
 
@@ -263,7 +267,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Better internal timezone handling.
 - Commit during menu-driven administration to prevent database locking.
 - Lock user accounts after multiple login failures.
-- HL7 message framework. (Validated internally and against HL7 Inspector.)
+- HL7 (v2) message framework. (Validated internally and against HL7 Inspector.)
 - File export message framework, with post-export script option.
 - Database title, ID descriptions, and policies now have their primary home
   in the configuration file. Copied to database purely for researcher lookup.
@@ -1022,12 +1026,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Client v2.0.0 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - Development of C++ version from scratch. Replaces Titanium version.
 - Released as beta to Google Play on 2017-07-17.
 
 
 **Client v2.0.1 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - More const checking.
 - Bugfix to stone/pound/ounce conversion.
@@ -1036,6 +1042,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.2 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - Cosmetic bug fixes, mainly for phones, including a re-layout of the ACE-III
   address learning for very small screens.
@@ -1047,12 +1054,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.3 beta, 2017-08-07**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Trivial type fix to patient_wanted_copy_of_letter (String → Bool) in the
   unused task CPFTLPSDischarge.
 
 
 **Server v2.1.0 beta, 2017-10-17**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Major changes, including...
 - SQLAlchemy for database work
@@ -1062,18 +1071,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.4 beta, 2017-10-22**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: BLOB FKs weren’t being set properly from `BlobFieldRef` helper
   functions.
 
 
 **Client v2.0.5 beta, 2017-10-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: if the server’s ID number definitions were consecutively numbered,
   the client got confused and renumbered them from 1.
 
 
 **Server v2.1.1 beta, 2017-10-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
   irrelevant for other reasons” flag.
@@ -1085,6 +1097,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Client v2.2.0 beta, 2018-01-04 to 2018-02-03**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - *To solve the problem of clients and servers being upgraded independently:*
   Reads tables from server during registration (see server v2.2.0). Implemented
@@ -1141,6 +1154,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.1, 2018-04-24 to 2018-06-11**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Username added to login audit.
 
@@ -1180,6 +1194,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.2, 2018-06-19**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fixed bug in Diagnosis report for non-superusers (see
   :meth:`camcops_server.tasks.diagnosis.get_diagnosis_inc_exc_report_query`);
@@ -1188,6 +1203,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.1 beta, 2018-08-06**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Background striping for the `QuMcqGrid*` classes.
 
@@ -1195,6 +1211,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :ref:`Khandaker/Insight medical history <khandaker_insight_medical>` task.
 
@@ -1203,6 +1220,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.4, 2018-07-18**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to Android client for older Android versions.
 
@@ -1407,6 +1425,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.4, 2018-06-29**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Update to libraries:
 
@@ -1437,11 +1456,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.5, 2018-07-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Python package: ``camcops-server``.
 
 
 **Server and client v2.2.6, 2018-07-26**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Logic bugfix and improved clarity in client ``Task::isTaskUploadable``.
 
@@ -1481,12 +1502,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.7, 2018-07-31**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix relating to offset-naive versus offset-aware datetimes in
   ``cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary``.
 
 
 **Client v2.2.7, 2018-08-17**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to CISR: field ``sleep_gain3`` was missing from field list.
 
@@ -1496,6 +1519,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.8 to 2.3.0 (from 2018-09-10)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
@@ -1603,6 +1627,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.8 to 2.3.0 (2018-09-14 to 2018-11-26)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN``
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191
@@ -1711,6 +1736,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-24)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``cardinal_pythonlib`` to 1.0.49.
 
@@ -2090,6 +2116,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client and server v2.3.2 (2018-03-25 to 2018-04-04)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Session information in ORS and SRS summaries.
 
@@ -2131,7 +2158,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
+.. _changelog_v2_3_3:
+
 **Client and server v2.3.3**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Windows service.
 
@@ -2190,7 +2220,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix for SQL ``DATETIME`` columns when used via database URLs like
   ``mysql+mysqldb://..`` rather than ``mysql+pymysql://``.
 
-  - Bug report: https://github.com/RudolfCardinal/camcops/issues/2 -- with
+  - Bug report: https://github.com/ucam-department-of-psychiatry/camcops/issues/2 -- with
     thanks to Martin Burchell.
   - Symptom: when running e.g. ``camcops_server make_superuser``, crashes with
     error ``sqlalchemy.exc.OperationalError:
@@ -2707,7 +2737,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
-  smaller for ODS files. See ``cc_tsv.py``.
+  smaller for ODS files. See ``cc_spreadsheet.py``.
 
 - Option to send research data dumps by e-mail, to offload work to the
   back-end. Similarly, option to queue data dumps for download.
@@ -3042,7 +3072,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - It will erroneously report its version as 2.4.1
   - It won't report incompatibility with server >= v2.4.0. See
-    https://github.com/RudolfCardinal/camcops/issues/137
+    https://github.com/ucam-department-of-psychiatry/camcops/issues/137
   - Minor cosmetic differences in the display of dialogs
   - MoCA functionality still present (see below)
 
@@ -3070,18 +3100,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix two bugs when deleting patients created on the server:
 
   - It was impossible to delete an already registered patient
-    https://github.com/RudolfCardinal/camcops/issues/143
+    https://github.com/ucam-department-of-psychiatry/camcops/issues/143
     (Database revision 0060)
 
   - Deleting a patient created on the server would delete ID numbers from
     unrelated patients. This is because the entries in the patient_idnum table
     were being created with the id field set to zero.
-    https://github.com/RudolfCardinal/camcops/issues/144
+    https://github.com/ucam-department-of-psychiatry/camcops/issues/144
     (Database revision 0061 assigns correct ids to any entries that require them)
 
 - Fix bug where patient ID numbers were not always displayed correctly in the
   list of patients and their task schedules.
-  https://github.com/RudolfCardinal/camcops/issues/147
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/147
 
 
 .. _changelog_v2.4.5:
@@ -3288,7 +3318,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
       some of its widgets. These don't have the nonce, so don't execute. And
       the ``<script>`` and ``<style>`` tags are quite embedded, e.g. in
       ``deform/templates/form.pt``, with no obvious extensible options. See
-      https://github.com/RudolfCardinal/camcops/issues/162. At the moment,
+      https://github.com/ucam-department-of-psychiatry/camcops/issues/162. At the moment,
       CamCOPS does not use "maximum security" CSP headers. However, when Deform
       supports this (https://github.com/Pylons/deform/issues/512), we can turn
       them up via the ``DEFORM_SUPPORTS_CSP_NONCE`` switch in CamCOPS.
@@ -3301,14 +3331,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
     - Their reference:
       https://portswigger.net/kb/issues/00500800_password-field-with-autocomplete-enabled.
 
-    - However, there is disagrement, e.g. based on the following references.
+    - However, there is disagreement, e.g. based on the following references.
 
       - There is security debate on both sides of this argument (the dangers of
         local storage versus the dangers of what users do if their browser
         doesn't provide password management functions). That is, some people
         argue that this advice is wrong on security grounds. Even the security
         advisory they link to notes that browsers may, and generally do, ignore
-        the directive they suggest, ``autocomplete="off`` (for these reasons).
+        the directive they suggest, ``autocomplete="off"`` (for these reasons).
       - For example, see
         https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#the_autocomplete_attribute_and_login_fields.
       - Some casual discussion that summarises this is at
@@ -3387,7 +3417,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
     - RESPONSE: not changed; low concern noted; but raised as a Deform issue at
       https://github.com/Pylons/deform/issues/511, and tracked at
-      https://github.com/RudolfCardinal/camcops/issues/161.
+      https://github.com/ucam-department-of-psychiatry/camcops/issues/161.
 
 - Also fixed REDCap example for PHQ9 (from ``task.q10 + 1``, which could fail
   if ``q10`` was ``None``, to ``task.q10 + 1 if task.q10 is not None else
@@ -3418,7 +3448,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   Fix bug where deleting a task schedule with related items would result in
   an internal server error.
-  https://github.com/RudolfCardinal/camcops/issues/150
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/150
   (Database revision 0063)
 
 - ``GET`` requests to the API, which are likely to come from users visiting a
@@ -3435,28 +3465,336 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix in validation of download filenames (it was being overzealous and
   preventing downloads), to fix
-  https://github.com/RudolfCardinal/camcops/issues/178, and add some additional
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/178, and add some additional
   safety checks.
 
 - Replace the brittle ``mailto:`` links with the ability to email patient
   invitations from the CamCOPS server itself.
-  https://github.com/RudolfCardinal/camcops/issues/180
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/180
   (Database revisions 0064-0065)
 
-- Android and iOS users can now register themselves as patients by launching the
-  app from a URL sent to them by email.
-  https://github.com/RudolfCardinal/camcops/issues/153
+- Android and iOS users can now register themselves as patients by launching
+  the app from a URL sent to them by email.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/153
+
 
 .. _changelog_v2_4_9:
 
-**Client and server v2.4.9, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.9, released 6 Aug 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Ensure all patients records created before revision 0048 have a UUID. This
   is mainly for consistency as we only use UUIDs for server-created patients
-  and the ability to add patients on the server was implemented at the same time
-  as 0048.
-  https://github.com/RudolfCardinal/camcops/issues/187
-  (Database revision 0066)
+  and the ability to add patients on the server was implemented at the same
+  time as 0048.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/187
+  (Database revision 0066.)
 
-- Fix Debian package Python dependencies. Would fail if Python 3.6 was not installed.
+- Fix Debian package Python dependencies. Would fail if Python 3.6 was not
+  installed.
+
+- **New task:** :ref:`CPFT Research Preferences <cpft_research_preferences>`
+  (database revision 0067).
+
+- **New task:** :ref:`CPFT Post-COVID Clinic Medical Questionnaire
+  <cpft_covid_medical>` (Database revision 0068).
+
+
+.. _changelog_v2_4_10:
+
+**Server v2.4.10, released 27 Sep 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Any user with the right privilege (not just the group administrator) can
+  add/edit/delete and send emails to patients created on the server. The menu
+  option **Manage scheduled tasks for patients** is now **Manage patients and
+  their tasks**. (Database revision 0069.)
+
+- Reinstate Danish, which disappeared from the server in v2.4.9:
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/200
+
+- Fix internal server error when viewing HTML APEQ CPFT Perinatal Report:
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/203
+
+- Fix database revision 0066, which failed if no patient records were missing
+  UUIDs: https://github.com/ucam-department-of-psychiatry/camcops/issues/192
+
+
+.. _changelog_v2_4_11:
+
+**Client and server v2.4.11, released 8 Oct 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix Qt build script on Linux, Windows and MacOS.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/209
+
+- WSAS: Display options vertically on smaller screen widths
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/205
+
+- Fix bug whereby non admin group members with the "manage patients" privilege
+  would see an empty group selector when adding/editing patients.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/211
+
+- Support for :ref:`multi-factor authentication (MFA)
+  <multi_factor_authentication>` on the server. (Database revision 0070.)
+
+- Bugfix to :ref:`MFI-20 <mfi20>` (q.v.).
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/199
+
+- Bugfix to app: was reporting "research" rather than "clinical" when
+  conditions relating to clinical use were not met.
+
+
+.. _changelog_2022:
+
+2022
+~~~~
+
+.. _changelog_v2_4_12:
+
+**Server v2.4.12, released 20 Jan 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Database revision to 0071.
+
+- Add numbered and unnumbered lists to the visual editor when editing emails
+  and their templates.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/188
+
+- Display Danish or English on the visual editor according to the user's
+  language.
+
+- Initial FHIR support.
+
+  - Explicit FHIR export support for (search for ``def get_fhir``):
+
+    - PHQ9 (a prototype patient-based task);
+    - APEQPT (an anonymous task);
+    - BMI (provides Observation objects too);
+    - the Diagnosis* tasks (provide observations).
+
+  - Autodiscovery support for all others. This is imperfect in terms of
+    question/answer text, and the guesswork could probably be improved, but it
+    gets the job done (using field comments as a fallback).
+
+  - For testing details, see ``camcops_server/cc_modules/cc_fhir.py``.
+
+  - Links through to FHIR server and back-links back to CamCOPS.
+
+  - FHIR views from tasks.
+
+- Packages:
+
+  - Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing
+    warnings.
+
+  - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
+
+  - Bump ``celery`` from 5.2.0 to 5.2.2 for CVE-2021-23727.
+
+  - Bump ``cardinal_pythonlib`` to 1.1.15, which now uses numpy 1.20.0, which
+    removes support for Python 3.6, so we do too.
+    **Minimum Python version now Python 3.7.**
+
+  - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
+    some bugs).
+
+  - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
+
+  - Bump ``pdfkit`` from 0.6.1 to 1.0.0 to remove a bug warning inside it
+    (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
+    self.type is 'file':``).
+
+  - Some ``pyexcel-*`` bumps to remove warnings.
+
+  - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
+    objects properly. The bug manifested during reindexing, and was as
+    documented above in :ref:`v2.3.3 <changelog_v2_3_3>`.
+
+- Update SNOMED code fetcher. Replace 32537008 with 165172002 in
+  PsychiatricClerking. Other minor tweaks.
+
+  - **Requires :ref:`SNOMED_TASK_XML_FILENAME
+    <SNOMED_TASK_XML_FILENAME>` file upgrade for those using SNOMED.** See
+    :ref:`camcops_fetch_snomed_codes <camcops_fetch_snomed_codes>`
+
+- Fix a bug where assigning the same schedule twice to a patient would not be
+  possible: https://github.com/ucam-department-of-psychiatry/camcops/issues/218
+
+- Fix internal server error when removing a schedule from a patient, where
+  emails had been sent relating to the schedule.
+
+- Add page of random test NHS numbers for testing.
+
+- Icons for web site (using Bootstrap open-source icons).
+
+- Copyright transfer to the University of Cambridge, Department of Psychiatry
+  (2021-11-23). Remains under a fully open source licence, the GPL v3+.
+
+- ``kombu`` (not a direct dependency) requires an upgrade from 4.6.11 to 5.2.1
+  (security fix), and ``celery`` from 4.4.6 to 5.2.0 in consequence, then
+  ``amqp`` from 2.6.0 to 5.0.6 in consequence. Thus, change syntax in
+  ``launch_celery_beat`` function from ``celery beat --app APPNAME ...`` to
+  ``celery --app APPNAME beat ...``, and likewise for ``worker`` in the
+  function ``launch_celery_workers``, and ``flower`` in
+  ``launch_celery_flower``. Also bump ``flower`` from 0.9.4 to 1.0.0 as it
+  stopped working otherwise.
+
+- Documentation and support for code-signing Windows client executables.
+
+- New config option :ref:`SESSION_CHECK_USER_IP <SESSION_CHECK_USER_IP>` to
+  check the user's IP address against the previously stored value on every
+  request. There are cases where this may be undesireable if a user's IP
+  address changes before the session timeout is reached.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/226
+
+
+.. _changelog_v2_4_13:
+
+**Client and server v2.4.13, released 18 Aug 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Option for simplified spreadsheet downloads.
+
+- Bump ``numpy`` from 1.20.0 to 1.21.5 (1.22.0 unavailable for Python 3.7) for
+  the endless series of security warnings about things that aren't really
+  vulnerabilities.
+
+- Use Black code style: https://black.readthedocs.io/.
+  Note: "E203 whitespace before ':'" errors should be suppressed. See
+  https://github.com/psf/black/issues/315;
+  https://black.readthedocs.io/en/stable/faq.html.
+
+- Change ``CELERY_WORKER_EXTRA_ARGS`` ``--maxtasksperchild`` to
+  ``--max-tasks-per-child`` following removal of --maxtasksperchild in Celery
+  5.0.
+
+- **New task:** :ref:`Eating Disorder Examination Questionnaire (EDE-Q)
+  <edeq>`. (Database revision 0072.)
+
+- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire
+  (ISAAQ) <isaaq10>`. (Database revision 0073.)
+
+- **New task:** :ref:`Internet Severity and Activities Addiction Questionnaire,
+  Eating Disorders Appendix (ISAAQ-ED) <isaaqed>`. (Database revision 0074.)
+
+- **New task:** :ref:`The Clinical Impairment Assessment questionnaire (CIA)
+  <cia>`. (Database revision 0075.)
+
+- **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in
+  Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
+
+
+**Server v2.4.14, released 17 Nov 2022**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix RPM build to work with Python 3.8 and RHEL 8.
+
+- Command ``camcops_server demo_apache_config`` now defaults to the server
+  being hosted at (e.g.) ``https://camcops.example.com/`` instead of
+  ``https://camcops.example.com/camcops``. There is now a ``--path`` argument
+  to generate the demo Apache config file for a particular location. For the
+  old behaviour: ``camcops_server demo_apache_config --path camcops``
+
+- Installer for CamCOPS running within Docker
+
+  - The Docker version of CamCOPS can now be :ref:`installed with a single script
+    <quick_start>`.
+
+- New report to count server-side patients created and their assigned tasks.
+
+
+.. _changelog_2023:
+
+2023
+~~~~
+
+.. _changelog_v2_4_15:
+
+**Client and server v2.4.15, released 24 Mar 2023**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix Debian package install on Ubuntu 22.04.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/239
+
+- **Minimum Python version now Python 3.8.**
+
+- Rich text for help.
+
+- **New task:** :ref:`Patient Health Questionnaire 8-item depression scale
+  (PHQ-8) <phq8>`. (Database revision 0077.)
+
+- Minimum tablet version changed from 1.14.0 (old Titanium clients) to 2.0.0
+  (C++ clients, from 2017 onwards). We think no old Titanium clients are in use
+  anywhere in the world. See MINIMUM_TABLET_VERSION_STRING. Also removed
+  defunct (unused) variable COPE_WITH_DELETED_PATIENT_DESCRIPTIONS, and removed
+  redundant variables DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
+  SILENTLY_IGNORE_TABLENAMES, IGNORING_ANTIQUE_TABLE_MESSAGE,
+  IgnoringAntiqueTableException, and related tests. With the removal of old
+  tablet support, this code would just be wasting time.
+
+- ACE-III supports versions A/B/C (address variation), defaulting to version A
+  as before, and upgraded to 2017 edition. Also supports remote administration
+  (UK 2020 edition). **Clients v2.4.15+ therefore require server 2.4.15+ to
+  upload.** If you create a new task on a client when the server is old (or the
+  tablet hasn't fetched server information since the server upgrade) you'll get
+  a warning. Removed defunct server fields ``picture1_rotation``,
+  ``picture2_rotation``.  (Database revision 0078.)
+
+- Supports the mini-ACE as a subset of the ACE-III. (Database revision 0078 as
+  above.)
+
+- Cosmetic bugfix to CIS-R server display (answers were being
+  double-HTML-escaped).
+
+- :func:`camcops_server.cc_modules.cc_task.Task.get_extrastring_taskname`
+  changed to a classmethod. Likewise ``extrastrings_exist``, ``wxstring``,
+  ``xstring``, ``make_options_from_xstrings``.
+
+- Bug fix: Make BMI waist circumference optional again.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/264
+
+- Update :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>` to
+  remove q16 and add "Neither agree nor disagree" to the responses. This
+  means that the maximum total score is now 60 instead of 45.
+
+  (Database revision 0080.)
+
+- Remove ISAAQ task and replace with :ref:`ISAAQ-10 <isaaq10>`. (Database
+  revisions 0081-0083.)
+
+- Use SecureTransport instead of OpenSSL with Qt on iOS client.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/278
+
+.. _changelog_v2_4_16:
+
+**Client and server v2.4.16, released 13 Jun 2023**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Set default ``max-memory-per-child`` in the arguments passed to Celery
+  workers (``CELERY_WORKER_EXTRA_ARGS``) in the demo CamCOPS config. This
+  should reduce the memory consumption of Celery. Also set ``stopasgroup`` in
+  the demo supervisor config to prevent orphaned processes.
+
+- CIA and EDE-Q provide trackers (and, for EDE-Q, clarified "global" rather
+  than "total" score, since it is a mean).
+
+- Better error message if SSL certificate/key mis-specified.
+
+- Fix display of "How much..." options in EDE-Q so that they fit on to an
+  iPad screen in portrait.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/287
+
+- Fix crash when the Kirby task is aborted with no results
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/296
+
+- Fix display of visual analogue scale in EQ-5D-5L in landscape on iPad
+  (and portrait on smaller screens) so that all of the scale is visible.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/126
+
+- Fix clipping of topmost and bottommost Thermometer widget labels when the
+  text is greater in height than the images.
+
+
+**Client and server v2.4.17,  IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -5,7 +5,8 @@ camcops_server/cc_modules/celery.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -109,6 +110,7 @@ Task decorator options:
 
 """  # noqa
 
+from contextlib import contextmanager
 import logging
 import os
 from typing import Any, Dict, TYPE_CHECKING
@@ -117,6 +119,13 @@ from cardinal_pythonlib.json.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from celery import Celery, current_task
 from kombu.serialization import register
+
+# TODO: Investigate
+# "from numpy.random import uniform" leads to uniform ending up in the
+# documentation for this file and Sphinx error:
+# celery.py:docstring of camcops_server.cc_modules.celery.uniform:9:
+# undefined label: random-quick-start
+from numpy import random
 
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
@@ -140,25 +149,35 @@ CELERY_APP_NAME = "camcops_server.cc_modules"
 
 CELERY_TASK_MODULE_NAME = CELERY_APP_NAME + ".celery"
 
+CELERY_SOFT_TIME_LIMIT_SEC = 300.0
 MAX_RETRIES = 10
-CELERY_SOFT_TIME_LIMIT_SEC = 300
+RETRY_MIN_DELAY_S = 5.0
+RETRY_MAX_DELAY_S = 60.0
 
 
 # =============================================================================
 # Configuration
 # =============================================================================
 
-register("json", json_encode, json_decode,
-         content_type='application/json',
-         content_encoding='utf-8')
+register(
+    "json",
+    json_encode,
+    json_decode,
+    content_type="application/json",
+    content_encoding="utf-8",
+)
 
 
 def get_celery_settings_dict() -> Dict[str, Any]:
+    """
+    Returns a dictionary of settings to configure Celery.
+    """
     log.debug("Configuring Celery")
     from camcops_server.cc_modules.cc_config import (
         CrontabEntry,
         get_default_config_from_os_env,
     )  # delayed import
+
     config = get_default_config_from_os_env()
 
     # -------------------------------------------------------------------------
@@ -172,12 +191,15 @@ def get_celery_settings_dict() -> Dict[str, Any]:
     for crontab_entry in config.crontab_entries:
         recipient_name = crontab_entry.content
         schedule_name = f"export_to_{recipient_name}"
-        log.info("Adding regular export job {}: crontab: {}",
-                 schedule_name, crontab_entry)
+        log.debug(
+            "Adding regular export job {}: crontab: {}",
+            schedule_name,
+            crontab_entry,
+        )
         schedule[schedule_name] = {
             "task": CELERY_TASK_MODULE_NAME + ".export_to_recipient_backend",
             "schedule": crontab_entry.get_celery_schedule(),
-            "args": (recipient_name, ),
+            "args": (recipient_name,),
         }
 
     # -------------------------------------------------------------------------
@@ -198,9 +220,10 @@ def get_celery_settings_dict() -> Dict[str, Any]:
         "timezone": config.schedule_timezone,
         "task_annotations": {
             "camcops_server.cc_modules.celery.export_task_backend": {
-                "rate_limit": config.celery_export_task_rate_limit,
+                "rate_limit": config.celery_export_task_rate_limit
             }
         },
+        # "worker_log_color": True,  # true by default for consoles anyway
     }
 
 
@@ -213,7 +236,7 @@ celery_app.add_defaults(get_celery_settings_dict())
 # celery_app.autodiscover_tasks([CELERY_APP_NAME],
 #                               related_name=CELERY_TASKS_MODULE)
 
-_ = '''
+_ = """
 
 @celery_app.on_configure.connect
 def _app_on_configure(**kwargs) -> None:
@@ -224,12 +247,13 @@ def _app_on_configure(**kwargs) -> None:
 def _app_on_after_configure(**kwargs) -> None:
     log.critical("@celery_app.on_after_configure: {!r}", kwargs)
 
-'''
+"""
 
 
 # =============================================================================
 # Test tasks
 # =============================================================================
+
 
 @celery_app.task(bind=True)
 def debug_task(self) -> None:
@@ -270,7 +294,8 @@ def debug_task_add(a: float, b: float) -> float:
 # Exponential backoff
 # =============================================================================
 
-def backoff(attempts: int) -> int:
+
+def backoff_delay_s(attempts: int) -> float:
     """
     Return a backoff delay, in seconds, given a number of attempts.
 
@@ -280,18 +305,66 @@ def backoff(attempts: int) -> int:
     As per https://blog.balthazar-rouberol.com/celery-best-practices.
 
     """
-    return 2 ** attempts
+    return 2.0**attempts
+
+
+def jittered_delay_s() -> float:
+    """
+    Returns a retry delay, in seconds, that is jittered.
+    """
+    return random.uniform(RETRY_MIN_DELAY_S, RETRY_MAX_DELAY_S)
+
+
+@contextmanager
+def retry_backoff_if_raises(self: "CeleryTask") -> None:
+    """
+    Context manager to retry a Celery task if an exception is raised, using a
+    "backoff" method.
+    """
+    try:
+        yield
+    except Exception as exc:
+        delay_s = backoff_delay_s(self.request.retries)
+        log.error(
+            "Task failed. Backing off. Will retry after {} s. "
+            "Error was:\n{}",
+            delay_s,
+            exc,
+        )
+        self.retry(countdown=delay_s, exc=exc)
+
+
+@contextmanager
+def retry_jitter_if_raises(self: "CeleryTask") -> None:
+    """
+    Context manager to retry a Celery task if an exception is raised, using a
+    "jittered delay" method.
+    """
+    try:
+        yield
+    except Exception as exc:
+        delay_s = jittered_delay_s()
+        log.error(
+            "Task failed. Will retry after jittered delay: {} s. "
+            "Error was:\n{}",
+            delay_s,
+            exc,
+        )
+        self.retry(countdown=delay_s, exc=exc)
 
 
 # =============================================================================
 # Controlling tasks
 # =============================================================================
 
+
 def purge_jobs() -> None:
     """
     Purge all jobs from the Celery queue.
     """
+    log.info("Purging back-end (Celery) jobs")
     celery_app.control.purge()
+    log.info("... purged.")
 
 
 # =============================================================================
@@ -309,17 +382,21 @@ def purge_jobs() -> None:
 # Export tasks
 # =============================================================================
 
-@celery_app.task(bind=True,
-                 ignore_result=True,
-                 max_retries=MAX_RETRIES,
-                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
-def export_task_backend(self: "CeleryTask",
-                        recipient_name: str,
-                        basetable: str,
-                        task_pk: int) -> None:
+
+@celery_app.task(
+    bind=True,
+    ignore_result=True,
+    max_retries=MAX_RETRIES,
+    soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC,
+)
+def export_task_backend(
+    self: "CeleryTask", recipient_name: str, basetable: str, task_pk: int
+) -> None:
     """
     This function exports a single task but does so with only simple (string,
     integer) information, so it can be called via the Celery task queue.
+
+    - Calls :func:`camcops_server.cc_modules.cc_export.export_task`.
 
     Args:
         self: the Celery task, :class:`celery.app.task.Task`
@@ -327,35 +404,47 @@ def export_task_backend(self: "CeleryTask",
         basetable: name of the task's base table
         task_pk: server PK of the task
     """
-    from camcops_server.cc_modules.cc_export import export_task  # delayed import  # noqa
-    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_export import (
+        export_task,
+    )  # delayed import
+    from camcops_server.cc_modules.cc_request import (
+        command_line_request_context,
+    )  # delayed import
     from camcops_server.cc_modules.cc_taskfactory import (
         task_factory_no_security_checks,
     )  # delayed import
 
-    try:
+    with retry_backoff_if_raises(self):
         with command_line_request_context() as req:
             recipient = req.get_export_recipient(recipient_name)
-            task = task_factory_no_security_checks(req.dbsession,
-                                                   basetable, task_pk)
+            task = task_factory_no_security_checks(
+                req.dbsession, basetable, task_pk
+            )
             if task is None:
                 log.error(
-                    "export_task_backend for recipient {!r}: No task found "
-                    "for {} {}", recipient_name, basetable, task_pk)
+                    "export_task_backend for recipient {!r}: No task "
+                    "found for {} {}",
+                    recipient_name,
+                    basetable,
+                    task_pk,
+                )
                 return
             export_task(req, recipient, task)
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
-@celery_app.task(bind=True,
-                 ignore_result=True,
-                 max_retries=MAX_RETRIES,
-                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
-def export_to_recipient_backend(self: "CeleryTask",
-                                recipient_name: str) -> None:
+@celery_app.task(
+    bind=True,
+    ignore_result=True,
+    max_retries=MAX_RETRIES,
+    soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC,
+)
+def export_to_recipient_backend(
+    self: "CeleryTask", recipient_name: str
+) -> None:
     """
     From the backend, exports all pending tasks for a given recipient.
+
+    - Calls :func:`camcops_server.cc_modules.cc_export.export`.
 
     There are two ways of doing this, when we call
     :func:`camcops_server.cc_modules.cc_export.export`. If we set
@@ -380,24 +469,31 @@ def export_to_recipient_backend(self: "CeleryTask",
         self: the Celery task, :class:`celery.app.task.Task`
         recipient_name: export recipient name (as per the config file)
     """
-    from camcops_server.cc_modules.cc_export import export  # delayed import  # noqa
-    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_export import export  # delayed import
+    from camcops_server.cc_modules.cc_request import (
+        command_line_request_context,
+    )  # delayed import
 
-    try:
+    with retry_backoff_if_raises(self):
         with command_line_request_context() as req:
-            export(req, recipient_names=[recipient_name],
-                   schedule_via_backend=True)
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
+            export(
+                req,
+                recipient_names=[recipient_name],
+                schedule_via_backend=True,
+            )
 
 
-@celery_app.task(bind=True,
-                 ignore_result=True,
-                 max_retries=MAX_RETRIES,
-                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
-def email_basic_dump(self: "CeleryTask",
-                     collection: "TaskCollection",
-                     options: "DownloadOptions") -> None:
+@celery_app.task(
+    bind=True,
+    ignore_result=True,
+    max_retries=MAX_RETRIES,
+    soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC,
+)
+def email_basic_dump(
+    self: "CeleryTask",
+    collection: "TaskCollection",
+    options: "DownloadOptions",
+) -> None:
     """
     Send a research dump to the user via e-mail.
 
@@ -411,31 +507,34 @@ def email_basic_dump(self: "CeleryTask",
             :class:`camcops_server.cc_modules.cc_export.DownloadOptions`
             governing the download
     """
-    from camcops_server.cc_modules.cc_export import make_exporter  # delayed import  # noqa
-    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_export import (
+        make_exporter,
+    )  # delayed import
+    from camcops_server.cc_modules.cc_request import (
+        command_line_request_context,
+    )  # delayed import
 
-    try:
+    with retry_backoff_if_raises(self):
         # Create request for a specific user, so the auditing is correct.
         with command_line_request_context(user_id=options.user_id) as req:
             collection.set_request(req)
             exporter = make_exporter(
-                req=req,
-                collection=collection,
-                options=options
+                req=req, collection=collection, options=options
             )
             exporter.send_by_email()
 
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
-
-@celery_app.task(bind=True,
-                 ignore_result=True,
-                 max_retries=MAX_RETRIES,
-                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
-def create_user_download(self: "CeleryTask",
-                         collection: "TaskCollection",
-                         options: "DownloadOptions") -> None:
+@celery_app.task(
+    bind=True,
+    ignore_result=True,
+    max_retries=MAX_RETRIES,
+    soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC,
+)
+def create_user_download(
+    self: "CeleryTask",
+    collection: "TaskCollection",
+    options: "DownloadOptions",
+) -> None:
     """
     Create a research dump file for the user to download later.
     Let them know by e-mail.
@@ -450,27 +549,27 @@ def create_user_download(self: "CeleryTask",
             :class:`camcops_server.cc_modules.cc_export.DownloadOptions`
             governing the download
     """
-    from camcops_server.cc_modules.cc_export import make_exporter  # delayed import  # noqa
-    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_export import (
+        make_exporter,
+    )  # delayed import
+    from camcops_server.cc_modules.cc_request import (
+        command_line_request_context,
+    )  # delayed import
 
-    try:
+    with retry_backoff_if_raises(self):
         # Create request for a specific user, so the auditing is correct.
         with command_line_request_context(user_id=options.user_id) as req:
             collection.set_request(req)
             exporter = make_exporter(
-                req=req,
-                collection=collection,
-                options=options
+                req=req, collection=collection, options=options
             )
             exporter.create_user_download_and_email()
-
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
 # =============================================================================
 # Housekeeping
 # =============================================================================
+
 
 def delete_old_user_downloads(req: "CamcopsRequest") -> None:
     """
@@ -479,7 +578,9 @@ def delete_old_user_downloads(req: "CamcopsRequest") -> None:
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
     """
-    from camcops_server.cc_modules.cc_export import UserDownloadFile  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_export import (
+        UserDownloadFile,
+    )  # delayed import
 
     now = req.now
     lifetime = req.user_download_lifetime_duration
@@ -492,9 +593,9 @@ def delete_old_user_downloads(req: "CamcopsRequest") -> None:
                 udf.delete()
 
 
-@celery_app.task(bind=False,
-                 ignore_result=True,
-                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
+@celery_app.task(
+    bind=False, ignore_result=True, soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC
+)
 def housekeeping() -> None:
     """
     Function that is run regularly to do cleanup tasks.
@@ -504,8 +605,12 @@ def housekeeping() -> None:
     Celery task. We don't need it here. See
     https://docs.celeryproject.org/en/latest/userguide/tasks.html#bound-tasks.)
     """
-    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
-    from camcops_server.cc_modules.cc_session import CamcopsSession  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_request import (
+        command_line_request_context,
+    )  # delayed import
+    from camcops_server.cc_modules.cc_session import (
+        CamcopsSession,
+    )  # delayed import
     from camcops_server.cc_modules.cc_user import (
         SecurityAccountLockout,
         SecurityLoginFailure,

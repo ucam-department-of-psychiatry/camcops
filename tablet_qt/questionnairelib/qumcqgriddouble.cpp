@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qumcqgriddouble.h"
@@ -30,7 +31,9 @@
 QuMcqGridDouble::QuMcqGridDouble(
         const QVector<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& options1,
-        const NameValueOptions& options2) :
+        const NameValueOptions& options2,
+        QObject* parent) :
+    QuElement(parent),
     m_questions_with_fields(questions_with_fields),
     m_options1(options1),
     m_options2(options2),
@@ -155,7 +158,7 @@ void QuMcqGridDouble::addOptions(GridLayout* grid, const int row)
         const NameValueOptions& opts = first_field ? m_options1 : m_options2;
         for (int i = 0; i < opts.size(); ++i) {
             mcqfunc::addOption(grid, row, colnum(first_field, i),
-                                   opts.atIndex(i).name());
+                                   opts.atPosition(i).name());
         }
     }
 }

@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_device_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -34,10 +35,12 @@ from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 # Unit tests
 # =============================================================================
 
+
 class DeviceTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+
     def test_device(self) -> None:
         self.announce("test_device")
         q = self.dbsession.query(Device)

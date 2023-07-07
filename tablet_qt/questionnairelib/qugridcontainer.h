@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -30,23 +31,29 @@ class QuGridContainer : public QuElement
     Q_OBJECT
 public:
     // Default constructor, so it can live in a QVector
-    QuGridContainer();
+    QuGridContainer(QObject* parent = nullptr);
 
     // Initialize with the high-precision QuGridCell:
-    QuGridContainer(const QVector<QuGridCell>& cells);
-    QuGridContainer(std::initializer_list<QuGridCell> cells);
+    QuGridContainer(const QVector<QuGridCell>& cells,
+                    QObject* parent = nullptr);
+    QuGridContainer(std::initializer_list<QuGridCell> cells,
+                    QObject* parent = nullptr);
 
     // Initialize with a simple "n columns" format. Elements will be assigned
     // to each row, cycling around to the next row once n_columns has been
     // reached.
     QuGridContainer(int n_columns, const QVector<QuElementPtr>& elements,
-                    bool override_element_alignment = true);
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);
     QuGridContainer(int n_columns, const QVector<QuElement*>& elements,
-                    bool override_element_alignment = true);
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);
     QuGridContainer(int n_columns, std::initializer_list<QuElementPtr> elements,
-                    bool override_element_alignment = true);
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);
     QuGridContainer(int n_columns, std::initializer_list<QuElement*> elements,
-                    bool override_element_alignment = true);  // takes ownership
+                    bool override_element_alignment = true,
+                    QObject* parent = nullptr);  // takes ownership
 
     // Add an individual cell.
     QuGridContainer* addCell(const QuGridCell& cell);
@@ -57,6 +64,7 @@ public:
     // See top of .cpp file for discussion.
     QuGridContainer* setColumnStretch(int column, int stretch);
 
+    QuGridContainer* setColumnMinimumWidthInPixels(int column, int width);
     // Set "fixed grid" mode.
     // - In "fixed grid" mode, grid columns have equal width, unless specified;
     //   widgets are told to expand right as required. That is:
@@ -85,6 +93,7 @@ protected:
 protected:
     QVector<QuGridCell> m_cells;  // our cells
     QMap<int, int> m_column_stretch;  // maps column_index to relative_width
+    QMap<int, int> m_column_minimum_width_in_pixels;  // maps column_index to minimum width in pixels
     bool m_expand;  // expand horizontally?
     bool m_fixed_grid;  // columns of equal width (unless specified), as above?
 

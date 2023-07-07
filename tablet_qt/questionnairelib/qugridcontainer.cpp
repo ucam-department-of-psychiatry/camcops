@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_GRID_CREATION
@@ -97,13 +98,15 @@ What does not work properly:
 */
 
 
-QuGridContainer::QuGridContainer() :
-    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
+QuGridContainer::QuGridContainer(QObject* parent) :
+    QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
 }
 
 
-QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells) :
+QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells,
+                                 QObject* parent) :
+    QuElement(parent),
     m_cells(cells),
     m_expand(true),
     m_fixed_grid(true)
@@ -112,8 +115,9 @@ QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells) :
 }
 
 
-QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells) :
-    QuGridContainer(QVector<QuGridCell>(cells))  // delegating constructor
+QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells,
+                                 QObject* parent) :
+    QuGridContainer(QVector<QuGridCell>(cells), parent)  // delegating constructor
 {
 }
 
@@ -141,8 +145,9 @@ void constructFromElementList(const int n_columns,
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  const QVector<QuElementPtr>& elements,
-                                 const bool override_element_alignment) :
-    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
+                                 const bool override_element_alignment,
+                                 QObject* parent) :
+    QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
@@ -151,8 +156,9 @@ QuGridContainer::QuGridContainer(const int n_columns,
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  const QVector<QuElement*>& elements,
-                                 const bool override_element_alignment) :
-    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
+                                 const bool override_element_alignment,
+                                 QObject* parent) :
+    QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
@@ -161,8 +167,9 @@ QuGridContainer::QuGridContainer(const int n_columns,
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  std::initializer_list<QuElementPtr> elements,
-                                 const bool override_element_alignment) :
-    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
+                                 const bool override_element_alignment,
+                                 QObject* parent) :
+    QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
@@ -171,8 +178,9 @@ QuGridContainer::QuGridContainer(const int n_columns,
 
 QuGridContainer::QuGridContainer(const int n_columns,
                                  std::initializer_list<QuElement*> elements,
-                                 const bool override_element_alignment) :
-    QuGridContainer(QVector<QuGridCell>())  // delegating constructor
+                                 const bool override_element_alignment,
+                                 QObject* parent) :
+    QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
     constructFromElementList(n_columns, elements, override_element_alignment,
                              m_cells);
@@ -193,6 +201,12 @@ QuGridContainer* QuGridContainer::setColumnStretch(
     return this;
 }
 
+QuGridContainer* QuGridContainer::setColumnMinimumWidthInPixels(
+        const int column, const int width)
+{
+    m_column_minimum_width_in_pixels[column] = width;
+    return this;
+}
 
 QuGridContainer* QuGridContainer::setFixedGrid(const bool fixed_grid)
 {
@@ -272,16 +286,28 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         grid->addWidget(w, c.row, c.column,
                         c.row_span, c.column_span, alignment);
     }
-    QMapIterator<int, int> it(m_column_stretch);
-    while (it.hasNext()) {
-        it.next();
-        const int column = it.key();
-        const int stretch = it.value();
+    QMapIterator<int, int> stretch_it(m_column_stretch);
+    while (stretch_it.hasNext()) {
+        stretch_it.next();
+        const int column = stretch_it.key();
+        const int stretch = stretch_it.value();
 #ifdef DEBUG_GRID_CREATION
         qDebug().nospace() << "... setColumnStretch(" << column
                            << "," << stretch << ")";
 #endif
         grid->setColumnStretch(column, stretch);
+    }
+
+    QMapIterator<int, int> width_it(m_column_minimum_width_in_pixels);
+    while (width_it.hasNext()) {
+        width_it.next();
+        const int column = width_it.key();
+        const int width = width_it.value();
+#ifdef DEBUG_GRID_CREATION
+        qDebug().nospace() << "... setMinimumWidthInPixels(" << column
+                           << "," << width << ")";
+#endif
+        grid->setColumnMinimumWidth(column, width);
     }
 
     return widget;
@@ -303,6 +329,7 @@ QDebug operator<<(QDebug debug, const QuGridContainer& grid)
     debug.nospace()
             << "QuGridContainer(m_cells=" << grid.m_cells
             << ", m_column_stretch=" << grid.m_column_stretch
+            << ", m_column_minimum_width_in_pixels=" << grid.m_column_minimum_width_in_pixels
             << ", m_expand=" << grid.m_expand
             << ", m_fixed_grid=" << grid.m_fixed_grid;
     return debug;

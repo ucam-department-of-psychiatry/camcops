@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_export_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -26,22 +27,18 @@ camcops_server/cc_modules/tests/cc_export_tests.py
 
 """
 
-# import logging
 from os.path import join
 from pathlib import Path
 import tempfile
 import unittest
 
-from camcops_server.cc_modules.cc_export import (
-    UserDownloadFile,
-)
-
-# log = logging.getLogger(__name__)
+from camcops_server.cc_modules.cc_export import UserDownloadFile
 
 
 # =============================================================================
 # Unit tests
 # =============================================================================
+
 
 class ExportTests(unittest.TestCase):
     """
@@ -68,8 +65,7 @@ class ExportTests(unittest.TestCase):
             danger_file = danger_dir / danger_filename
             danger_file.touch()
 
-            # log.critical(f"Top directory for test: {tmpdirname}")
-            # import pdb; pdb.set_trace()
+            # log.debug(f"Top directory for test: {tmpdirname}")
 
             ok = UserDownloadFile(safe_filename, str(safe_dir))
             self.assertEqual(ok.exists, True)

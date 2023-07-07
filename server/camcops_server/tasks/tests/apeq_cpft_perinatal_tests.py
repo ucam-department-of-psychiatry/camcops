@@ -5,7 +5,8 @@ camcops_server/tasks/tests/apeq_cpft_perinatal_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,6 +42,7 @@ from camcops_server.tasks.apeq_cpft_perinatal import (
 # Unit tests
 # =============================================================================
 
+
 class APEQCPFTPerinatalReportTestCase(BasicDatabaseTestCase):
     COL_Q = 0
     COL_TOTAL = 1
@@ -69,17 +71,19 @@ class APEQCPFTPerinatalReportTestCase(BasicDatabaseTestCase):
             yield i
             i += 1
 
-    def create_task(self,
-                    q1: Optional[int],
-                    q2: Optional[int],
-                    q3: Optional[int],
-                    q4: Optional[int],
-                    q5: Optional[int],
-                    q6: Optional[int],
-                    ff_rating: int,
-                    ff_why: str = None,
-                    comments: str = None,
-                    era: str = None) -> None:
+    def create_task(
+        self,
+        q1: Optional[int],
+        q2: Optional[int],
+        q3: Optional[int],
+        q4: Optional[int],
+        q5: Optional[int],
+        q6: Optional[int],
+        ff_rating: int,
+        ff_why: str = None,
+        comments: str = None,
+        era: str = None,
+    ) -> None:
         task = APEQCPFTPerinatal()
         self.apply_standard_task_fields(task)
         task.id = next(self.id_sequence)
@@ -132,8 +136,9 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         """
         #                q1 q2 q3 q4 q5 q6 ff
         self.create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
-        self.create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
-                         comments="comments_2")
+        self.create_task(
+            0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2", comments="comments_2"
+        )
         self.create_task(0, 1, 1, 1, 2, 2, 5)
         self.create_task(0, 1, 1, 1, 2, 2, 5)
         self.create_task(0, 1, 1, 1, 2, 2, 5, comments="comments_5")
@@ -202,8 +207,7 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         self.assertEqual(percentages, expected_ff)
 
     def test_ff_rows_formatted(self) -> None:
-        expected_ff = [20, "25.0%", "10.0%", "15.0%",
-                       "10.0%", "5.0%", "35.0%"]
+        expected_ff = [20, "25.0%", "10.0%", "15.0%", "10.0%", "5.0%", "35.0%"]
 
         ff_rows = self.report._get_ff_rows(self.req, cell_format="{0:.1f}%")
 
@@ -226,35 +230,73 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         self.assertEqual(ff_why_rows, expected_reasons)
 
     def test_comments(self) -> None:
-        expected_comments = [
-            "comments_2", "comments_5", "comments_20",
-        ]
+        expected_comments = ["comments_2", "comments_5", "comments_20"]
         comments = self.report._get_comments(self.req)
         self.assertEqual(comments, expected_comments)
 
 
 class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
     def create_tasks(self) -> None:
-        self.create_task(1, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 1",
-                         comments="comments 1",
-                         era="2018-10-01T00:00:00.000000+00:00")
-        self.create_task(0, 0, 0, 0, 0, 0, 2,
-                         ff_why="ff why 2",
-                         comments="comments 2",
-                         era="2018-10-02T00:00:00.000000+00:00")
-        self.create_task(0, 0, 0, 0, 0, 0, 2,
-                         ff_why="ff why 3",
-                         comments="comments 3",
-                         era="2018-10-03T00:00:00.000000+00:00")
-        self.create_task(0, 0, 0, 0, 0, 0, 2,
-                         ff_why="ff why 4",
-                         comments="comments 4",
-                         era="2018-10-04T00:00:00.000000+00:00")
-        self.create_task(1, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 5",
-                         comments="comments 5",
-                         era="2018-10-05T00:00:00.000000+00:00")
+        self.create_task(
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            ff_why="ff why 1",
+            comments="comments 1",
+            era="2018-10-01T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            ff_why="ff why 2",
+            comments="comments 2",
+            era="2018-10-02T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            ff_why="ff why 3",
+            comments="comments 3",
+            era="2018-10-03T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            ff_why="ff why 4",
+            comments="comments 4",
+            era="2018-10-04T00:00:00.000000+00:00",
+        )
+        self.create_task(
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            ff_why="ff why 5",
+            comments="comments 5",
+            era="2018-10-05T00:00:00.000000+00:00",
+        )
         self.dbsession.commit()
 
     def test_main_rows_filtered_by_date(self) -> None:

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_ICON_LOAD
@@ -932,12 +933,17 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     return size;
 }
 
+
+QScreen* screen()
+{
+    return QGuiApplication::primaryScreen();
+}
+
+
 QRect screenGeometry()
 {
     // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
-    QScreen* screen = QGuiApplication::primaryScreen();
-
-    return screen->geometry();
+    return screen()->geometry();
 }
 
 int screenWidth()
@@ -948,6 +954,11 @@ int screenWidth()
 int screenHeight()
 {
     return screenGeometry().height();
+}
+
+qreal screenDpi()
+{
+    return screen()->logicalDotsPerInch();
 }
 
 

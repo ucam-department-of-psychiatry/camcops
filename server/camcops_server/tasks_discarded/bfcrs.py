@@ -5,7 +5,8 @@ camcops_server/tasks_discarded/bfcrs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -120,8 +121,8 @@ class Bfcrs(TaskHasPatientMixin, Task,
         for q in self.TASK_FIELDS:
             d = {None: "?"}
             for option in range(0, 5):
-                if (option != 0 and option != 3) and q in ["q17", "q18", "q19",
-                                                           "q20", "q21"]:
+                if (option != 0 and option != 3) and q in ("q17", "q18", "q19",
+                                                           "q20", "q21"):
                     continue
                 d[option] = self.wxstring(req, q + "_option" + str(option))
             answer_dicts_dict[q] = d

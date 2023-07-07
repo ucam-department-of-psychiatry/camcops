@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 /*
@@ -85,6 +86,7 @@ using graphicsfunc::SvgWidgetAndProxy;
 using mathfunc::distribute;
 using mathfunc::gridDimensions;
 using mathfunc::rep;
+
 
 // ============================================================================
 // Constants
@@ -833,8 +835,8 @@ QVector<QPointF> IDED3D::stimCentres(const int n) const
             QVector<qreal> bottomy = rep(tempy.at(1), nbottom);
             x = topx + bottomx;
             y = topy + bottomy;
+            break;
         }
-        break;
 
     // something wrong:
     default:
@@ -1141,9 +1143,11 @@ void IDED3D::showAnswer(bool correct)
     m_scene->addRect(ANSWER_BACKDROP_RECT, QPen(Qt::NoPen), QBrush(colour));
     makeText(m_scene, SCENE_CENTRE, BASE_TEXT_CONFIG, text);
     if (correct) {
-        m_player_correct->play();  // on completion will go to mediaStatusChanged()
+        m_player_correct->play();
+        // on completion will go to mediaStatusChanged()
     } else {
-        m_player_incorrect->play();  // on completion will go to mediaStatusChanged()
+        m_player_incorrect->play();
+        // on completion will go to mediaStatusChanged()
     }
 }
 

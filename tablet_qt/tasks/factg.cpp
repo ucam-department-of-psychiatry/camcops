@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // By Joe Kearney, Rudolf Cardinal.
@@ -66,7 +67,7 @@ const int MAX_SCORE_SOCIAL = 28;
 const int MAX_SCORE_EMOTIONAL = 24;
 const int MAX_SCORE_FUNCTIONAL = 28;
 
-const int MAX_SCORE =    MAX_SCORE_PHYSICAL
+const int MAX_QUESTION_SCORE =    MAX_SCORE_PHYSICAL
                        + MAX_SCORE_SOCIAL
                        + MAX_SCORE_EMOTIONAL
                        + MAX_SCORE_FUNCTIONAL;
@@ -231,7 +232,7 @@ Factg::FactgScore Factg::getScores() const
 QStringList Factg::summary() const
 {
     FactgScore s = getScores();
-    return QStringList{totalScorePhrase(s.total(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(s.total(), MAX_QUESTION_SCORE)};
 }
 
 
@@ -240,7 +241,7 @@ QStringList Factg::detail() const
     FactgScore s = getScores();
 
     QStringList lines{
-        totalScorePhrase(s.total(), MAX_SCORE),
+        totalScorePhrase(s.total(), MAX_QUESTION_SCORE),
         scorePhrase(SUBTITLE_PHYSICAL, s.score_phys,
                     MAX_SCORE_PHYSICAL),
         scorePhrase(SUBTITLE_SOCIAL, s.score_soc,

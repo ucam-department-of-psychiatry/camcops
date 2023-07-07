@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -46,7 +47,8 @@ public:
     //   std::bind(&MyClass::myFunc, this, "someparam")
 
     // Constructor: display text label
-    QuButton(const QString& label, const CallbackFunction& callback);
+    QuButton(const QString& label, const CallbackFunction& callback,
+             QObject* parent = nullptr);
 
     // Constructor: display icon.
     // Args:
@@ -60,7 +62,8 @@ public:
     //  callback
     //      the callback function
     QuButton(const QString& icon_filename, bool filename_is_camcops_stem,
-             bool alter_unpressed_image, const CallbackFunction& callback);
+             bool alter_unpressed_image, const CallbackFunction& callback,
+             QObject* parent = nullptr);
 
     // Should the button respond, or just sit there unresponsive?
     // (It will also be inactive in read-only questionnaires, but this allows

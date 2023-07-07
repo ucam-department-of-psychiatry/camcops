@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0054_gmcpq_sex_choices.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -46,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0054'
-down_revision = '0053'
+revision = "0054"
+down_revision = "0053"
 branch_labels = None
 depends_on = None
 
@@ -58,23 +59,23 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('gmcpq', schema=None) as batch_op:
+    with op.batch_alter_table("gmcpq", schema=None) as batch_op:
         batch_op.alter_column(
-            'q10',
+            "q10",
             existing_type=sa.String(length=1),
-            comment='Sex of rater (M, F, X)',
-            existing_comment='Sex of rater (M, F)',
-            existing_nullable=True
+            comment="Sex of rater (M, F, X)",
+            existing_comment="Sex of rater (M, F)",
+            existing_nullable=True,
         )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('gmcpq', schema=None) as batch_op:
+    with op.batch_alter_table("gmcpq", schema=None) as batch_op:
         batch_op.alter_column(
-            'q10',
+            "q10",
             existing_type=sa.String(length=1),
-            comment='Sex of rater (M, F)',
-            existing_comment='Sex of rater (M, F, X)',
-            existing_nullable=True
+            comment="Sex of rater (M, F)",
+            existing_comment="Sex of rater (M, F, X)",
+            existing_nullable=True,
         )

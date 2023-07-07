@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -52,7 +53,7 @@ class QuMcqGrid : public QuElement
 public:
     // Constructor
     QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
-              const NameValueOptions& options);
+              const NameValueOptions& options, QObject* parent = nullptr);
 
     // Destructor
     virtual ~QuMcqGrid() override;
@@ -60,7 +61,11 @@ public:
     // Set widths:
     // - question_width: relative width of question column
     // - option_widths: relative widths of option columns
+    // This is what Qt calls "stretch". Columns with a higher stretch factor
+    // take more of the available space.
     QuMcqGrid* setWidth(int question_width, const QVector<int>& option_widths);
+
+    QuMcqGrid* setMinimumWidthInPixels(int question_width, const QVector<int>& option_widths);
 
     // Sets the title
     QuMcqGrid* setTitle(const QString& title);
@@ -120,6 +125,8 @@ protected:
     NameValueOptions m_options;  // Name/value pairs for options
     int m_question_width;  // relative width for question column
     QVector<int> m_option_widths;  // relative widths for option columns
+    int m_question_min_width_px;  // minimum width in pixels for question
+    QVector<int> m_option_min_widths_px;  // minimum width in pixels for option columns
     QString m_title;  // title text
     QVector<McqGridSubtitle> m_subtitles;  // subtitle info
     bool m_expand;  // expand our widgets horizontally?

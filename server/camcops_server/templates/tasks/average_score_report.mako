@@ -5,7 +5,8 @@ camcops_server/templates/tasks/average_score_report.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -26,7 +27,7 @@ camcops_server/templates/tasks/average_score_report.mako
 
 </%doc>
 
-## <%page args="title: str, report_id: str, mainpage: TsvPage, datepage: TsvPage"/>
+## <%page args="title: str, report_id: str, mainpage: SpreadsheetPage, datepage: SpreadsheetPage"/>
 
 <%inherit file="report.mako"/>
 

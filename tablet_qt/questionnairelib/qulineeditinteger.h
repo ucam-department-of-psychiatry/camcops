@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -29,19 +30,20 @@ class QuLineEditInteger : public QuLineEdit
 public:
 
     // Constructor for unconstrained numbers
-    QuLineEditInteger(FieldRefPtr fieldref, bool allow_empty = true);
+    QuLineEditInteger(FieldRefPtr fieldref, bool allow_empty = true,
+                      QObject* parent = nullptr);
 
     // Constructor for constrained numbers.
     // - allow_empty: OK to be blank?
     QuLineEditInteger(FieldRefPtr fieldref, int minimum, int maximum,
-                      bool allow_empty = true);
+                      bool allow_empty = true, QObject* parent = nullptr);
 
     // Use StrictIntValidator, not StrictIntValidator?
     QuLineEditInteger* setStrictValidator(bool strict);
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;
 protected:
-    virtual void setDefaultHint();
+    void setDefaultHint();
 protected:
     int m_minimum;  // minimum; may be std::numeric_limits<int>::min()
     int m_maximum;  // maximum; may be std::numeric_limits<int>::max()

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_DROP_TABLES_NOT_EXPLICITLY_CREATED
@@ -886,7 +887,7 @@ void CamcopsApp::maybeRegisterPatient()
 void CamcopsApp::backgroundStartup()
 {
     // WORKER THREAD. BEWARE.
-    const Version& old_version = upgradeDatabaseBeforeTablesMade();
+    const Version old_version = upgradeDatabaseBeforeTablesMade();
     makeOtherTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
     upgradeDatabaseAfterTasksRegistered(old_version);  // AFTER tasks registered
@@ -1512,9 +1513,7 @@ Version CamcopsApp::upgradeDatabaseBeforeTablesMade()
     // ------------------------------------------------------------------------
 
     qInfo() << "System-wide database upgrade steps complete";
-    if (new_version != old_version) {
-        setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
-    }
+    setVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, new_version.toString());
     return old_version;
 }
 

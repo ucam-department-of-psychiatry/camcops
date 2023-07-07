@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_exportrecipient.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -51,6 +52,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
 from camcops_server.cc_modules.cc_constants import (
+    CAMCOPS_DEFAULT_FHIR_APP_ID,
     CONFIG_FILE_SITE_SECTION,
     ConfigDefaults,
     ConfigParamExportRecipient,
@@ -84,15 +86,28 @@ class ExportTransmissionMethod(object):
     """
     Possible export transmission methods.
     """
+
     DATABASE = "database"
     EMAIL = "email"
+    FHIR = "fhir"
     FILE = "file"
     HL7 = "hl7"
     REDCAP = "redcap"
 
 
+NO_PUSH_METHODS = [
+    # Methods that do not support "push" exports (exports on receipt of a new
+    # task).
+    ExportTransmissionMethod.DATABASE,
+    # ... because these are large and it would probably be silly to export a
+    # whole database whenever a new task arrives. (Is there also a locking
+    # problem? Can't remember right now, 2021-11-08.)
+]
+
+
 ALL_TRANSMISSION_METHODS = [
-    v for k, v in vars(ExportTransmissionMethod).items()
+    v
+    for k, v in vars(ExportTransmissionMethod).items()
     if not k.startswith("_")
 ]  # ... the values of all the relevant attributes
 
@@ -103,9 +118,9 @@ class InvalidExportRecipient(ValueError):
     """
     Exception for invalid export recipients.
     """
+
     def __init__(self, recipient_name: str, msg: str) -> None:
-        super().__init__(
-            f"For export recipient [{recipient_name}]: {msg}")
+        super().__init__(f"For export recipient [{recipient_name}]: {msg}")
 
 
 # Internal shorthand:
@@ -116,14 +131,15 @@ class _Missing(_Invalid):
     """
     Exception for missing config parameters
     """
+
     def __init__(self, recipient_name: str, paramname: str) -> None:
-        super().__init__(recipient_name,
-                         f"Missing parameter {paramname}")
+        super().__init__(recipient_name, f"Missing parameter {paramname}")
 
 
 # =============================================================================
 # ExportRecipientInfo class
 # =============================================================================
+
 
 class ExportRecipientInfo(object):
     """
@@ -136,9 +152,12 @@ class ExportRecipientInfo(object):
 
     Full details of parameters are in the docs for the config file.
     """
+
     IGNORE_FOR_EQ_ATTRNAMES = [
         # Attribute names to ignore for equality comparison
         "email_host_password",
+        "fhir_app_secret",
+        "fhir_launch_token",
         "redcap_api_key",
     ]
 
@@ -160,7 +179,9 @@ class ExportRecipientInfo(object):
         # What to export
 
         self.all_groups = cd.ALL_GROUPS
-        self.group_names = []  # type: List[str]  # not in database; see group_ids  # noqa
+        self.group_names = (
+            []
+        )  # type: List[str]  # not in database; see group_ids
         self.group_ids = []  # type: List[int]
         self.tasks = []  # type: List[str]
         self.start_datetime_utc = None  # type: Optional[datetime.datetime]
@@ -168,7 +189,9 @@ class ExportRecipientInfo(object):
         self.finalized_only = cd.FINALIZED_ONLY
         self.include_anonymous = cd.INCLUDE_ANONYMOUS
         self.primary_idnum = None  # type: Optional[int]
-        self.require_idnum_mandatory = cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY  # noqa
+        self.require_idnum_mandatory = (
+            cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
+        )
 
         # Database
 
@@ -207,7 +230,9 @@ class ExportRecipientInfo(object):
         self.hl7_keep_message = cd.HL7_KEEP_MESSAGE
         self.hl7_keep_reply = cd.HL7_KEEP_REPLY
         self.hl7_debug_divert_to_file = cd.HL7_DEBUG_DIVERT_TO_FILE
-        self.hl7_debug_treat_diverted_as_sent = cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT  # noqa
+        self.hl7_debug_treat_diverted_as_sent = (
+            cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT
+        )
 
         # File
 
@@ -231,6 +256,14 @@ class ExportRecipientInfo(object):
         self.redcap_api_url = ""
         self.redcap_fieldmap_filename = ""
 
+        # FHIR
+
+        self.fhir_app_id = ""
+        self.fhir_api_url = ""
+        self.fhir_app_secret = ""  # not in database for security
+        self.fhir_launch_token = ""  # not in database for security
+        self.fhir_concurrent = False
+
         # Copy from other?
         if other is not None:
             assert isinstance(other, ExportRecipientInfo)
@@ -244,15 +277,19 @@ class ExportRecipientInfo(object):
         """
         Returns all relevant attribute names.
         """
-        return sorted([key for key in self.__dict__
-                       if not key.startswith('_')])
+        return sorted(
+            [key for key in self.__dict__ if not key.startswith("_")]
+        )
 
     def get_eq_attrnames(self) -> List[str]:
         """
         Returns attribute names to use for equality comparison.
         """
-        return [x for x in self.get_attrnames()
-                if x not in self.IGNORE_FOR_EQ_ATTRNAMES]
+        return [
+            x
+            for x in self.get_attrnames()
+            if x not in self.IGNORE_FOR_EQ_ATTRNAMES
+        ]
 
     def __repr__(self):
         return simple_repr(self, self.get_attrnames())
@@ -269,12 +306,12 @@ class ExportRecipientInfo(object):
             if attrname not in self.IGNORE_FOR_EQ_ATTRNAMES:
                 selfattr = getattr(self, attrname)
                 otherattr = getattr(other, attrname)
-                # log.critical("{}.{}: {} {} {}",
-                #              self.__class__.__name__,
-                #              attrname,
-                #              selfattr,
-                #              "==" if selfattr == otherattr else "!=",
-                #              otherattr)
+                # log.debug("{}.{}: {} {} {}",
+                #           self.__class__.__name__,
+                #           attrname,
+                #           selfattr,
+                #           "==" if selfattr == otherattr else "!=",
+                #           otherattr)
                 if selfattr != otherattr:
                     log.debug(
                         "{}: For {!r}, new export recipient mismatches "
@@ -283,7 +320,8 @@ class ExportRecipientInfo(object):
                         self.recipient_name,
                         attrname,
                         selfattr,
-                        otherattr)
+                        otherattr,
+                    )
                     return False
         return True
 
@@ -320,10 +358,12 @@ class ExportRecipientInfo(object):
         return d
 
     @classmethod
-    def read_from_config(cls,
-                         cfg: "CamcopsConfig",
-                         parser: configparser.ConfigParser,
-                         recipient_name: str) -> "ExportRecipientInfo":
+    def read_from_config(
+        cls,
+        cfg: "CamcopsConfig",
+        parser: configparser.ConfigParser,
+        recipient_name: str,
+    ) -> "ExportRecipientInfo":
         """
         Reads from the config file and writes this instance's attributes.
 
@@ -347,35 +387,44 @@ class ExportRecipientInfo(object):
 
         def _get_str(paramname: str, default: str = None) -> Optional[str]:
             return get_config_parameter(
-                parser, section, paramname, str, default)
+                parser, section, paramname, str, default
+            )
 
         def _get_bool(paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
-                parser, section, paramname, default)
+                parser, section, paramname, default
+            )
 
         def _get_int(paramname: str, default: int = None) -> Optional[int]:
             return get_config_parameter(
-                parser, section, paramname, int, default)
+                parser, section, paramname, int, default
+            )
 
         def _get_multiline(paramname: str) -> List[str]:
             return get_config_parameter_multiline(
-                parser, section, paramname, [])
+                parser, section, paramname, []
+            )
 
-        def _get_site_str(paramname: str,
-                          default: str = None) -> Optional[str]:
+        def _get_site_str(
+            paramname: str, default: str = None
+        ) -> Optional[str]:
             return get_config_parameter(
-                parser, CONFIG_FILE_SITE_SECTION, paramname, str, default)
+                parser, CONFIG_FILE_SITE_SECTION, paramname, str, default
+            )
 
         # noinspection PyUnusedLocal
         def _get_site_bool(paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
-                parser, CONFIG_FILE_SITE_SECTION, paramname, default)
+                parser, CONFIG_FILE_SITE_SECTION, paramname, default
+            )
 
         # noinspection PyUnusedLocal
-        def _get_site_int(paramname: str,
-                          default: int = None) -> Optional[int]:
+        def _get_site_int(
+            paramname: str, default: int = None
+        ) -> Optional[int]:
             return get_config_parameter(
-                parser, CONFIG_FILE_SITE_SECTION, paramname, int, default)
+                parser, CONFIG_FILE_SITE_SECTION, paramname, int, default
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Identity
@@ -393,12 +442,13 @@ class ExportRecipientInfo(object):
                 r.recipient_name,
                 f"Missing/invalid "
                 f"{ConfigParamExportRecipient.TRANSMISSION_METHOD}: "
-                f"{r.transmission_method}"
+                f"{r.transmission_method}",
             )
         r.push = _get_bool(cpr.PUSH, cd.PUSH)
         r.task_format = _get_str(cpr.TASK_FORMAT, cd.TASK_FORMAT)
-        r.xml_field_comments = _get_bool(cpr.XML_FIELD_COMMENTS,
-                                         cd.XML_FIELD_COMMENTS)
+        r.xml_field_comments = _get_bool(
+            cpr.XML_FIELD_COMMENTS, cd.XML_FIELD_COMMENTS
+        )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
@@ -409,18 +459,30 @@ class ExportRecipientInfo(object):
         # ... read later by validate_db_dependent()
         r.tasks = sorted([x.lower() for x in _get_multiline(cpr.TASKS)])
         sd = _get_str(cpr.START_DATETIME_UTC)
-        r.start_datetime_utc = pendulum_to_utc_datetime_without_tz(
-            coerce_to_pendulum(sd, assume_local=False)) if sd else None
+        r.start_datetime_utc = (
+            pendulum_to_utc_datetime_without_tz(
+                coerce_to_pendulum(sd, assume_local=False)
+            )
+            if sd
+            else None
+        )
         ed = _get_str(cpr.END_DATETIME_UTC)
-        r.end_datetime_utc = pendulum_to_utc_datetime_without_tz(
-            coerce_to_pendulum(ed, assume_local=False)) if ed else None
+        r.end_datetime_utc = (
+            pendulum_to_utc_datetime_without_tz(
+                coerce_to_pendulum(ed, assume_local=False)
+            )
+            if ed
+            else None
+        )
         r.finalized_only = _get_bool(cpr.FINALIZED_ONLY, cd.FINALIZED_ONLY)
-        r.include_anonymous = _get_bool(cpr.INCLUDE_ANONYMOUS,
-                                        cd.INCLUDE_ANONYMOUS)
+        r.include_anonymous = _get_bool(
+            cpr.INCLUDE_ANONYMOUS, cd.INCLUDE_ANONYMOUS
+        )
         r.primary_idnum = _get_int(cpr.PRIMARY_IDNUM)
         r.require_idnum_mandatory = _get_bool(
             cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY,
-            cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY)
+            cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY,
+        )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Database
@@ -428,12 +490,15 @@ class ExportRecipientInfo(object):
         if r.transmission_method == ExportTransmissionMethod.DATABASE:
             r.db_url = _get_str(cpr.DB_URL)
             r.db_echo = _get_bool(cpr.DB_ECHO, cd.DB_ECHO)
-            r.db_include_blobs = _get_bool(cpr.DB_INCLUDE_BLOBS,
-                                           cd.DB_INCLUDE_BLOBS)
-            r.db_add_summaries = _get_bool(cpr.DB_ADD_SUMMARIES,
-                                           cd.DB_ADD_SUMMARIES)
-            r.db_patient_id_per_row = _get_bool(cpr.DB_PATIENT_ID_PER_ROW,
-                                                cd.DB_PATIENT_ID_PER_ROW)
+            r.db_include_blobs = _get_bool(
+                cpr.DB_INCLUDE_BLOBS, cd.DB_INCLUDE_BLOBS
+            )
+            r.db_add_summaries = _get_bool(
+                cpr.DB_ADD_SUMMARIES, cd.DB_ADD_SUMMARIES
+            )
+            r.db_patient_id_per_row = _get_bool(
+                cpr.DB_PATIENT_ID_PER_ROW, cd.DB_PATIENT_ID_PER_ROW
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Email
@@ -460,14 +525,18 @@ class ExportRecipientInfo(object):
             r.email_to = _make_email_csv_list(cpr.EMAIL_TO)
             r.email_cc = _make_email_csv_list(cpr.EMAIL_CC)
             r.email_bcc = _make_email_csv_list(cpr.EMAIL_BCC)
-            r.email_patient_spec_if_anonymous = _get_str(cpr.EMAIL_PATIENT_SPEC_IF_ANONYMOUS, "")  # noqa
+            r.email_patient_spec_if_anonymous = _get_str(
+                cpr.EMAIL_PATIENT_SPEC_IF_ANONYMOUS, ""
+            )
             r.email_patient_spec = _get_str(cpr.EMAIL_PATIENT_SPEC, "")
             r.email_subject = _get_str(cpr.EMAIL_SUBJECT, "")
-            r.email_body_as_html = _get_bool(cpr.EMAIL_BODY_IS_HTML,
-                                             cd.EMAIL_BODY_IS_HTML)
+            r.email_body_as_html = _get_bool(
+                cpr.EMAIL_BODY_IS_HTML, cd.EMAIL_BODY_IS_HTML
+            )
             r.email_body = _get_str(cpr.EMAIL_BODY, "")
-            r.email_keep_message = _get_bool(cpr.EMAIL_KEEP_MESSAGE,
-                                             cd.EMAIL_KEEP_MESSAGE)
+            r.email_keep_message = _get_bool(
+                cpr.EMAIL_KEEP_MESSAGE, cd.EMAIL_KEEP_MESSAGE
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # HL7
@@ -475,18 +544,21 @@ class ExportRecipientInfo(object):
         if r.transmission_method == ExportTransmissionMethod.HL7:
             r.hl7_host = _get_str(cpr.HL7_HOST)
             r.hl7_port = _get_int(cpr.HL7_PORT, cd.HL7_PORT)
-            r.hl7_ping_first = _get_bool(cpr.HL7_PING_FIRST,
-                                         cd.HL7_PING_FIRST)
-            r.hl7_network_timeout_ms = _get_int(cpr.HL7_NETWORK_TIMEOUT_MS,
-                                                cd.HL7_NETWORK_TIMEOUT_MS)
-            r.hl7_keep_message = _get_bool(cpr.HL7_KEEP_MESSAGE,
-                                           cd.HL7_KEEP_MESSAGE)
+            r.hl7_ping_first = _get_bool(cpr.HL7_PING_FIRST, cd.HL7_PING_FIRST)
+            r.hl7_network_timeout_ms = _get_int(
+                cpr.HL7_NETWORK_TIMEOUT_MS, cd.HL7_NETWORK_TIMEOUT_MS
+            )
+            r.hl7_keep_message = _get_bool(
+                cpr.HL7_KEEP_MESSAGE, cd.HL7_KEEP_MESSAGE
+            )
             r.hl7_keep_reply = _get_bool(cpr.HL7_KEEP_REPLY, cd.HL7_KEEP_REPLY)
             r.hl7_debug_divert_to_file = _get_bool(
-                cpr.HL7_DEBUG_DIVERT_TO_FILE, cd.HL7_DEBUG_DIVERT_TO_FILE)
+                cpr.HL7_DEBUG_DIVERT_TO_FILE, cd.HL7_DEBUG_DIVERT_TO_FILE
+            )
             r.hl7_debug_treat_diverted_as_sent = _get_bool(
                 cpr.HL7_DEBUG_TREAT_DIVERTED_AS_SENT,
-                cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT)
+                cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT,
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # File
@@ -495,18 +567,22 @@ class ExportRecipientInfo(object):
             r.file_patient_spec = _get_str(cpr.FILE_PATIENT_SPEC)
             r.file_patient_spec_if_anonymous = _get_str(
                 cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS,
-                cd.FILE_PATIENT_SPEC_IF_ANONYMOUS)
+                cd.FILE_PATIENT_SPEC_IF_ANONYMOUS,
+            )
             r.file_filename_spec = _get_str(cpr.FILE_FILENAME_SPEC)
 
         if r._need_file_disk_options():
-            r.file_make_directory = _get_bool(cpr.FILE_MAKE_DIRECTORY,
-                                              cd.FILE_MAKE_DIRECTORY)
-            r.file_overwrite_files = _get_bool(cpr.FILE_OVERWRITE_FILES,
-                                               cd.FILE_OVERWRITE_FILES)
+            r.file_make_directory = _get_bool(
+                cpr.FILE_MAKE_DIRECTORY, cd.FILE_MAKE_DIRECTORY
+            )
+            r.file_overwrite_files = _get_bool(
+                cpr.FILE_OVERWRITE_FILES, cd.FILE_OVERWRITE_FILES
+            )
 
         if r.transmission_method == ExportTransmissionMethod.FILE:
             r.file_export_rio_metadata = _get_bool(
-                cpr.FILE_EXPORT_RIO_METADATA, cd.FILE_EXPORT_RIO_METADATA)
+                cpr.FILE_EXPORT_RIO_METADATA, cd.FILE_EXPORT_RIO_METADATA
+            )
             r.file_script_after_export = _get_str(cpr.FILE_SCRIPT_AFTER_EXPORT)
 
         if r._need_rio_metadata_options():
@@ -522,6 +598,18 @@ class ExportRecipientInfo(object):
             r.redcap_api_url = _get_str(cpr.REDCAP_API_URL)
             r.redcap_api_key = _get_str(cpr.REDCAP_API_KEY)
             r.redcap_fieldmap_filename = _get_str(cpr.REDCAP_FIELDMAP_FILENAME)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # FHIR
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if r.transmission_method == ExportTransmissionMethod.FHIR:
+            r.fhir_api_url = _get_str(cpr.FHIR_API_URL)
+            r.fhir_app_id = _get_str(
+                cpr.FHIR_APP_ID, CAMCOPS_DEFAULT_FHIR_APP_ID
+            )
+            r.fhir_app_secret = _get_str(cpr.FHIR_APP_SECRET)
+            r.fhir_launch_token = _get_str(cpr.FHIR_LAUNCH_TOKEN)
+            r.fhir_concurrent = _get_bool(cpr.FHIR_CONCURRENT, False)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return
@@ -570,7 +658,9 @@ class ExportRecipientInfo(object):
         """
         # noinspection PyUnresolvedReferences
         import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
-        from camcops_server.cc_modules.cc_task import all_task_tablenames  # delayed import # noqa
+        from camcops_server.cc_modules.cc_task import (
+            all_task_tablenames,
+        )  # delayed import
 
         def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)
@@ -587,11 +677,13 @@ class ExportRecipientInfo(object):
         if self.transmission_method not in ALL_TRANSMISSION_METHODS:
             fail_invalid(
                 f"Missing/invalid {cpr.TRANSMISSION_METHOD}: "
-                f"{self.transmission_method}")
-        no_push = [ExportTransmissionMethod.DATABASE]
-        if self.push and self.transmission_method in no_push:
-            fail_invalid(f"Push notifications not supported for these "
-                         f"transmission methods: {no_push!r}")
+                f"{self.transmission_method}"
+            )
+        if self.push and self.transmission_method in NO_PUSH_METHODS:
+            fail_invalid(
+                f"Push notifications not supported for these "
+                f"transmission methods: {NO_PUSH_METHODS!r}"
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
@@ -604,8 +696,10 @@ class ExportRecipientInfo(object):
             if basetable not in all_basetables:
                 fail_invalid(f"Task {basetable!r} doesn't exist")
 
-        if (self.transmission_method == ExportTransmissionMethod.HL7 and
-                not self.primary_idnum):
+        if (
+            self.transmission_method == ExportTransmissionMethod.HL7
+            and not self.primary_idnum
+        ):
             fail_invalid(
                 f"Must specify {cpr.PRIMARY_IDNUM} with "
                 f"{cpr.TRANSMISSION_METHOD} = {ExportTransmissionMethod.HL7}"
@@ -613,7 +707,8 @@ class ExportRecipientInfo(object):
 
         if not self.task_format or self.task_format not in ALL_TASK_FORMATS:
             fail_invalid(
-                f"Missing/invalid {cpr.TASK_FORMAT}: {self.task_format}")
+                f"Missing/invalid {cpr.TASK_FORMAT}: {self.task_format}"
+            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Database
@@ -640,18 +735,21 @@ class ExportRecipientInfo(object):
                 # sendmail doesn't.
                 fail_invalid(
                     f"Only a single 'From:' address permitted; was "
-                    f"{self.email_from!r}")
+                    f"{self.email_from!r}"
+                )
             if not any([self.email_to, self.email_cc, self.email_bcc]):
                 # At least one destination is required (obviously).
                 fail_invalid(
                     f"Must specify some of: {cpr.EMAIL_TO}, {cpr.EMAIL_CC}, "
-                    f"{cpr.EMAIL_BCC}")
+                    f"{cpr.EMAIL_BCC}"
+                )
             if COMMA in self.email_sender:
                 # RFC 5322 permits multiple addresses in From and Reply-To,
                 # but only one in Sender.
                 fail_invalid(
                     f"Only a single 'Sender:' address permitted; was "
-                    f"{self.email_sender!r}")
+                    f"{self.email_sender!r}"
+                )
             if not self.email_subject:
                 # A subject is not obligatory for e-mails in general, but we
                 # will require one for e-mails sent from CamCOPS.
@@ -666,7 +764,8 @@ class ExportRecipientInfo(object):
                     fail_missing(cpr.HL7_HOST)
                 if not self.hl7_port or self.hl7_port <= 0:
                     fail_invalid(
-                        f"Missing/invalid {cpr.HL7_PORT}: {self.hl7_port}")
+                        f"Missing/invalid {cpr.HL7_PORT}: {self.hl7_port}"
+                    )
             if not self.primary_idnum:
                 fail_missing(cpr.PRIMARY_IDNUM)
             if self.include_anonymous:
@@ -686,13 +785,16 @@ class ExportRecipientInfo(object):
 
         if self._need_rio_metadata_options():
             # RiO metadata
-            if (not self.rio_uploading_user or
-                    " " in self.rio_uploading_user or
-                    len(self.rio_uploading_user) > RIO_MAX_USER_LEN):
+            if (
+                not self.rio_uploading_user
+                or " " in self.rio_uploading_user
+                or len(self.rio_uploading_user) > RIO_MAX_USER_LEN
+            ):
                 fail_invalid(
                     f"Missing/invalid {cpr.RIO_UPLOADING_USER}: "
                     f"{self.rio_uploading_user} (must be present, contain no "
-                    f"spaces, and max length {RIO_MAX_USER_LEN})")
+                    f"spaces, and max length {RIO_MAX_USER_LEN})"
+                )
             if not self.rio_document_type:
                 fail_missing(cpr.RIO_DOCUMENT_TYPE)
 
@@ -716,7 +818,7 @@ class ExportRecipientInfo(object):
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
-        from camcops_server.cc_modules.cc_group import Group  # delayed import  # noqa
+        from camcops_server.cc_modules.cc_group import Group  # delayed import
 
         def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)
@@ -752,15 +854,17 @@ class ExportRecipientInfo(object):
         if self.primary_idnum:
             if self.primary_idnum not in valid_which_idnums:
                 fail_invalid(
-                    f"Invalid {cpr.PRIMARY_IDNUM}: {self.primary_idnum}")
+                    f"Invalid {cpr.PRIMARY_IDNUM}: {self.primary_idnum}"
+                )
 
             if self.require_idnum_mandatory:
                 # (a) ID number must be mandatory in finalized records
                 for group in groups:
                     finalize_policy = group.tokenized_finalize_policy()
                     if not finalize_policy.is_idnum_mandatory_in_policy(
-                            which_idnum=self.primary_idnum,
-                            valid_idnums=valid_which_idnums):
+                        which_idnum=self.primary_idnum,
+                        valid_idnums=valid_which_idnums,
+                    ):
                         fail_invalid(
                             f"primary_idnum ({self.primary_idnum}) must be "
                             f"mandatory in finalizing policy, but is not for "
@@ -771,13 +875,15 @@ class ExportRecipientInfo(object):
                         # non-finalized records
                         upload_policy = group.tokenized_upload_policy()
                         if not upload_policy.is_idnum_mandatory_in_policy(
-                                which_idnum=self.primary_idnum,
-                                valid_idnums=valid_which_idnums):
+                            which_idnum=self.primary_idnum,
+                            valid_idnums=valid_which_idnums,
+                        ):
                             fail_invalid(
                                 f"primary_idnum ({self.primary_idnum}) must "
                                 f"be mandatory in upload policy (because "
                                 f"{cpr.FINALIZED_ONLY} is false), but is not "
-                                f"for group {group}")
+                                f"for group {group}"
+                            )
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # File
@@ -785,31 +891,41 @@ class ExportRecipientInfo(object):
         if self._need_file_name():
             # Filename options
             if not patient_spec_for_filename_is_valid(
-                    patient_spec=self.file_patient_spec,
-                    valid_which_idnums=valid_which_idnums):
-                fail_invalid(f"Invalid {cpr.FILE_PATIENT_SPEC}: "
-                             f"{self.file_patient_spec}")
+                patient_spec=self.file_patient_spec,
+                valid_which_idnums=valid_which_idnums,
+            ):
+                fail_invalid(
+                    f"Invalid {cpr.FILE_PATIENT_SPEC}: "
+                    f"{self.file_patient_spec}"
+                )
             if not filename_spec_is_valid(
-                    filename_spec=self.file_filename_spec,
-                    valid_which_idnums=valid_which_idnums):
-                fail_invalid(f"Invalid {cpr.FILE_FILENAME_SPEC}: "
-                             f"{self.file_filename_spec}")
+                filename_spec=self.file_filename_spec,
+                valid_which_idnums=valid_which_idnums,
+            ):
+                fail_invalid(
+                    f"Invalid {cpr.FILE_FILENAME_SPEC}: "
+                    f"{self.file_filename_spec}"
+                )
 
         if self._need_rio_metadata_options():
             # RiO metadata
             if self.rio_idnum not in valid_which_idnums:
-                fail_invalid(f"Invalid ID number type for "
-                             f"{cpr.RIO_IDNUM}: {self.rio_idnum}")
+                fail_invalid(
+                    f"Invalid ID number type for "
+                    f"{cpr.RIO_IDNUM}: {self.rio_idnum}"
+                )
 
     def _need_file_name(self) -> bool:
         """
         Do we need to know about filenames?
         """
         return (
-            self.transmission_method == ExportTransmissionMethod.FILE or
-            (self.transmission_method == ExportTransmissionMethod.HL7 and
-             self.hl7_debug_divert_to_file) or
-            self.transmission_method == ExportTransmissionMethod.EMAIL
+            self.transmission_method == ExportTransmissionMethod.FILE
+            or (
+                self.transmission_method == ExportTransmissionMethod.HL7
+                and self.hl7_debug_divert_to_file
+            )
+            or self.transmission_method == ExportTransmissionMethod.EMAIL
         )
 
     def _need_file_disk_options(self) -> bool:
@@ -817,10 +933,9 @@ class ExportRecipientInfo(object):
         Do we need to know about how to write to disk (e.g. overwrite, make
         directories)?
         """
-        return (
-            self.transmission_method == ExportTransmissionMethod.FILE or
-            (self.transmission_method == ExportTransmissionMethod.HL7 and
-             self.hl7_debug_divert_to_file)
+        return self.transmission_method == ExportTransmissionMethod.FILE or (
+            self.transmission_method == ExportTransmissionMethod.HL7
+            and self.hl7_debug_divert_to_file
         )
 
     def _need_rio_metadata_options(self) -> bool:
@@ -828,8 +943,8 @@ class ExportRecipientInfo(object):
         Do we need to know about RiO metadata?
         """
         return (
-            self.transmission_method == ExportTransmissionMethod.FILE and
-            self.file_export_rio_metadata
+            self.transmission_method == ExportTransmissionMethod.FILE
+            and self.file_export_rio_metadata
         )
 
     def using_db(self) -> bool:
@@ -852,9 +967,15 @@ class ExportRecipientInfo(object):
 
     def using_hl7(self) -> bool:
         """
-        Is the recipient an HL7 recipient?
+        Is the recipient an HL7 v2 recipient?
         """
         return self.transmission_method == ExportTransmissionMethod.HL7
+
+    def using_fhir(self) -> bool:
+        """
+        Is the recipient a FHIR recipient?
+        """
+        return self.transmission_method == ExportTransmissionMethod.FHIR
 
     def anonymous_ok(self) -> bool:
         """
@@ -863,6 +984,7 @@ class ExportRecipientInfo(object):
         return self.include_anonymous and not (
             # Methods that require patient identification:
             self.using_hl7()
+            or self.using_fhir()
         )
 
     def is_incremental(self) -> bool:
@@ -878,7 +1000,7 @@ class ExportRecipientInfo(object):
         Get the HL7 ID type for a specific CamCOPS ID number type.
         """
         iddef = req.get_idnum_definition(which_idnum)
-        return (iddef.hl7_id_type or '') if iddef else ''
+        return (iddef.hl7_id_type or "") if iddef else ""
 
     @staticmethod
     def get_hl7_id_aa(req: "CamcopsRequest", which_idnum: int) -> str:
@@ -886,16 +1008,18 @@ class ExportRecipientInfo(object):
         Get the HL7 Assigning Authority for a specific CamCOPS ID number type.
         """
         iddef = req.get_idnum_definition(which_idnum)
-        return (iddef.hl7_assigning_authority or '') if iddef else ''
+        return (iddef.hl7_assigning_authority or "") if iddef else ""
 
-    def _get_processed_spec(self,
-                            req: "CamcopsRequest",
-                            task: "Task",
-                            patient_spec_if_anonymous: str,
-                            patient_spec: str,
-                            spec: str,
-                            treat_as_filename: bool,
-                            override_task_format: str = "") -> str:
+    def _get_processed_spec(
+        self,
+        req: "CamcopsRequest",
+        task: "Task",
+        patient_spec_if_anonymous: str,
+        patient_spec: str,
+        spec: str,
+        treat_as_filename: bool,
+        override_task_format: str = "",
+    ) -> str:
         """
         Returns a
         Args:
@@ -923,8 +1047,11 @@ class ExportRecipientInfo(object):
             patient_spec_if_anonymous=patient_spec_if_anonymous,
             patient_spec=patient_spec,
             filename_spec=spec,
-            filetype=(override_task_format if override_task_format
-                      else self.task_format),
+            filetype=(
+                override_task_format
+                if override_task_format
+                else self.task_format
+            ),
             is_anonymous=task.is_anonymous,
             surname=task.get_patient_surname(),
             forename=task.get_patient_forename(),
@@ -937,8 +1064,12 @@ class ExportRecipientInfo(object):
             skip_conversion_to_safe_filename=not treat_as_filename,
         )
 
-    def get_filename(self, req: "CamcopsRequest", task: "Task",
-                     override_task_format: str = "") -> str:
+    def get_filename(
+        self,
+        req: "CamcopsRequest",
+        task: "Task",
+        override_task_format: str = "",
+    ) -> str:
         """
         Get the export filename, for file transfers.
         """

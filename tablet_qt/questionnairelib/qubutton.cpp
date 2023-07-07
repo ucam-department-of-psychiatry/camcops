@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qubutton.h"
@@ -26,7 +27,9 @@
 
 
 QuButton::QuButton(const QString& label,
-                   const CallbackFunction& callback) :
+                   const CallbackFunction& callback,
+                   QObject* parent) :
+    QuElement(parent),
     m_label(label),
     m_callback(callback),
     m_active(true)
@@ -37,7 +40,9 @@ QuButton::QuButton(const QString& label,
 QuButton::QuButton(const QString& icon_filename,
                    const bool filename_is_camcops_stem,
                    const bool alter_unpressed_image,
-                   const CallbackFunction& callback) :
+                   const CallbackFunction& callback,
+                   QObject* parent) :
+    QuElement(parent),
     m_icon_filename(icon_filename),
     m_filename_is_camcops_stem(filename_is_camcops_stem),
     m_alter_unpressed_image(alter_unpressed_image),

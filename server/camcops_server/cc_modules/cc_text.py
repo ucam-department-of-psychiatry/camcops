@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_text.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -46,6 +47,7 @@ class SS(Enum):
     Server string enumeration. All elements have type ``<enum 'SS'>`` and
     ``isinstance(SS.ANSWER, SS)`` is true.
     """
+
     ABNORMAL = auto()
     ABSENT = auto()
     ABSENT_OR_MILD = auto()
@@ -66,6 +68,7 @@ class SS(Enum):
     FEMALE = auto()
 
     GENERAL = auto()
+    GLOBAL_SCORE = auto()
 
     IF_APPLICABLE = auto()
 
@@ -143,8 +146,10 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
     elif w == SS.DISCLAIMER_TITLE:
         return _("TERMS AND CONDITIONS OF USE")
     elif w == SS.DISCLAIMER_SUBTITLE:
-        return _("You must agree to the following terms and conditions in "
-                 "order to use CamCOPS.")
+        return _(
+            "You must agree to the following terms and conditions in "
+            "order to use CamCOPS."
+        )
     elif w == SS.DISCLAIMER_CONTENT:
         return _(
             "1. By using the Cambridge Cognitive and Psychiatric Assessment "
@@ -233,6 +238,8 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
 
     elif w == SS.GENERAL:
         return _("General")
+    elif w == SS.GLOBAL_SCORE:
+        return _("Global score")
 
     elif w == SS.IF_APPLICABLE:
         return _("If applicable")

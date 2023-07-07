@@ -5,7 +5,8 @@ camcops_server/alembic/versions/${ up_revision }.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,6 +42,7 @@ Creation date: ${ create_date }
 from alembic import op
 import sqlalchemy as sa
 import cardinal_pythonlib.sqlalchemy.list_types
+
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 

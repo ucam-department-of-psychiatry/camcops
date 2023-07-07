@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -28,7 +29,7 @@ namespace stringfunc {
 // ============================================================================
 
 // Builds "<prefix><num><suffix>".
-QString strnum(const QString& prefix, int num, const QString& suffix = "");
+QString strnum(const QString& prefix, int num, const QString& suffix = QString());
 
 // ============================================================================
 // Make sequences of strings
@@ -40,7 +41,7 @@ QStringList strseq(const QString& prefix, int first, int last);
 
 // Returns a list of "<prefix><num><suffix>" for "num" in "numbers".
 QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
-                       const QString& suffix = "");
+                       const QString& suffix = QString());
 
 // Returns a list of "<prefix><num><suffix>" for "num" in [first, last].
 QStringList strseq(const QString& prefix, int first, int last,
@@ -89,11 +90,11 @@ QString& toHtmlLinebreaks(QString& str,
 // are literals and the others variables...!).
 QString standardResult(const QString& name,
                        const QString& value,
-                       const QString& separator = ": ",
-                       const QString& suffix = ".");
+                       const QString& separator = QStringLiteral(": "),
+                       const QString& suffix = QStringLiteral("."));
 
 // Returns "<b><part1>[:]</b>" or "<b><part1></b> (<part2>)[:]"
-QString makeTitle(const QString& part1, const QString& part2 = "",
+QString makeTitle(const QString& part1, const QString& part2 = QString(),
                   bool colon = false);
 
 // Returns "<part1> (<part2>)"
@@ -114,6 +115,6 @@ QString stylizeNewlines(const QString& str, bool stylize = true);
 // if required) and calling stylizeNewlines() on it.
 QString abbreviate(const QString& str, int max_len = 255,
                    bool stylize_newlines = true,
-                   const QString& suffix = "...");
+                   const QString& suffix = QStringLiteral("..."));
 
 }  // namespace stringfunc

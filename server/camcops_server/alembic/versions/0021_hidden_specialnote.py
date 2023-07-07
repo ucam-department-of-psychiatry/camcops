@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0021_hidden_specialnote.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -46,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0021'
-down_revision = '0020'
+revision = "0021"
+down_revision = "0020"
 branch_labels = None
 depends_on = None
 
@@ -58,10 +59,17 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('_special_notes', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('hidden', sa.Boolean(), nullable=False, comment='Manually hidden (effectively: deleted)'))
+    with op.batch_alter_table("_special_notes", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "hidden",
+                sa.Boolean(),
+                nullable=False,
+                comment="Manually hidden (effectively: deleted)",
+            )
+        )
 
 
 def downgrade():
-    with op.batch_alter_table('_special_notes', schema=None) as batch_op:
-        batch_op.drop_column('hidden')
+    with op.batch_alter_table("_special_notes", schema=None) as batch_op:
+        batch_op.drop_column("hidden")

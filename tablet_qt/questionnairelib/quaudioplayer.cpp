@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "quaudioplayer.h"
@@ -30,7 +31,8 @@
 #include "widgets/imagebutton.h"
 
 
-QuAudioPlayer::QuAudioPlayer(const QString& url) :
+QuAudioPlayer::QuAudioPlayer(const QString& url, QObject* parent) :
+    QuElement(parent),
     m_url(url),
     m_volume(50),
     m_offer_volume_control(false),

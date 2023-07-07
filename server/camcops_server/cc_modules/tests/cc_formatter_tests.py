@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_formatter_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -38,9 +39,12 @@ class SafeFormatterTests(TestCase):
         self.formatter = SafeFormatter(["forename", "surname", "email"])
 
     def test_formats_with_allowed_keys(self) -> None:
-        output = self.formatter.format("{forename} {surname} <{email}>",
-                                       forename="Erin", surname="Byrne",
-                                       email="erin.byrne@example.com")
+        output = self.formatter.format(
+            "{forename} {surname} <{email}>",
+            forename="Erin",
+            surname="Byrne",
+            email="erin.byrne@example.com",
+        )
         self.assertEqual(output, "Erin Byrne <erin.byrne@example.com>")
 
     def test_format_raises_with_disallowed_keys(self) -> None:
@@ -48,8 +52,10 @@ class SafeFormatterTests(TestCase):
             self.formatter.format("{email.__class__}")
 
     def test_returns_valid_parameters_string(self) -> None:
-        self.assertEqual(self.formatter.get_valid_parameters_string(),
-                         "{forename}, {surname}, {email}")
+        self.assertEqual(
+            self.formatter.get_valid_parameters_string(),
+            "{forename}, {surname}, {email}",
+        )
 
     def test_validate_raises_key_error_for_unknown_key(self) -> None:
         with self.assertRaises(KeyError):

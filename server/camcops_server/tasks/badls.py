@@ -5,7 +5,8 @@ camcops_server/tasks/badls.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -38,10 +39,7 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import (
-    answer,
-    tr,
-)
+from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import CharColType
@@ -57,32 +55,41 @@ from camcops_server.cc_modules.cc_task import (
 # BADLS
 # =============================================================================
 
+
 class BadlsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Badls'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Badls"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, CharColType,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            CharColType,
             comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
-                        "'e'=N/A [scored 0])",
+            "'e'=N/A [scored 0])",
             pv=list(cls.SCORING.keys()),
-            comment_strings=cls.QUESTION_SNIPPETS
+            comment_strings=cls.QUESTION_SNIPPETS,
         )
         super().__init__(name, bases, classdict)
 
 
-class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
-            metaclass=BadlsMetaclass):
+class Badls(
+    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=BadlsMetaclass
+):
     """
     Server implementation of the BADLS task.
     """
+
     __tablename__ = "badls"
     shortname = "BADLS"
     provides_trackers = True
 
-    SCORING = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 0}
+    SCORING = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 0}
     NQUESTIONS = 20
     QUESTION_SNIPPETS = [
         "food",  # 1
@@ -115,19 +122,24 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total_score",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment="Total score (/ 48)"),
+            SummaryElement(
+                name="total_score",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment="Total score (/ 48)",
+            )
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content="BADLS total score {}/60 (lower is better)".format(
-                self.total_score())
-        )]
+        return [
+            CtvInfo(
+                content="BADLS total score {}/60 (lower is better)".format(
+                    self.total_score()
+                )
+            )
+        ]
 
     def score(self, q: str) -> int:
         text_value = getattr(self, q)
@@ -138,9 +150,9 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
-            self.is_respondent_complete() and
-            self.all_fields_not_none(self.TASK_FIELDS)
+            self.field_contents_valid()
+            and self.is_respondent_complete()
+            and self.all_fields_not_none(self.TASK_FIELDS)
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -149,8 +161,11 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             fieldname = "q" + str(q)
             qtext = self.wxstring(req, fieldname)  # happens to be the same
             avalue = getattr(self, "q" + str(q))
-            atext = (self.wxstring(req, "q{}_{}".format(q, avalue))
-                     if q is not None else None)
+            atext = (
+                self.wxstring(req, "q{}_{}".format(q, avalue))
+                if q is not None
+                else None
+            )
             score = self.score(fieldname)
             q_a += tr(qtext, answer(atext), score)
         return f"""
@@ -180,12 +195,16 @@ class Badls(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
         # The BADLS is ALWAYS carer-rated, so it's appropriate to put the
         # SNOMED-CT codes in.
-        codes = [SnomedExpression(req.snomed(SnomedLookup.BADLS_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.BADLS_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.BADLS_SCALE),
-                {
-                    req.snomed(SnomedLookup.BADLS_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.BADLS_SCALE),
+                    {req.snomed(SnomedLookup.BADLS_SCORE): self.total_score()},
+                )
+            )
         return codes

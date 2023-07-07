@@ -5,7 +5,8 @@ camcops_server/tasks/icd10specpd.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -69,192 +70,274 @@ from camcops_server.cc_modules.cc_task import (
 # Icd10SpecPD
 # =============================================================================
 
-def ctv_info_pd(req: CamcopsRequest,
-                condition: str, has_it: Optional[bool]) -> CtvInfo:
+
+def ctv_info_pd(
+    req: CamcopsRequest, condition: str, has_it: Optional[bool]
+) -> CtvInfo:
     return CtvInfo(content=condition + ": " + get_yes_no_unknown(req, has_it))
 
 
 class Icd10SpecPDMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Icd10SpecPD'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Icd10SpecPD"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "g", 1, cls.N_GENERAL, Boolean,
+            cls,
+            "g",
+            1,
+            cls.N_GENERAL,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="G{n}: {s}",
-            comment_strings=["pathological 1", "pervasive",
-                             "pathological 2", "persistent",
-                             "primary 1", "primary 2"]
+            comment_strings=[
+                "pathological 1",
+                "pervasive",
+                "pathological 2",
+                "persistent",
+                "primary 1",
+                "primary 2",
+            ],
         )
         add_multiple_columns(
-            cls, "g1_", 1, cls.N_GENERAL_1, Boolean,
+            cls,
+            "g1_",
+            1,
+            cls.N_GENERAL_1,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="G1{n}: {s}",
-            comment_strings=["cognition", "affectivity",
-                             "impulse control", "interpersonal"]
+            comment_strings=[
+                "cognition",
+                "affectivity",
+                "impulse control",
+                "interpersonal",
+            ],
         )
         add_multiple_columns(
-            cls, "paranoid", 1, cls.N_PARANOID, Boolean,
+            cls,
+            "paranoid",
+            1,
+            cls.N_PARANOID,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Paranoid ({n}): {s}",
-            comment_strings=["sensitive", "grudges", "suspicious",
-                             "personal rights", "sexual jealousy",
-                             "self-referential", "conspiratorial"]
+            comment_strings=[
+                "sensitive",
+                "grudges",
+                "suspicious",
+                "personal rights",
+                "sexual jealousy",
+                "self-referential",
+                "conspiratorial",
+            ],
         )
         add_multiple_columns(
-            cls, "schizoid", 1, cls.N_SCHIZOID,
+            cls,
+            "schizoid",
+            1,
+            cls.N_SCHIZOID,
             Boolean,
             pv=PV.BIT,
             comment_fmt="Schizoid ({n}): {s}",
-            comment_strings=["little pleasure",
-                             "cold/detached",
-                             "limited capacity for warmth",
-                             "indifferent to praise/criticism",
-                             "little interest in sex",
-                             "solitary",
-                             "fantasy/introspection",
-                             "0/1 close friends/confidants",
-                             "insensitive to social norms"]
+            comment_strings=[
+                "little pleasure",
+                "cold/detached",
+                "limited capacity for warmth",
+                "indifferent to praise/criticism",
+                "little interest in sex",
+                "solitary",
+                "fantasy/introspection",
+                "0/1 close friends/confidants",
+                "insensitive to social norms",
+            ],
         )
         add_multiple_columns(
-            cls, "dissocial", 1, cls.N_DISSOCIAL, Boolean,
+            cls,
+            "dissocial",
+            1,
+            cls.N_DISSOCIAL,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Dissocial ({n}): {s}",
-            comment_strings=["unconcern", "irresponsibility",
-                             "incapacity to maintain relationships",
-                             "low tolerance to frustration",
-                             "incapacity for guilt",
-                             "prone to blame others"]
+            comment_strings=[
+                "unconcern",
+                "irresponsibility",
+                "incapacity to maintain relationships",
+                "low tolerance to frustration",
+                "incapacity for guilt",
+                "prone to blame others",
+            ],
         )
         add_multiple_columns(
-            cls, "eu", 1, cls.N_EU, Boolean,
+            cls,
+            "eu",
+            1,
+            cls.N_EU,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Emotionally unstable ({n}): {s}",
-            comment_strings=["act without considering consequences",
-                             "quarrelsome", "outbursts of anger",
-                             "can't maintain actions with immediate reward",
-                             "unstable/capricious mood",
-                             "uncertain self-image",
-                             "intense/unstable relationships",
-                             "avoids abandonment",
-                             "threats/acts of self-harm",
-                             "feelings of emptiness"]
+            comment_strings=[
+                "act without considering consequences",
+                "quarrelsome",
+                "outbursts of anger",
+                "can't maintain actions with immediate reward",
+                "unstable/capricious mood",
+                "uncertain self-image",
+                "intense/unstable relationships",
+                "avoids abandonment",
+                "threats/acts of self-harm",
+                "feelings of emptiness",
+            ],
         )
         add_multiple_columns(
-            cls, "histrionic", 1, cls.N_HISTRIONIC, Boolean,
+            cls,
+            "histrionic",
+            1,
+            cls.N_HISTRIONIC,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Histrionic ({n}): {s}",
-            comment_strings=["theatricality",
-                             "suggestibility",
-                             "shallow/labile affect",
-                             "centre of attention",
-                             "inappropriately seductive",
-                             "concerned with attractiveness"]
+            comment_strings=[
+                "theatricality",
+                "suggestibility",
+                "shallow/labile affect",
+                "centre of attention",
+                "inappropriately seductive",
+                "concerned with attractiveness",
+            ],
         )
         add_multiple_columns(
-            cls, "anankastic", 1, cls.N_ANANKASTIC, Boolean,
+            cls,
+            "anankastic",
+            1,
+            cls.N_ANANKASTIC,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Anankastic ({n}): {s}",
-            comment_strings=["doubt/caution",
-                             "preoccupation with details",
-                             "perfectionism",
-                             "excessively conscientious",
-                             "preoccupied with productivity",
-                             "excessive pedantry",
-                             "rigid/stubborn",
-                             "require others do things specific way"]
+            comment_strings=[
+                "doubt/caution",
+                "preoccupation with details",
+                "perfectionism",
+                "excessively conscientious",
+                "preoccupied with productivity",
+                "excessive pedantry",
+                "rigid/stubborn",
+                "require others do things specific way",
+            ],
         )
         add_multiple_columns(
-            cls, "anxious", 1, cls.N_ANXIOUS, Boolean,
+            cls,
+            "anxious",
+            1,
+            cls.N_ANXIOUS,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Anxious ({n}), {s}",
-            comment_strings=["tension/apprehension",
-                             "preoccupied with criticism/rejection",
-                             "won't get involved unless certain liked",
-                             "need for security restricts lifestyle",
-                             "avoidance of interpersonal contact"]
+            comment_strings=[
+                "tension/apprehension",
+                "preoccupied with criticism/rejection",
+                "won't get involved unless certain liked",
+                "need for security restricts lifestyle",
+                "avoidance of interpersonal contact",
+            ],
         )
         add_multiple_columns(
-            cls, "dependent", 1, cls.N_DEPENDENT, Boolean,
+            cls,
+            "dependent",
+            1,
+            cls.N_DEPENDENT,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Dependent ({n}): {s}",
-            comment_strings=["others decide",
-                             "subordinate needs to those of others",
-                             "unwilling to make reasonable demands",
-                             "uncomfortable/helpless when alone",
-                             "fears of being left to oneself",
-                             "everyday decisions require advice/reassurance"]
+            comment_strings=[
+                "others decide",
+                "subordinate needs to those of others",
+                "unwilling to make reasonable demands",
+                "uncomfortable/helpless when alone",
+                "fears of being left to oneself",
+                "everyday decisions require advice/reassurance",
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
-                  metaclass=Icd10SpecPDMetaclass):
+class Icd10SpecPD(
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+    metaclass=Icd10SpecPDMetaclass,
+):
     """
     Server implementation of the ICD10-PD task.
     """
+
     __tablename__ = "icd10specpd"
     shortname = "ICD10-PD"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
-        "date_pertains_to", Date,
-        comment="Date the assessment pertains to"
+        "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
-    comments = Column(
-        "comments", UnicodeText,
-        comment="Clinician's comments"
-    )
+    comments = Column("comments", UnicodeText, comment="Clinician's comments")
     skip_paranoid = CamcopsColumn(
-        "skip_paranoid", Boolean,
+        "skip_paranoid",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for paranoid PD?"
+        comment="Skip questions for paranoid PD?",
     )
     skip_schizoid = CamcopsColumn(
-        "skip_schizoid", Boolean,
+        "skip_schizoid",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for schizoid PD?"
+        comment="Skip questions for schizoid PD?",
     )
     skip_dissocial = CamcopsColumn(
-        "skip_dissocial", Boolean,
+        "skip_dissocial",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for dissocial PD?"
+        comment="Skip questions for dissocial PD?",
     )
     skip_eu = CamcopsColumn(
-        "skip_eu", Boolean,
+        "skip_eu",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for emotionally unstable PD?"
+        comment="Skip questions for emotionally unstable PD?",
     )
     skip_histrionic = CamcopsColumn(
-        "skip_histrionic", Boolean,
+        "skip_histrionic",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for histrionic PD?"
+        comment="Skip questions for histrionic PD?",
     )
     skip_anankastic = CamcopsColumn(
-        "skip_anankastic", Boolean,
+        "skip_anankastic",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for anankastic PD?"
+        comment="Skip questions for anankastic PD?",
     )
     skip_anxious = CamcopsColumn(
-        "skip_anxious", Boolean,
+        "skip_anxious",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for anxious PD?"
+        comment="Skip questions for anxious PD?",
     )
     skip_dependent = CamcopsColumn(
-        "skip_dependent", Boolean,
+        "skip_dependent",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Skip questions for dependent PD?"
+        comment="Skip questions for dependent PD?",
     )
     other_pd_present = CamcopsColumn(
-        "other_pd_present", Boolean,
+        "other_pd_present",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
-        comment="Is another personality disorder present?"
+        comment="Is another personality disorder present?",
     )
-    vignette = Column(
-        "vignette", UnicodeText,
-        comment="Vignette"
-    )
+    vignette = Column("vignette", UnicodeText, comment="Vignette")
 
     N_GENERAL = 6
     N_GENERAL_1 = 4
@@ -289,102 +372,139 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        infolist = [ctv_info_pd(req,
-                                self.wxstring(req, "meets_general_criteria"),
-                                self.has_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "paranoid_pd_title"),
-                                self.has_paranoid_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "schizoid_pd_title"),
-                                self.has_schizoid_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "dissocial_pd_title"),
-                                self.has_dissocial_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "eu_pd_i_title"),
-                                self.has_eupd_i()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "eu_pd_b_title"),
-                                self.has_eupd_b()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "histrionic_pd_title"),
-                                self.has_histrionic_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "anankastic_pd_title"),
-                                self.has_anankastic_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "anxious_pd_title"),
-                                self.has_anxious_pd()),
-                    ctv_info_pd(req,
-                                self.wxstring(req, "dependent_pd_title"),
-                                self.has_dependent_pd())]
+        infolist = [
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "meets_general_criteria"),
+                self.has_pd(),
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "paranoid_pd_title"),
+                self.has_paranoid_pd(),
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "schizoid_pd_title"),
+                self.has_schizoid_pd(),
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "dissocial_pd_title"),
+                self.has_dissocial_pd(),
+            ),
+            ctv_info_pd(
+                req, self.wxstring(req, "eu_pd_i_title"), self.has_eupd_i()
+            ),
+            ctv_info_pd(
+                req, self.wxstring(req, "eu_pd_b_title"), self.has_eupd_b()
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "histrionic_pd_title"),
+                self.has_histrionic_pd(),
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "anankastic_pd_title"),
+                self.has_anankastic_pd(),
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "anxious_pd_title"),
+                self.has_anxious_pd(),
+            ),
+            ctv_info_pd(
+                req,
+                self.wxstring(req, "dependent_pd_title"),
+                self.has_dependent_pd(),
+            ),
+        ]
         return infolist
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="meets_general_criteria", coltype=Boolean(),
+                name="meets_general_criteria",
+                coltype=Boolean(),
                 value=self.has_pd(),
-                comment="Meets general criteria for personality disorder?"),
+                comment="Meets general criteria for personality disorder?",
+            ),
             SummaryElement(
-                name="paranoid_pd", coltype=Boolean(),
+                name="paranoid_pd",
+                coltype=Boolean(),
                 value=self.has_paranoid_pd(),
-                comment="Meets criteria for paranoid PD?"),
+                comment="Meets criteria for paranoid PD?",
+            ),
             SummaryElement(
-                name="schizoid_pd", coltype=Boolean(),
+                name="schizoid_pd",
+                coltype=Boolean(),
                 value=self.has_schizoid_pd(),
-                comment="Meets criteria for schizoid PD?"),
+                comment="Meets criteria for schizoid PD?",
+            ),
             SummaryElement(
-                name="dissocial_pd", coltype=Boolean(),
+                name="dissocial_pd",
+                coltype=Boolean(),
                 value=self.has_dissocial_pd(),
-                comment="Meets criteria for dissocial PD?"),
+                comment="Meets criteria for dissocial PD?",
+            ),
             SummaryElement(
-                name="eupd_i", coltype=Boolean(),
+                name="eupd_i",
+                coltype=Boolean(),
                 value=self.has_eupd_i(),
-                comment="Meets criteria for EUPD (impulsive type)?"),
+                comment="Meets criteria for EUPD (impulsive type)?",
+            ),
             SummaryElement(
-                name="eupd_b", coltype=Boolean(),
+                name="eupd_b",
+                coltype=Boolean(),
                 value=self.has_eupd_b(),
-                comment="Meets criteria for EUPD (borderline type)?"),
+                comment="Meets criteria for EUPD (borderline type)?",
+            ),
             SummaryElement(
-                name="histrionic_pd", coltype=Boolean(),
+                name="histrionic_pd",
+                coltype=Boolean(),
                 value=self.has_histrionic_pd(),
-                comment="Meets criteria for histrionic PD?"),
+                comment="Meets criteria for histrionic PD?",
+            ),
             SummaryElement(
-                name="anankastic_pd", coltype=Boolean(),
+                name="anankastic_pd",
+                coltype=Boolean(),
                 value=self.has_anankastic_pd(),
-                comment="Meets criteria for anankastic PD?"),
+                comment="Meets criteria for anankastic PD?",
+            ),
             SummaryElement(
-                name="anxious_pd", coltype=Boolean(),
+                name="anxious_pd",
+                coltype=Boolean(),
                 value=self.has_anxious_pd(),
-                comment="Meets criteria for anxious PD?"),
+                comment="Meets criteria for anxious PD?",
+            ),
             SummaryElement(
-                name="dependent_pd", coltype=Boolean(),
+                name="dependent_pd",
+                coltype=Boolean(),
                 value=self.has_dependent_pd(),
-                comment="Meets criteria for dependent PD?"),
+                comment="Meets criteria for dependent PD?",
+            ),
         ]
 
     # noinspection PyUnresolvedReferences
     def is_pd_excluded(self) -> bool:
         return (
-            is_false(self.g1) or
-            is_false(self.g2) or
-            is_false(self.g3) or
-            is_false(self.g4) or
-            is_false(self.g5) or
-            is_false(self.g6) or
-            (
-                self.all_fields_not_none(self.GENERAL_1_FIELDS) and
-                self.count_booleans(self.GENERAL_1_FIELDS) <= 1
+            is_false(self.g1)
+            or is_false(self.g2)
+            or is_false(self.g3)
+            or is_false(self.g4)
+            or is_false(self.g5)
+            or is_false(self.g6)
+            or (
+                self.all_fields_not_none(self.GENERAL_1_FIELDS)
+                and self.count_booleans(self.GENERAL_1_FIELDS) <= 1
             )
         )
 
     def is_complete_general(self) -> bool:
-        return (
-            self.all_fields_not_none(self.GENERAL_FIELDS) and
-            self.all_fields_not_none(self.GENERAL_1_FIELDS)
-        )
+        return self.all_fields_not_none(
+            self.GENERAL_FIELDS
+        ) and self.all_fields_not_none(self.GENERAL_1_FIELDS)
 
     def is_complete_paranoid(self) -> bool:
         return self.all_fields_not_none(self.PARANOID_FIELDS)
@@ -417,8 +537,8 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         if not self.is_complete_general():
             return None
         return (
-                self.all_truthy(self.GENERAL_FIELDS) and
-                self.count_booleans(self.GENERAL_1_FIELDS) > 1
+            self.all_truthy(self.GENERAL_FIELDS)
+            and self.count_booleans(self.GENERAL_1_FIELDS) > 1
         )
 
     def has_paranoid_pd(self) -> Optional[bool]:
@@ -452,10 +572,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             return hpd
         if not self.is_complete_eu():
             return None
-        return (
-            self.count_booleans(self.EUPD_I_FIELDS) >= 3 and
-            self.eu2
-        )
+        return self.count_booleans(self.EUPD_I_FIELDS) >= 3 and self.eu2
 
     def has_eupd_b(self) -> Optional[bool]:
         hpd = self.has_pd()
@@ -464,8 +581,8 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         if not self.is_complete_eu():
             return None
         return (
-            self.count_booleans(self.EUPD_I_FIELDS) >= 3 and
-            self.count_booleans(self.EUPD_B_FIELDS) >= 2
+            self.count_booleans(self.EUPD_I_FIELDS) >= 3
+            and self.count_booleans(self.EUPD_B_FIELDS) >= 2
         )
 
     def has_histrionic_pd(self) -> Optional[bool]:
@@ -502,20 +619,22 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.date_pertains_to is not None and (
-                self.is_pd_excluded() or (
-                    self.is_complete_general() and
-                    (self.skip_paranoid or self.is_complete_paranoid()) and
-                    (self.skip_schizoid or self.is_complete_schizoid()) and
-                    (self.skip_dissocial or self.is_complete_dissocial()) and
-                    (self.skip_eu or self.is_complete_eu()) and
-                    (self.skip_histrionic or self.is_complete_histrionic()) and
-                    (self.skip_anankastic or self.is_complete_anankastic()) and
-                    (self.skip_anxious or self.is_complete_anxious()) and
-                    (self.skip_dependent or self.is_complete_dependent())
+            self.date_pertains_to is not None
+            and (
+                self.is_pd_excluded()
+                or (
+                    self.is_complete_general()
+                    and (self.skip_paranoid or self.is_complete_paranoid())
+                    and (self.skip_schizoid or self.is_complete_schizoid())
+                    and (self.skip_dissocial or self.is_complete_dissocial())
+                    and (self.skip_eu or self.is_complete_eu())
+                    and (self.skip_histrionic or self.is_complete_histrionic())
+                    and (self.skip_anankastic or self.is_complete_anankastic())
+                    and (self.skip_anxious or self.is_complete_anxious())
+                    and (self.skip_dependent or self.is_complete_dependent())
                 )
-            ) and
-            self.field_contents_valid()
+            )
+            and self.field_contents_valid()
         )
 
     def pd_heading(self, req: CamcopsRequest, wstringname: str) -> str:
@@ -527,7 +646,8 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_skiprow(self, req: CamcopsRequest, stem: str) -> str:
         return self.get_twocol_bool_row(
-            req, "skip_" + stem, label=self.wxstring(req, "skip_this_pd"))
+            req, "skip_" + stem, label=self.wxstring(req, "skip_this_pd")
+        )
 
     def pd_subheading(self, req: CamcopsRequest, wstringname: str) -> str:
         return f"""
@@ -554,7 +674,8 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def pd_basic_row(self, req: CamcopsRequest, stem: str, i: int) -> str:
         return self.get_twocol_bool_row_true_false(
-            req, stem + str(i), self.wxstring(req, stem + str(i)))
+            req, stem + str(i), self.wxstring(req, stem + str(i))
+        )
 
     def standard_pd_html(self, req: CamcopsRequest, stem: str, n: int) -> str:
         html = self.pd_heading(req, stem + "_pd_title")
@@ -572,29 +693,52 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                 <table class="{CssClass.SUMMARY}">
         """
         h += self.get_is_complete_tr(req)
-        h += tr_qa(req.wappstring(AS.DATE_PERTAINS_TO),
-                   format_datetime(self.date_pertains_to,
-                                   DateFormat.LONG_DATE, default=None))
-        h += tr_qa(self.wxstring(req, "meets_general_criteria"),
-                   get_yes_no_none(req, self.has_pd()))
-        h += tr_qa(self.wxstring(req, "paranoid_pd_title"),
-                   get_yes_no_none(req, self.has_paranoid_pd()))
-        h += tr_qa(self.wxstring(req, "schizoid_pd_title"),
-                   get_yes_no_none(req, self.has_schizoid_pd()))
-        h += tr_qa(self.wxstring(req, "dissocial_pd_title"),
-                   get_yes_no_none(req, self.has_dissocial_pd()))
-        h += tr_qa(self.wxstring(req, "eu_pd_i_title"),
-                   get_yes_no_none(req, self.has_eupd_i()))
-        h += tr_qa(self.wxstring(req, "eu_pd_b_title"),
-                   get_yes_no_none(req, self.has_eupd_b()))
-        h += tr_qa(self.wxstring(req, "histrionic_pd_title"),
-                   get_yes_no_none(req, self.has_histrionic_pd()))
-        h += tr_qa(self.wxstring(req, "anankastic_pd_title"),
-                   get_yes_no_none(req, self.has_anankastic_pd()))
-        h += tr_qa(self.wxstring(req, "anxious_pd_title"),
-                   get_yes_no_none(req, self.has_anxious_pd()))
-        h += tr_qa(self.wxstring(req, "dependent_pd_title"),
-                   get_yes_no_none(req, self.has_dependent_pd()))
+        h += tr_qa(
+            req.wappstring(AS.DATE_PERTAINS_TO),
+            format_datetime(
+                self.date_pertains_to, DateFormat.LONG_DATE, default=None
+            ),
+        )
+        h += tr_qa(
+            self.wxstring(req, "meets_general_criteria"),
+            get_yes_no_none(req, self.has_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "paranoid_pd_title"),
+            get_yes_no_none(req, self.has_paranoid_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "schizoid_pd_title"),
+            get_yes_no_none(req, self.has_schizoid_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "dissocial_pd_title"),
+            get_yes_no_none(req, self.has_dissocial_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "eu_pd_i_title"),
+            get_yes_no_none(req, self.has_eupd_i()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "eu_pd_b_title"),
+            get_yes_no_none(req, self.has_eupd_b()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "histrionic_pd_title"),
+            get_yes_no_none(req, self.has_histrionic_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "anankastic_pd_title"),
+            get_yes_no_none(req, self.has_anankastic_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "anxious_pd_title"),
+            get_yes_no_none(req, self.has_anxious_pd()),
+        )
+        h += tr_qa(
+            self.wxstring(req, "dependent_pd_title"),
+            get_yes_no_none(req, self.has_dependent_pd()),
+        )
 
         h += f"""
                 </table>
@@ -614,14 +758,17 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         # General
         h += subheading_spanning_two_columns(self.wxstring(req, "general"))
         h += self.get_twocol_bool_row_true_false(
-            req, "g1", self.wxstring(req, "G1"))
+            req, "g1", self.wxstring(req, "G1")
+        )
         h += self.pd_b_text(req, "G1b")
         for i in range(1, Icd10SpecPD.N_GENERAL_1 + 1):
             h += self.get_twocol_bool_row_true_false(
-                req, "g1_" + str(i), self.wxstring(req, "G1_" + str(i)))
+                req, "g1_" + str(i), self.wxstring(req, "G1_" + str(i))
+            )
         for i in range(2, Icd10SpecPD.N_GENERAL + 1):
             h += self.get_twocol_bool_row_true_false(
-                req, "g" + str(i), self.wxstring(req, "G" + str(i)))
+                req, "g" + str(i), self.wxstring(req, "G" + str(i))
+            )
 
         # Paranoid, etc.
         h += self.standard_pd_html(req, "paranoid", Icd10SpecPD.N_PARANOID)
@@ -648,7 +795,10 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
         h += self.standard_pd_html(req, "dependent", Icd10SpecPD.N_DEPENDENT)
 
         # Done
-        h += """
+        h += (
+            """
             </table>
-        """ + ICD10_COPYRIGHT_DIV
+        """
+            + ICD10_COPYRIGHT_DIV
+        )
         return h

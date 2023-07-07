@@ -5,7 +5,8 @@ camcops_server/tasks/icd10schizotypal.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -43,12 +44,7 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import (
-    get_yes_no_none,
-    td,
-    tr,
-    tr_qa,
-)
+from camcops_server.cc_modules.cc_html import get_yes_no_none, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
@@ -68,14 +64,21 @@ from camcops_server.cc_modules.cc_text import SS
 # Icd10Schizotypal
 # =============================================================================
 
+
 class Icd10SchizotypalMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Icd10Schizotypal'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Icd10Schizotypal"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "a", 1, cls.N_A, Boolean,
+            cls,
+            "a",
+            1,
+            cls.N_A,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Criterion A({n}), {s}",
             comment_strings=[
@@ -86,35 +89,37 @@ class Icd10SchizotypalMetaclass(DeclarativeMeta):
                 "suspiciousness/paranoid ideas",
                 "ruminations without inner resistance",
                 "unusual perceptual experiences",
-                "vague/circumstantial/metaphorical/over-elaborate/stereotyped "
-                "thinking",
+                "vague/circumstantial/metaphorical/over-elaborate/stereotyped thinking",  # noqa
                 "occasional transient quasi-psychotic episodes",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
-                       metaclass=Icd10SchizotypalMetaclass):
+class Icd10Schizotypal(
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+    metaclass=Icd10SchizotypalMetaclass,
+):
     """
     Server implementation of the ICD10-SZTYP task.
     """
+
     __tablename__ = "icd10schizotypal"
     shortname = "ICD10-SZTYP"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
-        "date_pertains_to", Date,
-        comment="Date the assessment pertains to"
+        "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
-    comments = Column(
-        "comments", UnicodeText,
-        comment="Clinician's comments"
-    )
+    comments = Column("comments", UnicodeText, comment="Clinician's comments")
     b = CamcopsColumn(
-        "b", Boolean,
+        "b",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Criterion (B). True if: the subject has never met "
-                "the criteria for any disorder in F20 (Schizophrenia)."
+        "the criteria for any disorder in F20 (Schizophrenia).",
     )
 
     N_A = 9
@@ -135,25 +140,31 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             category = "Met"
         else:
             category = "Not met"
-        infolist = [CtvInfo(
-            content=(
-                "Pertains to: {}. Criteria for schizotypal "
-                "disorder: {}.".format(
-                    format_datetime(self.date_pertains_to,
-                                    DateFormat.LONG_DATE),
-                    category
+        infolist = [
+            CtvInfo(
+                content=(
+                    "Pertains to: {}. Criteria for schizotypal "
+                    "disorder: {}.".format(
+                        format_datetime(
+                            self.date_pertains_to, DateFormat.LONG_DATE
+                        ),
+                        category,
+                    )
                 )
             )
-        )]
+        ]
         if self.comments:
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="meets_criteria", coltype=Boolean(),
-                           value=self.meets_criteria(),
-                           comment="Meets criteria for schizotypal disorder?"),
+            SummaryElement(
+                name="meets_criteria",
+                coltype=Boolean(),
+                value=self.meets_criteria(),
+                comment="Meets criteria for schizotypal disorder?",
+            )
         ]
 
     # Meets criteria? These also return null for unknown.
@@ -164,24 +175,28 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.date_pertains_to is not None and
-            self.all_fields_not_none(self.A_FIELDS) and
-            self.b is not None and
-            self.field_contents_valid()
+            self.date_pertains_to is not None
+            and self.all_fields_not_none(self.A_FIELDS)
+            and self.b is not None
+            and self.field_contents_valid()
         )
 
     def text_row(self, req: CamcopsRequest, wstringname: str) -> str:
-        return tr(td(self.wxstring(req, wstringname)),
-                  td("", td_class=CssClass.SUBHEADING),
-                  literal=True)
+        return tr(
+            td(self.wxstring(req, wstringname)),
+            td("", td_class=CssClass.SUBHEADING),
+            literal=True,
+        )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         q_a = self.text_row(req, "a")
         for i in range(1, self.N_A + 1):
             q_a += self.get_twocol_bool_row_true_false(
-                req, "a" + str(i), self.wxstring(req, "a" + str(i)))
+                req, "a" + str(i), self.wxstring(req, "a" + str(i))
+            )
         q_a += self.get_twocol_bool_row_true_false(
-            req, "b", self.wxstring(req, "b"))
+            req, "b", self.wxstring(req, "b")
+        )
         h = """
             {clinician_comments}
             <div class="{CssClass.SUMMARY}">
@@ -201,17 +216,19 @@ class Icd10Schizotypal(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
             {ICD10_COPYRIGHT_DIV}
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(
-                req, self.comments),
+                req, self.comments
+            ),
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             date_pertains_to=tr_qa(
                 req.wappstring(AS.DATE_PERTAINS_TO),
-                format_datetime(self.date_pertains_to,
-                                DateFormat.LONG_DATE, default=None)
+                format_datetime(
+                    self.date_pertains_to, DateFormat.LONG_DATE, default=None
+                ),
             ),
             meets_criteria=tr_qa(
                 req.sstring(SS.MEETS_CRITERIA),
-                get_yes_no_none(req, self.meets_criteria())
+                get_yes_no_none(req, self.meets_criteria()),
             ),
             q_a=q_a,
             ICD10_COPYRIGHT_DIV=ICD10_COPYRIGHT_DIV,

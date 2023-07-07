@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qusequencecontainerbase.h"
@@ -38,29 +39,30 @@ const Qt::Alignment QuSequenceContainerBase::DefaultWidgetAlignment =
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(
-        const QVector<QuElementPtr>& elements) :
+        const QVector<QuElementPtr>& elements, QObject* parent) :
+    QuElement(parent),
     m_elements(elements),
     m_override_widget_alignment(true)
 {
 }
 
 
-QuSequenceContainerBase::QuSequenceContainerBase() :
-    QuSequenceContainerBase(QVector<QuElementPtr>())  // delegating constructor
+QuSequenceContainerBase::QuSequenceContainerBase(QObject* parent) :
+    QuSequenceContainerBase(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
 }
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(
-        std::initializer_list<QuElementPtr> elements) :
-    QuSequenceContainerBase(QVector<QuElementPtr>(elements))  // delegating constructor
+        std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    QuSequenceContainerBase(QVector<QuElementPtr>(elements), parent)  // delegating constructor
 {
 }
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(
-        std::initializer_list<QuElement*> elements) :
-    QuSequenceContainerBase()  // delegating constructor
+        std::initializer_list<QuElement*> elements, QObject* parent) :
+    QuSequenceContainerBase(parent)  // delegating constructor
 {
     for (auto e : elements) {
         addElement(e);
@@ -95,7 +97,7 @@ QuSequenceContainerBase* QuSequenceContainerBase::setOverrideWidgetAlignment(boo
 QuSequenceContainerBase* QuSequenceContainerBase::setContainedWidgetAlignments(
         const Qt::Alignment alignment)
 {
-    for (auto e : m_elements) {
+    for (auto e : qAsConst(m_elements)) {
         e->setWidgetAlignment(alignment);
     }
     m_override_widget_alignment = false;

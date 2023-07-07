@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qumcqgridsingleboolean.h"
@@ -30,7 +31,9 @@
 QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(
         const QVector<QuestionWithTwoFields>& questions_with_fields,
         const NameValueOptions& mcq_options,
-        const QString& boolean_text) :
+        const QString& boolean_text,
+        QObject* parent) :
+    QuElement(parent),
     m_boolean_left(false),
     m_questions_with_fields(questions_with_fields),
     m_mcq_options(mcq_options),
@@ -156,7 +159,7 @@ int QuMcqGridSingleBoolean::spacercol(const bool first) const
 void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_mcq_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.atIndex(i).name());
+        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.atPosition(i).name());
     }
     mcqfunc::addOption(grid, row, booleanColnum(), m_boolean_text);
 }

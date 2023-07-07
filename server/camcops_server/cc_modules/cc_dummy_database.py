@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_dummy_database.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -50,14 +51,21 @@ from sqlalchemy.sql.sqltypes import (
     Float,
     Integer,
     String,
+    UnicodeText,
 )
 
 from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_db import TASK_FREQUENT_AND_FK_FIELDS
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_PERMITTED_VALUE_CHECKER,
+    PendulumDateTimeAsIsoTextColType,
+)
+
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -71,9 +79,17 @@ if TYPE_CHECKING:
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-class DummyDataFactory(object):
-    FIRST_PATIENT_ID = 10001
-    NUM_PATIENTS = 5
+# =============================================================================
+# DummyDataInserter
+# =============================================================================
+
+
+class DummyDataInserter:
+    """
+    Class to insert random data (within constraints) to tasks and other
+    objects. It does not touch an actual database, so its methods can be used
+    for free-floating items.
+    """
 
     DEFAULT_MIN_FLOAT = 0
     DEFAULT_MAX_FLOAT = 1000
@@ -81,11 +97,146 @@ class DummyDataFactory(object):
     DEFAULT_MIN_INTEGER = 0
     DEFAULT_MAX_INTEGER = 1000
 
+    def __init__(self) -> None:
+        self.faker = Faker("en_GB")
+
+    @staticmethod
+    def column_is_q_field(column: Column) -> bool:
+        if column.name.startswith("_"):
+            return False
+
+        if column.name in TASK_FREQUENT_AND_FK_FIELDS:
+            # It's that or TASK_FREQUENT_FIELDS.
+            return False
+
+        return True
+
+    def fill_in_task_fields(self, task: Task) -> None:
+        """
+        Inserts random data into a task (within any known constraints).
+        """
+        # noinspection PyUnresolvedReferences
+        for column in task.__table__.columns:
+            if not self.column_is_q_field(column):
+                continue
+
+            if isinstance(column.type, Integer):
+                self.set_integer_field(task, column)
+                continue
+
+            if isinstance(column.type, Float):
+                self.set_float_field(task, column)
+                continue
+
+            if isinstance(column.type, Boolean):
+                self.set_bool_field(task, column)
+                continue
+
+            if isinstance(column.type, Date):
+                self.set_date_field(task, column)
+                continue
+
+            if isinstance(column.type, PendulumDateTimeAsIsoTextColType):
+                self.set_datetime_field(task, column)
+                continue
+
+            if isinstance(column.type, UnicodeText):
+                self.set_unicode_text_field(task, column)
+
+            if isinstance(column.type, String):
+                # covers String, Text, UnicodeText
+                self.set_string_field(task, column)
+
+    def set_integer_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_integer_for_field(column))
+
+    def set_float_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_float_for_field(column))
+
+    def set_bool_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.random.choice([False, True]))
+
+    def set_date_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.date_object())
+
+    def set_datetime_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.date_time())
+
+    def set_unicode_text_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.text())
+
+    def set_string_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_string_for_field(column))
+
+    def get_valid_integer_for_field(self, column: Column) -> int:
+        min_value = self.DEFAULT_MIN_INTEGER
+        max_value = self.DEFAULT_MAX_INTEGER
+
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+
+            if value_checker.minimum is not None:
+                min_value = value_checker.minimum
+
+            if value_checker.maximum is not None:
+                max_value = value_checker.maximum
+
+        return self.faker.random.randint(min_value, max_value)
+
+    def get_valid_float_for_field(self, column: Column) -> float:
+        min_value = self.DEFAULT_MIN_FLOAT
+        max_value = self.DEFAULT_MAX_FLOAT
+
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+
+            if value_checker.minimum is not None:
+                min_value = value_checker.minimum
+
+            if value_checker.maximum is not None:
+                max_value = value_checker.maximum
+
+        return self.faker.random.uniform(min_value, max_value)
+
+    def get_valid_string_for_field(self, column: Column) -> str:
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+        text = self.faker.text()
+
+        if column.type.length is None:
+            return text
+
+        return text[: column.type.length]
+
+
+# =============================================================================
+# DummyDataFactory
+# =============================================================================
+
+
+class DummyDataFactory(DummyDataInserter):
+    """
+    Factory to insert random data (within constraints) to tasks and other
+    objects in a dummy database. Unlike its parent, this concerns itself with
+    an actual data.
+    """
+
+    FIRST_PATIENT_ID = 10001
+    NUM_PATIENTS = 5
+
     def __init__(self, cfg: "CamcopsConfig") -> None:
+        super().__init__()
         engine = cfg.get_sqla_engine()
         self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
-
-        self.faker = Faker('en_GB')
 
         self.era_time = pendulum.now()
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
@@ -101,7 +252,7 @@ class DummyDataFactory(object):
         next_id = self.next_id(Group.id)
 
         self.group = Group()
-        self.group.name = f"dummygroup {next_id}"
+        self.group.name = f"dummygroup{next_id}"
         self.group.description = "Dummy group"
         self.group.upload_policy = "sex AND anyidnum"
         self.group.finalize_policy = "sex AND idnum1001"
@@ -114,19 +265,22 @@ class DummyDataFactory(object):
         self.device = self.get_device(self.dbsession)
         self.dbsession.commit()
 
-        self.nhs_iddef = IdNumDefinition(which_idnum=1001,
-                                         description="NHS number (TEST)",
-                                         short_description="NHS#",
-                                         hl7_assigning_authority="NHS",
-                                         hl7_id_type="NHSN")
+        self.nhs_iddef = IdNumDefinition(
+            which_idnum=1001,
+            description="NHS number (TEST)",
+            short_description="NHS#",
+            hl7_assigning_authority="NHS",
+            hl7_id_type="NHSN",
+        )
         self.dbsession.add(self.nhs_iddef)
         try:
             self.dbsession.commit()
         except IntegrityError:
             self.dbsession.rollback()
 
-        for patient_id in range(self.FIRST_PATIENT_ID,
-                                self.FIRST_PATIENT_ID + self.NUM_PATIENTS):
+        for patient_id in range(
+            self.FIRST_PATIENT_ID, self.FIRST_PATIENT_ID + self.NUM_PATIENTS
+        ):
             Faker.seed(patient_id)
             self.add_patient(patient_id)
             log.info(f"Adding tasks for patient {patient_id}")
@@ -159,8 +313,7 @@ class DummyDataFactory(object):
         self.apply_standard_db_fields(patient)
 
         patient.sex = self.faker.random.choices(
-            ["M", "F", "X"],
-            weights=[49.8, 49.8, 0.4]
+            ["M", "F", "X"], weights=[49.8, 49.8, 0.4]
         )[0]
 
         if patient.sex == "M":
@@ -177,7 +330,7 @@ class DummyDataFactory(object):
         # consistent results but our population ages over time.
         patient.dob = self.faker.date_between_dates(
             date_start=pendulum.date(1900, 1, 1),
-            date_end=pendulum.date(2020, 1, 1)
+            date_end=pendulum.date(2020, 1, 1),
         )
         self.dbsession.add(patient)
 
@@ -219,115 +372,6 @@ class DummyDataFactory(object):
             self.dbsession.add(task)
             self.dbsession.commit()
 
-    def fill_in_task_fields(self, task: Task) -> None:
-        # noinspection PyUnresolvedReferences
-        for column in task.__table__.columns:
-            if not self.column_is_q_field(column):
-                continue
-
-            if isinstance(column.type, Integer):
-                self.set_integer_field(task, column)
-                continue
-
-            if isinstance(column.type, Float):
-                self.set_float_field(task, column)
-                continue
-
-            if isinstance(column.type, Boolean):
-                self.set_bool_field(task, column)
-                continue
-
-            if isinstance(column.type, Date):
-                self.set_date_field(task, column)
-                continue
-
-            if isinstance(column.type, String):
-                # covers String, Text, UnicodeText
-                self.set_string_field(task, column)
-
-    def set_integer_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.get_valid_integer_for_field(column))
-
-    def set_float_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.get_valid_float_for_field(column))
-
-    def set_bool_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.faker.random.choice([False, True]))
-
-    def set_date_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.faker.date_object())
-
-    def set_string_field(self, task: Task, column: Column) -> None:
-        setattr(task, column.name, self.get_valid_string_for_field(column))
-
-    def get_valid_integer_for_field(self, column: Column) -> int:
-        min_value = self.DEFAULT_MIN_INTEGER
-        max_value = self.DEFAULT_MAX_INTEGER
-
-        value_checker = getattr(column, "permitted_value_checker", None)
-
-        if value_checker is not None:
-            if value_checker.permitted_values is not None:
-                return self.faker.random.choice(value_checker.permitted_values)
-
-            if value_checker.minimum is not None:
-                min_value = value_checker.minimum
-
-            if value_checker.maximum is not None:
-                max_value = value_checker.maximum
-
-        return self.faker.random.randint(min_value, max_value)
-
-    def get_valid_float_for_field(self, column: Column) -> float:
-        min_value = self.DEFAULT_MIN_FLOAT
-        max_value = self.DEFAULT_MAX_FLOAT
-
-        value_checker = getattr(column, "permitted_value_checker", None)
-
-        if value_checker is not None:
-            if value_checker.permitted_values is not None:
-                return self.faker.random.choice(value_checker.permitted_values)
-
-            if value_checker.minimum is not None:
-                min_value = value_checker.minimum
-
-            if value_checker.maximum is not None:
-                max_value = value_checker.maximum
-
-        return self.faker.random.uniform(min_value, max_value)
-
-    def get_valid_string_for_field(self, column: Column) -> str:
-        value_checker = getattr(column, "permitted_value_checker", None)
-
-        if value_checker is not None:
-            if value_checker.permitted_values is not None:
-                return self.faker.random.choice(value_checker.permitted_values)
-        text = self.faker.text()
-
-        if column.type.length is None:
-            return text
-
-        return text[:column.type.length]
-
-    @staticmethod
-    def column_is_q_field(column: Column) -> bool:
-        if column.name.startswith("_"):
-            return False
-
-        if column.name in [
-            'editing_time_s',
-            'firstexit_is_abort',
-            'firstexit_is_finish',
-            'id',
-            'patient_id',
-            'when_created',
-            'when_firstexit',
-            'when_last_modified',
-        ]:
-            return False
-
-        return True
-
     def next_id(self, column: Column) -> int:
         max_id = self.dbsession.query(func.max(column)).scalar()
         if max_id is None:
@@ -343,8 +387,9 @@ class DummyDataFactory(object):
         self.apply_standard_db_fields(task)
         task.when_created = self.era_time
 
-    def apply_standard_db_fields(self,
-                                 obj: "GenericTabletRecordMixin") -> None:
+    def apply_standard_db_fields(
+        self, obj: "GenericTabletRecordMixin"
+    ) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.

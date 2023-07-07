@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -44,7 +45,8 @@ public:
     // - a fieldref for the description (e.g. "Paranoid schizophrenia")
     QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
                      FieldRefPtr fieldref_code,
-                     FieldRefPtr fieldref_description);
+                     FieldRefPtr fieldref_description,
+                     QObject* parent = nullptr);
 
     // Should we offer a button to set the code/description to null?
     QuDiagnosticCode* setOfferNullButton(bool offer_null_button);

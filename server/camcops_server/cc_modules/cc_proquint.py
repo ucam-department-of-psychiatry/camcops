@@ -3,7 +3,8 @@ camcops_server/cc_modules/cc_proquint.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -72,17 +73,25 @@ SIZE_OF_CONSONANT = 4
 SIZE_OF_VOWEL = 2
 
 LOOKUP_CONSONANTS = {
-    'b': 0x0, 'd': 0x1, 'f': 0x2, 'g': 0x3,
-    'h': 0x4, 'j': 0x5, 'k': 0x6, 'l': 0x7,
-    'm': 0x8, 'n': 0x9, 'p': 0xa, 'r': 0xb,
-    's': 0xc, 't': 0xd, 'v': 0xe, 'z': 0xf,
+    "b": 0x0,
+    "d": 0x1,
+    "f": 0x2,
+    "g": 0x3,
+    "h": 0x4,
+    "j": 0x5,
+    "k": 0x6,
+    "l": 0x7,
+    "m": 0x8,
+    "n": 0x9,
+    "p": 0xA,
+    "r": 0xB,
+    "s": 0xC,
+    "t": 0xD,
+    "v": 0xE,
+    "z": 0xF,
 }
-LOOKUP_VOWELS = {
-    'a': 0x0, 'i': 0x1, 'o': 0x2, 'u': 0x3,
-}
-LOOKUP_TABLE = {
-    **LOOKUP_CONSONANTS, **LOOKUP_VOWELS,
-}
+LOOKUP_VOWELS = {"a": 0x0, "i": 0x1, "o": 0x2, "u": 0x3}
+LOOKUP_TABLE = {**LOOKUP_CONSONANTS, **LOOKUP_VOWELS}
 
 
 class InvalidProquintException(Exception):
@@ -96,8 +105,7 @@ def proquint_from_uuid(uuid_obj: uuid.UUID) -> str:
     return proquint_from_int(uuid_obj.int, 128)
 
 
-def proquint_from_int(int_value: int,
-                      size_in_bits: int) -> str:
+def proquint_from_int(int_value: int, size_in_bits: int) -> str:
     """Convert integer value into proquint
 
     .. code-block:: none
@@ -132,7 +140,7 @@ def proquint_from_int(int_value: int,
         )
 
     for i in range(size_in_bits // 16):
-        proquint.insert(0, _proquint_from_int16(int_value & 0xffff))
+        proquint.insert(0, _proquint_from_int16(int_value & 0xFFFF))
 
         int_value >>= 16
 
@@ -203,14 +211,14 @@ def _proquint_from_int16(int16_value: int) -> str:
             shift = SIZE_OF_VOWEL
         else:
             letters = CONSONANTS
-            mask = 0xf
+            mask = 0xF
             shift = SIZE_OF_CONSONANT
 
         index = int16_value & mask
         proquint.insert(0, letters[index])
         int16_value >>= shift
 
-    return ''.join(proquint)
+    return "".join(proquint)
 
 
 def uuid_from_proquint(proquint: str) -> uuid.UUID:

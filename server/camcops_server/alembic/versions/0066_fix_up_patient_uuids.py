@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0066_fix_up_patient_uuids.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -58,8 +59,8 @@ log = logging.getLogger(__name__)
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0066'
-down_revision = '0065'
+revision = "0066"
+down_revision = "0065"
 branch_labels = None
 depends_on = None
 
@@ -102,22 +103,20 @@ def upgrade():
 
     # Determine new UUIDs:
     update_values = [
-        {
-            "pk": _pk,
-            "uuid": uuid.uuid4()  # generates a random UUID
-        }
+        {"pk": _pk, "uuid": uuid.uuid4()}  # generates a random UUID
         for _pk in pks_needing_uuid
     ]
 
-    # UPDATE patient SET uuid=%(uuid)s WHERE patient._pk = %(pk)s:
-    update_statement = (
-        update(patient_table).
-        where(pk_col == bindparam("pk")).
-        values(uuid=bindparam("uuid"))
-    )
-    # ... with many parameter pairs:
-    # https://docs.sqlalchemy.org/en/14/tutorial/data_update.html
-    dbsession.execute(update_statement, update_values)
+    if update_values:
+        # UPDATE patient SET uuid=%(uuid)s WHERE patient._pk = %(pk)s:
+        update_statement = (
+            update(patient_table)
+            .where(pk_col == bindparam("pk"))
+            .values(uuid=bindparam("uuid"))
+        )
+        # ... with many parameter pairs:
+        # https://docs.sqlalchemy.org/en/14/tutorial/data_update.html
+        dbsession.execute(update_statement, update_values)
 
     # COMMIT:
     dbsession.commit()

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_unittest.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,29 +30,45 @@ camcops_server/cc_modules/cc_unittest.py
 """
 
 import base64
-import configparser
-from io import StringIO
+import copy
 import logging
 import os
 import sqlite3
 from typing import Any, List, Type, TYPE_CHECKING
 import unittest
 
+from cardinal_pythonlib.classes import all_subclasses
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import pytest
+from sqlalchemy.engine.base import Engine
 
+from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
-from camcops_server.cc_modules.cc_sqlalchemy import (
-    sql_from_sqlite_database,
+from camcops_server.cc_modules.cc_request import (
+    CamcopsRequest,
+    get_unittest_request,
+)
+from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
+from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
+from camcops_server.cc_modules.cc_testfactories import (
+    BaseFactory,
+    DeviceFactory,
+    GroupFactory,
+    UserFactory,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
@@ -75,11 +92,13 @@ DEMO_PNG_BYTES = base64.b64decode(
 # Unit testing
 # =============================================================================
 
+
 class ExtendedTestCase(unittest.TestCase):
     """
     A subclass of :class:`unittest.TestCase` that provides some additional
     functionality.
     """
+
     # Logging in unit tests:
     # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o  # noqa
     # https://stackoverflow.com/questions/7472863/pydev-unittesting-how-to-capture-text-logged-to-a-logging-logger-in-captured-o/15969985#15969985
@@ -92,7 +111,9 @@ class ExtendedTestCase(unittest.TestCase):
         """
         log.info("{}.{}:{}", cls.__module__, cls.__name__, msg)
 
-    def assertIsInstanceOrNone(self, obj: object, cls: Type, msg: str = None):
+    def assertIsInstanceOrNone(
+        self, obj: object, cls: Type, msg: str = None
+    ) -> None:
         """
         Asserts that ``obj`` is an instance of ``cls`` or is None. The
         parameter ``msg`` is used as part of the failure message if it isn't.
@@ -108,43 +129,32 @@ class DemoRequestTestCase(ExtendedTestCase):
     Test case that creates a demo Pyramid request that refers to a bare
     in-memory SQLite database.
     """
-    def setUp(self) -> None:
-        self.create_config_file()
-        from camcops_server.cc_modules.cc_request import get_unittest_request
-        from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
 
+    dbsession: "Session"
+    config_file: str
+    engine: Engine
+    database_on_disk: bool
+    db_filename: str
+
+    def setUp(self) -> None:
+        for factory in all_subclasses(BaseFactory):
+            factory._meta.sqlalchemy_session = self.dbsession
+
+        # config file has already been set up for the session in conftest.py
+        os.environ[ENVVAR_CONFIG_FILE] = self.config_file
         self.req = get_unittest_request(self.dbsession)
+
+        # request.config is a class property. We want to be able to override
+        # config settings in a test by setting them directly on the config
+        # object (e.g. self.req.config.foo = "bar"), then restore the defaults
+        # afterwards.
+        self.old_config = copy.copy(self.req.config)
+
+        self.req.matched_route = unittest.mock.Mock()
         self.recipdef = ExportRecipient()
 
-    def create_config_file(self) -> None:
-        from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
-
-        # We're going to be using a test (SQLite) database, but we want to
-        # be very sure that nothing writes to a real database! Also, we will
-        # want to read from this dummy config at some point.
-
-        tmpconfigfilename = os.path.join(self.tmpdir_obj.name,
-                                         "dummy_config.conf")
-        with open(tmpconfigfilename, "w") as file:
-            file.write(self.get_config_text())
-
-        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
-
-    def get_config_text(self) -> str:
-        from camcops_server.cc_modules.cc_config import get_demo_config
-        config_text = get_demo_config()
-        parser = configparser.ConfigParser()
-        parser.read_string(config_text)
-
-        # To override config settings in a test just set them directly on the
-        # config object on the request:
-        # eg: self.req.config.foo = "bar"
-
-        with StringIO() as buffer:
-            parser.write(buffer)
-            config_text = buffer.getvalue()
-
-        return config_text
+    def tearDown(self) -> None:
+        CamcopsRequest.config = self.old_config
 
     def set_echo(self, echo: bool) -> None:
         """
@@ -162,16 +172,18 @@ class DemoRequestTestCase(ExtendedTestCase):
         if not self.database_on_disk:
             log.warning("Cannot dump database (use database_on_disk for that)")
             return
-        log.warning("Dumping database; please wait...")
+        log.info("Dumping database; please wait...")
         connection = sqlite3.connect(self.db_filename)
         sql_text = sql_from_sqlite_database(connection)
         connection.close()
         log.log(loglevel, "SQLite database:\n{}", sql_text)
 
-    def dump_table(self,
-                   tablename: str,
-                   column_names: List[str] = None,
-                   loglevel: int = logging.INFO) -> None:
+    def dump_table(
+        self,
+        tablename: str,
+        column_names: List[str] = None,
+        loglevel: int = logging.INFO,
+    ) -> None:
         """
         Writes one table of the in-memory SQLite database to the logging
         stream.
@@ -191,9 +203,13 @@ class DemoRequestTestCase(ExtendedTestCase):
         cursor.execute(sql)
         # noinspection PyTypeChecker
         fieldnames = get_fieldnames_from_cursor(cursor)
-        results = ",".join(fieldnames) + "\n" + "\n".join(
-            ",".join(str(value) for value in row)
-            for row in cursor.fetchall()
+        results = (
+            ",".join(fieldnames)
+            + "\n"
+            + "\n".join(
+                ",".join(str(value) for value in row)
+                for row in cursor.fetchall()
+            )
         )
         connection.close()
         log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
@@ -205,31 +221,38 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
     ID numbers, user, group, devices etc and has helper methods for
     creating patients and tasks
     """
+
     def setUp(self) -> None:
         super().setUp()
-        from camcops_server.cc_modules.cc_device import Device
-        from camcops_server.cc_modules.cc_group import Group
-        from camcops_server.cc_modules.cc_user import User
 
         self.set_era("2010-07-07T13:40+0100")
 
         # Set up groups, users, etc.
         # ... ID number definitions
-        self.nhs_iddef = IdNumDefinition(which_idnum=1,
-                                         description="NHS number",
-                                         short_description="NHS#",
-                                         hl7_assigning_authority="NHS",
-                                         hl7_id_type="NHSN")
+        idnum_type_nhs = 1
+        idnum_type_rio = 2
+        idnum_type_study = 3
+        self.nhs_iddef = IdNumDefinition(
+            which_idnum=idnum_type_nhs,
+            description="NHS number",
+            short_description="NHS#",
+            hl7_assigning_authority="NHS",
+            hl7_id_type="NHSN",
+        )
         self.dbsession.add(self.nhs_iddef)
-        self.rio_iddef = IdNumDefinition(which_idnum=2,
-                                         description="RiO number",
-                                         short_description="RiO",
-                                         hl7_assigning_authority="CPFT",
-                                         hl7_id_type="CPRiO")
+        self.rio_iddef = IdNumDefinition(
+            which_idnum=idnum_type_rio,
+            description="RiO number",
+            short_description="RiO",
+            hl7_assigning_authority="CPFT",
+            hl7_id_type="CPRiO",
+        )
         self.dbsession.add(self.rio_iddef)
-        self.study_iddef = IdNumDefinition(which_idnum=3,
-                                           description="Study number",
-                                           short_description="Study")
+        self.study_iddef = IdNumDefinition(
+            which_idnum=idnum_type_study,
+            description="Study number",
+            short_description="Study",
+        )
         self.dbsession.add(self.study_iddef)
         # ... group
         self.group = Group()
@@ -240,6 +263,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.group.ip_use = IpUse()
         self.dbsession.add(self.group)
         self.dbsession.flush()  # sets PK fields
+        GroupFactory.reset_sequence(self.group.id + 1)
 
         # ... users
 
@@ -249,15 +273,19 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         # ... devices
         self.server_device = Device.get_server_device(self.dbsession)
-        self.other_device = Device()
-        self.other_device.name = "other_device"
-        self.other_device.friendly_name = "Test device that may upload"
-        self.other_device.registered_by_user = self.user
-        self.other_device.when_registered_utc = self.era_time_utc
-        self.other_device.camcops_version = CAMCOPS_SERVER_VERSION
-        self.dbsession.add(self.other_device)
+        DeviceFactory.reset_sequence(self.server_device.id + 1)
+        self.other_device = DeviceFactory(
+            name="other_device",
+            friendly_name="Test device that may upload",
+            registered_by_user=self.user,
+            when_registered_utc=self.era_time_utc,
+            camcops_version=CAMCOPS_SERVER_VERSION,
+        )
+        # ... export recipient definition (the minimum)
+        self.recipdef.primary_idnum = idnum_type_nhs
 
         self.dbsession.flush()  # sets PK fields
+        UserFactory.reset_sequence(self.user.id + 1)
 
         self.create_tasks()
 
@@ -275,6 +303,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
     def create_patient_with_two_idnums(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+
         # Populate database with two of everything
         patient = Patient()
         patient.id = 1
@@ -303,6 +332,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
     def create_patient_with_one_idnum(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
+
         patient = Patient()
         patient.id = 2
         self.apply_standard_db_fields(patient)
@@ -315,14 +345,16 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
             id=3,
             patient_id=patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=555
+            idnum_value=555,
         )
 
         return patient
 
-    def create_patient_idnum(self, as_server_patient: bool = False,
-                             **kwargs: Any) -> "PatientIdNum":
+    def create_patient_idnum(
+        self, as_server_patient: bool = False, **kwargs: Any
+    ) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+
         patient_idnum = PatientIdNum()
         self.apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
 
@@ -330,8 +362,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
             setattr(patient_idnum, key, value)
 
         if "id" not in kwargs:
-            patient_idnum.save_with_next_available_id(self.req,
-                                                      patient_idnum._device_id)
+            patient_idnum.save_with_next_available_id(
+                self.req, patient_idnum._device_id
+            )
         else:
             self.dbsession.add(patient_idnum)
 
@@ -339,8 +372,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         return patient_idnum
 
-    def create_patient(self, as_server_patient: bool = False,
-                       **kwargs: Any) -> "Patient":
+    def create_patient(
+        self, as_server_patient: bool = False, **kwargs: Any
+    ) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
 
         patient = Patient()
@@ -354,7 +388,6 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         else:
             self.dbsession.add(patient)
 
-        self.dbsession.add(patient)
         self.dbsession.commit()
 
         return patient
@@ -371,9 +404,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.apply_standard_db_fields(task)
         task.when_created = self.era_time
 
-    def apply_standard_db_fields(self,
-                                 obj: "GenericTabletRecordMixin",
-                                 era_now: bool = False) -> None:
+    def apply_standard_db_fields(
+        self, obj: "GenericTabletRecordMixin", era_now: bool = False
+    ) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.
@@ -387,6 +420,40 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         obj._adding_user_id = self.user.id
         obj._when_added_batch_utc = self.era_time_utc
 
+    def create_user(self, **kwargs) -> User:
+        user = User()
+        user.hashedpw = ""
+
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+
+        self.dbsession.add(user)
+
+        return user
+
+    def create_group(self, name: str, **kwargs) -> Group:
+        group = Group()
+        group.name = name
+
+        for key, value in kwargs.items():
+            setattr(group, key, value)
+
+        self.dbsession.add(group)
+
+        return group
+
+    def create_membership(
+        self, user: User, group: Group, **kwargs
+    ) -> UserGroupMembership:
+        ugm = UserGroupMembership(user_id=user.id, group_id=group.id)
+
+        for key, value in kwargs.items():
+            setattr(ugm, key, value)
+
+        self.dbsession.add(ugm)
+
+        return ugm
+
     def tearDown(self) -> None:
         pass
 
@@ -396,6 +463,7 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
     Test case that sets up a demonstration CamCOPS database with two tasks of
     each type
     """
+
     def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.tasks.photo import Photo
@@ -417,7 +485,7 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
                 self.apply_standard_db_fields(b)
                 b.tablename = t1.tablename
                 b.tablepk = t1.id
-                b.fieldname = 'photo_blobid'
+                b.fieldname = "photo_blobid"
                 b.filename = "some_picture.png"
                 b.mimetype = MimeType.PNG
                 b.image_rotation_deg_cw = 0

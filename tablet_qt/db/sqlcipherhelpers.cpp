@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 /* ============================================================================
@@ -80,8 +81,9 @@ QString _q_escapeIdentifier(const QString& identifier)
 {
     QString res = identifier;
     if (!identifier.isEmpty() &&
-            identifier.left(1) != QString(QLatin1Char('"')) &&
+            identifier.at(0) != QString(QLatin1Char('"')) &&
             identifier.right(1) != QString(QLatin1Char('"')) ) {
+        // ... at(0) rather than left(1): clazy-qstring-left
         res.replace(QLatin1Char('"'), QLatin1String("\"\""));
         res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
         res.replace(QLatin1Char('.'), QLatin1String("\".\""));

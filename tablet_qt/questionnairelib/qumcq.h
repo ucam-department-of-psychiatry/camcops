@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -25,6 +26,7 @@
 #include "questionnairelib/quelement.h"
 
 class BooleanWidget;
+class ClickableLabelWordWrapWide;
 
 
 class QuMcq : public QuElement
@@ -37,7 +39,8 @@ public:
 
     // Constructor
     QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
-          const QStringList* label_styles = nullptr);
+          const QStringList* label_styles = nullptr,
+          QObject* parent = nullptr);
 
     // Shuffle the options (when making the widget)?
     QuMcq* setRandomize(bool randomize);
@@ -81,6 +84,16 @@ public:
     // Make text bold?
     QuMcq* setBold(bool bold = true);
 
+    // Change option labels.
+    // Only valid if:
+    // - the new options are of the same size as the original;
+    // - the values are exactly the same and in the same order as the original;
+    // - m_randomize is false
+    // ... in which case it will return true, and update its widget if
+    // required. Otherwise, it will do nothing, return false, and generate a
+    // warning.
+    bool setOptionNames(const NameValueOptions& options);
+
 protected:
     // Set widget state from field data.
     void setFromField();
@@ -104,5 +117,6 @@ protected:
     bool m_horizontal;  // horizontal layout?
     bool m_as_text_button;  // text button (rather than radio button) layout?
     bool m_bold;  // text in bold?
-    QVector<QPointer<BooleanWidget>> m_widgets;  // our widget collection
+    QVector<QPointer<BooleanWidget>> m_boolean_widgets;  // our widget collection
+    QVector<QPointer<ClickableLabelWordWrapWide>> m_label_widgets;
 };

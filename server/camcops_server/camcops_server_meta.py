@@ -5,7 +5,8 @@ camcops_server/camcops_server_meta.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -42,19 +43,21 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from rich_argparse import RichHelpFormatter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-PROJECT_BASE_DIRECTORY = os.path.abspath(os.path.join(THIS_DIRECTORY,
-                                                      os.pardir))
+PROJECT_BASE_DIRECTORY = os.path.abspath(
+    os.path.join(THIS_DIRECTORY, os.pardir)
+)
 PYTHON_EXECUTABLE = sys.executable
 
 if "GENERATING_CAMCOPS_DOCS" in os.environ:
     PROJECT_BASE_DIRECTORY = "/path/to/camcops/server"
     PYTHON_EXECUTABLE = "/path/to/python"
 
-DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, 'camcops_server.py')
+DEFAULT_CAMCOPS = os.path.join(PROJECT_BASE_DIRECTORY, "camcops_server.py")
 
 
 def meta_main() -> None:
@@ -62,34 +65,50 @@ def meta_main() -> None:
     Command-line process for ``camcops_server_meta`` tool.
     """
     parser = argparse.ArgumentParser(
-        description="Run commands across multiple CamCOPS databases")
-    parser.add_argument(
-        'cc_command', type=str,
-        help="Main command to pass to CamCOPS"
+        description="Run commands across multiple CamCOPS databases",
+        formatter_class=RichHelpFormatter,
     )
     parser.add_argument(
-        '--filespecs', nargs='+', required=True,
-        help="List of CamCOPS config files (wildcards OK)")
+        "cc_command", type=str, help="Main command to pass to CamCOPS"
+    )
     parser.add_argument(
-        '--ccargs', nargs='*',
-        help="List of CamCOPS arguments, to which '--' will be prefixed")
+        "--filespecs",
+        nargs="+",
+        required=True,
+        help="List of CamCOPS config files (wildcards OK)",
+    )
     parser.add_argument(
-        '--python', default=PYTHON_EXECUTABLE,
-        help=f"Python interpreter (default: {PYTHON_EXECUTABLE})")
+        "--ccargs",
+        nargs="*",
+        help="List of CamCOPS arguments, to which '--' will be prefixed",
+    )
     parser.add_argument(
-        '--camcops', default=DEFAULT_CAMCOPS,
-        help=f"CamCOPS server executable (default: {DEFAULT_CAMCOPS})")
+        "--python",
+        default=PYTHON_EXECUTABLE,
+        help=f"Python interpreter (default: {PYTHON_EXECUTABLE})",
+    )
     parser.add_argument(
-        '-d', '--dummyrun', action="store_true",
-        help="Dummy run (show filenames only)")
-    parser.add_argument('-v', '--verbose', action="store_true", help="Verbose")
+        "--camcops",
+        default=DEFAULT_CAMCOPS,
+        help=f"CamCOPS server executable (default: {DEFAULT_CAMCOPS})",
+    )
+    parser.add_argument(
+        "-d",
+        "--dummyrun",
+        action="store_true",
+        help="Dummy run (show filenames only)",
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
     args = parser.parse_args()
-    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
-                                    else logging.INFO)
+    main_only_quicksetup_rootlogger(
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
     log.debug("Arguments: {}", args)
 
     # Delayed import so --help doesn't take ages
-    from camcops_server.camcops_server import main as camcops_main  # delayed import  # noqa
+    from camcops_server.camcops_server import (
+        main as camcops_main,
+    )  # delayed import
 
     did_something = False
     # old_sys_argv = sys.argv.copy()
@@ -97,12 +116,12 @@ def meta_main() -> None:
         for filename in glob.glob(filespec):
             did_something = True
             log.info("Processing: {}", filename)
-            sys.argv = (
-                ['camcops_server',  # dummy argv[0]
-                 args.cc_command,
-                 "--config", filename] +
-                [f'--{x}' for x in args.ccargs or []]
-            )
+            sys.argv = [
+                "camcops_server",  # dummy argv[0]
+                args.cc_command,
+                "--config",
+                filename,
+            ] + [f"--{x}" for x in args.ccargs or []]
             log.debug("Executing command: {}", sys.argv)
             if args.dummyrun:
                 continue
@@ -111,5 +130,5 @@ def meta_main() -> None:
         log.info("Nothing to do; no files found")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     meta_main()

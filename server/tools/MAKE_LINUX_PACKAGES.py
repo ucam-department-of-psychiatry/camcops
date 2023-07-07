@@ -5,7 +5,8 @@ tools/MAKE_LINUX_PACKAGES.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -61,7 +62,6 @@ Note that you can get CentOS version/architecture with:
 # fails.
 
 import argparse
-import getpass
 import logging
 import os
 from os.path import join
@@ -83,6 +83,8 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from rich_argparse import RawDescriptionRichHelpFormatter
+from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_CAMCOPS_CONFIG_DIR,
@@ -90,7 +92,9 @@ from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
 )
-from camcops_server.cc_modules.cc_pythonversion import assert_minimum_python_version  # noqa
+from camcops_server.cc_modules.cc_pythonversion import (
+    assert_minimum_python_version,
+)
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
     CAMCOPS_SERVER_CHANGEDATE,
@@ -118,6 +122,7 @@ CAMCOPS_EXECUTABLE = "camcops_server"
 # =============================================================================
 # Python helper functions
 # =============================================================================
+
 
 def workpath(workdir: str, destpath: str) -> str:
     """Suppose
@@ -243,10 +248,9 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
+        python3.10 python310
         python3.9 python39
         python3.8 python38
-        python3.7 python37
-        python3.6 python36
         python3
         python
     )
@@ -277,48 +281,48 @@ DSTBASEDIR = LINUX_DEFAULT_CAMCOPS_DIR
 
 TMPDIR = tempfile.mkdtemp()
 log.info("Temporary working directory: " + TMPDIR)
-WRKDIR = join(TMPDIR, 'debian')
-RPMTOPDIR = join(TMPDIR, 'rpmbuild')
+WRKDIR = join(TMPDIR, "debian")
+RPMTOPDIR = join(TMPDIR, "rpmbuild")
 
-SRCSERVERDIR = join(PROJECT_BASE_DIR, 'server')
-DOCROOTDIR = join(PROJECT_BASE_DIR, 'documentation')
-PACKAGEDIR = join(SRCSERVERDIR, 'packagebuild')
+SRCSERVERDIR = join(PROJECT_BASE_DIR, "server")
+DOCROOTDIR = join(PROJECT_BASE_DIR, "documentation")
+PACKAGEDIR = join(SRCSERVERDIR, "packagebuild")
 
-DSTDOCDIR = join('/usr/share/doc', PACKAGE_DEB_NAME)
+DSTDOCDIR = join("/usr/share/doc", PACKAGE_DEB_NAME)
 WRKDOCDIR = workpath(WRKDIR, DSTDOCDIR)
 
 WRKBASEDIR = workpath(WRKDIR, DSTBASEDIR)
 
-DEBDIR = join(WRKDIR, 'DEBIAN')
+DEBDIR = join(WRKDIR, "DEBIAN")
 # ... where Debian package control information lives
-DEBOVERRIDEDIR = workpath(WRKDIR, '/usr/share/lintian/overrides')
+DEBOVERRIDEDIR = workpath(WRKDIR, "/usr/share/lintian/overrides")
 
-DSTCONSOLEFILEDIR = '/usr/bin'
+DSTCONSOLEFILEDIR = "/usr/bin"
 SETUPSCRIPTNAME = CAMCOPS_EXECUTABLE
 WRKCONSOLEFILEDIR = workpath(WRKDIR, DSTCONSOLEFILEDIR)
 
-DSTTEMPDIR = join(DSTBASEDIR, 'tmp')
+DSTTEMPDIR = join(DSTBASEDIR, "tmp")
 
-SRCTOOLDIR = join(SRCSERVERDIR, 'tools')
-WRKTOOLDIR = join(WRKBASEDIR, 'tools')
-DSTTOOLDIR = join(DSTBASEDIR, 'tools')
-VENVSCRIPT = 'install_virtualenv.py'
+SRCTOOLDIR = join(SRCSERVERDIR, "tools")
+WRKTOOLDIR = join(WRKBASEDIR, "tools")
+DSTTOOLDIR = join(DSTBASEDIR, "tools")
+VENVSCRIPT = "install_virtualenv.py"
 DSTVENVSCRIPT = join(DSTTOOLDIR, VENVSCRIPT)
 
-METASCRIPTNAME = '{}_meta'.format(CAMCOPS_EXECUTABLE)
+METASCRIPTNAME = "{}_meta".format(CAMCOPS_EXECUTABLE)
 
-DSTMANDIR = '/usr/share/man/man1'  # section 1 for user commands
+DSTMANDIR = "/usr/share/man/man1"  # section 1 for user commands
 WRKMANDIR = workpath(WRKDIR, DSTMANDIR)
 
-DSTCONFIGDIR = join('/etc', ETC_DIR_NAME)
+DSTCONFIGDIR = join("/etc", ETC_DIR_NAME)
 WRKCONFIGDIR = workpath(WRKDIR, DSTCONFIGDIR)
 
-DSTDPKGDIR = '/var/lib/dpkg/info'
+DSTDPKGDIR = "/var/lib/dpkg/info"
 
 DSTLOCKDIR = LINUX_DEFAULT_LOCK_DIR
-DSTPYTHONVENV = join(DSTBASEDIR, 'venv')
-DSTVENVBIN = join(DSTPYTHONVENV, 'bin')
-DSTPYTHONCACHE = join(DSTBASEDIR, '.cache')
+DSTPYTHONVENV = join(DSTBASEDIR, "venv")
+DSTVENVBIN = join(DSTPYTHONVENV, "bin")
+DSTPYTHONCACHE = join(DSTBASEDIR, ".cache")
 
 DSTMPLCONFIGDIR = LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR
 WRKMPLCONFIGDIR = workpath(WRKDIR, DSTMPLCONFIGDIR)
@@ -333,23 +337,23 @@ WRKCONSOLEFILE = join(WRKCONSOLEFILEDIR, SETUPSCRIPTNAME)
 WRKMETACONSOLEFILE = join(WRKCONSOLEFILEDIR, METASCRIPTNAME)
 DSTMETACONSOLEFILE = join(DSTCONSOLEFILEDIR, METASCRIPTNAME)
 
-WRKMANFILE_BASE = join(WRKMANDIR, SETUPSCRIPTNAME + '.1')  # '.gz' appended
-DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + '.1.gz')
-WRKMETAMANFILE_BASE = join(WRKMANDIR, METASCRIPTNAME + '.1')  # '.gz' appended
-DSTMETAMANFILE = join(DSTMANDIR, METASCRIPTNAME + '.1.gz')
+WRKMANFILE_BASE = join(WRKMANDIR, SETUPSCRIPTNAME + ".1")  # '.gz' appended
+DSTMANFILE = join(DSTMANDIR, SETUPSCRIPTNAME + ".1.gz")
+WRKMETAMANFILE_BASE = join(WRKMANDIR, METASCRIPTNAME + ".1")  # '.gz' appended
+DSTMETAMANFILE = join(DSTMANDIR, METASCRIPTNAME + ".1.gz")
 
-DSTREADME = join(DSTDOCDIR, 'README.txt')
-WRKREADME = join(WRKDOCDIR, 'README.txt')
+DSTREADME = join(DSTDOCDIR, "README.txt")
+WRKREADME = join(WRKDOCDIR, "README.txt")
 
-DEB_REQ_FILE = join(SRCSERVERDIR, 'requirements-deb.txt')
-RPM_REQ_FILE = join(SRCSERVERDIR, 'requirements-rpm.txt')
+DEB_REQ_FILE = join(SRCSERVERDIR, "requirements-deb.txt")
+RPM_REQ_FILE = join(SRCSERVERDIR, "requirements-rpm.txt")
 
-DSTVENVPYTHON = join(DSTVENVBIN, 'python')
-DSTVENVPIP = join(DSTVENVBIN, 'pip')
+DSTVENVPYTHON = join(DSTVENVBIN, "python")
+DSTVENVPIP = join(DSTVENVBIN, "pip")
 
 # For these names, see setup.py:
-DST_CAMCOPS_LAUNCHER = join(DSTVENVBIN, 'camcops_server')
-DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_server_meta')
+DST_CAMCOPS_LAUNCHER = join(DSTVENVBIN, "camcops_server")
+DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, "camcops_server_meta")
 
 
 # =============================================================================
@@ -359,11 +363,12 @@ DST_CAMCOPS_META_LAUNCHER = join(DSTVENVBIN, 'camcops_server_meta')
 MAINVERSION = CAMCOPS_SERVER_VERSION_STRING
 CHANGEDATE = CAMCOPS_SERVER_CHANGEDATE
 
-DEBVERSION = MAINVERSION + '-1'
+DEBVERSION = MAINVERSION + "-1"
 PACKAGENAME = join(
     PACKAGEDIR,
-    '{PACKAGE}_{DEBVERSION}_all.deb'.format(PACKAGE=PACKAGE_DEB_NAME,
-                                            DEBVERSION=DEBVERSION)
+    "{PACKAGE}_{DEBVERSION}_all.deb".format(
+        PACKAGE=PACKAGE_DEB_NAME, DEBVERSION=DEBVERSION
+    ),
 )
 # upstream_version-debian_revision --
 # see http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version
@@ -373,8 +378,16 @@ PACKAGENAME = join(
 # Prerequisites
 # =============================================================================
 
-PREREQUISITES = ("alien dpkg-deb fakeroot find git gzip lintian "
-                 "rpmrebuild".split())
+PREREQUISITES = (
+    "alien",
+    "dpkg-deb",
+    "fakeroot",
+    "find",
+    "git",
+    "gzip",
+    "lintian",
+    "rpmrebuild",
+)
 
 
 def check_prerequisites() -> None:
@@ -384,13 +397,16 @@ def check_prerequisites() -> None:
     # https://stackoverflow.com/questions/2806897
     if os.geteuid() == 0:
         log.critical(
-            "This script should not be run using sudo or as the root user")
+            "This script should not be run using sudo or as the " "root user"
+        )
         sys.exit(1)
 
     log.info("Checking prerequisites")
     for cmd in PREREQUISITES:
         if shutil.which(cmd) is None:
-            log.warning("""
+            log.warning(
+                f"""The command {cmd!r} is missing.
+
     To install Alien:
         sudo apt-get install alien
     To install rpmrebuild:
@@ -401,8 +417,9 @@ def check_prerequisites() -> None:
             fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
         3. Install:
             sudo dpkg --install rpmrebuild_2.15-2_all.deb
-            """)  # noqa
-            log.critical("{} command not found; stopping", cmd)
+            """  # noqa
+            )
+            log.critical(f"{cmd} command not found; stopping")
             sys.exit(1)
 
     # RPM issues
@@ -421,9 +438,10 @@ def check_prerequisites() -> None:
 # -----------------------------------------------------------------------------
 # http://www.fnal.gov/docs/products/ups/ReferenceManual/html/manpages.html
 
+
 def get_man_page_camcops_server() -> str:
     return r""".\" Manpage for {SETUPSCRIPTNAME}.
-.\" Contact rudolf@pobox.com to correct errors or typos.
+.\" Contact rnc1001@cam.ac.uk to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{SETUPSCRIPTNAME} man page"
 
 .SH NAME
@@ -475,7 +493,7 @@ show all options
 https://camcops.readthedocs.io/
 
 .SH AUTHOR
-Rudolf Cardinal (rudolf@pobox.com)
+Rudolf Cardinal (rnc1001@cam.ac.uk)
     """.format(
         SETUPSCRIPTNAME=SETUPSCRIPTNAME,
         CHANGEDATE=CHANGEDATE,
@@ -485,7 +503,7 @@ Rudolf Cardinal (rudolf@pobox.com)
 
 def get_man_page_camcops_server_meta() -> str:
     return r""".\" Manpage for {METASCRIPTNAME}.
-.\" Contact rudolf@pobox.com to correct errors or typos.
+.\" Contact rnc1001@cam.ac.uk to correct errors or typos.
 .TH man 1 "{CHANGEDATE}" "{MAINVERSION}" "{METASCRIPTNAME} man page"
 
 .SH NAME
@@ -498,7 +516,7 @@ show all options
 https://camcops.readthedocs.io/
 
 .SH AUTHOR
-Rudolf Cardinal (rudolf@pobox.com)
+Rudolf Cardinal (rnc1001@cam.ac.uk)
     """.format(
         METASCRIPTNAME=METASCRIPTNAME,
         CHANGEDATE=CHANGEDATE,
@@ -509,6 +527,7 @@ Rudolf Cardinal (rudolf@pobox.com)
 # -----------------------------------------------------------------------------
 # README
 # -----------------------------------------------------------------------------
+
 
 def get_readme() -> str:
     return """
@@ -522,6 +541,7 @@ See https://camcops.readthedocs.io/ for documentation.
 # control
 # -----------------------------------------------------------------------------
 
+
 def get_debian_control() -> str:
     depends_deb = get_lines_without_comments(DEB_REQ_FILE)
     return """Package: {PACKAGE}
@@ -529,9 +549,9 @@ Version: {DEBVERSION}
 Section: science
 Priority: optional
 Architecture: all
-Maintainer: Rudolf Cardinal <rudolf@pobox.com>
+Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.6, <= 3.9
+X-Python3-Version: >= 3.8, <= 3.10
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
@@ -566,7 +586,7 @@ def get_changelog() -> str:
     https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
   * Note that newer entries are at the top.
 
- -- Rudolf Cardinal <rudolf@pobox.com>  {now}
+ -- Rudolf Cardinal <rnc1001@cam.ac.uk>  {now}
 
     """.format(
         CAMCOPS_SERVER_VERSION_STRING=CAMCOPS_SERVER_VERSION_STRING,
@@ -578,6 +598,7 @@ def get_changelog() -> str:
 # -----------------------------------------------------------------------------
 # preinst
 # -----------------------------------------------------------------------------
+
 
 def get_preinst() -> str:
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
@@ -600,14 +621,14 @@ stop_supervisord
 echo '{PACKAGE}: preinst file finished'
 
     """.format(
-        BASHFUNC=BASHFUNC,
-        PACKAGE=PACKAGE_DEB_NAME,
+        BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME
     )
 
 
 # -----------------------------------------------------------------------------
 # postinst
 # -----------------------------------------------------------------------------
+
 
 def get_postinst(sdist_basefilename: str) -> str:
     dst_sdist_file = join(DSTBASEDIR, sdist_basefilename)
@@ -712,6 +733,7 @@ echo '{PACKAGE}: postinst file finished'
 # prerm
 # -----------------------------------------------------------------------------
 
+
 def get_prerm() -> str:
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
     # #!/usr/bin/env bash not allowed?
@@ -748,6 +770,7 @@ echo '{PACKAGE}: prerm file finished'
 # postrm
 # -----------------------------------------------------------------------------
 
+
 def get_postrm() -> str:
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
     # #!/usr/bin/env bash not allowed?
@@ -763,15 +786,14 @@ restart_supervisord
 echo '{PACKAGE}: postrm file finished'
 
     """.format(
-        BASHFUNC=BASHFUNC,
-        PACKAGE=PACKAGE_DEB_NAME,
-        DSTBASEDIR=DSTBASEDIR,
+        BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME
     )
 
 
 # -----------------------------------------------------------------------------
 # override
 # -----------------------------------------------------------------------------
+
 
 def get_override() -> str:
     return """
@@ -780,13 +802,14 @@ def get_override() -> str:
 # https://www.debian.org/doc/manuals/developers-reference/pkgs.html#upload-bugfix
 {PACKAGE} binary: new-package-should-close-itp-bug
     """.format(  # noqa
-        PACKAGE=PACKAGE_DEB_NAME,
+        PACKAGE=PACKAGE_DEB_NAME
     )
 
 
 # -----------------------------------------------------------------------------
 # copyright
 # -----------------------------------------------------------------------------
+
 
 def get_copyright() -> str:
     return """{PACKAGE}
@@ -795,7 +818,8 @@ CAMCOPS
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -836,6 +860,7 @@ TEXT FOR SPECIFIC ASSESSMENT SCALES
 # CamCOPS launch scripts
 # =============================================================================
 
+
 def get_camcops_server_launcher() -> str:
     return """#!/usr/bin/env bash
 # Launch script for CamCOPS command-line tool.
@@ -845,7 +870,7 @@ echo 'Launching CamCOPS command-line tool...' >&2
 {DST_CAMCOPS_LAUNCHER} "$@"
 
     """.format(
-        DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER,
+        DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER
     )
 
 
@@ -858,7 +883,7 @@ echo 'Launching CamCOPS meta-command tool...' >&2
 {DST_CAMCOPS_META_LAUNCHER} "$@"
 
     """.format(
-        DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER,
+        DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER
     )
 
 
@@ -866,15 +891,16 @@ echo 'Launching CamCOPS meta-command tool...' >&2
 # Build package
 # =============================================================================
 
+
 def build_package() -> None:
     """
     Builds the package.
     """
     log.info("Building Python package")
 
-    setup_py = join(SRCSERVERDIR, 'setup.py')
-    sdist_basefilename = ('camcops_server-{}.tar.gz'.format(MAINVERSION))
-    src_sdist_file = join(SRCSERVERDIR, 'dist', sdist_basefilename)
+    setup_py = join(SRCSERVERDIR, "setup.py")
+    sdist_basefilename = "camcops_server-{}.tar.gz".format(MAINVERSION)
+    src_sdist_file = join(SRCSERVERDIR, "dist", sdist_basefilename)
     wrk_sdist_file = join(WRKBASEDIR, sdist_basefilename)
 
     try:
@@ -883,7 +909,7 @@ def build_package() -> None:
     except OSError:
         pass
     os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
-    cmdargs = ['python', setup_py, 'sdist']
+    cmdargs = ["python", setup_py, "sdist"]
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)
 
@@ -904,99 +930,165 @@ def build_package() -> None:
         mkdir_p(join(RPMTOPDIR, d))
 
     log.info("Copying files")
-    write_gzipped_text(join(WRKDOCDIR, 'changelog.Debian'), get_changelog())
+    write_gzipped_text(join(WRKDOCDIR, "changelog.Debian"), get_changelog())
     copyglob(join(SRCTOOLDIR, VENVSCRIPT), WRKTOOLDIR)
     shutil.copyfile(src_sdist_file, wrk_sdist_file)
 
-    log.info("Creating man page for camcops. "
-             "Will be installed as " + DSTMANFILE)
+    log.info(
+        "Creating man page for camcops. " "Will be installed as " + DSTMANFILE
+    )
     write_gzipped_text(WRKMANFILE_BASE, get_man_page_camcops_server())
 
-    log.info("Creating man page for camcops_server_meta. "
-             "Will be installed as " + DSTMETAMANFILE)
+    log.info(
+        "Creating man page for camcops_server_meta. "
+        "Will be installed as " + DSTMETAMANFILE
+    )
     write_gzipped_text(WRKMETAMANFILE_BASE, get_man_page_camcops_server_meta())
 
-    log.info("Creating links to documentation. "
-             "Will be installed as " + DSTREADME)
+    log.info(
+        "Creating links to documentation. " "Will be installed as " + DSTREADME
+    )
     write_text(WRKREADME, get_readme())
 
-    log.info("Creating camcops_server launch script. "
-             "Will be installed as " + DSTCONSOLEFILE)
+    log.info(
+        "Creating camcops_server launch script. "
+        "Will be installed as " + DSTCONSOLEFILE
+    )
     write_text(WRKCONSOLEFILE, get_camcops_server_launcher())
 
-    log.info("Creating camcops_server_meta launch script. "
-             "Will be installed as " + DSTMETACONSOLEFILE)
+    log.info(
+        "Creating camcops_server_meta launch script. "
+        "Will be installed as " + DSTMETACONSOLEFILE
+    )
     write_text(WRKMETACONSOLEFILE, get_camcops_server_meta_launcher())
 
     log.info("Creating Debian control file")
 
-    write_text(join(DEBDIR, 'control'), get_debian_control())
+    write_text(join(DEBDIR, "control"), get_debian_control())
 
-    log.info("Creating preinst file. Will be installed as " +
-             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.preinst'))
-    write_text(join(DEBDIR, 'preinst'), get_preinst())
+    log.info(
+        "Creating preinst file. Will be installed as "
+        + join(DSTDPKGDIR, PACKAGE_DEB_NAME + ".preinst")
+    )
+    write_text(join(DEBDIR, "preinst"), get_preinst())
 
-    log.info("Creating postinst file. Will be installed as " +
-             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.postinst'))
-    write_text(join(DEBDIR, 'postinst'), get_postinst(sdist_basefilename))
+    log.info(
+        "Creating postinst file. Will be installed as "
+        + join(DSTDPKGDIR, PACKAGE_DEB_NAME + ".postinst")
+    )
+    write_text(join(DEBDIR, "postinst"), get_postinst(sdist_basefilename))
 
-    log.info("Creating prerm file. Will be installed as " +
-             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.prerm'))
-    write_text(join(DEBDIR, 'prerm'), get_prerm())
+    log.info(
+        "Creating prerm file. Will be installed as "
+        + join(DSTDPKGDIR, PACKAGE_DEB_NAME + ".prerm")
+    )
+    write_text(join(DEBDIR, "prerm"), get_prerm())
 
-    log.info("Creating postrm file. Will be installed as " +
-             join(DSTDPKGDIR, PACKAGE_DEB_NAME + '.postrm'))
-    write_text(join(DEBDIR, 'postrm'), get_postrm())
+    log.info(
+        "Creating postrm file. Will be installed as "
+        + join(DSTDPKGDIR, PACKAGE_DEB_NAME + ".postrm")
+    )
+    write_text(join(DEBDIR, "postrm"), get_postrm())
 
     log.info("Creating Lintian override file")
     write_text(join(DEBOVERRIDEDIR, PACKAGE_DEB_NAME), get_override())
 
-    log.info("Creating copyright file. Will be installed as " +
-             join(DSTDOCDIR, 'copyright'))
-    write_text(join(WRKDOCDIR, 'copyright'), get_copyright())
+    log.info(
+        "Creating copyright file. Will be installed as "
+        + join(DSTDOCDIR, "copyright")
+    )
+    write_text(join(WRKDOCDIR, "copyright"), get_copyright())
 
     log.info("Setting ownership and permissions")
-    call(['find', WRKDIR, '-type', 'd', '-exec', 'chmod', '755', '{}', ';'])
+    call(["find", WRKDIR, "-type", "d", "-exec", "chmod", "755", "{}", ";"])
     # ... make directories executabe: must do that first, or all the subsequent
     # recursions fail
-    call(['find', WRKDIR, '-type', 'f', '-exec', 'chmod', '644', '{}', ';'])
-    call([
-        "chmod",
-        "a+x",
-        WRKCONSOLEFILE,
-        WRKMETACONSOLEFILE,
-        join(DEBDIR, 'prerm'),
-        join(DEBDIR, 'postrm'),
-        join(DEBDIR, 'preinst'),
-        join(DEBDIR, 'postinst'),
-    ])
-    call(['find', WRKDIR, '-iname', '*.py', '-exec', 'chmod', 'a+x', '{}', ';'])
-    call(['find', WRKDIR, '-iname', '*.pl', '-exec', 'chmod', 'a+x', '{}', ';'])
+    call(["find", WRKDIR, "-type", "f", "-exec", "chmod", "644", "{}", ";"])
+    call(
+        [
+            "chmod",
+            "a+x",
+            WRKCONSOLEFILE,
+            WRKMETACONSOLEFILE,
+            join(DEBDIR, "prerm"),
+            join(DEBDIR, "postrm"),
+            join(DEBDIR, "preinst"),
+            join(DEBDIR, "postinst"),
+        ]
+    )
+    call(
+        ["find", WRKDIR, "-iname", "*.py", "-exec", "chmod", "a+x", "{}", ";"]
+    )
+    call(
+        ["find", WRKDIR, "-iname", "*.pl", "-exec", "chmod", "a+x", "{}", ";"]
+    )
 
     log.info("Removing junk")
-    call(['find', WRKDIR, '-name', '*.svn', '-exec', 'rm', '-rf', '{}', ';'])
-    call(['find', WRKDIR, '-name', '.git', '-exec', 'rm', '-rf', '{}', ';'])
-    call(['find', WRKDOCDIR, '-name', 'LICENSE',
-          '-exec', 'rm', '-rf', '{}', ';'])
+    call(["find", WRKDIR, "-name", "*.svn", "-exec", "rm", "-rf", "{}", ";"])
+    call(["find", WRKDIR, "-name", ".git", "-exec", "rm", "-rf", "{}", ";"])
+    call(
+        [
+            "find",
+            WRKDOCDIR,
+            "-name",
+            "LICENSE",
+            "-exec",
+            "rm",
+            "-rf",
+            "{}",
+            ";",
+        ]
+    )
 
     log.info("Building package")
-    call(['fakeroot', 'dpkg-deb', '--build', WRKDIR, PACKAGENAME])
+    call(["fakeroot", "dpkg-deb", "--build", WRKDIR, PACKAGENAME])
     # ... "fakeroot" prefix makes all files installed as root:root
 
     log.info("Checking with Lintian")
     # fail-in-warnings has gone in 2.62.0
     # It isn't clear if lintian now exits with 0 on warnings (the previous
     # default). Future versions seems to have a more flexible --fail-on option
-    call(['lintian', PACKAGENAME])
+
+    # The package called 'python' is gone from Ubuntu >= 22.04. We only need
+    # python3. If we don't make 'python' a dependency, Lintian will complain
+    # with the tag 'python-script-but-no-python-dep'. To complicate things
+    # further, later versions of Lintian don't have this tag and it will
+    # abort if given an unknown tag to skip. Easiest thing to do is test
+    # for the feature before checking... and the name of the command to do this
+    # is different in later versions of Lintian :(
+    lintian_args = ["lintian", PACKAGENAME]
+
+    lintian_version = Version.coerce(
+        subprocess.check_output(["lintian", "--print-version"]).decode("utf-8")
+    )
+    if lintian_version >= Version(major=2, minor=92, patch=0):
+        tags_command = "lintian-explain-tags"
+    else:
+        tags_command = "lintian-info"
+
+    known_tags = set(
+        subprocess.check_output([tags_command, "-l"]).decode("utf-8").split()
+    )
+    tags_to_suppress = set(["python-script-but-no-python-dep"]) & known_tags
+
+    if tags_to_suppress:
+        lintian_args += ["--suppress-tags", ",".join(tags_to_suppress)]
+
+    # Will wrongly generate a warning because of the comment in the prerm
+    # script
+    # tag: uses-dpkg-database-directly
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=995253
+    call(lintian_args)
 
     log.info("Converting to RPM")
-    call(['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
-         cwd=PACKAGEDIR)
+    call(
+        ["fakeroot", "alien", "--to-rpm", "--scripts", PACKAGENAME],
+        cwd=PACKAGEDIR,
+    )
     # see "man alien"
     # NOTE: needs to be run as root for correct final permissions
     expected_main_rpm_name = "{PACKAGE}-{MAINVERSION}-2.noarch.rpm".format(
-        PACKAGE=PACKAGE_DEB_NAME,
-        MAINVERSION=MAINVERSION,
+        PACKAGE=PACKAGE_DEB_NAME, MAINVERSION=MAINVERSION
     )
     full_rpm_path = join(PACKAGEDIR, expected_main_rpm_name)
     # This chown is causing problems with GitHub actions. The user is 'runner'
@@ -1014,13 +1106,19 @@ def build_package() -> None:
 
     depends_rpm = get_lines_without_comments(RPM_REQ_FILE)
     echoparam = repr("Requires: {}".format(" ".join(depends_rpm)))
-    call([
-        'rpmrebuild',
-        '--define', '_topdir ' + RPMTOPDIR,
-        '--package',
-        '--change-spec-requires=/bin/echo {}'.format(echoparam),
-        full_rpm_path,
-    ])
+    call(
+        [
+            "rpmrebuild",
+            "--define",
+            "_topdir " + RPMTOPDIR,
+            "--package",
+            "--change-spec-requires=/bin/echo {}".format(echoparam),
+            # Remove / and /usr/bin to stop conflicts on installation
+            "--change-spec-files=sed -e 's#%dir %attr(0755, root, root) \"/\"##'",  # noqa: E501
+            "--change-spec-files=sed -e 's#%dir %attr(0755, root, root) \"/usr/bin\"##'",  # noqa: E501
+            full_rpm_path,
+        ]
+    )
     # ... add "--edit-whole" as the last option before the RPM name to see what
     #     you're getting
     # ... define topdir, or it builds in ~/rpmbuild/...
@@ -1028,8 +1126,10 @@ def build_package() -> None:
     #     file
     # ... if echo parameter has brackets in, ensure it's quoted
 
-    shutil.move(join(RPMTOPDIR, 'RPMS', 'noarch', expected_main_rpm_name),
-                join(PACKAGEDIR, expected_main_rpm_name))
+    shutil.move(
+        join(RPMTOPDIR, "RPMS", "noarch", expected_main_rpm_name),
+        join(PACKAGEDIR, expected_main_rpm_name),
+    )
     # ... will overwrite its predecessor
 
     log.info("Deleting temporary workspace")
@@ -1044,6 +1144,7 @@ def build_package() -> None:
 # =============================================================================
 # Check command-line arguments +/- provide help
 # =============================================================================
+
 
 def main():
     """
@@ -1115,12 +1216,13 @@ def main():
             LINUX_DEFAULT_LOCK_DIR=LINUX_DEFAULT_LOCK_DIR,
             LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR=LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,  # noqa
         ),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RawDescriptionRichHelpFormatter,
     )
-    parser.add_argument('--verbose', '-v', action='store_true')
+    parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
-    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
-                                    else logging.INFO)
+    main_only_quicksetup_rootlogger(
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
 
     log.info("mainversion: {}", MAINVERSION)
     log.info("changedate: {}", CHANGEDATE)

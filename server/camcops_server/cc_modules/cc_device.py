@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_device.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -54,86 +55,99 @@ if TYPE_CHECKING:
 # Device class
 # =============================================================================
 
+
 class Device(Base):
     """
     Represents a tablet (client) device.
     """
+
     __tablename__ = "_security_devices"
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True,
-        comment="ID of the source tablet device"
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="ID of the source tablet device",
     )
     name = Column(
-        "name", DeviceNameColType,
-        unique=True, index=True,
-        comment="Short cryptic unique name of the source tablet device"
+        "name",
+        DeviceNameColType,
+        unique=True,
+        index=True,
+        comment="Short cryptic unique name of the source tablet device",
     )
     registered_by_user_id = Column(
-        "registered_by_user_id", Integer, ForeignKey("_security_users.id"),
-        comment="ID of user that registered the device"
+        "registered_by_user_id",
+        Integer,
+        ForeignKey("_security_users.id"),
+        comment="ID of user that registered the device",
     )
-    registered_by_user = relationship("User",
-                                      foreign_keys=[registered_by_user_id])
+    registered_by_user = relationship(
+        "User", foreign_keys=[registered_by_user_id]
+    )
     when_registered_utc = Column(
-        "when_registered_utc", DateTime,
-        comment="Date/time when the device was registered (UTC)"
+        "when_registered_utc",
+        DateTime,
+        comment="Date/time when the device was registered (UTC)",
     )
     friendly_name = Column(
-        "friendly_name", Text,
-        comment="Friendly name of the device"
+        "friendly_name", Text, comment="Friendly name of the device"
     )
     camcops_version = Column(
-        "camcops_version", SemanticVersionColType,
-        comment="CamCOPS version number on the tablet device"
+        "camcops_version",
+        SemanticVersionColType,
+        comment="CamCOPS version number on the tablet device",
     )
     last_upload_batch_utc = Column(
-        "last_upload_batch_utc", DateTime,
-        comment="Date/time when the device's last upload batch started (UTC)"
+        "last_upload_batch_utc",
+        DateTime,
+        comment="Date/time when the device's last upload batch started (UTC)",
     )
     ongoing_upload_batch_utc = Column(
-        "ongoing_upload_batch_utc", DateTime,
+        "ongoing_upload_batch_utc",
+        DateTime,
         comment="Date/time when the device's ongoing upload batch "
-                "started (UTC)"
+        "started (UTC)",
     )
     uploading_user_id = Column(
-        "uploading_user_id", Integer, ForeignKey("_security_users.id",
-                                                 use_alter=True),
-        comment="ID of user in the process of uploading right now"
+        "uploading_user_id",
+        Integer,
+        ForeignKey("_security_users.id", use_alter=True),
+        comment="ID of user in the process of uploading right now",
     )
     uploading_user = relationship("User", foreign_keys=[uploading_user_id])
     currently_preserving = Column(
-        "currently_preserving", Boolean, default=False,
-        comment="Preservation currently in progress"
+        "currently_preserving",
+        Boolean,
+        default=False,
+        comment="Preservation currently in progress",
     )
 
     @classmethod
-    def get_device_by_name(cls, dbsession: SqlASession,
-                           device_name: str) -> Optional['Device']:
+    def get_device_by_name(
+        cls, dbsession: SqlASession, device_name: str
+    ) -> Optional["Device"]:
         """
         Returns a device by its name.
         """
         if not device_name:
             return None
         device = (
-            dbsession.query(cls)
-            .filter(cls.name == device_name)
-            .first()
+            dbsession.query(cls).filter(cls.name == device_name).first()
         )  # type: Optional[Device]
         return device
 
     @classmethod
-    def get_device_by_id(cls, dbsession: SqlASession,
-                         device_id: int) -> Optional['Device']:
+    def get_device_by_id(
+        cls, dbsession: SqlASession, device_id: int
+    ) -> Optional["Device"]:
         """
         Returns a device by its integer ID.
         """
         if device_id is None:
             return None
         device = (
-            dbsession.query(cls)
-            .filter(cls.id == device_id)
-            .first()
+            dbsession.query(cls).filter(cls.id == device_id).first()
         )  # type: Optional[Device]
         return device
 
@@ -191,11 +205,13 @@ class Device(Base):
 # Reports
 # =============================================================================
 
+
 class DeviceReport(Report):
     """
     Report to show registered devices.
     This is a superuser-only report, so we do not override superuser_only.
     """
+
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
@@ -208,14 +224,13 @@ class DeviceReport(Report):
 
     def get_query(self, req: "CamcopsRequest") -> Query:
         dbsession = req.dbsession
-        query = (
-            dbsession.query(Device.id,
-                            Device.name,
-                            Device.registered_by_user_id,
-                            Device.when_registered_utc,
-                            Device.friendly_name,
-                            Device.camcops_version,
-                            Device.last_upload_batch_utc)
-            .order_by(Device.id)
-        )
+        query = dbsession.query(
+            Device.id,
+            Device.name,
+            Device.registered_by_user_id,
+            Device.when_registered_utc,
+            Device.friendly_name,
+            Device.camcops_version,
+            Device.last_upload_batch_utc,
+        ).order_by(Device.id)
         return query

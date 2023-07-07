@@ -1,8 +1,21 @@
-#-------------------------------------------------
+#   Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+#   Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 #
-# Project created by QtCreator 2016-05-30T22:51:39
+#   This file is part of CamCOPS.
 #
-#-------------------------------------------------
+#   CamCOPS is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   CamCOPS is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
+
 
 # http://doc.qt.io/qt-5/qmake-project-files.html
 # http://doc.qt.io/qt-5/qmake-variable-reference.html
@@ -12,9 +25,9 @@ message("+++ CamCOPS qmake starting.")
 # =============================================================================
 # Prerequisites: environment variables
 # =============================================================================
-# Need environment variable CAMCOPS_QT_BASE_DIR
+# Need environment variable CAMCOPS_QT5_BASE_DIR
 # Put something like this in your ~/.profile:
-#   export CAMCOPS_QT_BASE_DIR="/home/rudolf/dev/qt_local_build"
+#   export CAMCOPS_QT5_BASE_DIR="/home/rudolf/dev/qt_local_build"
 
 # This file is read by qmake.
 # Use $$(...) to read an environment variable at the time of qmake.
@@ -24,13 +37,13 @@ message("+++ CamCOPS qmake starting.")
 # - http://doc.qt.io/qt-4.8/qmake-advanced-usage.html#variables
 # - http://doc.qt.io/qt-5/qmake-test-function-reference.html
 # Here, we copy an environment variable to a Qt project file variable:
-# QT_BASE_DIR = $(CAMCOPS_QT_BASE_DIR)  # value at time of make
+# QT_BASE_DIR = $(CAMCOPS_QT5_BASE_DIR)  # value at time of make
 
-QT_BASE_DIR = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
+QT_BASE_DIR = $$(CAMCOPS_QT5_BASE_DIR)  # value at time of qmake ("now")
 isEmpty(QT_BASE_DIR) {
-    error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
+    error("Environment variable CAMCOPS_QT5_BASE_DIR is undefined")
 }
-message("From environment variable CAMCOPS_QT_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
+message("From environment variable CAMCOPS_QT5_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
 message("... Qt version: $$[QT_VERSION]")
 message("... Qt is installed in: $$[QT_INSTALL_PREFIX]")
 message("... Qt resources can be found in the following locations:")
@@ -665,6 +678,7 @@ SOURCES += \
     menu/clinicalmenu.cpp \
     menu/clinicalsetsmenu.cpp \
     menu/cognitivemenu.cpp \
+    menu/eatingdisordersmenu.cpp \
     menu/executivemenu.cpp \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
@@ -677,6 +691,8 @@ SOURCES += \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
     menu/setmenucpftadrd.cpp \
+    menu/setmenucpftadulteatingdisorders.cpp \
+    menu/setmenucpftcovid.cpp \
     menu/setmenucpftperinatal.cpp \
     menu/setmenucpftpsychooncology.cpp \
     menu/setmenudeakin.cpp \
@@ -754,6 +770,7 @@ SOURCES += \
     questionnairelib/qugridcell.cpp \
     questionnairelib/qugridcontainer.cpp \
     questionnairelib/quheading.cpp \
+    questionnairelib/quheight.cpp \
     questionnairelib/quhorizontalcontainer.cpp \
     questionnairelib/quhorizontalline.cpp \
     questionnairelib/quimage.cpp \
@@ -764,6 +781,7 @@ SOURCES += \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
     questionnairelib/qulineedituint64.cpp \
+    questionnairelib/qumass.cpp \
     questionnairelib/qumcq.cpp \
     questionnairelib/qumcqgrid.cpp \
     questionnairelib/qumcqgriddouble.cpp \
@@ -771,6 +789,7 @@ SOURCES += \
     questionnairelib/qumcqgridsignaller.cpp \
     questionnairelib/qumcqgridsingleboolean.cpp \
     questionnairelib/qumcqgridsinglebooleansignaller.cpp \
+    questionnairelib/qumeasurement.cpp \
     questionnairelib/qumultipleresponse.cpp \
     questionnairelib/qupage.cpp \
     questionnairelib/quphoto.cpp \
@@ -785,8 +804,12 @@ SOURCES += \
     questionnairelib/qutextedit.cpp \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
+    questionnairelib/quunitselector.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quwaist.cpp \
     questionnairelib/quzoomcontainer.cpp \
+    taskchains/cpftadulteatingdisorderscoiinanchain.cpp \
+    taskchains/cpftadulteatingdisorderss3clinicalchain.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
     tasklib/task.cpp \
@@ -799,6 +822,7 @@ SOURCES += \
     tasklib/taskscheduleitemeditor.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
+    tasks/acefamily.cpp \
     tasks/aims.cpp \
     tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
@@ -824,11 +848,13 @@ SOURCES += \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
     tasks/chit.cpp \
+    tasks/cia.cpp \
     tasks/cisr.cpp \
     tasks/ciwa.cpp \
     tasks/contactlog.cpp \
     tasks/copebrief.cpp \
     tasks/core10.cpp \
+    tasks/cpftcovidmedical.cpp \
     tasks/cpftlpsdischarge.cpp \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
@@ -843,6 +869,7 @@ SOURCES += \
     tasks/diagnosisicd10.cpp \
     tasks/diagnosisicd9cm.cpp \
     tasks/distressthermometer.cpp \
+    tasks/edeq.cpp \
     tasks/elixhauserci.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
@@ -876,6 +903,8 @@ SOURCES += \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
+    tasks/isaaq10.cpp \
+    tasks/isaaqed.cpp \
     tasks/khandakerinsightmedical.cpp \
     tasks/khandakermojomedical.cpp \
     tasks/khandakermojomedicationtherapy.cpp \
@@ -886,11 +915,13 @@ SOURCES += \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
     tasks/mfi20.cpp \
+    tasks/miniace.cpp \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
     tasks/ors.cpp \
     tasks/panss.cpp \
+    tasks/paradise24.cpp \
     tasks/patientsatisfaction.cpp \
     tasks/pbq.cpp \
     tasks/pcl5.cpp \
@@ -902,6 +933,7 @@ SOURCES += \
     tasks/photo.cpp \
     tasks/photosequence.cpp \
     tasks/phq15.cpp \
+    tasks/phq8.cpp \
     tasks/phq9.cpp \
     tasks/progressnote.cpp \
     tasks/pswq.cpp \
@@ -937,6 +969,7 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
+    taskxtra/isaaqcommon.cpp \
     taskxtra/khandakermojomedicationitem.cpp \
     taskxtra/khandakermojotherapyitem.cpp \
     taskxtra/kirbyrewardpair.cpp \
@@ -1138,6 +1171,7 @@ HEADERS += \
     menu/clinicalmenu.h \
     menu/clinicalsetsmenu.h \
     menu/cognitivemenu.h \
+    menu/eatingdisordersmenu.h \
     menu/executivemenu.h \
     menu/globalmenu.h \
     menu/helpmenu.h \
@@ -1150,6 +1184,8 @@ HEADERS += \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
     menu/setmenucpftadrd.h \
+    menu/setmenucpftadulteatingdisorders.h \
+    menu/setmenucpftcovid.h \
     menu/setmenucpftperinatal.h \
     menu/setmenucpftpsychooncology.h \
     menu/setmenudeakin.h \
@@ -1226,6 +1262,7 @@ HEADERS += \
     questionnairelib/qugridcell.h \
     questionnairelib/qugridcontainer.h \
     questionnairelib/quheading.h \
+    questionnairelib/quheight.h \
     questionnairelib/quhorizontalcontainer.h \
     questionnairelib/quhorizontalline.h \
     questionnairelib/quimage.h \
@@ -1236,6 +1273,7 @@ HEADERS += \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditnhsnumber.h \
     questionnairelib/qulineedituint64.h \
+    questionnairelib/qumass.h \
     questionnairelib/qumcq.h \
     questionnairelib/qumcqgrid.h \
     questionnairelib/qumcqgriddouble.h \
@@ -1243,6 +1281,7 @@ HEADERS += \
     questionnairelib/qumcqgridsignaller.h \
     questionnairelib/qumcqgridsingleboolean.h \
     questionnairelib/qumcqgridsinglebooleansignaller.h \
+    questionnairelib/qumeasurement.h \
     questionnairelib/qumultipleresponse.h \
     questionnairelib/qupage.h \
     questionnairelib/quphoto.h \
@@ -1257,8 +1296,12 @@ HEADERS += \
     questionnairelib/qutextedit.h \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
+    questionnairelib/quunitselector.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quwaist.h \
     questionnairelib/quzoomcontainer.h \
+    taskchains/cpftadulteatingdisorderscoiinanchain.h \
+    taskchains/cpftadulteatingdisorderss3clinicalchain.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
     tasklib/task.h \
@@ -1271,6 +1314,7 @@ HEADERS += \
     tasklib/taskscheduleitemeditor.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \
+    tasks/acefamily.h \
     tasks/aims.h \
     tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
@@ -1296,11 +1340,13 @@ HEADERS += \
     tasks/cgii.h \
     tasks/cgisch.h \
     tasks/chit.h \
+    tasks/cia.h \
     tasks/cisr.h \
     tasks/ciwa.h \
     tasks/contactlog.h \
     tasks/copebrief.h \
     tasks/core10.h \
+    tasks/cpftcovidmedical.h \
     tasks/cpftlpsdischarge.h \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
@@ -1315,6 +1361,7 @@ HEADERS += \
     tasks/diagnosisicd10.h \
     tasks/diagnosisicd9cm.h \
     tasks/distressthermometer.h \
+    tasks/edeq.h \
     tasks/elixhauserci.h \
     tasks/epds.h \
     tasks/eq5d5l.h \
@@ -1348,6 +1395,8 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
+    tasks/isaaq10.h \
+    tasks/isaaqed.h \
     tasks/khandakerinsightmedical.h \
     tasks/khandakermojomedical.h \
     tasks/khandakermojomedicationtherapy.h \
@@ -1358,11 +1407,13 @@ HEADERS += \
     tasks/mast.h \
     tasks/mdsupdrs.h \
     tasks/mfi20.h \
+    tasks/miniace.h \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \
     tasks/ors.h \
     tasks/panss.h \
+    tasks/paradise24.h \
     tasks/patientsatisfaction.h \
     tasks/pbq.h \
     tasks/pcl5.h \
@@ -1374,6 +1425,7 @@ HEADERS += \
     tasks/photo.h \
     tasks/photosequence.h \
     tasks/phq15.h \
+    tasks/phq8.h \
     tasks/phq9.h \
     tasks/progressnote.h \
     tasks/pswq.h \
@@ -1409,6 +1461,7 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
+    taskxtra/isaaqcommon.h \
     taskxtra/khandakermojomedicationitem.h \
     taskxtra/khandakermojotherapyitem.h \
     taskxtra/kirbyrewardpair.h \

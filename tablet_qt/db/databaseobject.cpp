@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_SPECIMEN_CREATION
@@ -44,6 +45,9 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
+const QString DBOBJECT_DEFAULT_SEPARATOR(" = ");
+const QString DBOBJECT_DEFAULT_SUFFIX("");
+
 const QString NOT_NULL_ERROR("Error: attempting to save NULL to a NOT NULL "
                              "field:");
 
@@ -55,7 +59,9 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
                                const bool has_modification_timestamp,
                                const bool has_creation_timestamp,
                                const bool has_move_off_tablet_field,
-                               const bool triggers_need_upload) :
+                               const bool triggers_need_upload,
+                               QObject* parent) :
+    QObject(parent),
     m_app(app),
     m_db(db),
     m_tablename(tablename),

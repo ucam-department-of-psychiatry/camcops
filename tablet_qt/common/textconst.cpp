@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "textconst.h"
@@ -76,12 +77,6 @@ QString TextConst::delete_() { return tr("Delete"); }
 QString TextConst::description() { return tr("Description"); }
 QString TextConst::diagnosis() { return tr("Diagnosis"); }
 
-QString TextConst::EXPERIMENTAL_SYMBOL("~");
-QString TextConst::experimentalSubtitleSuffix()
-{
-    return tr("Experimental.");
-}
-
 QString TextConst::enterTheAnswers() { return tr("Enter the answers:"); }
 QString TextConst::examinerComments() { return tr("Examiner’s comments"); }
 QString TextConst::examinerCommentsPrompt()
@@ -89,9 +84,16 @@ QString TextConst::examinerCommentsPrompt()
     return tr("Optional — Examiner’s comments (e.g. "
               "difficulties the subject had with the task):");
 }
+QString TextConst::EXPERIMENTAL_SYMBOL("~");
+QString TextConst::experimentalSubtitleSuffix()
+{
+    return tr("Experimental.");
+}
 
 QString TextConst::finished() { return tr("Finished"); }
 QString TextConst::fullTask() { return tr("Full task without content restriction"); }
+
+QString TextConst::globalScore() { return tr("Global score"); }
 
 QString TextConst::HAS_CLINICIAN_SYMBOL("C");
 QString TextConst::hasClinicianSubtitleSuffix() {

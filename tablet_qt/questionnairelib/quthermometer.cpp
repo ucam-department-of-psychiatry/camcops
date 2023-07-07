@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "quthermometer.h"
@@ -26,10 +27,12 @@
 #include "widgets/thermometer.h"
 
 const int DEFAULT_TEXT_GAP_PX = 5;
-
+const int DEFAULT_IMAGE_PADDING_PX = 20;
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
-                             const QVector<QuThermometerItem>& items) :
+                             const QVector<QuThermometerItem>& items,
+                             QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_items(items),
     m_rescale(false),
@@ -45,8 +48,9 @@ QuThermometer::QuThermometer(FieldRefPtr fieldref,
 
 
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
-                             std::initializer_list<QuThermometerItem> items) :
-    QuThermometer(fieldref, QVector<QuThermometerItem>(items))  // delegating constructor
+                             std::initializer_list<QuThermometerItem> items,
+                             QObject* parent) :
+    QuThermometer(fieldref, QVector<QuThermometerItem>(items), parent)  // delegating constructor
 {
 }
 
@@ -94,6 +98,7 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         m_rescale,  // rescale
         m_rescale_factor,  // rescale_factor
         DEFAULT_TEXT_GAP_PX,  // text_gap_px
+        DEFAULT_IMAGE_PADDING_PX,
         nullptr  // parent
     );
 

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "khandakermojomedical.h"
@@ -212,6 +213,12 @@ QString KhandakerMojoMedical::longname() const
 QString KhandakerMojoMedical::description() const
 {
     return tr("Medical questionnaire for MOJO study.");
+}
+
+
+QString KhandakerMojoMedical::infoFilenameStem() const
+{
+    return "khandaker_mojo";
 }
 
 
@@ -438,7 +445,8 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
 
     textQuestion(FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS);
 
-    for (auto fieldname : DETAILS_FIELDS.keys()) {
+    const auto fieldnames = DETAILS_FIELDS.keys();
+    for (const auto& fieldname : fieldnames) {
         FieldRefPtr fieldref = fieldRef(fieldname);
 
         connect(fieldref.data(), &FieldRef::valueChanged,
@@ -582,7 +590,8 @@ void KhandakerMojoMedical::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 
-    for (const auto& fieldname : DETAILS_FIELDS.keys()) {
+    const auto fieldnames = DETAILS_FIELDS.keys();
+    for (const auto& fieldname : fieldnames) {
         /*
         // Removed this, thus only showing details when "other Y" chosen
         if (valueIsNull(fieldname)) {

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_patientidnum.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -72,40 +73,47 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 # Stores ID numbers for a specific patient
 
+
 class PatientIdNum(GenericTabletRecordMixin, Base):
     """
     SQLAlchemy ORM class representing an ID number (as a
     which_idnum/idnum_value pair) for a patient.
     """
+
     __tablename__ = "patient_idnum"
 
     id = Column(
-        "id", Integer,
+        "id",
+        Integer,
         nullable=False,
-        comment="Primary key on the source tablet device"
+        comment="Primary key on the source tablet device",
     )
     patient_id = Column(
-        "patient_id", Integer,
+        "patient_id",
+        Integer,
         nullable=False,
-        comment="FK to patient.id (for this device/era)"
+        comment="FK to patient.id (for this device/era)",
     )
     which_idnum = Column(
-        "which_idnum", Integer, ForeignKey(IdNumDefinition.which_idnum),
+        "which_idnum",
+        Integer,
+        ForeignKey(IdNumDefinition.which_idnum),
         nullable=False,
-        comment="Which of the server's ID numbers is this?"
+        comment="Which of the server's ID numbers is this?",
     )
     idnum_value = CamcopsColumn(
-        "idnum_value", BigInteger,
+        "idnum_value",
+        BigInteger,
         identifies_patient=True,
-        comment="The value of the ID number"
+        comment="The value of the ID number",
     )
     # Note: we don't use a relationship() to IdNumDefinition here; we do that
     # sort of work via the CamcopsRequest, which caches them for speed.
 
     patient = relationship(
-        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
-        # http://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
-        # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
+        # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
+        # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
         "Patient",
         primaryjoin=(
             "and_("
@@ -145,10 +153,18 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         return f"{self.description(req)} {self.idnum_value}"
 
     def __repr__(self) -> str:
-        return simple_repr(self, [
-            "_pk", "_device_id", "_era",
-            "id", "patient_id", "which_idnum", "idnum_value"
-        ])
+        return simple_repr(
+            self,
+            [
+                "_pk",
+                "_device_id",
+                "_era",
+                "id",
+                "patient_id",
+                "which_idnum",
+                "idnum_value",
+            ],
+        )
 
     # -------------------------------------------------------------------------
     # Equality
@@ -164,8 +180,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     def __hash__(self) -> int:
         """
         Must be compatible with __eq__.
-        
-        See also 
+
+        See also
         https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
         """  # noqa
         return hash(self.__members())
@@ -187,9 +203,9 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         sm = self.__members()
         return (
-            type(self) is type(other) and
-            (None not in sm) and
-            sm == other.__members()
+            type(self) is type(other)
+            and (None not in sm)
+            and sm == other.__members()
         )
 
     # -------------------------------------------------------------------------
@@ -201,10 +217,10 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         Is this a valid ID number?
         """
         return (
-            self.which_idnum is not None and
-            self.idnum_value is not None and
-            self.which_idnum >= 0 and
-            self.idnum_value >= 0
+            self.which_idnum is not None
+            and self.idnum_value is not None
+            and self.which_idnum >= 0
+            and self.idnum_value >= 0
         )
 
     def is_fully_valid(self, req: "CamcopsRequest") -> bool:
@@ -246,8 +262,9 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`
         object summarizing this ID number.
         """
-        return IdNumReference(which_idnum=self.which_idnum,
-                              idnum_value=self.idnum_value)
+        return IdNumReference(
+            which_idnum=self.which_idnum, idnum_value=self.idnum_value
+        )
 
     def get_filename_component(self, req: "CamcopsRequest") -> str:
         """
@@ -276,13 +293,15 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         patient = self.patient  # type: Patient
         if not patient:
             raise ValueError(
-                "Corrupted database? PatientIdNum can't fetch its Patient")
+                "Corrupted database? PatientIdNum can't fetch its Patient"
+            )
         return patient.pk
 
 
 # =============================================================================
 # Fake ID values when upgrading from old ID number system
 # =============================================================================
+
 
 def fake_tablet_id_for_patientidnum(patient_id: int, which_idnum: int) -> int:
     """
@@ -295,6 +314,7 @@ def fake_tablet_id_for_patientidnum(patient_id: int, which_idnum: int) -> int:
 # =============================================================================
 # Additional ID number column info for DB_PATIENT_ID_PER_ROW export option
 # =============================================================================
+
 
 def extra_id_colname(which_idnum: int) -> str:
     """
@@ -329,7 +349,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
         extra_id_colname(which_idnum),
         BigInteger,
         identifies_patient=True,
-        comment=EXTRA_COMMENT_PREFIX + f"ID number {which_idnum}: {desc}"
+        comment=EXTRA_COMMENT_PREFIX + f"ID number {which_idnum}: {desc}",
     )
 
 

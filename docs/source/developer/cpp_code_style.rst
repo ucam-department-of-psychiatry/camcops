@@ -1,6 +1,7 @@
 ..  docs/source/developer/cpp_code_style.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -213,12 +214,9 @@ Note other popular coding standards:
     char *linux_banner;
     char *some_function();
 
-- Python, PEP8, https://www.python.org/dev/peps/pep-0008/
+- Python, PEP8, https://www.python.org/dev/peps/pep-0008/;
+  use Black (https://black.readthedocs.io/) with 79 characters per line.
 
-  .. code-block:: none
-
-    SomeClass, some_function,
-    some_variable, "_" prefix for "private" members
 
 **Disabling compiler/linter warnings inline**
 

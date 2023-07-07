@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,12 +15,14 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
 #include <QPointer>
 #include <QString>
+#include "questionnairelib/namevalueoptions.h"
+#include "questionnairelib/questionwithonefield.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -62,8 +65,14 @@ public:
     // ------------------------------------------------------------------------
 public slots:
     void workChanged();
+    void orientationChanged(Qt::ScreenOrientation orientation);
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 public:
     static const QString WSAS_TABLENAME;
+
+private:
+    void refreshQuestionnaire();
+    void rebuildPage(QuPage* page);
 };

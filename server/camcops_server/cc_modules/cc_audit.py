@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_audit.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -54,57 +55,70 @@ MAX_AUDIT_STRING_LENGTH = 65000
 # AuditEntry
 # =============================================================================
 
+
 class AuditEntry(Base):
     """
     An entry in the audit table.
     """
+
     __tablename__ = "_security_audit"
 
     id = Column(
-        "id", Integer,
-        primary_key=True, autoincrement=True, index=True,
-        comment="Arbitrary primary key"
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        comment="Arbitrary primary key",
     )
     when_access_utc = Column(
-        "when_access_utc", DateTime,
-        nullable=False, index=True,
-        comment="Date/time of access (UTC)"
+        "when_access_utc",
+        DateTime,
+        nullable=False,
+        index=True,
+        comment="Date/time of access (UTC)",
     )
     source = Column(
-        "source", AuditSourceColType,
+        "source",
+        AuditSourceColType,
         nullable=False,
-        comment="Source (e.g. tablet, webviewer)"
+        comment="Source (e.g. tablet, webviewer)",
     )
     remote_addr = Column(
-        "remote_addr", IPAddressColType,
-        comment="IP address of the remote computer"
+        "remote_addr",
+        IPAddressColType,
+        comment="IP address of the remote computer",
     )
     user_id = Column(
-        "user_id", Integer, ForeignKey("_security_users.id"),
-        comment="ID of user, where applicable"
+        "user_id",
+        Integer,
+        ForeignKey("_security_users.id"),
+        comment="ID of user, where applicable",
     )
     user = relationship("User")
     device_id = Column(
-        "device_id", Integer, ForeignKey("_security_devices.id"),
-        comment="Device ID, where applicable"
+        "device_id",
+        Integer,
+        ForeignKey("_security_devices.id"),
+        comment="Device ID, where applicable",
     )
     device = relationship("Device")
     table_name = Column(
-        "table_name", TableNameColType,
-        comment="Table involved, where applicable"
+        "table_name",
+        TableNameColType,
+        comment="Table involved, where applicable",
     )
     server_pk = Column(
-        "server_pk", Integer,
-        comment="Server PK (table._pk), where applicable"
+        "server_pk", Integer, comment="Server PK (table._pk), where applicable"
     )
     patient_server_pk = Column(
-        "patient_server_pk", Integer,
+        "patient_server_pk",
+        Integer,
         comment="Server PK of the patient (patient._pk) concerned, or "
-                "NULL if not applicable"
+        "NULL if not applicable",
     )
     details = Column(
-        "details", UnicodeText,
-        comment="Details of the access"
+        "details", UnicodeText, comment="Details of the access"
     )  # in practice, has 65,535 character limit and isn't Unicode.
     # See MAX_AUDIT_STRING_LENGTH above.
 
@@ -113,16 +127,19 @@ class AuditEntry(Base):
 # Audit function
 # =============================================================================
 
-def audit(req: "CamcopsRequest",
-          details: str,
-          patient_server_pk: int = None,
-          table: str = None,
-          server_pk: int = None,
-          device_id: int = None,
-          remote_addr: str = None,
-          user_id: int = None,
-          from_console: bool = False,
-          from_dbclient: bool = False) -> None:
+
+def audit(
+    req: "CamcopsRequest",
+    details: str,
+    patient_server_pk: int = None,
+    table: str = None,
+    server_pk: int = None,
+    device_id: int = None,
+    remote_addr: str = None,
+    user_id: int = None,
+    from_console: bool = False,
+    from_dbclient: bool = False,
+) -> None:
     """
     Write an entry to the audit log.
     """
@@ -150,6 +167,6 @@ def audit(req: "CamcopsRequest",
         table_name=table,
         server_pk=server_pk,
         patient_server_pk=patient_server_pk,
-        details=details
+        details=details,
     )
     dbsession.add(entry)

@@ -5,7 +5,8 @@ camcops_server/cc_modules/tests/cc_policy_tests.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -45,33 +46,43 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Unit tests
 # =============================================================================
 
+
 class PolicyTests(ExtendedTestCase):
     """
     Unit tests.
     """
+
     def test_policies(self) -> None:
         self.announce("test_policies")
 
         class TestRig(object):
             def __init__(
-                    self,
-                    policy: str,
-                    syntactically_valid: bool = None,
-                    valid: bool = None,
-                    ptinfo_satisfies_id_policy: bool = None,
-                    test_critical_single_numerical_id: bool = False,
-                    critical_single_numerical_id: int = None,
-                    compatible_with_tablet_id_policy: bool = None,
-                    is_idnum_mandatory_in_policy: Dict[int, bool] = None) \
-                    -> None:
+                self,
+                policy: str,
+                syntactically_valid: bool = None,
+                valid: bool = None,
+                ptinfo_satisfies_id_policy: bool = None,
+                test_critical_single_numerical_id: bool = False,
+                critical_single_numerical_id: int = None,
+                compatible_with_tablet_id_policy: bool = None,
+                is_idnum_mandatory_in_policy: Dict[int, bool] = None,
+            ) -> None:
                 self.policy = policy
                 self.syntactically_valid = syntactically_valid
                 self.valid = valid
                 self.ptinfo_satisfies_id_policy = ptinfo_satisfies_id_policy
-                self.test_critical_single_numerical_id = test_critical_single_numerical_id  # noqa
-                self.critical_single_numerical_id = critical_single_numerical_id  # noqa
-                self.compatible_with_tablet_id_policy = compatible_with_tablet_id_policy  # noqa
-                self.is_idnum_mandatory_in_policy = is_idnum_mandatory_in_policy or {}  # type: Dict[int, bool]  # noqa
+                self.test_critical_single_numerical_id = (
+                    test_critical_single_numerical_id
+                )
+                self.critical_single_numerical_id = (
+                    critical_single_numerical_id
+                )
+                self.compatible_with_tablet_id_policy = (
+                    compatible_with_tablet_id_policy
+                )
+                self.is_idnum_mandatory_in_policy = (
+                    is_idnum_mandatory_in_policy or {}
+                )  # type: Dict[int, bool]
 
         valid_idnums = list(range(1, 10 + 1))
         # noinspection PyTypeChecker
@@ -81,37 +92,16 @@ class PolicyTests(ExtendedTestCase):
             dob=Date.today(),  # random value
             email="patient@example.com",
             sex="F",
-            idnum_definitions=[
-                IdNumReference(1, 1),
-                IdNumReference(10, 3),
-            ],
+            idnum_definitions=[IdNumReference(1, 1), IdNumReference(10, 3)],
         )
         test_policies = [
+            TestRig("", syntactically_valid=False, valid=False),
             TestRig(
-                "",
-                syntactically_valid=False,
-                valid=False,
+                "sex AND (failure", syntactically_valid=False, valid=False
             ),
-            TestRig(
-                "sex AND (failure",
-                syntactically_valid=False,
-                valid=False,
-            ),
-            TestRig(
-                "sex AND NOT",
-                syntactically_valid=False,
-                valid=False,
-            ),
-            TestRig(
-                "OR OR",
-                syntactically_valid=False,
-                valid=False,
-            ),
-            TestRig(
-                "idnum99",
-                syntactically_valid=True,
-                valid=False,
-            ),
+            TestRig("sex AND NOT", syntactically_valid=False, valid=False),
+            TestRig("OR OR", syntactically_valid=False, valid=False),
+            TestRig("idnum99", syntactically_valid=True, valid=False),
             TestRig(
                 "sex AND idnum1",
                 syntactically_valid=True,
@@ -120,7 +110,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=1,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: True, 3: False}
+                is_idnum_mandatory_in_policy={1: True, 3: False},
             ),
             TestRig(
                 "sex AND NOT idnum1",
@@ -130,7 +120,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=False,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "sex AND NOT idnum2",
@@ -139,7 +129,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=False,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "sex AND NOT idnum1 AND idnum3",
@@ -148,7 +138,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=3,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: False, 3: True}
+                is_idnum_mandatory_in_policy={1: False, 3: True},
             ),
             TestRig(
                 "sex AND NOT idnum2 AND idnum10",
@@ -157,7 +147,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=10,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "sex AND NOT idnum1 AND NOT idnum2 AND NOT idnum3",
@@ -166,7 +156,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=False,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "sex AND NOT (idnum1 OR idnum2 OR idnum3)",  # same as previous
@@ -175,7 +165,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=False,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "NOT (sex OR forename OR surname OR dob OR anyidnum)",
@@ -184,7 +174,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=False,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 """
@@ -196,7 +186,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=False,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "sex AND idnum1 AND otheridnum AND NOT address",
@@ -205,7 +195,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: True, 3: False}
+                is_idnum_mandatory_in_policy={1: True, 3: False},
             ),
             TestRig(
                 "sex AND idnum1 AND NOT (otheridnum OR forename OR surname OR "
@@ -215,7 +205,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=1,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: True, 3: False}
+                is_idnum_mandatory_in_policy={1: True, 3: False},
             ),
             TestRig(
                 "forename AND surname AND dob AND sex AND anyidnum",
@@ -224,7 +214,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: False, 3: False}
+                is_idnum_mandatory_in_policy={1: False, 3: False},
             ),
             TestRig(
                 "forename AND surname AND email AND sex AND idnum1",
@@ -233,7 +223,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=1,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: True, 3: False}
+                is_idnum_mandatory_in_policy={1: True, 3: False},
             ),
             TestRig(
                 "email AND sex AND idnum1",
@@ -243,7 +233,7 @@ class PolicyTests(ExtendedTestCase):
                 test_critical_single_numerical_id=True,
                 critical_single_numerical_id=1,
                 compatible_with_tablet_id_policy=True,
-                is_idnum_mandatory_in_policy={1: True, 3: False}
+                is_idnum_mandatory_in_policy={1: True, 3: False},
             ),
         ]
 
@@ -252,7 +242,7 @@ class PolicyTests(ExtendedTestCase):
 
         for tp in test_policies:
             policy_string = tp.policy
-            log.warning("Testing {!r}", policy_string)
+            log.info("Testing {!r}", policy_string)
             p = TokenizedPolicy(policy_string)
             p.set_valid_idnums(valid_idnums)
 
@@ -267,8 +257,9 @@ class PolicyTests(ExtendedTestCase):
             log.debug("Testing is_valid()")
             x = p.is_valid(verbose=True)
             self.assertIsInstance(x, bool)
-            log.info("is_valid(valid_idnums={!r}) -> {!r}".format(
-                valid_idnums, x))
+            log.info(
+                "is_valid(valid_idnums={!r}) -> {!r}".format(valid_idnums, x)
+            )
             if tp.valid is not None:
                 self.assertEqual(x, tp.valid)
                 log.info(correct_msg)
@@ -279,35 +270,44 @@ class PolicyTests(ExtendedTestCase):
                 x = p.is_idnum_mandatory_in_policy(
                     which_idnum=which_idnum,
                     valid_idnums=valid_idnums,
-                    verbose=True
+                    verbose=True,
                 )
                 self.assertIsInstance(x, bool)
                 log.info(
                     "is_idnum_mandatory_in_policy(which_idnum={!r}, "
                     "valid_idnums={!r}) -> {!r}".format(
-                        which_idnum, valid_idnums, x))
+                        which_idnum, valid_idnums, x
+                    )
+                )
                 if tp.is_idnum_mandatory_in_policy:
                     if which_idnum in tp.is_idnum_mandatory_in_policy:
                         self.assertEqual(
-                            x, tp.is_idnum_mandatory_in_policy[which_idnum])
+                            x, tp.is_idnum_mandatory_in_policy[which_idnum]
+                        )
                         log.info(correct_msg)
 
             log.debug("Testing find_critical_single_numerical_id()")
-            x = p.find_critical_single_numerical_id(valid_idnums=valid_idnums,
-                                                    verbose=True)
+            x = p.find_critical_single_numerical_id(
+                valid_idnums=valid_idnums, verbose=True
+            )
             self.assertIsInstanceOrNone(x, int)
-            log.info("find_critical_single_numerical_id(valid_idnums={!r}) "
-                     "-> {!r}".format(valid_idnums, x))
+            log.info(
+                "find_critical_single_numerical_id(valid_idnums={!r}) "
+                "-> {!r}".format(valid_idnums, x)
+            )
             if tp.test_critical_single_numerical_id:
                 self.assertEqual(x, tp.critical_single_numerical_id)
                 log.info(correct_msg)
 
             log.debug("Testing compatible_with_tablet_id_policy()")
-            x = p.compatible_with_tablet_id_policy(valid_idnums=valid_idnums,
-                                                   verbose=True)
+            x = p.compatible_with_tablet_id_policy(
+                valid_idnums=valid_idnums, verbose=True
+            )
             self.assertIsInstance(x, bool)
-            log.info("compatible_with_tablet_id_policy(valid_idnums={!r}) "
-                     "-> {!r}".format(valid_idnums, x))
+            log.info(
+                "compatible_with_tablet_id_policy(valid_idnums={!r}) "
+                "-> {!r}".format(valid_idnums, x)
+            )
             if tp.compatible_with_tablet_id_policy is not None:
                 self.assertEqual(x, tp.compatible_with_tablet_id_policy)
                 log.info(correct_msg)

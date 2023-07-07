@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "mainmenu.h"
@@ -34,6 +35,7 @@
 #include "menu/clinicalmenu.h"
 #include "menu/clinicalsetsmenu.h"
 #include "menu/cognitivemenu.h"
+#include "menu/eatingdisordersmenu.h"
 #include "menu/executivemenu.h"
 #include "menu/globalmenu.h"
 #include "menu/helpmenu.h"
@@ -76,19 +78,21 @@ void MainMenu::makeItems()
         MAKE_MENU_MENU_ITEM(SettingsMenu, m_app),
 
         MenuItem(tr("Tasks by type")).setLabelOnly(),
-        MAKE_MENU_MENU_ITEM(ClinicalMenu, m_app),
-        MAKE_MENU_MENU_ITEM(GlobalMenu, m_app),
-        MAKE_MENU_MENU_ITEM(CognitiveMenu, m_app),
+        // Alphabetical by title in English
         MAKE_MENU_MENU_ITEM(AffectiveMenu, m_app),
-        MAKE_MENU_MENU_ITEM(AddictionMenu, m_app),
-        MAKE_MENU_MENU_ITEM(PsychosisMenu, m_app),
+        MAKE_MENU_MENU_ITEM(AnonymousMenu, m_app),
         MAKE_MENU_MENU_ITEM(CatatoniaEpseMenu, m_app),
-        MAKE_MENU_MENU_ITEM(PersonalityMenu, m_app),
+        MAKE_MENU_MENU_ITEM(ClinicalMenu, m_app),
+        MAKE_MENU_MENU_ITEM(CognitiveMenu, m_app),
+        MAKE_MENU_MENU_ITEM(AddictionMenu, m_app),
+        MAKE_MENU_MENU_ITEM(EatingDisordersMenu, m_app),
         MAKE_MENU_MENU_ITEM(ExecutiveMenu, m_app),
+        MAKE_MENU_MENU_ITEM(GlobalMenu, m_app),
+        MAKE_MENU_MENU_ITEM(PersonalityMenu, m_app),
         MAKE_MENU_MENU_ITEM(PhysicalIllnessMenu, m_app),
+        MAKE_MENU_MENU_ITEM(PsychosisMenu, m_app),
         MAKE_MENU_MENU_ITEM(ServiceEvaluationMenu, m_app),
         MAKE_MENU_MENU_ITEM(ResearchMenu, m_app),
-        MAKE_MENU_MENU_ITEM(AnonymousMenu, m_app),
 
         MenuItem(tr("Task collections")).setLabelOnly(),
         MAKE_MENU_MENU_ITEM(ClinicalSetsMenu, m_app),

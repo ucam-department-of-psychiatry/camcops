@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "rand36.h"
@@ -36,7 +37,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 36;
-const int MAX_SCORE = 100;  // overall, or for subscales
+const int MAX_QUESTION_SCORE = 100;  // overall, or for subscales
 const QString QPREFIX("q");
 
 const QString Rand36::RAND36_TABLENAME("rand36");
@@ -109,7 +110,7 @@ bool Rand36::isComplete() const
 QStringList Rand36::summary() const
 {
     return QStringList{
-        scorePhraseVariant(xstring("score_overall"), overallMean(), MAX_SCORE),
+        scorePhraseVariant(xstring("score_overall"), overallMean(), MAX_QUESTION_SCORE),
     };
 }
 
@@ -118,21 +119,21 @@ QStringList Rand36::detail() const
 {
     return completenessInfo() + summary() + QStringList{
         scorePhraseVariant(xstring("score_physical_functioning"),
-                           subscaleMean(PHYSICAL_FUNCTIONING_Q), MAX_SCORE),
+                           subscaleMean(PHYSICAL_FUNCTIONING_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_role_limitations_physical"),
-                           subscaleMean(ROLE_LIMITATIONS_PHYSICAL_Q), MAX_SCORE),
+                           subscaleMean(ROLE_LIMITATIONS_PHYSICAL_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_role_limitations_emotional"),
-                           subscaleMean(ROLE_LIMITATIONS_EMOTIONAL_Q), MAX_SCORE),
+                           subscaleMean(ROLE_LIMITATIONS_EMOTIONAL_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_energy"),
-                           subscaleMean(ENERGY_Q), MAX_SCORE),
+                           subscaleMean(ENERGY_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_emotional_wellbeing"),
-                           subscaleMean(EMOTIONAL_WELLBEING_Q), MAX_SCORE),
+                           subscaleMean(EMOTIONAL_WELLBEING_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_social_functioning"),
-                           subscaleMean(SOCIAL_FUNCTIONING_Q), MAX_SCORE),
+                           subscaleMean(SOCIAL_FUNCTIONING_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_pain"),
-                           subscaleMean(PAIN_Q), MAX_SCORE),
+                           subscaleMean(PAIN_Q), MAX_QUESTION_SCORE),
         scorePhraseVariant(xstring("score_general_health"),
-                           subscaleMean(GENERAL_HEALTH_Q), MAX_SCORE),
+                           subscaleMean(GENERAL_HEALTH_Q), MAX_QUESTION_SCORE),
     };
 }
 

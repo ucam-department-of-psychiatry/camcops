@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_specialnote.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,7 +29,7 @@ camcops_server/cc_modules/cc_specialnote.py
 
 """
 
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import relationship, Session as SqlASession
@@ -50,6 +51,10 @@ from camcops_server.cc_modules.cc_xml import (
     XmlElement,
 )
 
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_task import Task
+
 
 # =============================================================================
 # SpecialNote class
@@ -65,54 +70,58 @@ class SpecialNote(Base):
     "Task" means all records representing versions of a single task instance,
     identified by the combination of {id, device, era}.
     """
+
     __tablename__ = "_special_notes"
 
     # PK:
     note_id = Column(
-        "note_id", Integer,
-        primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "note_id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     # Composite FK:
     basetable = Column(
-        "basetable", TableNameColType,
+        "basetable",
+        TableNameColType,
         index=True,
-        comment="Base table of task concerned (part of FK)"
+        comment="Base table of task concerned (part of FK)",
     )
     task_id = Column(
-        "task_id", Integer,
+        "task_id",
+        Integer,
         index=True,
         comment="Client-side ID of the task, or patient, concerned "
-                "(part of FK)"
+        "(part of FK)",
     )
     device_id = Column(
-        "device_id", Integer,
+        "device_id",
+        Integer,
         index=True,
-        comment="Source tablet device (part of FK)"
+        comment="Source tablet device (part of FK)",
     )
-    era = Column(
-        "era", EraColType,
-        index=True,
-        comment="Era (part of FK)"
-    )
+    era = Column("era", EraColType, index=True, comment="Era (part of FK)")
     # Details of note
     note_at = Column(
-        "note_at", PendulumDateTimeAsIsoTextColType,
-        comment="Date/time of note entry (ISO 8601)"
+        "note_at",
+        PendulumDateTimeAsIsoTextColType,
+        comment="Date/time of note entry (ISO 8601)",
     )
     user_id = Column(
-        "user_id", Integer,
+        "user_id",
+        Integer,
         ForeignKey("_security_users.id"),
-        comment="User that entered this note"
+        comment="User that entered this note",
     )
     user = relationship("User")
-    note = Column(
-        "note", UnicodeText,
-        comment="Special note, added manually"
-    )
+    note = Column("note", UnicodeText, comment="Special note, added manually")
     hidden = Column(
-        "hidden", Boolean, nullable=False, default=False,
-        comment="Manually hidden (effectively: deleted)"
+        "hidden",
+        Boolean,
+        nullable=False,
+        default=False,
+        comment="Manually hidden (effectively: deleted)",
     )
 
     def get_note_as_string(self) -> str:
@@ -145,12 +154,14 @@ class SpecialNote(Base):
         :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
         """
         branches = make_xml_branches_from_columns(
-            self, skip_fields=skip_fields)
+            self, skip_fields=skip_fields
+        )
         return XmlElement(name=self.__tablename__, value=branches)
 
     @classmethod
-    def forcibly_preserve_special_notes_for_device(cls, req: CamcopsRequest,
-                                                   device_id: int) -> None:
+    def forcibly_preserve_special_notes_for_device(
+        cls, req: CamcopsRequest, device_id: int
+    ) -> None:
         """
         Force-preserve all special notes for a given device.
 
@@ -174,7 +185,7 @@ class SpecialNote(Base):
 
         # METHOD 2: use the Core, in bulk
         # You can use update(table)... or table.update()...;
-        # http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
+        # https://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.update  # noqa
 
         # noinspection PyUnresolvedReferences
         dbsession.execute(
@@ -185,15 +196,65 @@ class SpecialNote(Base):
         )
 
     @classmethod
-    def get_specialnote_by_id(cls, dbsession: SqlASession,
-                              note_id: int) -> Optional["SpecialNote"]:
+    def get_specialnote_by_id(
+        cls, dbsession: SqlASession, note_id: int
+    ) -> Optional["SpecialNote"]:
         """
         Returns a special note, given its ID.
         """
-        return (
-            dbsession.query(cls)
-            .filter(cls.note_id == note_id)
-            .first()
+        return dbsession.query(cls).filter(cls.note_id == note_id).first()
+
+    def refers_to_patient(self) -> bool:
+        """
+        Is this a note relating to a patient, rather than a task?
+        """
+        from camcops_server.cc_modules.cc_patient import (
+            Patient,
+        )  # delayed import
+
+        return self.basetable == Patient.__tablename__
+
+    def refers_to_task(self) -> bool:
+        """
+        Is this a note relating to a task, rather than a patient?
+        """
+        return not self.refers_to_patient()
+
+    def target_patient(self) -> Optional["Patient"]:
+        """
+        Get the patient to which this note refers, or ``None`` if it doesn't.
+        """
+        from camcops_server.cc_modules.cc_patient import (
+            Patient,
+        )  # delayed import
+
+        if not self.refers_to_patient():
+            return None
+        dbsession = SqlASession.object_session(self)
+        return Patient.get_patient_by_id_device_era(
+            dbsession=dbsession,
+            client_id=self.task_id,
+            device_id=self.device_id,
+            era=self.era,
+        )
+
+    def target_task(self) -> Optional["Task"]:
+        """
+        Get the patient to which this note refers, or ``None`` if it doesn't.
+        """
+        from camcops_server.cc_modules.cc_taskfactory import (
+            task_factory_clientkeys_no_security_checks,
+        )  # delayed import
+
+        if not self.refers_to_task():
+            return None
+        dbsession = SqlASession.object_session(self)
+        return task_factory_clientkeys_no_security_checks(
+            dbsession=dbsession,
+            basetable=self.basetable,
+            client_id=self.task_id,
+            device_id=self.device_id,
+            era=self.era,
         )
 
     def get_group_id_of_target(self) -> Optional[int]:
@@ -201,29 +262,15 @@ class SpecialNote(Base):
         Returns the group ID for the object (task or patient) that this
         special note is about.
         """
-        from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_taskfactory import task_factory_clientkeys_no_security_checks  # noqa
-        dbsession = SqlASession.object_session(self)
         group_id = None
-        if self.basetable == Patient.__tablename__:
+        if self.refers_to_patient():
             # Patient
-            patient = Patient.get_patient_by_id_device_era(
-                dbsession=dbsession,
-                client_id=self.task_id,
-                device_id=self.device_id,
-                era=self.era
-            )
+            patient = self.target_patient()
             if patient:
                 group_id = patient.group_id
         else:
             # Task
-            task = task_factory_clientkeys_no_security_checks(
-                dbsession=dbsession,
-                basetable=self.basetable,
-                client_id=self.task_id,
-                device_id=self.device_id,
-                era=self.era
-            )
+            task = self.target_task()
             if task:
                 group_id = task.group_id
         return group_id

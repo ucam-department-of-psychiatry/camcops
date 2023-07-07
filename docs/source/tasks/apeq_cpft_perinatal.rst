@@ -1,6 +1,7 @@
 ..  docs/source/tasks/apeq_cpft_perinatal.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -17,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. include:: ../user/include_tabletdefs.rst
+.. include:: ../user_client/include_tabletdefs.rst
 
 .. _apeq_cpft_perinatal:
 
@@ -43,4 +44,3 @@ International (CC BY-NC-SA 4.0) License:
 https://creativecommons.org/licenses/by-nc-sa/4.0/.
 (Personal communication, Jo Peterkin and Lee Atkins to Rudolf Cardinal,
 2019-06-10.)
-

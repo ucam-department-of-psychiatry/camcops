@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0024.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -46,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0024'
-down_revision = '0023'
+revision = "0024"
+down_revision = "0023"
 branch_labels = None
 depends_on = None
 
@@ -58,11 +59,18 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('_security_users', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('language', sa.String(length=6), nullable=True, comment='Language code preferred by this user'))
+    with op.batch_alter_table("_security_users", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "language",
+                sa.String(length=6),
+                nullable=True,
+                comment="Language code preferred by this user",
+            )
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('_security_users', schema=None) as batch_op:
-        batch_op.drop_column('language')
+    with op.batch_alter_table("_security_users", schema=None) as batch_op:
+        batch_op.drop_column("language")

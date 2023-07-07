@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qutext.h"
@@ -24,7 +25,8 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuText::QuText(const QString& text, FieldRefPtr fieldref) :
+QuText::QuText(const QString& text, FieldRefPtr fieldref, QObject* parent) :
+    QuElement(parent),
     m_text(text),
     m_fieldref(fieldref),
     m_fontsize( uiconst::FontSize::Normal),
@@ -44,14 +46,14 @@ QuText::QuText(const QString& text, FieldRefPtr fieldref) :
 }
 
 
-QuText::QuText(const QString& text) :
-    QuText(text, nullptr)  // delegating constructor
+QuText::QuText(const QString& text, QObject* parent) :
+    QuText(text, nullptr, parent)  // delegating constructor
 {
 }
 
 
-QuText::QuText(FieldRefPtr fieldref) :
-    QuText("", fieldref)  // delegating constructor
+QuText::QuText(FieldRefPtr fieldref, QObject* parent) :
+    QuText(QString(), fieldref, parent)  // delegating constructor
 {
     Q_ASSERT(m_fieldref);
 }

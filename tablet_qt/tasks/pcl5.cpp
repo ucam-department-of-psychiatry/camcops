@@ -1,20 +1,21 @@
 /*
-Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
-This file is part of CamCOPS.
+    This file is part of CamCOPS.
 
-CamCOPS is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-CamCOPS is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "pcl5.h"
@@ -42,7 +43,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
-const int MAX_SCORE = 80;
+const int MAX_QUESTION_SCORE = 80;
 
 const QString QPREFIX("q");
 const QString Pcl5::PCL5_TABLENAME("pcl5");
@@ -105,7 +106,7 @@ bool Pcl5::isComplete() const
 QStringList Pcl5::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         standardResult(xstring("dsm_criteria_met"),
                        uifunc::yesNoUnknown(hasPtsd()))
     };

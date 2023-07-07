@@ -5,7 +5,8 @@ camcops_server/tasks/cbir.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -110,43 +111,53 @@ QUESTION_SNIPPETS = [
 
 class CbiRMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['CbiR'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["CbiR"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "frequency", 1, cls.NQUESTIONS,
+            cls,
+            "frequency",
+            1,
+            cls.NQUESTIONS,
             comment_fmt="Frequency Q{n}, {s} (0-4, higher worse)",
-            minimum=cls.MIN_SCORE, maximum=cls.MAX_SCORE,
-            comment_strings=QUESTION_SNIPPETS
+            minimum=cls.MIN_SCORE,
+            maximum=cls.MAX_SCORE,
+            comment_strings=QUESTION_SNIPPETS,
         )
         add_multiple_columns(
-            cls, "distress", 1, cls.NQUESTIONS,
+            cls,
+            "distress",
+            1,
+            cls.NQUESTIONS,
             comment_fmt="Distress Q{n}, {s} (0-4, higher worse)",
-            minimum=cls.MIN_SCORE, maximum=cls.MAX_SCORE,
-            comment_strings=QUESTION_SNIPPETS
+            minimum=cls.MIN_SCORE,
+            maximum=cls.MAX_SCORE,
+            comment_strings=QUESTION_SNIPPETS,
         )
         super().__init__(name, bases, classdict)
 
 
-class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
-           metaclass=CbiRMetaclass):
+class CbiR(
+    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=CbiRMetaclass
+):
     """
     Server implementation of the CBI-R task.
     """
+
     __tablename__ = "cbir"
     shortname = "CBI-R"
 
     confirm_blanks = CamcopsColumn(
-        "confirm_blanks", Integer,
+        "confirm_blanks",
+        Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Respondent confirmed that blanks are deliberate (N/A) "
-                "(0/NULL no, 1 yes)"
+        "(0/NULL no, 1 yes)",
     )
-    comments = Column(
-        "comments", UnicodeText,
-        comment="Additional comments"
-    )
+    comments = Column("comments", UnicodeText, comment="Additional comments")
 
     MIN_SCORE = 0
     MAX_SCORE = 4
@@ -162,8 +173,9 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     QNUMS_MOTIVATION = (41, 45)
 
     NQUESTIONS = 45
-    TASK_FIELDS = (strseq("frequency", 1, NQUESTIONS) +
-                   strseq("distress", 1, NQUESTIONS))
+    TASK_FIELDS = strseq("frequency", 1, NQUESTIONS) + strseq(
+        "distress", 1, NQUESTIONS
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -176,108 +188,129 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
                 name="memory_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_MEMORY),
-                comment="Memory/orientation: frequency score (% of max)"),
+                comment="Memory/orientation: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="memory_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_MEMORY),
-                comment="Memory/orientation: distress score (% of max)"),
+                comment="Memory/orientation: distress score (% of max)",
+            ),
             SummaryElement(
                 name="everyday_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_EVERYDAY),
-                comment="Everyday skills: frequency score (% of max)"),
+                comment="Everyday skills: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="everyday_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_EVERYDAY),
-                comment="Everyday skills: distress score (% of max)"),
+                comment="Everyday skills: distress score (% of max)",
+            ),
             SummaryElement(
                 name="selfcare_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_SELF),
-                comment="Self-care: frequency score (% of max)"),
+                comment="Self-care: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="selfcare_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_SELF),
-                comment="Self-care: distress score (% of max)"),
+                comment="Self-care: distress score (% of max)",
+            ),
             SummaryElement(
                 name="behaviour_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_BEHAVIOUR),
-                comment="Abnormal behaviour: frequency score (% of max)"),
+                comment="Abnormal behaviour: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="behaviour_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_BEHAVIOUR),
-                comment="Abnormal behaviour: distress score (% of max)"),
+                comment="Abnormal behaviour: distress score (% of max)",
+            ),
             SummaryElement(
                 name="mood_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_MOOD),
-                comment="Mood: frequency score (% of max)"),
+                comment="Mood: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="mood_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_MOOD),
-                comment="Mood: distress score (% of max)"),
+                comment="Mood: distress score (% of max)",
+            ),
             SummaryElement(
                 name="beliefs_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_BELIEFS),
-                comment="Beliefs: frequency score (% of max)"),
+                comment="Beliefs: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="beliefs_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_BELIEFS),
-                comment="Beliefs: distress score (% of max)"),
+                comment="Beliefs: distress score (% of max)",
+            ),
             SummaryElement(
                 name="eating_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_EATING),
-                comment="Eating habits: frequency score (% of max)"),
+                comment="Eating habits: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="eating_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_EATING),
-                comment="Eating habits: distress score (% of max)"),
+                comment="Eating habits: distress score (% of max)",
+            ),
             SummaryElement(
                 name="sleep_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_SLEEP),
-                comment="Sleep: frequency score (% of max)"),
+                comment="Sleep: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="sleep_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_SLEEP),
-                comment="Sleep: distress score (% of max)"),
+                comment="Sleep: distress score (% of max)",
+            ),
             SummaryElement(
                 name="stereotypic_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_STEREOTYPY),
                 comment="Stereotypic and motor behaviours: frequency "
-                        "score (% of max)"),
+                "score (% of max)",
+            ),
             SummaryElement(
                 name="stereotypic_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_STEREOTYPY),
                 comment="Stereotypic and motor behaviours: distress "
-                        "score (% of max)"),
+                "score (% of max)",
+            ),
             SummaryElement(
                 name="motivation_frequency_pct",
                 coltype=Float(),
                 value=self.frequency_subscore(*self.QNUMS_MOTIVATION),
-                comment="Motivation: frequency score (% of max)"),
+                comment="Motivation: frequency score (% of max)",
+            ),
             SummaryElement(
                 name="motivation_distress_pct",
                 coltype=Float(),
                 value=self.distress_subscore(*self.QNUMS_MOTIVATION),
-                comment="Motivation: distress score (% of max)"),
+                comment="Motivation: distress score (% of max)",
+            ),
         ]
 
-    def subscore(self, first: int, last: int, fieldprefix: str) \
-            -> Optional[float]:
+    def subscore(
+        self, first: int, last: int, fieldprefix: str
+    ) -> Optional[float]:
         score = 0
         n = 0
         for q in range(first, last + 1):
@@ -294,8 +327,10 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
         return self.subscore(first, last, "distress")
 
     def is_complete(self) -> bool:
-        if (not self.field_contents_valid() or
-                not self.is_respondent_complete()):
+        if (
+            not self.field_contents_valid()
+            or not self.is_respondent_complete()
+        ):
             return False
         if self.confirm_blanks:
             return True
@@ -324,14 +359,18 @@ class CbiR(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             for q in range(first, last + 1):
                 f = getattr(self, "frequency" + str(q))
                 d = getattr(self, "distress" + str(q))
-                fa = (f"{f}: {get_from_dict(freq_dict, f)}"
-                      if f is not None else None)
-                da = (f"{d}: {get_from_dict(distress_dict, d)}"
-                      if d is not None else None)
+                fa = (
+                    f"{f}: {get_from_dict(freq_dict, f)}"
+                    if f is not None
+                    else None
+                )
+                da = (
+                    f"{d}: {get_from_dict(distress_dict, d)}"
+                    if d is not None
+                    else None
+                )
                 html += tr(
-                    self.wxstring(req, "q" + str(q)),
-                    answer(fa),
-                    answer(da),
+                    self.wxstring(req, "q" + str(q)), answer(fa), answer(da)
                 )
             return html
 

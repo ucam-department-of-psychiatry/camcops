@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define OFFER_LAYOUT_DEBUG_BUTTON
@@ -47,14 +48,17 @@
 #include "widgets/zoomablewidget.h"
 
 
-Questionnaire::Questionnaire(CamcopsApp& app) :
-    Questionnaire(app, QVector<QuPagePtr>())  // delegating constructor
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             QWidget* parent) :
+    Questionnaire(app, QVector<QuPagePtr>(), parent)  // delegating constructor
 {
 }
 
 
 Questionnaire::Questionnaire(CamcopsApp& app,
-                             const QVector<QuPagePtr>& pages) :
+                             const QVector<QuPagePtr>& pages,
+                             QWidget* parent) :
+    OpenableWidget(parent),
     m_app(app),
     m_pages(pages),
     m_type(QuPage::PageType::Patient),
@@ -81,15 +85,17 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 
 
 Questionnaire::Questionnaire(CamcopsApp& app,
-                             std::initializer_list<QuPagePtr> pages) :
-    Questionnaire(app, QVector<QuPagePtr>(pages))  // delegating constructor
+                             std::initializer_list<QuPagePtr> pages,
+                             QWidget* parent) :
+    Questionnaire(app, QVector<QuPagePtr>(pages), parent)  // delegating constructor
 {
 }
 
 
 Questionnaire::Questionnaire(CamcopsApp& app,
-                             const QVector<QuPage*> pages) :
-    Questionnaire(app, QVector<QuPagePtr>())  // delegating constructor
+                             const QVector<QuPage*>& pages,
+                             QWidget* parent) :
+    Questionnaire(app, QVector<QuPagePtr>(), parent)  // delegating constructor
 {
     for (auto p : pages) {
         addPage(p);
@@ -98,8 +104,9 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 
 
 Questionnaire::Questionnaire(CamcopsApp& app,
-                             std::initializer_list<QuPage*> pages) :
-    Questionnaire(app, QVector<QuPagePtr>())  // delegating constructor
+                             std::initializer_list<QuPage*> pages,
+                             QWidget* parent) :
+    Questionnaire(app, QVector<QuPagePtr>(), parent)  // delegating constructor
 {
     for (auto p : pages) {
         addPage(p);
@@ -203,11 +210,11 @@ void Questionnaire::build()
         // Duff page!
         qWarning() << Q_FUNC_INFO << "Bad page number:"
                    << m_current_page_index;
-        uifunc::stopApp("BUG! Bad page number in Questionnaire::build");
+        uifunc::stopApp(QStringLiteral("BUG! Bad page number in Questionnaire::build"));
     }
     QuPage* page = currentPagePtr();
     if (!page) {
-        uifunc::stopApp("BUG! Null page pointer in Questionnaire::build");
+        uifunc::stopApp(QStringLiteral("BUG! Null page pointer in Questionnaire::build"));
     }
 
     // In case we're building on the fly...
@@ -728,8 +735,8 @@ void Questionnaire::setVisibleByTag(const QString& tag, const bool visible,
                                     const bool current_page_only,
                                     const QString& page_tag)
 {
-    QVector<QuElement*> elements = getElementsByTag(tag, current_page_only,
-                                                    page_tag);
+    const QVector<QuElement*> elements =
+            getElementsByTag(tag, current_page_only, page_tag);
     for (auto element : elements) {
         element->setVisible(visible);
     }
@@ -746,7 +753,7 @@ QVector<QuPage*> Questionnaire::getPages(const bool current_page_only,
             pages.append(page);
         }
     } else {
-        for (const QuPagePtr& p : m_pages) {
+        for (const QuPagePtr& p : qAsConst(m_pages)) {
             if (page_tag.isEmpty() || p->hasTag(page_tag)) {
                 pages.append(p.data());
             }
@@ -772,7 +779,7 @@ void Questionnaire::setPageSkip(const int page, const bool skip,
 void Questionnaire::setPageSkip(const QString& page_tag, const bool skip,
                                 const bool reset_buttons)
 {
-    QVector<QuPage*> pages = getPages(false, page_tag);
+    const QVector<QuPage*> pages = getPages(false, page_tag);
     for (auto page : pages) {
         page->setSkip(skip);
     }

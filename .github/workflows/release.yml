@@ -1,0 +1,43 @@
+---
+# yamllint disable rule:line-length
+name: Release
+# yamllint disable-line rule:truthy
+on:
+    push:
+        tags:
+            - '*'
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v3
+            - name: Work out tag
+              id: vars
+              run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+            - name: Create tar file
+              run: |
+                set -eux -o pipefail
+                cd ${GITHUB_WORKSPACE}
+                git archive --format=tar.gz -o /tmp/camcops_server.tar.gz --prefix=camcops/ ${{ steps.vars.outputs.tag }}
+            - name: Create DEB and RPM packages
+              run: ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
+            - name: Create release with artifacts
+              uses: ncipollo/release-action@v1
+              with:
+                  artifacts: "server/installer/installer.sh,/tmp/camcops_server.tar.gz,server/packagebuild/*.deb,server/packagebuild/*.rpm"
+                  token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Test installer
+              run: |
+                set -eux -o pipefail
+                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
+                ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
+                cd ${HOME}
+                curl -L --retry 10 --fail https://github.com/ucam-department-of-psychiatry/camcops/releases/latest/download/installer.sh --output camcops_docker_installer.sh
+                chmod u+x camcops_docker_installer.sh
+                ./camcops_docker_installer.sh
+                export CAMCOPS_HOME=${HOME}/camcops
+                ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -95,6 +96,9 @@ public:
     static QString description();
     static QString diagnosis();
 
+    static QString enterTheAnswers();
+    static QString examinerComments();
+    static QString examinerCommentsPrompt();
     static QString EXPERIMENTAL_SYMBOL;
     static QString experimentalSubtitleSuffix();
 
@@ -106,9 +110,7 @@ public:
     static QString finished();
     static QString fullTask();
 
-    static QString enterTheAnswers();
-    static QString examinerComments();
-    static QString examinerCommentsPrompt();
+    static QString globalScore();
 
     static QString icd10();
     static QString idNumberType();

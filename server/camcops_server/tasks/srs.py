@@ -5,7 +5,8 @@ camcops_server/tasks/srs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -37,23 +38,22 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
-    ZERO_TO_10_CHECKER
+    ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # =============================================================================
 # SRS
 # =============================================================================
 
+
 class Srs(TaskHasPatientMixin, Task):
     """
     Server implementation of the SRS task.
     """
+
     __tablename__ = "srs"
     shortname = "SRS"
     provides_trackers = True
@@ -67,21 +67,29 @@ class Srs(TaskHasPatientMixin, Task):
     q_session = CamcopsColumn("q_session", Integer, comment="Session number")
     q_date = CamcopsColumn("q_date", Date, comment="Session date")
     q_relationship = CamcopsColumn(
-        "q_relationship", Float,
+        "q_relationship",
+        Float,
         comment="Rating of patient-therapist relationship (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
     q_goals = CamcopsColumn(
-        "q_goals", Float,
+        "q_goals",
+        Float,
         comment="Rating for topics discussed (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
     q_approach = CamcopsColumn(
-        "q_approach", Float,
+        "q_approach",
+        Float,
         comment="Rating for therapist's approach (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
     q_overall = CamcopsColumn(
-        "q_overall", Float,
+        "q_overall",
+        Float,
         comment="Overall rating (0-10, 10 better)",
-        permitted_value_checker=ZERO_TO_10_CHECKER)
+        permitted_value_checker=ZERO_TO_10_CHECKER,
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

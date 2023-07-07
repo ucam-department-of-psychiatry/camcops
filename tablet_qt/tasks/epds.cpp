@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "epds.h"
@@ -34,7 +35,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 10;  // each scored 0-3
-const int MAX_SCORE = 30;
+const int MAX_QUESTION_SCORE = 30;
 const QString QPREFIX("q");
 const int CUTOFF_1_GREATER_OR_EQUAL = 10;  // Cox et al. 1987, PubMed ID 3651732.
 const int CUTOFF_2_GREATER_OR_EQUAL = 13;  // Cox et al. 1987, PubMed ID 3651732.
@@ -94,7 +95,7 @@ bool Epds::isComplete() const
 
 QStringList Epds::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

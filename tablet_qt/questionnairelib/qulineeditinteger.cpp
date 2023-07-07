@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qulineeditinteger.h"
@@ -25,8 +26,9 @@
 
 
 QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
-                                     const bool allow_empty) :
-    QuLineEdit(fieldref),
+                                     const bool allow_empty,
+                                     QObject* parent) :
+    QuLineEdit(fieldref, parent),
     m_minimum(std::numeric_limits<int>::min()),
     m_maximum(std::numeric_limits<int>::max()),
     m_allow_empty(allow_empty),
@@ -39,8 +41,9 @@ QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
 QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref,
                                      const int minimum,
                                      const int maximum,
-                                     const bool allow_empty) :
-    QuLineEdit(fieldref),
+                                     const bool allow_empty,
+                                     QObject* parent) :
+    QuLineEdit(fieldref, parent),
     m_minimum(minimum),
     m_maximum(maximum),
     m_allow_empty(allow_empty),

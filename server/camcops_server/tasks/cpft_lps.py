@@ -5,7 +5,8 @@ camcops_server/tasks/cpft_lps.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -61,7 +62,7 @@ from camcops_server.cc_modules.cc_nhs import (
     get_nhs_dd_ethnic_category_code,
     get_nhs_dd_person_marital_status,
     PV_NHS_ETHNIC_CATEGORY,
-    PV_NHS_MARITAL_STATUS
+    PV_NHS_MARITAL_STATUS,
 )
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
@@ -90,31 +91,37 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # CPFT_LPS_Referral
 # =============================================================================
 
+
 class CPFTLPSReferral(TaskHasPatientMixin, Task):
     """
     Server implementation of the CPFT_LPS_Referral task.
     """
+
     __tablename__ = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
+    info_filename_stem = "clinical"
 
-    referral_date_time = Column("referral_date_time",
-                                PendulumDateTimeAsIsoTextColType)
+    referral_date_time = Column(
+        "referral_date_time", PendulumDateTimeAsIsoTextColType
+    )
     lps_division = CamcopsColumn(
-        "lps_division", UnicodeText,
-        exempt_from_anonymisation=True)
+        "lps_division", UnicodeText, exempt_from_anonymisation=True
+    )
     referral_priority = CamcopsColumn(
-        "referral_priority", UnicodeText,
-        exempt_from_anonymisation=True)
+        "referral_priority", UnicodeText, exempt_from_anonymisation=True
+    )
     referral_method = CamcopsColumn(
-        "referral_method", UnicodeText,
-        exempt_from_anonymisation=True)
+        "referral_method", UnicodeText, exempt_from_anonymisation=True
+    )
     referrer_name = Column("referrer_name", UnicodeText)
     referrer_contact_details = Column("referrer_contact_details", UnicodeText)
     referring_consultant = Column("referring_consultant", UnicodeText)
     referring_specialty = CamcopsColumn(
-        "referring_specialty", UnicodeText,
-        exempt_from_anonymisation=True)
-    referring_specialty_other = Column("referring_specialty_other", UnicodeText)
+        "referring_specialty", UnicodeText, exempt_from_anonymisation=True
+    )
+    referring_specialty_other = Column(
+        "referring_specialty_other", UnicodeText
+    )
     patient_location = Column("patient_location", UnicodeText)
     admission_date = Column("admission_date", Date)
     estimated_discharge_date = Column("estimated_discharge_date", Date)
@@ -122,19 +129,23 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     interpreter_required = BoolColumn("interpreter_required")
     sensory_impairment = BoolColumn("sensory_impairment")
     marital_status_code = CamcopsColumn(
-        "marital_status_code", CharColType,
+        "marital_status_code",
+        CharColType,
         permitted_value_checker=PermittedValueChecker(
-            permitted_values=PV_NHS_MARITAL_STATUS)
+            permitted_values=PV_NHS_MARITAL_STATUS
+        ),
     )
     ethnic_category_code = CamcopsColumn(
-        "ethnic_category_code", CharColType,
+        "ethnic_category_code",
+        CharColType,
         permitted_value_checker=PermittedValueChecker(
-            permitted_values=PV_NHS_ETHNIC_CATEGORY)
+            permitted_values=PV_NHS_ETHNIC_CATEGORY
+        ),
     )
     admission_reason_overdose = BoolColumn("admission_reason_overdose")
     admission_reason_self_harm_not_overdose = BoolColumn(
         "admission_reason_self_harm_not_overdose",
-        constraint_name="ck_cpft_lps_referral_arshno"
+        constraint_name="ck_cpft_lps_referral_arshno",
     )
     admission_reason_confusion = BoolColumn("admission_reason_confusion")
     admission_reason_trauma = BoolColumn("admission_reason_trauma")
@@ -142,11 +153,12 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     admission_reason_infection = BoolColumn("admission_reason_infection")
     admission_reason_poor_adherence = BoolColumn(
         "admission_reason_poor_adherence",
-        constraint_name="ck_cpft_lps_referral_adpa"
+        constraint_name="ck_cpft_lps_referral_adpa",
     )
     admission_reason_other = BoolColumn("admission_reason_other")
-    existing_psychiatric_teams = Column("existing_psychiatric_teams",
-                                        UnicodeText)
+    existing_psychiatric_teams = Column(
+        "existing_psychiatric_teams", UnicodeText
+    )
     care_coordinator = Column("care_coordinator", UnicodeText)
     other_contact_details = Column("other_contact_details", UnicodeText)
     referral_reason = Column("referral_reason", UnicodeText)
@@ -158,21 +170,23 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return bool(
-            self.patient_location and
-            self.referral_reason and
-            self.field_contents_valid()
+            self.patient_location
+            and self.referral_reason
+            and self.field_contents_valid()
         )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        return [CtvInfo(
-            heading=ws.webify(self.wxstring(req, "f_referral_reason_t")),
-            content=self.referral_reason
-        )]
+        return [
+            CtvInfo(
+                heading=ws.webify(self.wxstring(req, "f_referral_reason_t")),
+                content=self.referral_reason,
+            )
+        ]
 
     @staticmethod
-    def four_column_row(q1: str, a1: Any,
-                        q2: str, a2: Any,
-                        default: str = "") -> str:
+    def four_column_row(
+        q1: str, a1: Any, q2: str, a2: Any, default: str = ""
+    ) -> str:
         return f"""
             <tr>
                 <td>{q1}</td><td>{answer(a1, default=default)}</td>
@@ -250,7 +264,8 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
                 <col width="25%">
         """
         h += subheading_spanning_four_columns(
-            self.wxstring(req, "t_about_referral"))
+            self.wxstring(req, "t_about_referral")
+        )
         h += """
             <tr>
                 <td>{q_method}</td>
@@ -264,30 +279,30 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             a_method=answer(self.referral_method),
             q_priority=self.wxstring(req, "f_referral_priority"),
             a_priority=(
-                answer(self.referral_priority, default_for_blank_strings=True) +  # noqa
-                ": " + answer(priority_name)
-            )
+                answer(self.referral_priority, default_for_blank_strings=True)
+                + ": "  # noqa
+                + answer(priority_name)
+            ),
         )
         h += self.four_column_row(
             self.wxstring(req, "f_referrer_name"),
             self.referrer_name,
             self.wxstring(req, "f_referring_specialty"),
-            self.referring_specialty
+            self.referring_specialty,
         )
         h += self.four_column_row(
             self.wxstring(req, "f_referrer_contact_details"),
             self.referrer_contact_details,
             self.wxstring(req, "f_referring_specialty_other"),
-            self.referring_specialty_other
+            self.referring_specialty_other,
         )
         h += self.four_column_row(
             self.wxstring(req, "f_referring_consultant"),
             self.referring_consultant,
             "",
-            ""
+            "",
         )
-        h += subheading_spanning_four_columns(
-            self.wxstring(req, "t_patient"))
+        h += subheading_spanning_four_columns(self.wxstring(req, "t_patient"))
         h += """
             <tr>
                 <td>{q_when}</td>
@@ -299,46 +314,57 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             CssClass=CssClass,
             q_when=self.wxstring(req, "f_admission_date"),
             a_when=answer(
-                format_datetime(self.admission_date, DateFormat.LONG_DATE,
-                                default=None), ""),
+                format_datetime(
+                    self.admission_date, DateFormat.LONG_DATE, default=None
+                ),
+                "",
+            ),
             q_where=self.wxstring(req, "f_patient_location"),
             a_where=answer(self.patient_location),
         )
         h += self.four_column_row(
             self.wxstring(req, "f_estimated_discharge_date"),
-            format_datetime(self.estimated_discharge_date,
-                            DateFormat.LONG_DATE, ""),
+            format_datetime(
+                self.estimated_discharge_date, DateFormat.LONG_DATE, ""
+            ),
             self.wxstring(req, "f_patient_aware_of_referral"),
-            get_yes_no_none(req, self.patient_aware_of_referral)
+            get_yes_no_none(req, self.patient_aware_of_referral),
         )
         h += self.four_column_row(
             self.wxstring(req, "f_marital_status"),
             person_marital_status.get(self.marital_status_code, INVALID_VALUE),
             self.wxstring(req, "f_interpreter_required"),
-            get_yes_no_none(req, self.interpreter_required)
+            get_yes_no_none(req, self.interpreter_required),
         )
         h += self.four_column_row(
             self.wxstring(req, "f_ethnic_category"),
             ethnic_category_code.get(self.ethnic_category_code, INVALID_VALUE),
             self.wxstring(req, "f_sensory_impairment"),
-            get_yes_no_none(req, self.sensory_impairment)
+            get_yes_no_none(req, self.sensory_impairment),
         )
         h += subheading_spanning_four_columns(
-            self.wxstring(req, "t_admission_reason"))
+            self.wxstring(req, "t_admission_reason")
+        )
         h += tr_span_col(answer(", ".join(admission_reasons), ""), cols=4)
         h += subheading_spanning_four_columns(
-            self.wxstring(req, "t_other_people"))
+            self.wxstring(req, "t_other_people")
+        )
         h += self.tr_qa(
             self.wxstring(req, "f_existing_psychiatric_teams"),
-            self.existing_psychiatric_teams, "")
+            self.existing_psychiatric_teams,
+            "",
+        )
         h += self.tr_qa(
-            self.wxstring(req, "f_care_coordinator"),
-            self.care_coordinator, "")
+            self.wxstring(req, "f_care_coordinator"), self.care_coordinator, ""
+        )
         h += self.tr_qa(
             self.wxstring(req, "f_other_contact_details"),
-            self.other_contact_details, "")
+            self.other_contact_details,
+            "",
+        )
         h += subheading_spanning_four_columns(
-            self.wxstring(req, "t_referral_reason"))
+            self.wxstring(req, "t_referral_reason")
+        )
         h += tr_span_col(answer(self.referral_reason, ""), cols=4)
         h += """
             </table>
@@ -350,13 +376,17 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
 # CPFT_LPS_ResetResponseClock
 # =============================================================================
 
-class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
-                                Task):
+
+class CPFTLPSResetResponseClock(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task
+):
     """
     Server implementation of the CPFT_LPS_ResetResponseClock task.
     """
+
     __tablename__ = "cpft_lps_resetresponseclock"
     shortname = "CPFT_LPS_ResetResponseClock"
+    info_filename_stem = "clinical"
 
     reset_start_time_to = Column(
         "reset_start_time_to", PendulumDateTimeAsIsoTextColType
@@ -370,9 +400,9 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
 
     def is_complete(self) -> bool:
         return bool(
-            self.reset_start_time_to and
-            self.reason and
-            self.field_contents_valid()
+            self.reset_start_time_to
+            and self.reason
+            and self.field_contents_valid()
         )
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -391,9 +421,12 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
         """
         h += tr_qa(
             self.wxstring(req, "to"),
-            format_datetime(self.reset_start_time_to,
-                            DateFormat.LONG_DATETIME_WITH_DAY,
-                            default=None))
+            format_datetime(
+                self.reset_start_time_to,
+                DateFormat.LONG_DATETIME_WITH_DAY,
+                default=None,
+            ),
+        )
         h += tr_qa(self.wxstring(req, "reason"), self.reason)
         h += """
             </table>
@@ -405,99 +438,105 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
 # CPFT_LPS_Discharge
 # =============================================================================
 
+
 class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     Server implementation of the CPFT_LPS_Discharge task.
     """
+
     __tablename__ = "cpft_lps_discharge"
     shortname = "CPFT_LPS_Discharge"
+    info_filename_stem = "clinical"
 
     discharge_date = Column("discharge_date", Date)
     discharge_reason_code = CamcopsColumn(
-        "discharge_reason_code", UnicodeText,
-        exempt_from_anonymisation=True)
+        "discharge_reason_code", UnicodeText, exempt_from_anonymisation=True
+    )
 
     leaflet_or_discharge_card_given = BoolColumn(
         "leaflet_or_discharge_card_given",
-        constraint_name="ck_cpft_lps_discharge_lodcg"
+        constraint_name="ck_cpft_lps_discharge_lodcg",
     )
     frequent_attender = BoolColumn("frequent_attender")
     patient_wanted_copy_of_letter = BoolColumn(
         # Was previously text! That wasn't right.
-        "patient_wanted_copy_of_letter",
+        "patient_wanted_copy_of_letter"
     )
     gaf_at_first_assessment = CamcopsColumn(
-        "gaf_at_first_assessment", Integer,
-        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100)
+        "gaf_at_first_assessment",
+        Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
     gaf_at_discharge = CamcopsColumn(
-        "gaf_at_discharge", Integer,
-        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100)
+        "gaf_at_discharge",
+        Integer,
+        permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
 
     referral_reason_self_harm_overdose = BoolColumn(
         "referral_reason_self_harm_overdose",
-        constraint_name="ck_cpft_lps_discharge_rrshoverdose"
+        constraint_name="ck_cpft_lps_discharge_rrshoverdose",
     )
     referral_reason_self_harm_other = BoolColumn(
         "referral_reason_self_harm_other",
-        constraint_name="ck_cpft_lps_discharge_rrshother"
+        constraint_name="ck_cpft_lps_discharge_rrshother",
     )
     referral_reason_suicidal_ideas = BoolColumn(
         "referral_reason_suicidal_ideas",
-        constraint_name="ck_cpft_lps_discharge_rrsuicidal"
+        constraint_name="ck_cpft_lps_discharge_rrsuicidal",
     )
     referral_reason_behavioural_disturbance = BoolColumn(
         "referral_reason_behavioural_disturbance",
-        constraint_name="ck_cpft_lps_discharge_behavdisturb"
+        constraint_name="ck_cpft_lps_discharge_behavdisturb",
     )
     referral_reason_low_mood = BoolColumn("referral_reason_low_mood")
     referral_reason_elevated_mood = BoolColumn("referral_reason_elevated_mood")
     referral_reason_psychosis = BoolColumn("referral_reason_psychosis")
     referral_reason_pre_transplant = BoolColumn(
         "referral_reason_pre_transplant",
-        constraint_name="ck_cpft_lps_discharge_pretransplant"
+        constraint_name="ck_cpft_lps_discharge_pretransplant",
     )
     referral_reason_post_transplant = BoolColumn(
         "referral_reason_post_transplant",
-        constraint_name="ck_cpft_lps_discharge_posttransplant"
+        constraint_name="ck_cpft_lps_discharge_posttransplant",
     )
     referral_reason_delirium = BoolColumn("referral_reason_delirium")
     referral_reason_anxiety = BoolColumn("referral_reason_anxiety")
     referral_reason_somatoform_mus = BoolColumn(
         "referral_reason_somatoform_mus",
-        constraint_name="ck_cpft_lps_discharge_mus"
+        constraint_name="ck_cpft_lps_discharge_mus",
     )
     referral_reason_motivation_adherence = BoolColumn(
         "referral_reason_motivation_adherence",
-        constraint_name="ck_cpft_lps_discharge_motivadherence"
+        constraint_name="ck_cpft_lps_discharge_motivadherence",
     )
     referral_reason_capacity = BoolColumn("referral_reason_capacity")
     referral_reason_eating_disorder = BoolColumn(
         "referral_reason_eating_disorder",
-        constraint_name="ck_cpft_lps_discharge_eatingdis"
+        constraint_name="ck_cpft_lps_discharge_eatingdis",
     )
     referral_reason_safeguarding = BoolColumn("referral_reason_safeguarding")
     referral_reason_discharge_placement = BoolColumn(
         "referral_reason_discharge_placement",
-        constraint_name="ck_cpft_lps_discharge_dcplacement"
+        constraint_name="ck_cpft_lps_discharge_dcplacement",
     )
     referral_reason_cognitive_problem = BoolColumn(
         "referral_reason_cognitive_problem",
-        constraint_name="ck_cpft_lps_discharge_cognitiveprob"
+        constraint_name="ck_cpft_lps_discharge_cognitiveprob",
     )
     referral_reason_substance_alcohol = BoolColumn(
         "referral_reason_substance_alcohol",
-        constraint_name="ck_cpft_lps_discharge_alcohol"
+        constraint_name="ck_cpft_lps_discharge_alcohol",
     )
     referral_reason_substance_other = BoolColumn(
         "referral_reason_substance_other",
-        constraint_name="ck_cpft_lps_discharge_substanceother"
+        constraint_name="ck_cpft_lps_discharge_substanceother",
     )
     referral_reason_other = BoolColumn("referral_reason_other")
     referral_reason_transplant_organ = CamcopsColumn(
-        "referral_reason_transplant_organ", UnicodeText,
-        exempt_from_anonymisation=True
+        "referral_reason_transplant_organ",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )
     referral_reason_other_detail = Column(
         "referral_reason_other_detail", UnicodeText
@@ -505,35 +544,39 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     diagnosis_no_active_mental_health_problem = BoolColumn(
         "diagnosis_no_active_mental_health_problem",
-        constraint_name="ck_cpft_lps_discharge_nomhprob"
+        constraint_name="ck_cpft_lps_discharge_nomhprob",
     )
     diagnosis_psych_1_icd10code = Column(
         "diagnosis_psych_1_icd10code", DiagnosticCodeColType
     )
     diagnosis_psych_1_description = CamcopsColumn(
-        "diagnosis_psych_1_description", UnicodeText,
-        exempt_from_anonymisation=True
+        "diagnosis_psych_1_description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )
     diagnosis_psych_2_icd10code = Column(
         "diagnosis_psych_2_icd10code", DiagnosticCodeColType
     )
     diagnosis_psych_2_description = CamcopsColumn(
-        "diagnosis_psych_2_description", UnicodeText,
-        exempt_from_anonymisation=True
+        "diagnosis_psych_2_description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )
     diagnosis_psych_3_icd10code = Column(
         "diagnosis_psych_3_icd10code", DiagnosticCodeColType
     )
     diagnosis_psych_3_description = CamcopsColumn(
-        "diagnosis_psych_3_description", UnicodeText,
-        exempt_from_anonymisation=True
+        "diagnosis_psych_3_description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )
     diagnosis_psych_4_icd10code = Column(
         "diagnosis_psych_4_icd10code", DiagnosticCodeColType
     )
     diagnosis_psych_4_description = CamcopsColumn(
-        "diagnosis_psych_4_description", UnicodeText,
-        exempt_from_anonymisation=True
+        "diagnosis_psych_4_description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
     )
     diagnosis_medical_1 = Column("diagnosis_medical_1", UnicodeText)
     diagnosis_medical_2 = Column("diagnosis_medical_2", UnicodeText)
@@ -542,13 +585,13 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     management_assessment_diagnostic = BoolColumn(
         "management_assessment_diagnostic",
-        constraint_name="ck_cpft_lps_discharge_mx_ass_diag"
+        constraint_name="ck_cpft_lps_discharge_mx_ass_diag",
     )
     management_medication = BoolColumn("management_medication")
     management_specialling_behavioural_disturbance = BoolColumn(
         "management_specialling_behavioural_disturbance",
         # Constraint name too long for MySQL unless we do this:
-        constraint_name="ck_cpft_lps_discharge_msbd"
+        constraint_name="ck_cpft_lps_discharge_msbd",
     )
     management_supportive_patient = BoolColumn("management_supportive_patient")
     management_supportive_carers = BoolColumn("management_supportive_carers")
@@ -559,7 +602,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_therapy_other = BoolColumn("management_therapy_other")
     management_treatment_adherence = BoolColumn(
         "management_treatment_adherence",
-        constraint_name="ck_cpft_lps_discharge_mx_rx_adhere"
+        constraint_name="ck_cpft_lps_discharge_mx_rx_adhere",
     )
     management_capacity = BoolColumn("management_capacity")
     management_education_patient = BoolColumn("management_education_patient")
@@ -567,11 +610,11 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_education_staff = BoolColumn("management_education_staff")
     management_accommodation_placement = BoolColumn(
         "management_accommodation_placement",
-        constraint_name="ck_cpft_lps_discharge_accom"
+        constraint_name="ck_cpft_lps_discharge_accom",
     )
     management_signposting_external_referral = BoolColumn(
         "management_signposting_external_referral",
-        constraint_name="ck_cpft_lps_discharge_mx_signpostrefer"
+        constraint_name="ck_cpft_lps_discharge_mx_signpostrefer",
     )
     management_mha_s136 = BoolColumn("management_mha_s136")
     management_mha_s5_2 = BoolColumn("management_mha_s5_2")
@@ -579,14 +622,13 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_mha_s3 = BoolColumn("management_mha_s3")
     management_complex_case_conference = BoolColumn(
         "management_complex_case_conference",
-        constraint_name="ck_cpft_lps_discharge_caseconf"
+        constraint_name="ck_cpft_lps_discharge_caseconf",
     )
     management_other = BoolColumn("management_other")
     management_other_detail = Column("management_other_detail", UnicodeText)
 
     outcome = CamcopsColumn(
-        "outcome", UnicodeText,
-        exempt_from_anonymisation=True
+        "outcome", UnicodeText, exempt_from_anonymisation=True
     )
     outcome_hospital_transfer_detail = Column(
         "outcome_hospital_transfer_detail", UnicodeText
@@ -600,8 +642,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def is_complete(self) -> bool:
         return bool(
-            self.discharge_date and
-            self.discharge_reason_code and
+            self.discharge_date
+            and self.discharge_reason_code
+            and
             # self.outcome and  # v2.0.0
             self.field_contents_valid()
         )
@@ -681,17 +724,25 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         return managements
 
     def get_psychiatric_diagnoses(self, req: CamcopsRequest) -> List[str]:
-        psychiatric_diagnoses = [
-            self.wxstring(req, "diagnosis_no_active_mental_health_problem")
-        ] if self.diagnosis_no_active_mental_health_problem else []
+        psychiatric_diagnoses = (
+            [self.wxstring(req, "diagnosis_no_active_mental_health_problem")]
+            if self.diagnosis_no_active_mental_health_problem
+            else []
+        )
         for i in range(1, 4 + 1):  # magic number
             if getattr(self, "diagnosis_psych_" + str(i) + "_icd10code"):
                 psychiatric_diagnoses.append(
-                    ws.webify(getattr(self, "diagnosis_psych_" +
-                                      str(i) + "_icd10code")) +
-                    " – " +
-                    ws.webify(getattr(self, "diagnosis_psych_" +
-                                      str(i) + "_description"))
+                    ws.webify(
+                        getattr(
+                            self, "diagnosis_psych_" + str(i) + "_icd10code"
+                        )
+                    )
+                    + " – "
+                    + ws.webify(
+                        getattr(
+                            self, "diagnosis_psych_" + str(i) + "_description"
+                        )
+                    )
                 )
         return psychiatric_diagnoses
 
@@ -700,33 +751,34 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         for i in range(1, 4 + 1):  # magic number
             if getattr(self, "diagnosis_medical_" + str(i)):
                 medical_diagnoses.append(
-                    ws.webify(getattr(self, "diagnosis_medical_" + str(i))))
+                    ws.webify(getattr(self, "diagnosis_medical_" + str(i)))
+                )
         return medical_diagnoses
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        diagnoses = self.get_psychiatric_diagnoses(req) + \
-            self.get_medical_diagnoses()
+        diagnoses = (
+            self.get_psychiatric_diagnoses(req) + self.get_medical_diagnoses()
+        )
         return [
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "discharge_reason")),
-                content=self.get_discharge_reason(req)
+                content=self.get_discharge_reason(req),
             ),
             CtvInfo(
-                heading=ws.webify(
-                    self.wxstring(req, "referral_reason_t")),
-                content=", ".join(self.get_referral_reasons(req))
+                heading=ws.webify(self.wxstring(req, "referral_reason_t")),
+                content=", ".join(self.get_referral_reasons(req)),
             ),
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "diagnoses_t")),
-                content=", ".join(diagnoses)
+                content=", ".join(diagnoses),
             ),
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "management_t")),
-                content=", ".join(self.get_managements(req))
+                content=", ".join(self.get_managements(req)),
             ),
             CtvInfo(
                 heading=ws.webify(self.wxstring(req, "outcome_t")),
-                content=self.outcome
+                content=self.outcome,
             ),
         ]
 
@@ -741,52 +793,95 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 <col width="40%">
                 <col width="60%">
         """
-        h += tr_qa(self.wxstring(req, "discharge_date"),
-                   format_datetime(self.discharge_date,
-                                   DateFormat.LONG_DATE_WITH_DAY,
-                                   default=None), "")
-        h += tr_qa(self.wxstring(req, "discharge_reason"),
-                   self.get_discharge_reason(req), "")
-        h += tr_qa(self.wxstring(req, "leaflet_or_discharge_card_given"),
-                   get_yes_no_none(req, self.leaflet_or_discharge_card_given),
-                   "")
-        h += tr_qa(self.wxstring(req, "frequent_attender"),
-                   get_yes_no_none(req, self.frequent_attender), "")
-        h += tr_qa(self.wxstring(req, "patient_wanted_copy_of_letter"),
-                   self.patient_wanted_copy_of_letter, "")
-        h += tr_qa(self.wxstring(req, "gaf_at_first_assessment"),
-                   self.gaf_at_first_assessment, "")
-        h += tr_qa(self.wxstring(req, "gaf_at_discharge"),
-                   self.gaf_at_discharge, "")
+        h += tr_qa(
+            self.wxstring(req, "discharge_date"),
+            format_datetime(
+                self.discharge_date,
+                DateFormat.LONG_DATE_WITH_DAY,
+                default=None,
+            ),
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "discharge_reason"),
+            self.get_discharge_reason(req),
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "leaflet_or_discharge_card_given"),
+            get_yes_no_none(req, self.leaflet_or_discharge_card_given),
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "frequent_attender"),
+            get_yes_no_none(req, self.frequent_attender),
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "patient_wanted_copy_of_letter"),
+            self.patient_wanted_copy_of_letter,
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "gaf_at_first_assessment"),
+            self.gaf_at_first_assessment,
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "gaf_at_discharge"), self.gaf_at_discharge, ""
+        )
 
         h += subheading_spanning_two_columns(
-            self.wxstring(req, "referral_reason_t"))
-        h += tr_span_col(answer(", ".join(self.get_referral_reasons(req))),
-                         cols=2)
-        h += tr_qa(self.wxstring(req, "referral_reason_transplant_organ"),
-                   self.referral_reason_transplant_organ, "")
-        h += tr_qa(self.wxstring(req, "referral_reason_other_detail"),
-                   self.referral_reason_other_detail, "")
+            self.wxstring(req, "referral_reason_t")
+        )
+        h += tr_span_col(
+            answer(", ".join(self.get_referral_reasons(req))), cols=2
+        )
+        h += tr_qa(
+            self.wxstring(req, "referral_reason_transplant_organ"),
+            self.referral_reason_transplant_organ,
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "referral_reason_other_detail"),
+            self.referral_reason_other_detail,
+            "",
+        )
+
+        h += subheading_spanning_two_columns(self.wxstring(req, "diagnoses_t"))
+        h += tr_qa(
+            self.wxstring(req, "psychiatric_t"),
+            "\n".join(self.get_psychiatric_diagnoses(req)),
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "medical_t"),
+            "\n".join(self.get_medical_diagnoses()),
+            "",
+        )
 
         h += subheading_spanning_two_columns(
-            self.wxstring(req, "diagnoses_t"))
-        h += tr_qa(self.wxstring(req, "psychiatric_t"),
-                   "\n".join(self.get_psychiatric_diagnoses(req)), "")
-        h += tr_qa(self.wxstring(req, "medical_t"),
-                   "\n".join(self.get_medical_diagnoses()), "")
-
-        h += subheading_spanning_two_columns(self.wxstring(req, "management_t"))
+            self.wxstring(req, "management_t")
+        )
         h += tr_span_col(answer(", ".join(self.get_managements(req))), cols=2)
-        h += tr_qa(self.wxstring(req, "management_other_detail"),
-                   self.management_other_detail, "")
+        h += tr_qa(
+            self.wxstring(req, "management_other_detail"),
+            self.management_other_detail,
+            "",
+        )
 
         h += subheading_spanning_two_columns(self.wxstring(req, "outcome_t"))
-        h += tr_qa(self.wxstring(req, "outcome_t"),
-                   self.outcome, "")
-        h += tr_qa(self.wxstring(req, "outcome_hospital_transfer_detail"),
-                   self.outcome_hospital_transfer_detail, "")
-        h += tr_qa(self.wxstring(req, "outcome_other_detail"),
-                   self.outcome_other_detail, "")
+        h += tr_qa(self.wxstring(req, "outcome_t"), self.outcome, "")
+        h += tr_qa(
+            self.wxstring(req, "outcome_hospital_transfer_detail"),
+            self.outcome_hospital_transfer_detail,
+            "",
+        )
+        h += tr_qa(
+            self.wxstring(req, "outcome_other_detail"),
+            self.outcome_other_detail,
+            "",
+        )
 
         h += """
             </table>
@@ -797,6 +892,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 # Reports
 # =============================================================================
+
 
 class LPSReportSchema(ReportParamSchema):
     which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
@@ -826,8 +922,7 @@ class LPSReportReferredNotDischarged(Report):
     def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM, 1)
         if which_idnum is None:
-            raise exc.HTTPBadRequest(
-                f"{ViewParam.WHICH_IDNUM} not specified")
+            raise exc.HTTPBadRequest(f"{ViewParam.WHICH_IDNUM} not specified")
 
         group_ids = req.user.ids_of_groups_user_may_report_on
 
@@ -845,22 +940,26 @@ class LPSReportReferredNotDischarged(Report):
             i1.c.idnum_value.label(desc),
             CPFTLPSReferral.patient_location,
         ]
-        select_from = p1.join(CPFTLPSReferral.__table__, and_(
-            p1.c._current == True,  # noqa: E712
-            CPFTLPSReferral.patient_id == p1.c.id,
-            CPFTLPSReferral._device_id == p1.c._device_id,
-            CPFTLPSReferral._era == p1.c._era,
-            CPFTLPSReferral._current == True,
-        ))
-        select_from = select_from.join(i1, and_(
-            i1.c.patient_id == p1.c.id,
-            i1.c._device_id == p1.c._device_id,
-            i1.c._era == p1.c._era,
-            i1.c._current == True,  # noqa: E712
-        ))
-        wheres = [
-            i1.c.which_idnum == which_idnum,
-        ]
+        select_from = p1.join(
+            CPFTLPSReferral.__table__,
+            and_(
+                p1.c._current == True,  # noqa: E712
+                CPFTLPSReferral.patient_id == p1.c.id,
+                CPFTLPSReferral._device_id == p1.c._device_id,
+                CPFTLPSReferral._era == p1.c._era,
+                CPFTLPSReferral._current == True,  # noqa: E712
+            ),
+        )
+        select_from = select_from.join(
+            i1,
+            and_(
+                i1.c.patient_id == p1.c.id,
+                i1.c._device_id == p1.c._device_id,
+                i1.c._era == p1.c._era,
+                i1.c._current == True,  # noqa: E712
+            ),
+        )
+        wheres = [i1.c.which_idnum == which_idnum]
         if not req.user.superuser:
             # Restrict to accessible groups
             wheres.append(CPFTLPSReferral._group_id.in_(group_ids))
@@ -869,34 +968,45 @@ class LPSReportReferredNotDischarged(Report):
         p2 = Patient.__table__.alias("p2")
         i2 = PatientIdNum.__table__.alias("i2")
         discharge = (
-            select(['*'])
+            select(["*"])
             .select_from(
-                p2.join(CPFTLPSDischarge.__table__, and_(
-                    p2.c._current == True,  # noqa: E712
-                    CPFTLPSDischarge.patient_id == p2.c.id,
-                    CPFTLPSDischarge._device_id == p2.c._device_id,
-                    CPFTLPSDischarge._era == p2.c._era,
-                    CPFTLPSDischarge._current == True,
-                )).join(i2, and_(
-                    i2.c.patient_id == p2.c.id,
-                    i2.c._device_id == p2.c._device_id,
-                    i2.c._era == p2.c._era,
-                    i2.c._current == True,
-                ))
+                p2.join(
+                    CPFTLPSDischarge.__table__,
+                    and_(
+                        p2.c._current == True,  # noqa: E712
+                        CPFTLPSDischarge.patient_id == p2.c.id,
+                        CPFTLPSDischarge._device_id == p2.c._device_id,
+                        CPFTLPSDischarge._era == p2.c._era,
+                        CPFTLPSDischarge._current == True,  # noqa: E712
+                    ),
+                ).join(
+                    i2,
+                    and_(
+                        i2.c.patient_id == p2.c.id,
+                        i2.c._device_id == p2.c._device_id,
+                        i2.c._era == p2.c._era,
+                        i2.c._current == True,  # noqa: E712
+                    ),
+                )
             )
-            .where(and_(
-                # Link on ID to main query: same patient
-                i2.c.which_idnum == which_idnum,
-                i2.c.idnum_value == i1.c.idnum_value,
-                # Discharge later than referral
-                (CPFTLPSDischarge.discharge_date >=
-                 CPFTLPSReferral.referral_date_time),
-            ))
+            .where(
+                and_(
+                    # Link on ID to main query: same patient
+                    i2.c.which_idnum == which_idnum,
+                    i2.c.idnum_value == i1.c.idnum_value,
+                    # Discharge later than referral
+                    (
+                        CPFTLPSDischarge.discharge_date
+                        >= CPFTLPSReferral.referral_date_time
+                    ),
+                )
+            )
         )  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
             discharge = discharge.where(
-                CPFTLPSDischarge._group_id.in_(group_ids))
+                CPFTLPSDischarge._group_id.in_(group_ids)
+            )
 
         wheres.append(~exists(discharge))
 
@@ -906,10 +1016,12 @@ class LPSReportReferredNotDischarged(Report):
             CPFTLPSReferral.referral_date_time,
             CPFTLPSReferral.referral_priority,
         ]
-        query = select(select_fields) \
-            .select_from(select_from) \
-            .where(and_(*wheres)) \
+        query = (
+            select(select_fields)
+            .select_from(select_from)
+            .where(and_(*wheres))
             .order_by(*order_by)
+        )
         return query
 
 
@@ -922,7 +1034,9 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
     @classmethod
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("CPFT LPS – referred but not yet fully assessed or discharged")  # noqa
+        return _(
+            "CPFT LPS – referred but not yet fully assessed or discharged"
+        )
 
     # noinspection PyMethodParameters
     @classproperty
@@ -937,8 +1051,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
     def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM, 1)
         if which_idnum is None:
-            raise exc.HTTPBadRequest(
-                f"{ViewParam.WHICH_IDNUM} not specified")
+            raise exc.HTTPBadRequest(f"{ViewParam.WHICH_IDNUM} not specified")
 
         group_ids = req.user.ids_of_groups_user_may_report_on
 
@@ -959,22 +1072,26 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             CPFTLPSReferral.patient_location,
         ]
         # noinspection PyUnresolvedReferences
-        select_from = p1.join(CPFTLPSReferral.__table__, and_(
-            p1.c._current == True,  # noqa: E712
-            CPFTLPSReferral.patient_id == p1.c.id,
-            CPFTLPSReferral._device_id == p1.c._device_id,
-            CPFTLPSReferral._era == p1.c._era,
-            CPFTLPSReferral._current == True,
-        ))
-        select_from = select_from.join(i1, and_(
-            i1.c.patient_id == p1.c.id,
-            i1.c._device_id == p1.c._device_id,
-            i1.c._era == p1.c._era,
-            i1.c._current == True,  # noqa: E712
-        ))  # nopep8
-        wheres = [
-            i1.c.which_idnum == which_idnum,
-        ]
+        select_from = p1.join(
+            CPFTLPSReferral.__table__,
+            and_(
+                p1.c._current == True,  # noqa: E712
+                CPFTLPSReferral.patient_id == p1.c.id,
+                CPFTLPSReferral._device_id == p1.c._device_id,
+                CPFTLPSReferral._era == p1.c._era,
+                CPFTLPSReferral._current == True,  # noqa: E712
+            ),
+        )
+        select_from = select_from.join(
+            i1,
+            and_(
+                i1.c.patient_id == p1.c.id,
+                i1.c._device_id == p1.c._device_id,
+                i1.c._era == p1.c._era,
+                i1.c._current == True,  # noqa: E712
+            ),
+        )  # nopep8
+        wheres = [i1.c.which_idnum == which_idnum]
         if not req.user.superuser:
             # Restrict to accessible groups
             wheres.append(CPFTLPSReferral._group_id.in_(group_ids))
@@ -986,34 +1103,45 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         i2 = PatientIdNum.__table__.alias("i2")
         # noinspection PyUnresolvedReferences
         discharge = (
-            select(['*'])
+            select(["*"])
             .select_from(
-                p2.join(CPFTLPSDischarge.__table__, and_(
-                    p2.c._current == True,  # noqa: E712
-                    CPFTLPSDischarge.patient_id == p2.c.id,
-                    CPFTLPSDischarge._device_id == p2.c._device_id,
-                    CPFTLPSDischarge._era == p2.c._era,
-                    CPFTLPSDischarge._current == True,
-                )).join(i2, and_(
-                    i2.c.patient_id == p2.c.id,
-                    i2.c._device_id == p2.c._device_id,
-                    i2.c._era == p2.c._era,
-                    i2.c._current == True,
-                ))
+                p2.join(
+                    CPFTLPSDischarge.__table__,
+                    and_(
+                        p2.c._current == True,  # noqa: E712
+                        CPFTLPSDischarge.patient_id == p2.c.id,
+                        CPFTLPSDischarge._device_id == p2.c._device_id,
+                        CPFTLPSDischarge._era == p2.c._era,
+                        CPFTLPSDischarge._current == True,  # noqa: E712
+                    ),
+                ).join(
+                    i2,
+                    and_(
+                        i2.c.patient_id == p2.c.id,
+                        i2.c._device_id == p2.c._device_id,
+                        i2.c._era == p2.c._era,
+                        i2.c._current == True,  # noqa: E712
+                    ),
+                )
             )
-            .where(and_(
-                # Link on ID to main query: same patient
-                i2.c.which_idnum == which_idnum,
-                i2.c.idnum_value == i1.c.idnum_value,
-                # Discharge later than referral
-                (CPFTLPSDischarge.discharge_date >=
-                 CPFTLPSReferral.referral_date_time),
-            ))
+            .where(
+                and_(
+                    # Link on ID to main query: same patient
+                    i2.c.which_idnum == which_idnum,
+                    i2.c.idnum_value == i1.c.idnum_value,
+                    # Discharge later than referral
+                    (
+                        CPFTLPSDischarge.discharge_date
+                        >= CPFTLPSReferral.referral_date_time
+                    ),
+                )
+            )
         )  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
             discharge = discharge.where(
-                CPFTLPSDischarge._group_id.in_(group_ids))
+                CPFTLPSDischarge._group_id.in_(group_ids)
+            )
         wheres.append(~exists(discharge))
 
         # Step 3: not yet clerked
@@ -1023,34 +1151,45 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         i3 = PatientIdNum.__table__.alias("i3")
         # noinspection PyUnresolvedReferences
         clerking = (
-            select(['*'])
+            select(["*"])
             .select_from(
-                p3.join(PsychiatricClerking.__table__, and_(
-                    p3.c._current == True,  # noqa: E712
-                    PsychiatricClerking.patient_id == p3.c.id,
-                    PsychiatricClerking._device_id == p3.c._device_id,
-                    PsychiatricClerking._era == p3.c._era,
-                    PsychiatricClerking._current == True,
-                )).join(i3, and_(
-                    i3.c.patient_id == p3.c.id,
-                    i3.c._device_id == p3.c._device_id,
-                    i3.c._era == p3.c._era,
-                    i3.c._current == True,
-                ))
+                p3.join(
+                    PsychiatricClerking.__table__,
+                    and_(
+                        p3.c._current == True,  # noqa: E712
+                        PsychiatricClerking.patient_id == p3.c.id,
+                        PsychiatricClerking._device_id == p3.c._device_id,
+                        PsychiatricClerking._era == p3.c._era,
+                        PsychiatricClerking._current == True,  # noqa: E712
+                    ),
+                ).join(
+                    i3,
+                    and_(
+                        i3.c.patient_id == p3.c.id,
+                        i3.c._device_id == p3.c._device_id,
+                        i3.c._era == p3.c._era,
+                        i3.c._current == True,  # noqa: E712
+                    ),
+                )
             )
-            .where(and_(
-                # Link on ID to main query: same patient
-                i3.c.which_idnum == which_idnum,
-                i3.c.idnum_value == i1.c.idnum_value,
-                # Discharge later than referral
-                (PsychiatricClerking.when_created >=
-                 CPFTLPSReferral.referral_date_time),
-            ))
+            .where(
+                and_(
+                    # Link on ID to main query: same patient
+                    i3.c.which_idnum == which_idnum,
+                    i3.c.idnum_value == i1.c.idnum_value,
+                    # Discharge later than referral
+                    (
+                        PsychiatricClerking.when_created
+                        >= CPFTLPSReferral.referral_date_time
+                    ),
+                )
+            )
         )  # nopep8
         if not req.user.superuser:
             # Restrict to accessible groups
             clerking = clerking.where(
-                PsychiatricClerking._group_id.in_(group_ids))
+                PsychiatricClerking._group_id.in_(group_ids)
+            )
         wheres.append(~exists(clerking))
 
         # Finish up

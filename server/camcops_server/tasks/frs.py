@@ -5,7 +5,8 @@ camcops_server/tasks/frs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -81,11 +82,7 @@ NA = -99
 NA_QUESTIONS = [9, 10, 11, 13, 14, 15, 17, 18, 19, 20, 21, 27]
 SPECIAL_NA_TEXT_QUESTIONS = [27]
 NO_SOMETIMES_QUESTIONS = [30]
-SCORE = {
-    NEVER: 1,
-    SOMETIMES: 0,
-    ALWAYS: 0
-}
+SCORE = {NEVER: 1, SOMETIMES: 0, ALWAYS: 0}
 NQUESTIONS = 30
 QUESTION_SNIPPETS = [
     "behaviour / lacks interest",  # 1
@@ -121,40 +118,42 @@ QUESTION_SNIPPETS = [
 ]
 DP = 3
 
-TABULAR_LOGIT_BETWEENDICT = BetweenDict({
-    # tests a <= x < b
-    (100, float("inf")): 5.39,  # from Python 3.5, can use math.inf
-    (97, 100): 4.12,
-    (93, 97): 3.35,
-    (90, 93): 2.86,
-    (87, 90): 2.49,
-    (83, 87): 2.19,
-    (80, 83): 1.92,
-    (77, 80): 1.68,
-    (73, 77): 1.47,
-    (70, 73): 1.26,
-    (67, 70): 1.07,
-    (63, 67): 0.88,
-    (60, 63): 0.7,
-    (57, 60): 0.52,
-    (53, 57): 0.34,
-    (50, 53): 0.16,
-    (47, 50): -0.02,
-    (43, 47): -0.2,
-    (40, 43): -0.4,
-    (37, 40): -0.59,
-    (33, 37): -0.8,
-    (30, 33): -1.03,
-    (27, 30): -1.27,
-    (23, 27): -1.54,
-    (20, 23): -1.84,
-    (17, 20): -2.18,
-    (13, 17): -2.58,
-    (10, 13): -3.09,
-    (6, 10): -3.8,
-    (3, 6): -4.99,
-    (0, 3): -6.66,
-})
+TABULAR_LOGIT_BETWEENDICT = BetweenDict(
+    {
+        # tests a <= x < b
+        (100, float("inf")): 5.39,  # from Python 3.5, can use math.inf
+        (97, 100): 4.12,
+        (93, 97): 3.35,
+        (90, 93): 2.86,
+        (87, 90): 2.49,
+        (83, 87): 2.19,
+        (80, 83): 1.92,
+        (77, 80): 1.68,
+        (73, 77): 1.47,
+        (70, 73): 1.26,
+        (67, 70): 1.07,
+        (63, 67): 0.88,
+        (60, 63): 0.7,
+        (57, 60): 0.52,
+        (53, 57): 0.34,
+        (50, 53): 0.16,
+        (47, 50): -0.02,
+        (43, 47): -0.2,
+        (40, 43): -0.4,
+        (37, 40): -0.59,
+        (33, 37): -0.8,
+        (30, 33): -1.03,
+        (27, 30): -1.27,
+        (23, 27): -1.54,
+        (20, 23): -1.84,
+        (17, 20): -2.18,
+        (13, 17): -2.58,
+        (10, 13): -3.09,
+        (6, 10): -3.8,
+        (3, 6): -4.99,
+        (0, 3): -6.66,
+    }
+)
 
 
 def get_severity(logit: float) -> str:
@@ -188,15 +187,17 @@ def get_tabular_logit(score: float) -> float:
 #     score = x / 100
 #     logit = get_tabular_logit(score)
 #     severity = get_severity(logit)
-#     print(",".join(str(q) for q in [x, logit, severity]))
+#     print(",".join(str(q) for q in (x, logit, severity)))
 
 
 class FrsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Frs'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Frs"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
             pc = [f"{NEVER} = never", f"{ALWAYS} = always"]
@@ -212,28 +213,32 @@ class FrsMetaclass(DeclarativeMeta):
                 cls,
                 colname,
                 CamcopsColumn(
-                    colname, Integer,
+                    colname,
+                    Integer,
                     permitted_value_checker=PermittedValueChecker(
-                        permitted_values=pv),
-                    comment=comment
-                )
+                        permitted_values=pv
+                    ),
+                    comment=comment,
+                ),
             )
         super().__init__(name, bases, classdict)
 
 
-class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
-          Task,
-          metaclass=FrsMetaclass):
+class Frs(
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    TaskHasClinicianMixin,
+    Task,
+    metaclass=FrsMetaclass,
+):
     """
     Server implementation of the FRS task.
     """
+
     __tablename__ = "frs"
     shortname = "FRS"
 
-    comments = Column(
-        "comments", UnicodeText,
-        comment="Clinician's comments"
-    )
+    comments = Column("comments", UnicodeText, comment="Clinician's comments")
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
@@ -245,44 +250,56 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scoredict = self.get_score()
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=scoredict['total'],
-                           comment="Total (0-n, higher better)"),
-            SummaryElement(name="n",
-                           coltype=Integer(),
-                           value=scoredict['n'],
-                           comment="Number of applicable questions"),
-            SummaryElement(name="score",
-                           coltype=Float(),
-                           value=scoredict['score'],
-                           comment="tcore / n"),
-            SummaryElement(name="logit",
-                           coltype=Float(),
-                           value=scoredict['logit'],
-                           comment="log(score / (1 - score))"),
-            SummaryElement(name="severity",
-                           coltype=SummaryCategoryColType,
-                           value=scoredict['severity'],
-                           comment="Severity"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=scoredict["total"],
+                comment="Total (0-n, higher better)",
+            ),
+            SummaryElement(
+                name="n",
+                coltype=Integer(),
+                value=scoredict["n"],
+                comment="Number of applicable questions",
+            ),
+            SummaryElement(
+                name="score",
+                coltype=Float(),
+                value=scoredict["score"],
+                comment="tcore / n",
+            ),
+            SummaryElement(
+                name="logit",
+                coltype=Float(),
+                value=scoredict["logit"],
+                comment="log(score / (1 - score))",
+            ),
+            SummaryElement(
+                name="severity",
+                coltype=SummaryCategoryColType,
+                value=scoredict["severity"],
+                comment="Severity",
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
         scoredict = self.get_score()
-        return [CtvInfo(
-            content=(
-                "Total {total}/n, n = {n}, score = {score}, "
-                "logit score = {logit}, severity = {severity}".format(
-                    total=scoredict['total'],
-                    n=scoredict['n'],
-                    score=ws.number_to_dp(scoredict['score'], DP),
-                    logit=ws.number_to_dp(scoredict['logit'], DP),
-                    severity=scoredict['severity'],
+        return [
+            CtvInfo(
+                content=(
+                    "Total {total}/n, n = {n}, score = {score}, "
+                    "logit score = {logit}, severity = {severity}".format(
+                        total=scoredict["total"],
+                        n=scoredict["n"],
+                        score=ws.number_to_dp(scoredict["score"], DP),
+                        logit=ws.number_to_dp(scoredict["logit"], DP),
+                        severity=scoredict["severity"],
+                    )
                 )
             )
-        )]
+        ]
 
     def get_score(self) -> Dict:
         total = 0
@@ -301,14 +318,15 @@ class Frs(TaskHasPatientMixin, TaskHasRespondentMixin, TaskHasClinicianMixin,
             score = None
             logit = None
             severity = ""
-        return dict(total=total, n=n, score=score, logit=logit,
-                    severity=severity)
+        return dict(
+            total=total, n=n, score=score, logit=logit, severity=severity
+        )
 
     def is_complete(self) -> bool:
         return (
-            self.field_contents_valid() and
-            self.is_respondent_complete() and
-            self.all_fields_not_none(self.TASK_FIELDS)
+            self.field_contents_valid()
+            and self.is_respondent_complete()
+            and self.all_fields_not_none(self.TASK_FIELDS)
         )
 
     def get_answer(self, req: CamcopsRequest, q: int) -> Optional[str]:

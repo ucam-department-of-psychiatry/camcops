@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0022_index_exported_tasks_start_at.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -45,8 +46,8 @@ from alembic import op
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0022'
-down_revision = '0021'
+revision = "0022"
+down_revision = "0021"
 branch_labels = None
 depends_on = None
 
@@ -57,11 +58,15 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('_exported_tasks', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix__exported_tasks_start_at_utc'), ['start_at_utc'], unique=False)
+    with op.batch_alter_table("_exported_tasks", schema=None) as batch_op:
+        batch_op.create_index(
+            batch_op.f("ix__exported_tasks_start_at_utc"),
+            ["start_at_utc"],
+            unique=False,
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('_exported_tasks', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix__exported_tasks_start_at_utc'))
+    with op.batch_alter_table("_exported_tasks", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix__exported_tasks_start_at_utc"))

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -95,7 +96,7 @@ public:
         //  patient:
         //      If it refers to a patient (e.g. a patient editing window),
         //      record that here.
-        OpenableInfo(QPointer<OpenableWidget> widget, TaskPtr task,
+        OpenableInfo(const QPointer<OpenableWidget>& widget, TaskPtr task,
                      Qt::WindowStates prev_window_state, bool wants_fullscreen,
                      bool may_alter_task, PatientPtr patient) :
             widget(widget),
@@ -314,7 +315,7 @@ public:
     bool locked() const;
 
     // What is the app's lock state?
-    LockState lockstate() const;
+    CamcopsApp::LockState lockstate() const;
 
     // Unlock the app.
     void unlock();
@@ -372,7 +373,7 @@ protected:
 
 signals:
     // "Something has changed the app's lock state."
-    void lockStateChanged(LockState lockstate);
+    void lockStateChanged(CamcopsApp::LockState lockstate);
 
     // ------------------------------------------------------------------------
     // Operating mode - Single user, clinician
@@ -636,8 +637,9 @@ protected:
     // ------------------------------------------------------------------------
 public:
     // Return an xstring (extra string) for the given task and string name.
-    QString xstring(const QString& taskname, const QString& stringname,
-                    const QString& default_str = "");
+    QString xstring(const QString& taskname,
+                    const QString& stringname,
+                    const QString& default_str = QString());
 
     // Does the app know about any extra strings for the specified task name?
     bool hasExtraStrings(const QString& taskname);
@@ -653,13 +655,13 @@ public:
 
     // Return an appstring (an extra string for the app, not a specific task).
     QString appstring(const QString& stringname,
-                      const QString& default_str = "");
+                      const QString& default_str = QString());
 
 protected:
     // Load an "extra string" from the database.
     // This is also (partly) where translations get implemented.
     QString xstringDirect(const QString& taskname, const QString& stringname,
-                          const QString& default_str = "");
+                          const QString& default_str = QString());
     mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
 
     // ------------------------------------------------------------------------

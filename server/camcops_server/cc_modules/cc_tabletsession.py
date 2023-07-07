@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_tabletsession.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -31,6 +32,7 @@ camcops_server/cc_modules/cc_tabletsession.py
 import logging
 from typing import Optional, Set, TYPE_CHECKING
 
+from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from pyramid.exceptions import HTTPBadRequest
@@ -44,7 +46,6 @@ from camcops_server.cc_modules.cc_constants import (
     USER_NAME_FOR_SYSTEM,
 )
 from camcops_server.cc_modules.cc_device import Device
-from camcops_server.cc_modules.cc_pyramid import RequestMethod
 from camcops_server.cc_modules.cc_validators import (
     validate_anything,
     validate_device_name,
@@ -64,7 +65,9 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-INVALID_USERNAME_PASSWORD = "Invalid username/password (or user not authorized)"
+INVALID_USERNAME_PASSWORD = (
+    "Invalid username/password (or user not authorized)"
+)
 NO_UPLOAD_GROUP_SET = "No upload group set for user "
 
 
@@ -73,9 +76,10 @@ class TabletSession(object):
     Represents session information for client devices. They use HTTPS POST
     calls and do not bother with cookies.
     """
+
     def __init__(self, req: "CamcopsRequest") -> None:
         # Check the basics
-        if req.method != RequestMethod.POST:
+        if req.method != HttpMethod.POST:
             raise HTTPBadRequest("Must use POST method")
             # ... this is for humans to view, so it has a pretty error
 
@@ -84,33 +88,41 @@ class TabletSession(object):
         self.operation = req.get_str_param(TabletParam.OPERATION)
         try:
             self.device_name = req.get_str_param(
-                TabletParam.DEVICE, validator=validate_device_name)
+                TabletParam.DEVICE, validator=validate_device_name
+            )
             self.username = req.get_str_param(
-                TabletParam.USER, validator=validate_username)
+                TabletParam.USER, validator=validate_username
+            )
         except ValueError as e:
             fail_user_error(str(e))
         self.password = req.get_str_param(
-            TabletParam.PASSWORD, validator=validate_anything)
+            TabletParam.PASSWORD, validator=validate_anything
+        )
         self.session_id = req.get_int_param(TabletParam.SESSION_ID)
         self.session_token = req.get_str_param(
-            TabletParam.SESSION_TOKEN, validator=validate_anything)
+            TabletParam.SESSION_TOKEN, validator=validate_anything
+        )
         self.tablet_version_str = req.get_str_param(
-            TabletParam.CAMCOPS_VERSION, validator=validate_anything)
+            TabletParam.CAMCOPS_VERSION, validator=validate_anything
+        )
         try:
             self.tablet_version_ver = make_version(self.tablet_version_str)
         except ValueError:
             fail_user_error(
                 f"CamCOPS tablet version nonsensical: "
-                f"{self.tablet_version_str!r}")
+                f"{self.tablet_version_str!r}"
+            )
 
         # Basic security check: no pretending to be the server
         if self.device_name == DEVICE_NAME_FOR_SERVER:
             fail_user_error(
                 f"Tablets cannot use the device name "
-                f"{DEVICE_NAME_FOR_SERVER!r}")
+                f"{DEVICE_NAME_FOR_SERVER!r}"
+            )
         if self.username == USER_NAME_FOR_SYSTEM:
             fail_user_error(
-                f"Tablets cannot use the username {USER_NAME_FOR_SYSTEM!r}")
+                f"Tablets cannot use the username {USER_NAME_FOR_SYSTEM!r}"
+            )
 
         self._device_obj = None  # type: Optional[Device]
 
@@ -118,32 +130,39 @@ class TabletSession(object):
         if self.tablet_version_ver < MINIMUM_TABLET_VERSION:
             fail_user_error(
                 f"Tablet CamCOPS version too old: is "
-                f"{self.tablet_version_str}, need {MINIMUM_TABLET_VERSION}")
+                f"{self.tablet_version_str}, need {MINIMUM_TABLET_VERSION}"
+            )
         # Other version things are done via properties
 
         # Upload efficiency
         self._dirty_table_names = set()  # type: Set[str]
 
         # Report
-        log.info("Incoming client API connection from IP={i}, port={p}, "
-                 "device_name={dn!r}, "
-                 # "device_id={di}, "
-                 "camcops_version={v}, "
-                 "username={u}, operation={o}",
-                 i=req.remote_addr,
-                 p=req.remote_port,
-                 dn=self.device_name,
-                 # di=self.device_id,
-                 v=self.tablet_version_str,
-                 u=self.username,
-                 o=self.operation)
+        log.info(
+            "Incoming client API connection from IP={i}, port={p}, "
+            "device_name={dn!r}, "
+            # "device_id={di}, "
+            "camcops_version={v}, " "username={u}, operation={o}",
+            i=req.remote_addr,
+            p=req.remote_port,
+            dn=self.device_name,
+            # di=self.device_id,
+            v=self.tablet_version_str,
+            u=self.username,
+            o=self.operation,
+        )
 
     def __repr__(self) -> str:
         return simple_repr(
             self,
-            ["session_id", "session_token", "device_name", "username",
-             "operation"],
-            with_addr=True
+            [
+                "session_id",
+                "session_token",
+                "device_name",
+                "username",
+                "operation",
+            ],
+            with_addr=True,
         )
 
     # -------------------------------------------------------------------------
@@ -158,8 +177,9 @@ class TabletSession(object):
         """
         if self._device_obj is None:
             dbsession = self.req.dbsession
-            self._device_obj = Device.get_device_by_name(dbsession,
-                                                         self.device_name)
+            self._device_obj = Device.get_device_by_name(
+                dbsession, self.device_name
+            )
         return self._device_obj
 
     # -------------------------------------------------------------------------
@@ -233,11 +253,13 @@ class TabletSession(object):
         if user.upload_group_id is None:
             fail_user_error(NO_UPLOAD_GROUP_SET + user.username)
         if not user.may_register_devices:
-            fail_user_error("User not authorized to register devices for "
-                            "selected group")
+            fail_user_error(
+                "User not authorized to register devices for " "selected group"
+            )
 
-    def set_session_id_token(self, session_id: int,
-                             session_token: str) -> None:
+    def set_session_id_token(
+        self, session_id: int, session_token: str
+    ) -> None:
         """
         Sets the session ID and token.
         Typical situation:
@@ -262,8 +284,10 @@ class TabletSession(object):
         Must we cope with an old client that had ID descriptors
         in the Patient table?
         """
-        return (self.tablet_version_ver <
-                FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE)
+        return (
+            self.tablet_version_ver
+            < FIRST_TABLET_VER_WITHOUT_IDDESC_IN_PT_TABLE
+        )
 
     @property
     def cope_with_old_idnums(self) -> bool:
@@ -271,8 +295,10 @@ class TabletSession(object):
         Must we cope with an old client that had ID numbers embedded in the
         Patient table?
         """
-        return (self.tablet_version_ver <
-                FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE)
+        return (
+            self.tablet_version_ver
+            < FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE
+        )
 
     @property
     def explicit_pkname_for_upload_table(self) -> bool:
@@ -280,8 +306,10 @@ class TabletSession(object):
         Is the client a nice new one that explicitly names the
         primary key when uploading tables?
         """
-        return (self.tablet_version_ver >=
-                FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE)
+        return (
+            self.tablet_version_ver
+            >= FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE
+        )
 
     @property
     def pkname_in_upload_table_neither_first_nor_explicit(self):
@@ -295,5 +323,7 @@ class TabletSession(object):
         For these versions, the only safe thing is to take ``"id"`` as the
         name of the (client-side) primary key.
         """
-        return (self.tablet_version_ver >= FIRST_CPP_TABLET_VER and
-                not self.explicit_pkname_for_upload_table)
+        return (
+            self.tablet_version_ver >= FIRST_CPP_TABLET_VER
+            and not self.explicit_pkname_for_upload_table
+        )

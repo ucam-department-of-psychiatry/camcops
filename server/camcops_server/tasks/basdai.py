@@ -5,7 +5,8 @@ camcops_server/tasks/basdai.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -53,16 +54,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # BASDAI
 # =============================================================================
 
+
 class BasdaiMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Basdai'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Basdai"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS, coltype=Float,
-            minimum=0, maximum=10,
+            cls,
+            "q",
+            1,
+            cls.N_QUESTIONS,
+            coltype=Float,
+            minimum=0,
+            maximum=10,
             comment_fmt="Q{n} - {s}",
             comment_strings=[
                 "fatigue/tiredness 0-10 (none - very severe)",
@@ -71,15 +80,13 @@ class BasdaiMetaclass(DeclarativeMeta):
                 "discomfort from tender areas 0-10 (none - very severe)",
                 "morning stiffness level 0-10 (none - very severe)",
                 "morning stiffness duration 0-10 (none - 2 or more hours)",
-            ]
+            ],
         )
 
         super().__init__(name, bases, classdict)
 
 
-class Basdai(TaskHasPatientMixin,
-             Task,
-             metaclass=BasdaiMetaclass):
+class Basdai(TaskHasPatientMixin, Task, metaclass=BasdaiMetaclass):
     __tablename__ = "basdai"
     shortname = "BASDAI"
     provides_trackers = True
@@ -99,9 +106,11 @@ class Basdai(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="basdai", coltype=Float(),
+                name="basdai",
+                coltype=Float(),
                 value=self.basdai(),
-                comment="BASDAI"),
+                comment="BASDAI",
+            )
         ]
 
     def is_complete(self) -> bool:
@@ -116,20 +125,19 @@ class Basdai(TaskHasPatientMixin,
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         axis_min = self.MINIMUM - 0.5
         axis_max = self.MAXIMUM + 0.5
-        axis_ticks = [TrackerAxisTick(n, str(n))
-                      for n in range(0, int(axis_max) + 1)]
-
-        horizontal_lines = [
-            self.MAXIMUM,
-            self.ACTIVE_CUTOFF,
-            self.MINIMUM,
+        axis_ticks = [
+            TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1)
         ]
 
+        horizontal_lines = [self.MAXIMUM, self.ACTIVE_CUTOFF, self.MINIMUM]
+
         horizontal_labels = [
-            TrackerLabel(self.ACTIVE_CUTOFF + 0.5,
-                         self.wxstring(req, "active")),
-            TrackerLabel(self.ACTIVE_CUTOFF - 0.5,
-                         self.wxstring(req, "inactive")),
+            TrackerLabel(
+                self.ACTIVE_CUTOFF + 0.5, self.wxstring(req, "active")
+            ),
+            TrackerLabel(
+                self.ACTIVE_CUTOFF - 0.5, self.wxstring(req, "inactive")
+            ),
         ]
 
         return [
@@ -142,7 +150,7 @@ class Basdai(TaskHasPatientMixin,
                 axis_ticks=axis_ticks,
                 horizontal_lines=horizontal_lines,
                 horizontal_labels=horizontal_labels,
-            ),
+            )
         ]
 
     def basdai(self) -> Optional[float]:
@@ -219,10 +227,7 @@ class Basdai(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             basdai=tr(
                 self.wxstring(req, "basdai") + " <sup>[1]</sup>",
-                "{} ({})".format(
-                    answer(basdai),
-                    self.activity_state(req)
-                )
+                "{} ({})".format(answer(basdai), self.activity_state(req)),
             ),
             rows=rows,
         )

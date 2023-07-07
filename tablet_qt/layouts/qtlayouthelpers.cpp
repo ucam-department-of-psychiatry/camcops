@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // From qlayoutengine.cpp:
@@ -153,7 +154,6 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
 {
     int c_hint = 0;
     int c_min = 0;
-    int c_max = 0;
     int sum_stretch = 0;
     int sum_spacing = 0;
     int expanding_count = 0;
@@ -169,7 +169,6 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         data->done = false;
         c_hint += data->smartSizeHint();
         c_min += data->minimum_size;
-        c_max += data->maximum_size;
         sum_stretch += data->stretch;
         if (!data->empty) {
             // Using pending_spacing, we ensure that the spacing for the last

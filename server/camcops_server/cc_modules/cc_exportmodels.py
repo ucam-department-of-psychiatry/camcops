@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_exportmodels.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -30,6 +31,7 @@ camcops_server/cc_modules/cc_exportmodels.py
 
 import logging
 import os
+import posixpath
 import socket
 import subprocess
 import sys
@@ -50,11 +52,7 @@ from cardinal_pythonlib.sqlalchemy.list_types import StringListType
 from cardinal_pythonlib.sqlalchemy.orm_query import bool_from_exists_clause
 import hl7
 from pendulum import DateTime as Pendulum
-from sqlalchemy.orm import (
-    reconstructor,
-    relationship,
-    Session as SqlASession,
-)
+from sqlalchemy.orm import reconstructor, relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import (
     BigInteger,
@@ -68,17 +66,18 @@ from sqlalchemy.sql.sqltypes import (
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamExportRecipient,
     FileType,
+    UTF8,
 )
 from camcops_server.cc_modules.cc_email import Email
-from camcops_server.cc_modules.cc_exportrecipient import (
-    ExportRecipient,
-)
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportTransmissionMethod,
 )
-from camcops_server.cc_modules.cc_filename import (
-    change_filename_ext,
+from camcops_server.cc_modules.cc_fhir import (
+    FhirExportException,
+    FhirTaskExporter,
 )
+from camcops_server.cc_modules.cc_filename import change_filename_ext
 from camcops_server.cc_modules.cc_hl7 import (
     make_msh_segment,
     MLLPTimeoutClient,
@@ -98,7 +97,9 @@ from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskSortMethod,
 )
-from camcops_server.cc_modules.cc_taskfactory import task_factory_no_security_checks  # noqa
+from camcops_server.cc_modules.cc_taskfactory import (
+    task_factory_no_security_checks,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -112,17 +113,19 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DOS_NEWLINE = "\r\n"
-UTF8 = "utf8"
 
 
 # =============================================================================
 # Create task collections for export
 # =============================================================================
 
-def get_collection_for_export(req: "CamcopsRequest",
-                              recipient: ExportRecipient,
-                              via_index: bool = True,
-                              debug: bool = False) -> TaskCollection:
+
+def get_collection_for_export(
+    req: "CamcopsRequest",
+    recipient: ExportRecipient,
+    via_index: bool = True,
+    debug: bool = False,
+) -> TaskCollection:
     """
     Returns an appropriate task collection for this export recipient, namely
     those tasks that are desired and (in the case of incremental exports)
@@ -151,14 +154,17 @@ def get_collection_for_export(req: "CamcopsRequest",
         export_recipient=recipient,
     )
     if debug:
-        log.critical(
-            "get_collection_for_export(): recipient={!r}, collection={!r}",
-            recipient, collection)
+        log.debug(
+            "get_collection_for_export(): recipient={!r}, " "collection={!r}",
+            recipient,
+            collection,
+        )
     return collection
 
 
-def gen_exportedtasks(collection: TaskCollection) \
-        -> Generator["ExportedTask", None, None]:
+def gen_exportedtasks(
+    collection: TaskCollection,
+) -> Generator["ExportedTask", None, None]:
     """
     Generates task export entries from a collection.
 
@@ -178,8 +184,9 @@ def gen_exportedtasks(collection: TaskCollection) \
         yield et
 
 
-def gen_tasks_having_exportedtasks(collection: TaskCollection) \
-        -> Generator["Task", None, None]:
+def gen_tasks_having_exportedtasks(
+    collection: TaskCollection,
+) -> Generator["Task", None, None]:
     """
     Generates tasks from a collection, creating export logs as we go.
 
@@ -201,70 +208,94 @@ def gen_tasks_having_exportedtasks(collection: TaskCollection) \
 # ExportedTask class
 # =============================================================================
 
+
 class ExportedTask(Base):
     """
     Class representing an attempt to exported a task (as part of a
-    :class:`ExportRun` to a specific
+    :class:`ExportRun`) to a specific
     :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`.
     """
+
     __tablename__ = "_exported_tasks"
 
     id = Column(
-        "id", BigInteger,
-        primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "id",
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     recipient_id = Column(
-        "recipient_id", BigInteger, ForeignKey(ExportRecipient.id),
+        "recipient_id",
+        BigInteger,
+        ForeignKey(ExportRecipient.id),
         nullable=False,
-        comment=f"FK to {ExportRecipient.__tablename__}.{ExportRecipient.id.name}"  # noqa
+        comment=f"FK to {ExportRecipient.__tablename__}.{ExportRecipient.id.name}",  # noqa
     )
     basetable = Column(
-        "basetable", TableNameColType, nullable=False, index=True,
-        comment="Base table of task concerned"
+        "basetable",
+        TableNameColType,
+        nullable=False,
+        index=True,
+        comment="Base table of task concerned",
     )
     task_server_pk = Column(
-        "task_server_pk", Integer, nullable=False, index=True,
-        comment="Server PK of task in basetable (_pk field)"
+        "task_server_pk",
+        Integer,
+        nullable=False,
+        index=True,
+        comment="Server PK of task in basetable (_pk field)",
     )
     start_at_utc = Column(
-        "start_at_utc", DateTime,
-        nullable=False, index=True,
-        comment="Time export was started (UTC)"
+        "start_at_utc",
+        DateTime,
+        nullable=False,
+        index=True,
+        comment="Time export was started (UTC)",
     )
     finish_at_utc = Column(
-        "finish_at_utc", DateTime,
-        comment="Time export was finished (UTC)"
+        "finish_at_utc", DateTime, comment="Time export was finished (UTC)"
     )
     success = Column(
-        "success", Boolean, default=False, nullable=False,
-        comment="Task exported successfully?"
+        "success",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Task exported successfully?",
     )
     failure_reasons = Column(
-        "failure_reasons", StringListType,
-        comment="Reasons for failure"
+        "failure_reasons", StringListType, comment="Reasons for failure"
     )
     cancelled = Column(
-        "cancelled", Boolean, default=False, nullable=False,
-        comment="Export subsequently cancelled/invalidated (may trigger resend)"  # noqa
+        "cancelled",
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Export subsequently cancelled/invalidated (may trigger resend)",  # noqa
     )
     cancelled_at_utc = Column(
-        "cancelled_at_utc", DateTime,
-        comment="Time export was cancelled at (UTC)"
+        "cancelled_at_utc",
+        DateTime,
+        comment="Time export was cancelled at (UTC)",
     )
 
     recipient = relationship(ExportRecipient)
 
-    hl7_messages = relationship("ExportedTaskHL7Message")
-    filegroups = relationship("ExportedTaskFileGroup")
     emails = relationship("ExportedTaskEmail")
+    fhir_exports = relationship("ExportedTaskFhir")
+    filegroups = relationship("ExportedTaskFileGroup")
+    hl7_messages = relationship("ExportedTaskHL7Message")
+    redcap_exports = relationship("ExportedTaskRedcap")
 
-    def __init__(self,
-                 recipient: ExportRecipient = None,
-                 task: "Task" = None,
-                 basetable: str = None,
-                 task_server_pk: int = None,
-                 *args, **kwargs) -> None:
+    def __init__(
+        self,
+        recipient: ExportRecipient = None,
+        task: "Task" = None,
+        basetable: str = None,
+        task_server_pk: int = None,
+        *args,
+        **kwargs,
+    ) -> None:
         """
         Can initialize with a task, or a basetable/task_server_pk combination.
 
@@ -281,7 +312,9 @@ class ExportedTask(Base):
         self.recipient = recipient
         self.start_at_utc = get_now_utc_datetime()
         if task:
-            assert (not basetable) and task_server_pk is None, (
+            assert (
+                not basetable
+            ) and task_server_pk is None, (
                 "Task specified; mustn't specify basetable/task_server_pk"
             )
             self.basetable = task.tablename
@@ -309,12 +342,13 @@ class ExportedTask(Base):
             dbsession = SqlASession.object_session(self)
             try:
                 self._task = task_factory_no_security_checks(
-                    dbsession, self.basetable, self.task_server_pk)
+                    dbsession, self.basetable, self.task_server_pk
+                )
             except KeyError:
                 log.warning(
-                    "Failed to retrieve task for basetable={!r}, PK={!r}",
+                    "Failed to retrieve task for basetable={!r}, " "PK={!r}",
                     self.basetable,
-                    self.task_server_pk
+                    self.task_server_pk,
                 )
                 self._task = None
         return self._task
@@ -385,6 +419,12 @@ class ExportedTask(Base):
             dbsession.add(email)
             email.export_task(req)
 
+        elif transmission_method == ExportTransmissionMethod.FHIR:
+            efhir = ExportedTaskFhir(self)
+            dbsession.add(efhir)
+            dbsession.flush()
+            efhir.export_task(req)
+
         elif transmission_method == ExportTransmissionMethod.FILE:
             efg = ExportedTaskFileGroup(self)
             dbsession.add(efg)
@@ -402,6 +442,7 @@ class ExportedTask(Base):
             eredcap = ExportedTaskRedcap(self)
             dbsession.add(eredcap)
             eredcap.export_task(req)
+
         else:
             raise AssertionError("Bug: bad transmission_method")
 
@@ -419,11 +460,13 @@ class ExportedTask(Base):
             self.filegroups.append(filegroup)
         return filegroup
 
-    def export_file(self,
-                    filename: str,
-                    text: str = None,
-                    binary: bytes = None,
-                    text_encoding: str = UTF8) -> bool:
+    def export_file(
+        self,
+        filename: str,
+        text: str = None,
+        binary: bytes = None,
+        text_encoding: str = UTF8,
+    ) -> bool:
         """
         Exports a file.
 
@@ -436,10 +479,12 @@ class ExportedTask(Base):
         Returns: was it exported?
         """
         filegroup = self.filegroup
-        return filegroup.export_file(filename=filename,
-                                     text=text,
-                                     binary=binary,
-                                     text_encoding=text_encoding)
+        return filegroup.export_file(
+            filename=filename,
+            text=text,
+            binary=binary,
+            text_encoding=text_encoding,
+        )
 
     def cancel(self) -> None:
         """
@@ -451,11 +496,13 @@ class ExportedTask(Base):
         self.cancelled_at_utc = get_now_utc_datetime()
 
     @classmethod
-    def task_already_exported(cls,
-                              dbsession: SqlASession,
-                              recipient_name: str,
-                              basetable: str,
-                              task_pk: int) -> bool:
+    def task_already_exported(
+        cls,
+        dbsession: SqlASession,
+        recipient_name: str,
+        basetable: str,
+        task_pk: int,
+    ) -> bool:
         """
         Has the specified task already been successfully exported?
 
@@ -470,7 +517,8 @@ class ExportedTask(Base):
 
         """
         exists_q = (
-            dbsession.query(cls).join(cls.recipient)
+            dbsession.query(cls)
+            .join(cls.recipient)
             .filter(ExportRecipient.recipient_name == recipient_name)
             .filter(cls.basetable == basetable)
             .filter(cls.task_server_pk == task_pk)
@@ -485,51 +533,50 @@ class ExportedTask(Base):
 # HL7 export
 # =============================================================================
 
+
 class ExportedTaskHL7Message(Base):
     """
     Represents an individual HL7 message.
     """
+
     __tablename__ = "_exported_task_hl7msg"
 
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "id",
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     exported_task_id = Column(
-        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        "exported_task_id",
+        BigInteger,
+        ForeignKey(ExportedTask.id),
         nullable=False,
-        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}",
     )
     sent_at_utc = Column(
-        "sent_at_utc", DateTime,
-        comment="Time message was sent at (UTC)"
+        "sent_at_utc", DateTime, comment="Time message was sent at (UTC)"
     )
     reply_at_utc = Column(
-        "reply_at_utc", DateTime,
-        comment="Time message was replied to (UTC)"
+        "reply_at_utc", DateTime, comment="Time message was replied to (UTC)"
     )
     success = Column(
-        "success", Boolean,
-        comment="Message sent successfully and acknowledged by HL7 server"
+        "success",
+        Boolean,
+        comment="Message sent successfully and acknowledged by HL7 server",
     )
     failure_reason = Column(
-        "failure_reason", Text,
-        comment="Reason for failure"
+        "failure_reason", Text, comment="Reason for failure"
     )
-    message = Column(
-        "message", LongText,
-        comment="Message body, if kept"
-    )
-    reply = Column(
-        "reply", Text,
-        comment="Server's reply, if kept"
-    )
+    message = Column("message", LongText, comment="Message body, if kept")
+    reply = Column("reply", Text, comment="Server's reply, if kept")
 
     exported_task = relationship(ExportedTask)
 
-    def __init__(self,
-                 exported_task: ExportedTask = None,
-                 *args, **kwargs) -> None:
+    def __init__(
+        self, exported_task: ExportedTask = None, *args, **kwargs
+    ) -> None:
         """
         Must support parameter-free construction, not least for
         :func:`merge_db`.
@@ -548,8 +595,9 @@ class ExportedTaskHL7Message(Base):
         self._hl7_msg = None
 
     @staticmethod
-    def task_acceptable_for_hl7(recipient: ExportRecipient,
-                                task: "Task") -> bool:
+    def task_acceptable_for_hl7(
+        recipient: ExportRecipient, task: "Task"
+    ) -> bool:
         """
         Is the task valid for HL7 export. (For example, anonymous tasks and
         tasks missing key ID information may not be.)
@@ -610,7 +658,8 @@ class ExportedTaskHL7Message(Base):
         self.failure_reason = msg
         self.exported_task.abort(
             "HL7 message deliberately not sent; diverted to file"
-            if diverted_not_sent else "HL7 sending failed"
+            if diverted_not_sent
+            else "HL7 sending failed"
         )
 
     def export_task(self, req: "CamcopsRequest") -> None:
@@ -622,7 +671,8 @@ class ExportedTaskHL7Message(Base):
         """
         if not self.valid():
             self.abort(
-                "Unsuitable for HL7; should have been filtered out earlier")
+                "Unsuitable for HL7; should have been filtered out earlier"
+            )
             return
         self.make_hl7_message(req)
         recipient = self.exported_task.recipient
@@ -641,12 +691,14 @@ class ExportedTaskHL7Message(Base):
         """
         exported_task = self.exported_task
         recipient = exported_task.recipient
-        filename = recipient.get_filename(req, exported_task.task,
-                                          override_task_format="hl7")
+        filename = recipient.get_filename(
+            req, exported_task.task, override_task_format="hl7"
+        )
         now_utc = get_now_utc_pendulum()
         log.info("Diverting HL7 message to file {!r}", filename)
-        written = exported_task.export_file(filename=filename,
-                                            text=str(self._hl7_msg))
+        written = exported_task.export_file(
+            filename=filename, text=str(self._hl7_msg)
+        )
         if not written:
             return
 
@@ -654,8 +706,10 @@ class ExportedTaskHL7Message(Base):
             self.sent_at_utc = now_utc
             self.succeed(now_utc)
         else:
-            self.abort("Exported to file as requested but not sent via HL7",
-                       diverted_not_sent=True)
+            self.abort(
+                "Exported to file as requested but not sent via HL7",
+                diverted_not_sent=True,
+            )
 
     def make_hl7_message(self, req: "CamcopsRequest") -> None:
         """
@@ -675,8 +729,7 @@ class ExportedTaskHL7Message(Base):
         # Parts
         # ---------------------------------------------------------------------
         msh_segment = make_msh_segment(
-            message_datetime=req.now,
-            message_control_id=str(self.id)
+            message_datetime=req.now, message_control_id=str(self.id)
         )
         pid_segment = task.get_patient_hl7_pid_segment(req, recipient)
         other_segments = task.get_hl7_data_segments(req, recipient)
@@ -713,11 +766,16 @@ class ExportedTaskHL7Message(Base):
                 return
 
         try:
-            log.info("Sending HL7 message to {}:{}",
-                     recipient.hl7_host, recipient.hl7_port)
-            with MLLPTimeoutClient(recipient.hl7_host,
-                                   recipient.hl7_port,
-                                   recipient.hl7_network_timeout_ms) as client:
+            log.info(
+                "Sending HL7 message to {}:{}",
+                recipient.hl7_host,
+                recipient.hl7_port,
+            )
+            with MLLPTimeoutClient(
+                recipient.hl7_host,
+                recipient.hl7_port,
+                recipient.hl7_network_timeout_ms,
+            ) as client:
                 server_replied, reply = client.send_message(self._hl7_msg)
         except socket.timeout:
             self.abort("Failed to send message via MLLP: timeout")
@@ -777,52 +835,64 @@ class ExportedTaskHL7Message(Base):
 # File export
 # =============================================================================
 
+
 class ExportedTaskFileGroup(Base):
     """
     Represents a small set of files exported in relation to a single task.
     """
+
     __tablename__ = "_exported_task_filegroup"
 
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "id",
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     exported_task_id = Column(
-        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        "exported_task_id",
+        BigInteger,
+        ForeignKey(ExportedTask.id),
         nullable=False,
-        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}",
     )
     filenames = Column(
-        "filenames", StringListType,
-        comment="List of filenames exported"
+        "filenames", StringListType, comment="List of filenames exported"
     )
     script_called = Column(
-        "script_called", Boolean, default=False, nullable=False,
+        "script_called",
+        Boolean,
+        default=False,
+        nullable=False,
         comment=(
             f"Was the {ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} "
             f"script called?"
-        )
+        ),
     )
     script_retcode = Column(
-        "script_retcode", Integer,
+        "script_retcode",
+        Integer,
         comment=(
             f"Return code from the "
             f"{ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} script"
-        )
+        ),
     )
     script_stdout = Column(
-        "script_stdout", UnicodeText,
+        "script_stdout",
+        UnicodeText,
         comment=(
             f"stdout from the "
             f"{ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} script"
-        )
+        ),
     )
     script_stderr = Column(
-        "script_stderr", UnicodeText,
+        "script_stderr",
+        UnicodeText,
         comment=(
             f"stderr from the "
             f"{ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} script"
-        )
+        ),
     )
 
     exported_task = relationship(ExportedTask)
@@ -834,11 +904,13 @@ class ExportedTaskFileGroup(Base):
         """
         self.exported_task = exported_task
 
-    def export_file(self,
-                    filename: str,
-                    text: str = None,
-                    binary: bytes = None,
-                    text_encoding: str = UTF8) -> False:
+    def export_file(
+        self,
+        filename: str,
+        text: str = None,
+        binary: bytes = None,
+        text_encoding: str = UTF8,
+    ) -> False:
         """
         Exports the file.
 
@@ -910,7 +982,8 @@ class ExportedTaskFileGroup(Base):
         task_format = recipient.task_format
         task_filename = recipient.get_filename(req, task)
         rio_metadata_filename = change_filename_ext(
-            task_filename, ".metadata").replace(" ", "")
+            task_filename, ".metadata"
+        ).replace(" ", "")
         # ... in case we use it. No spaces in its filename.
 
         # Before we calculate the PDF, etc., we can pre-check for existing
@@ -936,8 +1009,9 @@ class ExportedTaskFileGroup(Base):
             text = task.get_xml(req)
         else:
             raise AssertionError("Unknown task_format")
-        written = self.export_file(task_filename, text=text, binary=binary,
-                                   text_encoding=UTF8)
+        written = self.export_file(
+            task_filename, text=text, binary=binary, text_encoding=UTF8
+        )
         if not written:
             return
 
@@ -948,7 +1022,7 @@ class ExportedTaskFileGroup(Base):
                 req,
                 recipient.rio_idnum,
                 recipient.rio_uploading_user,
-                recipient.rio_document_type
+                recipient.rio_document_type,
             )
             # We're going to write in binary mode, to get the newlines right.
             # One way is:
@@ -959,8 +1033,9 @@ class ExportedTaskFileGroup(Base):
             # ... Servelec say CR = "\r", but DOS is \r\n.
             metadata_binary = metadata.encode("ascii")
             # UTF-8 is NOT supported by RiO for metadata.
-            written_metadata = self.export_file(rio_metadata_filename,
-                                                binary=metadata_binary)
+            written_metadata = self.export_file(
+                rio_metadata_filename, binary=metadata_binary
+            )
             if not written_metadata:
                 return
 
@@ -994,8 +1069,9 @@ class ExportedTaskFileGroup(Base):
             args = [recipient.file_script_after_export] + self.filenames
             try:
                 encoding = sys.getdefaultencoding()
-                p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
+                p = subprocess.Popen(
+                    args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
                 out, err = p.communicate()
                 self.script_called = True
                 self.script_stdout = out.decode(encoding)
@@ -1014,24 +1090,33 @@ class ExportedTaskFileGroup(Base):
 # E-mail export
 # =============================================================================
 
+
 class ExportedTaskEmail(Base):
     """
     Represents an individual email export.
     """
+
     __tablename__ = "_exported_task_email"
 
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "id",
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     exported_task_id = Column(
-        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        "exported_task_id",
+        BigInteger,
+        ForeignKey(ExportedTask.id),
         nullable=False,
-        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}",
     )
     email_id = Column(
-        "email_id", BigInteger, ForeignKey(Email.id),
-        comment=f"FK to {Email.__tablename__}.{Email.id.name}"
+        "email_id",
+        BigInteger,
+        ForeignKey(Email.id),
+        comment=f"FK to {Email.__tablename__}.{Email.id.name}",
     )
 
     exported_task = relationship(ExportedTask)
@@ -1082,7 +1167,8 @@ class ExportedTaskEmail(Base):
             subject=recipient.get_email_subject(req, task),
             body=recipient.get_email_body(req, task),
             content_type=(
-                CONTENT_TYPE_HTML if recipient.email_body_as_html
+                CONTENT_TYPE_HTML
+                if recipient.email_body_as_html
                 else CONTENT_TYPE_TEXT
             ),
             charset=encoding,
@@ -1106,41 +1192,57 @@ class ExportedTaskEmail(Base):
 # REDCap export
 # =============================================================================
 
+
 class ExportedTaskRedcap(Base):
     """
     Represents an individual REDCap export.
     """
+
     __tablename__ = "_exported_task_redcap"
 
     id = Column(
-        "id", Integer, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
     )
     exported_task_id = Column(
-        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        "exported_task_id",
+        BigInteger,
+        ForeignKey(ExportedTask.id),
         nullable=False,
-        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}",
     )
 
     exported_task = relationship(ExportedTask)
 
     # We store these just as an audit trail
     redcap_record_id = Column(
-        "redcap_record_id", UnicodeText,
-        comment=("ID of the (patient) record on the REDCap instance where "
-                 "this task has been exported")
+        "redcap_record_id",
+        UnicodeText,
+        comment=(
+            "ID of the (patient) record on the REDCap instance where "
+            "this task has been exported"
+        ),
     )
 
     redcap_instrument_name = Column(
-        "redcap_instrument_name", UnicodeText,
-        comment=("The name of the REDCap instrument name (form) where this "
-                 "task has been exported")
+        "redcap_instrument_name",
+        UnicodeText,
+        comment=(
+            "The name of the REDCap instrument name (form) where this "
+            "task has been exported"
+        ),
     )
 
     redcap_instance_id = Column(
-        "redcap_instance_id", Integer,
-        comment=("1-based index of this particular task within the patient "
-                 "record. Increments on every repeat attempt.")
+        "redcap_instance_id",
+        Integer,
+        comment=(
+            "1-based index of this particular task within the patient "
+            "record. Increments on every repeat attempt."
+        ),
     )
 
     def __init__(self, exported_task: ExportedTask = None) -> None:
@@ -1165,3 +1267,127 @@ class ExportedTaskRedcap(Base):
             exported_task.succeed()
         except RedcapExportException as e:
             exported_task.abort(str(e))
+
+
+# =============================================================================
+# FHIR export
+# =============================================================================
+
+
+class ExportedTaskFhir(Base):
+    """
+    Represents an individual FHIR export.
+    """
+
+    __tablename__ = "_exported_task_fhir"
+
+    id = Column(
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
+    )
+
+    exported_task_id = Column(
+        "exported_task_id",
+        BigInteger,
+        ForeignKey(ExportedTask.id),
+        nullable=False,
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}",
+    )
+
+    exported_task = relationship(ExportedTask)
+
+    entries = relationship("ExportedTaskFhirEntry")
+
+    def __init__(self, exported_task: ExportedTask = None) -> None:
+        """
+        Args:
+            exported_task: :class:`ExportedTask` object
+        """
+        self.exported_task = exported_task
+
+    def export_task(self, req: "CamcopsRequest") -> None:
+        """
+        Exports the task to FHIR.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        exported_task = self.exported_task
+
+        try:
+            exporter = FhirTaskExporter(req, self)
+            exporter.export_task()
+            exported_task.succeed()
+        except FhirExportException as e:
+            exported_task.abort(str(e))
+
+
+class ExportedTaskFhirEntry(Base):
+    """
+    Details of Patients, Questionnaires, QuestionnaireResponses exported to
+    a FHIR server for a single task.
+    """
+
+    __tablename__ = "_exported_task_fhir_entry"
+
+    id = Column(
+        "id",
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="Arbitrary primary key",
+    )
+
+    exported_task_fhir_id = Column(
+        "exported_task_fhir_id",
+        Integer,
+        ForeignKey(ExportedTaskFhir.id),
+        nullable=False,
+        comment="FK to {}.{}".format(
+            ExportedTaskFhir.__tablename__, ExportedTaskFhir.id.name
+        ),
+    )
+
+    etag = Column(
+        "etag", UnicodeText, comment="The ETag for the resource (if relevant)"
+    )
+
+    last_modified = Column(
+        "last_modified", DateTime, comment="Server's date/time modified."
+    )
+
+    location = Column(
+        "location",
+        UnicodeText,
+        comment="The location (if the operation returns a location).",
+    )
+
+    status = Column(
+        "status", UnicodeText, comment="Status response code (text optional)."
+    )
+
+    # TODO: outcome?
+
+    exported_task_fhir = relationship(ExportedTaskFhir)
+
+    @property
+    def location_url(self) -> str:
+        """
+        Puts the FHIR server API URL together with the returned location, so
+        we can hyperlink to the resource.
+        """
+        if not self.location:
+            return ""
+        try:
+            api_url = (
+                self.exported_task_fhir.exported_task.recipient.fhir_api_url
+            )
+        except AttributeError:
+            return ""
+        # Avoid urllib.parse.urljoin; it does complex (and for our purposes
+        # wrong) things. See
+        # https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
+        return posixpath.join(api_url, self.location)

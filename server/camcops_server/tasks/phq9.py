@@ -5,7 +5,8 @@ camcops_server/tasks/phq9.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -26,6 +27,7 @@ camcops_server/tasks/phq9.py
 
 """
 
+import logging
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -35,6 +37,11 @@ from sqlalchemy.sql.sqltypes import Boolean, Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_fhir import (
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+)
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -56,20 +63,29 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerLabel,
 )
 
+log = logging.getLogger(__name__)
+
 
 # =============================================================================
 # PHQ-9
 # =============================================================================
 
+
 class Phq9Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Phq9'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Phq9"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_MAIN_QUESTIONS,
-            minimum=0, maximum=3,
+            cls,
+            "q",
+            1,
+            cls.N_MAIN_QUESTIONS,
+            minimum=0,
+            maximum=3,
             comment_fmt="Q{n} ({s}) (0 not at all - 3 nearly every day)",
             comment_strings=[
                 "anhedonia",
@@ -81,25 +97,26 @@ class Phq9Metaclass(DeclarativeMeta):
                 "concentration",
                 "psychomotor",
                 "death/self-harm",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Phq9(TaskHasPatientMixin, Task,
-           metaclass=Phq9Metaclass):
+class Phq9(TaskHasPatientMixin, Task, metaclass=Phq9Metaclass):
     """
     Server implementation of the PHQ9 task.
     """
+
     __tablename__ = "phq9"
     shortname = "PHQ-9"
     provides_trackers = True
 
     q10 = CamcopsColumn(
-        "q10", Integer,
+        "q10",
+        Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q10 (difficulty in activities) (0 not difficult at "
-                "all - 3 extremely difficult)"
+        "all - 3 extremely difficult)",
     )
 
     N_MAIN_QUESTIONS = 9
@@ -121,74 +138,90 @@ class Phq9(TaskHasPatientMixin, Task,
         return True
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="PHQ-9 total score (rating depressive symptoms)",
-            axis_label=f"Score for Q1-9 (out of {self.MAX_SCORE_MAIN})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE_MAIN + 0.5,
-            axis_ticks=[
-                TrackerAxisTick(27, "27"),
-                TrackerAxisTick(25, "25"),
-                TrackerAxisTick(20, "20"),
-                TrackerAxisTick(15, "15"),
-                TrackerAxisTick(10, "10"),
-                TrackerAxisTick(5, "5"),
-                TrackerAxisTick(0, "0"),
-            ],
-            horizontal_lines=[
-                19.5,
-                14.5,
-                9.5,
-                4.5
-            ],
-            horizontal_labels=[
-                TrackerLabel(23, req.sstring(SS.SEVERE)),
-                TrackerLabel(17, req.sstring(SS.MODERATELY_SEVERE)),
-                TrackerLabel(12, req.sstring(SS.MODERATE)),
-                TrackerLabel(7, req.sstring(SS.MILD)),
-                TrackerLabel(2.25, req.sstring(SS.NONE)),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PHQ-9 total score (rating depressive symptoms)",
+                axis_label=f"Score for Q1-9 (out of {self.MAX_SCORE_MAIN})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE_MAIN + 0.5,
+                axis_ticks=[
+                    TrackerAxisTick(27, "27"),
+                    TrackerAxisTick(25, "25"),
+                    TrackerAxisTick(20, "20"),
+                    TrackerAxisTick(15, "15"),
+                    TrackerAxisTick(10, "10"),
+                    TrackerAxisTick(5, "5"),
+                    TrackerAxisTick(0, "0"),
+                ],
+                horizontal_lines=[19.5, 14.5, 9.5, 4.5],
+                horizontal_labels=[
+                    TrackerLabel(23, req.sstring(SS.SEVERE)),
+                    TrackerLabel(17, req.sstring(SS.MODERATELY_SEVERE)),
+                    TrackerLabel(12, req.sstring(SS.MODERATE)),
+                    TrackerLabel(7, req.sstring(SS.MILD)),
+                    TrackerLabel(2.25, req.sstring(SS.NONE)),
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"PHQ-9 total score {self.total_score()}/{self.MAX_SCORE_MAIN} "
-            f"({self.severity(req)})"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"PHQ-9 total score "
+                    f"{self.total_score()}/{self.MAX_SCORE_MAIN} "
+                    f"({self.severity(req)})"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.MAX_SCORE_MAIN})"),
+                comment=f"Total score (/{self.MAX_SCORE_MAIN})",
+            ),
             SummaryElement(
-                name="n_core", coltype=Integer(),
+                name="n_core",
+                coltype=Integer(),
                 value=self.n_core(),
-                comment="Number of core symptoms"),
+                comment="Number of core symptoms",
+            ),
             SummaryElement(
-                name="n_other", coltype=Integer(),
+                name="n_other",
+                coltype=Integer(),
                 value=self.n_other(),
-                comment="Number of other symptoms"),
+                comment="Number of other symptoms",
+            ),
             SummaryElement(
-                name="n_total", coltype=Integer(),
+                name="n_total",
+                coltype=Integer(),
                 value=self.n_total(),
-                comment="Total number of symptoms"),
+                comment="Total number of symptoms",
+            ),
             SummaryElement(
-                name="is_mds", coltype=Boolean(),
+                name="is_mds",
+                coltype=Boolean(),
                 value=self.is_mds(),
-                comment="PHQ9 major depressive syndrome?"),
+                comment="PHQ9 major depressive syndrome?",
+            ),
             SummaryElement(
-                name="is_ods", coltype=Boolean(),
+                name="is_ods",
+                coltype=Boolean(),
                 value=self.is_ods(),
-                comment="PHQ9 other depressive syndrome?"),
+                comment="PHQ9 other depressive syndrome?",
+            ),
             SummaryElement(
-                name="severity", coltype=SummaryCategoryColType,
+                name="severity",
+                coltype=SummaryCategoryColType,
                 value=self.severity(req),
-                comment="PHQ9 depression severity"),
+                comment="PHQ9 depression severity",
+            ),
         ]
 
     def total_score(self) -> int:
@@ -199,17 +232,18 @@ class Phq9(TaskHasPatientMixin, Task,
         return 1 if value is not None and value >= threshold else 0
 
     def n_core(self) -> int:
-        return (self.one_if_q_ge(1, 2) +
-                self.one_if_q_ge(2, 2))
+        return self.one_if_q_ge(1, 2) + self.one_if_q_ge(2, 2)
 
     def n_other(self) -> int:
-        return (self.one_if_q_ge(3, 2) +
-                self.one_if_q_ge(4, 2) +
-                self.one_if_q_ge(5, 2) +
-                self.one_if_q_ge(6, 2) +
-                self.one_if_q_ge(7, 2) +
-                self.one_if_q_ge(8, 2) +
-                self.one_if_q_ge(9, 1))  # suicidality
+        return (
+            self.one_if_q_ge(3, 2)
+            + self.one_if_q_ge(4, 2)
+            + self.one_if_q_ge(5, 2)
+            + self.one_if_q_ge(6, 2)
+            + self.one_if_q_ge(7, 2)
+            + self.one_if_q_ge(8, 2)
+            + self.one_if_q_ge(9, 1)
+        )  # suicidality
         # suicidality counted whenever present
 
     def n_total(self) -> int:
@@ -240,22 +274,26 @@ class Phq9(TaskHasPatientMixin, Task,
             0: "0 — " + self.wxstring(req, "a0"),
             1: "1 — " + self.wxstring(req, "a1"),
             2: "2 — " + self.wxstring(req, "a2"),
-            3: "3 — " + self.wxstring(req, "a3")
+            3: "3 — " + self.wxstring(req, "a3"),
         }
         q10_dict = {
             None: None,
             0: "0 — " + self.wxstring(req, "fa0"),
             1: "1 — " + self.wxstring(req, "fa1"),
             2: "2 — " + self.wxstring(req, "fa2"),
-            3: "3 — " + self.wxstring(req, "fa3")
+            3: "3 — " + self.wxstring(req, "fa3"),
         }
         q_a = ""
         for i in range(1, self.N_MAIN_QUESTIONS + 1):
             nstr = str(i)
-            q_a += tr_qa(self.wxstring(req, "q" + nstr),
-                         get_from_dict(main_dict, getattr(self, "q" + nstr)))
-        q_a += tr_qa("10. " + self.wxstring(req, "finalq"),
-                     get_from_dict(q10_dict, self.q10))
+            q_a += tr_qa(
+                self.wxstring(req, "q" + nstr),
+                get_from_dict(main_dict, getattr(self, "q" + nstr)),
+            )
+        q_a += tr_qa(
+            "10. " + self.wxstring(req, "finalq"),
+            get_from_dict(q10_dict, self.q10),
+        )
 
         h = """
             <div class="{CssClass.SUMMARY}">
@@ -295,39 +333,48 @@ class Phq9(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                answer(self.total_score()) + f" / {self.MAX_SCORE_MAIN}"
+                answer(self.total_score()) + f" / {self.MAX_SCORE_MAIN}",
             ),
             depression_severity=tr_qa(
                 self.wxstring(req, "depression_severity") + " <sup>[2]</sup>",
-                self.severity(req)
+                self.severity(req),
             ),
             n_symptoms=tr(
                 "Number of symptoms: core <sup>[3]</sup>, other "
                 "<sup>[4]</sup>, total",
-                answer(self.n_core()) + "/2, " +
-                answer(self.n_other()) + "/7, " +
-                answer(self.n_total()) + "/9"
+                answer(self.n_core())
+                + "/2, "
+                + answer(self.n_other())
+                + "/7, "
+                + answer(self.n_total())
+                + "/9",
             ),
             mds=tr_qa(
                 self.wxstring(req, "mds") + " <sup>[5]</sup>",
-                get_yes_no(req, self.is_mds())
+                get_yes_no(req, self.is_mds()),
             ),
             ods=tr_qa(
                 self.wxstring(req, "ods") + " <sup>[6]</sup>",
-                get_yes_no(req, self.is_ods())
+                get_yes_no(req, self.is_ods()),
             ),
             q_a=q_a,
         )
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        procedure = req.snomed(SnomedLookup.PHQ9_PROCEDURE_DEPRESSION_SCREENING)  # noqa
+        procedure = req.snomed(
+            SnomedLookup.PHQ9_PROCEDURE_DEPRESSION_SCREENING
+        )
         codes = [SnomedExpression(procedure)]
         if self.is_complete():
             scale = req.snomed(SnomedLookup.PHQ9_SCALE)
             score = req.snomed(SnomedLookup.PHQ9_SCORE)
-            screen_negative = req.snomed(SnomedLookup.PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION)  # noqa
-            screen_positive = req.snomed(SnomedLookup.PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION)  # noqa
+            screen_negative = req.snomed(
+                SnomedLookup.PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION
+            )
+            screen_positive = req.snomed(
+                SnomedLookup.PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION
+            )
             if self.is_mds() or self.is_ods():
                 # Threshold debatable, but if you have "other depressive
                 # syndrome", it seems wrong to say you've screened negative for
@@ -338,3 +385,39 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(scale, {score: self.total_score()}))
             codes.append(SnomedExpression(procedure_result))
         return codes
+
+    def get_fhir_questionnaire(
+        self, req: "CamcopsRequest"
+    ) -> List[FHIRAnsweredQuestion]:
+        items = []  # type: List[FHIRAnsweredQuestion]
+
+        main_options = {}  # type: Dict[int, str]
+        for index in range(4):
+            main_options[index] = self.wxstring(req, f"a{index}")
+        for q_field in self.MAIN_QUESTIONS:
+            items.append(
+                FHIRAnsweredQuestion(
+                    qname=q_field,
+                    qtext=self.xstring(req, q_field),
+                    qtype=FHIRQuestionType.CHOICE,
+                    answer_type=FHIRAnswerType.INTEGER,
+                    answer=getattr(self, q_field),
+                    answer_options=main_options,
+                )
+            )
+
+        q10_options = {}
+        for index in range(4):
+            q10_options[index] = self.wxstring(req, f"fa{index}")
+        items.append(
+            FHIRAnsweredQuestion(
+                qname="q10",
+                qtext="10. " + self.xstring(req, "finalq"),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=self.q10,
+                answer_options=q10_options,
+            )
+        )
+
+        return items

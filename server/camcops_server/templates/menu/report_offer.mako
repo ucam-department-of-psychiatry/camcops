@@ -5,7 +5,8 @@ camcops_server/templates/menu/report_offer.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,17 +30,25 @@ camcops_server/templates/menu/report_offer.mako
 <%inherit file="base_web_form.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Configure report:") } ${ report.title(request) }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.REPORT_CONFIG,
+        text=_("Configure report:") + " " + report.title(request)
+    ) | n }
+</h1>
 
 ${ form | n }
 
 <div>
-    <a href="${ request.route_url(Routes.REPORTS_MENU) | n }">
-        ${ _("Return to reports menu") }</a>
+    ${ req.icon_text(
+            icon=Icons.REPORTS,
+            url=request.route_url(Routes.REPORTS_MENU),
+            text=_("Return to reports menu")
+    ) | n }
 </div>
 <%include file="to_main_menu.mako"/>

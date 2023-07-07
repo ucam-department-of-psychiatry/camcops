@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -105,7 +106,7 @@ QString iconButtonStylesheet(const QString& normal_filename,
 // Returns a button (a QToolButton) that shows one image normally and another
 // when being pressed/touched.
 QAbstractButton* iconButton(const QString& normal_filename,
-                            const QString& pressed_filename = "",
+                            const QString& pressed_filename = QString(),
                             QWidget* parent = nullptr);
 
 // ============================================================================
@@ -170,6 +171,8 @@ bool amInGuiThread();
 // Kill the app. Pops up a modal dialogue, then performs a hard kill.
 [[ noreturn ]] void stopApp(
         const QString& error,
+        // QStringLiteral() here causing compilation error on Windows
+        // "function declared with 'noreturn' has a return statement"
         const QString& title = "CamCOPS internal bug: stopping");
 
 // ============================================================================
@@ -243,7 +246,7 @@ void chooseLanguage(CamcopsApp& app, QWidget* parent_window);
 // Generates a CSS string applicable to text, such as
 // "font-size: 11pt; font-weight: bold;"
 QString textCSS(int fontsize_pt, bool bold = false, bool italic = false,
-                const QString& colour = "");
+                const QString& colour = QString());
 
 // ============================================================================
 // Opening URLS
@@ -299,8 +302,10 @@ void makeItemViewScrollSmoothly(QObject* object);
 QSize minimumSizeForTitle(const QDialog* dialog,
                           bool include_app_name = false);
 
+QScreen* screen();
 QRect screenGeometry();
 int screenWidth();
 int screenHeight();
+qreal screenDpi();
 
 }  // namespace uifunc

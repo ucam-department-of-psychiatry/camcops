@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_ipuse.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -44,6 +45,7 @@ class IpContexts(object):
     """
     String constants, used as form parameter names etc.
     """
+
     CLINICAL = "clinical"
     COMMERCIAL = "commercial"
     EDUCATIONAL = "educational"
@@ -62,43 +64,50 @@ class IpUse(Base):
     _DEFAULT = False
 
     id = Column(
-        "id", Integer,
+        "id",
+        Integer,
         primary_key=True,
         autoincrement=True,
         index=True,
-        comment="IP Use ID"
+        comment="IP Use ID",
     )
 
     clinical = Column(
-        "clinical", Boolean,
+        "clinical",
+        Boolean,
         nullable=False,
         default=_DEFAULT,
-        comment="Applicable to a clinical context"
+        comment="Applicable to a clinical context",
     )
     commercial = Column(
-        "commercial", Boolean,
+        "commercial",
+        Boolean,
         nullable=False,
         default=_DEFAULT,
-        comment="Applicable to a commercial context"
+        comment="Applicable to a commercial context",
     )
     educational = Column(
-        "educational", Boolean,
+        "educational",
+        Boolean,
         nullable=False,
         default=_DEFAULT,
-        comment="Applicable to an educational context"
+        comment="Applicable to an educational context",
     )
     research = Column(
-        "research", Boolean,
+        "research",
+        Boolean,
         nullable=False,
         default=_DEFAULT,
-        comment="Applicable to a research context"
+        comment="Applicable to a research context",
     )
 
-    def __init__(self,
-                 clinical: bool = _DEFAULT_APPLICABILITY,
-                 commercial: bool = _DEFAULT_APPLICABILITY,
-                 educational: bool = _DEFAULT_APPLICABILITY,
-                 research: bool = _DEFAULT_APPLICABILITY) -> None:
+    def __init__(
+        self,
+        clinical: bool = _DEFAULT_APPLICABILITY,
+        commercial: bool = _DEFAULT_APPLICABILITY,
+        educational: bool = _DEFAULT_APPLICABILITY,
+        research: bool = _DEFAULT_APPLICABILITY,
+    ) -> None:
         """
         We provide __init__() so we can create a default object without
         touching the database.

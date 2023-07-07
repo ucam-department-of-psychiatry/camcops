@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_TASK_MENU_CREATION
@@ -135,18 +136,25 @@ void SingleTaskMenu::addTask()
     // editing! The simplest way is to use a member object to hold the pointer.
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr task = factory->create(m_tablename);
-    QString why_not_permissible;
-    QString why_not_uploadable;
+    QString failure_reason;
 
-    // Reasons we may say no
-    if (!task->isTaskPermissible(why_not_permissible)) {
-        const QString reason = QString("%1<br><br>%2: %3")
-                .arg(tr("You cannot add this task with your current settings."),
-                     tr("Current reason"),
-                     stringfunc::bold(why_not_permissible));
+    // ------------------------------------------------------------------------
+    // Hard stops: reasons we may say no
+    // ------------------------------------------------------------------------
+
+    // Task not permitted?
+    // (Intellectual property restriction, or lack of correct string data.)
+    if (!task->isTaskPermissible(failure_reason)) {
+        const QString reason = QString("%1<br><br>%2: %3").arg(
+            tr("You cannot add this task with your current settings."),
+            tr("Current reason"),
+            stringfunc::bold(failure_reason)
+        );
         uifunc::alert(reason, tr("Not permitted to add task"));
         return;
     }
+
+    // No patient selected, but trying to create task requiring a patient?
     const int patient_id = m_app.selectedPatientId();
     if (!task->isAnonymous()) {
         if (patient_id == dbconst::NONEXISTENT_PK) {
@@ -155,14 +163,19 @@ void SingleTaskMenu::addTask()
         }
     }
 
-    // Reasons the user may want to pause
-    if (!task->isTaskUploadable(why_not_uploadable)) {
+    // ------------------------------------------------------------------------
+    // Soft stops: reasons the user may want to pause
+    // ------------------------------------------------------------------------
+
+    // Not able to upload at present?
+    if (!task->isTaskUploadable(failure_reason)) {
         ScrollMessageBox msgbox(
-                    QMessageBox::Warning,
-                    tr("Really create?"),
-                    tr("This task is not currently uploadable.") + "\n\n" +
-                        why_not_uploadable + "\n\n" + tr("Create anyway?"),
-                    this);
+            QMessageBox::Warning,
+            tr("Really create?"),
+            tr("This task is not currently uploadable.") + "\n\n" +
+                failure_reason + "\n\n" + tr("Create anyway?"),
+            this
+        );
         QAbstractButton* yes = msgbox.addButton(tr("Yes, create"),
                                                 QMessageBox::YesRole);
         msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
@@ -207,16 +220,21 @@ void SingleTaskMenu::showTaskStatus() const
     add(tr("Prohibits commercial use"), uifunc::yesNo(specimen->prohibitsCommercial()));
     add(tr("Prohibits educational use"), uifunc::yesNo(specimen->prohibitsEducational()));
     add(tr("Prohibits research use"), uifunc::yesNo(specimen->prohibitsResearch()));
+
+    add(tr("Extra strings present from server"), uifunc::yesNo(
+            specimen->hasExtraStrings()));
+
     add(tr("Permissible (creatable) with current settings"), uifunc::yesNo(
             specimen->isTaskPermissible(why_not_permissible)));
     add(tr("If not, why not permissible"), why_not_permissible);
+
     add(tr("Uploadable to current server"), uifunc::yesNo(
             specimen->isTaskUploadable(why_not_uploadable)));
     add(tr("If not, why not uploadable"), why_not_uploadable);
+
     add(tr("Fully functional"), uifunc::yesNo(!specimen->isCrippled()));
-    add(tr("Extra strings present from server"), uifunc::yesNo(
-            specimen->hasExtraStrings()));
     add(tr("Editable once created"), uifunc::yesNo(specimen->isEditable()));
+
     uifunc::alert(info.join("<br>"), tr("Task status"));
 }
 

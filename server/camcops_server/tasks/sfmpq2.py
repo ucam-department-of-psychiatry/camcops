@@ -5,7 +5,8 @@ camcops_server/tasks/sfmpq2.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -47,10 +48,12 @@ from typing import List, Type, Tuple, Dict, Any
 
 class Sfmpq2Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Sfmpq2'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Sfmpq2"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
         # Field descriptions are open access, as per:
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/
@@ -85,21 +88,23 @@ class Sfmpq2Metaclass(DeclarativeMeta):
             q_num = q_index + 1
             q_field = "q{}".format(q_num)
 
-            setattr(cls, q_field, CamcopsColumn(
-                q_field, Integer,
-                permitted_value_checker=ZERO_TO_10_CHECKER,
-                comment="Q{} ({}) {}".format(
-                    q_num,
-                    comment_strings[q_index],
-                    score_comment)
-            ))
+            setattr(
+                cls,
+                q_field,
+                CamcopsColumn(
+                    q_field,
+                    Integer,
+                    permitted_value_checker=ZERO_TO_10_CHECKER,
+                    comment="Q{} ({}) {}".format(
+                        q_num, comment_strings[q_index], score_comment
+                    ),
+                ),
+            )
 
         super().__init__(name, bases, classdict)
 
 
-class Sfmpq2(TaskHasPatientMixin,
-             Task,
-             metaclass=Sfmpq2Metaclass):
+class Sfmpq2(TaskHasPatientMixin, Task, metaclass=Sfmpq2Metaclass):
     __tablename__ = "sfmpq2"
     shortname = "SF-MPQ2"
 
@@ -108,13 +113,15 @@ class Sfmpq2(TaskHasPatientMixin,
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     CONTINUOUS_PAIN_QUESTIONS = Task.fieldnames_from_list(
-        "q", {1, 5, 6, 8, 9, 10})
+        "q", {1, 5, 6, 8, 9, 10}
+    )
     INTERMITTENT_PAIN_QUESTIONS = Task.fieldnames_from_list(
-        "q", {2, 3, 4, 11, 16, 18})
+        "q", {2, 3, 4, 11, 16, 18}
+    )
     NEUROPATHIC_PAIN_QUESTIONS = Task.fieldnames_from_list(
-        "q", {7, 17, 19, 20, 21, 22})
-    AFFECTIVE_PAIN_QUESTIONS = Task.fieldnames_from_list(
-        "q", {12, 13, 14, 15})
+        "q", {7, 17, 19, 20, 21, 22}
+    )
+    AFFECTIVE_PAIN_QUESTIONS = Task.fieldnames_from_list("q", {12, 13, 14, 15})
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -124,25 +131,35 @@ class Sfmpq2(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total_pain", coltype=Float(),
+                name="total_pain",
+                coltype=Float(),
                 value=self.total_pain(),
-                comment=f"Total pain (/{self.MAX_SCORE_PER_Q})"),
+                comment=f"Total pain (/{self.MAX_SCORE_PER_Q})",
+            ),
             SummaryElement(
-                name="continuous_pain", coltype=Float(),
+                name="continuous_pain",
+                coltype=Float(),
                 value=self.continuous_pain(),
-                comment=f"Continuous pain (/{self.MAX_SCORE_PER_Q})"),
+                comment=f"Continuous pain (/{self.MAX_SCORE_PER_Q})",
+            ),
             SummaryElement(
-                name="intermittent_pain", coltype=Float(),
+                name="intermittent_pain",
+                coltype=Float(),
                 value=self.intermittent_pain(),
-                comment=f"Intermittent pain (/{self.MAX_SCORE_PER_Q})"),
+                comment=f"Intermittent pain (/{self.MAX_SCORE_PER_Q})",
+            ),
             SummaryElement(
-                name="neuropathic_pain", coltype=Float(),
+                name="neuropathic_pain",
+                coltype=Float(),
                 value=self.neuropathic_pain(),
-                comment=f"Neuropathic pain (/{self.MAX_SCORE_PER_Q})"),
+                comment=f"Neuropathic pain (/{self.MAX_SCORE_PER_Q})",
+            ),
             SummaryElement(
-                name="affective_pain", coltype=Float(),
+                name="affective_pain",
+                coltype=Float(),
                 value=self.affective_pain(),
-                comment=f"Affective pain (/{self.MAX_SCORE_PER_Q})"),
+                comment=f"Affective pain (/{self.MAX_SCORE_PER_Q})",
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -170,7 +187,7 @@ class Sfmpq2(TaskHasPatientMixin,
     def format_average(self, value) -> str:
         return "{} / {}".format(
             answer(ws.number_to_dp(value, 3, default="?")),
-            self.MAX_SCORE_PER_Q
+            self.MAX_SCORE_PER_Q,
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -215,23 +232,23 @@ class Sfmpq2(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             total_pain=tr(
                 self.wxstring(req, "total_pain") + " <sup>[1]</sup>",
-                self.format_average(self.total_pain())
+                self.format_average(self.total_pain()),
             ),
             continuous_pain=tr(
                 self.wxstring(req, "continuous_pain") + " <sup>[2]</sup>",
-                self.format_average(self.continuous_pain())
+                self.format_average(self.continuous_pain()),
             ),
             intermittent_pain=tr(
                 self.wxstring(req, "intermittent_pain") + " <sup>[3]</sup>",
-                self.format_average(self.intermittent_pain())
+                self.format_average(self.intermittent_pain()),
             ),
             neuropathic_pain=tr(
                 self.wxstring(req, "neuropathic_pain") + " <sup>[4]</sup>",
-                self.format_average(self.neuropathic_pain())
+                self.format_average(self.neuropathic_pain()),
             ),
             affective_pain=tr(
                 self.wxstring(req, "affective_pain") + " <sup>[5]</sup>",
-                self.format_average(self.affective_pain())
+                self.format_average(self.affective_pain()),
             ),
             rows=rows,
         )

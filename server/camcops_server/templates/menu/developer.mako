@@ -5,7 +5,8 @@ camcops_server/templates/menu/developer.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -29,12 +30,17 @@ camcops_server/templates/menu/developer.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
-<h2>Developer test pages</h2>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.DEVELOPER,
+        text="Developer test pages"
+    ) | n }
+</h1>
 
-<h3>Basic HTTP</h3>
+<h2>Basic HTTP</h2>
 <ul>
     <li><a href="${ request.route_url(Routes.TESTPAGE_PUBLIC_1) | n }">
         Public test page 1</a> (plain)</li>
@@ -50,11 +56,27 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         Deliberately crash the request</a> (shouldn’t crash the server!)</li>
 </ul>
 
-<h3>Index testing</h3>
+<h2>Index testing</h2>
 <ul>
     <li><a href=" ${request.route_url(
                         Routes.VIEW_TASKS,
                         _query={ViewParam.VIA_INDEX: False}
                     ) | n }">View tasks without using index</a></li>
     <li>Trackers and CTVs have a no-index option available to users directly.</li>
+</ul>
+
+<h2>Less accessible options</h2>
+<ul>
+    <li>
+        Tasks can be viewed with
+        <code>${ ViewParam.VIEWTYPE}=${ ViewArg.PDFHTML}</code>
+        to show the HTML that goes into PDF generation (without page headers or
+        footers).
+    </li>
+</ul>
+
+<h2>Test data</h2>
+<ul>
+    <li><a href=" ${request.route_url(Routes.TEST_NHS_NUMBERS) | n }">
+        NHS numbers for testing</a></li>
 </ul>

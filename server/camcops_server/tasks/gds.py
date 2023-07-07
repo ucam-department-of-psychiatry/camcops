@@ -5,7 +5,8 @@ camcops_server/tasks/gds.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -48,14 +49,21 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # GDS-15
 # =============================================================================
 
+
 class Gds15Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Gds15'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Gds15"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS, String(length=1),
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            String(length=1),
             pv=[NO_CHAR, YES_CHAR],
             comment_fmt="Q{n}, {s} ('Y' or 'N')",
             comment_strings=[
@@ -74,18 +82,19 @@ class Gds15Metaclass(DeclarativeMeta):
                 "full of energy",
                 "hopeless",
                 "others better off",  # 15
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Gds15(TaskHasPatientMixin, Task,
-            metaclass=Gds15Metaclass):
+class Gds15(TaskHasPatientMixin, Task, metaclass=Gds15Metaclass):
     """
     Server implementation of the GDS-15 task.
     """
+
     __tablename__ = "gds15"
     shortname = "GDS-15"
+    info_filename_stem = "gds"
     provides_trackers = True
 
     NQUESTIONS = 15
@@ -100,33 +109,40 @@ class Gds15(TaskHasPatientMixin, Task,
         return _("Geriatric Depression Scale, 15-item version")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="GDS-15 total score",
-            axis_label=f"Total score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="GDS-15 total score",
+                axis_label=f"Total score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"GDS-15 total score {self.total_score()}/{self.MAX_SCORE}"
-        )]
+        return [
+            CtvInfo(
+                content=f"GDS-15 total score "
+                f"{self.total_score()}/{self.MAX_SCORE}"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment=f"Total score (/{self.MAX_SCORE})"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            )
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -147,7 +163,7 @@ class Gds15(TaskHasPatientMixin, Task,
             suffix = " †" if q in self.SCORE_IF_YES else " *"
             q_a += tr_qa(
                 str(q) + ". " + self.wxstring(req, "q" + str(q)) + suffix,
-                getattr(self, "q" + str(q))
+                getattr(self, "q" + str(q)),
             )
 
         return f"""
@@ -175,12 +191,16 @@ class Gds15(TaskHasPatientMixin, Task,
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.GDS15_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.GDS15_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.GDS15_SCALE),
-                {
-                    req.snomed(SnomedLookup.GDS15_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.GDS15_SCALE),
+                    {req.snomed(SnomedLookup.GDS15_SCORE): self.total_score()},
+                )
+            )
         return codes

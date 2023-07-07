@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -22,7 +23,10 @@
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 
+class AspectRatioPixmap;
 class BooleanWidget;
+class ClickableLabelWordWrapWide;
+class LabelWordWrapWide;
 
 
 class QuBoolean : public QuElement
@@ -56,17 +60,25 @@ class QuBoolean : public QuElement
 protected:
     // Protected constructor
     QuBoolean(const QString& text, const QString& filename, const QSize& size,
-              FieldRefPtr fieldref);
+              FieldRefPtr fieldref, QObject* parent = nullptr);
 
 public:
 
     // Construct with: text to display; fieldref
-    QuBoolean(const QString& text, FieldRefPtr fieldref);
+    QuBoolean(const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Construct with: icon filename, icon size, fieldref.
     // If size == QSize(), that means "the file's intrinsic image size"
     QuBoolean(const QString& filename, const QSize& size,
-              FieldRefPtr fieldref);
+              FieldRefPtr fieldref, QObject* parent = nullptr);
+
+    // Alter the text (but currently does not set it to text mode if a widget
+    // had already been created in image mode).
+    QuBoolean* setText(const QString& text);
+
+    // Alter the image (but currently does not set it to image mode if a
+    // widget had already been created in text mode).
+    QuBoolean* setImage(const QString& filename, const QSize& size);
 
     // Is the content (text or image) clickable, as well as the response
     // widget?
@@ -114,6 +126,9 @@ protected:
     // Sets the widget state from our fieldref.
     void setFromField();
 
+    // Get the pixmap, if applicable (scaled, if that's applicable).
+    QPixmap getPixmap() const;
+
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
@@ -140,4 +155,7 @@ protected:
     bool m_as_text_button;  // text button, not tickbox indicator?
     bool m_false_appears_blank;  // false appears unticked?
     QPointer<BooleanWidget> m_indicator;  // tickbox indicator
+    QPointer<ClickableLabelWordWrapWide> m_text_widget_clickable;  // used to change text
+    QPointer<LabelWordWrapWide> m_text_widget_plain;  // used to change text
+    QPointer<AspectRatioPixmap> m_image_widget;  // used to change an image
 };

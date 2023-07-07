@@ -5,7 +5,8 @@ tools/chord.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -41,11 +42,13 @@ import wave
 DEBUG = True
 
 
-def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
-                  duration_s: float = 1.0,
-                  filename: str = "test.wav",
-                  frate_hz: float = 44100.00,
-                  amp_proportion: float = 1.0) -> None:
+def synth_complex(
+    freq_coefs: List[Tuple[float, float]] = None,
+    duration_s: float = 1.0,
+    filename: str = "test.wav",
+    frate_hz: float = 44100.00,
+    amp_proportion: float = 1.0,
+) -> None:
     """
 
     Args:
@@ -84,12 +87,13 @@ def synth_complex(freq_coefs: List[Tuple[float, float]] = None,
     nframes = datasize
     comptype = "NONE"
     compname = "not compressed"
-    wav_file.setparams((nchannels, sampwidth, framerate, nframes, comptype,
-                        compname))
+    wav_file.setparams(
+        (nchannels, sampwidth, framerate, nframes, comptype, compname)
+    )
     ampfactor = amp_proportion * maxamp
     print("writing", filename)
     for s in sine_list:
-        wav_file.writeframes(struct.pack('h', int(s * ampfactor)))
+        wav_file.writeframes(struct.pack("h", int(s * ampfactor)))
     wav_file.close()
     if clipped:
         print("warning: amplitude CLIPPED")
@@ -100,32 +104,36 @@ def frequency_hz(note: str, octave: int = 4) -> float:
     Returns a frequency from a note name.
     """
     badnote = "bad note"
-    if (not note or not isinstance(note, str) or len(note) > 2
-            or not isinstance(octave, int)):
+    if (
+        not note
+        or not isinstance(note, str)
+        or len(note) > 2
+        or not isinstance(octave, int)
+    ):
         raise Exception(badnote)
     basenote = note[0].upper()
     # notenum = 0  # will be: semitones relative to reference A (A4)
-    if basenote == 'C':
+    if basenote == "C":
         notenum = -9
-    elif basenote == 'D':
+    elif basenote == "D":
         notenum = -7
-    elif basenote == 'E':
+    elif basenote == "E":
         notenum = -5
-    elif basenote == 'F':
+    elif basenote == "F":
         notenum = -4
-    elif basenote == 'G':
+    elif basenote == "G":
         notenum = -2
-    elif basenote == 'A':
+    elif basenote == "A":
         notenum = 0
-    elif basenote == 'B':
+    elif basenote == "B":
         notenum = 2
     else:
         raise Exception(badnote)
     if len(note) == 2:
         modifier = note[1]
-        if modifier == '#':  # sharp
+        if modifier == "#":  # sharp
             notenum += 1
-        elif modifier == 'b':  # flat
+        elif modifier == "b":  # flat
             notenum -= 1
         else:
             raise Exception(badnote)
@@ -155,11 +163,17 @@ def ided3d() -> None:
     G5 = frequency_hz("G", 5)
     C6 = frequency_hz("C", 6)
 
-    synth_complex([(E5, 1 / 3), (G5, 1 / 3), (C6, 1 / 3)],
-                  duration_s=0.164, filename="correct.wav")
-    synth_complex([(A4, 1 / 4), (C5, 1 / 4), (Eb5, 1 / 4), (Fs5, 1 / 4)],
-                  duration_s=0.550, filename="incorrect.wav")
+    synth_complex(
+        [(E5, 1 / 3), (G5, 1 / 3), (C6, 1 / 3)],
+        duration_s=0.164,
+        filename="correct.wav",
+    )
+    synth_complex(
+        [(A4, 1 / 4), (C5, 1 / 4), (Eb5, 1 / 4), (Fs5, 1 / 4)],
+        duration_s=0.550,
+        filename="incorrect.wav",
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ided3d()

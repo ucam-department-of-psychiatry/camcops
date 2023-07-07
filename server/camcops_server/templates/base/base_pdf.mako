@@ -5,7 +5,8 @@ camcops_server/templates/base/base_pdf.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -57,7 +58,7 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
     # ... exact parameter doesn't matter; we only want PDF_LOGO_HEIGHT.
     %>
 
-    %if PDF_ENGINE in ["pdfkit", "weasyprint"]:
+    %if PDF_ENGINE in ("pdfkit", "weasyprint"):
         ## weasyprint: div with floating img does not work properly
         <div class="pdf_logo_header">
             <table>
@@ -77,7 +78,7 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
             </table>
         </div>
 
-    %elif PDF_ENGINE in ["xhtml2pdf"]:
+    %elif PDF_ENGINE in ("xhtml2pdf", ):
         ## xhtml2pdf: hard to get logos positioned any other way than within a table
         <div class="header">
             <table class="noborder">

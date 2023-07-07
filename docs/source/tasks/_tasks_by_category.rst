@@ -1,6 +1,7 @@
 ..  docs/source/tasks/tasks_by_category.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -17,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. include:: ../user/include_tabletdefs.rst
+.. include:: ../user_client/include_tabletdefs.rst
 
 Tasks in CamCOPS by category
 ============================
@@ -29,7 +30,119 @@ Tasks in CamCOPS by category
     :depth: 1
 
 
-.. All tasks should appear in this list.
+..  All tasks should appear in this list. Categories alphabetical (except
+    "set menu" collections at the end).
+
+Affective (mood and anxiety) disorders
+--------------------------------------
+
+|affective|
+
+- :ref:`Beck Depression Inventory (BDI) <bdi>`
+
+- :ref:`Center for Epidemiological Studies Depression Scale (CES-D, CESD)
+  <cesd>`
+
+- :ref:`Center for Epidemiological Studies Depression Scale, Revised (CESD-R)
+  <cesdr>`
+
+- :ref:`Clinical Interview Schedule, Revised (CIS-R) <cisr>`
+
+- :ref:`Clinical Outcomes in Routine Evaluation 10 (CORE-10) <core10>`
+
+- :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`
+
+- :ref:`Generalized Anxiety Disorder Assessment (GAD-7) <gad7>`
+
+- :ref:`Geriatric Depression Scale, 15-item version (GDS-15) <gds>`
+
+- :ref:`Hamilton Rating Scale for Anxiety (HAM-A) <hama>`
+
+- :ref:`Hamilton Depression Rating Scale (HDRS) / Hamilton Rating Scale for
+  Depression (HRSD, HAM-D) <hamd>`
+
+- :ref:`Hamilton Depression Rating Scale, 7-item version (HAMD-7) <hamd7>`
+
+- :ref:`Hospital Anxiety and Depression Scale (HADS) <hads>`
+
+- :ref:`Hospital Anxiety and Depression Scale (HADS) (respondent version)
+  <hads_respondent>`
+
+- :ref:`ICD-10 criteria: depressive episode <icd10_depression>`
+
+- :ref:`ICD-10 criteria: manic/hypomanic episode <icd10_mania>`
+
+- :ref:`ICD-10 criteria: mixed affective episode <icd10_mixed>`
+
+- :ref:`Impact of Event Scale – Revised (IES-R) <iesr>`
+
+- :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`
+
+- :ref:`PTSD Checklist for DSM-IV: Civilian version (PCL-C) <pcl_c>`
+
+- :ref:`PTSD Checklist for DSM-IV: Military version (PCL-M) <pcl_m>`
+
+- :ref:`PTSD Checklist for DSM-IV: specific stressor version (PCL-S) <pcl_s>`
+
+- :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`
+
+- :ref:`Patient Health Questionnaire 8-item depression scale (PHQ-8) <phq8>`
+
+- :ref:`Patient Health Questionnaire-9 (PHQ-9) <phq9>`
+
+- :ref:`Patient Health Questionnaire-15 (PHQ-15) <phq15>`
+
+- :ref:`Penn State Worry Questionnaire (PSWQ) <pswq>`
+
+- :ref:`Yale–Brown Obsessive Compulsive Scale (Y-BOCS) <ybocs>`
+
+- :ref:`Y-BOCS Symptom Checklist (Y-BOCS-SC) <ybocs_sc>`
+
+
+Anonymous questionnaires
+------------------------
+
+|anonymous|
+
+- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
+  (APEQPT) <apeqpt>`.
+
+- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
+  <perinatal_poem>`
+
+- :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
+
+- :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
+
+
+Catatonia and extrapyramidal side effects
+-----------------------------------------
+
+|catatonia|
+
+- :ref:`Abnormal Involuntary Movement Scale (AIMS) <aims>`
+
+- :ref:`Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s
+  Disease Rating Scale (MDS-UPDRS) <mdsupdrs>`
+
+.. - Catatonia examination technique (info only)
+
+
+Cognitive assessment
+--------------------
+
+|cognitive|
+
+- :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
+
+- :ref:`Mini-Addenbrooke’s Cognitive Examination (Mini-ACE) <miniace>`
+
+- :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
+
+- :ref:`National Adult Reading Test (NART) <nart>`
+
+- :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
+
 
 Clinical notes and logs
 -----------------------
@@ -66,6 +179,51 @@ Clinical notes and logs
 - :ref:`Progress note <progress_note>`
 
 - :ref:`Psychiatric clerking <clerking>`
+
+
+Drug/alcohol abuse and addiction
+--------------------------------
+
+|addiction|
+
+- :ref:`Alcohol Use Disorders Identification Test (AUDIT) <audit>`
+
+- :ref:`AUDIT Alcohol Consumption Questions (AUDIT-C) <audit_c>`
+
+- :ref:`CAGE Questionnaire <cage>`
+
+- :ref:`Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised
+  (CIWA-Ar) <ciwa>`
+
+- :ref:`Drug Abuse Screening Test (DAST) <dast>`
+
+- :ref:`Fast Alcohol Screening Test (FAST) <fast>`
+
+- :ref:`Michigan Alcohol Screening Test (MAST) <mast>`
+
+- :ref:`Short Michigan Alcohol Screening Test (SMAST) <smast>`
+
+
+Eating disorders
+----------------
+
+|dolphin|
+
+- :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`
+
+- :ref:`Eating Disorder Examination Questionnaire (EDE-Q) <edeq>`
+
+- :ref:`Internet Severity and Activities Addiction Questionnaire, 10-items (ISAAQ-10) <isaaq10>`
+
+- :ref:`Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (ISAAQ-ED) <isaaqed>`
+
+
+Executive function
+------------------
+
+|executive|
+
+- :ref:`INECO Frontal Screening (IFS) <ifs>`
 
 
 Global function and multiple aspects of psychopathology
@@ -126,140 +284,6 @@ Global function and multiple aspects of psychopathology
 - :ref:`Zarit Burden Inventory (ZBI), 12-item version <zbi>`
 
 
-Cognitive assessment
---------------------
-
-|cognitive|
-
-- :ref:`Addenbrooke’s Cognitive Examination, revision 3 (ACE-III) <ace3>`
-
-- :ref:`Montreal Cognitive Assessment (MoCA) <moca>`
-
-- :ref:`National Adult Reading Test (NART) <nart>`
-
-- :ref:`Saint Louis University Mental Status (SLUMS) Examination <slums>`
-
-
-Affective (mood and anxiety) disorders
---------------------------------------
-
-|affective|
-
-- :ref:`Beck Depression Inventory (BDI) <bdi>`
-
-- :ref:`Center for Epidemiological Studies Depression Scale (CES-D, CESD)
-  <cesd>`
-
-- :ref:`Center for Epidemiological Studies Depression Scale, Revised (CESD-R)
-  <cesdr>`
-
-- :ref:`Clinical Interview Schedule, Revised (CIS-R) <cisr>`
-
-- :ref:`Clinical Outcomes in Routine Evaluation 10 (CORE-10) <core10>`
-
-- :ref:`Edinburgh Postnatal Depression Scale (EPDS) <epds>`
-
-- :ref:`Generalized Anxiety Disorder Assessment (GAD-7) <gad7>`
-
-- :ref:`Geriatric Depression Scale, 15-item version (GDS-15) <gds>`
-
-- :ref:`Hamilton Rating Scale for Anxiety (HAM-A) <hama>`
-
-- :ref:`Hamilton Depression Rating Scale (HDRS) / Hamilton Rating Scale for
-  Depression (HRSD, HAM-D) <hamd>`
-
-- :ref:`Hamilton Depression Rating Scale, 7-item version (HAMD-7) <hamd7>`
-
-- :ref:`Hospital Anxiety and Depression Scale (HADS) <hads>`
-
-- :ref:`Hospital Anxiety and Depression Scale (HADS) (respondent version)
-  <hads_respondent>`
-
-- :ref:`ICD-10 criteria: depressive episode <icd10_depression>`
-
-- :ref:`ICD-10 criteria: manic/hypomanic episode <icd10_mania>`
-
-- :ref:`ICD-10 criteria: mixed affective episode <icd10_mixed>`
-
-- :ref:`Impact of Event Scale – Revised (IES-R) <iesr>`
-
-- :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`
-
-- :ref:`PTSD Checklist for DSM-IV: Civilian version (PCL-C) <pcl_c>`
-
-- :ref:`PTSD Checklist for DSM-IV: Military version (PCL-M) <pcl_m>`
-
-- :ref:`PTSD Checklist for DSM-IV: specific stressor version (PCL-S) <pcl_s>`
-
-- :ref:`PTSD Checklist for DSM-5 (PCL-5) <pcl5>`
-
-- :ref:`Patient Health Questionnaire-9 (PHQ-9) <phq9>`
-
-- :ref:`Patient Health Questionnaire-15 (PHQ-15) <phq15>`
-
-- :ref:`Penn State Worry Questionnaire (PSWQ) <pswq>`
-
-- :ref:`Yale–Brown Obsessive Compulsive Scale (Y-BOCS) <ybocs>`
-
-- :ref:`Y-BOCS Symptom Checklist (Y-BOCS-SC) <ybocs_sc>`
-
-
-Drug/alcohol abuse and addiction
---------------------------------
-
-|addiction|
-
-- :ref:`Alcohol Use Disorders Identification Test (AUDIT) <audit>`
-
-- :ref:`AUDIT Alcohol Consumption Questions (AUDIT-C) <audit_c>`
-
-- :ref:`CAGE Questionnaire <cage>`
-
-- :ref:`Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised
-  (CIWA-Ar) <ciwa>`
-
-- :ref:`Drug Abuse Screening Test (DAST) <dast>`
-
-- :ref:`Fast Alcohol Screening Test (FAST) <fast>`
-
-- :ref:`Michigan Alcohol Screening Test (MAST) <mast>`
-
-- :ref:`Short Michigan Alcohol Screening Test (SMAST) <smast>`
-
-
-Psychosis
----------
-
-|psychosis|
-
-- :ref:`Community Assessment of Psychic Experiences (CAPE-42) <cape>`
-
-- :ref:`Cardiff Anomalous Perceptions Scale (CAPS) <caps>`
-
-- :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
-
-- :ref:`Clinical Global Impression – Schizophrenia (CGI-SCH) <cgisch>`
-
-- :ref:`ICD-10 criteria: schizophrenia <icd10_schizophrenia>`
-
-- :ref:`ICD-10 criteria: schizotypal disorder <icd10_schizotypal>`
-
-- :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
-
-
-Catatonia and extrapyramidal side effects
------------------------------------------
-
-|catatonia|
-
-- :ref:`Abnormal Involuntary Movement Scale (AIMS) <aims>`
-
-- :ref:`Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s
-  Disease Rating Scale (MDS-UPDRS) <mdsupdrs>`
-
-.. - Catatonia examination technique (info only)
-
-
 Personality and experience
 --------------------------
 
@@ -275,14 +299,6 @@ Personality and experience
 - :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`
 
 - :ref:`Postpartum Bonding Questionnaire (PBQ) <pbq>`
-
-
-Executive function
-------------------
-
-|executive|
-
-- :ref:`INECO Frontal Screening (IFS) <ifs>`
 
 
 Physical illness measurement
@@ -303,6 +319,26 @@ Physical illness measurement
 - :ref:`Routine Assessment of Patient Index Data (RAPID3) <rapid3>`
 
 - :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
+
+
+Psychosis
+---------
+
+|psychosis|
+
+- :ref:`Community Assessment of Psychic Experiences (CAPE-42) <cape>`
+
+- :ref:`Cardiff Anomalous Perceptions Scale (CAPS) <caps>`
+
+- :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
+- :ref:`Clinical Global Impression – Schizophrenia (CGI-SCH) <cgisch>`
+
+- :ref:`ICD-10 criteria: schizophrenia <icd10_schizophrenia>`
+
+- :ref:`ICD-10 criteria: schizotypal disorder <icd10_schizotypal>`
+
+- :ref:`Positive and negative syndrome scale (PANSS) for schizophrenia <panss>`
 
 
 Service evaluation
@@ -367,22 +403,6 @@ These are more experimental:
 
 - :ref:`Cardinal RN — Expectation–Detection task (with associated sound test)
   <cardinal_expdet>`
-
-
-Anonymous questionnaires
-------------------------
-
-|anonymous|
-
-- :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
-  (APEQPT) <apeqpt>`.
-
-- :ref:`Perinatal Patient-rated Outcome and Experience Measure (POEM)
-  <perinatal_poem>`
-
-- :ref:`Referrer Satisfaction Scale (survey version) <rss_survey>`
-
-- :ref:`UK General Medical Council (GMC) Patient Questionnaire <gmcpq>`
 
 
 Set menus for research

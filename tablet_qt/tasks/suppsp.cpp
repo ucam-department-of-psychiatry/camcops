@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "suppsp.h"
@@ -44,8 +45,8 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MIN_SCORE_PER_Q = 1;
 const int MAX_SCORE_PER_Q = 4;
-const int MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
-const int MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
+const int MIN_QUESTION_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
+const int MAX_QUESTION_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
 const int N_Q_PER_SUBSCALE = 4;  // always
 const int MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE;
 const int MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE;
@@ -93,7 +94,7 @@ QString Suppsp::longname() const
 
 QString Suppsp::description() const
 {
-    return tr("A short English version of the UPPS-P Impulsive Behaviour Scale");
+    return tr("A short English version of the UPPS-P Impulsive Behaviour Scale.");
 }
 
 
@@ -165,7 +166,7 @@ QStringList Suppsp::summary() const
     };
     return QStringList{
         rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_SCORE, MAX_SCORE),
+                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
         rangeScore(xstring("negative_urgency"), negativeUrgency(),
                    MIN_SUBSCALE, MAX_SUBSCALE),
         rangeScore(xstring("lack_of_perseverance"), lackOfPerseverance(),
@@ -214,7 +215,8 @@ OpenableWidget* Suppsp::editor(const bool read_only)
 
     QVector<QuestionWithOneField> q_field_pairs;
 
-    for (const QString& fieldname : fieldNames()) {
+    const auto fieldnames = fieldNames();
+    for (const QString& fieldname : fieldnames) {
         const QString& description = xstring(fieldname);
         q_field_pairs.append(QuestionWithOneField(description,
                                                   fieldRef(fieldname)));

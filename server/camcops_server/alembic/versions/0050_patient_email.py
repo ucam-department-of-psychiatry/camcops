@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0050_patient_email.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -46,8 +47,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0050'
-down_revision = '0049'
+revision = "0050"
+down_revision = "0049"
 branch_labels = None
 depends_on = None
 
@@ -58,13 +59,18 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('patient', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('email', sa.Unicode(length=255),
-                                      nullable=True,
-                                      comment="Patient's e-mail address"))
+    with op.batch_alter_table("patient", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "email",
+                sa.Unicode(length=255),
+                nullable=True,
+                comment="Patient's e-mail address",
+            )
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('patient', schema=None) as batch_op:
-        batch_op.drop_column('email')
+    with op.batch_alter_table("patient", schema=None) as batch_op:
+        batch_op.drop_column("email")

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_exception.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -44,13 +45,23 @@ STR_FORMAT_EXCEPTIONS = (
     # Exceptions that can be raised by str.format()
     IndexError,  # missing positional parameter: "{}, {}".format(1)
     KeyError,  # missing named parameter: "{x}".format(y=2)
-    ValueError  # e.g. unmatched brace: "{x".format(x=1)
+    ValueError,  # e.g. unmatched brace: "{x".format(x=1)
 )
+
+
+# =============================================================================
+# Exceptions
+# =============================================================================
+
+
+class FhirExportException(Exception):
+    pass
 
 
 # =============================================================================
 # Exception functions
 # =============================================================================
+
 
 def raise_runtime_error(msg: str) -> NoReturn:
     """

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "quheading.h"
@@ -28,8 +29,9 @@
 #include "widgets/labelwordwrapwide.h"
 
 
-QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref) :
-    QuText(text, fieldref)  // uses protected constructor of base class
+QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref,
+                     QObject* parent) :
+    QuText(text, fieldref, parent)  // uses protected constructor of base class
 {
     m_fontsize = uiconst::FontSize::Heading;
     m_bold = false;
@@ -38,14 +40,14 @@ QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref) :
 }
 
 
-QuHeading::QuHeading(const QString& text) :
-    QuHeading(text, nullptr)
+QuHeading::QuHeading(const QString& text, QObject* parent) :
+    QuHeading(text, nullptr, parent)
 {
 }
 
 
-QuHeading::QuHeading(FieldRefPtr fieldref) :
-    QuText("", fieldref)
+QuHeading::QuHeading(FieldRefPtr fieldref, QObject* parent) :
+    QuText(QString(), fieldref, parent)
 {
 }
 

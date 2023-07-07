@@ -5,7 +5,8 @@ camcops_server/tasks/hamd7.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -59,20 +60,32 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # HAMD-7
 # =============================================================================
 
+
 class Hamd7Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature,PyUnresolvedReferences
-    def __init__(cls: Type['Hamd7'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Hamd7"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=0, maximum=4,  # see below
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=4,  # see below
             comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
-            comment_strings=["depressed mood", "guilt",
-                             "interest/pleasure/level of activities",
-                             "psychological anxiety", "somatic anxiety",
-                             "energy/somatic symptoms", "suicide"]
+            comment_strings=[
+                "depressed mood",
+                "guilt",
+                "interest/pleasure/level of activities",
+                "psychological anxiety",
+                "somatic anxiety",
+                "energy/somatic symptoms",
+                "suicide",
+            ],
         )
         # Now fix the wrong bits. Hardly elegant!
         cls.q6.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
@@ -80,13 +93,16 @@ class Hamd7Metaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
-            metaclass=Hamd7Metaclass):
+class Hamd7(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Hamd7Metaclass
+):
     """
     Server implementation of the HAMD-7 task.
     """
+
     __tablename__ = "hamd7"
     shortname = "HAMD-7"
+    info_filename_stem = "hamd"
     provides_trackers = True
 
     NQUESTIONS = 7
@@ -99,45 +115,58 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return _("Hamilton Rating Scale for Depression (7-item scale)")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="HAM-D-7 total score",
-            axis_label=f"Total score (out of {self.MAX_SCORE})",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            horizontal_lines=[19.5, 11.5, 3.5],
-            horizontal_labels=[
-                TrackerLabel(23, self.wxstring(req, "severity_severe")),
-                TrackerLabel(15.5, self.wxstring(req, "severity_moderate")),
-                TrackerLabel(7.5, self.wxstring(req, "severity_mild")),
-                TrackerLabel(1.75, self.wxstring(req, "severity_none")),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="HAM-D-7 total score",
+                axis_label=f"Total score (out of {self.MAX_SCORE})",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                horizontal_lines=[19.5, 11.5, 3.5],
+                horizontal_labels=[
+                    TrackerLabel(23, self.wxstring(req, "severity_severe")),
+                    TrackerLabel(
+                        15.5, self.wxstring(req, "severity_moderate")
+                    ),
+                    TrackerLabel(7.5, self.wxstring(req, "severity_mild")),
+                    TrackerLabel(1.75, self.wxstring(req, "severity_none")),
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"HAM-D-7 total score {self.total_score()}/{self.MAX_SCORE} "
-            f"({self.severity(req)})"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"HAM-D-7 total score "
+                    f"{self.total_score()}/{self.MAX_SCORE} "
+                    f"({self.severity(req)})"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment=f"Total score (/{self.MAX_SCORE})"),
-            SummaryElement(name="severity",
-                           coltype=SummaryCategoryColType,
-                           value=self.severity(req),
-                           comment="Severity"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            ),
+            SummaryElement(
+                name="severity",
+                coltype=SummaryCategoryColType,
+                value=self.severity(req),
+                comment="Severity",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -163,15 +192,18 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             for option in range(0, 5):
                 if q == 6 and option > 2:
                     continue
-                d[option] = self.wxstring(req, "q" + str(q) + "_option" +
-                                          str(option))
+                d[option] = self.wxstring(
+                    req, "q" + str(q) + "_option" + str(option)
+                )
             answer_dicts.append(d)
 
         q_a = ""
         for q in range(1, self.NQUESTIONS + 1):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q) + "_s"),
-                get_from_dict(answer_dicts[q - 1], getattr(self, "q" + str(q)))
+                get_from_dict(
+                    answer_dicts[q - 1], getattr(self, "q" + str(q))
+                ),
             )
 
         return """
@@ -197,11 +229,10 @@ class Hamd7(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE),
-                answer(score) + " / {}".format(self.MAX_SCORE)
+                answer(score) + " / {}".format(self.MAX_SCORE),
             ),
             severity=tr_qa(
-                self.wxstring(req, "severity") + " <sup>[1]</sup>",
-                severity
+                self.wxstring(req, "severity") + " <sup>[1]</sup>", severity
             ),
             q_a=q_a,
         )

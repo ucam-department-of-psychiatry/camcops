@@ -16,7 +16,7 @@ format '%Y%m%dT%H%M%S' and <SUFFIX> is either blank or
 positional arguments:
   databases             Database(s) to back up
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --max_allowed_packet MAX_ALLOWED_PACKET
                         Maximum size of buffer (default: 1GB)

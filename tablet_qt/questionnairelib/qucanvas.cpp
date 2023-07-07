@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 // #define DEBUG_SIZE
@@ -39,7 +40,9 @@ const int WRITE_DELAY_MS = 200;
 
 QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
                    const bool allow_shrink, const QImage::Format format,
-                   const QColor& background_colour) :
+                   const QColor& background_colour,
+                   QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_size(size),
     m_allow_shrink(allow_shrink),
@@ -69,8 +72,10 @@ QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
 
 
 QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
-                   const QSize& size, const bool allow_shrink) :
-    QuCanvas(fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white)
+                   const QSize& size, const bool allow_shrink,
+                   QObject* parent) :
+    QuCanvas(fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white,
+             parent)
 {
     m_template_filename = template_filename;
     m_using_template = true;

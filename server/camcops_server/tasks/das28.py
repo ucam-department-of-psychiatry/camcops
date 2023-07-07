@@ -5,7 +5,8 @@ camcops_server/tasks/das28.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -66,57 +67,55 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 class Das28Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Das28'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Das28"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         for field_name in cls.get_joint_field_names():
-            setattr(cls, field_name,
-                    BoolColumn(field_name, comment="0 no, 1 yes"))
+            setattr(
+                cls, field_name, BoolColumn(field_name, comment="0 no, 1 yes")
+            )
 
         setattr(
-            cls, 'vas',
+            cls,
+            "vas",
             CamcopsColumn(
-                'vas',
+                "vas",
                 Integer,
                 comment="Patient assessment of health (0-100mm)",
                 permitted_value_checker=PermittedValueChecker(
-                    minimum=0, maximum=100)
-            )
+                    minimum=0, maximum=100
+                ),
+            ),
         )
 
-        setattr(
-            cls, 'crp',
-            Column('crp', Float, comment="CRP (0-300 mg/L)")
-        )
+        setattr(cls, "crp", Column("crp", Float, comment="CRP (0-300 mg/L)"))
 
-        setattr(
-            cls, 'esr',
-            Column('esr', Float, comment="ESR (1-300 mm/h)")
-        )
+        setattr(cls, "esr", Column("esr", Float, comment="ESR (1-300 mm/h)"))
 
         super().__init__(name, bases, classdict)
 
 
-class Das28(TaskHasPatientMixin,
-            TaskHasClinicianMixin,
-            Task,
-            metaclass=Das28Metaclass):
+class Das28(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Das28Metaclass
+):
     __tablename__ = "das28"
     shortname = "DAS28"
     provides_trackers = True
 
     JOINTS = (
-        ['shoulder', 'elbow', 'wrist'] +
-        [f"mcp_{n}" for n in range(1, 6)] +
-        [f"pip_{n}" for n in range(1, 6)] +
-        ['knee']
+        ["shoulder", "elbow", "wrist"]
+        + [f"mcp_{n}" for n in range(1, 6)]
+        + [f"pip_{n}" for n in range(1, 6)]
+        + ["knee"]
     )
 
-    SIDES = ['left', 'right']
-    STATES = ['swollen', 'tender']
+    SIDES = ["left", "right"]
+    STATES = ["swollen", "tender"]
 
-    OTHER_FIELD_NAMES = ['vas', 'crp', 'esr']
+    OTHER_FIELD_NAMES = ["vas", "crp", "esr"]
 
     # as recommended by https://rmdopen.bmj.com/content/3/1/e000382
     CRP_REMISSION_LOW_CUTOFF = 2.4
@@ -156,25 +155,33 @@ class Das28(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="das28_crp", coltype=Float(),
+                name="das28_crp",
+                coltype=Float(),
                 value=self.das28_crp(),
-                comment="DAS28-CRP"),
+                comment="DAS28-CRP",
+            ),
             SummaryElement(
-                name="activity_state_crp", coltype=SummaryCategoryColType,
+                name="activity_state_crp",
+                coltype=SummaryCategoryColType,
                 value=self.activity_state_crp(req, self.das28_crp()),
-                comment="Activity state (CRP)"),
+                comment="Activity state (CRP)",
+            ),
             SummaryElement(
-                name="das28_esr", coltype=Float(),
+                name="das28_esr",
+                coltype=Float(),
                 value=self.das28_esr(),
-                comment="DAS28-ESR"),
+                comment="DAS28-ESR",
+            ),
             SummaryElement(
-                name="activity_state_esr", coltype=SummaryCategoryColType,
+                name="activity_state_esr",
+                coltype=SummaryCategoryColType,
                 value=self.activity_state_esr(req, self.das28_esr()),
-                comment="Activity state (ESR)"),
+                comment="Activity state (ESR)",
+            ),
         ]
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.get_joint_field_names() + ['vas']):
+        if self.any_fields_none(self.get_joint_field_names() + ["vas"]):
             return False
 
         # noinspection PyUnresolvedReferences
@@ -187,16 +194,14 @@ class Das28(TaskHasPatientMixin,
         return True
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [
-            self.get_crp_tracker(req),
-            self.get_esr_tracker(req),
-        ]
+        return [self.get_crp_tracker(req), self.get_esr_tracker(req)]
 
     def get_crp_tracker(self, req: CamcopsRequest) -> TrackerInfo:
         axis_min = -0.5
         axis_max = 9.0
-        axis_ticks = [TrackerAxisTick(n, str(n))
-                      for n in range(0, int(axis_max) + 1)]
+        axis_ticks = [
+            TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1)
+        ]
 
         horizontal_lines = [
             self.CRP_MODERATE_HIGH_CUTOFF,
@@ -226,8 +231,9 @@ class Das28(TaskHasPatientMixin,
     def get_esr_tracker(self, req: CamcopsRequest) -> TrackerInfo:
         axis_min = -0.5
         axis_max = 10.0
-        axis_ticks = [TrackerAxisTick(n, str(n))
-                      for n in range(0, int(axis_max) + 1)]
+        axis_ticks = [
+            TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1)
+        ]
 
         horizontal_lines = [
             self.ESR_MODERATE_HIGH_CUTOFF,
@@ -271,11 +277,11 @@ class Das28(TaskHasPatientMixin,
 
         # noinspection PyUnresolvedReferences
         return (
-            0.56 * math.sqrt(self.tender_joint_count()) +
-            0.28 * math.sqrt(self.swollen_joint_count()) +
-            0.36 * math.log(self.crp + 1) +
-            0.014 * self.vas +
-            0.96
+            0.56 * math.sqrt(self.tender_joint_count())
+            + 0.28 * math.sqrt(self.swollen_joint_count())
+            + 0.36 * math.log(self.crp + 1)
+            + 0.014 * self.vas
+            + 0.96
         )
 
     def das28_esr(self) -> Optional[float]:
@@ -285,10 +291,10 @@ class Das28(TaskHasPatientMixin,
 
         # noinspection PyUnresolvedReferences
         return (
-            0.56 * math.sqrt(self.tender_joint_count()) +
-            0.28 * math.sqrt(self.swollen_joint_count()) +
-            0.70 * math.log(self.esr) +
-            0.014 * self.vas
+            0.56 * math.sqrt(self.tender_joint_count())
+            + 0.28 * math.sqrt(self.swollen_joint_count())
+            + 0.70 * math.log(self.esr)
+            + 0.014 * self.vas
         )
 
     def activity_state_crp(self, req: CamcopsRequest, measurement: Any) -> str:
@@ -325,8 +331,7 @@ class Das28(TaskHasPatientMixin,
         sides_strings = [self.wxstring(req, s) for s in self.SIDES]
         states_strings = [self.wxstring(req, s) for s in self.STATES]
 
-        joint_rows = table_row([""] + sides_strings,
-                               colspans=[1, 2, 2])
+        joint_rows = table_row([""] + sides_strings, colspans=[1, 2, 2])
 
         joint_rows += table_row([""] + states_strings * 2)
 
@@ -346,8 +351,12 @@ class Das28(TaskHasPatientMixin,
         das28_crp = self.das28_crp()
         das28_esr = self.das28_esr()
 
-        other_rows = "".join([tr_qa(self.wxstring(req, f), getattr(self, f))
-                              for f in self.OTHER_FIELD_NAMES])
+        other_rows = "".join(
+            [
+                tr_qa(self.wxstring(req, f), getattr(self, f))
+                for f in self.OTHER_FIELD_NAMES
+            ]
+        )
 
         html = """
             <div class="{CssClass.SUMMARY}">
@@ -395,25 +404,25 @@ class Das28(TaskHasPatientMixin,
                 self.wxstring(req, "das28_crp") + " <sup>[1]</sup>",
                 "{} ({})".format(
                     answer(ws.number_to_dp(das28_crp, 2, default="?")),
-                    self.activity_state_crp(req, das28_crp)
-                )
+                    self.activity_state_crp(req, das28_crp),
+                ),
             ),
             das28_esr=tr(
                 self.wxstring(req, "das28_esr") + " <sup>[2]</sup>",
                 "{} ({})".format(
                     answer(ws.number_to_dp(das28_esr, 2, default="?")),
-                    self.activity_state_esr(req, das28_esr)
-                )
+                    self.activity_state_esr(req, das28_esr),
+                ),
             ),
             swollen_joint_count=tr(
                 self.wxstring(req, "swollen_count"),
-                answer(self.swollen_joint_count())
+                answer(self.swollen_joint_count()),
             ),
             tender_joint_count=tr(
                 self.wxstring(req, "tender_count"),
-                answer(self.tender_joint_count())
+                answer(self.tender_joint_count()),
             ),
             joint_rows=joint_rows,
-            other_rows=other_rows
+            other_rows=other_rows,
         )
         return html

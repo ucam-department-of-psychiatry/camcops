@@ -1,15 +1,15 @@
-usage: decrypt_sqlcipher.py [-h] [--password PASSWORD] [--sqlcipher SQLCIPHER]
+USAGE: decrypt_sqlcipher.py [-h] [--password PASSWORD] [--sqlcipher SQLCIPHER]
                             [--cipher_compatibility CIPHER_COMPATIBILITY]
                             [--encoding ENCODING]
                             encrypted decrypted
 
 Use SQLCipher to make a decrypted copy of a database
 
-positional arguments:
+POSITIONAL ARGUMENTS:
   encrypted             Filename of the existing encrypted database
   decrypted             Filename of the decrypted database to be created
 
-optional arguments:
+OPTIONS:
   -h, --help            show this help message and exit
   --password PASSWORD   Password (if blank, environment variable
                         DECRYPT_SQLCIPHER_PASSWORD will be used, or you will

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -51,6 +52,14 @@ public:
     static const QString SEX_UNSPECIFIED;
 
     // ========================================================================
+    // Units
+    // ========================================================================
+public:
+    static const int METRIC;
+    static const int IMPERIAL;
+    static const int BOTH;
+
+    // ========================================================================
     // Translated text
     // ========================================================================
 public:
@@ -66,6 +75,21 @@ public:
     static QString sexFemale();
     static QString sexMale();
     static QString sexUnspecified();
+    static QString metricM();
+    static QString imperialFtIn();
+    static QString metres();
+    static QString feet();
+    static QString inches();
+    static QString metricKg();
+    static QString imperialStLbOz();
+    static QString kilograms();
+    static QString stones();
+    static QString pounds();
+    static QString ounces();
+    static QString metricCm();
+    static QString imperialIn();
+    static QString centimetres();
+    static QString showBoth();
 
     // ========================================================================
     // Option sets
@@ -88,4 +112,8 @@ public:
 
     static NameValueOptions optionsCopyingDescriptions(
             const QStringList& descriptions);
+
+    static NameValueOptions massUnits();
+    static NameValueOptions waistUnits();
+    static NameValueOptions heightUnits();
 };

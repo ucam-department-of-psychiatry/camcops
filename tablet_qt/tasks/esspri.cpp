@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "esspri.h"
@@ -41,7 +42,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 3;
-const int MAX_SCORE = 10;
+const int MAX_QUESTION_SCORE = 10;
 const QString QPREFIX("q");
 
 
@@ -91,10 +92,10 @@ QStringList Esspri::fieldNames() const
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
 
+
 // ============================================================================
 // Instance info
 // ============================================================================
-
 
 bool Esspri::isComplete() const
 {
@@ -117,7 +118,7 @@ QVariant Esspri::overallScore() const
 QStringList Esspri::summary() const
 {
     return QStringList{
-        scorePhraseVariant(xstring("overall_score"), overallScore(), MAX_SCORE),
+        scorePhraseVariant(xstring("overall_score"), overallScore(), MAX_QUESTION_SCORE),
     };
 }
 

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "auditc.h"
@@ -33,7 +34,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 3;
-const int MAX_SCORE = N_QUESTIONS * 4;
+const int MAX_QUESTION_SCORE = N_QUESTIONS * 4;
 const QString QPREFIX("q");
 
 const QString AuditC::AUDITC_TABLENAME("audit_c");
@@ -77,6 +78,12 @@ QString AuditC::description() const
 }
 
 
+QString AuditC::infoFilenameStem() const
+{
+    return Audit::AUDIT_TABLENAME;  // shares with AUDIT
+}
+
+
 QString AuditC::xstringTaskname() const
 {
     return Audit::AUDIT_TABLENAME;  // shares strings with AUDIT
@@ -95,7 +102,7 @@ bool AuditC::isComplete() const
 
 QStringList AuditC::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
 

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_snomed.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -127,7 +128,7 @@ Regarding temporal coding:
       plan.
     - Codes or other representations that name or provide the semantic
       information container, link, or statement:
-      
+
       - SNOMED CT fulfills this role in a structured health record.
 
     - Additional data including text, numeric values, images and other
@@ -153,6 +154,7 @@ from cardinal_pythonlib.athena_ohdsi import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
+
 # noinspection PyUnresolvedReferences
 from cardinal_pythonlib.snomed import (  # noqa: F401
     SnomedAttribute,
@@ -185,7 +187,8 @@ SNOMED_XML_NAME = "snomed_ct_expression"
 # ICD-9-CM; from the client: camcops --print_icd9_codes
 # -----------------------------------------------------------------------------
 
-CLIENT_ICD9CM_CODES = set("""
+CLIENT_ICD9CM_CODES = set(
+    """
 290.0 290.1 290.10 290.11 290.12 290.13 290.2 290.20 290.21 290.3 290.4 290.40
 290.41 290.42 290.43 290.8 290.9 291.0 291.1 291.2 291.3 291.4 291.5 291.8
 291.81 291.82 291.89 291.9 292.0 292.1 292.11 292.12 292.2 292.8 292.81 292.82
@@ -237,13 +240,15 @@ CLIENT_ICD9CM_CODES = set("""
 314.8 314.9 315.0 315.00 315.01 315.02 315.09 315.1 315.2 315.3 315.31 315.32
 315.34 315.35 315.39 315.4 315.5 315.8 315.9 316 317 318.0 318.1 318.2 319
 V71.09
-""".split())
+""".split()
+)
 
 # -----------------------------------------------------------------------------
 # ICD-10; from the client: camcops --print_icd10_codes
 # -----------------------------------------------------------------------------
 
-CLIENT_ICD10_CODES = set("""
+CLIENT_ICD10_CODES = set(
+    """
 F00 F00.0 F00.00 F00.000 F00.001 F00.002 F00.01 F00.010 F00.011 F00.012 F00.02
 F00.020 F00.021 F00.022 F00.03 F00.030 F00.031 F00.032 F00.04 F00.040 F00.041
 F00.042 F00.1 F00.10 F00.100 F00.101 F00.102 F00.11 F00.110 F00.111 F00.112
@@ -539,17 +544,20 @@ X84.52 X84.53 X84.54 X84.58 X84.59 X84.6 X84.60 X84.61 X84.62 X84.63 X84.64
 X84.68 X84.69 X84.7 X84.70 X84.71 X84.72 X84.73 X84.74 X84.78 X84.79 X84.8
 X84.80 X84.81 X84.82 X84.83 X84.84 X84.88 X84.89 X84.9 X84.90 X84.91 X84.92
 X84.93 X84.94 X84.98 X84.99 Z00.4 Z03.2 Z71.1
-""".split())
+""".split()
+)
 
 
 # =============================================================================
 # The SnomedConcept class, amended
 # =============================================================================
 
+
 class SnomedConcept(SnomedConceptCardinalPythonlib):
     @classmethod
-    def create(cls, concept: SnomedConceptCardinalPythonlib) \
-            -> "SnomedConcept":
+    def create(
+        cls, concept: SnomedConceptCardinalPythonlib
+    ) -> "SnomedConcept":
         """
         Creates a CamCOPS-friendly
         :class:`camcops_server.cc_modules.cc_snomed.SnomedConcept` from a
@@ -557,8 +565,7 @@ class SnomedConcept(SnomedConceptCardinalPythonlib):
 
         The result has extra methods.
         """
-        return SnomedConcept(identifier=concept.identifier,
-                             term=concept.term)
+        return SnomedConcept(identifier=concept.identifier, term=concept.term)
 
     def xml_element(self, longform: bool = True) -> XmlElement:
         """
@@ -571,13 +578,14 @@ class SnomedConcept(SnomedConceptCardinalPythonlib):
         return XmlElement(
             name=SNOMED_XML_NAME,
             value=self.as_string(longform),
-            datatype=XmlDataTypes.STRING
+            datatype=XmlDataTypes.STRING,
         )
 
 
 # =============================================================================
 # The SnomedExpression class, amended
 # =============================================================================
+
 
 class SnomedExpression(SnomedExpressionCardinalPythonlib):
     def xml_element(self, longform: bool = True) -> XmlElement:
@@ -591,7 +599,7 @@ class SnomedExpression(SnomedExpressionCardinalPythonlib):
         return XmlElement(
             name=SNOMED_XML_NAME,
             value=self.as_string(longform),
-            datatype=XmlDataTypes.STRING
+            datatype=XmlDataTypes.STRING,
         )
 
 
@@ -612,8 +620,9 @@ AUTOGEN_COMMENT = (
 )
 
 
-def get_snomed_concepts_from_xml(xml_filename: str) \
-        -> Dict[str, Union[SnomedConcept, List[SnomedConcept]]]:
+def get_snomed_concepts_from_xml(
+    xml_filename: str,
+) -> Dict[str, Union[SnomedConcept, List[SnomedConcept]]]:
     """
     Reads in all SNOMED-CT concepts from an XML file according to the CamCOPS
     format.
@@ -631,7 +640,9 @@ def get_snomed_concepts_from_xml(xml_filename: str) \
     tree = ElementTree.parse(xml_filename, parser=parser)
     root = tree.getroot()
     all_concepts = {}  # type: Dict[str, List[SnomedConcept]]
-    find_lookup = "./{tag}[@{attr}]".format(tag=LOOKUP_TAG, attr=LOOKUP_NAME_ATTR)  # noqa
+    find_lookup = "./{tag}[@{attr}]".format(
+        tag=LOOKUP_TAG, attr=LOOKUP_NAME_ATTR
+    )
     find_concept = "./{tag}".format(tag=CONCEPT_TAG)
     find_id_in_concept = "./{tag}".format(tag=ID_TAG)
     find_name_in_concept = "./{tag}".format(tag=TERM_TAG)
@@ -652,9 +663,10 @@ def get_snomed_concepts_from_xml(xml_filename: str) \
 
 
 def write_snomed_concepts_to_xml(
-        xml_filename: str,
-        concepts: Dict[str, List[SnomedConcept]],
-        comment: str = AUTOGEN_COMMENT) -> None:
+    xml_filename: str,
+    concepts: Dict[str, List[SnomedConcept]],
+    comment: str = AUTOGEN_COMMENT,
+) -> None:
     """
     Writes SNOMED-CT concepts to an XML file in the CamCOPS format.
 
@@ -670,7 +682,8 @@ def write_snomed_concepts_to_xml(
     root.insert(0, comment_element)
     for lookup, concepts_for_lookup in concepts.items():
         l_el = ElementTree.SubElement(
-            root, LOOKUP_TAG, {LOOKUP_NAME_ATTR: lookup})
+            root, LOOKUP_TAG, {LOOKUP_NAME_ATTR: lookup}
+        )
         for concept in concepts_for_lookup:
             c_el = ElementTree.SubElement(l_el, CONCEPT_TAG)
             i_el = ElementTree.SubElement(c_el, ID_TAG)
@@ -689,6 +702,7 @@ def write_snomed_concepts_to_xml(
 # -----------------------------------------------------------------------------
 # CamCOPS lookup codes for SNOMED-CT concepts
 # -----------------------------------------------------------------------------
+
 
 class SnomedLookup(object):
     """
@@ -714,11 +728,15 @@ class SnomedLookup(object):
     clear XML that matches SNOMED-CT, in the format TASK_CONCEPTTYPE_NAME.
 
     """  # noqa
+
     # https://snomedbrowser.com/Codes/Details/XXX  # noqa
 
     # -------------------------------------------------------------------------
     # SNOMED-CT core concepts
     # -------------------------------------------------------------------------
+
+    # Base concepts
+    OBSERVABLE_ENTITY = "observable_entity"
 
     # Abstract physical quantities
     MASS = "mass"
@@ -741,23 +759,37 @@ class SnomedLookup(object):
 
     # ACE-R
     ACE_R_SCALE = "ace_r_scale"
-    ACE_R_SUBSCALE_ATTENTION_ORIENTATION = "ace_r_subscale_attention_orientation"  # noqa
+    ACE_R_SUBSCALE_ATTENTION_ORIENTATION = (
+        "ace_r_subscale_attention_orientation"
+    )
     ACE_R_SUBSCALE_FLUENCY = "ace_r_subscale_fluency"
     ACE_R_SUBSCALE_LANGUAGE = "ace_r_subscale_language"
     ACE_R_SUBSCALE_MEMORY = "ace_r_subscale_memory"
     ACE_R_SUBSCALE_VISUOSPATIAL = "ace_r_subscale_visuospatial"
     ACE_R_SCORE = "ace_r_observable_score"
-    ACE_R_SUBSCORE_ATTENTION_ORIENTATION = "ace_r_observable_subscore_attention_orientation"  # noqa
+    ACE_R_SUBSCORE_ATTENTION_ORIENTATION = (
+        "ace_r_observable_subscore_attention_orientation"
+    )
     ACE_R_SUBSCORE_FLUENCY = "ace_r_observable_subscore_fluency"
     ACE_R_SUBSCORE_LANGUAGE = "ace_r_observable_subscore_language"
     ACE_R_SUBSCORE_MEMORY = "ace_r_observable_subscore_memory"
     ACE_R_SUBSCORE_VISUOSPATIAL = "ace_r_observable_subscore_visuospatial"
     ACE_R_PROCEDURE_ASSESSMENT = "ace_r_procedure_assessment"
-    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_ATTENTION_ORIENTATION = "ace_r_procedure_assessment_subscale_attention_orientation"  # noqa
-    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_FLUENCY = "ace_r_procedure_assessment_subscale_fluency"  # noqa
-    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_LANGUAGE = "ace_r_procedure_assessment_subscale_language"  # noqa
-    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_MEMORY = "ace_r_procedure_assessment_subscale_memory"  # noqa
-    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_VISUOSPATIAL = "ace_r_procedure_assessment_subscale_visuospatial"  # noqa
+    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_ATTENTION_ORIENTATION = (
+        "ace_r_procedure_assessment_subscale_attention_orientation"
+    )
+    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_FLUENCY = (
+        "ace_r_procedure_assessment_subscale_fluency"
+    )
+    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_LANGUAGE = (
+        "ace_r_procedure_assessment_subscale_language"
+    )
+    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_MEMORY = (
+        "ace_r_procedure_assessment_subscale_memory"
+    )
+    ACE_R_PROCEDURE_ASSESSMENT_SUBSCALE_VISUOSPATIAL = (
+        "ace_r_procedure_assessment_subscale_visuospatial"
+    )
 
     # AIMS
     AIMS_SCALE = "aims_scale"
@@ -789,7 +821,9 @@ class SnomedLookup(object):
     BMI_PROCEDURE_MEASUREMENT = "bmi_procedure_measurement"
     BODY_HEIGHT_OBSERVABLE = "body_height_observable"
     BODY_WEIGHT_OBSERVABLE = "body_weight_observable"
-    WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT = "waist_circumference_procedure_measurement"  # noqa
+    WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT = (
+        "waist_circumference_procedure_measurement"
+    )
     WAIST_CIRCUMFERENCE_OBSERVABLE = "waist_circumference_observable"
 
     # BPRS, BPRS-E
@@ -827,23 +861,36 @@ class SnomedLookup(object):
     # ... "location": not obvious
     # ... "contact type" is an AoMRC heading, but I'm not sure the observable
     #     entity of "Initial contact type" is right.
-    PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
+    #
+    # Deprecated between v20191001 and v20210929:
+    # PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
+    DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE = (
+        "diagnostic_psychiatric_interview_procedure"
+    )
 
     PSYCLERK_REASON_FOR_REFERRAL = "psyclerk_reason_for_referral"
     PSYCLERK_PRESENTING_ISSUE = "psyclerk_presenting_issue"
     PSYCLERK_SYSTEMS_REVIEW = "psyclerk_systems_review"
     PSYCLERK_COLLATERAL_HISTORY = "psyclerk_collateral_history"
 
-    PSYCLERK_PAST_MEDICAL_SURGICAL_MENTAL_HEALTH_HISTORY = "psyclerk_past_medical_surgical_mental_health_history"  # noqa
+    PSYCLERK_PAST_MEDICAL_SURGICAL_MENTAL_HEALTH_HISTORY = (
+        "psyclerk_past_medical_surgical_mental_health_history"
+    )
     PSYCLERK_PROCEDURES = "psyclerk_procedures"
-    PSYCLERK_ALLERGIES_ADVERSE_REACTIONS = "psyclerk_allergies_adverse_reactions"  # noqa
-    PSYCLERK_MEDICATIONS_MEDICAL_DEVICES = "psyclerk_medications_medical_devices"  # noqa
+    PSYCLERK_ALLERGIES_ADVERSE_REACTIONS = (
+        "psyclerk_allergies_adverse_reactions"
+    )
+    PSYCLERK_MEDICATIONS_MEDICAL_DEVICES = (
+        "psyclerk_medications_medical_devices"
+    )
     PSYCLERK_DRUG_SUBSTANCE_USE = "psyclerk_drug_substance_use"
     PSYCLERK_FAMILY_HISTORY = "psyclerk_family_history"
     PSYCLERK_DEVELOPMENTAL_HISTORY = "psyclerk_developmental_history"
     PSYCLERK_SOCIAL_PERSONAL_HISTORY = "psyclerk_social_personal_history"
     PSYCLERK_PERSONALITY = "psyclerk_personality"
-    PSYCLERK_PRISON_RECORD_CRIMINAL_ACTIVITY = "psyclerk_prison_record_criminal_activity"  # noqa
+    PSYCLERK_PRISON_RECORD_CRIMINAL_ACTIVITY = (
+        "psyclerk_prison_record_criminal_activity"
+    )
     PSYCLERK_SOCIAL_HISTORY_BASELINE = "psyclerk_social_history_baseline"
 
     PSYCLERK_MSE_APPEARANCE = "psyclerk_mse_appearance"
@@ -899,7 +946,9 @@ class SnomedLookup(object):
     EQ5D5L_INDEX_VALUE = "eq5d5l_observable_index_value"
     EQ5D5L_PAIN_DISCOMFORT_SCORE = "eq5d5l_observable_pain_discomfort_score"
     EQ5D5L_USUAL_ACTIVITIES_SCORE = "eq5d5l_observable_usual_activities_score"
-    EQ5D5L_ANXIETY_DEPRESSION_SCORE = "eq5d5l_observable_anxiety_depression_score"  # noqa
+    EQ5D5L_ANXIETY_DEPRESSION_SCORE = (
+        "eq5d5l_observable_anxiety_depression_score"
+    )
     EQ5D5L_MOBILITY_SCORE = "eq5d5l_observable_mobility_score"
     EQ5D5L_SELF_CARE_SCORE = "eq5d5l_observable_self_care_score"
     EQ5D5L_PROCEDURE_ASSESSMENT = "eq5d5l_procedure_assessment"
@@ -956,10 +1005,18 @@ class SnomedLookup(object):
     HONOSCA_SECTION_A_SCALE = "honos_childrenadolescents_section_a_scale"
     HONOSCA_SECTION_B_SCALE = "honos_childrenadolescents_section_b_scale"
     HONOSCA_SCORE = "honos_childrenadolescents_observable_score"
-    HONOSCA_SECTION_A_SCORE = "honos_childrenadolescents_observable_section_a_score"  # noqa
-    HONOSCA_SECTION_B_SCORE = "honos_childrenadolescents_observable_section_b_score"  # noqa
-    HONOSCA_SECTION_A_PLUS_B_SCORE = "honos_childrenadolescents_observable_section_a_plus_b_score"  # noqa
-    HONOSCA_PROCEDURE_ASSESSMENT = "honos_childrenadolescents_procedure_assessment"  # noqa
+    HONOSCA_SECTION_A_SCORE = (
+        "honos_childrenadolescents_observable_section_a_score"
+    )
+    HONOSCA_SECTION_B_SCORE = (
+        "honos_childrenadolescents_observable_section_b_score"
+    )
+    HONOSCA_SECTION_A_PLUS_B_SCORE = (
+        "honos_childrenadolescents_observable_section_a_plus_b_score"
+    )
+    HONOSCA_PROCEDURE_ASSESSMENT = (
+        "honos_childrenadolescents_procedure_assessment"
+    )
     #
     HONOS65_SCALE = "honos_olderadults_scale"
     HONOS65_SCORE = "honos_olderadults_observable_score"
@@ -974,23 +1031,41 @@ class SnomedLookup(object):
     HONOSWA_SUBSCALE_6_PSYCHOSIS = "honos_workingage_subscale_6_psychosis"
     HONOSWA_SUBSCALE_7_DEPRESSION = "honos_workingage_subscale_7_depression"
     HONOSWA_SUBSCALE_8_OTHERMENTAL = "honos_workingage_subscale_8_othermental"
-    HONOSWA_SUBSCALE_9_RELATIONSHIPS = "honos_workingage_subscale_9_relationships"  # noqa
+    HONOSWA_SUBSCALE_9_RELATIONSHIPS = (
+        "honos_workingage_subscale_9_relationships"
+    )
     HONOSWA_SUBSCALE_10_ADL = "honos_workingage_subscale_10_adl"
-    HONOSWA_SUBSCALE_11_LIVINGCONDITIONS = "honos_workingage_subscale_11_livingconditions"  # noqa
+    HONOSWA_SUBSCALE_11_LIVINGCONDITIONS = (
+        "honos_workingage_subscale_11_livingconditions"
+    )
     HONOSWA_SUBSCALE_12_OCCUPATION = "honos_workingage_subscale_12_occupation"
     HONOSWA_SCORE = "honos_workingage_observable_score"
-    HONOSWA_1_OVERACTIVE_SCORE = "honos_workingage_observable_1_overactive_score"  # noqa
-    HONOSWA_2_SELFINJURY_SCORE = "honos_workingage_observable_2_selfinjury_score"  # noqa
+    HONOSWA_1_OVERACTIVE_SCORE = (
+        "honos_workingage_observable_1_overactive_score"
+    )
+    HONOSWA_2_SELFINJURY_SCORE = (
+        "honos_workingage_observable_2_selfinjury_score"
+    )
     HONOSWA_3_SUBSTANCE_SCORE = "honos_workingage_observable_3_substance_score"
     HONOSWA_4_COGNITIVE_SCORE = "honos_workingage_observable_4_cognitive_score"
     HONOSWA_5_PHYSICAL_SCORE = "honos_workingage_observable_5_physical_score"
     HONOSWA_6_PSYCHOSIS_SCORE = "honos_workingage_observable_6_psychosis_score"
-    HONOSWA_7_DEPRESSION_SCORE = "honos_workingage_observable_7_depression_score"  # noqa
-    HONOSWA_8_OTHERMENTAL_SCORE = "honos_workingage_observable_8_othermental_score"  # noqa
-    HONOSWA_9_RELATIONSHIPS_SCORE = "honos_workingage_observable_9_relationships_score"  # noqa
+    HONOSWA_7_DEPRESSION_SCORE = (
+        "honos_workingage_observable_7_depression_score"
+    )
+    HONOSWA_8_OTHERMENTAL_SCORE = (
+        "honos_workingage_observable_8_othermental_score"
+    )
+    HONOSWA_9_RELATIONSHIPS_SCORE = (
+        "honos_workingage_observable_9_relationships_score"
+    )
     HONOSWA_10_ADL_SCORE = "honos_workingage_observable_10_adl_score"
-    HONOSWA_11_LIVINGCONDITIONS_SCORE = "honos_workingage_observable_11_livingconditions_score"  # noqa
-    HONOSWA_12_OCCUPATION_SCORE = "honos_workingage_observable_12_occupation_score"  # noqa
+    HONOSWA_11_LIVINGCONDITIONS_SCORE = (
+        "honos_workingage_observable_11_livingconditions_score"
+    )
+    HONOSWA_12_OCCUPATION_SCORE = (
+        "honos_workingage_observable_12_occupation_score"
+    )
     HONOSWA_PROCEDURE_ASSESSMENT = "honos_workingage_procedure_assessment"
 
     # ICD-9-CM: see below; separate file
@@ -1045,11 +1120,17 @@ class SnomedLookup(object):
     # "Perinatal" and "scale": none
 
     # PHQ-9
-    PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION = "phq9_finding_negative_screening_for_depression"  # noqa
-    PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION = "phq9_finding_positive_screening_for_depression"  # noqa
+    PHQ9_FINDING_NEGATIVE_SCREENING_FOR_DEPRESSION = (
+        "phq9_finding_negative_screening_for_depression"
+    )
+    PHQ9_FINDING_POSITIVE_SCREENING_FOR_DEPRESSION = (
+        "phq9_finding_positive_screening_for_depression"
+    )
     PHQ9_SCORE = "phq9_observable_score"
-    PHQ9_PROCEDURE_DEPRESSION_SCREENING = "phq9_procedure_depression_screening"  # noqa
-    PHQ9_SCALE = "phq9_scale"  # https://snomedbrowser.com/Codes/Details/758711000000105  # noqa
+    PHQ9_PROCEDURE_DEPRESSION_SCREENING = "phq9_procedure_depression_screening"
+    PHQ9_SCALE = (
+        "phq9_scale"  # https://snomedbrowser.com/Codes/Details/758711000000105
+    )
 
     # PHQ-15
     PHQ15_SCORE = "phq15_observable_score"
@@ -1099,13 +1180,19 @@ class SnomedLookup(object):
 # Perform the lookup
 # -----------------------------------------------------------------------------
 
-VALID_SNOMED_LOOKUPS = set([getattr(SnomedLookup, k) for k in dir(SnomedLookup)
-                            if not k.startswith("_")])
+VALID_SNOMED_LOOKUPS = set(
+    [
+        getattr(SnomedLookup, k)
+        for k in dir(SnomedLookup)
+        if not k.startswith("_")
+    ]
+)
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_all_task_snomed_concepts(xml_filename: str) \
-        -> Dict[str, SnomedConcept]:
+def get_all_task_snomed_concepts(
+    xml_filename: str,
+) -> Dict[str, SnomedConcept]:
     """
     Reads in all SNOMED-CT codes for CamCOPS tasks, from the custom CamCOPS XML
     file for this.
@@ -1125,12 +1212,13 @@ def get_all_task_snomed_concepts(xml_filename: str) \
         if lookup not in VALID_SNOMED_LOOKUPS:
             log.debug("Ignoring unknown SNOMED-CT lookup: {!r}", lookup)
             continue
-        assert len(concepts) == 1, (
-            f"More than one SNOMED-CT concept for lookup: {lookup!r}"
-        )
+        assert (
+            len(concepts) == 1
+        ), f"More than one SNOMED-CT concept for lookup: {lookup!r}"
         concept = concepts[0]
-        assert concept.identifier not in identifiers_seen, (
-            f"Duplicate SNOMED-CT identifier: {concept.identifier!r}")
+        assert (
+            concept.identifier not in identifiers_seen
+        ), f"Duplicate SNOMED-CT identifier: {concept.identifier!r}"
         identifiers_seen.add(concept.identifier)
         # Stash it
         camcops_concepts[lookup] = concept
@@ -1139,7 +1227,8 @@ def get_all_task_snomed_concepts(xml_filename: str) \
     if missing:
         raise ValueError(
             f"The following SNOMED-CT concepts required by CamCOPS are "
-            f"missing from the XML ({xml_filename!r}): {missing!r}")
+            f"missing from the XML ({xml_filename}): {missing!r}"
+        )
     # Done
     return camcops_concepts
 
@@ -1148,6 +1237,7 @@ def get_all_task_snomed_concepts(xml_filename: str) \
 # UMLS ICD-9-CM
 # =============================================================================
 
+
 class UmlsIcd9SnomedRow(object):
     """
     Simple information-holding class for a row of the ICD-9-CM TSV file, from
@@ -1155,29 +1245,41 @@ class UmlsIcd9SnomedRow(object):
 
     NOT CURRENTLY USED.
     """
+
     HEADER = [
-        "ICD_CODE", "ICD_NAME", "IS_CURRENT_ICD", "IP_USAGE", "OP_USAGE",
-        "AVG_USAGE", "IS_NEC", "SNOMED_CID", "SNOMED_FSN", "IS_1-1MAP",
-        "CORE_USAGE", "IN_CORE",
+        "ICD_CODE",
+        "ICD_NAME",
+        "IS_CURRENT_ICD",
+        "IP_USAGE",
+        "OP_USAGE",
+        "AVG_USAGE",
+        "IS_NEC",
+        "SNOMED_CID",
+        "SNOMED_FSN",
+        "IS_1-1MAP",
+        "CORE_USAGE",
+        "IN_CORE",
     ]
 
     @staticmethod
     def to_float(x: str) -> Optional[float]:
         return None if x == "NULL" else float(x)
 
-    def __init__(self,
-                 icd_code: str,
-                 icd_name: str,
-                 is_current_icd: str,
-                 ip_usage: str,
-                 op_usage: str,
-                 avg_usage: str,
-                 is_nec: str,
-                 snomed_cid: str,
-                 snomed_fsn: str,
-                 is_one_to_one_map: str,
-                 core_usage: str,
-                 in_core: str) -> None:
+    def __init__(
+        self,
+        icd_code: str,
+        icd_name: str,
+        is_current_icd: str,
+        ip_usage: str,
+        op_usage: str,
+        avg_usage: str,
+        is_nec: str,
+        snomed_cid: str,
+        snomed_fsn: str,
+        is_one_to_one_map: str,
+        core_usage: str,
+        in_core: str,
+    ) -> None:
         """
         Argument order is important.
 
@@ -1211,12 +1313,23 @@ class UmlsIcd9SnomedRow(object):
         self.in_core = bool(int(in_core))
 
     def __repr__(self) -> str:
-        return simple_repr(self, [
-            "icd_code", "icd_name", "is_current_icd", "ip_usage", "op_usage",
-            "avg_usage", "is_nec",
-            "snomed_cid", "snomed_fsn",
-            "is_one_to_one_map", "core_usage", "in_core",
-        ])
+        return simple_repr(
+            self,
+            [
+                "icd_code",
+                "icd_name",
+                "is_current_icd",
+                "ip_usage",
+                "op_usage",
+                "avg_usage",
+                "is_nec",
+                "snomed_cid",
+                "snomed_fsn",
+                "is_one_to_one_map",
+                "core_usage",
+                "in_core",
+            ],
+        )
 
     def snomed_concept(self) -> SnomedConcept:
         """
@@ -1233,7 +1346,8 @@ class UmlsIcd9SnomedRow(object):
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
 def get_all_icd9cm_snomed_concepts_from_umls(
-        tsv_filename: str) -> Dict[str, SnomedConcept]:
+    tsv_filename: str,
+) -> Dict[str, SnomedConcept]:
     """
     Reads in all ICD-9-CM SNOMED-CT codes that are supported by the client,
     from the UMLS data file, from
@@ -1249,13 +1363,14 @@ def get_all_icd9cm_snomed_concepts_from_umls(
     """
     log.info("Loading SNOMED-CT ICD-9-CM codes from file: {}", tsv_filename)
     concepts = {}  # type: Dict[str, SnomedConcept]
-    with open(tsv_filename, 'r') as tsvin:
+    with open(tsv_filename, "r") as tsvin:
         reader = csv.reader(tsvin, delimiter="\t")
         header = next(reader, None)
         if header != UmlsIcd9SnomedRow.HEADER:
             raise ValueError(
                 f"ICD-9-CM TSV file has unexpected header: {header!r}; "
-                f"expected {UmlsIcd9SnomedRow.HEADER!r}")
+                f"expected {UmlsIcd9SnomedRow.HEADER!r}"
+            )
         for row in reader:
             entry = UmlsIcd9SnomedRow(*row)
             if entry.icd_code not in CLIENT_ICD9CM_CODES:
@@ -1264,22 +1379,28 @@ def get_all_icd9cm_snomed_concepts_from_umls(
                 continue
             if entry.icd_code in concepts:
                 log.warning(
-                    "Duplicate ICD-9-CM code found in SNOMED file {!r}: {!r}",
-                    tsv_filename, entry.icd_code)
+                    "Duplicate ICD-9-CM code found in SNOMED file "
+                    "{!r}: {!r}",
+                    tsv_filename,
+                    entry.icd_code,
+                )
                 continue
             concept = entry.snomed_concept()
             # log.debug("{}", entry)
             concepts[entry.icd_code] = concept
     missing = CLIENT_ICD9CM_CODES - set(concepts.keys())
     if missing:
-        log.info("No SNOMED-CT codes for ICD-9-CM codes: {}",
-                 ", ".join(sorted(missing)))
+        log.info(
+            "No SNOMED-CT codes for ICD-9-CM codes: {}",
+            ", ".join(sorted(missing)),
+        )
     return concepts
 
 
 # =============================================================================
 # UMLS ICD-10
 # =============================================================================
+
 
 class UmlsSnomedToIcd10Row(object):
     """
@@ -1290,31 +1411,46 @@ class UmlsSnomedToIcd10Row(object):
 
     NOT CURRENTLY USED.
     """
+
     HEADER = [
-        "id", "effectiveTime", "active", "moduleId", "refsetId",
-        "referencedComponentId", "referencedComponentName", "mapGroup",
-        "mapPriority", "mapRule", "mapAdvice", "mapTarget", "mapTargetName",
-        "correlationId", "mapCategoryId", "mapCategoryName",
+        "id",
+        "effectiveTime",
+        "active",
+        "moduleId",
+        "refsetId",
+        "referencedComponentId",
+        "referencedComponentName",
+        "mapGroup",
+        "mapPriority",
+        "mapRule",
+        "mapAdvice",
+        "mapTarget",
+        "mapTargetName",
+        "correlationId",
+        "mapCategoryId",
+        "mapCategoryName",
     ]
     MAP_GOOD = "MAP SOURCE CONCEPT IS PROPERLY CLASSIFIED"
 
-    def __init__(self,
-                 row_id: str,
-                 effective_time: str,
-                 active: str,
-                 module_id: str,
-                 refset_id: str,
-                 referenced_component_id: str,
-                 referenced_component_name: str,
-                 map_group: str,
-                 map_priority: str,
-                 map_rule: str,
-                 map_advice: str,
-                 map_target: str,
-                 map_target_name: str,
-                 correlation_id: str,
-                 map_category_id: str,
-                 map_category_name: str) -> None:
+    def __init__(
+        self,
+        row_id: str,
+        effective_time: str,
+        active: str,
+        module_id: str,
+        refset_id: str,
+        referenced_component_id: str,
+        referenced_component_name: str,
+        map_group: str,
+        map_priority: str,
+        map_rule: str,
+        map_advice: str,
+        map_target: str,
+        map_target_name: str,
+        correlation_id: str,
+        map_category_id: str,
+        map_category_name: str,
+    ) -> None:
         """
         Argument order is important.
 
@@ -1360,20 +1496,35 @@ class UmlsSnomedToIcd10Row(object):
         self.map_category_name = map_category_name
 
     def __repr__(self) -> str:
-        return simple_repr(self, [
-            "row_id", "effective_time", "active", "module_id", "refset_id",
-            "referenced_component_id", "referenced_component_name",
-            "map_group", "map_priority", "map_rule", "map_advice",
-            "map_target", "map_target_name",
-            "correlation_id", "map_category_id", "map_category_name",
-        ])
+        return simple_repr(
+            self,
+            [
+                "row_id",
+                "effective_time",
+                "active",
+                "module_id",
+                "refset_id",
+                "referenced_component_id",
+                "referenced_component_name",
+                "map_group",
+                "map_priority",
+                "map_rule",
+                "map_advice",
+                "map_target",
+                "map_target_name",
+                "correlation_id",
+                "map_category_id",
+                "map_category_name",
+            ],
+        )
 
     def snomed_concept(self) -> SnomedConcept:
         """
         Returns the associated SNOMED-CT concept.
         """
-        return SnomedConcept(self.referenced_component_id,
-                             self.referenced_component_name)
+        return SnomedConcept(
+            self.referenced_component_id, self.referenced_component_name
+        )
 
     @property
     def icd_code(self) -> str:
@@ -1391,7 +1542,8 @@ class UmlsSnomedToIcd10Row(object):
 
 
 def get_all_icd10_snomed_concepts_from_umls(
-        tsv_filename: str) -> Dict[str, SnomedConcept]:
+    tsv_filename: str,
+) -> Dict[str, SnomedConcept]:
     """
     Reads in all ICD-10 SNOMED-CT codes that are supported by the client,
     from the UMLS data file, from
@@ -1407,29 +1559,35 @@ def get_all_icd10_snomed_concepts_from_umls(
     """
     log.info("Loading SNOMED-CT ICD-10-CM codes from file: {}", tsv_filename)
     concepts = {}  # type: Dict[str, SnomedConcept]
-    with open(tsv_filename, 'r') as tsvin:
+    with open(tsv_filename, "r") as tsvin:
         reader = csv.reader(tsvin, delimiter="\t")
         header = next(reader, None)
         if header != UmlsSnomedToIcd10Row.HEADER:
             raise ValueError(
                 f"ICD-9-CM TSV file has unexpected header: {header!r}; "
-                f"expected {UmlsSnomedToIcd10Row.HEADER!r}")
+                f"expected {UmlsSnomedToIcd10Row.HEADER!r}"
+            )
         for row in reader:
             entry = UmlsSnomedToIcd10Row(*row)
             if entry.icd_code not in CLIENT_ICD10_CODES:
                 continue
             if entry.icd_code in concepts:
                 log.warning(
-                    "Duplicate ICD-10-CM code found in SNOMED file {!r}: {!r}",
-                    tsv_filename, entry.icd_code)
+                    "Duplicate ICD-10-CM code found in SNOMED file "
+                    "{!r}: {!r}",
+                    tsv_filename,
+                    entry.icd_code,
+                )
                 continue
             concept = entry.snomed_concept()
             # log.debug("{}", entry)
             concepts[entry.icd_code] = concept
     missing = CLIENT_ICD10_CODES - set(concepts.keys())
     if missing:
-        log.info("No SNOMED-CT codes for ICD-10 codes: {}",
-                 ", ".join(sorted(missing)))
+        log.info(
+            "No SNOMED-CT codes for ICD-10 codes: {}",
+            ", ".join(sorted(missing)),
+        )
     return concepts
 
 
@@ -1441,11 +1599,11 @@ def get_all_icd10_snomed_concepts_from_umls(
 # Fetch ICD-9-CM and ICD-10 codes (shared for fewer passes through the files)
 # -----------------------------------------------------------------------------
 
+
 def get_icd9cm_icd10_snomed_concepts_from_athena(
-        athena_concept_tsv_filename: str,
-        athena_concept_relationship_tsv_filename: str) \
-        -> Tuple[Dict[str, List[SnomedConcept]],
-                 Dict[str, List[SnomedConcept]]]:
+    athena_concept_tsv_filename: str,
+    athena_concept_relationship_tsv_filename: str,
+) -> Tuple[Dict[str, List[SnomedConcept]], Dict[str, List[SnomedConcept]]]:
     """
     Takes Athena concept and concept-relationship files, and fetches details
     of SNOMED-CT code for all ICD-9-CM and ICD-10[-CM] codes used by CamCOPS.
@@ -1473,15 +1631,19 @@ def get_icd9cm_icd10_snomed_concepts_from_athena(
     relationships = get_athena_concept_relationships(
         tsv_filename=athena_concept_relationship_tsv_filename,
         concept_id_1_values=set(x.concept_id for x in athena_icd_concepts),
-        relationship_id_values={AthenaRelationshipId.MAPS_TO}
+        relationship_id_values={AthenaRelationshipId.MAPS_TO},
     )
     athena_snomed_concepts = get_athena_concepts(
         tsv_filename=athena_concept_tsv_filename,
         vocabulary_ids={AthenaVocabularyId.SNOMED},
-        concept_ids=set(x.concept_id_2 for x in relationships)
+        concept_ids=set(x.concept_id_2 for x in relationships),
     )
-    snomed_concepts_icd9 = OrderedDict()  # type: Dict[str, List[SnomedConcept]]  # noqa
-    snomed_concepts_icd10 = OrderedDict()  # type: Dict[str, List[SnomedConcept]]  # noqa
+    snomed_concepts_icd9 = (
+        OrderedDict()
+    )  # type: Dict[str, List[SnomedConcept]]  # noqa
+    snomed_concepts_icd10 = (
+        OrderedDict()
+    )  # type: Dict[str, List[SnomedConcept]]  # noqa
     for icd in athena_icd_concepts:
         target = (
             snomed_concepts_icd9
@@ -1517,11 +1679,13 @@ def get_icd9cm_icd10_snomed_concepts_from_athena(
 # Fetch codes from Athena data set and write them to CamCOPS XML
 # -----------------------------------------------------------------------------
 
+
 def send_athena_icd_snomed_to_xml(
-        athena_concept_tsv_filename: str,
-        athena_concept_relationship_tsv_filename: str,
-        icd9_xml_filename: str,
-        icd10_xml_filename) -> None:
+    athena_concept_tsv_filename: str,
+    athena_concept_relationship_tsv_filename: str,
+    icd9_xml_filename: str,
+    icd10_xml_filename,
+) -> None:
     """
     Reads SNOMED-CT codes for ICD-9-CM and ICD10 from Athena OHDSI files, and
     writes
@@ -1538,7 +1702,7 @@ def send_athena_icd_snomed_to_xml(
     """
     icd9, icd10 = get_icd9cm_icd10_snomed_concepts_from_athena(
         athena_concept_tsv_filename=athena_concept_tsv_filename,
-        athena_concept_relationship_tsv_filename=athena_concept_relationship_tsv_filename  # noqa
+        athena_concept_relationship_tsv_filename=athena_concept_relationship_tsv_filename,  # noqa
     )
     write_snomed_concepts_to_xml(icd9_xml_filename, icd9)
     write_snomed_concepts_to_xml(icd10_xml_filename, icd10)
@@ -1548,10 +1712,12 @@ def send_athena_icd_snomed_to_xml(
 # Fetch data from XML
 # -----------------------------------------------------------------------------
 
-def get_multiple_snomed_concepts_from_xml(xml_filename: str,
-                                          valid_lookups: Set[str] = None,
-                                          require_all: bool = False) \
-        -> Dict[str, List[SnomedConcept]]:
+
+def get_multiple_snomed_concepts_from_xml(
+    xml_filename: str,
+    valid_lookups: Set[str] = None,
+    require_all: bool = False,
+) -> Dict[str, List[SnomedConcept]]:
     """
     Reads in all SNOMED-CT codes for ICD-9 or ICD-10, from the custom CamCOPS
     XML file for this (made by e.g. :func:`send_athena_icd_snomed_to_xml`).
@@ -1584,8 +1750,8 @@ def get_multiple_snomed_concepts_from_xml(xml_filename: str,
         if missing:
             msg = (
                 f'The following {"required " if require_all else ""}'
-                f'SNOMED-CT concepts are missing from the XML '
-                f'({xml_filename!r}): {missing!r}'
+                f"SNOMED-CT concepts are missing from the XML "
+                f"({xml_filename!r}): {missing!r}"
             )
             if require_all:
                 log.critical(msg)
@@ -1597,8 +1763,9 @@ def get_multiple_snomed_concepts_from_xml(xml_filename: str,
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_icd9_snomed_concepts_from_xml(xml_filename: str) \
-        -> Dict[str, List[SnomedConcept]]:
+def get_icd9_snomed_concepts_from_xml(
+    xml_filename: str,
+) -> Dict[str, List[SnomedConcept]]:
     """
     Reads in all ICD-9-CM SNOMED-CT codes from a custom CamCOPS XML file.
 
@@ -1608,13 +1775,15 @@ def get_icd9_snomed_concepts_from_xml(xml_filename: str) \
     Returns:
         dict: maps ICD-9-CM codes to lists of :class:`SnomedConcept` objects
     """
-    return get_multiple_snomed_concepts_from_xml(xml_filename,
-                                                 CLIENT_ICD9CM_CODES)
+    return get_multiple_snomed_concepts_from_xml(
+        xml_filename, CLIENT_ICD9CM_CODES
+    )
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_icd10_snomed_concepts_from_xml(xml_filename: str) \
-        -> Dict[str, List[SnomedConcept]]:
+def get_icd10_snomed_concepts_from_xml(
+    xml_filename: str,
+) -> Dict[str, List[SnomedConcept]]:
     """
     Reads in all ICD-10 SNOMED-CT codes from a custom CamCOPS XML file.
 
@@ -1624,5 +1793,6 @@ def get_icd10_snomed_concepts_from_xml(xml_filename: str) \
     Returns:
         dict: maps ICD-10 codes to lists of :class:`SnomedConcept` objects
     """
-    return get_multiple_snomed_concepts_from_xml(xml_filename,
-                                                 CLIENT_ICD10_CODES)
+    return get_multiple_snomed_concepts_from_xml(
+        xml_filename, CLIENT_ICD10_CODES
+    )

@@ -1,0 +1,34 @@
+---
+# yamllint disable rule:line-length
+name: Build docs
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - .github/workflows/docs.yml
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/build_docs.sh
+            - docs/**
+            - server/**
+            - tablet_qt/**
+
+jobs:
+    build-docs:
+        strategy:
+            matrix:
+                include:
+                    - name: ubuntu-22.04
+                      os: ubuntu-22.04
+                      python-version: "3.10"
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Change apt mirror
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+            - name: Build docs
+              run: ${GITHUB_WORKSPACE}/.github/scripts/build_docs.sh

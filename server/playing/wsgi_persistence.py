@@ -5,7 +5,8 @@ playing/wsgi_persistence.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -35,21 +36,23 @@ import os
 
 # noinspection PyUnusedLocal
 def application(environ, start_response):
-    status = '200 OK'
-    output = 'Hello'.encode('utf-8')
+    status = "200 OK"
+    output = "Hello".encode("utf-8")
     cookie = http.cookies.SimpleCookie()
     # No expiration date, making it a session cookie
     randbytes = os.urandom(10)
-    randstring = base64.urlsafe_b64encode(randbytes).decode('ascii')
+    randstring = base64.urlsafe_b64encode(randbytes).decode("ascii")
     cookie["randomness"] = randstring
     cookie_tuples = [
-        ("Set-Cookie", morsel.OutputString())
-        for morsel in cookie.values()
+        ("Set-Cookie", morsel.OutputString()) for morsel in cookie.values()
     ]
-    response_headers = [('Content-type', 'text/plain; charset=utf-8'),
-                        ('Content-Length', str(len(output)))] + cookie_tuples
+    response_headers = [
+        ("Content-type", "text/plain; charset=utf-8"),
+        ("Content-Length", str(len(output))),
+    ] + cookie_tuples
     start_response(status, response_headers)
     return [output]
+
 
 """
 Run with:

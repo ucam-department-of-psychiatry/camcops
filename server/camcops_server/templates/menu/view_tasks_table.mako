@@ -5,7 +5,8 @@ camcops_server/templates/menu/view_tasks_table.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -33,7 +34,7 @@ camcops_server/templates/menu/view_tasks_table.mako
 from cardinal_pythonlib.datetimefunc import format_datetime
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_html import get_true_false
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
 
 OFFER_HTML_ANON_VERSION = False
@@ -49,7 +50,7 @@ OFFER_PDF_ANON_VERSION = False
         <th>${ _("Added by") }</th>
         <th>${ _("Created") }</th>
         <th>${ _("View") }</th>
-        <th>${ _("Print/save") }</th>
+        <th>${ _("Print, save") }</th>
     </tr>
 
     %for task in tasks:
@@ -149,22 +150,32 @@ OFFER_PDF_ANON_VERSION = False
                     class="incomplete"
                 %endif
                 >
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task_tablename,
-                                    ViewParam.SERVER_PK: task_pk,
-                                    ViewParam.VIEWTYPE: ViewArg.HTML,
-                                }) | n }">HTML</a>
+                ${ req.icon_text(
+                    icon=Icons.HTML_IDENTIFIABLE,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task_tablename,
+                            ViewParam.SERVER_PK: task_pk,
+                            ViewParam.VIEWTYPE: ViewArg.HTML,
+                        }
+                    ),
+                    text="HTML"
+                ) | n }
                 %if OFFER_HTML_ANON_VERSION:
-                    [<a href="${ req.route_url(
-                                    Routes.TASK,
-                                    _query={
-                                        ViewParam.TABLE_NAME: task_tablename,
-                                        ViewParam.SERVER_PK: task_pk,
-                                        ViewParam.VIEWTYPE: ViewArg.HTML,
-                                        ViewParam.ANONYMISE: True,
-                                    }) | n }">anon</a>]
+                    [${ req.icon_text(
+                        icon=Icons.HTML_ANONYMOUS,
+                        url=request.route_url(
+                            Routes.TASK,
+                            _query={
+                                ViewParam.TABLE_NAME: task_tablename,
+                                ViewParam.SERVER_PK: task_pk,
+                                ViewParam.VIEWTYPE: ViewArg.HTML,
+                                ViewParam.ANONYMISE: True,
+                            }
+                        ),
+                        text="anon"
+                    ) | n }]
                 %endif
             </td>
             ## ------------------------------------------------------------
@@ -175,22 +186,32 @@ OFFER_PDF_ANON_VERSION = False
                     class="incomplete"
                 %endif
                 >
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task_tablename,
-                                    ViewParam.SERVER_PK: task_pk,
-                                    ViewParam.VIEWTYPE: ViewArg.PDF,
-                                }) | n }">PDF</a>
+                ${ req.icon_text(
+                    icon=Icons.PDF_IDENTIFIABLE,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task_tablename,
+                            ViewParam.SERVER_PK: task_pk,
+                            ViewParam.VIEWTYPE: ViewArg.PDF,
+                        }
+                    ),
+                    text="PDF"
+                ) | n }
                 %if OFFER_PDF_ANON_VERSION:
-                    [<a href="${ req.route_url(
-                                    Routes.TASK,
-                                    _query={
-                                        ViewParam.TABLE_NAME: task_tablename,
-                                        ViewParam.SERVER_PK: task_pk,
-                                        ViewParam.VIEWTYPE: ViewArg.PDF,
-                                        ViewParam.ANONYMISE: True,
-                                    }) | n }">anon</a>]
+                    [${ req.icon_text(
+                        icon=Icons.PDF_ANONYMOUS,
+                        url=request.route_url(
+                            Routes.TASK,
+                            _query={
+                                ViewParam.TABLE_NAME: task_tablename,
+                                ViewParam.SERVER_PK: task_pk,
+                                ViewParam.VIEWTYPE: ViewArg.PDF,
+                                ViewParam.ANONYMISE: True,
+                            }
+                        ),
+                        text="anon"
+                    ) | n }]
                 %endif
             </td>
             ## We used to use target="_blank", but probably that is not the

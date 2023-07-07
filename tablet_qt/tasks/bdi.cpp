@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "bdi.h"
@@ -36,7 +37,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 21;
-const int MAX_SCORE = N_QUESTIONS * 3;
+const int MAX_QUESTION_SCORE = N_QUESTIONS * 3;
 const QString QPREFIX("q");
 
 const int SUICIDALITY_QNUM = 9;  // Q9 in all versions of the BDI (I, IA, II)
@@ -243,7 +244,7 @@ QStringList Bdi::summary() const
     // Summary:
     return QStringList{
         QString("Scale: %1.").arg(bold(valueString(FN_BDI_SCALE))),
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         // Q9 is suicidal ideation in all versions of the BDI (I, IA, II).
         QString("Q%1 (%2): %3.").arg(
                 QString::number(SUICIDALITY_QNUM),

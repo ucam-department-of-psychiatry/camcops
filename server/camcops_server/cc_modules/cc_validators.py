@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_validators.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -70,6 +71,7 @@ STRING_VALIDATOR_TYPE = Callable[[str, Optional["CamcopsRequest"]], None]
 # Raising exceptions: sometimes internationalized, sometimes not
 # =============================================================================
 
+
 def dummy_gettext(x: str) -> str:
     """
     Returns the input directly.
@@ -81,9 +83,10 @@ def dummy_gettext(x: str) -> str:
 # Regex manipulation
 # =============================================================================
 
-def anchor(expression: str,
-           anchor_start: bool = True,
-           anchor_end: bool = True) -> str:
+
+def anchor(
+    expression: str, anchor_start: bool = True, anchor_end: bool = True
+) -> str:
     """
     Adds start/end anchors.
     """
@@ -106,10 +109,7 @@ def one_or_more(expression: str) -> str:
     return f"{expression}+"
 
 
-def min_max_copies(
-        expression: str,
-        max_count: int,
-        min_count: int = 1) -> str:
+def min_max_copies(expression: str, max_count: int, min_count: int = 1) -> str:
     """
     Given a regex expression, permit it a minimum/maximum number of times. For
     example, for a regex group ``x``, produce ``x{min,max}``.
@@ -122,9 +122,10 @@ def min_max_copies(
 
 
 def describe_regex_permitted_char(
-        expression: str,
-        req: Optional["CamcopsRequest"] = None,
-        invalid_prefix: bool = True) -> str:
+    expression: str,
+    req: Optional["CamcopsRequest"] = None,
+    invalid_prefix: bool = True,
+) -> str:
     """
     Describes the characters permitted in a regular expression character
     selector -- as long as it's simple! This won't handle arbitrary regexes.
@@ -158,7 +159,7 @@ def describe_regex_permitted_char(
         elif i + 1 < length and content[i + 1] == "-":
             # range like A-Z
             assert i + 2 < length, f"Bad range specification in {expression!r}"
-            permitted.append(content[i:i + 3])
+            permitted.append(content[i : i + 3])  # noqa: E203
             i += 3
         else:
             char = content[i]
@@ -173,22 +174,23 @@ def describe_regex_permitted_char(
 
 
 def describe_regex_permitted_char_length(
-        expression: str,
-        max_length: int,
-        min_length: int = 1,
-        req: Optional["CamcopsRequest"] = None) -> str:
+    expression: str,
+    max_length: int,
+    min_length: int = 1,
+    req: Optional["CamcopsRequest"] = None,
+) -> str:
     """
     Describes a valid string by permitted characters and length.
     """
     _ = req.gettext if req else dummy_gettext
-    return(
-        _("Invalid string.") +
-        " " +
-        _("Minimum length = {}. Maximum length = {}.").format(
+    return (
+        _("Invalid string.")
+        + " "
+        + _("Minimum length = {}. Maximum length = {}.").format(
             min_length, max_length
-        ) +
-        " " +
-        describe_regex_permitted_char(expression, req, invalid_prefix=False)
+        )
+        + " "
+        + describe_regex_permitted_char(expression, req, invalid_prefix=False)
     )
 
 
@@ -196,29 +198,37 @@ def describe_regex_permitted_char_length(
 # Generic validation functions
 # =============================================================================
 
+
 def validate_by_char_and_length(
-        x: str,
-        permitted_char_expression: str,
-        max_length: int,
-        min_length: int = 1,
-        req: Optional["CamcopsRequest"] = None,
-        flags: int = 0) -> None:
+    x: str,
+    permitted_char_expression: str,
+    max_length: int,
+    min_length: int = 1,
+    req: Optional["CamcopsRequest"] = None,
+    flags: int = 0,
+) -> None:
     """
     Validate a string based on permitted characters and length.
     """
     regex = re.compile(
-        anchor(min_max_copies(
-            expression=permitted_char_expression,
-            min_count=min_length,
-            max_count=max_length
-        )),
-        flags=flags
+        anchor(
+            min_max_copies(
+                expression=permitted_char_expression,
+                min_count=min_length,
+                max_count=max_length,
+            )
+        ),
+        flags=flags,
     )
     if not regex.match(x):
-        raise ValueError(describe_regex_permitted_char_length(
-            permitted_char_expression,
-            min_length=min_length, max_length=max_length, req=req
-        ))
+        raise ValueError(
+            describe_regex_permitted_char_length(
+                permitted_char_expression,
+                min_length=min_length,
+                max_length=max_length,
+                req=req,
+            )
+        )
 
 
 # =============================================================================
@@ -249,8 +259,8 @@ HUMAN_MANDATORY_CHAR_REGEX = re.compile(r"\w+", re.UNICODE)
 # Level 1. Computer-style simple strings with no spaces.
 # -----------------------------------------------------------------------------
 
-def validate_alphanum(x: str,
-                      req: Optional["CamcopsRequest"] = None) -> None:
+
+def validate_alphanum(x: str, req: Optional["CamcopsRequest"] = None) -> None:
     """
     Validates a generic alphanumeric string.
     """
@@ -260,8 +270,8 @@ def validate_alphanum(x: str,
 
 
 def validate_alphanum_underscore(
-        x: str,
-        req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validates a string that can be alphanumeric or contain an underscore.
     """
@@ -288,11 +298,13 @@ def validate_alphanum_underscore(
 # 3(a). Human names
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 def validate_human_name(
-        x: str,
-        req: Optional["CamcopsRequest"] = None,
-        min_length: int = 0,
-        max_length: int = StringLengths.PATIENT_NAME_MAX_LEN) -> None:
+    x: str,
+    req: Optional["CamcopsRequest"] = None,
+    min_length: int = 0,
+    max_length: int = StringLengths.PATIENT_NAME_MAX_LEN,
+) -> None:
     """
     Accepts spaces, accents, etc.
 
@@ -304,7 +316,7 @@ def validate_human_name(
         permitted_char_expression=HUMAN_NAME_CHAR_UNICODE,
         min_length=min_length,
         max_length=max_length,
-        req=req
+        req=req,
     )
     if not HUMAN_MANDATORY_CHAR_REGEX.match(x):
         _ = req.gettext if req else dummy_gettext
@@ -321,10 +333,11 @@ RESTRICTED_SQL_SEARCH_LITERAL_CHAR = r"[A-Za-z0-9\- _%]"
 
 
 def validate_restricted_sql_search_literal(
-        x: str,
-        req: Optional["CamcopsRequest"] = None,
-        min_length: int = 0,
-        max_length: int = StringLengths.SQL_SEARCH_LITERAL_MAX_LENGTH) -> None:
+    x: str,
+    req: Optional["CamcopsRequest"] = None,
+    min_length: int = 0,
+    max_length: int = StringLengths.SQL_SEARCH_LITERAL_MAX_LENGTH,
+) -> None:
     """
     Validates a string that can be fairly broad, and can do SQL finding via
     wildcards such as ``%`` and ``_``, but should be syntactically safe in
@@ -336,7 +349,7 @@ def validate_restricted_sql_search_literal(
         permitted_char_expression=RESTRICTED_SQL_SEARCH_LITERAL_CHAR,
         min_length=min_length,
         max_length=max_length,
-        req=req
+        req=req,
     )
 
 
@@ -345,8 +358,7 @@ def validate_restricted_sql_search_literal(
 # -----------------------------------------------------------------------------
 
 # noinspection PyUnusedLocal
-def validate_anything(x: str,
-                      req: Optional["CamcopsRequest"] = None) -> None:
+def validate_anything(x: str, req: Optional["CamcopsRequest"] = None) -> None:
     """
     Lets anything through. May be unwise.
     """
@@ -374,8 +386,7 @@ def validate_anything(x: str,
 EMAIL_RE_COMPILED = re.compile(EMAIL_RE)
 
 
-def validate_email(email: str,
-                   req: Optional["CamcopsRequest"] = None) -> None:
+def validate_email(email: str, req: Optional["CamcopsRequest"] = None) -> None:
     """
     Validate an e-mail address.
 
@@ -384,8 +395,11 @@ def validate_email(email: str,
     We use the same validation system as our web form (which uses Colander's
     method plus a length constraint).
     """
-    if (len(email) > StringLengths.EMAIL_ADDRESS_MAX_LEN or
-            not EMAIL_RE_COMPILED.match(email)):
+    if len(
+        email
+    ) > StringLengths.EMAIL_ADDRESS_MAX_LEN or not EMAIL_RE_COMPILED.match(
+        email
+    ):
         _ = req.gettext if req else dummy_gettext
         raise ValueError(_("Invalid e-mail address"))
 
@@ -394,9 +408,10 @@ def validate_email(email: str,
 # IP addresses
 # -----------------------------------------------------------------------------
 
+
 def validate_ip_address(
-        x: str,
-        req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validates an IP address.
     """
@@ -417,8 +432,7 @@ def validate_ip_address(
 VALID_REDIRECT_URL_REGEX = re.compile(r"^https?://[^\s/$.?#].[^\s]*$")
 
 
-def validate_any_url(url: str,
-                     req: Optional["CamcopsRequest"] = None) -> None:
+def validate_any_url(url: str, req: Optional["CamcopsRequest"] = None) -> None:
     """
     Validates a URL. If valid, returns the URL; if not, returns ``default``.
     See https://stackoverflow.com/questions/22238090/validating-urls-in-python
@@ -433,8 +447,9 @@ def validate_any_url(url: str,
         raise ValueError(_("Invalid URL"))
 
 
-def validate_redirect_url(url: str,
-                          req: Optional["CamcopsRequest"] = None) -> None:
+def validate_redirect_url(
+    url: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validates a URL. If valid, returns the URL; if not, returns ``default``.
     See https://stackoverflow.com/questions/22238090/validating-urls-in-python
@@ -452,8 +467,10 @@ def validate_redirect_url(url: str,
 # Group names
 # -----------------------------------------------------------------------------
 
-def validate_group_name(name: str,
-                        req: Optional["CamcopsRequest"] = None) -> None:
+
+def validate_group_name(
+    name: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Is the string a valid group name?
 
@@ -466,7 +483,7 @@ def validate_group_name(name: str,
         permitted_char_expression=ALPHANUM_UNDERSCORE_HYPHEN_CHAR,
         min_length=StringLengths.GROUP_NAME_MIN_LEN,
         max_length=StringLengths.GROUP_NAME_MAX_LEN,
-        req=req
+        req=req,
     )
 
 
@@ -474,8 +491,10 @@ def validate_group_name(name: str,
 # Usernames
 # -----------------------------------------------------------------------------
 
-def validate_username(name: str,
-                      req: Optional["CamcopsRequest"] = None) -> None:
+
+def validate_username(
+    name: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Is the string a valid user name?
     """
@@ -484,7 +503,7 @@ def validate_username(name: str,
         permitted_char_expression=ALPHANUM_COMMA_UNDERSCORE_HYPHEN_BRACE_CHAR,
         min_length=StringLengths.USERNAME_CAMCOPS_MIN_LEN,
         max_length=StringLengths.USERNAME_CAMCOPS_MAX_LEN,
-        req=req
+        req=req,
     )
 
 
@@ -492,8 +511,10 @@ def validate_username(name: str,
 # Devices
 # -----------------------------------------------------------------------------
 
+
 def validate_device_name(
-        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validate a client device name -- the computer-oriented one, not the
     friendly one.
@@ -503,7 +524,7 @@ def validate_device_name(
         permitted_char_expression=ALPHANUM_COMMA_UNDERSCORE_HYPHEN_BRACE_CHAR,
         min_length=1,
         max_length=StringLengths.DEVICE_NAME_MAX_LEN,
-        req=req
+        req=req,
     )
 
 
@@ -511,14 +532,16 @@ def validate_device_name(
 # Export recipients
 # -----------------------------------------------------------------------------
 
+
 def validate_export_recipient_name(
-        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     validate_by_char_and_length(
         x,
         permitted_char_expression=ALPHANUM_UNDERSCORE_CHAR,
         min_length=StringLengths.EXPORT_RECIPIENT_NAME_MIN_LEN,
         max_length=StringLengths.EXPORT_RECIPIENT_NAME_MAX_LEN,
-        req=req
+        req=req,
     )
 
 
@@ -526,8 +549,10 @@ def validate_export_recipient_name(
 # Passwords
 # -----------------------------------------------------------------------------
 
+
 def validate_new_password(
-        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validate a proposed new password. Enforce our password policy.
     """
@@ -550,8 +575,10 @@ def validate_new_password(
 # HL7
 # -----------------------------------------------------------------------------
 
+
 def validate_hl7_id_type(
-        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validate HL7 Identifier Type.
     """
@@ -560,12 +587,11 @@ def validate_hl7_id_type(
         permitted_char_expression=ALPHANUM_UNDERSCORE_HYPHEN_SPACE_CHAR,
         min_length=0,
         max_length=StringLengths.HL7_ID_TYPE_MAX_LEN,
-        req=req
+        req=req,
     )
 
 
-def validate_hl7_aa(
-        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+def validate_hl7_aa(x: str, req: Optional["CamcopsRequest"] = None) -> None:
     """
     Validate HL7 Assigning Authority.
     """
@@ -574,7 +600,7 @@ def validate_hl7_aa(
         permitted_char_expression=ALPHANUM_UNDERSCORE_HYPHEN_SPACE_CHAR,
         min_length=0,
         max_length=StringLengths.HL7_AA_MAX_LEN,
-        req=req
+        req=req,
     )
 
 
@@ -583,33 +609,38 @@ def validate_hl7_aa(
 # -----------------------------------------------------------------------------
 
 TASK_TABLENAME_REGEX = re.compile(
-    anchor(ALPHA_CHAR, anchor_start=True, anchor_end=False) +
+    anchor(ALPHA_CHAR, anchor_start=True, anchor_end=False)
+    +
     # ... don't start with a number
     # ... and although tables can and do start with underscores, task tables
     #     don't.
     anchor(
-        min_max_copies(ALPHANUM_UNDERSCORE_CHAR,
-                       min_count=0,
-                       max_count=StringLengths.TABLENAME_MAX_LEN - 1),
+        min_max_copies(
+            ALPHANUM_UNDERSCORE_CHAR,
+            min_count=0,
+            max_count=StringLengths.TABLENAME_MAX_LEN - 1,
+        ),
         anchor_start=False,
-        anchor_end=True
+        anchor_end=True,
     )
 )
 
 
 def validate_task_tablename(
-        x: str,
-        req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validates a string that could be a task tablename.
     """
     if not TASK_TABLENAME_REGEX.match(x):
         _ = req.gettext if req else dummy_gettext
-        raise ValueError(_(
-            "Task table names must start with a letter, and contain only "
-            "contain alphanumeric characters (A-Z, a-z, 0-9) or "
-            "underscores (_)."
-        ))
+        raise ValueError(
+            _(
+                "Task table names must start with a letter, and contain only "
+                "contain alphanumeric characters (A-Z, a-z, 0-9) or "
+                "underscores (_)."
+            )
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -621,7 +652,8 @@ DOWNLOAD_FILENAME_REGEX = re.compile(r"\w[\w-]*.[\w]+")
 
 
 def validate_download_filename(
-        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+    x: str, req: Optional["CamcopsRequest"] = None
+) -> None:
     """
     Validate a file for user download.
 
@@ -630,9 +662,12 @@ def validate_download_filename(
     """
     if not DOWNLOAD_FILENAME_REGEX.match(x):
         _ = req.gettext if req else dummy_gettext
-        raise ValueError(_(
-            "Download filenames must (1) begin with an "
-            "alphanumeric/underscore character; (2) contain only alphanumeric "
-            "characters, underscores, and hyphens; and (3) end with a full "
-            "stop followed by an alphanumeric/underscore extension."
-        ))
+        raise ValueError(
+            _(
+                "Download filenames must (1) begin with an "
+                "alphanumeric/underscore character; (2) contain only "
+                "alphanumeric characters, underscores, and hyphens; and "
+                "(3) end with a full stop followed by an "
+                "alphanumeric/underscore extension."
+            )
+        )

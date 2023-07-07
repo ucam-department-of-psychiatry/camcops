@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0067_cpft_research_preferences.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -40,7 +41,11 @@ Creation date: 2021-07-20 13:07:35.320726
 
 from alembic import op
 import sqlalchemy as sa
-import camcops_server.cc_modules.cc_sqla_coltypes
+
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+    SemanticVersionColType,
+)
 
 
 # =============================================================================
@@ -72,31 +77,37 @@ def upgrade():
         ),
         sa.Column(
             "when_created",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=False,
-            comment="(TASK) Date/time this task instance was created (ISO 8601)",
+            comment=(
+                "(TASK) Date/time this task instance was created (ISO 8601)"
+            ),
         ),
         sa.Column(
             "when_firstexit",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+            comment=(
+                "(TASK) Date/time of the first exit from this task (ISO 8601)"
+            ),
         ),
         sa.Column(
             "firstexit_is_finish",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from the task because it was finished (1)?",
+            comment=(
+                "(TASK) Was the first exit from the task because it was"
+                " finished (1)?"
+            ),
         ),
         sa.Column(
             "firstexit_is_abort",
             sa.Boolean(),
             nullable=True,
-            comment="(TASK) Was the first exit from this task because it was aborted (1)?",
+            comment=(
+                "(TASK) Was the first exit from this task because it was"
+                " aborted (1)?"
+            ),
         ),
         sa.Column(
             "editing_time_s",
@@ -121,7 +132,10 @@ def upgrade():
             "_era",
             sa.String(length=32),
             nullable=False,
-            comment="(SERVER) 'NOW', or when this row was preserved and removed from the source device (UTC ISO 8601)",
+            comment=(
+                "(SERVER) 'NOW', or when this row was preserved and removed"
+                " from the source device (UTC ISO 8601)"
+            ),
         ),
         sa.Column(
             "_current",
@@ -131,9 +145,7 @@ def upgrade():
         ),
         sa.Column(
             "_when_added_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time this row was added (ISO 8601)",
         ),
@@ -141,7 +153,10 @@ def upgrade():
             "_when_added_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that added this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that added this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_adding_user_id",
@@ -151,17 +166,21 @@ def upgrade():
         ),
         sa.Column(
             "_when_removed_exact",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(SERVER) Date/time this row was removed, i.e. made not current (ISO 8601)",
+            comment=(
+                "(SERVER) Date/time this row was removed, i.e. made not"
+                " current (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_when_removed_batch_utc",
             sa.DateTime(),
             nullable=True,
-            comment="(SERVER) Date/time of the upload batch that removed this row (DATETIME in UTC)",
+            comment=(
+                "(SERVER) Date/time of the upload batch that removed this row"
+                " (DATETIME in UTC)"
+            ),
         ),
         sa.Column(
             "_removing_user_id",
@@ -179,7 +198,10 @@ def upgrade():
             "_forcibly_preserved",
             sa.Boolean(),
             nullable=True,
-            comment="(SERVER) Forcibly preserved by superuser (rather than normally preserved by tablet)?",
+            comment=(
+                "(SERVER) Forcibly preserved by superuser (rather than"
+                " normally preserved by tablet)?"
+            ),
         ),
         sa.Column(
             "_predecessor_pk",
@@ -191,7 +213,10 @@ def upgrade():
             "_successor_pk",
             sa.Integer(),
             nullable=True,
-            comment="(SERVER) PK of successor record  (after modification) or NULL (whilst live, or after deletion)",
+            comment=(
+                "(SERVER) PK of successor record  (after modification) or NULL"
+                " (whilst live, or after deletion)"
+            ),
         ),
         sa.Column(
             "_manually_erased",
@@ -201,9 +226,7 @@ def upgrade():
         ),
         sa.Column(
             "_manually_erased_at",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
             comment="(SERVER) Date/time of manual erasure (ISO 8601)",
         ),
@@ -215,9 +238,7 @@ def upgrade():
         ),
         sa.Column(
             "_camcops_version",
-            camcops_server.cc_modules.cc_sqla_coltypes.SemanticVersionColType(
-                length=147
-            ),
+            SemanticVersionColType(length=147),
             nullable=True,
             comment="(SERVER) CamCOPS version number of the uploading device",
         ),
@@ -247,11 +268,12 @@ def upgrade():
         ),
         sa.Column(
             "when_last_modified",
-            camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(
-                length=32
-            ),
+            PendulumDateTimeAsIsoTextColType(length=32),
             nullable=True,
-            comment="(STANDARD) Date/time this row was last modified on the source tablet device (ISO 8601)",
+            comment=(
+                "(STANDARD) Date/time this row was last modified on the source"
+                " tablet device (ISO 8601)"
+            ),
         ),
         sa.Column(
             "_move_off_tablet",
@@ -278,7 +300,9 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["_manually_erasing_user_id"],
             ["_security_users.id"],
-            name=op.f("fk_cpft_research_preferences__manually_erasing_user_id"),
+            name=op.f(
+                "fk_cpft_research_preferences__manually_erasing_user_id"
+            ),
         ),
         sa.ForeignKeyConstraint(
             ["_preserving_user_id"],
@@ -290,12 +314,16 @@ def upgrade():
             ["_security_users.id"],
             name=op.f("fk_cpft_research_preferences__removing_user_id"),
         ),
-        sa.PrimaryKeyConstraint("_pk", name=op.f("pk_cpft_research_preferences")),
+        sa.PrimaryKeyConstraint(
+            "_pk", name=op.f("pk_cpft_research_preferences")
+        ),
         mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
         mysql_engine="InnoDB",
         mysql_row_format="DYNAMIC",
     )
-    with op.batch_alter_table("cpft_research_preferences", schema=None) as batch_op:
+    with op.batch_alter_table(
+        "cpft_research_preferences", schema=None
+    ) as batch_op:
         batch_op.create_index(
             batch_op.f("ix_cpft_research_preferences__current"),
             ["_current"],
@@ -307,7 +335,9 @@ def upgrade():
             unique=False,
         )
         batch_op.create_index(
-            batch_op.f("ix_cpft_research_preferences__era"), ["_era"], unique=False
+            batch_op.f("ix_cpft_research_preferences__era"),
+            ["_era"],
+            unique=False,
         )
         batch_op.create_index(
             batch_op.f("ix_cpft_research_preferences__group_id"),
@@ -315,7 +345,9 @@ def upgrade():
             unique=False,
         )
         batch_op.create_index(
-            batch_op.f("ix_cpft_research_preferences__pk"), ["_pk"], unique=False
+            batch_op.f("ix_cpft_research_preferences__pk"),
+            ["_pk"],
+            unique=False,
         )
         batch_op.create_index(
             batch_op.f("ix_cpft_research_preferences_id"), ["id"], unique=False
@@ -329,6 +361,18 @@ def upgrade():
             batch_op.f("ix_cpft_research_preferences_when_last_modified"),
             ["when_last_modified"],
             unique=False,
+        )
+
+    # https://github.com/sqlalchemy/alembic/issues/326
+    with op.batch_alter_table(
+        "cpft_research_preferences", schema=None
+    ) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_cpft_research_preferences__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
         )
 
 

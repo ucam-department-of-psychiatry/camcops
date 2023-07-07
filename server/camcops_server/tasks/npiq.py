@@ -5,7 +5,8 @@ camcops_server/tasks/npiq.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -60,10 +61,12 @@ DISTRESS = "distress"
 
 class NpiQMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['NpiQ'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["NpiQ"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         question_snippets = [
             "delusions",  # 1
             "hallucinations",
@@ -79,31 +82,43 @@ class NpiQMetaclass(DeclarativeMeta):
             "appetite/eating",
         ]
         add_multiple_columns(
-            cls, ENDORSED, 1, cls.NQUESTIONS, Boolean,
+            cls,
+            ENDORSED,
+            1,
+            cls.NQUESTIONS,
+            Boolean,
             pv=PV.BIT,
             comment_fmt="Q{n}, {s}, endorsed?",
-            comment_strings=question_snippets
+            comment_strings=question_snippets,
         )
         add_multiple_columns(
-            cls, SEVERITY, 1, cls.NQUESTIONS,
+            cls,
+            SEVERITY,
+            1,
+            cls.NQUESTIONS,
             pv=list(range(1, 3 + 1)),
             comment_fmt="Q{n}, {s}, severity (1-3), if endorsed",
-            comment_strings=question_snippets
+            comment_strings=question_snippets,
         )
         add_multiple_columns(
-            cls, DISTRESS, 1, cls.NQUESTIONS,
+            cls,
+            DISTRESS,
+            1,
+            cls.NQUESTIONS,
             pv=list(range(0, 5 + 1)),
             comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
-            comment_strings=question_snippets
+            comment_strings=question_snippets,
         )
         super().__init__(name, bases, classdict)
 
 
-class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
-           metaclass=NpiQMetaclass):
+class NpiQ(
+    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=NpiQMetaclass
+):
     """
     Server implementation of the NPI-Q task.
     """
+
     __tablename__ = "npiq"
     shortname = "NPI-Q"
 
@@ -120,35 +135,43 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="n_endorsed", coltype=Integer(),
+                name="n_endorsed",
+                coltype=Integer(),
                 value=self.n_endorsed(),
-                comment=f"Number endorsed (/ {self.NQUESTIONS})"),
+                comment=f"Number endorsed (/ {self.NQUESTIONS})",
+            ),
             SummaryElement(
-                name="severity_score", coltype=Integer(),
+                name="severity_score",
+                coltype=Integer(),
                 value=self.severity_score(),
-                comment=f"Severity score (/ {self.MAX_SEVERITY})"),
+                comment=f"Severity score (/ {self.MAX_SEVERITY})",
+            ),
             SummaryElement(
-                name="distress_score", coltype=Integer(),
+                name="distress_score",
+                coltype=Integer(),
                 value=self.distress_score(),
-                comment=f"Distress score (/ {self.MAX_DISTRESS})"),
+                comment=f"Distress score (/ {self.MAX_DISTRESS})",
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=(
-                "Endorsed: {e}/{me}; severity {s}/{ms}; "
-                "distress {d}/{md}".format(
-                    e=self.n_endorsed(),
-                    me=self.NQUESTIONS,
-                    s=self.severity_score(),
-                    ms=self.MAX_SEVERITY,
-                    d=self.distress_score(),
-                    md=self.MAX_DISTRESS,
+        return [
+            CtvInfo(
+                content=(
+                    "Endorsed: {e}/{me}; severity {s}/{ms}; "
+                    "distress {d}/{md}".format(
+                        e=self.n_endorsed(),
+                        me=self.NQUESTIONS,
+                        s=self.severity_score(),
+                        ms=self.MAX_SEVERITY,
+                        d=self.distress_score(),
+                        md=self.MAX_DISTRESS,
+                    )
                 )
             )
-        )]
+        ]
 
     def q_endorsed(self, q: int) -> bool:
         return bool(getattr(self, ENDORSED + str(q)))
@@ -189,9 +212,9 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.is_respondent_complete() and
-            all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1)) and
-            self.field_contents_valid()
+            self.is_respondent_complete()
+            and all(self.q_complete(q) for q in range(1, self.NQUESTIONS + 1))
+            and self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -227,15 +250,16 @@ class NpiQ(TaskHasPatientMixin, TaskHasRespondentMixin, Task,
             s = getattr(self, SEVERITY + qstr)
             d = getattr(self, DISTRESS + qstr)
             qtext = "<b>{}:</b> {}".format(
-                self.wxstring(req, "t" + qstr),
-                self.wxstring(req, "q" + qstr),
+                self.wxstring(req, "t" + qstr), self.wxstring(req, "q" + qstr)
             )
             etext = get_yes_no_unknown(req, e)
             if e:
-                stext = self.wxstring(req, f"severity_{s}", s,
-                                      provide_default_if_none=False)
-                dtext = self.wxstring(req, f"distress_{d}", d,
-                                      provide_default_if_none=False)
+                stext = self.wxstring(
+                    req, f"severity_{s}", s, provide_default_if_none=False
+                )
+                dtext = self.wxstring(
+                    req, f"distress_{d}", d, provide_default_if_none=False
+                )
             else:
                 stext = ""
                 dtext = ""

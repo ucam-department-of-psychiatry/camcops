@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -46,11 +47,20 @@ public:
     // ========================================================================
     // Constructors
     // ========================================================================
-    Questionnaire(CamcopsApp& app);
-    Questionnaire(CamcopsApp& app, const QVector<QuPagePtr>& pages);
-    Questionnaire(CamcopsApp& app, std::initializer_list<QuPagePtr> pages);
-    Questionnaire(CamcopsApp& app, const QVector<QuPage*> pages);  // takes ownership
-    Questionnaire(CamcopsApp& app, std::initializer_list<QuPage*> pages);  // takes ownership
+    Questionnaire(CamcopsApp& app,
+                  QWidget* parent = nullptr);
+    Questionnaire(CamcopsApp& app,
+                  const QVector<QuPagePtr>& pages,
+                  QWidget* parent = nullptr);
+    Questionnaire(CamcopsApp& app,
+                  std::initializer_list<QuPagePtr> pages,
+                  QWidget* parent = nullptr);
+    Questionnaire(CamcopsApp& app,
+                  const QVector<QuPage*>& pages,  // takes ownership
+                  QWidget* parent = nullptr);
+    Questionnaire(CamcopsApp& app,
+                  std::initializer_list<QuPage*> pages,  // takes ownership
+                  QWidget* parent = nullptr);
 
     // ========================================================================
     // Information about the questionnaire
@@ -135,7 +145,7 @@ public:
     // - current_page_only: restrict to the currently displayed page
     // - page_tag: restrict to pages having the specified tag (see QuPage)
     QVector<QuPage*> getPages(bool current_page_only,
-                              const QString& page_tag = "");
+                              const QString& page_tag = QString());
 
     // ========================================================================
     // Alter pages
@@ -168,15 +178,17 @@ public:
 
     // Return all elements having the specified tag (see QuElement).
     // If current_page_only, restrict to elements from the current page.
-    QVector<QuElement*> getElementsByTag(const QString& tag,
-                                         bool current_page_only = true,
-                                         const QString& page_tag = "");
+    QVector<QuElement*> getElementsByTag(
+            const QString& tag,
+            bool current_page_only = true,
+            const QString& page_tag = QString());
 
     // Returns the first element having the specified tag.
     // Otherwise as per getElementsByTag().
-    QuElement* getFirstElementByTag(const QString& tag,
-                                    bool current_page_only = true,
-                                    const QString& page_tag = "");
+    QuElement* getFirstElementByTag(
+            const QString& tag,
+            bool current_page_only = true,
+            const QString& page_tag = QString());
 
     // ========================================================================
     // Alter elements
@@ -186,7 +198,7 @@ public:
     // set their visibility status (visible or invisible).
     void setVisibleByTag(const QString& tag, bool visible,
                          bool current_page_only = true,
-                         const QString& page_tag = "");
+                         const QString& page_tag = QString());
 
     // ========================================================================
     // Page control

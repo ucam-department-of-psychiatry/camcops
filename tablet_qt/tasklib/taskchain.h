@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -44,8 +45,8 @@ public:
         // - If a chain is aborted early, there will be no incomplete instances
         //   of tasks that weren't started.
         //
-        //   - Good because: easy to see what's left to finish.
-        //   - Bad because: can give lots of incomplete tasks.
+        //   - Good because: no superfluous incomplete tasks.
+        //   - Bad because: harder to see what's left to finish.
 
         AtStart,
         // ... Create all tasks when the chain starts.
@@ -63,8 +64,8 @@ public:
         // - If a chain is aborted early, there will be incomplete instances
         //   of tasks that weren't started.
         //
-        //   - Good because: no superfluous incomplete tasks.
-        //   - Bad because: harder to see what's left to finish.
+        //   - Good because: easy to see what's left to finish.
+        //   - Bad because: can give lots of incomplete tasks.
     };
 
     // ------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 ; VERSION-DEPENDENT VALUES
 ; =============================================================================
 
-#define CamcopsClientVersion "2.4.8"
+#define CamcopsClientVersion "2.4.16"
 
 #define OpenSSLVersion "1.1.1c"
 #define OpenSSLMajorVersionUnderscores "1_1"
@@ -27,9 +27,9 @@
     #error "Must define environment variable CAMCOPS_SOURCE_DIR; e.g. D:\dev\camcops"
 #endif
 
-#define CamcopsQtBaseDir GetEnv("CAMCOPS_QT_BASE_DIR")
+#define CamcopsQtBaseDir GetEnv("CAMCOPS_QT5_BASE_DIR")
 #if CamcopsQtBaseDir == ""
-    #error "Must define environment variable CAMCOPS_QT_BASE_DIR; e.g. D:\dev\qt_local_build"
+    #error "Must define environment variable CAMCOPS_QT5_BASE_DIR; e.g. D:\dev\qt_local_build"
 #endif
 
 #define VisualStudioRedistRoot GetEnv("CAMCOPS_VISUAL_STUDIO_REDIST_ROOT")
@@ -121,6 +121,8 @@ LicenseFile={#CamcopsSourceDir}\LICENSE.txt
 OutputDir={#CCInstallableOutputDir}
 OutputBaseFilename={#CamcopsAppNameLowerCase}_{#CamcopsClientVersion}_windows
 SetupIconFile={#SrcIconFilename}
+SignTool=signtool
+SignedUninstaller=yes
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#CCIconName}
 ; UpdateUninstallLogAppName=no

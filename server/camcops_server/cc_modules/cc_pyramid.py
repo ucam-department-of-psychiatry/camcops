@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_pyramid.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -34,13 +35,23 @@ import os
 import pprint
 import re
 import sys
-from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
-                    Type, TYPE_CHECKING, Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 from urllib.parse import urlencode
 
-# from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
+from mako.filters import html_escape
 from mako.lookup import TemplateLookup
 from paginate import Page
 from pyramid.authentication import IAuthenticationPolicy
@@ -56,7 +67,7 @@ from pyramid.security import (
     Everyone,
     PermitsResult,
 )
-from pyramid.session import SignedCookieSessionFactory
+from pyramid.session import JSONSerializer, SignedCookieSessionFactory
 from pyramid_mako import (
     MakoLookupTemplateRenderer,
     MakoRendererFactory,
@@ -77,6 +88,7 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+
 # =============================================================================
 # Debugging options
 # =============================================================================
@@ -90,10 +102,14 @@ DEBUG_TEMPLATE_SOURCE = False
 #     directory (see below), which is very informative.
 DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/camcops_mako_template_source")
 
-if any([DEBUG_ADD_ROUTES,
+if any(
+    [
+        DEBUG_ADD_ROUTES,
         DEBUG_EFFECTIVE_PRINCIPALS,
         DEBUG_TEMPLATE_PARAMETERS,
-        DEBUG_TEMPLATE_SOURCE]):
+        DEBUG_TEMPLATE_SOURCE,
+    ]
+):
     log.warning("Debugging options enabled!")
 
 
@@ -101,7 +117,7 @@ if any([DEBUG_ADD_ROUTES,
 # Constants
 # =============================================================================
 
-COOKIE_NAME = 'camcops'
+COOKIE_NAME = "camcops"
 
 
 class CookieKey:
@@ -110,8 +126,9 @@ class CookieKey:
     contain enough detail to look up a session on the server, and then
     everything else is looked up on the server side.
     """
-    SESSION_ID = 'session_id'
-    SESSION_TOKEN = 'session_token'
+
+    SESSION_ID = "session_id"
+    SESSION_TOKEN = "session_token"
 
 
 class FormAction(object):
@@ -119,22 +136,15 @@ class FormAction(object):
     Action values for HTML forms. These values generally end up as the ``name``
     attribute (and sometimes also the ``value`` attribute) of an HTML button.
     """
-    CANCEL = 'cancel'
-    CLEAR_FILTERS = 'clear_filters'
-    DELETE = 'delete'
-    FINALIZE = 'finalize'
-    SET_FILTERS = 'set_filters'
-    SUBMIT = 'submit'  # the default for many forms
-    SUBMIT_TASKS_PER_PAGE = 'submit_tpp'
-    REFRESH_TASKS = 'refresh_tasks'
 
-
-class RequestMethod(object):
-    """
-    Constants to distinguish HTTP GET from HTTP POST requests.
-    """
-    GET = "GET"
-    POST = "POST"
+    CANCEL = "cancel"
+    CLEAR_FILTERS = "clear_filters"
+    DELETE = "delete"
+    FINALIZE = "finalize"
+    SET_FILTERS = "set_filters"
+    SUBMIT = "submit"  # the default for many forms
+    SUBMIT_TASKS_PER_PAGE = "submit_tpp"
+    REFRESH_TASKS = "refresh_tasks"
 
 
 class ViewParam(object):
@@ -150,14 +160,22 @@ class ViewParam(object):
       names of deform Form objects, because to avoid duplication would involve
       metaclass mess).
     """
+
     # QUERY = "_query"  # built in to Pyramid
     ADDRESS = "address"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADMIN = "admin"
+    ADVANCED = "advanced"
     AGE_MINIMUM = "age_minimum"
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
+    BACK_TASK_TABLENAME = "back_task_tablename"
+    BACK_TASK_SERVER_PK = "back_task_server_pk"
+    BY_MONTH = "by_month"
+    BY_TASK = "by_task"
+    BY_USER = "by_user"
+    BY_YEAR = "by_year"
     CLINICIAN_CONFIRMATION = "clinician_confirmation"
     CSRF_TOKEN = "csrf_token"
     DATABASE_TITLE = "database_title"
@@ -168,6 +186,7 @@ class ViewParam(object):
     DIALECT = "dialect"
     DIAGNOSES_INCLUSION = "diagnoses_inclusion"
     DIAGNOSES_EXCLUSION = "diagnoses_exclusion"
+    DISABLE_MFA = "disable_mfa"
     DUMP_METHOD = "dump_method"
     DOB = "dob"
     DUE_FROM = "due_from"
@@ -181,6 +200,7 @@ class ViewParam(object):
     EMAIL_TEMPLATE = "email_template"
     END_DATETIME = "end_datetime"
     INCLUDE_AUTO_GENERATED = "include_auto_generated"
+    FHIR_ID_SYSTEM = "fhir_id_system"
     FILENAME = "filename"
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"
@@ -198,30 +218,36 @@ class ViewParam(object):
     INCLUDE_BLOBS = "include_blobs"
     INCLUDE_CALCULATED = "include_calculated"
     INCLUDE_COMMENTS = "include_comments"
-    INCLUDE_INFORMATION_SCHEMA_COLUMNS = "include_information_schema_columns"
     INCLUDE_PATIENT = "include_patient"
+    INCLUDE_SCHEMA = "include_schema"
     INCLUDE_SNOMED = "include_snomed"
     IP_USE = "ip_use"
     LANGUAGE = "language"
     MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
     MAY_DUMP_DATA = "may_dump_data"
+    MAY_EMAIL_PATIENTS = "may_email_patients"
+    MAY_MANAGE_PATIENTS = "may_manage_patients"
     MAY_REGISTER_DEVICES = "may_register_devices"
     MAY_RUN_REPORTS = "may_run_reports"
     MAY_UPLOAD = "may_upload"
     MAY_USE_WEBVIEWER = "may_use_webviewer"
+    MFA_SECRET_KEY = "mfa_secret_key"
+    MFA_METHOD = "mfa_method"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NAME = "name"
     NOTE = "note"
     NOTE_ID = "note_id"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
+    ONE_TIME_PASSWORD = "one_time_password"
     OTHER = "other"
     COMPLETE_ONLY = "complete_only"
     PAGE = "page"
     PASSWORD = "password"
     PATIENT_ID_PER_ROW = "patient_id_per_row"
     PATIENT_TASK_SCHEDULE_ID = "patient_task_schedule_id"
+    PHONE_NUMBER = "phone_number"
     RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"
@@ -233,6 +259,7 @@ class ViewParam(object):
     SETTINGS = "settings"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"
+    SIMPLIFIED = "simplified"
     SORT = "sort"
     SOURCE = "source"
     SQLITE_METHOD = "sqlite_method"
@@ -266,12 +293,14 @@ class ViewArg(object):
     :class:`camcops_server.cc_modules.cc_forms.DumpTypeSelector` represents its
     choices (inside an HTTP POST request) as values from this class.
     """
+
     # Delivery methods
     DOWNLOAD = "download"
     EMAIL = "email"
     IMMEDIATELY = "immediately"
 
     # Output types
+    FHIRJSON = "fhirjson"
     HTML = "html"
     ODS = "ods"
     PDF = "pdf"
@@ -291,6 +320,23 @@ class ViewArg(object):
 
 
 # =============================================================================
+# Flash message queues
+# =============================================================================
+
+
+class FlashQueue:
+    """
+    Predefined flash (alert) message queues for Bootstrap; see
+    https://getbootstrap.com/docs/3.3/components/#alerts.
+    """
+
+    SUCCESS = "success"
+    INFO = "info"
+    WARNING = "warning"
+    DANGER = "danger"
+
+
+# =============================================================================
 # Templates
 # =============================================================================
 # Adaptation of a small part of pyramid_mako, so we can use our own Mako
@@ -307,36 +353,26 @@ MAKO_LOOKUP = TemplateLookup(
         os.path.join(TEMPLATE_DIR, "tasks"),
         os.path.join(TEMPLATE_DIR, "test"),
     ],
-
     input_encoding="utf-8",
     output_encoding="utf-8",
-
     module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATE_SOURCE else None,
-
     # strict_undefined=True,  # raise error immediately upon typos
     # ... tradeoff; there are good and bad things about this!
     # One bad thing about strict_undefined=True is that a child (inheriting)
     # template must supply all variables used by its parent (inherited)
     # template, EVEN IF it replaces entirely the <%block> of the parent that
     # uses those variables.
-
     # -------------------------------------------------------------------------
     # Template default filtering
     # -------------------------------------------------------------------------
-
     default_filters=["h"],
-
     # -------------------------------------------------------------------------
     # Template caching
     # -------------------------------------------------------------------------
     # http://dogpilecache.readthedocs.io/en/latest/api.html#module-dogpile.cache.plugins.mako_cache  # noqa
     # http://docs.makotemplates.org/en/latest/caching.html#cache-arguments
-
     cache_impl="dogpile.cache",
-    cache_args={
-        "regions": {"local": cache_region_static},
-    },
-
+    cache_args={"regions": {"local": cache_region_static}},
     # Now, in Mako templates, use:
     #   cached="True" cache_region="local" cache_key="SOME_CACHE_KEY"
     # on <%page>, <%def>, and <%block> regions.
@@ -490,12 +526,13 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         '''
 
     """  # noqa
+
     def __call__(self, value: Dict[str, Any], system: Dict[str, Any]) -> str:
         if DEBUG_TEMPLATE_PARAMETERS:
             log.debug("spec: {!r}", self.spec)
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
-        # log.critical("\n{}", "\n    ".join(get_caller_stack_info()))
+            # log.debug("\n{}", "\n    ".join(get_caller_stack_info()))
 
         # ---------------------------------------------------------------------
         # RNC extra values:
@@ -514,19 +551,19 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         try:
             system.update(value)
         except (TypeError, ValueError):
-            raise ValueError('renderer was passed non-dictionary as value')
+            raise ValueError("renderer was passed non-dictionary as value")
 
         # Add the special "_" translation function
         request = system["request"]  # type: CamcopsRequest
         system["_"] = request.gettext
 
         # Check if 'context' in the dictionary
-        context = system.pop('context', None)
+        context = system.pop("context", None)
 
         # Rename 'context' to '_context' because Mako internally already has a
         # variable named 'context'
         if context is not None:
-            system['_context'] = context
+            system["_context"] = context
 
         template = self.template
         if self.defname is not None:
@@ -539,8 +576,9 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
         except Exception:
             try:
                 exc_info = sys.exc_info()
-                errtext = text_error_template().render(error=exc_info[1],
-                                                       traceback=exc_info[2])
+                errtext = text_error_template().render(
+                    error=exc_info[1], traceback=exc_info[2]
+                )
                 reraise(MakoRenderingException(errtext), None, exc_info[2])
             finally:
                 # noinspection PyUnboundLocalVariable
@@ -554,6 +592,7 @@ class CamcopsMakoRendererFactory(MakoRendererFactory):
     """
     A Mako renderer factory to use :class:`CamcopsMakoLookupTemplateRenderer`.
     """
+
     # noinspection PyTypeChecker
     renderer_factory = staticmethod(CamcopsMakoLookupTemplateRenderer)
 
@@ -598,6 +637,7 @@ class UrlParamType(Enum):
     Enum for building templatized URLs.
     See :class:`UrlParam`.
     """
+
     STRING = 1
     POSITIVE_INTEGER = 2
     PLAIN_STRING = 3
@@ -620,8 +660,10 @@ class UrlParam(object):
     See also :class:`RoutePath`.
 
     """  # noqa
-    def __init__(self, name: str,
-                 paramtype: UrlParamType == UrlParamType.PLAIN_STRING) -> None:
+
+    def __init__(
+        self, name: str, paramtype: UrlParamType == UrlParamType.PLAIN_STRING
+    ) -> None:
         """
         Args:
             name: the name of the parameter
@@ -630,20 +672,20 @@ class UrlParam(object):
         """
         self.name = name
         self.paramtype = paramtype
-        assert valid_replacement_marker(name), (
-            "UrlParam: invalid replacement marker: " + repr(name)
-        )
+        assert valid_replacement_marker(
+            name
+        ), "UrlParam: invalid replacement marker: " + repr(name)
 
     def regex(self) -> str:
         """
         Returns text for a regular expression to capture the parameter value.
         """
         if self.paramtype == UrlParamType.STRING:
-            return ''
+            return ""
         elif self.paramtype == UrlParamType.POSITIVE_INTEGER:
-            return r'\d+'  # digits
+            return r"\d+"  # digits
         elif self.paramtype == UrlParamType.PLAIN_STRING:
-            return r'[a-zA-Z0-9_]+'
+            return r"[a-zA-Z0-9_]+"
         else:
             raise AssertionError("Bug in UrlParam")
 
@@ -654,8 +696,8 @@ class UrlParam(object):
         marker = self.name
         r = self.regex()
         if r:
-            marker += ':' + r
-        return '{' + marker + '}'
+            marker += ":" + r
+        return "{" + marker + "}"
 
 
 def make_url_path(base: str, *args: UrlParam) -> str:
@@ -691,6 +733,7 @@ class Routes(object):
     - Configured via :class:`RouteCollection` / :class:`RoutePath` to the
       Pyramid route configurator.
     """
+
     # Hard-coded special paths
     STATIC = "static"
 
@@ -727,14 +770,25 @@ class Routes(object):
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_FINALIZED_PATIENT = "edit_finalized_patient"
+    EDIT_OTHER_USER_MFA = "edit_other_user_mfa"
+    EDIT_OWN_USER_MFA = "edit_own_user_mfa"
     EDIT_SERVER_CREATED_PATIENT = "edit_server_created_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_TASK_SCHEDULE = "edit_task_schedule"
     EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
     EDIT_USER = "edit_user"
+    EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
+    FHIR_CONDITION = "fhir_condition"
+    FHIR_DOCUMENT_REFERENCE = "fhir_document_reference"
+    FHIR_OBSERVATION = "fhir_observation"
+    FHIR_PATIENT_ID_SYSTEM = "fhir_patient_id_system"
+    FHIR_PRACTITIONER = "fhir_practitioner"
+    FHIR_QUESTIONNAIRE_SYSTEM = "fhir_questionnaire"
+    FHIR_QUESTIONNAIRE_RESPONSE = "fhir_questionnaire_response"
+    FHIR_TABLENAME_PK_ID = "fhir_tablename_pk_id"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -749,12 +803,17 @@ class Routes(object):
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
     SEND_EMAIL_FROM_PATIENT_LIST = "send_email_from_patient_list"
-    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = "send_email_from_patient_task_schedule"  # noqa: E501
+    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = (
+        "send_email_from_patient_task_schedule"
+    )
     SET_FILTERS = "set_filters"
     SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SQL_DUMP = "sql_dump"
     TASK = "task"
+    TASK_DETAILS = "task_details"
+    TASK_LIST = "task_list"
+    TEST_NHS_NUMBERS = "test_nhs_numbers"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
@@ -770,8 +829,11 @@ class Routes(object):
     VIEW_EXPORTED_TASK = "view_exported_task"
     VIEW_EXPORTED_TASK_LIST = "view_exported_task_list"
     VIEW_EXPORTED_TASK_EMAIL = "view_exported_task_email"
+    VIEW_EXPORTED_TASK_FHIR = "view_exported_task_fhir"
+    VIEW_EXPORTED_TASK_FHIR_ENTRY = "view_exported_task_fhir_entry"
     VIEW_EXPORTED_TASK_FILE_GROUP = "view_exported_task_file_group"
     VIEW_EXPORTED_TASK_HL7_MESSAGE = "view_exported_task_hl7_message"
+    VIEW_EXPORTED_TASK_REDCAP = "view_exported_task_redcap"
     VIEW_GROUPS = "view_groups"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
@@ -791,26 +853,81 @@ class RoutePath(object):
     Class to hold a route/path pair.
 
     - Pyramid route names are just strings used internally for convenience.
+
     - Pyramid URL paths are URL fragments, like ``'/thing'``, and can contain
       placeholders, like ``'/thing/{bork_id}'``, which will result in the
       ``request.matchdict`` object containing a ``'bork_id'`` key. Those can be
       further constrained by regular expressions, like
-      ``'/thing/{bork_id:\d+}'`` to restrict to digits.
+      ``'/thing/{bork_id:\d+}'`` to restrict to digits. See
+      https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html
 
-    """
-    def __init__(self, route: str, path: str = "",
-                 ignore_in_all_routes: bool = False) -> None:
+    """  # noqa
+
+    def __init__(
+        self,
+        route: str,
+        path: str = "",
+        ignore_in_all_routes: bool = False,
+        pregenerator: Callable = None,
+    ) -> None:
         self.route = route
         self.path = path or "/" + route
         self.ignore_in_all_routes = ignore_in_all_routes
+        self.pregenerator = pregenerator
 
 
 MASTER_ROUTE_WEBVIEW = "/"
 MASTER_ROUTE_CLIENT_API = "/api"
 MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
+
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
+STATIC_BOOTSTRAP_ICONS_PATH = (
+    STATIC_CAMCOPS_PACKAGE_PATH + "bootstrap-icons-1.7.0"
+)
+
+
+# noinspection PyUnusedLocal
+def pregen_for_fhir(request: Request, elements: Tuple, kw: Dict) -> Tuple:
+    """
+    Pyramid pregenerator, to pre-populate an optional URL keyword (with an
+    empty string, as it happens). See
+
+    - https://stackoverflow.com/questions/42193305/optional-url-parameter-on-pyramid-route
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/interfaces.html#pyramid.interfaces.IRoutePregenerator
+    """  # noqa
+    kw.setdefault("fhirvalue_with_bar", "")
+    return elements, kw
+
+
+def _mk_fhir_optional_value_suffix_route(
+    route: str, path: str = ""
+) -> RoutePath:
+    path = path or "/" + route
+    path_with_optional_value = path + r"{fhirvalue_with_bar:(\|[\w\d/\.]+)?}"
+    # ... allow, optionally, a bar followed by one or more word, digit,
+    # forward slash, or period characters.
+    # This allows FHIR identifier suffixes like path|table/2.4.11
+    return RoutePath(
+        route, path_with_optional_value, pregenerator=pregen_for_fhir
+    )
+
+
+def _mk_fhir_tablename_route(route: str) -> RoutePath:
+    return _mk_fhir_optional_value_suffix_route(
+        route, f"/{route}" rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
+    )
+
+
+def _mk_fhir_tablename_pk_route(route: str) -> RoutePath:
+    return _mk_fhir_optional_value_suffix_route(
+        route,
+        f"/{route}"
+        rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
+        rf"/{{{ViewParam.SERVER_PK}:\d+}}",
+    )
 
 
 class RouteCollection(object):
@@ -824,11 +941,14 @@ class RouteCollection(object):
     To associate a view with a route, use the Pyramid ``@view_config``
     decorator.
     """
+
     # Hard-coded special paths
-    DEBUG_TOOLBAR = RoutePath('debug_toolbar', '/_debug_toolbar/',
-                              ignore_in_all_routes=True)  # hard-coded path
-    STATIC = RoutePath(Routes.STATIC, "",  # path ignored
-                       ignore_in_all_routes=True)
+    DEBUG_TOOLBAR = RoutePath(
+        "debug_toolbar", "/_debug_toolbar/", ignore_in_all_routes=True
+    )  # hard-coded path
+    STATIC = RoutePath(
+        Routes.STATIC, "", ignore_in_all_routes=True  # path ignored
+    )
 
     # Implemented
     ADD_GROUP = RoutePath(Routes.ADD_GROUP)
@@ -845,8 +965,9 @@ class RouteCollection(object):
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)
     CLIENT_API = RoutePath(Routes.CLIENT_API, MASTER_ROUTE_CLIENT_API)
-    CLIENT_API_ALIAS = RoutePath(Routes.CLIENT_API_ALIAS,
-                                 MASTER_ROUTE_CLIENT_API_ALIAS)
+    CLIENT_API_ALIAS = RoutePath(
+        Routes.CLIENT_API_ALIAS, MASTER_ROUTE_CLIENT_API_ALIAS
+    )
     CRASH = RoutePath(Routes.CRASH)
     CTV = RoutePath(Routes.CTV)
     DELETE_FILE = RoutePath(Routes.DELETE_FILE)
@@ -866,14 +987,41 @@ class RouteCollection(object):
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_FINALIZED_PATIENT = RoutePath(Routes.EDIT_FINALIZED_PATIENT)
+    EDIT_OTHER_USER_MFA = RoutePath(Routes.EDIT_OTHER_USER_MFA)
+    EDIT_OWN_USER_MFA = RoutePath(Routes.EDIT_OWN_USER_MFA)
     EDIT_SERVER_CREATED_PATIENT = RoutePath(Routes.EDIT_SERVER_CREATED_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
     EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
     EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
+    EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
-    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
+    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(
+        Routes.ERASE_TASK_LEAVING_PLACEHOLDER
+    )
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
+
+    FHIR_CONDITION = _mk_fhir_tablename_pk_route(Routes.FHIR_CONDITION)
+    FHIR_DOCUMENT_REFERENCE = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_DOCUMENT_REFERENCE
+    )
+    FHIR_OBSERVATION = _mk_fhir_tablename_pk_route(Routes.FHIR_OBSERVATION)
+    FHIR_PATIENT_ID_SYSTEM = _mk_fhir_optional_value_suffix_route(
+        Routes.FHIR_PATIENT_ID_SYSTEM,
+        f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
+        rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}",
+    )
+    FHIR_PRACTITIONER = _mk_fhir_tablename_pk_route(Routes.FHIR_PRACTITIONER)
+    FHIR_QUESTIONNAIRE_SYSTEM = _mk_fhir_optional_value_suffix_route(
+        Routes.FHIR_QUESTIONNAIRE_SYSTEM
+    )
+    FHIR_QUESTIONNAIRE_RESPONSE = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_QUESTIONNAIRE_RESPONSE
+    )
+    FHIR_TABLENAME_PK_ID = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_TABLENAME_PK_ID
+    )
+
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)
@@ -886,13 +1034,23 @@ class RouteCollection(object):
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP)
     REPORT = RoutePath(Routes.REPORT)
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU)
-    SEND_EMAIL_FROM_PATIENT_LIST = RoutePath(Routes.SEND_EMAIL_FROM_PATIENT_LIST)  # noqa: E501
-    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = RoutePath(Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE)  # noqa: E501
+    SEND_EMAIL_FROM_PATIENT_LIST = RoutePath(
+        Routes.SEND_EMAIL_FROM_PATIENT_LIST
+    )
+    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = RoutePath(
+        Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE
+    )
     SET_FILTERS = RoutePath(Routes.SET_FILTERS)
     SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP)
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)
     SQL_DUMP = RoutePath(Routes.SQL_DUMP)
     TASK = RoutePath(Routes.TASK)
+    TASK_DETAILS = RoutePath(
+        Routes.TASK_DETAILS,
+        rf"/{Routes.TASK_DETAILS}/{{{ViewParam.TABLE_NAME}}}",
+    )
+    TASK_LIST = RoutePath(Routes.TASK_LIST)
+    TEST_NHS_NUMBERS = RoutePath(Routes.TEST_NHS_NUMBERS)
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1)
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2)
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3)
@@ -908,8 +1066,17 @@ class RouteCollection(object):
     VIEW_EXPORTED_TASK = RoutePath(Routes.VIEW_EXPORTED_TASK)
     VIEW_EXPORTED_TASK_LIST = RoutePath(Routes.VIEW_EXPORTED_TASK_LIST)
     VIEW_EXPORTED_TASK_EMAIL = RoutePath(Routes.VIEW_EXPORTED_TASK_EMAIL)
-    VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(Routes.VIEW_EXPORTED_TASK_FILE_GROUP)  # noqa
-    VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE)  # noqa
+    VIEW_EXPORTED_TASK_FHIR = RoutePath(Routes.VIEW_EXPORTED_TASK_FHIR)
+    VIEW_EXPORTED_TASK_FHIR_ENTRY = RoutePath(
+        Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY
+    )
+    VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(
+        Routes.VIEW_EXPORTED_TASK_FILE_GROUP
+    )
+    VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(
+        Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE
+    )
+    VIEW_EXPORTED_TASK_REDCAP = RoutePath(Routes.VIEW_EXPORTED_TASK_REDCAP)
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
@@ -929,16 +1096,20 @@ class RouteCollection(object):
         Fetch all routes for CamCOPS.
         """
         return [
-            v for k, v in cls.__dict__.items()
-            if not (k.startswith('_') or  # class hidden things
-                    k == 'all_routes' or  # this function
-                    v.ignore_in_all_routes)  # explicitly ignored
+            v
+            for k, v in cls.__dict__.items()
+            if not (
+                k.startswith("_")
+                or k == "all_routes"  # class hidden things
+                or v.ignore_in_all_routes  # this function
+            )  # explicitly ignored
         ]
 
 
 # =============================================================================
 # Pyramid HTTP session handling
 # =============================================================================
+
 
 def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
     """
@@ -990,18 +1161,21 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
         secure_cookies = not cfg.allow_insecure_cookies
         pyramid_factory = SignedCookieSessionFactory(
             secret=cfg.session_cookie_secret,
-            hashalg='sha512',  # the default
-            salt='camcops_pyramid_session.',
+            hashalg="sha512",  # the default
+            salt="camcops_pyramid_session.",
             cookie_name=COOKIE_NAME,
             max_age=None,  # browser scope; session cookie
-            path='/',  # the default
+            path="/",  # the default
             domain=None,  # the default
             secure=secure_cookies,
             httponly=secure_cookies,
             timeout=None,  # we handle timeouts at the database level instead
             reissue_time=0,  # default; reissue cookie at every request
             set_on_exception=True,  # (default) cookie even if exception raised
-            serializer=None,  # (default) use pyramid.session.PickleSerializer
+            serializer=JSONSerializer(),
+            # ... pyramid.session.PickleSerializer was the default but is
+            # deprecated as of Pyramid 1.9; the default is
+            # pyramid.session.JSONSerializer as of Pyramid 2.0.
             # As max_age and expires are left at their default of None, these
             # are session cookies.
         )
@@ -1014,6 +1188,7 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
 # Authentication; authorization (permissions)
 # =============================================================================
 
+
 class Permission(object):
     """
     Pyramid permission values.
@@ -1021,10 +1196,14 @@ class Permission(object):
     - Permissions are strings.
     - For "logged in", use ``pyramid.security.Authenticated``
     """
+
     GROUPADMIN = "groupadmin"
-    HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
+    HAPPY = "happy"
+    # ... logged in, can use webview, no need to change p/w, agreed to terms,
+    # a valid MFA method has been set.
     MUST_AGREE_TERMS = "must_agree_terms"
     MUST_CHANGE_PASSWORD = "must_change_password"
+    MUST_SET_MFA = "must_set_mfa"
     SUPERUSER = "superuser"
 
 
@@ -1071,12 +1250,14 @@ class CamcopsAuthenticationPolicy(object):
         principals = [Everyone]
         user = request.user
         if user is not None:
-            principals += [Authenticated, 'u:%s' % user.id]
+            principals += [Authenticated, "u:%s" % user.id]
             if user.may_use_webviewer:
                 if user.must_change_password:
                     principals.append(Permission.MUST_CHANGE_PASSWORD)
                 elif user.must_agree_terms:
                     principals.append(Permission.MUST_AGREE_TERMS)
+                elif user.must_set_mfa_method(request):
+                    principals.append(Permission.MUST_SET_MFA)
                 else:
                     principals.append(Permission.HAPPY)
             if user.superuser:
@@ -1090,9 +1271,9 @@ class CamcopsAuthenticationPolicy(object):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def remember(request: "CamcopsRequest",
-                 userid: int,
-                 **kw) -> List[Tuple[str, str]]:
+    def remember(
+        request: "CamcopsRequest", userid: int, **kw
+    ) -> List[Tuple[str, str]]:
         return []
 
     # noinspection PyUnusedLocal
@@ -1106,21 +1287,297 @@ class CamcopsAuthorizationPolicy(object):
     """
     CamCOPS authorization policy.
     """
+
     # noinspection PyUnusedLocal
     @staticmethod
-    def permits(context: ILocation, principals: List[str], permission: str) \
-            -> PermitsResult:
+    def permits(
+        context: ILocation, principals: List[str], permission: str
+    ) -> PermitsResult:
         if permission in principals:
-            return Allowed(f"ALLOWED: permission {permission} present in "
-                           f"principals {principals}")
+            return Allowed(
+                f"ALLOWED: permission {permission} present in "
+                f"principals {principals}"
+            )
 
-        return Denied(f"DENIED: permission {permission} not in principals "
-                      f"{principals}")
+        return Denied(
+            f"DENIED: permission {permission} not in principals "
+            f"{principals}"
+        )
 
     @staticmethod
-    def principals_allowed_by_permission(context: ILocation,
-                                         permission: str) -> List[str]:
+    def principals_allowed_by_permission(
+        context: ILocation, permission: str
+    ) -> List[str]:
         raise NotImplementedError()  # don't care about this method
+
+
+# =============================================================================
+# Icons
+# =============================================================================
+
+
+def icon_html(
+    icon: str,
+    alt: str,
+    url: str = None,
+    extra_classes: List[str] = None,
+    extra_styles: List[str] = None,
+    escape_alt: bool = True,
+) -> str:
+    """
+    Instantiates a Bootstrap icon, usually with a hyperlink. Returns
+    rendered HTML.
+
+    Args:
+        icon:
+            Icon name, without ".svg" extension (or "bi-" prefix!).
+        alt:
+            Alternative text for image.
+        url:
+            Optional URL of hyperlink.
+        extra_classes:
+            Optional extra CSS classes for the icon.
+        extra_styles:
+            Optional extra CSS styles for the icon (each looks like:
+            "color: blue").
+        escape_alt:
+            HTML-escape the alt text? Default is True.
+    """
+    # There are several ways to do this, such as via <img> tags, or via
+    # web fonts.
+    # We include bootstrap-icons.css (via base_web.mako), because that
+    # allows the best resizing (relative to font size) and styling.
+    # See:
+    # - https://icons.getbootstrap.com/#usage
+    # - http://johna.compoutpost.com/blog/1189/how-to-use-the-new-bootstrap-icons-v1-2-web-font/  # noqa
+    if escape_alt:
+        alt = html_escape(alt)
+    i_components = ['role="img"', f'aria-label="{alt}"']
+    css_classes = [f"bi-{icon}"]  # bi = Bootstrap icon
+    if extra_classes:
+        css_classes += extra_classes
+    class_str = " ".join(css_classes)
+    i_components.append(f'class="{class_str}"')
+    if extra_styles:
+        style_str = "; ".join(extra_styles)
+        i_components.append(f'style="{style_str}"')
+    image = f'<i {" ".join(i_components)}></i>'
+    if url:
+        return f'<a href="{url}">{image}</a>'
+    else:
+        return image
+
+
+def icon_text(
+    icon: str,
+    text: str,
+    url: str = None,
+    alt: str = None,
+    extra_icon_classes: List[str] = None,
+    extra_icon_styles: List[str] = None,
+    extra_a_classes: List[str] = None,
+    extra_a_styles: List[str] = None,
+    escape_alt: bool = True,
+    escape_text: bool = True,
+    hyperlink_together: bool = False,
+) -> str:
+    """
+    Provide an icon and accompanying text. Usually, both are hyperlinked
+    (to the same destination URL). Returns rendered HTML.
+
+    Args:
+        icon:
+            Icon name, without ".svg" extension.
+        url:
+            Optional URL of hyperlink.
+        alt:
+            Alternative text for image. Will default to the main text.
+        text:
+            Main text to display.
+        extra_icon_classes:
+            Optional extra CSS classes for the icon.
+        extra_icon_styles:
+            Optional extra CSS styles for the icon (each looks like:
+            "color: blue").
+        extra_a_classes:
+            Optional extra CSS classes for the <a> element.
+        extra_a_styles:
+            Optional extra CSS styles for the <a> element.
+        escape_alt:
+            HTML-escape the alt text?
+        escape_text:
+            HTML-escape the main text?
+        hyperlink_together:
+            Hyperlink the image and text as one (rather than separately and
+            adjacent to each other)?
+    """
+    i_html = icon_html(
+        icon=icon,
+        url=None if hyperlink_together else url,
+        alt=alt or text,
+        extra_classes=extra_icon_classes,
+        extra_styles=extra_icon_styles,
+        escape_alt=escape_alt,
+    )
+    if escape_text:
+        text = html_escape(text)
+    if url:
+        a_components = [f'href="{url}"']
+        if extra_a_classes:
+            class_str = " ".join(extra_a_classes)
+            a_components.append(f'class="{class_str}"')
+        if extra_a_styles:
+            style_str = "; ".join(extra_a_styles)
+            a_components.append(f'style="{style_str}"')
+        a_options = " ".join(a_components)
+        if hyperlink_together:
+            return f"<a {a_options}>{i_html} {text}</a>"
+        else:
+            return f"{i_html} <a {a_options}>{text}</a>"
+    else:
+        return f"{i_html} {text}"
+
+
+def icons_text(
+    icons: List[str],
+    text: str,
+    url: str = None,
+    alt: str = None,
+    extra_icon_classes: List[str] = None,
+    extra_icon_styles: List[str] = None,
+    extra_a_classes: List[str] = None,
+    extra_a_styles: List[str] = None,
+    escape_alt: bool = True,
+    escape_text: bool = True,
+    hyperlink_together: bool = False,
+) -> str:
+    """
+    Multiple-icon version of :func:``icon_text``.
+    """
+    i_html = " ".join(
+        icon_html(
+            icon=icon,
+            url=None if hyperlink_together else url,
+            alt=alt or text,
+            extra_classes=extra_icon_classes,
+            extra_styles=extra_icon_styles,
+            escape_alt=escape_alt,
+        )
+        for icon in icons
+    )
+    if escape_text:
+        text = html_escape(text)
+    if url:
+        a_components = [f'href="{url}"']
+        if extra_a_classes:
+            class_str = " ".join(extra_a_classes)
+            a_components.append(f'class="{class_str}"')
+        if extra_a_styles:
+            style_str = "; ".join(extra_a_styles)
+            a_components.append(f'style="{style_str}"')
+        a_options = " ".join(a_components)
+        if hyperlink_together:
+            return f"<a {a_options}>{i_html} {text}</a>"
+        else:
+            return f"{i_html} <a {a_options}>{text}</a>"
+    else:
+        return f"{i_html} {text}"
+
+
+class Icons:
+    """
+    Constants for Bootstrap icons. See https://icons.getbootstrap.com/.
+    See also include_bootstrap_icons.rst; must match.
+    """
+
+    ACTIVITY = "activity"
+    APP_AUTHENTICATOR = "shield-shaded"
+    AUDIT_ITEM = "tag"
+    AUDIT_MENU = "clipboard"
+    AUDIT_OPTIONS = "clipboard-check"
+    AUDIT_REPORT = "clipboard-data"
+    BUSY = "hourglass-split"
+    COMPLETE = "check"
+    CTV = "body-text"
+    DELETE = "trash"
+    DELETE_MAJOR = "trash-fill"
+    DEVELOPER = "braces"  # braces, bug
+    DOWNLOAD = "download"
+    DUE = "alarm"
+    DUMP_BASIC = "file-spreadsheet"
+    DUMP_SQL = "server"
+    EDIT = "pencil"
+    EMAIL_CONFIGURE = "at"
+    EMAIL_SEND = "envelope"
+    EMAIL_VIEW = "envelope-open"
+    EXPORT_RECIPIENT = "share"
+    EXPORTED_TASK = "tag-fill"
+    EXPORTED_TASK_ENTRY_COLLECTION = "tags"
+    FILTER = "funnel"  # better than filter-circle
+    FORCE_FINALIZE = "bricks"
+    GITHUB = "github"
+    GOTO_PREDECESSOR = "arrow-left-square"
+    GOTO_SUCCESSOR = "arrow-right-square-fill"
+    GROUP_ADD = "plus-circle"
+    GROUP_ADMIN = "suit-diamond-fill"
+    GROUP_EDIT = "box"
+    GROUPS = "boxes"  # change?
+    HOME = "house-fill"
+    HTML_ANONYMOUS = "file-richtext"
+    HTML_IDENTIFIABLE = "file-richtext-fill"
+    ID_DEFINITION_ADD = "plus-circle"  # suboptimal
+    ID_DEFINITIONS = "123"
+    INCOMPLETE = "x-circle"
+    INFO_EXTERNAL = "info-circle-fill"
+    # ... info-circle-fill? link? box-arrow-up-right?
+    INFO_INTERNAL = "info-circle"
+    JSON = "file-text-fill"  # braces, file-text-fill
+    LOGIN = "box-arrow-in-right"
+    LOGOUT = "box-arrow-right"
+    MFA = "fingerprint"
+    MISSING = "x-octagon-fill"
+    # ... when an icon should have been supplied but wasn't!
+    NAVIGATE_BACKWARD = "skip-start"
+    NAVIGATE_END = "skip-forward"  # better than skip-end
+    NAVIGATE_FORWARD = "skip-end"
+    # ... better than skip-forward, caret-right; "play" is also good but no
+    # mirror-image version.
+    NAVIGATE_START = "skip-backward"  # better than skip-start
+    PASSWORD_OTHER = "key"
+    PASSWORD_OWN = "key-fill"
+    PATIENT = "person"
+    PATIENT_ADD = "person-plus"
+    PATIENT_EDIT = "person-circle"
+    PATIENTS = "people"
+    PDF_ANONYMOUS = "file-pdf"
+    PDF_IDENTIFIABLE = "file-pdf-fill"
+    REPORT_CONFIG = "bar-chart-line"
+    REPORT_DETAIL = "file-bar-graph"
+    REPORTS = "bar-chart-line-fill"
+    SETTINGS = "gear"
+    SMS = "chat-left-dots"
+    SPECIAL_NOTE = "pencil-square"
+    SUCCESS = "check-circle"
+    SUPERUSER = "suit-spade-fill"
+    TASK_SCHEDULE = "journal"
+    TASK_SCHEDULE_ADD = "journal-plus"
+    TASK_SCHEDULE_ITEM_ADD = "journal-code"
+    # ... imperfect, but we use journal-plus for "add schedule"
+    TASK_SCHEDULE_ITEMS = "journal-text"
+    TASK_SCHEDULES = "journals"
+    TRACKERS = "graph-up"
+    UNKNOWN = "question-circle"
+    UNLOCK = "unlock"
+    UPLOAD = "upload"
+    USER_ADD = "person-plus-fill"  # there isn't a person-badge-plus
+    USER_INFO = "person-badge"
+    USER_MANAGEMENT = "person-badge-fill"
+    USER_PERMISSIONS = "person-check"
+    VIEW_TASKS = "display"
+    XML = "file-code-fill"  # diagram-3-fill
+    YOU = "heart-fill"
+    ZOOM_IN = "zoom-in"
+    ZOOM_OUT = "zoom-out"
 
 
 # =============================================================================
@@ -1128,6 +1585,7 @@ class CamcopsAuthorizationPolicy(object):
 # =============================================================================
 # WebHelpers 1.3 doesn't support Python 3.5.
 # The successor to webhelpers.paginate appears to be paginate.
+
 
 class SqlalchemyOrmQueryWrapper(object):
     """
@@ -1143,6 +1601,7 @@ class SqlalchemyOrmQueryWrapper(object):
     - https://docs.pylonsproject.org/projects/webhelpers/en/latest/modules/paginate.html
     - https://github.com/Pylons/paginate
     """  # noqa
+
     def __init__(self, query: Query) -> None:
         self.query = query
 
@@ -1163,6 +1622,16 @@ class SqlalchemyOrmQueryWrapper(object):
         return self.query.count()
 
 
+# DEFAULT_NAV_START = "&lt;&lt;"
+DEFAULT_NAV_START = icon_html(Icons.NAVIGATE_START, alt="Start")
+# DEFAULT_NAV_END = "&gt;&gt;"
+DEFAULT_NAV_END = icon_html(Icons.NAVIGATE_END, alt="End")
+# DEFAULT_NAV_BACKWARD = "&lt;"
+DEFAULT_NAV_BACKWARD = icon_html(Icons.NAVIGATE_BACKWARD, alt="Backward")
+# DEFAULT_NAV_FORWARD = '&gt;'
+DEFAULT_NAV_FORWARD = icon_html(Icons.NAVIGATE_FORWARD, alt="Forward")
+
+
 class CamcopsPage(Page):
     """
     Pagination class, for HTML views that display, for example,
@@ -1172,17 +1641,20 @@ class CamcopsPage(Page):
       the page number is out of range.
     - Also, it uses ``..`` for an ellipsis, which is just wrong.
     """
+
     # noinspection PyShadowingBuiltins
-    def __init__(self,
-                 collection: Union[Sequence[Any], Query, Select],
-                 url_maker: Callable[[int], str],
-                 request: "CamcopsRequest",
-                 page: int = 1,
-                 items_per_page: int = 20,
-                 item_count: int = None,
-                 wrapper_class: Type[Any] = None,
-                 ellipsis: str = "&hellip;",
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        collection: Union[Sequence[Any], Query, Select],
+        url_maker: Callable[[int], str],
+        request: "CamcopsRequest",
+        page: int = 1,
+        items_per_page: int = 20,
+        item_count: int = None,
+        wrapper_class: Type[Any] = None,
+        ellipsis: str = "&hellip;",
+        **kwargs,
+    ) -> None:
         """
         See :class:`paginate.Page`. Additional arguments:
 
@@ -1206,7 +1678,7 @@ class CamcopsPage(Page):
             item_count=item_count,
             wrapper_class=wrapper_class,
             url_maker=url_maker,
-            **kwargs
+            **kwargs,
         )
         # Original defines attributes outside __init__, so:
         self.radius = 2
@@ -1217,19 +1689,21 @@ class CamcopsPage(Page):
         self.url = ""
 
     # noinspection PyShadowingBuiltins
-    def pager(self,
-              format: str = None,
-              url: str = None,
-              show_if_single_page: bool = True,  # see below!
-              separator: str = ' ',
-              symbol_first: str = '&lt;&lt;',
-              symbol_last: str = '&gt;&gt;',
-              symbol_previous: str = '&lt;',
-              symbol_next: str = '&gt;',
-              link_attr: Dict[str, str] = None,
-              curpage_attr: Dict[str, str] = None,
-              dotdot_attr: Dict[str, str] = None,
-              link_tag: Callable[[Dict[str, str]], str] = None):
+    def pager(
+        self,
+        format: str = None,
+        url: str = None,
+        show_if_single_page: bool = True,  # see below!
+        separator: str = " ",
+        symbol_first: str = DEFAULT_NAV_START,
+        symbol_last: str = DEFAULT_NAV_END,
+        symbol_previous: str = DEFAULT_NAV_BACKWARD,
+        symbol_next: str = DEFAULT_NAV_FORWARD,
+        link_attr: Dict[str, str] = None,
+        curpage_attr: Dict[str, str] = None,
+        dotdot_attr: Dict[str, str] = None,
+        link_tag: Callable[[Dict[str, str]], str] = None,
+    ):
         """
         See :func:`paginate.Page.pager`.
 
@@ -1242,7 +1716,7 @@ class CamcopsPage(Page):
         link_attr = link_attr or {}  # type: Dict[str, str]
         curpage_attr = curpage_attr or {}  # type: Dict[str, str]
         # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
-        # dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!
+        # dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!  # noqa: E501
         return super().pager(
             format=format,
             url=url,
@@ -1270,18 +1744,20 @@ class CamcopsPage(Page):
         )
 
     # noinspection PyShadowingBuiltins
-    def link_map(self,
-                 format: str = '~2~',
-                 url: str = None,
-                 show_if_single_page: bool = False,
-                 separator: str = ' ',
-                 symbol_first: str = '&lt;&lt;',
-                 symbol_last: str = '&gt;&gt;',
-                 symbol_previous: str = '&lt;',
-                 symbol_next: str = '&gt;',
-                 link_attr: Dict[str, str] = None,
-                 curpage_attr: Dict[str, str] = None,
-                 dotdot_attr: Dict[str, str] = None):
+    def link_map(
+        self,
+        format: str = "~2~",
+        url: str = None,
+        show_if_single_page: bool = False,
+        separator: str = " ",
+        symbol_first: str = "&lt;&lt;",
+        symbol_last: str = "&gt;&gt;",
+        symbol_previous: str = "&lt;",
+        symbol_next: str = "&gt;",
+        link_attr: Dict[str, str] = None,
+        curpage_attr: Dict[str, str] = None,
+        dotdot_attr: Dict[str, str] = None,
+    ):
         """
         See equivalent in superclass.
 
@@ -1294,7 +1770,7 @@ class CamcopsPage(Page):
         self.dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
         self.url = url
 
-        regex_res = re.search(r'~(\d+)~', format)
+        regex_res = re.search(r"~(\d+)~", format)
         if regex_res:
             radius = regex_res.group(1)
         else:
@@ -1308,11 +1784,13 @@ class CamcopsPage(Page):
         # -> rightmost_page = 9
         leftmost_page = (
             max(self.first_page, (self.page - radius))
-            if self.first_page else None
+            if self.first_page
+            else None
         )  # type: Optional[int]
         rightmost_page = (
-            min(self.last_page, (self.page+radius))
-            if self.last_page else None
+            min(self.last_page, (self.page + radius))
+            if self.last_page
+            else None
         )  # type: Optional[int]
         nav_items = {
             "first_page": None,
@@ -1321,7 +1799,7 @@ class CamcopsPage(Page):
             "next_page": None,
             "current_page": None,
             "radius": self.radius,
-            "range_pages": []
+            "range_pages": [],
         }  # type: Dict[str, Any]
 
         if leftmost_page is None or rightmost_page is None:
@@ -1332,59 +1810,67 @@ class CamcopsPage(Page):
             "value": symbol_first,
             "attrs": self.link_attr,
             "number": self.first_page,
-            "href": self.url_maker(self.first_page)
+            "href": self.url_maker(self.first_page),
         }
 
         # Insert dots if there are pages between the first page
         # and the currently displayed page range
         if leftmost_page - self.first_page > 1:
             # Wrap in a SPAN tag if dotdot_attr is set
-            nav_items["range_pages"].append({
-                "type": "span",
-                "value": self.ellipsis,
-                "attrs": self.dotdot_attr,
-                "href": "",
-                "number": None
-            })
+            nav_items["range_pages"].append(
+                {
+                    "type": "span",
+                    "value": self.ellipsis,
+                    "attrs": self.dotdot_attr,
+                    "href": "",
+                    "number": None,
+                }
+            )
 
         for thispage in range(leftmost_page, rightmost_page + 1):
             # Highlight the current page number and do not use a link
             if thispage == self.page:
                 # Wrap in a SPAN tag if curpage_attr is set
-                nav_items["range_pages"].append({
-                    "type": "current_page",
-                    "value": str(thispage),
-                    "number": thispage,
-                    "attrs": self.curpage_attr,
-                    "href": self.url_maker(thispage)
-                })
+                nav_items["range_pages"].append(
+                    {
+                        "type": "current_page",
+                        "value": str(thispage),
+                        "number": thispage,
+                        "attrs": self.curpage_attr,
+                        "href": self.url_maker(thispage),
+                    }
+                )
                 nav_items["current_page"] = {
                     "value": thispage,
                     "attrs": self.curpage_attr,
                     "type": "current_page",
-                    "href": self.url_maker(thispage)
+                    "href": self.url_maker(thispage),
                 }
             # Otherwise create just a link to that page
             else:
-                nav_items["range_pages"].append({
-                    "type": "page",
-                    "value": str(thispage),
-                    "number": thispage,
-                    "attrs": self.link_attr,
-                    "href": self.url_maker(thispage)
-                })
+                nav_items["range_pages"].append(
+                    {
+                        "type": "page",
+                        "value": str(thispage),
+                        "number": thispage,
+                        "attrs": self.link_attr,
+                        "href": self.url_maker(thispage),
+                    }
+                )
 
         # Insert dots if there are pages between the displayed
         # page numbers and the end of the page range
         if self.last_page - rightmost_page > 1:
             # Wrap in a SPAN tag if dotdot_attr is set
-            nav_items["range_pages"].append({
-                "type": "span",
-                "value": self.ellipsis,
-                "attrs": self.dotdot_attr,
-                "href": "",
-                "number": None
-            })
+            nav_items["range_pages"].append(
+                {
+                    "type": "span",
+                    "value": self.ellipsis,
+                    "attrs": self.dotdot_attr,
+                    "href": "",
+                    "number": None,
+                }
+            )
 
         # Create a link to the very last page (unless we are on the last
         # page or there would be no need to insert '..' spacers)
@@ -1393,21 +1879,21 @@ class CamcopsPage(Page):
             "value": symbol_last,
             "attrs": self.link_attr,
             "href": self.url_maker(self.last_page),
-            "number": self.last_page
+            "number": self.last_page,
         }
         nav_items["previous_page"] = {
             "type": "previous_page",
             "value": symbol_previous,
             "attrs": self.link_attr,
             "number": self.previous_page or self.first_page,
-            "href": self.url_maker(self.previous_page or self.first_page)
+            "href": self.url_maker(self.previous_page or self.first_page),
         }
         nav_items["next_page"] = {
             "type": "next_page",
             "value": symbol_next,
             "attrs": self.link_attr,
             "number": self.next_page or self.last_page,
-            "href": self.url_maker(self.next_page or self.last_page)
+            "href": self.url_maker(self.next_page or self.last_page),
         }
         return nav_items
 
@@ -1416,14 +1902,17 @@ class SqlalchemyOrmPage(CamcopsPage):
     """
     A pagination page that paginates SQLAlchemy ORM queries efficiently.
     """
-    def __init__(self,
-                 query: Query,
-                 url_maker: Callable[[int], str],
-                 request: "CamcopsRequest",
-                 page: int = 1,
-                 items_per_page: int = DEFAULT_ROWS_PER_PAGE,
-                 item_count: int = None,
-                 **kwargs) -> None:
+
+    def __init__(
+        self,
+        query: Query,
+        url_maker: Callable[[int], str],
+        request: "CamcopsRequest",
+        page: int = 1,
+        items_per_page: int = DEFAULT_ROWS_PER_PAGE,
+        item_count: int = None,
+        **kwargs,
+    ) -> None:
         # Since views may accidentally throw strings our way:
         assert isinstance(page, int)
         assert isinstance(items_per_page, int)
@@ -1436,15 +1925,21 @@ class SqlalchemyOrmPage(CamcopsPage):
             item_count=item_count,
             wrapper_class=SqlalchemyOrmQueryWrapper,
             url_maker=url_maker,
-            **kwargs
+            **kwargs,
         )
 
 
 # From webhelpers.paginate (which is broken on Python 3.5, but good),
 # modified a bit:
 
-def make_page_url(path: str, params: Dict[str, str], page: int,
-                  partial: bool = False, sort: bool = True) -> str:
+
+def make_page_url(
+    path: str,
+    params: Dict[str, str],
+    page: int,
+    partial: bool = False,
+    sort: bool = True,
+) -> str:
     """
     A helper function for URL generators.
 
@@ -1513,14 +2008,17 @@ class PageUrl(object):
 # Debugging requests and responses
 # =============================================================================
 
+
 def get_body_from_request(req: Request) -> bytes:
     """
     Debugging function to read the body from an HTTP request.
     May not work and will warn accordingly. Use Wireshark to be sure
     (https://www.wireshark.org/).
     """
-    log.warning("Attempting to read body from request -- but a previous read "
-                "may have left this empty. Consider using Wireshark!")
+    log.warning(
+        "Attempting to read body from request -- but a previous read "
+        "may have left this empty. Consider using Wireshark!"
+    )
     wsgi_input = req.environ[WsgiEnvVar.WSGI_INPUT]
     # ... under gunicorn, is an instance of gunicorn.http.body.Body
     return wsgi_input.read()
@@ -1530,6 +2028,7 @@ class HTTPFoundDebugVersion(HTTPFound):
     """
     A debugging version of :class:`HTTPFound`, for debugging redirections.
     """
-    def __init__(self, location: str = '', **kwargs) -> None:
+
+    def __init__(self, location: str = "", **kwargs) -> None:
         log.debug("Redirecting to {!r}", location)
         super().__init__(location, **kwargs)

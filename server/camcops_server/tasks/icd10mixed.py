@@ -5,7 +5,8 @@ camcops_server/tasks/icd10mixed.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -40,10 +41,7 @@ from camcops_server.cc_modules.cc_constants import (
     ICD10_COPYRIGHT_DIV,
 )
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from camcops_server.cc_modules.cc_html import (
-    get_true_false_none,
-    tr_qa,
-)
+from camcops_server.cc_modules.cc_html import get_true_false_none, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
@@ -63,33 +61,34 @@ from camcops_server.cc_modules.cc_text import SS
 # Icd10Mixed
 # =============================================================================
 
+
 class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the ICD10-MIXED task.
     """
+
     __tablename__ = "icd10mixed"
     shortname = "ICD10-MIXED"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
-        "date_pertains_to", Date,
-        comment="Date the assessment pertains to"
+        "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
-    comments = Column(
-        "comments", UnicodeText,
-        comment="Clinician's comments"
-    )
+    comments = Column("comments", UnicodeText, comment="Clinician's comments")
     mixture_or_rapid_alternation = CamcopsColumn(
-        "mixture_or_rapid_alternation", Boolean,
+        "mixture_or_rapid_alternation",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="The episode is characterized by either a mixture or "
-                "a rapid alternation (i.e. within a few hours) of hypomanic, "
-                "manic and depressive symptoms."
+        "a rapid alternation (i.e. within a few hours) of hypomanic, "
+        "manic and depressive symptoms.",
     )
     duration_at_least_2_weeks = CamcopsColumn(
-        "duration_at_least_2_weeks", Boolean,
+        "duration_at_least_2_weeks",
+        Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Both manic and depressive symptoms must be prominent"
-                " most of the time during a period of at least two weeks."
+        " most of the time during a period of at least two weeks.",
     )
 
     @staticmethod
@@ -104,15 +103,18 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         if not self.is_complete():
             return CTV_INCOMPLETE
         category = (
-            ("Meets" if self.meets_criteria() else "Does not meet") +
-            " criteria for mixed affective episode"
-        )
-        infolist = [CtvInfo(
-            content="Pertains to: {}. {}.".format(
-                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE),
-                category
+            "Meets" if self.meets_criteria() else "Does not meet"
+        ) + " criteria for mixed affective episode"
+        infolist = [
+            CtvInfo(
+                content="Pertains to: {}. {}.".format(
+                    format_datetime(
+                        self.date_pertains_to, DateFormat.LONG_DATE
+                    ),
+                    category,
+                )
             )
-        )]
+        ]
         if self.comments:
             infolist.append(CtvInfo(content=ws.webify(self.comments)))
         return infolist
@@ -123,13 +125,16 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 name="meets_criteria",
                 coltype=Boolean(),
                 value=self.meets_criteria(),
-                comment="Meets criteria for a mixed affective episode?"),
+                comment="Meets criteria for a mixed affective episode?",
+            )
         ]
 
     # Meets criteria? These also return null for unknown.
     def meets_criteria(self) -> Optional[bool]:
-        if (self.mixture_or_rapid_alternation and
-                self.duration_at_least_2_weeks):
+        if (
+            self.mixture_or_rapid_alternation
+            and self.duration_at_least_2_weeks
+        ):
             return True
         if is_false(self.mixture_or_rapid_alternation):
             return False
@@ -139,8 +144,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     def is_complete(self) -> bool:
         return (
-            self.meets_criteria() is not None and
-            self.field_contents_valid()
+            self.meets_criteria() is not None and self.field_contents_valid()
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -167,23 +171,28 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             {ICD10_COPYRIGHT_DIV}
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(
-                req, self.comments),
+                req, self.comments
+            ),
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             date_pertains_to=tr_qa(
                 req.wappstring(AS.DATE_PERTAINS_TO),
-                format_datetime(self.date_pertains_to, DateFormat.LONG_DATE,
-                                default=None)
+                format_datetime(
+                    self.date_pertains_to, DateFormat.LONG_DATE, default=None
+                ),
             ),
             meets_criteria=tr_qa(
                 req.sstring(SS.MEETS_CRITERIA),
-                get_true_false_none(req, self.meets_criteria())
+                get_true_false_none(req, self.meets_criteria()),
             ),
             icd10_symptomatic_disclaimer=req.wappstring(
-                AS.ICD10_SYMPTOMATIC_DISCLAIMER),
+                AS.ICD10_SYMPTOMATIC_DISCLAIMER
+            ),
             mixture_or_rapid_alternation=self.get_twocol_bool_row_true_false(
-                req, "mixture_or_rapid_alternation", self.wxstring(req, "a")),
+                req, "mixture_or_rapid_alternation", self.wxstring(req, "a")
+            ),
             duration_at_least_2_weeks=self.get_twocol_bool_row_true_false(
-                req, "duration_at_least_2_weeks", self.wxstring(req, "b")),
+                req, "duration_at_least_2_weeks", self.wxstring(req, "b")
+            ),
             ICD10_COPYRIGHT_DIV=ICD10_COPYRIGHT_DIV,
         )

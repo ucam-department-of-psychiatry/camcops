@@ -1,6 +1,7 @@
 ..  docs/source/tasks/tasks_all.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -17,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-.. include:: ../user/include_tabletdefs.rst
+.. include:: ../user_client/include_tabletdefs.rst
 
 .. _tasks_all:
 
@@ -57,11 +58,14 @@ All tasks
     cgi.rst
     cgisch.rst
     chit.rst
+    cia.rst
     cisr.rst
     ciwa.rst
     clinical.rst
     cope.rst
     core10.rst
+    cpft_covid_medical.rst
+    cpft_research_preferences.rst
     ctqsf.rst
     dad.rst
     das28.rst
@@ -70,6 +74,7 @@ All tasks
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
+    edeq.rst
     elixhauserci.rst
     epds.rst
     eq5d5l.rst
@@ -92,6 +97,8 @@ All tasks
     iesr.rst
     ifs.rst
     irac.rst
+    isaaq10.rst
+    isaaqed.rst
     khandaker_insight_medical.rst
     khandaker_mojo.rst
     kirby_mcq.rst
@@ -101,16 +108,19 @@ All tasks
     mast.rst
     mds_updrs.rst
     mfi20.rst
+    miniace.rst
     moca.rst
     nart.rst
     npiq.rst
     ors.rst
     panss.rst
+    paradise24.rst
     pbq.rst
     pcl.rst
     pcl5.rst
     pdss.rst
     perinatal_poem.rst
+    phq8.rst
     phq9.rst
     phq15.rst
     pss.rst

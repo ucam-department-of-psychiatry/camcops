@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "quhorizontalcontainer.h"
@@ -26,32 +27,32 @@
 #include "widgets/basewidget.h"
 
 
-QuHorizontalContainer::QuHorizontalContainer() :
-    QuSequenceContainerBase(),
+QuHorizontalContainer::QuHorizontalContainer(QObject* parent) :
+    QuSequenceContainerBase(parent),
     m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        const QVector<QuElementPtr>& elements) :
-    QuSequenceContainerBase(elements),
+        const QVector<QuElementPtr>& elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElementPtr> elements) :
-    QuSequenceContainerBase(elements),
+        std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
 
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElement*> elements) :
-    QuSequenceContainerBase(elements),
+        std::initializer_list<QuElement*> elements, QObject* parent) :
+    QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }

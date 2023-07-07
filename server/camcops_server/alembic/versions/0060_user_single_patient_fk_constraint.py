@@ -5,7 +5,8 @@ camcops_server/alembic/versions/0060_user_single_patient_fk_constraint.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -45,8 +46,8 @@ from alembic import op
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0060'
-down_revision = '0059'
+revision = "0060"
+down_revision = "0059"
 branch_labels = None
 depends_on = None
 
@@ -57,28 +58,29 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    with op.batch_alter_table('_security_users', schema=None) as batch_op:
-        batch_op.drop_constraint('fk__security_users_single_patient_pk',
-                                 type_='foreignkey')
+    with op.batch_alter_table("_security_users", schema=None) as batch_op:
+        batch_op.drop_constraint(
+            "fk__security_users_single_patient_pk", type_="foreignkey"
+        )
         batch_op.create_foreign_key(
-            batch_op.f('fk__security_users_single_patient_pk'),
-            'patient',
-            ['single_patient_pk'],
-            ['_pk'],
-            ondelete='SET NULL'
+            batch_op.f("fk__security_users_single_patient_pk"),
+            "patient",
+            ["single_patient_pk"],
+            ["_pk"],
+            ondelete="SET NULL",
         )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('_security_users', schema=None) as batch_op:
+    with op.batch_alter_table("_security_users", schema=None) as batch_op:
         batch_op.drop_constraint(
-            batch_op.f('fk__security_users_single_patient_pk'),
-            type_='foreignkey'
+            batch_op.f("fk__security_users_single_patient_pk"),
+            type_="foreignkey",
         )
         batch_op.create_foreign_key(
-            'fk__security_users_single_patient_pk',
-            'patient',
-            ['single_patient_pk'],
-            ['_pk']
+            "fk__security_users_single_patient_pk",
+            "patient",
+            ["single_patient_pk"],
+            ["_pk"],
         )

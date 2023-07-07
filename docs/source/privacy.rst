@@ -1,6 +1,7 @@
 ..  docs/source/privacy.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -19,13 +20,13 @@
 
 
 ..  This doesn't work (relative path problem):
-    .. include:: user/include_tabletdefs.rst
-    Instead:
+.. .. include:: ./user_client/include_tabletdefs.rst
+..    Instead:
 
 ..  |anonymous| image:: _app_icons/anonymous.png
     :align: middle
-    :height: 48px
-    :width: 48px
+    :height: 24px
+    :width: 24px
 
 ..  _AES-256: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 ..  _HTTPS: https://en.wikipedia.org/wiki/HTTPS
@@ -53,8 +54,8 @@ Where will my data go?
 
 **To the institution asking you to use CamCOPS, and only to that institution.**
 
-CamCOPS is a tool for organizations,(such as health care organizations or
-universities conducting research, to collect information from people that trust
+CamCOPS is a tool for organizations (such as health care organizations or
+universities conducting research) to collect information from people that trust
 that organization.
 
 When you install CamCOPS, you choose a **server** that you wish to use, by
@@ -193,15 +194,15 @@ to respect these rights.
 
 .. rubric:: Footnotes
 
+.. [#dpa]
+
+    UK (2018).
+    Data Protection Act 2018.
+    http://www.legislation.gov.uk/ukpga/2018/12/contents/enacted
+
 .. [#gdpr]
 
     European Union (2016).
     Regulation (EU) 2016/679 (General Data Protection Regulation).
     *Official Journal of the European Union* L119: 1-88.
     http://ec.europa.eu/justice/data-protection/reform/files/regulation_oj_en.pdf
-
-.. [#dpa]
-
-    UK (2018).
-    Data Protection Act 2018.
-    http://www.legislation.gov.uk/ukpga/2018/12/contents/enacted

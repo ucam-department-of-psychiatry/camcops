@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -80,10 +81,10 @@ public:
     // How many name/value pairs do we have?
     int size() const;
 
-    // Return the name/value pair at the given (zero-based) index.
-    const NameValuePair& atIndex(int index) const;
-
     // Return the name/value pair at the given (zero-based) position.
+    // (The item returned is affected by shuffle() and reverse(); compare
+    // atIndex(). Use this, with an incrementing position, when seeking items
+    // to display.)
     const NameValuePair& atPosition(int position) const;
 
     // Return the first index associated with the specified name, or -1 on
@@ -93,8 +94,13 @@ public:
     // Return the index associated with the specified value, or -1 on failure.
     int indexFromValue(const QVariant& value) const;
 
+    // Return the index of the item at the given position. This will only be
+    // different from its input if the options (i.e. the option indexes) have
+    // been randomized.
     int indexFromPosition(const int position) const;
 
+    // Return the position of the option with the specified value or -1 on
+    // failure.
     int positionFromValue(const QVariant& value) const;
 
     // Check there are no duplicate values, or crash the app.
@@ -126,12 +132,20 @@ public:
     // Returns the name for a given value, or a default string if there isn't
     // one.
     QString nameFromValue(const QVariant& value,
-                          const QString& default_ = "") const;
+                          const QString& default_ = QString()) const;
 
     // Returns the first value for a given name, or a default if there isn't
     // one.
     QVariant valueFromName(const QString& name,
                            const QVariant& default_ = QVariant()) const;
+
+    bool valuesMatch(const NameValueOptions& other) const;
+
+protected:
+    // Return the name/value pair at the given (zero-based) index.
+    // (That is: index within the UNCHANGING INTERNAL ORDERING, which is
+    // unaffected by shuffle() or reverse().)
+    const NameValuePair& atIndex(int index) const;
 
 public:
 
@@ -147,7 +161,8 @@ protected:
     // When the options are randomized, this is what we shuffle so we can
     // say "give me the index of the option at position x". This allows us
     // to maintain other vectors separately from namevalueoptions, for example
-    // the list of styles associated with multi-choice answers.
+    // the list of styles associated with multi-choice answers. If the answers
+    // are randomized, we still want to style the answers correctly.
     QVector<int> m_indexes;
 
 public:

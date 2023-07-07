@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "clinicalsetsmenu.h"
@@ -23,6 +24,8 @@
 #include "menulib/menuitem.h"
 
 #include "menu/setmenucpftadrd.h"
+#include "menu/setmenucpftadulteatingdisorders.h"
+#include "menu/setmenucpftcovid.h"
 #include "menu/setmenucpftperinatal.h"
 #include "menu/setmenucpftpsychooncology.h"
 #include "menu/setmenufromlp.h"
@@ -47,7 +50,9 @@ void ClinicalSetsMenu::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftAdultEatingDisorders, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftADRD, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftCovid, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuFromLp, m_app),

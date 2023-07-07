@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "cognitivemenu.h"
@@ -23,6 +24,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/ace3.h"
+#include "tasks/miniace.h"
 #include "tasks/moca.h"
 #include "tasks/nart.h"
 #include "tasks/slums.h"
@@ -45,6 +47,7 @@ void CognitiveMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(MiniAce::MINIACE_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Moca::MOCA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Slums::SLUMS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Nart::NART_TABLENAME, m_app),

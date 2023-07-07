@@ -6,7 +6,8 @@ camcops_server/cc_modules/cc_export.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -150,12 +151,23 @@ Thoughts as of 2018-12-22.
 
 """  # noqa
 
+from contextlib import ExitStack
+import json
 import logging
 import os
 import sqlite3
 import tempfile
-from typing import (Dict, List, Generator, Optional,
-                    Tuple, Type, TYPE_CHECKING, Union)
+from typing import (
+    Dict,
+    List,
+    Generator,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    Union,
+)
 
 from cardinal_pythonlib.classes import gen_all_subclasses
 from cardinal_pythonlib.datetimefunc import (
@@ -190,9 +202,14 @@ from sqlalchemy.sql.schema import Column, MetaData, Table
 from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_audit import audit
-from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_constants import DateFormat, JSON_INDENT
+from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
+from camcops_server.cc_modules.cc_db import (
+    REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS,
+)
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_exception import FhirExportException
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportRecipient,
@@ -203,12 +220,16 @@ from camcops_server.cc_modules.cc_forms import UserDownloadDeleteForm
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
-from camcops_server.cc_modules.cc_task import Task
-from camcops_server.cc_modules.cc_tsv import TsvCollection, TsvPage
+from camcops_server.cc_modules.cc_task import SNOMED_TABLENAME, Task
+from camcops_server.cc_modules.cc_spreadsheet import (
+    SpreadsheetCollection,
+    SpreadsheetPage,
+)
 from camcops_server.cc_modules.celery import (
     create_user_download,
     email_basic_dump,
     export_task_backend,
+    jittered_delay_s,
 )
 
 if TYPE_CHECKING:
@@ -223,62 +244,94 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
+SUMMARYSCHEMA_PAGENAME = "_camcops_column_explanations"
+REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS = {SNOMED_TABLENAME}
+EMPTY_SET = set()
 
 
 # =============================================================================
 # Export tasks from the back end
 # =============================================================================
 
-def print_export_queue(req: "CamcopsRequest",
-                       recipient_names: List[str] = None,
-                       all_recipients: bool = False,
-                       via_index: bool = True,
-                       pretty: bool = False) -> None:
-    """
-    Called from the command line.
 
+def print_export_queue(
+    req: "CamcopsRequest",
+    recipient_names: List[str] = None,
+    all_recipients: bool = False,
+    via_index: bool = True,
+    pretty: bool = False,
+    debug_show_fhir: bool = False,
+    debug_fhir_include_docs: bool = False,
+) -> None:
+    """
     Shows tasks that would be exported.
 
+    - Called from the command line.
+
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient_names:
+            list of export recipient names (as per the config file)
+        all_recipients:
+            use all recipients?
+        via_index:
+            use the task index (faster)?
+        pretty:
+            use ``str(task)`` not ``repr(task)`` (prettier, but slower because
             it has to query the patient)
+        debug_show_fhir:
+            Show FHIR output for each task, as JSON?
+        debug_fhir_include_docs:
+            (If debug_show_fhir.) Include document content? Large!
     """
     recipients = req.get_export_recipients(
         recipient_names=recipient_names,
         all_recipients=all_recipients,
-        save=False
+        save=False,
     )
     if not recipients:
         log.warning("No export recipients")
         return
     for recipient in recipients:
         log.info("Tasks to be exported for recipient: {}", recipient)
-        collection = get_collection_for_export(req, recipient,
-                                               via_index=via_index)
+        collection = get_collection_for_export(
+            req, recipient, via_index=via_index
+        )
         for task in collection.gen_tasks_by_class():
             print(
                 f"{recipient.recipient_name}: "
                 f"{str(task) if pretty else repr(task)}"
             )
+            if debug_show_fhir:
+                try:
+                    bundle = task.get_fhir_bundle(
+                        req,
+                        recipient,
+                        skip_docs_if_other_content=not debug_fhir_include_docs,
+                    )
+                    bundle_str = json.dumps(
+                        bundle.as_json(), indent=JSON_INDENT
+                    )
+                    log.info("FHIR output as JSON:\n{}", bundle_str)
+                except FhirExportException as e:
+                    log.info("Task has no non-document content:\n{}", e)
 
 
-def export(req: "CamcopsRequest",
-           recipient_names: List[str] = None,
-           all_recipients: bool = False,
-           via_index: bool = True,
-           schedule_via_backend: bool = False) -> None:
+def export(
+    req: "CamcopsRequest",
+    recipient_names: List[str] = None,
+    all_recipients: bool = False,
+    via_index: bool = True,
+    schedule_via_backend: bool = False,
+) -> None:
     """
-    Called from the command line.
-
     Exports all relevant tasks (pending incremental exports, or everything if
     applicable) for specified export recipients.
 
-    Obtains a file lock, then iterates through all recipients.
+    - Called from the command line, or from
+      :func:`camcops_server.cc_modules.celery.export_to_recipient_backend`.
+    - Calls :func:`export_whole_database` or :func:`export_tasks_individually`.
 
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -288,50 +341,68 @@ def export(req: "CamcopsRequest",
         via_index: use the task index (faster)?
         schedule_via_backend: schedule jobs via the backend instead?
     """
-    recipients = req.get_export_recipients(recipient_names=recipient_names,
-                                           all_recipients=all_recipients)
+    recipients = req.get_export_recipients(
+        recipient_names=recipient_names, all_recipients=all_recipients
+    )
     if not recipients:
         log.warning("No export recipients")
         return
 
     for recipient in recipients:
-        log.info("Exporting to recipient: {}", recipient)
+        log.info("Exporting to recipient: {}", recipient.recipient_name)
         if recipient.using_db():
             if schedule_via_backend:
-                raise NotImplementedError()  # todo: implement whole-database export via Celery backend  # noqa
+                raise NotImplementedError(
+                    "Not yet implemented: whole-database export via Celery "
+                    "backend"
+                )  # todo: implement whole-database export via Celery backend  # noqa
             else:
                 export_whole_database(req, recipient, via_index=via_index)
         else:
             # Non-database recipient.
             export_tasks_individually(
-                req, recipient,
-                via_index=via_index, schedule_via_backend=schedule_via_backend)
+                req,
+                recipient,
+                via_index=via_index,
+                schedule_via_backend=schedule_via_backend,
+            )
+        log.info("Finished exporting to {}", recipient.recipient_name)
 
 
-def export_whole_database(req: "CamcopsRequest",
-                          recipient: ExportRecipient,
-                          via_index: bool = True) -> None:
+def export_whole_database(
+    req: "CamcopsRequest", recipient: ExportRecipient, via_index: bool = True
+) -> None:
     """
     Exports to a database.
 
-    Holds a recipient-specific file lock in the process.
+    - Called by :func:`export`.
+    - Holds a recipient-specific "database" file lock in the process.
 
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        via_index: use the task index (faster)?
-    """  # noqa
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient:
+            an
+            :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        via_index:
+            use the task index (faster)?
+    """
     cfg = req.config
-    lockfilename = cfg.get_export_lockfilename_db(
-        recipient_name=recipient.recipient_name)
+    lockfilename = cfg.get_export_lockfilename_recipient_db(
+        recipient_name=recipient.recipient_name
+    )
     try:
         with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
-            collection = get_collection_for_export(req, recipient,
-                                                   via_index=via_index)
-            dst_engine = create_engine(recipient.db_url,
-                                       echo=recipient.db_echo)
-            log.info("Exporting to database: {}",
-                     get_safe_url_from_engine(dst_engine))
+            collection = get_collection_for_export(
+                req, recipient, via_index=via_index
+            )
+            dst_engine = create_engine(
+                recipient.db_url, echo=recipient.db_echo
+            )
+            log.info(
+                "Exporting to database: {}",
+                get_safe_url_from_engine(dst_engine),
+            )
             dst_session = sessionmaker(bind=dst_engine)()  # type: SqlASession
             task_generator = gen_tasks_having_exportedtasks(collection)
             export_options = TaskExportOptions(
@@ -349,26 +420,44 @@ def export_whole_database(req: "CamcopsRequest",
             )
             dst_session.commit()
     except lockfile.AlreadyLocked:
-        log.warning("Export logfile {!r} already locked by another process; "
-                    "aborting", lockfilename)
+        log.warning(
+            "Export logfile {!r} already locked by another process; "
+            "aborting (another process is doing this work)",
+            lockfilename,
+        )
+        # No need to retry by raising -- if someone else holds this lock, they
+        # are doing the work that we wanted to do.
 
 
-def export_tasks_individually(req: "CamcopsRequest",
-                              recipient: ExportRecipient,
-                              via_index: bool = True,
-                              schedule_via_backend: bool = False) -> None:
+def export_tasks_individually(
+    req: "CamcopsRequest",
+    recipient: ExportRecipient,
+    via_index: bool = True,
+    schedule_via_backend: bool = False,
+) -> None:
     """
     Exports all necessary tasks for a recipient.
 
+    - Called by :func:`export`.
+    - Calls :func:`export_task`, if ``schedule_via_backend`` is False.
+    - Schedules :func:``camcops_server.cc_modules.celery.export_task_backend``,
+      if ``schedule_via_backend`` is True, which calls :func:`export` in turn.
+
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        via_index: use the task index (faster)?
-        schedule_via_backend: schedule jobs via the backend instead?
-    """  # noqa
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient:
+            an
+            :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        via_index:
+            use the task index (faster)?
+        schedule_via_backend:
+            schedule jobs via the backend instead?
+    """
     collection = get_collection_for_export(req, recipient, via_index=via_index)
+    n_tasks = 0
+    recipient_name = recipient.recipient_name
     if schedule_via_backend:
-        recipient_name = recipient.recipient_name
         for task_or_index in collection.gen_all_tasks_or_indexes():
             if isinstance(task_or_index, Task):
                 basetable = task_or_index.tablename
@@ -376,13 +465,22 @@ def export_tasks_individually(req: "CamcopsRequest",
             else:
                 basetable = task_or_index.task_table_name
                 task_pk = task_or_index.task_pk
-            log.info("Submitting background job to export task {}.{} to {}",
-                     basetable, task_pk, recipient_name)
+            log.info(
+                "Scheduling job to export task {}.{} to {}",
+                basetable,
+                task_pk,
+                recipient_name,
+            )
             export_task_backend.delay(
                 recipient_name=recipient_name,
                 basetable=basetable,
-                task_pk=task_pk
+                task_pk=task_pk,
             )
+            n_tasks += 1
+        log.info(
+            f"Scheduled {n_tasks} background task exports to "
+            f"{recipient_name}"
+        )
     else:
         for task in collection.gen_tasks_by_class():
             # Do NOT use this to check the working of export_task_backend():
@@ -390,19 +488,33 @@ def export_tasks_individually(req: "CamcopsRequest",
             # ... it will deadlock at the database (because we're already
             # within a query of some sort, I presume)
             export_task(req, recipient, task)
+            n_tasks += 1
+        log.info(f"Exported {n_tasks} tasks to {recipient_name}")
 
 
-def export_task(req: "CamcopsRequest",
-                recipient: ExportRecipient,
-                task: Task) -> None:
+def export_task(
+    req: "CamcopsRequest", recipient: ExportRecipient, task: Task
+) -> None:
     """
     Exports a single task, checking that it remains valid to do so.
 
+    - Called by :func:`export_tasks_individually` directly, or called via
+      :func:``camcops_server.cc_modules.celery.export_task_backend`` if
+      :func:`export_tasks_individually` requested that.
+    - Calls
+      :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTask.export`.
+    - For FHIR, holds a recipient-specific "FHIR" file lock during export.
+    - Always holds a recipient-and-task-specific file lock during export.
+
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        task: a :class:`camcops_server.cc_modules.cc_task.Task`
-    """  # noqa
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient:
+            an
+            :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        task:
+            a :class:`camcops_server.cc_modules.cc_task.Task`
+    """
 
     # Double-check it's OK! Just in case, for example, an old backend task has
     # persisted, or someone's managed to get an iffy back-end request in some
@@ -412,23 +524,62 @@ def export_task(req: "CamcopsRequest",
         return
 
     cfg = req.config
-    lockfilename = cfg.get_export_lockfilename_task(
+    lockfilename = cfg.get_export_lockfilename_recipient_task(
         recipient_name=recipient.recipient_name,
         basetable=task.tablename,
         pk=task.pk,
     )
     dbsession = req.dbsession
-    try:
-        with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
+    with ExitStack() as stack:
+
+        if recipient.using_fhir() and not recipient.fhir_concurrent:
+            # Some FHIR servers struggle with parallel processing, so we hold
+            # a lock to serialize them. See notes in cc_fhir.py.
+            #
+            # We always use the order (1) FHIR lockfile, (2) task lockfile, to
+            # avoid a deadlock.
+            #
+            # (Note that it is impossible that a non-FHIR task export grabs the
+            # second of these without the first, because the second lockfile is
+            # recipient-specific and the recipient details include the fact
+            # that it is a FHIR recipient.)
+            fhir_lockfilename = cfg.get_export_lockfilename_recipient_fhir(
+                recipient_name=recipient.recipient_name
+            )
+            try:
+                stack.enter_context(
+                    lockfile.FileLock(
+                        fhir_lockfilename, timeout=jittered_delay_s()
+                    )
+                    # waits for a while
+                )
+            except lockfile.AlreadyLocked:
+                log.warning(
+                    "Export logfile {!r} already locked by another process; "
+                    "will try again later",
+                    fhir_lockfilename,
+                )
+                raise
+                # We will reschedule via Celery; see "self.retry(...)" in
+                # celery.py
+
+        try:
+            stack.enter_context(
+                lockfile.FileLock(lockfilename, timeout=0)  # doesn't wait
+            )
             # We recheck the export status once we hold the lock, in case
             # multiple jobs are competing to export it.
             if ExportedTask.task_already_exported(
-                    dbsession=dbsession,
-                    recipient_name=recipient.recipient_name,
-                    basetable=task.tablename,
-                    task_pk=task.pk):
-                log.info("Task {!r} already exported to recipient {!r}; "
-                         "ignoring", task, recipient)
+                dbsession=dbsession,
+                recipient_name=recipient.recipient_name,
+                basetable=task.tablename,
+                task_pk=task.pk,
+            ):
+                log.info(
+                    "Task {!r} already exported to recipient {}; " "ignoring",
+                    task,
+                    recipient,
+                )
                 # Not a warning; it's normal to see these because it allows the
                 # client API to skip some checks for speed.
                 return
@@ -437,44 +588,52 @@ def export_task(req: "CamcopsRequest",
             dbsession.add(et)
             et.export(req)
             dbsession.commit()  # so the ExportedTask is visible to others ASAP
-    except lockfile.AlreadyLocked:
-        log.warning("Export logfile {!r} already locked by another process; "
-                    "aborting", lockfilename)
+        except lockfile.AlreadyLocked:
+            log.warning(
+                "Export logfile {!r} already locked by another process; "
+                "aborting (another process is doing this work)",
+                lockfilename,
+            )
 
 
 # =============================================================================
 # Helpers for task collection export functions
 # =============================================================================
 
+
 def gen_audited_tasks_for_task_class(
-        collection: "TaskCollection",
-        cls: Type[Task],
-        audit_descriptions: List[str]) -> Generator[Task, None, None]:
+    collection: "TaskCollection",
+    cls: Type[Task],
+    audit_descriptions: List[str],
+) -> Generator[Task, None, None]:
     """
     Generates tasks from a collection, for a given task class, simultaneously
     adding to an audit description. Used for user-triggered downloads.
 
     Args:
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        cls: the task class to generate
-        audit_descriptions: list of strings to be modified
+        collection:
+            a
+            :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        cls:
+            the task class to generate
+        audit_descriptions:
+            list of strings to be modified
 
     Yields:
         :class:`camcops_server.cc_modules.cc_task.Task` objects
-    """  # noqa
+    """
     pklist = []  # type: List[int]
     for task in collection.tasks_for_task_class(cls):
         pklist.append(task.pk)
         yield task
     audit_descriptions.append(
-        f"{cls.__tablename__}: "
-        f"{','.join(str(pk) for pk in pklist)}"
+        f"{cls.__tablename__}: " f"{','.join(str(pk) for pk in pklist)}"
     )
 
 
 def gen_audited_tasks_by_task_class(
-        collection: "TaskCollection",
-        audit_descriptions: List[str]) -> Generator[Task, None, None]:
+    collection: "TaskCollection", audit_descriptions: List[str]
+) -> Generator[Task, None, None]:
     """
     Generates tasks from a collection, across task classes, simultaneously
     adding to an audit description. Used for user-triggered downloads.
@@ -487,8 +646,9 @@ def gen_audited_tasks_by_task_class(
         :class:`camcops_server.cc_modules.cc_task.Task` objects
     """  # noqa
     for cls in collection.task_classes():
-        for task in gen_audited_tasks_for_task_class(collection, cls,
-                                                     audit_descriptions):
+        for task in gen_audited_tasks_for_task_class(
+            collection, cls, audit_descriptions
+        ):
             yield task
 
 
@@ -504,30 +664,33 @@ def get_information_schema_query(req: "CamcopsRequest") -> ResultProxy:
     dbname = req.engine.url.database
     # Query the information schema for our database.
     # https://docs.sqlalchemy.org/en/13/core/sqlelement.html#sqlalchemy.sql.expression.text  # noqa
-    query = text("""
+    query = text(
+        """
         SELECT *
         FROM information_schema.columns
         WHERE table_schema = :dbname
-    """).bindparams(dbname=dbname)
+    """
+    ).bindparams(dbname=dbname)
     result_proxy = req.dbsession.execute(query)
     return result_proxy
 
 
-def get_information_schema_tsv_page(
-        req: "CamcopsRequest",
-        page_name: str = INFOSCHEMA_PAGENAME) -> TsvPage:
+def get_information_schema_spreadsheet_page(
+    req: "CamcopsRequest", page_name: str = INFOSCHEMA_PAGENAME
+) -> SpreadsheetPage:
     """
     Returns the server database's ``INFORMATION_SCHEMA.COLUMNS`` table as a
-    :class:`camcops_server.cc_modules.cc_tsv.TsvPage``.
+    :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage``.
     """
     result_proxy = get_information_schema_query(req)
-    return TsvPage.from_resultproxy(page_name, result_proxy)
+    return SpreadsheetPage.from_resultproxy(page_name, result_proxy)
 
 
 def write_information_schema_to_dst(
-        req: "CamcopsRequest",
-        dst_session: SqlASession,
-        dest_table_name: str = INFOSCHEMA_PAGENAME) -> None:
+    req: "CamcopsRequest",
+    dst_session: SqlASession,
+    dest_table_name: str = INFOSCHEMA_PAGENAME,
+) -> None:
     """
     Writes the server's information schema to a separate database session
     (which will be an SQLite database being created for download).
@@ -550,7 +713,7 @@ def write_information_schema_to_dst(
         Column("GENERATION_EXPRESSION", Text),
         autoload=True,  # "read (reflect) structure from the database"
         autoload_with=src_engine,  # "read (reflect) structure from the source"
-        schema="information_schema"  # schema
+        schema="information_schema",  # schema
     )
     # 2. Write that structure to our new database.
     table.name = dest_table_name  # create it with a different name
@@ -569,25 +732,27 @@ def write_information_schema_to_dst(
 # Convert task collections to different export formats for user download
 # =============================================================================
 
+
 @register_for_json
 class DownloadOptions(object):
     """
     Represents options for the process of the user downloading tasks.
     """
-    DELIVERY_MODES = [
-        ViewArg.DOWNLOAD,
-        ViewArg.EMAIL,
-        ViewArg.IMMEDIATELY,
-    ]
 
-    def __init__(self,
-                 user_id: int,
-                 viewtype: str,
-                 delivery_mode: str,
-                 spreadsheet_sort_by_heading: bool = False,
-                 db_include_blobs: bool = False,
-                 db_patient_id_per_row: bool = False,
-                 include_information_schema_columns: bool = True) -> None:
+    DELIVERY_MODES = [ViewArg.DOWNLOAD, ViewArg.EMAIL, ViewArg.IMMEDIATELY]
+
+    def __init__(
+        self,
+        user_id: int,
+        viewtype: str,
+        delivery_mode: str,
+        spreadsheet_simplified: bool = False,
+        spreadsheet_sort_by_heading: bool = False,
+        db_include_blobs: bool = False,
+        db_patient_id_per_row: bool = False,
+        include_information_schema_columns: bool = True,
+        include_summary_schema: bool = True,
+    ) -> None:
         """
         Args:
             user_id:
@@ -608,16 +773,23 @@ class DownloadOptions(object):
                 Denormalize by include the patient ID in all rows of
                 patient-related tables?
             include_information_schema_columns:
-                Include descriptions of the columns provided?
+                Include descriptions of the database source columns?
+            include_summary_schema:
+                Include descriptions of summary columns and other columns in
+                output spreadsheets?
         """
         assert delivery_mode in self.DELIVERY_MODES
         self.user_id = user_id
         self.viewtype = viewtype
         self.delivery_mode = delivery_mode
+        self.spreadsheet_simplified = spreadsheet_simplified
         self.spreadsheet_sort_by_heading = spreadsheet_sort_by_heading
         self.db_include_blobs = db_include_blobs
         self.db_patient_id_per_row = db_patient_id_per_row
-        self.include_information_schema_columns = include_information_schema_columns  # noqa
+        self.include_information_schema_columns = (
+            include_information_schema_columns
+        )
+        self.include_summary_schema = include_summary_schema
 
 
 class TaskCollectionExporter(object):
@@ -625,10 +797,12 @@ class TaskCollectionExporter(object):
     Class to provide tasks for user download.
     """
 
-    def __init__(self,
-                 req: "CamcopsRequest",
-                 collection: "TaskCollection",
-                 options: DownloadOptions):
+    def __init__(
+        self,
+        req: "CamcopsRequest",
+        collection: "TaskCollection",
+        options: DownloadOptions,
+    ):
         """
         Args:
             req:
@@ -670,16 +844,12 @@ class TaskCollectionExporter(object):
         if self.options.delivery_mode == ViewArg.EMAIL:
             self.schedule_email()
             return render_to_response(
-                "email_scheduled.mako",
-                dict(),
-                request=req
+                "email_scheduled.mako", dict(), request=req
             )
         elif self.options.delivery_mode == ViewArg.DOWNLOAD:
             self.schedule_download()
             return render_to_response(
-                "download_scheduled.mako",
-                dict(),
-                request=req
+                "download_scheduled.mako", dict(), request=req
             )
         else:  # ViewArg.IMMEDIATELY
             return self.download_now()
@@ -728,9 +898,7 @@ class TaskCollectionExporter(object):
         if email.sent:
             log.info(f"Research dump emailed to {email_to}")
         else:
-            log.error(
-                f"Failed to email research dump to {email_to}"
-            )
+            log.error(f"Failed to email research dump to {email_to}")
 
     def schedule_download(self) -> None:
         """
@@ -767,11 +935,14 @@ class TaskCollectionExporter(object):
                     f.write(contents)
                 # Success
                 log.info(f"Created user download: {fullpath}")
-                msg = _(
-                    "The research data dump you requested is ready to be "
-                    "downloaded. You will find it in your download area. "
-                    "It is called %s"
-                ) % filename
+                msg = (
+                    _(
+                        "The research data dump you requested is ready to be "
+                        "downloaded. You will find it in your download area. "
+                        "It is called %s"
+                    )
+                    % filename
+                )
             except Exception as e:
                 # Some other error
                 msg = _(
@@ -811,48 +982,95 @@ class TaskCollectionExporter(object):
         """
         Returns binary data to be stored as a file.
         """
-        raise NotImplementedError("Exporter needs to implement 'get_file_body'")
+        raise NotImplementedError(
+            "Exporter needs to implement 'get_file_body'"
+        )
 
-    def get_tsv_collection(self) -> TsvCollection:
+    def get_spreadsheet_collection(self) -> SpreadsheetCollection:
         """
         Converts the collection of tasks to a collection of spreadsheet-style
         data. Also audits the request as a basic data dump.
 
         Returns:
-            a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object
+            a
+            :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetCollection`
+            object
         """  # noqa
         audit_descriptions = []  # type: List[str]
-        # Task may return >1 file for TSV output (e.g. for subtables).
-        tsvcoll = TsvCollection()
-        # Iterate through tasks, creating the TSV collection
+        options = self.options
+        if options.spreadsheet_simplified:
+            summary_exclusion_tables = (
+                REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS
+            )
+            summary_exclusion_columns = (
+                REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
+            )
+        else:
+            summary_exclusion_tables = EMPTY_SET
+            summary_exclusion_columns = EMPTY_SET
+        # Task may return >1 sheet for output (e.g. for subtables).
+        coll = SpreadsheetCollection()
+
+        # Iterate through tasks, creating the spreadsheet collection
+        schema_elements = set()  # type: Set[SummarySchemaInfo]
         for cls in self.collection.task_classes():
-            for task in gen_audited_tasks_for_task_class(self.collection, cls,
-                                                         audit_descriptions):
-                tsv_pages = task.get_tsv_pages(self.req)
-                tsvcoll.add_pages(tsv_pages)
+            schema_done = False
+            for task in gen_audited_tasks_for_task_class(
+                self.collection, cls, audit_descriptions
+            ):
+                # Task data
+                coll.add_pages(task.get_spreadsheet_pages(self.req))
+                if not schema_done and options.include_summary_schema:
+                    # Schema (including summary explanations)
+                    schema_elements |= task.get_spreadsheet_schema_elements(
+                        self.req
+                    )
+                    # We just need this from one task instance.
+                    schema_done = True
 
-        if self.options.include_information_schema_columns:
-            info_schema_page = get_information_schema_tsv_page(self.req)
-            tsvcoll.add_page(info_schema_page)
+        if options.include_summary_schema:
+            coll.add_page(
+                SpreadsheetPage(
+                    name=SUMMARYSCHEMA_PAGENAME,
+                    rows=[
+                        si.as_dict
+                        for si in sorted(schema_elements)
+                        if si.column_name not in summary_exclusion_columns
+                        and si.table_name not in summary_exclusion_tables
+                    ],
+                )
+            )
 
-        tsvcoll.sort_pages()
-        if self.options.spreadsheet_sort_by_heading:
-            tsvcoll.sort_headings_within_all_pages()
+        if options.include_information_schema_columns:
+            # Source database information schema
+            coll.add_page(get_information_schema_spreadsheet_page(self.req))
 
+        # Simplify
+        if options.spreadsheet_simplified:
+            coll.delete_pages(summary_exclusion_tables)
+            coll.delete_columns(summary_exclusion_columns)
+
+        # Sort
+        coll.sort_pages()
+        if options.spreadsheet_sort_by_heading:
+            coll.sort_headings_within_all_pages()
+
+        # Audit
         audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
 
-        return tsvcoll
+        return coll
 
 
 class OdsExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an OpenOffice ODS file.
     """
+
     file_extension = "ods"
     viewtype = ViewArg.ODS
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_ods()
+        return self.get_spreadsheet_collection().as_ods()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return OdsResponse(body=body, filename=filename)
@@ -862,6 +1080,7 @@ class RExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an R script.
     """
+
     file_extension = "R"
     viewtype = ViewArg.R
 
@@ -873,7 +1092,7 @@ class RExporter(TaskCollectionExporter):
         return self.get_r_script().encode(self.encoding)
 
     def get_r_script(self) -> str:
-        return self.get_tsv_collection().as_r()
+        return self.get_spreadsheet_collection().as_r()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         filename = self.get_filename()
@@ -886,11 +1105,12 @@ class TsvZipExporter(TaskCollectionExporter):
     Converts a set of tasks to a set of TSV (tab-separated value) file, (one
     per table) in a ZIP file.
     """
+
     file_extension = "zip"
     viewtype = ViewArg.TSV_ZIP
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_zip()
+        return self.get_spreadsheet_collection().as_zip()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return ZipResponse(body=body, filename=filename)
@@ -900,11 +1120,12 @@ class XlsxExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an Excel XLSX file.
     """
+
     file_extension = "xlsx"
     viewtype = ViewArg.XLSX
 
     def get_file_body(self) -> bytes:
-        return self.get_tsv_collection().as_xlsx()
+        return self.get_spreadsheet_collection().as_xlsx()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return XlsxResponse(body=body, filename=filename)
@@ -914,6 +1135,7 @@ class SqliteExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an SQLite binary file.
     """
+
     file_extension = "sqlite"
     viewtype = ViewArg.SQLITE
 
@@ -993,8 +1215,9 @@ class SqliteExporter(TaskCollectionExporter):
             # Iterate through tasks, creating tables as we need them.
             # ---------------------------------------------------------------------
             audit_descriptions = []  # type: List[str]
-            task_generator = gen_audited_tasks_by_task_class(self.collection,
-                                                             audit_descriptions)
+            task_generator = gen_audited_tasks_by_task_class(
+                self.collection, audit_descriptions
+            )
             # ---------------------------------------------------------------------
             # Next bit very tricky. We're trying to achieve several things:
             # - a copy of part of the database structure
@@ -1004,11 +1227,13 @@ class SqliteExporter(TaskCollectionExporter):
             # - Must treat tasks all together, because otherwise we will insert
             #   duplicate dependency objects like Group objects.
             # ---------------------------------------------------------------------
-            copy_tasks_and_summaries(tasks=task_generator,
-                                     dst_engine=engine,
-                                     dst_session=dst_session,
-                                     export_options=self.get_export_options(),
-                                     req=self.req)
+            copy_tasks_and_summaries(
+                tasks=task_generator,
+                dst_engine=engine,
+                dst_session=dst_session,
+                export_options=self.get_export_options(),
+                req=self.req,
+            )
             dst_session.commit()
             if self.options.include_information_schema_columns:
                 # Must have committed before we do this:
@@ -1022,13 +1247,15 @@ class SqliteExporter(TaskCollectionExporter):
             # ---------------------------------------------------------------------
             if as_text:
                 # SQL text
-                connection = sqlite3.connect(db_filename)  # type: sqlite3.Connection  # noqa
+                connection = sqlite3.connect(
+                    db_filename
+                )  # type: sqlite3.Connection  # noqa
                 sql_text = sql_from_sqlite_database(connection)
                 connection.close()
                 return sql_text
             else:
                 # SQLite binary
-                with open(db_filename, 'rb') as f:
+                with open(db_filename, "rb") as f:
                     binary_contents = f.read()
                 return binary_contents
 
@@ -1043,6 +1270,7 @@ class SqlExporter(SqliteExporter):
     """
     Converts a set of tasks to the textual SQL needed to create an SQLite file.
     """
+
     file_extension = "sql"
     viewtype = ViewArg.SQL
 
@@ -1077,14 +1305,18 @@ class SqlExporter(SqliteExporter):
 # Create mapping from "viewtype" to class.
 # noinspection PyTypeChecker
 DOWNLOADER_CLASSES = {}  # type: Dict[str, Type[TaskCollectionExporter]]
-for _cls in gen_all_subclasses(TaskCollectionExporter):  # type: Type[TaskCollectionExporter]  # noqa
+for _cls in gen_all_subclasses(
+    TaskCollectionExporter
+):  # type: Type[TaskCollectionExporter]  # noqa
     # noinspection PyTypeChecker
     DOWNLOADER_CLASSES[_cls.viewtype] = _cls
 
 
-def make_exporter(req: "CamcopsRequest",
-                  collection: "TaskCollection",
-                  options: DownloadOptions) -> TaskCollectionExporter:
+def make_exporter(
+    req: "CamcopsRequest",
+    collection: "TaskCollection",
+    options: DownloadOptions,
+) -> TaskCollectionExporter:
     """
 
     Args:
@@ -1108,23 +1340,22 @@ def make_exporter(req: "CamcopsRequest",
         raise HTTPBadRequest(
             f"{_('Bad delivery mode:')} {options.delivery_mode!r} "
             f"({_('permissible:')} "
-            f"{DownloadOptions.DELIVERY_MODES!r})")
+            f"{DownloadOptions.DELIVERY_MODES!r})"
+        )
     try:
         downloader_class = DOWNLOADER_CLASSES[options.viewtype]
     except KeyError:
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {options.viewtype!r} "
-            f"({_('permissible:')} {DOWNLOADER_CLASSES.keys()!r})")
-    return downloader_class(
-        req=req,
-        collection=collection,
-        options=options
-    )
+            f"({_('permissible:')} {DOWNLOADER_CLASSES.keys()!r})"
+        )
+    return downloader_class(req=req, collection=collection, options=options)
 
 
 # =============================================================================
 # Represent files for users to download
 # =============================================================================
+
 
 class UserDownloadFile(object):
     """
@@ -1142,9 +1373,14 @@ class UserDownloadFile(object):
         many = UserDownloadFile.from_directory_scan("/etc")
 
     """
-    def __init__(self, filename: str, directory: str = "",
-                 permitted_lifespan_min: float = 0,
-                 req: "CamcopsRequest" = None) -> None:
+
+    def __init__(
+        self,
+        filename: str,
+        directory: str = "",
+        permitted_lifespan_min: float = 0,
+        req: "CamcopsRequest" = None,
+    ) -> None:
         """
         Args:
             filename:
@@ -1174,7 +1410,8 @@ class UserDownloadFile(object):
             # filename must be within the directory specified
             self.directory = os.path.abspath(directory)
             candidate_path = os.path.abspath(
-                os.path.join(self.directory, filename))
+                os.path.join(self.directory, filename)
+            )
             if os.path.commonpath([directory, candidate_path]) != directory:
                 # Filename is not within directory.
                 # This is dodgy -- someone may have passed a filename like
@@ -1232,8 +1469,9 @@ class UserDownloadFile(object):
         if not self.exists:
             return None
         # noinspection PyTypeChecker
-        creation = Pendulum.fromtimestamp(self.statinfo.st_mtime,
-                                          tz=get_tz_utc())  # type: Pendulum
+        creation = Pendulum.fromtimestamp(
+            self.statinfo.st_mtime, tz=get_tz_utc()
+        )  # type: Pendulum
         # ... gives the correct time in the UTC timezone
         # ... note that utcfromtimestamp() gives a time without a timezone,
         #     which is unhelpful!
@@ -1259,9 +1497,8 @@ class UserDownloadFile(object):
         if not self.exists:
             return None
         now = get_now_localtz_pendulum()
-        death = (
-            self.when_last_modified +
-            Duration(minutes=self.permitted_lifespan_min)
+        death = self.when_last_modified + Duration(
+            minutes=self.permitted_lifespan_min
         )
         remaining = death - now  # type: Period
         # Note that Period is a subclass of Duration, but its __str__()
@@ -1300,10 +1537,7 @@ class UserDownloadFile(object):
         if not self.req:
             return ""
         dest_url = self.req.route_url(Routes.DELETE_FILE)
-        form = UserDownloadDeleteForm(
-            request=self.req,
-            action=dest_url
-        )
+        form = UserDownloadDeleteForm(request=self.req, action=dest_url)
         appstruct = {ViewParam.FILENAME: self.filename}
         rendered_form = form.render(appstruct)
         return rendered_form
@@ -1330,9 +1564,7 @@ class UserDownloadFile(object):
         """
         if not self.req:
             return ""
-        querydict = {
-            ViewParam.FILENAME: self.filename
-        }
+        querydict = {ViewParam.FILENAME: self.filename}
         return self.req.route_url(Routes.DOWNLOAD_FILE, _query=querydict)
 
     @property
@@ -1351,9 +1583,11 @@ class UserDownloadFile(object):
 
     @classmethod
     def from_directory_scan(
-            cls, directory: str,
-            permitted_lifespan_min: float = 0,
-            req: "CamcopsRequest" = None) -> List["UserDownloadFile"]:
+        cls,
+        directory: str,
+        permitted_lifespan_min: float = 0,
+        req: "CamcopsRequest" = None,
+    ) -> List["UserDownloadFile"]:
         """
         Scans the directory and returns a list of :class:`UserDownloadFile`
         objects, one for each file in the directory.
@@ -1373,11 +1607,14 @@ class UserDownloadFile(object):
             for f in files:
                 fullpath = os.path.join(root, f)
                 relative_filename = relative_filename_within_dir(
-                    fullpath, directory)
-                results.append(UserDownloadFile(
-                    filename=relative_filename,
-                    directory=directory,
-                    permitted_lifespan_min=permitted_lifespan_min,
-                    req=req
-                ))
+                    fullpath, directory
+                )
+                results.append(
+                    UserDownloadFile(
+                        filename=relative_filename,
+                        directory=directory,
+                        permitted_lifespan_min=permitted_lifespan_min,
+                        req=req,
+                    )
+                )
         return results

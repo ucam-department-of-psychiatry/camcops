@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -139,6 +140,9 @@ bool anyNull(const QVector<QVariant>& values);
 // Are none of the values null?
 bool noneNull(const QVector<QVariant>& values);
 
+// Are all of the values null?
+bool allNull(const QVector<QVariant>& values);
+
 // Are any of the values null or empty strings?
 bool anyNullOrEmpty(const QVector<QVariant>& values);
 
@@ -214,31 +218,31 @@ QString scoreStringWithPercent(double numerator, int denominator, int dp = 1);
 
 // Returns e.g. "Description: <b>27</b>/30."
 QString scorePhrase(const QString& description, int numerator, int denominator,
-                    const QString& separator = ": ",
-                    const QString& suffix = ".");
+                    const QString& separator = QStringLiteral(": "),
+                    const QString& suffix = QStringLiteral("."));
 
 // Returns e.g. "Description: <b>27.5</b>/30."
 QString scorePhrase(const QString& description, double numerator, int denominator,
-                    const QString& separator = ": ",
-                    const QString& suffix = ".",
+                    const QString& separator = QStringLiteral(": "),
+                    const QString& suffix = QStringLiteral("."),
                     int dp = 1);
 
 // Returns e.g. "Description: <b>27.5</b>/30."
 QString scorePhraseVariant(
         const QString& description, const QVariant& numerator, int denominator,
-        const QString& separator = ": ",
-        const QString& suffix = ".",
+        const QString& separator = QStringLiteral(": "),
+        const QString& suffix = QStringLiteral("."),
         int dp = 1);
 
 // Returns e.g. "Total score: <b>27</b>/30."
 QString totalScorePhrase(int numerator, int denominator,
-                         const QString& separator = ": ",
-                         const QString& suffix = ".");
+                         const QString& separator = QStringLiteral(": "),
+                         const QString& suffix = QStringLiteral("."));
 
 // Returns e.g. "Total score: <b>27.5</b>/30."
 QString totalScorePhrase(double numerator, int denominator,
-                         const QString& separator = ": ",
-                         const QString& suffix = ".",
+                         const QString& separator = QStringLiteral(": "),
+                         const QString& suffix = QStringLiteral("."),
                          int dp = 1);
 
 // ============================================================================
@@ -304,9 +308,9 @@ QVector<T> rep(const QVector<T>& values, int each, int times)
 // Takes a vector like {1, 2, 3, 4, 6, 7, 8, 10} and returns a descriptive
 // string like "1-4, 6-8, 10". Optionally add a prefix to each part, like
 QString describeAsRanges(QVector<int> numbers,
-                         const QString& element_prefix = "",
-                         const QString& element_separator = ", ",
-                         const QString& range_separator = "–");
+                         const QString& element_prefix = QString(),
+                         const QString& element_separator = QStringLiteral(", "),
+                         const QString& range_separator = QStringLiteral("–"));
 
 // ============================================================================
 // Spacing things out

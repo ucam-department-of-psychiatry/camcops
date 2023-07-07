@@ -1,6 +1,7 @@
- ..  docs/source/client/creating_tasks.rst
+ ..  docs/source/developer/creating_tasks.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -21,7 +22,7 @@
 .. _NHS number: http://www.datadictionary.nhs.uk/version2/data_dictionary/data_field_notes/n/nhs_number_de.asp
 .. _Visual analogue scale: https://en.wikipedia.org/wiki/Visual_analogue_scale
 
-.. include:: ../user/include_tabletdefs.rst
+.. include:: ../user_client/include_tabletdefs.rst
 
 Creating tasks
 ==============

@@ -5,7 +5,8 @@ camcops_server/tasks/gbo.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -40,10 +41,7 @@ from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_html import tr_qa, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import (
-    Task,
-    TaskHasPatientMixin,
-)
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
@@ -60,7 +58,7 @@ AGENT_STRING_MAP = {
     AGENT_PATIENT: "Patient/service user",  # in original: "Child/young person"
     AGENT_PARENT_CARER: "Parent/carer",
     AGENT_CLINICIAN: "Practitioner/clinician",
-    AGENT_OTHER: "Other: "
+    AGENT_OTHER: "Other: ",
 }
 UNKNOWN_AGENT = "Unknown"
 
@@ -78,13 +76,16 @@ def agent_description(agent: int, other_detail: str) -> str:
 # GBO-GReS
 # =============================================================================
 
+
 class Gbogres(TaskHasPatientMixin, Task):
     """
     Server implementation of the GBO - Goal Record Sheet task.
     """
+
     __tablename__ = "gbogres"
     shortname = "GBO-GReS"
     extrastring_taskname = "gbo"
+    info_filename_stem = extrastring_taskname
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
     FN_GOAL_1_DESC = "goal_1_description"
@@ -98,27 +99,31 @@ class Gbogres(TaskHasPatientMixin, Task):
 
     date = Column(FN_DATE, Date, comment="Date of goal-setting")
     goal_1_description = Column(
-        FN_GOAL_1_DESC, UnicodeText,
-        comment="Goal 1 description")
+        FN_GOAL_1_DESC, UnicodeText, comment="Goal 1 description"
+    )
     goal_2_description = Column(
-        FN_GOAL_2_DESC, UnicodeText,
-        comment="Goal 2 description")
+        FN_GOAL_2_DESC, UnicodeText, comment="Goal 2 description"
+    )
     goal_3_description = Column(
-        FN_GOAL_3_DESC, UnicodeText,
-        comment="Goal 3 description")
+        FN_GOAL_3_DESC, UnicodeText, comment="Goal 3 description"
+    )
     other_goals = Column(
-        FN_GOAL_OTHER, UnicodeText,
-        comment="Other/additional goal description(s)")
+        FN_GOAL_OTHER,
+        UnicodeText,
+        comment="Other/additional goal description(s)",
+    )
     completed_by = Column(
-        FN_COMPLETED_BY, Integer,
+        FN_COMPLETED_BY,
+        Integer,
         comment="Who completed the form ({})".format(
-            "; ".join(f"{k} = {v}"
-                      for k, v in AGENT_STRING_MAP.items())
-        )
+            "; ".join(f"{k} = {v}" for k, v in AGENT_STRING_MAP.items())
+        ),
     )
     completed_by_other = Column(
-        FN_COMPLETED_BY_OTHER, UnicodeText,
-        comment="If completed by 'other', who?")
+        FN_COMPLETED_BY_OTHER,
+        UnicodeText,
+        comment="If completed by 'other', who?",
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -129,24 +134,34 @@ class Gbogres(TaskHasPatientMixin, Task):
         """
         Returns the number of non-blank core (1-3) goals.
         """
-        return len(list(filter(
-            None,
-            [self.goal_1_description, self.goal_2_description,
-             self.goal_3_description])))
+        return len(
+            list(
+                filter(
+                    None,
+                    [
+                        self.goal_1_description,
+                        self.goal_2_description,
+                        self.goal_3_description,
+                    ],
+                )
+            )
+        )
 
     def goals_set_tr(self) -> str:
         extra = " (additional goals specified)" if self.other_goals else ""
-        return tr_qa("Number of goals set",
-                     f"{self.get_n_core_goals()}{extra}")
+        return tr_qa(
+            "Number of goals set", f"{self.get_n_core_goals()}{extra}"
+        )
 
     def completed_by_tr(self) -> str:
         who = agent_description(self.completed_by, self.completed_by_other)
         return tr_qa("Completed by", who)
 
     def get_date_tr(self) -> str:
-        return tr_qa("Date", format_datetime(self.date,
-                                             DateFormat.SHORT_DATE,
-                                             default=None))
+        return tr_qa(
+            "Date",
+            format_datetime(self.date, DateFormat.SHORT_DATE, default=None),
+        )
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields()
@@ -189,13 +204,16 @@ class Gbogres(TaskHasPatientMixin, Task):
 # GBO-GPC
 # =============================================================================
 
+
 class Gbogpc(TaskHasPatientMixin, Task):
     """
     Server implementation of the GBO-GPC task.
     """
+
     __tablename__ = "gbogpc"
     shortname = "GBO-GPC"
     extrastring_taskname = "gbo"
+    info_filename_stem = extrastring_taskname
     provides_trackers = True
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
@@ -210,25 +228,34 @@ class Gbogpc(TaskHasPatientMixin, Task):
     session = Column(FN_SESSION, Integer, comment="Session number")
     goal_number = Column(FN_GOAL_NUMBER, Integer, comment="Goal number (1-3)")
     goal_text = Column(
-        FN_GOAL_DESCRIPTION, UnicodeText,
-        comment="Brief description of the goal")
+        FN_GOAL_DESCRIPTION,
+        UnicodeText,
+        comment="Brief description of the goal",
+    )
     progress = Column(
-        FN_PROGRESS, Integer,
-        comment="Progress towards goal" + PROGRESS_COMMENT_SUFFIX
+        FN_PROGRESS,
+        Integer,
+        comment="Progress towards goal" + PROGRESS_COMMENT_SUFFIX,
     )
     whose_goal = Column(
-        FN_WHOSE_GOAL, Integer,
+        FN_WHOSE_GOAL,
+        Integer,
         comment="Whose goal is this ({})".format(
-            "; ".join(f"{k} = {v}"
-                      for k, v in AGENT_STRING_MAP.items())
-        )
+            "; ".join(f"{k} = {v}" for k, v in AGENT_STRING_MAP.items())
+        ),
     )
     whose_goal_other = Column(
-        FN_WHOSE_GOAL_OTHER, UnicodeText,
-        comment="If 'whose goal' is 'other', who?")
+        FN_WHOSE_GOAL_OTHER,
+        UnicodeText,
+        comment="If 'whose goal' is 'other', who?",
+    )
 
     REQUIRED_FIELDS = [
-        FN_DATE, FN_SESSION, FN_GOAL_NUMBER, FN_PROGRESS, FN_WHOSE_GOAL
+        FN_DATE,
+        FN_SESSION,
+        FN_GOAL_NUMBER,
+        FN_PROGRESS,
+        FN_WHOSE_GOAL,
     ]
 
     @staticmethod
@@ -252,7 +279,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
                 axis_label=axis_label,
                 axis_min=axis_min,
                 axis_max=axis_max,
-                horizontal_lines=hlines
+                horizontal_lines=hlines,
             ),
             TrackerInfo(
                 value=self.progress if self.goal_number == 2 else None,
@@ -260,7 +287,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
                 axis_label=axis_label,
                 axis_min=axis_min,
                 axis_max=axis_max,
-                horizontal_lines=hlines
+                horizontal_lines=hlines,
             ),
             TrackerInfo(
                 value=self.progress if self.goal_number == 3 else None,
@@ -268,7 +295,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
                 axis_label=axis_label,
                 axis_min=axis_min,
                 axis_max=axis_max,
-                horizontal_lines=hlines
+                horizontal_lines=hlines,
             ),
         ]
 
@@ -325,13 +352,16 @@ class Gbogpc(TaskHasPatientMixin, Task):
 # GBO-GRaS
 # =============================================================================
 
+
 class Gbogras(TaskHasPatientMixin, Task):
     """
     Server implementation of the GBO-GRaS task.
     """
+
     __tablename__ = "gbogras"
     shortname = "GBO-GRaS"
     extrastring_taskname = "gbo"
+    info_filename_stem = extrastring_taskname
     provides_trackers = True
 
     FN_DATE = "date"  # NB SQL keyword too; doesn't matter
@@ -353,34 +383,45 @@ class Gbogras(TaskHasPatientMixin, Task):
     rate_goal_2 = Column(FN_RATE_GOAL_2, Boolean, comment="Rate goal 2?")
     rate_goal_3 = Column(FN_RATE_GOAL_3, Boolean, comment="Rate goal 3?")
     goal_1_description = Column(
-        FN_GOAL_1_DESC, UnicodeText,
-        comment="Goal 1 description")
+        FN_GOAL_1_DESC, UnicodeText, comment="Goal 1 description"
+    )
     goal_2_description = Column(
-        FN_GOAL_2_DESC, UnicodeText,
-        comment="Goal 2 description")
+        FN_GOAL_2_DESC, UnicodeText, comment="Goal 2 description"
+    )
     goal_3_description = Column(
-        FN_GOAL_3_DESC, UnicodeText,
-        comment="Goal 3 description")
+        FN_GOAL_3_DESC, UnicodeText, comment="Goal 3 description"
+    )
     goal_1_progress = Column(
-        FN_GOAL_1_PROGRESS, Integer,
-        comment="Goal 1 progress" + PROGRESS_COMMENT_SUFFIX)
+        FN_GOAL_1_PROGRESS,
+        Integer,
+        comment="Goal 1 progress" + PROGRESS_COMMENT_SUFFIX,
+    )
     goal_2_progress = Column(
-        FN_GOAL_2_PROGRESS, Integer,
-        comment="Goal 2 progress" + PROGRESS_COMMENT_SUFFIX)
+        FN_GOAL_2_PROGRESS,
+        Integer,
+        comment="Goal 2 progress" + PROGRESS_COMMENT_SUFFIX,
+    )
     goal_3_progress = Column(
-        FN_GOAL_3_PROGRESS, Integer,
-        comment="Goal 3 progress" + PROGRESS_COMMENT_SUFFIX)
+        FN_GOAL_3_PROGRESS,
+        Integer,
+        comment="Goal 3 progress" + PROGRESS_COMMENT_SUFFIX,
+    )
     completed_by = Column(
-        FN_COMPLETED_BY, Integer,
+        FN_COMPLETED_BY,
+        Integer,
         comment="Who completed the form ({})".format(
-            "; ".join(f"{k} = {v}"
-                      for k, v in AGENT_STRING_MAP.items()
-                      if k != AGENT_CLINICIAN)
-        )
+            "; ".join(
+                f"{k} = {v}"
+                for k, v in AGENT_STRING_MAP.items()
+                if k != AGENT_CLINICIAN
+            )
+        ),
     )
     completed_by_other = Column(
-        FN_COMPLETED_BY_OTHER, UnicodeText,
-        comment="If completed by 'other', who?")
+        FN_COMPLETED_BY_OTHER,
+        UnicodeText,
+        comment="If completed by 'other', who?",
+    )
 
     REQUIRED_FIELDS = [FN_DATE, FN_COMPLETED_BY]
     GOAL_TUPLES = (
@@ -411,7 +452,7 @@ class Gbogras(TaskHasPatientMixin, Task):
                 axis_label=axis_label,
                 axis_min=axis_min,
                 axis_max=axis_max,
-                horizontal_lines=hlines
+                horizontal_lines=hlines,
             ),
             TrackerInfo(
                 value=self.goal_2_progress if self.rate_goal_2 else None,
@@ -419,7 +460,7 @@ class Gbogras(TaskHasPatientMixin, Task):
                 axis_label=axis_label,
                 axis_min=axis_min,
                 axis_max=axis_max,
-                horizontal_lines=hlines
+                horizontal_lines=hlines,
             ),
             TrackerInfo(
                 value=self.goal_3_progress if self.rate_goal_3 else None,
@@ -427,7 +468,7 @@ class Gbogras(TaskHasPatientMixin, Task):
                 axis_label=axis_label,
                 axis_min=axis_min,
                 axis_max=axis_max,
-                horizontal_lines=hlines
+                horizontal_lines=hlines,
             ),
         ]
 
@@ -440,7 +481,9 @@ class Gbogras(TaskHasPatientMixin, Task):
         for _, rate_attr, desc_attr, prog_attr in self.GOAL_TUPLES:
             if getattr(self, rate_attr):
                 n_goals_completed += 1
-                if not getattr(self, desc_attr) or not getattr(self, prog_attr):  # noqa
+                if not getattr(self, desc_attr) or not getattr(
+                    self, prog_attr
+                ):
                     return False
         return n_goals_completed > 0
 
@@ -449,21 +492,24 @@ class Gbogras(TaskHasPatientMixin, Task):
         return tr_qa("Completed by", who)
 
     def get_date_tr(self) -> str:
-        return tr_qa("Date", format_datetime(self.date,
-                                             DateFormat.SHORT_DATE,
-                                             default=None))
+        return tr_qa(
+            "Date",
+            format_datetime(self.date, DateFormat.SHORT_DATE, default=None),
+        )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = []  # type: List[str]
         for goalnum, rate_attr, desc_attr, prog_attr in self.GOAL_TUPLES:
             if getattr(self, rate_attr):
-                rows.append(f"""
+                rows.append(
+                    f"""
                     <tr>
                         <td>{answer(goalnum)}</td>
                         <td>{answer(getattr(self, desc_attr))}</td>
                         <td>{answer(getattr(self, prog_attr))}</td>
                     </tr>
-                """)
+                """
+                )
         newline = "\n"
         return f"""
             <div class="{CssClass.SUMMARY}">

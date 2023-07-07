@@ -1,0 +1,37 @@
+---
+# yamllint disable rule:line-length
+name: Installer
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - 'server/camcops_server/**'
+            - .github/workflows/installer.yml
+            - .github/scripts/installer_setup.sh
+            - .github/scripts/mysql_docker_setup.sh
+            - .github/scripts/post_installation_checks.sh
+            - .github/scripts/set_camcops_docker_environment
+            - .github/scripts/set_camcops_docker_mysql_environment
+            - 'server/docker/**'
+            - 'server/installer/**'
+            - server/setup.py
+jobs:
+    installer:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Run installer
+              run: |
+                set -eux -o pipefail
+                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
+                ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
+                cd ${GITHUB_WORKSPACE}/server/installer
+                ./installer.sh -d
+                export CAMCOPS_HOME=${GITHUB_WORKSPACE}
+                ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
+                # Now do it again with an external MySQL database
+                rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
+                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_mysql_environment
+                ${GITHUB_WORKSPACE}/.github/scripts/mysql_docker_setup.sh
+                ./installer.sh -d
+                ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh

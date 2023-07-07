@@ -5,7 +5,8 @@ camcops_server/tasks/gad7.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -56,15 +57,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # GAD-7
 # =============================================================================
 
+
 class Gad7Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Gad7'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Gad7"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.NQUESTIONS,
-            minimum=0, maximum=3,
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=3,
             comment_fmt="Q{n}, {s} (0 not at all - 3 nearly every day)",
             comment_strings=[
                 "nervous/anxious/on edge",
@@ -73,17 +81,17 @@ class Gad7Metaclass(DeclarativeMeta):
                 "trouble relaxing",
                 "restless",
                 "irritable",
-                "afraid"
-            ]
+                "afraid",
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Gad7(TaskHasPatientMixin, Task,
-           metaclass=Gad7Metaclass):
+class Gad7(TaskHasPatientMixin, Task, metaclass=Gad7Metaclass):
     """
     Server implementation of the GAD-7 task.
     """
+
     __tablename__ = "gad7"
     shortname = "GAD-7"
     provides_trackers = True
@@ -98,45 +106,55 @@ class Gad7(TaskHasPatientMixin, Task,
         return _("Generalized Anxiety Disorder Assessment")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="GAD-7 total score",
-            axis_label="Total score (out of 21)",
-            axis_min=-0.5,
-            axis_max=self.MAX_SCORE + 0.5,
-            horizontal_lines=[14.5, 9.5, 4.5],
-            horizontal_labels=[
-                TrackerLabel(17, req.sstring(SS.SEVERE)),
-                TrackerLabel(12, req.sstring(SS.MODERATE)),
-                TrackerLabel(7, req.sstring(SS.MILD)),
-                TrackerLabel(2.25, req.sstring(SS.NONE)),
-            ]
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="GAD-7 total score",
+                axis_label="Total score (out of 21)",
+                axis_min=-0.5,
+                axis_max=self.MAX_SCORE + 0.5,
+                horizontal_lines=[14.5, 9.5, 4.5],
+                horizontal_labels=[
+                    TrackerLabel(17, req.sstring(SS.SEVERE)),
+                    TrackerLabel(12, req.sstring(SS.MODERATE)),
+                    TrackerLabel(7, req.sstring(SS.MILD)),
+                    TrackerLabel(2.25, req.sstring(SS.NONE)),
+                ],
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"GAD-7 total score {self.total_score()}/{self.MAX_SCORE} "
-            f"({self.severity(req)})"
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"GAD-7 total score {self.total_score()}/{self.MAX_SCORE} "
+                    f"({self.severity(req)})"
+                )
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
-            SummaryElement(name="total",
-                           coltype=Integer(),
-                           value=self.total_score(),
-                           comment=f"Total score (/{self.MAX_SCORE})"),
-            SummaryElement(name="severity",
-                           coltype=SummaryCategoryColType,
-                           value=self.severity(req),
-                           comment="Severity"),
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.total_score(),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            ),
+            SummaryElement(
+                name="severity",
+                coltype=SummaryCategoryColType,
+                value=self.severity(req),
+                comment="Severity",
+            ),
         ]
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def total_score(self) -> int:
@@ -167,7 +185,7 @@ class Gad7(TaskHasPatientMixin, Task,
         for q in range(1, self.NQUESTIONS + 1):
             q_a += tr_qa(
                 self.wxstring(req, "q" + str(q)),
-                get_from_dict(answer_dict, getattr(self, "q" + str(q)))
+                get_from_dict(answer_dict, getattr(self, "q" + str(q))),
             )
 
         return """
@@ -207,22 +225,26 @@ class Gad7(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE),
-                answer(score) + " / {}".format(self.MAX_SCORE)
+                answer(score) + " / {}".format(self.MAX_SCORE),
             ),
             anxiety_severity=tr(
                 self.wxstring(req, "anxiety_severity") + " <sup>[1]</sup>",
-                severity
+                severity,
             ),
             q_a=q_a,
         )
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.GAD7_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.GAD7_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.GAD7_SCALE),
-                {
-                    req.snomed(SnomedLookup.GAD7_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.GAD7_SCALE),
+                    {req.snomed(SnomedLookup.GAD7_SCORE): self.total_score()},
+                )
+            )
         return codes

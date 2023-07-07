@@ -5,7 +5,8 @@ camcops_server/templates/menu/view_tasks.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -30,21 +31,42 @@ camcops_server/templates/menu/view_tasks.mako
 <%inherit file="base_web_form.mako"/>
 
 <%!
-
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
-
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Currently applicable filters") }</h1>
+## ============================================================================
+## Filters
+## ============================================================================
+
+<h1>
+    ${ req.icon_text(
+        icon=Icons.FILTER,
+        text=_("Currently applicable filters")
+    ) | n }
+</h1>
 
 <%include file="describe_task_filter.mako" args="task_filter=request.camcops_session.get_task_filter()"/>
 
-<div><a href="${ request.route_url(Routes.SET_FILTERS) | n }">
-    ${ _("Set or clear filters") }</a></div>
+<div>
+    ${ req.icon_text(
+            icon=Icons.FILTER,
+            url=request.route_url(Routes.SET_FILTERS),
+            text=_("Set or clear filters")
+    ) | n }
+</div>
 
-<h1>${ _("Tasks") }</h1>
+## ============================================================================
+## Tasks
+## ============================================================================
+
+<h1>
+    ${ req.icon_text(
+        icon=Icons.VIEW_TASKS,
+        text=_("Tasks")
+    ) | n }
+</h1>
 
 ## Tasks-per-page form:
 ${ tpp_form | n }
@@ -94,5 +116,9 @@ ${ refresh_form | n }
     </div>
 
 %endif
+
+## ============================================================================
+## Navigation
+## ============================================================================
 
 <%include file="to_main_menu.mako"/>

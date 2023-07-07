@@ -5,7 +5,8 @@ camcops_server/templates/taskcommon/special_notes.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -31,7 +32,7 @@ camcops_server/templates/taskcommon/special_notes.mako
 <%!
 
 from camcops_server.cc_modules.cc_convert import br_html
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 
 %>
 
@@ -44,10 +45,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         [${ sn.note_at or "?" }, ${ sn.get_username() or "?" }]<br>
         <b>${ sn.note | n,br_html }</b>
         %if viewtype == ViewArg.HTML and sn.user_may_delete_specialnote(req.user):
-            <br>[<a href="${ req.route_url(
-                                Routes.DELETE_SPECIAL_NOTE,
-                                _query={ViewParam.NOTE_ID: sn.note_id}
-                             ) | n }">${ _("Delete special note") }</a>]
+            <br>[${ req.icon_text(
+                    icon=Icons.DELETE,
+                    url=req.route_url(
+                        Routes.DELETE_SPECIAL_NOTE,
+                        _query={
+                            ViewParam.NOTE_ID: sn.note_id
+                        }
+                    ),
+                    text=_("Delete special note")
+            ) | n }]
         %endif
     %endfor
 </div>

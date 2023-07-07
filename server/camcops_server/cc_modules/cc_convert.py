@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_convert.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -58,6 +59,7 @@ REGEX_WHITESPACE = re.compile(r"\s")
 # Conversion to/from quoted SQL values
 # =============================================================================
 
+
 def encode_single_value(v: Any, is_blob=False) -> str:
     """
     Encodes a value for incorporation into an SQL CSV value string.
@@ -67,10 +69,7 @@ def encode_single_value(v: Any, is_blob=False) -> str:
     for the return journey to the tablet/webclient, because those data get sent
     in a one-record-one-line format.
 
-    In the old Titanium client, the client-side counterpart to this function
-    was ``decode_single_sql_literal()`` in ``lib/conversion.js``.
-
-    In the newer C++ client, the client-side counterpart is
+    In the C++ client, the client-side counterpart to this function is
     ``fromSqlLiteral()`` in ``lib/convert.cpp``.
 
     """
@@ -107,12 +106,7 @@ def decode_single_value(v: str) -> Any:
 
     - we use ISO-8601 text for dates/times
 
-    In the old Titanium client, the client-side counterpart to this function
-    was SQLite's ``QUOTE()`` function (see ``getRecordByPK_lowmem()`` in
-    ``lib/dbsqlite.js``), except in the case of BLOBs (when it was
-    ``getEncodedBlob()`` in ``table/Blob.js``); see ``lib/dbupload.js``.
-
-    In the newer C++ client, the client-side counterpart is
+    In the C++ client, the client-side counterpart to this function is
     ``toSqlLiteral()`` in ``lib/convert.cpp``.
 
     """
@@ -173,10 +167,11 @@ def decode_values(valuelist: str) -> List[Any]:
 # Escape for HTML/XML
 # =============================================================================
 
+
 def br_html(text: str) -> str:
     r"""
     Filter that escapes text safely whilst also converting \n to <br>.
     """
     # https://stackoverflow.com/questions/2285507/converting-n-to-br-in-mako-files
     # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br
-    return escape(text).replace('\n', Markup('<br>'))
+    return escape(text).replace("\n", Markup("<br>"))

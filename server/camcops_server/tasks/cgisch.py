@@ -5,7 +5,8 @@ camcops_server/tasks/cgisch.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -54,39 +55,56 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # CGI-SCH
 # =============================================================================
 
-QUESTION_FRAGMENTS = ["positive", "negative", "depressive", "cognitive",
-                      "overall"]
+QUESTION_FRAGMENTS = [
+    "positive",
+    "negative",
+    "depressive",
+    "cognitive",
+    "overall",
+]
 
 
 class CgiSchMetaclass(DeclarativeMeta):
     """
     Metaclass for :class:`CgiSch`.
     """
+
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['CgiSch'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["CgiSch"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "severity", 1, 5,
-            minimum=1, maximum=7,
+            cls,
+            "severity",
+            1,
+            5,
+            minimum=1,
+            maximum=7,
             comment_fmt="Severity Q{n}, {s} (1-7, higher worse)",
-            comment_strings=QUESTION_FRAGMENTS
+            comment_strings=QUESTION_FRAGMENTS,
         )
         add_multiple_columns(
-            cls, "change", 1, 5,
+            cls,
+            "change",
+            1,
+            5,
             pv=list(range(1, 7 + 1)) + [9],
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
-            comment_strings=QUESTION_FRAGMENTS
+            comment_strings=QUESTION_FRAGMENTS,
         )
         super().__init__(name, bases, classdict)
 
 
-class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
-             metaclass=CgiSchMetaclass):
+class CgiSch(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=CgiSchMetaclass
+):
     """
     Server implementation of the CGI-SCH task.
     """
+
     __tablename__ = "cgisch"
     shortname = "CGI-SCH"
     provides_trackers = True
@@ -108,35 +126,35 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 plot_label=prefix + "positive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
-                axis_max=7.5
+                axis_max=7.5,
             ),
             TrackerInfo(
                 value=self.severity2,
                 plot_label=prefix + "negative symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
-                axis_max=7.5
+                axis_max=7.5,
             ),
             TrackerInfo(
                 value=self.severity3,
                 plot_label=prefix + "depressive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
-                axis_max=7.5
+                axis_max=7.5,
             ),
             TrackerInfo(
                 value=self.severity4,
                 plot_label=prefix + "cognitive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
-                axis_max=7.5
+                axis_max=7.5,
             ),
             TrackerInfo(
                 value=self.severity5,
                 plot_label=prefix + "overall severity",
                 axis_label=ylabel,
                 axis_min=0.5,
-                axis_max=7.5
+                axis_max=7.5,
             ),
         ]
 
@@ -144,16 +162,22 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=(
-                f"CGI-SCH. Severity: positive {self.severity1}, "
-                f"negative {self.severity2}, depressive {self.severity3}, "
-                f"cognitive {self.severity4}, overall {self.severity5}. "
-                f"Change: positive {self.change1}, negative {self.change2}, "
-                f"depressive {self.change3}, cognitive {self.change4}, "
-                f"overall {self.change5}."
+        return [
+            CtvInfo(
+                content=(
+                    f"CGI-SCH. Severity: positive {self.severity1}, "
+                    f"negative {self.severity2}, "
+                    f"depressive {self.severity3}, "
+                    f"cognitive {self.severity4}, "
+                    f"overall {self.severity5}. "
+                    f"Change: positive {self.change1}, "
+                    f"negative {self.change2}, "
+                    f"depressive {self.change3}, "
+                    f"cognitive {self.change4}, "
+                    f"overall {self.change5}."
+                )
             )
-        )]
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         # pylint: disable=unused-argument
@@ -161,8 +185,8 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     # noinspection PyUnresolvedReferences
@@ -190,12 +214,16 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         }
 
         def tr_severity(xstring_name: str, value: Optional[int]) -> str:
-            return tr_qa(self.wxstring(req, xstring_name),
-                         get_from_dict(severity_dict, value))
+            return tr_qa(
+                self.wxstring(req, xstring_name),
+                get_from_dict(severity_dict, value),
+            )
 
         def tr_change(xstring_name: str, value: Optional[int]) -> str:
-            return tr_qa(self.wxstring(req, xstring_name),
-                         get_from_dict(change_dict, value))
+            return tr_qa(
+                self.wxstring(req, xstring_name),
+                get_from_dict(change_dict, value),
+            )
 
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -215,7 +243,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 {tr_severity("q3", self.severity3)}
                 {tr_severity("q4", self.severity4)}
                 {tr_severity("q5", self.severity5)}
-                
+
                 {subheading_spanning_two_columns(self.wxstring(req, "ii_title"))}
                 {tr_span_col(self.wxstring(req, "ii_question"), cols=2)}
                 {tr_change("q1", self.change1)}

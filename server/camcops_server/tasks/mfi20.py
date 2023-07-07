@@ -5,7 +5,8 @@ camcops_server/tasks/mfi20.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -47,10 +48,12 @@ from typing import List, Type, Tuple, Dict, Any
 
 class Mfi20Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Mfi20'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Mfi20"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
 
         comment_strings = [
             "feel fit",
@@ -80,19 +83,23 @@ class Mfi20Metaclass(DeclarativeMeta):
             q_num = q_index + 1
             q_field = "q{}".format(q_num)
 
-            setattr(cls, q_field, CamcopsColumn(
-                q_field, Integer,
-                permitted_value_checker=ONE_TO_FIVE_CHECKER,
-                comment="Q{} ({}) {}".format(
-                    q_num, comment_strings[q_index], score_comment)
-            ))
+            setattr(
+                cls,
+                q_field,
+                CamcopsColumn(
+                    q_field,
+                    Integer,
+                    permitted_value_checker=ONE_TO_FIVE_CHECKER,
+                    comment="Q{} ({}) {}".format(
+                        q_num, comment_strings[q_index], score_comment
+                    ),
+                ),
+            )
 
         super().__init__(name, bases, classdict)
 
 
-class Mfi20(TaskHasPatientMixin,
-            Task,
-            metaclass=Mfi20Metaclass):
+class Mfi20(TaskHasPatientMixin, Task, metaclass=Mfi20Metaclass):
     __tablename__ = "mfi20"
     shortname = "MFI-20"
 
@@ -109,18 +116,16 @@ class Mfi20(TaskHasPatientMixin,
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     REVERSE_QUESTIONS = Task.fieldnames_from_list(
-        "q", {2, 5, 9, 10, 13, 14, 16, 17, 18, 19})
+        "q", {2, 5, 9, 10, 13, 14, 16, 17, 18, 19}
+    )
 
-    GENERAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list(
-        "q", {1, 5, 12, 16})
-    PHYSICAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list(
-        "q", {2, 8, 14, 20})
-    REDUCED_ACTIVITY_QUESTIONS = Task.fieldnames_from_list(
-        "q", {7, 11, 13, 19})
+    GENERAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list("q", {1, 5, 12, 16})
+    PHYSICAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list("q", {2, 8, 14, 20})
+    REDUCED_ACTIVITY_QUESTIONS = Task.fieldnames_from_list("q", {3, 6, 10, 17})
     REDUCED_MOTIVATION_QUESTIONS = Task.fieldnames_from_list(
-        "q", {3, 6, 10, 17})
-    MENTAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list(
-        "q", {4, 9, 15, 18})
+        "q", {4, 9, 15, 18}
+    )
+    MENTAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list("q", {7, 11, 13, 19})
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -131,29 +136,41 @@ class Mfi20(TaskHasPatientMixin,
         subscale_range = f"[{self.MIN_SUBSCALE}–{self.MAX_SUBSCALE}]"
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Integer(),
+                name="total",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score [{self.MIN_SCORE}–{self.MAX_SCORE}]"),
+                comment=f"Total score [{self.MIN_SCORE}–{self.MAX_SCORE}]",
+            ),
             SummaryElement(
-                name="general_fatigue", coltype=Integer(),
+                name="general_fatigue",
+                coltype=Integer(),
                 value=self.general_fatigue_score(),
-                comment=f"General fatigue {subscale_range}"),
+                comment=f"General fatigue {subscale_range}",
+            ),
             SummaryElement(
-                name="physical_fatigue", coltype=Integer(),
+                name="physical_fatigue",
+                coltype=Integer(),
                 value=self.physical_fatigue_score(),
-                comment=f"Physical fatigue {subscale_range}"),
+                comment=f"Physical fatigue {subscale_range}",
+            ),
             SummaryElement(
-                name="reduced_activity", coltype=Integer(),
+                name="reduced_activity",
+                coltype=Integer(),
                 value=self.reduced_activity_score(),
-                comment=f"Reduced activity {subscale_range}"),
+                comment=f"Reduced activity {subscale_range}",
+            ),
             SummaryElement(
-                name="reduced_motivation", coltype=Integer(),
+                name="reduced_motivation",
+                coltype=Integer(),
                 value=self.reduced_motivation_score(),
-                comment=f"Reduced motivation {subscale_range}"),
+                comment=f"Reduced motivation {subscale_range}",
+            ),
             SummaryElement(
-                name="mental_fatigue", coltype=Integer(),
+                name="mental_fatigue",
+                coltype=Integer(),
                 value=self.mental_fatigue_score(),
-                comment=f"Mental fatigue {subscale_range}"),
+                comment=f"Mental fatigue {subscale_range}",
+            ),
         ]
 
     def is_complete(self) -> bool:
@@ -229,11 +246,11 @@ class Mfi20(TaskHasPatientMixin,
                 [1] Questions 2, 5, 9, 10, 13, 14, 16, 17, 18, 19
                     reverse-scored when summing.
                 [2] Sum for questions 1–20.
-                [3] Sum for questions 1, 5, 12, 16.
-                [4] Sum for questions 2, 8, 14, 20.
-                [5] Sum for questions 7, 11, 13, 19.
-                [6] Sum for questions 3, 6, 10, 17.
-                [7] Sum for questions 4, 9, 15, 18.
+                [3] General fatigue: Sum for questions 1, 5, 12, 16.
+                [4] Physical fatigue: Sum for questions 2, 8, 14, 20.
+                [5] Reduced activity: Sum for questions 3, 6, 10, 17.
+                [6] Reduced motivation: Sum for questions 4, 9, 15, 18.
+                [7] Mental fatigue: Sum for questions 7, 11, 13, 19.
                 [8] All questions are rated from “1 – yes, that is true” to
                     “5 – no, that is not true”.
             </div>
@@ -242,28 +259,28 @@ class Mfi20(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1][2]</sup>",
-                f"{answer(self.total_score())} {fullscale_range}"
+                f"{answer(self.total_score())} {fullscale_range}",
             ),
             general_fatigue_score=tr(
                 self.wxstring(req, "general_fatigue") + " <sup>[1][3]</sup>",
-                f"{answer(self.general_fatigue_score())} {subscale_range}"
+                f"{answer(self.general_fatigue_score())} {subscale_range}",
             ),
             physical_fatigue_score=tr(
                 self.wxstring(req, "physical_fatigue") + " <sup>[1][4]</sup>",
-                f"{answer(self.physical_fatigue_score())} {subscale_range}"
+                f"{answer(self.physical_fatigue_score())} {subscale_range}",
             ),
             reduced_activity_score=tr(
                 self.wxstring(req, "reduced_activity") + " <sup>[1][5]</sup>",
-                f"{answer(self.reduced_activity_score())} {subscale_range}"
+                f"{answer(self.reduced_activity_score())} {subscale_range}",
             ),
             reduced_motivation_score=tr(
-                self.wxstring(req,
-                              "reduced_motivation") + " <sup>[1][6]</sup>",
-                f"{answer(self.reduced_motivation_score())} {subscale_range}"
+                self.wxstring(req, "reduced_motivation")
+                + " <sup>[1][6]</sup>",
+                f"{answer(self.reduced_motivation_score())} {subscale_range}",
             ),
             mental_fatigue_score=tr(
                 self.wxstring(req, "mental_fatigue") + " <sup>[1][7]</sup>",
-                f"{answer(self.mental_fatigue_score())} {subscale_range}"
+                f"{answer(self.mental_fatigue_score())} {subscale_range}",
             ),
             rows=rows,
         )

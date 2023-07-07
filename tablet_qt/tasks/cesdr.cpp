@@ -21,7 +21,7 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
-const int MAX_SCORE = 60;
+const int MAX_QUESTION_SCORE = 60;
 
 const int CAT_NONCLINICAL = 0;
 const int CAT_SUB = 1;
@@ -86,6 +86,12 @@ Version Cesdr::minimumServerVersion() const
 }
 
 
+QString Cesdr::infoFilenameStem() const
+{
+    return "cesd";
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -99,7 +105,7 @@ bool Cesdr::isComplete() const
 QStringList Cesdr::summary() const
 {
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
+        totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         standardResult(xstring("depression_or_risk_of"),
                        uifunc::yesNoUnknown(totalScore() >= DEPRESSION_RISK_THRESHOLD)),
     };

@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_nlp.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -34,15 +35,7 @@ from typing import Dict
 # Processing names
 # =============================================================================
 
-TITLES = [
-    "DR",
-    "PROF",
-    "MR",
-    "MISS",
-    "MRS",
-    "MS",
-    "SR"
-]
+TITLES = ["DR", "PROF", "MR", "MISS", "MRS", "MS", "SR"]
 
 
 def guess_name_components(s: str, uppercase: bool = True) -> Dict[str, str]:
@@ -94,8 +87,4 @@ def guess_name_components(s: str, uppercase: bool = True) -> Dict[str, str]:
         surname = surname.upper()
         forename = forename.upper()
         prefix = prefix.upper()
-    return dict(
-        surname=surname,
-        forename=forename,
-        prefix=prefix
-    )
+    return dict(surname=surname, forename=forename, prefix=prefix)

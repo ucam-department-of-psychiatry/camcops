@@ -5,7 +5,8 @@ camcops_server/tasks/pbq.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -54,12 +55,15 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # PBQ
 # =============================================================================
 
+
 class PbqMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Pbq'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Pbq"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         comment_strings = [
             # This is the Brockington 2006 order; see XML for notes.
             # 1-5
@@ -93,8 +97,9 @@ class PbqMetaclass(DeclarativeMeta):
             "I feel like hurting my baby",
             "My baby is easily comforted",
         ]
-        pvc = PermittedValueChecker(minimum=cls.MIN_PER_Q,
-                                    maximum=cls.MAX_PER_Q)
+        pvc = PermittedValueChecker(
+            minimum=cls.MIN_PER_Q, maximum=cls.MAX_PER_Q
+        )
         for n in range(1, cls.NQUESTIONS + 1):
             i = n - 1
             colname = f"q{n}"
@@ -106,17 +111,21 @@ class PbqMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 colname,
-                CamcopsColumn(colname, Integer,
-                              comment=comment, permitted_value_checker=pvc)
+                CamcopsColumn(
+                    colname,
+                    Integer,
+                    comment=comment,
+                    permitted_value_checker=pvc,
+                ),
             )
         super().__init__(name, bases, classdict)
 
 
-class Pbq(TaskHasPatientMixin, Task,
-          metaclass=PbqMetaclass):
+class Pbq(TaskHasPatientMixin, Task, metaclass=PbqMetaclass):
     """
     Server implementation of the PBQ task.
     """
+
     __tablename__ = "pbq"
     shortname = "PBQ"
     provides_trackers = True
@@ -127,7 +136,20 @@ class Pbq(TaskHasPatientMixin, Task,
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
     SCORED_A0N5_Q = [1, 4, 8, 9, 11, 16, 22, 25]  # rest scored A5N0
-    FACTOR_1_Q = [1, 2, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17]  # 12 questions  # noqa
+    FACTOR_1_Q = [
+        1,
+        2,
+        6,
+        7,
+        8,
+        9,
+        10,
+        12,
+        13,
+        15,
+        16,
+        17,
+    ]  # 12 questions  # noqa
     FACTOR_2_Q = [3, 4, 5, 11, 14, 21, 23]  # 7 questions
     FACTOR_3_Q = [19, 20, 22, 25]  # 4 questions
     FACTOR_4_Q = [18, 24]  # 2 questions
@@ -146,53 +168,69 @@ class Pbq(TaskHasPatientMixin, Task,
         return _("Postpartum Bonding Questionnaire")
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="PBQ total score (lower is better)",
-            axis_label=f"Total score (out of {self.MAX_TOTAL})",
-            axis_min=-0.5,
-            axis_max=self.MAX_TOTAL + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="PBQ total score (lower is better)",
+                axis_label=f"Total score (out of {self.MAX_TOTAL})",
+                axis_min=-0.5,
+                axis_max=self.MAX_TOTAL + 0.5,
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total_score", coltype=Integer(),
+                name="total_score",
+                coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/ {self.MAX_TOTAL})"
+                comment=f"Total score (/ {self.MAX_TOTAL})",
             ),
             SummaryElement(
-                name="factor_1_score", coltype=Integer(),
+                name="factor_1_score",
+                coltype=Integer(),
                 value=self.factor_1_score(),
-                comment=f"Factor 1 score (/ {self.FACTOR_1_MAX})"
+                comment=f"Factor 1 score (/ {self.FACTOR_1_MAX})",
             ),
             SummaryElement(
-                name="factor_2_score", coltype=Integer(),
+                name="factor_2_score",
+                coltype=Integer(),
                 value=self.factor_2_score(),
-                comment=f"Factor 2 score (/ {self.FACTOR_2_MAX})"
+                comment=f"Factor 2 score (/ {self.FACTOR_2_MAX})",
             ),
             SummaryElement(
-                name="factor_3_score", coltype=Integer(),
+                name="factor_3_score",
+                coltype=Integer(),
                 value=self.factor_3_score(),
-                comment=f"Factor 3 score (/ {self.FACTOR_3_MAX})"
+                comment=f"Factor 3 score (/ {self.FACTOR_3_MAX})",
             ),
             SummaryElement(
-                name="factor_4_score", coltype=Integer(),
+                name="factor_4_score",
+                coltype=Integer(),
                 value=self.factor_4_score(),
-                comment=f"Factor 4 score (/ {self.FACTOR_4_MAX})"
+                comment=f"Factor 4 score (/ {self.FACTOR_4_MAX})",
             ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(content=(
-            f"PBQ total score {self.total_score()}/{self.MAX_TOTAL}. "
-            f"Factor 1 score {self.factor_1_score()}/{self.FACTOR_1_MAX}. "
-            f"Factor 2 score {self.factor_2_score()}/{self.FACTOR_2_MAX}. "
-            f"Factor 3 score {self.factor_3_score()}/{self.FACTOR_3_MAX}. "
-            f"Factor 4 score {self.factor_4_score()}/{self.FACTOR_4_MAX}."
-        ))]
+        return [
+            CtvInfo(
+                content=(
+                    f"PBQ total score "
+                    f"{self.total_score()}/{self.MAX_TOTAL}. "
+                    f"Factor 1 score "
+                    f"{self.factor_1_score()}/{self.FACTOR_1_MAX}. "
+                    f"Factor 2 score "
+                    f"{self.factor_2_score()}/{self.FACTOR_2_MAX}. "
+                    f"Factor 3 score "
+                    f"{self.factor_3_score()}/{self.FACTOR_3_MAX}. "
+                    f"Factor 4 score "
+                    f"{self.factor_4_score()}/{self.FACTOR_4_MAX}."
+                )
+            )
+        ]
 
     def total_score(self) -> int:
         return self.sum_fields(self.QUESTION_FIELDS)
@@ -210,9 +248,8 @@ class Pbq(TaskHasPatientMixin, Task,
         return self.sum_fields(self.FACTOR_4_F)
 
     def is_complete(self) -> bool:
-        return (
-            self.field_contents_valid() and
-            self.all_fields_not_none(self.QUESTION_FIELDS)
+        return self.field_contents_valid() and self.all_fields_not_none(
+            self.QUESTION_FIELDS
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -326,34 +363,34 @@ class PBQReport(AverageScoreReport):
                 scorefunc=Pbq.total_score,
                 minimum=0,
                 maximum=Pbq.MAX_TOTAL,
-                higher_score_is_better=False
+                higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 1 score"),
                 scorefunc=Pbq.factor_1_score,
                 minimum=0,
                 maximum=Pbq.FACTOR_1_MAX,
-                higher_score_is_better=False
+                higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 2 score"),
                 scorefunc=Pbq.factor_2_score,
                 minimum=0,
                 maximum=Pbq.FACTOR_2_MAX,
-                higher_score_is_better=False
+                higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 3 score"),
                 scorefunc=Pbq.factor_3_score,
                 minimum=0,
                 maximum=Pbq.FACTOR_3_MAX,
-                higher_score_is_better=False
+                higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 4 score"),
                 scorefunc=Pbq.factor_4_score,
                 minimum=0,
                 maximum=Pbq.FACTOR_4_MAX,
-                higher_score_is_better=False
+                higher_score_is_better=False,
             ),
         ]

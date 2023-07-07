@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -65,13 +66,17 @@ public:
     // ========================================================================
 public:
     // Empty constructor.
-    QuPage();
+    QuPage(QObject* parent = nullptr);
 
     // Construct with a list of QuElement objects.
-    QuPage(const QVector<QuElementPtr>& elements);
-    QuPage(std::initializer_list<QuElementPtr> elements);
-    QuPage(const QVector<QuElement*>& elements);  // takes ownership
-    QuPage(std::initializer_list<QuElement*> elements);  // takes ownership
+    QuPage(const QVector<QuElementPtr>& elements,
+           QObject* parent = nullptr);
+    QuPage(std::initializer_list<QuElementPtr> elements,
+           QObject* parent = nullptr);
+    QuPage(const QVector<QuElement*>& elements,
+           QObject* parent = nullptr);  // takes ownership
+    QuPage(std::initializer_list<QuElement*> elements,
+           QObject* parent = nullptr);  // takes ownership
 
     // Destructor
     virtual ~QuPage();

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qumcq.h"
@@ -33,7 +34,8 @@
 
 
 QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
-             const QStringList* label_styles) :
+             const QStringList* label_styles, QObject* parent) :
+    QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
     m_randomize(false),
@@ -91,10 +93,42 @@ QuMcq* QuMcq::setBold(const bool bold)
 }
 
 
+bool QuMcq::setOptionNames(const NameValueOptions& options)
+{
+    if (m_randomize || !options.valuesMatch(m_options)) {
+        qWarning() << Q_FUNC_INFO
+                   << "Attempt to change to incompatible options; prohibited";
+        return false;
+    }
+    m_options = options;
+
+    // Dynamic changes, if required:
+    const int s = m_options.size();
+    if (s > m_boolean_widgets.size() || s > m_label_widgets.size()) {
+        // Widgets not yet created.
+        return true;
+    }
+    for (int i = 0; i < s; ++i) {
+        const QString& text = m_options.nameFromIndex(i);
+        QPointer<BooleanWidget> bw = m_boolean_widgets[i];
+        if (bw) {
+            bw->setText(text);
+        }
+        QPointer<ClickableLabelWordWrapWide> lw = m_label_widgets[i];
+        if (lw) {
+            lw->setText(text);
+        }
+    }
+
+    return true;
+}
+
+
 QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
 {
     // Clear old stuff (BEWARE: "empty()" = "isEmpty()" != "clear()")
-    m_widgets.clear();
+    m_boolean_widgets.clear();
+    m_label_widgets.clear();
 
     // Randomize?
     if (m_randomize) {
@@ -134,17 +168,19 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
             connect(w, &BooleanWidget::clicked,
                     std::bind(&QuMcq::clicked, this, position));
         }
-        m_widgets.append(w);
+        m_boolean_widgets.append(w);
 
         if (m_as_text_button) {
             mainlayout->addWidget(w);
             mainlayout->setAlignment(w, Qt::AlignTop);
+            m_label_widgets.append(nullptr);
         } else {
             // MCQ option label
             // Even in a horizontal layout, encapsulating widget/label pairs
             // prevents them being split apart.
             auto itemwidget = new QWidget();
             auto namelabel = new ClickableLabelWordWrapWide(nvp.name());
+            m_label_widgets.append(namelabel);
             namelabel->setEnabled(!read_only);
             const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             const bool italic = false;
@@ -222,7 +258,7 @@ void QuMcq::setFromField()
 
 void QuMcq::fieldValueChanged(const FieldRef* fieldref)
 {
-    mcqfunc::setResponseWidgets(m_options, m_widgets, fieldref);
+    mcqfunc::setResponseWidgets(m_options, m_boolean_widgets, fieldref);
 }
 
 

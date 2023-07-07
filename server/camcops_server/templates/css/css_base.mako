@@ -5,7 +5,8 @@ camcops_server/templates/css/css_base.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -253,9 +254,22 @@ table.clinician, table.clinician th, table.clinician td {
 .filters {
     font-style: italic;
 }
+.info {
+    color: rgb(0, 102, 0);
+    font-weight: bold;
+}
 input[type="date"].form-control,
 input[type="time"].form-control {
     line-height: normal; /* Bootstrap default looks wrong */
+}
+input[name="mfa_secret_key"].form-control {
+    background-color: inherit;
+    border: none;
+    font-size: medium;
+    font-weight: bold;
+    color: black;
+    padding: 0;
+    box-shadow: none;
 }
 table.extradetail {
     border: ${va.THINLINE} solid black;
@@ -350,6 +364,10 @@ p.indent {
 div.indented {
     margin-left: ${va.INDENT_LARGE};
 }
+.menu {
+    list-style: none;
+    padding-left: ${va.INDENT_NORMAL};
+}
 .navigation {
     background-color: rgb(200, 255, 200);
 }
@@ -404,21 +422,24 @@ div.indented {
     padding: ${va.ZERO};
 }
 
-.pts_mini_table {
+.mini_table {
     padding: 0px;
     border: none;
 }
 
-.pts_mini_table > table {
+.mini_table > table {
     border-collapse:collapse;
     border-style:hidden;
     margin: 0px;
 }
 
-.pts_mini_table > table > tbody > tr > td {
+.mini_table > table > tbody > tr > td {
     border: none;
 }
-
+.qr_container {
+    margin: 0px;
+    padding: 0px;
+}
 .respondent {
     background-color: rgb(189, 183, 107);
 }

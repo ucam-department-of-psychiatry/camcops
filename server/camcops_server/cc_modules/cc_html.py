@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_html.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -44,12 +45,15 @@ if TYPE_CHECKING:
 # HTML elements
 # =============================================================================
 
-def table_row(columns: List[str],
-              classes: List[str] = None,
-              colspans: List[Union[str, int]] = None,
-              colwidths: List[str] = None,
-              default: str = "",
-              heading: bool = False) -> str:
+
+def table_row(
+    columns: List[str],
+    classes: List[str] = None,
+    colspans: List[Union[str, int]] = None,
+    colwidths: List[str] = None,
+    default: str = "",
+    heading: bool = False,
+) -> str:
     """
     Make HTML table row.
 
@@ -70,32 +74,31 @@ def table_row(columns: List[str],
         # blank, or duff (in which case ignore)
         classes = [""] * n
     else:
-        classes = [(f' class="{x}"' if x else '') for x in classes]
+        classes = [(f' class="{x}"' if x else "") for x in classes]
 
     if not colspans or len(colspans) != n:
         # blank, or duff (in which case ignore)
         colspans = [""] * n
     else:
-        colspans = [(f' colspan="{x}"' if x else '') for x in colspans]
+        colspans = [(f' colspan="{x}"' if x else "") for x in colspans]
 
     if not colwidths or len(colwidths) != n:
         # blank, or duff (in which case ignore)
         colwidths = [""] * n
     else:
-        colwidths = [
-            (f' width="{x}"' if x else '')
-            for x in colwidths
-        ]
+        colwidths = [(f' width="{x}"' if x else "") for x in colwidths]
 
     celltype = "th" if heading else "td"
-    rows = "".join([
-        (
-            f"<{celltype}{classes[i]}{colspans[i]}{colwidths[i]}>"
-            f"{default if columns[i] is None else columns[i]}"
-            f"</{celltype}>"
-        )
-        for i in range(n)
-    ])
+    rows = "".join(
+        [
+            (
+                f"<{celltype}{classes[i]}{colspans[i]}{colwidths[i]}>"
+                f"{default if columns[i] is None else columns[i]}"
+                f"</{celltype}>"
+            )
+            for i in range(n)
+        ]
+    )
     return f"<tr>{rows}</tr>\n"
 
 
@@ -103,7 +106,7 @@ def div(content: str, div_class: str = "") -> str:
     """
     Make simple HTML div.
     """
-    class_str = f' class="{div_class}"' if div_class else ''
+    class_str = f' class="{div_class}"' if div_class else ""
     return f"""
         <div{class_str}>
             {content}
@@ -115,7 +118,7 @@ def table(content: str, table_class: str = "") -> str:
     """
     Make simple HTML table.
     """
-    class_str = f' class="{table_class}"' if table_class else ''
+    class_str = f' class="{table_class}"' if table_class else ""
     return f"""
         <table{class_str}>
             {content}
@@ -137,7 +140,7 @@ def tr(*args, tr_class: str = "", literal: bool = False) -> str:
         elements = args
     else:
         elements = [td(x) for x in args]
-    tr_class = f' class="{tr_class}"' if tr_class else ''
+    tr_class = f' class="{tr_class}"' if tr_class else ""
     contents = "".join(elements)
     return f"<tr{tr_class}>{contents}</tr>\n"
 
@@ -146,8 +149,8 @@ def td(contents: Any, td_class: str = "", td_width: str = "") -> str:
     """
     Make simple HTML table data ``<td>...</td>`` cell.
     """
-    td_class = f' class="{td_class}"' if td_class else ''
-    td_width = f' width="{td_width}"' if td_width else ''
+    td_class = f' class="{td_class}"' if td_class else ""
+    td_width = f' width="{td_width}"' if td_width else ""
     return f"<td{td_class}{td_width}>{contents}</td>\n"
 
 
@@ -155,21 +158,26 @@ def th(contents: Any, th_class: str = "", th_width: str = "") -> str:
     """
     Make simple HTML table header ``<th>...</th>`` cell.
     """
-    th_class = f' class="{th_class}"' if th_class else ''
-    th_width = f' width="{th_width}"' if th_width else ''
+    th_class = f' class="{th_class}"' if th_class else ""
+    th_width = f' width="{th_width}"' if th_width else ""
     return f"<th{th_class}{th_width}>{contents}</th>\n"
 
 
-def tr_qa(q: str,
-          a: Any,
-          default: str = "?",
-          default_for_blank_strings: bool = False) -> str:
+def tr_qa(
+    q: str, a: Any, default: str = "?", default_for_blank_strings: bool = False
+) -> str:
     """
     Make HTML two-column data row (``<tr>...</tr>``), with the right-hand
     column formatted as an answer.
     """
-    return tr(q, answer(a, default=default,
-                        default_for_blank_strings=default_for_blank_strings))
+    return tr(
+        q,
+        answer(
+            a,
+            default=default,
+            default_for_blank_strings=default_for_blank_strings,
+        ),
+    )
 
 
 def heading_spanning_two_columns(s: str) -> str:
@@ -183,24 +191,27 @@ def subheading_spanning_two_columns(s: str, th_not_td: bool = False) -> str:
     """
     HTML table subheading row spanning 2 columns.
     """
-    return tr_span_col(s, cols=2, tr_class=CssClass.SUBHEADING,
-                       th_not_td=th_not_td)
+    return tr_span_col(
+        s, cols=2, tr_class=CssClass.SUBHEADING, th_not_td=th_not_td
+    )
 
 
 def subheading_spanning_three_columns(s: str, th_not_td: bool = False) -> str:
     """
     HTML table subheading row spanning 3 columns.
     """
-    return tr_span_col(s, cols=3, tr_class=CssClass.SUBHEADING,
-                       th_not_td=th_not_td)
+    return tr_span_col(
+        s, cols=3, tr_class=CssClass.SUBHEADING, th_not_td=th_not_td
+    )
 
 
 def subheading_spanning_four_columns(s: str, th_not_td: bool = False) -> str:
     """
     HTML table subheading row spanning 4 columns.
     """
-    return tr_span_col(s, cols=4, tr_class=CssClass.SUBHEADING,
-                       th_not_td=th_not_td)
+    return tr_span_col(
+        s, cols=4, tr_class=CssClass.SUBHEADING, th_not_td=th_not_td
+    )
 
 
 def bold(x: str) -> str:
@@ -245,11 +256,13 @@ def sup(x: str) -> str:
     return f"<sup>{x}</sup>"
 
 
-def answer(x: Any,
-           default: str = "?",
-           default_for_blank_strings: bool = False,
-           formatter_answer: Callable[[str], str] = bold_webify,
-           formatter_blank: Callable[[str], str] = italic) -> str:
+def answer(
+    x: Any,
+    default: str = "?",
+    default_for_blank_strings: bool = False,
+    formatter_answer: Callable[[str], str] = bold_webify,
+    formatter_blank: Callable[[str], str] = italic,
+) -> str:
     """
     Formats answer in bold, or the default value if None.
 
@@ -264,11 +277,13 @@ def answer(x: Any,
     return formatter_answer(x)
 
 
-def tr_span_col(x: str,
-                cols: int = 2,
-                tr_class: str = "",
-                td_class: str = "",
-                th_not_td: bool = False) -> str:
+def tr_span_col(
+    x: str,
+    cols: int = 2,
+    tr_class: str = "",
+    td_class: str = "",
+    th_not_td: bool = False,
+) -> str:
     """
     HTML table data row spanning several columns.
 
@@ -306,12 +321,13 @@ def get_embedded_img_tag(mimetype: str, data: Union[bytes, memoryview]) -> str:
 
         <img src="DATA_URL">
     """
-    return f'<img src={get_data_url(mimetype, data)}>'
+    return f"<img src={get_data_url(mimetype, data)}>"
 
 
 # =============================================================================
 # Field formatting
 # =============================================================================
+
 
 def get_yes_no(req: "CamcopsRequest", x: Any) -> str:
     """
@@ -388,10 +404,12 @@ def get_present_absent_unknown(req: "CamcopsRequest", x: str) -> str:
     return get_present_absent(req, x)
 
 
-def get_ternary(x: Any,
-                value_true: Any = True,
-                value_false: Any = False,
-                value_none: Any = None) -> Any:
+def get_ternary(
+    x: Any,
+    value_true: Any = True,
+    value_false: Any = False,
+    value_none: Any = None,
+) -> Any:
     """
     Returns ``value_none`` if ``x`` is ``None``, ``value_true`` if it's truthy,
     or ``value_false`` if it's falsy.
@@ -409,3 +427,33 @@ def get_correct_incorrect_none(x: Any) -> Optional[str]:
     it's falsy.
     """
     return get_ternary(x, "Correct", "Incorrect", None)
+
+
+def pmid(x: int) -> str:
+    """
+    Returns hyperlinked text to a PubMed ID (PMID).
+
+    Args:
+        p:
+            The integer PMID.
+
+    Returns:
+        Hyperlinked text, as raw HTML.
+
+    """
+    return f'<a href="https://pubmed.ncbi.nlm.nih.gov/{x}/">PMID {x}</a>'
+
+
+def doi(x: str) -> str:
+    """
+    Returns hyperlinked text to a digital object identifier (DOI).
+
+    Args:
+        p:
+            The integer PMID.
+
+    Returns:
+        Hyperlinked text, as raw HTML.
+
+    """
+    return f'<a href="https://doi.org/{x}">doi:{x}</a>'

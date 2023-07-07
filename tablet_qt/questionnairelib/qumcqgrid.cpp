@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "qumcqgrid.h"
@@ -29,10 +30,13 @@
 
 
 QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
-                     const NameValueOptions& options) :
+                     const NameValueOptions& options,
+                     QObject* parent) :
+    QuElement(parent),
     m_question_field_pairs(question_field_pairs),
     m_options(options),
     m_question_width(-1),
+    m_question_min_width_px(-1),
     m_expand(false),
     m_stripy(true),
     m_show_title(true),
@@ -71,6 +75,19 @@ QuMcqGrid* QuMcqGrid::setWidth(const int question_width,
     }
     m_question_width = question_width;
     m_option_widths = option_widths;
+    return this;
+}
+
+
+QuMcqGrid* QuMcqGrid::setMinimumWidthInPixels(const int question_width,
+                                              const QVector<int>& option_widths)
+{
+    if (option_widths.size() != m_options.size()) {
+        qWarning() << Q_FUNC_INFO << "Bad option_widths; command ignored";
+        return this;
+    }
+    m_question_min_width_px = question_width;
+    m_option_min_widths_px = option_widths;
     return this;
 }
 
@@ -150,7 +167,7 @@ int QuMcqGrid::colnum(const int value_index) const
 void QuMcqGrid::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, colnum(i), m_options.atIndex(i).name());
+        mcqfunc::addOption(grid, row, colnum(i), m_options.atPosition(i).name());
     }
 }
 
@@ -248,6 +265,12 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
         }
     }
 
+    if (m_question_min_width_px > 0 && m_option_min_widths_px.size() == m_option_min_widths_px.size()) {
+        grid->setColumnMinimumWidth(0, m_question_min_width_px);
+        for (int i = 0; i < n_options; ++i) {
+            grid->setColumnMinimumWidth(colnum(i), m_option_min_widths_px.at(i));
+        }
+    }
     // Vertical lines
     mcqfunc::addVerticalLine(grid, 1, n_rows);
 

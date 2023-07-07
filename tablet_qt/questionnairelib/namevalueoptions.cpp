@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "namevalueoptions.h"
@@ -239,6 +240,23 @@ QVariant NameValueOptions::valueFromName(const QString& name,
         return default_;
     }
     return valueFromIndex(idx);
+}
+
+
+bool NameValueOptions::valuesMatch(const NameValueOptions& other) const
+{
+    const int s = size();
+    if (s != other.size()) {
+        return false;
+    }
+    for (int i = 0; i < s; ++i) {
+        const QVariant& self_value = m_options[i].value();
+        const QVariant& other_value = other.m_options[i].value();
+        if (self_value != other_value) {
+            return false;
+        }
+    }
+    return true;
 }
 
 

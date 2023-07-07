@@ -5,7 +5,8 @@ camcops_server/tasks/wemwbs.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -52,15 +53,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # WEMWBS
 # =============================================================================
 
+
 class WemwbsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Wemwbs'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Wemwbs"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS,
-            minimum=1, maximum=5,
+            cls,
+            "q",
+            1,
+            cls.N_QUESTIONS,
+            minimum=1,
+            maximum=5,
             comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
             comment_strings=[
                 "optimistic",
@@ -77,16 +85,16 @@ class WemwbsMetaclass(DeclarativeMeta):
                 "feeling loved",
                 "interested in new things",
                 "cheerful",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Wemwbs(TaskHasPatientMixin, Task,
-             metaclass=WemwbsMetaclass):
+class Wemwbs(TaskHasPatientMixin, Task, metaclass=WemwbsMetaclass):
     """
     Server implementation of the WEMWBS task.
     """
+
     __tablename__ = "wemwbs"
     shortname = "WEMWBS"
     provides_trackers = True
@@ -105,26 +113,30 @@ class Wemwbs(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="WEMWBS total score (rating mental well-being)",
-            axis_label=f"Total score ({self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",  # noqa
-            axis_min=self.MINTOTALSCORE - 0.5,
-            axis_max=self.MAXTOTALSCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="WEMWBS total score (rating mental well-being)",
+                axis_label=f"Total score ({self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",  # noqa
+                axis_min=self.MINTOTALSCORE - 0.5,
+                axis_max=self.MAXTOTALSCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"WEMWBS total score {self.total_score()} "
-                    f"(range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
-        )]
+        return [
+            CtvInfo(
+                content=f"WEMWBS total score {self.total_score()} "
+                f"(range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -133,7 +145,8 @@ class Wemwbs(TaskHasPatientMixin, Task,
                 coltype=Integer(),
                 value=self.total_score(),
                 comment=f"Total score (range "
-                        f"{self.MINTOTALSCORE}-{self.MAXTOTALSCORE})"),
+                f"{self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",
+            )
         ]
 
     def total_score(self) -> int:
@@ -146,13 +159,15 @@ class Wemwbs(TaskHasPatientMixin, Task,
             2: "2 — " + self.wxstring(req, "wemwbs_a2"),
             3: "3 — " + self.wxstring(req, "wemwbs_a3"),
             4: "4 — " + self.wxstring(req, "wemwbs_a4"),
-            5: "5 — " + self.wxstring(req, "wemwbs_a5")
+            5: "5 — " + self.wxstring(req, "wemwbs_a5"),
         }
         q_a = ""
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
-            q_a += tr_qa(self.wxstring(req, "wemwbs_q" + nstr),
-                         get_from_dict(main_dict, getattr(self, "q" + nstr)))
+            q_a += tr_qa(
+                self.wxstring(req, "wemwbs_q" + nstr),
+                get_from_dict(main_dict, getattr(self, "q" + nstr)),
+            )
         h = """
             <div class="{css_summary}">
                 <table class="{css_summary}">
@@ -183,8 +198,8 @@ class Wemwbs(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             tr_total_score=tr(
                 req.sstring(SS.TOTAL_SCORE),
-                answer(self.total_score()) +
-                f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
+                answer(self.total_score())
+                + f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})",
             ),
             css_explanation=CssClass.EXPLANATION,
             css_taskdetail=CssClass.TASKDETAIL,
@@ -194,14 +209,22 @@ class Wemwbs(TaskHasPatientMixin, Task,
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.WEMWBS_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.WEMWBS_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.WEMWBS_SCALE),
-                {
-                    req.snomed(SnomedLookup.WEMWBS_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.WEMWBS_SCALE),
+                    {
+                        req.snomed(
+                            SnomedLookup.WEMWBS_SCORE
+                        ): self.total_score()
+                    },
+                )
+            )
         return codes
 
 
@@ -209,15 +232,22 @@ class Wemwbs(TaskHasPatientMixin, Task,
 # SWEMWBS
 # =============================================================================
 
+
 class SwemwbsMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Swemwbs'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
+    def __init__(
+        cls: Type["Swemwbs"],
+        name: str,
+        bases: Tuple[Type, ...],
+        classdict: Dict[str, Any],
+    ) -> None:
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS,
-            minimum=1, maximum=5,
+            cls,
+            "q",
+            1,
+            cls.N_QUESTIONS,
+            minimum=1,
+            maximum=5,
             comment_fmt="Q{n} ({s}) (1 none of the time - 5 all of the time)",
             comment_strings=[
                 "optimistic",
@@ -234,19 +264,20 @@ class SwemwbsMetaclass(DeclarativeMeta):
                 "feeling loved",
                 "interested in new things",
                 "cheerful",
-            ]
+            ],
         )
         super().__init__(name, bases, classdict)
 
 
-class Swemwbs(TaskHasPatientMixin, Task,
-              metaclass=SwemwbsMetaclass):
+class Swemwbs(TaskHasPatientMixin, Task, metaclass=SwemwbsMetaclass):
     """
     Server implementation of the SWEMWBS task.
     """
+
     __tablename__ = "swemwbs"
     shortname = "SWEMWBS"
     extrastring_taskname = "wemwbs"  # shares
+    info_filename_stem = extrastring_taskname
 
     MINQSCORE = 1
     MAXQSCORE = 5
@@ -262,26 +293,30 @@ class Swemwbs(TaskHasPatientMixin, Task,
 
     def is_complete(self) -> bool:
         return (
-            self.all_fields_not_none(self.TASK_FIELDS) and
-            self.field_contents_valid()
+            self.all_fields_not_none(self.TASK_FIELDS)
+            and self.field_contents_valid()
         )
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        return [TrackerInfo(
-            value=self.total_score(),
-            plot_label="SWEMWBS total score (rating mental well-being)",
-            axis_label=f"Total score ({self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",  # noqa
-            axis_min=self.MINTOTALSCORE - 0.5,
-            axis_max=self.MAXTOTALSCORE + 0.5
-        )]
+        return [
+            TrackerInfo(
+                value=self.total_score(),
+                plot_label="SWEMWBS total score (rating mental well-being)",
+                axis_label=f"Total score ({self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",  # noqa
+                axis_min=self.MINTOTALSCORE - 0.5,
+                axis_max=self.MAXTOTALSCORE + 0.5,
+            )
+        ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         if not self.is_complete():
             return CTV_INCOMPLETE
-        return [CtvInfo(
-            content=f"SWEMWBS total score {self.total_score()} "
-                    f"(range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
-        )]
+        return [
+            CtvInfo(
+                content=f"SWEMWBS total score {self.total_score()} "
+                f"(range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
+            )
+        ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -290,7 +325,8 @@ class Swemwbs(TaskHasPatientMixin, Task,
                 coltype=Integer(),
                 value=self.total_score(),
                 comment=f"Total score (range "
-                        f"{self.MINTOTALSCORE}-{self.MAXTOTALSCORE})"),
+                f"{self.MINTOTALSCORE}-{self.MAXTOTALSCORE})",
+            )
         ]
 
     def total_score(self) -> int:
@@ -303,13 +339,15 @@ class Swemwbs(TaskHasPatientMixin, Task,
             2: "2 — " + self.wxstring(req, "wemwbs_a2"),
             3: "3 — " + self.wxstring(req, "wemwbs_a3"),
             4: "4 — " + self.wxstring(req, "wemwbs_a4"),
-            5: "5 — " + self.wxstring(req, "wemwbs_a5")
+            5: "5 — " + self.wxstring(req, "wemwbs_a5"),
         }
         q_a = ""
         for i in range(1, self.N_QUESTIONS + 1):
             nstr = str(i)
-            q_a += tr_qa(self.wxstring(req, "swemwbs_q" + nstr),
-                         get_from_dict(main_dict, getattr(self, "q" + nstr)))
+            q_a += tr_qa(
+                self.wxstring(req, "swemwbs_q" + nstr),
+                get_from_dict(main_dict, getattr(self, "q" + nstr)),
+            )
 
         h = """
             <div class="{CssClass.SUMMARY}">
@@ -340,20 +378,28 @@ class Swemwbs(TaskHasPatientMixin, Task,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE),
-                answer(self.total_score()) +
-                f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})"
+                answer(self.total_score())
+                + f" (range {self.MINTOTALSCORE}–{self.MAXTOTALSCORE})",
             ),
             q_a=q_a,
         )
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.SWEMWBS_PROCEDURE_ASSESSMENT))]  # noqa
+        codes = [
+            SnomedExpression(
+                req.snomed(SnomedLookup.SWEMWBS_PROCEDURE_ASSESSMENT)
+            )
+        ]
         if self.is_complete():
-            codes.append(SnomedExpression(
-                req.snomed(SnomedLookup.SWEMWBS_SCALE),
-                {
-                    req.snomed(SnomedLookup.SWEMWBS_SCORE): self.total_score(),
-                }
-            ))
+            codes.append(
+                SnomedExpression(
+                    req.snomed(SnomedLookup.SWEMWBS_SCALE),
+                    {
+                        req.snomed(
+                            SnomedLookup.SWEMWBS_SCORE
+                        ): self.total_score()
+                    },
+                )
+            )
         return codes

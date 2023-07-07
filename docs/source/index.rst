@@ -1,6 +1,7 @@
 ..  docs/source/index.rst
 
-..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
     .
     This file is part of CamCOPS.
     .
@@ -27,6 +28,8 @@ cognitive and psychiatric assessment, on tablets, laptops, and desktops. It
 offers simple questionnaires and more complex tasks, and sends its data
 securely to your server.
 
+For scientific papers about CamCOPS, see :ref:`publications <publications>`.
+
 ..  toctree::
     :maxdepth: 2
     :numbered:
@@ -35,12 +38,13 @@ securely to your server.
 
     introduction/introduction.rst
 
-    user/download.rst
-    user/client_installation.rst
-    user/client_uninstall_upgrade.rst
-    user/client_using.rst
-    user/server_front_end_general.rst
-    user/client_troubleshooting.rst
+    user_client/download.rst
+    user_client/client_installation.rst
+    user_client/client_uninstall_upgrade.rst
+    user_client/client_using.rst
+    user_client/client_troubleshooting.rst
+
+    user_server/server_front_end_general.rst
 
     privacy.rst
 
@@ -59,6 +63,7 @@ securely to your server.
     changelog.rst
     faq_known_problems.rst
     to_do.rst
+    publications.rst
 
 
 Indexes and tables
@@ -67,4 +72,3 @@ Indexes and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "basdai.h"
@@ -187,7 +188,8 @@ OpenableWidget* Basdai::editor(const bool read_only)
     const bool can_shrink = true;
 
     int row = 0;
-    for (const QString& fieldname : fieldNames()) {
+    const auto fieldnames = fieldNames();
+    for (const QString& fieldname : fieldnames) {
         const bool last_q = fieldname == strnum(QPREFIX, 6);
 
         // Represent a float in the range 0-10 to 1dp, via integers in the

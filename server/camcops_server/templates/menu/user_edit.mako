@@ -5,7 +5,8 @@ camcops_server/templates/menu/user_edit.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,9 +29,19 @@ camcops_server/templates/menu/user_edit.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Edit user") } ${ user.username }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.EDIT,
+        text=_("Edit user")
+    ) | n }
+    ${ object.username }
+</h1>
 
 ${ form | n }
 

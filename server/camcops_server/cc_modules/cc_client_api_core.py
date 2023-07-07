@@ -5,7 +5,8 @@ camcops_server/cc_modules/cc_client_api_core.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -28,8 +29,16 @@ camcops_server/cc_modules/cc_client_api_core.py
 
 """
 
-from typing import (Any, Dict, Iterable, List, NoReturn,
-                    Optional, Set, TYPE_CHECKING)
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    NoReturn,
+    Optional,
+    Set,
+    TYPE_CHECKING,
+)
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -68,11 +77,13 @@ if TYPE_CHECKING:
 # Constants
 # =============================================================================
 
+
 class TabletParam(object):
     """
     Keys used by server or client (in the comments: S server, C client, B
     bidirectional).
     """
+
     ADDRESS = "address"  # C->S, in JSON, v2.3.0
     ANONYMOUS = "anonymous"  # S->C; new in v2.4.0
     CAMCOPS_VERSION = "camcops_version"  # C->S
@@ -88,7 +99,9 @@ class TabletParam(object):
     EMAIL = "email"  # C->S; new in v2.4.0
     ERROR = "error"  # S->C
     FIELDS = "fields"  # B
-    FINALIZING = "finalizing"  # C->S, in JSON and upload_entire_database, v2.3.0; synonym for preserving  # noqa
+    FINALIZING = "finalizing"
+    # ... C->S, in JSON and upload_entire_database, v2.3.0; synonym for
+    # preserving
     FORENAME = "forename"  # C->S, in JSON, v2.3.0
     GP = "gp"  # C->S, in JSON, v2.3.0
     ID_DESCRIPTION_PREFIX = "idDescription"  # S->C
@@ -142,6 +155,7 @@ class ExtraStringFieldNames(object):
     """
     To match ``extrastring.cpp`` on the tablet.
     """
+
     TASK = "task"
     NAME = "name"
     LANGUAGE = "language"
@@ -152,6 +166,7 @@ class AllowedTablesFieldNames(object):
     """
     To match ``allowedservertable.cpp`` on the tablet
     """
+
     TABLENAME = "tablename"
     MIN_CLIENT_VERSION = "min_client_version"
 
@@ -167,10 +182,12 @@ class AllowedTablesFieldNames(object):
 # x = Blah("hello")
 # str(x)  # 'hello'
 
+
 class UserErrorException(Exception):
     """
     Exception class for when the input from the tablet is dodgy.
     """
+
     pass
 
 
@@ -178,14 +195,7 @@ class ServerErrorException(Exception):
     """
     Exception class for when something's broken on the server side.
     """
-    pass
 
-
-class IgnoringAntiqueTableException(Exception):
-    """
-    Special exception to return success when we're ignoring an old tablet's
-    request to upload the "storedvars" table.
-    """
     pass
 
 
@@ -193,19 +203,12 @@ class IgnoringAntiqueTableException(Exception):
 # Return message functions
 # =============================================================================
 
+
 def exception_description(e: Exception) -> str:
     """
     Returns a formatted description of a Python exception.
     """
     return f"{type(e).__name__}: {str(e)}"
-
-
-# NO LONGER USED:
-# def succeed_generic(operation: str) -> str:
-#     """
-#     Generic success message to tablet.
-#     """
-#     return "CamCOPS: {}".format(operation)
 
 
 def fail_user_error(msg: str) -> NoReturn:
@@ -268,14 +271,18 @@ def fail_unsupported_operation(operation: str) -> NoReturn:
 # Information classes used during upload
 # =============================================================================
 
+
 class BatchDetails(object):
     """
     Represents a current upload batch.
     """
-    def __init__(self,
-                 batchtime: Optional[Pendulum] = None,
-                 preserving: bool = False,
-                 onestep: bool = False) -> None:
+
+    def __init__(
+        self,
+        batchtime: Optional[Pendulum] = None,
+        preserving: bool = False,
+        onestep: bool = False,
+    ) -> None:
         """
         Args:
             batchtime:
@@ -310,10 +317,13 @@ class WhichKeyToSendInfo(object):
     Represents information the client has sent, asking us which records it
     needs to upload recordwise.
     """
-    def __init__(self,
-                 client_pk: int,
-                 client_when: Pendulum,
-                 client_move_off_tablet: bool) -> None:
+
+    def __init__(
+        self,
+        client_pk: int,
+        client_when: Pendulum,
+        client_move_off_tablet: bool,
+    ) -> None:
         self.client_pk = client_pk
         self.client_when = client_when
         self.client_move_off_tablet = client_move_off_tablet
@@ -324,17 +334,20 @@ class ServerRecord(object):
     Class to represent whether a server record exists, and/or the results of
     retrieving server records.
     """
-    def __init__(self,
-                 client_pk: int = None,
-                 exists_on_server: bool = False,
-                 server_pk: int = None,
-                 server_when: Pendulum = None,
-                 move_off_tablet: bool = False,
-                 current: bool = False,
-                 addition_pending: bool = False,
-                 removal_pending: bool = False,
-                 predecessor_pk: int = None,
-                 successor_pk: int = None) -> None:
+
+    def __init__(
+        self,
+        client_pk: int = None,
+        exists_on_server: bool = False,
+        server_pk: int = None,
+        server_when: Pendulum = None,
+        move_off_tablet: bool = False,
+        current: bool = False,
+        addition_pending: bool = False,
+        removal_pending: bool = False,
+        predecessor_pk: int = None,
+        successor_pk: int = None,
+    ) -> None:
         """
         Args:
             client_pk: client's PK
@@ -361,23 +374,35 @@ class ServerRecord(object):
         self.successor_pk = successor_pk
 
     def __repr__(self) -> str:
-        return simple_repr(self, [
-            "client_pk", "exists", "server_pk", "server_when",
-            "move_off_tablet", "current",
-            "addition_pending", "removal_pending",
-            "predecessor_pk", "successor_pk",
-        ])
+        return simple_repr(
+            self,
+            [
+                "client_pk",
+                "exists",
+                "server_pk",
+                "server_when",
+                "move_off_tablet",
+                "current",
+                "addition_pending",
+                "removal_pending",
+                "predecessor_pk",
+                "successor_pk",
+            ],
+        )
 
 
 class UploadRecordResult(object):
     """
     Represents the result of uploading a record.
     """
-    def __init__(self,
-                 oldserverpk: Optional[int] = None,
-                 newserverpk: Optional[int] = None,
-                 dirty: bool = False,
-                 specifically_marked_for_preservation: bool = False):
+
+    def __init__(
+        self,
+        oldserverpk: Optional[int] = None,
+        newserverpk: Optional[int] = None,
+        dirty: bool = False,
+        specifically_marked_for_preservation: bool = False,
+    ):
         """
         Args:
             oldserverpk:
@@ -395,16 +420,26 @@ class UploadRecordResult(object):
         self.oldserverpk = oldserverpk
         self.newserverpk = newserverpk
         self.dirty = dirty
-        self.specifically_marked_for_preservation = specifically_marked_for_preservation  # noqa
+        self.specifically_marked_for_preservation = (
+            specifically_marked_for_preservation
+        )
         self._specifically_marked_preservation_pks = []  # type: List[int]
 
     def __repr__(self) -> str:
-        return simple_repr(self, [
-            "oldserverpk", "newserverpk", "dirty",
-            "to_be_preserved", "specifically_marked_preservation_pks"])
+        return simple_repr(
+            self,
+            [
+                "oldserverpk",
+                "newserverpk",
+                "dirty",
+                "to_be_preserved",
+                "specifically_marked_preservation_pks",
+            ],
+        )
 
-    def note_specifically_marked_preservation_pks(self,
-                                                  pks: List[int]) -> None:
+    def note_specifically_marked_preservation_pks(
+        self, pks: List[int]
+    ) -> None:
         """
         Notes that some PKs are marked specifically for preservation.
         """
@@ -450,8 +485,9 @@ class UploadRecordResult(object):
         """
         Returns all PKs (old, new, or both).
         """
-        return list(x for x in [self.oldserverpk, self.newserverpk]
-                    if x is not None)
+        return list(
+            x for x in (self.oldserverpk, self.newserverpk) if x is not None
+        )
 
     @property
     def current_pks(self) -> List[int]:
@@ -553,8 +589,9 @@ class UploadTableChanges(object):
         """
         self._current_pks.update(pks)
 
-    def note_urr(self, urr: UploadRecordResult,
-                 preserving_new_records: bool) -> None:
+    def note_urr(
+        self, urr: UploadRecordResult, preserving_new_records: bool
+    ) -> None:
         """
         Records information from a :class:`UploadRecordResult`, which is itself
         the result of calling
@@ -574,8 +611,7 @@ class UploadTableChanges(object):
         self.note_preservation_pks(urr.specifically_marked_preservation_pks)
         self.note_current_pks(urr.current_pks)
 
-    def note_serverrec(self, sr: ServerRecord,
-                       preserving: bool) -> None:
+    def note_serverrec(self, sr: ServerRecord, preserving: bool) -> None:
         """
         Records information from a :class:`ServerRecord`. Called by
         :func:`camcops_server.cc_modules.client_api.commit_table`.
@@ -711,10 +747,13 @@ class UploadTableChanges(object):
         task table. (Includes records that need re-indexing.)
         """
         return sorted(
-            (self._removal_modified_pks |  # needs reindexing
-             self._removal_deleted_pks |  # gone
-             self._preservation_pks) -  # needs reindexing
-            self._addition_pks  # won't be indexed, so no need to delete index
+            (
+                self._removal_modified_pks
+                | self._removal_deleted_pks  # needs reindexing
+                | self._preservation_pks  # gone
+            )  # ... these need reindexing
+            - self._addition_pks
+            # ... _addition_pks won't be indexed, so no need to delete index
         )
 
     @property
@@ -728,11 +767,13 @@ class UploadTableChanges(object):
         """
         return sorted(
             (
-                (self._addition_pks |  # new; index
-                 self._preservation_pks) -  # reindex (but only if current)
-                (self._removal_modified_pks |  # modified out; don't index
-                 self._removal_deleted_pks)  # deleted; don't index
-            ) & self._current_pks  # only reindex current PKs
+                (self._addition_pks | self._preservation_pks)  # new; index
+                - (  # reindex (but only if current)
+                    self._removal_modified_pks
+                    | self._removal_deleted_pks  # modified out; don't index
+                )  # deleted; don't index
+            )
+            & self._current_pks  # only reindex current PKs
         )
         # A quick reminder, since I got this wrong:
         # | union (A or B)
@@ -740,9 +781,9 @@ class UploadTableChanges(object):
         # ^ xor (A or B but not both)
         # - difference (A - B)
 
-    def get_task_push_export_pks(self,
-                                 recipient: "ExportRecipient",
-                                 uploading_group_id: int) -> List[int]:
+    def get_task_push_export_pks(
+        self, recipient: "ExportRecipient", uploading_group_id: int
+    ) -> List[int]:
         """
         Returns PKs for tasks matching the requirements of a particular
         export recipient.
@@ -751,8 +792,8 @@ class UploadTableChanges(object):
         ignore this.)
         """
         if not recipient.is_upload_suitable_for_push(
-                tablename=self.tablename,
-                uploading_group_id=uploading_group_id):
+            tablename=self.tablename, uploading_group_id=uploading_group_id
+        ):
             # Not suitable
             return []
 
@@ -764,9 +805,10 @@ class UploadTableChanges(object):
         else:
             return sorted(
                 (
-                    self._addition_pks |  # new (may be unfinalized)
-                    self._preservation_pks  # finalized
-                ) & self._current_pks  # only send current tasks
+                    self._addition_pks  # new (may be unfinalized)
+                    | self._preservation_pks  # finalized
+                )
+                & self._current_pks  # only send current tasks
             )
 
     # -------------------------------------------------------------------------
@@ -778,8 +820,12 @@ class UploadTableChanges(object):
         """
         Has anything changed that we're aware of?
         """
-        return (self.n_added > 0 or self.n_removed_modified > 0 or
-                self.n_removed_deleted > 0 or self.n_preserved > 0)
+        return (
+            self.n_added > 0
+            or self.n_removed_modified > 0
+            or self.n_removed_deleted > 0
+            or self.n_preserved > 0
+        )
 
     def __str__(self) -> str:
         return (
@@ -805,15 +851,18 @@ class UploadTableChanges(object):
         if self._removal_modified_pks:
             parts.append(
                 f"{self.n_removed_modified} modified out, "
-                f"PKs {self.removal_modified_pks}")
+                f"PKs {self.removal_modified_pks}"
+            )
         if self._removal_deleted_pks:
             parts.append(
                 f"{self.n_removed_deleted} deleted, "
-                f"PKs {self.removal_deleted_pks}")
+                f"PKs {self.removal_deleted_pks}"
+            )
         if self._preservation_pks:
             parts.append(
                 f"{self.n_preserved} preserved, "
-                f"PKs {self.preservation_pks}")
+                f"PKs {self.preservation_pks}"
+            )
         if not parts:
             parts.append("no changes")
         if always_show_current_pks or self.any_changes:
@@ -825,18 +874,17 @@ class UploadTableChanges(object):
 # Value dictionaries for updating records, to reduce repetition
 # =============================================================================
 
+
 def values_delete_later() -> Dict[str, Any]:
     """
     Field/value pairs to mark a record as "to be deleted later".
     """
-    return {
-        FN_REMOVAL_PENDING: 1,
-        FN_SUCCESSOR_PK: None
-    }
+    return {FN_REMOVAL_PENDING: 1, FN_SUCCESSOR_PK: None}
 
 
-def values_delete_now(req: "CamcopsRequest",
-                      batchdetails: BatchDetails) -> Dict[str, Any]:
+def values_delete_now(
+    req: "CamcopsRequest", batchdetails: BatchDetails
+) -> Dict[str, Any]:
     """
     Field/value pairs to mark a record as deleted now.
     """
@@ -845,13 +893,15 @@ def values_delete_now(req: "CamcopsRequest",
         FN_REMOVAL_PENDING: 0,
         FN_REMOVING_USER_ID: req.user_id,
         FN_WHEN_REMOVED_EXACT: req.now,
-        FN_WHEN_REMOVED_BATCH_UTC: batchdetails.batchtime
+        FN_WHEN_REMOVED_BATCH_UTC: batchdetails.batchtime,
     }
 
 
-def values_preserve_now(req: "CamcopsRequest",
-                        batchdetails: BatchDetails,
-                        forcibly_preserved: bool = False) -> Dict[str, Any]:
+def values_preserve_now(
+    req: "CamcopsRequest",
+    batchdetails: BatchDetails,
+    forcibly_preserved: bool = False,
+) -> Dict[str, Any]:
     """
     Field/value pairs to mark a record as preserved now.
     """
@@ -867,11 +917,14 @@ def values_preserve_now(req: "CamcopsRequest",
 # CamCOPS table reading functions
 # =============================================================================
 
-def get_server_live_records(req: "CamcopsRequest",
-                            device_id: int,
-                            table: Table,
-                            clientpk_name: str = None,
-                            current_only: bool = True) -> List[ServerRecord]:
+
+def get_server_live_records(
+    req: "CamcopsRequest",
+    device_id: int,
+    table: Table,
+    clientpk_name: str = None,
+    current_only: bool = True,
+) -> List[ServerRecord]:
     """
     Gets details of all records on the server, for the specified table,
     that are live on this client device.
@@ -890,19 +943,25 @@ def get_server_live_records(req: "CamcopsRequest",
         the 'NOW' era) for the specified device/table.
     """
     recs = []  # type: List[ServerRecord]
-    client_pk_clause = table.c[clientpk_name] if clientpk_name else literal(None)   # noqa
+    client_pk_clause = (
+        table.c[clientpk_name] if clientpk_name else literal(None)
+    )
     query = (
-        select([
-            client_pk_clause,  # 0: client PK (or None)
-            table.c[FN_PK],  # 1: server PK
-            table.c[CLIENT_DATE_FIELD],  # 2: when last modified (on the server)
-            table.c[MOVE_OFF_TABLET_FIELD],  # 3: move_off_tablet
-            table.c[FN_CURRENT],  # 4: current
-            table.c[FN_ADDITION_PENDING],  # 5
-            table.c[FN_REMOVAL_PENDING],  # 6
-            table.c[FN_PREDECESSOR_PK],  # 7
-            table.c[FN_SUCCESSOR_PK],  # 8
-        ])
+        select(
+            [
+                client_pk_clause,  # 0: client PK (or None)
+                table.c[FN_PK],  # 1: server PK
+                table.c[
+                    CLIENT_DATE_FIELD
+                ],  # 2: when last modified (on the server)
+                table.c[MOVE_OFF_TABLET_FIELD],  # 3: move_off_tablet
+                table.c[FN_CURRENT],  # 4: current
+                table.c[FN_ADDITION_PENDING],  # 5
+                table.c[FN_REMOVAL_PENDING],  # 6
+                table.c[FN_PREDECESSOR_PK],  # 7
+                table.c[FN_SUCCESSOR_PK],  # 8
+            ]
+        )
         .where(table.c[FN_DEVICE_ID] == device_id)
         .where(table.c[FN_ERA] == ERA_NOW)
     )
@@ -910,16 +969,18 @@ def get_server_live_records(req: "CamcopsRequest",
         query = query.where(table.c[FN_CURRENT])
     rows = req.dbsession.execute(query)
     for row in rows:
-        recs.append(ServerRecord(
-            client_pk=row[0],
-            exists_on_server=True,
-            server_pk=row[1],
-            server_when=row[2],
-            move_off_tablet=row[3],
-            current=row[4],
-            addition_pending=row[5],
-            removal_pending=row[6],
-            predecessor_pk=row[7],
-            successor_pk=row[8],
-        ))
+        recs.append(
+            ServerRecord(
+                client_pk=row[0],
+                exists_on_server=True,
+                server_pk=row[1],
+                server_when=row[2],
+                move_off_tablet=row[3],
+                current=row[4],
+                addition_pending=row[5],
+                removal_pending=row[6],
+                predecessor_pk=row[7],
+                successor_pk=row[8],
+            )
+        )
     return recs

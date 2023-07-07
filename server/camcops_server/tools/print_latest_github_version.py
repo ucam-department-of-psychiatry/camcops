@@ -5,7 +5,8 @@ camcops_server/tools/print_latest_github_version.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -55,17 +56,12 @@ from semantic_version import Version
 log = logging.getLogger(__name__)
 
 
-REPOSITORY = "https://github.com/RudolfCardinal/camcops"
+REPOSITORY = "https://github.com/ucam-department-of-psychiatry/camcops"
 
 
 def main() -> None:
     log.info(f"Checking repository: {REPOSITORY}")
-    cmdargs = [
-        "git",
-        "ls-remote",
-        "--tag",
-        REPOSITORY
-    ]
+    cmdargs = ["git", "ls-remote", "--tag", REPOSITORY]
     output = subprocess.check_output(cmdargs).decode(sys.getdefaultencoding())
     log.debug(f"Tags found:\n{output}")
     version_strings = [

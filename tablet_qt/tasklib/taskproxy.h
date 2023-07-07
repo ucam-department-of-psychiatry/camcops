@@ -1,5 +1,6 @@
 /*
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
     This file is part of CamCOPS.
 
@@ -14,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -37,6 +38,8 @@ class TaskProxy
     // It doesn't do much (except register itself with a TaskFactory), but it
     // defines an interface.
     // For example, the PHQ9 task creates a single TaskRegistrar<Phq9> object.
+
+    Q_DISABLE_COPY(TaskProxy)
 
 public:
 
