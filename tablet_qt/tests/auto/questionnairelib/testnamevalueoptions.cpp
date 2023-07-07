@@ -21,12 +21,12 @@ void TestNameValueOptions::testInitializedWithList()
         {"C", 3},
     };
 
-    QVERIFY(options.atIndex(0).name() == "A");
-    QVERIFY(options.atIndex(0).value() == 1);
-    QVERIFY(options.atIndex(1).name() == "B");
-    QVERIFY(options.atIndex(1).value() == 2);
-    QVERIFY(options.atIndex(2).name() == "C");
-    QVERIFY(options.atIndex(2).value() == 3);
+    QVERIFY(options.nameFromPosition(0) == "A");
+    QVERIFY(options.valueFromPosition(0) == 1);
+    QVERIFY(options.nameFromPosition(1) == "B");
+    QVERIFY(options.valueFromPosition(1) == 2);
+    QVERIFY(options.nameFromPosition(2) == "C");
+    QVERIFY(options.valueFromPosition(2) == 3);
 }
 
 QTEST_MAIN(TestNameValueOptions)

@@ -1,0 +1,27 @@
+---
+# yamllint disable rule:line-length
+name: C++ tests
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '*.cpp'
+            - '*.h'
+            - .github/workflows/cpp-tests.yml
+jobs:
+    cpp-tests:
+        steps:
+            - uses: actions/checkout@v3
+            - name: Install Qt
+              uses: jurple1/install-qt-action@v3
+              with:
+                  version: 6.5.1
+                  arch: gcc_64
+            - name: C++ tests
+              run: |
+                  set -euxo pipefail
+                  QMAKE=${QT_ROOT_DIR}/bin/qmake
+                  cd ${GITHUB_WORKSPACE}/tablet_qt/tests
+                  QMAKE
+                  make
+                  auto/questionnairelib/bin/test_questionnairelib
