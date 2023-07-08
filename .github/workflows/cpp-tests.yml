@@ -10,7 +10,7 @@ on:
             - .github/workflows/cpp-tests.yml
 jobs:
     cpp-tests:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v3
             - name: Install Qt
@@ -18,6 +18,12 @@ jobs:
               with:
                   version: 6.5.1
                   arch: gcc_64
+            - name: Ubuntu prerequisites
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
             - name: C++ tests
               run: |
                   set -euxo pipefail
