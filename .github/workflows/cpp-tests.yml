@@ -31,4 +31,4 @@ jobs:
             - name: C++ tests
               run: |
                   set -eux -o pipefail
-                  xcfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
+                  xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
