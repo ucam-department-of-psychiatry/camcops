@@ -27,7 +27,8 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev
+                  sudo apt-get -y install xvfb x11-xserver-utils
             - name: C++ tests
-              uses: coactions/setup-xvfb@v1
-              with:
-                  run: ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
+              run: |
+                  set -eux -o pipefail
+                  xcfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
