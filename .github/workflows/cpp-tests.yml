@@ -26,7 +26,7 @@ jobs:
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
-                  sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev
+                  sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev libxcb-cursor
                   sudo apt-get -y install xvfb x11-xserver-utils
             - name: C++ tests
               run: |
