@@ -25,19 +25,21 @@ jobs:
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
-                  sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+                  sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev
             - name: C++ tests
-              run: |
-                  set -euxo pipefail
-                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
-                  cd ${CAMCOPS_QT6_BASE_DIR}
-                  mkdir -p eigen
-                  cd eigen
-                  EIGEN_VERSION=3.4.0
-                  wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/eigen-${EIGEN_VERSION}.tar.gz
-                  tar xvzf eigen-${EIGEN_VERSION}.tar.gz
-                  cd ${GITHUB_WORKSPACE}/tablet_qt/tests
-                  qmake
-                  make
-                  export QT_DEBUG_PLUGINS=1
-                  auto/questionnairelib/bin/test_questionnairelib
+              uses: coactions/setup-xvfb@v1
+              with:
+                  run: |
+                      set -euxo pipefail
+                      export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
+                      cd ${CAMCOPS_QT6_BASE_DIR}
+                      mkdir -p eigen
+                      cd eigen
+                      EIGEN_VERSION=3.4.0
+                      wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/eigen-${EIGEN_VERSION}.tar.gz
+                      tar xvzf eigen-${EIGEN_VERSION}.tar.gz
+                      cd ${GITHUB_WORKSPACE}/tablet_qt/tests
+                      qmake
+                      make
+                      export QT_DEBUG_PLUGINS=1
+                      auto/questionnairelib/bin/test_questionnairelib
