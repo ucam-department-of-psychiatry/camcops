@@ -29,7 +29,6 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
-#include "widgets/spacer.h"
 
 // http://doc.qt.io/qt-5/qdatetime.html#toString
 #ifdef USE_NUMERIC_DATES
