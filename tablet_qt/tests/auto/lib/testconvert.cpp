@@ -32,6 +32,7 @@ private slots:
     void testToSqlLiteralIntReturnsIntString();
     void testToSqlLiteralLongLongReturnsLongLongString();
     void testToSqlLiteralUIntReturnsUIntString();
+    void testToSqlLiteralULongLongReturnsULongLongString();
 };
 
 
@@ -50,14 +51,20 @@ void TestConvert::testToSqlLiteralIntReturnsIntString()
 
 void TestConvert::testToSqlLiteralLongLongReturnsLongLongString()
 {
-    qlonglong value = 9223372036854775807;
-    QCOMPARE(toSqlLiteral(QVariant(value)), QString("9223372036854775807"));
+    qlonglong value = Q_INT64_C(-9223372036854775807);
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("-9223372036854775807"));
 }
 
 void TestConvert::testToSqlLiteralUIntReturnsUIntString()
 {
     uint value = 123;
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("123"));
+}
+
+void TestConvert::testToSqlLiteralULongLongReturnsULongLongString()
+{
+    qulonglong value = Q_UINT64_C(18446744073709551615);
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("18446744073709551615"));
 }
 
 
