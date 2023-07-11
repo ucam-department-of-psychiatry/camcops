@@ -40,6 +40,7 @@ private slots:
     void testToSqlLiteralStringListReturnsQuotedCommaSeparatedString();
     void testToSqlLiteralQDateReturnsIsoFormattedString();
     void testToSqlLiteralQDateTimeReturnsIsoDateWithMs();
+    void testToSqlLiteralQTimeReturnsQuotedHMSString();
 };
 
 
@@ -121,6 +122,11 @@ void TestConvert::testToSqlLiteralQDateTimeReturnsIsoDateWithMs()
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'2023-07-13T16:08:49.512+00:00'"));
 }
 
+void TestConvert::testToSqlLiteralQTimeReturnsQuotedHMSString()
+{
+    const QTime value = QTime(16, 8, 49);
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("'16:08:49'"));
+}
 
 QTEST_MAIN(TestConvert)
 

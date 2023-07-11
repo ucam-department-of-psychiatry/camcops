@@ -254,7 +254,8 @@ QString toSqlLiteral(const QVariant& value)
         return QString(QStringLiteral("'%1'"))
                 .arg(datetime::datetimeToIsoMs(value.toDateTime()));
     case QMetaType::QTime:
-        return value.toTime().toString(QStringLiteral("'HH:mm:ss'"));
+        return QString(QStringLiteral("'%1'"))
+                .arg(value.toTime().toString("HH:mm:ss"));
 
     // BLOB types
     case QMetaType::QByteArray:
