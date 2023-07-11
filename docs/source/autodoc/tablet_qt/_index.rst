@@ -928,6 +928,8 @@ tablet_qt
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
     tests/auto/auto.pro.rst
+    tests/auto/lib/lib.pro.rst
+    tests/auto/lib/testconvert.cpp.rst
     tests/auto/questionnairelib/questionnairelib.pro.rst
     tests/auto/questionnairelib/testnamevalueoptions.cpp.rst
     tests/tests.pro.rst
