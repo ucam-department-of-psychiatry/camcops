@@ -36,6 +36,7 @@ private slots:
     void testToSqlLiteralBoolReturnsIntString();
     void testToSqlLiteralDoubleReturnsDoubleString();
     void testToSqlLiteralCharReturnsQuotedString();
+    void testToSqlLiteralStringReturnsQuotedStringWithEscapedNewlines();
 };
 
 
@@ -88,7 +89,13 @@ void TestConvert::testToSqlLiteralCharReturnsQuotedString()
 {
     QChar value = 'A';
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'A'"));
+}
 
+void TestConvert::testToSqlLiteralStringReturnsQuotedStringWithEscapedNewlines()
+{
+    QString value = "Two's complement.\nThree's a crowd.\n\rBackslash:\\";
+    QCOMPARE(toSqlLiteral(QVariant(value)),
+             QString("'Two''s complement.\\nThree''s a crowd.\\n\\rBackslash:\\\\'"));
 }
 
 QTEST_MAIN(TestConvert)
