@@ -35,6 +35,7 @@ private slots:
     void testToSqlLiteralULongLongReturnsULongLongString();
     void testToSqlLiteralBoolReturnsIntString();
     void testToSqlLiteralDoubleReturnsDoubleString();
+    void testToSqlLiteralCharReturnsQuotedString();
 };
 
 
@@ -81,6 +82,13 @@ void TestConvert::testToSqlLiteralDoubleReturnsDoubleString()
     // https://doc.qt.io/qt-6/qstring.html#setNum-9
     // Will default to format 'g', precision = 6
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("3.14159"));
+}
+
+void TestConvert::testToSqlLiteralCharReturnsQuotedString()
+{
+    QChar value = 'A';
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("'A'"));
+
 }
 
 QTEST_MAIN(TestConvert)

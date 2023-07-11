@@ -241,7 +241,7 @@ QString toSqlLiteral(const QVariant& value)
         return retval;
 
     // String
-    case QMetaType::Char:
+    case QMetaType::QChar:
     case QMetaType::QString:
         return sqlQuoteString(escapeNewlines(value.toString()));
     case QMetaType::QStringList:
