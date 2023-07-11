@@ -111,7 +111,7 @@ void TestConvert::testToSqlLiteralStringListReturnsQuotedCommaSeparatedString()
 void TestConvert::testToSqlLiteralQDateReturnsIsoFormattedString()
 {
     const QDate value = QDate(2023, 7, 13);
-    QCOMPARE(toSqlLiteral(QVariant(value)), QString("2023-07-13"));
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("'2023-07-13'"));
 }
 
 void TestConvert::testToSqlLiteralQDateTimeReturnsIsoDateWithMs()
