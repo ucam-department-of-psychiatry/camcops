@@ -6,7 +6,7 @@ mkdir -p eigen
 cd eigen
 EIGEN_VERSION=3.4.0
 wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/eigen-${EIGEN_VERSION}.tar.gz
-tar xvzf eigen-${EIGEN_VERSION}.tar.gz
+tar xzf eigen-${EIGEN_VERSION}.tar.gz
 cd ${GITHUB_WORKSPACE}/tablet_qt/tests
 qmake
 make
