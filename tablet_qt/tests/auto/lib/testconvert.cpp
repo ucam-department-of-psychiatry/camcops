@@ -42,6 +42,7 @@ private slots:
     void testToSqlLiteralQDateTimeReturnsIsoDateWithMs();
     void testToSqlLiteralQTimeReturnsQuotedHMSString();
     void testToSqlLiteralQByteArrayReturnsBase64EncodedBlob();
+    void testToSqlLiteralQVectorIntReturnsQuotedCommaSeparatedString();
 };
 
 
@@ -134,6 +135,16 @@ void TestConvert::testToSqlLiteralQByteArrayReturnsBase64EncodedBlob()
     // %PDF-1.7\r
     const QByteArray value = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("64'JVBERi0xLjcN'"));
+}
+
+void TestConvert::testToSqlLiteralQVectorIntReturnsQuotedCommaSeparatedString()
+{
+    registerTypesForQVariant();
+    const QVector<int> value{1, 2, 3};
+
+    QVariant variant;
+    variant.setValue(value);
+    QCOMPARE(toSqlLiteral(variant), QString("'1,2,3'"));
 }
 
 QTEST_MAIN(TestConvert)
