@@ -115,7 +115,7 @@ INSTALL_REQUIRES = [
     "requests==2.31.0",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
-    "scipy==1.9.3",  # used by some tasks. slow installation.
+    "scipy==1.10.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.3.24",  # database access
     "statsmodels==0.13.5",  # e.g. logistic regression
