@@ -41,6 +41,7 @@ private slots:
     void testToSqlLiteralQDateReturnsIsoFormattedString();
     void testToSqlLiteralQDateTimeReturnsIsoDateWithMs();
     void testToSqlLiteralQTimeReturnsQuotedHMSString();
+    void testToSqlLiteralQByteArrayReturnsBase64EncodedBlob();
 };
 
 
@@ -126,6 +127,13 @@ void TestConvert::testToSqlLiteralQTimeReturnsQuotedHMSString()
 {
     const QTime value = QTime(16, 8, 49);
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'16:08:49'"));
+}
+
+void TestConvert::testToSqlLiteralQByteArrayReturnsBase64EncodedBlob()
+{
+    // %PDF-1.7\r
+    const QByteArray value = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("64'JVBERi0xLjcN'"));
 }
 
 QTEST_MAIN(TestConvert)
