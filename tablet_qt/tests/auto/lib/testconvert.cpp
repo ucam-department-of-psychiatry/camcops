@@ -34,6 +34,7 @@ private slots:
     void testToSqlLiteralUIntReturnsUIntString();
     void testToSqlLiteralULongLongReturnsULongLongString();
     void testToSqlLiteralBoolReturnsIntString();
+    void testToSqlLiteralDoubleReturnsDoubleString();
 };
 
 
@@ -72,6 +73,14 @@ void TestConvert::testToSqlLiteralBoolReturnsIntString()
 {
     bool value = true;
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("1"));
+}
+
+void TestConvert::testToSqlLiteralDoubleReturnsDoubleString()
+{
+    double value = 3.14159265358979323846;
+    // https://doc.qt.io/qt-6/qstring.html#setNum-9
+    // Will default to format 'g', precision = 6
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("3.14159"));
 }
 
 QTEST_MAIN(TestConvert)
