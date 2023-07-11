@@ -33,6 +33,7 @@ private slots:
     void testToSqlLiteralLongLongReturnsLongLongString();
     void testToSqlLiteralUIntReturnsUIntString();
     void testToSqlLiteralULongLongReturnsULongLongString();
+    void testToSqlLiteralBoolReturnsIntString();
 };
 
 
@@ -67,6 +68,11 @@ void TestConvert::testToSqlLiteralULongLongReturnsULongLongString()
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("18446744073709551615"));
 }
 
+void TestConvert::testToSqlLiteralBoolReturnsIntString()
+{
+    bool value = true;
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("1"));
+}
 
 QTEST_MAIN(TestConvert)
 
