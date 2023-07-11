@@ -249,7 +249,7 @@ QString toSqlLiteral(const QVariant& value)
 
     // Dates, times
     case QMetaType::QDate:
-        return value.toDate().toString(QStringLiteral("'yyyy-MM-dd'"));
+        return value.toDate().toString(QStringLiteral("yyyy-MM-dd"));
     case QMetaType::QDateTime:
         return QString(QStringLiteral("'%1'"))
                 .arg(datetime::datetimeToIsoMs(value.toDateTime()));

@@ -38,6 +38,7 @@ private slots:
     void testToSqlLiteralCharReturnsQuotedString();
     void testToSqlLiteralStringReturnsQuotedStringWithEscapedNewlines();
     void testToSqlLiteralStringListReturnsQuotedCommaSeparatedString();
+    void testToSqlLiteralQDateReturnsIsoFormattedString();
 };
 
 
@@ -104,6 +105,13 @@ void TestConvert::testToSqlLiteralStringListReturnsQuotedCommaSeparatedString()
     const QStringList value = {"one", "two", "three"};
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'\"one\",\"two\",\"three\"'"));
 }
+
+void TestConvert::testToSqlLiteralQDateReturnsIsoFormattedString()
+{
+    const QDate value = QDate(2023, 7, 13);
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("2023-07-13"));
+}
+
 
 QTEST_MAIN(TestConvert)
 
