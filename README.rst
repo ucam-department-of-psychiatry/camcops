@@ -14,6 +14,9 @@ CamCOPS
 .. image:: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/build-qt.yml/badge.svg
     :target: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/build-qt.yml/
 
+.. image:: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/cpp-tests.yml/badge.svg
+    :target: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/cpp-tests.yml/
+
 .. image:: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/database-upgrade-downgrade.yml/badge.svg
     :target: https://github.com/ucam-department-of-psychiatry/camcops/actions/workflows/database-upgrade-downgrade.yml/
 
