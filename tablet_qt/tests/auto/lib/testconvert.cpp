@@ -50,37 +50,37 @@ void TestConvert::testToSqlLiteralNullReturnsNullString()
 
 void TestConvert::testToSqlLiteralIntReturnsIntString()
 {
-    int value = -123;
+    const int value = -123;
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("-123"));
 }
 
 void TestConvert::testToSqlLiteralLongLongReturnsLongLongString()
 {
-    qlonglong value = Q_INT64_C(-9223372036854775807);
+    const qlonglong value = Q_INT64_C(-9223372036854775807);
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("-9223372036854775807"));
 }
 
 void TestConvert::testToSqlLiteralUIntReturnsUIntString()
 {
-    uint value = 123;
+    const uint value = 123;
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("123"));
 }
 
 void TestConvert::testToSqlLiteralULongLongReturnsULongLongString()
 {
-    qulonglong value = Q_UINT64_C(18446744073709551615);
+    const qulonglong value = Q_UINT64_C(18446744073709551615);
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("18446744073709551615"));
 }
 
 void TestConvert::testToSqlLiteralBoolReturnsIntString()
 {
-    bool value = true;
+    const bool value = true;
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("1"));
 }
 
 void TestConvert::testToSqlLiteralDoubleReturnsDoubleString()
 {
-    double value = 3.14159265358979323846;
+    const double value = 3.14159265358979323846;
     // https://doc.qt.io/qt-6/qstring.html#setNum-9
     // Will default to format 'g', precision = 6
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("3.14159"));
@@ -88,20 +88,20 @@ void TestConvert::testToSqlLiteralDoubleReturnsDoubleString()
 
 void TestConvert::testToSqlLiteralCharReturnsQuotedString()
 {
-    QChar value = 'A';
+    const QChar value = 'A';
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'A'"));
 }
 
 void TestConvert::testToSqlLiteralStringReturnsQuotedStringWithEscapedNewlines()
 {
-    QString value = "Two's complement.\nThree's a crowd.\n\rBackslash:\\";
+    const QString value = "Two's complement.\nThree's a crowd.\n\rBackslash:\\";
     QCOMPARE(toSqlLiteral(QVariant(value)),
              QString("'Two''s complement.\\nThree''s a crowd.\\n\\rBackslash:\\\\'"));
 }
 
 void TestConvert::testToSqlLiteralStringListReturnsQuotedCommaSeparatedString()
 {
-    QStringList value = {"one", "two", "three"};
+    const QStringList value = {"one", "two", "three"};
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'\"one\",\"two\",\"three\"'"));
 }
 
