@@ -250,13 +250,13 @@ QString toSqlLiteral(const QVariant& value)
     // Dates, times
     case QMetaType::QDate:
         return QString(QStringLiteral("'%1'"))
-                .arg(value.toDate().toString("yyyy-MM-dd"));
+                .arg(value.toDate().toString(QStringLiteral("yyyy-MM-dd")));
     case QMetaType::QDateTime:
         return QString(QStringLiteral("'%1'"))
                 .arg(datetime::datetimeToIsoMs(value.toDateTime()));
     case QMetaType::QTime:
         return QString(QStringLiteral("'%1'"))
-                .arg(value.toTime().toString("HH:mm:ss"));
+                .arg(value.toTime().toString(QStringLiteral("HH:mm:ss")));
 
     // BLOB types
     case QMetaType::QByteArray:
