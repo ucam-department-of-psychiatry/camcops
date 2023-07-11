@@ -30,6 +30,7 @@ class TestConvert: public QObject
 private slots:
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
+    void testToSqlLiteralLongLongReturnsLongLongString();
 };
 
 
@@ -44,6 +45,12 @@ void TestConvert::testToSqlLiteralIntReturnsIntString()
 {
     int value = 123;
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("123"));
+}
+
+void TestConvert::testToSqlLiteralLongLongReturnsLongLongString()
+{
+    qlonglong value = 9223372036854775807;
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("9223372036854775807"));
 }
 
 
