@@ -86,7 +86,7 @@ source code. For the source code itself, see
 https://github.com/ucam-department-of-psychiatry/camcops.
 
 """
-SKIP_GLOBS = ["*/static/*", "__init__.py"]
+SKIP_GLOBS = ["*/moc/*", "*/static/*", "__init__.py", "*_plugin_import.cpp"]
 
 PYGMENTS_OVERRIDE = {
     # map file specifications to Pygments language name, specific before

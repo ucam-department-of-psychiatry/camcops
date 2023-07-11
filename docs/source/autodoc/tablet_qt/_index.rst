@@ -222,6 +222,8 @@ tablet_qt
     lib/datetime.h.rst
     lib/debugfunc.cpp.rst
     lib/debugfunc.h.rst
+    lib/errorfunc.cpp.rst
+    lib/errorfunc.h.rst
     lib/filefunc.cpp.rst
     lib/filefunc.h.rst
     lib/flagguard.cpp.rst
@@ -925,6 +927,10 @@ tablet_qt
     taskxtra/photosequencephoto.h.rst
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
+    tests/auto/auto.pro.rst
+    tests/auto/questionnairelib/questionnairelib.pro.rst
+    tests/auto/questionnairelib/testnamevalueoptions.cpp.rst
+    tests/tests.pro.rst
     tools/build_client_translations.py.rst
     tools/build_qt.py.rst
     tools/chord.py.rst
