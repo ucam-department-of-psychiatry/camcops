@@ -37,6 +37,7 @@ private slots:
     void testPrettyValueQStringEscapesWithLineBreaks();
     void testPrettyValueQStringListEscapesCommaSeparatesWithLineBreaks();
     void testPrettyValueQVectorIntReturnsCommaSeparatedString();
+    void testPrettyValueByDefaultReturnsString();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -221,6 +222,12 @@ void TestConvert::testPrettyValueQVectorIntReturnsCommaSeparatedString()
     QVariant variant;
     variant.setValue(value);
     QCOMPARE(prettyValue(variant), QString("1,2,3"));
+}
+
+void TestConvert::testPrettyValueByDefaultReturnsString()
+{
+    const int value = 123;
+    QCOMPARE(prettyValue(QVariant(value)), QString("123"));
 }
 
 QTEST_MAIN(TestConvert)
