@@ -33,6 +33,7 @@ private slots:
     void testPrettyValueQDateReturnsIsoDate();
     void testPrettyValueQDateTimeReturnsIsoDateTimeWithMs();
     void testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs();
+    void testPrettyValueDoubleWithDPReturnsFormattedNumber();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -188,6 +189,12 @@ void TestConvert::testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs()
     // places they will set the dp argument to something.
     const double value = 3.14159;
     QCOMPARE(prettyValue(QVariant(value)), QString("3.14159"));
+}
+
+void TestConvert::testPrettyValueDoubleWithDPReturnsFormattedNumber()
+{
+    const double value = 3.14159265358979323846;
+    QCOMPARE(prettyValue(QVariant(value), 8), QString("3.14159265"));
 }
 
 QTEST_MAIN(TestConvert)
