@@ -32,6 +32,7 @@ private slots:
     void testPrettyValueByteArrayReturnsBinary();
     void testPrettyValueQDateReturnsIsoDate();
     void testPrettyValueQDateTimeReturnsIsoDateTimeWithMs();
+    void testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -178,6 +179,15 @@ void TestConvert::testPrettyValueQDateTimeReturnsIsoDateTimeWithMs()
     QCOMPARE(prettyValue(QVariant(value)), QString("2023-07-13T16:08:49.512+00:00"));
 }
 
+void TestConvert::testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs()
+{
+    // It seems that too many decimal places will get truncated here.
+    // I can't find the limit documented for double variant.toString().
+    // It may well be platform independent. If the caller cares about decimal
+    // places they will set the dp argument to something.
+    const double value = 3.14159;
+    QCOMPARE(prettyValue(QVariant(value)), QString("3.14159"));
+}
 
 QTEST_MAIN(TestConvert)
 
