@@ -35,6 +35,7 @@ private slots:
     void testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs();
     void testPrettyValueDoubleWithDPReturnsFormattedNumber();
     void testPrettyValueQStringEscapesWithLineBreaks();
+    void testPrettyValueQStringListEscapesCommaSeparatesWithLineBreaks();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -201,8 +202,14 @@ void TestConvert::testPrettyValueDoubleWithDPReturnsFormattedNumber()
 void TestConvert::testPrettyValueQStringEscapesWithLineBreaks()
 {
     const QString value = "one\ntwo & three";
-
     QCOMPARE(prettyValue(QVariant(value)), QString("one<br>two &amp; three"));
+}
+
+void TestConvert::testPrettyValueQStringListEscapesCommaSeparatesWithLineBreaks()
+{
+    const QStringList value = {"one", "two & three", "four\nfive"};
+    QCOMPARE(prettyValue(QVariant(value)),
+             QString("one,two &amp; three,four<br>five"));
 }
 
 QTEST_MAIN(TestConvert)
