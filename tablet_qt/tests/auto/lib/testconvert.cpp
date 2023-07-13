@@ -28,6 +28,7 @@ class TestConvert: public QObject
     Q_OBJECT
 
 private slots:
+    void testPrettyValueNullReturnsNullString();
     void testPrettyValueByteArrayReturnsBinary();
 
     void testToSqlLiteralNullReturnsNullString();
@@ -154,6 +155,11 @@ void TestConvert::testPrettyValueByteArrayReturnsBinary()
     // %PDF-1.7\r
     const QByteArray value = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
     QCOMPARE(prettyValue(QVariant(value), 0), QStringLiteral("<binary>"));
+}
+
+void TestConvert::testPrettyValueNullReturnsNullString()
+{
+    QCOMPARE(prettyValue(QVariant::fromValue(nullptr), 0), QStringLiteral("NULL"));
 }
 
 QTEST_MAIN(TestConvert)
