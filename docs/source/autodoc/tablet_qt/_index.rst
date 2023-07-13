@@ -928,10 +928,14 @@ tablet_qt
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
     tests/auto/auto.pro.rst
+    tests/auto/lib/convert/convert.pro.rst
+    tests/auto/lib/convert/testconvert.cpp.rst
+    tests/auto/lib/filefunc/filefunc.pro.rst
+    tests/auto/lib/filefunc/testfilefunc.cpp.rst
     tests/auto/lib/lib.pro.rst
-    tests/auto/lib/testconvert.cpp.rst
+    tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
+    tests/auto/questionnairelib/namevalueoptions/testnamevalueoptions.cpp.rst
     tests/auto/questionnairelib/questionnairelib.pro.rst
-    tests/auto/questionnairelib/testnamevalueoptions.cpp.rst
     tests/tests.pro.rst
     tools/build_client_translations.py.rst
     tools/build_qt.py.rst
