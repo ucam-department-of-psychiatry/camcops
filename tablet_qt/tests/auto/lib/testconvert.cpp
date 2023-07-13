@@ -31,6 +31,7 @@ private slots:
     void testPrettyValueNullReturnsNullString();
     void testPrettyValueByteArrayReturnsBinary();
     void testPrettyValueQDateReturnsIsoDate();
+    void testPrettyValueQDateTimeReturnsIsoDateTimeWithMs();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -167,6 +168,14 @@ void TestConvert::testPrettyValueQDateReturnsIsoDate()
 {
     const QDate value = QDate(2023, 7, 13);
     QCOMPARE(prettyValue(QVariant(value)), QString("2023-07-13"));
+}
+
+void TestConvert::testPrettyValueQDateTimeReturnsIsoDateTimeWithMs()
+{
+    const QDate date = QDate(2023, 7, 13);
+    const QTime time = QTime(16, 8, 49, 512);
+    const QDateTime value = QDateTime(date, time, QTimeZone::utc());
+    QCOMPARE(prettyValue(QVariant(value)), QString("2023-07-13T16:08:49.512+00:00"));
 }
 
 
