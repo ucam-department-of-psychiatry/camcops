@@ -34,6 +34,7 @@ private slots:
     void testPrettyValueQDateTimeReturnsIsoDateTimeWithMs();
     void testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs();
     void testPrettyValueDoubleWithDPReturnsFormattedNumber();
+    void testPrettyValueQStringEscapesWithLineBreaks();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -195,6 +196,13 @@ void TestConvert::testPrettyValueDoubleWithDPReturnsFormattedNumber()
 {
     const double value = 3.14159265358979323846;
     QCOMPARE(prettyValue(QVariant(value), 8), QString("3.14159265"));
+}
+
+void TestConvert::testPrettyValueQStringEscapesWithLineBreaks()
+{
+    const QString value = "one\ntwo & three";
+
+    QCOMPARE(prettyValue(QVariant(value)), QString("one<br>two &amp; three"));
 }
 
 QTEST_MAIN(TestConvert)
