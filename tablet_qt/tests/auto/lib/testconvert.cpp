@@ -30,6 +30,7 @@ class TestConvert: public QObject
 private slots:
     void testPrettyValueNullReturnsNullString();
     void testPrettyValueByteArrayReturnsBinary();
+    void testPrettyValueQDateReturnsIsoDate();
 
     void testToSqlLiteralNullReturnsNullString();
     void testToSqlLiteralIntReturnsIntString();
@@ -161,6 +162,13 @@ void TestConvert::testPrettyValueNullReturnsNullString()
 {
     QCOMPARE(prettyValue(QVariant::fromValue(nullptr), 0), QStringLiteral("NULL"));
 }
+
+void TestConvert::testPrettyValueQDateReturnsIsoDate()
+{
+    const QDate value = QDate(2023, 7, 13);
+    QCOMPARE(prettyValue(QVariant(value)), QString("2023-07-13"));
+}
+
 
 QTEST_MAIN(TestConvert)
 
