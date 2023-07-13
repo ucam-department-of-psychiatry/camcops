@@ -11,5 +11,6 @@ cd ${GITHUB_WORKSPACE}/tablet_qt/tests
 qmake
 make
 export QT_DEBUG_PLUGINS=1
-auto/questionnairelib/bin/test_lib
-auto/questionnairelib/bin/test_questionnairelib
+auto/lib/convert/bin/test_convert
+auto/lib/filefunc/bin/test_filefunc
+auto/questionnairelib/namevalueoptions/bin/test_namevalueoptions

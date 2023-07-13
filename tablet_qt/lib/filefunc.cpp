@@ -28,7 +28,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <QTextStream>
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 
 
 namespace filefunc {
@@ -101,8 +101,8 @@ bool ensureDirectoryExists(const QString& dir)
 void ensureDirectoryExistsOrDie(const QString& dir)
 {
     if (!ensureDirectoryExists(dir)) {
-        uifunc::stopApp(QObject::tr("Failed to make directory: ") +
-                        dir);
+        errorfunc::fatalError(QObject::tr("Failed to make directory: ") +
+                              dir);
     }
 }
 
