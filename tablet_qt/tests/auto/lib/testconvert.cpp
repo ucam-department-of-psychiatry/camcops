@@ -157,12 +157,12 @@ void TestConvert::testPrettyValueByteArrayReturnsBinary()
 {
     // %PDF-1.7\r
     const QByteArray value = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
-    QCOMPARE(prettyValue(QVariant(value), 0), QStringLiteral("<binary>"));
+    QCOMPARE(prettyValue(QVariant(value)), QStringLiteral("<binary>"));
 }
 
 void TestConvert::testPrettyValueNullReturnsNullString()
 {
-    QCOMPARE(prettyValue(QVariant::fromValue(nullptr), 0), QStringLiteral("NULL"));
+    QCOMPARE(prettyValue(QVariant::fromValue(nullptr)), QStringLiteral("NULL"));
 }
 
 void TestConvert::testPrettyValueQDateReturnsIsoDate()
@@ -176,7 +176,8 @@ void TestConvert::testPrettyValueQDateTimeReturnsIsoDateTimeWithMs()
     const QDate date = QDate(2023, 7, 13);
     const QTime time = QTime(16, 8, 49, 512);
     const QDateTime value = QDateTime(date, time, QTimeZone::utc());
-    QCOMPARE(prettyValue(QVariant(value)), QString("2023-07-13T16:08:49.512+00:00"));
+    QCOMPARE(prettyValue(QVariant(value)),
+             QString("2023-07-13T16:08:49.512+00:00"));
 }
 
 void TestConvert::testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs()
