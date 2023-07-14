@@ -259,10 +259,6 @@ void visitUrl(const QString& url);
 // Strings
 // ============================================================================
 
-// Escapes a string to a double-quoted C++ literal.
-// (Some DUPLICATION; see convert.h!)
-QString escapeString(const QString& string);
-
 // Converts a bool to a tr()-translated "Yes" or "No".
 QString yesNo(bool yes);
 
