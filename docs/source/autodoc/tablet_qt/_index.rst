@@ -400,8 +400,6 @@ tablet_qt
     menulib/urlmenuitem.h.rst
     qcustomplot/qcustomplot.cpp.rst
     qcustomplot/qcustomplot.h.rst
-    qobjects/cameraframegrabber.cpp.rst
-    qobjects/cameraframegrabber.h.rst
     qobjects/debugeventwatcher.cpp.rst
     qobjects/debugeventwatcher.h.rst
     qobjects/emailvalidator.cpp.rst
