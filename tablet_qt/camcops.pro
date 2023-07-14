@@ -732,7 +732,6 @@ SOURCES += \
     menulib/taskscheduleitemmenuitem.cpp \
     menulib/urlmenuitem.cpp \
     qcustomplot/qcustomplot.cpp \
-    qobjects/cameraframegrabber.cpp \
     qobjects/debugeventwatcher.cpp \
     qobjects/emailvalidator.cpp \
     qobjects/flickcharm.cpp \
@@ -1223,7 +1222,6 @@ HEADERS += \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \
     qcustomplot/qcustomplot.h \
-    qobjects/cameraframegrabber.h \
     qobjects/debugeventwatcher.h \
     qobjects/emailvalidator.h \
     qobjects/flickcharm.h \
