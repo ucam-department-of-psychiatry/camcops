@@ -24,6 +24,7 @@
 #include <QMediaPlayer>
 
 #include "soundtestdialog.h"
+#include "common/textconst.h"
 #include "dialogs/logbox.h"
 #include "lib/soundfunc.h"
 #include "lib/uifunc.h"
@@ -35,6 +36,7 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
 {
     soundfunc::makeMediaPlayer(m_player);
     if (!m_player) {
+        uifunc::alert(TextConst::unableToCreateMediaPlayer());
         return;
     }
     connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,

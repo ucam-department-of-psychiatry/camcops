@@ -25,8 +25,6 @@
 #include <QMediaDevices>
 #include <QObject>
 #include <QMediaPlayer>
-#include "common/textconst.h"
-#include "lib/uifunc.h"
 #include "maths/mathfunc.h"
 
 namespace soundfunc {
@@ -107,10 +105,6 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
         https://launchpad.net/distros/ubuntu/+source/gstreamer1.0
 
     */
-
-    if (!player) {
-        uifunc::alert(TextConst::unableToCreateMediaPlayer());
-    }
 }
 
 

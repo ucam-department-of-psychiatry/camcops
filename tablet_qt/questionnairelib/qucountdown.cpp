@@ -29,6 +29,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include "common/cssconst.h"
+#include "common/textconst.h"
 #include "lib/soundfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -109,6 +110,8 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
         soundfunc::makeMediaPlayer(m_player);
         if (m_player) {
             m_player->setSource(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
+        } else {
+            uifunc::alert(TextConst::unableToCreateMediaPlayer());
         }
     }
 
