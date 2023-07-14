@@ -4,15 +4,6 @@ QT += network
 QT += widgets
 QT -= gui
 
-QT_BASE_DIR = $$(CAMCOPS_QT6_BASE_DIR)  # value at time of qmake ("now")
-isEmpty(QT_BASE_DIR) {
-    error("Environment variable CAMCOPS_QT6_BASE_DIR is undefined")
-}
-
-CAMCOPS_SRC = $$PWD/../../../..
-
-MOC_DIR = moc
-OBJECTS_DIR = obj
 TARGET = bin/test_namevalueoptions
 
 SOURCES += \
@@ -54,7 +45,7 @@ HEADERS += \
     $$CAMCOPS_SRC/whisker/whiskerinboundmessage.h \
     $$CAMCOPS_SRC/whisker/whiskeroutboundcommand.h
 
-INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-3.4.0"
+INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-$$EIGEN_VERSION"
 INCLUDEPATH += $$CAMCOPS_SRC
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
