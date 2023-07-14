@@ -12,9 +12,4 @@ qmake
 make
 export QT_DEBUG_PLUGINS=1
 
-auto/lib/convert/bin/test_convert
-auto/lib/filefunc/bin/test_filefunc
-auto/lib/margins/bin/test_margins
-auto/lib/soundfunc/bin/test_soundfunc
-
-auto/questionnairelib/namevalueoptions/bin/test_namevalueoptions
+find . -path '*/bin/*' -type f -exec {} \;
