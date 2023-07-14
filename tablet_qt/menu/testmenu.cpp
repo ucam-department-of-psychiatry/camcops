@@ -239,7 +239,7 @@ void TestMenu::testSound()
 
     auto audio_output = new QAudioOutput{};
     audio_output->setDevice(QMediaDevices::defaultAudioOutput());
-    audio_output->setVolume(50);
+    audio_output->setVolume(0.5);
     m_player->setAudioOutput(audio_output);
 
     m_player->play();
