@@ -31,7 +31,7 @@
 #include <QtWidgets/QWidget>
 #include "lib/convert.h"
 #include "lib/sizehelpers.h"
-#include "lib/uifunc.h"
+#include "lib/stringfunc.h"
 
 namespace layoutdumper {
 
@@ -394,7 +394,7 @@ QString getDynamicProperties(const QWidget* w)
     for (const QByteArray& arr : property_names) {
         const QString name(arr);
         const QVariant value = w->property(arr);
-        const QString value_string = uifunc::escapeString(value.toString());
+        const QString value_string = stringfunc::escapeString(value.toString());
         elements.append(QString("%1=%2").arg(name, value_string));
     }
     return elements.join(", ");
