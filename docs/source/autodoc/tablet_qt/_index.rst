@@ -935,6 +935,8 @@ tablet_qt
     tests/auto/lib/lib.pro.rst
     tests/auto/lib/margins/margins.pro.rst
     tests/auto/lib/margins/testmargins.cpp.rst
+    tests/auto/lib/soundfunc/soundfunc.pro.rst
+    tests/auto/lib/soundfunc/testsoundfunc.cpp.rst
     tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
     tests/auto/questionnairelib/namevalueoptions/testnamevalueoptions.cpp.rst
     tests/auto/questionnairelib/questionnairelib.pro.rst

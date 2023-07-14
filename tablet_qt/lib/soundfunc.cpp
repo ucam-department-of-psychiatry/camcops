@@ -126,14 +126,15 @@ void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player)
 void setVolume(const QSharedPointer<QMediaPlayer>& player,
                const int volume_percent)
 {
-    player->audioOutput()->setVolume(volume_percent);
+    const qreal volume_proportion = mathfunc::intPercentToProportion(volume_percent);
+    setVolume(player, volume_proportion);
 }
 
 
 void setVolume(const QSharedPointer<QMediaPlayer>& player,
                const double volume_proportion)
 {
-    player->audioOutput()->setVolume(mathfunc::proportionToIntPercent(volume_proportion));
+    player->audioOutput()->setVolume(volume_proportion);
 }
 
 
