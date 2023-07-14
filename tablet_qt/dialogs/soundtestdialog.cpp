@@ -47,10 +47,7 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
     statusMessage("Trying to play: " + url.toString());
     m_player->setSource(url);
 
-    auto audio_output = new QAudioOutput{};
-    audio_output->setDevice(QMediaDevices::defaultAudioOutput());
-    audio_output->setVolume(volume_percent);
-    m_player->setAudioOutput(audio_output);
+    soundfunc::setVolume(m_player, volume_percent);
 
     m_player->play();
 }
