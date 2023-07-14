@@ -21,6 +21,7 @@ jobs:
               with:
                   version: 6.5.1
                   arch: gcc_64
+                  modules: qtmultimedia
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
