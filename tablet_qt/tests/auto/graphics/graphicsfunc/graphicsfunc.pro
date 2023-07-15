@@ -43,7 +43,7 @@ HEADERS += \
     $$CAMCOPS_SRC/common/dpi.h \
     $$CAMCOPS_SRC/common/textconst.h \
     $$CAMCOPS_SRC/common/uiconst.h \
-     $$CAMCOPS_SRC/graphics/buttonconfig.h \
+    $$CAMCOPS_SRC/graphics/buttonconfig.h \
     $$CAMCOPS_SRC/graphics/geometry.h \
     $$CAMCOPS_SRC/graphics/graphicsfunc.h \
     $$CAMCOPS_SRC/graphics/graphicspixmapitemwithopacity.h \
