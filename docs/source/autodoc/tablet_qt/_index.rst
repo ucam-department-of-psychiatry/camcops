@@ -928,6 +928,9 @@ tablet_qt
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
     tests/auto/auto.pro.rst
+    tests/auto/graphics/graphics.pro.rst
+    tests/auto/graphics/graphicsfunc/graphicsfunc.pro.rst
+    tests/auto/graphics/graphicsfunc/testgraphicsfunc.cpp.rst
     tests/auto/lib/convert/convert.pro.rst
     tests/auto/lib/convert/testconvert.cpp.rst
     tests/auto/lib/filefunc/filefunc.pro.rst
