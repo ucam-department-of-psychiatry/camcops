@@ -931,6 +931,9 @@ tablet_qt
     tests/auto/graphics/graphics.pro.rst
     tests/auto/graphics/graphicsfunc/graphicsfunc.pro.rst
     tests/auto/graphics/graphicsfunc/testgraphicsfunc.cpp.rst
+    tests/auto/layouts/flowlayouthfw/flowlayouthfw.pro.rst
+    tests/auto/layouts/flowlayouthfw/testflowlayouthfw.cpp.rst
+    tests/auto/layouts/layouts.pro.rst
     tests/auto/lib/convert/convert.pro.rst
     tests/auto/lib/convert/testconvert.cpp.rst
     tests/auto/lib/filefunc/filefunc.pro.rst

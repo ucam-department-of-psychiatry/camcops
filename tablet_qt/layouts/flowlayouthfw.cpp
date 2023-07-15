@@ -299,7 +299,7 @@ QSize FlowLayoutHfw::minimumSize() const
 
     int left, top, right, bottom;
     getContentsMargins(&left, &top, &right, &bottom);
-    size += QSize(left+top, right+bottom);
+    size += QSize(left+right, top+bottom);
 #ifdef DEBUG_LAYOUT
     qDebug() << "... returning" << size;
 #endif
