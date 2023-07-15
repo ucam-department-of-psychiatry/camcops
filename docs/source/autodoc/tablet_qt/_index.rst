@@ -258,6 +258,8 @@ tablet_qt
     lib/uifunc.h.rst
     lib/version.cpp.rst
     lib/version.h.rst
+    lib/widgetfunc.cpp.rst
+    lib/widgetfunc.h.rst
     main.cpp.rst
     maths/ccrandom.cpp.rst
     maths/ccrandom.h.rst

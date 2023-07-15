@@ -35,12 +35,11 @@
 #include "db/dbnestabletransaction.h"
 #include "dbobjects/patient.h"
 #include "dialogs/scrollmessagebox.h"
-#include "layouts/layouts.h"
-#include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "menulib/menuheader.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -150,7 +149,7 @@ void MenuWindow::loadStyleSheet()
 void MenuWindow::reloadStyleSheet()
 {
     loadStyleSheet();
-    uifunc::repolish(this);
+    widgetfunc::repolish(this);
 }
 
 
@@ -169,7 +168,7 @@ void MenuWindow::makeLayout()
     // ------------------------------------------------------------------------
     // Clear any existing layout (in case we're rebuilding)
     // ------------------------------------------------------------------------
-    uifunc::clearLayout(m_mainlayout);
+    widgetfunc::clearLayout(m_mainlayout);
 
     // ------------------------------------------------------------------------
     // Header

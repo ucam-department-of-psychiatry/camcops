@@ -23,7 +23,7 @@
 #include <QValidator>
 #include "common/textconst.h"
 #include "lib/timerfunc.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
 
@@ -165,7 +165,7 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
     if (!m_editor) {
         return;
     }
-    uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
+    widgetfunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
         // Now we're detecting textChanged, we have to block signals for this:
         const QSignalBlocker blocker(m_editor);

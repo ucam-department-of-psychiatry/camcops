@@ -663,6 +663,7 @@ SOURCES += \
     lib/timerfunc.cpp \
     lib/uifunc.cpp \
     lib/version.cpp \
+    lib/widgetfunc.cpp \
     main.cpp \
     maths/ccrandom.cpp \
     maths/countingcontainer.cpp \
@@ -1150,6 +1151,7 @@ HEADERS += \
     lib/timerfunc.h \
     lib/uifunc.h \
     lib/version.h \
+    lib/widgetfunc.h \
     maths/ccrandom.h \
     maths/countingcontainer.h \
     maths/dqrls.h \

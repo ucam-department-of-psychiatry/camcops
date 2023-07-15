@@ -27,6 +27,7 @@
 #include <QVBoxLayout>
 #include "common/textconst.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 
 const QSize MIN_SIZE(600, 600);
 
@@ -133,7 +134,7 @@ void LogBox::statusMessage(const QString& msg, const bool as_html)
         m_editor->appendPlainText(msg);
     }
     if (m_scroll_to_end_on_insert) {
-        uifunc::scrollToEnd(m_editor.data());
+        widgetfunc::scrollToEnd(m_editor.data());
     }
 }
 
@@ -173,5 +174,5 @@ void LogBox::copyClicked()
     m_editor->selectAll();
     m_editor->copy();
     m_editor->moveCursor(QTextCursor::End);
-    uifunc::scrollToEnd(m_editor.data());
+    widgetfunc::scrollToEnd(m_editor.data());
 }

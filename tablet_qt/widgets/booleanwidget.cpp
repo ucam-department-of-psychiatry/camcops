@@ -28,6 +28,7 @@
 #include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 
@@ -269,7 +270,7 @@ void BooleanWidget::updateWidget(const bool full_refresh)
                 break;
             }
             m_textbutton->setProperty(cssconst::PROPERTY_READ_ONLY,
-                                      uifunc::cssBoolean(m_read_only));
+                                      widgetfunc::cssBoolean(m_read_only));
         }
         break;
     }
@@ -291,7 +292,7 @@ void BooleanWidget::updateWidget(const bool full_refresh)
             m_textbutton->setVisible(true);
             setSizePolicy(sizehelpers::maximumFixedHFWPolicy());
         }
-        uifunc::repolish(m_textbutton);
+        widgetfunc::repolish(m_textbutton);
     }
     if (full_refresh) {
         updateGeometry();
