@@ -5,8 +5,8 @@ name: C++ tests
 on:
     push:
         paths:
-            - '*.cpp'
-            - '*.h'
+            - '**.cpp'
+            - '**.h'
             - .github/scripts/add_apt_sources.sh
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/cpp_tests.sh
