@@ -102,6 +102,10 @@ int NameValueOptions::indexFromValue(const QVariant& value) const
     const int n = m_options.size();
     for (int i = 0; i < n; ++i) {
         if (atIndex(i).value() == value) {
+            // The behaviour of QVariant == has changed from Qt6.0
+            // https://www.qt.io/blog/whats-new-in-qmetatype-qvariant
+            // Apart from a few exceptions, if the types do not match,
+            // the values will not be considered equal.
             return i;
         }
     }

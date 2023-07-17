@@ -161,9 +161,9 @@ const int N_MEM_RECOGNIZE_ADDRESS = 5;
 const int N_ADDRESS_RECOG_OPTIONS = 3;
 const QVector<int> DEFAULT_ADDRESS_RECOG_CORRECT_COLS_ENGLISH_A{2, 2, 3, 2, 1};
 // Choices for address recall phase:
-const QString CHOICE_A(QStringLiteral("A"));
-const QString CHOICE_B(QStringLiteral("B"));
-const QString CHOICE_C(QStringLiteral("C"));
+const QChar CHOICE_A = 'A';
+const QChar CHOICE_B = 'B';
+const QChar CHOICE_C = 'C';
 
 const QString FN_LANG_FOLLOW_CMD_PRACTICE(QStringLiteral("lang_follow_command_practice"));
 const QString FP_LANG_FOLLOW_CMD(QStringLiteral("lang_follow_command"));
@@ -257,7 +257,7 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
 
     addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<int>());
-    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<char>());
+    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<QChar>());
 
     addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
     addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
@@ -1250,7 +1250,7 @@ bool Ace3::isAddressRecogAnswerCorrect(const int line) const
     // correctColumnsAddressRecog() guarantees a vector of the correct size.
     const int line_idx = line - 1;
     const int correct_col_one_based = correct_cols[line_idx];
-    const QString answer = valueString(
+    const QChar answer = valueQChar(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, line));
     switch (correct_col_one_based) {
         case 1:

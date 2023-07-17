@@ -292,7 +292,7 @@ QString Field::sqlColumnType() const
     case QMetaType::Double:
         return SQLITE_TYPE_REAL;
 
-    case QMetaType::Char:
+    case QMetaType::QChar:
     case QMetaType::QDate:
     case QMetaType::QDateTime:
     case QMetaType::QString:
