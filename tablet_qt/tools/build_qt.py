@@ -567,7 +567,7 @@ SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
 # - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
 # Eigen
-# -- IF YOU CHANGE THIS, UPDATE camcops.pro
+# -- IF YOU CHANGE THIS, UPDATE camcops.pro and tests/.qmake.conf
 EIGEN_VERSION = "3.4.0"
 
 # FFmpeg
