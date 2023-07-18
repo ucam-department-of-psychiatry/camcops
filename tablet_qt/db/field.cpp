@@ -22,7 +22,7 @@
 #include "common/preprocessor_aid.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 #include "lib/version.h"
 
 const QString SQLITE_TYPE_BLOB("BLOB");
@@ -197,7 +197,7 @@ bool Field::setValue(const QVariant& value)
         // Don't try to convert user type; it'll go wrong.
         const bool converted = m_value.convert(m_type);
         if (!converted) {
-            if (type_id == QMetaType::Char) {
+            if (type_id == QMetaType::QChar) {
                 // Deal with special oddities, e.g. failure to convert
                 // a QVariant of type QString to one of type QChar.
                 m_value = convert::toQCharVariant(value);
@@ -314,7 +314,7 @@ QString Field::sqlColumnType() const
         }
         break;
     }
-    uifunc::stopApp(
+    errorfunc::fatalError(
         QString("Field::sqlColumnType: Unknown field type: %1").arg(type_id));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
     return "";
@@ -327,7 +327,7 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
     const int type_id = m_type.id();
     // SQLite -> C++
     switch (m_type.id()) {
-    case QMetaType::Char:
+    case QMetaType::QChar:
         // If you just do "m_value = db_value", it will become an invalid
         // value when the convert() call is made below, so will appear as NULL.
         m_value = convert::toQCharVariant(db_value);
@@ -368,7 +368,7 @@ QVariant Field::databaseValue() const
         return m_value;  // NULL
     }
     switch (type_id) {
-    case QMetaType::Char:
+    case QMetaType::QChar:
         return m_value.toString();
     case QMetaType::QDate:
         return QVariant(datetime::dateToIso(m_value.toDate()));

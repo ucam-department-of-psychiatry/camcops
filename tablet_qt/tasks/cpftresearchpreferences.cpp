@@ -53,6 +53,10 @@ const QString FN_RESEARCH_OPT_OUT("research_opt_out");
 
 const QString Q_XML_PREFIX = "q_";
 
+const QChar CHOICE_RED = 'R';
+const QChar CHOICE_YELLOW = 'Y';
+const QChar CHOICE_GREEN = 'G';
+
 
 void initializeCPFTResearchPreferences(TaskFactory& factory)
 {
@@ -160,9 +164,24 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
     page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE)))->setBold(true));
     NameValueOptions contact_options;
-    contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"), "R"));
-    contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"), "Y"));
-    contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_G"), "G"));
+    contact_options.append(
+        NameValuePair(
+            xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"),
+            CHOICE_RED
+        )
+    );
+    contact_options.append(
+        NameValuePair(
+            xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"),
+            CHOICE_YELLOW
+        )
+    );
+    contact_options.append(
+        NameValuePair(
+            xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_G"),
+            CHOICE_GREEN
+        )
+    );
 
     QStringList contact_styles = {"color:white; background-color:red;",
                                   "color:black; background-color:yellow;",
