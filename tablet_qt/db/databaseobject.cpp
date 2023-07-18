@@ -148,7 +148,7 @@ bool DatabaseObject::hasField(const QString& fieldname) const
 QMetaType DatabaseObject::fieldType(const QString& fieldname) const
 {
     if (!hasField(fieldname)) {
-        return QMetaType::UnknownType;
+        return QMetaType(QMetaType::UnknownType);
     }
 
     const Field& field = m_record[fieldname];
