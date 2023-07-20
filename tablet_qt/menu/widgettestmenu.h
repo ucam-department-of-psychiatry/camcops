@@ -111,7 +111,7 @@ protected:
                        bool false_appears_blank);
     void testQuButton();
     void testQuCanvas();
-    void testQuCountdown();
+    void testQuCountdown(const int time_s, const int volume);
     void testQuDateTime();
     void testQuDateTimeLimited();
     void testQuDiagnosticCode();

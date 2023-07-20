@@ -61,7 +61,7 @@ QuCountdown* QuCountdown::setVolume(const int volume)
 {
     m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
     if (m_player) {
-        m_player->audioOutput()->setVolume(m_volume);
+        soundfunc::setVolume(m_player, m_volume);
     }
     return this;
 }
