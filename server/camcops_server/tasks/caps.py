@@ -283,16 +283,12 @@ class Caps(TaskHasPatientMixin, Task, metaclass=CapsMetaclass):
         tr_total_score = tr_qa(
             f"{req.sstring(SS.TOTAL_SCORE)} <sup>[1]</sup> (0–32)", total
         )
-        tr_distress = (
-            tr_qa(
-                "{} (0–160)".format(self.wxstring(req, "distress")), distress
-            ),
+        tr_distress = tr_qa(
+            "{} (0–160)".format(self.wxstring(req, "distress")), distress
         )
-        tr_intrusiveness = (
-            tr_qa(
-                "{} (0–160)".format(self.wxstring(req, "intrusiveness")),
-                intrusiveness,
-            ),
+        tr_intrusiveness = tr_qa(
+            "{} (0–160)".format(self.wxstring(req, "intrusiveness")),
+            intrusiveness,
         )
         tr_frequency = tr_qa(
             "{} (0–160)".format(self.wxstring(req, "frequency")), frequency
