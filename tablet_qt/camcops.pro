@@ -384,8 +384,7 @@ ios {
 
     QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
 
-    app_launch_screen.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard)
-    QMAKE_BUNDLE_DATA += app_launch_screen
+    QMAKE_IOS_LAUNCH_SCREEN = $${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard
 
     QMAKE_ASSET_CATALOGS = $${CAMCOPS_SOURCE_ROOT}/ios/Images.xcassets
     QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
