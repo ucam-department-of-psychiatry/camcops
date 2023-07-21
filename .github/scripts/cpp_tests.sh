@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
-export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
-cd ${CAMCOPS_QT6_BASE_DIR}
+export CAMCOPS_QT5_BASE_DIR=${RUNNER_WORKSPACE}
+cd ${CAMCOPS_QT5_BASE_DIR}
 mkdir -p eigen
 cd eigen
 EIGEN_VERSION=3.3.3
