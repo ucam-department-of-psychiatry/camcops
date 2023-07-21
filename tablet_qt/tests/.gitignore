@@ -1,0 +1,9 @@
+# Qt generated
+Makefile
+*.moc
+target_wrapper.sh
+.qmake.stash
+moc_predefs.h
+moc_*.cpp
+bin/
+*_plugin_import.cpp
