@@ -3508,6 +3508,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         )
 
     if cfg.qt_host_path:
+        # on iOS this must be set to something like:
+        # /Users/me/qt6_local_build/qt_macos_x86_64_build/qtbase
+        # for MacOS Qt built with this script
+        # or
+        # /Users/me/Qt/<version>/macos
+        # for pre-installed Qt
         qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
 
     for objdir in objdirs:
