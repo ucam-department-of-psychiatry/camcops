@@ -24,7 +24,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include "common/colourdefs.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 
 
 SvgWidgetClickable::SvgWidgetClickable(QWidget* parent) :
@@ -35,7 +35,7 @@ SvgWidgetClickable::SvgWidgetClickable(QWidget* parent) :
     m_pressing_inside(false)
 {
     setTransparentForMouseEvents(false);
-    uifunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
+    widgetfunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 }
 

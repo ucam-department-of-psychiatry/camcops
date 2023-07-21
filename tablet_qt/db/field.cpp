@@ -22,7 +22,7 @@
 #include "common/preprocessor_aid.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 #include "lib/version.h"
 
 const QString SQLITE_TYPE_BLOB("BLOB");
@@ -333,7 +333,7 @@ QString Field::sqlColumnType() const
     default:
         break;
     }
-    uifunc::stopApp(
+    errorfunc::fatalError(
         QString("Field::sqlColumnType: Unknown field type: %1").arg(m_type));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
     return "";

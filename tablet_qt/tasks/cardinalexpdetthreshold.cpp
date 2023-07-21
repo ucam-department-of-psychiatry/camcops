@@ -26,6 +26,7 @@
 #include <QGraphicsScene>
 #include <QPushButton>
 #include <QTimer>
+#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbnestabletransaction.h"
@@ -791,6 +792,7 @@ void CardinalExpDetThreshold::startTask()
     soundfunc::makeMediaPlayer(m_player_background);
     soundfunc::makeMediaPlayer(m_player_target);
     if (!m_player_background || !m_player_target) {
+        uifunc::alert(TextConst::unableToCreateMediaPlayer());
         return;
     }
     connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,

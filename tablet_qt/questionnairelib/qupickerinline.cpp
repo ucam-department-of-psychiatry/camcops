@@ -22,7 +22,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include "common/cssconst.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 
@@ -120,7 +120,7 @@ void QuPickerInline::fieldValueChanged(const FieldRef* fieldref)
             // qDebug() << "QuPickerInline::valueChanged(): index =" << index;
             m_cbox->setCurrentIndex(index);  // it's happy with -1
         }
-        uifunc::setPropertyMissing(m_cbox, missing);
+        widgetfunc::setPropertyMissing(m_cbox, missing);
     }
 }
 

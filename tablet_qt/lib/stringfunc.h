@@ -117,4 +117,8 @@ QString abbreviate(const QString& str, int max_len = 255,
                    bool stylize_newlines = true,
                    const QString& suffix = QStringLiteral("..."));
 
+// Escapes a string to a double-quoted C++ literal.
+// (Some DUPLICATION; see convert.h!)
+QString escapeString(const QString& string);
+
 }  // namespace stringfunc

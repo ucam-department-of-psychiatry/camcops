@@ -114,6 +114,8 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
         m_player->setVolume(m_volume);
         connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
                 this, &QuAudioPlayer::mediaStatusChanged);
+    } else {
+        uifunc::alert(TextConst::unableToCreateMediaPlayer());
     }
 
     return widget;

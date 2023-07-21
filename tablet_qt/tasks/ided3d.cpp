@@ -1004,6 +1004,7 @@ void IDED3D::startTask()
     soundfunc::makeMediaPlayer(m_player_correct);
     soundfunc::makeMediaPlayer(m_player_incorrect);
     if (!m_player_correct || !m_player_incorrect) {
+        uifunc::alert(TextConst::unableToCreateMediaPlayer());
         return;
     }
     // ... for rationale, see QuAudioPlayer::makeWidget()

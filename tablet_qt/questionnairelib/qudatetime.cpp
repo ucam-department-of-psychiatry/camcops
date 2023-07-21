@@ -26,7 +26,7 @@
 #include <QFont>
 #include <QHBoxLayout>
 #include <QTextCharFormat>
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
 #include "widgets/spacer.h"
@@ -459,7 +459,7 @@ void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
         return;
     }
     // Missing?
-    uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
+    widgetfunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
         if (hasDateComponent()) {
             QDateTime display_value = fieldref->valueDateTime();
