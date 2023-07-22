@@ -41,12 +41,12 @@ void TestNameValueOptions::testInitializedWithList()
         {"C", 3},
     };
 
-    QVERIFY(options.nameFromPosition(0) == "A");
-    QVERIFY(options.valueFromPosition(0) == 1);
-    QVERIFY(options.nameFromPosition(1) == "B");
-    QVERIFY(options.valueFromPosition(1) == 2);
-    QVERIFY(options.nameFromPosition(2) == "C");
-    QVERIFY(options.valueFromPosition(2) == 3);
+    QCOMPARE(options.nameFromPosition(0), "A");
+    QCOMPARE(options.valueFromPosition(0), 1);
+    QCOMPARE(options.nameFromPosition(1), "B");
+    QCOMPARE(options.valueFromPosition(1), 2);
+    QCOMPARE(options.nameFromPosition(2), "C");
+    QCOMPARE(options.valueFromPosition(2), 3);
 }
 
 QTEST_MAIN(TestNameValueOptions)
