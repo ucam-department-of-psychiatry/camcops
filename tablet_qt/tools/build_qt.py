@@ -477,6 +477,9 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Internal constants
 # -----------------------------------------------------------------------------
 
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+TABLET_QT_DIR = os.path.join(THIS_DIR, "..")
+
 USER_DIR = expanduser("~")
 HEAD = "HEAD"  # git commit meaning "the most recent"
 
@@ -567,8 +570,8 @@ SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
 # - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
 # Eigen
-# -- IF YOU CHANGE THIS, UPDATE camcops.pro and tests/.qmake.conf
-EIGEN_VERSION = "3.4.0"
+with open(os.path.join(TABLET_QT_DIR, "eigen_version.txt")) as f:
+    EIGEN_VERSION = f.read().strip()
 
 # FFmpeg
 FFMPEG_VERSION = "n6.0"
