@@ -3359,8 +3359,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         openssl_include_root = join(opensslworkdir, "include")
         openssl_lib_root = opensslworkdir
 
-    cfg.set_compile_env(env, target_platform)
-
     # -------------------------------------------------------------------------
     # Qt: Directories
     # -------------------------------------------------------------------------
