@@ -51,14 +51,9 @@ void TestGraphicsfunc::testMakeTextButtonSetsMarginToZero()
     auto button_and_proxy = makeTextButton(scene, rect, config, text);
     auto layout = button_and_proxy.button->layout();
 
-    int left, top, right, bottom;
+    const int margin = layout->margin();
 
-    layout->getContentsMargins(&left, &top, &right, &bottom);
-
-    QCOMPARE(left, 0);
-    QCOMPARE(top, 0);
-    QCOMPARE(right, 0);
-    QCOMPARE(bottom, 0);
+    QCOMPARE(margin, 0);
 
     delete scene;
 }
