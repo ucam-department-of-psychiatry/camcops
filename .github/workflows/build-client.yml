@@ -21,7 +21,7 @@ jobs:
               with:
                   version: 6.5.2
                   arch: gcc_64
-                  modules: qtmultimedia
+                  modules: qtmultimedia qtscxml qtshadertools qtsvg
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
