@@ -38,7 +38,7 @@
 #include "common/preprocessor_aid.h"
 #include "common/uiconst.h"
 #include "lib/datetime.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 #include "lib/stringfunc.h"
 #include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
@@ -248,12 +248,14 @@ QString toSqlLiteral(const QVariant& value)
 
     // Dates, times
     case QVariant::Date:
-        return value.toDate().toString(QStringLiteral("'yyyy-MM-dd'"));
+        return QString(QStringLiteral("'%1'"))
+                .arg(value.toDate().toString(QStringLiteral("yyyy-MM-dd")));
     case QVariant::DateTime:
         return QString(QStringLiteral("'%1'"))
                 .arg(datetime::datetimeToIsoMs(value.toDateTime()));
     case QVariant::Time:
-        return value.toTime().toString(QStringLiteral("'HH:mm:ss'"));
+        return QString(QStringLiteral("'%1'"))
+                .arg(value.toTime().toString(QStringLiteral("HH:mm:ss")));
 
     // BLOB types
     case QVariant::ByteArray:
@@ -262,7 +264,7 @@ QString toSqlLiteral(const QVariant& value)
 
     // Other
     case QVariant::Invalid:
-        uifunc::stopApp(QStringLiteral("toSqlLiteral: Invalid field type"));
+        errorfunc::fatalError(QStringLiteral("toSqlLiteral: Invalid field type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -273,14 +275,14 @@ QString toSqlLiteral(const QVariant& value)
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
         }
-        uifunc::stopApp(QStringLiteral("toSqlLiteral: Unknown user type"));
+        errorfunc::fatalError(QStringLiteral("toSqlLiteral: Unknown user type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
 
     default:
-        uifunc::stopApp(
+        errorfunc::fatalError(
             QString(QStringLiteral("toSqlLiteral: Unknown user type: %1"))
                 .arg(variant_type)
         );
@@ -739,7 +741,7 @@ QString prettyValue(const QVariant& variant,
             QVector<int> intvec = qVariantToIntVector(variant);
             return numericVectorToCsvString(intvec);
         }
-        uifunc::stopApp(QStringLiteral("prettyValue: Unknown user type"));
+        errorfunc::fatalError(QStringLiteral("prettyValue: Unknown user type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         return "";  // will never get here; for clang-tidy
 #endif

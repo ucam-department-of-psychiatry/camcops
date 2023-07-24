@@ -26,6 +26,7 @@
 #include <QVBoxLayout>
 #include "common/textconst.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 
 const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
@@ -72,7 +73,7 @@ LogMessageBox::LogMessageBox(QWidget* parent,
 
     mainlayout->addLayout(buttonlayout);
 
-    uifunc::scrollToStart(m_editor.data());  // NOT WORKING. And exec() isn't virtual.
+    widgetfunc::scrollToStart(m_editor.data());  // NOT WORKING. And exec() isn't virtual.
 }
 
 
@@ -81,5 +82,5 @@ void LogMessageBox::copyClicked()
     m_editor->selectAll();
     m_editor->copy();
     m_editor->moveCursor(QTextCursor::End);
-    uifunc::scrollToEnd(m_editor.data());
+    widgetfunc::scrollToEnd(m_editor.data());
 }

@@ -24,7 +24,7 @@
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "dialogs/nvpchoicedialog.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 
@@ -116,7 +116,7 @@ void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
     }
     const int index = m_options.indexFromValue(fieldref->value());
     const bool missing = fieldref->missingInput();
-    uifunc::setPropertyMissing(m_label, missing);
+    widgetfunc::setPropertyMissing(m_label, missing);
     const QString text = m_options.nameFromIndex(index);
     m_label->setText(text);
 }

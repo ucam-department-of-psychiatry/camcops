@@ -21,6 +21,7 @@
 // #define DEBUG_SELECTIONS
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define SHOW_PID_TO_DEBUG_STREAM  // should be disabled for production
+#include "lib/widgetfunc.h"
 #define SHOW_TASK_TIMING
 
 #include "menuwindow.h"
@@ -35,8 +36,6 @@
 #include "db/dbnestabletransaction.h"
 #include "dbobjects/patient.h"
 #include "dialogs/scrollmessagebox.h"
-#include "layouts/layouts.h"
-#include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
@@ -150,7 +149,7 @@ void MenuWindow::loadStyleSheet()
 void MenuWindow::reloadStyleSheet()
 {
     loadStyleSheet();
-    uifunc::repolish(this);
+    widgetfunc::repolish(this);
 }
 
 
@@ -169,7 +168,7 @@ void MenuWindow::makeLayout()
     // ------------------------------------------------------------------------
     // Clear any existing layout (in case we're rebuilding)
     // ------------------------------------------------------------------------
-    uifunc::clearLayout(m_mainlayout);
+    widgetfunc::clearLayout(m_mainlayout);
 
     // ------------------------------------------------------------------------
     // Header

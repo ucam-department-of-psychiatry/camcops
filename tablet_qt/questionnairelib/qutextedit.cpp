@@ -22,7 +22,7 @@
 #include <QTimer>
 #include "common/textconst.h"
 #include "lib/timerfunc.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/growingtextedit.h"
@@ -195,7 +195,7 @@ void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
     if (!pwidget) {
         return;
     }
-    uifunc::setPropertyMissing(pwidget, fieldref->missingInput());
+    widgetfunc::setPropertyMissing(pwidget, fieldref->missingInput());
     if (originator != this) {
         // In this case we don't want to block all signals, because the
         // GrowingPlainTextEdit/GrowingTextEdit widget needs internal signals.

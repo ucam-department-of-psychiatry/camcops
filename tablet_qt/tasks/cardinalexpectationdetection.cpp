@@ -764,6 +764,7 @@ void CardinalExpectationDetection::startTask()
     soundfunc::makeMediaPlayer(m_player_target_1);
     if (!m_player_cue || !m_player_background ||
             !m_player_target_0 || !m_player_target_1) {
+        uifunc::alert(TextConst::unableToCreateMediaPlayer());
         return;
     }
     connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,

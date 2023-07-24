@@ -224,6 +224,8 @@ tablet_qt
     lib/datetime.h.rst
     lib/debugfunc.cpp.rst
     lib/debugfunc.h.rst
+    lib/errorfunc.cpp.rst
+    lib/errorfunc.h.rst
     lib/filefunc.cpp.rst
     lib/filefunc.h.rst
     lib/flagguard.cpp.rst
@@ -258,6 +260,8 @@ tablet_qt
     lib/uifunc.h.rst
     lib/version.cpp.rst
     lib/version.h.rst
+    lib/widgetfunc.cpp.rst
+    lib/widgetfunc.h.rst
     main.cpp.rst
     maths/ccrandom.cpp.rst
     maths/ccrandom.h.rst
@@ -928,6 +932,31 @@ tablet_qt
     taskxtra/photosequencephoto.h.rst
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
+    tests/auto/auto.pro.rst
+    tests/auto/db/db.pro.rst
+    tests/auto/db/field/field.pro.rst
+    tests/auto/db/field/testfield.cpp.rst
+    tests/auto/graphics/graphics.pro.rst
+    tests/auto/graphics/graphicsfunc/graphicsfunc.pro.rst
+    tests/auto/graphics/graphicsfunc/testgraphicsfunc.cpp.rst
+    tests/auto/layouts/flowlayouthfw/flowlayouthfw.pro.rst
+    tests/auto/layouts/flowlayouthfw/testflowlayouthfw.cpp.rst
+    tests/auto/layouts/layouts.pro.rst
+    tests/auto/lib/convert/convert.pro.rst
+    tests/auto/lib/convert/testconvert.cpp.rst
+    tests/auto/lib/filefunc/filefunc.pro.rst
+    tests/auto/lib/filefunc/testfilefunc.cpp.rst
+    tests/auto/lib/lib.pro.rst
+    tests/auto/lib/margins/margins.pro.rst
+    tests/auto/lib/margins/testmargins.cpp.rst
+    tests/auto/lib/soundfunc/soundfunc.pro.rst
+    tests/auto/lib/soundfunc/testsoundfunc.cpp.rst
+    tests/auto/lib/stringfunc/stringfunc.pro.rst
+    tests/auto/lib/stringfunc/teststringfunc.cpp.rst
+    tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
+    tests/auto/questionnairelib/namevalueoptions/testnamevalueoptions.cpp.rst
+    tests/auto/questionnairelib/questionnairelib.pro.rst
+    tests/tests.pro.rst
     tools/build_client_translations.py.rst
     tools/build_qt.py.rst
     tools/chord.py.rst

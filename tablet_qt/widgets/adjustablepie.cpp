@@ -37,7 +37,7 @@
 #include "graphics/paintertranslaterotatecontext.h"
 #include "lib/containers.h"
 #include "lib/timerfunc.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 using containers::forceVectorSize;
 using geometry::convertHeadingToTrueNorth;
 using geometry::DEG_0;
@@ -114,7 +114,7 @@ AdjustablePie::AdjustablePie(const int n_sectors, QWidget* parent) :
     m_user_dragging_cursor(false),
     m_cursor_num_being_dragged(-1)
 {
-    uifunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
+    widgetfunc::setBackgroundColour(this, QCOLOR_TRANSPARENT);
     setContentsMargins(0, 0, 0, 0);
 
     setNSectors(n_sectors);

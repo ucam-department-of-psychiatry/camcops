@@ -227,6 +227,7 @@ void TestMenu::testSound()
 {
     soundfunc::makeMediaPlayer(m_player);
     if (!m_player) {
+        uifunc::alert(TextConst::unableToCreateMediaPlayer());
         return;
     }
     const QUrl url(uiconst::DEMO_SOUND_URL_1);

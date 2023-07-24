@@ -639,6 +639,7 @@ SOURCES += \
     lib/css.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
+    lib/errorfunc.cpp \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
     lib/idpolicy.cpp \
@@ -656,6 +657,7 @@ SOURCES += \
     lib/timerfunc.cpp \
     lib/uifunc.cpp \
     lib/version.cpp \
+    lib/widgetfunc.cpp \
     main.cpp \
     maths/ccrandom.cpp \
     maths/countingcontainer.cpp \
@@ -1128,6 +1130,7 @@ HEADERS += \
     lib/css.h \
     lib/datetime.h \
     lib/debugfunc.h \
+    lib/errorfunc.h \
     lib/filefunc.h \
     lib/flagguard.h \
     lib/idpolicy.h \
@@ -1145,6 +1148,7 @@ HEADERS += \
     lib/timerfunc.h \
     lib/uifunc.h \
     lib/version.h \
+    lib/widgetfunc.h \
     maths/ccrandom.h \
     maths/countingcontainer.h \
     maths/dqrls.h \

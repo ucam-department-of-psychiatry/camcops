@@ -28,6 +28,7 @@
 #include "common/uiconst.h"
 #include "lib/timerfunc.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 
 
@@ -379,7 +380,7 @@ void QuSlider::fieldValueChanged(const FieldRef* fieldref,
                                  const QObject* originator)
 {
     if (m_container_widget) {
-        uifunc::setPropertyMissing(m_container_widget,
+        widgetfunc::setPropertyMissing(m_container_widget,
                                    fieldref->missingInput());
     }
 

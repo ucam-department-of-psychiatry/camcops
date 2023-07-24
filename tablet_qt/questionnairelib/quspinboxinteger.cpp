@@ -22,7 +22,7 @@
 
 #include "quspinboxinteger.h"
 #include <QSpinBox>
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 
 
@@ -110,7 +110,7 @@ void QuSpinBoxInteger::fieldValueChanged(const FieldRef* fieldref,
     if (!m_spinbox) {
         return;
     }
-    uifunc::setPropertyMissing(m_spinbox, fieldref->missingInput());
+    widgetfunc::setPropertyMissing(m_spinbox, fieldref->missingInput());
     if (originator != this) {
         const QSignalBlocker blocker(m_spinbox);
         m_spinbox->setValue(fieldref->valueInt());

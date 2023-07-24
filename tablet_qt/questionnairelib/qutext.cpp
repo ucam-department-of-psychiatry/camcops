@@ -21,6 +21,7 @@
 #include "qutext.h"
 #include <QDebug>
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/labelwordwrapwide.h"
 
@@ -191,7 +192,7 @@ void QuText::setWidgetFontSize(const int fontsize_pt, const bool repolish)
 void QuText::repolishWidget()
 {
     if (m_label) {
-        uifunc::repolish(m_label);
+        widgetfunc::repolish(m_label);
         m_label->updateGeometry();
     }
 }

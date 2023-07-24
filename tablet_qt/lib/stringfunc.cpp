@@ -226,4 +226,31 @@ QString abbreviate(const QString& str,
 }
 
 
+QString escapeString(const QString& string)
+{
+    // See also http://doc.qt.io/qt-5/qregexp.html#escape
+    // Obsolete: Qt::escape()
+
+    // Convert to a C++ literal.
+    // There's probably a much more efficient way...
+    const QByteArray arr = string.toLatin1();
+    const int len = arr.length();
+    QString result;
+    result.reserve(static_cast<int>(len * 1.1));  // as per QString::toHtmlEscaped
+    result.append('"');  // opening quote
+    for (int i = 0; i < len; ++i) {
+        char c = arr.at(i);
+        if (c < ' ') {
+            result.append('\\');
+            result.append(c - 1 + 'a');
+        } else {
+            result.append(c);
+        }
+    }
+    result.append('"');  // closing quote
+    result.squeeze();  // as per QString::toHtmlEscaped
+    return result;
+}
+
+
 }  // namespace stringfunc
