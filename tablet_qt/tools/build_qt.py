@@ -3520,7 +3520,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         if not isdir(cfg.qt_host_path):
             fail(f"qt_host_path {cfg.qt_host_path} is not a valid directory")
 
-        if not isdir(os.path.join(cfg.qt_host_path, "bin", "qmake")):
+        if not isfile(os.path.join(cfg.qt_host_path, "bin", "qmake")):
             fail(f"qt_host_path {cfg.qt_host_path} does not contain bin/qmake")
 
         qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
