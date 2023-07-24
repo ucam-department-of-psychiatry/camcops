@@ -15,9 +15,6 @@
 
 #define CamcopsClientVersion "2.4.16"
 
-#define OpenSSLVersion "1.1.1s"
-#define OpenSSLMajorVersionUnderscores "1_1"
-
 ; =============================================================================
 ; VALUES DEPENDING ON THE DEVELOPER'S BUILD ENVIRONMENT
 ; =============================================================================

@@ -545,7 +545,7 @@ USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = True
 
 # OpenSSL
 
-# -- IF YOU CHANGE THIS, UPDATE camcops.pro AND camcops_windows_innosetup.iss
+# -- IF YOU CHANGE THIS, UPDATE camcops.pro
 OPENSSL_VERSION = "1.1.1s"
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
