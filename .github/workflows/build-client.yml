@@ -1,0 +1,34 @@
+---
+# yamllint disable rule:line-length
+name: Build client
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.cpp'
+            - '**.h'
+            - .github/scripts/add_apt_sources.sh
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/build_client.sh
+            - .github/workflows/build-client.yml
+jobs:
+    cpp-tests:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - name: Install Qt
+              uses: jurplel/install-qt-action@v3
+              with:
+                  version: 6.5.2
+                  arch: gcc_64
+                  modules: qtmultimedia
+            - name: Ubuntu prerequisites
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev libxcb-cursor0
+            - name: Build client
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/build_client.sh
