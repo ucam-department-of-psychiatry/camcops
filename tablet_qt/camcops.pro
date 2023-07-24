@@ -648,6 +648,7 @@ SOURCES += \
     lib/css.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
+    lib/errorfunc.cpp \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
     lib/idpolicy.cpp \

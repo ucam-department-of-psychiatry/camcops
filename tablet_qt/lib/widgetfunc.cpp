@@ -27,6 +27,7 @@
 
 #include <QByteArray>
 #include <QColor>
+#include <QDebug>
 #include <QLayout>
 #include <QLayoutItem>
 #include <QPlainTextEdit>

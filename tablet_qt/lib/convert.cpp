@@ -281,11 +281,6 @@ QString toSqlLiteral(const QVariant& value)
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
-
-#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
-        // We'll never get here, but to stop compilers complaining:
-        return NULL_STR;
-#endif
     }
 }
 
