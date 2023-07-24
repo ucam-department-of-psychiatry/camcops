@@ -74,6 +74,15 @@ Linux
 
         sudo apt install libdrm-dev libxcb-glx0-dev
 
+  - Ubuntu 22.04 / gcc 11.3.0 (tested Jul 2023). Requires the following
+    extra packages:
+
+    .. code-block:: bash
+
+        sudo apt install libdrm-dev libxcb-glx0-dev libudev-dev \
+            libwayland-dev \ libx11-xcb-dev libgbm-dev libxcomposite-dev \
+            libxkbcommon-x11-dev libegl-dev libdbus-1-dev
+
 
 Android (with a Linux build host)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
