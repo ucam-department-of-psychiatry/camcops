@@ -12,7 +12,7 @@ on:
             - .github/scripts/build_client.sh
             - .github/workflows/build-client.yml
 jobs:
-    cpp-tests:
+    build-client:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v3
