@@ -544,9 +544,9 @@ ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = True
 
 # OpenSSL
+with open(os.path.join(TABLET_QT_DIR, "openssl_version.txt")) as f:
+    OPENSSL_VERSION = f.read().strip()
 
-# -- IF YOU CHANGE THIS, UPDATE camcops.pro
-OPENSSL_VERSION = "1.1.1s"
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
 OPENSSL_SRC_URL = (
