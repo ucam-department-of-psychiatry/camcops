@@ -9,8 +9,8 @@ EIGEN_VERSION=$(<$EIGEN_VERSION_FILE)
 wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VERSION}/eigen-${EIGEN_VERSION}.tar.gz
 tar xzf eigen-${EIGEN_VERSION}.tar.gz
 cd ${GITHUB_WORKSPACE}
-mkdir build-qt5-tests
-cd build-qt5-tests
+mkdir build-qt6-tests
+cd build-qt6-tests
 qmake ../tablet_qt/tests
 make
 export QT_DEBUG_PLUGINS=1
