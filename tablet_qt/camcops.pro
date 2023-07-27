@@ -652,7 +652,6 @@ SOURCES += \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
     lib/idpolicy.cpp \
-    lib/errorfunc.cpp \
     lib/layoutdumper.cpp \
     lib/margins.cpp \
     lib/nhs.cpp \
