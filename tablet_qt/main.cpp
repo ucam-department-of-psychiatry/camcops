@@ -23,6 +23,8 @@
 #define FULL_LOG_FORMAT  // Include time and thread ID.
 // #define DISABLE_ANDROID_NATIVE_DIALOGS  // For a bug fixed in Qt 5.2.1.
 // #define QT_OPENGL_IN_SOFTWARE  // Unnecessary once proper OpenGL detection added.
+// #define DEBUG_WITH_DIAGNOSTIC_STYLE
+
 
 #include <QApplication>
 #include <QDebug>
@@ -31,6 +33,7 @@
 #include "common/preprocessor_aid.h"
 #include "core/camcopsapp.h"
 #include "crypto/cryptofunc.h"
+#include "lib/diagnosticstyle.h"
 
 #ifdef FULL_LOG_FORMAT
     #ifdef QT_DEBUG
@@ -119,8 +122,15 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
         created. See https://bugreports.qt.io/browse/QTBUG-45517
     */
 
+#ifdef DEBUG_WITH_DIAGNOSTIC_STYLE
+    // Overlay widgets with bounding box and class name
+    auto style = new DiagnosticStyle();
+#else
     QStyle* style = QStyleFactory::create("Fusion");
+#endif
+
     // QProxyStyle* proxy_style = new TreeViewProxyStyle(style);
+
     QApplication::setStyle(style);
     // ... https://stackoverflow.com/questions/41184723/i-want-qt-app-to-look-like-qt-app-rather-than-android-native
 

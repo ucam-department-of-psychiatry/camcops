@@ -648,6 +648,7 @@ SOURCES += \
     lib/css.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
+    lib/diagnosticstyle.cpp \
     lib/errorfunc.cpp \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
@@ -1136,6 +1137,7 @@ HEADERS += \
     lib/css.h \
     lib/datetime.h \
     lib/debugfunc.h \
+    lib/diagnosticstyle.h \
     lib/errorfunc.h \
     lib/filefunc.h \
     lib/flagguard.h \
