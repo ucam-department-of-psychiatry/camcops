@@ -222,6 +222,8 @@ tablet_qt
     lib/datetime.h.rst
     lib/debugfunc.cpp.rst
     lib/debugfunc.h.rst
+    lib/diagnosticstyle.cpp.rst
+    lib/diagnosticstyle.h.rst
     lib/errorfunc.cpp.rst
     lib/errorfunc.h.rst
     lib/filefunc.cpp.rst
