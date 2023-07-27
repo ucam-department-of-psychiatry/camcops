@@ -3283,6 +3283,26 @@ def checkout_qt(cfg: Config) -> None:
         ]
     )
 
+    (stdout, stderr) = run(
+        [
+            GIT,
+            "config",
+            "--file",
+            ".gitmodules",
+            "--name-only",
+            "--get-regexp",
+            "path",
+        ],
+        allow_failure=True,
+        capture_stdout=True,
+    )
+    # For some reason this sometimes doesn't result in just the submodules we
+    # want and the build ends up being huge
+    for path in stdout.split():
+        submodule = path.split(".")[1]
+        if submodule not in QT_GIT_SUBMODULES:
+            run([GIT, "submodule", "deinit", "-f", submodule])
+
 
 def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
     os.chmod(path, stat.S_IWRITE)
