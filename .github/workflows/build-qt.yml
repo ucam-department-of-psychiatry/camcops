@@ -29,7 +29,7 @@ jobs:
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/free_up_disk_space.sh
             - uses: actions/checkout@v3
-              name: Free up more disk space
+            - name: Free up more disk space
               if: runner.os == 'Linux'
               run: |
                   set -eux -o pipefail
