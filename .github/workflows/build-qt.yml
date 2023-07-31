@@ -7,6 +7,8 @@ on:
     push:
         paths:
             - tablet_qt/tools/build_qt.py
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/free_up_disk_space.sh
             - .github/workflows/build-qt.yml
 jobs:
     build-qt:
@@ -21,7 +23,17 @@ jobs:
                       os: windows-2019
         runs-on: ${{ matrix.os }}
         steps:
+            - name: Free up disk space
+              if: runner.os == 'Linux'
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/free_up_disk_space.sh
             - uses: actions/checkout@v3
+              name: Free up more disk space
+              if: runner.os == 'Linux'
+              run: |
+                  set -eux -o pipefail
+                  sudo rm -rf ${GITHUB_WORKSPACE}/.git
             - uses: actions/setup-python@v4
               with:
                   python-version: 3.8
