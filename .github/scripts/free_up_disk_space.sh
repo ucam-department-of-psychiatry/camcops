@@ -28,7 +28,10 @@ sudo aptitude purge '~n ^dotnet' -f -y >/dev/null 2>&1
 sudo apt-get autoremove -y >/dev/null 2>&1
 sudo apt-get autoclean -y >/dev/null 2>&1
 echo "some packages purged"
-sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr | head
+
+# Avoid pipefail by capturing output
+big_packages=$(sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr | head -n 10)
+echo $big_packages
 df . -h
 sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr | head
 
