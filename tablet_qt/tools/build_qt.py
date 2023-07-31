@@ -620,7 +620,6 @@ QT_CONFIG_COMMON_ARGS = [
     # "-qt-sqlite",  # v5.9: "qt", rather than "system"
     # 2017-12-01: conflict between SQLite and SQLCipher (symbols duplicated on
     # linking); try disabling it
-    "-ccache",
     "-no-sql-sqlite",
     "-no-sql-db2",  # disable other SQL drivers
     "-no-sql-ibase",
@@ -1617,6 +1616,7 @@ class Config(object):
             self.src_rootdir, args.qt_src_dirname
         )  # type: str  # noqa
         self.qt_host_path = args.qt_host_path
+        self.qt_ccache = args.qt_ccache
 
         # Android SDK/NDK
         # - installed independently by user
@@ -3582,6 +3582,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # ... http://stackoverflow.com/questions/1999654
         # ... https://forum.qt.io/topic/75056/configuring-qt-what-replaces-debug-and-release/7  # noqa: E501
 
+    if cfg.qt_ccache:
+        qt_config_args.append("-ccache")
+
     if target_platform.use_openssl_with_qt:
         # OpenSSL linkage?
         # For testing a new OpenSSL build, have cfg.qt_openssl_static=False, or
@@ -4133,7 +4136,10 @@ def master_builder(args) -> None:
     # Common requirements
     # =========================================================================
     # require(CMAKE)
-    require(CCACHE)
+
+    if cfg.qt_ccache:
+        # Either install ccache or set --qt_no_ccache
+        require(CCACHE)
     require(GIT)
     require(PERL)
     require(TAR)
@@ -4419,6 +4425,14 @@ def main() -> None:
     qt.add_argument(
         "--qt_host_path",
         help="Location of the host Qt Installation when cross-compiling",
+    )
+
+    qt.add_argument(
+        "--qt_no_ccache",
+        dest="qt_ccache",
+        action="store_false",
+        default=True,
+        help="Do not use ccache when building Qt",
     )
 
     # Android
