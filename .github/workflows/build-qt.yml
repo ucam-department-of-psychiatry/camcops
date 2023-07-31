@@ -33,7 +33,7 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y build-dep qt5-default
                   sudo apt-get -y install build-essential perl python git
-                  sudo apt-get -y install ninja-build ccache
+                  sudo apt-get -y install ninja-build
                   sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
                   sudo apt-get -y install flex bison gperf libicu-dev libxslt-dev ruby yasm
                   sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev nodejs
@@ -48,7 +48,7 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y install libunwind-dev
                   sudo apt-get -y install build-essential python3 git
-                  sudo apt-get -y install ninja-build clang ccache
+                  sudo apt-get -y install ninja-build clang
                   sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
                   sudo apt-get -y install flex bison gperf yasm
                   sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libfontconfig1-dev libpulse-dev libnss3-dev libegl1-mesa-dev nodejs
@@ -69,34 +69,10 @@ jobs:
               run: |
                   $ErrorActionPreference = "Stop"
                   choco install ninja nasm --yes --no-progress
-                  choco install ccache --version 3.7.12 --yes --no-progress
                   "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
                   # Chocolatey uses the Windows installer, which doesn't update Path
                   # https://bugzilla.nasm.us/show_bug.cgi?id=3392224
                   "C:\Program Files\NASM" >> $env:GITHUB_PATH
-
-            - name: restore ccache
-              id: ccache
-              uses: actions/cache@v3
-              with:
-                  path: ${{ runner.temp }}/ccache
-                  # "github.run_id" is unique, which causes the cache to always get
-                  # saved at the end of a successful run.
-                  key:  ccache-${{ matrix.os }}-${{ github.ref }}-${{ github.run_id }}
-                  # As the unique "key" above will never be found in the cache when the
-                  # job starts, we need these broader "restore-keys" in order to match
-                  # and restore the most recent cache.
-                  restore-keys: |
-                      ccache-${{ matrix.os }}-${{ github.ref }}-
-                      ccache-${{ matrix.os }}-
-
-            - name: configure ccache
-              run: |
-                  # This must be valid in bash and PowerShell
-                  ccache --set-config sloppiness=file_macro,time_macros
-                  ccache --set-config cache_dir='${{ runner.temp }}'/ccache
-                  ccache --set-config compression=true
-                  ccache --set-config max_size=1G
 
             - name: Windows specific versions
               if: runner.os == 'Windows'
@@ -107,8 +83,6 @@ jobs:
             - name: print versions and environment
               run: |
                   # This must be valid in bash and PowerShell
-                  ccache --version
-                  ccache --show-config
                   clang --version
                   cmake --version
                   gcc --version
@@ -168,10 +142,3 @@ jobs:
                   $env:CAMCOPS_QT6_BASE_DIR = "$env:USERPROFILE\qt_local_build"
                   cd "$env:GITHUB_WORKSPACE\tablet_qt\tools"
                   python build_qt.py --build_windows_x86_64
-
-            - name: Cache stats
-              # Print ccache utilization statistics, then reset them.
-              run: |
-                  # This must be valid in bash and PowerShell
-                  ccache -s
-                  ccache -z
