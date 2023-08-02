@@ -1,7 +1,7 @@
 # dev only
 flake8
 
-cryptography==41.0.2
+cryptography==41.0.3
 python-on-whales==0.50.0
 prompt-toolkit==3.0.30
 semantic_version==2.10.0
