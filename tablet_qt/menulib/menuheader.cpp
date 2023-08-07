@@ -189,7 +189,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     if (m_app.isSingleUserMode()) {
         m_no_patient = new ClickableLabelWordWrapWide(tr("Register me"));
-        m_no_patient->setObjectName(cssconst::MENU_HEADER_MORE_OPTIONS);
+        m_no_patient->setObjectName(cssconst::MENU_HEADER_SINGLE_USER_BUTTONS);
         connect(m_no_patient, &QAbstractButton::clicked,
                 this, &MenuHeader::registerPatient);
     } else {
@@ -204,7 +204,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     if (top && m_app.isSingleUserMode()) {
         m_single_user_options = new ClickableLabelWordWrapWide(tr("More options"));
-        m_single_user_options->setObjectName(cssconst::MENU_HEADER_MORE_OPTIONS);
+        m_single_user_options->setObjectName(cssconst::MENU_HEADER_SINGLE_USER_BUTTONS);
         connect(m_single_user_options, &QAbstractButton::clicked,
                 this, &MenuHeader::openOptionsMenu);
         patientlayout->addWidget(m_single_user_options, 0, Qt::AlignRight);
