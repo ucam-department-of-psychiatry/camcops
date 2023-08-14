@@ -4048,7 +4048,6 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     )
 
     env = cfg.get_starting_env()
-    #  TODO: --enable-cross-compile --arch=$arch --cc="$cc"
     configure = join(workdir, "configure")
     config_args = [
         configure,
