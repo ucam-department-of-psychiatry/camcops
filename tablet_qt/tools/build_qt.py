@@ -3296,8 +3296,9 @@ def checkout_qt(cfg: Config) -> None:
         allow_failure=True,
         capture_stdout=True,
     )
-    # For some reason this sometimes doesn't result in just the submodules we
-    # want and the build ends up being huge
+    # For some reason the above sometimes doesn't result in just the submodules
+    # we want and the build ends up being huge.
+    # So:
     for path in stdout.split():
         submodule = path.split(".")[1]
         if submodule not in QT_GIT_SUBMODULES:
