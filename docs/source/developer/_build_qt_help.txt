@@ -1,5 +1,5 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
-                   [--nparallel NPARALLEL] [--force] [--tee TEE]
+                   [--no_fetch] [--nparallel NPARALLEL] [--force] [--tee TEE]
                    [--verbose {0,1,2}] [--inherit_os_env]
                    [--no_inherit_os_env] [--build_all]
                    [--build_android_x86_32] [--build_android_arm_v7_32]
@@ -30,6 +30,7 @@ General:
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
                         from environment variable CAMCOPS_QT6_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
+  --no_fetch            Skip fetching source code (default: True)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
   --force               Force build (default: False)

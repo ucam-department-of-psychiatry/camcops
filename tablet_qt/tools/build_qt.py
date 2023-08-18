@@ -1592,6 +1592,7 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
+        self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
         self.force = args.force  # type: bool
@@ -4150,13 +4151,14 @@ def master_builder(args) -> None:
     # =========================================================================
     # Fetch
     # =========================================================================
-    fetch_qt(cfg)
-    checkout_qt(cfg)
-    fetch_openssl(cfg)
-    fetch_sqlcipher(cfg)
-    fetch_eigen(cfg)
-    if cfg.use_ffmpeg:
-        fetch_ffmpeg(cfg)
+    if cfg.fetch:
+        fetch_qt(cfg)
+        checkout_qt(cfg)
+        fetch_openssl(cfg)
+        fetch_sqlcipher(cfg)
+        fetch_eigen(cfg)
+        if cfg.use_ffmpeg:
+            fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4278,6 +4280,12 @@ def main() -> None:
             f"Root directory for source and builds (default taken from "
             f"environment variable {ENVVAR_QT_BASE} if present)"
         ),
+    )
+    general.add_argument(
+        "--no_fetch",
+        dest="fetch",
+        action="store_false",
+        help="Skip fetching source code",
     )
     general.add_argument(
         "--nparallel",
