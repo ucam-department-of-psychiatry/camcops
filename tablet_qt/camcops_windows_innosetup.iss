@@ -13,7 +13,7 @@
 ; VERSION-DEPENDENT VALUES
 ; =============================================================================
 
-#define CamcopsClientVersion "2.4.16"
+#define CamcopsClientVersion "2.4.17"
 
 #define OpenSSLVersion "1.1.1c"
 #define OpenSSLMajorVersionUnderscores "1_1"

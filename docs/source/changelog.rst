@@ -3796,5 +3796,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   text is greater in height than the images.
 
 
-**Client and server v2.4.17,  IN PROGRESS**
+**Client and server v2.4.17, released 19 Aug 2023**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Remove odd newlines from CAPS task summary.
+
+- No change in functionality of the client. Client release to Google Play Store
+  only. Target Android version now 33.
+
+
+**Client and server v2.4.18,  IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
