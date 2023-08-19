@@ -740,9 +740,8 @@ class VersionReleaser:
             print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
-            # TODO: It takes some time so change this message:
             print(
-                "A new release should have been created on GitHub with the "
+                "A new release will be created on GitHub with the "
                 ".rpm and .deb files attached. They are also in "
                 f"{SERVER_PACKAGE_DIR}"
             )
