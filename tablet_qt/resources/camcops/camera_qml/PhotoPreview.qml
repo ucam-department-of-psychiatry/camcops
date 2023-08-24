@@ -57,7 +57,7 @@ import QtMultimedia
 
 Item {
     signal closed
-    signal imageSavedToFile  // RNC
+    signal previewSaved  // RNC
 
     Image {  // http://doc.qt.io/qt-6.2/qml-qtquick-image.html
         id: preview
@@ -85,7 +85,7 @@ Item {
         text: qsTr("Save")
         onClicked: {
             console.log("Save button clicked")
-            imageSavedToFile()
+            previewSaved()
         }
     }
 }

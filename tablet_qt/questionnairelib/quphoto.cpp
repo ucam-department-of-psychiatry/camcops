@@ -246,8 +246,6 @@ void QuPhoto::takePhoto()
     qDebug() << "... CameraQml() created";
 #endif
     connect(m_camera, &CameraQml::cancelled, this, &QuPhoto::cameraCancelled);
-    connect(m_camera, &CameraQml::rawImageCaptured,
-            this, &QuPhoto::rawImageCaptured);
     connect(m_camera, &CameraQml::imageCaptured,
             this, &QuPhoto::imageCaptured);
 
@@ -324,43 +322,6 @@ void QuPhoto::imageCaptured(const QImage& image)
         changed = m_fieldref->setImage(image);
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: ... field value set to image.";
-#endif
-        m_camera->finish();  // close the camera
-    }
-    if (changed) {
-        emit elementValueChanged();
-    }
-}
-
-
-void QuPhoto::rawImageCaptured(const QByteArray& data,
-                               const QString& extension_without_dot,
-                               const QString& mimetype)
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO;
-#endif
-    if (!m_camera) {
-        qWarning() << Q_FUNC_INFO << "... no camera!";
-        return;
-    }
-    if (!m_questionnaire) {
-        qWarning() << Q_FUNC_INFO << "... no questionnaire!";
-        return;
-    }
-    bool changed = false;
-    { // guard block
-        SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard(
-                    tr("Saving image..."),
-                    tr("Saving"));
-#ifdef DEBUG_CAMERA
-        qDebug() << "QuPhoto: setting field value to raw image...";
-#endif
-        changed = m_fieldref->setRawImage(data,
-                                          extension_without_dot,
-                                          mimetype);
-#ifdef DEBUG_CAMERA
-        qDebug() << "QuPhoto: ... field value set to raw image.";
 #endif
         m_camera->finish();  // close the camera
     }

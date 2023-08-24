@@ -166,8 +166,9 @@ void CameraQml::qmlFinishedLoading()
     Q_ASSERT(root);
     // It's possible to connect to non-root objects, but it's much cleaner to
     // route from QML child objects up to the QML root object, and then to C++.
-    connect(root, SIGNAL(imageSavedToFile(const QString&)),
-            this, SLOT(cameraHasCapturedImage(const QString&)));
+    connect(root, SIGNAL(imageCaptured(const QVariant&)),
+            this, SLOT(copyPreviewImage(const QVariant&)));
+    connect(root, SIGNAL(previewSaved()), this, SLOT(savePreviewImage()));
     connect(root, SIGNAL(fileNoLongerNeeded(const QString&)),
             this, SLOT(deleteSuperfluousFile(const QString&)));
     // ... we have to use SIGNAL() and SLOT() since C++ has no idea of the
@@ -175,6 +176,18 @@ void CameraQml::qmlFinishedLoading()
     // map signals via strings, so this works, but you'll get an error like
     // "QObject::connect: No such signal PhotoPreview_QMLTYPE_2::imageCaptured(const QString&)"
     // if you get the type wrong.
+}
+
+
+void CameraQml::copyPreviewImage(const QVariant& preview)
+{
+    m_preview = preview.value<QImage>();
+}
+
+
+void CameraQml::savePreviewImage()
+{
+    emit imageCaptured(m_preview);
 }
 
 
@@ -197,51 +210,4 @@ void CameraQml::deleteSuperfluousFile(const QString& filename) const
     qDebug() << Q_FUNC_INFO;
 #endif
     deleteFile(filename);
-}
-
-
-void CameraQml::cameraHasCapturedImage(const QString& filename)
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO;
-    qDebug() << "Camera image has arrived via temporary file" << filename;
-#endif
-
-    const QFileInfo fileinfo(filename);
-    const QString extension_without_dot = fileinfo.suffix();
-    const QMimeDatabase mime_db;
-    const QMimeType mime_type = mime_db.mimeTypeForFile(filename);
-    // ... default method is to use filename and contents
-    // ... it will ALWAYS BE VALID, but may be "application/octet-stream" if
-    //     Qt doesn't know what it is:
-    //     http://doc.qt.io/qt-5/qmimedatabase.html#mimeTypeForFile
-    const QString mimetype_name = mime_type.name();
-
-    QFile file(filename);
-    if (mimetype_name != "application/octet-stream" &&
-            file.open(QIODevice::ReadOnly)) {
-
-        // We know the MIME type (and can read the file), so we can use the
-        // higher-performance method.
-        const QByteArray data = file.readAll();
-        file.close();
-        deleteFile(filename);
-#ifdef DEBUG_CAMERA
-        qDebug() << "Camera image data loaded";
-#endif
-        emit rawImageCaptured(data, extension_without_dot, mimetype_name);
-
-    } else {
-
-#ifdef DEBUG_CAMERA
-        qDebug() << "Camera image loaded";
-#endif
-        QImage img;
-        img.load(filename);
-        deleteFile(filename);
-        emit imageCaptured(img);
-
-    }
-
-    close();
 }

@@ -72,11 +72,6 @@ protected slots:
     // "User cancelled taking a photo."
     void cameraCancelled();
 
-    // "Camera sends you this captured raw image."
-    void rawImageCaptured(const QByteArray& data,
-                          const QString& extension_without_dot,
-                          const QString& mimetype);
-
     // "Camera sends you this captured QImage."
     void imageCaptured(const QImage& image);
 

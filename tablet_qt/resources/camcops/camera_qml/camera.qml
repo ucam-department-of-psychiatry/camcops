@@ -58,7 +58,8 @@ import QtMultimedia
 Rectangle {
     id : cameraUI
 
-    signal imageSavedToFile(string filename)  // RNC
+    signal imageCaptured(variant previewImage)
+    signal previewSaved
     signal fileNoLongerNeeded(string filename)  // RNC
 
     width: 800
@@ -139,8 +140,8 @@ Rectangle {
                 console.log("Image captured")
                 stillControls.previewAvailable = true
                 cameraUI.state = "PhotoPreview"
+                cameraUI.imageCaptured(previewImage)
             }
-            // RNC:
             onImageSaved: function(requestId, path) {
                 console.log("onImageSaved: ", path)
                 stillControls.fileSaved = true
@@ -160,9 +161,9 @@ Rectangle {
         onClosed: cameraUI.state = "PhotoCapture"
         visible: (cameraUI.state === "PhotoPreview")
         focus: visible
-        onImageSavedToFile: {
-            console.log("Returning image with filename:", stillControls.filePath)
-            cameraUI.imageSavedToFile(stillControls.filePath)
+        onPreviewSaved: {
+            cameraUI.previewSaved()
+            cameraUI.fileNoLongerNeeded(stillControls.filePath)
         }
     }
 
