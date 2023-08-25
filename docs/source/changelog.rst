@@ -3805,5 +3805,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
   only. Target Android version now 33.
 
 
-**Client and server v2.4.18,  IN PROGRESS**
+**Client and server v2.4.18, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- When uploading in single user mode, if the server version has changed store the
+  new version in the client database and refetch the strings. Previously the user
+  would see a generic error message and the only way to fix it was to re-register
+  the patient.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/263
