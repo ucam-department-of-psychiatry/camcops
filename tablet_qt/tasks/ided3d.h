@@ -79,6 +79,8 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
+protected:
+    virtual void applySettings(const QJsonObject& settings) override;
 
     // ------------------------------------------------------------------------
     // Validation for questionnaire

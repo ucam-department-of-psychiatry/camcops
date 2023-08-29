@@ -165,13 +165,18 @@ const int VOLUME_DP = 2;
 const int MAX_STAGES = 8;
 const int MAX_NUMBER = 9;
 const int MAX_COUNTERBALANCE_DIMENSIONS = 5;
+
+const int DEFAULT_LAST_STAGE = MAX_STAGES;
 const int DEFAULT_MAX_TRIALS_PER_STAGE = 50;
 const int DEFAULT_PROGRESS_CRITERION_X = 6;  // as per Rogers et al. 1999
 const int DEFAULT_PROGRESS_CRITERION_Y = 6;  // as per Rogers et al. 1999
+const int DEFAULT_MIN_NUMBER = 1;
+const int DEFAULT_MAX_NUMBER = MAX_NUMBER;
 const int DEFAULT_PAUSE_AFTER_BEEP_MS = 500;
 const int DEFAULT_ITI_MS = 500;
 const qreal DEFAULT_VOLUME = MAX_VOLUME / 2.0;
 const bool DEFAULT_OFFER_ABORT = false;
+const bool DEFAULT_DEBUG_DISPLAY_STIMULI_ONLY = false;
 
 // Derived constants
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
@@ -259,17 +264,17 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     if (load_pk == dbconst::NONEXISTENT_PK) {
         // Default values:
-        setValue(FN_LAST_STAGE, MAX_STAGES, false);
+        setValue(FN_LAST_STAGE, DEFAULT_LAST_STAGE, false);
         setValue(FN_MAX_TRIALS_PER_STAGE, DEFAULT_MAX_TRIALS_PER_STAGE, false);
         setValue(FN_PROGRESS_CRITERION_X, DEFAULT_PROGRESS_CRITERION_X, false);
         setValue(FN_PROGRESS_CRITERION_Y, DEFAULT_PROGRESS_CRITERION_Y, false);
-        setValue(FN_MIN_NUMBER, 1, false);
-        setValue(FN_MAX_NUMBER, MAX_NUMBER, false);
+        setValue(FN_MIN_NUMBER, DEFAULT_MIN_NUMBER, false);
+        setValue(FN_MAX_NUMBER, DEFAULT_MAX_NUMBER, false);
         setValue(FN_PAUSE_AFTER_BEEP_MS, DEFAULT_PAUSE_AFTER_BEEP_MS, false);
         setValue(FN_ITI_MS, DEFAULT_ITI_MS, false);
         setValue(FN_VOLUME, DEFAULT_VOLUME, false);
         setValue(FN_OFFER_ABORT, DEFAULT_OFFER_ABORT, false);
-        setValue(FN_DEBUG_DISPLAY_STIMULI_ONLY, false, false);
+        setValue(FN_DEBUG_DISPLAY_STIMULI_ONLY, DEFAULT_DEBUG_DISPLAY_STIMULI_ONLY, false);
     }
 
     // Internal data
@@ -309,6 +314,45 @@ QString IDED3D::description() const
     return tr("Simple discrimination, reversal, compound discrimination, "
               "reversal, ID set shift, reversal, ED set shift, reversal. "
               "Dimensions of shape/colour/number.");
+}
+
+
+// ============================================================================
+// Settings
+// ============================================================================
+
+void IDED3D::applySettings(const QJsonObject& settings)
+{
+    auto applyIntSetting = [this, &settings](const QString& fieldname) -> void {
+        if (settings.contains(fieldname)) {
+            setValue(fieldname, settings.value(fieldname).toInt());
+        }
+    };
+
+    auto applyDoubleSetting = [this, &settings](const QString& fieldname) -> void {
+        if (settings.contains(fieldname)) {
+            setValue(fieldname, settings.value(fieldname).toDouble());
+        }
+    };
+
+    auto applyBoolSetting = [this, &settings](const QString& fieldname) -> void {
+        if (settings.contains(fieldname)) {
+            setValue(fieldname, settings.value(fieldname).toBool());
+        }
+    };
+
+    applyIntSetting(FN_LAST_STAGE);
+    applyIntSetting(FN_MAX_TRIALS_PER_STAGE);
+    applyIntSetting(FN_COUNTERBALANCE_DIMENSIONS);
+    applyIntSetting(FN_PROGRESS_CRITERION_X);
+    applyIntSetting(FN_PROGRESS_CRITERION_Y);
+    applyIntSetting(FN_MIN_NUMBER);
+    applyIntSetting(FN_MAX_NUMBER);
+    applyIntSetting(FN_PAUSE_AFTER_BEEP_MS);
+    applyIntSetting(FN_ITI_MS);
+    applyDoubleSetting(FN_VOLUME);
+    applyBoolSetting(FN_OFFER_ABORT);
+    applyBoolSetting(FN_DEBUG_DISPLAY_STIMULI_ONLY);
 }
 
 
