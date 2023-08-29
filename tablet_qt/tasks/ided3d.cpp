@@ -550,8 +550,15 @@ OpenableWidget* IDED3D::editor(const bool read_only)
 
     m_widget = new OpenableWidget();
 
-    // We start off by seeing the questionnaire:
-    m_widget->setWidgetAsOnlyContents(m_questionnaire, 0, false, false);
+    bool skip_setup =  (m_app.isSingleUserMode() &&
+                        page->mayProgressIgnoringValidators());
+    if (skip_setup) {
+        // Single user mode and parameters are already set up for the patient
+        startTask();
+    } else {
+        // We start off by seeing the questionnaire:
+        m_widget->setWidgetAsOnlyContents(m_questionnaire, 0, false, false);
+    }
 
     return m_widget;
 }
