@@ -3807,3 +3807,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.18,  IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Support for a clinician to set the IDED-3D counterbalancing options for single user mode.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/314
