@@ -39,8 +39,78 @@ Intellectual property rights
   Cambridge, 1995-1999).
 
 
+Settings
+~~~~~~~~
+
+When assigning this task to a patient as part of a :ref:`task schedule <scheduling_tasks>`,
+the task may be configured with the following JSON settings. For example:
+
+
+.. code-block:: json
+
+    {
+        "ided3d":{
+            "last_stage": 8,
+            "max_trials_per_stage": 50,
+            "progress_criterion_x": 6,
+            "progress_criterion_y": 6,
+            "min_number":1,
+            "max_number":9,
+            "pause_after_beep_ms": 500,
+            "iti_ms": 500,
+            "counterbalance_dimensions": 4,
+            "volume": 0.5,
+            "offer_abort": false
+        }
+    }
+
+Here is a description of each setting:
+
+.. glossary::
+
+    last_stage
+        Last stage to use (1 [SD] – 8 [EDR]). Default 8.
+
+    max_trials_per_stage
+        Maximum number of trials per stage (abort if this reached without success). Default 50.
+
+    progress_criterion_x
+        Criterion to proceed to next stage: X correct out of the last Y trials, where this is X. Default 6.
+
+    progress_criterion_y
+        Criterion to proceed to next stage: X correct out of the last Y trials, where this is Y. Default 6.
+
+    min_number
+        Minimum number of stimuli [1–9]. Default 1.
+
+    max_number
+        Maximum number of stimuli [1–9]. Default 9.
+
+    pause_after_beep_ms
+        Time to continue visual feedback after auditory feedback finished (ms). Default 500.
+
+    iti_ms
+        Intertrial interval (ITI) (ms). Default 500.
+
+    counterbalance_dimensions
+        Dimension counterbalancing [0–5]. See :ref:`Counterbalancing <counterbalancing>`. No default.
+
+    volume
+        Volume [0-1]. Default 0.5
+
+    offer_abort
+        Offer the user an abort button. Default false.
+
+
+In clinician mode, the user may change these settings before starting the
+task. In single-user mode, if all of the settings have valid values (as a
+minimum `counterbalance_dimensions` must be set), the user will not be able to
+change these settings and the task will start immediately.
+
+.. _counterbalancing:
+
 Counterbalancing
-~~~~~~~~~~~~~~~~
+################
 
 The counterbalancing options are:
 
