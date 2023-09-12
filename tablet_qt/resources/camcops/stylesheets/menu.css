@@ -65,15 +65,17 @@ BaseWidget {
     padding: 0;
 }
 #menu_header_no_patient {
-    /* OLD SCHEME: color: magenta; */
-    color: red;
     font-weight: bold;
     border: 0;
     margin: 0;
     padding: 0;
 }
-#menu_header_more_options {
-    /* Buttons for single-user mode */
+
+#menu_header_no_patient QLabel {
+    color: red;
+}
+
+#menu_header_single_user_buttons {
     font-weight: bold;
     background-color: lightgrey;
     border-style: solid;
@@ -82,7 +84,12 @@ BaseWidget {
     border-color: darkgrey;
     padding: 5px;
 }
-#menu_header_more_options:pressed {
+
+#menu_header_single_user_buttons QLabel {
+    color: black;
+}
+
+#menu_header_single_user_buttons:pressed {
     background-color: rgba(100, 100, 255, 200);  /* blue */ /* to match BUTTON_PRESSED_COLOUR */
 }
 

@@ -3808,6 +3808,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.18, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Make the "Register me" and "More options" buttons more legible on Android.
+
 - When uploading in single user mode, if the server version has changed store the
   new version in the client database and refetch the strings. Previously the user
   would see a generic error message and the only way to fix it was to re-register
