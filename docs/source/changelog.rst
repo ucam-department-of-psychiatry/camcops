@@ -3807,3 +3807,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.18,  IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Make the "Register me" and "More oprtions" buttons more legible on Android.
