@@ -53,7 +53,7 @@ Prerequisites
 -------------
 
 **Ensure the following prerequisites are met:**
-https://wiki.qt.io/Building_Qt_5_from_Git
+https://wiki.qt.io/Building_Qt_6_from_Git
 
 
 Linux
@@ -67,14 +67,14 @@ Linux
 
   - Ubuntu 18.04 / gcc 7.3.0 (tested Aug 2018)
 
-  - Ubuntu 20.04 / gcc 9.3.0 (tested Jun 2020). Requires the following
+  - Ubuntu 20.04 / gcc 9.3.0 (tested as part of our continuous integration process on GitHub). Requires the following
     extra packages:
 
     .. code-block:: bash
 
         sudo apt install libdrm-dev libxcb-glx0-dev
 
-  - Ubuntu 22.04 / gcc 11.3.0 (tested Jul 2023). Requires the following
+  - Ubuntu 22.04 / gcc 11.3.0 (tested as part of our continuous integration process on GitHub). Requires the following
     extra packages:
 
     .. code-block:: bash
@@ -83,12 +83,15 @@ Linux
             libwayland-dev \ libx11-xcb-dev libgbm-dev libxcomposite-dev \
             libxkbcommon-x11-dev libegl-dev libdbus-1-dev
 
+- See https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml for the
+  installation requirements on Ubuntu (GitHub hosted runners).
+
 
 Android (with a Linux build host)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - To build Android programs under Linux, you will also need a Java development
-  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-17-jdk``.
 
 - In Feb 2021, with Qt Creator 4.14.0, old versions of the Android SDK no
   longer work. The settings at ``Tools --> Options --> Device --> Android``
