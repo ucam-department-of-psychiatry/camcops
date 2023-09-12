@@ -37,6 +37,7 @@
 class CamcopsApp;
 class LogBox;
 class QNetworkAccessManager;
+class Version;
 
 
 // Controls network operations, optionally providing a progress display.
@@ -319,6 +320,15 @@ protected:
     // new enough for us to upload at all.
     bool isServerVersionOK() const;
 
+    // Server version matches what we had stored.
+    bool serverVersionMatchesStored() const;
+
+    // Server version is new enough for us to upload at all.
+    bool serverVersionNewEnough() const;
+
+    // Version returned by the server.
+    Version serverVersionFromReply() const;
+
     // Do our ID policies match those of the server?
     bool arePoliciesOK() const;
 
@@ -468,6 +478,7 @@ protected:
         Invalid,
         CheckUser,
         FetchServerIdInfo,
+        StoreExtraStrings,
         ValidatePatients,  // v2.3.0
         FetchAllowedTables,
         CheckPoliciesThenStartUpload,
