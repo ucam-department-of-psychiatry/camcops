@@ -53,11 +53,15 @@ void TaskScheduleItemEditor::editTask()
 
         const int patient_id = m_app.selectedPatientId();
         task->setupForEditingAndSave(patient_id);
+
+        // Only apply settings on task creation. The task should save any
+        // settings along with the responses. So if a task is re-edited we
+        // shouldn't need to apply them here. This will prevent the settings
+        // from changing, should they change on the server.
+        const QJsonObject settings = m_p_task_schedule_item->settings();
+        task->applySettings(settings);
         m_p_task_schedule_item->setTask(task->pkvalueInt());
     }
-
-    const QJsonObject settings = m_p_task_schedule_item->settings();
-    task->applySettings(settings);
 
     OpenableWidget* widget = task->editor(false);
     if (!widget) {
