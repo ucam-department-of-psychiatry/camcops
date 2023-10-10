@@ -3815,3 +3815,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   would see a generic error message and the only way to fix it was to re-register
   the patient.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/263
+
+- Support for a clinician to configure IDED-3D settings for single user mode on
+  a per-patient basis.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/314

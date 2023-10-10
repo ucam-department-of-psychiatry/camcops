@@ -56,9 +56,16 @@ public:
     IDED3D(CamcopsApp& app, DatabaseManager& db,
            int load_pk = dbconst::NONEXISTENT_PK);
     ~IDED3D() override;
+protected:
+    QMap<QString, QVariant::Type> initTypes();
+    QMap<QString, QVariant> initDefaultValues();
+    QMap<QString, QVariant> initMinValues();
+    QMap<QString, QVariant> initMaxValues();
+
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
+public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
@@ -79,12 +86,17 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
+protected:
+    virtual void applySettings(const QJsonObject& settings) override;
+    void applySetting(const QString fieldname, const QJsonValue value);
 
     // ------------------------------------------------------------------------
     // Validation for questionnaire
     // ------------------------------------------------------------------------
 protected slots:
     void validateQuestionnaire();
+protected:
+    bool validateSettings();
 
     // ------------------------------------------------------------------------
     // Calculation/assistance functions for main task
@@ -140,6 +152,11 @@ protected:
     QSharedPointer<QTimer> m_timer;
     QSharedPointer<QMediaPlayer> m_player_correct;  // not owned by other widgets
     QSharedPointer<QMediaPlayer> m_player_incorrect;  // not owned by other widgets
+
+    QMap<QString, QVariant> m_default_values;
+    QMap<QString, QVariant::Type> m_types;
+    QMap<QString, QVariant> m_min_values;
+    QMap<QString, QVariant> m_max_values;
 
     // ------------------------------------------------------------------------
     // Constants
