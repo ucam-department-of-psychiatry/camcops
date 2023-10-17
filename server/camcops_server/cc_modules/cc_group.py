@@ -152,6 +152,7 @@ class Group(Base):
         "Group.id==UserGroupMembership.group_id, "
         "User.id==UserGroupMembership.user_id, "
         "User.auto_generated==False)",
+        viewonly=True,
     )
     regular_users = association_proxy("regular_user_group_memberships", "user")
 
