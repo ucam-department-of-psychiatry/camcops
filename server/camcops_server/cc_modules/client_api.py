@@ -369,7 +369,7 @@ from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from semantic_version import Version
-from sqlalchemy.engine.result import ResultProxy
+from sqlalchemy.engine.result import CursorResult
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import exists, select, update
@@ -1278,9 +1278,9 @@ def flag_all_records_deleted(req: "CamcopsRequest", table: Table) -> int:
         .where(table.c[FN_CURRENT])
         .where(table.c[FN_ERA] == ERA_NOW)
         .values(values_delete_later())
-    )  # type: ResultProxy
+    )  # type: CursorResult
     return rp.rowcount
-    # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.ResultProxy.rowcount  # noqa
+    # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.Result.rowcount  # noqa
 
 
 def flag_deleted_where_clientpk_not(
@@ -1301,7 +1301,7 @@ def flag_deleted_where_clientpk_not(
         .where(table.c[FN_ERA] == ERA_NOW)
         .where(table.c[clientpk_name].notin_(clientpk_values))
         .values(values_delete_later())
-    )  # type: ResultProxy
+    )  # type: CursorResult
     if rp.rowcount > 0:
         mark_table_dirty(req, table)
     # ... but if we are preserving, do NOT mark this table as clean; there may
@@ -1686,7 +1686,7 @@ def insert_record(
         valuedict.update({FN_CURRENT: 0, FN_ADDITION_PENDING: 1})
     rp = req.dbsession.execute(
         table.insert().values(valuedict)
-    )  # type: ResultProxy
+    )  # type: CursorResult
     inserted_pks = rp.inserted_primary_key
     assert isinstance(inserted_pks, list) and len(inserted_pks) == 1
     return inserted_pks[0]

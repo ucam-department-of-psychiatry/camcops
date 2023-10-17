@@ -86,7 +86,7 @@ from camcops_server.cc_modules.cc_user import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine.result import ResultProxy
+    from sqlalchemy.engine import CursorResult
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -771,7 +771,7 @@ def translate_fn(trcon: TranslationContext) -> None:
             .where(column(Patient._device_id.name) == old_patient._device_id)
             .where(column(Patient._era.name) == old_patient._era)
         )
-        rows = trcon.src_session.execute(src_pt_query)  # type: ResultProxy
+        rows = trcon.src_session.execute(src_pt_query)  # type: CursorResult
         list_of_dicts = [dict(row.items()) for row in rows]
         assert (
             len(list_of_dicts) == 1
