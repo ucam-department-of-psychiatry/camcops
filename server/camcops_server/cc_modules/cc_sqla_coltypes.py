@@ -1209,6 +1209,9 @@ class UuidColType(TypeDecorator):
     def process_bind_param(
         self, value: uuid.UUID, dialect: Dialect
     ) -> Optional[str]:
+        """
+        Convert parameters on the way from Python to the database.
+        """
         if value is None:
             return None
 
@@ -1217,6 +1220,9 @@ class UuidColType(TypeDecorator):
     def process_result_value(
         self, value: Optional[str], dialect: Dialect
     ) -> Optional[uuid.UUID]:
+        """
+        Convert things on the way from the database to Python.
+        """
         if value is None:
             return None
 
@@ -1243,12 +1249,18 @@ class JsonColType(TypeDecorator):
     def process_bind_param(
         self, value: Any, dialect: Dialect
     ) -> Optional[str]:
+        """
+        Convert parameters on the way from Python to the database.
+        """
         if value is None:
             return None
 
         return json.dumps(value)
 
     def process_result_value(self, value: str, dialect: Dialect) -> Any:
+        """
+        Convert things on the way from the database to Python.
+        """
         if value is None:
             return None
 
@@ -1272,6 +1284,9 @@ class PhoneNumberColType(TypeDecorator):
     def process_bind_param(
         self, value: Any, dialect: Dialect
     ) -> Optional[str]:
+        """
+        Convert parameters on the way from Python to the database.
+        """
         if value is None:
             return None
 
@@ -1280,6 +1295,9 @@ class PhoneNumberColType(TypeDecorator):
         )
 
     def process_result_value(self, value: str, dialect: Dialect) -> Any:
+        """
+        Convert things on the way from the database to Python.
+        """
         if not value:
             return None
 
