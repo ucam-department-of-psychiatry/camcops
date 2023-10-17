@@ -352,6 +352,7 @@ class isotzdatetime_to_utcdatetime(FunctionElement):
 
     type = DateTime()
     name = "isotzdatetime_to_utcdatetime"
+    inherit_cache = False
 
 
 # noinspection PyUnusedLocal
@@ -592,6 +593,7 @@ class unknown_field_to_utcdatetime(FunctionElement):
 
     type = DateTime()
     name = "unknown_field_to_utcdatetime"
+    inherit_cache = False
 
 
 # noinspection PyUnusedLocal
@@ -684,6 +686,8 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
 
     impl = String(length=StringLengths.ISO8601_DATETIME_STRING_MAX_LEN)
     # ... underlying SQL type
+
+    cache_ok = False
 
     _coltype_name = "PendulumDateTimeAsIsoTextColType"
 
@@ -847,6 +851,8 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
     impl = String(length=StringLengths.ISO8601_DURATION_STRING_MAX_LEN)
     # ... underlying SQL type
 
+    cache_ok = False
+
     _coltype_name = "PendulumDurationAsIsoTextColType"
 
     @property
@@ -953,6 +959,8 @@ class SemanticVersionColType(TypeDecorator):
     """
 
     impl = String(length=147)  # https://github.com/mojombo/semver/issues/79
+
+    cache_ok = False
 
     _coltype_name = "SemanticVersionColType"
 
@@ -1192,6 +1200,8 @@ class UuidColType(TypeDecorator):
 
     impl = CHAR(32)
 
+    cache_ok = False
+
     @property
     def python_type(self) -> type:
         return str
@@ -1224,6 +1234,8 @@ class JsonColType(TypeDecorator):
     # does not use vendor-specific JSON type
     impl = UnicodeText
 
+    cache_ok = False
+
     @property
     def python_type(self) -> type:
         return str
@@ -1250,6 +1262,8 @@ class JsonColType(TypeDecorator):
 
 class PhoneNumberColType(TypeDecorator):
     impl = Unicode(length=StringLengths.PHONE_NUMBER_MAX_LEN)
+
+    cache_ok = False
 
     @property
     def python_type(self) -> type:
