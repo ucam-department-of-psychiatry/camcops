@@ -122,6 +122,21 @@ const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
 const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
 
+const QStringList SETTINGS_FIELDNAMES = {
+    FN_LAST_STAGE,
+    FN_MAX_TRIALS_PER_STAGE,
+    FN_PROGRESS_CRITERION_X,
+    FN_PROGRESS_CRITERION_Y,
+    FN_MIN_NUMBER,
+    FN_MAX_NUMBER,
+    FN_PAUSE_AFTER_BEEP_MS,
+    FN_ITI_MS,
+    FN_COUNTERBALANCE_DIMENSIONS,
+    FN_VOLUME,
+    FN_OFFER_ABORT,
+    FN_DEBUG_DISPLAY_STIMULI_ONLY,
+};
+
 // Questionnaire bit
 const QString TAG_WARNING_PROGRESS_CRITERION("pc");
 const QString TAG_WARNING_MIN_MAX("mm");
@@ -165,13 +180,6 @@ const int VOLUME_DP = 2;
 const int MAX_STAGES = 8;
 const int MAX_NUMBER = 9;
 const int MAX_COUNTERBALANCE_DIMENSIONS = 5;
-const int DEFAULT_MAX_TRIALS_PER_STAGE = 50;
-const int DEFAULT_PROGRESS_CRITERION_X = 6;  // as per Rogers et al. 1999
-const int DEFAULT_PROGRESS_CRITERION_Y = 6;  // as per Rogers et al. 1999
-const int DEFAULT_PAUSE_AFTER_BEEP_MS = 500;
-const int DEFAULT_ITI_MS = 500;
-const qreal DEFAULT_VOLUME = MAX_VOLUME / 2.0;
-const bool DEFAULT_OFFER_ABORT = false;
 
 // Derived constants
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
@@ -233,21 +241,14 @@ void initializeIDED3D(TaskFactory& factory)
 IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    // Config
-    addField(FN_LAST_STAGE, QVariant::Int);
-    addField(FN_MAX_TRIALS_PER_STAGE, QVariant::Int);
-    addField(FN_PROGRESS_CRITERION_X, QVariant::Int);
-    addField(FN_PROGRESS_CRITERION_Y, QVariant::Int);
-    addField(FN_MIN_NUMBER, QVariant::Int);
-    addField(FN_MAX_NUMBER, QVariant::Int);
-    addField(FN_PAUSE_AFTER_BEEP_MS, QVariant::Int);
-    addField(FN_ITI_MS, QVariant::Int);
-    addField(FN_COUNTERBALANCE_DIMENSIONS, QVariant::Int);
-    addField(FN_VOLUME, QVariant::Double);
-    addField(FN_OFFER_ABORT, QVariant::Bool);
-    addField(FN_DEBUG_DISPLAY_STIMULI_ONLY, QVariant::Bool);
-    addField(FN_SHAPE_DEFINITIONS_SVG, QVariant::String);
-    addField(FN_COLOUR_DEFINITIONS_RGB, QVariant::String);
+    m_default_values = initDefaultValues();
+    m_types = initTypes();
+    m_min_values = initMinValues();
+    m_max_values = initMaxValues();
+
+    for (auto it = m_types.constBegin(), end = m_types.constEnd(); it != end; ++it ) {
+        addField(it.key(), it.value());
+    }
     // Results
     addField(FN_ABORTED, QVariant::Bool);
     getField(FN_ABORTED).setCppDefaultValue(false);
@@ -258,24 +259,89 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);
 
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        // Default values:
-        setValue(FN_LAST_STAGE, MAX_STAGES, false);
-        setValue(FN_MAX_TRIALS_PER_STAGE, DEFAULT_MAX_TRIALS_PER_STAGE, false);
-        setValue(FN_PROGRESS_CRITERION_X, DEFAULT_PROGRESS_CRITERION_X, false);
-        setValue(FN_PROGRESS_CRITERION_Y, DEFAULT_PROGRESS_CRITERION_Y, false);
-        setValue(FN_MIN_NUMBER, 1, false);
-        setValue(FN_MAX_NUMBER, MAX_NUMBER, false);
-        setValue(FN_PAUSE_AFTER_BEEP_MS, DEFAULT_PAUSE_AFTER_BEEP_MS, false);
-        setValue(FN_ITI_MS, DEFAULT_ITI_MS, false);
-        setValue(FN_VOLUME, DEFAULT_VOLUME, false);
-        setValue(FN_OFFER_ABORT, DEFAULT_OFFER_ABORT, false);
-        setValue(FN_DEBUG_DISPLAY_STIMULI_ONLY, false, false);
+        for (auto it = m_default_values.constBegin(), end = m_default_values.constEnd(); it != end; ++it ) {
+            setValue(it.key(), it.value(), false);
+        }
     }
 
     // Internal data
     m_current_stage = 0;
     m_current_trial = -1;
     timerfunc::makeSingleShotTimer(m_timer);
+}
+
+QMap<QString, QVariant::Type> IDED3D::initTypes() {
+    QMap<QString, QVariant::Type> map;
+    map.insert(FN_LAST_STAGE, QVariant::Int);
+    map.insert(FN_MAX_TRIALS_PER_STAGE, QVariant::Int);
+    map.insert(FN_PROGRESS_CRITERION_X, QVariant::Int);
+    map.insert(FN_PROGRESS_CRITERION_Y, QVariant::Int);
+    map.insert(FN_MIN_NUMBER, QVariant::Int);
+    map.insert(FN_MAX_NUMBER, QVariant::Int);
+    map.insert(FN_PAUSE_AFTER_BEEP_MS, QVariant::Int);
+    map.insert(FN_ITI_MS, QVariant::Int);
+    map.insert(FN_COUNTERBALANCE_DIMENSIONS, QVariant::Int);
+    map.insert(FN_VOLUME, QVariant::Double);
+    map.insert(FN_OFFER_ABORT, QVariant::Bool);
+    map.insert(FN_DEBUG_DISPLAY_STIMULI_ONLY, QVariant::Bool);
+    map.insert(FN_SHAPE_DEFINITIONS_SVG, QVariant::String);
+    map.insert(FN_COLOUR_DEFINITIONS_RGB, QVariant::String);
+
+    return map;
+}
+
+QMap<QString, QVariant> IDED3D::initDefaultValues() {
+    QMap<QString, QVariant> map;
+    map.insert(FN_LAST_STAGE, QVariant(MAX_STAGES));
+    map.insert(FN_MAX_TRIALS_PER_STAGE, QVariant(50));
+    map.insert(FN_PROGRESS_CRITERION_X, QVariant(6));
+    map.insert(FN_PROGRESS_CRITERION_Y, QVariant(6));
+    map.insert(FN_MIN_NUMBER, QVariant(1));
+    map.insert(FN_MAX_NUMBER, QVariant(MAX_NUMBER));
+    map.insert(FN_PAUSE_AFTER_BEEP_MS, QVariant(500));
+    map.insert(FN_VOLUME, QVariant(MAX_VOLUME / 2.0));
+    map.insert(FN_ITI_MS, QVariant(500));
+    map.insert(FN_OFFER_ABORT, QVariant(false));
+    map.insert(FN_DEBUG_DISPLAY_STIMULI_ONLY, QVariant(false));
+
+    return map;
+}
+
+QMap<QString, QVariant> IDED3D::initMinValues() {
+    QMap<QString, QVariant> map;
+
+    map.insert(FN_LAST_STAGE, 1);
+    map.insert(FN_MAX_TRIALS_PER_STAGE, 1);
+    map.insert(FN_PROGRESS_CRITERION_X, 1);
+    map.insert(FN_PROGRESS_CRITERION_Y, 1);
+    map.insert(FN_MIN_NUMBER, 1);
+    map.insert(FN_MAX_NUMBER, 1);
+    map.insert(FN_PAUSE_AFTER_BEEP_MS, 0);
+    map.insert(FN_ITI_MS, 0);
+    map.insert(FN_COUNTERBALANCE_DIMENSIONS, 0);
+    map.insert(FN_VOLUME, MIN_VOLUME);
+
+    return map;
+}
+
+
+QMap<QString, QVariant> IDED3D::initMaxValues() {
+    QMap<QString, QVariant> map;
+
+    const int no_max = std::numeric_limits<int>::max();
+
+    map.insert(FN_LAST_STAGE, MAX_STAGES);
+    map.insert(FN_MAX_TRIALS_PER_STAGE, no_max);
+    map.insert(FN_PROGRESS_CRITERION_X, no_max);
+    map.insert(FN_PROGRESS_CRITERION_Y, no_max);
+    map.insert(FN_MIN_NUMBER, MAX_NUMBER);
+    map.insert(FN_MAX_NUMBER, MAX_NUMBER);
+    map.insert(FN_PAUSE_AFTER_BEEP_MS, no_max);
+    map.insert(FN_ITI_MS, no_max);
+    map.insert(FN_COUNTERBALANCE_DIMENSIONS, MAX_COUNTERBALANCE_DIMENSIONS);
+    map.insert(FN_VOLUME, MAX_VOLUME);
+
+    return map;
 }
 
 
@@ -311,6 +377,43 @@ QString IDED3D::description() const
               "Dimensions of shape/colour/number.");
 }
 
+
+// ============================================================================
+// Settings
+// ============================================================================
+
+void IDED3D::applySettings(const QJsonObject& settings)
+{
+    for (const auto& fieldname: SETTINGS_FIELDNAMES) {
+        if (settings.contains(fieldname)) {
+            applySetting(fieldname, settings.value(fieldname));
+        }
+    }
+}
+
+
+void IDED3D::applySetting(const QString fieldname, const QJsonValue value) {
+    auto type = m_types.value(fieldname);
+
+    switch(type) {
+    case QVariant::Int:
+        setValue(fieldname, value.toInt());
+        break;
+
+    case QVariant::Double:
+        setValue(fieldname, value.toDouble());
+        break;
+
+    case QVariant::Bool:
+        setValue(fieldname, value.toBool());
+        break;
+
+    default:
+        qDebug("Unexpected field type: %d", type);
+        Q_ASSERT(false);
+        break;
+    }
+}
 
 // ============================================================================
 // Ancillary management
@@ -423,7 +526,6 @@ OpenableWidget* IDED3D::editor(const bool read_only)
     // Configure the task using a Questionnaire
     // ------------------------------------------------------------------------
 
-    const int no_max = std::numeric_limits<int>::max();
     const QString warning_progress_criterion(tr(
             "WARNING: cannot proceed: must satisfy "
             "progress_criterion_x <= progress_criterion_y"));
@@ -431,28 +533,45 @@ OpenableWidget* IDED3D::editor(const bool read_only)
             "WARNING: cannot proceed: must satisfy "
             "min_number <= max_number"));
 
+    auto lineEditInteger = [this](const QString& fieldname) -> QuLineEditInteger* {
+        return new QuLineEditInteger(
+            fieldRef(fieldname),
+            m_min_values.value(fieldname).toInt(),
+            m_max_values.value(fieldname).toInt()
+        );
+    };
+
+    auto lineEditDouble = [this](const QString& fieldname, const int dp) -> QuLineEditDouble* {
+        return new QuLineEditDouble(
+            fieldRef(fieldname),
+            m_min_values.value(fieldname).toDouble(),
+            m_max_values.value(fieldname).toDouble(),
+            dp
+        );
+    };
+
     QuPagePtr page((new QuPage{
         questionnairefunc::defaultGridRawPointer({
             {xstring("last_stage"),
-             new QuLineEditInteger(fieldRef(FN_LAST_STAGE), 1, MAX_STAGES)},
+             lineEditInteger(FN_LAST_STAGE)},
             {xstring("max_trials_per_stage"),
-             new QuLineEditInteger(fieldRef(FN_MAX_TRIALS_PER_STAGE), 1, no_max)},
+             lineEditInteger(FN_MAX_TRIALS_PER_STAGE)},
             {xstring("progress_criterion_x"),
-             new QuLineEditInteger(fieldRef(FN_PROGRESS_CRITERION_X), 1, no_max)},
+             lineEditInteger(FN_PROGRESS_CRITERION_X)},
             {xstring("progress_criterion_y"),
-             new QuLineEditInteger(fieldRef(FN_PROGRESS_CRITERION_Y), 1, no_max)},
+             lineEditInteger(FN_PROGRESS_CRITERION_Y)},
             {xstring("min_number"),
-             new QuLineEditInteger(fieldRef(FN_MIN_NUMBER), 1, MAX_NUMBER)},
+             lineEditInteger(FN_MIN_NUMBER)},
             {xstring("max_number"),
-             new QuLineEditInteger(fieldRef(FN_MAX_NUMBER), 1, MAX_NUMBER)},
+             lineEditInteger(FN_MAX_NUMBER)},
             {xstring("pause_after_beep_ms"),
-             new QuLineEditInteger(fieldRef(FN_PAUSE_AFTER_BEEP_MS), 0, no_max)},
+             lineEditInteger(FN_PAUSE_AFTER_BEEP_MS)},
             {xstring("iti_ms"),
-             new QuLineEditInteger(fieldRef(FN_ITI_MS), 0, no_max)},
+             lineEditInteger(FN_ITI_MS)},
             {xstring("counterbalance_dimensions"),
-             new QuLineEditInteger(fieldRef(FN_COUNTERBALANCE_DIMENSIONS), 0, MAX_COUNTERBALANCE_DIMENSIONS)},
+             lineEditInteger(FN_COUNTERBALANCE_DIMENSIONS)},
             {xstring("volume"),
-             new QuLineEditDouble(fieldRef(FN_VOLUME), MIN_VOLUME, MAX_VOLUME, VOLUME_DP)},
+             lineEditDouble(FN_VOLUME, VOLUME_DP)},
             {xstring("offer_abort"),
              (new QuBoolean(xstring("offer_abort"),
                             fieldRef(FN_OFFER_ABORT)))->setAsTextButton(true)},
@@ -506,8 +625,15 @@ OpenableWidget* IDED3D::editor(const bool read_only)
 
     m_widget = new OpenableWidget();
 
-    // We start off by seeing the questionnaire:
-    m_widget->setWidgetAsOnlyContents(m_questionnaire, 0, false, false);
+    bool skip_setup =  (m_app.isSingleUserMode() &&
+                        page->mayProgressIgnoringValidators());
+    if (skip_setup) {
+        // Single user mode and parameters are already set up for the patient
+        startTask();
+    } else {
+        // We start off by seeing the questionnaire:
+        m_widget->setWidgetAsOnlyContents(m_questionnaire, 0, false, false);
+    }
 
     return m_widget;
 }
@@ -528,10 +654,34 @@ void IDED3D::validateQuestionnaire()
 
     const bool duff_pc = valueInt(FN_PROGRESS_CRITERION_Y) < valueInt(FN_PROGRESS_CRITERION_X);
     const bool duff_minmax = valueInt(FN_MAX_NUMBER) < valueInt(FN_MIN_NUMBER);
+    const bool ok_settings = validateSettings();
 
     m_questionnaire->setVisibleByTag(TAG_WARNING_PROGRESS_CRITERION, duff_pc);
     m_questionnaire->setVisibleByTag(TAG_WARNING_MIN_MAX, duff_minmax);
-    page->blockProgress(duff_pc || duff_minmax);
+    page->blockProgress(duff_pc || duff_minmax || !ok_settings);
+}
+
+
+bool IDED3D::validateSettings()
+{
+    bool ok = true;
+
+    // Check JSON settings in single user mode are within the limits
+    for (auto it = m_min_values.constBegin(), end = m_min_values.constEnd(); it != end; ++it) {
+        if (value(it.key()) < it.value()) {
+            setValue(it.key(), QVariant());
+            ok = false;
+        }
+    }
+
+    for (auto it = m_max_values.constBegin(), end = m_max_values.constEnd(); it != end; ++it) {
+        if (value(it.key()) > it.value()) {
+            setValue(it.key(), QVariant());
+            ok = false;
+        }
+    }
+
+    return ok;
 }
 
 
