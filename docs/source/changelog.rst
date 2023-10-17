@@ -3819,3 +3819,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Support for a clinician to configure IDED-3D settings for single user mode on
   a per-patient basis.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/314
+
+- Supported SQLAlchemy version now 1.4
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/172

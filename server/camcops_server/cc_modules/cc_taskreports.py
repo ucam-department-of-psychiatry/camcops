@@ -38,7 +38,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     get_rows_fieldnames_from_query,
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
-from sqlalchemy.engine.result import RowProxy
+from sqlalchemy.engine import Row
 from sqlalchemy.sql.elements import UnaryExpression
 from sqlalchemy.sql.expression import desc, func, literal, select
 from sqlalchemy.sql.functions import FunctionElement
@@ -274,7 +274,7 @@ class TaskCountReport(Report):
                 if by_task:
                     final_rows.extend(rows)
                 else:
-                    for row in rows:  # type: RowProxy
+                    for row in rows:  # type: Row
                         key = tuple(row[keyname] for keyname in groupers)
                         count = row[label_n]
                         counter.update({key: count})

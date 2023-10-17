@@ -55,7 +55,7 @@ from deform.form import Form
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.engine.result import ResultProxy
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import and_, column, func, select
@@ -472,7 +472,7 @@ class Report(object):
         """
         statement = self.get_query(req)
         if statement is not None:
-            rp = req.dbsession.execute(statement)  # type: ResultProxy
+            rp = req.dbsession.execute(statement)  # type: CursorResult
             column_names = rp.keys()
             rows = rp.fetchall()
 
