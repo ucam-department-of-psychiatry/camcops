@@ -3815,3 +3815,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   would see a generic error message and the only way to fix it was to re-register
   the patient.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/263
+
+- Supported SQLAlchemy version now 1.4
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/172
