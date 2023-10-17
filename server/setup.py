@@ -103,7 +103,7 @@ INSTALL_REQUIRES = [
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "pycap==1.1.1",  # REDCap integration
-    "Pillow==9.3.0",  # used by a dependency; pin for security warnings
+    "Pillow==10.0.1",  # used by a dependency; pin for security warnings
     "Pygments==2.15.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
