@@ -369,7 +369,7 @@ from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from semantic_version import Version
-from sqlalchemy.engine.result import CursorResult
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import exists, select, update
