@@ -74,8 +74,9 @@ from pendulum import DateTime as Pendulum
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql.schema import MetaData, Table
 
