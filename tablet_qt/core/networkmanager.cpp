@@ -1240,12 +1240,37 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         m_upload_next_stage = NextUploadStage::ValidatePatients;
         break;
 
+    case NextUploadStage::StoreExtraStrings:
+        // The server version changed so we fetch any new extra strings
+        storeExtraStrings();
+        // now we go back to trying to fetch the server info
+        m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
+        uploadNext(nullptr);
+        break;
+
     case NextUploadStage::ValidatePatients:
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // FROM: fetch server ID info
         // TO: ask server to validate patients
         //     ... or if the server doesn't support that, move on another step
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (m_app.isSingleUserMode()) {
+            // In single user mode, if the server has been updated, we overwrite
+            // the stored server version and refetch all server info without
+            // warning or prompting the user to refetch.
+            if (!serverVersionMatchesStored()) {
+                storeServerIdentificationInfo();
+
+                statusMessage(tr("Requesting extra strings"));
+                Dict dict;
+                dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+
+                m_upload_next_stage = NextUploadStage::StoreExtraStrings;
+                serverPost(dict, &NetworkManager::uploadNext);
+                return;
+            }
+        }
+
         if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
             fail();
             return;
@@ -2079,25 +2104,54 @@ bool NetworkManager::catalogueTablesForUpload()
 bool NetworkManager::isServerVersionOK() const
 {
     statusMessage(tr("Checking server CamCOPS version"));
-    const QString server_version_str = m_reply_dict[KEY_SERVER_CAMCOPS_VERSION];
-    const Version server_version(server_version_str);
-    const Version stored_server_version = m_app.serverVersion();
 
-    if (server_version < camcopsversion::MINIMUM_SERVER_VERSION) {
-        statusMessage(tr("Server CamCOPS version (%1) is too old; must be >= %2")
-                      .arg(server_version_str,
-                           camcopsversion::MINIMUM_SERVER_VERSION.toString()));
+    if (!serverVersionNewEnough()) {
         return false;
     }
-    if (server_version != stored_server_version) {
-        statusMessage(tr("Server version (%1) doesn't match stored version (%2).")
-                      .arg(server_version.toString(),
-                           stored_server_version.toString()) +
-                      txtPleaseRefetchServerInfo());
+    if (!serverVersionMatchesStored()) {
         return false;
     }
     statusMessage(tr("... OK"));
     return true;
+}
+
+
+bool NetworkManager::serverVersionNewEnough() const
+{
+    const Version server_version = serverVersionFromReply();
+    bool new_enough = server_version >= camcopsversion::MINIMUM_SERVER_VERSION;
+
+    if (!new_enough) {
+        statusMessage(tr("Server CamCOPS version (%1) is too old; must be >= %2")
+                      .arg(server_version.toString(),
+                           camcopsversion::MINIMUM_SERVER_VERSION.toString()));
+    }
+
+    return new_enough;
+}
+
+
+bool NetworkManager::serverVersionMatchesStored() const
+{
+    const Version server_version = serverVersionFromReply();
+    const Version stored_server_version = m_app.serverVersion();
+
+    bool matches = server_version == stored_server_version;
+
+    if (!matches) {
+        statusMessage(tr("Server version (%1) doesn't match stored version (%2).")
+                      .arg(server_version.toString(),
+                           stored_server_version.toString()) +
+                      txtPleaseRefetchServerInfo());
+    }
+
+    return matches;
+}
+
+
+Version NetworkManager::serverVersionFromReply() const
+{
+    return Version(m_reply_dict[KEY_SERVER_CAMCOPS_VERSION]);
 }
 
 
