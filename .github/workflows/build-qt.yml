@@ -32,42 +32,107 @@ jobs:
             - uses: actions/setup-python@v4
               with:
                   python-version: 3.8
+            - name: Common Linux prerequisites
+              if: runner.os == 'Linux'
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install \
+                  autoconf \
+                  automake \
+                  bison \
+                  build-essential \
+                  ccache \
+                  cmake \
+                  flex \
+                  git \
+                  gperf \
+                  libass-dev \
+                  libdrm-dev \
+                  libegl1-mesa-dev \
+                  libfontconfig1-dev \
+                  libfreetype6-dev \
+                  libgnutls28-dev \
+                  libmp3lame-dev \
+                  libnss3-dev \
+                  libpulse-dev \
+                  libsdl2-dev \
+                  libtool \
+                  libva-dev \
+                  libvdpau-dev \
+                  libvorbis-dev \
+                  libx11-xcb-dev \
+                  '^libxcb.*-dev' \
+                  libxcomposite-dev \
+                  libxcursor-dev \
+                  libxdamage-dev \
+                  libxi-dev \
+                  libxkbcommon-dev \
+                  libxkbcommon-x11-dev \
+                  libxrandr-dev \
+                  libxrender-dev \
+                  meson \
+                  ninja-build \
+                  nodejs \
+                  pkg-config \
+                  texinfo \
+                  wget \
+                  yasm \
+                  zlib1g-dev
+
             - name: Ubuntu 20.04 prerequisites
               if: matrix.os == 'ubuntu-20.04'
               run: |
                   set -eux -o pipefail
-                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
-                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
-                  sudo apt-get -y build-dep qt5-default
-                  sudo apt-get -y install build-essential perl python git
-                  sudo apt-get -y install ninja-build ccache
-                  sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
-                  sudo apt-get -y install flex bison gperf libicu-dev libxslt-dev ruby yasm
-                  sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev nodejs
-                  sudo apt-get -y install libxcb-xinerama0-dev
-                  sudo apt-get -y install libdrm-dev libxcb-glx0-dev libzstd-dev
-                  sudo apt-get -y install libclang-10-dev libclang-11-dev libclang-12-dev
+                  sudo apt-get -y install \
+                  build-dep \
+                  libasound2-dev \
+                  libcap-dev \
+                  libclang-10-dev \
+                  libclang-11-dev \
+                  libclang-12-dev \
+                  libdbus-1-dev \
+                  libevent-dev \
+                  libglu1-mesa-dev \
+                  libicu-dev \
+                  libpci-dev \
+                  libudev-dev \
+                  libxcb-glx0-dev \
+                  libxcb-xinerama0-dev \
+                  libxslt-dev \
+                  libxss-dev \
+                  libxtst-dev \
+                  libzstd-dev \
+                  perl \
+                  python \
+                  qt5-default \
+                  ruby
+
             - name: Ubuntu 22.04 prerequisites
               if: matrix.os == 'ubuntu-22.04'
               run: |
                   set -eux -o pipefail
-                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
-                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
-                  sudo apt-get -y install libunwind-dev
-                  sudo apt-get -y install build-essential python3 git
-                  sudo apt-get -y install ninja-build clang ccache
-                  sudo apt-get -y install '^libxcb.*-dev' libx11-xcb-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
-                  sudo apt-get -y install flex bison gperf yasm
-                  sudo apt-get -y install libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libfontconfig1-dev libpulse-dev libnss3-dev libegl1-mesa-dev nodejs
-                  sudo apt-get -y install libdrm-dev
-                  sudo apt-get -y install libatspi2.0-dev libbluetooth-dev libclang-dev libcups2-dev
-                  sudo apt-get -y install libfreetype6-dev
-                  sudo apt-get -y install libhunspell-dev libopengl-dev
-                  sudo apt-get -y install libts-dev libx11-dev
-                  sudo apt-get -y install libxext-dev
-                  sudo apt-get -y install libxfixes-dev
-                  sudo apt-get -y install libxkbfile-dev libxshmfence-dev
-                  sudo apt-get -y install libxshmfence1 llvm
+                  sudo apt-get -y install \
+                  clang \
+                  libatspi2.0-dev \
+                  libbluetooth-dev \
+                  libclang-dev \
+                  libcups2-dev \
+                  libfreetype6-dev \
+                  libhunspell-dev \
+                  libopengl-dev \
+                  libts-dev \
+                  libunwind-dev \
+                  libx11-dev \
+                  libxext-dev \
+                  libxfixes-dev \
+                  libxkbfile-dev \
+                  libxshmfence1 \
+                  libxshmfence-dev \
+                  llvm \
+                  python3
+
             - uses: ilammy/msvc-dev-cmd@v1
               with:
                   arch: x64
@@ -161,12 +226,10 @@ jobs:
                   set -eux -o pipefail
                   echo "Free space:"
                   df -h
-                  sudo apt-get -y install vainfo
-                  vainfo
                   source ${HOME}/venv/bin/activate
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
-                  # ./build_qt.py --build_linux_x86_64
+                  ./build_qt.py --build_linux_x86_64
 
             - name: Windows Build Qt
               if: runner.os == 'Windows'
