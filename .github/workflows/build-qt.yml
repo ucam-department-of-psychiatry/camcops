@@ -161,10 +161,12 @@ jobs:
                   set -eux -o pipefail
                   echo "Free space:"
                   df -h
+                  sudo apt-get -y install vainfo
+                  vainfo
                   source ${HOME}/venv/bin/activate
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
-                  ./build_qt.py --build_linux_x86_64
+                  # ./build_qt.py --build_linux_x86_64
 
             - name: Windows Build Qt
               if: runner.os == 'Windows'
