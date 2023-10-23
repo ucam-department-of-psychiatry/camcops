@@ -85,8 +85,8 @@ jobs:
               if: matrix.os == 'ubuntu-20.04'
               run: |
                   set -eux -o pipefail
+                  sudo apt-get -y build-dep qt5-default
                   sudo apt-get -y install \
-                  build-dep \
                   libasound2-dev \
                   libcap-dev \
                   libclang-10-dev \
@@ -106,7 +106,6 @@ jobs:
                   libzstd-dev \
                   perl \
                   python \
-                  qt5-default \
                   ruby
 
             - name: Ubuntu 22.04 prerequisites
