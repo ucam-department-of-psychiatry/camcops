@@ -3605,6 +3605,10 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
     if cfg.use_ffmpeg:
+        # https://bugreports.qt.io/browse/QTBUG-118510
+        # VAAPI causing problems with build on Ubuntu 20.04
+        # 22.04 is OK (later libva?)
+        qt_config_args.append("-no-feature-vaapi")
         ffmpeginstalldir = cfg.get_ffmpeg_installdir(target_platform)
         qt_config_cmake_args.append(f"-DFFMPEG_DIR={ffmpeginstalldir}")
 
@@ -4057,6 +4061,10 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         "--disable-debug",
         "--enable-network",
         "--disable-lzma",
+        # https://bugreports.qt.io/browse/QTBUG-118510
+        # VAAPI causing problems with build on Ubuntu 20.04
+        # 22.04 is OK (later libva?)
+        "--disable-vaapi",
         "--enable-pic",
         "--prefix=/",
     ]
