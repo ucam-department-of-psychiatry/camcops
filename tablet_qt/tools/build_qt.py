@@ -1592,6 +1592,7 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
+        self.build = args.build
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
@@ -3311,12 +3312,20 @@ def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
     func(path)
 
 
-def build_qt(cfg: Config, target_platform: Platform) -> str:
-    """
-    1. Builds Qt.
-    2. Returns the name of the "install" directory, where the installed qmake
-       is.
-    """
+def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
+    installdir = cfg.qt_install_dir(target_platform)
+
+    targets = [join(installdir, "bin", target_platform.qmake_executable)]
+    if not cfg.force and all(isfile(x) for x in targets):
+        report_all_targets_exist("Qt", targets)
+        return False
+
+    return True
+
+
+def configure_qt(cfg: Config, target_platform: Platform) -> None:
+    log.info("Configuring Qt for {}...", target_platform)
+
     # http://doc.qt.io/qt-5/opensslsupport.html
     # Android:
     #       example at http://wiki.qt.io/Qt5ForAndroidBuilding
@@ -3331,9 +3340,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     #       http://doc.qt.io/qt-5/ios-support.html
     # macOS:
     #       http://doc.qt.io/qt-5/osx.html
-
-    log.info("Building Qt for {}...", target_platform)
-
     # -------------------------------------------------------------------------
     # Qt: Setup
     # -------------------------------------------------------------------------
@@ -3355,11 +3361,6 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
 
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
-
-    targets = [join(installdir, "bin", target_platform.qmake_executable)]
-    if not cfg.force and all(isfile(x) for x in targets):
-        report_all_targets_exist("Qt", targets)
-        return installdir
 
     # -------------------------------------------------------------------------
     # Qt: clean from old configure
@@ -3668,6 +3669,18 @@ Troubleshooting Qt 'configure' failures
 """
             )
             sys.exit(EXIT_FAILURE)
+
+
+def build_qt(cfg: Config, target_platform: Platform) -> str:
+    """
+    1. Builds Qt.
+    2. Returns the name of the "install" directory, where the installed qmake
+       is.
+    """
+
+    log.info("Building Qt for {}...", target_platform)
+    builddir = cfg.qt_build_dir(target_platform)
+    installdir = cfg.qt_install_dir(target_platform)
 
     # -------------------------------------------------------------------------
     # Qt: make (can take several hours)
@@ -4175,7 +4188,6 @@ def master_builder(args) -> None:
     build_eigen(cfg)
 
     installdirs = []
-    done_extra = False
 
     # noinspection PyShadowingNames
     def build_for(os: str, cpu: str) -> None:
@@ -4188,7 +4200,11 @@ def master_builder(args) -> None:
         build_sqlcipher(cfg, target_platform)
         if cfg.use_ffmpeg:
             build_ffmpeg(cfg, target_platform)
-        installdirs.append(build_qt(cfg, target_platform))
+
+        if qt_needs_building(cfg, target_platform):
+            configure_qt(cfg, target_platform)
+            if cfg.build:
+                installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
 
@@ -4235,7 +4251,11 @@ def master_builder(args) -> None:
     ):  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
-    if not installdirs and not done_extra:
+    if not cfg.build:
+        log.info("Configuration only. Not building Qt.")
+        sys.exit(EXIT_SUCCESS)
+
+    if not installdirs:
         log.warning("Nothing more to do. Run with --help argument for help.")
         sys.exit(EXIT_FAILURE)
 
@@ -4279,7 +4299,7 @@ def main() -> None:
     general.add_argument(
         "--show_config_only",
         action="store_true",
-        help="Show config, then quit",
+        help="Show this script's config, then quit",
     )
     general.add_argument(
         "--root_dir",
@@ -4288,6 +4308,12 @@ def main() -> None:
             f"Root directory for source and builds (default taken from "
             f"environment variable {ENVVAR_QT_BASE} if present)"
         ),
+    )
+    general.add_argument(
+        "--no_build",
+        dest="build",
+        action="store_false",
+        help="Only run Qt configure, don't build Qt",
     )
     general.add_argument(
         "--no_fetch",
