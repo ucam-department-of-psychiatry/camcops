@@ -1593,6 +1593,7 @@ class Config(object):
         # General
         self.show_config_only = args.show_config_only  # type: bool
         self.build = args.build
+        self.clean = args.clean
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
@@ -3313,6 +3314,9 @@ def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
 
 
 def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
+    if cfg.clean:
+        return True
+
     installdir = cfg.qt_install_dir(target_platform)
 
     targets = [join(installdir, "bin", target_platform.qmake_executable)]
@@ -3380,10 +3384,13 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # build there.
     # https://stackoverflow.com/questions/24261974 (comments)
 
-    # rmtree(builddir)
-    # rmtree(installdir)
-    # ... do this if something goes wrong, but it is slow; maybe not routinely
-    # (unless you're developing this script)?
+    # --clean option: ... do this if something goes wrong, but it is slow;
+    # maybe not routinely (unless you're diagnosing problems with the build)?
+    if cfg.clean:
+        log.info("Removing {}".format(builddir))
+        shutil.rmtree(builddir)
+        log.info("Removing {}".format(installdir))
+        shutil.rmtree(installdir)
 
     # -------------------------------------------------------------------------
     # Qt: Environment
@@ -4318,6 +4325,15 @@ def main() -> None:
         help=(
             f"Root directory for source and builds (default taken from "
             f"environment variable {ENVVAR_QT_BASE} if present)"
+        ),
+    )
+    general.add_argument(
+        "--clean",
+        dest="clean",
+        action="store_true",
+        help=(
+            "Clean any existing Qt build and install directory. "
+            "Normally only useful when diagnosing problems with the build."
         ),
     )
     general.add_argument(
