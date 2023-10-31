@@ -281,11 +281,19 @@ class ExportedTask(Base):
 
     recipient = relationship(ExportRecipient)
 
-    emails = relationship("ExportedTaskEmail")
-    fhir_exports = relationship("ExportedTaskFhir")
-    filegroups = relationship("ExportedTaskFileGroup")
-    hl7_messages = relationship("ExportedTaskHL7Message")
-    redcap_exports = relationship("ExportedTaskRedcap")
+    emails = relationship("ExportedTaskEmail", back_populates="exported_task")
+    fhir_exports = relationship(
+        "ExportedTaskFhir", back_populates="exported_task"
+    )
+    filegroups = relationship(
+        "ExportedTaskFileGroup", back_populates="exported_task"
+    )
+    hl7_messages = relationship(
+        "ExportedTaskHL7Message", back_populates="exported_task"
+    )
+    redcap_exports = relationship(
+        "ExportedTaskRedcap", back_populates="exported_task"
+    )
 
     def __init__(
         self,
@@ -1299,7 +1307,9 @@ class ExportedTaskFhir(Base):
 
     exported_task = relationship(ExportedTask)
 
-    entries = relationship("ExportedTaskFhirEntry")
+    entries = relationship(
+        "ExportedTaskFhirEntry", back_populates="exported_task_fhir"
+    )
 
     def __init__(self, exported_task: ExportedTask = None) -> None:
         """

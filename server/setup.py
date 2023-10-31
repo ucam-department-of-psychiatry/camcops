@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib==1.1.24",  # RNC libraries
+    "cardinal_pythonlib==1.1.25",  # RNC libraries
     "celery==5.2.2",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
@@ -103,7 +103,7 @@ INSTALL_REQUIRES = [
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "pycap==1.1.1",  # REDCap integration
-    "Pillow==9.3.0",  # used by a dependency; pin for security warnings
+    "Pillow==10.0.1",  # used by a dependency; pin for security warnings
     "Pygments==2.15.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
@@ -117,7 +117,7 @@ INSTALL_REQUIRES = [
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.10.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
-    "sqlalchemy==1.3.24",  # database access
+    "sqlalchemy==1.4.49",  # database access
     "statsmodels==0.13.5",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.18",  # dependency, pinned to avoid vulnerabilities

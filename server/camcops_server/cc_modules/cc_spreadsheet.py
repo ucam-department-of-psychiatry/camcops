@@ -60,7 +60,7 @@ from cardinal_pythonlib.excel import (
     convert_for_pyexcel_ods3,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from sqlalchemy.engine.result import ResultProxy
+from sqlalchemy.engine import CursorResult
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 
@@ -135,13 +135,13 @@ class SpreadsheetPage(object):
         return page
 
     @classmethod
-    def from_resultproxy(cls, name: str, rp: ResultProxy) -> "SpreadsheetPage":
+    def from_result(cls, name: str, rp: CursorResult) -> "SpreadsheetPage":
         """
-        Creates a SpreadsheetPage object from an SQLAlchemy ResultProxy.
+        Creates a SpreadsheetPage object from an SQLAlchemy Result.
 
         Args:
             rp:
-                A :class:` sqlalchemy.engine.result.ResultProxy`.
+                A :class:` sqlalchemy.engine.Result`.
             name:
                 Name for this sheet.
         """

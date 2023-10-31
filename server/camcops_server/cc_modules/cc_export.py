@@ -194,8 +194,7 @@ from pendulum import DateTime as Pendulum, Duration, Period
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.engine import create_engine
-from sqlalchemy.engine.result import ResultProxy
+from sqlalchemy.engine import create_engine, CursorResult
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.schema import Column, MetaData, Table
@@ -652,7 +651,7 @@ def gen_audited_tasks_by_task_class(
             yield task
 
 
-def get_information_schema_query(req: "CamcopsRequest") -> ResultProxy:
+def get_information_schema_query(req: "CamcopsRequest") -> CursorResult:
     """
     Returns an SQLAlchemy query object that fetches the
     INFORMATION_SCHEMA.COLUMNS information from our source database.
@@ -682,8 +681,8 @@ def get_information_schema_spreadsheet_page(
     Returns the server database's ``INFORMATION_SCHEMA.COLUMNS`` table as a
     :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetPage``.
     """
-    result_proxy = get_information_schema_query(req)
-    return SpreadsheetPage.from_resultproxy(page_name, result_proxy)
+    result = get_information_schema_query(req)
+    return SpreadsheetPage.from_result(page_name, result)
 
 
 def write_information_schema_to_dst(
