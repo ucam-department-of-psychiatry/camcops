@@ -3324,6 +3324,17 @@ def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
 
 
 def configure_qt(cfg: Config, target_platform: Platform) -> None:
+    # Troubleshooting CMake problems during configure:
+    # qtbase/cmake/QtProcessConfigureArgs.cmake
+    # after this line:
+    # set(cmake_args "")
+    # append these lines
+    # list(APPEND cmake_args "--trace")
+    # list(APPEND cmake_args "--trace-expand")
+    # or to just trace one file, e.g.:
+    # list(APPEND cmake_args "--trace-source FindFFmpeg.cmake")
+    # list(APPEND cmake_args "--trace-expand")
+    # probably best to redirect output to a file. There is a lot of it.
     log.info("Configuring Qt for {}...", target_platform)
 
     # http://doc.qt.io/qt-5/opensslsupport.html
