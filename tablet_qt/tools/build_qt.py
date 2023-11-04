@@ -401,7 +401,7 @@ import argparse
 import logging
 import multiprocessing
 import os
-from os import chdir
+from os import chdir, listdir
 from os.path import expanduser, isdir, isfile, join, split
 import platform
 import re
@@ -3308,6 +3308,17 @@ def checkout_qt(cfg: Config) -> None:
             run([GIT, "submodule", "deinit", "-f", submodule])
 
 
+def patch_qt(cfg: Config) -> None:
+    patches_dir = join(THIS_DIR, "patches")
+
+    for submodule in listdir(patches_dir):
+        submodule_dir = os.path.join(patches_dir, submodule)
+        for patch_file in listdir(submodule_dir):
+            src_dir = os.path.join(cfg.qt_src_gitdir, submodule)
+            chdir(src_dir)
+            run([GIT, "apply", os.path.join(submodule_dir, patch_file)])
+
+
 def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
     os.chmod(path, stat.S_IWRITE)
     func(path)
@@ -4193,6 +4204,7 @@ def master_builder(args) -> None:
     if cfg.fetch:
         fetch_qt(cfg)
         checkout_qt(cfg)
+        patch_qt(cfg)
         fetch_openssl(cfg)
         fetch_sqlcipher(cfg)
         fetch_eigen(cfg)
