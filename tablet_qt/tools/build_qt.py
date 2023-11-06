@@ -3236,7 +3236,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 # =============================================================================
 
 
-def fetch_qt(cfg: Config) -> None:
+def download_qt(cfg: Config) -> None:
     """
     Downloads Qt source code, if not already present.
     """
@@ -3254,13 +3254,23 @@ def checkout_qt(cfg: Config) -> None:
     """
     Switch to specified Qt branch/tag/commit and update submodules.
     """
+    fetch_qt(cfg)
 
+    if not already_checked_out(cfg):
+        chdir(cfg.qt_src_gitdir)
+        run([GIT, "checkout", cfg.qt_git_commit])
+    init_repository(cfg)
+    deinit_unused_submodules(cfg)
+
+
+def fetch_qt(cfg: Config) -> None:
     chdir(cfg.qt_src_gitdir)
-
     run([GIT, "fetch", "--no-recurse-submodules"])
 
-    # First of all check if we're already there
-    already_checked_out = False
+
+def already_checked_out(cfg: Config) -> bool:
+    chdir(cfg.qt_src_gitdir)
+
     for git_test in [
         [GIT, "symbolic-ref", "-q", "--short", "HEAD"],  # Branch matches
         [GIT, "describe", "--tags"],  # Tag matches
@@ -3272,11 +3282,21 @@ def checkout_qt(cfg: Config) -> None:
         name = stdout.strip()
         if name == cfg.qt_git_commit:
             log.info("{} already checked out", cfg.qt_git_commit)
-            already_checked_out = True
-            break
+            return True
 
-    if not already_checked_out:
-        run([GIT, "checkout", cfg.qt_git_commit])
+    return False
+
+
+def init_repository(cfg: Config) -> None:
+    if local_changes_present(cfg):
+        log.warning(
+            "There are local changes in the Qt source directory. This may "
+            "be because patches have been applied. Not running the perl "
+            "init-repository script."
+        )
+        return
+
+    chdir(cfg.qt_src_gitdir)
     run(
         [
             PERL,
@@ -3285,6 +3305,32 @@ def checkout_qt(cfg: Config) -> None:
             f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
         ]
     )
+
+
+def local_changes_present(cfg) -> bool:
+    chdir(os.path.join(cfg.qt_src_gitdir))
+    run([GIT, "update-index", "--refresh"])
+    try:
+        subprocess.run(
+            [GIT, "diff-index", "--quiet", "HEAD", "--"], check=True
+        )
+    except subprocess.CalledProcessError:
+        return True
+
+    return False
+
+
+def deinit_unused_submodules(cfg: Config) -> None:
+    # For some reason init-repository doesn't result in just the submodules
+    # we want and the build ends up being huge.
+    # So:
+    for submodule_name in get_submodule_names(cfg):
+        if submodule_name not in QT_GIT_SUBMODULES:
+            run([GIT, "submodule", "deinit", "-f", submodule_name])
+
+
+def get_submodule_names(cfg: Config) -> List[str]:
+    chdir(cfg.qt_src_gitdir)
 
     (stdout, stderr) = run(
         [
@@ -3299,16 +3345,18 @@ def checkout_qt(cfg: Config) -> None:
         allow_failure=True,
         capture_stdout=True,
     )
-    # For some reason the above sometimes doesn't result in just the submodules
-    # we want and the build ends up being huge.
-    # So:
-    for path in stdout.split():
-        submodule = path.split(".")[1]
-        if submodule not in QT_GIT_SUBMODULES:
-            run([GIT, "submodule", "deinit", "-f", submodule])
+
+    return [p.split(".")[1] for p in stdout.split()]
 
 
 def patch_qt(cfg: Config) -> None:
+    if local_changes_present(cfg):
+        log.warning(
+            "There are local changes in the Qt source directory. This may "
+            "be because patches have been applied. Not trying to patch Qt."
+        )
+        return
+
     patches_dir = join(THIS_DIR, "patches")
 
     for submodule in listdir(patches_dir):
@@ -4202,7 +4250,7 @@ def master_builder(args) -> None:
     # Fetch
     # =========================================================================
     if cfg.fetch:
-        fetch_qt(cfg)
+        download_qt(cfg)
         checkout_qt(cfg)
         patch_qt(cfg)
         fetch_openssl(cfg)
