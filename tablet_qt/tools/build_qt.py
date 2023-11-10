@@ -3288,10 +3288,10 @@ def checkout_qt(cfg: Config) -> None:
     if not already_checked_out(cfg):
         chdir(cfg.qt_src_gitdir)
         run([GIT, "checkout", cfg.qt_git_commit])
-        # Necessary if we are moving to a new commit. The init-respository perl
-        # script should do this but will fail if there are local changes. Our
-        # local changes check will fail too.
-        run([GIT, "submodule", "update", "--init", "--recursive"])
+    # Necessary if we are moving to a new commit. The init-respository perl
+    # script should do this but will fail if there are local changes. Our
+    # local changes check will fail too.
+    run([GIT, "submodule", "update", "--init", "--recursive"])
     init_repository(cfg)
     deinit_unused_submodules(cfg)
 
