@@ -115,7 +115,7 @@ Android:
                         /path/to/user/dev/android-sdk-linux)
   --android_ndk_root ANDROID_NDK_ROOT
                         Android NDK root directory (default:
-                        /path/to/user/dev/android-ndk-r20)
+                        /path/to/user/dev/android-ndk-linux)
   --android_ndk_host ANDROID_NDK_HOST
                         Android NDK host architecture (default: linux-x86_64)
   --android_toolchain_version ANDROID_TOOLCHAIN_VERSION
