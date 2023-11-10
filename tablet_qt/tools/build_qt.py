@@ -4176,17 +4176,21 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     configure = join(workdir, "configure")
     config_args = [
         configure,
+        "--prefix=/",
+        # from:
+        # https://github.com/qt/qt5/blob/v6.5.3/coin/provisioning/common/shared/ffmpeg_config_options.txt  # noqa: E501
         "--disable-programs",
         "--disable-doc",
         "--disable-debug",
         "--enable-network",
         "--disable-lzma",
+        "--enable-pic",
+        "--disable-vulkan",
+        "--disable-v4l2-m2m",
         # https://bugreports.qt.io/browse/QTBUG-118510
         # VAAPI causing problems with build on Ubuntu 20.04
         # 22.04 is OK (later libva?)
         "--disable-vaapi",
-        "--enable-pic",
-        "--prefix=/",
     ]
 
     if target_platform.android:
@@ -4227,13 +4231,6 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--ranlib={ranlib}",
             ]
         )
-
-        if target_platform.cpu == Cpu.ARM_V7_32:
-            config_args.extend(
-                [
-                    "--disable-vulkan",
-                ]
-            )
 
     make = MAKE
 
