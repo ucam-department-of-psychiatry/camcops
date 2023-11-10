@@ -501,9 +501,12 @@ else:
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 
 DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
-DEFAULT_ANDROID_NDK = join(
-    USER_DIR, "dev", "android-ndk-r20"
-)  # from 2019-06-15, inc. 64-bit ARM  # noqa
+
+DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-linux")
+
+
+# https://doc.qt.io/qt-6.5/android-getting-started.html
+ANDROID_NDK_VERSION = "25.1.8937393"
 
 DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
 
@@ -1628,7 +1631,9 @@ class Config(object):
         # - used for cross-compilation to Android targets
         self.android_sdk_version = ANDROID_SDK_VERSION
         self.android_sdk_root = args.android_sdk_root  # type: str
-        self.android_ndk_root = args.android_ndk_root  # type: str
+        self.android_ndk_root = join(
+            args.android_ndk_root, ANDROID_NDK_VERSION
+        )  # type: str
         self.android_ndk_host = args.android_ndk_host  # type: str
         self.android_toolchain_version = (
             args.android_toolchain_version
