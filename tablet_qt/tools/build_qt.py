@@ -478,7 +478,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # -----------------------------------------------------------------------------
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-TABLET_QT_DIR = os.path.join(THIS_DIR, "..")
+TABLET_QT_DIR = join(THIS_DIR, "..")
 
 USER_DIR = expanduser("~")
 HEAD = "HEAD"  # git commit meaning "the most recent"
@@ -547,7 +547,7 @@ ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = True
 
 # OpenSSL
-with open(os.path.join(TABLET_QT_DIR, "openssl_version.txt")) as f:
+with open(join(TABLET_QT_DIR, "openssl_version.txt")) as f:
     OPENSSL_VERSION = f.read().strip()
 
 OPENSSL_FAILS_OWN_TESTS = True
@@ -573,7 +573,7 @@ SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
 # - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
 # Eigen
-with open(os.path.join(TABLET_QT_DIR, "eigen_version.txt")) as f:
+with open(join(TABLET_QT_DIR, "eigen_version.txt")) as f:
     EIGEN_VERSION = f.read().strip()
 
 # FFmpeg
@@ -2192,7 +2192,7 @@ class Config(object):
         env["BUILD_TOOLS"] = developer
         if use_gcc:
             env["CC"] = (
-                f"{os.path.join(developer, 'usr', 'bin', GCC)} "
+                f"{join(developer, 'usr', 'bin', GCC)} "
                 f"-fembed-bitcode "
                 f"-mios-version-min={self.ios_min_version} "
                 f"-arch {arch}"
@@ -3337,7 +3337,7 @@ def init_repository(cfg: Config) -> None:
 
 
 def local_changes_present(cfg) -> bool:
-    chdir(os.path.join(cfg.qt_src_gitdir))
+    chdir(join(cfg.qt_src_gitdir))
     run([GIT, "update-index", "--refresh"])
     try:
         subprocess.run(
@@ -3389,11 +3389,11 @@ def patch_qt(cfg: Config) -> None:
     patches_dir = join(THIS_DIR, "patches")
 
     for submodule in listdir(patches_dir):
-        submodule_dir = os.path.join(patches_dir, submodule)
+        submodule_dir = join(patches_dir, submodule)
         for patch_file in listdir(submodule_dir):
-            src_dir = os.path.join(cfg.qt_src_gitdir, submodule)
+            src_dir = join(cfg.qt_src_gitdir, submodule)
             chdir(src_dir)
-            run([GIT, "apply", os.path.join(submodule_dir, patch_file)])
+            run([GIT, "apply", join(submodule_dir, patch_file)])
 
 
 def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
@@ -3649,7 +3649,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         if not isdir(cfg.qt_host_path):
             fail(f"qt_host_path {cfg.qt_host_path} is not a valid directory")
 
-        if not isfile(os.path.join(cfg.qt_host_path, "bin", "qmake")):
+        if not isfile(join(cfg.qt_host_path, "bin", "qmake")):
             fail(f"qt_host_path {cfg.qt_host_path} does not contain bin/qmake")
 
         qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
@@ -3737,7 +3737,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # https://doc-snapshots.qt.io/qt6-dev/qt6-buildsystem.html#re-running-configure
         # -recheck-all no longer supported
         # remove this file instead
-        cmake_cache = os.path.join(builddir, "CMakeCache.txt")
+        cmake_cache = join(builddir, "CMakeCache.txt")
         try:
             os.remove(cmake_cache)
         except OSError:
@@ -4195,7 +4195,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
 
     if target_platform.android:
         sysroot = cfg._android_sysroot(target_platform)
-        sysinclude = os.path.join(sysroot, "usr", "include")
+        sysinclude = join(sysroot, "usr", "include")
         cc = cfg.android_cc(target_platform)
         cxx = cfg.android_cxx(target_platform)
         ar = cfg.android_ar(target_platform)
