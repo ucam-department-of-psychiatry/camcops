@@ -4196,7 +4196,17 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         cxx = cfg.android_cxx(target_platform)
         ar = cfg.android_ar(target_platform)
         ranlib = cfg.android_ranlib(target_platform)
-        cpu = "armv8-a"  # TODO: fix for 32bit
+
+        if target_platform.cpu == Cpu.ARM_V7_32:
+            cpu = "armv7-a"
+        elif target_platform.cpu == Cpu.ARM_V8_64:
+            cpu = "armv8-a"
+        else:
+            raise NotImplementedError(
+                "Don't know how to build FFmpeg for Android "
+                f"with CPU {target_platform.cpu}"
+            )
+
         config_args.extend(
             [
                 "--enable-cross-compile",
@@ -4217,6 +4227,13 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--ranlib={ranlib}",
             ]
         )
+
+        if target_platform.cpu == Cpu.ARM_V7_32:
+            config_args.extend(
+                [
+                    "--disable-vulkan",
+                ]
+            )
 
     make = MAKE
 
