@@ -676,6 +676,7 @@ BASH = "bash"  # GNU Bourne-Again SHell
 CCACHE = "ccache"  # Compiler cache
 CL = "cl"  # Visual C++ compiler
 CLANG = "clang"  # macOS XCode compiler; also used under Linux for 64-bit ARM
+CLANGXX = "clangxx"
 CMAKE = "cmake"  # CMake
 GCC = "gcc"  # GNU C compiler
 GCC_AR = "gcc-ar"  # wrapper around ar
@@ -684,6 +685,8 @@ GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
 INSTALL_NAME_TOOL = "install_name_tool"  # iOS dylib path fixups
 JAVAC = "javac"  # for Android builds
 LD = "ld"  # GNU linker
+LLVM_AR = "llvm-ar"  # manipulates archives
+LLVM_RANLIB = "llvm-ranlib"  # Converts archive libary to random library (with symbol table)  # noqa: E501
 MAKE = "make"  # GNU make
 MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
 NASM = "nasm.exe"  # Assembler for Windows (for OpenSSL); http://www.nasm.us/
@@ -1372,11 +1375,7 @@ class Platform(object):
         """
         if not fullpath:
             return tool
-        prefix = self.cross_compile_prefix(cfg)
-        if self.android:
-            tooldir = cfg.android_toolchain_bin_dir(self)
-            return join(tooldir, prefix + tool)
-        return shutil.which(prefix + tool) or shutil.which(tool)
+        return shutil.which(tool)
 
     def gcc(self, fullpath: bool, cfg: "Config") -> str:
         """
@@ -1390,6 +1389,12 @@ class Platform(object):
         """
         return self._get_tool(CLANG, fullpath, cfg)
 
+    def clangxx(self, fullpath: bool, cfg: "Config") -> str:
+        """
+        Work out the name of an appropriate clang++ compiler.
+        """
+        return self._get_tool(CLANGXX, fullpath, cfg)
+
     def ar(self, fullpath: bool, cfg: "Config") -> str:
         """
         Work out the name of an appropriate ar assembler.
@@ -1398,7 +1403,7 @@ class Platform(object):
             AR, fullpath, cfg
         )
 
-    def cross_compile_prefix(self, cfg: "Config") -> str:
+    def android_cross_compile_prefix(self, cfg: "Config") -> str:
         """
         Work out the CROSS_COMPILE environment variable/prefix.
 
@@ -1421,14 +1426,11 @@ class Platform(object):
                                                                       ^^^^^^^^^^^^^^^^^^^^^^^
 
         """
-        if BUILD_PLATFORM == self:
-            # Compiling for the platform we're running on.
-            return ""
         suffix = ""
-        if self.android:
-            if self.cpu == Cpu.ARM_V7_32:
-                suffix += "eabi"
-            suffix += str(cfg.android_sdk_version)
+        if self.cpu == Cpu.ARM_V7_32:
+            suffix += "eabi"
+        suffix += str(cfg.android_sdk_version)
+
         return f"{self.target_triplet}{suffix}-"
 
     # -------------------------------------------------------------------------
@@ -1942,12 +1944,14 @@ class Config(object):
             fullpath=not use_cross_compile_var, cfg=self
         )
         env["ARCH"] = target_platform.android_arch_short
-        env["CC"] = self._android_cc(
+        env["CC"] = self.android_cc(
             target_platform,
             fullpath=not use_cross_compile_var,
         )
         if use_cross_compile_var:
-            env["CROSS_COMPILE"] = target_platform.cross_compile_prefix(self)
+            env[
+                "CROSS_COMPILE"
+            ] = target_platform.android_cross_compile_prefix(self)
             # ... unnecessary as we are specifying AR, CC directly
         env["HOSTCC"] = BUILD_PLATFORM.gcc(
             fullpath=not use_cross_compile_var, cfg=self
@@ -1966,6 +1970,8 @@ class Config(object):
     # -------------------------------------------------------------------------
     # Android
     # -------------------------------------------------------------------------
+
+    # TODO: should this be in Platform or Config?
 
     def _android_eabi(self, target_platform: Platform) -> str:
         """
@@ -2043,7 +2049,7 @@ class Config(object):
         """
         return join(self.android_toolchain_root_dir(target_platform), "bin")
 
-    def _android_cc(self, target_platform: Platform, fullpath: bool) -> str:
+    def android_cc(self, target_platform: Platform) -> str:
         """
         Gets the name of a compiler for Android.
 
@@ -2053,9 +2059,27 @@ class Config(object):
         - CXX is the C++ compiler, "clang++", "g++"
         - CPP, if used, is the C preprocessor
         """
-        # Don't apply the CROSS_COMPILE prefix; that'll be prefixed
-        # automatically.
-        return target_platform.clang(fullpath, cfg=self)
+        return self.android_prefixed_tool(target_platform, CLANG)
+
+    def android_cxx(self, target_platform: Platform) -> str:
+        return self.android_prefixed_tool(target_platform, CLANGXX)
+
+    def android_ar(self, target_platform: Platform) -> str:
+        return self.android_tool(target_platform, LLVM_AR)
+
+    def android_ranlib(self, target_platform: Platform) -> str:
+        return self.android_tool(target_platform, LLVM_RANLIB)
+
+    def android_prefixed_tool(
+        self, target_platform: Platform, tool: str
+    ) -> str:
+        prefix = target_platform.android_cross_compile_prefix(self)
+        return self.android_tool(target_platform, f"{prefix}{tool}")
+
+    def android_tool(self, target_platform: Platform, tool: str) -> str:
+        tooldir = self.android_toolchain_bin_dir(target_platform)
+
+        return join(tooldir, tool)
 
     # -------------------------------------------------------------------------
     # Android conversion functions
@@ -2078,7 +2102,7 @@ class Config(object):
         libname = basename[len(libprefix) :]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
-        compiler = self._android_cc(target_platform, fullpath=True)
+        compiler = self.android_cc(target_platform)
         run(
             [
                 compiler,
@@ -4112,6 +4136,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 #
 # Reference from Qt source:
 # https://github.com/qt/qt5/blob/v6.5.1/coin/provisioning/common/unix/install-ffmpeg.sh  # noqa: E501
+# https://github.com/qt/qt5/blob/v6.5.1/coin/provisioning/common/unix/install-ffmpeg-android.sh  # noqa: E501
 def fetch_ffmpeg(cfg: Config) -> None:
     log.info("Fetching FFmpeg source...")
     download_if_not_exists(cfg.ffmpeg_src_url, cfg.ffmpeg_src_fullpath)
@@ -4158,6 +4183,35 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         "--enable-pic",
         "--prefix=/",
     ]
+
+    if target_platform.android:
+        sysroot = cfg._android_sysroot(target_platform)
+        sysinclude = os.path.join(sysroot, "usr", "include")
+        cc = cfg.android_cc(target_platform)
+        cxx = cfg.android_cxx(target_platform)
+        ar = cfg.android_ar(target_platform)
+        ranlib = cfg.android_ranlib(target_platform)
+        cpu = "armv8-a"  # TODO: fix for 32bit
+        config_args.extend(
+            [
+                "--enable-cross-compile",
+                "--target-os=android",
+                "--enable-jni",
+                "--enable-mediacodec",
+                "--enable-pthreads",
+                "--enable-neon",
+                "--disable-asm",
+                "--disable-indev=android_camera",
+                f"--arch={target_platform.triplet_cpu}",
+                f"--cpu={cpu}",
+                f"--sysroot={sysroot}",
+                f"--sysinclude={sysinclude}",
+                f"--cc={cc}",
+                f"--cxx={cxx}",
+                f"--ar={ar}",
+                f"--ranlib={ranlib}",
+            ]
+        )
 
     make = MAKE
 
