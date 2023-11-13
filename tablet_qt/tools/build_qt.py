@@ -581,7 +581,8 @@ FFMPEG_VERSION = "n6.0"
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
-MIN_MACOS_VERSION = "10.10"  # ... with 10.7, SQLCipher's "configure" fails
+MIN_MACOS_VERSION = "11"  # https://doc.qt.io/qt-6.5/macos.html
+
 
 # GNU tools
 
@@ -4233,6 +4234,13 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--cxx={cxx}",
                 f"--ar={ar}",
                 f"--ranlib={ranlib}",
+            ]
+        )
+
+    if target_platform.macos:
+        config_args.extend(
+            [
+                f"--extra-cflags=-mmacosx-version-min={cfg.macos_min_version}",
             ]
         )
 
