@@ -393,6 +393,10 @@ ios {
     QMAKE_ASSET_CATALOGS = $${CAMCOPS_SOURCE_ROOT}/ios/Images.xcassets
     QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 }
+macos {
+    QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/macos/Info.plist
+}
+
 
 isEmpty(CAMCOPS_ARCH_TAG) {
     error("Unknown architecture; don't know how to build CamCOPS")
