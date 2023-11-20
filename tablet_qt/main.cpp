@@ -79,6 +79,10 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
     // Qt environment variables
     // ========================================================================
 
+    // Can switch media backend here from default ("ffmpeg" on most platforms)
+    // https://doc.qt.io/qt-6.5/qtmultimedia-index.html#changing-backends
+    // qputenv("QT_MEDIA_BACKEND", "android");
+
 #ifdef DISABLE_ANDROID_NATIVE_DIALOGS
     // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
     qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
