@@ -150,7 +150,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
-    "pypdf==3.9.0",  # Used by cardinal_pythonlib.pdf
+    "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
     "sqlparse==0.4.4",
     # extra
