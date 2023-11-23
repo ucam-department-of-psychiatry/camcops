@@ -3389,13 +3389,6 @@ def get_submodule_names(cfg: Config) -> List[str]:
 
 
 def patch_qt(cfg: Config) -> None:
-    if local_changes_present(cfg):
-        log.warning(
-            "There are local changes in the Qt source directory. This may "
-            "be because patches have been applied. Not trying to patch Qt."
-        )
-        return
-
     patches_dir = join(THIS_DIR, "patches")
 
     for submodule in listdir(patches_dir):
@@ -3403,7 +3396,17 @@ def patch_qt(cfg: Config) -> None:
         for patch_file in listdir(submodule_dir):
             src_dir = join(cfg.qt_src_gitdir, submodule)
             chdir(src_dir)
-            run([GIT, "apply", join(submodule_dir, patch_file)])
+            try:
+                subprocess.run(
+                    [GIT, "apply", join(submodule_dir, patch_file)], check=True
+                )
+                log.info("Successfully applied patch {}", patch_file)
+            except subprocess.CalledProcessError:
+                log.warning(
+                    "Failed to apply patch {}. "
+                    "It may be that is has already been applied.",
+                    patch_file,
+                )
 
 
 def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
