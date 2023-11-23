@@ -1691,10 +1691,9 @@ class Config(object):
         )
         self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
-        # FFmpeg, currently broken with static Qt
+        # FFmpeg, currently broken with static Qt, but we have a patch
         # https://bugreports.qt.io/browse/QTBUG-115052
         # https://bugreports.qt.io/browse/QTBUG-111460
-        self.use_ffmpeg = True
         self.ffmpeg_version = FFMPEG_VERSION
         self.ffmpeg_src_url = f"https://github.com/FFmpeg/FFmpeg/archive/refs/tags/{self.ffmpeg_version}.tar.gz"  # noqa: E501
 
@@ -1764,6 +1763,12 @@ class Config(object):
         )
         workdir = join(rootdir, f"openssl-{self.openssl_version}")
         return rootdir, workdir
+
+    def use_ffmpeg(self, target_platform: Platform) -> bool:
+        if target_platform.ios:
+            return False
+
+        return True
 
     def get_ffmpeg_installdir(self, target_platform: Platform) -> str:
         workdir = self.get_ffmpeg_workdir(target_platform)
@@ -3716,7 +3721,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # Qt's idea of "root" different to our own
         qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
-    if cfg.use_ffmpeg:
+    if cfg.use_ffmpeg(target_platform):
         # https://bugreports.qt.io/browse/QTBUG-118510
         # VAAPI causing problems with build on Ubuntu 20.04
         # 22.04 is OK (later libva?)
@@ -4341,8 +4346,7 @@ def master_builder(args) -> None:
         fetch_openssl(cfg)
         fetch_sqlcipher(cfg)
         fetch_eigen(cfg)
-        if cfg.use_ffmpeg:
-            fetch_ffmpeg(cfg)
+        fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4361,7 +4365,7 @@ def master_builder(args) -> None:
         )
         build_openssl(cfg, target_platform)
         build_sqlcipher(cfg, target_platform)
-        if cfg.use_ffmpeg:
+        if cfg.use_ffmpeg(target_platform):
             build_ffmpeg(cfg, target_platform)
 
         if qt_needs_building(cfg, target_platform):
