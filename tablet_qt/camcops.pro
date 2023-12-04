@@ -1007,6 +1007,7 @@ SOURCES += \
     widgets/aspectratiopixmap.cpp \
     widgets/basewidget.cpp \
     widgets/booleanwidget.cpp \
+    widgets/cameraqcamera.cpp \
     widgets/cameraqml.cpp \
     widgets/canvaswidget.cpp \
     widgets/clickablelabel.cpp \
@@ -1499,6 +1500,7 @@ HEADERS += \
     widgets/aspectratiopixmap.h \
     widgets/basewidget.h \
     widgets/booleanwidget.h \
+    widgets/cameraqcamera.h \
     widgets/cameraqml.h \
     widgets/canvaswidget.h \
     widgets/clickablelabel.h \

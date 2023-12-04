@@ -20,6 +20,8 @@
 
 #pragma once
 
+#define QUPHOTO_USE_CAMERA_QML
+
 #include "db/blobfieldref.h"
 #include "lib/openglfunc.h"
 #include "questionnairelib/quelement.h"
@@ -85,6 +87,10 @@ protected:
     QPointer<QLabel> m_incomplete_mandatory_label;  // label for incomplete data
     QPointer<QLabel> m_field_problem_label;  // "something wrong" indicator
     QPointer<AspectRatioPixmap> m_image_widget;  // image display widget
+#ifdef QUPHOTO_USE_CAMERA_QML
     QPointer<CameraQml> m_camera;  // camera
+#else
+    QPointer<CameraQCamera> m_camera;  // camera
+#endif
     QPointer<QWidget> m_main_widget;  // top-level widget
 };
