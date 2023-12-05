@@ -20,7 +20,7 @@
 
 #pragma once
 
-#define QUPHOTO_USE_CAMERA_QML
+// #define QUPHOTO_USE_CAMERA_QML
 
 #include "db/blobfieldref.h"
 #include "lib/openglfunc.h"

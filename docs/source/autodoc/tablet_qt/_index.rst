@@ -992,6 +992,8 @@ tablet_qt
     widgets/basewidget.h.rst
     widgets/booleanwidget.cpp.rst
     widgets/booleanwidget.h.rst
+    widgets/cameraqcamera.cpp.rst
+    widgets/cameraqcamera.h.rst
     widgets/cameraqml.cpp.rst
     widgets/cameraqml.h.rst
     widgets/canvaswidget.cpp.rst

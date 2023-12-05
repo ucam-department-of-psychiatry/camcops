@@ -21,7 +21,6 @@
 #pragma once
 
 #define CAMERA_LOAD_FROM_DISK_PROMPTLY
-#define CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER  // required for viewfinder on Android
 
 /*
 
@@ -32,22 +31,18 @@ SUMMARY OF DECISIONS about camera methods: see CameraQml class.
 #include <QCamera>
 #include <QImage>
 #include <QImageCapture>
+#include <QMediaCaptureSession>
 #include <QPointer>
 #include <QSet>
 #include "widgets/openablewidget.h"
-class CameraFrameGrabber;
 class QAbstractButton;
-class QCameraInfo;
-class QCameraViewfinder;
+class QCameraDevice;
 class QLabel;
 class QQuickWidget;
 class QPushButton;
 class QStatusBar;
 class QVideoFrame;
-
-#ifndef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-#define CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
-#endif
+class QVideoWidget;
 
 
 class CameraQCamera : public OpenableWidget
@@ -64,8 +59,8 @@ public:
     // Construct with stylesheet.
     CameraQCamera(const QString& stylesheet, QWidget* parent = nullptr);
 
-    // Construct with QCameraInfo and stylesheet.
-    CameraQCamera(const QCameraInfo& camera_info, const QString& stylesheet,
+    // Construct with QCameraDevice and stylesheet.
+    CameraQCamera(const QCameraDevice& camera_device, const QString& stylesheet,
            QWidget* parent = nullptr);
 
     // Destructor.
@@ -80,12 +75,6 @@ public:
 
     // Return the latest image captured.
     QImage image() const;
-
-    // Choose the preview image's resolution.
-    void setPreviewResolution(const QSize& resolution);
-
-    // Choose the captured image's resolution.
-    void setMainResolution(const QSize& resolution);
 
 signals:
     // "We've captured this image."
@@ -110,21 +99,7 @@ protected:
     void stopCamera();
 
     // Choose a camera.
-    void setCamera(const QCameraInfo& camera_info);
-
-    // Lock/unlock the camera.
-    void toggleLock();
-
-    // Unlock the camera.
-    void unlockCamera();
-
-    // Lock the camera settings (including autofocusing).
-    void searchAndLockCamera();
-
-    // Sets exposure compensation.
-    void setExposureCompensation(int index);
-
-    // void configureImageSettings();
+    void setCamera(const QCameraDevice& camera_device);
 
     // Standard Qt overrides.
     void closeEvent(QCloseEvent* event);
@@ -145,31 +120,15 @@ protected slots:
     // "An image has arrived via a temporary disk file."
     void imageSaved(int id, const QString& filename);
 
-    // "An image has arrived via a buffer."
-    void imageAvailable(int id, const QVideoFrame& buffer);
-
     // "Display an error that occurred during the image capture process."
     void displayCaptureError(int id, QImageCapture::Error error,
                              const QString& error_string);
 
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    // "An image is available from the video surface viewfinder."
-    void handleFrame(QImage image);  // QImage is copy-on-write
-#endif
-
 protected:
-    QSize m_resolution_preview;  // resolution of our preview image
-    QSize m_resolution_main;  // resolution of images we capture
     QSharedPointer<QCamera> m_camera;  // our camera
     QSharedPointer<QImageCapture> m_capture;  // records images
-#ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
-    QPointer<QCameraViewfinder> m_viewfinder;  // our viewfinder
-#endif
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    QPointer<CameraFrameGrabber> m_framegrabber;  // our video viewfinder
-    QPointer<QLabel> m_label_viewfinder;  // label to display viewfinder image
-#endif
-    QPointer<QPushButton> m_lock_button;  // lock state button; shows e.g. "Focus", "Unlock"
+    QPointer<QVideoWidget> m_viewfinder;  // our viewfinder
+    QMediaCaptureSession m_capture_session;
     QPointer<QPushButton> m_button_cancel;  // "Cancel"
     QPointer<QStatusBar> m_status_bar;  // shows status messages
     QPointer<QAbstractButton> m_button_take;  // "Take"

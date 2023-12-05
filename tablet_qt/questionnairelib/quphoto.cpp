@@ -33,6 +33,7 @@
 #include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
+#include "widgets/cameraqcamera.h"
 #include "widgets/cameraqml.h"
 #include "widgets/imagebutton.h"
 
