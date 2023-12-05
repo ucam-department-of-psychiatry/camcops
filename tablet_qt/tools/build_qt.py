@@ -1626,6 +1626,7 @@ class Config(object):
         )  # type: str  # noqa
         self.qt_host_path = args.qt_host_path
         self.qt_ccache = args.qt_ccache
+        self.qt_gerrit_username = args.qt_gerrit_username
 
         # Android SDK/NDK
         # - installed independently by user
@@ -3336,14 +3337,17 @@ def init_repository(cfg: Config) -> None:
         return
 
     chdir(cfg.qt_src_gitdir)
-    run(
-        [
-            PERL,
-            "init-repository",
-            "-f",
-            f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
-        ]
-    )
+    init_args = [
+        PERL,
+        "init-repository",
+        "-f",
+        f"--module-subset={','.join(QT_GIT_SUBMODULES)}",
+    ]
+
+    if cfg.qt_gerrit_username:
+        init_args.append(f"--codereview-username={cfg.qt_gerrit_username}")
+
+    run(init_args)
 
 
 def local_changes_present(cfg) -> bool:
@@ -3736,8 +3740,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # Qt by default sets CMAKE_MESSAGE_LOG_LEVEL to NOTICE.
         qt_config_cmake_args.append("-DCMAKE_MESSAGE_LOG_LEVEL=STATUS")
 
-    # Fix other Qt bugs:
-    # ... cleaned up, none relevant at present
+    if cfg.qt_gerrit_username:
+        qt_config_args.append("-developer-build")
+        qt_config_cmake_args.append("-DQT_BUILD_TESTS_BY_DEFAULT=OFF")
 
     if qt_config_cmake_args:
         qt_config_args.append("--")
@@ -4654,6 +4659,14 @@ def main() -> None:
         action="store_false",
         default=True,
         help="Do not use ccache when building Qt",
+    )
+
+    qt.add_argument(
+        "--qt_gerrit_username",
+        dest="qt_gerrit_username",
+        type=str,
+        default=None,
+        help="Gerrit username to use when contributing patches to Qt",
     )
 
     # Android
