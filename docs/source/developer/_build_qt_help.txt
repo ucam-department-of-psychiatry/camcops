@@ -11,7 +11,8 @@ usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR] [--clean]
                    [--qt_build_type {debug,release,release_w_symbols}]
                    [--qt_src_dirname QT_SRC_DIRNAME] [--qt_openssl_static]
                    [--qt_openssl_linked] [--qt_host_path QT_HOST_PATH]
-                   [--qt_no_ccache] [--android_sdk_root ANDROID_SDK_ROOT]
+                   [--qt_no_ccache] [--qt_gerrit_username QT_GERRIT_USERNAME]
+                   [--android_sdk_root ANDROID_SDK_ROOT]
                    [--android_ndk_root ANDROID_NDK_ROOT]
                    [--android_ndk_host ANDROID_NDK_HOST]
                    [--android_toolchain_version ANDROID_TOOLCHAIN_VERSION]
@@ -105,6 +106,9 @@ Qt:
                         Location of the host Qt Installation when cross-
                         compiling (default: None)
   --qt_no_ccache        Do not use ccache when building Qt (default: True)
+  --qt_gerrit_username QT_GERRIT_USERNAME
+                        Gerrit username to use when contributing patches to Qt
+                        (default: None)
 
 Android:
   Android options (NB you must install the Android SDK and NDK separately,
