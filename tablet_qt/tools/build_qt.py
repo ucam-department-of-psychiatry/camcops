@@ -4196,6 +4196,11 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     env = cfg.get_starting_env()
 
     configure = join(workdir, "configure")
+
+    if target_platform.windows:
+        configure = configure.replace("C:", "/c")
+        configure = configure.replace("\\", "/")
+
     config_args = [
         configure,
         "--prefix=/",
