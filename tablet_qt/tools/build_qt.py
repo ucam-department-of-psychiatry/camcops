@@ -686,6 +686,7 @@ GCC = "gcc"  # GNU C compiler
 GCC_AR = "gcc-ar"  # wrapper around ar
 GIT = "git"  # Git
 GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
+GREP = "grep"  # Used to test order of cygwin and msys64
 INSTALL_NAME_TOOL = "install_name_tool"  # iOS dylib path fixups
 JAVAC = "javac"  # for Android builds
 LD = "ld"  # GNU linker
@@ -4260,10 +4261,9 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         )
 
     if target_platform.windows:
-        # We use MSYS because that's what Qt do in their Continuous Integration
-        # scripts and we know they work (choco install msys2)
+        # We use MSYS/bash because that's what Qt do in their Continuous
+        # Integration scripts and we know they work. (choco install msys2)
         # See qt6/coin/provisioning/common/windows/install-ffmpeg.ps1
-        require(BASH)
         require(MSYS2)
         env["MSYS2_PATH_TYPE"] = "inherit"
         env["MSYSTEM"] = "MSYS"
@@ -4273,6 +4273,20 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
             ]
         )
 
+        if "cygwin" in shutil.which(GREP).lower():
+            # There may be a better way of doing this
+            # Invoking MSYS2 bash.exe can result in the error
+            # "cygheap base mismatch detected"
+            fail("Ensure msys64\\usr\\bin is before cygwin\\bin in your PATH")
+
+        bash = os.path.join(shutil.which(MSYS2), "usr", "bin", "bash")
+        configure_command = " ".join(config_args)
+        config_args = [
+            bash,
+            "-lc",
+            f"{configure_command}",
+        ]
+
     make = MAKE
 
     make_args = [make]
@@ -4281,14 +4295,6 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         "install",
         f"DESTDIR={installdir}",
     ]
-
-    if target_platform.windows:
-        configure_command = " ".join(config_args)
-        config_args = [
-            BASH,
-            "-lc",
-            f"{configure_command}",
-        ]
 
     with pushd(workdir):
         run(config_args, env)
