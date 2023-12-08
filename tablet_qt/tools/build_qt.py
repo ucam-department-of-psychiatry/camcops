@@ -4287,7 +4287,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         config_args = [
             BASH,
             "-lc",
-            f'`"{configure_command}`"',
+            f"{configure_command}",
         ]
 
     with pushd(workdir):
