@@ -4265,6 +4265,11 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         require(MSYS2)
         env["MSYSTEM"] = "MSYS"
         env["MSYS_PATH_TYPE"] = "inherit"
+        config_args.extend(
+            [
+                "--toolchain=msvc",
+            ]
+        )
 
     make = MAKE
 
