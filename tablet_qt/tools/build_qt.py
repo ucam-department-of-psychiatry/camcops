@@ -403,6 +403,7 @@ import multiprocessing
 import os
 from os import chdir, listdir
 from os.path import expanduser, isdir, isfile, join, split
+from pathlib import Path
 import platform
 import re
 import shutil
@@ -4279,7 +4280,8 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
             # "cygheap base mismatch detected"
             fail("Ensure msys64\\usr\\bin is before cygwin\\bin in your PATH")
 
-        bash = os.path.join(shutil.which(MSYS2), "usr", "bin", "bash")
+        msys_root = Path(shutil.which(MSYS2)).parent.absolute()
+        bash = join(msys_root, "usr", "bin", "bash")
         configure_command = " ".join(config_args)
         config_args = [
             bash,
