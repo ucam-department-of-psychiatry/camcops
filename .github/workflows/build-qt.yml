@@ -139,7 +139,7 @@ jobs:
               if: matrix.os == 'windows-2019'
               run: |
                   $ErrorActionPreference = "Stop"
-                  choco install ninja nasm --yes --no-progress
+                  choco install ninja nasm yasm --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress
                   "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
                   # Chocolatey uses the Windows installer, which doesn't update Path
