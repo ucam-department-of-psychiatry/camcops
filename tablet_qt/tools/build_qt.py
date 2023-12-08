@@ -4192,6 +4192,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     )
 
     env = cfg.get_starting_env()
+
     configure = join(workdir, "configure")
     config_args = [
         configure,
@@ -4260,11 +4261,12 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
 
     if target_platform.windows:
         # We use MSYS because that's what Qt do in their Continuous Integration
-        # scripts. choco install msys2
+        # scripts and we know they work (choco install msys2)
         # See qt6/coin/provisioning/common/windows/install-ffmpeg.ps1
+        require(BASH)
         require(MSYS2)
+        env["MSYS2_PATH_TYPE"] = "inherit"
         env["MSYSTEM"] = "MSYS"
-        env["MSYS_PATH_TYPE"] = "inherit"
 
     make = MAKE
 
@@ -4274,6 +4276,14 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         "install",
         f"DESTDIR={installdir}",
     ]
+
+    if target_platform.windows:
+        configure_command = " ".join(config_args)
+        config_args = [
+            BASH,
+            "-lc",
+            f'`"{configure_command}`"',
+        ]
 
     with pushd(workdir):
         run(config_args, env)
