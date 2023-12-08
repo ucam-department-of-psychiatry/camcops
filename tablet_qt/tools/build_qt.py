@@ -693,6 +693,7 @@ LLVM_AR = "llvm-ar"  # manipulates archives
 LLVM_RANLIB = "llvm-ranlib"  # Converts archive libary to random library (with symbol table)  # noqa: E501
 MAKE = "make"  # GNU make
 MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
+MSYS2 = "msys2"  # For building FFmpeg on Windows
 NASM = "nasm.exe"  # Assembler for Windows (for OpenSSL); http://www.nasm.us/
 NMAKE = "nmake.exe"  # Visual Studio make tool
 OBJDUMP = "objdump"  # GNU; display information from object files
@@ -4256,6 +4257,14 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--extra-cflags=-mmacosx-version-min={cfg.macos_min_version}",
             ]
         )
+
+    if target_platform.windows:
+        # We use MSYS because that's what Qt do in their Continuous Integration
+        # scripts. choco install msys2
+        # See qt6/coin/provisioning/common/windows/install-ffmpeg.ps1
+        require(MSYS2)
+        env["MSYSTEM"] = "MSYS"
+        env["MSYS_PATH_TYPE"] = "inherit"
 
     make = MAKE
 
