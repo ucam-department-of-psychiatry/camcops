@@ -4268,6 +4268,15 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
             ]
         )
 
+    make = MAKE
+
+    make_args = [make]
+    make_install_args = [
+        make,
+        "install",
+        f"DESTDIR={installdir}",
+    ]
+
     if target_platform.windows:
         # We use MSYS/bash because that's what Qt do in their Continuous
         # Integration scripts and we know they work. (choco install msys2)
@@ -4287,28 +4296,34 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
             # "cygheap base mismatch detected"
             fail("Ensure msys64\\usr\\bin is before cygwin\\bin in your PATH")
 
-        msys_root = Path(shutil.which(MSYS2)).parent.absolute()
-        bash = join(msys_root, "usr", "bin", "bash")
-        configure_command = " ".join(config_args)
-        config_args = [
-            bash,
-            "-lc",
-            f"{configure_command}",
-        ]
-
-    make = MAKE
-
-    make_args = [make]
-    make_install_args = [
-        make,
-        "install",
-        f"DESTDIR={installdir}",
-    ]
+        config_args = bash_command_args(workdir, config_args)
+        make_args = bash_command_args(workdir, make_args)
+        make_install_args = bash_command_args(workdir, make_install_args)
 
     with pushd(workdir):
         run(config_args, env)
         run(make_args, env)
         run(make_install_args, env)
+
+
+def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
+    """
+    For the Windows FFmpeg we need to build within bash so all of the
+    configure, make and make install command arguments need to be converted
+    appropriately.
+    """
+    msys_root = Path(shutil.which(MSYS2)).parent.absolute()
+    bash_workdir = workdir.replace("C:", "/c")
+    bash_workdir = bash_workdir.replace("\\", "/")
+    bash = join(msys_root, "usr", "bin", "bash")
+    command = " ".join(command_args)
+    bash_command_args = [
+        bash,
+        "-lc",
+        f"cd {bash_workdir} && {command}",
+    ]
+
+    return bash_command_args
 
 
 # =============================================================================
