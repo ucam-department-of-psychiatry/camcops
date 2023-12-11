@@ -3484,6 +3484,8 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # if USE_CLANG_NOT_GCC_FOR_ANDROID_ARM:
         #     require(CLANG)
 
+    require(CMAKE)  # used by Qt's src/qt6/qtbase/configure script
+
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
 
@@ -3808,6 +3810,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     """
 
     log.info("Building Qt for {}...", target_platform)
+    require(CMAKE)  # used below
     builddir = cfg.qt_build_dir(target_platform)
     installdir = cfg.qt_install_dir(target_platform)
 
