@@ -4203,8 +4203,8 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     configure = join(workdir, "configure")
 
     if target_platform.windows:
-        configure = configure.replace("C:", "/c")
-        configure = configure.replace("\\", "/")
+        configure = unixify_windows_path(configure)
+        installdir = unixify_windows_path(installdir)
 
     config_args = [
         configure,
@@ -4316,8 +4316,7 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
     appropriately.
     """
     msys_root = Path(shutil.which(MSYS2)).parent.absolute()
-    bash_workdir = workdir.replace("C:", "/c")
-    bash_workdir = bash_workdir.replace("\\", "/")
+    bash_workdir = unixify_windows_path(workdir)
     bash = join(msys_root, "usr", "bin", "bash")
     command = " ".join(command_args)
     bash_command_args = [
@@ -4327,6 +4326,13 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
     ]
 
     return bash_command_args
+
+
+def unixify_windows_path(path: str) -> str:
+    path = path.replace("C:", "/c")
+    path = path.replace("\\", "/")
+
+    return path
 
 
 # =============================================================================
