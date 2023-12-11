@@ -187,6 +187,7 @@ jobs:
                   ninja --version
                   perl --version
                   tar --version
+                  yasm --version
                   echo Environment:
                   printenv
 
