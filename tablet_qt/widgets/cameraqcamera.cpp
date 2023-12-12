@@ -422,12 +422,13 @@ void CameraQCamera::keyPressEvent(QKeyEvent* event)
 
 void CameraQCamera::keyReleaseEvent(QKeyEvent* event)
 {
+    // This used to handle Qt::Key_CameraFocus, calling
+    // unlockCamera(). See git history. Remove if not
+    // needed.
+
     if (event->isAutoRepeat()) {
         return;
     }
 
-    switch (event->key()) {
-    default:
-        OpenableWidget::keyReleaseEvent(event);
-    }
+    OpenableWidget::keyReleaseEvent(event);
 }
