@@ -68,6 +68,7 @@
 #include "boxlayouthfw.h"
 #include <QApplication>
 #include <QDebug>
+#include <QHash>
 #include <QList>
 #include <QSizePolicy>
 #include <QSpacerItem>
@@ -79,9 +80,6 @@
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 
-#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-#include "common/globals.h"  // for qHash(const QRect&)
-#endif
 
 using qtlayouthelpers::checkLayout;
 using qtlayouthelpers::checkWidget;

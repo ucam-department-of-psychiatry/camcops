@@ -568,7 +568,6 @@ SOURCES += \
     common/cssconst.cpp \
     common/dbconst.cpp \
     common/dpi.cpp \
-    common/globals.cpp \
     common/platform.cpp \
     common/textconst.cpp \
     common/uiconst.cpp \
@@ -1053,7 +1052,6 @@ HEADERS += \
     common/dbconst.h \
     common/design_defines.h \
     common/dpi.h \
-    common/globals.h \
     common/gui_defines.h \
     common/platform.h \
     common/preprocessor_aid.h \

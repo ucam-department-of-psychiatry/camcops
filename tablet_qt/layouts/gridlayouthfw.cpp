@@ -70,6 +70,7 @@
 #include "gridlayouthfw.h"
 #include <QApplication>
 #include <QDebug>
+#include <QHash>
 #include <QWidget>
 #include <QList>
 #include <QSizePolicy>
@@ -79,9 +80,6 @@
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
-#include "common/globals.h"  // for qHash(const QRect&)
-#endif
 
 using qtlayouthelpers::checkLayout;
 using qtlayouthelpers::checkWidget;
