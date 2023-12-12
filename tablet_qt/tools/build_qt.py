@@ -4354,11 +4354,18 @@ def build_eigen(cfg: Config) -> None:
     """
     'Build' simply means 'unpack' -- header-only template library.
     """
+    eigen_dir = cfg.eigen_unpacked_dir
+    eigen_version_dir = join(eigen_dir, f"eigen-{cfg.eigen_version}")
+    if isdir(eigen_version_dir):
+        log.info("Eigen is already built (unpacked)")
+        return
+
     log.info("Building (unpacking) Eigen...")
     untar_to_directory(
         tarfile=cfg.eigen_src_fullpath,
         directory=cfg.eigen_unpacked_dir,
         gzipped=True,
+        skip_if_dir_exists=False,  # This is the top level 'eigen' directory
         run_func=run,
         chdir_via_python=True,
     )
