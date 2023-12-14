@@ -3500,9 +3500,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # maybe not routinely (unless you're diagnosing problems with the build)?
     if cfg.clean:
         log.info("Removing {}".format(builddir))
-        shutil.rmtree(builddir)
+        shutil.rmtree(builddir, ignore_errors=True)
         log.info("Removing {}".format(installdir))
-        shutil.rmtree(installdir)
+        shutil.rmtree(installdir, ignore_errors=True)
 
     # -------------------------------------------------------------------------
     # Qt: Environment
