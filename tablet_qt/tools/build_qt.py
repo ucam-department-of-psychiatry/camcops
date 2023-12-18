@@ -4288,11 +4288,11 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         env["MSYS2_PATH_TYPE"] = "inherit"
         env["MSYSTEM"] = "MSYS"
         if target_platform.cpu_x86_32bit_family:
-            arch = "x86_64"
-            target_os = "win64"
-        else:
             arch = "i386"
             target_os = "win32"
+        else:
+            arch = "x86_64"
+            target_os = "win64"
 
         config_args.extend(
             [
