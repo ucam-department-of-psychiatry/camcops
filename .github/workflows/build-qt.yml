@@ -139,7 +139,7 @@ jobs:
               if: matrix.os == 'windows-2019'
               run: |
                   $ErrorActionPreference = "Stop"
-                  choco install strawberryperl ninja nasm yasm msys2 --yes --no-progress
+                  choco install ninja nasm yasm msys2 --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress
                   "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
                   # Chocolatey uses the Windows installer, which doesn't update Path
@@ -148,6 +148,13 @@ jobs:
                   # It looks like msys2 doesn't update the Path either:
                   "C:\tools\msys64" >> $env:GITHUB_PATH
                   "C:\tools\msys64\usr\bin" >> $env:GITHUB_PATH
+                  # Ensure Strawberry perl is first for better filename support
+                  $env:GITHUB_PATH = 'C:\Strawberry\perl\bin;' + $env:GITHUB_PATH
+
+            - name: Find out where Perl is
+              if: matrix.os == 'windows-2019'
+              run: |
+                  $ErrorActionPreference = "Stop"
                   where perl
 
             - name: restore ccache
