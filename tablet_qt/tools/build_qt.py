@@ -2359,15 +2359,6 @@ class Config(object):
             # http://doc.qt.io/qt-5/windows-building.html
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
-            # PATH
-            env["PATH"] = os.pathsep.join(
-                [
-                    join(self.qt_src_gitdir, "qtrepotools", "bin"),
-                    join(self.qt_src_gitdir, "qtbase", "bin"),
-                    join(self.qt_src_gitdir, "gnuwin32", "bin"),
-                    env["PATH"],
-                ]
-            )
             # VCVARSALL.BAT
 
             # We can't CALL a batch file and have it change our environment,
