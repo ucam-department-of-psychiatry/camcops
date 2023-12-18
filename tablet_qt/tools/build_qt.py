@@ -3821,8 +3821,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     log.info(
         f"Making Qt {target_platform.description} build into {installdir}"
     )
+
+    env = cfg.get_starting_env()
+    if target_platform.windows:
+        cfg.update_windows_env_from_vcvarsall(env, target_platform)
+
     with pushd(builddir):
-        # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
             cmake_args = [
                 CMAKE,
@@ -3831,7 +3835,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
                 "--parallel",
                 f"{cfg.nparallel}",
             ]
-            run(cmake_args)
+            run(cmake_args, env)
         except subprocess.CalledProcessError:
             log.warning(
                 """Qt 'make' failure.
@@ -3866,7 +3870,7 @@ A.  Standard header files like os/log.h should live within
     # -------------------------------------------------------------------------
     with pushd(builddir):
         cmake_args = [CMAKE, "--install", "."]
-        run(cmake_args)
+        run(cmake_args, env)
 
         # ... installs to installdir because of -prefix earlier
     return installdir
