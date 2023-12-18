@@ -3506,6 +3506,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # Qt: Environment
     # -------------------------------------------------------------------------
     env = cfg.get_starting_env()
+    if target_platform.windows:
+        cfg.update_windows_env_from_vcvarsall(env, target_platform)
+
     if target_platform.use_openssl_with_qt:
         opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
             target_platform
