@@ -2359,27 +2359,9 @@ class Config(object):
             # http://doc.qt.io/qt-5/windows-building.html
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
-            # VCVARSALL.BAT
 
-            # We can't CALL a batch file and have it change our environment,
-            # so we must implement the functionality of VCVARSALL.BAT <arch>
-            if target_platform.cpu_x86_32bit_family:
-                # "x86" in VC\vcvarsall.bat
-                arch = "x86"
-            elif target_platform.cpu_x86_64bit_family:
-                # "amd64" in VC\vcvarsall.bat
-                arch = "amd64"
-            else:
-                raise NotImplementedError(
-                    f"Don't know how to compile for Windows for target "
-                    f"platform {target_platform}"
-                )
-            # Now read the result from vcvarsall.bat directly
-            args = [VCVARSALL, arch]
-            fetched_env = windows_get_environment_from_batch_command(
-                env_cmd=args, initial_env=env
-            )
-            env.update(**fetched_env)
+            self.update_windows_env_from_vcvarsall(env, target_platform)
+
             # Other
             env["CC"] = CL  # Visual C++
             # ... for SQLCipher "configure": if we try gcc, it will fail to
@@ -2396,6 +2378,31 @@ class Config(object):
                 f"Don't know how to compile for Windows on build platform "
                 f"{BUILD_PLATFORM}"
             )
+
+    def update_windows_env_from_vcvarsall(
+        self, env: Dict[str, str], target_platform: Platform
+    ) -> None:
+        # VCVARSALL.BAT
+
+        # We can't CALL a batch file and have it change our environment,
+        # so we must implement the functionality of VCVARSALL.BAT <arch>
+        if target_platform.cpu_x86_32bit_family:
+            # "x86" in VC\vcvarsall.bat
+            arch = "x86"
+        elif target_platform.cpu_x86_64bit_family:
+            # "amd64" in VC\vcvarsall.bat
+            arch = "amd64"
+        else:
+            raise NotImplementedError(
+                f"Don't know how to compile for Windows for target "
+                f"platform {target_platform}"
+            )
+        # Now read the result from vcvarsall.bat directly
+        args = [VCVARSALL, arch]
+        fetched_env = windows_get_environment_from_batch_command(
+            env_cmd=args, initial_env=env
+        )
+        env.update(**fetched_env)
 
 
 # =============================================================================
@@ -4276,8 +4283,11 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         # Integration scripts and we know they work. (choco install msys2)
         # See qt6/coin/provisioning/common/windows/install-ffmpeg.ps1
         require(MSYS2)
+        cfg.update_windows_env_from_vcvarsall(env, target_platform)
+
         env["MSYS2_PATH_TYPE"] = "inherit"
         env["MSYSTEM"] = "MSYS"
+
         if target_platform.cpu_x86_32bit_family:
             arch = "i386"
             target_os = "win32"
