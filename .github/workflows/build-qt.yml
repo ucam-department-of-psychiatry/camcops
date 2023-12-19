@@ -15,10 +15,10 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - name: ubuntu-20.04
-                      os: ubuntu-20.04
-                    - name: ubuntu-22.04
-                      os: ubuntu-22.04
+                    #- name: ubuntu-20.04
+                    #  os: ubuntu-20.04
+                    #- name: ubuntu-22.04
+                    #  os: ubuntu-22.04
                     - name: windows-2019
                       os: windows-2019
         runs-on: ${{ matrix.os }}
@@ -156,6 +156,7 @@ jobs:
               run: |
                   $ErrorActionPreference = "Stop"
                   where perl
+                  perl $GITHUB_WORKSPACE\.github\scripts\windows_checker.pm
 
             - name: restore ccache
               id: ccache
