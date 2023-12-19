@@ -152,17 +152,6 @@ jobs:
                   # Ensure Strawberry perl is first for better filename support
                   echo "C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-            - name: Find out where Perl is
-              if: matrix.os == 'windows-2019'
-              run: |
-                  $ErrorActionPreference = "Stop"
-                  echo "Dumping path..."
-                  echo $env:Path
-                  echo "where perl..."
-                  where perl
-                  echo "Checking perl..."
-                  perl $env:GITHUB_WORKSPACE\.github\scripts\windows_checker.pm
-
             - name: restore ccache
               id: ccache
               uses: actions/cache@v3
