@@ -187,8 +187,12 @@ jobs:
               if: runner.os == 'Windows'
               run: |
                   $ErrorActionPreference = "Stop"
-                  nasm --version
                   echo "$env:Path"
+                  where awk
+                  where grep
+                  where make
+                  where yasm
+                  nasm --version
 
             - name: print versions and environment
               run: |
