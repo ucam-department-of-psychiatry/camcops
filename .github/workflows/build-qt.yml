@@ -155,6 +155,7 @@ jobs:
               if: matrix.os == 'windows-2019'
               run: |
                   $ErrorActionPreference = "Stop"
+                  echo $env:Path
                   where perl
                   perl $GITHUB_WORKSPACE\.github\scripts\windows_checker.pm
 
