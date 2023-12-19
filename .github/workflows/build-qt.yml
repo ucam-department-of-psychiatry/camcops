@@ -142,14 +142,14 @@ jobs:
                   choco install ninja nasm yasm msys2 --yes --no-progress
                   choco install ccache --version 3.7.12 --yes --no-progress
                   # "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" >> $env:GITHUB_PATH
-                  # Ensure Strawberry perl is first for better filename support
-                  echo "C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
                   # Chocolatey uses the Windows installer, which doesn't update Path
                   # https://bugzilla.nasm.us/show_bug.cgi?id=3392224
                   echo "C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
                   # It looks like msys2 doesn't update the Path either:
                   echo "C:\tools\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
                   echo "C:\tools\msys64\usr\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+                  # Ensure Strawberry perl is first for better filename support
+                  echo "C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
             - name: Find out where Perl is
               if: matrix.os == 'windows-2019'
