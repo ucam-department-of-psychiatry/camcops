@@ -527,10 +527,13 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 # Qt
 # Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
+with open(join(TABLET_QT_DIR, "qt_version.txt")) as f:
+    QT_GIT_VERSION = f.read().strip()
+
 # Branch, tag or commit ID (long) to check out when cloning / checking out Qt
-QT_GIT_COMMIT = "v6.5.3"
+QT_GIT_COMMIT = f"v{QT_GIT_VERSION}"
 # For comparison when selecting tools. Not currently used.
-QT_VERSION = Version("6.5.3")
+QT_VERSION = Version(QT_GIT_VERSION)
 QT_GIT_SUBMODULES = [
     "qtbase",  # Core
     "qtdeclarative",  # Qt Quick and QML

@@ -238,6 +238,13 @@ TEMPLATE = app
 EIGEN_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/eigen_version.txt"
 EIGEN_VERSION = $$cat($${EIGEN_VERSION_FILE})
 
+QT_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/qt_version.txt"
+QT_GIT_VERSION = $$cat($${QT_VERSION_FILE})
+
+!equals(QT_GIT_VERSION, $$[QT_VERSION]) {
+    error("This version of CamCOPS should be built with '$${QT_GIT_VERSION}', not '$$[QT_VERSION]'")
+}
+
 INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-$${EIGEN_VERSION}"  # from which: <Eigen/...>
 # INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
 # INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include/armadillo_bits"
