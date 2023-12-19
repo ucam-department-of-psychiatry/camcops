@@ -157,7 +157,7 @@ jobs:
                   $ErrorActionPreference = "Stop"
                   echo $env:Path
                   where perl
-                  perl $GITHUB_WORKSPACE\.github\scripts\windows_checker.pm
+                  perl $env:GITHUB_WORKSPACE\.github\scripts\windows_checker.pm
 
             - name: restore ccache
               id: ccache
