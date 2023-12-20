@@ -3709,6 +3709,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2023
 ~~~~
 
+
 .. _changelog_v2_4_15:
 
 **Client and server v2.4.15, released 24 Mar 2023**
@@ -3766,6 +3767,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Use SecureTransport instead of OpenSSL with Qt on iOS client.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/278
 
+
 .. _changelog_v2_4_16:
 
 **Client and server v2.4.16, released 13 Jun 2023**
@@ -3822,3 +3824,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Supported SQLAlchemy version now 1.4
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
+
+- New task: :ref:`Compulsive Exercise Test (CET) <cet>`

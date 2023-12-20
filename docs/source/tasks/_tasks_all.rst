@@ -55,6 +55,7 @@ All tasks
     cbir.rst
     cecaq3.rst
     cesd.rst
+    cet.rst
     cgi.rst
     cgisch.rst
     chit.rst

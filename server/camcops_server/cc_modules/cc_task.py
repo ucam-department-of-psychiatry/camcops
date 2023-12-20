@@ -3317,37 +3317,63 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return sum(1 for x in self.get_values(fields) if x not in notvalues)
 
+    @staticmethod
+    def sum_values(
+        values: List[Union[int, float, None]],
+        ignorevalues: List[Union[int, float, None]] = None,
+    ) -> Union[int, float, None]:
+        """
+        Sum the values provided (skipping any whose value is
+        in ``ignorevalues``, which defaults to [None]). Returns None on error.
+        """
+        if ignorevalues is None:  # don't bool-test it; [] is valid
+            ignorevalues = [None]
+        filtered_values = [v for v in values if v not in ignorevalues]
+        try:
+            return sum(filtered_values)
+        except TypeError:
+            return None
+
     def sum_fields(
-        self, fields: List[str], ignorevalue: Any = None
-    ) -> Union[int, float]:
+        self,
+        fields: List[str],
+        ignorevalues: List[Union[int, float, None]] = None,
+    ) -> Union[int, float, None]:
         """
         Sum values stored in all specified fields (skipping any whose value is
-        ``ignorevalue``; treating fields containing ``None`` as zero).
+        in ``ignorevalues``, which defaults to [None]). Returns None on error.
         """
-        total = 0
-        for f in fields:
-            value = getattr(self, f)
-            if value == ignorevalue:
-                continue
-            total += value if value is not None else 0
-        return total
+        values = [getattr(self, f) for f in fields]
+        return self.sum_values(values, ignorevalues=ignorevalues)
+
+    @staticmethod
+    def mean_values(
+        values: List[Any], ignorevalues: List[Union[int, float, None]] = None
+    ) -> Union[int, float, None]:
+        """
+        Return the mean of the values provided (skipping any whose value is
+        in ``ignorevalues``, which defaults to [None]). Returns None on error.
+        """
+        if ignorevalues is None:  # don't bool-test it; [] is valid
+            ignorevalues = [None]
+        filtered_values = [v for v in values if v not in ignorevalues]
+        try:
+            return statistics.mean(filtered_values)
+        except (TypeError, statistics.StatisticsError):
+            return None
 
     def mean_fields(
-        self, fields: List[str], ignorevalue: Any = None
+        self,
+        fields: List[str],
+        ignorevalues: List[Union[int, float, None]] = None,
     ) -> Union[int, float, None]:
         """
         Return the mean of the values stored in all specified fields (skipping
-        any whose value is ``ignorevalue``).
+        any whose value is in ``ignorevalues``, which defaults to [None]).
+        Returns None on error.
         """
-        values = []
-        for f in fields:
-            value = getattr(self, f)
-            if value != ignorevalue:
-                values.append(value)
-        try:
-            return statistics.mean(values)
-        except (TypeError, statistics.StatisticsError):
-            return None
+        raw_values = [getattr(self, f) for f in fields]
+        return self.mean_values(raw_values, ignorevalues=ignorevalues)
 
     @staticmethod
     def fieldnames_from_prefix(prefix: str, start: int, end: int) -> List[str]:

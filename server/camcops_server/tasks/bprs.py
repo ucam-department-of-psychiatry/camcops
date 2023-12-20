@@ -156,7 +156,7 @@ class Bprs(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalue=0)
+        return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalues=[0, None])
         # "0" means "not rated"
 
     # noinspection PyUnresolvedReferences

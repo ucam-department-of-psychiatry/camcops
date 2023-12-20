@@ -211,6 +211,8 @@ Eating disorders
 
 - :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`
 
+- :ref:`Compulsive Exercise Test (CET) <cet>`
+
 - :ref:`Eating Disorder Examination Questionnaire (EDE-Q) <edeq>`
 
 - :ref:`Internet Severity and Activities Addiction Questionnaire, 10-items (ISAAQ-10) <isaaq10>`

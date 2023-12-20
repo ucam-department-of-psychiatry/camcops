@@ -24,6 +24,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/bmi.h"
+#include "tasks/cet.h"
 #include "tasks/cia.h"
 #include "tasks/edeq.h"
 
@@ -48,7 +49,8 @@ void EatingDisordersMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Cet::CET_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
     };
 }
