@@ -107,6 +107,7 @@ QStringList Cet::summary() const
     if (total.isNull()) {
         lines.append("?");
     } else {
+        lines.append(totalScorePhrase(total.toDouble(), MAX_TOTAL_SCORE));
         const QVector<double> subscales{
             subscale1AvoidanceRuleBased().toDouble(),
             subscale2WeightControl().toDouble(),
