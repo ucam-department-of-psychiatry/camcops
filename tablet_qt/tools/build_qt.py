@@ -509,7 +509,7 @@ DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-linux")
 # https://doc.qt.io/qt-6.5/android-getting-started.html
 ANDROID_NDK_VERSION = "25.1.8937393"
 
-DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
+DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
 
 DEFAULT_QT_SRC_DIRNAME = "qt6"
 
@@ -2498,28 +2498,28 @@ gobjdump    brew update && brew install binutils
 """
 
 WINDOWS_PACKAGE_HELP = r"""
-Windows                                                                 Cygwin
-                                                                        package
+Windows
 -------------------------------------------------------------------------------
-cmake       Install from https://cmake.org/
-git         Install from https://git-scm.com/
-nasm        Install from https://www.nasm.us/
+cmake       Install from https://cmake.org/ or use Chocolatey
+git         Install from https://git-scm.com/ or use Chocolatey
+nasm        Install from https://www.nasm.us/ or use Chocolatey
 tclsh       Install TCL from https://www.activestate.com/activetcl
 vcvarsall.bat    Install Microsoft Visual Studio/VC++, e.g. the free Community
             edition from https://www.visualstudio.com/; download and run the
             installer; tick at least "Desktop development with C++"
-perl        Install from https://www.activestate.com/activeperl
+perl        Install from https://www.activestate.com/activeperl or
+            https://strawberryperl.com/
 
-bash        Install Cygwin; part of the default installation            -
-cmake       Install the Cygwin package "cmake"                          cmake
-            OR (preferable) install CMake as above
-ld          Install the Cygwin package "gcc-g++"                        gcc-g++
-make        Install the Cygwin package "make"                           make
-tar         Install Cygwin; part of the default installation            -
+msys64      Install with Chocolatey then run C:\tools\msys64\usr\bin\bash and:
+            $ pacman -S make yasm diffutils
+bash        Included with msys64
+
+tar         Install with msys64 or use native Windows
 
 Don't forget to add the tools to your PATH, such as:
     C:\Perl64\bin
-    C:\cygwin64\bin
+    C:\tools\msys64
+    C:\tools\msys64\usr\bin
     C:\Program Files\NASM
     C:\Program Files\Git\cmd
 
@@ -2529,23 +2529,11 @@ of:
     C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 ... depending on your version of Visual Studio.
 
-If you install Cygwin Perl (package "perl"), make sure the native Windows
-version of Perl PRECEDES IT in the PATH; you don't want the Cygwin one to be
+If you install msys64 Perl (package "perl"), make sure the native Windows
+version of Perl PRECEDES IT in the PATH; you don't want the msys64 one to be
 the default.
 
 """  # noqa
-
-WINDOWS_PACKAGE_HELP_DEFUNCT = r"""
-Windows (DEFUNCT)
--------------------------------------------------------------------------------
-makedepend  Install the Cygwin (*) package "makedepend"
-readelf     Install the Cygwin (*) package "binutils"
-tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
-                C:\> bash
-                $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
-            ... because the built-in "tclsh" (no .exe) isn't found by Windows.
-
-"""
 
 
 def require(command: str) -> None:
@@ -2566,79 +2554,6 @@ def require(command: str) -> None:
     log.critical(missing_msg)
     log.warning("{}", helpmsg)
     raise ValueError(missing_msg)
-
-
-def ensure_first_perl_is_not_cygwin() -> None:
-    r"""
-    For Windows: ensure that the Perl we get when we call "perl" isn't a Cygwin
-    version.
-
-    Why?
-
-    ===============================================================================
-    WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
-    COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
-    ===============================================================================
-    File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
-    Configuring OpenSSL version 1.1.0g (0x1010007fL)
-        no-asan         [default]  OPENSSL_NO_ASAN
-        no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
-        no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
-        no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
-        no-egd          [default]  OPENSSL_NO_EGD
-        no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
-        no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
-        no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
-        no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
-        no-msan         [default]  OPENSSL_NO_MSAN
-        no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
-        no-sctp         [default]  OPENSSL_NO_SCTP
-        no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
-        no-ssl3         [option]   OPENSSL_NO_SSL3
-        no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
-        no-ubsan        [default]  OPENSSL_NO_UBSAN
-        no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
-        no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
-        no-zlib         [default]
-        no-zlib-dynamic [default]
-    Configuring for VC-WIN64A
-
-    ------------------------------------------------------------------------------
-    This perl implementation doesn't produce Windows like paths (with backward
-    slash directory separators).  Please use an implementation that matches your
-    building platform.
-
-    This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
-    ------------------------------------------------------------------------------
-
-    $ which perl
-    /usr/bin/perl
-
-    >>> shutil.which("perl")
-    'C:\\cygwin64\\bin\\perl.EXE'
-
-    # Then after installing ActiveState Perl:
-
-    $ which perl
-    /cygdrive/c/Perl64/bin/perl
-
-    >>> shutil.which("perl")
-    'C:\\Perl64\\bin\\perl.EXE'
-
-    # ... and then it works.
-
-    """  # noqa
-    require(PERL)
-    which = shutil.which(PERL)
-    if (
-        "cygwin" in which.lower()
-    ):  # imperfect check based on default Cygwin installation path  # noqa
-        fail(
-            f"The first instance of Perl on your path ({which}) is from "
-            f"Cygwin. This will fail when building OpenSSL. Please re-order "
-            f"your PATH so that a Windows version, e.g. ActiveState Perl, "
-            f"comes first."
-        )
 
 
 def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
@@ -2979,7 +2894,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # OpenSSL: Prerequisites
     # -------------------------------------------------------------------------
     if BUILD_PLATFORM.windows:
-        ensure_first_perl_is_not_cygwin()
+        # OpenSSL will check if the default Perl executable is suitable for
+        # Windows paths
         require(NASM)
 
     # -------------------------------------------------------------------------

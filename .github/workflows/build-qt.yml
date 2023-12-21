@@ -25,6 +25,8 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - name: Free up disk space
+              # The runner on Ubuntu will run out of space so we remove some of the things
+              # we don't need.
               if: runner.os == 'Linux'
               run: |
                   set -eux -o pipefail

@@ -19,14 +19,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Android NDK: https://developer.android.com/ndk/
-.. _Android SDK: https://developer.android.com/studio/
+.. _Android SDK: https://developer.android.com/tools/releases/platform-tools
+.. _Chocolately: https://chocolatey.org/
 .. _CMake: https://cmake.org/
-.. _Cygwin: https://www.cygwin.com/
 .. _Debugging Tools for Windows: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
 .. _Git: https://git-scm.com/
 .. _ImageMagick: https://www.imagemagick.org/
 .. _Inno Setup: http://www.jrsoftware.org/isinfo.php
 .. _jom: https://wiki.qt.io/Jom
+.. _MSYS2: https://www.msys2.org/
 .. _NASM: http://www.nasm.us/
 .. _Perl: https://www.activestate.com/activeperl
 .. _Python: https://www.python.org/
@@ -36,13 +37,16 @@
 .. _Visual Studio: https://visualstudio.microsoft.com/
 .. _Windows SDK: https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 
-
 .. _dev_building_client:
 
 Building the CamCOPS client
 ===========================
 
-The CamCOPS client is written in C++11 using the Qt_ cross-platform framework.
+The CamCOPS client is written in C++11 using the Qt_ cross-platform
+framework. We provide a custom python script to build Qt from source, along with
+its dependencies (OpenSSL, SQLCipher and FFmpeg). CamCOPS can then be compiled
+and linked with this custom version of Qt. This can be done within Qt Creator,
+which confusingly is bundled with a second, official distribution of Qt.
 
 ..  contents::
     :local:
@@ -59,74 +63,41 @@ https://wiki.qt.io/Building_Qt_6_from_Git
 Linux
 ~~~~~
 
-- Linux should come with Python and the necessary build tools.
-
-- Tested with:
-
-  - Ubuntu 16.04
-
-  - Ubuntu 18.04 / gcc 7.3.0 (tested Aug 2018)
-
-  - Ubuntu 20.04 / gcc 9.3.0 (tested as part of our continuous integration process on GitHub). Requires the following
-    extra packages:
-
-    .. code-block:: bash
-
-        sudo apt install libdrm-dev libxcb-glx0-dev
-
-  - Ubuntu 22.04 / gcc 11.3.0 (tested as part of our continuous integration process on GitHub). Requires the following
-    extra packages:
-
-    .. code-block:: bash
-
-        sudo apt install libdrm-dev libxcb-glx0-dev libudev-dev \
-            libwayland-dev \ libx11-xcb-dev libgbm-dev libxcomposite-dev \
-            libxkbcommon-x11-dev libegl-dev libdbus-1-dev
+- Linux should come with Python and the necessary build tools. The build script
+  should warn about any missing ones, which should all be installable with
+  your package manager.
 
 - See https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml for the
-  installation requirements on Ubuntu (GitHub hosted runners).
+  installation requirements on Ubuntu 20.04 and 22.04 (GitHub hosted runners).
 
 
 Android (with a Linux build host)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - To build Android programs under Linux, you will also need a Java development
-  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-17-jdk``.
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-17-jdk``. If you are switching between different versions of Java, you can set up a symbolic link to /usr/lib/jvm/default-java:
 
-- In Feb 2021, with Qt Creator 4.14.0, old versions of the Android SDK no
-  longer work. The settings at ``Tools --> Options --> Device --> Android``
-  complain, and you get silly errors like ``Project ERROR: You need to set the
-  ANDROID_NDK_ROOT environment variable to point to your Android NDK.``, even
-  when it's set (note that this environment variable is set/reset by Qt
-  Creator; https://bugreports.qt.io/browse/QTCREATORBUG-15240).
+  .. code-block:: bash
 
-- So, start your Android life afresh with Android Studio, as follows.
+    ln -s /usr/lib/jvm/java-17-openjdk-amd64 /usr/lib/jvm/default-java
 
-  Install Android Studio (e.g. in ``~/dev/android-studio``), then run
-  it (``bin/studio.sh``), and then via its ``Configure --> SDK Manager``, (a)
-  under SDK Platforms, install API level 29 (for CamCOPS), and 30 (because Qt
-  seems to want it); (b) under SDK Tools, install the defaults (Android SDK
-  Build-Tools, Android Emulator, Android SDK Platform-Tools), plus "NDK (Side
-  by side)". By default, it will install to ``~/Android/Sdk``. Then point Qt
-  Creator to that (i.e. "Android SDK location" should be ``~/Android/Sdk``).
-  Then Qt Creator should recognize everything, offer to install extras that it
-  needs, ask you to confirm licenses, and get on with it.
-
-  You'll also have to reconfigure your kits to point to the compilers that come
-  with the kits.
-
-  **The current Android SDK target version** is shown in
+- You will also need to install `Android SDK_`. **The current Android SDK target version** is shown in
   ``AndroidManifest.xml``. **This is the version you need to install.**
+
 
 - Set up a script file with variables like these:
 
   .. code-block:: bash
 
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-    export ANDROID_HOME=~/Android/Sdk
-    export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin
+    export JAVA_HOME=/usr/lib/jvm/default-java
+    export ANDROID_SDK_ROOT="/path/to/your/android-sdk"
+    export ANDROID_NDK_ROOT="${ANDROID_SDK_ROOT}/ndk"
+    export ANDROID_NDK_HOME="${ANDROID_NDK_ROOT}"
+    export PATH="$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin"
 
-  Source it when you want to use Android tools.
+  Source it when you want to use Android tools. Alternatively add these line to your ``.profile`` (or similar) so they are set up automatically whenever you log in.
+
+- In Qt Creator, under ``Preferences --> Devices --> Android`` set ``JDK location:`` to ``/usr/lib/jvm/default-java``. Select the currently supported NDK version in Android NDK list and make it the default. See https://doc.qt.io/qt-6.5/android-getting-started.html.
 
 - If Qt complains about e.g. ``failed to find Build Tools revision 19.1.0``,
   then you can use ``sdkmanager --list`` and then install with e.g.
@@ -135,9 +106,9 @@ Android (with a Linux build host)
 
 - Note some Android SDK version constraints:
 
-  - Google Play store requires ``targetSdkVersion`` to be at least 26 from
-    2018-11-01
-    (https://developer.android.com/distribute/best-practices/develop/target-sdk).
+  - Google Play store requires ``targetSdkVersion`` to be at least 33 from
+    2023-08-31
+    (https://developer.android.com/google/play/requirements/target-sdk).
 
   - Above Android API 23, linking to non-public libraries is prohibited,
     possibly with exceptions for SSL/crypto.
@@ -145,15 +116,10 @@ Android (with a Linux build host)
     - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
     - https://developer.android.com/about/versions/nougat/android-7.0-changes#ndk
 
-    I think this caused fatal problems for CamCOPS in 2018-07; not sure, but
-    this might explain it.
-
   - Android libraries should be compiled for the same SDK version as
     ``minSdkVersion`` in ``AndroidManifest.xml`` (see
     https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
     and https://developer.android.com/ndk/guides/stable_apis).
-
-- We are currently using Android NDK 19 or 20.
 
 .. todo:: Maybe "Include prebuilt OpenSSL libraries" will simplify things?
 
@@ -167,19 +133,18 @@ Windows
   Community. As you install Visual Studio, don't forget to tick the C++
   options.
 
-- Install these other tools:
+- Install these other tools. Many are available with Chocolately_.
 
   - CMake_. (We'll use this version of cmake to build CamCOPS.)
 
-  - Cygwin_ and its packages ``cmake``, ``gcc-g++``, and ``make``. (If you missed
-    them out during initial installation, just re-run the Cygwin setup program,
-    such as ``setup-x86_64.exe``. SQLCipher requires ``make``.)
+  - MSYS2_. Use this to install other build tools. ``C:\tools\msys64\usr\bin\bash``
+    then ``$ pacman -S make yasm diffutils``.
 
   - NASM_, the Netwide Assembler for x86-family processors.
 
   - ActiveState TCL_. (SQLCipher requires ``tclsh``.)
 
-  - ActiveState Perl_. (OpenSSL requires ``perl``.)
+  - ActiveState Perl_. or Strawberry Perl. (OpenSSL requires ``perl``.)
 
   - Optionally, `Debugging Tools for Windows`_ (including CDB), such as from
     the `Windows SDK`_.
@@ -203,9 +168,10 @@ Windows
 
     .. code-block:: none
 
-        C:\cygwin64\bin
+        C:\tools\msys64
+        C:\tools\msys64\usr\bin
         C:\Program Files\NASM
-        C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+        C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
 
         -- These are usually added automatically by installers:
 
@@ -217,19 +183,22 @@ Windows
     is technically legal but it causes no end of trouble (see :ref:`build_qt`).
     (The usual culprit is MySQL.) The :ref:`build_qt` script will check this.
 
-- Tested in October 2022 with:
-
+- Tested and as part of our continuous integration process on GitHub (see
+  https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml )
+  and as of 2023-12-21:
   .. code-block:: none
 
-    ActivePerl 5.24.3 build 2404 (64-bit)
+    ActivePerl 5.28.1 build 2801 (64-bit)
     ActiveTcl 8.6.7 build 0 (64-bit)
-    CMake 3.12.0 (64-bit)
-    Cygwin Setup 2.889 (64-bit)
-    Microsoft Visual Studio Community 2017
-    NASM 2.13.03 (64-bit)
-    Python 3.6
-    Qt Creator 4.7.0
+    CCache 3.7.12
+    CMake 3.25.1 (64-bit)
+    Microsoft Visual Studio Community 2019
+    MSYS2 20231026.0.0
+    NASM 2.14.02 (64-bit)
+    Python 3.9.13
+    Qt Creator 4.10.1
     Windows 10 (64-bit)
+    Yasm 1.2.0
 
 
 macOS (formerly OS X)
@@ -282,7 +251,7 @@ All operating systems
 
         * - CAMCOPS_VISUAL_STUDIO_REDIST_ROOT
           - N/A.
-          - ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405``
+          - ``C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30133``
           - Used by the Windows Inno Setup script.
 
 - Fetch CamCOPS. For example, for the GitHub version:
@@ -317,7 +286,7 @@ All operating systems
 Build OpenSSL, SQLCipher, Qt
 ----------------------------
 
-Build a copy of Qt and supporting tools (OpenSSL, SQLCipher) from source using
+Build a copy of Qt and supporting tools (OpenSSL, SQLCipher, FFmpeg) from source using
 the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 
 .. code-block:: bash
