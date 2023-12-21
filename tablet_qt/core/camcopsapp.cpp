@@ -749,6 +749,10 @@ int CamcopsApp::run()
     // everything that we can in a different thread through backgroundStartup.
     // This makes the GUI startup more responsive.
 
+    // Baseline C++ things
+    convert::registerTypesForQVariant();
+    convert::registerOtherTypesForSignalsSlots();
+
     // Listen for application launch from URL
     auto url_handler = UrlHandler::getInstance();
     connect(url_handler, &UrlHandler::defaultSingleUserModeSet,
@@ -768,10 +772,6 @@ int CamcopsApp::run()
 
     // Say hello to the console
     announceStartup();
-
-    // Baseline C++ things
-    convert::registerTypesForQVariant();
-    convert::registerOtherTypesForSignalsSlots();
 
     // Set window icon
     initGuiOne();
@@ -977,6 +977,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
         "DEFAULT_SINGLE_USER_MODE",
         "false"
     );
+    defaultSingleUserModeOption.setValueName("MODE");  // shorter text
     parser.addOption(defaultSingleUserModeOption);
 
     // --default_server_location
@@ -988,6 +989,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             ),
         "DEFAULT_SERVER_LOCATION"
     );
+    defaultServerLocationOption.setValueName("URL");
     parser.addOption(defaultServerLocationOption);
 
     // --default_access_key
@@ -999,6 +1001,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             ),
         "DEFAULT_ACCESS_KEY"
     );
+    defaultAccessKeyOption.setValueName("KEY");
     parser.addOption(defaultAccessKeyOption);
 
     // --print_icd9_codes
@@ -1016,6 +1019,14 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     );
     // We don't use setValueName(), so it behaves like a flag.
     parser.addOption(printIcd10Option);
+
+    // --print_tasks
+    const QCommandLineOption printTasks(
+        "print_tasks",
+        "Print tasks supported in this version of CamCOPS, and quit."
+    );
+    // We don't use setValueName(), so it behaves like a flag.
+    parser.addOption(printTasks);
 
     // --print_terms_conditions
     const QCommandLineOption printTermsConditions(
@@ -1066,6 +1077,12 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
         const Icd10 icd10(*this, nullptr, true);
         // qDebug() << icd10;
         out << icd10;
+        return false;
+    }
+
+    const bool print_tasks = parser.isSet(printTasks);
+    if (print_tasks) {
+        printTasksWithoutDatabase(out);
         return false;
     }
 
@@ -1574,6 +1591,50 @@ void CamcopsApp::registerTasks()
     qInfo().nospace().noquote()
             << "Registered tasks (n = " << tablenames.length()
             << "): " << tablenames.join(", ");
+}
+
+
+void CamcopsApp::dangerCommandLineMinimalSetup()
+{
+    // Ugly code -- only used for command-line calls that need a fictional
+    // database. There is NO PROPER DATABASE, but all our task code requires
+    // specimen instances (not class-level code); in turn, that requires a
+    // database framework. So create in-memory SQLite database.
+
+    // ------------------------------------------------------------------------
+    // Stuff usually done later in CamcopsApp::run()
+    // ------------------------------------------------------------------------
+    registerDatabaseDrivers();
+
+    // Instead of openOrCreateDatabases():
+    const QString in_memory_sqlite_db(":memory:");
+    // https://www.sqlite.org/inmemorydb.html
+    m_datadb = DatabaseManagerPtr(new DatabaseManager(
+        in_memory_sqlite_db, CONNECTION_DATA));
+    m_sysdb = DatabaseManagerPtr(new DatabaseManager(
+        in_memory_sqlite_db,
+        CONNECTION_SYS,
+        whichdb::DBTYPE,
+        true, /* threaded */
+        true /* system_db */
+    ));
+
+    makeStoredVarTable();
+    createStoredVars();
+
+    // ------------------------------------------------------------------------
+    // Stuff usually done in backgroundStartup()
+    // ------------------------------------------------------------------------
+    makeOtherTables();
+    registerTasks();
+    makeTaskTables();
+}
+
+
+void CamcopsApp::printTasksWithoutDatabase(QTextStream& stream)
+{
+    dangerCommandLineMinimalSetup();
+    stream << *m_p_task_factory;
 }
 
 

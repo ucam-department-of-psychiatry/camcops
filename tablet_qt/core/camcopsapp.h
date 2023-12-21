@@ -212,6 +212,10 @@ protected:
     // Registers all tasks with the task factory.
     void registerTasks();
 
+    // Only used from the command line for standalone "list tasks" function.
+    void dangerCommandLineMinimalSetup();
+    void printTasksWithoutDatabase(QTextStream& stream);
+
     // Creates all task tables (and any ancillary tables they need).
     void makeTaskTables();
 
