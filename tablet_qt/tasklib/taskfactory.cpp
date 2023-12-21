@@ -324,7 +324,7 @@ QTextStream& operator<<(QTextStream& stream, const TaskFactory& f)
     for (const TaskPtr& t : specimens) {
         stream
             << t->tablename()
-            << " : "
+            << ": "
             << t->shortname()
             << ", "
             << t->longname()
