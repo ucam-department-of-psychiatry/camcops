@@ -3051,31 +3051,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # OpenSSL: Make
         # ---------------------------------------------------------------------
         makefile = join(workdir, "Makefile")  # written to by Configure
-
-        if target_platform.ios:
-            # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-            # add -isysroot to CC=
-            run(
-                [
-                    SED,
-                    "-i",  # in place
-                    "-e",  # execute the script expression that follows
-                    (
-                        f"s"  # s/regexp/replacement/
-                        f"!"  # use '!' not '/' to delineate regex
-                        f"^CFLAGS="
-                        f"!"
-                        f"CFLAGS=-isysroot {env['CROSS_TOP']}/SDKs/{env['CROSS_SDK']} "  # noqa
-                        f"-mios-version-min={cfg.ios_min_version} "
-                        f"-miphoneos-version-min={cfg.ios_min_version} "
-                        f"!"
-                    ),
-                    makefile,
-                ]
-            )
-            # 2018-08-24: was CFLAG=, now CFLAGS=
-            # 2018-08-24: makefile was modified before Configure called; daft
-
         extra_args = []  # type: List[str]
 
         # A particular problem is that Android .so libraries must be
