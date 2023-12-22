@@ -566,15 +566,7 @@ OPENSSL_SRC_URL = (
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
-SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
-# ... SQLCipher version 4.2.0, 29 May 2019
-
-# - Note that there's another URL for the Android binary packages
-# - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
-# - To find the Git commit identifier (hash) of a cloned repository, use
-#   "git show -s --format=%H" (and omit the --format parameter to see more
-#   info).
-# - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
+SQLCIPHER_GIT_COMMIT = "7c460791eba939e6c6872825219a6644ca47283b"
 
 # Eigen
 with open(join(TABLET_QT_DIR, "eigen_version.txt")) as f:
@@ -2953,9 +2945,15 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
-    untar_to_directory(
-        cfg.openssl_src_fullpath, rootdir, run_func=run, chdir_via_python=True
-    )
+    openssl_version_dir = join(rootdir, f"openssl-{cfg.openssl_version}")
+    if not isdir(openssl_version_dir):
+        untar_to_directory(
+            tarfile=cfg.openssl_src_fullpath,
+            directory=rootdir,
+            skip_if_dir_exists=False,  # This is openssl_xxx_build directory
+            run_func=run,
+            chdir_via_python=True,
+        )
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 1/2
