@@ -1688,7 +1688,6 @@ def insert_record(
         table.insert().values(valuedict)
     )  # type: CursorResult
     inserted_pks = rp.inserted_primary_key
-    assert isinstance(inserted_pks, list) and len(inserted_pks) == 1
     return inserted_pks[0]
 
 
