@@ -126,7 +126,7 @@ Android:
                         Android toolchain version (default: 4.9)
   --java_home JAVA_HOME
                         JAVA_HOME directory (default:
-                        /usr/lib/jvm/java-11-openjdk-amd64)
+                        /usr/lib/jvm/java-17-openjdk-amd64)
 
 iOS:
   iOS options
