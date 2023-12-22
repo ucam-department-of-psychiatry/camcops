@@ -1,7 +1,8 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR] [--clean]
-                   [--no_build] [--no_fetch] [--nparallel NPARALLEL] [--force]
-                   [--tee TEE] [--verbose {0,1,2}] [--inherit_os_env]
-                   [--no_inherit_os_env] [--build_all]
+                   [--no_build_qt] [--no_fetch] [--nparallel NPARALLEL]
+                   [--force] [--force_ffmpeg] [--force_openssl] [--force_qt]
+                   [--force_sqlcipher] [--tee TEE] [--verbose {0,1,2}]
+                   [--inherit_os_env] [--no_inherit_os_env] [--build_all]
                    [--build_android_x86_32] [--build_android_arm_v7_32]
                    [--build_android_arm_v8_64] [--build_linux_x86_64]
                    [--build_macos_x86_64] [--build_windows_x86_64]
@@ -34,11 +35,15 @@ General:
   --clean               Clean any existing Qt build and install directory.
                         Normally only useful when diagnosing problems with the
                         build. (default: False)
-  --no_build            Only run Qt configure, don't build Qt (default: True)
+  --no_build_qt         Only run Qt configure, don't build Qt (default: True)
   --no_fetch            Skip fetching source code (default: True)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
-  --force               Force build (default: False)
+  --force               Force rebuild of everything (default: False)
+  --force_ffmpeg        Force rebuild of FFmpeg (default: False)
+  --force_openssl       Force rebuild of OpenSSL (default: False)
+  --force_qt            Force rebuild of Qt (default: False)
+  --force_sqlcipher     Force rebuild of SQLCipher (default: False)
   --tee TEE             Copy stdout/stderr to this named file (default: None)
   --verbose {0,1,2}, -v {0,1,2}
                         Verbosity level (default: 0)

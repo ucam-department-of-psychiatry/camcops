@@ -449,7 +449,6 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
-from cardinal_pythonlib.network import download
 from cardinal_pythonlib.platformfunc import (
     contains_unquoted_ampersand_dangerous_to_windows,
     windows_get_environment_from_batch_command,
@@ -578,16 +577,6 @@ FFMPEG_VERSION = "n6.0"
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
 MIN_MACOS_VERSION = "11"  # https://doc.qt.io/qt-6.5/macos.html
-
-
-# GNU tools
-
-CONFIG_GUESS_MASTER = (
-    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"
-)
-CONFIG_SUB_MASTER = (
-    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"
-)
 
 
 # -----------------------------------------------------------------------------
@@ -1596,12 +1585,14 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
-        self.build = args.build
-        self.clean = args.clean
+        self.build_qt = args.build_qt
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
-        self.force = args.force  # type: bool
+        self.force_ffmpeg = args.force or args.force_ffmpeg  # type: bool
+        self.force_openssl = args.force or args.force_openssl  # type: bool
+        self.force_qt = args.force or args.force_qt  # type: bool
+        self.force_sqlcipher = args.force or args.force_sqlcipher  # type: bool
         self.verbose = args.verbose  # type: int
         self.src_rootdir = join(self.root_dir, "src")  # type: str
         self.tee_filename = args.tee  # type: str
@@ -2935,7 +2926,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             shadow_targets.append(join(dirname, shortbasename))
 
     targets = main_targets + shadow_targets
-    if not cfg.force and all(isfile(x) for x in targets):
+    if not cfg.force_openssl and all(isfile(x) for x in targets):
         report_all_targets_exist("OpenSSL", targets)
         return
 
@@ -3209,7 +3200,7 @@ def checkout_qt(cfg: Config) -> None:
     """
     fetch_qt(cfg)
 
-    if not already_checked_out(cfg):
+    if not already_checked_out(cfg.qt_src_gitdir, cfg.qt_git_commit):
         chdir(cfg.qt_src_gitdir)
         run([GIT, "checkout", cfg.qt_git_commit])
     # Necessary if we are moving to a new commit. The init-respository perl
@@ -3225,8 +3216,8 @@ def fetch_qt(cfg: Config) -> None:
     run([GIT, "fetch", "--no-recurse-submodules"])
 
 
-def already_checked_out(cfg: Config) -> bool:
-    chdir(cfg.qt_src_gitdir)
+def already_checked_out(src_gitdir: str, commit: str) -> bool:
+    chdir(src_gitdir)
 
     for git_test in [
         [GIT, "symbolic-ref", "-q", "--short", "HEAD"],  # Branch matches
@@ -3237,8 +3228,8 @@ def already_checked_out(cfg: Config) -> bool:
             git_test, allow_failure=True, capture_stdout=True
         )
         name = stdout.strip()
-        if name == cfg.qt_git_commit:
-            log.info("{} already checked out", cfg.qt_git_commit)
+        if name == commit:
+            log.info("{} already checked out", commit)
             return True
 
     return False
@@ -3336,13 +3327,13 @@ def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
 
 
 def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
-    if cfg.clean:
+    if cfg.force_qt:
         return True
 
     installdir = cfg.qt_install_dir(target_platform)
 
     targets = [join(installdir, "bin", target_platform.qmake_executable)]
-    if not cfg.force and all(isfile(x) for x in targets):
+    if all(isfile(x) for x in targets):
         report_all_targets_exist("Qt", targets)
         return False
 
@@ -3408,9 +3399,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # build there.
     # https://stackoverflow.com/questions/24261974 (comments)
 
-    # --clean option: ... do this if something goes wrong, but it is slow;
+    # --force_qt option: ... do this if something goes wrong, but it is slow;
     # maybe not routinely (unless you're diagnosing problems with the build)?
-    if cfg.clean:
+    if cfg.force_qt:
         log.info("Removing {}".format(builddir))
         shutil.rmtree(builddir, ignore_errors=True)
         log.info("Removing {}".format(installdir))
@@ -3823,25 +3814,21 @@ def fetch_sqlcipher(cfg: Config) -> None:
     git_clone(
         prettyname="SQLCipher",
         url=cfg.sqlcipher_git_url,
-        commit=cfg.sqlcipher_git_commit,
         directory=cfg.sqlcipher_src_gitdir,
+        # We must have LF endings, not CR+LF, because we're going to use Unix
+        # tools even under Windows.
         clone_options=["--config", "core.autocrlf=false"],
         run_func=run,
     )
-    # We must have LF endings, not CR+LF, because we're going to use Unix tools
-    # even under Windows.
 
-    # The versions of config.guess and config.sub that come with SQLCipher
-    # are taken (I think) from SQLite, and as of 2019-06-15, don't support
-    # "aarch64". So let's fetch some proper ones:
-    log.info(
-        "Replacing config.guess and config.sub with recent GNU versions, "
-        "to detect newer architectures e.g. aarch64"
-    )
-    download(
-        CONFIG_GUESS_MASTER, join(cfg.sqlcipher_src_gitdir, "config.guess")
-    )
-    download(CONFIG_SUB_MASTER, join(cfg.sqlcipher_src_gitdir, "config.sub"))
+    chdir(cfg.sqlcipher_src_gitdir)
+    run([GIT, "fetch"])
+
+    if not already_checked_out(
+        cfg.sqlcipher_src_gitdir, cfg.sqlcipher_git_commit
+    ):
+        chdir(cfg.sqlcipher_src_gitdir)
+        run([GIT, "checkout", cfg.sqlcipher_git_commit])
 
 
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
@@ -3876,7 +3863,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     targets = [target_c, target_h, target_o]
     if want_exe:
         targets.append(target_exe)
-    if all(isfile(x) for x in targets):
+    if not cfg.force_sqlcipher and all(isfile(x) for x in targets):
         report_all_targets_exist("SQLCipher", targets)
         return
 
@@ -4107,7 +4094,9 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         "libavformat.a",
         "libavutil.a",
     ]
-    if not cfg.force and all(isfile(join(targets_dir, x)) for x in targets):
+    if not cfg.force_ffmpeg and all(
+        isfile(join(targets_dir, x)) for x in targets
+    ):
         report_all_targets_exist("FFmpeg", targets)
         return
 
@@ -4379,7 +4368,7 @@ def master_builder(args) -> None:
 
         if qt_needs_building(cfg, target_platform):
             configure_qt(cfg, target_platform)
-            if cfg.build:
+            if cfg.build_qt:
                 installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
@@ -4427,7 +4416,7 @@ def master_builder(args) -> None:
     ):  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
-    if not cfg.build:
+    if not cfg.build_qt:
         log.info("Configuration only. Not building Qt.")
         sys.exit(EXIT_SUCCESS)
 
@@ -4495,8 +4484,8 @@ def main() -> None:
         ),
     )
     general.add_argument(
-        "--no_build",
-        dest="build",
+        "--no_build_qt",
+        dest="build_qt",
         action="store_false",
         help="Only run Qt configure, don't build Qt",
     )
@@ -4512,7 +4501,23 @@ def main() -> None:
         default=CPU_COUNT,
         help="Number of parallel processes to run",
     )
-    general.add_argument("--force", action="store_true", help="Force build")
+    general.add_argument(
+        "--force", action="store_true", help="Force rebuild of everything"
+    )
+    general.add_argument(
+        "--force_ffmpeg", action="store_true", help="Force rebuild of FFmpeg"
+    )
+    general.add_argument(
+        "--force_openssl", action="store_true", help="Force rebuild of OpenSSL"
+    )
+    general.add_argument(
+        "--force_qt", action="store_true", help="Force rebuild of Qt"
+    )
+    general.add_argument(
+        "--force_sqlcipher",
+        action="store_true",
+        help="Force rebuild of SQLCipher",
+    )
     general.add_argument(
         "--tee",
         type=str,
