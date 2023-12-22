@@ -303,26 +303,13 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 Version constraints for OpenSSL and SQLCipher
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- OpenSSL 1.0.x has long-term support and 1.1.x is the current release.
+- Qt 6.5 supports OpenSSL 3.0.x
 
-- OpenSSL 1.0.2h didn't compile under 64-bit Windows, whereas OpenSSL 1.1.x
-  did.
+- OpenSSL 3.0.x is the current LTS version, supported until 2026-09-07.
+  https://www.openssl.org/policies/releasestrat.html
 
-- OpenSSL 1.1.x requires Qt 5.10 or higher
-  (https://bugreports.qt.io/browse/QTBUG-52905).
+- SQLCipher 4.4.5 supports OpenSSL 3.0.x
 
-- SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
-  (https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962).
-
-- The Android NDK has moved from gcc to clang, for all standalone toolchains
-  from r18 (https://developer.android.com/ndk/guides/standalone_toolchain).
-  To compile OpenSSL with clang requires OpenSSL 1.1.1
-  (https://github.com/openssl/openssl/pull/2229;
-  https://github.com/openssl/openssl/blob/master/NOTES.ANDROID).
-  As of 2019-06-15, the current version is OpenSSL 1.1.1c
-  (https://www.openssl.org/). SQLCipher 4 supports OpenSSL 1.1.1
-  (https://www.zetetic.net/blog/2018/11/30/sqlcipher-400-release/).
-  As of 2019-06-15, the current version is SQLCipher 4.2.0.
 
 
 Troubleshooting build_qt
@@ -446,7 +433,7 @@ Non-default options are marked in bold and/or as "[non-default]".
 
 **Custom_Linux_x86_64**
 
-- Last checked against Qt Creator 4.8.1 (built Jan 2019).
+- Last checked against Qt Creator 11.0.2 (built Aug 2023).
 
     .. list-table::
         :header-rows: 1
@@ -458,16 +445,18 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_Linux_x86_64``
         * - File system name
           -
-        * - Device type
+        * - Run device type
           - **Desktop**
-        * - Device
-          - Local PC (default for Desktop)
+        * - Run device
+          - Desktop (default for Desktop)
+        * - Build device
+          - Desktop (default for Desktop)
         * - Sysroot
           -
         * - Compiler: C
           - GCC (C, x86 64bit in ``/usr/bin``)
         * - Compiler: C++
-          - GCC (x86 64bit in ``/usr/bin``)
+          - GCC (C++, x86 64bit in ``/usr/bin``)
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
@@ -476,17 +465,17 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **THE "LINUX 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
-        * - CMake Tool
-          - System CMake at ``/usr/bin/cmake``
-        * - CMake Generator
-          - CodeBlocks - Unix Makefiles
-        * - CMake Configuration
-          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
-            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
-            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
-            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
         * - Additional Qbs Profile Settings
           -
+        * - CMake Tool
+          - System CMake at ``/usr/bin/cmake``
+        * - CMake generator
+          - [not editable: "Ninja"]
+        * - CMake Configuration
+          - ``-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}``
+            ``-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}``
+            ``-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}``
+            ``-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}``
 
 **Custom_Android_ARM32: 32-BIT configuration for clang**
 

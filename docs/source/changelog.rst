@@ -3822,3 +3822,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Supported SQLAlchemy version now 1.4
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
+
+- Qt version is now 6.5.3.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/173
+
+- OpenSSL version is now 3.0.12. 1.1.1x has reached end-of-life.
+- SQL Cipher version is now 4.5.5
