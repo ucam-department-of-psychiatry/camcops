@@ -1954,10 +1954,7 @@ class Config(object):
             fullpath=not use_cross_compile_var, cfg=self
         )
         env["ARCH"] = target_platform.android_arch_short
-        env["CC"] = self.android_cc(
-            target_platform,
-            fullpath=not use_cross_compile_var,
-        )
+        env["CC"] = self.android_cc(target_platform)
         if use_cross_compile_var:
             env[
                 "CROSS_COMPILE"
