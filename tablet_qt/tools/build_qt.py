@@ -2186,7 +2186,6 @@ class Config(object):
         if use_gcc:
             env["CC"] = (
                 f"{join(developer, 'usr', 'bin', GCC)} "
-                f"-fembed-bitcode "
                 f"-mios-version-min={self.ios_min_version} "
                 f"-arch {arch}"
             )
