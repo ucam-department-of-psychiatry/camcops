@@ -168,10 +168,10 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
         return [
             TrackerInfo(
                 value=self.total_score(),
-                plot_label="CET total score",
-                axis_label=f"Score (out of {self.MAX_SCORE})",
+                plot_label="CET total score (sum of subscale scores)",
+                axis_label=f"Score (out of {self.MAX_TOTAL_SCORE})",
                 axis_min=-0.5,
-                axis_max=self.MAX_SCORE + 0.5,
+                axis_max=self.MAX_TOTAL_SCORE + 0.5,
                 axis_ticks=[
                     TrackerAxisTick(120, "120"),
                     TrackerAxisTick(100, "100"),
@@ -192,7 +192,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
         return [
             CtvInfo(
                 content=(
-                    f"CET total score "
+                    f"CET total score (sum of subscale scores) "
                     f"{self.total_score()}/{self.MAX_TOTAL_SCORE}. "
                     f"Subscales: "
                     f"#1 avoidance and rule-driven behaviour "
@@ -216,7 +216,8 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 name="total",
                 coltype=Float(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.MAX_SCORE})",
+                comment=f"Total score (sum of subscale scores) "
+                f"(/{self.MAX_TOTAL_SCORE})",
             ),
             SummaryElement(
                 name="subscale_1_avoidance_rule_based",
@@ -281,7 +282,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
         return self.mean_score(self.Q_SUBSCALE_4_LACK_EX_ENJOY)
 
     def subscale_5_rigidity(self) -> float:
-        return self.mean_score(self.Q_SUBSCALE_5)
+        return self.mean_score(self.Q_SUBSCALE_5_EX_RIGIDITY)
 
     def total_score(self) -> int:
         return self.sum_values(
@@ -310,12 +311,12 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
-                    {total_score}
                     {subscale_1}
                     {subscale_2}
                     {subscale_3}
                     {subscale_4}
                     {subscale_5}
+                    {total_score}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -326,8 +327,14 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Sum for all questions, with reverse-scoring of questions
-                    {REVERSE_SCORED_QUESTIONS}.
+                [1] Mean for questions {Q_SUBSCALE_1_AVOID_RULE}.
+                [2] Mean for questions {Q_SUBSCALE_2_WT_CONTROL}.
+                [3] Mean for questions {Q_SUBSCALE_3_MOOD}.
+                [4] Mean for questions {Q_SUBSCALE_4_LACK_EX_ENJOY}.
+                [5] Mean for questions {Q_SUBSCALE_5_EX_RIGIDITY}.
+                [6] Sum of all subscale scores.
+                [7] Note also that questions {REVERSE_SCORED_QUESTIONS}
+                    are reverse-scored.
             </div>
             <div class="{CssClass.COPYRIGHT}">
                 {CET_COPYRIGHT}
@@ -335,31 +342,36 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                answer(self.total_score()) + f" / {self.MAX_TOTAL_SCORE}",
-            ),
             subscale_1=tr(
-                self.wxstring(req, "subscale1"),
+                self.wxstring(req, "subscale1") + " <sup>[1]</sup>",
                 answer(self.subscale_1_avoidance_rule_based()) + ms,
             ),
             subscale_2=tr(
-                self.wxstring(req, "subscale2"),
+                self.wxstring(req, "subscale2") + " <sup>[2, 7]</sup>",
                 answer(self.subscale_2_weight_control()) + ms,
             ),
             subscale_3=tr(
-                self.wxstring(req, "subscale3"),
+                self.wxstring(req, "subscale3") + " <sup>[3]</sup>",
                 answer(self.subscale_3_mood_improvement()) + ms,
             ),
             subscale_4=tr(
-                self.wxstring(req, "subscale4"),
+                self.wxstring(req, "subscale4") + " <sup>[4, 7]</sup>",
                 answer(self.subscale_4_lack_enjoyment()) + ms,
             ),
             subscale_5=tr(
-                self.wxstring(req, "subscale5"),
+                self.wxstring(req, "subscale5") + " <sup>[5]</sup>",
                 answer(self.subscale_5_rigidity()) + ms,
             ),
+            total_score=tr(
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[6, 7]</sup>",
+                answer(self.total_score()) + f" / {self.MAX_TOTAL_SCORE}",
+            ),
             q_a=q_a,
+            Q_SUBSCALE_1_AVOID_RULE=self.Q_SUBSCALE_1_AVOID_RULE,
+            Q_SUBSCALE_2_WT_CONTROL=self.Q_SUBSCALE_2_WT_CONTROL,
+            Q_SUBSCALE_3_MOOD=self.Q_SUBSCALE_3_MOOD,
+            Q_SUBSCALE_4_LACK_EX_ENJOY=self.Q_SUBSCALE_4_LACK_EX_ENJOY,
+            Q_SUBSCALE_5_EX_RIGIDITY=self.Q_SUBSCALE_5_EX_RIGIDITY,
             REVERSE_SCORED_QUESTIONS=self.Q_REVERSE_SCORED,
             CET_COPYRIGHT=CET_COPYRIGHT,
         )

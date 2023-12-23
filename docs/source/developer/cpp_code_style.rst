@@ -297,3 +297,10 @@ Note other popular coding standards:
   https://forum.qt.io/topic/97838/static-const-qstring-implicit-sharing-issue/14;
   https://forum.qt.io/topic/111693/storing-qstring-constants-without-global-static-non-pod-values.
   Possibly ignoring the warnings is fine in this case.
+
+- But then on other machine it gets past that, and instead complains like this:
+
+  .. code-block:: cpp
+
+    const QString APREFIX("a");  // QString(const char*) being called [clazy-qstring-allocations]  QString(const char*) ctor being called [clazy-qt4-qstring-from-array]
+    const QString APREFIX(QStringLiteral("a"));  // OK but long-winded
