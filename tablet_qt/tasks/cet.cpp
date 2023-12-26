@@ -182,7 +182,7 @@ QVariant Cet::score(const int question) const
 QVariant Cet::meanScore(const QVector<int>& questions) const
 {
     QVector<QVariant> values;
-    for (int q : questions) {
+    for (const int q : questions) {
         values.append(score(q));
     }
     return mathfunc::meanOrNull(values);

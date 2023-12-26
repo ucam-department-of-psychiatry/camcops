@@ -151,6 +151,13 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
     Q_SUBSCALE_4_LACK_EX_ENJOY = [5, 12, 21]
     Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
     QUESTIONS = strseq("q", FIRST_Q, N_QUESTIONS)  # fields and string names
+    SUBSCALE_LOOKUP = {
+        1: Q_SUBSCALE_1_AVOID_RULE,
+        2: Q_SUBSCALE_2_WT_CONTROL,
+        3: Q_SUBSCALE_3_MOOD,
+        4: Q_SUBSCALE_4_LACK_EX_ENJOY,
+        5: Q_SUBSCALE_5_EX_RIGIDITY,
+    }
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -209,8 +216,43 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
             )
         ]
 
+    def subscale_comment(
+        self, n: int, full=True, description: str = ""
+    ) -> str:
+        """
+        Returns a comment describing the subscale.
+
+        Args:
+            n:
+                Subscale number.
+            full:
+                Provide a full comment (for summary tables etc.), rather than
+                a short one (for task footnotes)?
+            description:
+                Only for ``full``. Describe the scale.
+        """
+        assert 1 <= n <= 5
+        questions = self.SUBSCALE_LOOKUP[n]
+        qtext_elements = []  # type: List[str]
+        rev = False
+        for q in questions:
+            qt = str(q)
+            if q in self.Q_REVERSE_SCORED:
+                qt += "*"
+                rev = True
+            qtext_elements.append(qt)
+        qtext = ", ".join(qtext_elements)
+        revtext = " (* reverse-scored)" if rev else ""
+        if full:
+            return (
+                f"Subscale {n} score: {description} "
+                f" (/{self.MAX_SUBSCALE_SCORE}); "
+                f"mean of questions {qtext}{revtext}"
+            )
+        else:
+            return f"Mean of questions {qtext}{revtext}"
+
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        ss = f" (/{self.MAX_SUBSCALE_SCORE})"  # ss = subscale suffix
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total",
@@ -223,34 +265,45 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 name="subscale_1_avoidance_rule_based",
                 coltype=Float(),
                 value=self.subscale_1_avoidance_rule_based(),
-                comment=(
-                    "Subscale 1 score: avoidance and rule-driven behaviour"
-                    + ss
+                comment=self.subscale_comment(
+                    1,
+                    description="avoidance and rule-driven behaviour",
                 ),
             ),
             SummaryElement(
                 name="subscale_2_weight_control",
                 coltype=Float(),
                 value=self.subscale_2_weight_control(),
-                comment="Subscale 2 score: weight control exercise" + ss,
+                comment=self.subscale_comment(
+                    2, description="weight control exercise"
+                ),
             ),
             SummaryElement(
                 name="subscale_3_mood_improvement",
                 coltype=Float(),
                 value=self.subscale_3_mood_improvement(),
-                comment="Subscale 3 score: mood improvement" + ss,
+                comment=self.subscale_comment(
+                    3,
+                    description="mood improvement",
+                ),
             ),
             SummaryElement(
                 name="subscale_4_lack_enjoyment",
                 coltype=Float(),
                 value=self.subscale_4_lack_enjoyment(),
-                comment="Subscale 4 score: lack of exercise enjoyment" + ss,
+                comment=self.subscale_comment(
+                    4,
+                    description="lack of exercise enjoyment",
+                ),
             ),
             SummaryElement(
                 name="subscale_5_rigidity",
                 coltype=Float(),
                 value=self.subscale_5_rigidity(),
-                comment="Subscale 5 score: exercise rigidity" + ss,
+                comment=self.subscale_comment(
+                    5,
+                    description="exercise rigidity",
+                ),
             ),
         ]
 
@@ -327,14 +380,12 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Mean for questions {Q_SUBSCALE_1_AVOID_RULE}.
-                [2] Mean for questions {Q_SUBSCALE_2_WT_CONTROL}.
-                [3] Mean for questions {Q_SUBSCALE_3_MOOD}.
-                [4] Mean for questions {Q_SUBSCALE_4_LACK_EX_ENJOY}.
-                [5] Mean for questions {Q_SUBSCALE_5_EX_RIGIDITY}.
+                [1] {COMMENT_SS_1}
+                [2] {COMMENT_SS_2}
+                [3] {COMMENT_SS_3}
+                [4] {COMMENT_SS_4}
+                [5] {COMMENT_SS_5}
                 [6] Sum of all subscale scores.
-                [7] Note also that questions {REVERSE_SCORED_QUESTIONS}
-                    are reverse-scored.
             </div>
             <div class="{CssClass.COPYRIGHT}">
                 {CET_COPYRIGHT}
@@ -347,7 +398,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 answer(self.subscale_1_avoidance_rule_based()) + ms,
             ),
             subscale_2=tr(
-                self.wxstring(req, "subscale2") + " <sup>[2, 7]</sup>",
+                self.wxstring(req, "subscale2") + " <sup>[2]</sup>",
                 answer(self.subscale_2_weight_control()) + ms,
             ),
             subscale_3=tr(
@@ -355,7 +406,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 answer(self.subscale_3_mood_improvement()) + ms,
             ),
             subscale_4=tr(
-                self.wxstring(req, "subscale4") + " <sup>[4, 7]</sup>",
+                self.wxstring(req, "subscale4") + " <sup>[4]</sup>",
                 answer(self.subscale_4_lack_enjoyment()) + ms,
             ),
             subscale_5=tr(
@@ -363,16 +414,15 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 answer(self.subscale_5_rigidity()) + ms,
             ),
             total_score=tr(
-                req.sstring(SS.TOTAL_SCORE) + " <sup>[6, 7]</sup>",
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[6]</sup>",
                 answer(self.total_score()) + f" / {self.MAX_TOTAL_SCORE}",
             ),
             q_a=q_a,
-            Q_SUBSCALE_1_AVOID_RULE=self.Q_SUBSCALE_1_AVOID_RULE,
-            Q_SUBSCALE_2_WT_CONTROL=self.Q_SUBSCALE_2_WT_CONTROL,
-            Q_SUBSCALE_3_MOOD=self.Q_SUBSCALE_3_MOOD,
-            Q_SUBSCALE_4_LACK_EX_ENJOY=self.Q_SUBSCALE_4_LACK_EX_ENJOY,
-            Q_SUBSCALE_5_EX_RIGIDITY=self.Q_SUBSCALE_5_EX_RIGIDITY,
-            REVERSE_SCORED_QUESTIONS=self.Q_REVERSE_SCORED,
+            COMMENT_SS_1=self.subscale_comment(1),
+            COMMENT_SS_2=self.subscale_comment(2),
+            COMMENT_SS_3=self.subscale_comment(3),
+            COMMENT_SS_4=self.subscale_comment(4),
+            COMMENT_SS_5=self.subscale_comment(5),
             CET_COPYRIGHT=CET_COPYRIGHT,
         )
         return h
