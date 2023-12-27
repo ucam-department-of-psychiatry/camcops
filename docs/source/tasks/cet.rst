@@ -156,5 +156,5 @@ Intellectual property rights
   - https://creativecommons.org/faq//#when-i-release-my-work-under-a-cc-license-in-one-format-e.g.-.pdf-can-i-restrict-licensees-from-changing-it-to-or-using-it-in-other-formats
 
 - E-mailed Lorin Taranis (at University Hospitals Dorset NHS Foundation Trust)
-  on 13 Dec 2023 and 20 Dec 2023. She confirmed permissions (to RNC et al.) on
-  20 Dec 2023.
+  on 13 Dec 2023/20 Dec 2023. She kindly confirmed permissions (to Rudolf
+  Cardinal et al.) on 20 Dec 2023.

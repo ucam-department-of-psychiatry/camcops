@@ -132,7 +132,7 @@ OpenableWidget* Cet::editor(const bool read_only)
 {
     NameValueOptions options;
     for (int a = MIN_ANSWER; a <= MAX_ANSWER; ++a) {
-        options.append(NameValuePair(strnum(APREFIX, a), a));
+        options.append(NameValuePair(xstring(strnum(APREFIX, a)), a));
     }
     QVector<QuestionWithOneField> qfp;
     QVector<McqGridSubtitle> subtitles;
