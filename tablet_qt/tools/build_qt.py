@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# noinspection HttpUrlsUsage
 r"""
 tablet_qt/tools/build_qt.py
 
@@ -122,7 +121,7 @@ Several compilers are possible, in principle.
   - Can also run under Linux and cross-compile to Windows.
 
     - More specifically: mingw-w64, which is GCC for 32- and 64-bit Windows
-      - http://mingw-w64.org/
+      - https://www.mingw-w64.org/
       - ... i686-w64-mingw32 for 32-bit executables
       - ... x86_64-w64-mingw32 for 64-bit executables
 
@@ -424,7 +423,7 @@ except ImportError:
     raise
 
 try:
-    import distro  # http://distro.readthedocs.io/en/latest/
+    import distro  # https://distro.readthedocs.io/en/latest/
 except ImportError:
     distro = None
     if platform.system() in ("Linux",):
@@ -1887,7 +1886,7 @@ class Config(object):
         by VCVARSALL.BAT.
         """
         if target_platform.android:
-            return self._android_sysroot(target_platform)
+            return self.android_sysroot(target_platform)
 
         if target_platform.ios:
             return self._xcode_sdk_path(
@@ -1943,7 +1942,7 @@ class Config(object):
         """
         Implementation of :meth:`set_compile_env` for Android targets.
         """
-        android_sysroot = self._android_sysroot(target_platform)
+        android_sysroot = self.android_sysroot(target_platform)
         android_toolchain = self.android_toolchain_bin_dir(target_platform)
 
         env["ANDROID_API"] = self.android_api
@@ -1959,10 +1958,7 @@ class Config(object):
             fullpath=not use_cross_compile_var, cfg=self
         )
         env["ARCH"] = target_platform.android_arch_short
-        env["CC"] = self.android_cc(
-            target_platform,
-            fullpath=not use_cross_compile_var,
-        )
+        env["CC"] = self.android_cc(target_platform)
         if use_cross_compile_var:
             env[
                 "CROSS_COMPILE"
@@ -2017,7 +2013,7 @@ class Config(object):
         else:
             raise NotImplementedError("Unknown CPU family for Android")
 
-    def _android_sysroot(self, target_platform: Platform) -> str:
+    def android_sysroot(self, target_platform: Platform) -> str:
         """
         Get the Android sysroot (e.g. where system #include files live) for a
         specific target platform.
@@ -2114,7 +2110,7 @@ class Config(object):
             raise ValueError(
                 "Don't know how to convert library: " + lib_a_fullpath
             )
-        libname = basename[len(libprefix) :]
+        libname = basename[len(libprefix) :]  # noqa: E203
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
         compiler = self.android_cc(target_platform)
@@ -2130,7 +2126,7 @@ class Config(object):
                 "-Wl,--no-whole-archive",
                 # "-L{}".format(directory),
                 # "-l{}".format(libname),
-                f"--sysroot={self._android_sysroot(target_platform)}",
+                f"--sysroot={self.android_sysroot(target_platform)}",
             ]
         )
         target_platform.verify_lib(newlibfilename)
@@ -2327,9 +2323,8 @@ class Config(object):
         ]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
         sdk_name = latest_sdk[: -len(suffix)]  # remove the trailing ".sdk"
-        sdk_version = sdk_name[
-            len(xcode_platform) :
-        ]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
+        sdk_version = sdk_name[len(xcode_platform) :]  # noqa: E203
+        # ... remove the leading prefix, e.g. "iPhoneOS"
         # log.debug("iOS SDK version: {!r}", sdk_version)
         return sdk_version
 
@@ -3025,7 +3020,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         for t in main_targets:
             dirname, basename = os.path.split(t)
             assert basename.startswith(libprefix)
-            shortbasename = basename[len(libprefix) :]
+            shortbasename = basename[len(libprefix) :]  # noqa: E203
             shadow_targets.append(join(dirname, shortbasename))
 
     targets = main_targets + shadow_targets
@@ -4226,7 +4221,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     ]
 
     if target_platform.android:
-        sysroot = cfg._android_sysroot(target_platform)
+        sysroot = cfg.android_sysroot(target_platform)
         sysinclude = join(sysroot, "usr", "include")
         cc = cfg.android_cc(target_platform)
         cxx = cfg.android_cxx(target_platform)
@@ -4320,13 +4315,12 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
     bash_workdir = bash_workdir.replace("\\", "/")
     bash = join(msys_root, "usr", "bin", "bash")
     command = " ".join(command_args)
-    bash_command_args = [
+    bash_cmd_args = [
         bash,
         "-lc",
         f"cd {bash_workdir} && {command}",
     ]
-
-    return bash_command_args
+    return bash_cmd_args
 
 
 # =============================================================================

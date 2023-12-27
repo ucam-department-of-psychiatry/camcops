@@ -72,8 +72,7 @@ CET: © Lorin Taranis, 2010. See Taranis, L. (2010). Compulsive exercise and
 eating disorder related pathology. PhD thesis, Loughborough University.
 {a_href(TARANIS_PHD_URL)}; EThOS ID: uk.bl.ethos.544467. Licensed under a
 Creative Commons CC BY-NC-ND 2.5 licence. Additional publications include
-Taranis et al. (2011), PMID {pmid(21584918)}; Meyer et al. (2016), PMID
-{pmid(27547403)}.
+Taranis et al. (2011), {pmid(21584918)}; Meyer et al. (2016), {pmid(27547403)}.
 """
 
 
@@ -380,11 +379,11 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
                 {q_a}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] {COMMENT_SS_1}
-                [2] {COMMENT_SS_2}
-                [3] {COMMENT_SS_3}
-                [4] {COMMENT_SS_4}
-                [5] {COMMENT_SS_5}
+                [1] {COMMENT_SS_1}.
+                [2] {COMMENT_SS_2}.
+                [3] {COMMENT_SS_3}.
+                [4] {COMMENT_SS_4}.
+                [5] {COMMENT_SS_5}.
                 [6] Sum of all subscale scores.
             </div>
             <div class="{CssClass.COPYRIGHT}">
