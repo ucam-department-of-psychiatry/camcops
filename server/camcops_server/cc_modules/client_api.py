@@ -1687,8 +1687,25 @@ def insert_record(
     rp = req.dbsession.execute(
         table.insert().values(valuedict)
     )  # type: CursorResult
-    inserted_pks = rp.inserted_primary_key
-    return inserted_pks[0]
+    # In SQLAlchemy 1.3, execute() returned a ResultProxy, and after an
+    # insert() call, ResultProxy.inserted_primary_key was a list of scalars,
+    # corresponding to the list of primary key columns in the target table,
+    # representing the primary key of the row just inserted (a list because a
+    # primary key can be a composite of many columns) [1]. We then asserted it
+    # was a list of length 1, and returned the first element. In SQLAlchemy
+    # 1.4+, we get a CursorResult back instead, and its inserted_primary_key is
+    # a named tuple of primary key values, for that single inserted row [2] (or
+    # None if there was not a valid single-row insert, or raises an exception
+    # after a multi-row insert) [3]. The previous length check was likely an
+    # inaccurate attempt to check that 1 row had been inserted (rather than
+    # that there was 1 primary key column). If the insert fails, however, the
+    # database call will raise an exception; and even if it didn't, the attempt
+    # to access rp.inserted_primary_key[0] as None[0] would raise a TypeError.
+    # So the additional assertion was a waste of time.
+    # [1] https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.ResultProxy.inserted_primary_key  # noqa: E501
+    # [2] https://docs.sqlalchemy.org/en/14/core/connections.html#sqlalchemy.engine.BaseCursorResult.inserted_primary_key  # noqa: E501
+    # [3] see sqlalchemy/engine/cursor.py
+    return rp.inserted_primary_key[0]
 
 
 def audit_upload(
@@ -3377,7 +3394,7 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
 def client_api(req: "CamcopsRequest") -> Response:
     """
     View for client API. All tablet interaction comes through here.
-    Wraps :func:`main_client_api`.
+    Wraps :func:`main_client_api`. Handles exceptions.
 
     Internally, replies are managed as dictionaries.
     For the final reply, the dictionary is converted to text in this format:
