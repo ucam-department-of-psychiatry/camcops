@@ -659,6 +659,8 @@ tablet_qt
     tasks/cesd.h.rst
     tasks/cesdr.cpp.rst
     tasks/cesdr.h.rst
+    tasks/cet.cpp.rst
+    tasks/cet.h.rst
     tasks/cgi.cpp.rst
     tasks/cgi.h.rst
     tasks/cgii.cpp.rst
