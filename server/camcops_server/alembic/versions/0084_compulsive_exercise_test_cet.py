@@ -484,18 +484,15 @@ def upgrade():
             ["when_last_modified"],
             unique=False,
         )
+        batch_op.create_foreign_key(
+            batch_op.f("fk_cet__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table("cet", schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f("ix_cet_when_last_modified"))
-        batch_op.drop_index(batch_op.f("ix_cet_patient_id"))
-        batch_op.drop_index(batch_op.f("ix_cet_id"))
-        batch_op.drop_index(batch_op.f("ix_cet__pk"))
-        batch_op.drop_index(batch_op.f("ix_cet__group_id"))
-        batch_op.drop_index(batch_op.f("ix_cet__era"))
-        batch_op.drop_index(batch_op.f("ix_cet__device_id"))
-        batch_op.drop_index(batch_op.f("ix_cet__current"))
-
     op.drop_table("cet")
