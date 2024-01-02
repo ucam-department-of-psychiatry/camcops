@@ -85,7 +85,7 @@ When is it NECESSARY to compile OpenSSL from source?
 
 - OpenSSL for Android
 
-  - https://doc.qt.io/qt-5/opensslsupport.html
+  - https://doc.qt.io/qt-6.5/android-openssl-support.html
   - ... so: necessary.
 
 When is it NECESSARY to compile Qt from source?
@@ -94,7 +94,7 @@ When is it NECESSARY to compile Qt from source?
 
 - SQLite support (critical)
 
-  - https://doc.qt.io/qt-5/sql-driver.html
+  - https://doc.qt.io/qt-6.5/sql-driver.html
   - ... so: necessary.
 
 
@@ -157,8 +157,8 @@ DECISION:
 Notes
 =====
 
-- configure: https://doc.qt.io/qt-5/configure-options.html
-- sqlite: https://doc.qt.io/qt-5/sql-driver.html
+- configure: https://doc.qt.io/qt-6.5/configure-options.html
+- sqlite: https://doc.qt.io/qt-6.5/sql-driver.html
 - build for Android: https://wiki.qt.io/Qt5ForAndroidBuilding
 - multi-core builds:
   https://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator

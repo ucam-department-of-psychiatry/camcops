@@ -691,7 +691,7 @@ void CamcopsApp::setLanguage(const QString& language_code,
     clearExtraStringCache();
 
     // There are polymorphic versions of QTranslator::load(). See
-    // https://doc.qt.io/qt-5/qtranslator.html#load
+    // https://doc.qt.io/qt-6.5/qtranslator.html#load
 
     // 3. Qt translator
     if (m_qt_translator) {

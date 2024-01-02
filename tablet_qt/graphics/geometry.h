@@ -64,7 +64,7 @@ The Qt coordinate system
 
 - Qt also uses a "positive ANTICLOCKWISE" system for its graphs, though that's
   more obvious as it's mimicking standard graph geometry here.
-  https://doc.qt.io/qt-5/qtcharts-polarchart-example.html
+  https://doc.qt.io/qt-6.5/qtcharts-polarchart-example.html
 
 Which representation to use internally for polar coordinates?
 ===============================================================================

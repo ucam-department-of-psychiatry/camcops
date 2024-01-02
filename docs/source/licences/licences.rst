@@ -57,7 +57,7 @@ Qt is used here under the LGPL. See:
   - note that some parts of Qt are only available under the GPL for open-source
     users: https://www.qt.io/licensing-comparison/
 
-- https://doc.qt.io/qt-5/licenses-used-in-qt.html
+- https://doc.qt.io/qt-6.5/licenses-used-in-qt.html
 
 - https://www.gnu.org/licenses/lgpl-3.0.en.html
 

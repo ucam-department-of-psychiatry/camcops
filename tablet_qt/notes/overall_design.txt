@@ -193,7 +193,7 @@ SERVER ORM AND WEB FRAMEWORK
       ... Qt: ODBC support, MySQL, etc.
     - forms and other HTTP stuff
     - graphs
-      ... Qt: https://doc.qt.io/qt-5/qtcharts-barchart-example.html
+      ... Qt: https://doc.qt.io/qt-6.5/qtcharts-barchart-example.html
     - PDF generation
       ... Qt: https://stackoverflow.com/questions/10697228/converting-html-to-pdf-with-qt
     - automatic migrations
@@ -473,4 +473,3 @@ INITIAL NOTES ON GROUP CONCEPT, 2017
         - ... which just means that users need to be aware that IF data has
           been *copied* to the server, it should probably be *moved* to the
           server prior to changing groups.
-

@@ -44,7 +44,7 @@ UrlHandler::UrlHandler()
 
     // We use 'camcops' scheme instead of 'http' (with 'camcops.org' domain)
     // on Android:
-    // https://doc.qt.io/qt-5/qdesktopservices.html#setUrlHandler says
+    // https://doc.qt.io/qt-6.5/qdesktopservices.html#setUrlHandler says
     // "It is not possible to claim support for some well known URL schemes,
     // including http and https."
     // Unfortunately some mail clients such as GMail don't display URLs with

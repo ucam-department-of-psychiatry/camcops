@@ -112,8 +112,8 @@ Overview of the Qt translation system
 - Begin by editing the Qt project file to add a ``TRANSLATIONS`` entry.
 
   Qt suggests looking up languages via ``QLocale::system::name()`` (see
-  https://doc.qt.io/qt-5/internationalization.html). This
-  (https://doc.qt.io/qt-5/qlocale.html#name) returns a string of the form
+  https://doc.qt.io/qt-6.5/internationalization.html). This
+  (https://doc.qt.io/qt-6.5/qlocale.html#name) returns a string of the form
   ``language_country`` where ``language`` is a lower-case two-letter ISO-639
   language code (i.e. ISO-639-1), and ``country`` is an uppercase, "two- or
   three-letter" ISO 3166 country code. Thus, for example: ``en_GB`` (English,

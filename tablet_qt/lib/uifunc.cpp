@@ -647,7 +647,7 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     // | contents                                    |
     // +---------------------------------------------+
 
-    // https://doc.qt.io/qt-5/qwidget.html#windowTitle-prop
+    // https://doc.qt.io/qt-6.5/qwidget.html#windowTitle-prop
     const QString window_title = dialog->windowTitle();
     const QString app_name = QApplication::applicationDisplayName();
     QString full_title = window_title;

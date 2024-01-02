@@ -495,7 +495,7 @@ void Thermometer::paintEvent(QPaintEvent* event)
 
     // Apply translations so we can draw using internal coordinates.
     // The translations work in an "internal to external" direction; see
-    // https://doc.qt.io/qt-5/qtwidgets-painting-transformations-example.html.
+    // https://doc.qt.io/qt-6.5/qtwidgets-painting-transformations-example.html.
     // First, we scale:
     QSize displaysize = acr.size();  // starting size
     qreal scale = static_cast<qreal>(displaysize.height()) /

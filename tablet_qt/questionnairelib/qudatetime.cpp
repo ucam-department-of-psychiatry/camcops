@@ -192,7 +192,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     m_editor->setCalendarPopup(use_calendar);
     // ... need to call setCalendarPopup(true) BEFORE setCalendarWidget(); see
     // - https://bugreports.qt.io/browse/QTBUG-12300
-    // - https://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
+    // - https://doc.qt.io/qt-6.5/qdatetimeedit.html#setCalendarWidget
 
     /*
     TO THINK ABOUT: QuDateTime time picker

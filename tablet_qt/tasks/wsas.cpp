@@ -215,7 +215,7 @@ void Wsas::rebuildPage(QuPage* page)
         for (const auto& field : qAsConst(q1_fields)) {
             // re qAsConst():
             // https://stackoverflow.com/questions/35811053/using-c11-range-based-for-loop-correctly-in-qt
-            // https://doc.qt.io/qt-5/qtglobal.html#qAsConst
+            // https://doc.qt.io/qt-6.5/qtglobal.html#qAsConst
             elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
             elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
         }
