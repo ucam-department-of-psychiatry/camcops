@@ -533,8 +533,8 @@ equals(CAMCOPS_OPENSSL_LINKAGE, "static") {
 }
 # Regardless of how *CamCOPS* talks to OpenSSL, under Android *Qt* talks to
 # it dynamically:
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto_3$${DYNAMIC_LIB_EXT}"  # needed for Qt
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl_3$${DYNAMIC_LIB_EXT}"
 # ... must start "lib" and end ".so", otherwise Qt complains.
 
 

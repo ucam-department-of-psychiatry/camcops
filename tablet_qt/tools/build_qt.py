@@ -403,7 +403,7 @@ import multiprocessing
 import os
 from os import chdir, listdir
 from os.path import expanduser, isdir, isfile, join, split
-from pathlib import Path
+from pathlib import Path, PurePath
 import platform
 import re
 import shutil
@@ -2926,6 +2926,16 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             shortbasename = basename[len(libprefix) :]
             shadow_targets.append(join(dirname, shortbasename))
 
+    if target_platform.android:
+        # https://bugreports.qt.io/browse/QTBUG-110915
+        # need to rename targets to be e.g. libssl_3.so
+        for t in main_targets:
+            path = PurePath(t)
+            shadow_target = PurePath(
+                path.parent / f"{path.stem}_3"
+            ).with_suffix(path.suffix)
+            shadow_targets.append(shadow_target)
+
     targets = main_targets + shadow_targets
     if not cfg.force_openssl and all(isfile(x) for x in targets):
         report_all_targets_exist("OpenSSL", targets)
@@ -3146,7 +3156,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     for i, t in enumerate(main_targets):
         target_platform.verify_lib(t)
-        if BUILD_PLATFORM.windows:
+        if BUILD_PLATFORM.windows or target_platform.android:
             assert len(shadow_targets) == len(main_targets)
             shutil.copyfile(t, shadow_targets[i])
 
