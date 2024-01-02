@@ -540,6 +540,7 @@ QT_GIT_SUBMODULES = [
     "qtscxml",  # QStateMachine
     "qtshadertools",  # Required by qtmultimedia
     "qtsvg",  # SVG support
+    "qttools",  # Required by qttranslations
     "qttranslations",  # Qt Linguist tools (lupdate, lconvert)
 ]
 
