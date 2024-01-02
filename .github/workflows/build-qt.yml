@@ -118,7 +118,7 @@ jobs:
                   clang \
                   libatspi2.0-dev \
                   libbluetooth-dev \
-                  libclang-dev \
+                  libclang13-dev \
                   libcups2-dev \
                   libfreetype6-dev \
                   libhunspell-dev \
