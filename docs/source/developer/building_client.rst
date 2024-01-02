@@ -855,7 +855,7 @@ Android APK`:
         * - Option
           - Setting
         * - :menuselection:`Application --> Android build platform SDK`
-            android-33 [= default].
+          - android-33 [= default].
         * - :menuselection:`Sign package --> Keystore`
           - ``~/Documents/CamCOPS/android_keystore/CAMCOPS_ANDROID_KEYSTORE.keystore``
             [NB not part of published code, obviously!]
