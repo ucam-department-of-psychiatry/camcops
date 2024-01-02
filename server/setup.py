@@ -120,7 +120,7 @@ INSTALL_REQUIRES = [
     "sqlalchemy==1.4.49",  # database access
     "statsmodels==0.13.5",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
-    "urllib3==1.26.17",  # dependency, pinned to avoid vulnerabilities
+    "urllib3==1.26.18",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
     # Not installed here
@@ -150,7 +150,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
-    "pypdf==3.9.0",  # Used by cardinal_pythonlib.pdf
+    "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.8.1",  # date/time extensions.
     "sqlparse==0.4.4",
     # extra
