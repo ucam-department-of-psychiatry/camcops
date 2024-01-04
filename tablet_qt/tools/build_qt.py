@@ -1683,7 +1683,6 @@ class Config(object):
 
         # FFmpeg, currently broken with static Qt, but we have a patch
         # https://bugreports.qt.io/browse/QTBUG-115052
-        # https://bugreports.qt.io/browse/QTBUG-111460
         self.ffmpeg_version = FFMPEG_VERSION
         self.ffmpeg_src_url = f"https://github.com/FFmpeg/FFmpeg/archive/refs/tags/{self.ffmpeg_version}.tar.gz"  # noqa: E501
 
