@@ -51,7 +51,7 @@ For the QColor objects below:
 
     based on the standard names:
 
-         http://doc.qt.io/qt-5/qcolor.html#setNamedColor
+         https://doc.qt.io/qt-6.5/qcolor.html#setNamedColor
          https://www.w3.org/TR/SVG/types.html#ColorKeywords
 
 (4) Ah, not even that; the QColor lookup table (in qcolor.cpp) may not be

@@ -292,7 +292,7 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     // setSizePolicy(UiFunc::expandingMaximumHFWPolicy());
 
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    // http://doc.qt.io/qt-5/qabstractscrollarea.html#SizeAdjustPolicy-enum
+    // https://doc.qt.io/qt-6.5/qabstractscrollarea.html#SizeAdjustPolicy-enum
 #else
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
@@ -718,7 +718,7 @@ void VerticalScrollArea::resetSizeLimits()
     // updateGeometry().
 
     // Except...
-    // http://doc.qt.io/qt-5/qwidget.html
+    // https://doc.qt.io/qt-6.5/qwidget.html
     // Warning: Calling setGeometry() inside resizeEvent() or moveEvent()
     // can lead to infinite recursion.
     // ... and we certainly had infinite recursion.

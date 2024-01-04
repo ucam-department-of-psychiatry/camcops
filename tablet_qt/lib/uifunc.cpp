@@ -223,7 +223,7 @@ QString iconButtonStylesheet(const QString& normal_filename,
                          "border-image: url('" + normal_filename + "');"
                          "}";
     if (!pressed_filename.isEmpty()) {
-        // http://doc.qt.io/qt-5/stylesheet-syntax.html
+        // https://doc.qt.io/qt-6.5/stylesheet-syntax.html
         stylesheet += "QToolButton:pressed {"
                       "border-image: url('" + pressed_filename + "');"
                       "}";

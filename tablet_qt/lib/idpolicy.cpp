@@ -52,7 +52,7 @@ const int TOKEN_EMAIL = -15;
 const QString TOKENIZE_RE_STR(
     // http://stackoverflow.com/questions/6162600/
     // http://stackoverflow.com/questions/20508534/c-multiline-string-raw-literal
-    // http://doc.qt.io/qt-5/qregularexpression.html#details
+    // https://doc.qt.io/qt-6.5/qregularexpression.html#details
 
     "\\s*"    // discard leading whitespace
     "("         // start capture group

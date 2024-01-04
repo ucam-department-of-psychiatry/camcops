@@ -116,7 +116,7 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
             connect(m_plain_editor.data(), &GrowingPlainTextEdit::textChanged,
                     this, &QuTextEdit::widgetTextChanged);
             // QPlainTextEdit::textChanged - Called *whenever* contents changed.
-            // http://doc.qt.io/qt-5/qplaintextedit.html#textChanged
+            // https://doc.qt.io/qt-6.5/qplaintextedit.html#textChanged
 
             m_focus_watcher = new FocusWatcher(m_plain_editor.data());
             connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,

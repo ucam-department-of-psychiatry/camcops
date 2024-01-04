@@ -153,8 +153,8 @@ int Badls::score(const int qnum) const
     return BADLS_SCORING[v.toString()];
     // If the key is not present, we will get a default-initialized int [1],
     // which will be 0 [2, 3].
-    // [1] http://doc.qt.io/qt-5/qmap.html#operator-5b-5d
-    // [2] http://doc.qt.io/qt-5/containers.html#default-constructed-value
+    // [1] https://doc.qt.io/qt-6.5/qmap.html#operator-5b-5d
+    // [2] https://doc.qt.io/qt-6.5/containers.html#default-constructed-value
     // [3] http://stackoverflow.com/questions/2667355/mapint-int-default-values
 }
 

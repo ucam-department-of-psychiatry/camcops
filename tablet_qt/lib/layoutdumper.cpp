@@ -283,7 +283,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
 
 QString getWidgetAttributeInfo(const QWidget* w, const bool all)
 {
-    // http://doc.qt.io/qt-5/qt.html#WidgetAttribute-enum
+    // https://doc.qt.io/qt-6.5/qt.html#WidgetAttribute-enum
     if (!w) {
         return NULL_WIDGET_STRING;
     }

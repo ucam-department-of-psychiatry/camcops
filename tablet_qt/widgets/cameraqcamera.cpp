@@ -19,7 +19,7 @@
 */
 
 // MODIFIED FROM:
-// http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-camera-cpp.html
+// https://doc.qt.io/qt-6.5/qtmultimedia-multimediawidgets-camera-camera-cpp.html
 
 /*
 **
@@ -95,7 +95,7 @@
 /*
 
 For examples see
-- http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-example.html
+- https://doc.qt.io/qt-6.5/qtmultimedia-multimediawidgets-camera-example.html
 - qt5/qtmultimedia/examples/multimediawidgets/camera/camera.cpp
 - qt5/qtmultimedia/examples/multimedia/declarative-camera/...
 
@@ -110,7 +110,7 @@ Yet presumably all the QML stuff uses the same underlying CPP code?
 
 Or maybe not?
 - https://forum.qt.io/topic/59394/declarative-camera-vs-widget-based-camera-qml-to-c-breakout
-- http://doc.qt.io/qt-5/qtqml-cppintegration-interactqmlfromcpp.html
+- https://doc.qt.io/qt-6.5/qtqml-cppintegration-interactqmlfromcpp.html
 - http://lists.qt-project.org/pipermail/android-development/2015-September/000734.html
 - https://stackoverflow.com/questions/40153156/qt-qcamera-not-working-on-android
 - https://bugreports.qt.io/browse/QTBUG-38233
@@ -358,7 +358,7 @@ void CameraQCamera::readyForCapture(const bool ready)
     m_ready = ready;
     updateButtons();
     // If you try to capture when it's not ready, it causes an error;
-    // http://doc.qt.io/qt-5/qcameraimagecapture.html
+    // https://doc.qt.io/qt-6.5/qcameraimagecapture.html
 
     // Because the viewfinder tends to start out too small, this is a good
     // time:

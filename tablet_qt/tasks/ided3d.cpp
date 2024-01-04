@@ -736,7 +736,7 @@ bool IDED3D::validateSettings()
             this, &IDED3D::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
-// See http://doc.qt.io/qt-5/qobject.html#connect-5
+// See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
     connect((b).button, &QPushButton::clicked, \

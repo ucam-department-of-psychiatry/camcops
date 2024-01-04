@@ -471,7 +471,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
             + now.toString(QStringLiteral("dddd d MMMM yyyy")) +
             "; " + season;
     // ... e.g. "Monday 2 January 2016; winter";
-    // http://doc.qt.io/qt-5/qdate.html#toString
+    // https://doc.qt.io/qt-6.5/qdate.html#toString
 
     const NameValueOptions options_registration{
         {"1", 1},
@@ -1434,7 +1434,7 @@ void Ace3::updateTaskVersionEditability()
 void Ace3::updateAddressRecognition()
 {
     // Parameter "const FieldRef* fieldref" not needed;
-    // http://doc.qt.io/qt-5/signalsandslots.html
+    // https://doc.qt.io/qt-6.5/signalsandslots.html
     // "... a slot may have a shorter signature than the signal it receives"
 
     if (!m_questionnaire) {

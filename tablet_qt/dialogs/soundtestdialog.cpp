@@ -41,7 +41,7 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
     }
     connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
             this, &SoundTestDialog::mediaStatusChanged);
-    // http://doc.qt.io/qt-5/qsharedpointer.html
+    // https://doc.qt.io/qt-6.5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
     statusMessage("Trying to play: " + url.toString());

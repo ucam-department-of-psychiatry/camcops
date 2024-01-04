@@ -62,7 +62,7 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
         // not yet made, or deleted by Qt
         m_widget = makeWidget(questionnaire);
         // Note: there is no QWidget::setAlignment(); see
-        // http://doc.qt.io/qt-5/qwidget.html
+        // https://doc.qt.io/qt-6.5/qwidget.html
         if (!m_visible) {
             // Widgets always default to visible. No point calling setVisible()
             // if we want them to be visible; it causes delays and screen

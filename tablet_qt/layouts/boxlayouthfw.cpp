@@ -1508,7 +1508,7 @@ QRect BoxLayoutHfw::getContentsRect(const QRect& layout_rect) const
     const QRect cr = alignment() ? alignmentRect(r) : r;
     // RNC: ... if there is no alignment, cr is the same as r (meaning that we
     // fill our entire space), but if there is an alignment,  we alter our
-    // rectangle; see http://doc.qt.io/qt-5/qlayout.html#alignmentRect
+    // rectangle; see https://doc.qt.io/qt-6.5/qlayout.html#alignmentRect
 
     // Margins effmarg = getEffectiveMargins();
     // QRect s(cr.x() + effmarg.left(), cr.y() + effmarg.top(),

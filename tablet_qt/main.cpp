@@ -67,7 +67,7 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
     NOTE: argc must be passed to the QApplication as a REFERENCE to int, or the
     app will crash. See
     - https://bugreports.qt.io/browse/QTBUG-5637
-    - http://doc.qt.io/qt-5/qapplication.html
+    - https://doc.qt.io/qt-6.5/qapplication.html
     */
 
 #ifdef DEBUG_TEST_BASIC_QT_ONLY

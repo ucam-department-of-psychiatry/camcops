@@ -44,7 +44,7 @@ void setBackgroundColour(QWidget* widget, const QColor& colour)
     // https://wiki.qt.io/How_to_Change_the_Background_Color_of_QWidget
 
     // Palette method not working. (Conflict with stylesheet?)
-    // http://doc.qt.io/qt-5/qwidget.html#autoFillBackground-prop
+    // https://doc.qt.io/qt-6.5/qwidget.html#autoFillBackground-prop
     //
     // QPalette palette(widget->palette());
     // palette.setColor(QPalette::Background, Qt::red);
@@ -56,7 +56,7 @@ void setBackgroundColour(QWidget* widget, const QColor& colour)
 
     // See also:
     // https://stackoverflow.com/questions/25466030/make-qwidget-transparent
-    // http://doc.qt.io/qt-5/qwidget.html#transparency-and-double-buffering
+    // https://doc.qt.io/qt-6.5/qwidget.html#transparency-and-double-buffering
 
 }
 

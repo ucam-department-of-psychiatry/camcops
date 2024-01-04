@@ -194,7 +194,7 @@ Constructing element lists and pages
        in definition of macro 'Q_DISABLE_COPY'
  - ... so do that by hand?
  - Still have similar problems relating to Q_DISABLE_COPY
-    http://doc.qt.io/qt-5/qobject.html#Q_DISABLE_COPY
+    https://doc.qt.io/qt-6.5/qobject.html#Q_DISABLE_COPY
     http://stackoverflow.com/questions/2855495/qobject-cloning
  - So can we make elements *not* inherit from QObject? We're only deriving
    so we can receive signals.

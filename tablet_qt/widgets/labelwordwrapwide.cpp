@@ -83,7 +83,7 @@
 // See also:
 // - http://stackoverflow.com/questions/13995657/why-does-qlabel-prematurely-wrap
 // - http://stackoverflow.com/questions/13994902/how-do-i-get-a-qlabel-to-expand-to-full-width#13994902
-// - http://doc.qt.io/qt-5/layout.html#layout-issues
+// - https://doc.qt.io/qt-6.5/layout.html#layout-issues
 // - http://stackoverflow.com/questions/31535143/how-to-prevent-qlabel-from-unnecessary-word-wrapping
 // - http://www.qtcentre.org/threads/62059-QLabel-Word-Wrapping-adds-unnecessary-line-breaks
 // - http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize

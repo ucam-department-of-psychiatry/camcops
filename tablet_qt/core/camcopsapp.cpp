@@ -1974,7 +1974,7 @@ void CamcopsApp::closeSubWindow()
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
     //      but simply removed from the stacked layout, causing it to be hidden.
     //      Note: Ownership of widget reverts to the application.
-    // - From http://doc.qt.io/qt-5/qstackedwidget.html#removeWidget :
+    // - From https://doc.qt.io/qt-6.5/qstackedwidget.html#removeWidget :
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
     //      but simply removed from the stacked layout, causing it to be hidden.
     //      Note: Parent object and parent widget of widget will remain the
@@ -2399,7 +2399,7 @@ void CamcopsApp::regenerateDeviceId()
 {
     setVar(varconst::DEVICE_ID, QUuid::createUuid());
     // This is the RANDOM variant of a UUID, not a "hashed something" variant.
-    // - http://doc.qt.io/qt-5/quuid.html#createUuid
+    // - https://doc.qt.io/qt-6.5/quuid.html#createUuid
     // - https://en.wikipedia.org/wiki/Universally_unique_identifier#Variants_and_versions
 }
 

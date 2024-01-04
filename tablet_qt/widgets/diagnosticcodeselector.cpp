@@ -180,7 +180,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
     // - To set the expand/collapse ("disclosure"? "indicator"?) icons:
     //   - https://stackoverflow.com/questions/2638974/qtreewidget-expand-sign
-    //   - http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtreeview
+    //   - https://doc.qt.io/qt-6.5/stylesheet-examples.html#customizing-qtreeview
     //   - Probably not: QTreeView::drawBranches in qtreeview.cpp : uses styles
     //     ... search for "has-children" gives gui/text/qcssparser.cpp
     //     ... to PseudoClass_Children
@@ -241,7 +241,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
     // Proxy models: (1) flatten (2) filter
     // ========================================================================
-    // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#details
+    // https://doc.qt.io/qt-6.5/qsortfilterproxymodel.html#details
 
     m_flat_proxy_model = QSharedPointer<FlatProxyModel>(
                 new FlatProxyModel());
@@ -352,7 +352,7 @@ void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
     // the same object. Note that index.row() is NOT unique, it's just the row
     // number for a given parent.
     // To get a different column, we go via the parent back to the child:
-    // http://doc.qt.io/qt-5/qmodelindex.html#details
+    // https://doc.qt.io/qt-6.5/qmodelindex.html#details
     // We used to be able to do parent.child(), but that has been obsoleted
     // in favour of model.index(row, column, parent), i.e.
     // QAbstractItemModel::index().

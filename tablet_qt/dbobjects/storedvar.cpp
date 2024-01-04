@@ -51,7 +51,7 @@ const QMap<const int, QString> COLMAP{
 const QMap<const int, QString> TYPEMAP{
     // What value should we put in the 'type' database column to indicate
     // the QVariant type in use?
-    // http://doc.qt.io/qt-5/qvariant-obsolete.html#Type-enum
+    // https://doc.qt.io/qt-6.5/qvariant-obsolete.html#Type-enum
     {QMetaType::Bool, "Bool"},
     {QMetaType::QDateTime, "DateTime"},
     {QMetaType::Double, "Double"},

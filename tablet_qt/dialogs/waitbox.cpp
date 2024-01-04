@@ -33,7 +33,7 @@
   - Doing something and showing a wait indicator:
 
     - All Qt UI elements must be created in the GUI thread.
-        http://doc.qt.io/qt-5/thread-basics.html#gui-thread-and-worker-thread
+        https://doc.qt.io/qt-6.5/thread-basics.html#gui-thread-and-worker-thread
 
     - So the wait box must be run from the main thread.
 

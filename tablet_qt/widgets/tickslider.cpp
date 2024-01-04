@@ -39,7 +39,7 @@ const int DEFAULT_TICK_LABEL_GAP = 4;
 const int DEFAULT_INTERLABEL_GAP = 4;
 const int DEFAULT_GAP_TO_SLIDER = 6;
 
-const int FM_TEXTFLAGS = 0;  // http://doc.qt.io/qt-5/qfontmetrics.html#size
+const int FM_TEXTFLAGS = 0;  // https://doc.qt.io/qt-6.5/qfontmetrics.html#size
 
 
 // ============================================================================
@@ -834,9 +834,9 @@ bool TickSlider::event(QEvent* event)
 
 void TickSlider::initStyleOption(QStyleOptionSlider* option) const
 {
-    // http://doc.qt.io/qt-5/qstyleoptionslider.html
+    // https://doc.qt.io/qt-6.5/qstyleoptionslider.html
 
-    // Fetch options; http://doc.qt.io/qt-5/qslider.html#initStyleOption.
+    // Fetch options; https://doc.qt.io/qt-6.5/qslider.html#initStyleOption.
 
     if (!option) {
         return;

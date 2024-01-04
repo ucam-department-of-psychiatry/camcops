@@ -91,7 +91,7 @@ Files that make up a complete set of classes:
 
 Relevant web discussions include:
 
-    Qt docs: http://doc.qt.io/qt-5/layout.html#layout-issues
+    Qt docs: https://doc.qt.io/qt-6.5/layout.html#layout-issues
     2009-01-16: http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
     2011-11-21: http://stackoverflow.com/questions/8211982/qt-resizing-a-qlabel-containing-a-qpixmap-while-keeping-its-aspect-ratio
     2012-12-31: http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize

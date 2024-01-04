@@ -376,7 +376,7 @@ WhiskerInboundMessage WhiskerWorker::getPendingImmediateReply()
 #endif
         m_immediate_reply_arrived.wait(&m_mutex_imm);  // woken by: pushImmediateReply()
         // ... this mutex is UNLOCKED as we go to sleep, and LOCKED
-        //     as we wake: http://doc.qt.io/qt-5/qwaitcondition.html#wait
+        //     as we wake: https://doc.qt.io/qt-6.5/qwaitcondition.html#wait
         Q_ASSERT(!m_imm_replies_awaiting_collection.isEmpty());
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << Q_FUNC_INFO << "... reply ready";

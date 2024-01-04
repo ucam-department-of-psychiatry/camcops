@@ -28,7 +28,7 @@ GENERAL THREADING APPROACH FOR WHISKER CLIENT
 - QTcpSocket can run via an event-driven system using the readyRead() signal,
   or a blocking system using waitForReadyRead(). The docs warn that
   waitForReadyRead() can fail randomly under Windows, so that means we must
-  use readyRead() [http://doc.qt.io/qt-5/qabstractsocket.html#waitForReadyRead].
+  use readyRead() [https://doc.qt.io/qt-6.5/qabstractsocket.html#waitForReadyRead].
 
 - We must presume that the end user will run the task on the GUI thread (which
   is the worst-case scenario; if a separate thread is used, it can do what it
@@ -56,7 +56,7 @@ GENERAL THREADING APPROACH FOR WHISKER CLIENT
     give it (via QObject::moveToThread()) objects that do useful things via
     signals; or
   - override run().
-  See http://doc.qt.io/qt-5/qthread.html.
+  See https://doc.qt.io/qt-6.5/qthread.html.
 
 - So the simplest way will be to have a WhiskerWorker that's derived from
   QObject, and for WhiskerManager to put that into a new thread.
