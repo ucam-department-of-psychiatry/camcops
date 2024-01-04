@@ -22,27 +22,9 @@
 
 #define CAMERA_LOAD_FROM_DISK_PROMPTLY
 
-#define CAMERA_USE_QML
-// #define CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER  // required for viewfinder on Android
-
 /*
 
-SUMMARY OF DECISIONS about camera methods:
-
-1.  QCamera with QCameraViewFinder
-    - fine under Linux
-    - under Android, blank viewfinder, and warning:
-
-      warning: The video surface is not compatible with any format supported by the camera
-
-2.  QCamera with custom CameraFrameGrabber
-    - fine under Linux
-    - under Android, segfault with:
-      attachToContext: invalid current EGLDisplay
-
-3.  QML
-    - not only fine under Linux, but significantly better (features +/- speed)
-    - declarative-camera demo works under Android
+SUMMARY OF DECISIONS about camera methods: see CameraQCamera class.
 
 */
 

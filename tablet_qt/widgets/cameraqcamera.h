@@ -24,7 +24,24 @@
 
 /*
 
-SUMMARY OF DECISIONS about camera methods: see CameraQml class.
+SUMMARY OF DECISIONS about camera methods, updated 2023-01-04 for Qt6.5 :
+
+Qt is now built with FFmpeg for all platforms except iOS.
+
+1.  QCamera
+    - Works mostly well on all platforms (with Android patch applied by the
+    build script). On MacOS the preview is snowy but the actual photos taken
+    are fine. https://bugreports.qt.io/browse/QTBUG-119834
+
+2.  QML
+    - multiple issues with our modified version of the declarative camera
+    example:
+    https://bugreports.qt.io/browse/QTBUG-111460 (closed but still observed)
+    https://bugreports.qt.io/browse/QTBUG-116195
+    https://bugreports.qt.io/browse/QTBUG-116292
+
+    There is also a crash on MacOS when the Please wait... window
+    (slowguiguard) is closed: "Window modal dialog has no transient parent"
 
 */
 
