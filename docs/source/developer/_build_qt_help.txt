@@ -1,4 +1,4 @@
-usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR] [--clean]
+usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
                    [--no_build_qt] [--no_fetch] [--nparallel NPARALLEL]
                    [--force] [--force_ffmpeg] [--force_openssl] [--force_qt]
                    [--force_sqlcipher] [--tee TEE] [--verbose {0,1,2}]
@@ -32,9 +32,6 @@ General:
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
                         from environment variable CAMCOPS_QT6_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
-  --clean               Clean any existing Qt build and install directory.
-                        Normally only useful when diagnosing problems with the
-                        build. (default: False)
   --no_build_qt         Only run Qt configure, don't build Qt (default: True)
   --no_fetch            Skip fetching source code (default: True)
   --nparallel NPARALLEL

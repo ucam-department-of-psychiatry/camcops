@@ -4459,15 +4459,6 @@ def main() -> None:
         ),
     )
     general.add_argument(
-        "--clean",
-        dest="clean",
-        action="store_true",
-        help=(
-            "Clean any existing Qt build and install directory. "
-            "Normally only useful when diagnosing problems with the build."
-        ),
-    )
-    general.add_argument(
         "--no_build_qt",
         dest="build_qt",
         action="store_false",
