@@ -381,7 +381,7 @@ void QuPhoto::rotateWorker(const int angle_degrees_clockwise)
 
 void QuPhoto::rotateLeft()
 {
-    // http://doc.qt.io/qt-4.8/qtransform.html#rotate
+    // https://doc.qt.io/qt-6.5/qtransform.html#rotate
     rotate(-90);
 }
 

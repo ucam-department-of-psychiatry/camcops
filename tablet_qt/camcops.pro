@@ -17,8 +17,8 @@
 #   along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 
-# http://doc.qt.io/qt-5/qmake-project-files.html
-# http://doc.qt.io/qt-5/qmake-variable-reference.html
+# https://doc.qt.io/qt-6.5/qmake-project-files.html
+# https://doc.qt.io/qt-6.5/qmake-variable-reference.html
 
 message("+++ CamCOPS qmake starting.")
 
@@ -34,8 +34,8 @@ message("+++ CamCOPS qmake starting.")
 # Use $(...) to read an environment variable at the time of make.
 # Use $$... or $${...} to read a Qt project file variable.
 # See
-# - http://doc.qt.io/qt-4.8/qmake-advanced-usage.html#variables
-# - http://doc.qt.io/qt-5/qmake-test-function-reference.html
+# - https://doc.qt.io/qt-6.5/qmake-advanced-usage.html#variables
+# - https://doc.qt.io/qt-6.5/qmake-test-function-reference.html
 # Here, we copy an environment variable to a Qt project file variable:
 # QT_BASE_DIR = $(CAMCOPS_QT6_BASE_DIR)  # value at time of make
 
@@ -73,10 +73,10 @@ message("... QT_ARCH: $${QT_ARCH}")
 # ALSO TRY:
 #   qmake -query  # for the qmake of the Qt build you're using
 
-# http://doc.qt.io/qt-5/qtmultimedia-index.html
+# https://doc.qt.io/qt-6.5/qtmultimedia-index.html
 # http://wiki.qt.io/Qt_5.5.0_Multimedia_Backends
-# http://doc.qt.io/qt-4.8/qmake-variable-reference.html#qt
-# http://doc.qt.io/qt-5/qtmodules.html
+# https://doc.qt.io/qt-6.5/qmake-variable-reference.html#qt
+# https://doc.qt.io/qt-6.5/qtmodules.html
 
 QT += core  # included by default; QtCore module
 QT += gui  # included by default; QtGui module
@@ -131,7 +131,7 @@ MOBILITY =
 # ... http://stackoverflow.com/questions/14681012/how-to-include-openssl-in-a-qt-project
 # ... but no effect? Not mentioned in variable reference (above).
 # ... ah, here's the reference:
-#     http://doc.qt.io/qt-5/qmake-project-files.html
+#     https://doc.qt.io/qt-6.5/qmake-project-files.html
 # LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
 
@@ -313,7 +313,7 @@ android {
         CAMCOPS_ARCH_TAG = "android_armv8_64"
     }
 
-    # http://doc.qt.io/qt-5/deployment-android.html#android-specific-qmake-variables
+    # https://doc.qt.io/qt-6.5/deployment-android.html#android-specific-qmake-variables
     ANDROID_PACKAGE_SOURCE_DIR = "$${CAMCOPS_SOURCE_ROOT}/android"
     message("ANDROID_PACKAGE_SOURCE_DIR: $${ANDROID_PACKAGE_SOURCE_DIR}")
     # ... contains things like AndroidManifest.xml
@@ -416,7 +416,7 @@ isEmpty(CAMCOPS_ARCH_TAG) {
 # To have the linker show its working:
 # LIBS += "-Wl,--verbose"
 
-equals(CAMCOPS_QT_LINKAGE, "static") {  # http://doc.qt.io/qt-5/qmake-test-function-reference.html
+equals(CAMCOPS_QT_LINKAGE, "static") {  # https://doc.qt.io/qt-6.5/qmake-test-function-reference.html
     message("Using static linkage from CamCOPS to Qt")
     CONFIG += static
 } else:equals(CAMCOPS_QT_LINKAGE, "dynamic") {

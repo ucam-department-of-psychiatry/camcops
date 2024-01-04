@@ -149,7 +149,7 @@ void Blob::makeIndexes()
 
 void Blob::rotateCachedImage(int angle_degrees_clockwise) const
 {
-    // http://doc.qt.io/qt-4.8/qtransform.html#rotate
+    // https://doc.qt.io/qt-6.5/qtransform.html#rotate
     angle_degrees_clockwise %= 360;
     if (angle_degrees_clockwise == 0 || m_image.isNull()) {
         return;

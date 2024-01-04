@@ -98,7 +98,7 @@ FlowLayoutHfw::FlowLayoutHfw(const int margin,
 FlowLayoutHfw::~FlowLayoutHfw()
 {
     // RNC: crash here relating to double deletion.
-    // - From http://doc.qt.io/qt-4.8/layout.html :
+    // - From https://doc.qt.io/qt-6.5/layout.html :
     //   "Note: Widgets in a layout are children of the widget on which the
     //   layout is installed, not of the layout itself. Widgets can only have
     //   other widgets as parent, not layouts."

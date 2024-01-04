@@ -292,7 +292,7 @@ double TickSlider::getDrawingProportion(int value) const
 
 void TickSlider::paintEvent(QPaintEvent* ev)
 {
-    // Coordinate systems: see http://doc.qt.io/qt-5.7/coordsys.html
+    // Coordinate systems: see https://doc.qt.io/qt-6.5/coordsys.html
     // ... positive is right and DOWN.
 
     Q_UNUSED(ev)

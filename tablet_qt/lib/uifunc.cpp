@@ -438,7 +438,7 @@ QString textCSS(const int fontsize_pt,
         css += QString("font-size: %1pt;").arg(fontsize_pt);
     }
     // Only pt and px supported
-    // http://doc.qt.io/qt-5.7/stylesheet-reference.html
+    // https://doc.qt.io/qt-6.5/stylesheet-reference.html
     if (bold) {
         css += "font-weight: bold;";
     }

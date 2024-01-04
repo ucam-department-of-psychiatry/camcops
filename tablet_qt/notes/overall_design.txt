@@ -14,7 +14,7 @@ CLIENT ARCHITECTURE
   run even these over the web; e.g. Qt applications are starting [2017] to
   support being served over VNC [*]).
 
-    [*] http://doc.qt.io/qt-4.8/qt-embedded-vnc.html
+    [*] https://doc.qt.io/qt-6.5/qt-embedded-vnc.html
         https://raspberrypi.stackexchange.com/questions/23221/running-a-qt5-application-not-full-screen-use-vnc
         https://stackoverflow.com/questions/24517954/running-a-qt-app-over-the-web
         https://stackoverflow.com/questions/3240633/web-based-vnc-client

@@ -44,7 +44,7 @@ bool HeightForWidthListWidget::event(QEvent* e)
     case QEvent::LayoutRequest:  // See QWidget::updateGeometry() -- they will come here
         {
             // At this point, we have already been resized, so can use width();
-            // http://doc.qt.io/qt-4.8/qwidget.html#resizeEvent
+            // https://doc.qt.io/qt-6.5/qwidget.html#resizeEvent
             const int n_items = count();
             for (int row = 0; row < n_items; ++row) {
                 QListWidgetItem* lwi = item(row);

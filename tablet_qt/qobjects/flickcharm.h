@@ -1,4 +1,4 @@
-// http://doc.qt.io/qt-4.8/qt-demos-embedded-anomaly-src-flickcharm-h.html
+// https://doc.qt.io/qt-6.5/qt-demos-embedded-anomaly-src-flickcharm-h.html
 
 /* ============================================================================
 **

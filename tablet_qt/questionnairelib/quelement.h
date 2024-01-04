@@ -202,7 +202,7 @@ Constructing element lists and pages
         http://stackoverflow.com/questions/7502600/how-to-use-signal-and-slot-without-deriving-from-qobject
    or a lambda/more generic functor:
         http://stackoverflow.com/questions/26937517/qt-connect-without-qobject-or-slots
-        http://doc.qt.io/qt-5.7/qobject.html#connect-4
+        https://doc.qt.io/qt-6.5/qobject.html#connect-4
 
  - HOWEVER, ONCE YOU ADD SIGNALS TO NON-QOBJECT OBJECTS WITH std::bind,
    the process of copying BREAKS THE SIGNAL.

@@ -589,9 +589,7 @@ MIN_MACOS_VERSION = "11"  # https://doc.qt.io/qt-6.5/macos.html
 
 QT_CONFIG_COMMON_ARGS = [
     # use "configure -help" to list all of them
-    # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
-    # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
-    # http://doc.qt.io/qt-5.9/configure-options.html
+    # https://doc.qt.io/qt-6.5/configure-options.html
     # -------------------------------------------------------------------------
     # debug v. release
     # -------------------------------------------------------------------------
@@ -2340,7 +2338,7 @@ class Config(object):
             raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
 
         elif BUILD_PLATFORM.windows:
-            # http://doc.qt.io/qt-5/windows-building.html
+            # https://doc.qt.io/qt-6.5/windows-building.html
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
 
@@ -2787,7 +2785,7 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
 
     """  # noqa: E501
 
-    # http://doc.qt.io/qt-5/opensslsupport.html
+    # https://doc.qt.io/qt-6.5/opensslsupport.html
 
     # Revised 2019-06-16 for OpenSSL 1.1.1c:
     if target_platform.android:
@@ -3044,7 +3042,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # ---------------------------------------------------------------------
         use_configure = True  # Better!
         if use_configure or not target_platform.android:
-            # http://doc.qt.io/qt-5/opensslsupport.html
+            # https://doc.qt.io/qt-6.5/opensslsupport.html
             if BUILD_PLATFORM.windows:
                 log.warning(
                     "The OpenSSL Configure script may warn about "
@@ -3080,7 +3078,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         #
         # The 1.1.0g Makefile.shared has things like SHLIBVERSION.
         #
-        # [1] http://doc.qt.io/qt-5/opensslsupport.html, 2018-07-24
+        # [1] https://doc.qt.io/qt-6.5/opensslsupport.html, 2018-07-24
         # [2] https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android  # noqa
         # [3] https://stackoverflow.com/questions/2826029/passing-additional-variables-from-command-line-to-make  # noqa
         # [4] https://ftp.openssl.org/source/old/
@@ -3340,20 +3338,20 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # probably best to redirect output to a file. There is a lot of it.
     log.info("Configuring Qt for {}...", target_platform)
 
-    # http://doc.qt.io/qt-5/opensslsupport.html
+    # https://doc.qt.io/qt-6.5/opensslsupport.html
     # Android:
     #       example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # Windows:
     #       https://stackoverflow.com/questions/14932315/how-to-compile-qt-5-under-windows-or-linux-32-or-64-bit-static-or-dynamic-on-v  # noqa
     #       ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
-    #       http://doc.qt.io/qt-5/windows-building.html
+    #       https://doc.qt.io/qt-6.5/windows-building.html
     #       http://wiki.qt.io/Jom
     #       http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
     # iOS:
-    #       http://doc.qt.io/qt-5/building-from-source-ios.html
-    #       http://doc.qt.io/qt-5/ios-support.html
+    #       https://doc.qt.io/qt-6.5/building-from-source-ios.html
+    #       https://doc.qt.io/qt-6.5/ios-support.html
     # macOS:
-    #       http://doc.qt.io/qt-5/osx.html
+    #       https://doc.qt.io/qt-6.5/osx.html
     # -------------------------------------------------------------------------
     # Qt: Setup
     # -------------------------------------------------------------------------
@@ -3526,7 +3524,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             )
 
     elif target_platform.ios:
-        # http://doc.qt.io/qt-5/building-from-source-ios.html
+        # https://doc.qt.io/qt-6.5/building-from-source-ios.html
         # "A default build builds both the simulator and device libraries."
         # Use Apple's own SSL implementation
         qt_config_args += ["-securetransport", "-xplatform", "macx-ios-clang"]

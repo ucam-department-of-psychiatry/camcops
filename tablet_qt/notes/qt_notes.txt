@@ -98,7 +98,7 @@ Resources
 ===============================================================================
 - For FILENAMES, use :/dirname/filename.ext
 - For URLs, use qrc:///dirname/filename.ext
-- http://doc.qt.io/qt-5/resources.html
+- https://doc.qt.io/qt-6.5/resources.html
 
 ===============================================================================
 Short notes on bugs
@@ -131,7 +131,7 @@ Language and speed
 
 - Most large Qt objects use a data-sharing, copy-on-write mechanism, including
   QImage and QString;
-    http://doc.qt.io/qt-5/implicit-sharing.html
+    https://doc.qt.io/qt-6.5/implicit-sharing.html
   ... so it's fine to pass "copies" around.
 
 ===============================================================================
@@ -372,7 +372,7 @@ Database objects
 - field member variables: initial thoughts:
 
     - QDjango?
-        note also http://doc.qt.io/qt-4.8/qmetaobject.html#details
+        note also https://doc.qt.io/qt-6.5/qmetaobject.html#details
         ... no
     - a custom DatabaseObject class with fieldname/variant mappings?
         ... no ... YES, see below.
@@ -565,7 +565,7 @@ Pointer management
 - QWeakPointer - weak reference to a shared pointer
 - QPointer - guarded pointers to QObject
 - QSharedDataPointer - pointer to an implicitly shared object
-    http://doc.qt.io/qt-5/implicit-sharing.html
+    https://doc.qt.io/qt-6.5/implicit-sharing.html
 
 General algorithm:
 1.  If it's owned by Qt (and in that case it will also be a QObject), use a
@@ -614,7 +614,7 @@ Layout flow
     QWidget* widget = new SomeWidget(this);  // can never be shown as a window by accident now
     layout->addWidget(widget);
 
-  See http://doc.qt.io/qt-4.8/layout.html
+  See https://doc.qt.io/qt-6.5/layout.html
   The demo code there uses the former.
 
   However, we had a problem with QuPage, which created widgets with no parent
@@ -643,7 +643,7 @@ More layout notes
   HeightForWidthLayoutContainer didn't help.
   Nor did QListWidget::setResizeMode(QListView::Adjust).
   An alternative might be a QListView with setItemDelegate().
-    http://doc.qt.io/qt-5/qabstractitemview.html#setItemDelegate
+    https://doc.qt.io/qt-6.5/qabstractitemview.html#setItemDelegate
 
   ... fixed with HeightForWidthListWidget
 
@@ -661,7 +661,7 @@ Audio
     sudo apt install ffmpeg
   ... not helped by:
     sudo apt install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav ffmpeg
-    # http://doc.qt.io/qt-5/linux-requirements.html
+    # https://doc.qt.io/qt-6.5/linux-requirements.html
   Others having same problem:
     https://forum.qt.io/topic/43468/qtmultimedia-media-player-example-can-t-play-any-video-on-ubuntu-14-04/11
   Use:
@@ -690,7 +690,7 @@ Audio
    UNDO things with:
       sudo apt-get install libgstreamer0.10-0 gstreamer0.10-alsa gstreamer0.10-plugins-base gstreamer0.10-plugins-base-apps gstreamer0.10-tools libgstreamer-plugins-base0.10-0 libgstreamer0.10-0
    SO SEE THIS:
-      http://doc.qt.io/qt-5/whatsnew55.html
+      https://doc.qt.io/qt-6.5/whatsnew55.html
       ... configure Qt with -gstreamer 1.0
       ... needs: sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
@@ -704,7 +704,7 @@ See build_qt.py (in the instructions at the end).
 Logging
 ===============================================================================
 - Docs say qDebug() etc. include __FILE__, __LINE__...
-  http://doc.qt.io/qt-5/qmessagelogger.html
+  https://doc.qt.io/qt-6.5/qmessagelogger.html
   but they don't.
 - There's the qCDebug() etc. framework using
     header
@@ -755,12 +755,12 @@ Menu structure, class factories, ...
 
 - webviews -- not needed, but:
     http://stackoverflow.com/questions/19282255/qwebview-on-qt4-and-qt5
-    http://doc.qt.io/qt-5/qtwebenginewidgets-qtwebkitportingguide.html
-    http://doc.qt.io/qt-4.8/qtwebkit-bridge.html -- old?
+    https://doc.qt.io/qt-6.5/qtwebenginewidgets-qtwebkitportingguide.html
+    https://doc.qt.io/qt-6.5/qtwebkit-bridge.html -- old?
     https://www.kdab.com/qt-webchannel-bridging-gap-cqml-web/
-    http://doc.qt.io/qt-5.6/qwebchannel.html
-    http://doc.qt.io/qt-5.6/qtwebchannel-standalone-example.html
-    http://doc.qt.io/qt-5.6/qtwebchannel-javascript.html
+    https://doc.qt.io/qt-6.5/qwebchannel.html
+    https://doc.qt.io/qt-6.5/qtwebchannel-standalone-example.html
+    https://doc.qt.io/qt-6.5/qtwebchannel-javascript.html
     http://stackoverflow.com/questions/9615194/is-it-possible-to-call-a-c-function-from-javascript-in-a-qwebview
 
 
@@ -814,7 +814,7 @@ Questionnaire
         signals during the operation, to ignore it in the caller's code).
 
 - Widget updates: prefer update() to repaint()
-  http://doc.qt.io/qt-4.8/qwidget.html#paintEvent
+  https://doc.qt.io/qt-6.5/qwidget.html#paintEvent
 
 - Stick with "one element, one field" wherever possible.
   However, have to have the complex MCQs as single entities as they need to
@@ -822,8 +822,8 @@ Questionnaire
   multiple Booleans).
 
 - If there are Android camera problems, see:
-    http://doc.qt.io/qt-5/cameraoverview.html
-    http://doc.qt.io/qt-5/platform-notes-android.html
+    https://doc.qt.io/qt-6.5/cameraoverview.html
+    https://doc.qt.io/qt-6.5/platform-notes-android.html
     http://www.qtcentre.org/threads/62787-Accessing-android-camera
 
 - Tasks hooking in to questionnaire events:
@@ -945,9 +945,9 @@ Network
 - Network sending: possible to do it with a stream (to which we write data
   from our database)? Would involve QNetworkManager::post with its QIODevice
   version:
-    http://doc.qt.io/qt-5/qnetworkaccessmanager.html#post
-    http://doc.qt.io/qt-5/qbuffer.html#details
-    http://doc.qt.io/qt-5/qtextstream.html
+    https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#post
+    https://doc.qt.io/qt-6.5/qbuffer.html#details
+    https://doc.qt.io/qt-6.5/qtextstream.html
     http://stackoverflow.com/questions/2806274/uploading-a-file-using-post-method-of-qnetworkaccessmanager
   ... realistically, we might want this, but we're going to want to have a
   buffer that takes all the data before we make the network call.
@@ -965,7 +965,7 @@ Network
 Containers
 ===============================================================================
 Prefer QVector to QList, except for QList<String> / QStringList:
-- http://doc.qt.io/qt-5/qlist.html
+- https://doc.qt.io/qt-6.5/qlist.html
 - https://marcmutz.wordpress.com/effective-qt/containers/#containers-qlist
 
 ===============================================================================

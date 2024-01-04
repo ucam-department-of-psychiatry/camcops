@@ -370,7 +370,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
     // This deals with the "owned" widget changing size.
 
     // Return true for "I've dealt with it; nobody else should".
-    // http://doc.qt.io/qt-5.7/eventsandfilters.html
+    // https://doc.qt.io/qt-6.5/eventsandfilters.html
 
     // We use eventFilter(), not event(), because we are looking for events on
     // the widget that we are scrolling, not our own widget.
@@ -755,7 +755,7 @@ void VerticalScrollArea::resetSizeLimits()
 bool VerticalScrollArea::event(QEvent* event)
 {
 #ifdef TOUCHSCROLL_DIRECT
-    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    // https://doc.qt.io/qt-6.5/gestures-overview.html
     if (event->type() == QEvent::Gesture) {
         return gestureEvent(static_cast<QGestureEvent*>(event));
     }
@@ -768,7 +768,7 @@ bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
 {
 #ifdef TOUCHSCROLL_DIRECT
     qDebug() << Q_FUNC_INFO;
-    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    // https://doc.qt.io/qt-6.5/gestures-overview.html
     if (QGesture* swipe = event->gesture(Qt::SwipeGesture)) {
         swipeTriggered(static_cast<QSwipeGesture*>(swipe));
     }

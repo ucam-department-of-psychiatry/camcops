@@ -195,7 +195,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //          d->delegateForIndex(modelIndex)->paint(painter, opt, modelIndex);
     //          -> QAbstractItemDelegate::paint()
     //          -> as default delegate is QStyledItemDelegate...
-    //             [http://doc.qt.io/qt-4.8/model-view-programming.html]
+    //             [https://doc.qt.io/qt-6.5/model-view-programming.html]
     //          -> QStyledItemDelegate::paint()
     //   - https://superuser.com/questions/638139/whats-the-proper-name-of-that-symbol-to-collapse-expand-nodes-in-a-directory-tr
     //      "disclosure widget"

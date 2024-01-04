@@ -20,7 +20,7 @@
 
 #include "idpolicy.h"
 #include <QObject>
-#include <QRegularExpression>  // replacing QRegExp; http://doc.qt.io/qt-5.7/qregexp.html#details
+#include <QRegularExpression>  // replacing QRegExp; https://doc.qt.io/qt-6.5/qregexp.html#details
 #include "common/dbconst.h"
 #include "common/design_defines.h"
 #include "common/preprocessor_aid.h"

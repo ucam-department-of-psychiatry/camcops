@@ -143,7 +143,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
 
 CamcopsApp::~CamcopsApp()
 {
-    // http://doc.qt.io/qt-5.7/objecttrees.html
+    // https://doc.qt.io/qt-6.5/objecttrees.html
     // Only delete things that haven't been assigned a parent
     delete m_network_gui_guard;
     delete m_p_main_window;
@@ -1970,7 +1970,7 @@ void CamcopsApp::closeSubWindow()
     // Ownership is returned to the application, so...
     // - AH, NO. OWNERSHIP IS CONFUSING AND THE DOCS ARE DIFFERENT IN QT 4.8
     //   AND 5.9
-    // - From http://doc.qt.io/qt-4.8/qstackedwidget.html#removeWidget :
+    // - From https://doc.qt.io/qt-6.5/qstackedwidget.html#removeWidget :
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
     //      but simply removed from the stacked layout, causing it to be hidden.
     //      Note: Ownership of widget reverts to the application.
