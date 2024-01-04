@@ -90,7 +90,7 @@ void GrowingTextEdit::contentsChanged()
 // The final piece of the puzzle is that the Questionnaire's scroll area
 // needs to resize itself when the widget sizes change.
 // That requires:
-//      http://doc.qt.io/qt-5.7/qscrollarea.html#widgetResizable-prop
+//      https://doc.qt.io/qt-6.5/qscrollarea.html#widgetResizable-prop
 // ... and (in VerticalScrollArea) a call to updateGeometry() when its widget
 // size changes, it seems.
 // ... no, calling updateGeometry() from VerticalScrollArea::resizeEvent is

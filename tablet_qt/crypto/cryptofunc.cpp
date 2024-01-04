@@ -52,42 +52,6 @@
 #include "lib/uifunc.h"
 
 
-// ----------------------------------------------------------------------------
-// Determine OpenSSL version
-// ----------------------------------------------------------------------------
-
-// OPENSSL_VERSION_NUMBER format: MNNFFPPS: major minor fix patch status
-#define OPENSSL_VERSION_MAJOR  ((OPENSSL_VERSION_NUMBER & 0xf0000000L) >> 28)
-#define OPENSSL_VERSION_MINOR  ((OPENSSL_VERSION_NUMBER & 0x0ff00000L) >> 20)
-#define OPENSSL_VERSION_FIX    ((OPENSSL_VERSION_NUMBER & 0x000ff000L) >> 12)
-#define OPENSSL_VERSION_PATCH  ((OPENSSL_VERSION_NUMBER & 0x00000ff0L) >>  4)
-#define OPENSSL_VERSION_STATUS ((OPENSSL_VERSION_NUMBER & 0x0000000fL) >>  0)
-
-#if OPENSSL_VERSION_MAJOR == 0
-    #error OpenSSL 0.x.x is unsupported
-#elif OPENSSL_VERSION_MAJOR == 1
-    // OpenSSL 1.x.x
-    #if OPENSSL_VERSION_MINOR == 0
-        // OpenSSL 1.0.x; e.g. tested with OpenSSL 1.0.2h
-        #define OPENSSL_V_1_0
-    #elif OPENSSL_VERSION_MINOR == 1
-        // OpenSSL 1.1.x
-        #define OPENSSL_V_1_1
-        /*
-            In OpenSSL 1.1,
-            - EVP_MD_CTX_create (1.0.x) is renamed EVP_MD_CTX_new (1.1.x)
-            - EVP_MD_CTX_destroy (1.0.x) is renamed EVP_MD_CTX_free (1.1.x)
-            See "HISTORY" in
-            https://www.openssl.org/docs/man1.1.0/crypto/EVP_DigestInit.html
-        */
-    #else
-        // OpenSSL 1.x that's higher than 1.1; we will assume it behaves as 1.1
-    #endif
-#else
-    // OpenSSL 2.x.x or higher
-    #error Only know how to support OpenSSL 1.x.x
-#endif
-
 #ifdef OPENSSL_VIA_QLIBRARY
 
     #include <QLibrary>
@@ -132,13 +96,8 @@
     typedef int (*prototype_EVP_EncryptFinal_ex)(
             EVP_CIPHER_CTX* ctx, unsigned char* out, int* outl);
 
-    #ifdef OPENSSL_V_1_0
-        typedef EVP_MD_CTX* (*prototype_EVP_MD_CTX_create)(void);
-        typedef void (*prototype_EVP_MD_CTX_destroy)(EVP_MD_CTX* ctx);
-    #else
-        typedef EVP_MD_CTX* (*prototype_EVP_MD_CTX_new)(void);
-        typedef void (*prototype_EVP_MD_CTX_free)(EVP_MD_CTX* ctx);
-    #endif
+    typedef EVP_MD_CTX* (*prototype_EVP_MD_CTX_new)(void);
+    typedef void (*prototype_EVP_MD_CTX_free)(EVP_MD_CTX* ctx);
 
     typedef const EVP_MD* (*prototype_EVP_sha512)(void);
 
@@ -194,13 +153,8 @@
     DEFINE_CRYPTO_FN(EVP_EncryptUpdate)
     DEFINE_CRYPTO_FN(EVP_EncryptFinal_ex)
 
-    #ifdef OPENSSL_V_1_0
-        DEFINE_CRYPTO_FN(EVP_MD_CTX_create)
-        DEFINE_CRYPTO_FN(EVP_MD_CTX_destroy)
-    #else
-        DEFINE_CRYPTO_FN(EVP_MD_CTX_new)
-        DEFINE_CRYPTO_FN(EVP_MD_CTX_free)
-    #endif
+    DEFINE_CRYPTO_FN(EVP_MD_CTX_new)
+    DEFINE_CRYPTO_FN(EVP_MD_CTX_free)
 
     DEFINE_CRYPTO_FN(EVP_sha512)
 
@@ -223,13 +177,8 @@
         ENSURE_CRYPTO_FN_LOADED(EVP_EncryptUpdate)
         ENSURE_CRYPTO_FN_LOADED(EVP_EncryptFinal_ex)
 
-    #ifdef OPENSSL_V_1_0
-        ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_create)
-        ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_destroy)
-    #else
         ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_new)
         ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_free)
-    #endif
 
         ENSURE_CRYPTO_FN_LOADED(EVP_sha512)
     }
@@ -262,17 +211,8 @@
     #define crypto_EVP_EncryptUpdate ::EVP_EncryptUpdate
     #define crypto_EVP_EncryptFinal_ex ::EVP_EncryptFinal_ex
 
-    #ifdef OPENSSL_V_1_0
-        #define crypto_EVP_MD_CTX_new ::EVP_MD_CTX_create  // new (1.1.x) alias -> old (1.0.x) name
-        #define crypto_EVP_MD_CTX_free ::EVP_MD_CTX_destroy  // new (1.1.x) alias -> old (1.0.x) name
-        // #define EVP_MD_CTX_new EVP_MD_CTX_create  // new (1.1.x) alias -> old (1.0.x) name
-        // #define EVP_MD_CTX_free EVP_MD_CTX_destroy  // new (1.1.x) alias -> old (1.0.x) name
-    #else
-        #define crypto_EVP_MD_CTX_new ::EVP_MD_CTX_new
-        #define crypto_EVP_MD_CTX_free ::EVP_MD_CTX_free
-    #endif
-    //#ifdef OPENSSL_V_1_0
-    //#endif
+    #define crypto_EVP_MD_CTX_new ::EVP_MD_CTX_new
+    #define crypto_EVP_MD_CTX_free ::EVP_MD_CTX_free
 
     #define crypto_EVP_sha512 ::EVP_sha512
 

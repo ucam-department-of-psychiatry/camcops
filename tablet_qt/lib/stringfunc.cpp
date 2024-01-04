@@ -228,7 +228,7 @@ QString abbreviate(const QString& str,
 
 QString escapeString(const QString& string)
 {
-    // See also http://doc.qt.io/qt-5/qregexp.html#escape
+    // See also https://doc.qt.io/qt-6.5/qregexp.html#escape
     // Obsolete: Qt::escape()
 
     // Convert to a C++ literal.

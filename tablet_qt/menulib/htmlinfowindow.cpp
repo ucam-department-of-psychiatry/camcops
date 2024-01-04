@@ -29,7 +29,7 @@
 #include "menulib/menuheader.h"
 #include "widgets/labelwordwrapwide.h"
 
-// http://doc.qt.io/qt-5/qtextbrowser.html
+// https://doc.qt.io/qt-6.5/qtextbrowser.html
 
 
 HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,

@@ -109,8 +109,8 @@ void ensureDirectoryExistsOrDie(const QString& dir)
 
 bool fileContainsLine(const QString& filename, const QString& line)
 {
-    // https://doc.qt.io/qt-5/qfile.html
-    // https://doc.qt.io/qt-5/qtextstream.html
+    // https://doc.qt.io/qt-6.5/qfile.html
+    // https://doc.qt.io/qt-6.5/qtextstream.html
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qCritical() << Q_FUNC_INFO << "FAILED TO OPEN FILE:" << filename;

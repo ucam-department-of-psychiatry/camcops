@@ -47,24 +47,24 @@ The Qt coordinate system
 - Positive x is to the right.
 - Positive y is DOWN. (This matches commonplace screen coordinates; the origin
   is at the top left.)
-  http://doc.qt.io/qt-5.8/coordsys.html
+  https://doc.qt.io/qt-6.5/coordsys.html
 
 - When you rotate a coordinate system, rotation angles are CLOCKWISE.
-  http://doc.qt.io/qt-5.8/qpainter.html#rotate
+  https://doc.qt.io/qt-6.5/qpainter.html#rotate
   ... so for a point (x=1, y=0), positive rotation moves it in the direction of
   INCREASING y.
 
 - But when you draw a pie, rotation angles are ANTICLOCKWISE, and zero degrees
   is in the 3 o'clock position.
-  http://doc.qt.io/qt-5.8/qpainter.html#drawPie
+  https://doc.qt.io/qt-6.5/qpainter.html#drawPie
 
 - Other ANTICLOCKWISE bits:
   - QTranform::rotate
-    http://doc.qt.io/qt-5.8/qtransform.html#rotate
+    https://doc.qt.io/qt-6.5/qtransform.html#rotate
 
 - Qt also uses a "positive ANTICLOCKWISE" system for its graphs, though that's
   more obvious as it's mimicking standard graph geometry here.
-  https://doc.qt.io/qt-5/qtcharts-polarchart-example.html
+  https://doc.qt.io/qt-6.5/qtcharts-polarchart-example.html
 
 Which representation to use internally for polar coordinates?
 ===============================================================================

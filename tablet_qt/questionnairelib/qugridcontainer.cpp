@@ -48,7 +48,7 @@ MAKING COLUMN WIDTHS EQUAL
     I think that QGridLayout stretches any *spare* in proportion to
     setColumnStretch.
 
-    http://doc.qt.io/qt-5.7/qgridlayout.html#details
+    https://doc.qt.io/qt-6.5/qgridlayout.html#details
 
     ... "If you want two columns to have the same width, you must set their
     minimum widths and stretch factors to be the same yourself. You do this

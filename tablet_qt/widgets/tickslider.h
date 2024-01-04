@@ -240,7 +240,7 @@ public:
     bool invertedAppearance() const { return m_slider.invertedAppearance(); }
 
     // Reverse the behaviour of key/mouse wheel events.
-    // See http://doc.qt.io/qt-5/qabstractslider.html
+    // See https://doc.qt.io/qt-6.5/qabstractslider.html
     void setInvertedControls(bool inverted) { m_slider.setInvertedControls(inverted); }
     bool invertedControls() const { return m_slider.invertedControls(); }
 

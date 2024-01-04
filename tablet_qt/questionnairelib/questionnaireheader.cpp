@@ -58,7 +58,7 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         // ... suggests using QFrame
         // http://stackoverflow.com/questions/12655538/how-to-set-qwidget-background-color
         // ... suggests using setAutoFillBackground(true)
-        // http://doc.qt.io/qt-5.7/qwidget.html#autoFillBackground-prop
+        // https://doc.qt.io/qt-6.5/qwidget.html#autoFillBackground-prop
         // ... advises caution with setAutoFillBackground() and stylesheets
     }
 #ifndef QUESTIONNAIRE_HEADER_USE_HFW_BASE

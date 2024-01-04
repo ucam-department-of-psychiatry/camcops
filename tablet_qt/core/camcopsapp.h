@@ -288,7 +288,7 @@ public slots:
     // launcher, for when we launch our app via a URL.
     // These are slots, but can safely take a reference (const QString&
     // value), as per
-    // https://doc.qt.io/qt-5/qt.html#ConnectionType-enum
+    // https://doc.qt.io/qt-6.5/qt.html#ConnectionType-enum
     // https://stackoverflow.com/questions/8455887/
     void setDefaultSingleUserMode(const QString& value);
     void setDefaultServerLocation(const QString& value);
@@ -814,7 +814,7 @@ protected:
     QUrl m_default_server_url;
     QString m_default_patient_proquint;
 
-    // Translators; see https://doc.qt.io/qt-5/internationalization.html
+    // Translators; see https://doc.qt.io/qt-6.5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings
     QSharedPointer<QTranslator> m_app_translator;  // translates CamCOPS strings
 

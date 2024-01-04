@@ -223,7 +223,7 @@ QString iconButtonStylesheet(const QString& normal_filename,
                          "border-image: url('" + normal_filename + "');"
                          "}";
     if (!pressed_filename.isEmpty()) {
-        // http://doc.qt.io/qt-5/stylesheet-syntax.html
+        // https://doc.qt.io/qt-6.5/stylesheet-syntax.html
         stylesheet += "QToolButton:pressed {"
                       "border-image: url('" + pressed_filename + "');"
                       "}";
@@ -438,7 +438,7 @@ QString textCSS(const int fontsize_pt,
         css += QString("font-size: %1pt;").arg(fontsize_pt);
     }
     // Only pt and px supported
-    // http://doc.qt.io/qt-5.7/stylesheet-reference.html
+    // https://doc.qt.io/qt-6.5/stylesheet-reference.html
     if (bold) {
         css += "font-weight: bold;";
     }
@@ -647,7 +647,7 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     // | contents                                    |
     // +---------------------------------------------+
 
-    // https://doc.qt.io/qt-5/qwidget.html#windowTitle-prop
+    // https://doc.qt.io/qt-6.5/qwidget.html#windowTitle-prop
     const QString window_title = dialog->windowTitle();
     const QString app_name = QApplication::applicationDisplayName();
     QString full_title = window_title;

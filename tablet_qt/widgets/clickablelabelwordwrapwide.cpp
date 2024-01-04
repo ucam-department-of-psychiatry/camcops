@@ -61,7 +61,7 @@ ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const bool stretch,
     setLayout(m_layout);
     setSizePolicy(stretch ? sizehelpers::expandingFixedHFWPolicy()
                           : sizehelpers::maximumFixedHFWPolicy());
-    // http://doc.qt.io/qt-5/layout.html
+    // https://doc.qt.io/qt-6.5/layout.html
 
     adjustSize();
 }

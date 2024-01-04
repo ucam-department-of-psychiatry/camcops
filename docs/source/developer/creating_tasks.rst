@@ -223,7 +223,7 @@ More dynamic content usually requires that the Task objects keeps some sort of
 reference to the questionnaire during editing. The simplest way is to keep a
 safe pointer to the Questionnaire (``QPointer<Questionnaire> m_questionnaire``)
 but you can keep pointers to more detailed things too. (The task will not *own*
-the Questionnaire. A `QPointer <http://doc.qt.io/qt-5/qpointer.html>`_ is
+the Questionnaire. A `QPointer <https://doc.qt.io/qt-6.5/qpointer.html>`_ is
 automatically set to zero when its referenced object is destroyed.)
 
 Since ``FieldRef`` objects also maintain a **mandatory** flag, data input can

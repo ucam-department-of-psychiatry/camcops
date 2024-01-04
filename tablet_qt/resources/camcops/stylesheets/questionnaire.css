@@ -1,8 +1,8 @@
 /*
-    http://doc.qt.io/qt-5/stylesheet-syntax.html
+    https://doc.qt.io/qt-6.5/stylesheet-syntax.html
 
     REMEMBER: Layouts don't have CSS. Widgets do.
-        http://doc.qt.io/qt-5/stylesheet.html
+        https://doc.qt.io/qt-6.5/stylesheet.html
         https://bugreports.qt.io/browse/QTBUG-22862
     BUT layouts do have spacing; use e.g.
         setSpacing() -- between widgets inside the layout
@@ -18,8 +18,8 @@
     In Qt 4.8, there was no way to do that: pt or px only. And that
     remains true for font sizes:
 
-    http://doc.qt.io/qt-5.7/stylesheet-reference.html#font-size
-    http://doc.qt.io/qt-5.7/stylesheet-reference.html#length
+    https://doc.qt.io/qt-6.5/stylesheet-reference.html#font-size
+    https://doc.qt.io/qt-6.5/stylesheet-reference.html#length
 
     So, since one can't use percentages or "1.2em", there are two options:
     (1) all elements using fonts need custom CSS, done in code. Silly!
@@ -136,7 +136,7 @@ QLabel {
    - Note that if you set ClickableLabel* and *then* QPushButton CSS, then
      the latter overrides the former (even though you would think child classes
      are more specific than parent classes). As per
-     http://doc.qt.io/qt-5/stylesheet-syntax.html
+     https://doc.qt.io/qt-6.5/stylesheet-syntax.html
 */
 
 QPushButton,
@@ -236,9 +236,9 @@ LabelWordWrapWide:disabled {
    =========================================================================
    - For QuPickerInline
    - http://stackoverflow.com/questions/29939990
-   - http://doc.qt.io/qt-4.8/stylesheet-examples.html#customizing-qcombobox
-   - http://doc.qt.io/qt-5/stylesheet-syntax.html#sub-controls
-   - http://doc.qt.io/qt-5/stylesheet-reference.html#list-of-stylable-widgets
+   - https://doc.qt.io/qt-6.5/stylesheet-examples.html#customizing-qcombobox
+   - https://doc.qt.io/qt-6.5/stylesheet-syntax.html#sub-controls
+   - https://doc.qt.io/qt-6.5/stylesheet-reference.html#list-of-stylable-widgets
    - http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem
 
    - QComboBox gets the "on" state when the popup is open
@@ -414,7 +414,7 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
 /*
     For QuSlider
     - this is quite hard
-    - http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qslider
+    - https://doc.qt.io/qt-6.5/stylesheet-examples.html#customizing-qslider
     - http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
     - https://forum.qt.io/topic/52150/proportions-of-elemnts-like-sliders
 

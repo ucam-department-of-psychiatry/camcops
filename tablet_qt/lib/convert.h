@@ -398,7 +398,7 @@ Q_DECLARE_METATYPE(QVector<int>)
 
 // Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
 //
-// ... Docs at http://doc.qt.io/qt-5/qabstractsocket.html#signals say that
+// ... Docs at https://doc.qt.io/qt-6.5/qabstractsocket.html#signals say that
 // "QAbstractSocket::SocketError is not a registered metatype, so for queued
 // connections, you will have to register it with Q_DECLARE_METATYPE() and
 // qRegisterMetaType()" -- however, using

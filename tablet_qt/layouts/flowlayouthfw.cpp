@@ -98,13 +98,13 @@ FlowLayoutHfw::FlowLayoutHfw(const int margin,
 FlowLayoutHfw::~FlowLayoutHfw()
 {
     // RNC: crash here relating to double deletion.
-    // - From http://doc.qt.io/qt-4.8/layout.html :
+    // - From https://doc.qt.io/qt-6.5/layout.html :
     //   "Note: Widgets in a layout are children of the widget on which the
     //   layout is installed, not of the layout itself. Widgets can only have
     //   other widgets as parent, not layouts."
     // - Note from qwidget.cpp that QWidget::~QWidget() deletes its children.
     // - However, from
-    //   http://doc.qt.io/qt-5/qtwidgets-layouts-flowlayout-example.html
+    //   https://doc.qt.io/qt-6.5/qtwidgets-layouts-flowlayout-example.html
     //   ... "When using addItem() the ownership of the layout items is
     //   transferred to the layout, and it is therefore the layout's
     //   responsibility to delete them."
@@ -197,7 +197,7 @@ QLayoutItem* FlowLayoutHfw::takeAt(const int index)
 {
     if (index >= 0 && index < m_item_list.size()) {
         return m_item_list.takeAt(index);
-        // http://doc.qt.io/qt-5/qlist.html#takeAt
+        // https://doc.qt.io/qt-6.5/qlist.html#takeAt
     }
     return nullptr;
 }
@@ -205,7 +205,7 @@ QLayoutItem* FlowLayoutHfw::takeAt(const int index)
 
 Qt::Orientations FlowLayoutHfw::expandingDirections() const
 {
-    // http://doc.qt.io/qt-5/qlayout.html#expandingDirections
+    // https://doc.qt.io/qt-6.5/qlayout.html#expandingDirections
     return Qt::Orientations();
 }
 
@@ -354,7 +354,7 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
         // a layout width smaller than the widget's preferred (but bigger than
         // their minimum).
         const int available_width = effective_rect.right() - x + 1;
-        // http://doc.qt.io/qt-5/qrect.html#details
+        // https://doc.qt.io/qt-6.5/qrect.html#details
 
         const QSize item_size_hint = item->sizeHint();
         int item_width = item_size_hint.width();  // item's preferred width

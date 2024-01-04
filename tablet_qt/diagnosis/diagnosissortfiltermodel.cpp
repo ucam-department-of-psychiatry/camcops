@@ -29,7 +29,7 @@ bool DiagnosisSortFilterModel::filterAcceptsRow(
     // criteria. (Note that calling setFilterFixedString correctly affects
     // filterRegExp(); see qsortfilterproxymodel.cpp).
 
-    // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#filterAcceptsRow
+    // https://doc.qt.io/qt-6.5/qsortfilterproxymodel.html#filterAcceptsRow
     // http://www.qtcentre.org/threads/46471-QTreeView-Filter
 
     const QModelIndex index = sourceModel()->index(row, 0, parent);

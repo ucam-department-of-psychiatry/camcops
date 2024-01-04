@@ -56,7 +56,7 @@ QString colourCss(const QColor& colour)
 
 QString penStyleCss(const QPen& pen)
 {
-    // http://doc.qt.io/qt-4.8/qpen.html#pen-style
+    // https://doc.qt.io/qt-6.5/qpen.html#pen-style
     // https://www.w3schools.com/cssref/pr_border-style.asp
     switch (pen.style()) {
     case Qt::NoPen:

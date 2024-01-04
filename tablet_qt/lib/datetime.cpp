@@ -90,7 +90,7 @@ QDate isoToDate(const QString& iso)
 {
     // e.g. "2017-07-14"
     return QDate::fromString(iso, Qt::ISODate);
-    // http://doc.qt.io/qt-5/qt.html#DateFormat-enum
+    // https://doc.qt.io/qt-6.5/qt.html#DateFormat-enum
     // Qt::ISODate:
     // ISO 8601 extended format: either YYYY-MM-DD for dates or
     // YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ssTZD (e.g.,
@@ -102,7 +102,7 @@ QDateTime isoToDateTime(const QString& iso)
 {
     // e.g. "2017-07-14T"
     return QDateTime::fromString(iso, Qt::ISODateWithMs);
-    // http://doc.qt.io/qt-5/qt.html#DateFormat-enum
+    // https://doc.qt.io/qt-6.5/qt.html#DateFormat-enum
     // Qt::ISODateWithMs:
     // ISO 8601 extended format, including milliseconds if applicable.
 

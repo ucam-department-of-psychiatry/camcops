@@ -9,7 +9,7 @@ String formats
 - In XML, you need to use <br/>, not just <br>.
 
 - Qt supports this subset of HTML for rich text:
-    http://doc.qt.io/qt-4.8/richtext-html-subset.html
+    https://doc.qt.io/qt-6.5/richtext-html-subset.html
   ... which include <br>.
 
 - ElementTree (e.g. from Python's xml.etree) will do this conversion:

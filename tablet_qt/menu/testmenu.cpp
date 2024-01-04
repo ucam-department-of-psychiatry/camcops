@@ -317,7 +317,7 @@ void TestMenu::doneSeeConsole()
 void TestMenu::testProgress()
 {
     qDebug() << Q_FUNC_INFO << "start";
-    // http://doc.qt.io/qt-4.8/qprogressdialog.html#details
+    // https://doc.qt.io/qt-6.5/qprogressdialog.html#details
     // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
     const int num_things = 100;
     QProgressDialog progress(

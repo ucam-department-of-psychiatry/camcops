@@ -749,7 +749,7 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
     } else {
         statusMessage(tr("Network error:") + " " + reply->errorString());
     }
-    reply->deleteLater();  // http://doc.qt.io/qt-5/qnetworkaccessmanager.html#details
+    reply->deleteLater();  // https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#details
     succeed();
 }
 
@@ -1292,7 +1292,7 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
             Q_FALLTHROUGH();
             // ... well done, Qt
-            // - http://doc.qt.io/qt-5/qtglobal.html#Q_FALLTHROUGH
+            // - https://doc.qt.io/qt-6.5/qtglobal.html#Q_FALLTHROUGH
         }
 
     case NextUploadStage::FetchAllowedTables:
