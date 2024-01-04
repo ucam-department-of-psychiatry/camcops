@@ -3826,7 +3826,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   a per-patient basis.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/314
 
-- Supported SQLAlchemy version now 1.4
+- Supported SQLAlchemy version now 1.4.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
 
 - Qt version is now 6.5.3. Qt now builds with FFmpeg for multimedia on all
@@ -3834,4 +3834,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/173
 
 - OpenSSL version is now 3.0.12. 1.1.1x has reached end-of-life.
-- SQL Cipher version is now 4.5.5
+
+- SQL Cipher version is now 4.5.5.
+
+- Eigen version is now 3.4.0.
+
+- The photo question (QuPhoto class) reverts to the QCamera method
+  (C++ implementation) because of multiple issues with the QML method.
+  See ``tablet_qt/widgets/cameraqcamera.h``.
