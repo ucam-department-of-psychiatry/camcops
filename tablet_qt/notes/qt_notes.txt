@@ -409,7 +409,7 @@ Database objects
 //      ...
 //      MyTableSpec::MyTableSpec()
 //      {
-//          addField("thing", QMetaType::Int);
+//          addField("thing", QVariant::Int);
 //          ...
 //      }
 // - a normal member object containing field values for those fields, e.g.
@@ -1014,7 +1014,7 @@ Note also this, but that's not the problem here:
 
 Solution in this example:
     - move CONTINUE_BUTTON_CONFIG into cardinalexpdetcommon.cpp
-    
+
 Note a similar problem with
     const QColor THE_COLOUR("purple");
 ... see colourdefs.h.
