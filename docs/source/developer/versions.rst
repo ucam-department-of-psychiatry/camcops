@@ -35,6 +35,11 @@ Versions of Software etc used by CamCOPS
 | OpenSSL      | 3.0.x   | 2026-09-07 (LTS)                                    |
 |              |         | https://www.openssl.org/policies/releasestrat.html  |
 +--------------+---------+-----------------------------------------------------+
+| Python       | 3.8     | 2023-08-24                                          |
+|              | 3.9     | 2025-10-05                                          |
+|              | 3.10    | 2026-10-04                                          |
+|              |         | https://devguide.python.org/versions/               |
++--------------+---------+-----------------------------------------------------+
 | Qt           | 6.5.x   | 2026-03-31 (LTS) but 6.5.x branch now               |
 |              |         | commercial-only with delayed open source release.   |
 |              |         | Latest non-commercial, non-LTS release is 6.6.      |
