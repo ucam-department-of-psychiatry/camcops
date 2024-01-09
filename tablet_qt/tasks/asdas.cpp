@@ -19,16 +19,12 @@
 */
 
 #include "asdas.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qulineeditdouble.h"
@@ -36,6 +32,7 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using stringfunc::strseq;
 
@@ -186,16 +183,17 @@ QString Asdas::activityState(QVariant measurement) const
     if (measurement.isNull()) {
         return xstring("n_a");
     }
+    const double m = measurement.toDouble();
 
-    if (measurement.toDouble() < 1.3) {
+    if (m < 1.3) {
         return xstring("inactive");
     }
 
-    if (measurement.toDouble() < 2.1) {
+    if (m < 2.1) {
         return xstring("moderate");
     }
 
-    if (measurement.toDouble() > 3.5) {
+    if (m > 3.5) {
         return xstring("very_high");
     }
 

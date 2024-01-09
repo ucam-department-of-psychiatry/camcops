@@ -56,7 +56,7 @@
 #include "flowlayouthfw.h"
 #include <QDebug>
 
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #ifdef QT_WORKAROUND_BUG_68889
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -68,7 +68,7 @@
 
 #include "layouts/qtlayouthelpers.h"
 #include "layouts/widgetitemhfw.h"
-#include "lib/layoutdumper.h"
+// #include "lib/layoutdumper.h"
 #include "lib/margins.h"
 
 
@@ -299,7 +299,7 @@ QSize FlowLayoutHfw::minimumSize() const
 
     int left, top, right, bottom;
     getContentsMargins(&left, &top, &right, &bottom);
-    size += QSize(left+right, top+bottom);
+    size += QSize(left + right, top + bottom);
 #ifdef DEBUG_LAYOUT
     qDebug() << "... returning" << size;
 #endif

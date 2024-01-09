@@ -19,6 +19,7 @@
 */
 
 #pragma once
+class QString;
 
 namespace errorfunc {
 

@@ -26,7 +26,6 @@
 #include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/growingtextedit.h"
-#include "widgets/growingplaintextedit.h"
 
 
 const int WRITE_DELAY_MS = 400;

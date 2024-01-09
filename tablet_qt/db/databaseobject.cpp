@@ -27,7 +27,6 @@
 #define ALLOW_SAVE_INSERT_BACKGROUND
 
 #include "databaseobject.h"
-#include <iostream>
 #include <QDateTime>
 #include <QMapIterator>
 #include <QMetaType>

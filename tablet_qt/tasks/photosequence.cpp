@@ -21,7 +21,6 @@
 #include "photosequence.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/qubutton.h"
@@ -31,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/photosequencephoto.h"
 
 const QString PhotoSequence::PHOTOSEQUENCE_TABLENAME("photosequence");

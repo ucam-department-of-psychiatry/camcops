@@ -21,7 +21,6 @@
 #include "khandakerinsightmedical.h"
 #include "common/cssconst.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
@@ -35,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 struct KhandakerInsightQInfo {
     KhandakerInsightQInfo(const QString& stem,

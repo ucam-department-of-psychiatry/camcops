@@ -28,15 +28,14 @@
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::anyNull;
 using mathfunc::anyTrue;

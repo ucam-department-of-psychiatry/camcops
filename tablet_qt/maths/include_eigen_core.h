@@ -23,7 +23,7 @@
 // Eigen 3.3.3 doesn't compile with gcc 7 or clang 10 with "-Wall", so we
 // disable the warning that it fails with:
 
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 
 #if defined GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT || defined CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
     #pragma GCC diagnostic push

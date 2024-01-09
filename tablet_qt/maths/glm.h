@@ -22,7 +22,7 @@
 
 #include <QDateTime>
 #include <QStringList>
-#include "maths/include_eigen_dense.h"
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 #include "maths/linkfunctionfamily.h"
 
 const int GLM_DEFAULT_MAX_ITERATIONS = 25;

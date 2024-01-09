@@ -21,7 +21,7 @@
 #pragma once
 
 #include <QWidget>
-#include "common/gui_defines.h"
+#include "common/gui_defines.h"  // IWYU pragma: keep
 
 
 class BaseWidget : public QWidget

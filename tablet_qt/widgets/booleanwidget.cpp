@@ -24,7 +24,7 @@
 #include <QStyle>
 #include <QVariant>
 #include "common/cssconst.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"

@@ -21,7 +21,7 @@
 #pragma once
 
 #include <QStringList>
-#include "maths/include_eigen_dense.h"
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 // See:
 // - http://adv-r.had.co.nz/C-interface.html

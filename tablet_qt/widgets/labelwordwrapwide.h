@@ -22,7 +22,7 @@
 
 #include <QLabel>
 #include <QMap>
-#include "common/gui_defines.h"
+#include "common/gui_defines.h"  // IWYU pragma: keep
 
 
 class LabelWordWrapWide : public QLabel

@@ -19,7 +19,6 @@
 */
 
 #include "lynalliamlife.h"
-#include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "lib/version.h"
 #include "maths/mathfunc.h"
@@ -32,6 +31,7 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::countTrue;
 using mathfunc::scorePhrase;
 using stringfunc::strnum;

@@ -20,13 +20,13 @@
 
 #include "qumcqgrid.h"
 #include "common/cssconst.h"
+#include "db/fieldref.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgridsignaller.h"
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
-#include "widgets/labelwordwrapwide.h"
 
 
 QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,

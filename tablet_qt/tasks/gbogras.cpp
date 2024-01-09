@@ -22,7 +22,6 @@
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -35,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/gbocommon.h"
 
 using mathfunc::anyNullOrEmpty;

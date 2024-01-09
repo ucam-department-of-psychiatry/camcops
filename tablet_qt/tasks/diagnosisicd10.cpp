@@ -21,11 +21,9 @@
 #include "diagnosisicd10.h"
 #include "db/ancillaryfunc.h"
 #include "diagnosis/icd10.h"
-#include "questionnairelib/qudiagnosticcode.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qumcq.h"
-#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/diagnosisicd10item.h"
 
 const QString DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME("diagnosis_icd10");

@@ -43,6 +43,7 @@
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 #include "taskxtra/cardinalexpdettrial.h"

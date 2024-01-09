@@ -22,12 +22,12 @@
 #include <QPointer>
 
 #include "tasklib/task.h"
+#include "questionnairelib/qumcqgrid.h"
 
 class OpenableWidget;
-class QuMcqGrid;
 
 
-class IsaaqCommon: public Task
+class IsaaqCommon : public Task
 {
     // abstract base class
     Q_OBJECT

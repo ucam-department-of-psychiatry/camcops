@@ -24,9 +24,7 @@
 #include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -38,6 +36,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNullOrEmpty;
 
 

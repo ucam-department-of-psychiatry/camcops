@@ -19,10 +19,8 @@
 */
 
 #pragma once
-#include "db/fieldref.h"
+#include "common/aliases_camcops.h"
 #include "questionnairelib/qumeasurement.h"
-#include "questionnairelib/qulineeditdouble.h"
-#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quunitselector.h"
 
 class QuWaist : public QuMeasurement

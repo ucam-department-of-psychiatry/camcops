@@ -33,10 +33,10 @@
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"
+#include "lib/idpolicy.h"
 #include "lib/slowguiguard.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
-class IdPolicy;
 class OpenableWidget;
 class QSqlDatabase;
 class QMainWindow;

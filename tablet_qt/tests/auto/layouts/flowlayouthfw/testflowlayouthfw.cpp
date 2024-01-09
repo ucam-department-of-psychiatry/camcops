@@ -48,7 +48,7 @@ void TestFlowLayoutHfw::testMinimumSizeAddsMargins()
 
     layout->setContentsMargins(left, top, right, bottom);
 
-    QCOMPARE(layout->minimumSize(), QSize(left+right, top+bottom));
+    QCOMPARE(layout->minimumSize(), QSize(left + right, top + bottom));
 }
 
 QTEST_MAIN(TestFlowLayoutHfw)

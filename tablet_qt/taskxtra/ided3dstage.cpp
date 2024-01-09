@@ -20,7 +20,6 @@
 
 #include "ided3dstage.h"
 #include "ided3dexemplars.h"
-#include "lib/convert.h"
 
 // Table names
 const QString IDED3DStage::STAGE_TABLENAME("ided3d_stages");

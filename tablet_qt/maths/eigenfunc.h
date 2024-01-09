@@ -27,8 +27,8 @@
 #include <QStringList>
 #include <QVector>
 #include <vector>
-#include "maths/include_eigen_core.h"
-#include "maths/include_eigen_dense.h"
+#include "maths/include_eigen_core.h"  // IWYU pragma: keep
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 namespace eigenfunc
 {

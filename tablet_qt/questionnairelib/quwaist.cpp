@@ -23,15 +23,11 @@
 #include <QString>
 #include <QWidget>
 #include "db/fieldref.h"
-#include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qulineeditdouble.h"
-#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quunitselector.h"
-#include "questionnairelib/qumcq.h"
 
 
 QuWaist::QuWaist(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,

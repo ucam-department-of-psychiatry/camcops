@@ -21,31 +21,24 @@
 // By Joe Kearney, Rudolf Cardinal.
 
 #include "ors.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
-#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/namevaluepair.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qugridcell.h"
-#include "questionnairelib/quheading.h"
-#include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
-#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quverticalcontainer.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::anyNullOrEmpty;
 using mathfunc::sumDouble;

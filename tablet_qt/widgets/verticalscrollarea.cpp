@@ -44,15 +44,20 @@
 #include <QScrollBar>
 #include <QScroller>
 #include "common/widgetconst.h"
-#include "layouts/layouts.h"
-#include "lib/layoutdumper.h"
 #include "lib/margins.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "qobjects/flickcharm.h"
-#include "widgets/basewidget.h"
 #include "widgets/verticalscrollareaviewport.h"
+
+#ifdef DEBUG_LAYOUT
+#include "lib/layoutdumper.h"
+#endif
+#ifdef USE_STRETCH
+#include "layouts/layouts.h"  // for VBoxLayout
+#include "widgets/basewidget.h"
+#endif
 
 
 #if defined USE_STRETCH && defined RESIZE_FOR_HFW

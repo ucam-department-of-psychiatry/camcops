@@ -33,7 +33,6 @@
 #include "db/databasemanager.h"
 #include "db/sqlitepragmainfofield.h"
 #include "db/whichdb.h"
-#include "lib/convert.h"
 #include "lib/debugfunc.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"

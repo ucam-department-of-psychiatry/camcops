@@ -19,7 +19,7 @@
 */
 
 #include "pagepickeritem.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
 
 

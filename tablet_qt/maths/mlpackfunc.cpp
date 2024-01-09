@@ -18,7 +18,7 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "mlpackfunc.h"
+#include "mlpackfunc.h"  // IWYU pragma: keep
 #ifdef USE_MLPACK
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

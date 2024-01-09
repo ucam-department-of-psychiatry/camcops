@@ -19,7 +19,6 @@
 */
 
 #include "das28.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/convert.h"
@@ -31,11 +30,11 @@
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qulineeditdouble.h"
-#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
 using stringfunc::strseq;
@@ -43,8 +42,11 @@ using stringfunc::strseq;
 const QStringList SIDES = {"left", "right"};
 const QStringList STATES = {"swollen", "tender"};
 
+// CRP units are mg/L (https://rmdopen.bmj.com/content/3/1/e000382)
 const int CRP_MIN = 0;
 const int CRP_MAX = 300;
+
+// ESR units are mm/h (https://rmdopen.bmj.com/content/3/1/e000382)
 const int ESR_MIN = 1;
 const int ESR_MAX = 300;
 
@@ -193,6 +195,7 @@ bool Das28::isComplete() const
 QVariant Das28::das28Crp() const
 {
     const QVariant crp = value(FN_CRP);
+    // ... CRP units are mg/L
     const QVariant vas = value(FN_VAS);
 
     if (crp.isNull() || vas.isNull()) {
@@ -210,6 +213,7 @@ QVariant Das28::das28Crp() const
 QVariant Das28::das28Esr() const
 {
     const QVariant esr = value(FN_ESR);
+    // ... ESR units are mm/h
     const QVariant vas = value(FN_VAS);
 
     if (esr.isNull() || vas.isNull()) {
@@ -243,15 +247,17 @@ QString Das28::activityStateCrp(const QVariant& measurement) const
         return xstring("n_a");
     }
 
-    if (measurement.toDouble() < 2.4) {
+    const double score = measurement.toDouble();
+
+    if (score < 2.4) {
         return xstring("remission");
     }
 
-    if (measurement.toDouble() < 2.9) {
+    if (score < 2.9) {
         return xstring("low");
     }
 
-    if (measurement.toDouble() > 4.6) {
+    if (score > 4.6) {
         return xstring("high");
     }
 
@@ -268,15 +274,17 @@ QString Das28::activityStateEsr(const QVariant& measurement) const
         return xstring("n_a");
     }
 
-    if (measurement.toDouble() < 2.6) {
+    const double score = measurement.toDouble();
+
+    if (score < 2.6) {
         return xstring("remission");
     }
 
-    if (measurement.toDouble() < 3.2) {
+    if (score < 3.2) {
         return xstring("low");
     }
 
-    if (measurement.toDouble() > 5.1) {
+    if (score > 5.1) {
         return xstring("high");
     }
 

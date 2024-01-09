@@ -18,6 +18,7 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "errorfunc.h"
 #include <QString>
 
 namespace errorfunc {

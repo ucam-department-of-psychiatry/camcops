@@ -28,7 +28,6 @@
 #include <QtAlgorithms>  // for qsort()
 #include "core/camcopsapp.h"
 #include "common/dbconst.h"
-#include "common/design_defines.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"

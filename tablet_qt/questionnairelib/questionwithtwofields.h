@@ -20,7 +20,7 @@
 
 #pragma once
 #include <QString>
-#include "db/fieldref.h"
+#include "common/aliases_camcops.h"
 
 
 class QuestionWithTwoFields

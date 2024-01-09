@@ -25,7 +25,6 @@
 #include <QFormLayout>
 #include <QUrl>
 #include "common/platform.h"
-#include "common/varconst.h"
 #include "lib/uifunc.h"
 #include "qobjects/urlvalidator.h"
 #include "widgets/proquintlineedit.h"

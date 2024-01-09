@@ -20,11 +20,6 @@
 
 #include "qusequencecontainerbase.h"
 #include <QWidget>
-#include "common/cssconst.h"
-#include "layouts/flowlayouthfw.h"
-#include "lib/sizehelpers.h"
-#include "questionnairelib/questionnaire.h"
-#include "widgets/basewidget.h"
 
 
 const Qt::Alignment QuSequenceContainerBase::DefaultWidgetAlignment =

@@ -65,17 +65,17 @@
 #include <QMetaType>
 #include <QSqlDriver>
 #include <QSqlField>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "db/sqlcipherhelpers.h"
 #include "db/sqlcipherdriver.h"
 
 #ifdef MODIFIED_FROM_SQLITE
-#include "db/whichdb.h"
-#ifdef USE_SQLCIPHER
-#include <sqlcipher/sqlite3.h>
-#endif
+    #include "db/whichdb.h"
+    #ifdef USE_SQLCIPHER
+        #include <sqlcipher/sqlite3.h>
+    #endif
 #else
-#include <sqlite3.h>
+    #include <sqlite3.h>
 #endif
 
 using sqlcipherhelpers::qGetColumnType;
@@ -347,7 +347,7 @@ bool SQLCipherResult::prepare(const QString& query)
     const void* pzTail = nullptr;
 
     // Safe to cast to int here as we would not expect the query to be massive
-    const qsizetype string_size = (query.size() + 1) *static_cast<qsizetype>(sizeof(QChar));
+    const qsizetype string_size = (query.size() + 1) * static_cast<qsizetype>(sizeof(QChar));
     const int num_bytes = static_cast<int>(string_size);
 
 #if (SQLITE_VERSION_NUMBER >= 3003011)

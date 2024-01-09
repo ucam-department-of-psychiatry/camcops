@@ -27,7 +27,6 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qucanvas.h"
 #include "questionnairelib/qucountdown.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qumcq.h"
@@ -35,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
 using mathfunc::sumInt;

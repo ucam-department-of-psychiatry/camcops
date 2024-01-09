@@ -26,6 +26,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using stringfunc::strnum;
 using stringfunc::strseq;
 

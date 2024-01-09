@@ -407,11 +407,10 @@ from pathlib import Path, PurePath
 import platform
 import re
 import shutil
-import stat
 import subprocess
 import sys
 import traceback
-from typing import Any, Callable, Dict, List, NoReturn, TextIO, Tuple
+from typing import Dict, List, NoReturn, TextIO, Tuple, Union
 
 try:
     import cardinal_pythonlib
@@ -1359,7 +1358,9 @@ class Platform(object):
     # Other cross-compilation details
     # -------------------------------------------------------------------------
 
-    def _get_tool(self, tool: str, fullpath: bool, cfg: "Config") -> str:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _get_tool(tool: str, fullpath: bool, cfg: "Config") -> str:
         """
         Work out the name of an appropriate compilation/linkage/...
         tool
@@ -1753,7 +1754,8 @@ class Config(object):
         workdir = join(rootdir, f"openssl-{self.openssl_version}")
         return rootdir, workdir
 
-    def use_ffmpeg(self, target_platform: Platform) -> bool:
+    @staticmethod
+    def use_ffmpeg(target_platform: Platform) -> bool:
         if target_platform.ios:
             return False
 
@@ -1872,7 +1874,7 @@ class Config(object):
         by VCVARSALL.BAT.
         """
         if target_platform.android:
-            return self._android_sysroot(target_platform)
+            return self.android_sysroot(target_platform)
 
         if target_platform.ios:
             return self._xcode_sdk_path(
@@ -1928,7 +1930,7 @@ class Config(object):
         """
         Implementation of :meth:`set_compile_env` for Android targets.
         """
-        android_sysroot = self._android_sysroot(target_platform)
+        android_sysroot = self.android_sysroot(target_platform)
         android_toolchain = self.android_toolchain_bin_dir(target_platform)
 
         env["ANDROID_API"] = self.android_api
@@ -1999,7 +2001,7 @@ class Config(object):
         else:
             raise NotImplementedError("Unknown CPU family for Android")
 
-    def _android_sysroot(self, target_platform: Platform) -> str:
+    def android_sysroot(self, target_platform: Platform) -> str:
         """
         Get the Android sysroot (e.g. where system #include files live) for a
         specific target platform.
@@ -2096,7 +2098,7 @@ class Config(object):
             raise ValueError(
                 "Don't know how to convert library: " + lib_a_fullpath
             )
-        libname = basename[len(libprefix) :]
+        libname = basename[len(libprefix) :]  # noqa: E203
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
         compiler = self.android_cc(target_platform)
@@ -2112,7 +2114,7 @@ class Config(object):
                 "-Wl,--no-whole-archive",
                 # "-L{}".format(directory),
                 # "-l{}".format(libname),
-                f"--sysroot={self._android_sysroot(target_platform)}",
+                f"--sysroot={self.android_sysroot(target_platform)}",
             ]
         )
         target_platform.verify_lib(newlibfilename)
@@ -2308,9 +2310,8 @@ class Config(object):
         ]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
         sdk_name = latest_sdk[: -len(suffix)]  # remove the trailing ".sdk"
-        sdk_version = sdk_name[
-            len(xcode_platform) :
-        ]  # remove the leading prefix, e.g. "iPhoneOS"  # noqa
+        sdk_version = sdk_name[len(xcode_platform) :]  # noqa: E203
+        # ... remove the leading prefix, e.g. "iPhoneOS"
         # log.debug("iOS SDK version: {!r}", sdk_version)
         return sdk_version
 
@@ -2914,13 +2915,13 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # hard-code the "-lcrypto" (in that example, in its test suite as it
     # compiles conftest.c). So we're best off using the Linux notation but
     # making additional copies of the libraries:
-    shadow_targets = []  # type: List[str]
+    shadow_targets = []  # type: List[Union[str, PurePath]]
     libprefix = "lib"
     if BUILD_PLATFORM.windows:
         for t in main_targets:
             dirname, basename = os.path.split(t)
             assert basename.startswith(libprefix)
-            shortbasename = basename[len(libprefix) :]
+            shortbasename = basename[len(libprefix) :]  # noqa: E203
             shadow_targets.append(join(dirname, shortbasename))
 
     if target_platform.android:
@@ -3304,9 +3305,11 @@ def patch_qt(cfg: Config) -> None:
                 )
 
 
-def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
+# def remove_readonly(
+#         func: Callable[..., Any], path: Any, excinfo: Any
+# ) -> None:
+#     os.chmod(path, stat.S_IWRITE)
+#     func(path)
 
 
 def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
@@ -3429,7 +3432,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     qt_config_cmake_args = ["-Wno-dev"]
 
     if target_platform.use_openssl_with_qt:
+        # noinspection PyUnboundLocalVariable
         includedirs.append(openssl_include_root)  # #include files for OpenSSL
+        # noinspection PyUnboundLocalVariable
         libdirs.append(openssl_lib_root)  # libraries for OpenSSL
 
     qt_config_args = [
@@ -3622,6 +3627,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             qt_config_args += ["-openssl", "yes"]  # OpenSSL
 
         # Qt's idea of "root" different to our own
+        # noinspection PyUnboundLocalVariable
         qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
     if cfg.use_ffmpeg(target_platform):
@@ -4117,7 +4123,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     ]
 
     if target_platform.android:
-        sysroot = cfg._android_sysroot(target_platform)
+        sysroot = cfg.android_sysroot(target_platform)
         sysinclude = join(sysroot, "usr", "include")
         cc = cfg.android_cc(target_platform)
         cxx = cfg.android_cxx(target_platform)
@@ -4222,13 +4228,13 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
     bash_workdir = unixify_windows_path(workdir)
     bash = join(msys_root, "usr", "bin", "bash")
     command = " ".join(command_args)
-    bash_command_args = [
+    bash_cmd_args = [
         bash,
         "-lc",
         f"cd {bash_workdir} && {command}",
     ]
 
-    return bash_command_args
+    return bash_cmd_args
 
 
 def unixify_windows_path(path: str) -> str:

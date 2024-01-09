@@ -28,7 +28,6 @@
 #include <QLabel>
 #include <QVariant>
 #include <QWidget>
-#include "common/uiconst.h"
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"

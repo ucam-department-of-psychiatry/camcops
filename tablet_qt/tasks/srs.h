@@ -23,7 +23,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-#include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;

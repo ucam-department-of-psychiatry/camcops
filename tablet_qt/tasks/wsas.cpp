@@ -31,7 +31,6 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
@@ -39,6 +38,7 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;

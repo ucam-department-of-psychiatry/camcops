@@ -28,10 +28,9 @@
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::falseNotNull;
 using mathfunc::scorePhrase;

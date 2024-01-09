@@ -32,6 +32,7 @@
 #include "questionnairelib/qumultipleresponse.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::strnum;
 

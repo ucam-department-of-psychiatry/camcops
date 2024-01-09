@@ -80,7 +80,6 @@ A note on the clazy-range-loop warning:
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
@@ -90,7 +89,6 @@ A note on the clazy-range-loop warning:
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
@@ -99,6 +97,7 @@ A note on the clazy-range-loop warning:
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::eq;
 using mathfunc::allNull;
 using mathfunc::noneNull;

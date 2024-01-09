@@ -25,7 +25,6 @@
 #include <QLabel>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
-#include "common/varconst.h"
 #include "dbobjects/patient.h"
 #include "layouts/flowlayouthfw.h"
 #include "layouts/layouts.h"

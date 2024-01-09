@@ -26,7 +26,6 @@
 #include <QVBoxLayout>
 #include "common/platform.h"
 #include "common/varconst.h"
-#include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "widgets/radiobuttonwordwrap.h"

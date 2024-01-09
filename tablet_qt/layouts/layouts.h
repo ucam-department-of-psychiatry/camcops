@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "common/gui_defines.h"
+#include "common/gui_defines.h"  // IWYU pragma: keep
 
 // Choose which layout system we will use. (GUI_USE_HFW_LAYOUT is better.)
 

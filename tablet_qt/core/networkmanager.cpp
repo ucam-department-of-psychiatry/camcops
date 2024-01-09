@@ -40,9 +40,11 @@
 #include <QtNetwork/QSslConfiguration>
 #include <QUrl>
 #include <QUrlQuery>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
+#include "db/databasemanager.h"
+#include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
 #include "dbobjects/idnumdescription.h"
 #include "dbobjects/patientidnum.h"

@@ -19,7 +19,6 @@
 */
 
 #include "ccrandom.h"
-#include <cfloat>
 #include <QDebug>
 #include <QMultiMap>
 #include "maths/countingcontainer.h"

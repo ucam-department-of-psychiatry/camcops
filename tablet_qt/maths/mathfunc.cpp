@@ -26,10 +26,7 @@
 #include <QString>
 #include "common/textconst.h"
 #include "lib/convert.h"
-#include "maths/eigenfunc.h"
 #include "maths/floatingpoint.h"
-#include "maths/mlpackfunc.h"
-#include "maths/statsfunc.h"
 
 namespace mathfunc {
 

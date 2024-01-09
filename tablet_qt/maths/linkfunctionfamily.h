@@ -24,7 +24,7 @@
 
 #include <functional>
 #include <QString>
-#include "maths/include_eigen_dense.h"
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 
 // Represents a link function family for a generalized linear model.

@@ -22,7 +22,7 @@
 #include <QString>
 #include <QSysInfo>
 #include <QtGlobal>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 
 namespace platform {
 

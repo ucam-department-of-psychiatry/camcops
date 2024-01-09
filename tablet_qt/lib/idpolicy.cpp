@@ -21,9 +21,7 @@
 #include "idpolicy.h"
 #include <QObject>
 #include <QRegularExpression>  // replacing QRegExp; https://doc.qt.io/qt-6.5/qregexp.html#details
-#include "common/dbconst.h"
-#include "common/design_defines.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
 

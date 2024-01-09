@@ -19,7 +19,6 @@
 */
 
 #include "setmenudeakin.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "dialogs/soundtestdialog.h"
 #include "lib/uifunc.h"

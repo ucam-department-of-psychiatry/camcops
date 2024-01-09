@@ -18,10 +18,10 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+/*
+
 #include "secureqstring.h"
 // #include "secureqbytearray.h"
-
-/*
 
 SecureQString::SecureQString()
 {

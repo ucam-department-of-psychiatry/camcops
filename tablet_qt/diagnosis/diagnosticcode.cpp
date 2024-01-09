@@ -20,7 +20,6 @@
 
 #include "diagnosticcode.h"
 #include "core/camcopsapp.h"
-#include "diagnosis/diagnosticcodeset.h"
 
 
 DiagnosticCode::DiagnosticCode(const QString& code, const QString& description,

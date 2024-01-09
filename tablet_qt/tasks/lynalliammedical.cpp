@@ -19,24 +19,23 @@
 */
 
 #include "lynalliammedical.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "db/fieldref.h"
 #include "lib/stringfunc.h"
 #include "lib/version.h"
-#include "tasklib/taskfactory.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumultipleresponse.h"
 #include "questionnairelib/qupage.h"
-#include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
+#include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 
 const QString LynallIamMedical::LYNALL_IAM_MEDICAL_TABLENAME(

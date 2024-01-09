@@ -21,7 +21,7 @@
 #pragma once
 
 #include <QVector>
-#include "maths/include_eigen_dense.h"
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 
 class LogisticDescriptives

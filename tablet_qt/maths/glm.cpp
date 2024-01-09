@@ -89,10 +89,9 @@ For logistic regression, then:
 #include "glm.h"
 #include <algorithm>
 #include <QDebug>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "maths/dqrls.h"
 #include "maths/eigenfunc.h"
-#include "maths/mathfunc.h"
 #include "maths/statsfunc.h"
 using namespace Eigen;
 

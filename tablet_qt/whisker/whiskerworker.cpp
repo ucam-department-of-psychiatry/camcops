@@ -25,7 +25,6 @@
 #include <QTcpSocket>
 #include <QTextStream>
 #include "lib/datetime.h"
-#include "whisker/whiskerapi.h"
 #include "whisker/whiskermanager.h"
 using namespace whiskerconstants;
 

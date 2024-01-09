@@ -20,7 +20,7 @@
 
 #include "version.h"
 #include <QStringList>
-#include "lib/convert.h"
+#include <QVariant>
 
 
 Version::Version()
@@ -45,7 +45,7 @@ Version::Version(const QString& version_string)
         return;
     }
     bool ok;
-    unsigned int major = parts.at(0).toUInt(&ok);
+    const unsigned int major = parts.at(0).toUInt(&ok);
     unsigned int minor = 0;
     unsigned int patch = 0;
     if (ok) {

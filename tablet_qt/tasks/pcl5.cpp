@@ -20,18 +20,15 @@
 
 #include "pcl5.h"
 #include "core/camcopsapp.h"
-#include "common/textconst.h"
-#include "common/varconst.h"
 #include "lib/version.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "maths/mathfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::countNull;
 using mathfunc::noneNull;

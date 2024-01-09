@@ -30,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 // Table name
 const QString PerinatalPoem::PERINATAL_POEM_TABLENAME("perinatal_poem");

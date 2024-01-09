@@ -190,43 +190,48 @@ public:
     // Is the (string) field's value "" or NULL?
     bool valueIsNullOrEmpty(const QString& fieldname) const;
 
-    // Returns a field's value as a bool.
+    // Returns a field's value as a bool (if invalid: false).
     bool valueBool(const QString& fieldname) const;
 
-    // Returns a field's value as an int.
+    // Returns a field's value as an int (if invalid: 0).
     int valueInt(const QString& fieldname) const;
 
-    // Returns a field's value as a qint64 (qlonglong).
+    // Returns a field's value as a qint64 (qlonglong) (if invalid: 0).
     qint64 valueInt64(const QString& fieldname) const;
 
-    // Returns a field's value as a quint64 (qulonglong).
+    // Returns a field's value as a quint64 (qulonglong) (if invalid: 0).
     quint64 valueUInt64(const QString& fieldname) const;
 
-    // Returns a field's value as a double.
+    // Returns a field's value as a double (if invalid: 0.0).
     double valueDouble(const QString& fieldname) const;
 
-    // Returns a field's value as a QDateTime.
+    // Returns a field's value as a QDateTime (if invalid: an invalid
+    // QDateTime).
     QDateTime valueDateTime(const QString& fieldname) const;
 
-    // Returns a field's value as a QDate.
+    // Returns a field's value as a QDate (if invalid: an invalid QDate).
     QDate valueDate(const QString& fieldname) const;
 
-    // Returns a field's value as a QByteArray.
+    // Returns a field's value as a QByteArray (if invalid: an empty byte
+    // array).
     QByteArray valueByteArray(const QString& fieldname) const;
 
-    // Returns a field's value as a QString.
+    // Returns a field's value as a QString (if invalid: an empty string).
     QString valueString(const QString& fieldname) const;
 
-    // Returns a field's value as a QStringList (for CSV-encoded fields).
+    // Returns a field's value as a QStringList (for CSV-encoded fields)
+    // (if invalid: an empty list).
     QStringList valueStringList(const QString& fieldname) const;
 
-    // Returns a field's value as a QChar (for single-character string fields).
+    // Returns a field's value as a QChar (for single-character string fields)
+    //  (if invalid: an invalid QChar).
     QChar valueQChar(const QString& fieldname) const;
 
-    // Returns a field's value as a char.
+    // Returns a field's value as a char (if invalid: 0).
     char valueLatin1Char(const QString& fieldname) const;
 
-    // Returns a field's value as a QVector<int> (for CSV-encoded fields).
+    // Returns a field's value as a QVector<int> (for CSV-encoded fields)
+    // (if invalid: an empty vector).
     QVector<int> valueVectorInt(const QString& fieldname) const;
 
     // Returns a FieldRef (q.v.) pointer for the specified field.

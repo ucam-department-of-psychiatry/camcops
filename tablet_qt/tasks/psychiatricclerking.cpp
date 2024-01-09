@@ -20,13 +20,12 @@
 
 #include "psychiatricclerking.h"
 #include "common/textconst.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString PsychiatricClerking::PSYCLERK_TABLENAME("psychiatricclerking");
 

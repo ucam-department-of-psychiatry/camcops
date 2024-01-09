@@ -35,7 +35,6 @@
 #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT
-#include "lib/idpolicy.h"
 #include "lib/uifunc.h"
 #include "menu/choosepatientmenu.h"
 #include "menu/singletaskmenu.h"
@@ -44,7 +43,6 @@
 #include "menulib/taskscheduleitemmenuitem.h"
 #include "tasklib/taskchain.h"
 #include "tasklib/taskfactory.h"
-#include "tasklib/taskschedule.h"
 #include "tasklib/taskscheduleitem.h"
 #include "tasklib/taskscheduleitemeditor.h"
 #include "widgets/basewidget.h"

@@ -59,7 +59,7 @@
 #include <QWebFrame>
 #include <QWebView>
 #endif
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 
 const int fingerAccuracyThreshold = 3;
 

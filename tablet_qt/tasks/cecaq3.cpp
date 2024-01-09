@@ -23,7 +23,6 @@
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -39,6 +38,7 @@
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quverticalcontainer.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::anyTrue;
 using mathfunc::noneNull;
