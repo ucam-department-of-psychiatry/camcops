@@ -137,6 +137,7 @@ INSTALL_REQUIRES = [
     "pre-commit==2.20.0",  # development only, various sanity checks on code
     "sphinx==4.2.0",  # development only
     "sphinxcontrib-applehelp==1.0.4",  # development only
+    "sphinxcontrib-devhelp==1.0.2",  # development only
     "sphinx_rtd_theme==1.0.0",  # development only
     # -------------------------------------------------------------------------
     # Dependencies of cardinal_pythonlib, whose versions we pin
