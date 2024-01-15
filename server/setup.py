@@ -136,6 +136,7 @@ INSTALL_REQUIRES = [
     "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed  # noqa
     "pre-commit==2.20.0",  # development only, various sanity checks on code
     "sphinx==4.2.0",  # development only
+    "sphinxcontrib-applehelp==1.0.4",  # development only
     "sphinx_rtd_theme==1.0.0",  # development only
     # -------------------------------------------------------------------------
     # Dependencies of cardinal_pythonlib, whose versions we pin
