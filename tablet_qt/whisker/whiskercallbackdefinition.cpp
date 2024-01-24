@@ -54,7 +54,7 @@ WhiskerCallbackDefinition::WhiskerCallbackDefinition() :
     m_n_calls(0)
 {
     // nasty default constructor used by QVector; UNSAFE
-    // See http://doc.qt.io/qt-5/containers.html#default-constructed-value
+    // See https://doc.qt.io/qt-6.5/containers.html#default-constructed-value
     qWarning() << "Unsafe use of WhiskerCallbackDefinition::WhiskerCallbackDefinition()";
 }
 

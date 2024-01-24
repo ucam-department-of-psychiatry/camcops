@@ -24,7 +24,7 @@
 
 class CamcopsApp;
 
-// http://doc.qt.io/qt-5/qtwidgets-itemviews-simpletreemodel-example.html
+// https://doc.qt.io/qt-6.5/qtwidgets-itemviews-simpletreemodel-example.html
 
 
 // Represents a diagnostic code in a tree structure.

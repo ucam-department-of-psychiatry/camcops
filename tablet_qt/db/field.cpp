@@ -270,7 +270,7 @@ QString Field::sqlColumnType() const
     // C++ types:
     //      int -- typically 32-bit; not guaranteed on all C++ platforms,
     //             though 32-bit on all Qt platforms, I think
-    // Qt types: http://doc.qt.io/qt-5/qtglobal.html
+    // Qt types: https://doc.qt.io/qt-6.5/qtglobal.html
     //      - qint8, qint16, qint32, qint64...
     //      - standard int is int32
     //        32-bit signed: up to +2,147,483,647 = 2147483647
@@ -378,7 +378,7 @@ QVariant Field::databaseValue() const
         return convert::qStringListToCsvString(m_value.toStringList());
     case QMetaType::QUuid:
         return m_value.toString();
-        // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
+        // see https://doc.qt.io/qt-6.5/quuid.html#toString; e.g.
         // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
     default:
         if (type_id == convert::TYPE_ID_QVECTOR_INT) {

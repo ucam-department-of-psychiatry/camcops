@@ -27,7 +27,7 @@ class QuLineEditDouble : public QuLineEdit
     // - Offers a one-line text editor, for a floating-point number.
     // - The default maximum number of decimal places, 1000, matches
     //   QDoubleValidator; see
-    //   http://doc.qt.io/qt-5/qdoublevalidator.html#decimals-prop
+    //   https://doc.qt.io/qt-6.5/qdoublevalidator.html#decimals-prop
 
     Q_OBJECT
 public:

@@ -1,4 +1,4 @@
-// As per http://doc.qt.io/qt-5/qtwidgets-layouts-flowlayout-example.html
+// As per https://doc.qt.io/qt-6.5/qtwidgets-layouts-flowlayout-example.html
 
 /*===========================================================================
 ==

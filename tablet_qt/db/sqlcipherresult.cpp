@@ -242,7 +242,7 @@ bool SQLCipherResult::fetchNext(SqlCachedResult::ValueCache& values,
 #endif
                         values[i + idx] = sqlite3_column_double(m_stmt, i);
                         break;
-                };
+                }
                 break;
             case SQLITE_NULL:
                 values[i + idx] = QVariant(QMetaType(QMetaType::QString));
@@ -346,18 +346,22 @@ bool SQLCipherResult::prepare(const QString& query)
 
     const void* pzTail = nullptr;
 
+    // Safe to cast to int here as we would not expect the query to be massive
+    const qsizetype string_size = (query.size() + 1) *static_cast<qsizetype>(sizeof(QChar));
+    const int num_bytes = static_cast<int>(string_size);
+
 #if (SQLITE_VERSION_NUMBER >= 3003011)
     int res = sqlite3_prepare16_v2(
                 cipherDriver()->m_access,
                 query.constData(),
-                (query.size() + 1) * sizeof(QChar),
+                num_bytes,
                 &m_stmt,
                 &pzTail);
 #else
     int res = sqlite3_prepare16(
                 cipherDriver()->m_access,
                 query.constData(),
-                (query.size() + 1) * sizeof(QChar),
+                num_bytes,
                 &stmt,
                 &pzTail);
 #endif
@@ -439,32 +443,40 @@ bool SQLCipherResult::exec()
                 {
                     const QDateTime dateTime = value.toDateTime();
                     const QString str = dateTime.toString(QStringLiteral("yyyy-MM-ddThh:mm:ss.zzz"));
+                    const qsizetype string_size = str.size() * static_cast<qsizetype>(sizeof(ushort));
+                    const int num_bytes = static_cast<int>(string_size);
                     res = sqlite3_bind_text16(m_stmt, i + 1, str.utf16(),
-                                              str.size() * sizeof(ushort), SQLITE_TRANSIENT);
+                                              num_bytes, SQLITE_TRANSIENT);
                     break;
                 }
                 case QMetaType::QTime:
                 {
                     const QTime time = value.toTime();
                     const QString str = time.toString(QStringLiteral("hh:mm:ss.zzz"));
+                    const qsizetype string_size = str.size() * static_cast<qsizetype>(sizeof(ushort));
+                    const int num_bytes = static_cast<int>(string_size);
                     res = sqlite3_bind_text16(m_stmt, i + 1, str.utf16(),
-                                              str.size() * sizeof(ushort), SQLITE_TRANSIENT);
+                                              num_bytes, SQLITE_TRANSIENT);
                     break;
                 }
                 case QMetaType::QString:
                 {
                     // lifetime of string == lifetime of its qvariant
                     auto str = static_cast<const QString*>(value.constData());
+                    const qsizetype string_size = str->size() * static_cast<qsizetype>(sizeof(ushort));
+                    const int num_bytes = static_cast<int>(string_size);
                     res = sqlite3_bind_text16(m_stmt, i + 1, str->utf16(),
-                                              (str->size()) * sizeof(QChar), SQLITE_STATIC);
+                                              num_bytes, SQLITE_STATIC);
                     break;
                 }
                 default:
                 {
                     QString str = value.toString();
                     // SQLITE_TRANSIENT makes sure that sqlite buffers the data
+                    const qsizetype string_size = (str.size()) * static_cast<qsizetype>(sizeof(QChar));
+                    const int num_bytes = static_cast<int>(string_size);
                     res = sqlite3_bind_text16(m_stmt, i + 1, str.utf16(),
-                                              (str.size()) * sizeof(QChar), SQLITE_TRANSIENT);
+                                              num_bytes, SQLITE_TRANSIENT);
                     break;
                 }
                 }

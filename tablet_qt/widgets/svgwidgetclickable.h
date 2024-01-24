@@ -44,7 +44,7 @@ class SvgWidgetClickable : public QSvgWidget
     // - You can't both override paintEvent() and call the base class
     //   implementation?
     //   - https://stackoverflow.com/questions/13897026/accessing-a-qpainter-in-base-class
-    //   - http://doc.qt.io/qt-4.8/qpainter.html#begin
+    //   - https://doc.qt.io/qt-6.5/qpainter.html#begin
     // - Aha! You can. You just have to ensure the first QPainter is destroyed
     //   first. Done.
 

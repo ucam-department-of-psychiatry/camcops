@@ -27,7 +27,7 @@ QLabel#title {
 }
 
 /* Selection list */
-/* http://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtreeview */
+/* https://doc.qt.io/qt-6.5/stylesheet-examples.html#customizing-qtreeview */
 QListView,
 QTreeView {
 }

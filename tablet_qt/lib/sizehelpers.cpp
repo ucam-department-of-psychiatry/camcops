@@ -65,7 +65,7 @@ namespace sizehelpers {
 //
 // - QSizePolicy(horizontal_policy, vertical_policy)
 //
-// http://doc.qt.io/qt-5/qsizepolicy.html#Policy-enum:
+// https://doc.qt.io/qt-6.5/qsizepolicy.html#Policy-enum:
 //
 // - Fixed: fixed size, from sizeHint().
 // - Minimum: sizeHint() or greater; will grow to available space, but no

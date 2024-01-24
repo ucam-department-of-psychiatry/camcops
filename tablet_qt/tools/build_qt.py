@@ -84,7 +84,7 @@ When is it NECESSARY to compile OpenSSL from source?
 
 - OpenSSL for Android
 
-  - https://doc.qt.io/qt-5/opensslsupport.html
+  - https://doc.qt.io/qt-6.5/android-openssl-support.html
   - ... so: necessary.
 
 When is it NECESSARY to compile Qt from source?
@@ -93,7 +93,7 @@ When is it NECESSARY to compile Qt from source?
 
 - SQLite support (critical)
 
-  - https://doc.qt.io/qt-5/sql-driver.html
+  - https://doc.qt.io/qt-6.5/sql-driver.html
   - ... so: necessary.
 
 
@@ -156,8 +156,8 @@ DECISION:
 Notes
 =====
 
-- configure: https://doc.qt.io/qt-5/configure-options.html
-- sqlite: https://doc.qt.io/qt-5/sql-driver.html
+- configure: https://doc.qt.io/qt-6.5/configure-options.html
+- sqlite: https://doc.qt.io/qt-6.5/sql-driver.html
 - build for Android: https://wiki.qt.io/Qt5ForAndroidBuilding
 - multi-core builds:
   https://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator
@@ -402,7 +402,7 @@ import multiprocessing
 import os
 from os import chdir, listdir
 from os.path import expanduser, isdir, isfile, join, split
-from pathlib import Path
+from pathlib import Path, PurePath
 import platform
 import re
 import shutil
@@ -448,7 +448,6 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
-from cardinal_pythonlib.network import download
 from cardinal_pythonlib.platformfunc import (
     contains_unquoted_ampersand_dangerous_to_windows,
     windows_get_environment_from_batch_command,
@@ -508,7 +507,7 @@ DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-linux")
 # https://doc.qt.io/qt-6.5/android-getting-started.html
 ANDROID_NDK_VERSION = "25.1.8937393"
 
-DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
+DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
 
 DEFAULT_QT_SRC_DIRNAME = "qt6"
 
@@ -526,10 +525,13 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 # Qt
 # Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
+with open(join(TABLET_QT_DIR, "qt_version.txt")) as f:
+    QT_GIT_VERSION = f.read().strip()
+
 # Branch, tag or commit ID (long) to check out when cloning / checking out Qt
-QT_GIT_COMMIT = "v6.5.3"
+QT_GIT_COMMIT = f"v{QT_GIT_VERSION}"
 # For comparison when selecting tools. Not currently used.
-QT_VERSION = Version("6.5.3")
+QT_VERSION = Version(QT_GIT_VERSION)
 QT_GIT_SUBMODULES = [
     "qtbase",  # Core
     "qtdeclarative",  # Qt Quick and QML
@@ -537,6 +539,8 @@ QT_GIT_SUBMODULES = [
     "qtscxml",  # QStateMachine
     "qtshadertools",  # Required by qtmultimedia
     "qtsvg",  # SVG support
+    "qttools",  # Required by qttranslations
+    "qttranslations",  # Qt Linguist tools (lupdate, lconvert)
 ]
 
 
@@ -562,15 +566,7 @@ OPENSSL_SRC_URL = (
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
-SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"
-# ... SQLCipher version 4.2.0, 29 May 2019
-
-# - Note that there's another URL for the Android binary packages
-# - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
-# - To find the Git commit identifier (hash) of a cloned repository, use
-#   "git show -s --format=%H" (and omit the --format parameter to see more
-#   info).
-# - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
+SQLCIPHER_GIT_COMMIT = "7c460791eba939e6c6872825219a6644ca47283b"
 
 # Eigen
 with open(join(TABLET_QT_DIR, "eigen_version.txt")) as f:
@@ -584,16 +580,6 @@ MIN_IOS_VERSION = "7.0"
 MIN_MACOS_VERSION = "11"  # https://doc.qt.io/qt-6.5/macos.html
 
 
-# GNU tools
-
-CONFIG_GUESS_MASTER = (
-    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"
-)
-CONFIG_SUB_MASTER = (
-    "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"
-)
-
-
 # -----------------------------------------------------------------------------
 # Building Qt
 # -----------------------------------------------------------------------------
@@ -602,9 +588,7 @@ CONFIG_SUB_MASTER = (
 
 QT_CONFIG_COMMON_ARGS = [
     # use "configure -help" to list all of them
-    # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
-    # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
-    # http://doc.qt.io/qt-5.9/configure-options.html
+    # https://doc.qt.io/qt-6.5/configure-options.html
     # -------------------------------------------------------------------------
     # debug v. release
     # -------------------------------------------------------------------------
@@ -1600,12 +1584,14 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
-        self.build = args.build
-        self.clean = args.clean
+        self.build_qt = args.build_qt
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
-        self.force = args.force  # type: bool
+        self.force_ffmpeg = args.force or args.force_ffmpeg  # type: bool
+        self.force_openssl = args.force or args.force_openssl  # type: bool
+        self.force_qt = args.force or args.force_qt  # type: bool
+        self.force_sqlcipher = args.force or args.force_sqlcipher  # type: bool
         self.verbose = args.verbose  # type: int
         self.src_rootdir = join(self.root_dir, "src")  # type: str
         self.tee_filename = args.tee  # type: str
@@ -1696,7 +1682,6 @@ class Config(object):
 
         # FFmpeg, currently broken with static Qt, but we have a patch
         # https://bugreports.qt.io/browse/QTBUG-115052
-        # https://bugreports.qt.io/browse/QTBUG-111460
         self.ffmpeg_version = FFMPEG_VERSION
         self.ffmpeg_src_url = f"https://github.com/FFmpeg/FFmpeg/archive/refs/tags/{self.ffmpeg_version}.tar.gz"  # noqa: E501
 
@@ -2199,7 +2184,6 @@ class Config(object):
         if use_gcc:
             env["CC"] = (
                 f"{join(developer, 'usr', 'bin', GCC)} "
-                f"-fembed-bitcode "
                 f"-mios-version-min={self.ios_min_version} "
                 f"-arch {arch}"
             )
@@ -2351,39 +2335,12 @@ class Config(object):
             raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
 
         elif BUILD_PLATFORM.windows:
-            # http://doc.qt.io/qt-5/windows-building.html
+            # https://doc.qt.io/qt-6.5/windows-building.html
             if contains_unquoted_ampersand_dangerous_to_windows(env["PATH"]):
                 fail(BAD_WINDOWS_PATH_MSG + env["PATH"])
-            # PATH
-            env["PATH"] = os.pathsep.join(
-                [
-                    join(self.qt_src_gitdir, "qtrepotools", "bin"),
-                    join(self.qt_src_gitdir, "qtbase", "bin"),
-                    join(self.qt_src_gitdir, "gnuwin32", "bin"),
-                    env["PATH"],
-                ]
-            )
-            # VCVARSALL.BAT
 
-            # We can't CALL a batch file and have it change our environment,
-            # so we must implement the functionality of VCVARSALL.BAT <arch>
-            if target_platform.cpu_x86_32bit_family:
-                # "x86" in VC\vcvarsall.bat
-                arch = "x86"
-            elif target_platform.cpu_x86_64bit_family:
-                # "amd64" in VC\vcvarsall.bat
-                arch = "amd64"
-            else:
-                raise NotImplementedError(
-                    f"Don't know how to compile for Windows for target "
-                    f"platform {target_platform}"
-                )
-            # Now read the result from vcvarsall.bat directly
-            args = [VCVARSALL, arch]
-            fetched_env = windows_get_environment_from_batch_command(
-                env_cmd=args, initial_env=env
-            )
-            env.update(**fetched_env)
+            self.update_windows_env_from_vcvarsall(env, target_platform)
+
             # Other
             env["CC"] = CL  # Visual C++
             # ... for SQLCipher "configure": if we try gcc, it will fail to
@@ -2400,6 +2357,31 @@ class Config(object):
                 f"Don't know how to compile for Windows on build platform "
                 f"{BUILD_PLATFORM}"
             )
+
+    def update_windows_env_from_vcvarsall(
+        self, env: Dict[str, str], target_platform: Platform
+    ) -> None:
+        # VCVARSALL.BAT
+
+        # We can't CALL a batch file and have it change our environment,
+        # so we must implement the functionality of VCVARSALL.BAT <arch>
+        if target_platform.cpu_x86_32bit_family:
+            # "x86" in VC\vcvarsall.bat
+            arch = "x86"
+        elif target_platform.cpu_x86_64bit_family:
+            # "amd64" in VC\vcvarsall.bat
+            arch = "amd64"
+        else:
+            raise NotImplementedError(
+                f"Don't know how to compile for Windows for target "
+                f"platform {target_platform}"
+            )
+        # Now read the result from vcvarsall.bat directly
+        args = [VCVARSALL, arch]
+        fetched_env = windows_get_environment_from_batch_command(
+            env_cmd=args, initial_env=env
+        )
+        env.update(**fetched_env)
 
 
 # =============================================================================
@@ -2492,28 +2474,28 @@ gobjdump    brew update && brew install binutils
 """
 
 WINDOWS_PACKAGE_HELP = r"""
-Windows                                                                 Cygwin
-                                                                        package
+Windows
 -------------------------------------------------------------------------------
-cmake       Install from https://cmake.org/
-git         Install from https://git-scm.com/
-nasm        Install from https://www.nasm.us/
+cmake       Install from https://cmake.org/ or use Chocolatey
+git         Install from https://git-scm.com/ or use Chocolatey
+nasm        Install from https://www.nasm.us/ or use Chocolatey
 tclsh       Install TCL from https://www.activestate.com/activetcl
 vcvarsall.bat    Install Microsoft Visual Studio/VC++, e.g. the free Community
             edition from https://www.visualstudio.com/; download and run the
             installer; tick at least "Desktop development with C++"
-perl        Install from https://www.activestate.com/activeperl
+perl        Install from https://www.activestate.com/activeperl or
+            https://strawberryperl.com/
 
-bash        Install Cygwin; part of the default installation            -
-cmake       Install the Cygwin package "cmake"                          cmake
-            OR (preferable) install CMake as above
-ld          Install the Cygwin package "gcc-g++"                        gcc-g++
-make        Install the Cygwin package "make"                           make
-tar         Install Cygwin; part of the default installation            -
+msys64      Install with Chocolatey then run C:\tools\msys64\usr\bin\bash and:
+            $ pacman -S make yasm diffutils
+bash        Included with msys64
+
+tar         Install with msys64 or use native Windows
 
 Don't forget to add the tools to your PATH, such as:
     C:\Perl64\bin
-    C:\cygwin64\bin
+    C:\tools\msys64
+    C:\tools\msys64\usr\bin
     C:\Program Files\NASM
     C:\Program Files\Git\cmd
 
@@ -2523,23 +2505,11 @@ of:
     C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 ... depending on your version of Visual Studio.
 
-If you install Cygwin Perl (package "perl"), make sure the native Windows
-version of Perl PRECEDES IT in the PATH; you don't want the Cygwin one to be
+If you install msys64 Perl (package "perl"), make sure the native Windows
+version of Perl PRECEDES IT in the PATH; you don't want the msys64 one to be
 the default.
 
 """  # noqa
-
-WINDOWS_PACKAGE_HELP_DEFUNCT = r"""
-Windows (DEFUNCT)
--------------------------------------------------------------------------------
-makedepend  Install the Cygwin (*) package "makedepend"
-readelf     Install the Cygwin (*) package "binutils"
-tclsh       Install the Cygwin package "tcl" AND ALSO:                  tcl
-                C:\> bash
-                $ cp /bin/tclsh8.6.exe /bin/tclsh.exe
-            ... because the built-in "tclsh" (no .exe) isn't found by Windows.
-
-"""
 
 
 def require(command: str) -> None:
@@ -2560,79 +2530,6 @@ def require(command: str) -> None:
     log.critical(missing_msg)
     log.warning("{}", helpmsg)
     raise ValueError(missing_msg)
-
-
-def ensure_first_perl_is_not_cygwin() -> None:
-    r"""
-    For Windows: ensure that the Perl we get when we call "perl" isn't a Cygwin
-    version.
-
-    Why?
-
-    ===============================================================================
-    WORKING DIRECTORY: C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g
-    COMMAND: perl C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure VC-WIN64A shared no-ssl3
-    ===============================================================================
-    File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob() instead. at C:\Users\Rudolf\dev\qt_local_build\openssl_windows_x86_64_build\openssl-1.1.0g\Configure line 270.
-    Configuring OpenSSL version 1.1.0g (0x1010007fL)
-        no-asan         [default]  OPENSSL_NO_ASAN
-        no-crypto-mdebug [default]  OPENSSL_NO_CRYPTO_MDEBUG
-        no-crypto-mdebug-backtrace [default]  OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
-        no-ec_nistp_64_gcc_128 [default]  OPENSSL_NO_EC_NISTP_64_GCC_128
-        no-egd          [default]  OPENSSL_NO_EGD
-        no-fuzz-afl     [default]  OPENSSL_NO_FUZZ_AFL
-        no-fuzz-libfuzzer [default]  OPENSSL_NO_FUZZ_LIBFUZZER
-        no-heartbeats   [default]  OPENSSL_NO_HEARTBEATS
-        no-md2          [default]  OPENSSL_NO_MD2 (skip dir)
-        no-msan         [default]  OPENSSL_NO_MSAN
-        no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
-        no-sctp         [default]  OPENSSL_NO_SCTP
-        no-ssl-trace    [default]  OPENSSL_NO_SSL_TRACE
-        no-ssl3         [option]   OPENSSL_NO_SSL3
-        no-ssl3-method  [default]  OPENSSL_NO_SSL3_METHOD
-        no-ubsan        [default]  OPENSSL_NO_UBSAN
-        no-unit-test    [default]  OPENSSL_NO_UNIT_TEST
-        no-weak-ssl-ciphers [default]  OPENSSL_NO_WEAK_SSL_CIPHERS
-        no-zlib         [default]
-        no-zlib-dynamic [default]
-    Configuring for VC-WIN64A
-
-    ------------------------------------------------------------------------------
-    This perl implementation doesn't produce Windows like paths (with backward
-    slash directory separators).  Please use an implementation that matches your
-    building platform.
-
-    This Perl version: 5.26.1 for x86_64-cygwin-threads-multi
-    ------------------------------------------------------------------------------
-
-    $ which perl
-    /usr/bin/perl
-
-    >>> shutil.which("perl")
-    'C:\\cygwin64\\bin\\perl.EXE'
-
-    # Then after installing ActiveState Perl:
-
-    $ which perl
-    /cygdrive/c/Perl64/bin/perl
-
-    >>> shutil.which("perl")
-    'C:\\Perl64\\bin\\perl.EXE'
-
-    # ... and then it works.
-
-    """  # noqa
-    require(PERL)
-    which = shutil.which(PERL)
-    if (
-        "cygwin" in which.lower()
-    ):  # imperfect check based on default Cygwin installation path  # noqa
-        fail(
-            f"The first instance of Perl on your path ({which}) is from "
-            f"Cygwin. This will fail when building OpenSSL. Please re-order "
-            f"your PATH so that a Windows version, e.g. ActiveState Perl, "
-            f"comes first."
-        )
 
 
 def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
@@ -2885,7 +2782,7 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
 
     """  # noqa: E501
 
-    # http://doc.qt.io/qt-5/opensslsupport.html
+    # https://doc.qt.io/qt-6.5/opensslsupport.html
 
     # Revised 2019-06-16 for OpenSSL 1.1.1c:
     if target_platform.android:
@@ -2973,7 +2870,8 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # OpenSSL: Prerequisites
     # -------------------------------------------------------------------------
     if BUILD_PLATFORM.windows:
-        ensure_first_perl_is_not_cygwin()
+        # OpenSSL will check if the default Perl executable is suitable for
+        # Windows paths
         require(NASM)
 
     # -------------------------------------------------------------------------
@@ -3023,17 +2921,33 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             shortbasename = basename[len(libprefix) :]  # noqa: E203
             shadow_targets.append(join(dirname, shortbasename))
 
+    if target_platform.android:
+        # https://bugreports.qt.io/browse/QTBUG-110915
+        # need to rename targets to be e.g. libssl_3.so
+        for t in main_targets:
+            path = PurePath(t)
+            shadow_target = PurePath(
+                path.parent / f"{path.stem}_3"
+            ).with_suffix(path.suffix)
+            shadow_targets.append(shadow_target)
+
     targets = main_targets + shadow_targets
-    if not cfg.force and all(isfile(x) for x in targets):
+    if not cfg.force_openssl and all(isfile(x) for x in targets):
         report_all_targets_exist("OpenSSL", targets)
         return
 
     # -------------------------------------------------------------------------
     # OpenSSL: Unpack source
     # -------------------------------------------------------------------------
-    untar_to_directory(
-        cfg.openssl_src_fullpath, rootdir, run_func=run, chdir_via_python=True
-    )
+    openssl_version_dir = join(rootdir, f"openssl-{cfg.openssl_version}")
+    if not isdir(openssl_version_dir):
+        untar_to_directory(
+            tarfile=cfg.openssl_src_fullpath,
+            directory=rootdir,
+            skip_if_dir_exists=False,  # This is openssl_xxx_build directory
+            run_func=run,
+            chdir_via_python=True,
+        )
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 1/2
@@ -3125,7 +3039,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # ---------------------------------------------------------------------
         use_configure = True  # Better!
         if use_configure or not target_platform.android:
-            # http://doc.qt.io/qt-5/opensslsupport.html
+            # https://doc.qt.io/qt-6.5/opensslsupport.html
             if BUILD_PLATFORM.windows:
                 log.warning(
                     "The OpenSSL Configure script may warn about "
@@ -3144,31 +3058,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # OpenSSL: Make
         # ---------------------------------------------------------------------
         makefile = join(workdir, "Makefile")  # written to by Configure
-
-        if target_platform.ios:
-            # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-            # add -isysroot to CC=
-            run(
-                [
-                    SED,
-                    "-i",  # in place
-                    "-e",  # execute the script expression that follows
-                    (
-                        f"s"  # s/regexp/replacement/
-                        f"!"  # use '!' not '/' to delineate regex
-                        f"^CFLAGS="
-                        f"!"
-                        f"CFLAGS=-isysroot {env['CROSS_TOP']}/SDKs/{env['CROSS_SDK']} "  # noqa
-                        f"-mios-version-min={cfg.ios_min_version} "
-                        f"-miphoneos-version-min={cfg.ios_min_version} "
-                        f"!"
-                    ),
-                    makefile,
-                ]
-            )
-            # 2018-08-24: was CFLAG=, now CFLAGS=
-            # 2018-08-24: makefile was modified before Configure called; daft
-
         extra_args = []  # type: List[str]
 
         # A particular problem is that Android .so libraries must be
@@ -3186,7 +3075,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         #
         # The 1.1.0g Makefile.shared has things like SHLIBVERSION.
         #
-        # [1] http://doc.qt.io/qt-5/opensslsupport.html, 2018-07-24
+        # [1] https://doc.qt.io/qt-6.5/opensslsupport.html, 2018-07-24
         # [2] https://stackoverflow.com/questions/24204366/how-to-build-openssl-as-unversioned-shared-lib-for-android  # noqa
         # [3] https://stackoverflow.com/questions/2826029/passing-additional-variables-from-command-line-to-make  # noqa
         # [4] https://ftp.openssl.org/source/old/
@@ -3262,7 +3151,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     for i, t in enumerate(main_targets):
         target_platform.verify_lib(t)
-        if BUILD_PLATFORM.windows:
+        if BUILD_PLATFORM.windows or target_platform.android:
             assert len(shadow_targets) == len(main_targets)
             shutil.copyfile(t, shadow_targets[i])
 
@@ -3292,7 +3181,7 @@ def checkout_qt(cfg: Config) -> None:
     """
     fetch_qt(cfg)
 
-    if not already_checked_out(cfg):
+    if not already_checked_out(cfg.qt_src_gitdir, cfg.qt_git_commit):
         chdir(cfg.qt_src_gitdir)
         run([GIT, "checkout", cfg.qt_git_commit])
     # Necessary if we are moving to a new commit. The init-respository perl
@@ -3308,8 +3197,8 @@ def fetch_qt(cfg: Config) -> None:
     run([GIT, "fetch", "--no-recurse-submodules"])
 
 
-def already_checked_out(cfg: Config) -> bool:
-    chdir(cfg.qt_src_gitdir)
+def already_checked_out(src_gitdir: str, commit: str) -> bool:
+    chdir(src_gitdir)
 
     for git_test in [
         [GIT, "symbolic-ref", "-q", "--short", "HEAD"],  # Branch matches
@@ -3320,8 +3209,8 @@ def already_checked_out(cfg: Config) -> bool:
             git_test, allow_failure=True, capture_stdout=True
         )
         name = stdout.strip()
-        if name == cfg.qt_git_commit:
-            log.info("{} already checked out", cfg.qt_git_commit)
+        if name == commit:
+            log.info("{} already checked out", commit)
             return True
 
     return False
@@ -3419,13 +3308,13 @@ def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
 
 
 def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
-    if cfg.clean:
+    if cfg.force_qt:
         return True
 
     installdir = cfg.qt_install_dir(target_platform)
 
     targets = [join(installdir, "bin", target_platform.qmake_executable)]
-    if not cfg.force and all(isfile(x) for x in targets):
+    if all(isfile(x) for x in targets):
         report_all_targets_exist("Qt", targets)
         return False
 
@@ -3446,20 +3335,20 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # probably best to redirect output to a file. There is a lot of it.
     log.info("Configuring Qt for {}...", target_platform)
 
-    # http://doc.qt.io/qt-5/opensslsupport.html
+    # https://doc.qt.io/qt-6.5/opensslsupport.html
     # Android:
     #       example at http://wiki.qt.io/Qt5ForAndroidBuilding
     # Windows:
     #       https://stackoverflow.com/questions/14932315/how-to-compile-qt-5-under-windows-or-linux-32-or-64-bit-static-or-dynamic-on-v  # noqa
     #       ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
-    #       http://doc.qt.io/qt-5/windows-building.html
+    #       https://doc.qt.io/qt-6.5/windows-building.html
     #       http://wiki.qt.io/Jom
     #       http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
     # iOS:
-    #       http://doc.qt.io/qt-5/building-from-source-ios.html
-    #       http://doc.qt.io/qt-5/ios-support.html
+    #       https://doc.qt.io/qt-6.5/building-from-source-ios.html
+    #       https://doc.qt.io/qt-6.5/ios-support.html
     # macOS:
-    #       http://doc.qt.io/qt-5/osx.html
+    #       https://doc.qt.io/qt-6.5/osx.html
     # -------------------------------------------------------------------------
     # Qt: Setup
     # -------------------------------------------------------------------------
@@ -3491,18 +3380,21 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # build there.
     # https://stackoverflow.com/questions/24261974 (comments)
 
-    # --clean option: ... do this if something goes wrong, but it is slow;
+    # --force_qt option: ... do this if something goes wrong, but it is slow;
     # maybe not routinely (unless you're diagnosing problems with the build)?
-    if cfg.clean:
+    if cfg.force_qt:
         log.info("Removing {}".format(builddir))
-        shutil.rmtree(builddir)
+        shutil.rmtree(builddir, ignore_errors=True)
         log.info("Removing {}".format(installdir))
-        shutil.rmtree(installdir)
+        shutil.rmtree(installdir, ignore_errors=True)
 
     # -------------------------------------------------------------------------
     # Qt: Environment
     # -------------------------------------------------------------------------
     env = cfg.get_starting_env()
+    if target_platform.windows:
+        cfg.update_windows_env_from_vcvarsall(env, target_platform)
+
     if target_platform.use_openssl_with_qt:
         opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(
             target_platform
@@ -3629,7 +3521,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             )
 
     elif target_platform.ios:
-        # http://doc.qt.io/qt-5/building-from-source-ios.html
+        # https://doc.qt.io/qt-6.5/building-from-source-ios.html
         # "A default build builds both the simulator and device libraries."
         # Use Apple's own SSL implementation
         qt_config_args += ["-securetransport", "-xplatform", "macx-ios-clang"]
@@ -3815,8 +3707,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     log.info(
         f"Making Qt {target_platform.description} build into {installdir}"
     )
+
+    env = cfg.get_starting_env()
+    if target_platform.windows:
+        cfg.update_windows_env_from_vcvarsall(env, target_platform)
+
     with pushd(builddir):
-        # run(cfg.make_args(command="qmake_all", env=env), env)
         try:
             cmake_args = [
                 CMAKE,
@@ -3825,7 +3721,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
                 "--parallel",
                 f"{cfg.nparallel}",
             ]
-            run(cmake_args)
+            run(cmake_args, env)
         except subprocess.CalledProcessError:
             log.warning(
                 """Qt 'make' failure.
@@ -3860,7 +3756,7 @@ A.  Standard header files like os/log.h should live within
     # -------------------------------------------------------------------------
     with pushd(builddir):
         cmake_args = [CMAKE, "--install", "."]
-        run(cmake_args)
+        run(cmake_args, env)
 
         # ... installs to installdir because of -prefix earlier
     return installdir
@@ -3899,25 +3795,21 @@ def fetch_sqlcipher(cfg: Config) -> None:
     git_clone(
         prettyname="SQLCipher",
         url=cfg.sqlcipher_git_url,
-        commit=cfg.sqlcipher_git_commit,
         directory=cfg.sqlcipher_src_gitdir,
+        # We must have LF endings, not CR+LF, because we're going to use Unix
+        # tools even under Windows.
         clone_options=["--config", "core.autocrlf=false"],
         run_func=run,
     )
-    # We must have LF endings, not CR+LF, because we're going to use Unix tools
-    # even under Windows.
 
-    # The versions of config.guess and config.sub that come with SQLCipher
-    # are taken (I think) from SQLite, and as of 2019-06-15, don't support
-    # "aarch64". So let's fetch some proper ones:
-    log.info(
-        "Replacing config.guess and config.sub with recent GNU versions, "
-        "to detect newer architectures e.g. aarch64"
-    )
-    download(
-        CONFIG_GUESS_MASTER, join(cfg.sqlcipher_src_gitdir, "config.guess")
-    )
-    download(CONFIG_SUB_MASTER, join(cfg.sqlcipher_src_gitdir, "config.sub"))
+    chdir(cfg.sqlcipher_src_gitdir)
+    run([GIT, "fetch"])
+
+    if not already_checked_out(
+        cfg.sqlcipher_src_gitdir, cfg.sqlcipher_git_commit
+    ):
+        chdir(cfg.sqlcipher_src_gitdir)
+        run([GIT, "checkout", cfg.sqlcipher_git_commit])
 
 
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
@@ -3952,7 +3844,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     targets = [target_c, target_h, target_o]
     if want_exe:
         targets.append(target_exe)
-    if all(isfile(x) for x in targets):
+    if not cfg.force_sqlcipher and all(isfile(x) for x in targets):
         report_all_targets_exist("SQLCipher", targets)
         return
 
@@ -4183,7 +4075,9 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         "libavformat.a",
         "libavutil.a",
     ]
-    if not cfg.force and all(isfile(join(targets_dir, x)) for x in targets):
+    if not cfg.force_ffmpeg and all(
+        isfile(join(targets_dir, x)) for x in targets
+    ):
         report_all_targets_exist("FFmpeg", targets)
         return
 
@@ -4198,8 +4092,8 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
     configure = join(workdir, "configure")
 
     if target_platform.windows:
-        configure = configure.replace("C:", "/c")
-        configure = configure.replace("\\", "/")
+        configure = unixify_windows_path(configure)
+        installdir = unixify_windows_path(installdir)
 
     config_args = [
         configure,
@@ -4280,10 +4174,22 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         # Integration scripts and we know they work. (choco install msys2)
         # See qt6/coin/provisioning/common/windows/install-ffmpeg.ps1
         require(MSYS2)
+        cfg.update_windows_env_from_vcvarsall(env, target_platform)
+
         env["MSYS2_PATH_TYPE"] = "inherit"
         env["MSYSTEM"] = "MSYS"
+
+        if target_platform.cpu_x86_32bit_family:
+            arch = "i386"
+            target_os = "win32"
+        else:
+            arch = "x86_64"
+            target_os = "win64"
+
         config_args.extend(
             [
+                f"--target-os={target_os}",
+                f"--arch={arch}",
                 "--toolchain=msvc",
             ]
         )
@@ -4311,8 +4217,7 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
     appropriately.
     """
     msys_root = Path(shutil.which(MSYS2)).parent.absolute()
-    bash_workdir = workdir.replace("C:", "/c")
-    bash_workdir = bash_workdir.replace("\\", "/")
+    bash_workdir = unixify_windows_path(workdir)
     bash = join(msys_root, "usr", "bin", "bash")
     command = " ".join(command_args)
     bash_cmd_args = [
@@ -4321,6 +4226,13 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
         f"cd {bash_workdir} && {command}",
     ]
     return bash_cmd_args
+
+
+def unixify_windows_path(path: str) -> str:
+    path = path.replace("C:", "/c")
+    path = path.replace("\\", "/")
+
+    return path
 
 
 # =============================================================================
@@ -4342,11 +4254,18 @@ def build_eigen(cfg: Config) -> None:
     """
     'Build' simply means 'unpack' -- header-only template library.
     """
+    eigen_dir = cfg.eigen_unpacked_dir
+    eigen_version_dir = join(eigen_dir, f"eigen-{cfg.eigen_version}")
+    if isdir(eigen_version_dir):
+        log.info("Eigen is already built (unpacked)")
+        return
+
     log.info("Building (unpacking) Eigen...")
     untar_to_directory(
         tarfile=cfg.eigen_src_fullpath,
         directory=cfg.eigen_unpacked_dir,
         gzipped=True,
+        skip_if_dir_exists=False,  # This is the top level 'eigen' directory
         run_func=run,
         chdir_via_python=True,
     )
@@ -4429,7 +4348,7 @@ def master_builder(args) -> None:
 
         if qt_needs_building(cfg, target_platform):
             configure_qt(cfg, target_platform)
-            if cfg.build:
+            if cfg.build_qt:
                 installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
@@ -4477,7 +4396,7 @@ def master_builder(args) -> None:
     ):  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
-    if not cfg.build:
+    if not cfg.build_qt:
         log.info("Configuration only. Not building Qt.")
         sys.exit(EXIT_SUCCESS)
 
@@ -4536,17 +4455,8 @@ def main() -> None:
         ),
     )
     general.add_argument(
-        "--clean",
-        dest="clean",
-        action="store_true",
-        help=(
-            "Clean any existing Qt build and install directory. "
-            "Normally only useful when diagnosing problems with the build."
-        ),
-    )
-    general.add_argument(
-        "--no_build",
-        dest="build",
+        "--no_build_qt",
+        dest="build_qt",
         action="store_false",
         help="Only run Qt configure, don't build Qt",
     )
@@ -4562,7 +4472,23 @@ def main() -> None:
         default=CPU_COUNT,
         help="Number of parallel processes to run",
     )
-    general.add_argument("--force", action="store_true", help="Force build")
+    general.add_argument(
+        "--force", action="store_true", help="Force rebuild of everything"
+    )
+    general.add_argument(
+        "--force_ffmpeg", action="store_true", help="Force rebuild of FFmpeg"
+    )
+    general.add_argument(
+        "--force_openssl", action="store_true", help="Force rebuild of OpenSSL"
+    )
+    general.add_argument(
+        "--force_qt", action="store_true", help="Force rebuild of Qt"
+    )
+    general.add_argument(
+        "--force_sqlcipher",
+        action="store_true",
+        help="Force rebuild of SQLCipher",
+    )
     general.add_argument(
         "--tee",
         type=str,

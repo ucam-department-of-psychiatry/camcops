@@ -39,7 +39,7 @@ NOTES
   - https://github.com/sqlcipher/sqlcipher/issues/67
 
 - In Qt, you MUST use a new connection for each thread.
-  http://doc.qt.io/qt-5/threads-modules.html#threads-and-the-sql-module
+  https://doc.qt.io/qt-6.5/threads-modules.html#threads-and-the-sql-module
 
 - Differentiating a read query from a write query:
 
@@ -190,4 +190,4 @@ Then, for >1 database:
 
 See also:
     https://woboq.com/blog/introduction-to-lockfree-programming.html
-    http://doc.qt.io/qt-5/qtcore-threads-waitconditions-example.html
+    https://doc.qt.io/qt-6.5/qtcore-threads-waitconditions-example.html

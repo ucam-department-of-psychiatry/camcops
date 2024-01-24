@@ -402,7 +402,7 @@ void drawText(QPainter& painter,
 
     const QRectF rect(corner, QSizeF(size, size));
     painter.drawText(rect, flags, text, bounding_rect);
-    // http://doc.qt.io/qt-5/qpainter.html#drawText-4
+    // https://doc.qt.io/qt-6.5/qpainter.html#drawText-4
 }
 
 
@@ -725,7 +725,7 @@ QGraphicsPixmapItem* makeImage(
         auto opacity_img = new GraphicsPixmapItemWithOpacity(pixmap_scaled);
         opacity_img->setOpacity(opacity);
         img = opacity_img;
-        scene->addItem(img);  // the scene takes ownership: http://doc.qt.io/qt-5/qgraphicsscene.html#addItem
+        scene->addItem(img);  // the scene takes ownership: https://doc.qt.io/qt-6.5/qgraphicsscene.html#addItem
     } else {
         img = scene->addPixmap(pixmap_scaled);
     }

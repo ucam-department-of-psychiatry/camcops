@@ -16,7 +16,7 @@ sudo apt install \
 
 SEE ALSO THE END OF build_qt.py
 
-[1] http://doc.qt.io/qt-5/linux.html#requirements-for-development-host
+[1] https://doc.qt.io/qt-6.5/linux.html#requirements-for-development-host
 [2] probably: https://wiki.qt.io/QtWayland#Desktop_build_instructions
 [3] qtimageformats/src/plugins/imageformats/webp/webp.pro
 [4] see build_qt.py
@@ -230,7 +230,7 @@ A.  You are building with an edition of Qt configured with "-system-xcb" rather
     than "-qt-xcb". (Possibly because "-qt-xcb" seems to be buggy under Qt
     5.1.0; see https://bugreports.qt.io/browse/QTBUG-64928 .)
 
-    See http://doc.qt.io/qt-5/linux-requirements.html and run
+    See https://doc.qt.io/qt-6.5/linux-requirements.html and run
 
     sudo apt install \
         libfontconfig1-dev \

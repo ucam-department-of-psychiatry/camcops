@@ -164,7 +164,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 {
     const QString& longtext = TextConst::LOREM_IPSUM_1;
     const QString& lipsum2 = TextConst::LOREM_IPSUM_2;
-    const QString url(QStringLiteral("http://doc.qt.io/qt-5.7/richtext-html-subset.html"));
+    const QString url(QStringLiteral("https://doc.qt.io/qt-6.5/richtext-html-subset.html"));
     const QString html(tr(
         "Text with embedded HTML markup, providing <b>bold</b>, "
         "<i>italic</i>, and others as per Qt rich text syntax at "

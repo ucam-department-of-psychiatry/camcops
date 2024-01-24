@@ -47,8 +47,6 @@ tablet_qt
     common/design_defines.h.rst
     common/dpi.cpp.rst
     common/dpi.h.rst
-    common/globals.cpp.rst
-    common/globals.h.rst
     common/gui_defines.h.rst
     common/languages.cpp.rst
     common/languages.h.rst

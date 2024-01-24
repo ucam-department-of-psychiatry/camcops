@@ -38,7 +38,7 @@ class QuTextEdit : public QuElement
 public:
 
     // Constructor.
-    // - accept_rich_text: see http://doc.qt.io/qt-5/qtextedit.html#acceptRichText-prop
+    // - accept_rich_text: see https://doc.qt.io/qt-6.5/qtextedit.html#acceptRichText-prop
     QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text = false,
                QObject* parent = nullptr);
 

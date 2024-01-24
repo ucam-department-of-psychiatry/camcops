@@ -552,7 +552,7 @@ QByteArray imageToByteArray(const QImage& image, const char* format)
 {
     // I thought passing a QImage to a QVariant-accepting function would lead
     // to autoconversion via
-    //     http://doc.qt.io/qt-5/qimage.html#operator-QVariant
+    //     https://doc.qt.io/qt-6.5/qimage.html#operator-QVariant
     // ... but it doesn't.
     // So: http://stackoverflow.com/questions/27343576
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
@@ -993,7 +993,7 @@ void registerTypesForQVariant()
     TYPE_ID_VERSION = qRegisterMetaType<Version>();
 
     // See also the calls to Q_DECLARE_METATYPE().
-    // http://doc.qt.io/qt-5/qtcore-tools-customtype-example.html
+    // https://doc.qt.io/qt-6.5/qtcore-tools-customtype-example.html
 }
 
 
@@ -1013,8 +1013,8 @@ QVector<int> qVariantToIntVector(const QVariant& v)
 {
     // We're adding support for QVector<int>.
     // - http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
-    // - http://doc.qt.io/qt-5/qvariant.html
-    // - http://doc.qt.io/qt-5/qmetatype.html
+    // - https://doc.qt.io/qt-6.5/qvariant.html
+    // - https://doc.qt.io/qt-6.5/qmetatype.html
     return v.value<QVector<int>>();
 }
 

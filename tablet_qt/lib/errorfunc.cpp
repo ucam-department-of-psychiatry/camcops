@@ -26,7 +26,7 @@ void fatalError(const QString& error)
 {
     const QString msg = "ABORTING: " + error;
     // qFatal() will kill the app
-    // http://doc.qt.io/qt-4.8/qtglobal.html#qFatal
+    // https://doc.qt.io/qt-6.5/qtglobal.html#qFatal
     // If the first argument is not a string literal:
     // "format not a string literal and no format arguments"
     // https://bugreports.qt.io/browse/QTBUG-8967

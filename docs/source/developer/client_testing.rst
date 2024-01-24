@@ -19,7 +19,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
-.. _Qt Test: https://doc.qt.io/qt-5/qtest-overview.html
+.. _Qt Test: https://doc.qt.io/qt-6.5/qtest-overview.html
 
 
 Testing the client code

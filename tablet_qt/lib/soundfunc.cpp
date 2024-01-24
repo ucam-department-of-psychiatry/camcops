@@ -43,7 +43,7 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
     auto audio_output = new QAudioOutput();
     audio_output->setDevice(QMediaDevices::defaultAudioOutput());
     player->setAudioOutput(audio_output);
-    // http://doc.qt.io/qt-5/qsharedpointer.html
+    // https://doc.qt.io/qt-6.5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
     // ... but it's not enough; see finishMediaPlayer().

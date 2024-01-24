@@ -143,7 +143,7 @@ Client core
 
 - Maybe implement pinch zoom for some subclasses of OpenableWidget, e.g.
   MenuWindow and Questionaire. See
-  http://doc.qt.io/qt-5/qtwidgets-gestures-imagegestures-example.html
+  https://doc.qt.io/qt-6.5/qtwidgets-gestures-imagegestures-example.html
 
 - QuAudioRecording: questionnaire element to record audio
 

@@ -43,7 +43,7 @@ const QString CAMERA_QML("camcops/camera_qml/camera.qml");
 /*
 
 For examples see
-- http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-example.html
+- https://doc.qt.io/qt-6.5/qtmultimedia-multimediawidgets-camera-example.html
 - qt5/qtmultimedia/examples/multimediawidgets/camera/camera.cpp
 - qt5/qtmultimedia/examples/multimedia/declarative-camera/...
 
@@ -58,7 +58,7 @@ Yet presumably all the QML stuff uses the same underlying CPP code?
 
 Or maybe not?
 - https://forum.qt.io/topic/59394/declarative-camera-vs-widget-based-camera-qml-to-c-breakout
-- http://doc.qt.io/qt-5/qtqml-cppintegration-interactqmlfromcpp.html
+- https://doc.qt.io/qt-6.5/qtqml-cppintegration-interactqmlfromcpp.html
 - http://lists.qt-project.org/pipermail/android-development/2015-September/000734.html
 - https://stackoverflow.com/questions/40153156/qt-qcamera-not-working-on-android
 - https://bugreports.qt.io/browse/QTBUG-38233
@@ -87,7 +87,7 @@ CameraQml::CameraQml(QWidget* parent) :
 
 QWidget::createWindowContainer()
     - https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
-    - http://doc.qt.io/qt-5/qquickview.html#details
+    - https://doc.qt.io/qt-6.5/qquickview.html#details
     - http://blog.qt.io/blog/2013/02/19/introducing-qwidgetcreatewindowcontainer/
 
 BUT:

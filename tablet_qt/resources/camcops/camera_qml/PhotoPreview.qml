@@ -59,12 +59,12 @@ Item {
     signal closed
     signal previewSaved  // RNC
 
-    Image {  // http://doc.qt.io/qt-6.2/qml-qtquick-image.html
+    Image {  // https://doc.qt.io/qt-6.5/qml-qtquick-image.html
         id: preview
         anchors.fill : parent
         fillMode: Image.PreserveAspectFit
         smooth: true
-        // source is a url: http://doc.qt.io/qt-5/qml-url.html
+        // source is a url: https://doc.qt.io/qt-6.5/qml-url.html
         source: imageCapture.preview
     }
 

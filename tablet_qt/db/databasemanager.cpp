@@ -349,7 +349,7 @@ void DatabaseManager::waitForQueriesToComplete()
                  << "... woken by m_queries_are_complete";
 #endif
         // ... this mutex is UNLOCKED as we go to sleep, and LOCKED
-        //     as we wake: http://doc.qt.io/qt-5/qwaitcondition.html#wait
+        //     as we wake: https://doc.qt.io/qt-6.5/qwaitcondition.html#wait
     }
 #ifdef DEBUG_VERBOSE_PROCESS
     else {

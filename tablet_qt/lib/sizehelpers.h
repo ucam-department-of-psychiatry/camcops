@@ -39,7 +39,7 @@ namespace sizehelpers {
 
 /*
 
-QSizePolicy: https://doc.qt.io/qt-5/qsizepolicy.html
+QSizePolicy: https://doc.qt.io/qt-6.5/qsizepolicy.html
 
     QSizePolicy::GrowFlag	1	The widget can grow beyond its size hint if necessary.
     QSizePolicy::ExpandFlag	2	The widget should get as much space as possible.

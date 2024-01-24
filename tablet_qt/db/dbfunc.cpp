@@ -200,7 +200,7 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
     return success;
     // The return value is boolean (success?).
     // Use query.next() to iterate through a result set; see
-    // http://doc.qt.io/qt-4.8/sql-sqlstatements.html
+    // https://doc.qt.io/qt-6.5/sql-sqlstatements.html
 }
 
 

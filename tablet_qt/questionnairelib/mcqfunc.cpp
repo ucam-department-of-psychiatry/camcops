@@ -75,7 +75,7 @@ const Qt::Alignment stem_widget_align = Qt::AlignHCenter | Qt::AlignBottom;
 
 - Layouts don't draw.
 - They are unresponsive to CSS.
-  http://doc.qt.io/qt-5.7/stylesheet-reference.html
+  https://doc.qt.io/qt-6.5/stylesheet-reference.html
 - Use setSpacing() and related to set/remove spacing between widgets.
 - So one possibility is:
     - setSpacing(0)

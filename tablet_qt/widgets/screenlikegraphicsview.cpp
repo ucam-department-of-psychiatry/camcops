@@ -56,7 +56,7 @@ void ScreenLikeGraphicsView::setBackgroundColour(const QColor& colour)
 void ScreenLikeGraphicsView::resizeEvent(QResizeEvent* event)
 {
     /*
-    http://doc.qt.io/qt-5.8/qgraphicsview.html
+    https://doc.qt.io/qt-6.5/qgraphicsview.html
     "Note though, that calling fitInView() from inside resizeEvent() can lead
     to unwanted resize recursion, if the new transformation toggles the
     automatic state of the scrollbars. You can toggle the scrollbar policies to

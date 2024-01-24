@@ -786,7 +786,7 @@ void DatabaseObject::setFromQuery(const QueryResult& query_result,
                                   const bool order_matches_fetchquery)
 {
     MutableMapIteratorType it(m_record);
-    // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
+    // Note: QMap iteration is ordered; https://doc.qt.io/qt-6.5/qmap.html
     if (order_matches_fetchquery) {  // faster
         int field_index = -1;
         while (it.hasNext()) {
