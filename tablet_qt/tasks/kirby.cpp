@@ -30,14 +30,18 @@
 #include "db/ancillaryfunc.h"
 #include "lib/convert.h"
 #include "lib/version.h"
-#include "maths/eigenfunc.h"
-#include "maths/include_eigen_core.h"
 #include "maths/logisticregression.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
+
+#ifdef DEBUG_WILEYTO_CALCS
+#include "maths/eigenfunc.h"
+#include "maths/include_eigen_core.h"
+#endif
 
 
 // ============================================================================

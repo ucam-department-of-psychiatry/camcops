@@ -20,10 +20,8 @@
 
 #include "quthermometer.h"
 #include <QLabel>
-#include "layouts/layouts.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
-#include "widgets/imagebutton.h"
 #include "widgets/thermometer.h"
 
 const int DEFAULT_TEXT_GAP_PX = 5;

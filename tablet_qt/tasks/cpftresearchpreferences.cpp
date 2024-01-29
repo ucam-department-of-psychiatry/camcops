@@ -25,7 +25,6 @@
 
 #include "cpftresearchpreferences.h"
 
-#include "common/textconst.h"
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/databaseobject.h"
@@ -39,7 +38,6 @@
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
-#include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 

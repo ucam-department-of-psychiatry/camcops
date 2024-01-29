@@ -31,6 +31,7 @@
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 #include "questionnairelib/questionnaire.h"
 

@@ -26,7 +26,6 @@
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
-#include "widgets/labelwordwrapwide.h"
 
 
 QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref,

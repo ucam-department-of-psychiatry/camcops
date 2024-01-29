@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QTimer>
 #include "common/textconst.h"
-#include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbnestabletransaction.h"
 #include "graphics/graphicsfunc.h"
@@ -44,6 +43,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 #include "taskxtra/cardinalexpdetthresholdtrial.h"

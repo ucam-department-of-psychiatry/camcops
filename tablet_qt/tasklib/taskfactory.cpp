@@ -23,6 +23,7 @@
 #include "taskfactory.h"
 #include <algorithm>
 #include "core/camcopsapp.h"
+#include "db/databasemanager.h"
 #include "lib/comparers.h"
 #include "lib/version.h"
 #include "tasklib/task.h"

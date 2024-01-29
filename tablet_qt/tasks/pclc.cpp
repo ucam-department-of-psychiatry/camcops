@@ -20,6 +20,7 @@
 
 #include "pclc.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString PclC::PCLC_TABLENAME("pclc");
 

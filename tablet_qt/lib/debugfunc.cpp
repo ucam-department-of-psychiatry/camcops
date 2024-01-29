@@ -21,6 +21,7 @@
 // #define DEBUG_EVEN_GIANT_VARIANTS
 
 #include "debugfunc.h"
+#include "dialogs/debugdialog.h"
 #include <QDebug>
 #include <QVariant>
 

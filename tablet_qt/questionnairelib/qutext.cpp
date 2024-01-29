@@ -23,7 +23,6 @@
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
-#include "widgets/labelwordwrapwide.h"
 
 
 QuText::QuText(const QString& text, FieldRefPtr fieldref, QObject* parent) :

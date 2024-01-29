@@ -26,12 +26,12 @@
 #include "questionnairelib/questionwithonefield.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::anyNull;
 using mathfunc::sumInt;
@@ -166,21 +166,23 @@ double Rapid3::globalEstimate() const
 
 QString Rapid3::diseaseSeverity() const
 {
-    const QVariant rapid3 = this->rapid3();
+    const QVariant rapid3_variant = this->rapid3();
 
-    if (rapid3.isNull()) {
+    if (rapid3_variant.isNull()) {
         return xstring("n_a");
     }
 
-    if (rapid3.toDouble() <= 3.0) {
+    const double rapid3 = rapid3_variant.toDouble();
+
+    if (rapid3 <= 3.0) {
         return xstring("near_remission");
     }
 
-    if (rapid3.toDouble() <= 6.0) {
+    if (rapid3 <= 6.0) {
         return xstring("low_severity");
     }
 
-    if (rapid3.toDouble() <= 12.0) {
+    if (rapid3 <= 12.0) {
         return xstring("moderate_severity");
     }
 

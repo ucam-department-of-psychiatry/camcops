@@ -81,11 +81,9 @@
 #include <QVideoFrame>
 #include <QVideoWidget>
 #include "common/cssconst.h"
-#include "common/preprocessor_aid.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "dialogs/scrollmessagebox.h"
-#include "imagebutton.h"
 #include "lib/uifunc.h"
 
 // NOT IMPLEMENTED (see CameraQml instead): choose camera front/back

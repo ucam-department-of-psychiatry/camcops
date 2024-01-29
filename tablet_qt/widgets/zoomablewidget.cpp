@@ -25,7 +25,6 @@
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QVBoxLayout>
-#include "qobjects/sizewatcher.h"
 #include "widgets/zoomablegraphicsview.h"
 
 /*

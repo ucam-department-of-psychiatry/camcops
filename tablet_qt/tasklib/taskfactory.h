@@ -19,7 +19,6 @@
 */
 
 #pragma once
-#include <type_traits>  // for std::is_base_of
 #include <QList>
 #include <QMap>
 #include <QSharedPointer>
@@ -28,7 +27,6 @@
 #include "common/dbconst.h"
 #include "task.h"
 #include "taskproxy.h"
-#include "taskregistrar.h"
 
 class CamcopsApp;
 class Version;

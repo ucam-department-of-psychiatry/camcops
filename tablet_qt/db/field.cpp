@@ -19,7 +19,7 @@
 */
 
 #include "field.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/errorfunc.h"
@@ -305,6 +305,9 @@ QString Field::sqlColumnType() const
         return SQLITE_TYPE_BLOB;
 
     default:
+        // Can't use further "case" statements here as the comparisons are to
+        // a technically non-const expression (integers set by
+        // convert::registerTypesForQVariant).
         if (type_id == convert::TYPE_ID_QVECTOR_INT) {
             return SQLITE_TYPE_TEXT;
         }

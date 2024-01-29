@@ -22,11 +22,12 @@
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
-#include "tasklib/taskfactory.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::scorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;

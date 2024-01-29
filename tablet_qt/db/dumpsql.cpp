@@ -23,7 +23,6 @@
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include "db/databasemanager.h"
-#include "db/dbfunc.h"
 #include "db/queryresult.h"
 #include "lib/stringfunc.h"
 using stringfunc::replaceFirst;

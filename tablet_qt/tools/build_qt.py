@@ -406,11 +406,10 @@ from pathlib import Path, PurePath
 import platform
 import re
 import shutil
-import stat
 import subprocess
 import sys
 import traceback
-from typing import Any, Callable, Dict, List, NoReturn, TextIO, Tuple
+from typing import Dict, List, NoReturn, TextIO, Tuple, Union
 
 try:
     import cardinal_pythonlib
@@ -1358,7 +1357,9 @@ class Platform(object):
     # Other cross-compilation details
     # -------------------------------------------------------------------------
 
-    def _get_tool(self, tool: str, fullpath: bool, cfg: "Config") -> str:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _get_tool(tool: str, fullpath: bool, cfg: "Config") -> str:
         """
         Work out the name of an appropriate compilation/linkage/...
         tool
@@ -1752,7 +1753,8 @@ class Config(object):
         workdir = join(rootdir, f"openssl-{self.openssl_version}")
         return rootdir, workdir
 
-    def use_ffmpeg(self, target_platform: Platform) -> bool:
+    @staticmethod
+    def use_ffmpeg(target_platform: Platform) -> bool:
         if target_platform.ios:
             return False
 
@@ -2912,7 +2914,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # hard-code the "-lcrypto" (in that example, in its test suite as it
     # compiles conftest.c). So we're best off using the Linux notation but
     # making additional copies of the libraries:
-    shadow_targets = []  # type: List[str]
+    shadow_targets = []  # type: List[Union[str, PurePath]]
     libprefix = "lib"
     if BUILD_PLATFORM.windows:
         for t in main_targets:
@@ -3302,9 +3304,11 @@ def patch_qt(cfg: Config) -> None:
                 )
 
 
-def remove_readonly(func: Callable[..., Any], path: Any, excinfo: Any) -> None:
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
+# def remove_readonly(
+#         func: Callable[..., Any], path: Any, excinfo: Any
+# ) -> None:
+#     os.chmod(path, stat.S_IWRITE)
+#     func(path)
 
 
 def qt_needs_building(cfg: Config, target_platform: Platform) -> bool:
@@ -3427,7 +3431,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     qt_config_cmake_args = ["-Wno-dev"]
 
     if target_platform.use_openssl_with_qt:
+        # noinspection PyUnboundLocalVariable
         includedirs.append(openssl_include_root)  # #include files for OpenSSL
+        # noinspection PyUnboundLocalVariable
         libdirs.append(openssl_lib_root)  # libraries for OpenSSL
 
     qt_config_args = [
@@ -3620,6 +3626,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             qt_config_args += ["-openssl", "yes"]  # OpenSSL
 
         # Qt's idea of "root" different to our own
+        # noinspection PyUnboundLocalVariable
         qt_config_cmake_args.append(f"-DOPENSSL_ROOT_DIR={opensslworkdir}")
 
     if cfg.use_ffmpeg(target_platform):

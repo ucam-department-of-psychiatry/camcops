@@ -23,15 +23,12 @@
 #include <QString>
 #include <QWidget>
 #include "db/fieldref.h"
-#include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quunitselector.h"
-#include "questionnairelib/qumcq.h"
 
 
 QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
@@ -54,6 +51,7 @@ FieldRefPtrList QuHeight::getImperialFieldrefs() const
 {
     return FieldRefPtrList({m_fr_ft, m_fr_in});
 }
+
 
 QPointer<QuElement> QuHeight::buildMetricGrid()
 {

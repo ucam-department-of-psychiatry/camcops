@@ -21,7 +21,6 @@
 // #define DEBUG_TICKS
 
 #include "qucountdown.h"
-#include <functional>
 #include <QAudioOutput>
 #include <QHBoxLayout>
 #include <QLabel>

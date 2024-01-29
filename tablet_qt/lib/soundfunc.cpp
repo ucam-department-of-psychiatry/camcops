@@ -134,7 +134,10 @@ void setVolume(const QSharedPointer<QMediaPlayer>& player,
 void setVolume(const QSharedPointer<QMediaPlayer>& player,
                const double volume_proportion)
 {
-    player->audioOutput()->setVolume(volume_proportion);
+    QAudioOutput* output = player->audioOutput();
+    if (output) {
+        output->setVolume(volume_proportion);  // argument range: 0 to 1
+    }
 }
 
 

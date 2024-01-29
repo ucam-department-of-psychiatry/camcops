@@ -19,11 +19,7 @@
 */
 
 #include "khandakermojomedical.h"
-#include "common/cssconst.h"
-#include "common/textconst.h"
-#include "lib/convert.h"
 #include "lib/uifunc.h"
-#include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
@@ -39,6 +35,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 
 const QString KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME(

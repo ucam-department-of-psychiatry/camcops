@@ -21,7 +21,6 @@
 #include "allowedservertable.h"
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
-#include "lib/convert.h"
 #include "lib/version.h"
 
 const QString ALLOWEDSERVERTABLES_TABLENAME("allowed_server_tables");

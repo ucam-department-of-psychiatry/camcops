@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QDebug>
-#include "dialogs/debugdialog.h"
 #include "lib/layoutdumper.h"
 
 class Questionnaire;

@@ -24,11 +24,11 @@
 #include <QWidget>
 #include "db/fieldref.h"
 #include "layouts/layouts.h"
-#include "lib/convert.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
+#include "widgets/basewidget.h"
 
 
 QuUnitSelector::QuUnitSelector(NameValueOptions options) :

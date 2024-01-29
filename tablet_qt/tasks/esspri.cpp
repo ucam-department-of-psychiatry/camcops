@@ -19,21 +19,18 @@
 */
 
 #include "esspri.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::meanOrNull;
 using mathfunc::scorePhraseVariant;

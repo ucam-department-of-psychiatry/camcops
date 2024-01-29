@@ -24,6 +24,7 @@
 #include <QWidget>
 #include "db/fieldref.h"
 #include "layouts/layouts.h"
+#include "widgets/basewidget.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quunitselector.h"

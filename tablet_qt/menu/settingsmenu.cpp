@@ -24,8 +24,6 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QTextStream>
-#include "common/design_defines.h"
-#include "common/languages.h"
 #include "common/platform.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -45,22 +43,15 @@
 #include "menulib/menuitem.h"
 #include "menulib/serversettingswindow.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/qubutton.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qugridcell.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qulineedit.h"
-#include "questionnairelib/qulineeditdouble.h"
-#include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
-#include "questionnairelib/quslider.h"
 #include "questionnairelib/qutext.h"
-#include "widgets/labelwordwrapwide.h"
 #include "lib/slowguiguard.h"
 
 

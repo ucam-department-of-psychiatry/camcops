@@ -20,7 +20,7 @@
 
 #pragma once
 #include <QImage>
-#include "db/blobfieldref.h"
+#include "common/aliases_camcops.h"
 #include "questionnairelib/quelement.h"
 
 class CanvasWidget;

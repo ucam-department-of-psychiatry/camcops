@@ -36,11 +36,12 @@
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/errorfunc.h"
 #include "lib/stringfunc.h"
+#include "lib/version.h"
 #include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
 #include "whisker/whiskerconnectionstate.h"

@@ -19,24 +19,16 @@
 */
 
 #include "paradise24.h"
-#include "common/textconst.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
-#include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/quheight.h"
-#include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/qumass.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
-#include "questionnairelib/qutext.h"
-#include "questionnairelib/quunitselector.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::meanOrNull;
 using mathfunc::sumInt;

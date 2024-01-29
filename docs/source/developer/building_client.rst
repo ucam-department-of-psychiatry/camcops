@@ -20,7 +20,7 @@
 
 .. _Android NDK: https://developer.android.com/ndk/
 .. _Android SDK: https://developer.android.com/tools/releases/platform-tools
-.. _Chocolately: https://chocolatey.org/
+.. _Chocolatey: https://chocolatey.org/
 .. _CMake: https://cmake.org/
 .. _Debugging Tools for Windows: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
 .. _Git: https://git-scm.com/
@@ -67,23 +67,27 @@ Linux
   should warn about any missing ones, which should all be installable with
   your package manager.
 
-- See https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml for the
-  installation requirements on Ubuntu 20.04 and 22.04 (GitHub hosted runners).
+- See
+  https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml
+  for the installation requirements on Ubuntu 20.04 and 22.04 (GitHub hosted
+  runners).
 
 
 Android (with a Linux build host)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - To build Android programs under Linux, you will also need a Java development
-  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-17-jdk``. If you are switching between different versions of Java, you can set up a symbolic link to /usr/lib/jvm/default-java:
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-17-jdk``. If you are
+  switching between different versions of Java, you can set up a symbolic link
+  to /usr/lib/jvm/default-java:
 
   .. code-block:: bash
 
     ln -s /usr/lib/jvm/java-17-openjdk-amd64 /usr/lib/jvm/default-java
 
-- You will also need to install `Android SDK_`. **The current Android SDK target version** is shown in
+- You will also need to install `Android SDK_`.
+  **The current Android SDK target version** is shown in
   ``AndroidManifest.xml``. **This is the version you need to install.**
-
 
 - Set up a script file with variables like these:
 
@@ -95,9 +99,14 @@ Android (with a Linux build host)
     export ANDROID_NDK_HOME="${ANDROID_NDK_ROOT}"
     export PATH="$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin"
 
-  Source it when you want to use Android tools. Alternatively add these line to your ``.profile`` (or similar) so they are set up automatically whenever you log in.
+  Source it when you want to use Android tools. Alternatively add these line to
+  your ``.profile`` (or similar) so they are set up automatically whenever you
+  log in.
 
-- In Qt Creator, under ``Preferences --> Devices --> Android`` set ``JDK location:`` to ``/usr/lib/jvm/default-java``. Select the currently supported NDK version in Android NDK list and make it the default. See https://doc.qt.io/qt-6.5/android-getting-started.html.
+- In Qt Creator, under ``Preferences --> Devices --> Android`` set ``JDK
+  location:`` to ``/usr/lib/jvm/default-java``. Select the currently supported
+  NDK version in Android NDK list and make it the default. See
+  https://doc.qt.io/qt-6.5/android-getting-started.html.
 
 - If Qt complains about e.g. ``failed to find Build Tools revision 19.1.0``,
   then you can use ``sdkmanager --list`` and then install with e.g.
@@ -133,12 +142,12 @@ Windows
   Community. As you install Visual Studio, don't forget to tick the C++
   options.
 
-- Install these other tools. Many are available with Chocolately_.
+- Install these other tools. Many are available with Chocolatey_.
 
   - CMake_. (We'll use this version of cmake to build CamCOPS.)
 
-  - MSYS2_. Use this to install other build tools. ``C:\tools\msys64\usr\bin\bash``
-    then ``$ pacman -S make yasm diffutils``.
+  - MSYS2_. Use this to install other build tools.
+    ``C:\tools\msys64\usr\bin\bash`` then ``$ pacman -S make yasm diffutils``.
 
   - NASM_, the Netwide Assembler for x86-family processors.
 

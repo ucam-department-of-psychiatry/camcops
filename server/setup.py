@@ -103,7 +103,7 @@ INSTALL_REQUIRES = [
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "pycap==1.1.1",  # REDCap integration
-    "Pillow==10.0.1",  # used by a dependency; pin for security warnings
+    "Pillow==10.2.0",  # used by a dependency; pin for security warnings
     "Pygments==2.15.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
@@ -136,6 +136,11 @@ INSTALL_REQUIRES = [
     "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed  # noqa
     "pre-commit==2.20.0",  # development only, various sanity checks on code
     "sphinx==4.2.0",  # development only
+    "sphinxcontrib-applehelp==1.0.4",  # development only
+    "sphinxcontrib-devhelp==1.0.2",  # development only
+    "sphinxcontrib-htmlhelp==2.0.1",  # development only
+    "sphinxcontrib-serializinghtml==1.1.5",  # development only
+    "sphinxcontrib-qthelp==1.0.3",  # development only
     "sphinx_rtd_theme==1.0.0",  # development only
     # -------------------------------------------------------------------------
     # Dependencies of cardinal_pythonlib, whose versions we pin

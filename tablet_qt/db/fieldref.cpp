@@ -23,7 +23,7 @@
 // #define DEBUG_CHECK_VALID  // may be sensible to leave this on
 
 #include "core/camcopsapp.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "db/fieldref.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"

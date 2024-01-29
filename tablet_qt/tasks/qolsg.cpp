@@ -28,8 +28,8 @@
 #include "common/textconst.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
-#include "maths/ccrandom.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/openablewidget.h"
 using datetime::now;

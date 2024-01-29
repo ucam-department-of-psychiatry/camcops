@@ -23,10 +23,8 @@
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
-#include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;

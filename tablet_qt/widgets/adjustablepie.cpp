@@ -24,7 +24,6 @@
 // #define DEBUG_MOVE
 
 #include "adjustablepie.h"
-#include <cmath>  // for std::fmod
 #include <QDebug>
 #include <QFrame>
 #include <QMouseEvent>

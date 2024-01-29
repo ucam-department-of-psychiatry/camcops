@@ -18,9 +18,9 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "graphicsrectitemclickable.h"
-
 /*
+
+#include "graphicsrectitemclickable.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include "common/colourdefs.h"

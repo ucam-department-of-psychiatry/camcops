@@ -32,6 +32,7 @@
 #include "questionnairelib/quwaist.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using convert::toDp;
 using mathfunc::noneNull;
 

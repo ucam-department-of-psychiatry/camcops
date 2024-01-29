@@ -1823,7 +1823,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
     }
     for (int c = 0; c < m_ncol; c++) {
         if (gi.m_col_data.at(c).expansive) {
-            gi.m_expanding |= Qt::Horizontal;
+            expanding |= Qt::Horizontal;
             break;
         }
     }

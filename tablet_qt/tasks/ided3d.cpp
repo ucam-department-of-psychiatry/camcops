@@ -54,7 +54,6 @@ Comments
 #include "common/colourdefs.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
-#include "lib/containers.h"
 #include "lib/datetime.h"
 #include "lib/soundfunc.h"
 #include "lib/timerfunc.h"
@@ -68,10 +67,10 @@ Comments
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/ided3dexemplars.h"
 #include "taskxtra/ided3dstage.h"
 #include "taskxtra/ided3dtrial.h"
-#include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 #include "widgets/openablewidget.h"
 using ccrandom::dwor;
@@ -396,7 +395,7 @@ void IDED3D::applySettings(const QJsonObject& settings)
 void IDED3D::applySetting(const QString fieldname, const QJsonValue value) {
     auto type = m_types.value(fieldname).id();
 
-    switch(type) {
+    switch (type) {
     case QMetaType::Int:
         setValue(fieldname, value.toInt());
         break;
@@ -669,11 +668,11 @@ bool IDED3D::validateSettings()
 
     // Check JSON settings in single user mode are within the limits
     for (auto it = m_min_values.constBegin(), end = m_min_values.constEnd(); it != end; ++it) {
-        auto fieldname = it.key();
-        auto type = m_types.value(fieldname).id();
-        auto min = it.value();
+        const auto fieldname = it.key();
+        const auto type = m_types.value(fieldname).id();
+        const auto min = it.value();
 
-        switch(type) {
+        switch (type) {
         case QMetaType::Int:
             if (value(fieldname).toInt() < min.toInt()) {
                 setValue(fieldname, QVariant());
@@ -696,11 +695,11 @@ bool IDED3D::validateSettings()
     }
 
     for (auto it = m_max_values.constBegin(), end = m_max_values.constEnd(); it != end; ++it) {
-        auto fieldname = it.key();
-        auto type = m_types.value(fieldname).id();
-        auto max = it.value();
+        const auto fieldname = it.key();
+        const auto type = m_types.value(fieldname).id();
+        const auto max = it.value();
 
-        switch(type) {
+        switch (type) {
         case QMetaType::Int:
             if (value(fieldname).toInt() > max.toInt()) {
                 setValue(fieldname, QVariant());

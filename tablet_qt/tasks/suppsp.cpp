@@ -20,19 +20,13 @@
 
 #include "suppsp.h"
 #include "common/textconst.h"
-#include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quboolean.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
-#include "questionnairelib/quspacer.h"
-#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
 using mathfunc::scorePhrase;

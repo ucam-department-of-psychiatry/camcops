@@ -29,9 +29,6 @@
 #include <QVariant>
 #include "common/dpi.h"
 #include "crypto/secureqbytearray.h"
-#include "crypto/secureqstring.h"
-#include "lib/version.h"
-#include "maths/mathfunc.h"
 
 class QByteArray;
 class QImage;

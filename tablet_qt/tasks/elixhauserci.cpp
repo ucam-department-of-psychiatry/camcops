@@ -22,7 +22,6 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/qubutton.h"
 #include "questionnairelib/questionnaire.h"
@@ -30,6 +29,7 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 

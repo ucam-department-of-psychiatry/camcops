@@ -27,6 +27,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::meanOrNull;
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;

@@ -18,6 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+/*
+
 #include "containers.h"
 
 
@@ -26,3 +28,5 @@ namespace containers
 
 
 }  // namespace containers
+
+*/

@@ -26,6 +26,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::scorePhrase;
 using stringfunc::standardResult;
 using stringfunc::strnum;

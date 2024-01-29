@@ -22,7 +22,7 @@
 #include <QObject>
 #include <QVariant>
 #include "core/camcopsapp.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -35,7 +35,6 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"

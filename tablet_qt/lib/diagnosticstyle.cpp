@@ -25,7 +25,9 @@
 #include <QPainter>
 #include <QWidget>
 
-void DiagnosticStyle::drawControl(ControlElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget) const
+void DiagnosticStyle::drawControl(
+        ControlElement element, const QStyleOption* option,
+        QPainter* painter, const QWidget* widget) const
 {
     QCommonStyle::drawControl(element, option, painter, widget);
     if (widget && painter) {
@@ -34,9 +36,13 @@ void DiagnosticStyle::drawControl(ControlElement element, const QStyleOption* op
         painter->drawRect(widget->rect());
 
         // show the classname of the widget
-        QBrush translucentBrush(QColor(255,246,240, 100));
+        QBrush translucentBrush(QColor(255, 246, 240, 100));
         painter->fillRect(widget->rect(), translucentBrush);
         painter->setPen(QColor("darkblue"));
-        painter->drawText(widget->rect(), Qt::AlignLeft | Qt::AlignVCenter, widget->metaObject()->className());
+        painter->drawText(
+            widget->rect(),
+            Qt::AlignLeft | Qt::AlignVCenter,
+            widget->metaObject()->className()
+        );
     }
 };

@@ -28,7 +28,7 @@
 #include <QSharedPointer>
 #include "common/aliases_camcops.h"
 #include "common/uiconst.h"  // for FontSize
-#include "layouts/layouts.h"
+#include "layouts/layouts.h"  // IWYU pragma: keep
 #include "questionnairelib/qupage.h"
 #include "widgets/openablewidget.h"
 

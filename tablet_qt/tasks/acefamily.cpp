@@ -24,7 +24,6 @@
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "maths/mathfunc.h"
-#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qutext.h"

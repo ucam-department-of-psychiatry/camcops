@@ -26,7 +26,6 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -34,6 +33,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::allTrue;
 using mathfunc::anyFalse;

@@ -53,10 +53,9 @@
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconst.h"  // for NONEXISTENT_PK
-#include "common/design_defines.h"
 #include "common/languages.h"
 #include "common/platform.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -80,18 +79,16 @@
 #include "dialogs/modedialog.h"
 #include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
-#include "layouts/layouts.h"
+// #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
-#include "lib/idpolicy.h"
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "menu/mainmenu.h"
 #include "menu/singleusermenu.h"
-#include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
 #include "qobjects/urlhandler.h"
 #include "questionnairelib/commonoptions.h"
@@ -100,6 +97,10 @@
 #include "tasklib/taskschedule.h"
 #include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
+
+#ifdef DEBUG_ALL_APPLICATION_EVENTS
+#include "qobjects/debugeventwatcher.h"
+#endif
 
 #ifdef USE_SQLCIPHER
 #include "db/sqlcipherdriver.h"

@@ -21,6 +21,7 @@
 #include "patientsatisfaction.h"
 #include "common/appstrings.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString PatientSatisfaction::PT_SATIS_TABLENAME("pt_satis");
 

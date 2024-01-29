@@ -30,10 +30,14 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QStyleFactory>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "core/camcopsapp.h"
+#ifdef OPENSSL_VIA_QLIBRARY
 #include "crypto/cryptofunc.h"
+#endif
+#ifdef DEBUG_WITH_DIAGNOSTIC_STYLE
 #include "lib/diagnosticstyle.h"
+#endif
 
 #ifdef FULL_LOG_FORMAT
     #ifdef QT_DEBUG

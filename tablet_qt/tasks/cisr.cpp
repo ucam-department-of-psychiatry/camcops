@@ -135,6 +135,7 @@ FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qupage.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using namespace cisrconst;
 #define CQ Cisr::CisrQuestion

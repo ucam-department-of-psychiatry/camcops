@@ -28,6 +28,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using stringfunc::strnum;
 using stringfunc::standardResult;
 

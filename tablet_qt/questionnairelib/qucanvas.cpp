@@ -27,6 +27,7 @@
 #include <QTimer>
 #include "common/colourdefs.h"
 #include "common/uiconst.h"
+#include "db/blobfieldref.h"
 #include "lib/convert.h"
 #include "lib/timerfunc.h"
 #include "lib/uifunc.h"

@@ -239,10 +239,10 @@ QString escapeString(const QString& string)
     result.reserve(static_cast<int>(len * 1.1));  // as per QString::toHtmlEscaped
     result.append('"');  // opening quote
     for (int i = 0; i < len; ++i) {
-        char c = arr.at(i);
+        const char c = arr.at(i);
         if (c < ' ') {
             result.append('\\');
-            int code = c - 1 + 'a';
+            const int code = c - 1 + 'a';
             result.append(QLatin1Char(code));
         } else {
             result.append(c);

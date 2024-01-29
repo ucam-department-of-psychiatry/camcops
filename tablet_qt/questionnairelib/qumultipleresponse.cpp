@@ -20,6 +20,7 @@
 
 #include "qumultipleresponse.h"
 #include "common/cssconst.h"
+#include "db/fieldref.h"
 #include "layouts/layouts.h"
 #include "layouts/flowlayouthfw.h"
 #include "lib/uifunc.h"

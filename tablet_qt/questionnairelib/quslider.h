@@ -24,7 +24,6 @@
 #include <QSharedPointer>
 #include <QVariant>
 #include "db/fieldref.h"
-#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quelement.h"
 #include "widgets/tickslider.h"  // or style sheets + tick marks don't mix
 

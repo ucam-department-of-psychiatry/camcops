@@ -20,9 +20,6 @@
 
 #include "ybocssc.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -30,6 +27,7 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString YbocsSc::YBOCSSC_TABLENAME("ybocssc");
 

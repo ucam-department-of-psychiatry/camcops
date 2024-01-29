@@ -19,15 +19,11 @@
 */
 
 #include "isaaqed.h"
-#include "common/textconst.h"
 #include "lib/stringfunc.h"
-#include "maths/mathfunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using stringfunc::strseq;
 
 const int FIRST_Q = 11;

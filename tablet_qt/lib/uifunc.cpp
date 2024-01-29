@@ -60,9 +60,9 @@
 #include "dialogs/scrollmessagebox.h"
 #include "lib/convert.h"
 #include "lib/errorfunc.h"
-#include "lib/layoutdumper.h"
+// #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
-#include "qobjects/debugeventwatcher.h"
+// #include "qobjects/debugeventwatcher.h"
 
 
 namespace uifunc {

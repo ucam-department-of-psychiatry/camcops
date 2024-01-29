@@ -20,6 +20,7 @@
 
 #include "hadsrespondent.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString HadsRespondent::HADSRESPONDENT_TABLENAME("hads_respondent");
 

@@ -30,6 +30,7 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using stringfunc::strnum;
 using stringfunc::strseq;

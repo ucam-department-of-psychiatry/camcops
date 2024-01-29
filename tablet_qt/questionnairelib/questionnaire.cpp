@@ -24,7 +24,6 @@
 // #define DISABLE_ZOOMABLE_WIDGET
 
 #include "questionnaire.h"
-#include <functional>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QPushButton>
@@ -43,7 +42,6 @@
 #include "questionnairelib/pagepickeritem.h"
 #include "questionnairelib/questionnaireheader.h"
 #include "tasklib/task.h"
-#include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
 #include "widgets/zoomablewidget.h"
 

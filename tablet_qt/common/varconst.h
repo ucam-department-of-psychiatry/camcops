@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-#include "common/design_defines.h"
 
 namespace varconst {
 

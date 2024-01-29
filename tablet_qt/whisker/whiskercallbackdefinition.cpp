@@ -20,7 +20,7 @@
 
 #include "whiskercallbackdefinition.h"
 #include <QDebug>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "whisker/whiskerinboundmessage.h"
 
 

@@ -22,6 +22,7 @@
 
 #include "db/field.h"
 #include "lib/convert.h"
+#include "lib/version.h"
 
 class TestField: public QObject
 {

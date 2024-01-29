@@ -37,7 +37,7 @@
 #include <QSize>
 #include <QStyle>
 #include "common/platform.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"

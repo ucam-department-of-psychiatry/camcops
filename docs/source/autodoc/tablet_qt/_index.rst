@@ -962,6 +962,7 @@ tablet_qt
     tools/decrypt_sqlcipher.py.rst
     tools/encrypt_sqlcipher.py.rst
     tools/open_sqlcipher.py.rst
+    tools/run_cpp_tests.py.rst
     version/camcopsversion.cpp.rst
     version/camcopsversion.h.rst
     whisker/whiskerapi.cpp.rst

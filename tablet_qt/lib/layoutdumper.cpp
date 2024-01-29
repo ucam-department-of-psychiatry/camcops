@@ -19,10 +19,6 @@
 */
 
 #include "layoutdumper.h"
-#include <cstdio>
-#include <iostream>
-#include <sstream>
-#include <string>
 #include <QDebug>
 #include <QScrollArea>
 #include <QString>

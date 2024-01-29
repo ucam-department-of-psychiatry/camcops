@@ -24,7 +24,6 @@
 #define RESPOND_VIA_ITEM_CLICKED  // good
 
 #include "diagnosticcodeselector.h"
-#include <functional>
 #include <QApplication>
 #include <QDebug>
 #include <QEvent>

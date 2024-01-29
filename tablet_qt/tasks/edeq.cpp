@@ -36,6 +36,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/quunitselector.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::meanOrNull;
 using stringfunc::strnumlist;

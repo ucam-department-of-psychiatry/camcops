@@ -30,7 +30,6 @@
 
 #include "whiskermanager.h"
 #include <QRegularExpression>
-#include "common/varconst.h"
 #include "lib/uifunc.h"
 #include "whisker/whiskerapi.h"
 #include "whisker/whiskerconstants.h"
