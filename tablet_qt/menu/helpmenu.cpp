@@ -24,7 +24,6 @@
 #include <QSqlDriver>
 #include <QtSql/QtSqlVersion>
 #include "common/platform.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/urlconst.h"
 #include "db/databasemanager.h"

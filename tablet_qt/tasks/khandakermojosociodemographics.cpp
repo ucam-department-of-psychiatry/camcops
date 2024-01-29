@@ -19,20 +19,18 @@
 */
 
 #include "khandakermojosociodemographics.h"
-#include "common/cssconst.h"
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
-#include "lib/version.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 
 const QString KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME(
@@ -92,10 +90,10 @@ KhandakerMojoSociodemographics::KhandakerMojoSociodemographics(
     m_questionnaire(nullptr)
 {
     for (const auto& info : MC_QUESTIONS) {
-        addField(info.getFieldname(), QVariant::Int);
+        addField(info.getFieldname(), QMetaType::fromType<int>());
 
         if (info.hasOther()) {
-            addField(info.getOtherFieldname(), QVariant::String);
+            addField(info.getOtherFieldname(), QMetaType::fromType<QString>());
         }
     }
 

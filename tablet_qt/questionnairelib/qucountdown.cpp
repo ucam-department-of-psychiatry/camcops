@@ -21,7 +21,7 @@
 // #define DEBUG_TICKS
 
 #include "qucountdown.h"
-#include <functional>
+#include <QAudioOutput>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMediaPlayer>
@@ -60,7 +60,7 @@ QuCountdown* QuCountdown::setVolume(const int volume)
 {
     m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
     if (m_player) {
-        m_player->setVolume(m_volume);
+        soundfunc::setVolume(m_player, m_volume);
     }
     return this;
 }
@@ -108,7 +108,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 
         soundfunc::makeMediaPlayer(m_player);
         if (m_player) {
-            m_player->setMedia(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
+            m_player->setSource(QUrl(uiconst::SOUND_COUNTDOWN_FINISHED));
         } else {
             uifunc::alert(TextConst::unableToCreateMediaPlayer());
         }

@@ -1,12 +1,22 @@
-/*=============================================================================
+/****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** BSD License Usage
+** Alternatively, you may use this file under the terms of the BSD license
+** as follows:
 **
 ** "Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are
@@ -36,106 +46,204 @@
 **
 ** $QT_END_LICENSE$
 **
-=============================================================================*/
+****************************************************************************/
 
 // VideoCaptureControls.qml
 // - defines all the buttons visible whilst in camera preview mode and
 //      able to capture videos
 
-import QtQuick 2.0
-import QtMultimedia 5.4
+import QtQuick
+import QtMultimedia
+import QtQuick.Layouts
 
 FocusScope {
-    property Camera camera
+    id : captureControls
+    property CaptureSession captureSession
     property bool previewAvailable : false
 
-    property int buttonsPanelWidth: buttonPaneShadow.width
+    property int buttonsmargin: 8
+    property int buttonsPanelWidth
+    property int buttonsPanelPortraitHeight
+    property int buttonsWidth
 
     signal previewSelected
     signal photoModeSelected
-    id : captureControls
 
     Rectangle {
         id: buttonPaneShadow
-        width: bottomColumn.width + 16
-        height: parent.height
-        anchors.top: parent.top
-        anchors.right: parent.right
         color: Qt.rgba(0.08, 0.08, 0.08, 1)
 
-        Column {
-            anchors {
-                right: parent.right
-                top: parent.top
-                margins: 8
-            }
-
+        GridLayout {
             id: buttonsColumn
-            spacing: 8
-
-            FocusButton {
-                camera: captureControls.camera
-                visible: camera.cameraStatus === Camera.ActiveStatus && camera.focus.isFocusModeSupported(Camera.FocusAuto)
+            anchors.margins: buttonsmargin
+            flow: captureControls.state === "MobilePortrait"
+                  ? GridLayout.LeftToRight : GridLayout.TopToBottom
+            Item {
+                implicitWidth: buttonsWidth
+                height: 70
+                CameraButton {
+                    text: qsTr("Record")
+                    anchors.fill: parent
+                    visible: captureSession.recorder.recorderState !== MediaRecorder.RecordingState
+                    onClicked: captureSession.recorder.record()
+                }
             }
 
-            CameraButton {
-                text: qsTr("Record")
-                visible: camera.videoRecorder.recorderStatus === CameraRecorder.LoadedStatus
-                onClicked: camera.videoRecorder.record()
+            Item {
+                implicitWidth: buttonsWidth
+                height: 70
+                CameraButton {
+                    id: stopButton
+                    text: qsTr("Stop")
+                    anchors.fill: parent
+                    visible: captureSession.recorder.recorderState === MediaRecorder.RecordingState
+                    onClicked: captureSession.recorder.stop()
+                }
             }
 
-            CameraButton {
-                id: stopButton
-                text: qsTr("Stop")
-                visible: camera.videoRecorder.recorderStatus === CameraRecorder.RecordingStatus
-                onClicked: camera.videoRecorder.stop()
-            }
-
-            CameraButton {
-                text: qsTr("View")
-                onClicked: captureControls.previewSelected()
-                //don't show View button during recording
-                visible: camera.videoRecorder.actualLocation && !stopButton.visible
+            Item {
+                implicitWidth: buttonsWidth
+                height: 70
+                CameraButton {
+                    text: qsTr("View")
+                    anchors.fill: parent
+                    onClicked: captureControls.previewSelected()
+                    //don't show View button during recording
+                    visible: captureSession.recorder.actualLocation && !stopButton.visible
+                }
             }
         }
 
-        Column {
-            anchors {
-                bottom: parent.bottom
-                right: parent.right
-                margins: 8
-            }
-
+        GridLayout {
             id: bottomColumn
-            spacing: 8
+            anchors.margins: buttonsmargin
+            flow: captureControls.state === "MobilePortrait"
+                  ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
             CameraListButton {
-                model: QtMultimedia.availableCameras
-                onValueChanged: captureControls.camera.deviceId = value
+                implicitWidth: buttonsWidth
+                onValueChanged: captureSession.camera.cameraDevice = value
+                state: captureControls.state
             }
 
             CameraButton {
-                text: qsTr("Switch to photo")
+                text: qsTr("Switch to Photo")
+                implicitWidth: buttonsWidth
                 onClicked: captureControls.photoModeSelected()
             }
 
             CameraButton {
                 id: quitButton
                 text: qsTr("Quit")
+                implicitWidth: buttonsWidth
                 onClicked: Qt.quit()
             }
         }
     }
 
-
     ZoomControl {
         x : 0
-        y : 0
+        y : captureControls.state === "MobilePortrait" ? -buttonPaneShadow.height : 0
         width : 100
         height: parent.height
 
-        currentZoom: camera.digitalZoom
-        maximumZoom: Math.min(4.0, camera.maximumDigitalZoom)
-        onZoomTo: camera.setDigitalZoom(value)
+        currentZoom: captureSession.camera.zoomFactor
+        maximumZoom: captureSession.camera.maximumZoomFactor
+        onZoomTo: captureSession.camera.zoomFactor = value
     }
+
+    states: [
+        State {
+            name: "MobilePortrait"
+            PropertyChanges {
+                target: buttonPaneShadow
+                width: parent.width
+                height: buttonsPanelPortraitHeight
+            }
+            PropertyChanges {
+                target: buttonsColumn
+                height: captureControls.buttonsPanelPortraitHeight / 2 - buttonsmargin
+            }
+            PropertyChanges {
+                target: bottomColumn
+                height: captureControls.buttonsPanelPortraitHeight / 2 - buttonsmargin
+            }
+            AnchorChanges {
+                target: buttonPaneShadow
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+            AnchorChanges {
+                target: buttonsColumn
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+            }
+            AnchorChanges {
+                target: bottomColumn;
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+        },
+        State {
+            name: "MobileLandscape"
+            PropertyChanges {
+                target: buttonPaneShadow
+                width: buttonsPanelWidth
+                height: parent.height
+            }
+            PropertyChanges {
+                target: buttonsColumn
+                height: parent.height
+                width: buttonPaneShadow.width / 2
+            }
+            PropertyChanges {
+                target: bottomColumn
+                height: parent.height
+                width: buttonPaneShadow.width / 2
+            }
+            AnchorChanges {
+                target: buttonPaneShadow
+                anchors.top: parent.top
+                anchors.right: parent.right
+            }
+            AnchorChanges {
+                target: buttonsColumn;
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left;
+            }
+            AnchorChanges {
+                target: bottomColumn;
+                anchors.top: parent.top;
+                anchors.bottom: parent.bottom;
+                anchors.right: parent.right;
+            }
+        },
+        State {
+            name: "Other"
+            PropertyChanges {
+                target: buttonPaneShadow;
+                width: bottomColumn.width + 16;
+                height: parent.height;
+            }
+            AnchorChanges {
+                target: buttonPaneShadow;
+                anchors.top: parent.top;
+                anchors.right: parent.right;
+            }
+            AnchorChanges {
+                target: buttonsColumn;
+                anchors.top: parent.top
+                anchors.right: parent.right
+            }
+            AnchorChanges {
+                target: bottomColumn;
+                anchors.bottom: parent.bottom;
+                anchors.right: parent.right;
+            }
+        }
+    ]
 }

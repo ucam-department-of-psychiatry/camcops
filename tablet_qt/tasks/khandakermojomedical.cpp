@@ -19,11 +19,7 @@
 */
 
 #include "khandakermojomedical.h"
-#include "common/cssconst.h"
-#include "common/textconst.h"
-#include "lib/convert.h"
 #include "lib/uifunc.h"
-#include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
@@ -39,6 +35,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 
 const QString KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME(
@@ -152,42 +149,42 @@ KhandakerMojoMedical::KhandakerMojoMedical(
     m_fr_diagnosis_years(nullptr)
 {
     // Section 1: General Information
-    addField(FN_DIAGNOSIS, QVariant::Int);
-    addField(FN_DIAGNOSIS_DATE, QVariant::Date);
-    addField(FN_DIAGNOSIS_DATE_APPROXIMATE, QVariant::Bool);
-    addField(FN_HAS_FIBROMYALGIA, QVariant::Bool);
-    addField(FN_IS_PREGNANT, QVariant::Bool);
-    addField(FN_HAS_INFECTION_PAST_MONTH, QVariant::Bool);
-    addField(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING, QVariant::Bool);
-    addField(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE, QVariant::Bool);
-    addField(FN_SMOKING_STATUS, QVariant::Int);
-    addField(FN_ALCOHOL_UNITS_PER_WEEK, QVariant::Double);
+    addField(FN_DIAGNOSIS, QMetaType::fromType<int>());
+    addField(FN_DIAGNOSIS_DATE, QMetaType::fromType<QDate>());
+    addField(FN_DIAGNOSIS_DATE_APPROXIMATE, QMetaType::fromType<bool>());
+    addField(FN_HAS_FIBROMYALGIA, QMetaType::fromType<bool>());
+    addField(FN_IS_PREGNANT, QMetaType::fromType<bool>());
+    addField(FN_HAS_INFECTION_PAST_MONTH, QMetaType::fromType<bool>());
+    addField(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING, QMetaType::fromType<bool>());
+    addField(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE, QMetaType::fromType<bool>());
+    addField(FN_SMOKING_STATUS, QMetaType::fromType<int>());
+    addField(FN_ALCOHOL_UNITS_PER_WEEK, QMetaType::fromType<double>());
 
     // Section 2: Medical History
-    addField(FN_DEPRESSION, QVariant::Bool);
-    addField(FN_BIPOLAR_DISORDER, QVariant::Bool);
-    addField(FN_SCHIZOPHRENIA, QVariant::Bool);
-    addField(FN_AUTISM, QVariant::Bool);
-    addField(FN_PTSD, QVariant::Bool);
-    addField(FN_ANXIETY, QVariant::Bool);
-    addField(FN_PERSONALITY_DISORDER, QVariant::Bool);
-    addField(FN_INTELLECTUAL_DISABILITY, QVariant::Bool);
-    addField(FN_OTHER_MENTAL_ILLNESS, QVariant::Bool);
-    addField(FN_OTHER_MENTAL_ILLNESS_DETAILS, QVariant::String);
-    addField(FN_HOSPITALISED_IN_LAST_YEAR, QVariant::Bool);
-    addField(FN_HOSPITALISATION_DETAILS, QVariant::String);
+    addField(FN_DEPRESSION, QMetaType::fromType<bool>());
+    addField(FN_BIPOLAR_DISORDER, QMetaType::fromType<bool>());
+    addField(FN_SCHIZOPHRENIA, QMetaType::fromType<bool>());
+    addField(FN_AUTISM, QMetaType::fromType<bool>());
+    addField(FN_PTSD, QMetaType::fromType<bool>());
+    addField(FN_ANXIETY, QMetaType::fromType<bool>());
+    addField(FN_PERSONALITY_DISORDER, QMetaType::fromType<bool>());
+    addField(FN_INTELLECTUAL_DISABILITY, QMetaType::fromType<bool>());
+    addField(FN_OTHER_MENTAL_ILLNESS, QMetaType::fromType<bool>());
+    addField(FN_OTHER_MENTAL_ILLNESS_DETAILS, QMetaType::fromType<QString>());
+    addField(FN_HOSPITALISED_IN_LAST_YEAR, QMetaType::fromType<bool>());
+    addField(FN_HOSPITALISATION_DETAILS, QMetaType::fromType<QString>());
 
     // Section 3: Family history
-    addField(FN_FAMILY_DEPRESSION, QVariant::Bool);
-    addField(FN_FAMILY_BIPOLAR_DISORDER, QVariant::Bool);
-    addField(FN_FAMILY_SCHIZOPHRENIA, QVariant::Bool);
-    addField(FN_FAMILY_AUTISM, QVariant::Bool);
-    addField(FN_FAMILY_PTSD, QVariant::Bool);
-    addField(FN_FAMILY_ANXIETY, QVariant::Bool);
-    addField(FN_FAMILY_PERSONALITY_DISORDER, QVariant::Bool);
-    addField(FN_FAMILY_INTELLECTUAL_DISABILITY, QVariant::Bool);
-    addField(FN_FAMILY_OTHER_MENTAL_ILLNESS, QVariant::Bool);
-    addField(FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS, QVariant::String);
+    addField(FN_FAMILY_DEPRESSION, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_BIPOLAR_DISORDER, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_SCHIZOPHRENIA, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_AUTISM, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_PTSD, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_ANXIETY, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_PERSONALITY_DISORDER, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_INTELLECTUAL_DISABILITY, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_OTHER_MENTAL_ILLNESS, QMetaType::fromType<bool>());
+    addField(FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

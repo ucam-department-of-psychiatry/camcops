@@ -23,7 +23,7 @@
 
 
 // Prototypical use: modal, as per
-// http://doc.qt.io/qt-5.7/qprogressdialog.html#details
+// https://doc.qt.io/qt-6.5/qprogressdialog.html#details
 
 class ProgressBox : public QProgressDialog
 {

@@ -21,7 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QWidget>
-#include "widgets/basewidget.h"
+// #include "widgets/basewidget.h"
 class QGraphicsView;
 
 

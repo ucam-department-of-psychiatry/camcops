@@ -80,7 +80,6 @@ A note on the clazy-range-loop warning:
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
@@ -90,7 +89,6 @@ A note on the clazy-range-loop warning:
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
@@ -99,6 +97,7 @@ A note on the clazy-range-loop warning:
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::eq;
 using mathfunc::allNull;
 using mathfunc::noneNull;
@@ -161,9 +160,9 @@ const int N_MEM_RECOGNIZE_ADDRESS = 5;
 const int N_ADDRESS_RECOG_OPTIONS = 3;
 const QVector<int> DEFAULT_ADDRESS_RECOG_CORRECT_COLS_ENGLISH_A{2, 2, 3, 2, 1};
 // Choices for address recall phase:
-const QString CHOICE_A(QStringLiteral("A"));
-const QString CHOICE_B(QStringLiteral("B"));
-const QString CHOICE_C(QStringLiteral("C"));
+const QChar CHOICE_A = 'A';
+const QChar CHOICE_B = 'B';
+const QChar CHOICE_C = 'C';
 
 const QString FN_LANG_FOLLOW_CMD_PRACTICE(QStringLiteral("lang_follow_command_practice"));
 const QString FP_LANG_FOLLOW_CMD(QStringLiteral("lang_follow_command"));
@@ -213,55 +212,55 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
            QObject* parent) :
     AceFamily(app, db, ACE3_TABLENAME, parent)
 {
-    addField(FN_TASK_EDITION, QVariant::String,
+    addField(FN_TASK_EDITION, QMetaType::fromType<QString>(),
              false, false, false, xstring(X_EDITION));
-    addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
+    addField(FN_TASK_ADDRESS_VERSION, QMetaType::fromType<QString>(),
              false, false, false, TASK_DEFAULT_VERSION);
-    addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
+    addField(FN_REMOTE_ADMINISTRATION, QMetaType::fromType<bool>(),
              false, false, false, false);
 
-    addField(FN_AGE_FT_EDUCATION, QVariant::Int);
-    addField(FN_OCCUPATION, QVariant::String);
-    addField(FN_HANDEDNESS, QVariant::String);
+    addField(FN_AGE_FT_EDUCATION, QMetaType::fromType<int>());
+    addField(FN_OCCUPATION, QMetaType::fromType<QString>());
+    addField(FN_HANDEDNESS, QMetaType::fromType<QString>());
 
-    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE), QVariant::Int);
-    addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QVariant::Int);
-    addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QVariant::Int);
-    addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QVariant::Int);
-    addFields(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7), QVariant::Int);
+    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE), QMetaType::fromType<int>());
+    addFields(strseq(FP_ATTN_PLACE, 1, N_ATTN_PLACE), QMetaType::fromType<int>());
+    addFields(strseq(FP_ATTN_REPEAT_WORD, 1, N_ATTN_REPEAT_WORD), QMetaType::fromType<int>());
+    addField(FN_ATTN_NUM_REGISTRATION_TRIALS, QMetaType::fromType<int>());
+    addFields(strseq(FP_ATTN_SERIAL7, 1, N_ATTN_SERIAL7), QMetaType::fromType<int>());
 
-    addFields(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD), QVariant::Int);
+    addFields(strseq(FP_MEM_RECALL_WORD, 1, N_MEM_RECALL_WORD), QMetaType::fromType<int>());
 
-    addField(FN_FLUENCY_LETTERS_SCORE, QVariant::Int);
-    addField(FN_FLUENCY_ANIMALS_SCORE, QVariant::Int);
+    addField(FN_FLUENCY_LETTERS_SCORE, QMetaType::fromType<int>());
+    addField(FN_FLUENCY_ANIMALS_SCORE, QMetaType::fromType<int>());
 
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_FAMOUS, 1, N_MEM_FAMOUS), QMetaType::fromType<int>());
 
-    addField(FN_LANG_FOLLOW_CMD_PRACTICE, QVariant::Int);
-    addFields(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD), QVariant::Int);
-    addFields(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT), QVariant::Int);
-    addFields(strseq(FP_LANG_REPEAT_WORD, 1, N_LANG_REPEAT_WORD), QVariant::Int);
-    addFields(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE), QVariant::Int);
-    addFields(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE), QVariant::Int);
-    addFields(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT), QVariant::Int);
-    addField(FN_LANG_READ_WORDS_ALOUD, QVariant::Int);
+    addField(FN_LANG_FOLLOW_CMD_PRACTICE, QMetaType::fromType<int>());
+    addFields(strseq(FP_LANG_FOLLOW_CMD, 1, N_LANG_FOLLOW_CMD), QMetaType::fromType<int>());
+    addFields(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT), QMetaType::fromType<int>());
+    addFields(strseq(FP_LANG_REPEAT_WORD, 1, N_LANG_REPEAT_WORD), QMetaType::fromType<int>());
+    addFields(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE), QMetaType::fromType<int>());
+    addFields(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE), QMetaType::fromType<int>());
+    addFields(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT), QMetaType::fromType<int>());
+    addField(FN_LANG_READ_WORDS_ALOUD, QMetaType::fromType<int>());
 
-    addField(FN_VSP_COPY_INFINITY, QVariant::Int);
-    addField(FN_VSP_COPY_CUBE, QVariant::Int);
-    addField(FN_VSP_DRAW_CLOCK, QVariant::Int);
-    addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QVariant::Int);
-    addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QVariant::Int);
+    addField(FN_VSP_COPY_INFINITY, QMetaType::fromType<int>());
+    addField(FN_VSP_COPY_CUBE, QMetaType::fromType<int>());
+    addField(FN_VSP_DRAW_CLOCK, QMetaType::fromType<int>());
+    addFields(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS), QMetaType::fromType<int>());
+    addFields(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER), QMetaType::fromType<int>());
 
-    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Int);
-    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QVariant::Char);
+    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<QChar>());
 
-    addField(FN_PICTURE1_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(FN_PICTURE2_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(FN_COMMENTS, QVariant::String);
+    addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(FN_COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -471,7 +470,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
             + now.toString(QStringLiteral("dddd d MMMM yyyy")) +
             "; " + season;
     // ... e.g. "Monday 2 January 2016; winter";
-    // http://doc.qt.io/qt-5/qdate.html#toString
+    // https://doc.qt.io/qt-6.5/qdate.html#toString
 
     const NameValueOptions options_registration{
         {"1", 1},
@@ -1250,7 +1249,7 @@ bool Ace3::isAddressRecogAnswerCorrect(const int line) const
     // correctColumnsAddressRecog() guarantees a vector of the correct size.
     const int line_idx = line - 1;
     const int correct_col_one_based = correct_cols[line_idx];
-    const QString answer = valueString(
+    const QChar answer = valueQChar(
                 strnum(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, line));
     switch (correct_col_one_based) {
         case 1:
@@ -1434,7 +1433,7 @@ void Ace3::updateTaskVersionEditability()
 void Ace3::updateAddressRecognition()
 {
     // Parameter "const FieldRef* fieldref" not needed;
-    // http://doc.qt.io/qt-5/signalsandslots.html
+    // https://doc.qt.io/qt-6.5/signalsandslots.html
     // "... a slot may have a shorter signature than the signal it receives"
 
     if (!m_questionnaire) {

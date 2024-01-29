@@ -19,7 +19,7 @@
 */
 
 // MODIFIED FROM:
-// http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-camera-cpp.html
+// https://doc.qt.io/qt-6.5/qtmultimedia-multimediawidgets-camera-camera-cpp.html
 
 /*
 **
@@ -62,17 +62,15 @@
 */
 
 // #define DEBUG_CAMERA
-#define USE_FILE
 
 #include "cameraqcamera.h"
-#include <QCameraInfo>
-#include <QCameraViewfinder>
-#include <QCameraViewfinderSettings>
+#include <QCameraDevice>
 #include <QCloseEvent>
 #include <QFile>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QMediaDevices>
 #include <QPixmap>
 #include <QPushButton>
 #include <QStatusBar>
@@ -81,15 +79,12 @@
 #include <QtQuick/QQuickItem>
 #include <QVBoxLayout>
 #include <QVideoFrame>
+#include <QVideoWidget>
 #include "common/cssconst.h"
-#include "common/preprocessor_aid.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "dialogs/scrollmessagebox.h"
-#include "graphics/imagefunc.h"
-#include "imagebutton.h"
 #include "lib/uifunc.h"
-#include "qobjects/cameraframegrabber.h"
 
 // NOT IMPLEMENTED (see CameraQml instead): choose camera front/back
 // NOT IMPLEMENTED (see CameraQml instead): set preview resolution (from those supported)
@@ -98,7 +93,7 @@
 /*
 
 For examples see
-- http://doc.qt.io/qt-5/qtmultimedia-multimediawidgets-camera-example.html
+- https://doc.qt.io/qt-6.5/qtmultimedia-multimediawidgets-camera-example.html
 - qt5/qtmultimedia/examples/multimediawidgets/camera/camera.cpp
 - qt5/qtmultimedia/examples/multimedia/declarative-camera/...
 
@@ -113,7 +108,7 @@ Yet presumably all the QML stuff uses the same underlying CPP code?
 
 Or maybe not?
 - https://forum.qt.io/topic/59394/declarative-camera-vs-widget-based-camera-qml-to-c-breakout
-- http://doc.qt.io/qt-5/qtqml-cppintegration-interactqmlfromcpp.html
+- https://doc.qt.io/qt-6.5/qtqml-cppintegration-interactqmlfromcpp.html
 - http://lists.qt-project.org/pipermail/android-development/2015-September/000734.html
 - https://stackoverflow.com/questions/40153156/qt-qcamera-not-working-on-android
 - https://bugreports.qt.io/browse/QTBUG-38233
@@ -133,19 +128,16 @@ The actual error on Android is:
 // ============================================================================
 
 CameraQCamera::CameraQCamera(const QString& stylesheet, QWidget* parent) :
-    CameraQCamera(QCameraInfo::defaultCamera(), stylesheet, parent)
+    CameraQCamera(QMediaDevices::defaultVideoInput(), stylesheet, parent)
 {
 }
 
 
-CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
+CameraQCamera::CameraQCamera(const QCameraDevice& camera_device,
                              const QString& stylesheet,
                              QWidget* parent) :
     OpenableWidget(parent)
 {
-    m_resolution_preview = QSize(640, 480); // !!! Not implemented, but CameraQCamera superseded by CameraQml
-    m_resolution_main = QSize(1024, 768); // !!! Not implemented, but CameraQCamera superseded by CameraQml
-
     setStyleSheet(stylesheet);
 
     m_camera.clear();
@@ -157,7 +149,7 @@ CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
     m_captured_state = CapturedState::Nothing;
 #endif
 
-    Qt::Alignment align = Qt::AlignLeft | Qt::AlignTop;
+    Qt::Alignment align_top_left = Qt::AlignLeft | Qt::AlignTop;
 
     m_button_take = new QPushButton(tr("Take"));
     connect(m_button_take, &QAbstractButton::clicked,
@@ -167,42 +159,25 @@ CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
     connect(m_button_cancel, &QAbstractButton::clicked,
             this, &CameraQCamera::cancelled);
 
-    m_lock_button = new QPushButton("lock button");
-
     auto button_layout = new QVBoxLayout();
-    button_layout->addWidget(m_button_take, 0, align);
-    button_layout->addWidget(m_lock_button, 0, align);
-    button_layout->addWidget(m_button_cancel, 0, align);
+    button_layout->addWidget(m_button_take, 0, align_top_left);
+    button_layout->addWidget(m_button_cancel, 0, align_top_left);
     button_layout->addStretch();
     auto button_widget = new QWidget();
     button_widget->setLayout(button_layout);
 
-#ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
-    m_viewfinder = new QCameraViewfinder();
-    // m_viewfinder->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-#endif
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    m_label_viewfinder = new QLabel();
-#endif
+    m_viewfinder = new QVideoWidget();
+    m_viewfinder->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     auto middle_layout = new QHBoxLayout();
-    middle_layout->addWidget(button_widget, 0, align);
-#ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
-    middle_layout->addWidget(m_viewfinder, 0, align);
-#endif
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    middle_layout->addWidget(m_label_viewfinder, 0, align);
-#endif
-    middle_layout->addStretch();
+    middle_layout->addWidget(button_widget);
+    middle_layout->addWidget(m_viewfinder);
 
     m_status_bar = new QStatusBar();
 
     auto top_layout = new QVBoxLayout();
     top_layout->addLayout(middle_layout);
-    top_layout->addStretch();
     top_layout->addWidget(m_status_bar);
-
-    setLayout(top_layout);
 
     // Now, since the CSS of the outermost object is ignored within a
     // QStackedWidget...
@@ -216,7 +191,7 @@ CameraQCamera::CameraQCamera(const QCameraInfo& camera_info,
     outer_layout->addWidget(inner_widget);
     setLayout(outer_layout);
 
-    setCamera(camera_info);
+    setCamera(camera_device);
 }
 
 
@@ -268,136 +243,49 @@ QImage CameraQCamera::image() const
 }
 
 
-void CameraQCamera::setPreviewResolution(const QSize& resolution)
-{
-    if (m_camera) {
-        QCameraViewfinderSettings vf_settings;
-        vf_settings.setResolution(resolution);
-        vf_settings.setMinimumFrameRate(0);  // "let the backend choose optimally"
-        vf_settings.setMaximumFrameRate(0);  // "let the backend choose optimally"
-        m_camera->setViewfinderSettings(vf_settings);
-    }
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    if (!m_label_viewfinder) {
-        m_label_viewfinder->setFixedSize(resolution);
-    }
-#endif
-}
-
-
-void CameraQCamera::setMainResolution(const QSize& resolution)
-{
-    Q_UNUSED(resolution)  // NOT IMPLEMENTED - see CameraQml
-}
-
-
 // ============================================================================
 // Talking to the camera
 // ============================================================================
 
-void CameraQCamera::setCamera(const QCameraInfo& camera_info)
+void CameraQCamera::setCamera(const QCameraDevice& camera_device)
 {
     // ------------------------------------------------------------------------
     // QCamera
     // ------------------------------------------------------------------------
 #ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO << "Creating camera with info" << camera_info;
+    qDebug() << Q_FUNC_INFO << "Creating camera with device" << camera_device;
 #endif
-    m_camera = QSharedPointer<QCamera>(new QCamera(camera_info));
+    m_camera = QSharedPointer<QCamera>(new QCamera(camera_device));
 #ifdef DEBUG_CAMERA
     qDebug() << "QCamera::supportedViewfinderResolutions() == "
              << m_camera->supportedViewfinderResolutions();
     qDebug() << Q_FUNC_INFO << "... done";
 #endif
-    connect(m_camera.data(), &QCamera::stateChanged,
-            this, &CameraQCamera::updateCameraState);
-    // QCamera::error is overloaded.
-    // Disambiguate like this:
-    void (QCamera::*camera_error)(QCamera::Error) = &QCamera::error;
-    connect(m_camera.data(), camera_error,
+    m_capture_session.setCamera(m_camera.data());
+
+    connect(m_camera.data(), &QCamera::errorOccurred,
             this, &CameraQCamera::displayCameraError);
-    // QCamera::lockStatusChanged is overloaded.
-    // Disambiguate like this:
-    void (QCamera::*camera_lockstatus)(
-                QCamera::LockStatus,
-                QCamera::LockChangeReason) = &QCamera::lockStatusChanged;
-    connect(m_camera.data(), camera_lockstatus,
-            this, &CameraQCamera::updateLockStatus);
-
     // ------------------------------------------------------------------------
-    // QCameraImageCapture
+    // QImageCapture
     // ------------------------------------------------------------------------
-    m_capture = QSharedPointer<QCameraImageCapture>(
-                new QCameraImageCapture(m_camera.data()));
+    m_capture = QSharedPointer<QImageCapture>(new QImageCapture);
+    m_capture_session.setImageCapture(m_capture.data());
 
-    updateCameraState(m_camera->state());
-
-    connect(m_capture.data(), &QCameraImageCapture::readyForCaptureChanged,
+    connect(m_capture.data(), &QImageCapture::readyForCaptureChanged,
             this, &CameraQCamera::readyForCapture);
-    connect(m_capture.data(), &QCameraImageCapture::imageSaved,
+    connect(m_capture.data(), &QImageCapture::imageSaved,
             this, &CameraQCamera::imageSaved);
-    connect(m_capture.data(), &QCameraImageCapture::imageAvailable,
-            this, &CameraQCamera::imageAvailable);
-    // QCameraImageCapture::error is overloaded.
-    // Disambiguate like this:
-    void (QCameraImageCapture::*capture_error)(
-                int,
-                QCameraImageCapture::Error,
-                const QString&) = &QCameraImageCapture::error;
-    connect(m_capture.data(), capture_error,
+    connect(m_capture.data(), &QImageCapture::errorOccurred,
             this, &CameraQCamera::displayCaptureError);
-
-#ifdef USE_FILE
-    const bool use_buffer = false;
-#else
-    const bool buffer_supported = m_capture->isCaptureDestinationSupported(
-                QCameraImageCapture::CaptureToBuffer);
-    const bool use_buffer = buffer_supported;
-#endif
-    if (use_buffer) {
-        qInfo() << Q_FUNC_INFO << "Capturing to buffer";
-        m_capture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
-        // BUT... it saves a file anyway, to ~/Pictures/IMG_xxx.jpg.
-        // Are we better off using explicit files, to avoid nasty leftovers?
-        // Yes, we are. QCameraImageCapture::capture() appears always to write
-        // to a file (implied by docs, too), and we do NOT want "leftovers".
-        // https://stackoverflow.com/questions/43522004/qcameraimagecapture-saves-to-file-instead-of-buffer
-        // http://php.wekeepcoding.com/article/10431109/Why+is+QCameraImageCapture+saving+an+image+to+the+hard+drive%3F
-    } else {
-        qInfo() << Q_FUNC_INFO << "Capturing to file";
-        m_capture->setCaptureDestination(QCameraImageCapture::CaptureToFile);
-    }
 
     // ------------------------------------------------------------------------
     // Viewfinder
     // ------------------------------------------------------------------------
-#ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
-    m_camera->setViewfinder(m_viewfinder);
-#endif
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-    m_framegrabber = new CameraFrameGrabber();
-    connect(m_framegrabber.data(), &CameraFrameGrabber::frameAvailable,
-            this, &CameraQCamera::handleFrame);
-    m_camera->setViewfinder(m_framegrabber);
-#endif
-    setPreviewResolution(m_resolution_preview);
-
-    // ------------------------------------------------------------------------
-    // Main resolution
-    // ------------------------------------------------------------------------
-    setMainResolution(m_resolution_main);
+    m_capture_session.setVideoOutput(m_viewfinder);
 
     // ------------------------------------------------------------------------
     // Set up; let's go.
     // ------------------------------------------------------------------------
-    if (m_camera->isCaptureModeSupported(QCamera::CaptureStillImage)) {
-        m_camera->setCaptureMode(QCamera::CaptureStillImage);
-    } else {
-        qWarning() << Q_FUNC_INFO
-                   << "Camera does not support QCamera::CaptureStillImage";
-    }
-    updateLockStatus(m_camera->lockStatus(),
-                     QCamera::LockChangeReason::UserRequest);
     readyForCapture(m_capture->isReadyForCapture());
     startCamera();
 }
@@ -421,74 +309,6 @@ void CameraQCamera::stopCamera()
 }
 
 
-void CameraQCamera::toggleLock()
-{
-    switch (m_camera->lockStatus()) {
-    case QCamera::Searching:
-    case QCamera::Locked:
-#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-    default:
-#endif
-        unlockCamera();
-        break;
-    case QCamera::Unlocked:
-        searchAndLockCamera();
-        break;
-    }
-}
-
-
-void CameraQCamera::unlockCamera()
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO << "calling unlock()";
-#endif
-    m_camera->unlock();
-}
-
-
-void CameraQCamera::searchAndLockCamera()
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO << "calling searchAndLock()";
-#endif
-    m_camera->searchAndLock();
-}
-
-
-void CameraQCamera::updateLockStatus(const QCamera::LockStatus status,
-                                     const QCamera::LockChangeReason reason)
-{
-    QColor indicationColor = Qt::black;
-
-    switch (status) {
-    case QCamera::Searching:
-        indicationColor = Qt::yellow;
-        m_status_bar->showMessage(tr("Focusing..."));
-        m_lock_button->setText(tr("Focusing..."));
-        break;
-    case QCamera::Locked:
-        indicationColor = Qt::darkGreen;
-        m_lock_button->setText(tr("Unlock"));
-        m_status_bar->showMessage(tr("Focused"), 2000);
-        break;
-    case QCamera::Unlocked:
-        indicationColor = reason == QCamera::LockFailed ? Qt::red : Qt::black;
-        m_lock_button->setText(tr("Focus"));
-        if (reason == QCamera::LockFailed) {
-            m_status_bar->showMessage(tr("Focus failed"), 2000);
-        } else {
-            m_status_bar->showMessage(tr("Camera"));
-        }
-    }
-
-    QPalette palette = m_lock_button->palette();
-    palette.setColor(QPalette::ButtonText, indicationColor);
-    m_lock_button->setPalette(palette);
-    updateButtons();
-}
-
-
 void CameraQCamera::takeImage()
 {
     m_capturing_image = true;
@@ -497,12 +317,12 @@ void CameraQCamera::takeImage()
 #ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO << "calling capture()";
 #endif
-    m_capture->capture();  // a bit slow, so update buttons first
+    m_capture->captureToFile();  // a bit slow, so update buttons first
 }
 
 
 void CameraQCamera::displayCaptureError(const int id,
-                                        const QCameraImageCapture::Error error,
+                                        const QImageCapture::Error error,
                                         const QString& error_string)
 {
     qWarning() << "Capture error:" << id << error << error_string;
@@ -520,53 +340,14 @@ void CameraQCamera::displayCameraError(const QCamera::Error value)
 }
 
 
-void CameraQCamera::updateCameraState(const QCamera::State state)
-{
-    // !!! CameraQCamera::updateCameraState -- not implemented, but superseded by CameraQml
-    // Update the UI to reflect the camera's state
-    switch (state) {
-    case QCamera::ActiveState:
-        /*
-        ui->actionStartCamera->setEnabled(false);
-        ui->actionStopCamera->setEnabled(true);
-        ui->captureWidget->setEnabled(true);
-        ui->actionSettings->setEnabled(true);
-        */
-        break;
-    case QCamera::UnloadedState:
-    case QCamera::LoadedState:
-        /*
-        ui->actionStartCamera->setEnabled(true);
-        ui->actionStopCamera->setEnabled(false);
-        ui->captureWidget->setEnabled(false);
-        ui->actionSettings->setEnabled(false);
-        */
-        break;
-    }
-    updateButtons();
-}
-
-
 void CameraQCamera::updateButtons()
 {
     if (m_button_take) {
         m_button_take->setEnabled(m_ready && !m_capturing_image);
     }
-    if (m_lock_button) {
-        m_lock_button->setEnabled(!m_capturing_image);
-    }
     if (m_button_cancel) {
         m_button_cancel->setEnabled(!m_capturing_image);
     }
-}
-
-
-void CameraQCamera::setExposureCompensation(const int index)
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO;
-#endif
-    m_camera->exposure()->setExposureCompensation(index * 0.5);
 }
 
 
@@ -575,13 +356,11 @@ void CameraQCamera::readyForCapture(const bool ready)
     m_ready = ready;
     updateButtons();
     // If you try to capture when it's not ready, it causes an error;
-    // http://doc.qt.io/qt-5/qcameraimagecapture.html
+    // https://doc.qt.io/qt-6.5/qcameraimagecapture.html
 
     // Because the viewfinder tends to start out too small, this is a good
     // time:
-#ifdef CAMERA_QCAMERA_USE_QCAMERAVIEWFINDER
     m_viewfinder->updateGeometry();
-#endif
 }
 
 void CameraQCamera::imageSaved(const int id, const QString& filename)
@@ -599,30 +378,6 @@ void CameraQCamera::imageSaved(const int id, const QString& filename)
     m_filenames_for_deletion.insert(filename);
     m_most_recent_filename = filename;
     m_captured_state = CapturedState::File;
-#endif
-    m_capturing_image = false;
-    emit imageCaptured(image());
-    if (m_exiting) {
-        close();
-    } else {
-        updateButtons();
-    }
-}
-
-
-void CameraQCamera::imageAvailable(const int id, const QVideoFrame& buffer)
-{
-    // Image has arrived via a buffer.
-
-    // http://stackoverflow.com/questions/27297657/how-to-qvideoframe-to-qimage
-    // http://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
-
-    Q_UNUSED(id)
-    qInfo() << "Camera::imageAvailable: fetching image from buffer...";
-    m_most_recent_image = imagefunc::imageFromVideoFrame(buffer);
-    qInfo() << "Camera::imageAvailable: ... fetched.";
-#ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
-    m_captured_state = CapturedState::Buffer;
 #endif
     m_capturing_image = false;
     emit imageCaptured(image());
@@ -653,14 +408,8 @@ void CameraQCamera::keyPressEvent(QKeyEvent* event)
     }
 
     switch (event->key()) {
-    case Qt::Key_CameraFocus:
-        searchAndLockCamera();
-        event->accept();
-        break;
     case Qt::Key_Camera:
-        if (m_camera->captureMode() == QCamera::CaptureStillImage) {
-            takeImage();
-        }
+        takeImage();
         event->accept();
         break;
     default:
@@ -671,30 +420,13 @@ void CameraQCamera::keyPressEvent(QKeyEvent* event)
 
 void CameraQCamera::keyReleaseEvent(QKeyEvent* event)
 {
+    // This used to handle Qt::Key_CameraFocus, calling
+    // unlockCamera(). See git history. Remove if not
+    // needed.
+
     if (event->isAutoRepeat()) {
         return;
     }
 
-    switch (event->key()) {
-    case Qt::Key_CameraFocus:
-        unlockCamera();
-        break;
-    default:
-        OpenableWidget::keyReleaseEvent(event);
-    }
+    OpenableWidget::keyReleaseEvent(event);
 }
-
-
-#ifdef CAMERA_QCAMERA_USE_VIDEO_SURFACE_VIEWFINDER
-void CameraQCamera::handleFrame(const QImage image)
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO;
-#endif
-    if (!m_label_viewfinder) {
-        return;
-    }
-    const QPixmap pm = QPixmap::fromImage(image);
-    m_label_viewfinder->setPixmap(pm);
-}
-#endif

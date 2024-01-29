@@ -60,6 +60,7 @@
 #define MODIFIED_FROM_SQLITE  // shows what we've done
 
 #include "sqlcipherhelpers.h"
+#include <QMetaType>
 #include <QSqlField>
 #include <QSqlQuery>
 
@@ -92,28 +93,28 @@ QString _q_escapeIdentifier(const QString& identifier)
 }
 
 
-QVariant::Type qGetColumnType(const QString& type_name)
+QMetaType::Type qGetColumnType(const QString& type_name)
 {
     const QString tn = type_name.toLower();
 
     if (tn == QLatin1String("integer")
         || tn == QLatin1String("int")) {
-        return QVariant::Int;
+        return QMetaType::Int;
     }
     if (tn == QLatin1String("double")
         || tn == QLatin1String("float")
         || tn == QLatin1String("real")
         || tn.startsWith(QLatin1String("numeric"))) {
-        return QVariant::Double;
+        return QMetaType::Double;
     }
     if (tn == QLatin1String("blob")) {
-        return QVariant::ByteArray;
+        return QMetaType::QByteArray;
     }
     if (tn == QLatin1String("boolean")
         || tn == QLatin1String("bool")) {
-        return QVariant::Bool;
+        return QMetaType::Bool;
     }
-    return QVariant::String;
+    return QMetaType::QString;
 }
 
 
@@ -148,7 +149,8 @@ QSqlIndex qGetTableInfo(QSqlQuery& q, const QString& table_name,
             continue;
         }
         QString type_name = q.value(2).toString().toLower();
-        QSqlField fld(q.value(1).toString(), qGetColumnType(type_name));
+        QSqlField fld(q.value(1).toString(),
+                      QMetaType(qGetColumnType(type_name)));
         if (is_pk && (type_name == QLatin1String("integer"))) {
             // INTEGER PRIMARY KEY fields are auto-generated in sqlite
             // INT PRIMARY KEY is not the same as INTEGER PRIMARY KEY!

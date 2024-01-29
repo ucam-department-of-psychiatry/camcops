@@ -24,13 +24,13 @@
 #include "lib/roman.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::strnum;
 
@@ -211,83 +211,83 @@ MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // Part I
-    addField(Q1A, QVariant::Int);
-    addField(Q1_1, QVariant::Int);
-    addField(Q1_2, QVariant::Int);
-    addField(Q1_3, QVariant::Int);
-    addField(Q1_4, QVariant::Int);
-    addField(Q1_5, QVariant::Int);
-    addField(Q1_6, QVariant::Int);
-    addField(Q1_6A, QVariant::Int);
-    addField(Q1_7, QVariant::Int);
-    addField(Q1_8, QVariant::Int);
-    addField(Q1_9, QVariant::Int);
-    addField(Q1_10, QVariant::Int);
-    addField(Q1_11, QVariant::Int);
-    addField(Q1_12, QVariant::Int);
-    addField(Q1_13, QVariant::Int);
+    addField(Q1A, QMetaType::fromType<int>());
+    addField(Q1_1, QMetaType::fromType<int>());
+    addField(Q1_2, QMetaType::fromType<int>());
+    addField(Q1_3, QMetaType::fromType<int>());
+    addField(Q1_4, QMetaType::fromType<int>());
+    addField(Q1_5, QMetaType::fromType<int>());
+    addField(Q1_6, QMetaType::fromType<int>());
+    addField(Q1_6A, QMetaType::fromType<int>());
+    addField(Q1_7, QMetaType::fromType<int>());
+    addField(Q1_8, QMetaType::fromType<int>());
+    addField(Q1_9, QMetaType::fromType<int>());
+    addField(Q1_10, QMetaType::fromType<int>());
+    addField(Q1_11, QMetaType::fromType<int>());
+    addField(Q1_12, QMetaType::fromType<int>());
+    addField(Q1_13, QMetaType::fromType<int>());
     // Part II
-    addField(Q2_1, QVariant::Int);
-    addField(Q2_2, QVariant::Int);
-    addField(Q2_3, QVariant::Int);
-    addField(Q2_4, QVariant::Int);
-    addField(Q2_5, QVariant::Int);
-    addField(Q2_6, QVariant::Int);
-    addField(Q2_7, QVariant::Int);
-    addField(Q2_8, QVariant::Int);
-    addField(Q2_9, QVariant::Int);
-    addField(Q2_10, QVariant::Int);
-    addField(Q2_11, QVariant::Int);
-    addField(Q2_12, QVariant::Int);
-    addField(Q2_13, QVariant::Int);
+    addField(Q2_1, QMetaType::fromType<int>());
+    addField(Q2_2, QMetaType::fromType<int>());
+    addField(Q2_3, QMetaType::fromType<int>());
+    addField(Q2_4, QMetaType::fromType<int>());
+    addField(Q2_5, QMetaType::fromType<int>());
+    addField(Q2_6, QMetaType::fromType<int>());
+    addField(Q2_7, QMetaType::fromType<int>());
+    addField(Q2_8, QMetaType::fromType<int>());
+    addField(Q2_9, QMetaType::fromType<int>());
+    addField(Q2_10, QMetaType::fromType<int>());
+    addField(Q2_11, QMetaType::fromType<int>());
+    addField(Q2_12, QMetaType::fromType<int>());
+    addField(Q2_13, QMetaType::fromType<int>());
     // Part III
-    addField(Q3A, QVariant::Bool);  // yes/no
-    addField(Q3B, QVariant::Int);
-    addField(Q3C, QVariant::Bool);  // yes/no
-    addField(Q3C1, QVariant::Double);  // minutes
-    addField(Q3_1, QVariant::Int);
-    addField(Q3_2, QVariant::Int);
-    addField(Q3_3A, QVariant::Int);
-    addField(Q3_3B, QVariant::Int);
-    addField(Q3_3C, QVariant::Int);
-    addField(Q3_3D, QVariant::Int);
-    addField(Q3_3E, QVariant::Int);
-    addField(Q3_4A, QVariant::Int);
-    addField(Q3_4B, QVariant::Int);
-    addField(Q3_5A, QVariant::Int);
-    addField(Q3_5B, QVariant::Int);
-    addField(Q3_6A, QVariant::Int);
-    addField(Q3_6B, QVariant::Int);
-    addField(Q3_7A, QVariant::Int);
-    addField(Q3_7B, QVariant::Int);
-    addField(Q3_8A, QVariant::Int);
-    addField(Q3_8B, QVariant::Int);
-    addField(Q3_9, QVariant::Int);
-    addField(Q3_10, QVariant::Int);
-    addField(Q3_11, QVariant::Int);
-    addField(Q3_12, QVariant::Int);
-    addField(Q3_13, QVariant::Int);
-    addField(Q3_14, QVariant::Int);
-    addField(Q3_15A, QVariant::Int);
-    addField(Q3_15B, QVariant::Int);
-    addField(Q3_16A, QVariant::Int);
-    addField(Q3_16B, QVariant::Int);
-    addField(Q3_17A, QVariant::Int);
-    addField(Q3_17B, QVariant::Int);
-    addField(Q3_17C, QVariant::Int);
-    addField(Q3_17D, QVariant::Int);
-    addField(Q3_17E, QVariant::Int);
-    addField(Q3_18, QVariant::Int);
-    addField(Q3_DYSKINESIA_PRESENT, QVariant::Bool);
-    addField(Q3_DYSKINESIA_INTERFERED, QVariant::Bool);
-    addField(Q3_HY_STAGE, QVariant::Int);
+    addField(Q3A, QMetaType::fromType<bool>());  // yes/no
+    addField(Q3B, QMetaType::fromType<int>());
+    addField(Q3C, QMetaType::fromType<bool>());  // yes/no
+    addField(Q3C1, QMetaType::fromType<double>());  // minutes
+    addField(Q3_1, QMetaType::fromType<int>());
+    addField(Q3_2, QMetaType::fromType<int>());
+    addField(Q3_3A, QMetaType::fromType<int>());
+    addField(Q3_3B, QMetaType::fromType<int>());
+    addField(Q3_3C, QMetaType::fromType<int>());
+    addField(Q3_3D, QMetaType::fromType<int>());
+    addField(Q3_3E, QMetaType::fromType<int>());
+    addField(Q3_4A, QMetaType::fromType<int>());
+    addField(Q3_4B, QMetaType::fromType<int>());
+    addField(Q3_5A, QMetaType::fromType<int>());
+    addField(Q3_5B, QMetaType::fromType<int>());
+    addField(Q3_6A, QMetaType::fromType<int>());
+    addField(Q3_6B, QMetaType::fromType<int>());
+    addField(Q3_7A, QMetaType::fromType<int>());
+    addField(Q3_7B, QMetaType::fromType<int>());
+    addField(Q3_8A, QMetaType::fromType<int>());
+    addField(Q3_8B, QMetaType::fromType<int>());
+    addField(Q3_9, QMetaType::fromType<int>());
+    addField(Q3_10, QMetaType::fromType<int>());
+    addField(Q3_11, QMetaType::fromType<int>());
+    addField(Q3_12, QMetaType::fromType<int>());
+    addField(Q3_13, QMetaType::fromType<int>());
+    addField(Q3_14, QMetaType::fromType<int>());
+    addField(Q3_15A, QMetaType::fromType<int>());
+    addField(Q3_15B, QMetaType::fromType<int>());
+    addField(Q3_16A, QMetaType::fromType<int>());
+    addField(Q3_16B, QMetaType::fromType<int>());
+    addField(Q3_17A, QMetaType::fromType<int>());
+    addField(Q3_17B, QMetaType::fromType<int>());
+    addField(Q3_17C, QMetaType::fromType<int>());
+    addField(Q3_17D, QMetaType::fromType<int>());
+    addField(Q3_17E, QMetaType::fromType<int>());
+    addField(Q3_18, QMetaType::fromType<int>());
+    addField(Q3_DYSKINESIA_PRESENT, QMetaType::fromType<bool>());
+    addField(Q3_DYSKINESIA_INTERFERED, QMetaType::fromType<bool>());
+    addField(Q3_HY_STAGE, QMetaType::fromType<int>());
     // Part IV
-    addField(Q4_1, QVariant::Int);
-    addField(Q4_2, QVariant::Int);
-    addField(Q4_3, QVariant::Int);
-    addField(Q4_4, QVariant::Int);
-    addField(Q4_5, QVariant::Int);
-    addField(Q4_6, QVariant::Int);
+    addField(Q4_1, QMetaType::fromType<int>());
+    addField(Q4_2, QMetaType::fromType<int>());
+    addField(Q4_3, QMetaType::fromType<int>());
+    addField(Q4_4, QMetaType::fromType<int>());
+    addField(Q4_5, QMetaType::fromType<int>());
+    addField(Q4_6, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

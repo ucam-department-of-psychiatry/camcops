@@ -34,7 +34,7 @@ class DebugEventWatcher : public QObject
 public:
 
     // Categories of event to watch.
-    enum EventCategory {  // http://doc.qt.io/qt-5.9/qflags.html#details
+    enum EventCategory {  // https://doc.qt.io/qt-6.5/qflags.html#details
         All = (1 << 0),
         MouseTouch = (1 << 1),
     };

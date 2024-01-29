@@ -29,6 +29,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
@@ -57,12 +58,12 @@ void initializeCiwa(TaskFactory& factory)
 Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CIWA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QVariant::Int);
-    addField(T, QVariant::Double);  // previously int, which was wrong (is temp in degrees C)
-    addField(HR, QVariant::Int);
-    addField(SBP, QVariant::Int);
-    addField(DBP, QVariant::Int);
-    addField(RR, QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QMetaType::fromType<int>());
+    addField(T, QMetaType::fromType<double>());  // previously int, which was wrong (is temp in degrees C)
+    addField(HR, QMetaType::fromType<int>());
+    addField(SBP, QMetaType::fromType<int>());
+    addField(DBP, QMetaType::fromType<int>());
+    addField(RR, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

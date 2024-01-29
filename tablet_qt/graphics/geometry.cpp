@@ -38,7 +38,7 @@ const qreal DEG_360 = 360.0;
 
 int sixteenthsOfADegree(const qreal degrees)
 {
-    // http://doc.qt.io/qt-5/qpainter.html#drawPie
+    // https://doc.qt.io/qt-6.5/qpainter.html#drawPie
     return qRound(degrees * 16.0);
 }
 

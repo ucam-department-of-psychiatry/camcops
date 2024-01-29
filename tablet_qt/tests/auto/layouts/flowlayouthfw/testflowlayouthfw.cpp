@@ -41,11 +41,14 @@ void TestFlowLayoutHfw::testMinimumSizeAddsMargins()
 
     layout->addWidget(button);
 
-    const int margin = 8;
+    const int left = 1;
+    const int top = 2;
+    const int right = 4;
+    const int bottom = 8;
 
-    layout->setMargin(margin);
+    layout->setContentsMargins(left, top, right, bottom);
 
-    QCOMPARE(layout->minimumSize(), QSize(2*margin, 2*margin));
+    QCOMPARE(layout->minimumSize(), QSize(left + right, top + bottom));
 }
 
 QTEST_MAIN(TestFlowLayoutHfw)

@@ -26,6 +26,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
@@ -50,7 +51,7 @@ void initializeHamD7(TaskFactory& factory)
 HamD7::HamD7(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HAMD7_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

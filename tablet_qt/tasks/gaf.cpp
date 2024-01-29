@@ -21,19 +21,14 @@
 #include "gaf.h"
 #include "common/appstrings.h"
 #include "common/textconst.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
-// const int FIRST_Q = 1;
-// const int N_QUESTIONS = 24;
-// const int MAX_SCORE = 168;
 const QString QPREFIX("q");
-
 const QString Gaf::GAF_TABLENAME("gaf");
-
 const QString SCORE("score");
 
 
@@ -46,7 +41,7 @@ void initializeGaf(TaskFactory& factory)
 Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GAF_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(SCORE, QVariant::String);
+    addField(SCORE, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -80,7 +75,8 @@ QString Gaf::description() const
 
 bool Gaf::isComplete() const
 {
-    const QVariant score = valueInt(SCORE);
+    const int score = valueInt(SCORE);
+    // ... an absent score will give 0 and thus fail
     return score >= 1 && score <= 100;
 }
 

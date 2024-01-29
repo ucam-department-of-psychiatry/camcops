@@ -21,7 +21,9 @@
 // #define DEBUG_EVEN_GIANT_VARIANTS
 
 #include "debugfunc.h"
+#include "dialogs/debugdialog.h"
 #include <QDebug>
+#include <QVariant>
 
 namespace debugfunc {
 
@@ -31,10 +33,10 @@ void debugConcisely(QDebug debug, const QVariant& value)
 #ifdef DEBUG_EVEN_GIANT_VARIANTS
     debug << value;
 #else
-    switch (value.type()) {
+    switch (value.typeId()) {
 
     // Big things; don't show their actual value to the console
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         debug << "<ByteArray>";
         break;
 

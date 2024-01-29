@@ -22,17 +22,15 @@
 #include "common/textconst.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qudatetime.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using uifunc::yesNoNull;
 
@@ -56,13 +54,13 @@ void initializeContactLog(TaskFactory& factory)
 ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CONTACTLOG_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(LOCATION, QVariant::String);
-    addField(START, QVariant::DateTime);
-    addField(END, QVariant::DateTime);
-    addField(PATIENT_CONTACT, QVariant::Bool);
-    addField(STAFF_LIAISON, QVariant::Bool);
-    addField(OTHER_LIAISON, QVariant::Bool);
-    addField(COMMENT, QVariant::String);
+    addField(LOCATION, QMetaType::fromType<QString>());
+    addField(START, QMetaType::fromType<QDateTime>());
+    addField(END, QMetaType::fromType<QDateTime>());
+    addField(PATIENT_CONTACT, QMetaType::fromType<bool>());
+    addField(STAFF_LIAISON, QMetaType::fromType<bool>());
+    addField(OTHER_LIAISON, QMetaType::fromType<bool>());
+    addField(COMMENT, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

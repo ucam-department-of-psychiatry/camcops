@@ -26,6 +26,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::standardResult;
 using stringfunc::strnum;
@@ -45,8 +46,8 @@ void initializeIrac(TaskFactory& factory)
 Irac::Irac(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IRAC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(AIM, QVariant::String);
-    addField(ACHIEVED, QVariant::Int);
+    addField(AIM, QMetaType::fromType<QString>());
+    addField(ACHIEVED, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

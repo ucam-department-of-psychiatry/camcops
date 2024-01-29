@@ -21,31 +21,19 @@
 // By Joe Kearney, Rudolf Cardinal.
 
 #include "apeqpt.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/namevaluepair.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qugridcontainer.h"
-#include "questionnairelib/qugridcell.h"
-#include "questionnairelib/quheading.h"
-#include "questionnairelib/quhorizontalcontainer.h"
-#include "questionnairelib/quhorizontalline.h"
-#include "questionnairelib/qulineedit.h"
-#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
-#include "questionnairelib/quslider.h"
-#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
-#include "questionnairelib/quverticalcontainer.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::anyNullOrEmpty;
 using mathfunc::sumInt;
@@ -75,14 +63,14 @@ Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, APEQPT_TABLENAME, true, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_DATETIME, QVariant::DateTime);
+    addField(FN_DATETIME, QMetaType::fromType<QDateTime>());
 
     for (const QString& field : strseq("q", 1, CHOICE_QUESTIONS_N, CHOICE_SUFFIX)) {
-        addField(field, QVariant::Int);
+        addField(field, QMetaType::fromType<int>());
     }
 
-    addField(FN_Q1_SATISFACTION, QVariant::Int);
-    addField(FN_Q2_SATISFACTION, QVariant::String);
+    addField(FN_Q1_SATISFACTION, QMetaType::fromType<int>());
+    addField(FN_Q2_SATISFACTION, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

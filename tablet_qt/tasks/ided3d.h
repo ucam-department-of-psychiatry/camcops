@@ -57,7 +57,7 @@ public:
            int load_pk = dbconst::NONEXISTENT_PK);
     ~IDED3D() override;
 protected:
-    QMap<QString, QVariant::Type> initTypes();
+    QMap<QString, QMetaType> initTypes();
     QMap<QString, QVariant> initDefaultValues();
     QMap<QString, QVariant> initMinValues();
     QMap<QString, QVariant> initMaxValues();
@@ -154,7 +154,7 @@ protected:
     QSharedPointer<QMediaPlayer> m_player_incorrect;  // not owned by other widgets
 
     QMap<QString, QVariant> m_default_values;
-    QMap<QString, QVariant::Type> m_types;
+    QMap<QString, QMetaType> m_types;
     QMap<QString, QVariant> m_min_values;
     QMap<QString, QVariant> m_max_values;
 

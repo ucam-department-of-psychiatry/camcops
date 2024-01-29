@@ -40,9 +40,11 @@
 #include <QtNetwork/QSslConfiguration>
 #include <QUrl>
 #include <QUrlQuery>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
+#include "db/databasemanager.h"
+#include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
 #include "dbobjects/idnumdescription.h"
 #include "dbobjects/patientidnum.h"
@@ -749,7 +751,7 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
     } else {
         statusMessage(tr("Network error:") + " " + reply->errorString());
     }
-    reply->deleteLater();  // http://doc.qt.io/qt-5/qnetworkaccessmanager.html#details
+    reply->deleteLater();  // https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#details
     succeed();
 }
 
@@ -1292,7 +1294,7 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
             Q_FALLTHROUGH();
             // ... well done, Qt
-            // - http://doc.qt.io/qt-5/qtglobal.html#Q_FALLTHROUGH
+            // - https://doc.qt.io/qt-6.5/qtglobal.html#Q_FALLTHROUGH
         }
 
     case NextUploadStage::FetchAllowedTables:

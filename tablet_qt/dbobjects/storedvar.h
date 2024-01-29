@@ -31,7 +31,7 @@ public:
     StoredVar(CamcopsApp& app,
               DatabaseManager& db,
               const QString& name = "",  // empty for a specimen
-              QVariant::Type type = QVariant::Int,
+              QMetaType type = QMetaType::fromType<int>(),
               const QVariant& default_value = QVariant());
     virtual ~StoredVar() = default;
 
@@ -58,7 +58,7 @@ protected:
     QString m_name;
 
     // What QVariant type are we representing?
-    QVariant::Type m_type;
+    QMetaType m_type;
 
     // Which field is in active use?
     QString m_value_fieldname;

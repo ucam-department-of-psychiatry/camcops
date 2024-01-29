@@ -32,6 +32,7 @@
 #include "questionnairelib/qumultipleresponse.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::strnum;
 
@@ -76,33 +77,33 @@ void initializeGmcPq(TaskFactory& factory)
 GmcPq::GmcPq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GMCPQ_TABLENAME, true, false, false)  // ... anon, clin, resp
 {
-    addField(DOCTOR, QVariant::String);
-    addField(Q1, QVariant::Int);
-    addField(Q2A, QVariant::Bool);
-    addField(Q2B, QVariant::Bool);
-    addField(Q2C, QVariant::Bool);
-    addField(Q2D, QVariant::Bool);
-    addField(Q2E, QVariant::Bool);
-    addField(Q2F, QVariant::Bool);
-    addField(Q2F_DETAILS, QVariant::String);
-    addField(Q3, QVariant::Int);
-    addField(Q4A, QVariant::Int);
-    addField(Q4B, QVariant::Int);
-    addField(Q4C, QVariant::Int);
-    addField(Q4D, QVariant::Int);
-    addField(Q4E, QVariant::Int);
-    addField(Q4F, QVariant::Int);
-    addField(Q4G, QVariant::Int);
-    addField(Q5A, QVariant::Int);
-    addField(Q5B, QVariant::Int);
-    addField(Q6, QVariant::Bool);
-    addField(Q7, QVariant::Bool);
-    addField(Q8, QVariant::Bool);
-    addField(Q9, QVariant::String);
-    addField(Q10, QVariant::String);
-    addField(Q11, QVariant::Int);
-    addField(Q12, QVariant::Int);  // ethnicity
-    addField(Q12_DETAILS, QVariant::String);
+    addField(DOCTOR, QMetaType::fromType<QString>());
+    addField(Q1, QMetaType::fromType<int>());
+    addField(Q2A, QMetaType::fromType<bool>());
+    addField(Q2B, QMetaType::fromType<bool>());
+    addField(Q2C, QMetaType::fromType<bool>());
+    addField(Q2D, QMetaType::fromType<bool>());
+    addField(Q2E, QMetaType::fromType<bool>());
+    addField(Q2F, QMetaType::fromType<bool>());
+    addField(Q2F_DETAILS, QMetaType::fromType<QString>());
+    addField(Q3, QMetaType::fromType<int>());
+    addField(Q4A, QMetaType::fromType<int>());
+    addField(Q4B, QMetaType::fromType<int>());
+    addField(Q4C, QMetaType::fromType<int>());
+    addField(Q4D, QMetaType::fromType<int>());
+    addField(Q4E, QMetaType::fromType<int>());
+    addField(Q4F, QMetaType::fromType<int>());
+    addField(Q4G, QMetaType::fromType<int>());
+    addField(Q5A, QMetaType::fromType<int>());
+    addField(Q5B, QMetaType::fromType<int>());
+    addField(Q6, QMetaType::fromType<bool>());
+    addField(Q7, QMetaType::fromType<bool>());
+    addField(Q8, QMetaType::fromType<bool>());
+    addField(Q9, QMetaType::fromType<QString>());
+    addField(Q10, QMetaType::fromType<QString>());
+    addField(Q11, QMetaType::fromType<int>());
+    addField(Q12, QMetaType::fromType<int>());  // ethnicity
+    addField(Q12_DETAILS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -92,7 +92,7 @@ void CanvasWidget::setAllowShrink(const bool allow_shrink)
         setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         // Can be shrunk in either direction.
         // We can't have a width-for-height constraint as well as a HFW
-        // constraint; see http://doc.qt.io/qt-5/qsizepolicy.html#setWidthForHeight
+        // constraint; see https://doc.qt.io/qt-6.5/qsizepolicy.html#setWidthForHeight
         // Instead, we can draw according to our *actual* height...
         // Similarly, we don't need a HFW constraint, which will (in many of
         // our layouts) make the effective height *fixed* once the width is
@@ -280,10 +280,9 @@ QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
 {
     // Convert from widget coordinates (NB there's a frame) to contentsRect
     // coordinates:
-    int left, top, right, bottom;
-    getContentsMargins(&left, &top, &right, &bottom);
-    point.rx() -= left;
-    point.ry() -= top;
+    auto margins = contentsMargins();
+    point.rx() -= margins.left();
+    point.ry() -= margins.top();
 
     // Now transform, if required, to account for any scaling that we're
     // doing:

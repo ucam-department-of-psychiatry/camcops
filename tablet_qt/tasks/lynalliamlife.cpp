@@ -19,7 +19,6 @@
 */
 
 #include "lynalliamlife.h"
-#include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "lib/version.h"
 #include "maths/mathfunc.h"
@@ -32,6 +31,7 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::countTrue;
 using mathfunc::scorePhrase;
 using stringfunc::strnum;
@@ -63,9 +63,9 @@ LynallIamLife::LynallIamLife(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, LYNALL_IAM_LIFE_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_MAIN), QVariant::Bool);
-    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_SEVERITY), QVariant::Int);
-    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_FREQUENCY), QVariant::Int);
+    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_MAIN), QMetaType::fromType<bool>());
+    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_SEVERITY), QMetaType::fromType<int>());
+    addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_FREQUENCY), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

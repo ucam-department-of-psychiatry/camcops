@@ -161,7 +161,6 @@
         <file>resources/camcops/camera_qml/CameraListPopup.qml</file>
         <file>resources/camcops/camera_qml/CameraPropertyButton.qml</file>
         <file>resources/camcops/camera_qml/CameraPropertyPopup.qml</file>
-        <file>resources/camcops/camera_qml/FocusButton.qml</file>
         <file>resources/camcops/camera_qml/PhotoCaptureControls.qml</file>
         <file>resources/camcops/camera_qml/PhotoPreview.qml</file>
         <file>resources/camcops/camera_qml/Popup.qml</file>

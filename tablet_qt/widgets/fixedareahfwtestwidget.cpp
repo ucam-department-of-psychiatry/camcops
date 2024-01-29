@@ -19,7 +19,6 @@
 */
 
 #include "fixedareahfwtestwidget.h"
-#include <cmath>
 #include <QBrush>
 #include <QPainter>
 #include <QPen>

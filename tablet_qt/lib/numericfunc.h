@@ -45,7 +45,7 @@ qint64 strToNumber(const QString& str, qint64 type_dummy);
 quint64 strToNumber(const QString& str, quint64 type_dummy);
 
 // Similarly for locale-based strings containing integers, for different
-// languages/conventions; see http://doc.qt.io/qt-5/qlocale.html
+// languages/conventions; see https://doc.qt.io/qt-6.5/qlocale.html
 int localeStrToNumber(const QString& str, bool& ok,
                       const QLocale& locale, int type_dummy);
 qint64 localeStrToNumber(const QString&, bool& ok,
@@ -312,7 +312,7 @@ QValidator::State numeric::validateInteger(
         return QValidator::Intermediate;
     }
 
-    const QChar decimalPoint = locale.decimalPoint();
+    const QString decimalPoint = locale.decimalPoint();
     if (s.indexOf(decimalPoint) != -1) {
         // Containing a decimal point: not OK
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR

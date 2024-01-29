@@ -22,6 +22,7 @@
 
 #include "db/field.h"
 #include "lib/convert.h"
+#include "lib/version.h"
 
 class TestField: public QObject
 {
@@ -66,7 +67,7 @@ private slots:
 
 void TestField::testDatabaseValueQCharReturnsString()
 {
-    auto field = Field("test", QVariant::Char);
+    auto field = Field("test", QMetaType::fromType<QChar>());
     const QVariant value_in = QChar('R');
     field.setValue(value_in);
     QCOMPARE(field.databaseValue(), QVariant("R"));
@@ -74,7 +75,7 @@ void TestField::testDatabaseValueQCharReturnsString()
 
 void TestField::testDatabaseValueQDateReturnsString()
 {
-    auto field = Field("test", QVariant::Date);
+    auto field = Field("test", QMetaType::fromType<QDate>());
     const QVariant value_in = QDate(2023, 7, 28);
     field.setValue(value_in);
     QCOMPARE(field.databaseValue(), QVariant("2023-07-28"));
@@ -82,7 +83,7 @@ void TestField::testDatabaseValueQDateReturnsString()
 
 void TestField::testDatabaseValueQDateTimeReturnsString()
 {
-    auto field = Field("test", QVariant::DateTime);
+    auto field = Field("test", QMetaType::fromType<QDateTime>());
     const QDate date = QDate(2023, 7, 13);
     const QTime time = QTime(16, 8, 49, 512);
     const QDateTime datetime = QDateTime(date, time, QTimeZone::utc());
@@ -93,7 +94,7 @@ void TestField::testDatabaseValueQDateTimeReturnsString()
 
 void TestField::testDatabaseValueQStringListReturnsString()
 {
-    auto field = Field("test", QVariant::StringList);
+    auto field = Field("test", QMetaType::fromType<QStringList>());
     const QStringList list = {"one", "two", "three"};
     QVariant value_in;
     value_in.setValue(list);
@@ -103,7 +104,7 @@ void TestField::testDatabaseValueQStringListReturnsString()
 
 void TestField::testDatabaseValueQUuidReturnsString()
 {
-    auto field = Field("test", QVariant::Uuid);
+    auto field = Field("test", QMetaType::fromType<QUuid>());
     auto uuid = QUuid();
     const QVariant value_in = uuid;
     field.setValue(value_in);
@@ -113,7 +114,7 @@ void TestField::testDatabaseValueQUuidReturnsString()
 void TestField::testDatabaseValueQVectorIntReturnsString()
 {
     convert::registerTypesForQVariant();
-    auto field = Field("test", convert::TYPENAME_QVECTOR_INT);
+    auto field = Field("test", QMetaType::fromType<QVector<int>>());
     const QVector<int> vector_int = {1, 2, 3};
     QVariant value_in;
     value_in.setValue(vector_int);
@@ -124,7 +125,7 @@ void TestField::testDatabaseValueQVectorIntReturnsString()
 void TestField::testDatabaseValueVersionReturnsString()
 {
     convert::registerTypesForQVariant();
-    auto field = Field("test", convert::TYPENAME_VERSION);
+    auto field = Field("test", QMetaType::fromType<Version>());
     const Version version = Version(1, 2, 3);
     QVariant value_in;
     value_in.setValue(version);
@@ -134,7 +135,7 @@ void TestField::testDatabaseValueVersionReturnsString()
 
 void TestField::testSetFromDatabaseValueQCharFromText()
 {
-    auto field = Field("test", QVariant::Char);
+    auto field = Field("test", QMetaType::fromType<QChar>());
     const QVariant value_in = "A";
     field.setFromDatabaseValue(value_in);
 
@@ -144,7 +145,7 @@ void TestField::testSetFromDatabaseValueQCharFromText()
 
 void TestField::testSetFromDatabaseValueQDateFromText()
 {
-    auto field = Field("test", QVariant::Date);
+    auto field = Field("test", QMetaType::fromType<QDate>());
     const QVariant value_in = "2023-07-18";
     field.setFromDatabaseValue(value_in);
 
@@ -154,7 +155,7 @@ void TestField::testSetFromDatabaseValueQDateFromText()
 
 void TestField::testSetFromDatabaseValueQDateTimeFromText()
 {
-    auto field = Field("test", QVariant::DateTime);
+    auto field = Field("test", QMetaType::fromType<QDateTime>());
     const QVariant value_in = "2023-07-13T16:08:49.512+00:00";
     field.setFromDatabaseValue(value_in);
 
@@ -167,7 +168,7 @@ void TestField::testSetFromDatabaseValueQDateTimeFromText()
 
 void TestField::testSetFromDatabaseValueQStringListFromText()
 {
-    auto field = Field("test", QVariant::StringList);
+    auto field = Field("test", QMetaType::fromType<QStringList>());
     const QVariant value_in = "one,two,three";
     field.setFromDatabaseValue(value_in);
 
@@ -181,30 +182,34 @@ void TestField::testSetFromDatabaseValueQStringListFromText()
 void TestField::testSetFromDatabaseValueQVectorIntFromText()
 {
     convert::registerTypesForQVariant();
-    auto field = Field("test", convert::TYPENAME_QVECTOR_INT);
+    auto field = Field("test", QMetaType::fromType<QVector<int>>());
     const QVariant value_in = "1,2,3";
     field.setFromDatabaseValue(value_in);
 
-    auto value_out = field.value().value<QVector<int>>();
+    QVariant value_out = field.value();
     const QVector<int> expected = {1, 2, 3};
-    QCOMPARE(value_out, expected);
+    QVariant variant;
+    variant.setValue(expected);
+    QCOMPARE(value_out, variant);
 }
 
 void TestField::testSetFromDatabaseValueVersionFromText()
 {
     convert::registerTypesForQVariant();
-    auto field = Field("test", convert::TYPENAME_VERSION);
+    auto field = Field("test", QMetaType::fromType<Version>());
     const QVariant value_in = "1.2.3";
     field.setFromDatabaseValue(value_in);
 
-    auto value_out = field.value().value<Version>();
+    QVariant value_out = field.value();
     const Version expected = Version(1, 2, 3);
-    QCOMPARE(value_out, expected);
+    QVariant variant;
+    variant.setValue(expected);
+    QCOMPARE(value_out, variant);
 }
 
 void TestField::testSetFromDatabaseValueIntFromInt()
 {
-    auto field = Field("test", QVariant::Int);
+    auto field = Field("test", QMetaType::fromType<int>());
     const QVariant value_in = 123;
     field.setFromDatabaseValue(value_in);
 
@@ -214,114 +219,114 @@ void TestField::testSetFromDatabaseValueIntFromInt()
 
 void TestField::testSetValueStringTypeQCharConverted()
 {
-    auto field = Field("test", QVariant::Char);
-    const QVariant value_in = QString("R");
+    auto field = Field("test", QMetaType::fromType<QChar>());
+    const QVariant value_in = QChar('R');
     field.setValue(value_in);
     const QVariant value_out = field.value();
-    QCOMPARE(value_out.type(), QVariant::Char);
+    QCOMPARE(value_out.typeId(), QMetaType::QChar);
     QCOMPARE(value_in, value_out);
 }
 
 void TestField::testSqlColumnTypeBoolIsInteger()
 {
-    auto field = Field("test", QVariant::Bool);
+    auto field = Field("test", QMetaType::fromType<bool>());
     QCOMPARE(field.sqlColumnType(), "INTEGER");
 }
 
 void TestField::testSqlColumnTypeIntIsInteger()
 {
-    auto field = Field("test", QVariant::Int);
+    auto field = Field("test", QMetaType::fromType<int>());
     QCOMPARE(field.sqlColumnType(), "INTEGER");
 }
 
 void TestField::testSqlColumnTypeLongLongIsInteger()
 {
-    auto field = Field("test", QVariant::LongLong);
+    auto field = Field("test", QMetaType::fromType<qlonglong>());
     QCOMPARE(field.sqlColumnType(), "INTEGER");
 }
 
 void TestField::testSqlColumnTypeUIntIsInteger()
 {
-    auto field = Field("test", QVariant::UInt);
+    auto field = Field("test", QMetaType::fromType<uint>());
     QCOMPARE(field.sqlColumnType(), "INTEGER");
 }
 
 void TestField::testSqlColumnTypeULongLongIsInteger()
 {
-    auto field = Field("test", QVariant::ULongLong);
+    auto field = Field("test", QMetaType::fromType<qulonglong>());
     QCOMPARE(field.sqlColumnType(), "INTEGER");
 }
 
 void TestField::testSqlColumnTypeDoubleIsReal()
 {
-    auto field = Field("test", QVariant::Double);
+    auto field = Field("test", QMetaType::fromType<double>());
     QCOMPARE(field.sqlColumnType(), "REAL");
 }
 
 void TestField::testSqlColumnTypeQCharIsText()
 {
-    auto field = Field("test", QVariant::Char);
+    auto field = Field("test", QMetaType::fromType<QChar>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
 
 void TestField::testSqlColumnTypeQDateIsText()
 {
-    auto field = Field("test", QVariant::Date);
+    auto field = Field("test", QMetaType::fromType<QDate>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 
 }
 
 void TestField::testSqlColumnTypeQDateTimeIsText()
 {
-    auto field = Field("test", QVariant::DateTime);
+    auto field = Field("test", QMetaType::fromType<QDateTime>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 
 }
 
 void TestField::testSqlColumnTypeQStringIsText()
 {
-    auto field = Field("test", QVariant::String);
+    auto field = Field("test", QMetaType::fromType<QString>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 
 }
 
 void TestField::testSqlColumnTypeQStringListIsText()
 {
-    auto field = Field("test", QVariant::StringList);
+    auto field = Field("test", QMetaType::fromType<QStringList>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 
 }
 
 void TestField::testSqlColumnTypeQTimeIsText()
 {
-    auto field = Field("test", QVariant::Time);
+    auto field = Field("test", QMetaType::fromType<QTime>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 
 }
 
 void TestField::testSqlColumnTypeQUuidIsText()
 {
-    auto field = Field("test", QVariant::Uuid);
+    auto field = Field("test", QMetaType::fromType<QUuid>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
 
 void TestField::testSqlColumnTypeQByteArrayIsBlob()
 {
-    auto field = Field("test", QVariant::ByteArray);
+    auto field = Field("test", QMetaType::fromType<QByteArray>());
     QCOMPARE(field.sqlColumnType(), "BLOB");
 }
 
 void TestField::testSqlColumnTypeQVectorIntIsText()
 {
     convert::registerTypesForQVariant();
-    auto field = Field("test", convert::TYPENAME_QVECTOR_INT);
+    auto field = Field("test", QMetaType::fromType<QVector<int>>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
 
 void TestField::testSqlColumnTypeVersionIsText()
 {
     convert::registerTypesForQVariant();
-    auto field = Field("test", convert::TYPENAME_VERSION);
+    auto field = Field("test", QMetaType::fromType<Version>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
 

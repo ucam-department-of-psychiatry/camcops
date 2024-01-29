@@ -228,7 +228,7 @@ QString abbreviate(const QString& str,
 
 QString escapeString(const QString& string)
 {
-    // See also http://doc.qt.io/qt-5/qregexp.html#escape
+    // See also https://doc.qt.io/qt-6.5/qregexp.html#escape
     // Obsolete: Qt::escape()
 
     // Convert to a C++ literal.
@@ -239,10 +239,11 @@ QString escapeString(const QString& string)
     result.reserve(static_cast<int>(len * 1.1));  // as per QString::toHtmlEscaped
     result.append('"');  // opening quote
     for (int i = 0; i < len; ++i) {
-        char c = arr.at(i);
+        const char c = arr.at(i);
         if (c < ' ') {
             result.append('\\');
-            result.append(c - 1 + 'a');
+            const int code = c - 1 + 'a';
+            result.append(QLatin1Char(code));
         } else {
             result.append(c);
         }

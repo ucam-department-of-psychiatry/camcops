@@ -21,7 +21,6 @@
 #include "khandakerinsightmedical.h"
 #include "common/cssconst.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
@@ -35,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 struct KhandakerInsightQInfo {
     KhandakerInsightQInfo(const QString& stem,
@@ -111,8 +111,8 @@ KhandakerInsightMedical::KhandakerInsightMedical(
     Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     for (const KhandakerInsightQInfo& info : QUESTIONS) {
-        addField(info.fieldname_yn, QVariant::Bool);
-        addField(info.fieldname_comment, QVariant::String);
+        addField(info.fieldname_yn, QMetaType::fromType<bool>());
+        addField(info.fieldname_comment, QMetaType::fromType<QString>());
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

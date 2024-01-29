@@ -19,21 +19,15 @@
 */
 
 #include "chit.h"
-#include "common/textconst.h"
-#include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
-#include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quboolean.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
-#include "questionnairelib/quspacer.h"
-#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
@@ -59,7 +53,7 @@ Chit::Chit(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CHIT_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

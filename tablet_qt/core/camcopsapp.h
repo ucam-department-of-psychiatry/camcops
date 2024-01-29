@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QApplication>
+#include <QMetaType>
 #include <QPointer>
 #include <QSharedPointer>
 #include <QSqlDatabase>
@@ -32,10 +33,10 @@
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"
+#include "lib/idpolicy.h"
 #include "lib/slowguiguard.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
-class IdPolicy;
 class OpenableWidget;
 class QSqlDatabase;
 class QMainWindow;
@@ -190,9 +191,6 @@ protected:
     // passphrase, then re-opens the databases.
     bool encryptExistingPlaintextDatabases(const QString& passphrase);
 
-    // Seeds the random number generator.
-    void seedRng();
-
     // Creates the stored variable table (in the "system" database)>
     void makeStoredVarTable();
 
@@ -286,7 +284,7 @@ public slots:
     // launcher, for when we launch our app via a URL.
     // These are slots, but can safely take a reference (const QString&
     // value), as per
-    // https://doc.qt.io/qt-5/qt.html#ConnectionType-enum
+    // https://doc.qt.io/qt-6.5/qt.html#ConnectionType-enum
     // https://stackoverflow.com/questions/8455887/
     void setDefaultSingleUserMode(const QString& value);
     void setDefaultServerLocation(const QString& value);
@@ -752,7 +750,7 @@ protected slots:
     void retryUpload();
 
 protected:
-    void createVar(const QString& name, QVariant::Type type,
+    void createVar(const QString& name, QMetaType type,
                    const QVariant& default_value = QVariant());
 
     // ------------------------------------------------------------------------
@@ -812,7 +810,7 @@ protected:
     QUrl m_default_server_url;
     QString m_default_patient_proquint;
 
-    // Translators; see https://doc.qt.io/qt-5/internationalization.html
+    // Translators; see https://doc.qt.io/qt-6.5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings
     QSharedPointer<QTranslator> m_app_translator;  // translates CamCOPS strings
 

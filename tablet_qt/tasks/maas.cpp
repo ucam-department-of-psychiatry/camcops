@@ -22,11 +22,12 @@
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
-#include "tasklib/taskfactory.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::scorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -62,7 +63,7 @@ void initializeMaas(TaskFactory& factory)
 Maas::Maas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MAAS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(FN_QPREFIX, 1, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(FN_QPREFIX, 1, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

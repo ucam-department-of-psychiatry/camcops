@@ -26,7 +26,6 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -34,6 +33,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::countNull;
 using mathfunc::countTrue;
@@ -136,17 +136,17 @@ Icd10Schizophrenia::Icd10Schizophrenia(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ICD10SZ_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(A_NAMES, QVariant::Bool);
-    addFields(B_NAMES, QVariant::Bool);
-    addFields(C_NAMES, QVariant::Bool);
-    addFields(D_NAMES, QVariant::Bool);
-    addFields(E_NAMES, QVariant::Bool);
-    addFields(F_NAMES, QVariant::Bool);
-    addFields(G_NAMES, QVariant::Bool);
-    addFields(H_NAMES, QVariant::Bool);
+    addFields(A_NAMES, QMetaType::fromType<bool>());
+    addFields(B_NAMES, QMetaType::fromType<bool>());
+    addFields(C_NAMES, QMetaType::fromType<bool>());
+    addFields(D_NAMES, QMetaType::fromType<bool>());
+    addFields(E_NAMES, QMetaType::fromType<bool>());
+    addFields(F_NAMES, QMetaType::fromType<bool>());
+    addFields(G_NAMES, QMetaType::fromType<bool>());
+    addFields(H_NAMES, QMetaType::fromType<bool>());
 
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

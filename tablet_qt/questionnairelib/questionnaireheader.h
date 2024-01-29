@@ -21,7 +21,6 @@
 #pragma once
 
 #include <QPointer>
-#include "core/camcopsapp.h"
 #include "questionnairelib/qupage.h"
 #include "widgets/basewidget.h"
 

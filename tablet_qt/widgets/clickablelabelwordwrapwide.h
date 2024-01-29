@@ -21,7 +21,7 @@
 #pragma once
 
 #include <QPushButton>
-#include "common/gui_defines.h"
+#include "common/gui_defines.h"  // IWYU pragma: keep
 #include "layouts/layouts.h"
 class LabelWordWrapWide;
 

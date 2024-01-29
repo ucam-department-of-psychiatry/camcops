@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QDebug>
+#include <QMetaType>
 #include <QVariant>
 
 // Represents a field (the intersection of a column and a row in a database).
@@ -41,13 +42,7 @@ public:
     //  unique: UNIQUE?
     //  pk: PRIMARY KEY?
     //  default_value: value if not otherwise set
-    Field(const QString& name, QVariant::Type type,
-          bool mandatory = false, bool unique = false, bool pk = false,
-          const QVariant& cpp_default_value = QVariant(),
-          const QVariant& db_default_value = QVariant());
-
-    // Alternative constructor by type name, e.g. "QVector<int>" or "Version".
-    Field(const QString& name, const QString& type_name,
+    Field(const QString& name, QMetaType type,
           bool mandatory = false, bool unique = false, bool pk = false,
           const QVariant& cpp_default_value = QVariant(),
           const QVariant& db_default_value = QVariant());
@@ -77,7 +72,7 @@ public:
     QString name() const;
 
     // Returns the field's data type.
-    QVariant::Type type() const;
+    QMetaType type() const;
 
     // Is it a PK?
     bool isPk() const;
@@ -144,10 +139,7 @@ protected:
     QString m_name;
 
     // Data type
-    QVariant::Type m_type;
-
-    // Data type name
-    QString m_type_name;
+    QMetaType m_type;
 
     // PK?
     bool m_pk;

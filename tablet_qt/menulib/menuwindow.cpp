@@ -40,6 +40,7 @@
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "menulib/menuheader.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -309,7 +310,7 @@ void MenuWindow::build()
             // (obviously) visible selection out of sync, which leads to
             // major user errors.
             // setCurrentItem() will also select the item;
-            // http://doc.qt.io/qt-5/qlistwidget.html#setCurrentItem
+            // https://doc.qt.io/qt-6.5/qlistwidget.html#setCurrentItem
 
             preselected = true;
         }
@@ -323,7 +324,7 @@ void MenuWindow::build()
     }
 
     // Method 2: QListView, QStandardItemModel, custom delegate
-    // http://doc.qt.io/qt-5/qlistview.html
+    // https://doc.qt.io/qt-6.5/qlistview.html
     // argh!
 
     // Stretch not necessary, even if the menu is short (the QListWidget

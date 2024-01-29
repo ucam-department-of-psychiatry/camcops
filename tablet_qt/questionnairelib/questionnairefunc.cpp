@@ -20,7 +20,6 @@
 
 #include "questionnairefunc.h"
 #include <QObject>
-#include "lib/uifunc.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/questionnaire.h"

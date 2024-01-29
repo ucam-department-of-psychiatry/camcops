@@ -43,13 +43,11 @@ void TestFileFunc::testTextFileContentsReturnsContentsOfFile()
         "Γαζέες καὶ μυρτιὲς δὲν θὰ βρῶ πιὰ στὸ χρυσαφὶ ξέφωτο."
         "В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!";
 
-    auto file = new QTemporaryFile();
-    file->open();
-    file->write(text);
-    file->close();
-    QCOMPARE(textfileContents(file->fileName()), QString(text));
-
-    delete file;
+    auto file = QTemporaryFile();
+    file.open();
+    file.write(text);
+    file.close();
+    QCOMPARE(textfileContents(file.fileName()), QString(text));
 }
 
 QTEST_MAIN(TestFileFunc)

@@ -24,9 +24,7 @@
 #include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
@@ -36,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "tasks/gmcpq.h"  // for ethnicity options
 using mathfunc::noneNull;
 
@@ -214,117 +213,117 @@ DeakinS1HealthReview::DeakinS1HealthReview(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DEAKIN_S1_HEALTHREVIEW_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(ETHNICITY, QVariant::Int);
-    addField(ETHNICITY_TEXT, QVariant::String);  // SEEMS TO BE UNUSED!
-    addField(ETHNICITY_OTHER_DETAILS, QVariant::String);
+    addField(ETHNICITY, QMetaType::fromType<int>());
+    addField(ETHNICITY_TEXT, QMetaType::fromType<QString>());  // SEEMS TO BE UNUSED!
+    addField(ETHNICITY_OTHER_DETAILS, QMetaType::fromType<QString>());
 
-    addField(HANDEDNESS, QVariant::String);
+    addField(HANDEDNESS, QMetaType::fromType<QString>());
 
-    addField(EDUCATION, QVariant::String);
+    addField(EDUCATION, QMetaType::fromType<QString>());
 
-    addField(ALLERGIES, QVariant::Bool);
-    addField(ALLERGY_ASTHMA, QVariant::Bool);
-    addField(ALLERGY_POLLEN_DUST, QVariant::Bool);
-    addField(ALLERGY_DERMATITIS, QVariant::Bool);
-    addField(ALLERGY_FOOD, QVariant::Bool);
-    addField(ALLERGY_DANDER, QVariant::Bool);
-    addField(ALLERGY_OTHER, QVariant::Bool);
-    addField(ALLERGY_DETAILS, QVariant::String);
+    addField(ALLERGIES, QMetaType::fromType<bool>());
+    addField(ALLERGY_ASTHMA, QMetaType::fromType<bool>());
+    addField(ALLERGY_POLLEN_DUST, QMetaType::fromType<bool>());
+    addField(ALLERGY_DERMATITIS, QMetaType::fromType<bool>());
+    addField(ALLERGY_FOOD, QMetaType::fromType<bool>());
+    addField(ALLERGY_DANDER, QMetaType::fromType<bool>());
+    addField(ALLERGY_OTHER, QMetaType::fromType<bool>());
+    addField(ALLERGY_DETAILS, QMetaType::fromType<QString>());
 
-    addField(VACCINATIONS_LAST3MONTHS, QVariant::Bool);
-    addField(VACCINATION_DETAILS, QVariant::String);
+    addField(VACCINATIONS_LAST3MONTHS, QMetaType::fromType<bool>());
+    addField(VACCINATION_DETAILS, QMetaType::fromType<QString>());
 
-    addField(INFECTIONS_LAST3MONTHS, QVariant::Bool);
-    addField(INFECTION_RECENT_RESPIRATORY, QVariant::Bool);
-    addField(INFECTION_RECENT_GASTROENTERITIS, QVariant::Bool);
-    addField(INFECTION_RECENT_URINARY, QVariant::Bool);
-    addField(INFECTION_RECENT_SEXUAL, QVariant::Bool);
-    addField(INFECTION_RECENT_HEPATITIS, QVariant::Bool);
-    addField(INFECTION_RECENT_OTHER, QVariant::Bool);
-    addField(INFECTION_RECENT_DETAILS, QVariant::String);
+    addField(INFECTIONS_LAST3MONTHS, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_RESPIRATORY, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_GASTROENTERITIS, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_URINARY, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_SEXUAL, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_HEPATITIS, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_OTHER, QMetaType::fromType<bool>());
+    addField(INFECTION_RECENT_DETAILS, QMetaType::fromType<QString>());
 
-    addField(INFECTIONS_CHRONIC, QVariant::Bool);
-    addField(INFECTION_CHRONIC_RESPIRATORY, QVariant::Bool);
-    addField(INFECTION_CHRONIC_GASTROENTERITIS, QVariant::Bool);
-    addField(INFECTION_CHRONIC_URINARY, QVariant::Bool);
-    addField(INFECTION_CHRONIC_SEXUAL, QVariant::Bool);
-    addField(INFECTION_CHRONIC_HEPATITIS, QVariant::Bool);
-    addField(INFECTION_CHRONIC_OTHER, QVariant::Bool);
-    addField(INFECTION_CHRONIC_DETAILS, QVariant::String);
+    addField(INFECTIONS_CHRONIC, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_RESPIRATORY, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_GASTROENTERITIS, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_URINARY, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_SEXUAL, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_HEPATITIS, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_OTHER, QMetaType::fromType<bool>());
+    addField(INFECTION_CHRONIC_DETAILS, QMetaType::fromType<QString>());
 
-    addField(IMMUNE_DISORDERS, QVariant::Bool);
-    addField(IMMUNITY_MS, QVariant::Bool);
-    addField(IMMUNITY_SLE, QVariant::Bool);
-    addField(IMMUNITY_ARTHRITIS, QVariant::Bool);
-    addField(IMMUNITY_HIV, QVariant::Bool);
-    addField(IMMUNITY_GRAVES, QVariant::Bool);
-    addField(IMMUNITY_DIABETES, QVariant::Bool);
-    addField(IMMUNITY_OTHER, QVariant::Bool);
-    addField(IMMUNITY_DETAILS, QVariant::String);
+    addField(IMMUNE_DISORDERS, QMetaType::fromType<bool>());
+    addField(IMMUNITY_MS, QMetaType::fromType<bool>());
+    addField(IMMUNITY_SLE, QMetaType::fromType<bool>());
+    addField(IMMUNITY_ARTHRITIS, QMetaType::fromType<bool>());
+    addField(IMMUNITY_HIV, QMetaType::fromType<bool>());
+    addField(IMMUNITY_GRAVES, QMetaType::fromType<bool>());
+    addField(IMMUNITY_DIABETES, QMetaType::fromType<bool>());
+    addField(IMMUNITY_OTHER, QMetaType::fromType<bool>());
+    addField(IMMUNITY_DETAILS, QMetaType::fromType<QString>());
 
-    addField(FAMILY_HISTORY, QVariant::Bool);
-    addField(FAMILYHISTORY_MS, QVariant::Bool);
-    addField(FAMILYHISTORY_SLE, QVariant::Bool);
-    addField(FAMILYHISTORY_ARTHRITIS, QVariant::Bool);
-    addField(FAMILYHISTORY_GRAVES, QVariant::Bool);
-    addField(FAMILYHISTORY_DIABETES, QVariant::Bool);
-    addField(FAMILYHISTORY_PSYCHOSIS_SZ, QVariant::Bool);
-    addField(FAMILYHISTORY_BIPOLAR, QVariant::Bool);
-    addField(FAMILYHISTORY_DETAILS, QVariant::String);
+    addField(FAMILY_HISTORY, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_MS, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_SLE, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_ARTHRITIS, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_GRAVES, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_DIABETES, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_PSYCHOSIS_SZ, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_BIPOLAR, QMetaType::fromType<bool>());
+    addField(FAMILYHISTORY_DETAILS, QMetaType::fromType<QString>());
 
-    addField(HEALTH_ANYTHING_ELSE, QVariant::Bool);
-    addField(HEALTH_ANYTHING_ELSE_DETAILS, QVariant::String);
+    addField(HEALTH_ANYTHING_ELSE, QMetaType::fromType<bool>());
+    addField(HEALTH_ANYTHING_ELSE_DETAILS, QMetaType::fromType<QString>());
 
-    addField(DRUG_HISTORY, QVariant::String);
-    addField(FIRST_ANTIPSYCHOTIC_MEDICATION, QVariant::String);
+    addField(DRUG_HISTORY, QMetaType::fromType<QString>());
+    addField(FIRST_ANTIPSYCHOTIC_MEDICATION, QMetaType::fromType<QString>());
 
-    addField(RECREATIONAL_DRUG_IN_LAST_3_MONTHS, QVariant::Bool);
-    addField(RECDRUG_TOBACCO_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_TOBACCO_CIGSPERWEEK, QVariant::Int);
-    addField(RECDRUG_TOBACCO_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_CANNABIS_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_CANNABIS_JOINTSPERWEEK, QVariant::Int);
-    addField(RECDRUG_CANNABIS_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_ALCOHOL_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_ALCOHOL_UNITSPERWEEK, QVariant::Int);
-    addField(RECDRUG_ALCOHOL_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_MDMA_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_MDMA_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_COCAINE_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_COCAINE_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_CRACK_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_CRACK_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_HEROIN_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_HEROIN_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_METHADONE_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_METHADONE_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_AMPHETAMINES_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_AMPHETAMINES_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_BENZODIAZEPINES_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_BENZODIAZEPINES_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_KETAMINE_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_KETAMINE_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_LEGALHIGHS_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_LEGALHIGHS_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_INHALANTS_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_INHALANTS_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_HALLUCINOGENS_FREQUENCY, QVariant::Int);
-    addField(RECDRUG_HALLUCINOGENS_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_DETAILS, QVariant::String);
-    addField(RECDRUG_PREVHEAVY, QVariant::Bool);
-    addField(RECDRUG_PREVHEAVY_DETAILS, QVariant::String);
+    addField(RECREATIONAL_DRUG_IN_LAST_3_MONTHS, QMetaType::fromType<bool>());
+    addField(RECDRUG_TOBACCO_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_TOBACCO_CIGSPERWEEK, QMetaType::fromType<int>());
+    addField(RECDRUG_TOBACCO_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_CANNABIS_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_CANNABIS_JOINTSPERWEEK, QMetaType::fromType<int>());
+    addField(RECDRUG_CANNABIS_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_ALCOHOL_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_ALCOHOL_UNITSPERWEEK, QMetaType::fromType<int>());
+    addField(RECDRUG_ALCOHOL_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_MDMA_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_MDMA_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_COCAINE_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_COCAINE_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_CRACK_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_CRACK_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_HEROIN_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_HEROIN_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_METHADONE_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_METHADONE_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_AMPHETAMINES_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_AMPHETAMINES_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_BENZODIAZEPINES_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_BENZODIAZEPINES_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_KETAMINE_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_KETAMINE_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_LEGALHIGHS_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_LEGALHIGHS_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_INHALANTS_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_INHALANTS_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_HALLUCINOGENS_FREQUENCY, QMetaType::fromType<int>());
+    addField(RECDRUG_HALLUCINOGENS_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_DETAILS, QMetaType::fromType<QString>());
+    addField(RECDRUG_PREVHEAVY, QMetaType::fromType<bool>());
+    addField(RECDRUG_PREVHEAVY_DETAILS, QMetaType::fromType<QString>());
 
-    addField(MRI_CLAUSTROPHOBIC, QVariant::Bool);
-    addField(MRI_DIFFICULTY_LYING_1_HOUR, QVariant::Bool);
-    addField(MRI_NONREMOVABLE_METAL, QVariant::Bool);
-    addField(MRI_METAL_FROM_OPERATIONS, QVariant::Bool);
-    addField(MRI_TATTOOS_NICOTINE_PATCHES, QVariant::Bool);
-    addField(MRI_WORKED_WITH_METAL, QVariant::Bool);
-    addField(MRI_PREVIOUS_BRAIN_SCAN, QVariant::Bool);
-    addField(MRI_PREVIOUS_BRAIN_SCAN_DETAILS, QVariant::String);
-    addField(OTHER_RELEVANT_THINGS, QVariant::Bool);
-    addField(OTHER_RELEVANT_THINGS_DETAILS, QVariant::String);
-    addField(WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES, QVariant::Bool);
+    addField(MRI_CLAUSTROPHOBIC, QMetaType::fromType<bool>());
+    addField(MRI_DIFFICULTY_LYING_1_HOUR, QMetaType::fromType<bool>());
+    addField(MRI_NONREMOVABLE_METAL, QMetaType::fromType<bool>());
+    addField(MRI_METAL_FROM_OPERATIONS, QMetaType::fromType<bool>());
+    addField(MRI_TATTOOS_NICOTINE_PATCHES, QMetaType::fromType<bool>());
+    addField(MRI_WORKED_WITH_METAL, QMetaType::fromType<bool>());
+    addField(MRI_PREVIOUS_BRAIN_SCAN, QMetaType::fromType<bool>());
+    addField(MRI_PREVIOUS_BRAIN_SCAN_DETAILS, QMetaType::fromType<QString>());
+    addField(OTHER_RELEVANT_THINGS, QMetaType::fromType<bool>());
+    addField(OTHER_RELEVANT_THINGS_DETAILS, QMetaType::fromType<QString>());
+    addField(WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

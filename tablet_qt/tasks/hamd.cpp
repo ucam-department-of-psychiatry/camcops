@@ -26,6 +26,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::scorePhrase;
 using stringfunc::standardResult;
 using stringfunc::strnum;
@@ -83,7 +84,7 @@ HamD::HamD(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_questionnaire(nullptr)
 {
     for (auto qinfo : QLIST) {
-        addField(qinfo.name, QVariant::Int);
+        addField(qinfo.name, QMetaType::fromType<int>());
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

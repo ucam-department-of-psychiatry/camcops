@@ -29,9 +29,8 @@
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
-#include "widgets/spacer.h"
 
-// http://doc.qt.io/qt-5/qdatetime.html#toString
+// https://doc.qt.io/qt-6.5/qdatetime.html#toString
 #ifdef USE_NUMERIC_DATES
 const QString DEFAULT_DATETIME_FORMAT("yyyy MM dd HH:mm");
 const QString DEFAULT_DATE_FORMAT("yyyy MM dd");
@@ -193,15 +192,15 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     m_editor->setCalendarPopup(use_calendar);
     // ... need to call setCalendarPopup(true) BEFORE setCalendarWidget(); see
     // - https://bugreports.qt.io/browse/QTBUG-12300
-    // - https://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
+    // - https://doc.qt.io/qt-6.5/qdatetimeedit.html#setCalendarWidget
 
     /*
     TO THINK ABOUT: QuDateTime time picker
     - Qt only supplies a date (calendar) popup.
       You can explore its features using the "calendarwidget" demo.
     - It is possible to write ones to do times as well.
-    - http://doc.qt.io/qt-5/qdatetimeedit.html#using-a-pop-up-calendar-widget
-    - http://doc.qt.io/qt-5/qtwidgets-widgets-calendarwidget-example.html
+    - https://doc.qt.io/qt-6.5/qdatetimeedit.html#using-a-pop-up-calendar-widget
+    - https://doc.qt.io/qt-6.5/qtwidgets-widgets-calendarwidget-example.html
     - https://forum.qt.io/topic/71670/qdatetimeedit-with-date-and-time-picker/6
     - Looking at the various bits of source:
 
@@ -229,7 +228,7 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 
     if (use_calendar) {
         // Editor does NOT take ownership, so we should:
-        // http://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
+        // https://doc.qt.io/qt-6.5/qdatetimeedit.html#setCalendarWidget
         delete m_calendar_widget;
         m_calendar_widget = QPointer<QCalendarWidget>(new QCalendarWidget());
 
@@ -390,20 +389,25 @@ void QuDateTime::setField(const QDateTime& datetime,
                           const bool reset_this_widget)
 {
     QVariant newvalue = datetime;
+    QMetaType newtype;
     switch (m_mode) {
     case DefaultDateTime:
     case CustomDateTime:
-        newvalue.convert(QVariant::DateTime);
+        newtype = QMetaType::fromType<QDateTime>();
         break;
     case DefaultDate:
     case CustomDate:
-        newvalue.convert(QVariant::Date);
+        newtype = QMetaType::fromType<QDate>();
         break;
     case DefaultTime:
     case CustomTime:
-        newvalue.convert(QVariant::Time);
+        newtype = QMetaType::fromType<QTime>();
         break;
     }
+
+    const bool success = newvalue.convert(newtype);
+    Q_ASSERT(success);
+
     const bool changed = m_fieldref->setValue(newvalue,
                                               reset_this_widget ? nullptr : this);
     if (changed) {

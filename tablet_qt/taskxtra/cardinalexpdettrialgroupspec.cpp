@@ -39,14 +39,14 @@ CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
     DatabaseObject(app, db, GROUPSPEC_TABLENAME)
 {
     // Keys
-    addField(FN_FK_TO_TASK, QVariant::Int);
-    addField(FN_GROUP_NUM, QVariant::Int);
+    addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
+    addField(FN_GROUP_NUM, QMetaType::fromType<int>());
     // Data
-    addField(FN_CUE, QVariant::Int);
-    addField(FN_TARGET_MODALITY, QVariant::Int);
-    addField(FN_TARGET_NUMBER, QVariant::Int);
-    addField(FN_N_TARGET, QVariant::Int);
-    addField(FN_N_NO_TARGET, QVariant::Int);
+    addField(FN_CUE, QMetaType::fromType<int>());
+    addField(FN_TARGET_MODALITY, QMetaType::fromType<int>());
+    addField(FN_TARGET_NUMBER, QMetaType::fromType<int>());
+    addField(FN_N_TARGET, QMetaType::fromType<int>());
+    addField(FN_N_NO_TARGET, QMetaType::fromType<int>());
 
     load(load_pk);
 }

@@ -20,7 +20,6 @@
 
 #include "diagnosticcode.h"
 #include "core/camcopsapp.h"
-#include "diagnosis/diagnosticcodeset.h"
 
 
 DiagnosticCode::DiagnosticCode(const QString& code, const QString& description,
@@ -172,7 +171,7 @@ QDebug operator<<(QDebug debug, const DiagnosticCode& dc)
 QTextStream& operator<<(QTextStream& stream, const DiagnosticCode& dc)
 {
     if (dc.selectable()) {
-        stream << dc.code() << endl;
+        stream << dc.code() << Qt::endl;
     }
     for (auto c : dc.m_children) {
         stream << *c;

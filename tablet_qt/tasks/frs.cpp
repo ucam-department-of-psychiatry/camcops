@@ -30,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::standardResult;
 using stringfunc::strnum;
@@ -104,8 +105,8 @@ void initializeFrs(TaskFactory& factory)
 Frs::Frs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FRS_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(COMMENTS, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

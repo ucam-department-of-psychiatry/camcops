@@ -21,32 +21,22 @@
 // By Joe Kearney, Rudolf Cardinal.
 
 #include "srs.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
-#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/namevaluepair.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qugridcell.h"
-#include "questionnairelib/quheading.h"
-#include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
-#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quverticalcontainer.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::anyNullOrEmpty;
 using mathfunc::sumDouble;
@@ -83,12 +73,12 @@ Srs::Srs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SRS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_SESSION, QVariant::Int);
-    addField(FN_DATE, QVariant::Date);
-    addField(FN_RELATIONSHIP, QVariant::Double);
-    addField(FN_GOALS, QVariant::Double);
-    addField(FN_APPROACH, QVariant::Double);
-    addField(FN_OVERALL, QVariant::Double);
+    addField(FN_SESSION, QMetaType::fromType<int>());
+    addField(FN_DATE, QMetaType::fromType<QDate>());
+    addField(FN_RELATIONSHIP, QMetaType::fromType<double>());
+    addField(FN_GOALS, QMetaType::fromType<double>());
+    addField(FN_APPROACH, QMetaType::fromType<double>());
+    addField(FN_OVERALL, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

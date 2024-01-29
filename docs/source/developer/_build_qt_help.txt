@@ -1,7 +1,8 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
-                   [--nparallel NPARALLEL] [--force] [--tee TEE]
-                   [--verbose {0,1,2}] [--inherit_os_env]
-                   [--no_inherit_os_env] [--build_all]
+                   [--no_build_qt] [--no_fetch] [--nparallel NPARALLEL]
+                   [--force] [--force_ffmpeg] [--force_openssl] [--force_qt]
+                   [--force_sqlcipher] [--tee TEE] [--verbose {0,1,2}]
+                   [--inherit_os_env] [--no_inherit_os_env] [--build_all]
                    [--build_android_x86_32] [--build_android_arm_v7_32]
                    [--build_android_arm_v8_64] [--build_linux_x86_64]
                    [--build_macos_x86_64] [--build_windows_x86_64]
@@ -10,7 +11,9 @@ usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
                    [--build_ios_simulator_x86_64]
                    [--qt_build_type {debug,release,release_w_symbols}]
                    [--qt_src_dirname QT_SRC_DIRNAME] [--qt_openssl_static]
-                   [--qt_openssl_linked] [--android_sdk_root ANDROID_SDK_ROOT]
+                   [--qt_openssl_linked] [--qt_host_path QT_HOST_PATH]
+                   [--qt_no_ccache] [--qt_gerrit_username QT_GERRIT_USERNAME]
+                   [--android_sdk_root ANDROID_SDK_ROOT]
                    [--android_ndk_root ANDROID_NDK_ROOT]
                    [--android_ndk_host ANDROID_NDK_HOST]
                    [--android_toolchain_version ANDROID_TOOLCHAIN_VERSION]
@@ -25,13 +28,19 @@ options:
 General:
   General options
 
-  --show_config_only    Show config, then quit (default: False)
+  --show_config_only    Show this script's config, then quit (default: False)
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
-                        from environment variable CAMCOPS_QT5_BASE_DIR if
+                        from environment variable CAMCOPS_QT6_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
+  --no_build_qt         Only run Qt configure, don't build Qt (default: True)
+  --no_fetch            Skip fetching source code (default: True)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
-  --force               Force build (default: False)
+  --force               Force rebuild of everything (default: False)
+  --force_ffmpeg        Force rebuild of FFmpeg (default: False)
+  --force_openssl       Force rebuild of OpenSSL (default: False)
+  --force_qt            Force rebuild of Qt (default: False)
+  --force_sqlcipher     Force rebuild of SQLCipher (default: False)
   --tee TEE             Copy stdout/stderr to this named file (default: None)
   --verbose {0,1,2}, -v {0,1,2}
                         Verbosity level (default: 0)
@@ -90,11 +99,18 @@ Qt:
                         Qt build type (release = small and quick) (default:
                         release)
   --qt_src_dirname QT_SRC_DIRNAME
-                        Qt source directory (default: qt5)
+                        Qt source directory (default: qt6)
   --qt_openssl_static   Link OpenSSL statically (ONLY if Qt is statically
                         linked) [True=static, False=dynamic] (default: True)
   --qt_openssl_linked   Link OpenSSL dynamically [True=static, False=dynamic]
                         (default: True)
+  --qt_host_path QT_HOST_PATH
+                        Location of the host Qt Installation when cross-
+                        compiling (default: None)
+  --qt_no_ccache        Do not use ccache when building Qt (default: True)
+  --qt_gerrit_username QT_GERRIT_USERNAME
+                        Gerrit username to use when contributing patches to Qt
+                        (default: None)
 
 Android:
   Android options (NB you must install the Android SDK and NDK separately,
@@ -105,14 +121,14 @@ Android:
                         /path/to/user/dev/android-sdk-linux)
   --android_ndk_root ANDROID_NDK_ROOT
                         Android NDK root directory (default:
-                        /path/to/user/dev/android-ndk-r20)
+                        /path/to/user/dev/android-ndk-linux)
   --android_ndk_host ANDROID_NDK_HOST
                         Android NDK host architecture (default: linux-x86_64)
   --android_toolchain_version ANDROID_TOOLCHAIN_VERSION
                         Android toolchain version (default: 4.9)
   --java_home JAVA_HOME
                         JAVA_HOME directory (default:
-                        /usr/lib/jvm/java-11-openjdk-amd64)
+                        /usr/lib/jvm/java-17-openjdk-amd64)
 
 iOS:
   iOS options

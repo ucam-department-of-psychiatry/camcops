@@ -24,12 +24,12 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::countTrue;
 using mathfunc::scorePhrase;
 using mathfunc::totalScorePhrase;
@@ -62,10 +62,10 @@ Caps::Caps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(FN_INTRUSIVE_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(FN_INTRUSIVE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

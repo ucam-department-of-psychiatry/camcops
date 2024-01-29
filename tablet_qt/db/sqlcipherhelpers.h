@@ -58,6 +58,7 @@
 ============================================================================ */
 
 #pragma once
+#include <QMetaType>
 #include <QSqlError>
 #include <QSqlIndex>
 #include <QString>
@@ -73,11 +74,10 @@ namespace sqlcipherhelpers
 {
 
 QString _q_escapeIdentifier(const QString& identifier);
-QVariant::Type qGetColumnType(const QString& type_name);
+QMetaType::Type qGetColumnType(const QString& type_name);
 QSqlError qMakeError(sqlite3* access, const QString& descr,
                      QSqlError::ErrorType type, int errorCode = -1);
 QSqlIndex qGetTableInfo(QSqlQuery& q, const QString& table_name,
                         bool only_p_index = false);
 
 }  // namespace sqlcipherhelpers
-

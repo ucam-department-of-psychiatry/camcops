@@ -434,7 +434,7 @@ for the following layouts:
 - GridLayoutHfw -- replacements for QGridLayout.
 
 - FlowLayoutHfw -- replacement for Qt's FlowLayout
-  (http://doc.qt.io/qt-5/qtwidgets-layouts-flowlayout-example.html).
+  (https://doc.qt.io/qt-6.5/qtwidgets-layouts-flowlayout-example.html).
 
 and the following widgets:
 

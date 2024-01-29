@@ -25,7 +25,6 @@
 
 #include "cpftresearchpreferences.h"
 
-#include "common/textconst.h"
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/databaseobject.h"
@@ -39,7 +38,6 @@
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
-#include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
@@ -52,6 +50,10 @@ const QString FN_CONTACT_BY_EMAIL("contact_by_email");
 const QString FN_RESEARCH_OPT_OUT("research_opt_out");
 
 const QString Q_XML_PREFIX = "q_";
+
+const QChar CHOICE_RED = 'R';
+const QChar CHOICE_YELLOW = 'Y';
+const QChar CHOICE_GREEN = 'G';
 
 
 void initializeCPFTResearchPreferences(TaskFactory& factory)
@@ -66,10 +68,10 @@ CPFTResearchPreferences::CPFTResearchPreferences(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_CONTACT_PREFERENCE, QVariant::Char);
-    addField(FN_CONTACT_BY_EMAIL, QVariant::Bool);
+    addField(FN_CONTACT_PREFERENCE, QMetaType::fromType<QChar>());
+    addField(FN_CONTACT_BY_EMAIL, QMetaType::fromType<bool>());
     addField(FN_RESEARCH_OPT_OUT,
-             QVariant::Bool,
+             QMetaType::fromType<bool>(),
              true,   // Mandatory
              false,  // Unique
              false,  // pk
@@ -160,9 +162,24 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
     page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE)))->setBold(true));
     NameValueOptions contact_options;
-    contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"), "R"));
-    contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"), "Y"));
-    contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_G"), "G"));
+    contact_options.append(
+        NameValuePair(
+            xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"),
+            CHOICE_RED
+        )
+    );
+    contact_options.append(
+        NameValuePair(
+            xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"),
+            CHOICE_YELLOW
+        )
+    );
+    contact_options.append(
+        NameValuePair(
+            xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_G"),
+            CHOICE_GREEN
+        )
+    );
 
     QStringList contact_styles = {"color:white; background-color:red;",
                                   "color:black; background-color:yellow;",

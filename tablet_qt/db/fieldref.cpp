@@ -23,8 +23,7 @@
 // #define DEBUG_CHECK_VALID  // may be sensible to leave this on
 
 #include "core/camcopsapp.h"
-#include "common/globals.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "db/fieldref.h"
 #include "dbobjects/blob.h"
 #include "lib/convert.h"
@@ -216,7 +215,7 @@ bool FieldRef::valid() const
         return m_p_dbobject && m_blob;
 
     case FieldRefMethod::IsolatedBlobFieldForTesting:
-        return m_blob;
+        return !!m_blob;
 
     case FieldRefMethod::Functions:
         return m_getterfunc && m_setterfunc;

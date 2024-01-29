@@ -246,7 +246,7 @@ protected:
     qreal sectorProportionCumulative(int sector_index) const;
 
     // Qt uses geometric angles that start at 3 o'clock and go anticlockwise.
-    // ... http://doc.qt.io/qt-5/qpainter.html#drawPie
+    // ... https://doc.qt.io/qt-6.5/qpainter.html#drawPie
     // In our minds we're using angles that start at 6 o'clock and go clockwise.
     // This takes angles from the second to the first.
     qreal convertAngleToQt(qreal degrees) const;

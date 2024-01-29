@@ -19,15 +19,11 @@
 */
 
 #include "isaaqed.h"
-#include "common/textconst.h"
 #include "lib/stringfunc.h"
-#include "maths/mathfunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using stringfunc::strseq;
 
 const int FIRST_Q = 11;
@@ -46,7 +42,7 @@ void initializeIsaaqEd(TaskFactory& factory)
 IsaaqEd::IsaaqEd(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     IsaaqCommon(app, db, ISAAQED_TABLENAME)
 {
-    addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QVariant::Int);
+    addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
 
     load(load_pk);
 }

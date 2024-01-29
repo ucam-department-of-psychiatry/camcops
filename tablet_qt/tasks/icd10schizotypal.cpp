@@ -21,13 +21,11 @@
 #include "icd10schizotypal.h"
 #include "common/appstrings.h"
 #include "common/textconst.h"
-#include "lib/convert.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -35,6 +33,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::anyNull;
 using mathfunc::countTrue;
@@ -61,10 +60,10 @@ Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
                                    const int load_pk) :
     Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(A_PREFIX, 1, N_A), QVariant::Bool);
-    addField(B, QVariant::Bool);
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
+    addFields(strseq(A_PREFIX, 1, N_A), QMetaType::fromType<bool>());
+    addField(B, QMetaType::fromType<bool>());
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

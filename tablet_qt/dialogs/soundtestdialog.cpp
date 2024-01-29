@@ -18,6 +18,11 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QAudioDevice>
+#include <QAudioOutput>
+#include <QMediaDevices>
+#include <QMediaPlayer>
+
 #include "soundtestdialog.h"
 #include "common/textconst.h"
 #include "dialogs/logbox.h"
@@ -36,12 +41,14 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
     }
     connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
             this, &SoundTestDialog::mediaStatusChanged);
-    // http://doc.qt.io/qt-5/qsharedpointer.html
+    // https://doc.qt.io/qt-6.5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
     statusMessage("Trying to play: " + url.toString());
-    m_player->setMedia(url);
-    m_player->setVolume(volume_percent);
+    m_player->setSource(url);
+
+    soundfunc::setVolume(m_player, volume_percent);
+
     m_player->play();
 }
 

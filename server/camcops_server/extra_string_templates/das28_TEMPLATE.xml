@@ -39,8 +39,9 @@
 
     <string name="crp_esr_instructions">Fill in at least one of the following:</string>
 
-    <string name="crp">CRP</string>
-    <string name="esr">ESR</string>
+    <!-- CRP units are mg/L; ESR units are mm/h (https://rmdopen.bmj.com/content/3/1/e000382) -->
+    <string name="crp">CRP (mg/L)</string>
+    <string name="esr">ESR (mm/h)</string>
 
     <string name="das28_crp">DAS28-CRP</string>
     <string name="das28_esr">DAS28-ESR</string>

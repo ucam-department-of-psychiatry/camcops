@@ -20,13 +20,13 @@
 
 #include "qumcqgrid.h"
 #include "common/cssconst.h"
+#include "db/fieldref.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgridsignaller.h"
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
-#include "widgets/labelwordwrapwide.h"
 
 
 QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
@@ -180,7 +180,7 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
     /*
     - Labels, by default, have their text contents left-aligned and vertically
       centred. Use label->setAlignment().
-      http://doc.qt.io/qt-5/qlabel.html#alignment-prop
+      https://doc.qt.io/qt-6.5/qlabel.html#alignment-prop
     - That's fine for everything except headers, which we'd like bottom
       alignment for.
     - And top alignment for the main title.

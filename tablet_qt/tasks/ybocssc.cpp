@@ -20,9 +20,6 @@
 
 #include "ybocssc.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -30,6 +27,7 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString YbocsSc::YBOCSSC_TABLENAME("ybocssc");
 
@@ -160,11 +158,11 @@ YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, YBOCSSC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
-        addField(item + SUFFIX_CURRENT, QVariant::Bool);
-        addField(item + SUFFIX_PAST, QVariant::Bool);
-        addField(item + SUFFIX_PRINCIPAL, QVariant::Bool);
+        addField(item + SUFFIX_CURRENT, QMetaType::fromType<bool>());
+        addField(item + SUFFIX_PAST, QMetaType::fromType<bool>());
+        addField(item + SUFFIX_PRINCIPAL, QMetaType::fromType<bool>());
         if (item.endsWith(SUFFIX_OTHER)) {
-            addField(item + SUFFIX_DETAIL, QVariant::String);
+            addField(item + SUFFIX_DETAIL, QMetaType::fromType<QString>());
         }
     }
 

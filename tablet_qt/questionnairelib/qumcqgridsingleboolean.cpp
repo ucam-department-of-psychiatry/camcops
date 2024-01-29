@@ -20,12 +20,12 @@
 
 #include "qumcqgridsingleboolean.h"
 #include "common/cssconst.h"
+#include "db/fieldref.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgridsinglebooleansignaller.h"
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
-#include "widgets/labelwordwrapwide.h"
 
 
 QuMcqGridSingleBoolean::QuMcqGridSingleBoolean(

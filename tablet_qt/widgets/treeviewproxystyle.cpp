@@ -21,7 +21,7 @@
 /*
 
 See also:
-- http://doc.qt.io/qt-5/qtwidgets-widgets-styles-example.html
+- https://doc.qt.io/qt-6.5/qtwidgets-widgets-styles-example.html
 
 DOES NOT WORK PROPERLY because QFusionStyle::drawPrimitive() doesn't call its
 proxy() for the specific things we want.

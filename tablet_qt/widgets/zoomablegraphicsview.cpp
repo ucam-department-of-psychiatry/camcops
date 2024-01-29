@@ -105,7 +105,7 @@ bool ZoomableGraphicsView::viewportEvent(QEvent* event)
             qDebug() << Q_FUNC_INFO << type;
 #endif
             QTouchEvent* touch_event = static_cast<QTouchEvent*>(event);
-            QList<QTouchEvent::TouchPoint> touch_points = touch_event->touchPoints();
+            QList<QTouchEvent::TouchPoint> touch_points = touch_event->points();
             if (type == QEvent::TouchEnd ||  // touch is over
                     touch_points.count() != 2 ||  // not using 2 fingers
                     touch_event->touchPointStates() & Qt::TouchPointReleased) {  // a finger has been released
@@ -121,8 +121,8 @@ bool ZoomableGraphicsView::viewportEvent(QEvent* event)
             const QTouchEvent::TouchPoint& p0 = touch_points.first();
             const QTouchEvent::TouchPoint& p1 = touch_points.last();
             const qreal current_scale_factor =
-                    QLineF(p0.pos(), p1.pos()).length()
-                    / QLineF(p0.startPos(), p1.startPos()).length();
+                    QLineF(p0.position(), p1.position()).length()
+                    / QLineF(p0.pressPosition(), p1.pressPosition()).length();
             rescale(m_two_finger_start_scale * current_scale_factor);
             return true;
         }
@@ -140,7 +140,7 @@ bool ZoomableGraphicsView::viewportEvent(QEvent* event)
 void ZoomableGraphicsView::resizeEvent(QResizeEvent* event)
 {
     /*
-    http://doc.qt.io/qt-5.8/qgraphicsview.html
+    https://doc.qt.io/qt-6.5/qgraphicsview.html
     "Note though, that calling fitInView() from inside resizeEvent() can lead
     to unwanted resize recursion, if the new transformation toggles the
     automatic state of the scrollbars. You can toggle the scrollbar policies to

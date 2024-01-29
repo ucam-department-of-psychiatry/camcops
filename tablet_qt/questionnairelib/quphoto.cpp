@@ -22,10 +22,10 @@
 // #define DEBUG_CAMERA
 
 #include "quphoto.h"
-#include <QCameraInfo>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QMediaDevices>
 #include "core/camcopsapp.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
@@ -50,7 +50,7 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref, QObject* parent) :
     m_main_widget(nullptr)
 {
     m_have_opengl = openglfunc::isOpenGLPresent();
-    const int n_cameras = QCameraInfo::availableCameras().count();
+    const int n_cameras = QMediaDevices::videoInputs().count();
     m_have_camera = m_have_opengl && n_cameras > 0;
     // We check for OpenGL. If it's absent, and we try to create a camera,
     // we can get an instant segfault/crash. Better to fail gracefully.
@@ -249,8 +249,6 @@ void QuPhoto::takePhoto()
     qDebug() << "... CameraQml() created";
 #endif
     connect(m_camera, &CameraQml::cancelled, this, &QuPhoto::cameraCancelled);
-    connect(m_camera, &CameraQml::rawImageCaptured,
-            this, &QuPhoto::rawImageCaptured);
     connect(m_camera, &CameraQml::imageCaptured,
             this, &QuPhoto::imageCaptured);
 
@@ -354,43 +352,6 @@ void QuPhoto::imageCaptured(const QImage& image)
 }
 
 
-void QuPhoto::rawImageCaptured(const QByteArray& data,
-                               const QString& extension_without_dot,
-                               const QString& mimetype)
-{
-#ifdef DEBUG_CAMERA
-    qDebug() << Q_FUNC_INFO;
-#endif
-    if (!m_camera) {
-        qWarning() << Q_FUNC_INFO << "... no camera!";
-        return;
-    }
-    if (!m_questionnaire) {
-        qWarning() << Q_FUNC_INFO << "... no questionnaire!";
-        return;
-    }
-    bool changed = false;
-    { // guard block
-        SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard(
-                    tr("Saving image..."),
-                    tr("Saving"));
-#ifdef DEBUG_CAMERA
-        qDebug() << "QuPhoto: setting field value to raw image...";
-#endif
-        changed = m_fieldref->setRawImage(data,
-                                          extension_without_dot,
-                                          mimetype);
-#ifdef DEBUG_CAMERA
-        qDebug() << "QuPhoto: ... field value set to raw image.";
-#endif
-        m_camera->finish();  // close the camera
-    }
-    if (changed) {
-        emit elementValueChanged();
-    }
-}
-
-
 void QuPhoto::rotate(const int angle_degrees_clockwise)
 {
     if (m_fieldref->isNull()) {
@@ -420,7 +381,7 @@ void QuPhoto::rotateWorker(const int angle_degrees_clockwise)
 
 void QuPhoto::rotateLeft()
 {
-    // http://doc.qt.io/qt-4.8/qtransform.html#rotate
+    // https://doc.qt.io/qt-6.5/qtransform.html#rotate
     rotate(-90);
 }
 

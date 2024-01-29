@@ -32,14 +32,16 @@
 #include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMetaType>
 #include <QRegularExpression>
 #include <QtMath>
 #include <QUrl>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
 #include "lib/datetime.h"
 #include "lib/errorfunc.h"
 #include "lib/stringfunc.h"
+#include "lib/version.h"
 #include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
 #include "whisker/whiskerconnectionstate.h"
@@ -212,80 +214,70 @@ QString toSqlLiteral(const QVariant& value)
     if (value.isNull()) {
         return NULL_STR;
     }
-    const QVariant::Type variant_type = value.type();
+    const int variant_type = value.typeId();
     QString retval;
     switch (variant_type) {
     // Integer types
-    case QVariant::Int:
+    case QMetaType::Int:
         retval.setNum(value.toInt());
         return retval;
-    case QVariant::LongLong:
+    case QMetaType::LongLong:
         retval.setNum(value.toLongLong());
         return retval;
-    case QVariant::UInt:
+    case QMetaType::UInt:
         retval.setNum(value.toUInt());
         return retval;
-    case QVariant::ULongLong:
+    case QMetaType::ULongLong:
         retval.setNum(value.toULongLong());
         return retval;
 
     // Boolean
-    case QVariant::Bool:
+    case QMetaType::Bool:
         retval.setNum(value.toInt());  // boolean to integer
         return retval;
 
     // Floating-point:
-    case QVariant::Double:
+    case QMetaType::Double:
         retval.setNum(value.toDouble());
         return retval;
 
     // String
-    case QVariant::Char:
-    case QVariant::String:
+    case QMetaType::QChar:
+    case QMetaType::QString:
         return sqlQuoteString(escapeNewlines(value.toString()));
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         return sqlQuoteString(qStringListToCsvString(value.toStringList()));
 
     // Dates, times
-    case QVariant::Date:
+    case QMetaType::QDate:
         return QString(QStringLiteral("'%1'"))
                 .arg(value.toDate().toString(QStringLiteral("yyyy-MM-dd")));
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         return QString(QStringLiteral("'%1'"))
                 .arg(datetime::datetimeToIsoMs(value.toDateTime()));
-    case QVariant::Time:
+    case QMetaType::QTime:
         return QString(QStringLiteral("'%1'"))
                 .arg(value.toTime().toString(QStringLiteral("HH:mm:ss")));
 
     // BLOB types
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         // Base 64 is more efficient for network transmission than hex.
         return blobToQuotedBase64(value.toByteArray());
 
     // Other
-    case QVariant::Invalid:
+    case QMetaType::UnknownType:
         errorfunc::fatalError(QStringLiteral("toSqlLiteral: Invalid field type"));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
 #endif
 
-    case QVariant::UserType:
-        if (isQVariantOfUserType(value, TYPENAME_QVECTOR_INT)) {
+    default:
+        if (value.typeId() == TYPE_ID_QVECTOR_INT) {
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
         }
         errorfunc::fatalError(QStringLiteral("toSqlLiteral: Unknown user type"));
-#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
-        // We'll never get here, but to stop compilers complaining:
-        return NULL_STR;
-#endif
-
-    default:
-        errorfunc::fatalError(
-            QString(QStringLiteral("toSqlLiteral: Unknown user type: %1"))
-                .arg(variant_type)
-        );
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
         // We'll never get here, but to stop compilers complaining:
         return NULL_STR;
@@ -561,7 +553,7 @@ QByteArray imageToByteArray(const QImage& image, const char* format)
 {
     // I thought passing a QImage to a QVariant-accepting function would lead
     // to autoconversion via
-    //     http://doc.qt.io/qt-5/qimage.html#operator-QVariant
+    //     https://doc.qt.io/qt-6.5/qimage.html#operator-QVariant
     // ... but it doesn't.
     // So: http://stackoverflow.com/questions/27343576
 #ifdef DEBUG_IMAGE_CONVERSION_TIMES
@@ -701,30 +693,32 @@ QString toDp(double x, int dp)
 
 
 QString prettyValue(const QVariant& variant,
-                    const int dp, const QVariant::Type type)
+                    const int dp, const QMetaType type)
 {
+    const int type_id = type.id();
+
     if (variant.isNull()) {
         return NULL_STR;
     }
-    switch (type) {
-    case QVariant::ByteArray:
+    switch (type_id) {
+    case QMetaType::QByteArray:
         return QStringLiteral("<binary>");
-    case QVariant::Date:
+    case QMetaType::QDate:
         return datetime::dateToIso(variant.toDate());
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         return datetime::datetimeToIsoMs(variant.toDateTime());
-    case QVariant::Double:
+    case QMetaType::Double:
         if (dp < 0) {
             return variant.toString();
         }
         return toDp(variant.toDouble(), dp);
-    case QVariant::String:
+    case QMetaType::QString:
         {
             QString escaped = variant.toString().toHtmlEscaped();
             stringfunc::toHtmlLinebreaks(escaped, false);
             return escaped;
         }
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         {
             QStringList raw = variant.toStringList();
             QStringList escaped;
@@ -736,16 +730,15 @@ QString prettyValue(const QVariant& variant,
             }
             return escaped.join(QStringLiteral(","));
         }
-    case QVariant::UserType:
-        if (isQVariantOfUserType(variant, TYPENAME_QVECTOR_INT)) {
-            QVector<int> intvec = qVariantToIntVector(variant);
-            return numericVectorToCsvString(intvec);
-        }
-        errorfunc::fatalError(QStringLiteral("prettyValue: Unknown user type"));
-#ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
-        return "";  // will never get here; for clang-tidy
-#endif
     default:
+        if (type_id > QMetaType::User) {
+            if (type_id == TYPE_ID_QVECTOR_INT) {
+                QVector<int> intvec = qVariantToIntVector(variant);
+                return numericVectorToCsvString(intvec);
+            }
+            errorfunc::fatalError("prettyValue: Unknown user type");
+        }
+
         return variant.toString();
     }
 }
@@ -753,7 +746,7 @@ QString prettyValue(const QVariant& variant,
 
 QString prettyValue(const QVariant& variant, const int dp)
 {
-    return prettyValue(variant, dp, variant.type());
+    return prettyValue(variant, dp, variant.metaType());
 }
 
 
@@ -842,39 +835,30 @@ QUrlQuery getPostDataAsUrlQuery(const QMap<QString, QString>& dict)
 }
 
 
-// http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
-const QString SSLPROTODESC_SSLV3(QStringLiteral("SslV3"));
-const QString SSLPROTODESC_SSLV2(QStringLiteral("SslV2"));
-const QString SSLPROTODESC_TLSV1_0(QStringLiteral("TlsV1_0"));
-const QString SSLPROTODESC_TLSV1_1(QStringLiteral("TlsV1_1"));
-const QString SSLPROTODESC_TLSV1_2(QStringLiteral("TlsV1_2"));
-const QString SSLPROTODESC_ANYPROTOCOL(QStringLiteral("AnyProtocol"));
-const QString SSLPROTODESC_TLSV1_SSLV3(QStringLiteral("TlsV1SslV3"));
-const QString SSLPROTODESC_SECUREPROTOCOLS(QStringLiteral("SecureProtocols"));
-const QString SSLPROTODESC_TLSV1_0_OR_LATER(QStringLiteral("TlsV1_0OrLater"));
-const QString SSLPROTODESC_TLSV1_1_OR_LATER(QStringLiteral("TlsV1_1OrLater"));
-const QString SSLPROTODESC_TLSV1_2_OR_LATER(QStringLiteral("TlsV1_2OrLater"));
-const QString SSLPROTODESC_UNKNOWN_PROTOCOL(QStringLiteral("UnknownProtocol"));
+// https://doc.qt.io/qt-6/qssl.html#SslProtocol-enum
+const QString SSLPROTODESC_TLSV1_2 = QStringLiteral("TlsV1_2");
+const QString SSLPROTODESC_TLSV1_2_OR_LATER = QStringLiteral("TlsV1_2OrLater");
+const QString SSLPROTODESC_DTLSV1_2 = QStringLiteral("DtlsV1_2");
+const QString SSLPROTODESC_DTLSV1_2_OR_LATER = QStringLiteral("DtlsV1_2OrLater");
+const QString SSLPROTODESC_TLSV1_3 = QStringLiteral("TlsV1_3");
+const QString SSLPROTODESC_TLSV1_3_OR_LATER = QStringLiteral("TlsV1_3OrLater");
+const QString SSLPROTODESC_ANYPROTOCOL = QStringLiteral("AnyProtocol");
+const QString SSLPROTODESC_SECUREPROTOCOLS = QStringLiteral("SecureProtocols");
+const QString SSLPROTODESC_UNKNOWN_PROTOCOL = QStringLiteral("UnknownProtocol");
 
 
 QString describeSslProtocol(const QSsl::SslProtocol protocol)
 {
     using namespace QSsl;
     switch (protocol) {
-    case SslV3: return SSLPROTODESC_SSLV3;
-    case SslV2: return SSLPROTODESC_SSLV2;
-    case TlsV1_0: return SSLPROTODESC_TLSV1_0;
-#if QT_DEPRECATED_SINCE(5,0)
-    case TlsV1: return TLSV1_0;
-#endif
-    case TlsV1_1: return SSLPROTODESC_TLSV1_1;
     case TlsV1_2: return SSLPROTODESC_TLSV1_2;
-    case AnyProtocol: return SSLPROTODESC_ANYPROTOCOL;
-    case TlsV1SslV3: return SSLPROTODESC_TLSV1_SSLV3;
-    case SecureProtocols: return SSLPROTODESC_SECUREPROTOCOLS;
-    case TlsV1_0OrLater: return SSLPROTODESC_TLSV1_0_OR_LATER;
-    case TlsV1_1OrLater: return SSLPROTODESC_TLSV1_1_OR_LATER;
     case TlsV1_2OrLater: return SSLPROTODESC_TLSV1_2_OR_LATER;
+    case DtlsV1_2: return SSLPROTODESC_DTLSV1_2;
+    case DtlsV1_2OrLater: return SSLPROTODESC_DTLSV1_2_OR_LATER;
+    case TlsV1_3: return SSLPROTODESC_TLSV1_3;
+    case TlsV1_3OrLater: return SSLPROTODESC_TLSV1_3_OR_LATER;
+    case AnyProtocol: return SSLPROTODESC_ANYPROTOCOL;
+    case SecureProtocols: return SSLPROTODESC_SECUREPROTOCOLS;
     default:
     case UnknownProtocol: return SSLPROTODESC_UNKNOWN_PROTOCOL;
     }
@@ -884,17 +868,14 @@ QString describeSslProtocol(const QSsl::SslProtocol protocol)
 QSsl::SslProtocol sslProtocolFromDescription(const QString& desc)
 {
     using namespace QSsl;
-    if (desc == SSLPROTODESC_SSLV3) return SslV3;
-    if (desc == SSLPROTODESC_SSLV2) return SslV2;
-    if (desc == SSLPROTODESC_TLSV1_0) return TlsV1_0;
-    if (desc == SSLPROTODESC_TLSV1_1) return TlsV1_1;
     if (desc == SSLPROTODESC_TLSV1_2) return TlsV1_2;
-    if (desc == SSLPROTODESC_ANYPROTOCOL) return AnyProtocol;
-    if (desc == SSLPROTODESC_TLSV1_SSLV3) return TlsV1SslV3;
-    if (desc == SSLPROTODESC_SECUREPROTOCOLS) return SecureProtocols;
-    if (desc == SSLPROTODESC_TLSV1_0_OR_LATER) return TlsV1_0OrLater;
-    if (desc == SSLPROTODESC_TLSV1_1_OR_LATER) return TlsV1_1OrLater;
     if (desc == SSLPROTODESC_TLSV1_2_OR_LATER) return TlsV1_2OrLater;
+    if (desc == SSLPROTODESC_DTLSV1_2) return DtlsV1_2;
+    if (desc == SSLPROTODESC_DTLSV1_2_OR_LATER) return DtlsV1_2OrLater;
+    if (desc == SSLPROTODESC_TLSV1_3) return TlsV1_3;
+    if (desc == SSLPROTODESC_TLSV1_3_OR_LATER) return TlsV1_3OrLater;
+    if (desc == SSLPROTODESC_ANYPROTOCOL) return AnyProtocol;
+    if (desc == SSLPROTODESC_SECUREPROTOCOLS) return SecureProtocols;
     return UnknownProtocol;
 }
 
@@ -1002,18 +983,18 @@ QStringList csvStringToQStringList(const QString& str)
 // QVariant modifications
 // ============================================================================
 
-const char* TYPENAME_QVECTOR_INT("QVector<int>");
-const char* TYPENAME_VERSION("Version");
+int TYPE_ID_QVECTOR_INT;
+int TYPE_ID_VERSION;
 
 
 void registerTypesForQVariant()
 {
     // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
-    qRegisterMetaType<QVector<int>>(TYPENAME_QVECTOR_INT);
-    qRegisterMetaType<Version>(TYPENAME_VERSION);
+    TYPE_ID_QVECTOR_INT = qRegisterMetaType<QVector<int>>();
+    TYPE_ID_VERSION = qRegisterMetaType<Version>();
 
     // See also the calls to Q_DECLARE_METATYPE().
-    // http://doc.qt.io/qt-5/qtcore-tools-customtype-example.html
+    // https://doc.qt.io/qt-6.5/qtcore-tools-customtype-example.html
 }
 
 
@@ -1029,19 +1010,12 @@ void registerOtherTypesForSignalsSlots()
 }
 
 
-bool isQVariantOfUserType(const QVariant& v, const QString& type_name)
-{
-    // "Is this QVariant one of the user-defined QVariant types?"
-    return v.userType() >= QMetaType::User && v.typeName() == type_name;
-}
-
-
 QVector<int> qVariantToIntVector(const QVariant& v)
 {
     // We're adding support for QVector<int>.
     // - http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
-    // - http://doc.qt.io/qt-5/qvariant.html
-    // - http://doc.qt.io/qt-5/qmetatype.html
+    // - https://doc.qt.io/qt-6.5/qvariant.html
+    // - https://doc.qt.io/qt-6.5/qmetatype.html
     return v.value<QVector<int>>();
 }
 

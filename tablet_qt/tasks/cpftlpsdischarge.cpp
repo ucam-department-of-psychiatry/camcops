@@ -24,9 +24,7 @@
 #include "diagnosis/icd10.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/qudiagnosticcode.h"
@@ -39,6 +37,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 
 
@@ -133,82 +132,82 @@ CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db,
                                    const int load_pk) :
     Task(app, db, CPFTLPSDISCHARGE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(DISCHARGE_DATE, QVariant::Date);
-    addField(DISCHARGE_REASON_CODE, QVariant::String);
+    addField(DISCHARGE_DATE, QMetaType::fromType<QDate>());
+    addField(DISCHARGE_REASON_CODE, QMetaType::fromType<QString>());
 
-    addField(LEAFLET_OR_DISCHARGE_CARD_GIVEN, QVariant::Bool);
-    addField(FREQUENT_ATTENDER, QVariant::Bool);
-    addField(PATIENT_WANTED_COPY_OF_LETTER, QVariant::Bool);  // was erroneously String prior to 2.0.3
-    addField(GAF_AT_FIRST_ASSESSMENT, QVariant::Int);
-    addField(GAF_AT_DISCHARGE, QVariant::Int);
+    addField(LEAFLET_OR_DISCHARGE_CARD_GIVEN, QMetaType::fromType<bool>());
+    addField(FREQUENT_ATTENDER, QMetaType::fromType<bool>());
+    addField(PATIENT_WANTED_COPY_OF_LETTER, QMetaType::fromType<bool>());  // was erroneously String prior to 2.0.3
+    addField(GAF_AT_FIRST_ASSESSMENT, QMetaType::fromType<int>());
+    addField(GAF_AT_DISCHARGE, QMetaType::fromType<int>());
 
-    addField(REFERRAL_REASON_SELF_HARM_OVERDOSE, QVariant::Bool);
-    addField(REFERRAL_REASON_SELF_HARM_OTHER, QVariant::Bool);
-    addField(REFERRAL_REASON_SUICIDAL_IDEAS, QVariant::Bool);
-    addField(REFERRAL_REASON_BEHAVIOURAL_DISTURBANCE, QVariant::Bool);
-    addField(REFERRAL_REASON_LOW_MOOD, QVariant::Bool);
-    addField(REFERRAL_REASON_ELEVATED_MOOD, QVariant::Bool);
-    addField(REFERRAL_REASON_PSYCHOSIS, QVariant::Bool);
-    addField(REFERRAL_REASON_PRE_TRANSPLANT, QVariant::Bool);
-    addField(REFERRAL_REASON_POST_TRANSPLANT, QVariant::Bool);
-    addField(REFERRAL_REASON_DELIRIUM, QVariant::Bool);
-    addField(REFERRAL_REASON_ANXIETY, QVariant::Bool);
-    addField(REFERRAL_REASON_SOMATOFORM_MUS, QVariant::Bool);
-    addField(REFERRAL_REASON_MOTIVATION_ADHERENCE, QVariant::Bool);
-    addField(REFERRAL_REASON_CAPACITY, QVariant::Bool);
-    addField(REFERRAL_REASON_EATING_DISORDER, QVariant::Bool);
-    addField(REFERRAL_REASON_SAFEGUARDING, QVariant::Bool);
-    addField(REFERRAL_REASON_DISCHARGE_PLACEMENT, QVariant::Bool);
-    addField(REFERRAL_REASON_COGNITIVE_PROBLEM, QVariant::Bool);
-    addField(REFERRAL_REASON_SUBSTANCE_ALCOHOL, QVariant::Bool);
-    addField(REFERRAL_REASON_SUBSTANCE_OTHER, QVariant::Bool);
-    addField(REFERRAL_REASON_OTHER, QVariant::Bool);
+    addField(REFERRAL_REASON_SELF_HARM_OVERDOSE, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_SELF_HARM_OTHER, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_SUICIDAL_IDEAS, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_BEHAVIOURAL_DISTURBANCE, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_LOW_MOOD, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_ELEVATED_MOOD, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_PSYCHOSIS, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_PRE_TRANSPLANT, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_POST_TRANSPLANT, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_DELIRIUM, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_ANXIETY, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_SOMATOFORM_MUS, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_MOTIVATION_ADHERENCE, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_CAPACITY, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_EATING_DISORDER, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_SAFEGUARDING, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_DISCHARGE_PLACEMENT, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_COGNITIVE_PROBLEM, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_SUBSTANCE_ALCOHOL, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_SUBSTANCE_OTHER, QMetaType::fromType<bool>());
+    addField(REFERRAL_REASON_OTHER, QMetaType::fromType<bool>());
 
-    addField(REFERRAL_REASON_TRANSPLANT_ORGAN, QVariant::String);
-    addField(REFERRAL_REASON_OTHER_DETAIL, QVariant::String);
+    addField(REFERRAL_REASON_TRANSPLANT_ORGAN, QMetaType::fromType<QString>());
+    addField(REFERRAL_REASON_OTHER_DETAIL, QMetaType::fromType<QString>());
 
-    addField(DIAGNOSIS_NO_ACTIVE_MENTAL_HEALTH_PROBLEM, QVariant::Bool);
-    addField(DIAGNOSIS_PSYCH_1_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_1_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_2_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_2_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_3_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_3_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_4_ICD10CODE, QVariant::String);
-    addField(DIAGNOSIS_PSYCH_4_DESCRIPTION, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_1, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_2, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_3, QVariant::String);
-    addField(DIAGNOSIS_MEDICAL_4, QVariant::String);
+    addField(DIAGNOSIS_NO_ACTIVE_MENTAL_HEALTH_PROBLEM, QMetaType::fromType<bool>());
+    addField(DIAGNOSIS_PSYCH_1_ICD10CODE, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_1_DESCRIPTION, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_2_ICD10CODE, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_2_DESCRIPTION, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_3_ICD10CODE, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_3_DESCRIPTION, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_4_ICD10CODE, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_PSYCH_4_DESCRIPTION, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_MEDICAL_1, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_MEDICAL_2, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_MEDICAL_3, QMetaType::fromType<QString>());
+    addField(DIAGNOSIS_MEDICAL_4, QMetaType::fromType<QString>());
 
-    addField(MANAGEMENT_ASSESSMENT_DIAGNOSTIC, QVariant::Bool);
-    addField(MANAGEMENT_MEDICATION, QVariant::Bool);
-    addField(MANAGEMENT_SPECIALLING_BEHAVIOURAL_DISTURBANCE, QVariant::Bool);
-    addField(MANAGEMENT_SUPPORTIVE_PATIENT, QVariant::Bool);
-    addField(MANAGEMENT_SUPPORTIVE_CARERS, QVariant::Bool);
-    addField(MANAGEMENT_SUPPORTIVE_STAFF, QVariant::Bool);
-    addField(MANAGEMENT_NURSING_MANAGEMENT, QVariant::Bool);
-    addField(MANAGEMENT_THERAPY_CBT, QVariant::Bool);
-    addField(MANAGEMENT_THERAPY_CAT, QVariant::Bool);
-    addField(MANAGEMENT_THERAPY_OTHER, QVariant::Bool);
-    addField(MANAGEMENT_TREATMENT_ADHERENCE, QVariant::Bool);
-    addField(MANAGEMENT_CAPACITY, QVariant::Bool);
-    addField(MANAGEMENT_EDUCATION_PATIENT, QVariant::Bool);
-    addField(MANAGEMENT_EDUCATION_CARERS, QVariant::Bool);
-    addField(MANAGEMENT_EDUCATION_STAFF, QVariant::Bool);
-    addField(MANAGEMENT_ACCOMMODATION_PLACEMENT, QVariant::Bool);
-    addField(MANAGEMENT_SIGNPOSTING_EXTERNAL_REFERRAL, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S136, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S5_2, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S2, QVariant::Bool);
-    addField(MANAGEMENT_MHA_S3, QVariant::Bool);
-    addField(MANAGEMENT_COMPLEX_CASE_CONFERENCE, QVariant::Bool);
-    addField(MANAGEMENT_OTHER, QVariant::Bool);
-    addField(MANAGEMENT_OTHER_DETAIL, QVariant::String);
+    addField(MANAGEMENT_ASSESSMENT_DIAGNOSTIC, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_MEDICATION, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_SPECIALLING_BEHAVIOURAL_DISTURBANCE, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_SUPPORTIVE_PATIENT, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_SUPPORTIVE_CARERS, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_SUPPORTIVE_STAFF, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_NURSING_MANAGEMENT, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_THERAPY_CBT, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_THERAPY_CAT, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_THERAPY_OTHER, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_TREATMENT_ADHERENCE, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_CAPACITY, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_EDUCATION_PATIENT, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_EDUCATION_CARERS, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_EDUCATION_STAFF, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_ACCOMMODATION_PLACEMENT, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_SIGNPOSTING_EXTERNAL_REFERRAL, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_MHA_S136, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_MHA_S5_2, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_MHA_S2, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_MHA_S3, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_COMPLEX_CASE_CONFERENCE, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_OTHER, QMetaType::fromType<bool>());
+    addField(MANAGEMENT_OTHER_DETAIL, QMetaType::fromType<QString>());
 
-    addField(OUTCOME, QVariant::String);
-    addField(OUTCOME_HOSPITAL_TRANSFER_DETAIL, QVariant::String);
-    addField(OUTCOME_OTHER_DETAIL, QVariant::String);
+    addField(OUTCOME, QMetaType::fromType<QString>());
+    addField(OUTCOME_HOSPITAL_TRANSFER_DETAIL, QMetaType::fromType<QString>());
+    addField(OUTCOME_OTHER_DETAIL, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

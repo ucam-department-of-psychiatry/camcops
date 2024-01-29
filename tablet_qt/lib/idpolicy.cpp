@@ -20,10 +20,8 @@
 
 #include "idpolicy.h"
 #include <QObject>
-#include <QRegularExpression>  // replacing QRegExp; http://doc.qt.io/qt-5.7/qregexp.html#details
-#include "common/dbconst.h"
-#include "common/design_defines.h"
-#include "common/preprocessor_aid.h"
+#include <QRegularExpression>  // replacing QRegExp; https://doc.qt.io/qt-6.5/qregexp.html#details
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
 
@@ -52,7 +50,7 @@ const int TOKEN_EMAIL = -15;
 const QString TOKENIZE_RE_STR(
     // http://stackoverflow.com/questions/6162600/
     // http://stackoverflow.com/questions/20508534/c-multiline-string-raw-literal
-    // http://doc.qt.io/qt-5/qregularexpression.html#details
+    // https://doc.qt.io/qt-6.5/qregularexpression.html#details
 
     "\\s*"    // discard leading whitespace
     "("         // start capture group

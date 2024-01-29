@@ -43,6 +43,7 @@
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 #include "taskxtra/cardinalexpdettrial.h"
@@ -194,31 +195,31 @@ CardinalExpectationDetection::CardinalExpectationDetection(
     Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_NUM_BLOCKS, QVariant::Int);
-    addField(FN_STIMULUS_COUNTERBALANCING, QVariant::Int);
-    addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QVariant::Bool);
-    addField(FN_PAUSE_EVERY_N_TRIALS, QVariant::Int);
+    addField(FN_NUM_BLOCKS, QMetaType::fromType<int>());
+    addField(FN_STIMULUS_COUNTERBALANCING, QMetaType::fromType<int>());
+    addField(FN_IS_DETECTION_RESPONSE_ON_RIGHT, QMetaType::fromType<bool>());
+    addField(FN_PAUSE_EVERY_N_TRIALS, QMetaType::fromType<int>());
     // ... cue
-    addField(FN_CUE_DURATION_S, QVariant::Double);
-    addField(FN_VISUAL_CUE_INTENSITY, QVariant::Double);
-    addField(FN_AUDITORY_CUE_INTENSITY, QVariant::Double);
+    addField(FN_CUE_DURATION_S, QMetaType::fromType<double>());
+    addField(FN_VISUAL_CUE_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_AUDITORY_CUE_INTENSITY, QMetaType::fromType<double>());
     // ... ISI
-    addField(FN_ISI_DURATION_S, QVariant::Double);
+    addField(FN_ISI_DURATION_S, QMetaType::fromType<double>());
     // ... target
-    addField(FN_VISUAL_TARGET_DURATION_S, QVariant::Double);
-    addField(FN_VISUAL_BACKGROUND_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_VISUAL_TARGET_0_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_VISUAL_TARGET_1_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_AUDITORY_TARGET_0_INTENSITY, QVariant::Double);  // 0 to 1
-    addField(FN_AUDITORY_TARGET_1_INTENSITY, QVariant::Double);  // 0 to 1
+    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::fromType<double>());
+    addField(FN_VISUAL_BACKGROUND_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_VISUAL_TARGET_0_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_VISUAL_TARGET_1_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_AUDITORY_TARGET_0_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+    addField(FN_AUDITORY_TARGET_1_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
     // ... ITI
-    addField(FN_ITI_MIN_S, QVariant::Double);
-    addField(FN_ITI_MAX_S, QVariant::Double);
+    addField(FN_ITI_MIN_S, QMetaType::fromType<double>());
+    addField(FN_ITI_MAX_S, QMetaType::fromType<double>());
     // Results:
-    addField(FN_ABORTED, QVariant::Bool, false, false, false, false);
-    addField(FN_FINISHED, QVariant::Bool, false, false, false, false);
-    addField(FN_LAST_TRIAL_COMPLETED, QVariant::Int);
+    addField(FN_ABORTED, QMetaType::fromType<bool>(), false, false, false, false);
+    addField(FN_FINISHED, QMetaType::fromType<bool>(), false, false, false, false);
+    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::fromType<int>());
 
     load(load_pk);
 
@@ -494,7 +495,7 @@ OpenableWidget* CardinalExpectationDetection::editor(const bool read_only)
             this, &CardinalExpectationDetection::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
-// See http://doc.qt.io/qt-5/qobject.html#connect-5
+// See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
     connect((b).button, &QPushButton::clicked, \
@@ -782,9 +783,9 @@ void CardinalExpectationDetection::startTask()
                          valueDouble(FN_AUDITORY_TARGET_0_INTENSITY));
     soundfunc::setVolume(m_player_target_1,
                          valueDouble(FN_AUDITORY_TARGET_1_INTENSITY));
-    m_player_background->setMedia(getAuditoryBackgroundUrl());
-    m_player_target_0->setMedia(getAuditoryTargetUrl(0));
-    m_player_target_1->setMedia(getAuditoryTargetUrl(1));
+    m_player_background->setSource(getAuditoryBackgroundUrl());
+    m_player_target_0->setSource(getAuditoryTargetUrl(0));
+    m_player_target_1->setSource(getAuditoryTargetUrl(1));
 
     // Double-check we have a PK before we create stages/trials
     save();
@@ -861,7 +862,7 @@ void CardinalExpectationDetection::startTrialProperWithCue()
     // Cues are multimodal.
     const int cue = t->cue();
     // (a) sound
-    m_player_cue->setMedia(getAuditoryCueUrl(cue));
+    m_player_cue->setSource(getAuditoryCueUrl(cue));
     m_player_cue->play();
     // (b) image
     showVisualStimulus(getVisualCueFilenameStem(cue),

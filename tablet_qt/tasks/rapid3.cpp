@@ -26,12 +26,12 @@
 #include "questionnairelib/questionwithonefield.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::anyNull;
 using mathfunc::sumInt;
@@ -55,9 +55,9 @@ Rapid3::Rapid3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, RAPID3_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(q1Fieldnames(), QVariant::Int);
-    addField(Q2, QVariant::Double);
-    addField(Q3, QVariant::Double);
+    addFields(q1Fieldnames(), QMetaType::fromType<int>());
+    addField(Q2, QMetaType::fromType<double>());
+    addField(Q3, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -166,11 +166,13 @@ double Rapid3::globalEstimate() const
 
 QString Rapid3::diseaseSeverity() const
 {
-    const QVariant rapid3 = this->rapid3();
+    const QVariant rapid3_variant = this->rapid3();
 
-    if (rapid3.isNull()) {
+    if (rapid3_variant.isNull()) {
         return xstring("n_a");
     }
+
+    const double rapid3 = rapid3_variant.toDouble();
 
     if (rapid3 <= 3.0) {
         return xstring("near_remission");

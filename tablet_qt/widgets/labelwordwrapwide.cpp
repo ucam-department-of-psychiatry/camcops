@@ -83,7 +83,7 @@
 // See also:
 // - http://stackoverflow.com/questions/13995657/why-does-qlabel-prematurely-wrap
 // - http://stackoverflow.com/questions/13994902/how-do-i-get-a-qlabel-to-expand-to-full-width#13994902
-// - http://doc.qt.io/qt-5/layout.html#layout-issues
+// - https://doc.qt.io/qt-6.5/layout.html#layout-issues
 // - http://stackoverflow.com/questions/31535143/how-to-prevent-qlabel-from-unnecessary-word-wrapping
 // - http://www.qtcentre.org/threads/62059-QLabel-Word-Wrapping-adds-unnecessary-line-breaks
 // - http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize
@@ -312,8 +312,8 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     // Ah, not that much harder.
     // - http://stackoverflow.com/questions/1337523/measuring-text-width-in-qt
     // Compare:
-    // - http://doc.qt.io/qt-5.7/qfontmetrics.html#width
-    // - http://doc.qt.io/qt-5.7/qfontmetrics.html#boundingRect
+    // - https://doc.qt.io/qt-6.5/qfontmetrics.html#width
+    // - https://doc.qt.io/qt-6.5/qfontmetrics.html#boundingRect
     // - http://stackoverflow.com/questions/37671839/how-to-use-qfontmetrics-boundingrect-to-measure-size-of-multilne-message
     const QFontMetrics fm = fontMetrics();
     // don't use fm.width(text()), that's something else (see Qt docs)
@@ -427,7 +427,7 @@ QSize LabelWordWrapWide::sizeHint() const
     // - In the case of a label inside a pushbutton, the owner (the pushbutton)
     //   should do this.
     // - Can a QLabel have its own stylesheet info? Yes:
-    //   http://doc.qt.io/qt-5.7/stylesheet-reference.html
+    //   https://doc.qt.io/qt-6.5/stylesheet-reference.html
 
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
     QSize size_hint = text_size + extraSizeForCssOrLayout();

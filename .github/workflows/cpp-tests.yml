@@ -1,0 +1,35 @@
+---
+# yamllint disable rule:line-length
+name: C++ tests
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.cpp'
+            - '**.h'
+            - .github/scripts/add_apt_sources.sh
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/cpp_tests.sh
+            - .github/workflows/cpp-tests.yml
+jobs:
+    cpp-tests:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - name: Install Qt
+              uses: jurplel/install-qt-action@v3
+              with:
+                  version: 6.5.2
+                  arch: gcc_64
+                  modules: qtmultimedia
+            - name: Ubuntu prerequisites
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev libxcb-cursor0
+                  sudo apt-get -y install xvfb x11-xserver-utils
+            - name: C++ tests
+              run: |
+                  set -eux -o pipefail
+                  xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh

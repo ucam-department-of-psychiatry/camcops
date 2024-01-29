@@ -27,9 +27,9 @@
 #define ALLOW_SAVE_INSERT_BACKGROUND
 
 #include "databaseobject.h"
-#include <iostream>
 #include <QDateTime>
 #include <QMapIterator>
+#include <QMetaType>
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QStringList>
@@ -76,19 +76,19 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
             QString("DatabaseObject::DatabaseObject: Missing pk_fieldname; "
                     "table=%1").arg(m_tablename));
     }
-    addField(pk_fieldname, QVariant::Int, true, true, true);
+    addField(pk_fieldname, QMetaType::fromType<int>(), true, true, true);
     if (has_move_off_tablet_field) {
         // Will be true for everything in data DB, but not system DB
-        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QVariant::Bool,
+        addField(dbconst::MOVE_OFF_TABLET_FIELDNAME, QMetaType::fromType<bool>(),
                  false, false, false);
     }
     if (has_modification_timestamp) {
         addField(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME,
-                 QVariant::DateTime);
+                 QMetaType::fromType<QDateTime>());
     }
     if (has_creation_timestamp) {
         addField(dbconst::CREATION_TIMESTAMP_FIELDNAME,
-                 QVariant::DateTime);
+                 QMetaType::fromType<QDateTime>());
         QDateTime now = QDateTime::currentDateTime();
         m_record[dbconst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
     }
@@ -100,13 +100,13 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
 // ============================================================================
 
 void DatabaseObject::addField(const QString& fieldname,
-                              const QVariant::Type type,
+                              const QMetaType type,
                               const bool mandatory,
                               const bool unique,
                               const bool pk,
                               const QVariant& default_value)
 {
-    if (type == QVariant::ULongLong) {
+    if (type.id() == QMetaType::ULongLong) {
         qWarning() << "SQLite3 does not properly support unsigned 64-bit "
                       "integers; please use signed if possible";
     }
@@ -121,26 +121,8 @@ void DatabaseObject::addField(const QString& fieldname,
 }
 
 
-void DatabaseObject::addField(const QString& fieldname,
-                              const QString& type_name,
-                              const bool mandatory,
-                              const bool unique,
-                              const bool pk,
-                              const QVariant& default_value)
-{
-    if (m_record.contains(fieldname)) {
-        uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
-    }
-    Field field(fieldname, type_name, mandatory, unique, pk,
-                default_value /* cpp_default_value */,
-                default_value /* db_default_value */);
-    m_record.insert(fieldname, field);
-    m_ordered_fieldnames.append(fieldname);
-}
-
-
 void DatabaseObject::addFields(const QStringList& fieldnames,
-                               const QVariant::Type type,
+                               const QMetaType type,
                                const bool mandatory)
 {
     for (const QString& fieldname : fieldnames) {
@@ -162,11 +144,12 @@ bool DatabaseObject::hasField(const QString& fieldname) const
 }
 
 
-QVariant::Type DatabaseObject::fieldType(const QString& fieldname) const
+QMetaType DatabaseObject::fieldType(const QString& fieldname) const
 {
     if (!hasField(fieldname)) {
-        return QVariant::Type::Invalid;
+        return QMetaType(QMetaType::UnknownType);
     }
+
     const Field& field = m_record[fieldname];
     return field.type();
 }
@@ -444,13 +427,13 @@ QJsonValue DatabaseObject::valueAsJsonValue(const QString& fieldname) const
     if (v.isNull()) {
         return QJsonValue();  // null type
     }
-    const QVariant::Type type = fieldType(fieldname);
+    const QMetaType type = fieldType(fieldname);
     QJsonValue jval;
-    switch (type) {
-        case QVariant::Date:
+    switch (type.id()) {
+        case QMetaType::QDate:
             jval = QJsonValue(datetime::dateToIso(v.toDate()));
             break;
-        case QVariant::DateTime:
+        case QMetaType::QDateTime:
             jval = QJsonValue(datetime::datetimeToIsoMs(v.toDateTime()));
             break;
         default:
@@ -802,7 +785,7 @@ void DatabaseObject::setFromQuery(const QueryResult& query_result,
                                   const bool order_matches_fetchquery)
 {
     MutableMapIteratorType it(m_record);
-    // Note: QMap iteration is ordered; http://doc.qt.io/qt-5/qmap.html
+    // Note: QMap iteration is ordered; https://doc.qt.io/qt-6.5/qmap.html
     if (order_matches_fetchquery) {  // faster
         int field_index = -1;
         while (it.hasNext()) {

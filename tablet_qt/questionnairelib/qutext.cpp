@@ -23,7 +23,6 @@
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
-#include "widgets/labelwordwrapwide.h"
 
 
 QuText::QuText(const QString& text, FieldRefPtr fieldref, QObject* parent) :
@@ -140,7 +139,7 @@ QPointer<QWidget> QuText::makeWidget(Questionnaire* questionnaire)
     m_label->setOpenExternalLinks(m_open_links);
     m_label->setAlignment(m_text_alignment);
     // ... this is QLabel::setAlignment; see
-    //     http://doc.qt.io/qt-5/qlabel.html#alignment-prop
+    //     https://doc.qt.io/qt-6.5/qlabel.html#alignment-prop
     return QPointer<QWidget>(m_label);
 }
 

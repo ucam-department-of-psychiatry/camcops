@@ -51,15 +51,15 @@ KhandakerMojoMedicationItem::KhandakerMojoMedicationItem(
                    true,  // has_move_off_tablet_field
                    true)  // triggers_need_upload
 {
-    addField(FN_FK_NAME, QVariant::Int);
-    addField(FN_SEQNUM, QVariant::Int);
-    addField(FN_BRAND_NAME, QVariant::String);
-    addField(FN_CHEMICAL_NAME, QVariant::String);
-    addField(FN_DOSE, QVariant::String);
-    addField(FN_FREQUENCY, QVariant::String);
-    addField(FN_DURATION_MONTHS, QVariant::Double);
-    addField(FN_INDICATION, QVariant::String);
-    addField(FN_RESPONSE, QVariant::Int);
+    addField(FN_FK_NAME, QMetaType::fromType<int>());
+    addField(FN_SEQNUM, QMetaType::fromType<int>());
+    addField(FN_BRAND_NAME, QMetaType::fromType<QString>());
+    addField(FN_CHEMICAL_NAME, QMetaType::fromType<QString>());
+    addField(FN_DOSE, QMetaType::fromType<QString>());
+    addField(FN_FREQUENCY, QMetaType::fromType<QString>());
+    addField(FN_DURATION_MONTHS, QMetaType::fromType<double>());
+    addField(FN_INDICATION, QMetaType::fromType<QString>());
+    addField(FN_RESPONSE, QMetaType::fromType<int>());
 
     load(load_pk);
 }

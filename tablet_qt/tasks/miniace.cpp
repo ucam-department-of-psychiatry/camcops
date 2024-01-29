@@ -35,28 +35,24 @@ A note on task inheritance:
 #include <QDebug>
 #include "common/textconst.h"
 #include "common/uiconst.h"
-#include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/quflowcontainer.h"
-#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quverticalcontainer.h"
 #include "questionnairelib/qucountdown.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/quphoto.h"
-#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::eq;
 using mathfunc::allNull;
 using mathfunc::noneNull;
@@ -90,32 +86,32 @@ MiniAce::MiniAce(CamcopsApp& app, DatabaseManager& db, const int load_pk,
            QObject* parent) :
     AceFamily(app, db, MINIACE_TABLENAME, parent)
 {
-    addField(FN_TASK_EDITION, QVariant::String,
+    addField(FN_TASK_EDITION, QMetaType::fromType<QString>(),
              false, false, false, xstring(X_EDITION_MINIACE));
-    addField(FN_TASK_ADDRESS_VERSION, QVariant::String,
+    addField(FN_TASK_ADDRESS_VERSION, QMetaType::fromType<QString>(),
              false, false, false, TASK_DEFAULT_VERSION);
-    addField(FN_REMOTE_ADMINISTRATION, QVariant::Bool,
+    addField(FN_REMOTE_ADMINISTRATION, QMetaType::fromType<bool>(),
              false, false, false, false);
 
-    addField(FN_AGE_FT_EDUCATION, QVariant::Int);
-    addField(FN_OCCUPATION, QVariant::String);
-    addField(FN_HANDEDNESS, QVariant::String);
+    addField(FN_AGE_FT_EDUCATION, QMetaType::fromType<int>());
+    addField(FN_OCCUPATION, QMetaType::fromType<QString>());
+    addField(FN_HANDEDNESS, QMetaType::fromType<QString>());
 
-    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_MINIACE), QVariant::Int);
+    addFields(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_MINIACE), QMetaType::fromType<int>());
 
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
-    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL1, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL2, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
+    addFields(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
 
-    addField(FN_FLUENCY_ANIMALS_SCORE, QVariant::Int);
+    addField(FN_FLUENCY_ANIMALS_SCORE, QMetaType::fromType<int>());
 
-    addField(FN_VSP_DRAW_CLOCK, QVariant::Int);
+    addField(FN_VSP_DRAW_CLOCK, QMetaType::fromType<int>());
 
-    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QVariant::Int);
+    addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
 
-    addField(FN_PICTURE1_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(FN_PICTURE2_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(FN_COMMENTS, QVariant::String);
+    addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(FN_COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -38,6 +38,8 @@
 
 #pragma once
 #include <float.h>
+#include <limits>  // for std::numeric_limits
+#include <stddef.h>  // for size_t
 
 // ............................................................................
 // https://raw.githubusercontent.com/google/googletest/master/googletest/include/gtest/internal/gtest-port.h

@@ -46,7 +46,9 @@
 #include <QAbstractScrollArea>
 #include <QApplication>
 #include <QBasicTimer>
+#include <QCursor>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QEvent>
 #include <QHash>
 #include <QList>
@@ -57,7 +59,7 @@
 #include <QWebFrame>
 #include <QWebView>
 #endif
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 
 const int fingerAccuracyThreshold = 3;
 
@@ -73,9 +75,9 @@ struct FlickData {
     QPoint pressPos;
     QPoint lastPos;
     QPoint speed;
-    QTime speedTimer;
+    QElapsedTimer speedTimer;
     QList<QEvent*> ignored;
-    QTime accelerationTimer;
+    QElapsedTimer accelerationTimer;
     bool lastPosValid:1;
     bool waitingAcceleration:1;
 
@@ -185,7 +187,7 @@ class FlickCharmPrivate
 public:
     QHash<QWidget*, FlickData*> flickData;
     QBasicTimer ticker;
-    QTime timeCounter;
+    QElapsedTimer timeCounter;
     void startTicker(QObject* object)
     {
         if (!ticker.isActive()) {
@@ -339,11 +341,13 @@ bool FlickCharm::eventFilter(QObject* object, QEvent* event)
         } else if (type == QEvent::MouseButtonRelease) {
             consumed = true;
             auto event1 = new QMouseEvent(QEvent::MouseButtonPress,
-                                          data->pressPos, Qt::LeftButton,
-                                          Qt::LeftButton, Qt::NoModifier);
+                                          data->pressPos, QCursor::pos(),
+                                          Qt::LeftButton, Qt::LeftButton,
+                                          Qt::NoModifier);
             auto event2 = new QMouseEvent(QEvent::MouseButtonRelease,
-                                          data->pressPos, Qt::LeftButton,
-                                          Qt::LeftButton, Qt::NoModifier);
+                                          data->pressPos, QCursor::pos(),
+                                          Qt::LeftButton, Qt::LeftButton,
+                                          Qt::NoModifier);
 
             data->ignored << event1;
             data->ignored << event2;

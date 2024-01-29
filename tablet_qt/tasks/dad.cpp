@@ -21,15 +21,14 @@
 #include "dad.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 
 const QString Dad::DAD_TABLENAME("dad");
@@ -127,7 +126,7 @@ Dad::Dad(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAD_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
-        addField(item, QVariant::Int);
+        addField(item, QMetaType::fromType<int>());
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

@@ -23,7 +23,6 @@
 #include <QDoubleValidator>
 #include <QLineEdit>
 #include "qobjects/strictdoublevalidator.h"
-#include "questionnairelib/qulineeditinteger.h"
 
 
 QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref,

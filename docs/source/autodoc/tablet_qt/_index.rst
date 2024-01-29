@@ -47,8 +47,6 @@ tablet_qt
     common/design_defines.h.rst
     common/dpi.cpp.rst
     common/dpi.h.rst
-    common/globals.cpp.rst
-    common/globals.h.rst
     common/gui_defines.h.rst
     common/languages.cpp.rst
     common/languages.h.rst
@@ -186,8 +184,6 @@ tablet_qt
     graphics/graphicsfunc.h.rst
     graphics/graphicspixmapitemwithopacity.cpp.rst
     graphics/graphicspixmapitemwithopacity.h.rst
-    graphics/imagefunc.cpp.rst
-    graphics/imagefunc.h.rst
     graphics/linesegment.cpp.rst
     graphics/linesegment.h.rst
     graphics/paintertranslaterotatecontext.cpp.rst
@@ -224,6 +220,8 @@ tablet_qt
     lib/datetime.h.rst
     lib/debugfunc.cpp.rst
     lib/debugfunc.h.rst
+    lib/diagnosticstyle.cpp.rst
+    lib/diagnosticstyle.h.rst
     lib/errorfunc.cpp.rst
     lib/errorfunc.h.rst
     lib/filefunc.cpp.rst
@@ -404,8 +402,6 @@ tablet_qt
     menulib/urlmenuitem.h.rst
     qcustomplot/qcustomplot.cpp.rst
     qcustomplot/qcustomplot.h.rst
-    qobjects/cameraframegrabber.cpp.rst
-    qobjects/cameraframegrabber.h.rst
     qobjects/debugeventwatcher.cpp.rst
     qobjects/debugeventwatcher.h.rst
     qobjects/emailvalidator.cpp.rst
@@ -575,7 +571,6 @@ tablet_qt
     resources/camcops/camera_qml/CameraListPopup.qml.rst
     resources/camcops/camera_qml/CameraPropertyButton.qml.rst
     resources/camcops/camera_qml/CameraPropertyPopup.qml.rst
-    resources/camcops/camera_qml/FocusButton.qml.rst
     resources/camcops/camera_qml/PhotoCaptureControls.qml.rst
     resources/camcops/camera_qml/PhotoPreview.qml.rst
     resources/camcops/camera_qml/Popup.qml.rst
@@ -965,6 +960,7 @@ tablet_qt
     tools/decrypt_sqlcipher.py.rst
     tools/encrypt_sqlcipher.py.rst
     tools/open_sqlcipher.py.rst
+    tools/run_cpp_tests.py.rst
     version/camcopsversion.cpp.rst
     version/camcopsversion.h.rst
     whisker/whiskerapi.cpp.rst

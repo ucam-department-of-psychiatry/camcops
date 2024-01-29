@@ -38,32 +38,32 @@ const QString VALUE_TEXT_FIELDNAME("value_text");
 
 // - Also, SQLite is typeless... could make use of that, and store all values
 //   in the same column. But for generality:
-const QMap<QVariant::Type, QString> COLMAP{
+const QMap<const int, QString> COLMAP{
     // Which database field shall we use to store each QVariant type?
-    {QVariant::Bool, VALUE_BOOL_FIELDNAME},
-    {QVariant::DateTime, VALUE_TEXT_FIELDNAME},
-    {QVariant::Double, VALUE_REAL_FIELDNAME},
-    {QVariant::Int, VALUE_INTEGER_FIELDNAME},
-    {QVariant::LongLong, VALUE_INTEGER_FIELDNAME},
-    {QVariant::String, VALUE_TEXT_FIELDNAME},
-    {QVariant::Uuid, VALUE_TEXT_FIELDNAME},
+    {QMetaType::Bool, VALUE_BOOL_FIELDNAME},
+    {QMetaType::QDateTime, VALUE_TEXT_FIELDNAME},
+    {QMetaType::Double, VALUE_REAL_FIELDNAME},
+    {QMetaType::Int, VALUE_INTEGER_FIELDNAME},
+    {QMetaType::LongLong, VALUE_INTEGER_FIELDNAME},
+    {QMetaType::QString, VALUE_TEXT_FIELDNAME},
+    {QMetaType::QUuid, VALUE_TEXT_FIELDNAME},
 };
-const QMap<QVariant::Type, QString> TYPEMAP{
+const QMap<const int, QString> TYPEMAP{
     // What value should we put in the 'type' database column to indicate
     // the QVariant type in use?
-    // http://doc.qt.io/qt-5/qvariant-obsolete.html#Type-enum
-    {QVariant::Bool, "Bool"},
-    {QVariant::DateTime, "DateTime"},
-    {QVariant::Double, "Double"},
-    {QVariant::Int, "Int"},
-    {QVariant::LongLong, "LongLong"},
-    {QVariant::String, "String"},
-    {QVariant::Uuid, "Uuid"},
+    // https://doc.qt.io/qt-6.5/qvariant-obsolete.html#Type-enum
+    {QMetaType::Bool, "Bool"},
+    {QMetaType::QDateTime, "DateTime"},
+    {QMetaType::Double, "Double"},
+    {QMetaType::Int, "Int"},
+    {QMetaType::LongLong, "LongLong"},
+    {QMetaType::QString, "String"},
+    {QMetaType::QUuid, "Uuid"},
 };
 
 
 StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
-                     const QString& name, const QVariant::Type type,
+                     const QString& name, const QMetaType type,
                      const QVariant& default_value) :
     DatabaseObject(app, db, STOREDVAR_TABLENAME, dbconst::PK_FIELDNAME,
                    true, false, false, false),
@@ -71,15 +71,17 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
     m_type(type),
     m_value_fieldname("")
 {
+    const int type_id = type.id();
+
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(NAME_FIELDNAME, QVariant::String, true, true, false);
-    addField(TYPE_FIELDNAME, QVariant::String, true, false, false);
-    QMapIterator<QVariant::Type, QString> i(COLMAP);
+    addField(NAME_FIELDNAME, QMetaType::fromType<QString>(), true, true, false);
+    addField(TYPE_FIELDNAME, QMetaType::fromType<QString>(), true, false, false);
+    QMapIterator<const int, QString> i(COLMAP);
     while (i.hasNext()) {
         i.next();
-        const QVariant::Type fieldtype = i.key();
+        const int fieldtype = i.key();
         const QString fieldname = i.value();
         if (!hasField(fieldname)) {
             // We can have duplicate/overlapping fieldnames, and it will be
@@ -88,9 +90,9 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
             // However, it is dreadfully confusing if you put the Bool
             // definition before the Int one, and all your integers are
             // converted to 1 or 0. So use different ones!
-            addField(fieldname, fieldtype, false, false, false);
+            addField(fieldname, QMetaType(fieldtype), false, false, false);
         }
-        if (fieldtype == type) {
+        if (fieldtype == type_id) {
             // Define our primary field
             m_value_fieldname = fieldname;
         }
@@ -100,10 +102,10 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
             "StoredVar::StoredVar: m_value_fieldname unknown to StoredVar "
             "with name=%1, type=%2; is the type missing from COLMAP "
             "(in storedvar.cpp)?")
-                        .arg(name, QString::number(type)));
+                        .arg(name, QString::number(type_id)));
     }
-    if (!TYPEMAP.contains(type)) {
-        qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type;
+    if (!TYPEMAP.contains(type_id)) {
+        qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type_id;
         uifunc::stopApp(
             "StoredVar::StoredVar: type unknown to StoredVar; see debug "
             "console for details and check TYPEMAP (in storedvar.cpp)");
@@ -117,7 +119,7 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
         const bool success = load(NAME_FIELDNAME, name);
         if (!success) {
             setValue(NAME_FIELDNAME, name);
-            setValue(TYPE_FIELDNAME, TYPEMAP[type]);
+            setValue(TYPE_FIELDNAME, TYPEMAP[type_id]);
             // qDebug() << "Setting type to:" << type;
             setValue(default_value);
             save();

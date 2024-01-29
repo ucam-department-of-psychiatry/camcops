@@ -20,7 +20,6 @@
 
 #include "whiskertestmenu.h"
 #include "common/uiconst.h"
-#include "common/varconst.h"
 #include "dialogs/logbox.h"
 #include "lib/datetime.h"
 #include "lib/uifunc.h"

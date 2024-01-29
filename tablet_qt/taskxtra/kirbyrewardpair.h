@@ -53,6 +53,7 @@ public:
     // - If no choice has been recorded, returns false.
     // - If the k value equals the implied indifference point exactly (meaning
     //   that the subject should not care), return true.
+    // - Otherwise, return whether the choice was consistent with k.
     bool choiceConsistent(double k) const;
 
 public:

@@ -377,7 +377,7 @@ class Das28(
             <div class="{CssClass.FOOTNOTES}">
                 [1] 0.56 × √(tender joint count) +
                     0.28 × √(swollen joint count) +
-                    0.36 × ln(CRP + 1) +
+                    0.36 × ln([CRP in mg/L] + 1) +
                     0.014 x VAS disease activity +
                     0.96.
                     CRP 0–300 mg/L. VAS: 0–100mm.<br>
@@ -388,7 +388,7 @@ class Das28(
                     &gt;4.6 high disease activity.<br>
                 [2] 0.56 × √(tender joint count) +
                     0.28 × √(swollen joint count) +
-                    0.70 × ln(ESR) +
+                    0.70 × ln(ESR in mm/h) +
                     0.014 x VAS disease activity.
                     ESR 1–300 mm/h. VAS: 0–100mm.<br>
                     Cutoffs:

@@ -25,7 +25,7 @@
 #include <QtGlobal>  // for QT_VERSION
 
 // ============================================================================
-// Printing preprocessor variables
+// Printing preprocessor variables: PREPROCESSOR_STRING
 // ============================================================================
 // https://stackoverflow.com/questions/1204202/is-it-possible-to-print-a-preprocessor-variable-in-c
 #define PREPROCESSOR_STRING2(x) #x
@@ -33,7 +33,10 @@
 
 
 // ============================================================================
-// Compiler detection
+// Compiler detection:
+// - COMPILER_IS_CLANG, CLANG_AT_LEAST_10
+// - COMPILER_IS_GCC, GCC_AT_LEAST_7
+// - COMPILER_IS_VISUAL_CPP
 // ============================================================================
 // Note that Clang also defines __GNUC__, but also defines __clang__.
 // GCC defines __GNUC__.

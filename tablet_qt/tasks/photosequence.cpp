@@ -21,7 +21,6 @@
 #include "photosequence.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/qubutton.h"
@@ -31,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/photosequencephoto.h"
 
 const QString PhotoSequence::PHOTOSEQUENCE_TABLENAME("photosequence");
@@ -50,7 +50,7 @@ void initializePhotoSequence(TaskFactory& factory)
 PhotoSequence::PhotoSequence(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHOTOSEQUENCE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(SEQUENCE_DESCRIPTION, QVariant::String);
+    addField(SEQUENCE_DESCRIPTION, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

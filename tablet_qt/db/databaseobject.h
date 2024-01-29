@@ -22,6 +22,7 @@
 #include <QDate>
 #include <QDateTime>
 #include <QMap>
+#include <QMetaType>
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "common/aliases_qt.h"
@@ -104,15 +105,7 @@ public:
     //      value for fields that haven't been written to (or read from the
     //      database)
     void addField(const QString& fieldname,
-                  QVariant::Type type,
-                  bool mandatory = false,
-                  bool unique = false,
-                  bool pk = false,
-                  const QVariant& default_value = QVariant());
-
-    // Alternative version of addField().
-    void addField(const QString& fieldname,
-                  const QString& type_name,
+                  QMetaType type,
                   bool mandatory = false,
                   bool unique = false,
                   bool pk = false,
@@ -122,15 +115,14 @@ public:
     void addField(const Field& field);
 
     // Bulk field addition.
-    void addFields(const QStringList& fieldnames, QVariant::Type type,
+    void addFields(const QStringList& fieldnames, QMetaType type,
                    bool mandatory = false);
 
     // Do we have the specified field?
     bool hasField(const QString& fieldname) const;
 
     // What's a field's type?
-    // (Returns QVariant::Type::Invalid for non-existent fields.)
-    QVariant::Type fieldType(const QString& fieldname) const;
+    QMetaType fieldType(const QString& fieldname) const;
 
     // Return all fieldnames.
     QStringList fieldnames() const;
@@ -198,43 +190,48 @@ public:
     // Is the (string) field's value "" or NULL?
     bool valueIsNullOrEmpty(const QString& fieldname) const;
 
-    // Returns a field's value as a bool.
+    // Returns a field's value as a bool (if invalid: false).
     bool valueBool(const QString& fieldname) const;
 
-    // Returns a field's value as an int.
+    // Returns a field's value as an int (if invalid: 0).
     int valueInt(const QString& fieldname) const;
 
-    // Returns a field's value as a qint64 (qlonglong).
+    // Returns a field's value as a qint64 (qlonglong) (if invalid: 0).
     qint64 valueInt64(const QString& fieldname) const;
 
-    // Returns a field's value as a quint64 (qulonglong).
+    // Returns a field's value as a quint64 (qulonglong) (if invalid: 0).
     quint64 valueUInt64(const QString& fieldname) const;
 
-    // Returns a field's value as a double.
+    // Returns a field's value as a double (if invalid: 0.0).
     double valueDouble(const QString& fieldname) const;
 
-    // Returns a field's value as a QDateTime.
+    // Returns a field's value as a QDateTime (if invalid: an invalid
+    // QDateTime).
     QDateTime valueDateTime(const QString& fieldname) const;
 
-    // Returns a field's value as a QDate.
+    // Returns a field's value as a QDate (if invalid: an invalid QDate).
     QDate valueDate(const QString& fieldname) const;
 
-    // Returns a field's value as a QByteArray.
+    // Returns a field's value as a QByteArray (if invalid: an empty byte
+    // array).
     QByteArray valueByteArray(const QString& fieldname) const;
 
-    // Returns a field's value as a QString.
+    // Returns a field's value as a QString (if invalid: an empty string).
     QString valueString(const QString& fieldname) const;
 
-    // Returns a field's value as a QStringList (for CSV-encoded fields).
+    // Returns a field's value as a QStringList (for CSV-encoded fields)
+    // (if invalid: an empty list).
     QStringList valueStringList(const QString& fieldname) const;
 
-    // Returns a field's value as a QChar (for single-character string fields).
+    // Returns a field's value as a QChar (for single-character string fields)
+    //  (if invalid: an invalid QChar).
     QChar valueQChar(const QString& fieldname) const;
 
-    // Returns a field's value as a char.
+    // Returns a field's value as a char (if invalid: 0).
     char valueLatin1Char(const QString& fieldname) const;
 
-    // Returns a field's value as a QVector<int> (for CSV-encoded fields).
+    // Returns a field's value as a QVector<int> (for CSV-encoded fields)
+    // (if invalid: an empty vector).
     QVector<int> valueVectorInt(const QString& fieldname) const;
 
     // Returns a FieldRef (q.v.) pointer for the specified field.

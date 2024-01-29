@@ -22,7 +22,7 @@
 #include <QString>
 #include <QSysInfo>
 #include <QtGlobal>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 
 namespace platform {
 
@@ -65,9 +65,13 @@ namespace platform {
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     const bool PLATFORM_TABLET = true;
-    const bool PLATFORM_FULL_SCREEN_DIALOGS = true;
 #else
     const bool PLATFORM_TABLET = false;
+#endif
+
+#if defined(Q_OS_IOS)
+    const bool PLATFORM_FULL_SCREEN_DIALOGS = true;
+#else
     const bool PLATFORM_FULL_SCREEN_DIALOGS = false;
 #endif
 

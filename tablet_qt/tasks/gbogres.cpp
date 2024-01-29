@@ -24,11 +24,10 @@
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/quflowcontainer.h"
 #include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qumcq.h"
@@ -36,6 +35,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/gbocommon.h"
 
 using mathfunc::noneNullOrEmpty;
@@ -64,13 +64,13 @@ GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_DATE, QVariant::Date);
-    addField(FN_GOAL_1_DESC, QVariant::String);
-    addField(FN_GOAL_2_DESC, QVariant::String);
-    addField(FN_GOAL_3_DESC, QVariant::String);
-    addField(FN_GOAL_OTHER, QVariant::String);
-    addField(FN_COMPLETED_BY, QVariant::Int);
-    addField(FN_COMPLETED_BY_OTHER, QVariant::String);
+    addField(FN_DATE, QMetaType::fromType<QDate>());
+    addField(FN_GOAL_1_DESC, QMetaType::fromType<QString>());
+    addField(FN_GOAL_2_DESC, QMetaType::fromType<QString>());
+    addField(FN_GOAL_3_DESC, QMetaType::fromType<QString>());
+    addField(FN_GOAL_OTHER, QMetaType::fromType<QString>());
+    addField(FN_COMPLETED_BY, QMetaType::fromType<int>());
+    addField(FN_COMPLETED_BY_OTHER, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

@@ -23,13 +23,13 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quthermometer.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
 using mathfunc::sumInt;
@@ -58,9 +58,9 @@ DistressThermometer::DistressThermometer(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(DISTRESS, QVariant::Int);
-    addField(OTHER, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(DISTRESS, QMetaType::fromType<int>());
+    addField(OTHER, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

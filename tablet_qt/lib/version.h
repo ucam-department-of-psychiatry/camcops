@@ -107,5 +107,3 @@ protected:
 #pragma pop_macro("major")
 
 Q_DECLARE_METATYPE(Version)
-
-

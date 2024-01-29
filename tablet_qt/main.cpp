@@ -23,14 +23,21 @@
 #define FULL_LOG_FORMAT  // Include time and thread ID.
 // #define DISABLE_ANDROID_NATIVE_DIALOGS  // For a bug fixed in Qt 5.2.1.
 // #define QT_OPENGL_IN_SOFTWARE  // Unnecessary once proper OpenGL detection added.
+// #define DEBUG_WITH_DIAGNOSTIC_STYLE
+
 
 #include <QApplication>
 #include <QDebug>
 #include <QPushButton>
 #include <QStyleFactory>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "core/camcopsapp.h"
+#ifdef OPENSSL_VIA_QLIBRARY
 #include "crypto/cryptofunc.h"
+#endif
+#ifdef DEBUG_WITH_DIAGNOSTIC_STYLE
+#include "lib/diagnosticstyle.h"
+#endif
 
 #ifdef FULL_LOG_FORMAT
     #ifdef QT_DEBUG
@@ -64,7 +71,7 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
     NOTE: argc must be passed to the QApplication as a REFERENCE to int, or the
     app will crash. See
     - https://bugreports.qt.io/browse/QTBUG-5637
-    - http://doc.qt.io/qt-5/qapplication.html
+    - https://doc.qt.io/qt-6.5/qapplication.html
     */
 
 #ifdef DEBUG_TEST_BASIC_QT_ONLY
@@ -75,6 +82,10 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
     // ========================================================================
     // Qt environment variables
     // ========================================================================
+
+    // Can switch media backend here from default ("ffmpeg" on most platforms)
+    // https://doc.qt.io/qt-6.5/qtmultimedia-index.html#changing-backends
+    // qputenv("QT_MEDIA_BACKEND", "android");
 
 #ifdef DISABLE_ANDROID_NATIVE_DIALOGS
     // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
@@ -119,8 +130,15 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
         created. See https://bugreports.qt.io/browse/QTBUG-45517
     */
 
+#ifdef DEBUG_WITH_DIAGNOSTIC_STYLE
+    // Overlay widgets with bounding box and class name
+    auto style = new DiagnosticStyle();
+#else
     QStyle* style = QStyleFactory::create("Fusion");
+#endif
+
     // QProxyStyle* proxy_style = new TreeViewProxyStyle(style);
+
     QApplication::setStyle(style);
     // ... https://stackoverflow.com/questions/41184723/i-want-qt-app-to-look-like-qt-app-rather-than-android-native
 

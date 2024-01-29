@@ -40,7 +40,7 @@ using namespace graphicsfunc;
 
 void TestGraphicsfunc::testMakeTextButtonSetsMarginToZero()
 {
-    auto scene = new QGraphicsScene(0.0, 0.0, 100.0, 100.0);
+    QGraphicsScene scene = QGraphicsScene();
     const QRectF rect(0, 0, 100, 100);
     // These values are not important for the test
     const ButtonConfig config(5, 20, QColor(255,255,255), Qt::AlignCenter,
@@ -48,14 +48,17 @@ void TestGraphicsfunc::testMakeTextButtonSetsMarginToZero()
                               QPen(QBrush(QColor(255,0,0)), 5), 5);
 
     const QString text = "Test";
-    auto button_and_proxy = makeTextButton(scene, rect, config, text);
+    auto button_and_proxy = makeTextButton(&scene, rect, config, text);
     auto layout = button_and_proxy.button->layout();
 
-    const int margin = layout->margin();
+    int left, top, right, bottom;
 
-    QCOMPARE(margin, 0);
+    layout->getContentsMargins(&left, &top, &right, &bottom);
 
-    delete scene;
+    QCOMPARE(left, 0);
+    QCOMPARE(top, 0);
+    QCOMPARE(right, 0);
+    QCOMPARE(bottom, 0);
 }
 
 QTEST_MAIN(TestGraphicsfunc)

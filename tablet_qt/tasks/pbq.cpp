@@ -21,11 +21,11 @@
 #include "pbq.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
@@ -50,7 +50,7 @@ void initializePbq(TaskFactory& factory)
 Pbq::Pbq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PBQ_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

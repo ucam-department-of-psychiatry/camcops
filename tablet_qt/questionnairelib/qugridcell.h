@@ -37,14 +37,14 @@ public:
                int column,  // x position, starting from 0, going right
                int row_span = 1,   // height
                int column_span = 1,  // width
-               Qt::Alignment alignment = 0,
+               Qt::Alignment alignment = Qt::Alignment(),
                bool override_element_alignment = true);
     QuGridCell(QuElement* element,  // takes ownership
                int row,
                int column,
                int row_span = 1,
                int column_span = 1,
-               Qt::Alignment alignment = 0,
+               Qt::Alignment alignment = Qt::Alignment(),
                bool override_element_alignment = true);
 
 public:
@@ -57,7 +57,7 @@ public:
     Qt::Alignment alignment;
         // ... alignment to apply to element in this cell, if
         // override_element_alignment is true;
-        // see http://doc.qt.io/qt-5.12/qgridlayout.html
+        // see https://doc.qt.io/qt-6.5/qgridlayout.html
 
 public:
     // Debug description

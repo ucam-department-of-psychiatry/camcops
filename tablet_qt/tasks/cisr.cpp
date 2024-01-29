@@ -135,6 +135,7 @@ FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qupage.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using namespace cisrconst;
 #define CQ Cisr::CisrQuestion
@@ -1015,7 +1016,7 @@ Cisr::Cisr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
         FN_OVERALL2,
     };
     for (const QString& fn : fieldnames) {
-        addField(fn, QVariant::Int);
+        addField(fn, QMetaType::fromType<int>());
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

@@ -24,7 +24,6 @@
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -36,6 +35,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/gbocommon.h"
 
 using mathfunc::anyNullOrEmpty;
@@ -70,13 +70,13 @@ GboGPC::GboGPC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GBOGPC_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_DATE, QVariant::Date);
-    addField(FN_SESSION, QVariant::Int);
-    addField(FN_GOAL_NUMBER, QVariant::Int);
-    addField(FN_GOAL_DESCRIPTION, QVariant::String);
-    addField(FN_PROGRESS, QVariant::Int);
-    addField(FN_WHOSE_GOAL, QVariant::Int);
-    addField(FN_WHOSE_GOAL_OTHER, QVariant::String);
+    addField(FN_DATE, QMetaType::fromType<QDate>());
+    addField(FN_SESSION, QMetaType::fromType<int>());
+    addField(FN_GOAL_NUMBER, QMetaType::fromType<int>());
+    addField(FN_GOAL_DESCRIPTION, QMetaType::fromType<QString>());
+    addField(FN_PROGRESS, QMetaType::fromType<int>());
+    addField(FN_WHOSE_GOAL, QMetaType::fromType<int>());
+    addField(FN_WHOSE_GOAL_OTHER, QMetaType::fromType<QString>());
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 
     if (load_pk == dbconst::NONEXISTENT_PK) {

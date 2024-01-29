@@ -20,9 +20,11 @@
 
 #include "quaudioplayer.h"
 #include <QAbstractButton>
+#include <QAudioOutput>
 #include <QDial>
 #include <QUrl>
 #include <QHBoxLayout>
+#include <QMediaPlayer>
 #include <QWidget>
 #include "common/textconst.h"
 #include "common/uiconst.h"
@@ -57,7 +59,7 @@ QuAudioPlayer* QuAudioPlayer::setVolume(const int volume)
     // qDebug().nospace() << "QuAudioPlayer::setVolume(" << volume << ")";
     m_volume = qBound(uiconst::MIN_VOLUME_QT, volume, uiconst::MAX_VOLUME_QT);
     if (m_player) {
-        m_player->setVolume(m_volume);
+        soundfunc::setVolume(m_player, m_volume);
     }
     return this;
 }
@@ -110,8 +112,8 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
 
     soundfunc::makeMediaPlayer(m_player);
     if (m_player) {
-        m_player->setMedia(QUrl(m_url));
-        m_player->setVolume(m_volume);
+        m_player->setSource(QUrl(m_url));
+        setVolume(m_volume);
         connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
                 this, &QuAudioPlayer::mediaStatusChanged);
     } else {

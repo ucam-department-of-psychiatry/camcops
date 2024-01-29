@@ -28,8 +28,8 @@
 #include "common/textconst.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
-#include "maths/ccrandom.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/openablewidget.h"
 using datetime::now;
@@ -212,20 +212,20 @@ QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_pie_touched_at_least_once(false),
     m_last_p(0)
 {
-    addField(FN_CATEGORY_START_TIME, QVariant::DateTime);
-    addField(FN_CATEGORY_RESPONDED, QVariant::Bool);
-    addField(FN_CATEGORY_RESPONSE_TIME, QVariant::DateTime);
-    addField(FN_CATEGORY_CHOSEN, QVariant::String);
-    addField(FN_GAMBLE_FIXED_OPTION, QVariant::String);
-    addField(FN_GAMBLE_LOTTERY_OPTION_P, QVariant::String);
-    addField(FN_GAMBLE_LOTTERY_OPTION_Q, QVariant::String);
-    addField(FN_GAMBLE_LOTTERY_ON_LEFT, QVariant::Bool);
-    addField(FN_GAMBLE_STARTING_P, QVariant::Double);
-    addField(FN_GAMBLE_START_TIME, QVariant::DateTime);
-    addField(FN_GAMBLE_RESPONDED, QVariant::Bool);
-    addField(FN_GAMBLE_RESPONSE_TIME, QVariant::DateTime);
-    addField(FN_GAMBLE_P, QVariant::Double);
-    addField(FN_UTILITY, QVariant::Double);
+    addField(FN_CATEGORY_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_CATEGORY_RESPONDED, QMetaType::fromType<bool>());
+    addField(FN_CATEGORY_RESPONSE_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_CATEGORY_CHOSEN, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_FIXED_OPTION, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_LOTTERY_OPTION_P, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_LOTTERY_OPTION_Q, QMetaType::fromType<QString>());
+    addField(FN_GAMBLE_LOTTERY_ON_LEFT, QMetaType::fromType<bool>());
+    addField(FN_GAMBLE_STARTING_P, QMetaType::fromType<double>());
+    addField(FN_GAMBLE_START_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_GAMBLE_RESPONDED, QMetaType::fromType<bool>());
+    addField(FN_GAMBLE_RESPONSE_TIME, QMetaType::fromType<QDateTime>());
+    addField(FN_GAMBLE_P, QMetaType::fromType<double>());
+    addField(FN_UTILITY, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -309,7 +309,7 @@ OpenableWidget* QolSG::editor(const bool read_only)
             this, &QolSG::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
-// See http://doc.qt.io/qt-5/qobject.html#connect-5
+// See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
     connect((b).button, &QPushButton::clicked, this, \

@@ -28,7 +28,6 @@
 #include "scrollmessagebox.h"
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QFontMetrics>
 #include <QGridLayout>
 #include <QLabel>
@@ -38,7 +37,7 @@
 #include <QSize>
 #include <QStyle>
 #include "common/platform.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
@@ -142,7 +141,7 @@ void ScrollMessageBox::addButton(QAbstractButton* button,
 {
     m_button_box->addButton(button, role);
     // The button box TAKES OWNERSHIP:
-    // http://doc.qt.io/qt-4.8/qdialogbuttonbox.html#addButton
+    // https://doc.qt.io/qt-6.5/qdialogbuttonbox.html#addButton
     update();
 }
 
@@ -244,8 +243,8 @@ QDialogButtonBox::ButtonRole ScrollMessageBox::forceEnumMD(
         const QMessageBox::ButtonRole role)
 {
     // They are numerically identical:
-    // - http://doc.qt.io/qt-4.8/qdialogbuttonbox.html#ButtonRole-enum
-    // - http://doc.qt.io/qt-4.8/qmessagebox.html#ButtonRole-enum
+    // - https://doc.qt.io/qt-6.5/qdialogbuttonbox.html#ButtonRole-enum
+    // - https://doc.qt.io/qt-6.5/qmessagebox.html#ButtonRole-enum
     return static_cast<QDialogButtonBox::ButtonRole>(role);
 }
 

@@ -4,12 +4,11 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "maths/mathfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::countNull;
 using mathfunc::countWhere;
 using mathfunc::noneNull;
@@ -53,7 +52,7 @@ Cesdr::Cesdr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
             Task(app, db, CESDR_TABLENAME, false, false, false),
             m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -54,7 +54,6 @@ Comments
 #include "common/colourdefs.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
-#include "lib/containers.h"
 #include "lib/datetime.h"
 #include "lib/soundfunc.h"
 #include "lib/timerfunc.h"
@@ -68,10 +67,10 @@ Comments
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/ided3dexemplars.h"
 #include "taskxtra/ided3dstage.h"
 #include "taskxtra/ided3dtrial.h"
-#include "widgets/adjustablepie.h"
 #include "widgets/svgwidgetclickable.h"
 #include "widgets/openablewidget.h"
 using ccrandom::dwor;
@@ -249,12 +248,13 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     for (auto it = m_types.constBegin(), end = m_types.constEnd(); it != end; ++it ) {
         addField(it.key(), it.value());
     }
+
     // Results
-    addField(FN_ABORTED, QVariant::Bool);
+    addField(FN_ABORTED, QMetaType::fromType<bool>());
     getField(FN_ABORTED).setCppDefaultValue(false);
-    addField(FN_FINISHED, QVariant::Bool);
+    addField(FN_FINISHED, QMetaType::fromType<bool>());
     getField(FN_FINISHED).setCppDefaultValue(false);
-    addField(FN_LAST_TRIAL_COMPLETED, QVariant::Int);
+    addField(FN_LAST_TRIAL_COMPLETED, QMetaType::fromType<int>());
 
     load(load_pk);
 
@@ -270,22 +270,22 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     timerfunc::makeSingleShotTimer(m_timer);
 }
 
-QMap<QString, QVariant::Type> IDED3D::initTypes() {
-    QMap<QString, QVariant::Type> map;
-    map.insert(FN_LAST_STAGE, QVariant::Int);
-    map.insert(FN_MAX_TRIALS_PER_STAGE, QVariant::Int);
-    map.insert(FN_PROGRESS_CRITERION_X, QVariant::Int);
-    map.insert(FN_PROGRESS_CRITERION_Y, QVariant::Int);
-    map.insert(FN_MIN_NUMBER, QVariant::Int);
-    map.insert(FN_MAX_NUMBER, QVariant::Int);
-    map.insert(FN_PAUSE_AFTER_BEEP_MS, QVariant::Int);
-    map.insert(FN_ITI_MS, QVariant::Int);
-    map.insert(FN_COUNTERBALANCE_DIMENSIONS, QVariant::Int);
-    map.insert(FN_VOLUME, QVariant::Double);
-    map.insert(FN_OFFER_ABORT, QVariant::Bool);
-    map.insert(FN_DEBUG_DISPLAY_STIMULI_ONLY, QVariant::Bool);
-    map.insert(FN_SHAPE_DEFINITIONS_SVG, QVariant::String);
-    map.insert(FN_COLOUR_DEFINITIONS_RGB, QVariant::String);
+QMap<QString, QMetaType> IDED3D::initTypes() {
+    QMap<QString, QMetaType> map;
+    map.insert(FN_LAST_STAGE, QMetaType::fromType<int>());
+    map.insert(FN_MAX_TRIALS_PER_STAGE, QMetaType::fromType<int>());
+    map.insert(FN_PROGRESS_CRITERION_X, QMetaType::fromType<int>());
+    map.insert(FN_PROGRESS_CRITERION_Y, QMetaType::fromType<int>());
+    map.insert(FN_MIN_NUMBER, QMetaType::fromType<int>());
+    map.insert(FN_MAX_NUMBER, QMetaType::fromType<int>());
+    map.insert(FN_PAUSE_AFTER_BEEP_MS, QMetaType::fromType<int>());
+    map.insert(FN_ITI_MS, QMetaType::fromType<int>());
+    map.insert(FN_COUNTERBALANCE_DIMENSIONS, QMetaType::fromType<int>());
+    map.insert(FN_VOLUME, QMetaType::fromType<double>());
+    map.insert(FN_OFFER_ABORT, QMetaType::fromType<bool>());
+    map.insert(FN_DEBUG_DISPLAY_STIMULI_ONLY, QMetaType::fromType<bool>());
+    map.insert(FN_SHAPE_DEFINITIONS_SVG, QMetaType::fromType<QString>());
+    map.insert(FN_COLOUR_DEFINITIONS_RGB, QMetaType::fromType<QString>());
 
     return map;
 }
@@ -393,18 +393,18 @@ void IDED3D::applySettings(const QJsonObject& settings)
 
 
 void IDED3D::applySetting(const QString fieldname, const QJsonValue value) {
-    auto type = m_types.value(fieldname);
+    auto type = m_types.value(fieldname).id();
 
-    switch(type) {
-    case QVariant::Int:
+    switch (type) {
+    case QMetaType::Int:
         setValue(fieldname, value.toInt());
         break;
 
-    case QVariant::Double:
+    case QMetaType::Double:
         setValue(fieldname, value.toDouble());
         break;
 
-    case QVariant::Bool:
+    case QMetaType::Bool:
         setValue(fieldname, value.toBool());
         break;
 
@@ -668,16 +668,56 @@ bool IDED3D::validateSettings()
 
     // Check JSON settings in single user mode are within the limits
     for (auto it = m_min_values.constBegin(), end = m_min_values.constEnd(); it != end; ++it) {
-        if (value(it.key()) < it.value()) {
-            setValue(it.key(), QVariant());
-            ok = false;
+        const auto fieldname = it.key();
+        const auto type = m_types.value(fieldname).id();
+        const auto min = it.value();
+
+        switch (type) {
+        case QMetaType::Int:
+            if (value(fieldname).toInt() < min.toInt()) {
+                setValue(fieldname, QVariant());
+                ok = false;
+            }
+            break;
+
+        case QMetaType::Double:
+            if (value(fieldname).toDouble() < min.toDouble()) {
+                setValue(fieldname, QVariant());
+                ok = false;
+            }
+            break;
+
+        default:
+            qDebug("Unexpected field type: %d", type);
+            Q_ASSERT(false);
+            break;
         }
     }
 
     for (auto it = m_max_values.constBegin(), end = m_max_values.constEnd(); it != end; ++it) {
-        if (value(it.key()) > it.value()) {
-            setValue(it.key(), QVariant());
-            ok = false;
+        const auto fieldname = it.key();
+        const auto type = m_types.value(fieldname).id();
+        const auto max = it.value();
+
+        switch (type) {
+        case QMetaType::Int:
+            if (value(fieldname).toInt() > max.toInt()) {
+                setValue(fieldname, QVariant());
+                ok = false;
+            }
+            break;
+
+        case QMetaType::Double:
+            if (value(fieldname).toDouble() > max.toDouble()) {
+                setValue(fieldname, QVariant());
+                ok = false;
+            }
+            break;
+
+        default:
+            qDebug("Unexpected field type: %d", type);
+            Q_ASSERT(false);
+            break;
         }
     }
 
@@ -695,7 +735,7 @@ bool IDED3D::validateSettings()
             this, &IDED3D::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
-// See http://doc.qt.io/qt-5/qobject.html#connect-5
+// See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
     connect((b).button, &QPushButton::clicked, \
@@ -1158,8 +1198,8 @@ void IDED3D::startTask()
         return;
     }
     // ... for rationale, see QuAudioPlayer::makeWidget()
-    m_player_correct->setMedia(uifunc::resourceUrl(SOUND_FILE_CORRECT));
-    m_player_incorrect->setMedia(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
+    m_player_correct->setSource(uifunc::resourceUrl(SOUND_FILE_CORRECT));
+    m_player_incorrect->setSource(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
     soundfunc::setVolume(m_player_correct, valueDouble(FN_VOLUME));
     soundfunc::setVolume(m_player_incorrect, valueDouble(FN_VOLUME));
     connect(m_player_correct.data(), &QMediaPlayer::mediaStatusChanged,

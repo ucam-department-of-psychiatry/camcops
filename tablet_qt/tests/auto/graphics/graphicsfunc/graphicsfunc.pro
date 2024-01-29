@@ -1,6 +1,7 @@
 CONFIG += testcase
 QT += network
 QT += svg
+QT += svgwidgets
 QT += testlib
 QT += widgets
 QT -= gui

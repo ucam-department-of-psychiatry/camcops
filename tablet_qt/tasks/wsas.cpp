@@ -31,7 +31,6 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
@@ -39,6 +38,7 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
@@ -64,8 +64,8 @@ void initializeWsas(TaskFactory& factory)
 Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, WSAS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(RETIRED_ETC, QVariant::Bool);
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addField(RETIRED_ETC, QMetaType::fromType<bool>());
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -215,7 +215,7 @@ void Wsas::rebuildPage(QuPage* page)
         for (const auto& field : qAsConst(q1_fields)) {
             // re qAsConst():
             // https://stackoverflow.com/questions/35811053/using-c11-range-based-for-loop-correctly-in-qt
-            // https://doc.qt.io/qt-5/qtglobal.html#qAsConst
+            // https://doc.qt.io/qt-6.5/qtglobal.html#qAsConst
             elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
             elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
         }

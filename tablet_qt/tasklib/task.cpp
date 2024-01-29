@@ -22,7 +22,7 @@
 #include <QObject>
 #include <QVariant>
 #include "core/camcopsapp.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -35,7 +35,6 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
@@ -80,26 +79,26 @@ Task::Task(CamcopsApp& app,
     // here; its vtable is incomplete.
     // http://stackoverflow.com/questions/6561429/calling-virtual-function-of-derived-class-from-base-class-constructor
 
-    addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QVariant::Bool);
-    addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QVariant::Bool);
-    addField(WHEN_FIRSTEXIT_FIELDNAME, QVariant::DateTime);
-    addField(Field(EDITING_TIME_S_FIELDNAME, QVariant::Double)
+    addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QMetaType::fromType<bool>());
+    addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QMetaType::fromType<bool>());
+    addField(WHEN_FIRSTEXIT_FIELDNAME, QMetaType::fromType<QDateTime>());
+    addField(Field(EDITING_TIME_S_FIELDNAME, QMetaType::fromType<double>())
              .setCppDefaultValue(0.0));
 
     if (!is_anonymous) {
-        addField(PATIENT_FK_FIELDNAME, QVariant::Int);
+        addField(PATIENT_FK_FIELDNAME, QMetaType::fromType<int>());
     }
     if (has_clinician) {
-        addField(CLINICIAN_SPECIALTY, QVariant::String);
-        addField(CLINICIAN_NAME, QVariant::String);
-        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String);
-        addField(CLINICIAN_POST, QVariant::String);
-        addField(CLINICIAN_SERVICE, QVariant::String);
-        addField(CLINICIAN_CONTACT_DETAILS, QVariant::String);
+        addField(CLINICIAN_SPECIALTY, QMetaType::fromType<QString>());
+        addField(CLINICIAN_NAME, QMetaType::fromType<QString>());
+        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::fromType<QString>());
+        addField(CLINICIAN_POST, QMetaType::fromType<QString>());
+        addField(CLINICIAN_SERVICE, QMetaType::fromType<QString>());
+        addField(CLINICIAN_CONTACT_DETAILS, QMetaType::fromType<QString>());
     }
     if (has_respondent) {
-        addField(RESPONDENT_NAME, QVariant::String);
-        addField(RESPONDENT_RELATIONSHIP, QVariant::String);
+        addField(RESPONDENT_NAME, QMetaType::fromType<QString>());
+        addField(RESPONDENT_RELATIONSHIP, QMetaType::fromType<QString>());
     }
 
     connect(this, &DatabaseObject::dataChanged,

@@ -26,8 +26,6 @@
 #include "tasks/apeqpt.h"
 #include "tasks/apeqcpftperinatal.h"
 #include "tasks/fft.h"
-#include "tasks/gbogres.h"
-#include "tasks/gbogpc.h"
 #include "tasks/gmcpq.h"
 #include "tasks/patientsatisfaction.h"
 #include "tasks/perinatalpoem.h"

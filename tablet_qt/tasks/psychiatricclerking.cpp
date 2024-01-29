@@ -20,13 +20,12 @@
 
 #include "psychiatricclerking.h"
 #include "common/textconst.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString PsychiatricClerking::PSYCLERK_TABLENAME("psychiatricclerking");
 
@@ -148,13 +147,13 @@ PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
     Task(app, db, PSYCLERK_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     // In the Javascript version, EXTRAFIELDS_A was the set of clinician fields.
-    addFields(EXTRAFIELDS_B, QVariant::String);
-    addFields(EXTRAFIELDS_C, QVariant::String);
-    addFields(EXTRAFIELDS_MSE, QVariant::String);
-    addFields(EXTRAFIELDS_PE, QVariant::String);
-    addFields(EXTRAFIELDS_D, QVariant::String);
-    addFields(EXTRAFIELDS_E, QVariant::String);
-    addFields(EXTRAFIELDS_F, QVariant::String);
+    addFields(EXTRAFIELDS_B, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_C, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_MSE, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_PE, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_D, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_E, QMetaType::fromType<QString>());
+    addFields(EXTRAFIELDS_F, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -22,11 +22,11 @@
 #include "lib/convert.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::meanOrNull;
 using mathfunc::noneNull;
 using stringfunc::standardResult;
@@ -50,8 +50,8 @@ void initializeQolBasic(TaskFactory& factory)
 QolBasic::QolBasic(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, QOLBASIC_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(TTO, QVariant::Double);
-    addField(RS, QVariant::Double);
+    addField(TTO, QMetaType::fromType<double>());
+    addField(RS, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

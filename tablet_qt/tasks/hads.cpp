@@ -29,6 +29,7 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::scorePhrase;
@@ -71,7 +72,7 @@ Hads::Hads(CamcopsApp& app, DatabaseManager& db,
     // Constructor used directly by HadsRespondent and indirectly by the other
     // constructor.
 
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

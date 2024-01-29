@@ -18,7 +18,7 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "db/fieldref.h"
+#include "common/aliases_camcops.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/quunitselector.h"
 

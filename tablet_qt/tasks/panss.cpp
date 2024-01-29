@@ -22,12 +22,11 @@
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::sumInt;
 using mathfunc::scorePhrase;
@@ -59,9 +58,9 @@ void initializePanss(TaskFactory& factory)
 Panss::Panss(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PANSS_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(P_PREFIX, 1, N_P), QVariant::Int);
-    addFields(strseq(N_PREFIX, 1, N_N), QVariant::Int);
-    addFields(strseq(G_PREFIX, 1, N_G), QVariant::Int);
+    addFields(strseq(P_PREFIX, 1, N_P), QMetaType::fromType<int>());
+    addFields(strseq(N_PREFIX, 1, N_N), QMetaType::fromType<int>());
+    addFields(strseq(G_PREFIX, 1, N_G), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -27,7 +27,6 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qucanvas.h"
 #include "questionnairelib/qucountdown.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qumcq.h"
@@ -35,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
 using mathfunc::sumInt;
@@ -86,16 +86,16 @@ void initializeMoca(TaskFactory& factory)
 Moca::Moca(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MOCA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(EDUCATION12Y_OR_LESS, QVariant::Int);
-    addField(TRAILPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(CUBEPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
-    addField(CLOCKPICTURE_BLOBID, QVariant::Int);  // FK to BLOB table
-    addFields(strseq(REGISTER_TRIAL1_PREFIX, 1, N_REG_RECALL), QVariant::Int);
-    addFields(strseq(REGISTER_TRIAL2_PREFIX, 1, N_REG_RECALL), QVariant::Int);
-    addFields(strseq(RECALL_CATEGORY_CUE_PREFIX, 1, N_REG_RECALL), QVariant::Int);
-    addFields(strseq(RECALL_MC_CUE_PREFIX, 1, N_REG_RECALL), QVariant::Int);
-    addField(COMMENTS, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(EDUCATION12Y_OR_LESS, QMetaType::fromType<int>());
+    addField(TRAILPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(CUBEPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(CLOCKPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addFields(strseq(REGISTER_TRIAL1_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addFields(strseq(REGISTER_TRIAL2_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addFields(strseq(RECALL_CATEGORY_CUE_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addFields(strseq(RECALL_MC_CUE_PREFIX, 1, N_REG_RECALL), QMetaType::fromType<int>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

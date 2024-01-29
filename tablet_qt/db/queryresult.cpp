@@ -24,7 +24,7 @@
 #include <QJsonObject>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 

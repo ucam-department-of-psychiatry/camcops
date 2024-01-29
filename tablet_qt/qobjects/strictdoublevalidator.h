@@ -28,7 +28,7 @@ class StrictDoubleValidator : public QDoubleValidator
     // - Checks the characters against the specified bottom/top (min/max) values.
     // - The default maximum number of decimal places, 1000, matches
     //   QDoubleValidator; see
-    //   http://doc.qt.io/qt-5/qdoublevalidator.html#decimals-prop
+    //   https://doc.qt.io/qt-6.5/qdoublevalidator.html#decimals-prop
 
     // http://stackoverflow.com/questions/19571033/allow-entry-in-qlineedit-only-within-range-of-qdoublevalidator
     // ... but that doesn't work properly (it prohibits valid things on the

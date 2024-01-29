@@ -19,7 +19,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
-.. _Qt Test: https://doc.qt.io/qt-5/qtest-overview.html
+.. _Qt Test: https://doc.qt.io/qt-6.5/qtest-overview.html
 
 
 Testing the client code
@@ -40,8 +40,8 @@ To build all of the tests:
   .. code-block:: bash
 
       cd /path/to/camcops
-      mkdir build-qt5-tests
-      cd build-qt5-tests
+      mkdir build-qt6-tests
+      cd build-qt6-tests
       /path/to/qt_install/bin/qmake ../tablet_qt/tests
       make
 

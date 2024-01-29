@@ -295,4 +295,4 @@ How to upgrade Android
 
 .. [#qtandroiapi]
 
-    http://doc.qt.io/qt-5/android-support.html
+    https://doc.qt.io/qt-6.5/android-support.html

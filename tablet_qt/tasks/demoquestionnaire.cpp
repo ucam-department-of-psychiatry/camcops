@@ -31,6 +31,7 @@
 #include "lib/uifunc.h"
 #include "lib/stringfunc.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 #include "questionnairelib/questionnaire.h"
 
@@ -90,33 +91,33 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
 {
     using stringfunc::strseq;
 
-    addFields(strseq(QStringLiteral("mcq"), 1, 10), QVariant::Int);  // 9-10: v2
-    addFields(strseq(QStringLiteral("mcqbool"), 1, 3), QVariant::Bool);
-    addFields(strseq(QStringLiteral("multipleresponse"), 1, 6), QVariant::Bool);
-    addFields(strseq(QStringLiteral("booltext"), 1, 22), QVariant::Bool);
-    addFields(strseq(QStringLiteral("boolimage"), 1, 2), QVariant::Bool);
-    addFields(strseq(QStringLiteral("slider"), 1, 2), QVariant::Double);
-    addFields(strseq(QStringLiteral("picker"), 1, 2), QVariant::Int);
-    addFields(strseq(QStringLiteral("mcqtext_"), 1, 3, {"a", "b"}), QVariant::String);
-    addField(QStringLiteral("typedvar_text"), QVariant::String);
-    addField(QStringLiteral("typedvar_text_multiline"), QVariant::String);
-    addField(QStringLiteral("typedvar_text_rich"), QVariant::String);  // v2
-    addField(QStringLiteral("typedvar_int"), QVariant::Int);
-    addField(QStringLiteral("typedvar_real"), QVariant::Double);
-    addField(QStringLiteral("spinbox_int"), QVariant::Int);  // v2
-    addField(QStringLiteral("spinbox_real"), QVariant::Double);  // v2
-    addField(QStringLiteral("date_time"), QVariant::DateTime);
-    addField(QStringLiteral("date_only"), QVariant::Date);
-    addField(QStringLiteral("time_only"), QVariant::Time);  // v2
-    addField(QStringLiteral("thermometer"), QVariant::Int);
-    addField(QStringLiteral("diagnosticcode_code"), QVariant::String);
-    addField(QStringLiteral("diagnosticcode_description"), QVariant::String);
-    addField(QStringLiteral("diagnosticcode2_code"), QVariant::String);  // v2
-    addField(QStringLiteral("diagnosticcode2_description"), QVariant::String);  // v2
-    addField(QStringLiteral("photo_blobid"), QVariant::Int);  // FK to BLOB table
-    // addField(QStringLiteral("photo_rotation"), QVariant::String);  // DEFUNCT in v2
-    addField(QStringLiteral("canvas_blobid"), QVariant::Int);  // FK to BLOB table
-    addField(QStringLiteral("canvas2_blobid"), QVariant::Int);  // FK to BLOB table; v2
+    addFields(strseq(QStringLiteral("mcq"), 1, 10), QMetaType::fromType<int>());  // 9-10: v2
+    addFields(strseq(QStringLiteral("mcqbool"), 1, 3), QMetaType::fromType<bool>());
+    addFields(strseq(QStringLiteral("multipleresponse"), 1, 6), QMetaType::fromType<bool>());
+    addFields(strseq(QStringLiteral("booltext"), 1, 22), QMetaType::fromType<bool>());
+    addFields(strseq(QStringLiteral("boolimage"), 1, 2), QMetaType::fromType<bool>());
+    addFields(strseq(QStringLiteral("slider"), 1, 2), QMetaType::fromType<double>());
+    addFields(strseq(QStringLiteral("picker"), 1, 2), QMetaType::fromType<int>());
+    addFields(strseq(QStringLiteral("mcqtext_"), 1, 3, {"a", "b"}), QMetaType::fromType<QString>());
+    addField(QStringLiteral("typedvar_text"), QMetaType::fromType<QString>());
+    addField(QStringLiteral("typedvar_text_multiline"), QMetaType::fromType<QString>());
+    addField(QStringLiteral("typedvar_text_rich"), QMetaType::fromType<QString>());  // v2
+    addField(QStringLiteral("typedvar_int"), QMetaType::fromType<int>());
+    addField(QStringLiteral("typedvar_real"), QMetaType::fromType<double>());
+    addField(QStringLiteral("spinbox_int"), QMetaType::fromType<int>());  // v2
+    addField(QStringLiteral("spinbox_real"), QMetaType::fromType<double>());  // v2
+    addField(QStringLiteral("date_time"), QMetaType::fromType<QDateTime>());
+    addField(QStringLiteral("date_only"), QMetaType::fromType<QDate>());
+    addField(QStringLiteral("time_only"), QMetaType::fromType<QTime>());  // v2
+    addField(QStringLiteral("thermometer"), QMetaType::fromType<int>());
+    addField(QStringLiteral("diagnosticcode_code"), QMetaType::fromType<QString>());
+    addField(QStringLiteral("diagnosticcode_description"), QMetaType::fromType<QString>());
+    addField(QStringLiteral("diagnosticcode2_code"), QMetaType::fromType<QString>());  // v2
+    addField(QStringLiteral("diagnosticcode2_description"), QMetaType::fromType<QString>());  // v2
+    addField(QStringLiteral("photo_blobid"), QMetaType::fromType<int>());  // FK to BLOB table
+    // addField(QStringLiteral("photo_rotation"), QMetaType::fromType<QString>());  // DEFUNCT in v2
+    addField(QStringLiteral("canvas_blobid"), QMetaType::fromType<int>());  // FK to BLOB table
+    addField(QStringLiteral("canvas2_blobid"), QMetaType::fromType<int>());  // FK to BLOB table; v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -164,7 +165,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
 {
     const QString& longtext = TextConst::LOREM_IPSUM_1;
     const QString& lipsum2 = TextConst::LOREM_IPSUM_2;
-    const QString url(QStringLiteral("http://doc.qt.io/qt-5.7/richtext-html-subset.html"));
+    const QString url(QStringLiteral("https://doc.qt.io/qt-6.5/richtext-html-subset.html"));
     const QString html(tr(
         "Text with embedded HTML markup, providing <b>bold</b>, "
         "<i>italic</i>, and others as per Qt rich text syntax at "

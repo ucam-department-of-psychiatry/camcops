@@ -19,16 +19,12 @@
 */
 
 #include "asdas.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qulineeditdouble.h"
@@ -36,6 +32,7 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using stringfunc::strseq;
 
@@ -63,10 +60,10 @@ Asdas::Asdas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ASDAS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QMetaType::fromType<int>());
 
-    addField(Q_CRP, QVariant::Double);
-    addField(Q_ESR, QVariant::Double);
+    addField(Q_CRP, QMetaType::fromType<double>());
+    addField(Q_ESR, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -186,16 +183,17 @@ QString Asdas::activityState(QVariant measurement) const
     if (measurement.isNull()) {
         return xstring("n_a");
     }
+    const double m = measurement.toDouble();
 
-    if (measurement < 1.3) {
+    if (m < 1.3) {
         return xstring("inactive");
     }
 
-    if (measurement < 2.1) {
+    if (m < 2.1) {
         return xstring("moderate");
     }
 
-    if (measurement > 3.5) {
+    if (m > 3.5) {
         return xstring("very_high");
     }
 

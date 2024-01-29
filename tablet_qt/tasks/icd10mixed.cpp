@@ -26,7 +26,6 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -34,6 +33,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::allTrue;
 using mathfunc::anyFalse;
@@ -61,10 +61,10 @@ Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
                        const int load_pk) :
     Task(app, db, ICD10MIXED_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
-    addField(MIXTURE_OR_RAPID_ALTERNATION, QVariant::Bool);
-    addField(DURATION_AT_LEAST_2_WEEKS, QVariant::Bool);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
+    addField(MIXTURE_OR_RAPID_ALTERNATION, QMetaType::fromType<bool>());
+    addField(DURATION_AT_LEAST_2_WEEKS, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

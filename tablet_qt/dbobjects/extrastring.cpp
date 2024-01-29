@@ -38,10 +38,10 @@ ExtraString::ExtraString(CamcopsApp& app, DatabaseManager& db) :
                    true, false, false, false)
 {
     // Define fields
-    addField(TASK_FIELD, QVariant::String, true, false, false);
-    addField(NAME_FIELD, QVariant::String, true, false, false);
-    addField(LANGUAGE_FIELD, QVariant::String, false, false, false);
-    addField(VALUE_FIELD, QVariant::String, false, false, false);
+    addField(TASK_FIELD, QMetaType::fromType<QString>(), true, false, false);
+    addField(NAME_FIELD, QMetaType::fromType<QString>(), true, false, false);
+    addField(LANGUAGE_FIELD, QMetaType::fromType<QString>(), false, false, false);
+    addField(VALUE_FIELD, QMetaType::fromType<QString>(), false, false, false);
 }
 
 

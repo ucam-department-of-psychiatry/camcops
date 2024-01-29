@@ -20,7 +20,6 @@
 
 #include "whiskerapi.h"
 #include <QDebug>
-#include "lib/convert.h"
 #include "whisker/whiskerconstants.h"
 
 using namespace whiskerconstants;

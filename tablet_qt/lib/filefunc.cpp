@@ -28,7 +28,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <QTextStream>
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 
 
 namespace filefunc {
@@ -53,7 +53,7 @@ QString textfileContents(const QString& filename)
     qDebug() << "Reading file:" << filename;
 #endif
     QTextStream in(&file);
-    in.setCodec("UTF-8");
+    in.setEncoding(QStringConverter::Utf8);
     const QString text = in.readAll();
 #ifdef DEBUG_READ_FILE_CONTENTS
     qDebug() << text;
@@ -101,16 +101,16 @@ bool ensureDirectoryExists(const QString& dir)
 void ensureDirectoryExistsOrDie(const QString& dir)
 {
     if (!ensureDirectoryExists(dir)) {
-        uifunc::stopApp(QObject::tr("Failed to make directory: ") +
-                        dir);
+        errorfunc::fatalError(QObject::tr("Failed to make directory: ") +
+                              dir);
     }
 }
 
 
 bool fileContainsLine(const QString& filename, const QString& line)
 {
-    // https://doc.qt.io/qt-5/qfile.html
-    // https://doc.qt.io/qt-5/qtextstream.html
+    // https://doc.qt.io/qt-6.5/qfile.html
+    // https://doc.qt.io/qt-6.5/qtextstream.html
     QFile file(filename);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qCritical() << Q_FUNC_INFO << "FAILED TO OPEN FILE:" << filename;

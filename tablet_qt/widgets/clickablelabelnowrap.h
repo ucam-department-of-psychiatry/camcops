@@ -32,7 +32,7 @@ class ClickableLabelNoWrap : public QPushButton
     // Label (showing text or an image) that responds to clicks.
     //
     // - Multiple inheritance doesn't play nicely with QObject.
-    //   http://doc.qt.io/qt-5.7/moc.html#multiple-inheritance-requires-qobject-to-be-first
+    //   https://doc.qt.io/qt-6.5/moc.html#multiple-inheritance-requires-qobject-to-be-first
     //
     // - So, could inherit from QAbstractButton and implement QLabel functions.
     //   However, QLabel has some complex code for word-wrapping.

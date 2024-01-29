@@ -20,12 +20,9 @@
 
 #include "pclcommon.h"
 #include "core/camcopsapp.h"
-#include "common/textconst.h"
-#include "common/varconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -58,10 +55,10 @@ PclCommon::PclCommon(CamcopsApp& app,
     m_xstring_prefix(xstring_prefix),
     m_specific_event(specific_event)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
     if (m_specific_event) {
-        addField(EVENT, QVariant::String);
-        addField(EVENTDATE, QVariant::String);  // free text from subject
+        addField(EVENT, QMetaType::fromType<QString>());
+        addField(EVENTDATE, QMetaType::fromType<QString>());  // free text from subject
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

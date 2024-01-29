@@ -38,6 +38,7 @@
 #include <QIcon>
 #include <QLibraryInfo>
 #include <QMainWindow>
+#include <QMetaType>
 #include <QNetworkReply>
 #include <QProcessEnvironment>
 #include <QPushButton>
@@ -52,10 +53,9 @@
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconst.h"  // for NONEXISTENT_PK
-#include "common/design_defines.h"
 #include "common/languages.h"
 #include "common/platform.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
@@ -79,18 +79,16 @@
 #include "dialogs/modedialog.h"
 #include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
-#include "layouts/layouts.h"
+// #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/filefunc.h"
-#include "lib/idpolicy.h"
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "menu/mainmenu.h"
 #include "menu/singleusermenu.h"
-#include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
 #include "qobjects/urlhandler.h"
 #include "questionnairelib/commonoptions.h"
@@ -99,6 +97,10 @@
 #include "tasklib/taskschedule.h"
 #include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
+
+#ifdef DEBUG_ALL_APPLICATION_EVENTS
+#include "qobjects/debugeventwatcher.h"
+#endif
 
 #ifdef USE_SQLCIPHER
 #include "db/sqlcipherdriver.h"
@@ -142,7 +144,7 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
 
 CamcopsApp::~CamcopsApp()
 {
-    // http://doc.qt.io/qt-5.7/objecttrees.html
+    // https://doc.qt.io/qt-6.5/objecttrees.html
     // Only delete things that haven't been assigned a parent
     delete m_network_gui_guard;
     delete m_p_main_window;
@@ -690,7 +692,7 @@ void CamcopsApp::setLanguage(const QString& language_code,
     clearExtraStringCache();
 
     // There are polymorphic versions of QTranslator::load(). See
-    // https://doc.qt.io/qt-5/qtranslator.html#load
+    // https://doc.qt.io/qt-6.5/qtranslator.html#load
 
     // 3. Qt translator
     if (m_qt_translator) {
@@ -698,7 +700,7 @@ void CamcopsApp::setLanguage(const QString& language_code,
         m_qt_translator = nullptr;
     }
     const QString qt_filename = QString("qt_%1.qm").arg(language_code);
-    const QString qt_directory = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    const QString qt_directory = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
     m_qt_translator = QSharedPointer<QTranslator>(new QTranslator());
     bool loaded = m_qt_translator->load(qt_filename, qt_directory);
     if (loaded) {
@@ -769,7 +771,6 @@ int CamcopsApp::run()
     announceStartup();
 
     // Baseline C++ things
-    seedRng();
     convert::registerTypesForQVariant();
     convert::registerOtherTypesForSignalsSlots();
 
@@ -1367,19 +1368,6 @@ bool CamcopsApp::encryptExistingPlaintextDatabases(const QString& passphrase)
 }
 
 
-void CamcopsApp::seedRng()
-{
-    // ------------------------------------------------------------------------
-    // Seed Qt's build-in RNG, which we may use for QUuid generation
-    // ------------------------------------------------------------------------
-    // QUuid may, if /dev/urandom does not exist, use qrand(). It won't use
-    // OpenSSL or anything else. So we'd better make sure it's seeded first:
-    qsrand(QDateTime::currentMSecsSinceEpoch() & 0xffffffff);
-    // QDateTime::currentMSecsSinceEpoch() -> qint64
-    // qsrand wants uint (= uint32)
-}
-
-
 void CamcopsApp::makeStoredVarTable()
 {
     // ------------------------------------------------------------------------
@@ -1400,91 +1388,91 @@ void CamcopsApp::createStoredVars()
     DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
     // Client mode
-    createVar(varconst::MODE, QVariant::Int, varconst::MODE_NOT_SET);
+    createVar(varconst::MODE, QMetaType::fromType<int>(), varconst::MODE_NOT_SET);
 
     // If the mode is single user, store the one and only patient ID here
-    createVar(varconst::SINGLE_PATIENT_ID, QVariant::Int,
+    createVar(varconst::SINGLE_PATIENT_ID, QMetaType::fromType<int>(),
               dbconst::NONEXISTENT_PK);
-    createVar(varconst::SINGLE_PATIENT_PROQUINT, QVariant::String, "");
+    createVar(varconst::SINGLE_PATIENT_PROQUINT, QMetaType::fromType<QString>(), "");
 
     // Language
-    createVar(varconst::LANGUAGE, QVariant::String,
+    createVar(varconst::LANGUAGE, QMetaType::fromType<QString>(),
               QLocale::system().name());
 
     // Version
-    createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QVariant::String,
+    createVar(varconst::CAMCOPS_TABLET_VERSION_AS_STRING, QMetaType::fromType<QString>(),
               camcopsversion::CAMCOPS_CLIENT_VERSION.toString());
 
     // Questionnaire
-    createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QVariant::Int, 100);
-    createVar(varconst::OVERRIDE_LOGICAL_DPI, QVariant::Bool, false);
-    createVar(varconst::OVERRIDE_LOGICAL_DPI_X, QVariant::Double, uiconst::DEFAULT_DPI.x);
-    createVar(varconst::OVERRIDE_LOGICAL_DPI_Y, QVariant::Double, uiconst::DEFAULT_DPI.y);
-    createVar(varconst::OVERRIDE_PHYSICAL_DPI, QVariant::Bool, false);
-    createVar(varconst::OVERRIDE_PHYSICAL_DPI_X, QVariant::Double, uiconst::DEFAULT_DPI.x);
-    createVar(varconst::OVERRIDE_PHYSICAL_DPI_Y, QVariant::Double, uiconst::DEFAULT_DPI.y);
+    createVar(varconst::QUESTIONNAIRE_SIZE_PERCENT, QMetaType::fromType<int>(), 100);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI, QMetaType::fromType<bool>(), false);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI_X, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.x);
+    createVar(varconst::OVERRIDE_LOGICAL_DPI_Y, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.y);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI, QMetaType::fromType<bool>(), false);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI_X, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.x);
+    createVar(varconst::OVERRIDE_PHYSICAL_DPI_Y, QMetaType::fromType<double>(), uiconst::DEFAULT_DPI.y);
 
     // Server
-    createVar(varconst::SERVER_ADDRESS, QVariant::String, "");
-    createVar(varconst::SERVER_PORT, QVariant::Int, DEFAULT_SERVER_PORT);
-    createVar(varconst::SERVER_PATH, QVariant::String, "camcops/database");
-    createVar(varconst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
-    createVar(varconst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
-    createVar(varconst::SSL_PROTOCOL, QVariant::String,
+    createVar(varconst::SERVER_ADDRESS, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_PORT, QMetaType::fromType<int>(), DEFAULT_SERVER_PORT);
+    createVar(varconst::SERVER_PATH, QMetaType::fromType<QString>(), "camcops/database");
+    createVar(varconst::SERVER_TIMEOUT_MS, QMetaType::fromType<int>(), 50000);
+    createVar(varconst::VALIDATE_SSL_CERTIFICATES, QMetaType::fromType<bool>(), true);
+    createVar(varconst::SSL_PROTOCOL, QMetaType::fromType<QString>(),
               convert::SSLPROTODESC_SECUREPROTOCOLS);
-    createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QVariant::Bool, true);
-    createVar(varconst::STORE_SERVER_PASSWORD, QVariant::Bool, true);
-    createVar(varconst::UPLOAD_METHOD, QVariant::Int,
+    createVar(varconst::DEBUG_USE_HTTPS_TO_SERVER, QMetaType::fromType<bool>(), true);
+    createVar(varconst::STORE_SERVER_PASSWORD, QMetaType::fromType<bool>(), true);
+    createVar(varconst::UPLOAD_METHOD, QMetaType::fromType<int>(),
               varconst::DEFAULT_UPLOAD_METHOD);
-    createVar(varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD, QVariant::LongLong,
+    createVar(varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD, QMetaType::fromType<qlonglong>(),
               varconst::DEFAULT_MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
 
     // Uploading "dirty" flag
-    createVar(varconst::NEEDS_UPLOAD, QVariant::Bool, false);
+    createVar(varconst::NEEDS_UPLOAD, QMetaType::fromType<bool>(), false);
 
     // Terms and conditions
-    createVar(varconst::AGREED_TERMS_AT, QVariant::DateTime);
+    createVar(varconst::AGREED_TERMS_AT, QMetaType::fromType<QDateTime>());
 
     // Intellectual property
-    createVar(varconst::IP_USE_CLINICAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
-    createVar(varconst::IP_USE_COMMERCIAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
-    createVar(varconst::IP_USE_EDUCATIONAL, QVariant::Int, CommonOptions::UNKNOWN_INT);
-    createVar(varconst::IP_USE_RESEARCH, QVariant::Int, CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_CLINICAL, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_COMMERCIAL, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_EDUCATIONAL, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
+    createVar(varconst::IP_USE_RESEARCH, QMetaType::fromType<int>(), CommonOptions::UNKNOWN_INT);
 
     // Patients and policies
-    createVar(varconst::ID_POLICY_UPLOAD, QVariant::String, "");
-    createVar(varconst::ID_POLICY_FINALIZE, QVariant::String, "");
+    createVar(varconst::ID_POLICY_UPLOAD, QMetaType::fromType<QString>(), "");
+    createVar(varconst::ID_POLICY_FINALIZE, QMetaType::fromType<QString>(), "");
 
     // Other information from server
-    createVar(varconst::SERVER_DATABASE_TITLE, QVariant::String, "");
-    createVar(varconst::SERVER_CAMCOPS_VERSION, QVariant::String, "");
-    createVar(varconst::LAST_SERVER_REGISTRATION, QVariant::DateTime);
-    createVar(varconst::LAST_SUCCESSFUL_UPLOAD, QVariant::DateTime);
+    createVar(varconst::SERVER_DATABASE_TITLE, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_CAMCOPS_VERSION, QMetaType::fromType<QString>(), "");
+    createVar(varconst::LAST_SERVER_REGISTRATION, QMetaType::fromType<QDateTime>());
+    createVar(varconst::LAST_SUCCESSFUL_UPLOAD, QMetaType::fromType<QDateTime>());
 
     // User
     // ... server interaction
-    createVar(varconst::DEVICE_FRIENDLY_NAME, QVariant::String, "");
-    createVar(varconst::SERVER_USERNAME, QVariant::String, "");
-    createVar(varconst::SERVER_USERPASSWORD_OBSCURED, QVariant::String, "");
-    createVar(varconst::OFFER_UPLOAD_AFTER_EDIT, QVariant::Bool, false);
+    createVar(varconst::DEVICE_FRIENDLY_NAME, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_USERNAME, QMetaType::fromType<QString>(), "");
+    createVar(varconst::SERVER_USERPASSWORD_OBSCURED, QMetaType::fromType<QString>(), "");
+    createVar(varconst::OFFER_UPLOAD_AFTER_EDIT, QMetaType::fromType<bool>(), false);
     // ... default clinician details
-    createVar(varconst::DEFAULT_CLINICIAN_SPECIALTY, QVariant::String, "");
-    createVar(varconst::DEFAULT_CLINICIAN_NAME, QVariant::String, "");
-    createVar(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QVariant::String, "");
-    createVar(varconst::DEFAULT_CLINICIAN_POST, QVariant::String, "");
-    createVar(varconst::DEFAULT_CLINICIAN_SERVICE, QVariant::String, "");
-    createVar(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QVariant::String, "");
+    createVar(varconst::DEFAULT_CLINICIAN_SPECIALTY, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_NAME, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_POST, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_SERVICE, QMetaType::fromType<QString>(), "");
+    createVar(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, QMetaType::fromType<QString>(), "");
 
     // Cryptography
-    createVar(varconst::OBSCURING_KEY, QVariant::String, "");
-    createVar(varconst::OBSCURING_IV, QVariant::String, "");
+    createVar(varconst::OBSCURING_KEY, QMetaType::fromType<QString>(), "");
+    createVar(varconst::OBSCURING_IV, QMetaType::fromType<QString>(), "");
     // setEncryptedServerPassword("hello I am a password");
     // qDebug() << getPlaintextServerPassword();
-    createVar(varconst::USER_PASSWORD_HASH, QVariant::String, "");
-    createVar(varconst::PRIV_PASSWORD_HASH, QVariant::String, "");
+    createVar(varconst::USER_PASSWORD_HASH, QMetaType::fromType<QString>(), "");
+    createVar(varconst::PRIV_PASSWORD_HASH, QMetaType::fromType<QString>(), "");
 
     // Device ID
-    createVar(varconst::DEVICE_ID, QVariant::Uuid);
+    createVar(varconst::DEVICE_ID, QMetaType::fromType<QUuid>());
     if (var(varconst::DEVICE_ID).isNull()) {
         regenerateDeviceId();
     }
@@ -1983,11 +1971,11 @@ void CamcopsApp::closeSubWindow()
     // Ownership is returned to the application, so...
     // - AH, NO. OWNERSHIP IS CONFUSING AND THE DOCS ARE DIFFERENT IN QT 4.8
     //   AND 5.9
-    // - From http://doc.qt.io/qt-4.8/qstackedwidget.html#removeWidget :
+    // - From https://doc.qt.io/qt-6.5/qstackedwidget.html#removeWidget :
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
     //      but simply removed from the stacked layout, causing it to be hidden.
     //      Note: Ownership of widget reverts to the application.
-    // - From http://doc.qt.io/qt-5/qstackedwidget.html#removeWidget :
+    // - From https://doc.qt.io/qt-6.5/qstackedwidget.html#removeWidget :
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
     //      but simply removed from the stacked layout, causing it to be hidden.
     //      Note: Parent object and parent widget of widget will remain the
@@ -2412,9 +2400,8 @@ void CamcopsApp::regenerateDeviceId()
 {
     setVar(varconst::DEVICE_ID, QUuid::createUuid());
     // This is the RANDOM variant of a UUID, not a "hashed something" variant.
-    // - http://doc.qt.io/qt-5/quuid.html#createUuid
+    // - https://doc.qt.io/qt-6.5/quuid.html#createUuid
     // - https://en.wikipedia.org/wiki/Universally_unique_identifier#Variants_and_versions
-    // Note that we seeded Qt's own RNG in CamcopsApp::CamcopsApp.
 }
 
 
@@ -2938,7 +2925,7 @@ Version CamcopsApp::minServerVersionForTable(const QString& tablename)
 // Stored variables: generic
 // ============================================================================
 
-void CamcopsApp::createVar(const QString& name, QVariant::Type type,
+void CamcopsApp::createVar(const QString& name, QMetaType type,
                            const QVariant& default_value)
 {
     if (name.isEmpty()) {

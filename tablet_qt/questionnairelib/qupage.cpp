@@ -21,7 +21,6 @@
 #include "qupage.h"
 #include <QWidget>
 #include "lib/uifunc.h"
-#include "db/fieldref.h"
 #include "layouts/layouts.h"
 #include "widgets/basewidget.h"
 

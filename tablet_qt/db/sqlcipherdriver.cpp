@@ -196,7 +196,7 @@ bool SQLCipherDriver::open(const QString& db, const QString& user,
     bool open_read_only_option = false;
     bool open_uri_option = false;
 
-    const auto opts = conn_opts.splitRef(QLatin1Char(';'));
+    const auto opts = conn_opts.split(QLatin1Char(';'));
     for (auto option : opts) {
         option = option.trimmed();
         if (option.startsWith(QLatin1String("QSQLITE_BUSY_TIMEOUT"))) {

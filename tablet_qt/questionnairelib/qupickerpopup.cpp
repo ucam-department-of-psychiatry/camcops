@@ -22,7 +22,6 @@
 #include <QDialog>
 #include <QHBoxLayout>
 #include "common/cssconst.h"
-#include "common/uiconst.h"
 #include "dialogs/nvpchoicedialog.h"
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"

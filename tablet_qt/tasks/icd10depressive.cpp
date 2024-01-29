@@ -28,15 +28,14 @@
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::anyNull;
 using mathfunc::anyTrue;
@@ -120,15 +119,15 @@ Icd10Depressive::Icd10Depressive(CamcopsApp& app, DatabaseManager& db,
                                  const int load_pk) :
     Task(app, db, ICD10DEP_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(CORE_NAMES, QVariant::Bool);
-    addFields(ADDITIONAL_NAMES, QVariant::Bool);
-    addFields(SOMATIC_NAMES, QVariant::Bool);
-    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QVariant::Bool);
+    addFields(CORE_NAMES, QMetaType::fromType<bool>());
+    addFields(ADDITIONAL_NAMES, QMetaType::fromType<bool>());
+    addFields(SOMATIC_NAMES, QMetaType::fromType<bool>());
+    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QMetaType::fromType<bool>());
 
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
-    addField(DURATION_AT_LEAST_2_WEEKS, QVariant::Bool);
-    addField(SEVERE_CLINICALLY, QVariant::Bool);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
+    addField(DURATION_AT_LEAST_2_WEEKS, QMetaType::fromType<bool>());
+    addField(SEVERE_CLINICALLY, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

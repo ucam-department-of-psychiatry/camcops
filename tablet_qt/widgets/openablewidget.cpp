@@ -27,11 +27,18 @@
 #include <QKeyEvent>
 #include <QResizeEvent>
 #include <QVBoxLayout>
-#include "layouts/qtlayouthelpers.h"
-#include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+
+#ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
 #include "qobjects/showwatcher.h"
+#endif
+#ifdef DEBUG_PRESS_D_TO_DUMP
+#include "lib/layoutdumper.h"
+#endif
+#ifdef DEBUG_RESIZE
+#include "layouts/qtlayouthelpers.h"
+#endif
 
 
 OpenableWidget::OpenableWidget(QWidget* parent) :
@@ -84,7 +91,7 @@ void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
 
     auto vl = new QVBoxLayout(this);
     setLayout(vl);
-    vl->setMargin(margin);
+    vl->setContentsMargins(margin, margin, margin, margin);
     vl->addWidget(widget);
 
     m_subwidget = widget;

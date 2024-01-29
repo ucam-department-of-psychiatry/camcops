@@ -20,12 +20,12 @@
 
 #include "cgi.h"
 #include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using mathfunc::scorePhrase;
 using mathfunc::sumInt;
@@ -53,11 +53,11 @@ void initializeCgi(TaskFactory& factory)
 Cgi::Cgi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(Q1, QVariant::Int);
-    addField(Q2, QVariant::Int);
-    addField(Q3T, QVariant::Int);
-    addField(Q3S, QVariant::Int);
-    addField(Q3, QVariant::Int);
+    addField(Q1, QMetaType::fromType<int>());
+    addField(Q2, QMetaType::fromType<int>());
+    addField(Q3T, QMetaType::fromType<int>());
+    addField(Q3S, QMetaType::fromType<int>());
+    addField(Q3, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

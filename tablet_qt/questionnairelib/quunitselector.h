@@ -19,7 +19,7 @@
 */
 
 #pragma once
-#include "db/fieldref.h"
+#include "common/aliases_camcops.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quelement.h"
 

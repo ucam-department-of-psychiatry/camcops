@@ -30,9 +30,10 @@ sudo apt-get autoclean -y >/dev/null 2>&1
 echo "some packages purged"
 
 # Avoid pipefail by capturing output
-big_packages=$(sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr | head -n 10)
-echo $big_packages
+big_packages=($(sudo dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr))
+echo ${big_packages[@]:0:20}
 df . -h
-sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr | head
+usr_dirs=($(sudo du /usr/ -hx -d 4 --threshold=1G | sort -hr))
+echo ${usr_dirs[@]:0:20}
 
 sudo rm -rf ${GITHUB_WORKSPACE}/.git

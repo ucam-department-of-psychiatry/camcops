@@ -22,7 +22,10 @@
 
 #include "testmenu.h"
 #include <QAbstractButton>
+#include <QAudioDevice>
+#include <QAudioOutput>
 #include <QCoreApplication>
+#include <QMediaDevices>
 #include <QMediaPlayer>
 #include <QProgressDialog>
 #include <QPushButton>
@@ -232,8 +235,13 @@ void TestMenu::testSound()
     }
     const QUrl url(uiconst::DEMO_SOUND_URL_1);
     qDebug() << "Trying to play:" << url;
-    m_player->setMedia(url);
-    m_player->setVolume(50);
+    m_player->setSource(url);
+
+    auto audio_output = new QAudioOutput{};
+    audio_output->setDevice(QMediaDevices::defaultAudioOutput());
+    audio_output->setVolume(0.5);
+    m_player->setAudioOutput(audio_output);
+
     m_player->play();
 }
 
@@ -309,7 +317,7 @@ void TestMenu::doneSeeConsole()
 void TestMenu::testProgress()
 {
     qDebug() << Q_FUNC_INFO << "start";
-    // http://doc.qt.io/qt-4.8/qprogressdialog.html#details
+    // https://doc.qt.io/qt-6.5/qprogressdialog.html#details
     // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
     const int num_things = 100;
     QProgressDialog progress(

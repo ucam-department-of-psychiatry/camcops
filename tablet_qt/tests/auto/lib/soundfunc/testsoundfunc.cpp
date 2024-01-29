@@ -44,8 +44,8 @@ void TestSoundfunc::testSetVolumePercentSetsVolumeOnAudioOutput()
     const int volume_in = 50;
     setVolume(player, volume_in);
 
-    const int volume_out = player->volume();
-    QCOMPARE(volume_out, 50);
+    const float volume_out = player->audioOutput()->volume();
+    QCOMPARE(volume_out, 0.5);
 }
 
 void TestSoundfunc::testSetVolumeProportionSetsVolumeOnAudioOutput()
@@ -56,8 +56,8 @@ void TestSoundfunc::testSetVolumeProportionSetsVolumeOnAudioOutput()
     const double volume_in = 0.5;
     setVolume(player, volume_in);
 
-    const int volume_out = player->volume();
-    QCOMPARE(volume_out, 50);
+    const float volume_out = player->audioOutput()->volume();
+    QCOMPARE(volume_out, 0.5);
 }
 
 QTEST_MAIN(TestSoundfunc)

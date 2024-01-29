@@ -22,13 +22,12 @@
 
 #include "photo.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
-#include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quphoto.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString Photo::PHOTO_TABLENAME("photo");
 
@@ -46,9 +45,9 @@ void initializePhoto(TaskFactory& factory)
 Photo::Photo(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PHOTO_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(DESCRIPTION, QVariant::String);
-    addField(PHOTO_BLOBID, QVariant::Int);  // FK to BLOB table
-    // addField(ROTATION, QVariant::Int);  // DEFUNCT in v2
+    addField(DESCRIPTION, QMetaType::fromType<QString>());
+    addField(PHOTO_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    // addField(ROTATION, QMetaType::fromType<int>());  // DEFUNCT in v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

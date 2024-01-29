@@ -18,6 +18,7 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QGuiApplication>
 #include <QString>
 
 #include "qobjects/proquintvalidator.h"
@@ -40,6 +41,7 @@ void ProquintLineEdit::processChangedText()
     // Automatically strip white space and insert the dashes, because it's a
     // pain having to do that on a mobile on-screen keyboard
     auto line_edit = getLineEdit();
+    line_edit->installEventFilter(this);
 
     QString initial_text = line_edit->text();
 
@@ -68,8 +70,38 @@ void ProquintLineEdit::processChangedText()
 
     // Set text will put the cursor to the end so only set it if it has changed
     if (new_text != initial_text) {
+        maybeIgnoreNextInputEvent();
         line_edit->setText(new_text);
     }
 
     m_old_text = new_text;
+}
+
+
+// Thanks to Axel Spoerl for this workaround for
+// https://bugreports.qt.io/browse/QTBUG-115756
+// On Android, the cursor does not get updated properly if a dash is appended
+// Remove this when fixed.
+bool ProquintLineEdit::eventFilter(QObject *obj, QEvent *event)
+{
+    auto line_edit = getLineEdit();
+
+    if (obj != line_edit || event->type() != QEvent::InputMethod)
+        return false;
+
+    if (m_ignore_next_input_event) {
+        m_ignore_next_input_event = false;
+        event->ignore();
+        return true;
+    }
+
+    return false;
+}
+
+
+void ProquintLineEdit::maybeIgnoreNextInputEvent()
+{
+    if (QGuiApplication::inputMethod()->isVisible()) {
+        m_ignore_next_input_event = true;
+    }
 }

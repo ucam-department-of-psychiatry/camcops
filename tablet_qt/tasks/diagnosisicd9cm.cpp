@@ -21,11 +21,9 @@
 #include "diagnosisicd9cm.h"
 #include "db/ancillaryfunc.h"
 #include "diagnosis/icd9cm.h"
-#include "questionnairelib/qudiagnosticcode.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/qumcq.h"
-#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 #include "taskxtra/diagnosisicd9cmitem.h"
 
 const QString DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME("diagnosis_icd9cm");

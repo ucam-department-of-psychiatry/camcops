@@ -18,7 +18,7 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Consider: linear v. logarithmic volume; http://doc.qt.io/qt-5/qaudio.html#convertVolume
+// Consider: linear v. logarithmic volume; https://doc.qt.io/qt-6.5/qaudio.html#convertVolume
 
 // #define DEBUG_STEP_DETAIL
 
@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QTimer>
 #include "common/textconst.h"
-#include "common/uiconst.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbnestabletransaction.h"
 #include "graphics/graphicsfunc.h"
@@ -44,6 +43,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qutext.h"
+#include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 #include "taskxtra/cardinalexpdetthresholdtrial.h"
@@ -128,26 +128,26 @@ CardinalExpDetThreshold::CardinalExpDetThreshold(
     Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     // Config
-    addField(FN_MODALITY, QVariant::Int);
-    addField(FN_TARGET_NUMBER, QVariant::Int);
-    addField(FN_BACKGROUND_FILENAME, QVariant::String);  // set automatically
-    addField(FN_TARGET_FILENAME, QVariant::String);  // set automatically
-    addField(FN_VISUAL_TARGET_DURATION_S, QVariant::Double);
-    addField(FN_BACKGROUND_INTENSITY, QVariant::Double);
-    addField(FN_START_INTENSITY_MIN, QVariant::Double);
-    addField(FN_START_INTENSITY_MAX, QVariant::Double);
-    addField(FN_INITIAL_LARGE_INTENSITY_STEP, QVariant::Double);
-    addField(FN_MAIN_SMALL_INTENSITY_STEP, QVariant::Double);
-    addField(FN_NUM_TRIALS_IN_MAIN_SEQUENCE, QVariant::Int);
-    addField(FN_P_CATCH_TRIAL, QVariant::Double);
-    addField(FN_PROMPT, QVariant::String);
-    addField(FN_ITI_S, QVariant::Double);
+    addField(FN_MODALITY, QMetaType::fromType<int>());
+    addField(FN_TARGET_NUMBER, QMetaType::fromType<int>());
+    addField(FN_BACKGROUND_FILENAME, QMetaType::fromType<QString>());  // set automatically
+    addField(FN_TARGET_FILENAME, QMetaType::fromType<QString>());  // set automatically
+    addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::fromType<double>());
+    addField(FN_BACKGROUND_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_START_INTENSITY_MIN, QMetaType::fromType<double>());
+    addField(FN_START_INTENSITY_MAX, QMetaType::fromType<double>());
+    addField(FN_INITIAL_LARGE_INTENSITY_STEP, QMetaType::fromType<double>());
+    addField(FN_MAIN_SMALL_INTENSITY_STEP, QMetaType::fromType<double>());
+    addField(FN_NUM_TRIALS_IN_MAIN_SEQUENCE, QMetaType::fromType<int>());
+    addField(FN_P_CATCH_TRIAL, QMetaType::fromType<double>());
+    addField(FN_PROMPT, QMetaType::fromType<QString>());
+    addField(FN_ITI_S, QMetaType::fromType<double>());
     // Results
-    addField(FN_FINISHED, QVariant::Bool);
-    addField(FN_INTERCEPT, QVariant::Double);
-    addField(FN_SLOPE, QVariant::Double);
-    addField(FN_K, QVariant::Double);
-    addField(FN_THETA, QVariant::Double);
+    addField(FN_FINISHED, QMetaType::fromType<bool>());
+    addField(FN_INTERCEPT, QMetaType::fromType<double>());
+    addField(FN_SLOPE, QMetaType::fromType<double>());
+    addField(FN_K, QMetaType::fromType<double>());
+    addField(FN_THETA, QMetaType::fromType<double>());
 
     load(load_pk);
 
@@ -467,7 +467,7 @@ void CardinalExpDetThreshold::validateQuestionnaire()
             this, &CardinalExpDetThreshold::funcname, \
             Qt::QueuedConnection)
 // To use a Qt::ConnectionType parameter with a functor, we need a context
-// See http://doc.qt.io/qt-5/qobject.html#connect-5
+// See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
 #define CONNECT_BUTTON_PARAM(b, funcname, param) \
     connect((b).button, &QPushButton::clicked, \
@@ -801,11 +801,11 @@ void CardinalExpDetThreshold::startTask()
 
     // Prep the sounds
     if (auditory) {
-        m_player_background->setMedia(urlFromStem(
+        m_player_background->setSource(urlFromStem(
                                 valueString(FN_BACKGROUND_FILENAME)));
         soundfunc::setVolume(m_player_background,
                              valueDouble(FN_BACKGROUND_INTENSITY));
-        m_player_target->setMedia(urlFromStem(
+        m_player_target->setSource(urlFromStem(
                                 valueString(FN_TARGET_FILENAME)));
         // Volume will be set later.
     }

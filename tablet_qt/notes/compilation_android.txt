@@ -37,7 +37,7 @@ A. Rebuild Qt and everything else. Error has gone away.
 Q. Plugin class name could not be determined for plugin 'qtforandroid'
    ... or other similar errors under Linux
    ... which relate to building Qt statically
-   See http://doc.qt.io/qt-5/plugins-howto.html#static-plugins
+   See https://doc.qt.io/qt-6.5/plugins-howto.html#static-plugins
    https://bugreports.qt.io/browse/QTBUG-32618
    ... fixed? Unresolved?
 
@@ -171,7 +171,7 @@ Q. [from androiddeployqt] No platform plugin, neither libqtforandroid.so or
      ... in updateAndroidManifest
      ... based on options.qtDependencies
    - one option might be to use ANDROID_DEPLOYMENT_DEPENDENCIES and take full
-     manual control; http://doc.qt.io/qt-5/deployment-android.html
+     manual control; https://doc.qt.io/qt-6.5/deployment-android.html
 
 So is the answer that Android build should be DYNAMIC?
 "Dynamic" here still means that the Qt libraries are bundled into an APK, so

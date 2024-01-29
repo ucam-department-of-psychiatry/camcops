@@ -22,10 +22,9 @@
 
 // #define STATSFUNC_OFFER_AIC
 
-#include "maths/include_eigen_dense.h"
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 class LinkFunctionFamily;
-class QStringList;
 
 
 namespace statsfunc {

@@ -1,12 +1,22 @@
-/*=============================================================================
+/****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** BSD License Usage
+** Alternatively, you may use this file under the terms of the BSD license
+** as follows:
 **
 ** "Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are
@@ -36,33 +46,54 @@
 **
 ** $QT_END_LICENSE$
 **
-=============================================================================*/
+****************************************************************************/
 
 // root object
 // May I just say in passing that QML is horrible syntactically?
 // (Well designed, but still horrible.)
 
-import QtQuick 2.0
-import QtMultimedia 5.4
+import QtQuick
+import QtMultimedia
 
 Rectangle {
     id : cameraUI
 
-    signal imageSavedToFile(string filename)  // RNC
+    signal imageCaptured(variant previewImage)
+    signal previewSaved
     signal fileNoLongerNeeded(string filename)  // RNC
 
     width: 800
     height: 480
-
     color: "black"
     state: "PhotoCapture"
+
+    property string platformScreen: ""
+    property int buttonsPanelLandscapeWidth: 328
+    property int buttonsPanelPortraitHeight: 180
+
+    onWidthChanged: {
+        setState()
+    }
+    function setState() {
+        if (Qt.platform.os === "android" || Qt.platform.os === "ios") {
+            if (Screen.desktopAvailableWidth < Screen.desktopAvailableHeight) {
+                stillControls.state = "MobilePortrait";
+            } else {
+                stillControls.state  = "MobileLandscape";
+            }
+        } else {
+            stillControls.state = "Other";
+        }
+        console.log("State: " + stillControls.state);
+        stillControls.buttonsWidth = (stillControls.state === "MobilePortrait")
+                ? Screen.desktopAvailableWidth/3.4 : 144
+    }
 
     states: [
         State {
             name: "PhotoCapture"
             StateChangeScript {
                 script: {
-                    camera.captureMode = Camera.CaptureStillImage
                     camera.start()
                 }
             }
@@ -74,7 +105,6 @@ Rectangle {
             name: "VideoCapture"
             StateChangeScript {
                 script: {
-                    camera.captureMode = Camera.CaptureVideo
                     camera.start()
                 }
             }
@@ -89,72 +119,86 @@ Rectangle {
         }
     ]
 
-    Camera {  // part of Qt: http://doc.qt.io/qt-5/qml-qtmultimedia-camera.html
-        id: camera
-        captureMode: Camera.CaptureStillImage
-
-        imageCapture {  // http://doc.qt.io/qt-5/qml-qtmultimedia-cameracapture.html
-            onImageCaptured: {
-                photoPreview.source = preview
+    CaptureSession {
+        id: captureSession
+        camera: Camera {
+            id: camera
+            onErrorOccurred: function(error, errorString) {
+                console.log("camera: onErrorOccurred")
+                console.log(error)
+                console.log(errorString)
+            }
+        }
+        imageCapture: ImageCapture {
+            id: imageCapture
+            onErrorOccurred: function(requestId, error, message) {
+                console.log("imageCapture: onErrorOccurred")
+                console.log(error)
+                console.log(message)
+            }
+            onImageCaptured: function(requestId, previewImage) {
+                console.log("Image captured")
                 stillControls.previewAvailable = true
                 cameraUI.state = "PhotoPreview"
+                cameraUI.imageCaptured(previewImage)
             }
-            // RNC:
-            onImageSaved: {
+            onImageSaved: function(requestId, path) {
+                console.log("onImageSaved: ", path)
                 stillControls.fileSaved = true
                 stillControls.filePath = path
             }
         }
 
-        videoRecorder {
-             resolution: "640x480"
-             frameRate: 30
+        recorder: MediaRecorder {
+            id: recorder
         }
+        videoOutput: viewfinder
     }
 
-    PhotoPreview {  // see .qml file
-        id: photoPreview
-        anchors.fill: parent
+    PhotoPreview {
+        id : photoPreview
+        anchors.fill : parent
         onClosed: cameraUI.state = "PhotoCapture"
-        visible: cameraUI.state == "PhotoPreview"
+        visible: (cameraUI.state === "PhotoPreview")
         focus: visible
-        onImageSavedToFile: {
-            console.log("Returning image with filename:", stillControls.filePath)
-            cameraUI.imageSavedToFile(stillControls.filePath)
+        onPreviewSaved: {
+            cameraUI.previewSaved()
+            cameraUI.fileNoLongerNeeded(stillControls.filePath)
         }
     }
 
-    VideoPreview {  // see .qml file
+    VideoPreview {
         id: videoPreview
         anchors.fill: parent
         onClosed: cameraUI.state = "VideoCapture"
-        visible: cameraUI.state == "VideoPreview"
+        visible: (cameraUI.state === "VideoPreview")
         focus: visible
 
         //don't load recorded video if preview is invisible
-        source: visible ? camera.videoRecorder.actualLocation : ""
+        source: visible ? recorder.actualLocation : ""
     }
 
-    VideoOutput {  // see .qml file
+    VideoOutput {
         id: viewfinder
-        visible: cameraUI.state == "PhotoCapture" || cameraUI.state == "VideoCapture"
+        visible: ((cameraUI.state === "PhotoCapture") || (cameraUI.state === "VideoCapture"))
 
         x: 0
         y: 0
-        width: parent.width - stillControls.buttonsPanelWidth
-        height: parent.height
-
-        source: camera
-        autoOrientation: true
+        width: ((stillControls.state === "MobilePortrait") ? parent.width : (parent.width-buttonsPanelLandscapeWidth))
+        height: ((stillControls.state === "MobilePortrait") ? parent.height - buttonsPanelPortraitHeight : parent.height)
     }
 
-    PhotoCaptureControls {  // see .qml file
+    PhotoCaptureControls {  // See PhotoCaptureControls.qml
         id: stillControls
+        state: setState()
         anchors.fill: parent
-        camera: camera
-        visible: cameraUI.state == "PhotoCapture"
+        buttonsPanelPortraitHeight: cameraUI.buttonsPanelPortraitHeight
+        buttonsPanelWidth: cameraUI.buttonsPanelLandscapeWidth
+        captureSession: captureSession
+        visible: (cameraUI.state === "PhotoCapture")
         onPreviewSelected: cameraUI.state = "PhotoPreview"
         onVideoModeSelected: cameraUI.state = "VideoCapture"
+        previewAvailable: imageCapture.preview.length !== 0
 
         // RNC:
         onFileNoLongerNeeded: {
@@ -162,11 +206,15 @@ Rectangle {
         }
     }
 
-    VideoCaptureControls {  // see .qml file
+    VideoCaptureControls {
         id: videoControls
+        state: stillControls.state
         anchors.fill: parent
-        camera: camera
-        visible: cameraUI.state == "VideoCapture"
+        buttonsWidth: stillControls.buttonsWidth
+        buttonsPanelPortraitHeight: cameraUI.buttonsPanelPortraitHeight
+        buttonsPanelWidth: cameraUI.buttonsPanelLandscapeWidth
+        captureSession: captureSession
+        visible: (cameraUI.state === "VideoCapture")
         onPreviewSelected: cameraUI.state = "VideoPreview"
         onPhotoModeSelected: cameraUI.state = "PhotoCapture"
     }

@@ -54,14 +54,14 @@ Blob::Blob(CamcopsApp& app,
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(SRC_TABLE_FIELDNAME, QVariant::String, true);
-    addField(SRC_PK_FIELDNAME, QVariant::Int, true);
-    addField(SRC_FIELD_FIELDNAME, QVariant::String, true);
-    addField(FILENAME_FIELDNAME, QVariant::String);
-    addField(MIMETYPE_FIELDNAME, QVariant::String);
+    addField(SRC_TABLE_FIELDNAME, QMetaType::fromType<QString>(), true);
+    addField(SRC_PK_FIELDNAME, QMetaType::fromType<int>(), true);
+    addField(SRC_FIELD_FIELDNAME, QMetaType::fromType<QString>(), true);
+    addField(FILENAME_FIELDNAME, QMetaType::fromType<QString>());
+    addField(MIMETYPE_FIELDNAME, QMetaType::fromType<QString>());
     // ... maximum length 255; https://stackoverflow.com/questions/643690
-    addField(BLOB_FIELDNAME, QVariant::ByteArray);
-    addField(ROTATION_FIELDNAME, QVariant::Int);
+    addField(BLOB_FIELDNAME, QMetaType::fromType<QByteArray>());
+    addField(ROTATION_FIELDNAME, QMetaType::fromType<int>());
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen
@@ -149,7 +149,7 @@ void Blob::makeIndexes()
 
 void Blob::rotateCachedImage(int angle_degrees_clockwise) const
 {
-    // http://doc.qt.io/qt-4.8/qtransform.html#rotate
+    // https://doc.qt.io/qt-6.5/qtransform.html#rotate
     angle_degrees_clockwise %= 360;
     if (angle_degrees_clockwise == 0 || m_image.isNull()) {
         return;

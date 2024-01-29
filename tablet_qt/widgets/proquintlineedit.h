@@ -33,8 +33,11 @@ public:
     void textChanged();
 
 protected:
-    void processChangedText();
+    void processChangedText() override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     QString m_old_text;
+    bool m_ignore_next_input_event = false;
+    void maybeIgnoreNextInputEvent();
 };

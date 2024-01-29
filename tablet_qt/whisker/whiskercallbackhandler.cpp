@@ -144,7 +144,7 @@ bool WhiskerCallbackHandler::processEvent(const WhiskerInboundMessage& msg)
 void WhiskerCallbackHandler::removeExpiredCallbacks(const QDateTime& now)
 {
     // Remove any single-shot (or otherwise expired) events.
-    // http://doc.qt.io/qt-5/containers.html#java-style-iterators
+    // https://doc.qt.io/qt-6.5/containers.html#java-style-iterators
     QMutableVectorIterator<WhiskerCallbackDefinition> it(m_callbacks);
     while (it.hasNext()) {
         if (it.next().hasExpired(now)) {

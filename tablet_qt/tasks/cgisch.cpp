@@ -26,6 +26,7 @@
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -47,8 +48,8 @@ void initializeCgiSch(TaskFactory& factory)
 CgiSch::CgiSch(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGISCH_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(FP_SEVERITY, 1, NQ_PER_SECTION), QVariant::Int);
-    addFields(strseq(FP_CHANGE, 1, NQ_PER_SECTION), QVariant::Int);
+    addFields(strseq(FP_SEVERITY, 1, NQ_PER_SECTION), QMetaType::fromType<int>());
+    addFields(strseq(FP_CHANGE, 1, NQ_PER_SECTION), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

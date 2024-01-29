@@ -23,12 +23,12 @@
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::countTrue;
 using mathfunc::scorePhrase;
 using stringfunc::standardResult;
@@ -59,9 +59,9 @@ NpiQ::NpiQ(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NPIQ_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Bool);
-    addFields(strseq(SEVERITY_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addFields(strseq(DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<bool>());
+    addFields(strseq(SEVERITY_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

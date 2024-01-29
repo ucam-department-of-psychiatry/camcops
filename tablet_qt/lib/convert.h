@@ -22,15 +22,13 @@
 #include <QAbstractSocket>
 #include <QDebug>
 #include <QMap>
+#include <QMetaType>
 #include <QSsl>
 #include <QString>
 #include <QUrlQuery>
 #include <QVariant>
 #include "common/dpi.h"
 #include "crypto/secureqbytearray.h"
-#include "crypto/secureqstring.h"
-#include "lib/version.h"
-#include "maths/mathfunc.h"
 
 class QByteArray;
 class QImage;
@@ -186,7 +184,7 @@ SecureQByteArray base64ToSecureBytes(const QString& data_b64);
 QString toDp(double x, int dp);
 
 // Displays a QVariant in a pretty format, with an explicit type specified.
-QString prettyValue(const QVariant& variant, int dp, QVariant::Type type);
+QString prettyValue(const QVariant& variant, int dp, const QMetaType type);
 
 // Displays a QVariant in a pretty format, asking it for its type.
 QString prettyValue(const QVariant& variant, int dp = -1);
@@ -213,18 +211,24 @@ QMap<QString, QString> getReplyDict(const QByteArray& data);
 // Converts UTF-8-encoded bytes into a string.
 QString getReplyString(const QByteArray& data);
 
-extern const QString SSLPROTODESC_SSLV3;
-extern const QString SSLPROTODESC_SSLV2;
 extern const QString SSLPROTODESC_TLSV1_0;
-extern const QString SSLPROTODESC_TLSV1_1;
-extern const QString SSLPROTODESC_TLSV1_2;
-extern const QString SSLPROTODESC_ANYPROTOCOL;
-extern const QString SSLPROTODESC_TLSV1_SSLV3;
-extern const QString SSLPROTODESC_SECUREPROTOCOLS;
 extern const QString SSLPROTODESC_TLSV1_0_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_1;
 extern const QString SSLPROTODESC_TLSV1_1_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_2;
 extern const QString SSLPROTODESC_TLSV1_2_OR_LATER;
+extern const QString SSLPROTODESC_DTLSV1_0;
+extern const QString SSLPROTODESC_DTLSV1_0_OR_LATER;
+extern const QString SSLPROTODESC_DTLSV1_1;
+extern const QString SSLPROTODESC_DTLSV1_1_OR_LATER;
+extern const QString SSLPROTODESC_DTLSV1_2;
+extern const QString SSLPROTODESC_DTLSV1_2_OR_LATER;
+extern const QString SSLPROTODESC_TLSV1_3;
+extern const QString SSLPROTODESC_TLSV1_3_OR_LATER;
+extern const QString SSLPROTODESC_ANYPROTOCOL;
+extern const QString SSLPROTODESC_SECUREPROTOCOLS;
 extern const QString SSLPROTODESC_UNKNOWN_PROTOCOL;
+
 
 // Returns a description of an SSL protocol.
 QString describeSslProtocol(QSsl::SslProtocol protocol);
@@ -271,8 +275,8 @@ QStringList csvStringToQStringList(const QString& str);
 // QVariant modifications
 // ============================================================================
 
-extern const char* TYPENAME_QVECTOR_INT;
-extern const char* TYPENAME_VERSION;
+extern int TYPE_ID_QVECTOR_INT;
+extern int TYPE_ID_VERSION;
 
 // Register our custom types with QVariant, via qRegisterMetaType().
 void registerTypesForQVariant();
@@ -280,9 +284,6 @@ void registerTypesForQVariant();
 // Register custom data types that need to be passed via Qt signals/slots, but
 // which don't need to be stored in a QVariant.
 void registerOtherTypesForSignalsSlots();
-
-// "Is this QVariant one of the user-defined QVariant types?"
-bool isQVariantOfUserType(const QVariant& v, const QString& type_name);
 
 // Converts a QVariant that's of the user-registered type QVector<int> into
 // that QVector<int>.
@@ -394,7 +395,7 @@ Q_DECLARE_METATYPE(QVector<int>)
 
 // Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
 //
-// ... Docs at http://doc.qt.io/qt-5/qabstractsocket.html#signals say that
+// ... Docs at https://doc.qt.io/qt-6.5/qabstractsocket.html#signals say that
 // "QAbstractSocket::SocketError is not a registered metatype, so for queued
 // connections, you will have to register it with Q_DECLARE_METATYPE() and
 // qRegisterMetaType()" -- however, using

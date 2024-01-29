@@ -31,8 +31,7 @@
 #include <QtGui/QOpenGLFunctions>
 #include <QtGui/QSurface>
 #include <QtGui/QSurfaceFormat>
-#include <QtOpenGL/QGLFormat>
-#include <QtWidgets/QOpenGLWidget>
+#include <QOpenGLWidget>
 
 static bool s_opengl_presence_checked = false;
 static bool s_opengl_present = false;
@@ -56,8 +55,8 @@ bool isOpenGLPresent()
 
         // For Qt support, see
         // - https://blog.qt.io/blog/2015/09/09/cross-platform-opengl-es-3-apps-with-qt-5-6/
-        // - https://doc.qt.io/qt-5/qopenglfunctions.html
-        // - https://doc.qt.io/qt-5/qopenglversionprofile.html#details
+        // - https://doc.qt.io/qt-6.5/qopenglfunctions.html
+        // - https://doc.qt.io/qt-6.5/qopenglversionprofile.html#details
 
         QOffscreenSurface surf;
         surf.create();

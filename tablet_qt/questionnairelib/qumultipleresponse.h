@@ -22,7 +22,7 @@
 #include <QList>
 #include <QSharedPointer>
 #include <QVariant>
-#include "db/fieldref.h"
+#include "common/aliases_camcops.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/questionwithonefield.h"
 

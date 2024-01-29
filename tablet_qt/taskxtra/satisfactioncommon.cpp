@@ -23,7 +23,6 @@
 #include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -47,10 +46,10 @@ SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
                                        const int load_pk) :
     Task(app, db, tablename, anonymous, false, false)  // ... anon, clin, resp
 {
-    addField(SERVICE, QVariant::String);
-    addField(RATING, QVariant::Int);
-    addField(GOOD, QVariant::String);
-    addField(BAD, QVariant::String);
+    addField(SERVICE, QMetaType::fromType<QString>());
+    addField(RATING, QMetaType::fromType<int>());
+    addField(GOOD, QMetaType::fromType<QString>());
+    addField(BAD, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

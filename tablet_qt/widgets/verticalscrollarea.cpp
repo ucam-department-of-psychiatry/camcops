@@ -44,15 +44,20 @@
 #include <QScrollBar>
 #include <QScroller>
 #include "common/widgetconst.h"
-#include "layouts/layouts.h"
-#include "lib/layoutdumper.h"
 #include "lib/margins.h"
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "qobjects/flickcharm.h"
-#include "widgets/basewidget.h"
 #include "widgets/verticalscrollareaviewport.h"
+
+#ifdef DEBUG_LAYOUT
+#include "lib/layoutdumper.h"
+#endif
+#ifdef USE_STRETCH
+#include "layouts/layouts.h"  // for VBoxLayout
+#include "widgets/basewidget.h"
+#endif
 
 
 #if defined USE_STRETCH && defined RESIZE_FOR_HFW
@@ -292,7 +297,7 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     // setSizePolicy(UiFunc::expandingMaximumHFWPolicy());
 
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    // http://doc.qt.io/qt-5/qabstractscrollarea.html#SizeAdjustPolicy-enum
+    // https://doc.qt.io/qt-6.5/qabstractscrollarea.html#SizeAdjustPolicy-enum
 #else
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
@@ -370,7 +375,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
     // This deals with the "owned" widget changing size.
 
     // Return true for "I've dealt with it; nobody else should".
-    // http://doc.qt.io/qt-5.7/eventsandfilters.html
+    // https://doc.qt.io/qt-6.5/eventsandfilters.html
 
     // We use eventFilter(), not event(), because we are looking for events on
     // the widget that we are scrolling, not our own widget.
@@ -718,7 +723,7 @@ void VerticalScrollArea::resetSizeLimits()
     // updateGeometry().
 
     // Except...
-    // http://doc.qt.io/qt-5/qwidget.html
+    // https://doc.qt.io/qt-6.5/qwidget.html
     // Warning: Calling setGeometry() inside resizeEvent() or moveEvent()
     // can lead to infinite recursion.
     // ... and we certainly had infinite recursion.
@@ -755,7 +760,7 @@ void VerticalScrollArea::resetSizeLimits()
 bool VerticalScrollArea::event(QEvent* event)
 {
 #ifdef TOUCHSCROLL_DIRECT
-    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    // https://doc.qt.io/qt-6.5/gestures-overview.html
     if (event->type() == QEvent::Gesture) {
         return gestureEvent(static_cast<QGestureEvent*>(event));
     }
@@ -768,7 +773,7 @@ bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
 {
 #ifdef TOUCHSCROLL_DIRECT
     qDebug() << Q_FUNC_INFO;
-    // http://doc.qt.io/qt-5.7/gestures-overview.html
+    // https://doc.qt.io/qt-6.5/gestures-overview.html
     if (QGesture* swipe = event->gesture(Qt::SwipeGesture)) {
         swipeTriggered(static_cast<QSwipeGesture*>(swipe));
     }

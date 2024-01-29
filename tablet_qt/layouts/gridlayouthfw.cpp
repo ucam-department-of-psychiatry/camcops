@@ -70,6 +70,7 @@
 #include "gridlayouthfw.h"
 #include <QApplication>
 #include <QDebug>
+#include <QHash>
 #include <QWidget>
 #include <QList>
 #include <QSizePolicy>
@@ -79,9 +80,6 @@
 #include "lib/reentrydepthguard.h"
 #include "lib/sizehelpers.h"
 
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
-#include "common/globals.h"  // for qHash(const QRect&)
-#endif
 
 using qtlayouthelpers::checkLayout;
 using qtlayouthelpers::checkWidget;
@@ -1760,7 +1758,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
                                                  gi.m_hfw_data[i].minimum_size);
 #endif
         }
-    
+
         for (int pass = 0; pass < 2; ++pass) {
             // Two passes used to calculate for items that cover >1 box.
             for (QQGridBox* box : m_things) {
@@ -1772,7 +1770,7 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
                         gi.m_col_data.at(c2).pos + gi.m_col_data.at(c2).size -
                         gi.m_col_data.at(c1).pos
                 );
-    
+
                 if (r1 == r2) {
                     if (pass == 0) {
                         addHfwData(gi, box, w);
@@ -1815,19 +1813,22 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 
     // Expanding
 
-    gi.m_expanding = 0;
+    Qt::Orientations expanding;
+
     for (int r = 0; r < m_nrow; r++) {
         if (gi.m_row_data.at(r).expansive) {
-            gi.m_expanding |= Qt::Vertical;
+            expanding |= Qt::Vertical;
             break;
         }
     }
     for (int c = 0; c < m_ncol; c++) {
         if (gi.m_col_data.at(c).expansive) {
-            gi.m_expanding |= Qt::Horizontal;
+            expanding |= Qt::Horizontal;
             break;
         }
     }
+
+    gi.m_expanding = expanding;
 
     // Size hints
 

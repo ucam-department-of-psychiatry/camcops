@@ -30,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 // Table name
 const QString PerinatalPoem::PERINATAL_POEM_TABLENAME("perinatal_poem");
@@ -103,31 +104,31 @@ PerinatalPoem::PerinatalPoem(CamcopsApp& app, DatabaseManager& db, const int loa
     Task(app, db, PERINATAL_POEM_TABLENAME, true, false, false)  // ... anon, clin, resp
     // no need, QPointer handles this: // m_questionnaire(nullptr)
 {
-    addField(FN_QA_RESPONDENT, QVariant::Int);
-    addField(FN_QB_SERVICE_TYPE, QVariant::Int);
-    addField(FN_Q1A_MH_FIRST_CONTACT, QVariant::Int);
-    addField(FN_Q1B_MH_DISCHARGE, QVariant::Int);
-    addField(FN_Q2A_STAFF_DID_NOT_COMMUNICATE, QVariant::Int);
-    addField(FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT, QVariant::Int);
-    addField(FN_Q2C_HELP_NOT_QUICK_ENOUGH, QVariant::Int);
-    addField(FN_Q2D_STAFF_LISTENED, QVariant::Int);
-    addField(FN_Q2E_STAFF_DID_NOT_INVOLVE_ME, QVariant::Int);
-    addField(FN_Q2F_SERVICE_PROVIDED_INFO, QVariant::Int);
-    addField(FN_Q2G_STAFF_NOT_SENSITIVE_TO_ME, QVariant::Int);
-    addField(FN_Q2H_STAFF_HELPED_ME_UNDERSTAND, QVariant::Int);
-    addField(FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY, QVariant::Int);
-    addField(FN_Q2J_STAFF_HELPED_MY_CONFIDENCE, QVariant::Int);
-    addField(FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY, QVariant::Int);
-    addField(FN_Q2L_I_WOULD_RECOMMEND_SERVICE, QVariant::Int);
-    addField(FN_Q3A_UNIT_CLEAN, QVariant::Int);
-    addField(FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER, QVariant::Int);
-    addField(FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES, QVariant::Int);
-    addField(FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY, QVariant::Int);
-    addField(FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT, QVariant::Int);
-    addField(FN_Q3F_FOOD_NOT_ACCEPTABLE, QVariant::Int);
-    addField(FN_GENERAL_COMMENTS, QVariant::String);
-    addField(FN_FUTURE_PARTICIPATION, QVariant::String);
-    addField(FN_CONTACT_DETAILS, QVariant::String);
+    addField(FN_QA_RESPONDENT, QMetaType::fromType<int>());
+    addField(FN_QB_SERVICE_TYPE, QMetaType::fromType<int>());
+    addField(FN_Q1A_MH_FIRST_CONTACT, QMetaType::fromType<int>());
+    addField(FN_Q1B_MH_DISCHARGE, QMetaType::fromType<int>());
+    addField(FN_Q2A_STAFF_DID_NOT_COMMUNICATE, QMetaType::fromType<int>());
+    addField(FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT, QMetaType::fromType<int>());
+    addField(FN_Q2C_HELP_NOT_QUICK_ENOUGH, QMetaType::fromType<int>());
+    addField(FN_Q2D_STAFF_LISTENED, QMetaType::fromType<int>());
+    addField(FN_Q2E_STAFF_DID_NOT_INVOLVE_ME, QMetaType::fromType<int>());
+    addField(FN_Q2F_SERVICE_PROVIDED_INFO, QMetaType::fromType<int>());
+    addField(FN_Q2G_STAFF_NOT_SENSITIVE_TO_ME, QMetaType::fromType<int>());
+    addField(FN_Q2H_STAFF_HELPED_ME_UNDERSTAND, QMetaType::fromType<int>());
+    addField(FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY, QMetaType::fromType<int>());
+    addField(FN_Q2J_STAFF_HELPED_MY_CONFIDENCE, QMetaType::fromType<int>());
+    addField(FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY, QMetaType::fromType<int>());
+    addField(FN_Q2L_I_WOULD_RECOMMEND_SERVICE, QMetaType::fromType<int>());
+    addField(FN_Q3A_UNIT_CLEAN, QMetaType::fromType<int>());
+    addField(FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER, QMetaType::fromType<int>());
+    addField(FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES, QMetaType::fromType<int>());
+    addField(FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY, QMetaType::fromType<int>());
+    addField(FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT, QMetaType::fromType<int>());
+    addField(FN_Q3F_FOOD_NOT_ACCEPTABLE, QMetaType::fromType<int>());
+    addField(FN_GENERAL_COMMENTS, QMetaType::fromType<QString>());
+    addField(FN_FUTURE_PARTICIPATION, QMetaType::fromType<QString>());
+    addField(FN_CONTACT_DETAILS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

@@ -21,13 +21,11 @@
 #include "icd10specpd.h"
 #include "common/appstrings.h"
 #include "common/textconst.h"
-#include "lib/convert.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -36,6 +34,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::allTrue;
 using mathfunc::anyFalse;
@@ -98,28 +97,28 @@ Icd10SpecPD::Icd10SpecPD(CamcopsApp& app, DatabaseManager& db,
     Task(app, db, ICD10SPECPD_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_fr_has_pd(nullptr)
 {
-    addFields(strseq(G_PREFIX, 1, N_GENERAL), QVariant::Bool);
-    addFields(strseq(G1_PREFIX, 1, N_GENERAL_1), QVariant::Bool);
-    addFields(strseq(PARANOID_PREFIX, 1, N_PARANOID), QVariant::Bool);
-    addFields(strseq(SCHIZOID_PREFIX, 1, N_SCHIZOID), QVariant::Bool);
-    addFields(strseq(DISSOCIAL_PREFIX, 1, N_DISSOCIAL), QVariant::Bool);
-    addFields(strseq(EU_PREFIX, 1, N_EU), QVariant::Bool);
-    addFields(strseq(HISTRIONIC_PREFIX, 1, N_HISTRIONIC), QVariant::Bool);
-    addFields(strseq(ANANKASTIC_PREFIX, 1, N_ANANKASTIC), QVariant::Bool);
-    addFields(strseq(ANXIOUS_PREFIX, 1, N_ANXIOUS), QVariant::Bool);
-    addFields(strseq(DEPENDENT_PREFIX, 1, N_DEPENDENT), QVariant::Bool);
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
-    addField(SKIP_PARANOID, QVariant::Bool);
-    addField(SKIP_SCHIZOID, QVariant::Bool);
-    addField(SKIP_DISSOCIAL, QVariant::Bool);
-    addField(SKIP_EU, QVariant::Bool);
-    addField(SKIP_HISTRIONIC, QVariant::Bool);
-    addField(SKIP_ANANKASTIC, QVariant::Bool);
-    addField(SKIP_ANXIOUS, QVariant::Bool);
-    addField(SKIP_DEPENDENT, QVariant::Bool);
-    addField(OTHER_PD_PRESENT, QVariant::Bool);
-    addField(VIGNETTE, QVariant::String);
+    addFields(strseq(G_PREFIX, 1, N_GENERAL), QMetaType::fromType<bool>());
+    addFields(strseq(G1_PREFIX, 1, N_GENERAL_1), QMetaType::fromType<bool>());
+    addFields(strseq(PARANOID_PREFIX, 1, N_PARANOID), QMetaType::fromType<bool>());
+    addFields(strseq(SCHIZOID_PREFIX, 1, N_SCHIZOID), QMetaType::fromType<bool>());
+    addFields(strseq(DISSOCIAL_PREFIX, 1, N_DISSOCIAL), QMetaType::fromType<bool>());
+    addFields(strseq(EU_PREFIX, 1, N_EU), QMetaType::fromType<bool>());
+    addFields(strseq(HISTRIONIC_PREFIX, 1, N_HISTRIONIC), QMetaType::fromType<bool>());
+    addFields(strseq(ANANKASTIC_PREFIX, 1, N_ANANKASTIC), QMetaType::fromType<bool>());
+    addFields(strseq(ANXIOUS_PREFIX, 1, N_ANXIOUS), QMetaType::fromType<bool>());
+    addFields(strseq(DEPENDENT_PREFIX, 1, N_DEPENDENT), QMetaType::fromType<bool>());
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
+    addField(SKIP_PARANOID, QMetaType::fromType<bool>());
+    addField(SKIP_SCHIZOID, QMetaType::fromType<bool>());
+    addField(SKIP_DISSOCIAL, QMetaType::fromType<bool>());
+    addField(SKIP_EU, QMetaType::fromType<bool>());
+    addField(SKIP_HISTRIONIC, QMetaType::fromType<bool>());
+    addField(SKIP_ANANKASTIC, QMetaType::fromType<bool>());
+    addField(SKIP_ANXIOUS, QMetaType::fromType<bool>());
+    addField(SKIP_DEPENDENT, QMetaType::fromType<bool>());
+    addField(OTHER_PD_PRESENT, QMetaType::fromType<bool>());
+    addField(VIGNETTE, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

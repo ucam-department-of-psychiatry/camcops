@@ -30,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
 using stringfunc::bold;
 using stringfunc::strnum;
@@ -67,11 +68,11 @@ CopeBrief::CopeBrief(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     // There is a respondent, optionally, but the task handles this manually with more detail
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
-    addField(COMPLETED_BY_PATIENT, QVariant::Bool);
-    addField(COMPLETED_BY, QVariant::String);
-    addField(RELATIONSHIP_TO_PATIENT, QVariant::Int);
-    addField(RELATIONSHIP_TO_PATIENT_OTHER, QVariant::String);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addField(COMPLETED_BY_PATIENT, QMetaType::fromType<bool>());
+    addField(COMPLETED_BY, QMetaType::fromType<QString>());
+    addField(RELATIONSHIP_TO_PATIENT, QMetaType::fromType<int>());
+    addField(RELATIONSHIP_TO_PATIENT_OTHER, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

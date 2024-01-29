@@ -23,9 +23,11 @@
 #include "verticalscrollareaviewport.h"
 #include <QDebug>
 #include <QResizeEvent>
-#include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
-#include "widgets/basewidget.h"
+
+#ifdef DEBUG_LAYOUT
+#include "lib/layoutdumper.h"
+#endif
 
 
 VerticalScrollAreaViewport::VerticalScrollAreaViewport(QWidget* parent) :

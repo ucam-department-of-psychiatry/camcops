@@ -20,7 +20,7 @@
 
 #pragma once
 
-#define QUPHOTO_USE_CAMERA_QML
+// #define QUPHOTO_USE_CAMERA_QML
 
 #include "db/blobfieldref.h"
 #include "lib/openglfunc.h"
@@ -73,11 +73,6 @@ protected slots:
 
     // "User cancelled taking a photo."
     void cameraCancelled();
-
-    // "Camera sends you this captured raw image."
-    void rawImageCaptured(const QByteArray& data,
-                          const QString& extension_without_dot,
-                          const QString& mimetype);
 
     // "Camera sends you this captured QImage."
     void imageCaptured(const QImage& image);

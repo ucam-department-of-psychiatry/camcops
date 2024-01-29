@@ -28,10 +28,9 @@
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::falseNotNull;
 using mathfunc::scorePhrase;
@@ -91,32 +90,32 @@ Ifs::Ifs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IFS_TABLENAME, false, true, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(Q1, QVariant::Int);
-    addField(Q2, QVariant::Int);
-    addField(Q3, QVariant::Int);
-    addField(Q4_LEN2_1, QVariant::Bool);
-    addField(Q4_LEN2_2, QVariant::Bool);
-    addField(Q4_LEN3_1, QVariant::Bool);
-    addField(Q4_LEN3_2, QVariant::Bool);
-    addField(Q4_LEN4_1, QVariant::Bool);
-    addField(Q4_LEN4_2, QVariant::Bool);
-    addField(Q4_LEN5_1, QVariant::Bool);
-    addField(Q4_LEN5_2, QVariant::Bool);
-    addField(Q4_LEN6_1, QVariant::Bool);
-    addField(Q4_LEN6_2, QVariant::Bool);
-    addField(Q4_LEN7_1, QVariant::Bool);
-    addField(Q4_LEN7_2, QVariant::Bool);
-    addField(Q5, QVariant::Int);
-    addField(Q6_SEQ1, QVariant::Int);
-    addField(Q6_SEQ2, QVariant::Int);
-    addField(Q6_SEQ3, QVariant::Int);
-    addField(Q6_SEQ4, QVariant::Int);
-    addField(Q7_PROVERB1, QVariant::Double);  // can score 0.5
-    addField(Q7_PROVERB2, QVariant::Double);
-    addField(Q7_PROVERB3, QVariant::Double);
-    addField(Q8_SENTENCE1, QVariant::Int);
-    addField(Q8_SENTENCE2, QVariant::Int);
-    addField(Q8_SENTENCE3, QVariant::Int);
+    addField(Q1, QMetaType::fromType<int>());
+    addField(Q2, QMetaType::fromType<int>());
+    addField(Q3, QMetaType::fromType<int>());
+    addField(Q4_LEN2_1, QMetaType::fromType<bool>());
+    addField(Q4_LEN2_2, QMetaType::fromType<bool>());
+    addField(Q4_LEN3_1, QMetaType::fromType<bool>());
+    addField(Q4_LEN3_2, QMetaType::fromType<bool>());
+    addField(Q4_LEN4_1, QMetaType::fromType<bool>());
+    addField(Q4_LEN4_2, QMetaType::fromType<bool>());
+    addField(Q4_LEN5_1, QMetaType::fromType<bool>());
+    addField(Q4_LEN5_2, QMetaType::fromType<bool>());
+    addField(Q4_LEN6_1, QMetaType::fromType<bool>());
+    addField(Q4_LEN6_2, QMetaType::fromType<bool>());
+    addField(Q4_LEN7_1, QMetaType::fromType<bool>());
+    addField(Q4_LEN7_2, QMetaType::fromType<bool>());
+    addField(Q5, QMetaType::fromType<int>());
+    addField(Q6_SEQ1, QMetaType::fromType<int>());
+    addField(Q6_SEQ2, QMetaType::fromType<int>());
+    addField(Q6_SEQ3, QMetaType::fromType<int>());
+    addField(Q6_SEQ4, QMetaType::fromType<int>());
+    addField(Q7_PROVERB1, QMetaType::fromType<double>());  // can score 0.5
+    addField(Q7_PROVERB2, QMetaType::fromType<double>());
+    addField(Q7_PROVERB3, QMetaType::fromType<double>());
+    addField(Q8_SENTENCE1, QMetaType::fromType<int>());
+    addField(Q8_SENTENCE2, QMetaType::fromType<int>());
+    addField(Q8_SENTENCE3, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

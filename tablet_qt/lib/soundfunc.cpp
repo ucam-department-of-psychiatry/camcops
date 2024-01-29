@@ -19,10 +19,12 @@
 */
 
 #include "soundfunc.h"
+#include <QAudioDevice>
+#include <QAudioOutput>
 #include <QDebug>
+#include <QMediaDevices>
 #include <QObject>
 #include <QMediaPlayer>
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 
 namespace soundfunc {
@@ -38,7 +40,10 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
     qDebug() << "About to call QMediaPlayer()...";
     player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
                                           &QObject::deleteLater);
-    // http://doc.qt.io/qt-5/qsharedpointer.html
+    auto audio_output = new QAudioOutput();
+    audio_output->setDevice(QMediaDevices::defaultAudioOutput());
+    player->setAudioOutput(audio_output);
+    // https://doc.qt.io/qt-6.5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
     // ... but it's not enough; see finishMediaPlayer().
@@ -121,14 +126,18 @@ void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player)
 void setVolume(const QSharedPointer<QMediaPlayer>& player,
                const int volume_percent)
 {
-    player->setVolume(volume_percent);
+    const qreal volume_proportion = mathfunc::intPercentToProportion(volume_percent);
+    setVolume(player, volume_proportion);
 }
 
 
 void setVolume(const QSharedPointer<QMediaPlayer>& player,
                const double volume_proportion)
 {
-    player->setVolume(mathfunc::proportionToIntPercent(volume_proportion));
+    QAudioOutput* output = player->audioOutput();
+    if (output) {
+        output->setVolume(volume_proportion);  // argument range: 0 to 1
+    }
 }
 
 

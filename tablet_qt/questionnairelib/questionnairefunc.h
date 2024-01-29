@@ -55,29 +55,29 @@ QuElement* defaultGridRawPointer(
     int left_column_span = 1,
     int right_column_span = 1,
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
-    Qt::Alignment left_column_alignment = 0,
-    Qt::Alignment right_column_alignment = 0);
+    Qt::Alignment left_column_alignment = Qt::Alignment(),
+    Qt::Alignment right_column_alignment = Qt::Alignment());
 QuElementPtr defaultGrid(
     const QVector<GridRowDefinition>& deflist,
     int left_column_span = 1,
     int right_column_span = 1,
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
-    Qt::Alignment left_column_alignment = 0,
-    Qt::Alignment right_column_alignment = 0);
+    Qt::Alignment left_column_alignment = Qt::Alignment(),
+    Qt::Alignment right_column_alignment = Qt::Alignment());
 QuElementPtr defaultGrid(
     std::initializer_list<GridRowDefinition> defs,
     int left_column_span = 1,
     int right_column_span = 1,
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
-    Qt::Alignment left_column_alignment = 0,
-    Qt::Alignment right_column_alignment = 0);
+    Qt::Alignment left_column_alignment = Qt::Alignment(),
+    Qt::Alignment right_column_alignment = Qt::Alignment());
 QuElement* defaultGridRawPointer(
     std::initializer_list<GridRowDefinitionRawPtr> defs,
     int left_column_span = 1,
     int right_column_span = 1,
     Qt::Alignment label_alignment = Qt::AlignRight | Qt::AlignTop,
-    Qt::Alignment left_column_alignment = 0,
-    Qt::Alignment right_column_alignment = 0);
+    Qt::Alignment left_column_alignment = Qt::Alignment(),
+    Qt::Alignment right_column_alignment = Qt::Alignment());
 
 // ============================================================================
 // Signals

@@ -28,7 +28,6 @@
 #include <QtAlgorithms>  // for qsort()
 #include "core/camcopsapp.h"
 #include "common/dbconst.h"
-#include "common/design_defines.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
@@ -135,14 +134,14 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(FORENAME_FIELD, QVariant::String);
-    addField(SURNAME_FIELD, QVariant::String);
-    addField(SEX_FIELD, QVariant::String);
-    addField(DOB_FIELD, QVariant::Date);
-    addField(EMAIL_FIELD, QVariant::String);
-    addField(ADDRESS_FIELD, QVariant::String);
-    addField(GP_FIELD, QVariant::String);
-    addField(OTHER_DETAILS_FIELD, QVariant::String);
+    addField(FORENAME_FIELD, QMetaType::fromType<QString>());
+    addField(SURNAME_FIELD, QMetaType::fromType<QString>());
+    addField(SEX_FIELD, QMetaType::fromType<QString>());
+    addField(DOB_FIELD, QMetaType::fromType<QDate>());
+    addField(EMAIL_FIELD, QMetaType::fromType<QString>());
+    addField(ADDRESS_FIELD, QMetaType::fromType<QString>());
+    addField(GP_FIELD, QMetaType::fromType<QString>());
+    addField(OTHER_DETAILS_FIELD, QMetaType::fromType<QString>());
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen

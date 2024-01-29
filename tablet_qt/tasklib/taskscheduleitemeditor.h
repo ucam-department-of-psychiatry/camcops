@@ -20,8 +20,9 @@
 
 #pragma once
 
-#include "common/aliases_camcops.h"
+#include <QObject>
 
+#include "common/aliases_camcops.h"
 
 class TaskScheduleItemEditor : public QObject
 {

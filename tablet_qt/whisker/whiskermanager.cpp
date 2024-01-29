@@ -30,7 +30,6 @@
 
 #include "whiskermanager.h"
 #include <QRegularExpression>
-#include "common/varconst.h"
 #include "lib/uifunc.h"
 #include "whisker/whiskerapi.h"
 #include "whisker/whiskerconstants.h"
@@ -50,7 +49,7 @@ WhiskerManager::WhiskerManager(QObject* parent,
     m_sysevent_prefix(sysevent_prefix),
     m_sysevent_counter(0)
 {
-    // As per http://doc.qt.io/qt-5/qthread.html:
+    // As per https://doc.qt.io/qt-6.5/qthread.html:
     m_worker->moveToThread(&m_worker_thread);  // changes thread affinity
     connect(&m_worker_thread, &QThread::finished,
             m_worker, &QObject::deleteLater);  // this is how we ensure deletion of m_worker

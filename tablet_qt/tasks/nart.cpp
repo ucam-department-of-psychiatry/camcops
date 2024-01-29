@@ -28,12 +28,12 @@ Copyright © Hazel E. Nelson. Used with permission; see documentation.
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString Nart::NART_TABLENAME("nart");
 
@@ -114,7 +114,7 @@ void initializeNart(TaskFactory& factory)
 Nart::Nart(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NART_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(WORDLIST, QVariant::Bool);
+    addFields(WORDLIST, QMetaType::fromType<bool>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

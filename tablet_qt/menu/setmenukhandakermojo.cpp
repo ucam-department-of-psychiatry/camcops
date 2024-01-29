@@ -19,7 +19,6 @@
 */
 
 #include "setmenukhandakermojo.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menu/patientsummarymenu.h"

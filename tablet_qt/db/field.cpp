@@ -19,7 +19,7 @@
 */
 
 #include "field.h"
-#include "common/preprocessor_aid.h"
+#include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "lib/convert.h"
 #include "lib/datetime.h"
 #include "lib/errorfunc.h"
@@ -32,7 +32,7 @@ const QString SQLITE_TYPE_TEXT("TEXT");
 
 
 Field::Field(const QString& name,
-             const QVariant::Type type,
+             const QMetaType type,
              const bool mandatory,
              const bool unique,
              const bool pk,
@@ -51,29 +51,8 @@ Field::Field(const QString& name,
 }
 
 
-Field::Field(const QString& name,
-             const QString& type_name,
-             const bool mandatory,
-             const bool unique,
-             const bool pk,
-             const QVariant& cpp_default_value,
-             const QVariant& db_default_value) :
-    m_name(name),
-    m_type(QVariant::UserType),
-    m_type_name(type_name),
-    m_pk(pk),
-    m_unique(unique || pk),
-    m_mandatory(mandatory || pk),
-    m_set(false),
-    m_dirty(true)
-{
-    setCppDefaultValue(cpp_default_value);  // will also set m_value (because m_set is false)
-    setDbDefaultValue(db_default_value);
-}
-
-
 Field::Field() :  // needed by QMap
-    Field("", QVariant::Int)  // delegating constructor (C++11)
+    Field("", QMetaType::fromType<int>())  // delegating constructor (C++11)
 {
 }
 
@@ -138,7 +117,7 @@ QString Field::name() const
 }
 
 
-QVariant::Type Field::type() const
+QMetaType Field::type() const
 {
     return m_type;
 }
@@ -207,22 +186,24 @@ QString Field::prettyValue(const int dp) const
 
 bool Field::setValue(const QVariant& value)
 {
+    const int type_id = m_type.id();
+
     if (!m_set || value != m_value) {
         m_dirty = true;
     }
     m_value = value;
-    if (!m_value.isNull() && m_type != QVariant::UserType) {
+    if (!m_value.isNull() && type_id < QMetaType::User) {
         // Don't try to convert NULL values; needless warning.
         // Don't try to convert user type; it'll go wrong.
         const bool converted = m_value.convert(m_type);
         if (!converted) {
-            if (m_type == QVariant::Char) {
+            if (type_id == QMetaType::QChar) {
                 // Deal with special oddities, e.g. failure to convert
                 // a QVariant of type QString to one of type QChar.
                 m_value = convert::toQCharVariant(value);
             } else {
                 qWarning() << Q_FUNC_INFO << "Failed to convert" << value
-                           << "to type" << m_type;
+                           << "to type" << type_id;
             }
         }
     }
@@ -269,7 +250,7 @@ void Field::clearDirty()
 QDebug operator<<(QDebug debug, const Field& f)
 {
     if (f.m_value.isNull()) {
-        debug.nospace() << "NULL (" << QVariant::typeToName(f.m_type) << ")";
+        debug.nospace() << "NULL (" << f.m_type.name() << ")";
     } else {
         debug.nospace() << f.m_value;
     }
@@ -289,7 +270,7 @@ QString Field::sqlColumnType() const
     // C++ types:
     //      int -- typically 32-bit; not guaranteed on all C++ platforms,
     //             though 32-bit on all Qt platforms, I think
-    // Qt types: http://doc.qt.io/qt-5/qtglobal.html
+    // Qt types: https://doc.qt.io/qt-6.5/qtglobal.html
     //      - qint8, qint16, qint32, qint64...
     //      - standard int is int32
     //        32-bit signed: up to +2,147,483,647 = 2147483647
@@ -298,43 +279,46 @@ QString Field::sqlColumnType() const
     //      - qulonglong is the same as quint64
     //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
-    switch (m_type) {
+    const int type_id = m_type.id();
 
-    case QVariant::Bool:
-    case QVariant::Int:  // normally 32-bit
-    case QVariant::LongLong:  // 64-bit
-    case QVariant::UInt:  // normally 32-bit
-    case QVariant::ULongLong:  // 64-bit
+    switch (type_id) {
+    case QMetaType::Bool:
+    case QMetaType::Int:  // normally 32-bit
+    case QMetaType::LongLong:  // 64-bit
+    case QMetaType::UInt:  // normally 32-bit
+    case QMetaType::ULongLong:  // 64-bit
         return SQLITE_TYPE_INTEGER;
 
-    case QVariant::Double:
+    case QMetaType::Double:
         return SQLITE_TYPE_REAL;
 
-    case QVariant::Char:
-    case QVariant::Date:
-    case QVariant::DateTime:
-    case QVariant::String:
-    case QVariant::StringList:
-    case QVariant::Time:
-    case QVariant::Uuid:
+    case QMetaType::QChar:
+    case QMetaType::QDate:
+    case QMetaType::QDateTime:
+    case QMetaType::QString:
+    case QMetaType::QStringList:
+    case QMetaType::QTime:
+    case QMetaType::QUuid:
         return SQLITE_TYPE_TEXT;
 
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         return SQLITE_TYPE_BLOB;
 
-    case QVariant::UserType:
-        if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
-            return SQLITE_TYPE_TEXT;
-        }
-        if (m_type_name == convert::TYPENAME_VERSION) {
-            return SQLITE_TYPE_TEXT;
-        }
-        break;
     default:
+        // Can't use further "case" statements here as the comparisons are to
+        // a technically non-const expression (integers set by
+        // convert::registerTypesForQVariant).
+        if (type_id == convert::TYPE_ID_QVECTOR_INT) {
+            return SQLITE_TYPE_TEXT;
+        }
+
+        if (type_id == convert::TYPE_ID_VERSION) {
+            return SQLITE_TYPE_TEXT;
+        }
         break;
     }
     errorfunc::fatalError(
-        QString("Field::sqlColumnType: Unknown field type: %1").arg(m_type));
+        QString("Field::sqlColumnType: Unknown field type: %1").arg(type_id));
 #ifdef COMPILER_WANTS_RETURN_AFTER_NORETURN
     return "";
 #endif
@@ -343,37 +327,35 @@ QString Field::sqlColumnType() const
 
 void Field::setFromDatabaseValue(const QVariant& db_value)
 {
+    const int type_id = m_type.id();
     // SQLite -> C++
-    switch (m_type) {
-    case QVariant::Char:
+    switch (m_type.id()) {
+    case QMetaType::QChar:
         // If you just do "m_value = db_value", it will become an invalid
         // value when the convert() call is made below, so will appear as NULL.
         m_value = convert::toQCharVariant(db_value);
         break;
-    case QVariant::Date:
+    case QMetaType::QDate:
         m_value = QVariant(datetime::isoToDate(db_value.toString()));
         break;
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         m_value = QVariant(datetime::isoToDateTime(db_value.toString()));
         break;
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         m_value = QVariant(convert::csvStringToQStringList(db_value.toString()));
         break;
-    case QVariant::UserType:
-        if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
+    default:
+        if (type_id == convert::TYPE_ID_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(
                                  db_value.toString()));
-        } else if (m_type_name == convert::TYPENAME_VERSION) {
+        } else if (type_id == convert::TYPE_ID_VERSION) {
             m_value.setValue(Version::fromString(db_value.toString()));
         } else {
             m_value = db_value;
         }
         break;
-    default:
-        m_value = db_value;
-        break;
     }
-    if (m_type != QVariant::UserType) {
+    if (type_id < QMetaType::User) {
         m_value.convert(m_type);
     }
     m_dirty = false;
@@ -382,34 +364,33 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
 
 QVariant Field::databaseValue() const
 {
+    const int type_id = m_type.id();
+
     // C++ -> SQLite
     if (m_value.isNull()) {
         return m_value;  // NULL
     }
-    switch (m_type) {
-    case QVariant::Char:
+    switch (type_id) {
+    case QMetaType::QChar:
         return m_value.toString();
-    case QVariant::Date:
+    case QMetaType::QDate:
         return QVariant(datetime::dateToIso(m_value.toDate()));
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         return QVariant(datetime::datetimeToIsoMs(m_value.toDateTime()));
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         return convert::qStringListToCsvString(m_value.toStringList());
-    case QVariant::UserType:
-        if (m_type_name == convert::TYPENAME_QVECTOR_INT) {
-            return convert::numericVectorToCsvString(
-                        convert::qVariantToIntVector(m_value));
-        }
-        if (m_type_name == convert::TYPENAME_VERSION) {
-            return Version::fromVariant(m_value).toString();
-        }
-        break;
-    case QVariant::Uuid:
+    case QMetaType::QUuid:
         return m_value.toString();
-        // see http://doc.qt.io/qt-5/quuid.html#toString; e.g.
+        // see https://doc.qt.io/qt-6.5/quuid.html#toString; e.g.
         // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
     default:
-        break;
+        if (type_id == convert::TYPE_ID_QVECTOR_INT) {
+            return convert::numericVectorToCsvString(
+                    convert::qVariantToIntVector(m_value));
+        }
+        if (type_id == convert::TYPE_ID_VERSION) {
+            return Version::fromVariant(m_value).toString();
+        }
     }
     return m_value;
 }

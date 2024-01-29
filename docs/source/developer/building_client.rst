@@ -19,14 +19,15 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Android NDK: https://developer.android.com/ndk/
-.. _Android SDK: https://developer.android.com/studio/
+.. _Android SDK: https://developer.android.com/tools/releases/platform-tools
+.. _Chocolatey: https://chocolatey.org/
 .. _CMake: https://cmake.org/
-.. _Cygwin: https://www.cygwin.com/
 .. _Debugging Tools for Windows: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
 .. _Git: https://git-scm.com/
 .. _ImageMagick: https://www.imagemagick.org/
 .. _Inno Setup: http://www.jrsoftware.org/isinfo.php
 .. _jom: https://wiki.qt.io/Jom
+.. _MSYS2: https://www.msys2.org/
 .. _NASM: http://www.nasm.us/
 .. _Perl: https://www.activestate.com/activeperl
 .. _Python: https://www.python.org/
@@ -36,13 +37,16 @@
 .. _Visual Studio: https://visualstudio.microsoft.com/
 .. _Windows SDK: https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 
-
 .. _dev_building_client:
 
 Building the CamCOPS client
 ===========================
 
-The CamCOPS client is written in C++11 using the Qt_ cross-platform framework.
+The CamCOPS client is written in C++11 using the Qt_ cross-platform
+framework. We provide a custom python script to build Qt from source, along with
+its dependencies (OpenSSL, SQLCipher and FFmpeg). CamCOPS can then be compiled
+and linked with this custom version of Qt. This can be done within Qt Creator,
+which confusingly is bundled with a second, official distribution of Qt.
 
 ..  contents::
     :local:
@@ -53,65 +57,35 @@ Prerequisites
 -------------
 
 **Ensure the following prerequisites are met:**
-https://wiki.qt.io/Building_Qt_5_from_Git
+https://wiki.qt.io/Building_Qt_6_from_Git
 
 
 Linux
 ~~~~~
 
-- Linux should come with Python and the necessary build tools.
+- Linux should come with Python and the necessary build tools. The build script
+  should warn about any missing ones, which should all be installable with
+  your package manager.
 
-- Tested with:
-
-  - Ubuntu 16.04
-
-  - Ubuntu 18.04 / gcc 7.3.0 (tested Aug 2018)
-
-  - Ubuntu 20.04 / gcc 9.3.0 (tested Jun 2020). Requires the following
-    extra packages:
-
-    .. code-block:: bash
-
-        sudo apt install libdrm-dev libxcb-glx0-dev
-
-  - Ubuntu 22.04 / gcc 11.3.0 (tested Jul 2023). Requires the following
-    extra packages:
-
-    .. code-block:: bash
-
-        sudo apt install libdrm-dev libxcb-glx0-dev libudev-dev \
-            libwayland-dev \ libx11-xcb-dev libgbm-dev libxcomposite-dev \
-            libxkbcommon-x11-dev libegl-dev libdbus-1-dev
+- See
+  https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml
+  for the installation requirements on Ubuntu 20.04 and 22.04 (GitHub hosted
+  runners).
 
 
 Android (with a Linux build host)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - To build Android programs under Linux, you will also need a Java development
-  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
+  kit (JDK), such as OpenJDK: ``sudo apt install openjdk-17-jdk``. If you are
+  switching between different versions of Java, you can set up a symbolic link
+  to /usr/lib/jvm/default-java:
 
-- In Feb 2021, with Qt Creator 4.14.0, old versions of the Android SDK no
-  longer work. The settings at ``Tools --> Options --> Device --> Android``
-  complain, and you get silly errors like ``Project ERROR: You need to set the
-  ANDROID_NDK_ROOT environment variable to point to your Android NDK.``, even
-  when it's set (note that this environment variable is set/reset by Qt
-  Creator; https://bugreports.qt.io/browse/QTCREATORBUG-15240).
+  .. code-block:: bash
 
-- So, start your Android life afresh with Android Studio, as follows.
+    ln -s /usr/lib/jvm/java-17-openjdk-amd64 /usr/lib/jvm/default-java
 
-  Install Android Studio (e.g. in ``~/dev/android-studio``), then run
-  it (``bin/studio.sh``), and then via its ``Configure --> SDK Manager``, (a)
-  under SDK Platforms, install API level 29 (for CamCOPS), and 30 (because Qt
-  seems to want it); (b) under SDK Tools, install the defaults (Android SDK
-  Build-Tools, Android Emulator, Android SDK Platform-Tools), plus "NDK (Side
-  by side)". By default, it will install to ``~/Android/Sdk``. Then point Qt
-  Creator to that (i.e. "Android SDK location" should be ``~/Android/Sdk``).
-  Then Qt Creator should recognize everything, offer to install extras that it
-  needs, ask you to confirm licenses, and get on with it.
-
-  You'll also have to reconfigure your kits to point to the compilers that come
-  with the kits.
-
+- You will also need to install `Android SDK_`.
   **The current Android SDK target version** is shown in
   ``AndroidManifest.xml``. **This is the version you need to install.**
 
@@ -119,11 +93,20 @@ Android (with a Linux build host)
 
   .. code-block:: bash
 
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-    export ANDROID_HOME=~/Android/Sdk
-    export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin
+    export JAVA_HOME=/usr/lib/jvm/default-java
+    export ANDROID_SDK_ROOT="/path/to/your/android-sdk"
+    export ANDROID_NDK_ROOT="${ANDROID_SDK_ROOT}/ndk"
+    export ANDROID_NDK_HOME="${ANDROID_NDK_ROOT}"
+    export PATH="$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin"
 
-  Source it when you want to use Android tools.
+  Source it when you want to use Android tools. Alternatively add these line to
+  your ``.profile`` (or similar) so they are set up automatically whenever you
+  log in.
+
+- In Qt Creator, under ``Preferences --> Devices --> Android`` set ``JDK
+  location:`` to ``/usr/lib/jvm/default-java``. Select the currently supported
+  NDK version in Android NDK list and make it the default. See
+  https://doc.qt.io/qt-6.5/android-getting-started.html.
 
 - If Qt complains about e.g. ``failed to find Build Tools revision 19.1.0``,
   then you can use ``sdkmanager --list`` and then install with e.g.
@@ -132,9 +115,9 @@ Android (with a Linux build host)
 
 - Note some Android SDK version constraints:
 
-  - Google Play store requires ``targetSdkVersion`` to be at least 26 from
-    2018-11-01
-    (https://developer.android.com/distribute/best-practices/develop/target-sdk).
+  - Google Play store requires ``targetSdkVersion`` to be at least 33 from
+    2023-08-31
+    (https://developer.android.com/google/play/requirements/target-sdk).
 
   - Above Android API 23, linking to non-public libraries is prohibited,
     possibly with exceptions for SSL/crypto.
@@ -142,15 +125,10 @@ Android (with a Linux build host)
     - https://android-developers.googleblog.com/2016/06/android-changes-for-ndk-developers.html
     - https://developer.android.com/about/versions/nougat/android-7.0-changes#ndk
 
-    I think this caused fatal problems for CamCOPS in 2018-07; not sure, but
-    this might explain it.
-
   - Android libraries should be compiled for the same SDK version as
     ``minSdkVersion`` in ``AndroidManifest.xml`` (see
     https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
     and https://developer.android.com/ndk/guides/stable_apis).
-
-- We are currently using Android NDK 19 or 20.
 
 .. todo:: Maybe "Include prebuilt OpenSSL libraries" will simplify things?
 
@@ -164,19 +142,18 @@ Windows
   Community. As you install Visual Studio, don't forget to tick the C++
   options.
 
-- Install these other tools:
+- Install these other tools. Many are available with Chocolatey_.
 
   - CMake_. (We'll use this version of cmake to build CamCOPS.)
 
-  - Cygwin_ and its packages ``cmake``, ``gcc-g++``, and ``make``. (If you missed
-    them out during initial installation, just re-run the Cygwin setup program,
-    such as ``setup-x86_64.exe``. SQLCipher requires ``make``.)
+  - MSYS2_. Use this to install other build tools.
+    ``C:\tools\msys64\usr\bin\bash`` then ``$ pacman -S make yasm diffutils``.
 
   - NASM_, the Netwide Assembler for x86-family processors.
 
   - ActiveState TCL_. (SQLCipher requires ``tclsh``.)
 
-  - ActiveState Perl_. (OpenSSL requires ``perl``.)
+  - ActiveState Perl_. or Strawberry Perl. (OpenSSL requires ``perl``.)
 
   - Optionally, `Debugging Tools for Windows`_ (including CDB), such as from
     the `Windows SDK`_.
@@ -200,9 +177,10 @@ Windows
 
     .. code-block:: none
 
-        C:\cygwin64\bin
+        C:\tools\msys64
+        C:\tools\msys64\usr\bin
         C:\Program Files\NASM
-        C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+        C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
 
         -- These are usually added automatically by installers:
 
@@ -214,19 +192,22 @@ Windows
     is technically legal but it causes no end of trouble (see :ref:`build_qt`).
     (The usual culprit is MySQL.) The :ref:`build_qt` script will check this.
 
-- Tested in July 2018 with:
-
+- Tested and as part of our continuous integration process on GitHub (see
+  https://github.com/ucam-department-of-psychiatry/camcops/blob/master/.github/workflows/build-qt.yml )
+  and as of 2023-12-21:
   .. code-block:: none
 
-    ActivePerl 5.24.3 build 2404 (64-bit)
+    ActivePerl 5.28.1 build 2801 (64-bit)
     ActiveTcl 8.6.7 build 0 (64-bit)
-    CMake 3.12.0 (64-bit)
-    Cygwin Setup 2.889 (64-bit)
-    Microsoft Visual Studio Community 2017
-    NASM 2.13.03 (64-bit)
-    Python 3.6
-    Qt Creator 4.7.0
+    CCache 3.7.12
+    CMake 3.25.1 (64-bit)
+    Microsoft Visual Studio Community 2019
+    MSYS2 20231026.0.0
+    NASM 2.14.02 (64-bit)
+    Python 3.9.13
+    Qt Creator 4.10.1
     Windows 10 (64-bit)
+    Yasm 1.2.0
 
 
 macOS (formerly OS X)
@@ -262,7 +243,7 @@ All operating systems
           - Example value (Windows)
           - Notes
 
-        * - CAMCOPS_QT5_BASE_DIR
+        * - CAMCOPS_QT6_BASE_DIR
           - ``~/dev/qt_local_build``
           - ``%USERPROFILE%\dev\qt_local_build``
           - Read by :ref:`build_qt`.
@@ -279,7 +260,7 @@ All operating systems
 
         * - CAMCOPS_VISUAL_STUDIO_REDIST_ROOT
           - N/A.
-          - ``C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405``
+          - ``C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30133``
           - Used by the Windows Inno Setup script.
 
 - Fetch CamCOPS. For example, for the GitHub version:
@@ -314,7 +295,7 @@ All operating systems
 Build OpenSSL, SQLCipher, Qt
 ----------------------------
 
-Build a copy of Qt and supporting tools (OpenSSL, SQLCipher) from source using
+Build a copy of Qt and supporting tools (OpenSSL, SQLCipher, FFmpeg) from source using
 the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 
 .. code-block:: bash
@@ -331,51 +312,17 @@ the CamCOPS :ref:`build_qt` tool (q.v.). For example:
 Version constraints for OpenSSL and SQLCipher
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- OpenSSL 1.0.x has long-term support and 1.1.x is the current release.
+- Qt 6.5 supports OpenSSL 3.0.x
 
-- OpenSSL 1.0.2h didn't compile under 64-bit Windows, whereas OpenSSL 1.1.x
-  did.
+- OpenSSL 3.0.x is the current LTS version, supported until 2026-09-07.
+  https://www.openssl.org/policies/releasestrat.html
 
-- OpenSSL 1.1.x requires Qt 5.10 or higher
-  (https://bugreports.qt.io/browse/QTBUG-52905).
+- SQLCipher 4.4.5 supports OpenSSL 3.0.x
 
-- SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
-  (https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962).
-
-- The Android NDK has moved from gcc to clang, for all standalone toolchains
-  from r18 (https://developer.android.com/ndk/guides/standalone_toolchain).
-  To compile OpenSSL with clang requires OpenSSL 1.1.1
-  (https://github.com/openssl/openssl/pull/2229;
-  https://github.com/openssl/openssl/blob/master/NOTES.ANDROID).
-  As of 2019-06-15, the current version is OpenSSL 1.1.1c
-  (https://www.openssl.org/). SQLCipher 4 supports OpenSSL 1.1.1
-  (https://www.zetetic.net/blog/2018/11/30/sqlcipher-400-release/).
-  As of 2019-06-15, the current version is SQLCipher 4.2.0.
 
 
 Troubleshooting build_qt
 ~~~~~~~~~~~~~~~~~~~~~~~~
-
-Problem: tar fails to work under Windows
-########################################
-
-.. code-block:: none
-
-    ===============================================================================
-    WORKING DIRECTORY: C:\Users\rudol\dev\qt_local_build\src\qt5
-    PYTHON ARGS: ['tar', '-x', '-z', '--force-local', '-f', 'C:\\Users\\rudol\\dev\\qt_local_build\\src\\eigen\\eigen-3.3.3.tar.gz', '-C', 'C:\\Users\\rudol\\dev\\qt_local_build\\eigen']
-    COMMAND: tar -x -z --force-local -f C:\Users\rudol\dev\qt_local_build\src\eigen\eigen-3.3.3.tar.gz -C C:\Users\rudol\dev\qt_local_build\eigen
-    ===============================================================================
-    tar: C\:\\Users\rudol\\dev\\qt_local_build\\eigen: Cannot open: No such file or directory
-
-"How stupid," you might think. And the command works without the ``-C C:\...``
-option (i.e. the ``-f`` parameter is happy with a full Windows path, but
-``-C`` or its equivalent ``-directory=...`` isn't). This is with GNU tar v1.29
-via Cygwin.
-
-**Fixed** by using ``cardinal_pythonlib==1.0.46`` and the
-``chdir_via_python=True`` argument to ``untar_to_directory``.
-
 
 Problem: CL.EXE cannot open program database
 ############################################
@@ -474,7 +421,7 @@ Non-default options are marked in bold and/or as "[non-default]".
 
 **Custom_Linux_x86_64**
 
-- Last checked against Qt Creator 4.8.1 (built Jan 2019).
+- Last checked against Qt Creator 11.0.2 (built Aug 2023).
 
     .. list-table::
         :header-rows: 1
@@ -486,16 +433,18 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_Linux_x86_64``
         * - File system name
           -
-        * - Device type
-          - **Desktop**
-        * - Device
-          - Local PC (default for Desktop)
+        * - Run device type
+          - Desktop
+        * - Run device
+          - Desktop (default for Desktop)
+        * - Build device
+          - Desktop (default for Desktop)
         * - Sysroot
           -
         * - Compiler: C
           - GCC (C, x86 64bit in ``/usr/bin``)
         * - Compiler: C++
-          - GCC (x86 64bit in ``/usr/bin``)
+          - GCC (C++, x86 64bit in ``/usr/bin``)
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
@@ -504,21 +453,21 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **THE "LINUX 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
-        * - CMake Tool
-          - System CMake at ``/usr/bin/cmake``
-        * - CMake Generator
-          - CodeBlocks - Unix Makefiles
-        * - CMake Configuration
-          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
-            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
-            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
-            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
         * - Additional Qbs Profile Settings
           -
+        * - CMake Tool
+          - System CMake at ``/usr/bin/cmake``
+        * - CMake generator
+          - [not editable: "Ninja"]
+        * - CMake Configuration
+          - ``-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}``
+            ``-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}``
+            ``-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}``
+            ``-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}``
 
 **Custom_Android_ARM32: 32-BIT configuration for clang**
 
-- Last checked against Qt Creator 4.14.0 (built 17 Dec 2020) under Linux.
+- Last checked against Qt Creator 11.0.2 (built 12 Aug 2023) under Linux.
 
     .. list-table::
         :header-rows: 1
@@ -530,39 +479,42 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_Android_ARM32``
         * - File system name
           -
-        * - Device type
-          - **Android Device**
-        * - Device
-          - Run on Android (default for Android)
+        * - Run device type
+          - Android Device
+        * - Run device
+          - **YOUR DEVICE**
+        * - Build device
+          - Desktop (default for Desktop)
         * - Sysroot
           -
         * - Compiler: C
-          - **Android Clang (C, arm, NDK 19.2.5345600)**
+          - **Android Clang (C, arm, NDK 25.1.8937393)**
         * - Compiler: C++
-          - **Android Clang (C++, arm, NDK 19.2.5345600)**
+          - **Android Clang (C++, arm, NDK 25.1.8937393)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - **Android Debugger (armeabi-v7a, NDK 19.2.5345600)**
+          - **Android Debugger (armeabi-v7a, NDK 25.1.8937393)**
         * - Qt version
           - **THE "ANDROID, ARM 32-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
-        * - CMake Tool
-          -
-        * - CMake Generator
-          - CodeBlocks - Unix Makefiles
-        * - CMake Configuration
-          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
-            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
-            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
-            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
         * - Additional Qbs Profile Settings
           -
+        * - CMake Tool
+          - CMake 3.24.2 (Qt)
+        * - CMake Generator
+          - Ninja
+        * - CMake Configuration
+          - ``-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}``
+            ``-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}``
+            ``-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}``
+            ``-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}``
+
 
 **Custom_Android_ARM64**
 
-- Last checked against Qt Creator 4.14.0 (built 17 Dec 2020) under Linux.
+- Last checked against Qt Creator 11.0.2 (built 12 Aug 2023) under Linux.
 
     .. list-table::
         :header-rows: 1
@@ -574,32 +526,37 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_Android_ARM64``
         * - File system name
           -
-        * - Device type
-          - **Android Device**
-        * - Device
-          - Run on Android (default for Android)
+        * - Run device type
+          - Android Device
+        * - Run device
+          - **YOUR DEVICE**
+        * - Build device
+          - Desktop (default for Desktop)
         * - Sysroot
           -
         * - Compiler: C
-          - **Android Clang (C, aarch64, NDK 19.2.5345600)**
+          - **Android Clang (C, aarch64, NDK 25.1.8937393)**
         * - Compiler: C++
-          - **Android Clang (C++, aarch64, NDK 19.2.5345600)**
+          - **Android Clang (C++, aarch64, NDK 25.1.8937393)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - **Android Debugger (arm64-v8a, NDK 19.2.5345600)**
+          - **Android Debugger (arm64-v8a, NDK 25.1.8937393)**
         * - Qt version
           - **THE "ANDROID, ARM 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
-        * - CMake Tool
-          -
-        * - CMake Generator
-          - CodeBlocks - Unix Makefiles
-        * - CMake Configuration
-          - [not editable]
         * - Additional Qbs Profile Settings
           -
+        * - CMake Tool
+          - CMake 3.24.2 (Qt)
+        * - CMake Generator
+          - Ninja
+        * - CMake Configuration
+          - ``-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}``
+            ``-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}``
+            ``-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}``
+            ``-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}``
 
 **Custom_Android_x86** -- NOT FULLY TESTED
 
@@ -614,7 +571,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - File system name
           -
         * - Device type
-          - **Android Device**
+          - Android Device
         * - Device
           - Run on Android (default for Android)
         * - Sysroot
@@ -751,7 +708,7 @@ Non-default options are marked in bold and/or as "[non-default]".
 
 **Custom_MacOS_x86_64**
 
-- Last checked against Qt Creator 4.13.3 (built 13 Nov 2020).
+- Last checked against Qt Creator 11.0.3 (built 27 Sep 2023).
 
     .. list-table::
         :header-rows: 1
@@ -763,14 +720,16 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_MacOS_x86_64``
         * - File system name
           -
-        * - Device type
-          - **Desktop**
-        * - Device
-          - Local PC (default for Desktop)
+        * - Run device type
+          - Desktop
+        * - Run device
+          - Desktop (default for Desktop)
+        * - Build device
+          - Desktop (default for Desktop)
         * - Sysroot
           -
         * - Compiler: C
-          - GCC (C, x86 64bit in /usr/bin)
+          - Clang (C, x86 64bit in /usr/bin)
         * - Compiler: C++
           - Clang (C++, x86 64bit in /usr/bin)
         * - Environment
@@ -781,19 +740,21 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **THE "MACOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
+        * - Additional Qbs Profile Settings
+          -
         * - CMake Tool
           - System CMake at /usr/local/bin/cmake
         * - CMake Generator
-          - CodeBlocks - Unix Makefiles, Platform: <none>, Toolset: <none>
+          - Ninja
         * - CMake Configuration
           - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
             ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
             ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
-        * - Additional Qbs Profile Settings
-          -
 
 **Custom_iOS_armv8_64**
+
+- Last checked against Qt Creator 11.0.3 (built 27 Sep 2023).
 
     .. list-table::
         :header-rows: 1
@@ -805,12 +766,14 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_iOS_armv8_64``
         * - File system name
           -
-        * - Device type
-          - **iOS device**
-        * - Device
-          - **Your device**
+        * - Run device type
+          - iOS device
+        * - Run device
+          - **YOUR DEVICE**
+        * - Build device
+          - Desktop (default for Desktop)
         * - Sysroot
-          - ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk``
+          -
         * - Compiler: C
           - **Apple Clang (arm64)**
         * - Compiler: C++
@@ -818,7 +781,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - System LLDB at /Applications/Xcode.app/Contents/Developer/usr/bin/lldb
+          - System LLDB at /usr/bin/lldb
         * - Qt version
           - **THE "iOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
@@ -828,12 +791,12 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - CMake Tool
           - System CMake at /usr/local/bin/cmake
         * - CMake Generator
-          - <none> - Unix Makefiles, Platform: <none>, Toolset: <none>
+          - Xcode
         * - CMake Configuration
-          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
-            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
-            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
-            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
+          - ``-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}``
+            ``-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}``
+            ``-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}``
+            ``-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}``
 
 If Qt accept the settings, a section marked "iOS Settings" will appear in the
 "Build Settings" part of your project when configured for this kit.
@@ -900,71 +863,17 @@ Android APK`:
 
         * - Option
           - Setting
-        * - :menuselection:`Application --> Android build SDK`
-          - **PREVIOUSLY:** android-23 [= default].
-            **NOW:** android-28 [= default].
+        * - :menuselection:`Application --> Android build platform SDK`
+          - android-33 [= default].
         * - :menuselection:`Sign package --> Keystore`
           - ``~/Documents/CamCOPS/android_keystore/CAMCOPS_ANDROID_KEYSTORE.keystore``
             [NB not part of published code, obviously!]
         * - :menuselection:`Sign package --> Sign package`
           - Yes (at least for release versions)
-        * - :menuselection:`Advanced actions --> Use Ministro service to
-            install Qt`
-          - Do NOT tick. (Formerly, before 2018-06-25, this was
-            :menuselection:`Qt deployment --> Bundle Qt libraries in APK`. The
-            objective remains to bundle Qt, not to install it via Ministro.)
         * - Additional libraries
-          - ``~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.1.0g/libcrypto.so``
-            ``~/dev/qt_local_build/openssl_android_armv7_build/openssl-1.1.0g/libssl.so``
+          - ``~/dev/qt6_local_build/openssl_android_armv8_64_build/openssl-3.0.12/libcrypto_3.so``
+            ``~/dev/qt6_local_build/openssl_android_armv7_build/openssl-3.0.12/libssl_3.so``
 
-
-Then in the file ``AndroidManifest.xml`` (which Qt Creator has a custom editor
-for):
-
-    .. list-table::
-        :header-rows: 1
-        :stub-columns: 1
-
-        * - Option
-          - Setting
-        * - Package name
-          - org.camcops.camcops
-        * - Version code
-          - [integer; may as well use consecutive]
-        * - Version name
-          - [string]
-        * - Minimum required SDK
-          - API 23 (Android 6) (see :ref:`changelog 2018 <changelog_2018>`)
-        * - Target SDK
-          - API 28 (Android 9) = minimum required by Google Play Store as of
-            2019-11-01.
-        * - Application name
-          - CamCOPS
-        * - Activity name
-          - CamCOPS
-        * - Run
-          - camcops
-        * - Application icon
-          - [icon]
-        * - Include default permissions for Qt modules
-          - [tick]
-        * - Include default features for Qt modules
-          - [tick]
-        * - Boxes for other permissions
-          - [no other specific permission requested]
-
-    But then you must also edit ``AndroidManifest.xml`` manually to include the
-    line:
-
-      .. code-block:: none
-
-            <meta-data android:name="android.app.load_local_libs" android:value="-- %%INSERT_LOCAL_LIBS%% --:lib/libssl.so:lib/libcrypto.so"/>
-            Note this bit:                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For versions, see:
-
-- https://developer.android.com/guide/topics/manifest/manifest-element.html
-- https://developer.android.com/studio/publish/versioning.html
 
 If you run this without a keystore, it produces a debug build (e.g.
 ``QtApp-debug.apk``). If you run it with a keystore/signature, it produces
@@ -979,26 +888,14 @@ Qt will forget your "sign package" choice from time to time; get back to it via
 Build Android APK --> Sign package`.
 
 
-Linux
-~~~~~
-
-Under :menuselection:`Run Settings --> Run Environment`, set
-``LD_LIBRARY_PATH`` to point to the OpenSSL libraries we've built, e.g.
-``LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.1c/``
-
-You can also set this under :menuselection:`Build Settings --> Build
-Environment`, because the default behaviour is for the run environment to
-inherit the build environment.
-
-
 iOS
 ~~~
 
 See:
 
-- https://doc.qt.io/qt-5/ios.html
+- https://doc.qt.io/qt-6.5/ios.html
 - https://doc.qt.io/qtcreator/creator-developing-ios.html
-- https://doc.qt.io/qt-5/ios-platform-notes.html
+- https://doc.qt.io/qt-6.5/ios-platform-notes.html
 
 It is possible to deploy to an actual device via USB or the iOS simulator using
 a development provisioning profile associated with an Apple developer ID. You
@@ -1013,7 +910,7 @@ MacOS
 
 See:
 
-- https://doc.qt.io/qt-5/macos.html
+- https://doc.qt.io/qt-6.5/macos.html
 
 
 General

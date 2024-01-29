@@ -17,33 +17,33 @@
 #   along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 
-# http://doc.qt.io/qt-5/qmake-project-files.html
-# http://doc.qt.io/qt-5/qmake-variable-reference.html
+# https://doc.qt.io/qt-6.5/qmake-project-files.html
+# https://doc.qt.io/qt-6.5/qmake-variable-reference.html
 
 message("+++ CamCOPS qmake starting.")
 
 # =============================================================================
 # Prerequisites: environment variables
 # =============================================================================
-# Need environment variable CAMCOPS_QT5_BASE_DIR
+# Need environment variable CAMCOPS_QT6_BASE_DIR
 # Put something like this in your ~/.profile:
-#   export CAMCOPS_QT5_BASE_DIR="/home/rudolf/dev/qt_local_build"
+#   export CAMCOPS_QT6_BASE_DIR="/home/rudolf/dev/qt_local_build"
 
 # This file is read by qmake.
 # Use $$(...) to read an environment variable at the time of qmake.
 # Use $(...) to read an environment variable at the time of make.
 # Use $$... or $${...} to read a Qt project file variable.
 # See
-# - http://doc.qt.io/qt-4.8/qmake-advanced-usage.html#variables
-# - http://doc.qt.io/qt-5/qmake-test-function-reference.html
+# - https://doc.qt.io/qt-6.5/qmake-advanced-usage.html#variables
+# - https://doc.qt.io/qt-6.5/qmake-test-function-reference.html
 # Here, we copy an environment variable to a Qt project file variable:
-# QT_BASE_DIR = $(CAMCOPS_QT5_BASE_DIR)  # value at time of make
+# QT_BASE_DIR = $(CAMCOPS_QT6_BASE_DIR)  # value at time of make
 
-QT_BASE_DIR = $$(CAMCOPS_QT5_BASE_DIR)  # value at time of qmake ("now")
+QT_BASE_DIR = $$(CAMCOPS_QT6_BASE_DIR)  # value at time of qmake ("now")
 isEmpty(QT_BASE_DIR) {
-    error("Environment variable CAMCOPS_QT5_BASE_DIR is undefined")
+    error("Environment variable CAMCOPS_QT6_BASE_DIR is undefined")
 }
-message("From environment variable CAMCOPS_QT5_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
+message("From environment variable CAMCOPS_QT6_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
 message("... Qt version: $$[QT_VERSION]")
 message("... Qt is installed in: $$[QT_INSTALL_PREFIX]")
 message("... Qt resources can be found in the following locations:")
@@ -73,21 +73,25 @@ message("... QT_ARCH: $${QT_ARCH}")
 # ALSO TRY:
 #   qmake -query  # for the qmake of the Qt build you're using
 
-# http://doc.qt.io/qt-5/qtmultimedia-index.html
+# https://doc.qt.io/qt-6.5/qtmultimedia-index.html
 # http://wiki.qt.io/Qt_5.5.0_Multimedia_Backends
-# http://doc.qt.io/qt-4.8/qmake-variable-reference.html#qt
-# http://doc.qt.io/qt-5/qtmodules.html
+# https://doc.qt.io/qt-6.5/qmake-variable-reference.html#qt
+# https://doc.qt.io/qt-6.5/qtmodules.html
 
 QT += core  # included by default; QtCore module
 QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
-# QT += network  # required to #include <QtNetwork/...>
+QT += network  # required to #include <QtNetwork/...>
+QT += opengl
+QT += openglwidgets
 QT += printsupport  # for QCustomPlot
 QT += quick  # for QML, e.g. for camera
 QT += quickwidgets  # for QQuickWidget
 QT += sql  # required to #include <QSqlDatabase>
+QT += statemachine
 QT += svg  # required to #include <QGraphicsSvgItem> or <QSvgRenderer>
+QT += svgwidgets
 # QT += webkit  # for QWebView -- no, not used
 # QT += webkitwidgets  # for QWebView -- no, not used
 QT += widgets  # required to #include <QApplication>
@@ -118,10 +122,8 @@ DEFINES += SQLITE_TEMP_STORE=2
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+# Fail to compile if you use deprecated APIs.
+DEFINES += QT_DISABLE_DEPRECATED_UP_TO=0x060500
 
 MOBILITY =
 
@@ -129,7 +131,7 @@ MOBILITY =
 # ... http://stackoverflow.com/questions/14681012/how-to-include-openssl-in-a-qt-project
 # ... but no effect? Not mentioned in variable reference (above).
 # ... ah, here's the reference:
-#     http://doc.qt.io/qt-5/qmake-project-files.html
+#     https://doc.qt.io/qt-6.5/qmake-project-files.html
 # LIBS += -lssl
 # ... not working either? Doesn't complain, but ldd still shows that system libssl.so is in use
 
@@ -217,6 +219,10 @@ gcc {
 
 # QMAKE_LFLAGS += --verbose  # make the linker verbose
 
+android {
+    QMAKE_RESOURCE_FLAGS += "-compress-algo zlib"
+}
+
 # =============================================================================
 # Build targets
 # =============================================================================
@@ -229,7 +235,17 @@ TEMPLATE = app
 # =============================================================================
 # See build_qt.py for how these are built (or not built) as required.
 
-INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-3.3.3"  # from which: <Eigen/...>
+EIGEN_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/eigen_version.txt"
+EIGEN_VERSION = $$cat($${EIGEN_VERSION_FILE})
+
+QT_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/qt_version.txt"
+QT_GIT_VERSION = $$cat($${QT_VERSION_FILE})
+
+!equals(QT_GIT_VERSION, $$[QT_VERSION]) {
+    error("This version of CamCOPS should be built with '$${QT_GIT_VERSION}', not '$$[QT_VERSION]'")
+}
+
+INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-$${EIGEN_VERSION}"  # from which: <Eigen/...>
 # INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
 # INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include/armadillo_bits"
 # INCLUDEPATH += "$${QT_BASE_DIR}/boost/boost_1_64_0"  # from which: <boost/...>
@@ -240,7 +256,8 @@ INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-3.3.3"  # from which: <Eigen/...>
 # =============================================================================
 # https://wiki.qt.io/Technical_FAQ#How_can_I_detect_in_the_.pro_file_if_I_am_compiling_for_a_32_bit_or_a_64_bit_platform.3F
 
-OPENSSL_VERSION = 1.1.1c
+OPENSSL_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/openssl_version.txt"
+OPENSSL_VERSION = $$cat($${OPENSSL_VERSION_FILE})
 # ... see build_qt.py or changelog.rst for chronology
 
 # -----------------------------------------------------------------------------
@@ -296,7 +313,7 @@ android {
         CAMCOPS_ARCH_TAG = "android_armv8_64"
     }
 
-    # http://doc.qt.io/qt-5/deployment-android.html#android-specific-qmake-variables
+    # https://doc.qt.io/qt-6.5/deployment-android.html#android-specific-qmake-variables
     ANDROID_PACKAGE_SOURCE_DIR = "$${CAMCOPS_SOURCE_ROOT}/android"
     message("ANDROID_PACKAGE_SOURCE_DIR: $${ANDROID_PACKAGE_SOURCE_DIR}")
     # ... contains things like AndroidManifest.xml
@@ -378,12 +395,15 @@ ios {
 
     QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
 
-    app_launch_screen.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard)
-    QMAKE_BUNDLE_DATA += app_launch_screen
+    QMAKE_IOS_LAUNCH_SCREEN = $${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard
 
     QMAKE_ASSET_CATALOGS = $${CAMCOPS_SOURCE_ROOT}/ios/Images.xcassets
     QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 }
+macos {
+    QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/macos/Info.plist
+}
+
 
 isEmpty(CAMCOPS_ARCH_TAG) {
     error("Unknown architecture; don't know how to build CamCOPS")
@@ -396,7 +416,7 @@ isEmpty(CAMCOPS_ARCH_TAG) {
 # To have the linker show its working:
 # LIBS += "-Wl,--verbose"
 
-equals(CAMCOPS_QT_LINKAGE, "static") {  # http://doc.qt.io/qt-5/qmake-test-function-reference.html
+equals(CAMCOPS_QT_LINKAGE, "static") {  # https://doc.qt.io/qt-6.5/qmake-test-function-reference.html
     message("Using static linkage from CamCOPS to Qt")
     CONFIG += static
 } else:equals(CAMCOPS_QT_LINKAGE, "dynamic") {
@@ -513,8 +533,8 @@ equals(CAMCOPS_OPENSSL_LINKAGE, "static") {
 }
 # Regardless of how *CamCOPS* talks to OpenSSL, under Android *Qt* talks to
 # it dynamically:
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed for Qt
-ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto_3$${DYNAMIC_LIB_EXT}"  # needed for Qt
+ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl_3$${DYNAMIC_LIB_EXT}"
 # ... must start "lib" and end ".so", otherwise Qt complains.
 
 
@@ -533,6 +553,7 @@ LIBS += "$${SQLCIPHER_DIR}/sqlcipher/sqlite3$${OBJ_EXT}"  # add .o file
 # -----------------------------------------------------------------------------
 message("QMAKE_CFLAGS=$${QMAKE_CFLAGS}")
 message("QMAKE_CXXFLAGS=$${QMAKE_CXXFLAGS}")
+message("QMAKE_RESOURCE_FLAGS=$${QMAKE_RESOURCE_FLAGS}")
 message("INCLUDEPATH=$${INCLUDEPATH}")
 message("LIBS=$${LIBS}")
 message("... qmake will add more to INCLUDEPATH and LIBS; see Makefile")
@@ -554,7 +575,6 @@ SOURCES += \
     common/cssconst.cpp \
     common/dbconst.cpp \
     common/dpi.cpp \
-    common/globals.cpp \
     common/platform.cpp \
     common/textconst.cpp \
     common/uiconst.cpp \
@@ -621,7 +641,6 @@ SOURCES += \
     graphics/geometry.cpp \
     graphics/graphicsfunc.cpp \
     graphics/graphicspixmapitemwithopacity.cpp \
-    graphics/imagefunc.cpp \
     graphics/linesegment.cpp \
     graphics/paintertranslaterotatecontext.cpp \
     graphics/penbrush.cpp \
@@ -639,6 +658,7 @@ SOURCES += \
     lib/css.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
+    lib/diagnosticstyle.cpp \
     lib/errorfunc.cpp \
     lib/filefunc.cpp \
     lib/flagguard.cpp \
@@ -727,7 +747,6 @@ SOURCES += \
     menulib/taskscheduleitemmenuitem.cpp \
     menulib/urlmenuitem.cpp \
     qcustomplot/qcustomplot.cpp \
-    qobjects/cameraframegrabber.cpp \
     qobjects/debugeventwatcher.cpp \
     qobjects/emailvalidator.cpp \
     qobjects/flickcharm.cpp \
@@ -1040,7 +1059,6 @@ HEADERS += \
     common/dbconst.h \
     common/design_defines.h \
     common/dpi.h \
-    common/globals.h \
     common/gui_defines.h \
     common/platform.h \
     common/preprocessor_aid.h \
@@ -1110,7 +1128,6 @@ HEADERS += \
     graphics/geometry.h \
     graphics/graphicsfunc.h \
     graphics/graphicspixmapitemwithopacity.h \
-    graphics/imagefunc.h \
     graphics/linesegment.h \
     graphics/paintertranslaterotatecontext.h \
     graphics/penbrush.h \
@@ -1130,6 +1147,7 @@ HEADERS += \
     lib/css.h \
     lib/datetime.h \
     lib/debugfunc.h \
+    lib/diagnosticstyle.h \
     lib/errorfunc.h \
     lib/filefunc.h \
     lib/flagguard.h \
@@ -1221,7 +1239,6 @@ HEADERS += \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \
     qcustomplot/qcustomplot.h \
-    qobjects/cameraframegrabber.h \
     qobjects/debugeventwatcher.h \
     qobjects/emailvalidator.h \
     qobjects/flickcharm.h \

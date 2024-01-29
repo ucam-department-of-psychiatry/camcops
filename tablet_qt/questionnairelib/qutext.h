@@ -22,8 +22,7 @@
 #include "db/fieldref.h"
 #include "common/uiconst.h"
 #include "questionnairelib/quelement.h"
-
-class LabelWordWrapWide;
+#include "widgets/labelwordwrapwide.h"
 
 
 class QuText : public QuElement

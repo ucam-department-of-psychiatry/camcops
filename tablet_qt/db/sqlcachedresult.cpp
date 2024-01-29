@@ -122,9 +122,9 @@ QString SqlCachedResult::holderAt(const int index) const
 // return a unique id for bound names
 QString SqlCachedResult::fieldSerial(int i) const
 {
-    ushort arr[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    ushort* end = &arr[(sizeof(arr) / sizeof(*arr))];
-    ushort* ptr = end;
+    char16_t arr[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    char16_t* end = &arr[(sizeof(arr) / sizeof(*arr))];
+    char16_t* ptr = end;
 
     while (i > 0) {
         *(--ptr) = 'a' + i % 16;

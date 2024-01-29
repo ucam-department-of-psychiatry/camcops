@@ -29,7 +29,7 @@ bool DiagnosisSortFilterModel::filterAcceptsRow(
     // criteria. (Note that calling setFilterFixedString correctly affects
     // filterRegExp(); see qsortfilterproxymodel.cpp).
 
-    // http://doc.qt.io/qt-5/qsortfilterproxymodel.html#filterAcceptsRow
+    // https://doc.qt.io/qt-6.5/qsortfilterproxymodel.html#filterAcceptsRow
     // http://www.qtcentre.org/threads/46471-QTreeView-Filter
 
     const QModelIndex index = sourceModel()->index(row, 0, parent);
@@ -44,7 +44,7 @@ bool DiagnosisSortFilterModel::filterAcceptsRow(
     }
 
     // Otherwise, if it matches our search criteria, we're good:
-    if (index.data().toString().contains(filterRegExp())) {
+    if (index.data().toString().contains(filterRegularExpression())) {
         return true;
     }
 

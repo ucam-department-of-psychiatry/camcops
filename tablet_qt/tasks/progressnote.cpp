@@ -26,6 +26,7 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 const QString ProgressNote::PROGNOTE_TABLENAME("progressnote");
 
@@ -43,8 +44,8 @@ ProgressNote::ProgressNote(CamcopsApp& app, DatabaseManager& db,
                            const int load_pk) :
     Task(app, db, PROGNOTE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addField(LOCATION, QVariant::String);
-    addField(NOTE, QVariant::String);
+    addField(LOCATION, QMetaType::fromType<QString>());
+    addField(NOTE, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

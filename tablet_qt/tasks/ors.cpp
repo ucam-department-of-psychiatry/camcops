@@ -21,31 +21,24 @@
 // By Joe Kearney, Rudolf Cardinal.
 
 #include "ors.h"
-#include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "lib/datetime.h"
-#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/namevaluepair.h"
-#include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qugridcell.h"
-#include "questionnairelib/quheading.h"
-#include "questionnairelib/quhorizontalcontainer.h"
 #include "questionnairelib/quhorizontalline.h"
-#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quverticalcontainer.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 
 using mathfunc::anyNullOrEmpty;
 using mathfunc::sumDouble;
@@ -89,14 +82,14 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ORS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_SESSION, QVariant::Int);
-    addField(FN_DATE, QVariant::Date);
-    addField(FN_WHOSE_GOAL, QVariant::Int);
-    addField(FN_WHOSE_GOAL_OTHER, QVariant::String);
-    addField(FN_INDIVIDUAL, QVariant::Double);
-    addField(FN_INTERPERSONAL, QVariant::Double);
-    addField(FN_SOCIAL, QVariant::Double);
-    addField(FN_OVERALL, QVariant::Double);
+    addField(FN_SESSION, QMetaType::fromType<int>());
+    addField(FN_DATE, QMetaType::fromType<QDate>());
+    addField(FN_WHOSE_GOAL, QMetaType::fromType<int>());
+    addField(FN_WHOSE_GOAL_OTHER, QMetaType::fromType<QString>());
+    addField(FN_INDIVIDUAL, QMetaType::fromType<double>());
+    addField(FN_INTERPERSONAL, QMetaType::fromType<double>());
+    addField(FN_SOCIAL, QMetaType::fromType<double>());
+    addField(FN_OVERALL, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

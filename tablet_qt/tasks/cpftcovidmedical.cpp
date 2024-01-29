@@ -25,7 +25,6 @@
 
 #include "cpftcovidmedical.h"
 
-#include "common/textconst.h"
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/databaseobject.h"
@@ -37,7 +36,6 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qutext.h"
-#include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
@@ -62,7 +60,7 @@ CPFTCovidMedical::CPFTCovidMedical(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_HOW_AND_WHEN_SYMPTOMS, QVariant::Int);
+    addField(FN_HOW_AND_WHEN_SYMPTOMS, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

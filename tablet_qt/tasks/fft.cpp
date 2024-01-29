@@ -28,6 +28,7 @@
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using stringfunc::strnum;
 using stringfunc::standardResult;
 
@@ -46,8 +47,8 @@ void initializeFft(TaskFactory& factory)
 Fft::Fft(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FFT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addField(SERVICE, QVariant::String);
-    addField(RATING, QVariant::Int);
+    addField(SERVICE, QMetaType::fromType<QString>());
+    addField(RATING, QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

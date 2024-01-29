@@ -28,15 +28,14 @@
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using datetime::shortDate;
 using mathfunc::allFalse;
 using mathfunc::anyNull;
@@ -123,14 +122,14 @@ Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db,
                        const int load_pk) :
     Task(app, db, ICD10MANIC_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(CORE_NAMES, QVariant::Bool);
-    addFields(HYPOMANIA_MANIA_NAMES, QVariant::Bool);
-    addFields(MANIA_NAMES, QVariant::Bool);
-    addFields(OTHER_CRITERIA_NAMES, QVariant::Bool);
-    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QVariant::Bool);
+    addFields(CORE_NAMES, QMetaType::fromType<bool>());
+    addFields(HYPOMANIA_MANIA_NAMES, QMetaType::fromType<bool>());
+    addFields(MANIA_NAMES, QMetaType::fromType<bool>());
+    addFields(OTHER_CRITERIA_NAMES, QMetaType::fromType<bool>());
+    addFields(PSYCHOSIS_AND_SIMILAR_NAMES, QMetaType::fromType<bool>());
 
-    addField(DATE_PERTAINS_TO, QVariant::Date);
-    addField(COMMENTS, QVariant::String);
+    addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
+    addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 

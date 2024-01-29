@@ -32,7 +32,6 @@
 #include <QString>
 #include <QUrl>
 #include "common/aliases_camcops.h"
-#include "common/design_defines.h"
 
 class CamcopsApp;
 class LogBox;

@@ -73,7 +73,6 @@
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "questionnairelib/quthermometer.h"
-#include "tasks/ace3.h"
 #include "widgets/adjustablepie.h"
 #include "widgets/aspectratiopixmap.h"
 #include "widgets/basewidget.h"
@@ -339,8 +338,10 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testQuButton, this)),
         MenuItem("QuCanvas",
                  std::bind(&WidgetTestMenu::testQuCanvas, this)),
-        MenuItem("QuCountdown",
-                 std::bind(&WidgetTestMenu::testQuCountdown, this)),
+        MenuItem("QuCountdown (loud)",
+                 std::bind(&WidgetTestMenu::testQuCountdown, this, 10, 100)),
+        MenuItem("QuCountdown (quiet)",
+                 std::bind(&WidgetTestMenu::testQuCountdown, this, 10, 10)),
         MenuItem("QuDateTime",
                  std::bind(&WidgetTestMenu::testQuDateTime, this)),
         MenuItem("QuDateTime (limited to 20th century)",
@@ -1051,11 +1052,20 @@ void WidgetTestMenu::testQuCanvas()
 }
 
 
-void WidgetTestMenu::testQuCountdown()
+void WidgetTestMenu::testQuCountdown(const int time_s, const int volume)
 {
-    const int time_s = 10;
     QuCountdown element(time_s);
-    testQuestionnaireElement(&element);
+
+    Questionnaire questionnaire(m_app);
+    QWidget* widget = element.widget(&questionnaire);
+    if (!widget) {
+        uifunc::alert("Element failed to create a widget!");
+        return;
+    }
+    element.setVolume(volume);
+    layoutdumper::DumperConfig config;
+    QString stylesheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
+    debugfunc::debugWidget(widget, false, false, config, true, &stylesheet);
 }
 
 
