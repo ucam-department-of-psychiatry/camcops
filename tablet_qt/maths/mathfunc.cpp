@@ -86,6 +86,24 @@ QVariant meanOrNull(const QVector<QVariant>& values, const bool ignore_null)
 }
 
 
+QVariant sumOrNull(const QVector<QVariant>& values, const bool ignore_null)
+{
+    double total = 0;
+    const int length = values.length();
+    for (int i = 0; i < length; ++i) {
+        const QVariant& v = values.at(i);
+        if (v.isNull()) {
+            if (ignore_null) {
+                continue;
+            }
+            return QVariant();  // sum of something including null is null
+        }
+        total += v.toDouble();
+    }
+    return total;
+}
+
+
 qreal mean(const qreal a, const qreal b)
 {
     return (a + b) / 2;

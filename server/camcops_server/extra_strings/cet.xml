@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cet">
+    <!-- Compulsive Exercise Test -->
+
+    <string name="instruction_title">Instructions</string>
+    <string name="instruction_contents">Listed below are a series of statements regarding exercise. Please read each statement carefully and choose the answer that best indicates how true each statement is of you. Please answer <i>all</i> the questions as honestly as you can.</string>
+    <!-- ... "circle the number" changed to "select the answer" for paper -> electronic format -->
+
+    <!-- qnum) ... or qnum. ... ? Thesis uses right bracket; Taranis 2011 uses full stop. -->
+    <string name="q1">1) I feel happier and/or more positive after I exercise.</string>
+    <string name="q2">2) I exercise to improve my appearance.</string>
+    <string name="q3">3) I like my days to be organised and structured of which exercise is just one part.</string>
+    <string name="q4">4) I feel less anxious after I exercise.</string>
+    <string name="q5">5) I find exercise a chore.</string>
+    <string name="q6">6) If I feel I have eaten too much, I will do more exercise.</string>
+    <string name="q7">7) My weekly pattern of exercise is repetitive.</string>
+    <string name="q8">8) I do not exercise to be slim.</string>
+    <string name="q9">9) If I cannot exercise I feel low or depressed.</string>
+    <string name="q10">10) I feel extremely guilty if I miss an exercise session.</string>
+    <string name="q11">11) I usually continue to exercise despite injury or illness, unless I am very ill or too injured.</string>
+    <string name="q12">12) I enjoy exercising.</string>
+    <string name="q13">13) I exercise to burn calories and lose weight.</string>
+    <string name="q14">14) I feel less stressed and/or tense after I exercise.</string>
+    <string name="q15">15) If I miss an exercise session, I will try and make up for it when I next exercise.</string>
+    <string name="q16">16) If I cannot exercise I feel agitated and/or irritable.</string>
+    <string name="q17">17) Exercise improves my mood.</string>
+    <string name="q18">18) If I cannot exercise, I worry that I will gain weight.</string>
+    <string name="q19">19) I follow a set routine for my exercise sessions e.g. walk or run the same route, particular exercises, same amount of time, and so on.</string>
+    <string name="q20">20) If I cannot exercise I feel angry and/or frustrated.</string>
+    <string name="q21">21) I do not enjoy exercising.</string>
+    <string name="q22">22) I feel like I’ve let myself down if I miss an exercise session.</string>
+    <string name="q23">23) If I cannot exercise I feel anxious.</string>
+    <string name="q24">24) I feel less depressed or low after I exercise.</string>
+
+    <string name="a0">Never true</string>
+    <string name="a1">Rarely true</string>
+    <string name="a2">Sometimes true</string>
+    <string name="a3">Often true</string>
+    <string name="a4">Usually true</string>
+    <string name="a5">Always true</string>
+
+    <string name="subscale1">Subscale 1: Avoidance and rule-driven behaviour</string>
+    <string name="subscale2">Subscale 2: Weight control exercise</string>
+    <string name="subscale3">Subscale 3: Mood improvement</string>
+    <string name="subscale4">Subscale 4: Lack of exercise enjoyment</string>
+    <string name="subscale5">Subscale 5: Exercise rigidity</string>
+
+  </task>
+</resources>

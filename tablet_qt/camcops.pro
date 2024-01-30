@@ -865,6 +865,7 @@ SOURCES += \
     tasks/cecaq3.cpp \
     tasks/cesd.cpp \
     tasks/cesdr.cpp \
+    tasks/cet.cpp \
     tasks/cgi.cpp \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
@@ -1357,6 +1358,7 @@ HEADERS += \
     tasks/cecaq3.h \
     tasks/cesd.h \
     tasks/cesdr.h \
+    tasks/cet.h \
     tasks/cgi.h \
     tasks/cgii.h \
     tasks/cgisch.h \

@@ -160,7 +160,7 @@ QSize ImageButton::sizeHint() const
 }
 
 
-void ImageButton::setImageSize(const QSize &size, const bool scale)
+void ImageButton::setImageSize(const QSize& size, const bool scale)
 {
     m_image_size = size;
     if (scale) {

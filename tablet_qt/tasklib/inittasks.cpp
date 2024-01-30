@@ -44,6 +44,7 @@
 #include "tasks/cecaq3.h"
 #include "tasks/cesd.h"
 #include "tasks/cesdr.h"
+#include "tasks/cet.h"
 #include "tasks/cgi.h"
 #include "tasks/cgii.h"
 #include "tasks/cgisch.h"
@@ -203,9 +204,10 @@ void InitTasks(TaskFactory& factory)
     initializeCardinalExpDetThreshold(factory);
     initializeCardinalExpectationDetection(factory);
     initializeCbiR(factory);
+    initializeCecaQ3(factory);
     initializeCesd(factory);
     initializeCesdr(factory);
-    initializeCecaQ3(factory);
+    initializeCet(factory);
     initializeCgi(factory);
     initializeCgiI(factory);
     initializeCgiSch(factory);

@@ -317,3 +317,22 @@ Version TaskFactory::minimumServerVersion(const QString& tablename) const
                 << tablename;
     return camcopsversion::MINIMUM_SERVER_VERSION;
 }
+
+
+QTextStream& operator<<(QTextStream& stream, const TaskFactory& f)
+{
+    const TaskPtrList specimens = f.allSpecimens();
+    for (const TaskPtr& t : specimens) {
+        stream
+            << t->tablename()
+            << ": "
+            << t->shortname()
+            << ", "
+            << t->longname()
+            << Qt::endl;
+    }
+    // Don't bother with reporting the numbers.
+    // The user can use ./camcops --print_tasks 2>/dev/null | wc
+    // and this way is more aligned to the Unix philosophy.
+    return stream;
+}

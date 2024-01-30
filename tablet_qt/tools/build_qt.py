@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# noinspection HttpUrlsUsage
 r"""
 tablet_qt/tools/build_qt.py
 
@@ -122,7 +121,7 @@ Several compilers are possible, in principle.
   - Can also run under Linux and cross-compile to Windows.
 
     - More specifically: mingw-w64, which is GCC for 32- and 64-bit Windows
-      - http://mingw-w64.org/
+      - https://www.mingw-w64.org/
       - ... i686-w64-mingw32 for 32-bit executables
       - ... x86_64-w64-mingw32 for 64-bit executables
 
@@ -423,7 +422,7 @@ except ImportError:
     raise
 
 try:
-    import distro  # http://distro.readthedocs.io/en/latest/
+    import distro  # https://distro.readthedocs.io/en/latest/
 except ImportError:
     distro = None
     if platform.system() in ("Linux",):
@@ -4233,7 +4232,6 @@ def bash_command_args(workdir: str, command_args: List[str]) -> List[str]:
         "-lc",
         f"cd {bash_workdir} && {command}",
     ]
-
     return bash_cmd_args
 
 

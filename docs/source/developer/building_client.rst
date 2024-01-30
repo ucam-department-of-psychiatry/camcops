@@ -1061,6 +1061,12 @@ Troubleshooting qmake/compilation
 
   Try switching from "debug" to "release" build.
 
+- Missing libraries under Ubuntu/Debian Linux:
+
+  For example, for the error "cannot find -lgstphotography-1.0", try ``apt-file
+  search gstphotography``. Prefer packages with a ``-dev`` suffix as these have
+  development headers.
+
 
 Troubleshooting running CamCOPS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

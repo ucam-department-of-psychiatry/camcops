@@ -3710,6 +3710,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2023
 ~~~~
 
+
 .. _changelog_v2_4_15:
 
 **Client and server v2.4.15, released 24 Mar 2023**
@@ -3766,6 +3767,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Use SecureTransport instead of OpenSSL with Qt on iOS client.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/278
+
 
 .. _changelog_v2_4_16:
 
@@ -3828,6 +3830,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Supported SQLAlchemy version now 1.4.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
+
+- New task: :ref:`Compulsive Exercise Test (CET) <cet>`
 
 - Qt version is now 6.5.3. Qt now builds with FFmpeg for multimedia on all
   platforms except iOS (following Qt official releases).

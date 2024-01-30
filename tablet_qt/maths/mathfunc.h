@@ -106,6 +106,12 @@ double kahanSum(const QVector<double>& vec);
 // Geometric mean (the nth root of x1 * x2 * ... * xn)
 double geometricMean(const QVector<double>& data);
 
+// Return the simple sum of the supplied values.
+// - ignore_null true: return the sum of the values, ignoring any NULLs.
+// - ignore_null false: return the mean, or NULL if any are NULL.
+QVariant sumOrNull(const QVector<QVariant>& values, bool ignore_null = false);
+
+
 // ============================================================================
 // QVariant operations, and QVariant collections
 // ============================================================================

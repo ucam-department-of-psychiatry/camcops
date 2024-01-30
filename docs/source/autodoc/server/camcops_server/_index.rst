@@ -115,6 +115,7 @@ server/camcops_server
     alembic/versions/0081_isaaq10.py.rst
     alembic/versions/0082_replace_isaaq_isaaq10.py.rst
     alembic/versions/0083_delete_isaaq.py.rst
+    alembic/versions/0084_compulsive_exercise_test_cet.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -289,6 +290,7 @@ server/camcops_server
     extra_strings/cecaq3.xml.rst
     extra_strings/cesd.xml.rst
     extra_strings/cesdr.xml.rst
+    extra_strings/cet.xml.rst
     extra_strings/cgi.xml.rst
     extra_strings/cgisch.xml.rst
     extra_strings/cisr.xml.rst
@@ -375,6 +377,7 @@ server/camcops_server
     tasks/ceca.py.rst
     tasks/cesd.py.rst
     tasks/cesdr.py.rst
+    tasks/cet.py.rst
     tasks/cgi_task.py.rst
     tasks/cgisch.py.rst
     tasks/chit.py.rst

@@ -54,6 +54,7 @@ from camcops_server.tasks.cbir import CbiR
 from camcops_server.tasks.ceca import CecaQ3
 from camcops_server.tasks.cesd import Cesd
 from camcops_server.tasks.cesdr import Cesdr
+from camcops_server.tasks.cet import Cet
 from camcops_server.tasks.cgi_task import Cgi
 from camcops_server.tasks.cgisch import CgiSch
 from camcops_server.tasks.chit import Chit

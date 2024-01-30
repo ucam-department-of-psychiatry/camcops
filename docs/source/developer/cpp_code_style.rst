@@ -243,3 +243,64 @@ Note other popular coding standards:
 - For Qt Creator's Clang-Tidy and Clazy, use :menuselection:`Tools --> Options
   --> Analyzer`, copy a starting configuration such as "Clang-Tidy and Clazy
   preselected checks [built-in]", and edit it.
+
+
+**Constants in Qt code**
+
+- It should always be preferable to use initialization over assigment. However,
+  "initialization as assigment" is also initialization:
+
+  .. code-block:: cpp
+
+    const MyObject x(5);  // initialization via MyObject::MyObject(5)
+    const MyObject x = 5;  // also initialization via MyObject::MyObject(5)
+    const MyObject x = MyObject(5);  // silly
+    MyObject x; x = 5;  // assignment via MyObject::operator=(5)
+
+  We can demonstrate by inspecting the assembly output, e.g. at
+  https://godbolt.org/ with this code:
+
+  .. code-block:: cpp
+
+    #include <string>
+    void f() {
+        const int a = 1;
+        const int b(2);
+        int c;
+        c = 4;
+        const std::string d("d");
+        const std::string e = "e";  // same output as for d
+        std::string f;
+        f = "f";
+    }
+
+  The C++ standard defines initialization to include these cases:
+  https://en.cppreference.com/w/cpp/language/initialization. However, it seems
+  there isn't very much difference here of day-to-day importance.
+
+  QStringLiteral() may sometimes be preferred over raw strings by the linter.
+
+- In 2023 the linter complains about e.g.
+
+  .. code-block:: cpp
+
+    const int FIRST_Q = 1;  // OK
+    const QVector<int> Q_REVERSE_SCORED{8, 12};  // non-POD static (QList) [clazy-non-pod-global-static]
+    const QString APREFIX("a");  // non-POD static (QString) [clazy-non-pod-global-static]
+
+  See
+  https://github.com/KDE/clazy/blob/master/docs/checks/README-non-pod-global-static.md;
+  https://www.kdab.com/uncovering-32-qt-best-practices-compile-time-clazy/;
+  https://doc.qt.io/qt-6/qglobalstatic.html#Q_GLOBAL_STATIC. But
+  Q_GLOBAL_STATIC is quite ugly, and it's not clear that a real problem is
+  being solved. See also
+  https://forum.qt.io/topic/97838/static-const-qstring-implicit-sharing-issue/14;
+  https://forum.qt.io/topic/111693/storing-qstring-constants-without-global-static-non-pod-values.
+  Possibly ignoring the warnings is fine in this case.
+
+- But then on other machine it gets past that, and instead complains like this:
+
+  .. code-block:: cpp
+
+    const QString APREFIX("a");  // QString(const char*) being called [clazy-qstring-allocations]  QString(const char*) ctor being called [clazy-qt4-qstring-from-array]
+    const QString APREFIX(QStringLiteral("a"));  // OK but long-winded

@@ -339,6 +339,7 @@ _SQLSERVER_DATETIME2_LEN = 27
 # isotzdatetime_to_utcdatetime
 # -----------------------------------------------------------------------------
 
+
 # noinspection PyPep8Naming
 class isotzdatetime_to_utcdatetime(FunctionElement):
     """
@@ -578,6 +579,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
 # -----------------------------------------------------------------------------
 # unknown_field_to_utcdatetime
 # -----------------------------------------------------------------------------
+
 
 # noinspection PyPep8Naming
 class unknown_field_to_utcdatetime(FunctionElement):
@@ -1449,6 +1451,8 @@ class CamcopsColumn(Column):
       cause errors to be reported, but they're still stored).
     """
 
+    inherit_cache = True  # https://sqlalche.me/e/14/cprf
+
     def __init__(
         self,
         *args,
@@ -1763,6 +1767,8 @@ class BoolColumn(CamcopsColumn):
     A :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`
     representing a boolean value.
     """
+
+    inherit_cache = True  # https://sqlalche.me/e/14/cprf
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Must pass on all arguments, ultimately to Column, or when using

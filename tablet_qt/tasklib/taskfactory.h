@@ -153,4 +153,7 @@ protected:
     QStringList m_all_tablenames;  // all task table names (base + ancillary)
     QVector<ProxyType> m_initial_proxy_list;  // holds proxies during initial registration
     MapType m_map;  // maps base table name to TaskCache
+
+public:
+    friend QTextStream& operator<<(QTextStream& stream, const TaskFactory& f);
 };
