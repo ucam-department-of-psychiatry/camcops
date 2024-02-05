@@ -38,6 +38,7 @@ Quick links:
 - :ref:`2023 <changelog_2023>`
 - :ref:`2024 <changelog_2024>`
 
+- :ref:`v2.3.3 <changelog_v2.3.3>`
 - :ref:`v2.3.4 <changelog_v2.3.4>`
 - :ref:`v2.3.5 <changelog_v2.3.5>`
 - :ref:`v2.3.6 <changelog_v2.3.6>`
@@ -2183,8 +2184,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
-**Client and server v2.3.3**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.3.3:
+
+**Client and server v2.3.3, released 15 Jun 2019**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Windows service.
 
@@ -3632,7 +3635,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
     objects properly. The bug manifested during reindexing, and was as
-    documented above in :ref:`v2.3.3 <changelog_v2_3_3>`.
+    documented above in :ref:`v2.3.3 <changelog_v2.3.3>`.
 
 - Update SNOMED code fetcher. Replace 32537008 with 165172002 in
   PsychiatricClerking. Other minor tweaks.
