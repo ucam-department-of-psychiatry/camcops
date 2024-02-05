@@ -38,6 +38,30 @@ Quick links:
 - :ref:`2023 <changelog_2023>`
 - :ref:`2024 <changelog_2024>`
 
+- :ref:`v2.3.4 <changelog_v2.3.4>`
+- :ref:`v2.3.5 <changelog_v2.3.5>`
+- :ref:`v2.3.6 <changelog_v2.3.6>`
+- :ref:`v2.3.7 <changelog_v2.3.7>`
+- :ref:`v2.3.8 <changelog_v2.3.8>`
+- :ref:`v2.4.0 <changelog_v2.4.0>`
+- :ref:`v2.4.1 <changelog_v2.4.1>`
+- :ref:`v2.4.2 <changelog_v2.4.2>`
+- :ref:`v2.4.3 <changelog_v2.4.3>`
+- :ref:`v2.4.4 <changelog_v2.4.4>`
+- :ref:`v2.4.5 <changelog_v2.4.5>`
+- :ref:`v2.4.6 <changelog_v2.4.6>`
+- :ref:`v2.4.7 <changelog_v2.4.7>`
+- :ref:`v2.4.8 <changelog_v2.4.8>`
+- :ref:`v2.4.9 <changelog_v2.4.9>`
+- :ref:`v2.4.10 <changelog_v2.4.10>`
+- :ref:`v2.4.11 <changelog_v2.4.11>`
+- :ref:`v2.4.12 <changelog_v2.4.12>`
+- :ref:`v2.4.13 <changelog_v2.4.13>`
+- :ref:`v2.4.14 <changelog_v2.4.14>`
+- :ref:`v2.4.15 <changelog_v2.4.15>`
+- :ref:`v2.4.16 <changelog_v2.4.16>`
+- :ref:`v2.4.17 <changelog_v2.4.17>`
+- :ref:`v2.4.18 <changelog_v2.4.18>`
 
 Contributors
 ------------
@@ -2159,8 +2183,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
-.. _changelog_v2_3_3:
-
 **Client and server v2.3.3**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -3457,7 +3479,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   places.
 
 
-.. _changelog_v2_4_8:
+.. _changelog_v2.4.8:
 
 **Client and server v2.4.8, released 9 Jul 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3479,7 +3501,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/153
 
 
-.. _changelog_v2_4_9:
+.. _changelog_v2.4.9:
 
 **Client and server v2.4.9, released 6 Aug 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3501,7 +3523,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <cpft_covid_medical>` (Database revision 0068).
 
 
-.. _changelog_v2_4_10:
+.. _changelog_v2.4.10:
 
 **Server v2.4.10, released 27 Sep 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3521,7 +3543,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   UUIDs: https://github.com/ucam-department-of-psychiatry/camcops/issues/192
 
 
-.. _changelog_v2_4_11:
+.. _changelog_v2.4.11:
 
 **Client and server v2.4.11, released 8 Oct 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3551,7 +3573,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2022
 ~~~~
 
-.. _changelog_v2_4_12:
+.. _changelog_v2.4.12:
 
 **Server v2.4.12, released 20 Jan 2022**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3650,7 +3672,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/226
 
 
-.. _changelog_v2_4_13:
+.. _changelog_v2.4.13:
 
 **Client and server v2.4.13, released 18 Aug 2022**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3685,6 +3707,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **New task:** :ref:`Psychosocial fActors Relevant to BrAin DISorders in
   Europe-24 (PARADISE-24) <paradise24>`. (Database revision 0076.)
 
+.. _changelog_v2.4.14:
 
 **Server v2.4.14, released 17 Nov 2022**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3711,7 +3734,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 
-.. _changelog_v2_4_15:
+.. _changelog_v2.4.15:
 
 **Client and server v2.4.15, released 24 Mar 2023**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3769,7 +3792,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/278
 
 
-.. _changelog_v2_4_16:
+.. _changelog_v2.4.16:
 
 **Client and server v2.4.16, released 13 Jun 2023**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3799,6 +3822,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   text is greater in height than the images.
 
 
+.. _changelog_v2.4.17:
+
 **Client and server v2.4.17, released 19 Aug 2023**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -3812,6 +3837,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 2024
 ~~~~
+
+.. _changelog_v2.4.18:
 
 **Client and server v2.4.18, released 05 Feb 2024**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

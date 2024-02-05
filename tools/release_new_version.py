@@ -343,7 +343,7 @@ class VersionReleaser:
 
         raise MissingVersionException("Could not find version in Info.plist")
 
-    def check_quick_links(self) -> None:
+    def check_quick_link_years(self) -> None:
         ref_regex = r"- :ref:`(\d{4}) <changelog_(\d{4})>`$"
         refs = []
 
@@ -406,6 +406,54 @@ class VersionReleaser:
                     "Mismatch between :ref: years, target years "
                     "and year headings"
                 )
+
+    def check_quick_link_versions(self) -> None:
+        ref_regex = r"- :ref:`v(\d+\.\d+\.\d+) <changelog_v(\d+\.\d+\.\d+)>`$"
+        refs = []
+
+        with open(CHANGELOG, "r") as f:
+            for line in f.readlines():
+                m = re.match(ref_regex, line)
+                if m is not None:
+                    refs.append((Version(m.group(1)), Version(m.group(2))))
+
+        if (self.release_version, self.release_version) not in refs:
+            self.errors.append(
+                f"No :ref: for {self.release_version} in changelog"
+            )
+
+        target_regex = r"\.\. _changelog_v(\d+\.\d+\.\d+)\:$"
+
+        targets = []
+
+        with open(CHANGELOG, "r") as f:
+            for line in f.readlines():
+                m = re.match(target_regex, line)
+                if m is not None:
+                    target_version = Version(m.group(1))
+                    if (target_version, target_version) not in refs:
+                        self.errors.append(
+                            f"No :ref: for version {target_version} "
+                            "in changelog"
+                        )
+                    targets.append((target_version, target_version))
+
+        versions = []
+        for version, date in self.released_versions:
+            versions.append((version, version))
+
+        if targets != refs or versions != refs:
+            self.errors.append(":ref: versions:")
+            self.errors.append([r[0] for r in refs])
+            self.errors.append("target versions:")
+            self.errors.append([t[0] for t in targets])
+            self.errors.append("released versions:")
+            self.errors.append([v[0] for v in versions])
+
+            self.errors.append(
+                "Mismatch between :ref: versions, target versions "
+                "and version headings"
+            )
 
     def check_server_version(self) -> None:
         if self.new_server_version == self.progress_version:
@@ -680,7 +728,8 @@ class VersionReleaser:
                 f"({latest_date}) does not match '{self.release_date}'"
             )
 
-        self.check_quick_links()
+        self.check_quick_link_years()
+        self.check_quick_link_versions()
 
         self.check_server_version()
         if self.should_release_server:
