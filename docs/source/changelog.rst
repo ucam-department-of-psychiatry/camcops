@@ -3813,8 +3813,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2024
 ~~~~
 
-**Client and server v2.4.18, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.18, released 05 Feb 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Make the "Register me" and "More options" buttons more legible on Android.
 
@@ -3846,3 +3846,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - The photo question (QuPhoto class) reverts to the QCamera method
   (C++ implementation) because of multiple issues with the QML method.
   See ``tablet_qt/widgets/cameraqcamera.h``.
+
+
+**Client and server v2.4.19, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
