@@ -786,7 +786,15 @@ class VersionReleaser:
             # Currenly fhirclient is on a fork
             self.run_with_check(["python", "setup.py", "sdist"])
             pypi_packages = [str(f) for f in self.get_pypi_builds()]
-            print("Uploading to PyPI...")
+            print(
+                "Uploading to PyPI. You will need an API token from "
+                "https://pypi.org/manage/account/. If prompted for username "
+                "and password, enter '__token__' as the username and the API "
+                "token (long string beginning with pypi-) as the password. "
+                "Alternatively you can store these details in ~/.pypirc. See "
+                "https://packaging.python.org/en/latest/specifications/pypirc/"
+                "..."
+            )
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
             print(
