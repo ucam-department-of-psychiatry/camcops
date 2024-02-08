@@ -98,6 +98,9 @@ Google Play Store settings
   https://play.google.com/store/apps/details?id=org.camcops.camcops). Perhaps
   10 minutes to the main web site?
 
+  As of 2024-02-08, there is a problem with Qt Creator overriding the minimum and target SDK versions
+  in the AndroidManifest.xml file. See https://forum.qt.io/topic/150354/cannot-select-api-33-for-android-target-sdk-in-qt-creator/20
+  for workarounds.
 
 Google Play Store release history
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
