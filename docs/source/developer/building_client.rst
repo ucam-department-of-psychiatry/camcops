@@ -26,7 +26,6 @@
 .. _Git: https://git-scm.com/
 .. _ImageMagick: https://www.imagemagick.org/
 .. _Inno Setup: http://www.jrsoftware.org/isinfo.php
-.. _jom: https://wiki.qt.io/Jom
 .. _MSYS2: https://www.msys2.org/
 .. _NASM: http://www.nasm.us/
 .. _Perl: https://www.activestate.com/activeperl
@@ -323,27 +322,6 @@ Version constraints for OpenSSL and SQLCipher
 
 Troubleshooting build_qt
 ~~~~~~~~~~~~~~~~~~~~~~~~
-
-Problem: CL.EXE cannot open program database
-############################################
-
-**Problem (Windows):** ``fatal error C1041: cannot open program database
-'...\openssl-1.1.0g\app.pdb'; if multiple CL.EXE write to the same .PDB file,
-please use /FS``
-
-... even when ``-FS`` is in use via jom_.
-
-**Solution:** just run :ref:`build_qt` again; this error usually goes away.
-Presumably the Qt jom_ tool doesn't always get things quite right with Visual
-C++, and this error reflects parallel compilation processes clashing
-occasionally. It's definitely worth persisting, because Jom saves no end of
-time.
-
-If it fails repeatedly, add the ``--nparallel 1`` option. (It seems to be the
-OpenSSL build that's prone to failing; you can always interrupt the program
-after OpenSSL has finished, and use the full number of CPU cores for the much
-longer Qt build.)
-
 
 Problem: aarch64-linux-android-gcc-4.9: not found
 #################################################

@@ -1443,12 +1443,8 @@ class Platform(object):
         extra_args = extra_args or []  # type: List[str]
         env = env if env is not None else os.environ
         if self.windows:
-            if which_with_envpath(cfg.jom_executable, env):
-                make = cfg.jom_executable
-                supports_parallel = True
-            else:
-                make = which_with_envpath(NMAKE, env)
-                supports_parallel = False
+            make = which_with_envpath(NMAKE, env)
+            supports_parallel = False
             makefile_switch = "/FS"
             parallel_switch = "/J"
         else:
@@ -1690,12 +1686,6 @@ class Config(object):
         self.ffmpeg_src_fullpath = join(
             self.ffmpeg_src_dir, f"ffmpeg-{self.ffmpeg_version}.tar.gz"
         )
-
-        # jom: comes with QtCreator
-        # self.jom_git_url = args.jom_git_url  # type: str
-        # self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
-        # self.jom_executable = join(self.jom_src_gitdir, "bin", "jom.exe") # type: str  # noqa
-        self.jom_executable = args.jom_executable  # type: str
 
         self._cached_xcode_developer_path = ""
 
@@ -3346,7 +3336,6 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     #       https://stackoverflow.com/questions/14932315/how-to-compile-qt-5-under-windows-or-linux-32-or-64-bit-static-or-dynamic-on-v  # noqa
     #       ?also http://simpleit.us/2010/05/30/enabling-openssl-for-qt-c-on-windows/  # noqa
     #       https://doc.qt.io/qt-6.5/windows-building.html
-    #       http://wiki.qt.io/Jom
     #       http://www.holoborodko.com/pavel/2011/02/01/how-to-compile-qt-4-7-with-visual-studio-2010/
     # iOS:
     #       https://doc.qt.io/qt-6.5/building-from-source-ios.html
@@ -4689,16 +4678,6 @@ def main() -> None:
         "--ios_sdk",
         default="",
         help="iOS SDK to use (leave blank for system default)",
-    )
-
-    # jom
-    jom = parser.add_argument_group(
-        "jom", "'jom' parallel make tool for Windows"
-    )
-    jom.add_argument(
-        "--jom_executable",
-        default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
-        help="jom executable (typically installed with QtCreator)",
     )
 
     args = parser.parse_args()
