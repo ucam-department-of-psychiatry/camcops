@@ -121,6 +121,7 @@ jobs:
                   libbluetooth-dev \
                   libclang-13-dev \
                   libclang-14-dev \
+                  libclang-15-dev \
                   libcups2-dev \
                   libfreetype6-dev \
                   libhunspell-dev \
