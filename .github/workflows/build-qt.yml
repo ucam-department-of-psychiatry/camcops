@@ -9,6 +9,7 @@ on:
             - tablet_qt/tools/build_qt.py
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/free_up_disk_space.sh
+            - .github/scripts/install_msys_packages.ps1
             - .github/workflows/build-qt.yml
 jobs:
     build-qt:
@@ -156,10 +157,7 @@ jobs:
               if: matrix.os == 'windows-2019'
               run: |
                   $ErrorActionPreference = "Stop"
-                  echo "Installing msys packages..."
-                  C:\tools\msys64\usr\bin\bash -l -c `"pacman -S --noconfirm make yasm diffutils awk`"
-                  echo "Done."
-
+                  $env:GITHUB_WORKSPACE\.github\scripts\install_msys_packages.ps1
             - name: restore ccache
               id: ccache
               uses: actions/cache@v3
