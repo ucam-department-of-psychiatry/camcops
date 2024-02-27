@@ -15,7 +15,7 @@ on:
 
 env:
     # Keep in sync with tablet_qt/qt_version.txt. We check this further down.
-    QT_VERSION: 6.5.2
+    QT_VERSION: 6.5.3
 jobs:
     cpp-tests:
         runs-on: ubuntu-22.04
