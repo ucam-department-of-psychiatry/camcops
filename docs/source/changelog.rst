@@ -3880,3 +3880,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.19, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Additional optional LGPL licensing for some Qt height-for-width layout code
+  to make it suitable for inclusion in libraries elsewhere.
