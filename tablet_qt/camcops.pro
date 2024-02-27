@@ -1584,3 +1584,9 @@ TRANSLATIONS = \
     translations/camcops_da_DK.ts
 
 message("--- CamCOPS qmake finishing.")
+
+DISTFILES += \
+    common/README_licenses.txt \
+    layouts/README_licenses.txt \
+    lib/README_licenses.txt \
+    widgets/README_licenses.txt

@@ -1,2 +1,10 @@
-CamCOPS is licensed under the GNU General Public License v3; see LICENSE_GPLv3.txt
+CamCOPS is licensed under the GNU General Public License (GPL) v3 or later; see
+LICENSE_GPLv3.txt.
 
+A few files are also (optionally) licensed under the GNU Lesser General Public
+License (LGPL) v3; see (a) LICENSE-GPLv3.txt and (b) files named
+README_license.txt within the source code directories, indicating to which
+files these apply.
+
+A few files inherit a BSD license; again, see individual files (which will have
+a README_license.txt file in their directory).
