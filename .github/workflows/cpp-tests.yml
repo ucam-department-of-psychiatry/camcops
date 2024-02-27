@@ -21,16 +21,16 @@ jobs:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v3
+            - name: Qt version check
+              run: |
+                  set -euxo pipefail
+                  test "${{ env.QT_VERSION }}" == "$(cat ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
             - name: Install Qt
               uses: jurplel/install-qt-action@v3
               with:
                   version: ${{ env.QT_VERSION }}
                   arch: gcc_64
                   modules: qtmultimedia
-            - name: Qt version check
-              run: |
-                  set -euxo pipefail
-                  test "${{ env.QT_VERSION }}" == "$(cat ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
