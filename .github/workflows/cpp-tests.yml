@@ -11,6 +11,11 @@ on:
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/cpp_tests.sh
             - .github/workflows/cpp-tests.yml
+            - tablet_qt/qt_version.txt
+
+env:
+    # Keep in sync with tablet_qt/qt_version.txt. We check this further down.
+    QT_VERSION: 6.5.2
 jobs:
     cpp-tests:
         runs-on: ubuntu-22.04
@@ -19,9 +24,13 @@ jobs:
             - name: Install Qt
               uses: jurplel/install-qt-action@v3
               with:
-                  version: 6.5.2
+                  version: ${{ env.QT_VERSION }}
                   arch: gcc_64
                   modules: qtmultimedia
+            - name: Qt version check
+              run: |
+                  set -euxo pipefail
+                  test "${{ env.QT_VERSION }}" == "$(cat {$GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
