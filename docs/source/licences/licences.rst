@@ -40,6 +40,14 @@ CamCOPS
 ..  literalinclude:: licence_camcops.txt
     :language: none
 
+A few files have the alternative of the GNU Lesser General Public License
+(LGPL), documented in individual source code files (and see also files named
+README_licenses.txt). These can easily be found within the CamCOPS source code
+through the command:
+
+.. code-block:: bash
+
+    find . -type f -exec egrep -l "(OPTIONAL LGPL)|(BSD LICENSE)" {} \;
 
 .. _licences_other:
 .. _licences_qt:
