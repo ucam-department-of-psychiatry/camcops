@@ -30,7 +30,7 @@ jobs:
             - name: Qt version check
               run: |
                   set -euxo pipefail
-                  test "${{ env.QT_VERSION }}" == "$(cat {$GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
+                  test "${{ env.QT_VERSION }}" == "$(cat ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
