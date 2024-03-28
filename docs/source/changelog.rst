@@ -3883,3 +3883,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
+
+- Fix bug where the upload icon would remain visible if the activity log were enabled and
+  the upload failed.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/341
