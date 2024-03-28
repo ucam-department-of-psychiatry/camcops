@@ -3883,3 +3883,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
+
+- Make it easier to turn on error logging in the event of a network operation failure.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/336
