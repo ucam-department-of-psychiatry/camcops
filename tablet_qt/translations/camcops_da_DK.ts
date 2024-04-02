@@ -4,7 +4,7 @@
 <context>
     <name>APEQCPFTPerinatal</name>
     <message>
-        <location filename="../tasks/apeqcpftperinatal.cpp" line="+86"/>
+        <location filename="../tasks/apeqcpftperinatal.cpp" line="+87"/>
         <source>Assessment Patient Experience Questionnaire for CPFT Perinatal Services</source>
         <translation>Assessment Patient Experience Questionnaire for CPFT Perinatal Services [vurdering patient oplevelse spørgeskema for CPFT perinatal tjenester]</translation>
     </message>
@@ -17,7 +17,7 @@
 <context>
     <name>Ace3</name>
     <message>
-        <location filename="../tasks/ace3.cpp" line="+282"/>
+        <location filename="../tasks/ace3.cpp" line="+281"/>
         <source>Addenbrooke’s Cognitive Examination, revision 3</source>
         <translation>Addenbrooke’s Cognitive Examination [Addenbrooke&apos;s kognitive undersøgelse], revision 3</translation>
     </message>
@@ -165,7 +165,7 @@
 <context>
     <name>AceFamily</name>
     <message>
-        <location filename="../tasks/acefamily.cpp" line="+113"/>
+        <location filename="../tasks/acefamily.cpp" line="+112"/>
         <source>Server strings are not providing valid information about which address versions are available. Try re-fetching server info.</source>
         <translation>Serverstrenge giver ikke gyldige oplysninger om, hvilke adresseversioner der er tilgængelige. Prøv at hente serveroplysninger igen.</translation>
     </message>
@@ -218,7 +218,7 @@
 <context>
     <name>Apeqpt</name>
     <message>
-        <location filename="../tasks/apeqpt.cpp" line="+108"/>
+        <location filename="../tasks/apeqpt.cpp" line="+96"/>
         <source>Assessment Patient Experience Questionnaire for Psychological Therapies</source>
         <translation>Assessment Patient Experience Questionnaire for Psychological Therapies [vurdering patient oplevelse spørgeskema for psykologiske terapier]</translation>
     </message>
@@ -231,7 +231,7 @@
 <context>
     <name>Asdas</name>
     <message>
-        <location filename="../tasks/asdas.cpp" line="+87"/>
+        <location filename="../tasks/asdas.cpp" line="+84"/>
         <source>Ankylosing Spondylitis Disease Activity Score</source>
         <translation>Ankylosing Spondylitis Disease Activity Score [ankyloserende spondylitis sygdom aktivitet score]</translation>
     </message>
@@ -270,7 +270,7 @@
 <context>
     <name>Badls</name>
     <message>
-        <location filename="../tasks/badls.cpp" line="+77"/>
+        <location filename="../tasks/badls.cpp" line="+76"/>
         <source>Bristol Activities of Daily Living Scale</source>
         <translation>Bristol Activities of Daily Living Scale [Bristol aktiviteter med daglig levetidskala]</translation>
     </message>
@@ -283,7 +283,7 @@
 <context>
     <name>Basdai</name>
     <message>
-        <location filename="../tasks/basdai.cpp" line="+75"/>
+        <location filename="../tasks/basdai.cpp" line="+76"/>
         <source>Bath Ankylosing Spondylitis Disease Activity Index</source>
         <translation>Bath Ankylosing Spondylitis Disease Activity Index [ankyloserende spondylitis sygdom aktivitetsindeks]</translation>
     </message>
@@ -309,7 +309,7 @@
 <context>
     <name>Bmi</name>
     <message>
-        <location filename="../tasks/bmi.cpp" line="+79"/>
+        <location filename="../tasks/bmi.cpp" line="+80"/>
         <source>Body mass index</source>
         <translation>Kropsmasseindeks</translation>
     </message>
@@ -332,7 +332,7 @@
 <context>
     <name>Bprs</name>
     <message>
-        <location filename="../tasks/bprs.cpp" line="+73"/>
+        <location filename="../tasks/bprs.cpp" line="+74"/>
         <source>Brief Psychiatric Rating Scale</source>
         <translation>Brief Psychiatric Rating Scale [kort psykiatrisk vurdering skala]</translation>
     </message>
@@ -345,7 +345,7 @@
 <context>
     <name>BprsE</name>
     <message>
-        <location filename="../tasks/bprse.cpp" line="+70"/>
+        <location filename="../tasks/bprse.cpp" line="+71"/>
         <source>Brief Psychiatric Rating Scale, Expanded</source>
         <translation>Brief Psychiatric Rating Scale, Expanded [kort psykiatrisk vurdering skala, udvidet]</translation>
     </message>
@@ -358,7 +358,7 @@
 <context>
     <name>CPFTCovidMedical</name>
     <message>
-        <location filename="../tasks/cpftcovidmedical.cpp" line="+83"/>
+        <location filename="../tasks/cpftcovidmedical.cpp" line="+81"/>
         <source>CPFT Post-COVID-19 Clinic Medical Questionnaire</source>
         <translation>CPFT Medicinsk Spørgeskema Efter COVID-19</translation>
     </message>
@@ -371,7 +371,7 @@
 <context>
     <name>CPFTLPSDischarge</name>
     <message>
-        <location filename="../tasks/cpftlpsdischarge.cpp" line="+229"/>
+        <location filename="../tasks/cpftlpsdischarge.cpp" line="+228"/>
         <source>CPFT LPS – discharge</source>
         <translation>CPFT LPS – udledning</translation>
     </message>
@@ -384,7 +384,7 @@
 <context>
     <name>CPFTLPSReferral</name>
     <message>
-        <location filename="../tasks/cpftlpsreferral.cpp" line="+142"/>
+        <location filename="../tasks/cpftlpsreferral.cpp" line="+141"/>
         <source>CPFT LPS – referral</source>
         <translation>CPFT LPS – henvisning</translation>
     </message>
@@ -397,7 +397,7 @@
 <context>
     <name>CPFTLPSResetResponseClock</name>
     <message>
-        <location filename="../tasks/cpftlpsresetresponseclock.cpp" line="+81"/>
+        <location filename="../tasks/cpftlpsresetresponseclock.cpp" line="+73"/>
         <source>CPFT LPS – reset response clock</source>
         <translation>CPFT LPS – nulstil svarklok</translation>
     </message>
@@ -410,7 +410,7 @@
 <context>
     <name>CPFTResearchPreferences</name>
     <message>
-        <location filename="../tasks/cpftresearchpreferences.cpp" line="+94"/>
+        <location filename="../tasks/cpftresearchpreferences.cpp" line="+96"/>
         <source>CPFT Research Preferences</source>
         <translation>CPFT-forskningspræferencer</translation>
     </message>
@@ -436,12 +436,12 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+826"/>
+        <location filename="../core/camcopsapp.cpp" line="+863"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+358"/>
+        <location line="+375"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -491,7 +491,7 @@
         <translation>Nej, jeg kan ikke huske kodeordet</translation>
     </message>
     <message>
-        <location line="+767"/>
+        <location line="+798"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -506,13 +506,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1655"/>
-        <location line="+1657"/>
+        <location line="-1738"/>
+        <location line="+1740"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1826"/>
+        <location line="-1909"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -580,23 +580,22 @@ Har du forbindelse til internettet?
 Angav du den korrekte CamCOPS-serverplacering?</translation>
     </message>
     <message>
-        <location line="+14"/>
-        <location line="+143"/>
+        <location line="+164"/>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
     <message>
-        <location line="-110"/>
+        <location line="-121"/>
         <source>There was a problem updating your task schedules.</source>
         <translation>Der opstod et problem med at opdatere dine opgaveplaner.</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+27"/>
         <source>There was a problem sending your completed tasks to the server.</source>
         <translation>Der opstod et problem med at sende dine gennemførte opgaver til serveren.</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+65"/>
         <source>Unexpectedly, your server settings have changed.</source>
         <translation>Uventet har dine serverindstillinger ændret sig.</translation>
     </message>
@@ -610,7 +609,12 @@ Are you connected to the internet?</source>
 Har du forbindelse til internettet?</translation>
     </message>
     <message>
-        <location line="+664"/>
+        <location line="+20"/>
+        <source>Try again with error log</source>
+        <translation>Prøv igen med fejllog</translation>
+    </message>
+    <message>
+        <location line="+697"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -637,7 +641,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Slet database?</translation>
     </message>
     <message>
-        <location line="+907"/>
+        <location line="+938"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -682,7 +686,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Forkert gammel adgangskode</translation>
     </message>
     <message>
-        <location line="+798"/>
+        <location line="+797"/>
         <source>Terms and conditions of use</source>
         <translation>Vilkår og betingelser for brug</translation>
     </message>
@@ -697,7 +701,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2894"/>
+        <location line="-2976"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -707,7 +711,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2936"/>
+        <location line="+3018"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -744,7 +748,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Flyt</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.h" line="+264"/>
+        <location filename="../core/camcopsapp.h" line="+277"/>
         <source>Opening...</source>
         <translation>Åbning...</translation>
     </message>
@@ -752,43 +756,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CameraQCamera</name>
     <message>
-        <location filename="../widgets/cameraqcamera.cpp" line="+162"/>
+        <location filename="../widgets/cameraqcamera.cpp" line="+154"/>
         <source>Take</source>
         <translation>Tage</translation>
     </message>
     <message>
-        <location line="+305"/>
-        <location line="+1"/>
-        <source>Focusing...</source>
-        <translation>Focusing...</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Unlock</source>
-        <translation>Lås</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Focused</source>
-        <translation>Fokuseret</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Focus</source>
-        <translation>Fokus</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Focus failed</source>
-        <translation>Fokus mislykkedes</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Camera</source>
-        <translation>Kamera</translation>
-    </message>
-    <message>
-        <location line="+28"/>
+        <location line="+175"/>
         <source>Image capture error</source>
         <translation>Billedoptagelsesfejl</translation>
     </message>
@@ -801,7 +774,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cape42</name>
     <message>
-        <location filename="../tasks/cape42.cpp" line="+94"/>
+        <location filename="../tasks/cape42.cpp" line="+93"/>
         <source>Community Assessment of Psychic Experiences</source>
         <translation>Community Assessment of Psychic Experiences [samfundsvurdering af psykiske oplevelser]</translation>
     </message>
@@ -827,7 +800,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CardinalExpDetThreshold</name>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="+193"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="+194"/>
         <source>Cardinal RN — ExpDet-Threshold task</source>
         <translation>Cardinal RN — ExpDet-tærskelværdi opgave</translation>
     </message>
@@ -927,7 +900,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Har du hørt en</translation>
     </message>
     <message>
-        <location line="+246"/>
+        <location line="+247"/>
         <source>Auditory</source>
         <translation>Auditiv</translation>
     </message>
@@ -940,7 +913,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CardinalExpectationDetection</name>
     <message>
-        <location filename="../tasks/cardinalexpectationdetection.cpp" line="+268"/>
+        <location filename="../tasks/cardinalexpectationdetection.cpp" line="+269"/>
         <source>Cardinal RN — Expectation–Detection task</source>
         <translation>Cardinal RN — Expectation–Detection task [forventning/påvisningsopgave]</translation>
     </message>
@@ -971,7 +944,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CbiR</name>
     <message>
-        <location filename="../tasks/cbir.cpp" line="+82"/>
+        <location filename="../tasks/cbir.cpp" line="+81"/>
         <source>Cambridge Behavioural Inventory, Revised</source>
         <translation>Cambridge Behavioural Inventory, Revised [Cambridge adfærdsmæssige opgørelse, revideret]</translation>
     </message>
@@ -997,7 +970,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cesd</name>
     <message>
-        <location filename="../tasks/cesd.cpp" line="+83"/>
+        <location filename="../tasks/cesd.cpp" line="+82"/>
         <source>Center for Epidemiologic Studies Depression Scale</source>
         <translation>Center for Epidemiologic Studies Depression Scale [center for epidemiologiske studier, depression skala]</translation>
     </message>
@@ -1010,7 +983,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cesdr</name>
     <message>
-        <location filename="../tasks/cesdr.cpp" line="+73"/>
+        <location filename="../tasks/cesdr.cpp" line="+72"/>
         <source>Center for Epidemiologic Studies Depression Scale (Revised)</source>
         <translation>Center for Epidemiologic Studies Depression Scale, Revised [center for epidemiologiske studier, depression skala, reviderede]</translation>
     </message>
@@ -1018,6 +991,19 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <location line="+6"/>
         <source>20-item self-report depression scale.</source>
         <translation>20-vare selvbetænkning depression skala.</translation>
+    </message>
+</context>
+<context>
+    <name>Cet</name>
+    <message>
+        <location filename="../tasks/cet.cpp" line="+81"/>
+        <source>Compulsive Exercise Test</source>
+        <translation>Kompulsiv træningstest</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Self-rated 24-item questionnaire about compulsive exercise.</source>
+        <translation>Selvvurderet spørgeskema med 24 punkter om tvangstræning.</translation>
     </message>
 </context>
 <context>
@@ -1049,7 +1035,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CgiSch</name>
     <message>
-        <location filename="../tasks/cgisch.cpp" line="+69"/>
+        <location filename="../tasks/cgisch.cpp" line="+70"/>
         <source>Clinical Global Impression – Schizophrenia</source>
         <translation>Clinical Global Impression – Schizophrenia [klinisk global indtryk – skizofreni]</translation>
     </message>
@@ -1062,7 +1048,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Chit</name>
     <message>
-        <location filename="../tasks/chit.cpp" line="+80"/>
+        <location filename="../tasks/chit.cpp" line="+74"/>
         <source>Cambridge–Chicago Compulsivity Trait Scale</source>
         <translation>Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]</translation>
     </message>
@@ -1181,7 +1167,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cia</name>
     <message>
-        <location filename="../tasks/cia.cpp" line="+77"/>
+        <location filename="../tasks/cia.cpp" line="+76"/>
         <source>The Clinical Impairment Assessment questionnaire</source>
         <translation>Clinical Impairment Assessment (spørgeskemaet til vurdering af klinisk svækkelse)</translation>
     </message>
@@ -1194,7 +1180,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cisr</name>
     <message>
-        <location filename="../tasks/cisr.cpp" line="+1037"/>
+        <location filename="../tasks/cisr.cpp" line="+1038"/>
         <source>Clinical Interview Schedule – Revised</source>
         <translation>Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]</translation>
     </message>
@@ -1207,7 +1193,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Ciwa</name>
     <message>
-        <location filename="../tasks/ciwa.cpp" line="+83"/>
+        <location filename="../tasks/ciwa.cpp" line="+84"/>
         <source>Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised</source>
         <translation>Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised [klinisk institut tilbagetrækning vurdering for alkohol skala, revideret]</translation>
     </message>
@@ -1382,7 +1368,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>ContactLog</name>
     <message>
-        <location filename="../tasks/contactlog.cpp" line="+83"/>
+        <location filename="../tasks/contactlog.cpp" line="+81"/>
         <source>Contact log</source>
         <translation>Kontakt log</translation>
     </message>
@@ -1395,7 +1381,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CopeBrief</name>
     <message>
-        <location filename="../tasks/copebrief.cpp" line="+92"/>
+        <location filename="../tasks/copebrief.cpp" line="+93"/>
         <source>Brief COPE Inventory</source>
         <translation>Brief COPE Inventory [kortfattet COPE fortegnelse]</translation>
     </message>
@@ -1408,7 +1394,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Core10</name>
     <message>
-        <location filename="../tasks/core10.cpp" line="+76"/>
+        <location filename="../tasks/core10.cpp" line="+74"/>
         <source>Clinical Outcomes in Routine Evaluation, 10-item measure</source>
         <translation>Clinical Outcomes in Routine Evaluation [kliniske resultater i rutinemæssig evaluering], 10-punkts mål</translation>
     </message>
@@ -1442,7 +1428,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Ctqsf</name>
     <message>
-        <location filename="../tasks/ctqsf.cpp" line="+63"/>
+        <location filename="../tasks/ctqsf.cpp" line="+64"/>
         <source>Childhood Trauma Questionnaire, Short Form</source>
         <translation>Childhood Trauma Questionnaire, Short Form [barndoms traume spørgeskema, kort formular]</translation>
     </message>
@@ -1455,7 +1441,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Dad</name>
     <message>
-        <location filename="../tasks/dad.cpp" line="+149"/>
+        <location filename="../tasks/dad.cpp" line="+148"/>
         <source>Disability Assessment for Dementia</source>
         <translation>Disability Assessment for Dementia [handicapvurdering for demens]</translation>
     </message>
@@ -1477,7 +1463,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Das28</name>
     <message>
-        <location filename="../tasks/das28.cpp" line="+96"/>
+        <location filename="../tasks/das28.cpp" line="+98"/>
         <source>Disease Activity Score-28</source>
         <translation>Disease Activity Score-28 [sygdomsaktivitetsscore-28]</translation>
     </message>
@@ -1503,7 +1489,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>DeakinS1HealthReview</name>
     <message>
-        <location filename="../tasks/deakins1healthreview.cpp" line="+345"/>
+        <location filename="../tasks/deakins1healthreview.cpp" line="+344"/>
         <source>Deakin JB — Antibody-mediated psychosis study — health review</source>
         <translation>Deakin JB — Antistofmedieret psykosestudie — Sundhedsanmeldelse</translation>
     </message>
@@ -1516,7 +1502,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>DemoQuestionnaire</name>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="+137"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="+138"/>
         <source>Demonstration task</source>
         <translation>Demonstration opgave</translation>
     </message>
@@ -2445,7 +2431,7 @@ enig</translation>
 <context>
     <name>DiagnosisIcd10</name>
     <message>
-        <location filename="../tasks/diagnosisicd10.cpp" line="+59"/>
+        <location filename="../tasks/diagnosisicd10.cpp" line="+57"/>
         <source>Diagnostic coding (ICD-10)</source>
         <translation>Diagnostisk kodning (ICD-10)</translation>
     </message>
@@ -2458,7 +2444,7 @@ enig</translation>
 <context>
     <name>DiagnosisIcd9CM</name>
     <message>
-        <location filename="../tasks/diagnosisicd9cm.cpp" line="+59"/>
+        <location filename="../tasks/diagnosisicd9cm.cpp" line="+57"/>
         <source>Diagnostic coding (ICD-9-CM)</source>
         <translation>Diagnostisk kodning (ICD-9-CM)</translation>
     </message>
@@ -2489,7 +2475,7 @@ enig</translation>
 <context>
     <name>DiagnosticCodeSelector</name>
     <message>
-        <location filename="../widgets/diagnosticcodeselector.cpp" line="+208"/>
+        <location filename="../widgets/diagnosticcodeselector.cpp" line="+207"/>
         <source>Explore as tree [use icon at top right to search]:</source>
         <translation>Udforsk som træ [brug ikon øverst til højre for at søge]:</translation>
     </message>
@@ -2515,7 +2501,7 @@ enig</translation>
 <context>
     <name>EatingDisordersMenu</name>
     <message>
-        <location filename="../menu/eatingdisordersmenu.cpp" line="+42"/>
+        <location filename="../menu/eatingdisordersmenu.cpp" line="+43"/>
         <source>Eating disorders</source>
         <translation>Spiseforstyrrelser</translation>
     </message>
@@ -2523,7 +2509,7 @@ enig</translation>
 <context>
     <name>Edeq</name>
     <message>
-        <location filename="../tasks/edeq.cpp" line="+100"/>
+        <location filename="../tasks/edeq.cpp" line="+101"/>
         <source>Eating Disorder Examination Questionnaire</source>
         <translation>Eating Disorder Examination Questionnaire (spørgeskema til undersøgelse af spiseforstyrrelse)</translation>
     </message>
@@ -2562,7 +2548,7 @@ enig</translation>
 <context>
     <name>Eq5d5l</name>
     <message>
-        <location filename="../tasks/eq5d5l.cpp" line="+88"/>
+        <location filename="../tasks/eq5d5l.cpp" line="+86"/>
         <source>EuroQol 5-Dimension, 5-Level Health Scale</source>
         <translation>EuroQol 5-dimension, 5-niveau sundhedsskala</translation>
     </message>
@@ -2590,7 +2576,7 @@ enig</translation>
 <context>
     <name>Esspri</name>
     <message>
-        <location filename="../tasks/esspri.cpp" line="+79"/>
+        <location filename="../tasks/esspri.cpp" line="+76"/>
         <source>EULAR Sjögren’s Syndrome Patient Reported Index</source>
         <translation>EULAR Sjögren’s Syndrome Patient Reported Index [EULAR Sjögrens syndrom patient-rapporteret indeks]</translation>
     </message>
@@ -2611,7 +2597,7 @@ enig</translation>
 <context>
     <name>Factg</name>
     <message>
-        <location filename="../tasks/factg.cpp" line="+137"/>
+        <location filename="../tasks/factg.cpp" line="+136"/>
         <source>Functional Assessment of Cancer Therapy—General</source>
         <translation>Functional Assessment of Cancer Therapy—General [funktionel vurdering af kræftbehandling—generel]</translation>
     </message>
@@ -2637,7 +2623,7 @@ enig</translation>
 <context>
     <name>Fft</name>
     <message>
-        <location filename="../tasks/fft.cpp" line="+75"/>
+        <location filename="../tasks/fft.cpp" line="+76"/>
         <source>Friends and Family Test</source>
         <translation>Friends and Family Test [venner og familie test]</translation>
     </message>
@@ -2645,24 +2631,6 @@ enig</translation>
         <location line="+6"/>
         <source>Single-question patient rating of a clinical service.</source>
         <translation>Anmoder patienten om at vurdere en klinisk service med et enkelt spørgsmål.</translation>
-    </message>
-</context>
-<context>
-    <name>FocusButton</name>
-    <message>
-        <location filename="../resources/camcops/camera_qml/FocusButton.qml" line="+59"/>
-        <source>Focus</source>
-        <translation>Fokus</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Focusing</source>
-        <translation>Fokusering</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Unlock</source>
-        <translation>Lås</translation>
     </message>
 </context>
 <context>
@@ -2736,7 +2704,7 @@ enig</translation>
 <context>
     <name>FontSizeWindow</name>
     <message>
-        <location filename="../menulib/fontsizewindow.cpp" line="+89"/>
+        <location filename="../menulib/fontsizewindow.cpp" line="+84"/>
         <source>Questionnaire font size</source>
         <translation>Spørgeskema skriftstørrelse</translation>
     </message>
@@ -2774,7 +2742,7 @@ enig</translation>
 <context>
     <name>Frs</name>
     <message>
-        <location filename="../tasks/frs.cpp" line="+126"/>
+        <location filename="../tasks/frs.cpp" line="+127"/>
         <source>Frontotemporal Dementia Rating Scale</source>
         <translation>Frontotemporal Dementia Rating Scale [frontotemporal demens rating skala]</translation>
     </message>
@@ -2800,7 +2768,7 @@ enig</translation>
 <context>
     <name>Gaf</name>
     <message>
-        <location filename="../tasks/gaf.cpp" line="+67"/>
+        <location filename="../tasks/gaf.cpp" line="+62"/>
         <source>Global Assessment of Functioning</source>
         <translation>Global Assessment of Functioning [global vurdering af funktionen]</translation>
     </message>
@@ -2852,7 +2820,7 @@ enig</translation>
 <context>
     <name>Gds15</name>
     <message>
-        <location filename="../tasks/gds15.cpp" line="+72"/>
+        <location filename="../tasks/gds15.cpp" line="+73"/>
         <source>Geriatric Depression Scale, 15-item version</source>
         <translation>Geriatric Depression Scale [geriatrisk depression skala], 15-vare version</translation>
     </message>
@@ -2873,7 +2841,7 @@ enig</translation>
 <context>
     <name>GmcPq</name>
     <message>
-        <location filename="../tasks/gmcpq.cpp" line="+123"/>
+        <location filename="../tasks/gmcpq.cpp" line="+124"/>
         <source>UK General Medical Council (GMC) Patient Questionnaire</source>
         <translation>UK General Medical Council (GMC) [generel medicinsk rådsforsamling] patient spørgeskema</translation>
     </message>
@@ -2886,7 +2854,7 @@ enig</translation>
 <context>
     <name>Hads</name>
     <message>
-        <location filename="../tasks/hads.cpp" line="+93"/>
+        <location filename="../tasks/hads.cpp" line="+94"/>
         <source>Hospital Anxiety and Depression Scale</source>
         <translation>Hospital Anxiety and Depression Scale [hospital angst og depression skala]</translation>
     </message>
@@ -2899,7 +2867,7 @@ enig</translation>
 <context>
     <name>HadsRespondent</name>
     <message>
-        <location filename="../tasks/hadsrespondent.cpp" line="+53"/>
+        <location filename="../tasks/hadsrespondent.cpp" line="+54"/>
         <source>Hospital Anxiety and Depression Scale, non-patient respondent version</source>
         <translation>Hospital Anxiety and Depression Scale [hospital angst og depression skala], version, hvor respondenten ikke er patienten</translation>
     </message>
@@ -2907,7 +2875,7 @@ enig</translation>
 <context>
     <name>HamA</name>
     <message>
-        <location filename="../tasks/hama.cpp" line="+72"/>
+        <location filename="../tasks/hama.cpp" line="+73"/>
         <source>Hamilton Rating Scale for Anxiety</source>
         <translation>Hamilton Rating Scale for Anxiety [Hamilton rating skala for angst]</translation>
     </message>
@@ -2920,7 +2888,7 @@ enig</translation>
 <context>
     <name>HamD</name>
     <message>
-        <location filename="../tasks/hamd.cpp" line="+105"/>
+        <location filename="../tasks/hamd.cpp" line="+106"/>
         <source>Hamilton Depression Rating Scale [HDRS/HAM-D/HRSD]</source>
         <translation>Hamilton Depression Rating Scale (depression bedømmelse skala) [HDRS/HAM-D/HRSD]</translation>
     </message>
@@ -2933,7 +2901,7 @@ enig</translation>
 <context>
     <name>HamD7</name>
     <message>
-        <location filename="../tasks/hamd7.cpp" line="+71"/>
+        <location filename="../tasks/hamd7.cpp" line="+72"/>
         <source>Hamilton Depression Rating Scale, 7-item version</source>
         <translation>Hamilton Depression Rating Scale (depression bedømmelse skala), 7-vare version</translation>
     </message>
@@ -2946,7 +2914,7 @@ enig</translation>
 <context>
     <name>HelpMenu</name>
     <message>
-        <location filename="../menu/helpmenu.cpp" line="+51"/>
+        <location filename="../menu/helpmenu.cpp" line="+50"/>
         <source>Help</source>
         <translation>Hjælp</translation>
     </message>
@@ -3124,7 +3092,7 @@ enig</translation>
 <context>
     <name>Honos</name>
     <message>
-        <location filename="../tasks/honos.cpp" line="+81"/>
+        <location filename="../tasks/honos.cpp" line="+82"/>
         <source>Health of the Nation Outcome Scales, working age adults</source>
         <translation>Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], voksne i erhvervsalderen</translation>
     </message>
@@ -3137,7 +3105,7 @@ enig</translation>
 <context>
     <name>Honos65</name>
     <message>
-        <location filename="../tasks/honos65.cpp" line="+81"/>
+        <location filename="../tasks/honos65.cpp" line="+82"/>
         <source>Health of the Nation Outcome Scales, older adults</source>
         <translation>Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], ældre voksne</translation>
     </message>
@@ -3150,7 +3118,7 @@ enig</translation>
 <context>
     <name>Honosca</name>
     <message>
-        <location filename="../tasks/honosca.cpp" line="+76"/>
+        <location filename="../tasks/honosca.cpp" line="+77"/>
         <source>Health of the Nation Outcome Scales, Children and Adolescents</source>
         <translation>Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], børn og unge</translation>
     </message>
@@ -3171,7 +3139,7 @@ enig</translation>
 <context>
     <name>IDED3D</name>
     <message>
-        <location filename="../tasks/ided3d.cpp" line="+302"/>
+        <location filename="../tasks/ided3d.cpp" line="+368"/>
         <source>Three-dimensional intradimensional/extradimensional set-shifting task</source>
         <translation>Tredimensionel intradimensionel/ekstradimensionel set-shifting opgave</translation>
     </message>
@@ -3181,7 +3149,7 @@ enig</translation>
         <translation>Enkel diskrimination, reversering, sammensat diskrimination, reversering, ID sæt skift, reversering, ED sæt skift, reversering. Dimensioner af form/farve/nummer.</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+109"/>
         <source>Debug mode for displaying test stimuli only</source>
         <translation>Debug mode for kun at vise test stimuli</translation>
     </message>
@@ -3206,7 +3174,7 @@ enig</translation>
         <translation>Forsøg:</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+22"/>
         <source>WARNING: cannot proceed: must satisfy progress_criterion_x &lt;= progress_criterion_y</source>
         <translation>ADVARSEL: Kan ikke fortsætte: skal tilfredsstille progress_criterion_x &lt;= progress_criterion_y</translation>
     </message>
@@ -3219,7 +3187,7 @@ enig</translation>
 <context>
     <name>Icd10Depressive</name>
     <message>
-        <location filename="../tasks/icd10depressive.cpp" line="+154"/>
+        <location filename="../tasks/icd10depressive.cpp" line="+153"/>
         <source>ICD-10 symptomatic criteria for a depressive episode (as in e.g. F06.3, F25, F31, F32, F33)</source>
         <translation>ICD-10 symptomatiske kriterier for en depressiv episode (som i fx F06.3, F25, F31, F32, F33)</translation>
     </message>
@@ -3227,7 +3195,7 @@ enig</translation>
 <context>
     <name>Icd10Manic</name>
     <message>
-        <location filename="../tasks/icd10manic.cpp" line="+156"/>
+        <location filename="../tasks/icd10manic.cpp" line="+155"/>
         <source>ICD-10 symptomatic criteria for a manic/hypomanic episode (as in e.g. F06.3, F25, F30, F31)</source>
         <translation>ICD-10 symptomatiske kriterier for en manisk/hypomanisk episode (som i fx F06.3, F25, F30, F31)</translation>
     </message>
@@ -3251,7 +3219,7 @@ enig</translation>
 <context>
     <name>Icd10Schizotypal</name>
     <message>
-        <location filename="../tasks/icd10schizotypal.cpp" line="+90"/>
+        <location filename="../tasks/icd10schizotypal.cpp" line="+89"/>
         <source>ICD-10 criteria for schizotypal disorder (F21)</source>
         <translation>ICD-10 kriterier for schizotypisk lidelse (F21)</translation>
     </message>
@@ -3259,7 +3227,7 @@ enig</translation>
 <context>
     <name>Icd10SpecPD</name>
     <message>
-        <location filename="../tasks/icd10specpd.cpp" line="+145"/>
+        <location filename="../tasks/icd10specpd.cpp" line="+144"/>
         <source>ICD-10 criteria for specific personality disorders (F60)</source>
         <translation>ICD-10 kriterier for specifikke personlighedsforstyrrelser (F60)</translation>
     </message>
@@ -3285,7 +3253,7 @@ enig</translation>
 <context>
     <name>Ifs</name>
     <message>
-        <location filename="../tasks/ifs.cpp" line="+137"/>
+        <location filename="../tasks/ifs.cpp" line="+136"/>
         <source>INECO Frontal Screening</source>
         <translation>INECO Frontal Screening [frontallappen screening test]</translation>
     </message>
@@ -3298,7 +3266,7 @@ enig</translation>
 <context>
     <name>Irac</name>
     <message>
-        <location filename="../tasks/irac.cpp" line="+67"/>
+        <location filename="../tasks/irac.cpp" line="+68"/>
         <source>Identify and Rate the Aim of the Contact</source>
         <translation>Identify and Rate the Aim of the Contact [identificere og vurdere formålet med kontakten]</translation>
     </message>
@@ -3311,7 +3279,7 @@ enig</translation>
 <context>
     <name>Isaaq10</name>
     <message>
-        <location filename="../tasks/isaaq10.cpp" line="+73"/>
+        <location filename="../tasks/isaaq10.cpp" line="+69"/>
         <source>Internet Severity and Activities Addiction Questionnaire, 10-items</source>
         <translation>Internet sværhedsgrad og aktiviteter afhængighed spørgeskema, 10-elementer</translation>
     </message>
@@ -3324,7 +3292,7 @@ enig</translation>
 <context>
     <name>IsaaqEd</name>
     <message>
-        <location filename="../tasks/isaaqed.cpp" line="+67"/>
+        <location filename="../tasks/isaaqed.cpp" line="+63"/>
         <source>Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix</source>
         <translation>Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (internet sværhedsgrad og aktiviteter afhængighed spørgeskema, spiseforstyrrelser appendiks)</translation>
     </message>
@@ -3350,7 +3318,7 @@ enig</translation>
 <context>
     <name>KhandakerMojoMedical</name>
     <message>
-        <location filename="../tasks/khandakermojomedical.cpp" line="+209"/>
+        <location filename="../tasks/khandakermojomedical.cpp" line="+206"/>
         <source>Khandaker GM — MOJO — Medical questionnaire</source>
         <translation>Khandaker GM — MOJO — Medicinsk spørgeskema</translation>
     </message>
@@ -3363,7 +3331,7 @@ enig</translation>
 <context>
     <name>KhandakerMojoMedicationTherapy</name>
     <message>
-        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="+81"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="+76"/>
         <source>Khandaker GM — MOJO — Medications and therapies</source>
         <translation>Khandaker GM — MOJO — Medicin og terapier</translation>
     </message>
@@ -3402,7 +3370,7 @@ enig</translation>
 <context>
     <name>KhandakerMojoSociodemographics</name>
     <message>
-        <location filename="../tasks/khandakermojosociodemographics.cpp" line="+119"/>
+        <location filename="../tasks/khandakermojosociodemographics.cpp" line="+117"/>
         <source>Khandaker GM — MOJO — Sociodemographics</source>
         <translation>Khandaker GM — MOJO — Sociodemografi</translation>
     </message>
@@ -3415,7 +3383,7 @@ enig</translation>
 <context>
     <name>Kirby</name>
     <message>
-        <location filename="../tasks/kirby.cpp" line="+126"/>
+        <location filename="../tasks/kirby.cpp" line="+130"/>
         <source>Kirby et al. 1999 Monetary Choice Questionnaire</source>
         <translation>Kirby et al. 1999 Monetary Choice Questionnaire [spørgeskema til monetært valg]</translation>
     </message>
@@ -3435,7 +3403,7 @@ enig</translation>
         <translation>&lt;i&gt;k&lt;/i&gt; (dage&lt;sup&gt;–1&lt;/sup&gt;, Wileyto 2004 metode): &lt;b&gt;%1&lt;/b&gt; (henfald til halv værdi på &lt;b&gt;%2&lt;/b&gt; dage).</translation>
     </message>
     <message>
-        <location line="+260"/>
+        <location line="+266"/>
         <source>%1 today</source>
         <translation>%1 i dag</translation>
     </message>
@@ -3453,7 +3421,7 @@ enig</translation>
 <context>
     <name>LogBox</name>
     <message>
-        <location filename="../dialogs/logbox.cpp" line="+91"/>
+        <location filename="../dialogs/logbox.cpp" line="+92"/>
         <source>Acknowledge failure</source>
         <translation>Bekræft fejl</translation>
     </message>
@@ -3484,7 +3452,7 @@ enig</translation>
 <context>
     <name>LynallIamMedical</name>
     <message>
-        <location filename="../tasks/lynalliammedical.cpp" line="+183"/>
+        <location filename="../tasks/lynalliammedical.cpp" line="+182"/>
         <source>Lynall M-E — IAM — Medical history</source>
         <translation>Lynall M-E — IAM — Medicinsk historie</translation>
     </message>
@@ -3497,7 +3465,7 @@ enig</translation>
 <context>
     <name>Maas</name>
     <message>
-        <location filename="../tasks/maas.cpp" line="+83"/>
+        <location filename="../tasks/maas.cpp" line="+84"/>
         <source>Maternal Antenatal Attachment Scale</source>
         <translation>Maternal Antenatal Attachment Scale [maternal antenatal fastgørelse skala]</translation>
     </message>
@@ -3599,7 +3567,7 @@ enig</translation>
 <context>
     <name>MenuHeader</name>
     <message>
-        <location filename="../menulib/menuheader.cpp" line="+115"/>
+        <location filename="../menulib/menuheader.cpp" line="+114"/>
         <source>Dump layout</source>
         <translation>Skriv layoutet</translation>
     </message>
@@ -3622,7 +3590,7 @@ enig</translation>
 <context>
     <name>MenuItem</name>
     <message>
-        <location filename="../menulib/menuitem.cpp" line="+144"/>
+        <location filename="../menulib/menuitem.cpp" line="+142"/>
         <source>UNKNOWN TASK</source>
         <translation>UKENDT OPGAVE</translation>
     </message>
@@ -3734,7 +3702,7 @@ enig</translation>
 <context>
     <name>Mfi20</name>
     <message>
-        <location filename="../tasks/mfi20.cpp" line="+93"/>
+        <location filename="../tasks/mfi20.cpp" line="+90"/>
         <source>Multidimensional Fatigue Inventory</source>
         <translation>Multidimensional Fatigue Inventory [multidimensionel træthedsinventar]</translation>
     </message>
@@ -3747,7 +3715,7 @@ enig</translation>
 <context>
     <name>MiniAce</name>
     <message>
-        <location filename="../tasks/miniace.cpp" line="+136"/>
+        <location filename="../tasks/miniace.cpp" line="+132"/>
         <source>Mini-Addenbrooke’s Cognitive Examination</source>
         <translation>Mini-Addenbrooke’s Cognitive Examination [Mini-Addenbrooke&apos;s kognitive undersøgelse]</translation>
     </message>
@@ -3828,7 +3796,7 @@ enig</translation>
 <context>
     <name>ModeDialog</name>
     <message>
-        <location filename="../dialogs/modedialog.cpp" line="+44"/>
+        <location filename="../dialogs/modedialog.cpp" line="+43"/>
         <source>Select clinician or single user mode</source>
         <translation>Vælg kliniker eller enkeltbrugertilstand</translation>
     </message>
@@ -3869,7 +3837,7 @@ enig</translation>
 <context>
     <name>NetworkManager</name>
     <message>
-        <location filename="../core/networkmanager.cpp" line="+409"/>
+        <location filename="../core/networkmanager.cpp" line="+411"/>
         <source>Server host details not specified; see Settings</source>
         <translation>Serverhost detaljer ikke specificeret; se Indstillinger</translation>
     </message>
@@ -3970,11 +3938,12 @@ enig</translation>
     </message>
     <message>
         <location line="+15"/>
+        <location line="+441"/>
         <source>Requesting extra strings</source>
         <translation>Anmodning om ekstra strenger</translation>
     </message>
     <message>
-        <location line="+231"/>
+        <location line="-210"/>
         <source>... received extra strings</source>
         <translation>... modtaget ekstra strenge</translation>
     </message>
@@ -4017,14 +3986,14 @@ enig</translation>
     <message>
         <location line="-415"/>
         <location line="+447"/>
-        <location line="+879"/>
-        <location line="+26"/>
+        <location line="+894"/>
+        <location line="+65"/>
         <location line="+47"/>
         <source>... OK</source>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1682"/>
+        <location line="-1736"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
@@ -4081,7 +4050,7 @@ enig</translation>
         <translation>Forbereder upload til:</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+217"/>
         <source>... server doesn&apos;t want anything from this table</source>
         <translation>... server vil ikke have noget fra denne tabel</translation>
     </message>
@@ -4202,12 +4171,12 @@ enig</translation>
         <translation>FEJL: Tabellen &apos;%1&apos; indeholder data; den er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+108"/>
         <source>Server version (%1) doesn&apos;t match stored version (%2).</source>
         <translation>Server version (%1) matcher ikke den lagrede version (%2).</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+25"/>
         <source>Local upload policy [%1] doesn&apos;t match server&apos;s [%2].</source>
         <translation>Lokal uploadpolitik [%1] matcher ikke serverens [%2].</translation>
     </message>
@@ -4237,8 +4206,8 @@ enig</translation>
         <translation>Hent venligst serveroplysninger igen.</translation>
     </message>
     <message>
-        <location line="-1501"/>
-        <location line="+1556"/>
+        <location line="-1555"/>
+        <location line="+1610"/>
         <source>Failed to parse patient info: %1</source>
         <translation>Mislykkedes at parse patientoplysninger: %1</translation>
     </message>
@@ -4248,12 +4217,12 @@ enig</translation>
         <translation>Mislykkedes at analysere oplysninger om intellektuel ejendomsret: %1</translation>
     </message>
     <message>
-        <location line="-502"/>
+        <location line="-531"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the client requires server version &gt;=%2; the server is version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location line="-1140"/>
+        <location line="-1165"/>
         <source>Completed successfully.</source>
         <translation>Afsluttet med succes.</translation>
     </message>
@@ -4268,7 +4237,7 @@ enig</translation>
         <translation>... modtaget opgaveplaner</translation>
     </message>
     <message>
-        <location line="+1119"/>
+        <location line="+1144"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the server requires client version &gt;=%2; you are using version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
@@ -4288,12 +4257,12 @@ enig</translation>
         <translation>Kontrollerer server CamCOPS version</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+19"/>
         <source>Server CamCOPS version (%1) is too old; must be &gt;= %2</source>
         <translation>Server CamCOPS version (%1) er for gammel; skal være &gt;=%2</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+35"/>
         <source>Checking ID policies match server</source>
         <translation>Kontrol af id-politikker matcher serverens</translation>
     </message>
@@ -4364,7 +4333,7 @@ enig</translation>
 <context>
     <name>OpenableWidget</name>
     <message>
-        <location filename="../widgets/openablewidget.cpp" line="+148"/>
+        <location filename="../widgets/openablewidget.cpp" line="+155"/>
         <source>Abort: are you sure?</source>
         <translation>Annuller: er du sikker?</translation>
     </message>
@@ -4377,7 +4346,7 @@ enig</translation>
 <context>
     <name>Ors</name>
     <message>
-        <location filename="../tasks/ors.cpp" line="+122"/>
+        <location filename="../tasks/ors.cpp" line="+115"/>
         <source>Outcome Rating Scale</source>
         <translation>Outcome Rating Scale [resultat vurdering skala]</translation>
     </message>
@@ -4403,7 +4372,7 @@ enig</translation>
 <context>
     <name>Panss</name>
     <message>
-        <location filename="../tasks/panss.cpp" line="+82"/>
+        <location filename="../tasks/panss.cpp" line="+81"/>
         <source>Positive and Negative Syndrome Scale</source>
         <translation>Positive and Negative Syndrome Scale [positiv og negativ syndrom skala]</translation>
     </message>
@@ -4416,7 +4385,7 @@ enig</translation>
 <context>
     <name>Paradise24</name>
     <message>
-        <location filename="../tasks/paradise24.cpp" line="+85"/>
+        <location filename="../tasks/paradise24.cpp" line="+77"/>
         <source>Psychosocial fActors Relevant to BrAin DISorders in Europe–24</source>
         <translation>Psychosocial fActors Relevant to BrAin DISorders in Europe–24 (Psykosociale faktorer, der er relevante for hjernesygdomme i Europa–24)</translation>
     </message>
@@ -4472,7 +4441,7 @@ enig</translation>
 <context>
     <name>Patient</name>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="+469"/>
+        <location filename="../dbobjects/patient.cpp" line="+468"/>
         <source>[No ID numbers]</source>
         <translation>[Ingen ID-numre]</translation>
     </message>
@@ -4587,7 +4556,7 @@ enig</translation>
 <context>
     <name>PatientRegistrationDialog</name>
     <message>
-        <location filename="../dialogs/patientregistrationdialog.cpp" line="+40"/>
+        <location filename="../dialogs/patientregistrationdialog.cpp" line="+39"/>
         <source>Registration</source>
         <translation>Registrering</translation>
     </message>
@@ -4605,7 +4574,7 @@ enig</translation>
 <context>
     <name>PatientSatisfaction</name>
     <message>
-        <location filename="../tasks/patientsatisfaction.cpp" line="+52"/>
+        <location filename="../tasks/patientsatisfaction.cpp" line="+53"/>
         <source>Patient Satisfaction Scale</source>
         <translation>Patient Satisfaction Scale [patient tilfredshed skala]</translation>
     </message>
@@ -4649,7 +4618,7 @@ enig</translation>
 <context>
     <name>Pcl5</name>
     <message>
-        <location filename="../tasks/pcl5.cpp" line="+80"/>
+        <location filename="../tasks/pcl5.cpp" line="+77"/>
         <source>PTSD Checklist for DSM-5</source>
         <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste] til DSM-5</translation>
     </message>
@@ -4662,7 +4631,7 @@ enig</translation>
 <context>
     <name>PclC</name>
     <message>
-        <location filename="../tasks/pclc.cpp" line="+51"/>
+        <location filename="../tasks/pclc.cpp" line="+52"/>
         <source>PTSD Checklist, Civilian version</source>
         <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste], civilist version</translation>
     </message>
@@ -4670,7 +4639,7 @@ enig</translation>
 <context>
     <name>PclCommon</name>
     <message>
-        <location filename="../taskxtra/pclcommon.cpp" line="+77"/>
+        <location filename="../taskxtra/pclcommon.cpp" line="+74"/>
         <source>17-item self-report scale, based on DSM-IV-TR criteria.</source>
         <translation>17-items självrapporteringsskala, baserad på DSM-IV-TR-kriterier.</translation>
     </message>
@@ -4678,7 +4647,7 @@ enig</translation>
 <context>
     <name>PclM</name>
     <message>
-        <location filename="../tasks/pclm.cpp" line="+51"/>
+        <location filename="../tasks/pclm.cpp" line="+52"/>
         <source>PTSD Checklist, Military version</source>
         <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste], militær version</translation>
     </message>
@@ -4686,7 +4655,7 @@ enig</translation>
 <context>
     <name>PclS</name>
     <message>
-        <location filename="../tasks/pcls.cpp" line="+51"/>
+        <location filename="../tasks/pcls.cpp" line="+52"/>
         <source>PTSD Checklist, Stressor-specific version</source>
         <translation>PTSD Checklist [post-traumatisk stresslidelse tjekliste], stressfaktor-specifik version</translation>
     </message>
@@ -4694,7 +4663,7 @@ enig</translation>
 <context>
     <name>Pdss</name>
     <message>
-        <location filename="../tasks/pdss.cpp" line="+74"/>
+        <location filename="../tasks/pdss.cpp" line="+75"/>
         <source>Panic Disorder Severity Scale</source>
         <translation>Panic Disorder Severity Scale [paniklidelse alvorlighedsskala]</translation>
     </message>
@@ -4707,7 +4676,7 @@ enig</translation>
 <context>
     <name>PerinatalPoem</name>
     <message>
-        <location filename="../tasks/perinatalpoem.cpp" line="+148"/>
+        <location filename="../tasks/perinatalpoem.cpp" line="+149"/>
         <source>Perinatal Patient-rated Outcome and Experience Measure</source>
         <translation>Perinatal Patient-rated Outcome and Experience Measure [perinatalt patientrelateret udfald og erfaringsmål]</translation>
     </message>
@@ -4728,7 +4697,7 @@ enig</translation>
 <context>
     <name>Photo</name>
     <message>
-        <location filename="../tasks/photo.cpp" line="+69"/>
+        <location filename="../tasks/photo.cpp" line="+68"/>
         <source>Photograph</source>
         <translation>Foto</translation>
     </message>
@@ -4760,7 +4729,7 @@ enig</translation>
         <translation>Fange</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+30"/>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
@@ -4785,12 +4754,12 @@ enig</translation>
         <translation>Fluorescerende</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+10"/>
         <source>View</source>
         <translation>Se</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+23"/>
         <source>Quit</source>
         <translation>Afslut</translation>
     </message>
@@ -4798,7 +4767,7 @@ enig</translation>
 <context>
     <name>PhotoPreview</name>
     <message>
-        <location filename="../resources/camcops/camera_qml/PhotoPreview.qml" line="+75"/>
+        <location filename="../resources/camcops/camera_qml/PhotoPreview.qml" line="+85"/>
         <source>Save</source>
         <translation>Gemme</translation>
     </message>
@@ -4877,7 +4846,7 @@ enig</translation>
 <context>
     <name>Phq8</name>
     <message>
-        <location filename="../tasks/phq8.cpp" line="+75"/>
+        <location filename="../tasks/phq8.cpp" line="+74"/>
         <source>Patient Health Questionnaire 8-item depression scale</source>
         <translation>Patient Health Spørgeskema 8-punkts depression skala</translation>
     </message>
@@ -4911,7 +4880,7 @@ enig</translation>
 <context>
     <name>ProgressNote</name>
     <message>
-        <location filename="../tasks/progressnote.cpp" line="+65"/>
+        <location filename="../tasks/progressnote.cpp" line="+66"/>
         <source>Progress note</source>
         <translation>Fremskridt notat</translation>
     </message>
@@ -4924,7 +4893,7 @@ enig</translation>
 <context>
     <name>Pswq</name>
     <message>
-        <location filename="../tasks/pswq.cpp" line="+70"/>
+        <location filename="../tasks/pswq.cpp" line="+69"/>
         <source>Penn State Worry Questionnaire</source>
         <translation>Penn State Worry Questionnaire [Penn State bekymre spørgeskema]</translation>
     </message>
@@ -4937,7 +4906,7 @@ enig</translation>
 <context>
     <name>PsychiatricClerking</name>
     <message>
-        <location filename="../tasks/psychiatricclerking.cpp" line="+175"/>
+        <location filename="../tasks/psychiatricclerking.cpp" line="+174"/>
         <source>Psychiatric clerking</source>
         <translation>Interview af en psykiater</translation>
     </message>
@@ -4958,28 +4927,28 @@ enig</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../db/dbfunc.cpp" line="+313"/>
+        <location filename="../db/dbfunc.cpp" line="+312"/>
         <source>Error encrypting databases</source>
         <translation>Fejl ved kryptering af databaser</translation>
     </message>
     <message>
-        <location filename="../lib/uifunc.h" line="+184"/>
+        <location filename="../lib/uifunc.h" line="+133"/>
         <location line="+4"/>
         <source>Alert</source>
         <translation>Opmærksom</translation>
     </message>
     <message>
-        <location filename="../lib/idpolicy.cpp" line="+210"/>
+        <location filename="../lib/idpolicy.cpp" line="+208"/>
         <source>[Invalid policy]</source>
         <translation>[Ugyldig politik]</translation>
     </message>
     <message>
-        <location filename="../lib/uifunc.cpp" line="+487"/>
+        <location filename="../lib/uifunc.cpp" line="+293"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+48"/>
         <source>Can’t perform this action when CamCOPS is locked</source>
         <translation>Kan ikke udføre denne handling, når CamCOPS er låst</translation>
     </message>
@@ -5004,7 +4973,7 @@ enig</translation>
         <translation>Kunne ikke oprette mappe: </translation>
     </message>
     <message>
-        <location filename="../maths/mathfunc.cpp" line="+791"/>
+        <location filename="../maths/mathfunc.cpp" line="+806"/>
         <source>true</source>
         <translation>sand</translation>
     </message>
@@ -5043,7 +5012,7 @@ enig</translation>
 <context>
     <name>QuCountdown</name>
     <message>
-        <location filename="../questionnairelib/qucountdown.cpp" line="+78"/>
+        <location filename="../questionnairelib/qucountdown.cpp" line="+79"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
@@ -5058,7 +5027,7 @@ enig</translation>
         <translation>Nulstil</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+98"/>
         <source>FINISHED</source>
         <translation>FÆRDIG</translation>
     </message>
@@ -5084,7 +5053,7 @@ enig</translation>
 <context>
     <name>QuLineEditDouble</name>
     <message>
-        <location filename="../questionnairelib/qulineeditdouble.cpp" line="+48"/>
+        <location filename="../questionnairelib/qulineeditdouble.cpp" line="+47"/>
         <source>real number, %1 dp</source>
         <translation>reelt tal, %1 decimaler</translation>
     </message>
@@ -5105,7 +5074,7 @@ enig</translation>
 <context>
     <name>QuPage</name>
     <message>
-        <location filename="../questionnairelib/qupage.cpp" line="+326"/>
+        <location filename="../questionnairelib/qupage.cpp" line="+325"/>
         <source>Invalid information</source>
         <translation>Ugyldig information</translation>
     </message>
@@ -5123,7 +5092,7 @@ enig</translation>
         <translation>Ingen OpenGL</translation>
     </message>
     <message>
-        <location line="+180"/>
+        <location line="+178"/>
         <source>Delete this photo?</source>
         <translation>Slet dette billede?</translation>
     </message>
@@ -5144,13 +5113,11 @@ enig</translation>
     </message>
     <message>
         <location line="+47"/>
-        <location line="+35"/>
         <source>Saving image...</source>
         <translation>Gemmer billedet...</translation>
     </message>
     <message>
-        <location line="-34"/>
-        <location line="+35"/>
+        <location line="+1"/>
         <source>Saving</source>
         <translation>Gemmer</translation>
     </message>
@@ -5158,7 +5125,7 @@ enig</translation>
 <context>
     <name>Questionnaire</name>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="+468"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="+466"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
@@ -5212,7 +5179,7 @@ enig</translation>
 <context>
     <name>ReferrerSatisfactionGen</name>
     <message>
-        <location filename="../tasks/referrersatisfactiongen.cpp" line="+53"/>
+        <location filename="../tasks/referrersatisfactiongen.cpp" line="+54"/>
         <source>Referrer Satisfaction Scale (anonymous survey)</source>
         <translation>Referrer Satisfaction Scale [referrer tilfredshed skala], anonym undersøgelse</translation>
     </message>
@@ -5225,7 +5192,7 @@ enig</translation>
 <context>
     <name>ReferrerSatisfactionSpec</name>
     <message>
-        <location filename="../tasks/referrersatisfactionspec.cpp" line="+53"/>
+        <location filename="../tasks/referrersatisfactionspec.cpp" line="+54"/>
         <source>Referrer Satisfaction Scale (patient-specific)</source>
         <translation>Referrer Satisfaction Scale [referrer tilfredshed skala], patientspecifikke</translation>
     </message>
@@ -5238,7 +5205,7 @@ enig</translation>
 <context>
     <name>ResearchMenu</name>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="+52"/>
+        <location filename="../menu/researchmenu.cpp" line="+51"/>
         <source>Research tasks</source>
         <translation>Forskningsopgaver</translation>
     </message>
@@ -5292,7 +5259,7 @@ enig</translation>
 <context>
     <name>SQLCipherResult</name>
     <message>
-        <location filename="../db/sqlcipherresult.cpp" line="+201"/>
+        <location filename="../db/sqlcipherresult.cpp" line="+202"/>
         <location line="+71"/>
         <location line="+12"/>
         <source>Unable to fetch row</source>
@@ -5304,7 +5271,7 @@ enig</translation>
         <translation>Ingen forespørgsel</translation>
     </message>
     <message>
-        <location line="+165"/>
+        <location line="+169"/>
         <source>Unable to execute statement</source>
         <translation>Kan ikke udføre kommando</translation>
     </message>
@@ -5319,7 +5286,7 @@ enig</translation>
         <translation>Kan ikke nulstille udsagn</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+80"/>
         <source>Unable to bind parameters</source>
         <translation>Kan ikke binde parametre</translation>
     </message>
@@ -5407,37 +5374,32 @@ enig</translation>
         <translation>Kendt for at være sikker [standard]</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>SSL v3</source>
-        <translation>SSL v3</translation>
+        <location line="+3"/>
+        <source>TLS v1.3</source>
+        <translation>TLS v1.3</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>SSL v2</source>
-        <translation>SSL v2</translation>
+        <source>TLS v1.3 or later</source>
+        <translation>TLS v1.3 eller senere</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>TLS v1.0</source>
-        <translation>TLS v1.0</translation>
+        <source>DTLS v1.2</source>
+        <translation>DTLS v1.2</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>TLS v1.0 or later</source>
-        <translation>TLS v1.0 eller senere</translation>
+        <source>DTLS v1.2 or later</source>
+        <translation>DTLS v1.2 eller senere</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>TLS v1.1</source>
-        <translation>TLS v1.1</translation>
+        <source>Any supported protocol</source>
+        <translation>Enhver understøttet protokol</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>TLS v1.1 or later</source>
-        <translation>TLS v1.1 eller senere</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="-6"/>
         <source>TLS v1.2</source>
         <translation>TLS v1.2</translation>
     </message>
@@ -5447,17 +5409,7 @@ enig</translation>
         <translation>TLS v1.2 eller senere</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>SSLv2, SSLv3, or TLSv1.0</source>
-        <translation>SSLv2, SSLv3, eller TLSv1.0</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.0 or SSL v3</source>
-        <translation>TLS v1.0 eller SSL v3</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+10"/>
         <source>Store user’s server password?</source>
         <translation>Gem brugerens serveradgangskode?</translation>
     </message>
@@ -5515,7 +5467,7 @@ enig</translation>
 <context>
     <name>ServiceEvaluationMenu</name>
     <message>
-        <location filename="../menu/serviceevaluationmenu.cpp" line="+47"/>
+        <location filename="../menu/serviceevaluationmenu.cpp" line="+45"/>
         <source>Service evaluation</source>
         <translation>Service evaluering</translation>
     </message>
@@ -5536,7 +5488,7 @@ enig</translation>
 <context>
     <name>SetMenuCpftAdultEatingDisorders</name>
     <message>
-        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+54"/>
+        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+55"/>
         <source>CPFT Adult Eating Disorders Service</source>
         <translation>CPFT Voksen Spiseforstyrrelser Service</translation>
     </message>
@@ -5561,7 +5513,7 @@ enig</translation>
         <translation>Særlige betingelser</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Treatment/care</source>
         <translation>Behandling/pleje</translation>
     </message>
@@ -5643,7 +5595,7 @@ enig</translation>
 <context>
     <name>SetMenuDeakin</name>
     <message>
-        <location filename="../menu/setmenudeakin.cpp" line="+58"/>
+        <location filename="../menu/setmenudeakin.cpp" line="+57"/>
         <source>Deakin JB, University of Cambridge, UK — antibody-mediated psychosis study</source>
         <translation>Deakin JB, University of Cambridge, UK — antistof-medieret psykosestudie</translation>
     </message>
@@ -5707,7 +5659,7 @@ enig</translation>
 <context>
     <name>SetMenuKhandakerInsight</name>
     <message>
-        <location filename="../menu/setmenukhandakerinsight.cpp" line="+40"/>
+        <location filename="../menu/setmenukhandakerinsight.cpp" line="+39"/>
         <source>Khandaker GM — Insight study</source>
         <translation>Khandaker GM — Insight forskningsundersøgelse</translation>
     </message>
@@ -5720,7 +5672,7 @@ enig</translation>
 <context>
     <name>SetMenuKhandakerMojo</name>
     <message>
-        <location filename="../menu/setmenukhandakermojo.cpp" line="+56"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="+55"/>
         <source>Khandaker GM — MOJO study</source>
         <translation>Khandaker GM — MOJO forskningsundersøgelse</translation>
     </message>
@@ -5758,7 +5710,7 @@ enig</translation>
 <context>
     <name>SetMenuLynallIAM</name>
     <message>
-        <location filename="../menu/setmenulynalliam.cpp" line="+43"/>
+        <location filename="../menu/setmenulynalliam.cpp" line="+42"/>
         <source>Lynall M-E — IAM study</source>
         <translation>Lynall M-E — IAM forskningsundersøgelse</translation>
     </message>
@@ -5779,7 +5731,7 @@ enig</translation>
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="+83"/>
+        <location filename="../menu/settingsmenu.cpp" line="+74"/>
         <source>Settings</source>
         <translation>Indstillinger</translation>
     </message>
@@ -6300,7 +6252,7 @@ enig</translation>
 <context>
     <name>Sfmpq2</name>
     <message>
-        <location filename="../tasks/sfmpq2.cpp" line="+85"/>
+        <location filename="../tasks/sfmpq2.cpp" line="+82"/>
         <source>Short-Form McGill Pain Questionnaire 2</source>
         <translation>Short-Form McGill Pain Questionnaire 2 [kortformet McGill smerte spørgeskema 2]</translation>
     </message>
@@ -6570,7 +6522,7 @@ enig</translation>
 <context>
     <name>Slums</name>
     <message>
-        <location filename="../tasks/slums.cpp" line="+140"/>
+        <location filename="../tasks/slums.cpp" line="+139"/>
         <source>St Louis University Mental Status</source>
         <translation>St Louis University Mental Status [St Louis universitet mental status]</translation>
     </message>
@@ -6596,7 +6548,7 @@ enig</translation>
 <context>
     <name>SoundTestDialog</name>
     <message>
-        <location filename="../dialogs/soundtestdialog.cpp" line="+29"/>
+        <location filename="../dialogs/soundtestdialog.cpp" line="+35"/>
         <source>Sound test</source>
         <translation>Lydtest</translation>
     </message>
@@ -6604,7 +6556,7 @@ enig</translation>
 <context>
     <name>Srs</name>
     <message>
-        <location filename="../tasks/srs.cpp" line="+114"/>
+        <location filename="../tasks/srs.cpp" line="+104"/>
         <source>Session Rating Scale</source>
         <translation>Session Rating Scale [sessionsvurdering skalaen]</translation>
     </message>
@@ -6617,7 +6569,7 @@ enig</translation>
 <context>
     <name>Suppsp</name>
     <message>
-        <location filename="../tasks/suppsp.cpp" line="+91"/>
+        <location filename="../tasks/suppsp.cpp" line="+85"/>
         <source>Short UPPS-P Impulsive Behaviour Scale</source>
         <translation>Short UPPS-P Impulsive Behaviour Scale [Kort UPPS-P impulsiv adfærdskala]</translation>
     </message>
@@ -6643,7 +6595,7 @@ enig</translation>
 <context>
     <name>Task</name>
     <message>
-        <location filename="../tasklib/task.cpp" line="+263"/>
+        <location filename="../tasklib/task.cpp" line="+262"/>
         <source>MISSING PATIENT</source>
         <translation>MISSENDE PATIENT</translation>
     </message>
@@ -6739,7 +6691,7 @@ enig</translation>
 <context>
     <name>TaskScheduleItem</name>
     <message>
-        <location filename="../tasklib/taskscheduleitem.cpp" line="+200"/>
+        <location filename="../tasklib/taskscheduleitem.cpp" line="+199"/>
         <source>Completed</source>
         <translation>9/5000
 Afsluttet</translation>
@@ -6763,7 +6715,7 @@ Afsluttet</translation>
 <context>
     <name>TaskScheduleItemEditor</name>
     <message>
-        <location filename="../tasklib/taskscheduleitemeditor.cpp" line="+82"/>
+        <location filename="../tasklib/taskscheduleitemeditor.cpp" line="+87"/>
         <source>Null task pointer</source>
         <translation>Null-opgavemarkør</translation>
     </message>
@@ -6791,7 +6743,7 @@ Afsluttet</translation>
 <context>
     <name>TestMenu</name>
     <message>
-        <location filename="../menu/testmenu.cpp" line="+66"/>
+        <location filename="../menu/testmenu.cpp" line="+69"/>
         <source>CamCOPS self-tests</source>
         <translation>CamCOPS selvtest</translation>
     </message>
@@ -6922,13 +6874,13 @@ Afsluttet</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+534"/>
+        <location line="+540"/>
         <source>Test GLM: Gaussian</source>
         <translation>Test GLM: Gaussian</translation>
     </message>
     <message>
-        <location line="-529"/>
-        <location line="+573"/>
+        <location line="-535"/>
+        <location line="+579"/>
         <source>Test GLM: Poisson</source>
         <translation>Test GLM: Poisson</translation>
     </message>
@@ -7619,27 +7571,27 @@ Tak!</translation>
 <context>
     <name>VideoCaptureControls</name>
     <message>
-        <location filename="../resources/camcops/camera_qml/VideoCaptureControls.qml" line="+82"/>
+        <location filename="../resources/camcops/camera_qml/VideoCaptureControls.qml" line="+85"/>
         <source>Record</source>
         <translation>Optag</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+12"/>
         <source>Stop</source>
         <translation>Hold op</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+11"/>
         <source>View</source>
         <translation>Se</translation>
     </message>
     <message>
-        <location line="+23"/>
-        <source>Switch to photo</source>
-        <translation>Skift til billede</translation>
+        <location line="+22"/>
+        <source>Switch to Photo</source>
+        <translation>Skift til foto</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Quit</source>
         <translation>Afslut</translation>
     </message>
@@ -7660,7 +7612,7 @@ Tak!</translation>
 <context>
     <name>WhiskerTestMenu</name>
     <message>
-        <location filename="../menu/whiskertestmenu.cpp" line="+136"/>
+        <location filename="../menu/whiskertestmenu.cpp" line="+135"/>
         <source>Test interface to Whisker</source>
         <translation>Test grænseflade til Whisker</translation>
     </message>
@@ -7839,7 +7791,7 @@ Tak!</translation>
 <context>
     <name>WidgetTestMenu</name>
     <message>
-        <location filename="../menu/widgettestmenu.cpp" line="+140"/>
+        <location filename="../menu/widgettestmenu.cpp" line="+139"/>
         <source>Widget tests</source>
         <translation>Widget tests</translation>
     </message>
@@ -7860,7 +7812,7 @@ Tak!</translation>
 <context>
     <name>Ybocs</name>
     <message>
-        <location filename="../tasks/ybocs.cpp" line="+127"/>
+        <location filename="../tasks/ybocs.cpp" line="+128"/>
         <source>Yale–Brown Obsessive Compulsive Scale, 9/89 revision</source>
         <translation>Yale–Brown Obsessive Compulsive Scale [obsessiv kompulsiv skala], 9/89 revision</translation>
     </message>
@@ -7888,7 +7840,7 @@ Tak!</translation>
 <context>
     <name>YbocsSc</name>
     <message>
-        <location filename="../tasks/ybocssc.cpp" line="+187"/>
+        <location filename="../tasks/ybocssc.cpp" line="+185"/>
         <source>Y-BOCS Symptom Checklist, 9/89 revision</source>
         <translation>Y-BOCS Symptom Checklist [symptom checkliste], 9/89 revision</translation>
     </message>
@@ -7921,7 +7873,7 @@ Tak!</translation>
 <context>
     <name>Zbi12</name>
     <message>
-        <location filename="../tasks/zbi12.cpp" line="+69"/>
+        <location filename="../tasks/zbi12.cpp" line="+68"/>
         <source>Zarit Burden Interview, 12-item version</source>
         <translation>Zarit Burden Interview [Zarit byrdeinterview], 12-vare version</translation>
     </message>

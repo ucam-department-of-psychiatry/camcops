@@ -662,7 +662,7 @@ void CamcopsApp::maybeRetryNetworkOperation(const QString base_message,
         QString("%1\n\n%2").arg(base_message, additional_message),
         tr("Error"),
         tr("Try again with error log"),
-        tr("Dismiss")
+        TextConst::cancel()
     );
 
     if (!try_again_with_log) {
