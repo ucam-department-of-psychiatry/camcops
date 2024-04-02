@@ -41,7 +41,8 @@ Operations:
 
 POSITIONAL ARGUMENTS:
   operation            Operation to perform; possibilities are ['po2ts',
-                       'update', 'ts2po', 'release', 'poedit', 'all']
+                       'update', 'missing', 'ts2po', 'release', 'poedit',
+                       'all']
 
 OPTIONS:
   -h, --help           show this help message and exit
