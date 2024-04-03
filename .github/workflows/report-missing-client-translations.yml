@@ -33,7 +33,7 @@ jobs:
                   host: linux
                   target: desktop
                   arch: gcc_64
-                  archives: "qtbase qttools qttranslations"
+                  archives: "qtbase qtdeclarative qttools qttranslations"
             - uses: actions/setup-python@v4
               with:
                   python-version: "3.10"
