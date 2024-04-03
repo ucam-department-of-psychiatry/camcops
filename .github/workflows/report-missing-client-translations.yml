@@ -40,5 +40,7 @@ jobs:
             - name: Report missing client translations
               run: |
                   set -euxo pipefail
+                  ls ${Qt6_DIR}/lib
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+
                   ${GITHUB_WORKSPACE}/.github/scripts/report_missing_client_translations.sh
