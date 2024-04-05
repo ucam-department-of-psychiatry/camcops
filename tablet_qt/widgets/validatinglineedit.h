@@ -30,7 +30,8 @@ class ValidatingLineEdit : public QVBoxLayout
 
     Q_OBJECT
 public:
-    ValidatingLineEdit(QValidator* validator, QWidget* parent = nullptr);
+    ValidatingLineEdit(QValidator* validator, QWidget* parent = nullptr, QString text = "");
+    ValidatingLineEdit(QValidator* validator, QString text = "") : ValidatingLineEdit(validator, nullptr, text) {}
     void textChanged();
     QValidator::State getState();
     bool isValid();

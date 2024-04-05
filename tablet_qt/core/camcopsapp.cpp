@@ -370,31 +370,40 @@ bool CamcopsApp::registerPatientWithServer()
         recreateMainMenu();
     }
 
-    QUrl server_url;
-    QString patient_proquint;
+    QUrl new_server_url;
+    QString new_patient_proquint;
 
     if (!m_default_server_url.isEmpty() &&
         !m_default_patient_proquint.isEmpty()) {
 
-        server_url = m_default_server_url;
-        patient_proquint = m_default_patient_proquint;
+        new_server_url = m_default_server_url;
+        new_patient_proquint = m_default_patient_proquint;
     } else {
-        PatientRegistrationDialog dialog(nullptr);
+        QUrl old_server_url = QUrl();
+        const QString old_patient_proquint = varString(varconst::SINGLE_PATIENT_PROQUINT);
+        if (!old_patient_proquint.isEmpty()) {
+            old_server_url.setScheme("https");
+            old_server_url.setHost(varString(varconst::SERVER_ADDRESS));
+            old_server_url.setPort(varInt(varconst::SERVER_PORT));
+            old_server_url.setPath(varString(varconst::SERVER_PATH));
+        }
+
+        PatientRegistrationDialog dialog(nullptr, old_server_url, old_patient_proquint);
         const int reply = dialog.exec();
         if (reply != QDialog::Accepted) {
             return false;
         }
 
-        server_url = dialog.serverUrl();
-        patient_proquint = dialog.patientProquint();
+        new_server_url = dialog.serverUrl();
+        new_patient_proquint = dialog.patientProquint();
     }
 
-    setVar(varconst::SERVER_ADDRESS, server_url.host());
+    setVar(varconst::SERVER_ADDRESS, new_server_url.host());
 
     const int default_port = DEFAULT_SERVER_PORT;
-    setVar(varconst::SERVER_PORT, server_url.port(default_port));
-    setVar(varconst::SERVER_PATH, server_url.path());
-    setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
+    setVar(varconst::SERVER_PORT, new_server_url.port(default_port));
+    setVar(varconst::SERVER_PATH, new_server_url.path());
+    setVar(varconst::SINGLE_PATIENT_PROQUINT, new_patient_proquint);
     setVar(varconst::DEVICE_FRIENDLY_NAME,
            QString("Single user device %1").arg(deviceId()));
     // Currently defaults to no validation, though the user can enable through

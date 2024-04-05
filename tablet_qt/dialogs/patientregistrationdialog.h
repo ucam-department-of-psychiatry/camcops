@@ -21,9 +21,9 @@
 #pragma once
 #include <QDialog>
 #include <QPointer>
+#include <QUrl>
 class QDialogButtonBox;
 class QLabel;
-class QUrl;
 class ValidatingLineEdit;
 
 
@@ -35,7 +35,9 @@ class PatientRegistrationDialog : public QDialog
 
     Q_OBJECT
 public:
-    PatientRegistrationDialog(QWidget* parent = nullptr);
+    PatientRegistrationDialog(QWidget* parent = nullptr,
+                              QUrl server_url = QUrl(),
+                              QString patient_proquint = "");
     QString patientProquint() const;
     QString serverUrlAsString() const;
     QUrl serverUrl() const;

@@ -26,8 +26,8 @@
 
 #include "proquintlineedit.h"
 
-ProquintLineEdit::ProquintLineEdit(QWidget* parent) :
-    ValidatingLineEdit(new ProquintValidator(), parent)
+ProquintLineEdit::ProquintLineEdit(QWidget* parent, QString text) :
+    ValidatingLineEdit(new ProquintValidator(), parent, text)
 {
     getLineEdit()->setInputMethodHints(Qt::ImhSensitiveData |
                                        Qt::ImhNoAutoUppercase |

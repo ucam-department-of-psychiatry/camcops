@@ -34,7 +34,7 @@ const QColor& BAD_FOREGROUND = Qt::white;
 const QColor& BAD_BACKGROUND = Qt::red;
 
 
-ValidatingLineEdit::ValidatingLineEdit(QValidator* validator, QWidget* parent) :
+ValidatingLineEdit::ValidatingLineEdit(QValidator* validator, QWidget* parent, QString text) :
     QVBoxLayout(parent)
 {
     m_line_edit = new QLineEdit();
@@ -47,6 +47,10 @@ ValidatingLineEdit::ValidatingLineEdit(QValidator* validator, QWidget* parent) :
     addWidget(m_line_edit);
     addWidget(m_label);
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+    if (!text.isEmpty()) {
+        m_line_edit->setText(text);
+    }
 }
 
 

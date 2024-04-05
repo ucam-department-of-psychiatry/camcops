@@ -33,12 +33,14 @@
 #include "patientregistrationdialog.h"
 
 
-PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
+PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent,
+                                                     QUrl server_url,
+                                                     QString patient_proquint) :
     QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
 
-    m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
+    m_editor_server_url = new ValidatingLineEdit(new UrlValidator(), server_url.url());
     m_editor_server_url->getLineEdit()->setInputMethodHints(
         Qt::ImhNoAutoUppercase |
         Qt::ImhNoPredictiveText
@@ -46,7 +48,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     connect(m_editor_server_url, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
-    m_editor_patient_proquint = new ProquintLineEdit();
+    m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
