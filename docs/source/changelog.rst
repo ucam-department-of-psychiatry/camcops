@@ -3883,3 +3883,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
+
+- The Patient Registration Dialog now displays the server URL and access key for
+  the previous registration, if available. This should reduce the amount of data
+  entry needed following a network or registration failure.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/104
