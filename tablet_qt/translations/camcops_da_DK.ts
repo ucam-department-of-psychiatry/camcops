@@ -998,7 +998,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location filename="../tasks/cet.cpp" line="+81"/>
         <source>Compulsive Exercise Test</source>
-        <translation>Kompulsiv træningstest</translation>
+        <translation>Compulsive Exercise Test [kompulsiv træningstest]</translation>
     </message>
     <message>
         <location line="+6"/>
