@@ -33,10 +33,11 @@
 #include "patientregistrationdialog.h"
 
 
-PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent,
-                                                     QUrl server_url,
-                                                     QString patient_proquint) :
-    QDialog(parent)
+PatientRegistrationDialog::PatientRegistrationDialog(
+    QWidget* parent,
+    const QUrl& server_url,
+    const QString& patient_proquint)
+    : QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
 

@@ -26,7 +26,7 @@
 
 #include "proquintlineedit.h"
 
-ProquintLineEdit::ProquintLineEdit(QWidget* parent, QString text) :
+ProquintLineEdit::ProquintLineEdit(QWidget* parent, const QString& text) :
     ValidatingLineEdit(new ProquintValidator(), parent, text)
 {
     getLineEdit()->setInputMethodHints(Qt::ImhSensitiveData |
@@ -82,7 +82,7 @@ void ProquintLineEdit::processChangedText()
 // https://bugreports.qt.io/browse/QTBUG-115756
 // On Android, the cursor does not get updated properly if a dash is appended
 // Remove this when fixed.
-bool ProquintLineEdit::eventFilter(QObject *obj, QEvent *event)
+bool ProquintLineEdit::eventFilter(QObject* obj, QEvent* event)
 {
     auto line_edit = getLineEdit();
 

@@ -36,8 +36,8 @@ class PatientRegistrationDialog : public QDialog
     Q_OBJECT
 public:
     PatientRegistrationDialog(QWidget* parent = nullptr,
-                              QUrl server_url = QUrl(),
-                              QString patient_proquint = "");
+                              const QUrl& server_url = QUrl(),
+                              const QString& patient_proquint = "");
     QString patientProquint() const;
     QString serverUrlAsString() const;
     QUrl serverUrl() const;

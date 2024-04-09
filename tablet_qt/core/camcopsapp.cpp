@@ -370,15 +370,19 @@ bool CamcopsApp::registerPatientWithServer()
         recreateMainMenu();
     }
 
+    // The values we will attempt to register with:
     QUrl new_server_url;
     QString new_patient_proquint;
 
     if (!m_default_server_url.isEmpty() &&
-        !m_default_patient_proquint.isEmpty()) {
-
+            !m_default_patient_proquint.isEmpty()) {
+        // These defaults may have been passed in as command-line options;
+        // see processCommandLineArguments().
         new_server_url = m_default_server_url;
         new_patient_proquint = m_default_patient_proquint;
     } else {
+        // Start with a blank URL, or a URL from a previous failed attempt, to
+        // assist in reducing data entry following network/registration failure.
         QUrl old_server_url = QUrl();
         const QString old_patient_proquint = varString(varconst::SINGLE_PATIENT_PROQUINT);
         if (!old_patient_proquint.isEmpty()) {
