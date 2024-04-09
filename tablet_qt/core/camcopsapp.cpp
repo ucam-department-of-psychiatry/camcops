@@ -3202,14 +3202,14 @@ void CamcopsApp::upload()
         return;
     }
 
-    const bool single_user_mode = isSingleUserMode();
+    const bool logging_network = isLoggingNetwork();
     reconnectNetManager(
-                single_user_mode ? &CamcopsApp::uploadFailed : nullptr,
-                single_user_mode ? &CamcopsApp::uploadFinished : nullptr);
-    // ... no failure handlers required in clinician mode -- the NetworkManager
-    // will not be in silent mode, so will report the error to the user
-    // directly. (And similarly, we didn't/don't need a "finished" callback in
-    // clinician mode.)
+                logging_network ? nullptr : &CamcopsApp::uploadFailed,
+                logging_network ? nullptr : &CamcopsApp::uploadFinished);
+    // ... no failure handlers required when displaying the network log --
+    // the NetworkManager will not be in silent mode, so will report the error
+    // to the user directly. (And similarly, we didn't/don't need a "finished"
+    // callback in with the logbox enabled.)
 
     showNetworkGuiGuard(tr("Uploading..."));
     networkManager()->upload(method);
