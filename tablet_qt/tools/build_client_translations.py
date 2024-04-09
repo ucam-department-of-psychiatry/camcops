@@ -37,7 +37,9 @@ import os
 from os.path import abspath, dirname, join
 import shutil
 import subprocess
+import sys
 from typing import Iterable, List
+import xml.etree.ElementTree as ET
 
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
@@ -66,6 +68,7 @@ EXT_TS = ".ts"
 
 OP_PO_TO_TS = "po2ts"
 OP_SRC_TO_TS = "update"
+OP_MISSING = "missing"
 OP_TS_TO_QM = "release"
 OP_TS_TO_PO = "ts2po"
 OP_POEDIT = "poedit"
@@ -73,12 +76,14 @@ OP_ALL = "all"
 ALL_OPERATIONS = [
     OP_PO_TO_TS,
     OP_SRC_TO_TS,
+    OP_MISSING,
     OP_TS_TO_PO,
     OP_TS_TO_QM,
     OP_POEDIT,
     OP_ALL,
 ]
-
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
 
 # =============================================================================
 # Support functions
@@ -172,6 +177,47 @@ def gen_files_with_ext(directory: str, ext: str) -> Iterable[str]:
             if filename.endswith(ext):
                 fullpath = os.path.join(root, filename)
                 yield fullpath
+
+
+def report_missing_translations() -> int:
+    exit_code = EXIT_SUCCESS
+    for ts_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_TS):
+        missing = []
+        tree = ET.parse(ts_filename)
+        ts = tree.getroot()
+
+        for context in ts.findall("context"):
+            line = 0
+            filename = ""
+
+            for message in context.findall("message"):
+                for location in message.findall("location"):
+                    new_filename = location.attrib.get("filename")
+
+                    if new_filename is not None:
+                        filename = new_filename
+                        line = 0
+
+                    line_diff = location.attrib.get("line", 0)
+                    line += int(line_diff)
+
+                translation = message.find("translation")
+                if translation.attrib.get("type", "") == "unfinished":
+                    source = message.find("source").text
+                    missing.append(
+                        dict(filename=filename, line=line, source=source)
+                    )
+
+        if missing:
+            exit_code = EXIT_FAILURE
+            print(f"Missing translations found in: {ts_filename}:")
+            for entry in missing:
+                filename = entry["filename"]
+                line = entry["line"]
+                source = entry["source"]
+                print(f"File: {filename}, line: {line}\n{source}\n")
+
+    return exit_code
 
 
 # =============================================================================
@@ -300,6 +346,11 @@ Operations:
         options = ["-no-obsolete"] if args.trim else []
         cmdargs = [args.lupdate] + options + [CAMCOPS_PRO_FILE]
         run(cmdargs)
+
+    if op == OP_MISSING:
+        exit_code = report_missing_translations()
+
+        sys.exit(exit_code)
 
     if op in (OP_TS_TO_PO, OP_ALL):
         log.debug(

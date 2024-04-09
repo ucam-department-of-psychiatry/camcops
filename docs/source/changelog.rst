@@ -3884,6 +3884,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
 
+- Fix bug where the upload icon would remain visible if the activity log were enabled and
+  the upload failed.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/341
+
+- Make it easier to turn on error logging in the event of a network operation failure.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/336
+
 - The Patient Registration Dialog now displays the server URL and access key for
   the previous registration, if available. This should reduce the amount of data
   entry needed following a network or registration failure.
