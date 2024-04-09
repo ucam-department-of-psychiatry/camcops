@@ -3887,3 +3887,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix bug where the upload icon would remain visible if the activity log were enabled and
   the upload failed.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/341
+
+- Make it easier to turn on error logging in the event of a network operation failure.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/336

@@ -237,9 +237,20 @@ protected:
     // For single user mode, register patient if not already done so
     void maybeRegisterPatient();
 
+    enum class NetworkOperation {
+        RegisterPatient,
+        UpdateTaskSchedules,
+        Upload
+    };
+
     void handleNetworkFailure(const NetworkManager::ErrorCode error_code,
                               const QString& error_string,
-                              const QString& base_message);
+                              const QString& base_message,
+                              CamcopsApp::NetworkOperation operation);
+
+    void maybeRetryNetworkOperation(const QString base_message,
+                                    const QString additional_message,
+                                    CamcopsApp::NetworkOperation operation);
 
     bool userConfirmedRetryPassword() const;
     bool userConfirmedDeleteDatabases() const;

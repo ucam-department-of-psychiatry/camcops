@@ -508,12 +508,8 @@ void CamcopsApp::patientRegistrationFailed(
         break;
     }
 
-    uifunc::alert(
-        QString("%1\n\n%2").arg(base_message, additional_message),
-        tr("Error")
-    );
-
-    recreateMainMenu();
+    maybeRetryNetworkOperation(base_message, additional_message,
+                               NetworkOperation::RegisterPatient);
 }
 
 
@@ -543,7 +539,8 @@ void CamcopsApp::updateTaskSchedulesFailed(
     handleNetworkFailure(
         error_code,
         error_string,
-        tr("There was a problem updating your task schedules.")
+        tr("There was a problem updating your task schedules."),
+        NetworkOperation::UpdateTaskSchedules
     );
 }
 
@@ -569,7 +566,8 @@ void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
     handleNetworkFailure(
         error_code,
         error_string,
-        tr("There was a problem sending your completed tasks to the server.")
+        tr("There was a problem sending your completed tasks to the server."),
+        NetworkOperation::Upload
     );
 }
 
@@ -623,7 +621,8 @@ void CamcopsApp::retryUpload()
 
 void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code,
                                       const QString& error_string,
-                                      const QString& base_message)
+                                      const QString& base_message,
+                                      CamcopsApp::NetworkOperation operation)
 {
     QString additional_message = "";
 
@@ -651,13 +650,50 @@ void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code
         break;
     }
 
-    uifunc::alert(
+    maybeRetryNetworkOperation(base_message, additional_message, operation);
+}
+
+
+void CamcopsApp::maybeRetryNetworkOperation(const QString base_message,
+                                            const QString additional_message,
+                                            CamcopsApp::NetworkOperation operation)
+{
+    const bool try_again_with_log = uifunc::confirm(
         QString("%1\n\n%2").arg(base_message, additional_message),
-        tr("Error")
+        tr("Error"),
+        tr("Try again with error log"),
+        TextConst::cancel()
     );
 
-    recreateMainMenu();
+    if (!try_again_with_log) {
+        recreateMainMenu();
+
+        return;
+    }
+
+    enableNetworkLogging();
+
+    switch (operation) {
+    case NetworkOperation::RegisterPatient:
+        registerPatientWithServer();
+        break;
+
+    case NetworkOperation::UpdateTaskSchedules:
+        // it doesn't matter if we pass alert_unfinished_tasks as True or False
+        // here. We wouldn't be here if there were unfinished tasks.
+        updateTaskSchedules();
+        break;
+
+    case NetworkOperation::Upload:
+        upload();
+        break;
+
+    default:
+        // Shouldn't get here
+        break;
+    }
 }
+
 
 TaskSchedulePtrList CamcopsApp::getTaskSchedules()
 {
