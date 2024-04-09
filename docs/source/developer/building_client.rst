@@ -1039,11 +1039,15 @@ Troubleshooting qmake/compilation
 
   Try switching from "debug" to "release" build.
 
-- Missing libraries under Ubuntu/Debian Linux:
+- Missing header files or libraries under Ubuntu/Debian Linux:
 
-  For example, for the error "cannot find -lgstphotography-1.0", try ``apt-file
-  search gstphotography``. Prefer packages with a ``-dev`` suffix as these have
-  development headers.
+  - For example, for the error "cannot find -lgstphotography-1.0", try
+    ``apt-file search gstphotography``, or ``apt-file search
+    gstphotography-1.0.so`` if you get too many results. Prefer packages with a
+    ``-dev`` suffix as these have development headers.
+
+  - Likewise, for the error "GL/gl.h: No such file or directory", try
+    ``apt-file search GL/gl.h``. (Here the missing package is ``libgl-dev``.)
 
 
 Troubleshooting running CamCOPS

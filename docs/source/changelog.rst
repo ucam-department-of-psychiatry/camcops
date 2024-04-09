@@ -3890,3 +3890,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Make it easier to turn on error logging in the event of a network operation failure.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/336
+
+- The Patient Registration Dialog now displays the server URL and access key for
+  the previous registration, if available. This should reduce the amount of data
+  entry needed following a network or registration failure.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/104
