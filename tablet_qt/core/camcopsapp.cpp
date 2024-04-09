@@ -658,7 +658,7 @@ void CamcopsApp::maybeRetryNetworkOperation(const QString base_message,
                                             const QString additional_message,
                                             CamcopsApp::NetworkOperation operation)
 {
-    bool try_again_with_log = uifunc::confirm(
+    const bool try_again_with_log = uifunc::confirm(
         QString("%1\n\n%2").arg(base_message, additional_message),
         tr("Error"),
         tr("Try again with error log"),
