@@ -1336,7 +1336,19 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                 if (!userConfirmedRetryPassword()) {
                     if (userConfirmedDeleteDatabases()) {
                         qInfo() << "... deleting databases.";
-                        deleteDatabases();
+                        QString error_string;
+                        const bool ok = deleteDatabases(error_string);
+                        if (!ok)
+                        {
+                            uifunc::alert(
+                                tr("CamCOPS could not delete its databases:\n\n"
+                                   "%1\n"
+                                   "Please try to delete these files manually and restart CamCOPS\n"
+                                ).arg(error_string));
+
+                            user_cancelled_please_quit = true;
+                            return false;
+                        }
                         qInfo() << "... recreating databases.";
                         openOrCreateDatabases();
                     }
@@ -1390,16 +1402,44 @@ bool CamcopsApp::userConfirmedDeleteDatabases() const
 }
 
 
-void CamcopsApp::deleteDatabases()
+bool CamcopsApp::deleteDatabases(QString& error_string)
 {
-    const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
-    const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+    QString data_error_string;
+    QString sys_error_string;
 
-    QFile data_file(data_filename);
-    data_file.remove();
+    const bool data_ok = deleteDatabase(dbfunc::DATA_DATABASE_FILENAME,
+                                        data_error_string);
+    const bool sys_ok = deleteDatabase(dbfunc::SYSTEM_DATABASE_FILENAME,
+                                       sys_error_string);
 
-    QFile sys_file(sys_filename);
-    sys_file.remove();
+    if (!data_ok) {
+        error_string = data_error_string;
+    }
+
+    if (!sys_ok) {
+        error_string += "\n" + sys_error_string;
+    }
+
+    return data_ok && sys_ok;
+}
+
+
+bool CamcopsApp::deleteDatabase(const QString& filename, QString& error_string)
+{
+    const QString fullpath = dbFullPath(filename);
+    QFile file(fullpath);
+    const bool ok = file.remove();
+
+    if (!ok) {
+        error_string = tr(
+            "Failed to delete file:\n"
+            "%1\n"
+            "because of this error:\n"
+            "%2\n"
+        ).arg(fullpath, file.errorString());
+    }
+
+    return ok;
 }
 
 
