@@ -1279,7 +1279,15 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                         new_pw_text, new_pw_title,
                         false /* require_old_password */,
                         dummy_old_password, new_user_password, nullptr)) {
+
+                // The user quit without setting a password.
+                // If we don't delete the database here, the next attempt to
+                // set up a password will fail (canReadDatabase() calls below
+                // will return false) and the user will be forced to set up
+                // another one.
+                deleteDatabases();
                 user_cancelled_please_quit = true;
+
                 return false;
             }
             qInfo() << "Encrypting databases for the first time...";
@@ -1336,16 +1344,9 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                 if (!userConfirmedRetryPassword()) {
                     if (userConfirmedDeleteDatabases()) {
                         qInfo() << "... deleting databases.";
-                        QString error_string;
-                        const bool ok = deleteDatabases(error_string);
+                        const bool ok = deleteDatabases();
                         if (!ok)
                         {
-                            uifunc::alert(
-                                tr("CamCOPS could not delete its databases:\n\n"
-                                   "%1\n"
-                                   "Please try to delete these files manually and restart CamCOPS\n"
-                                ).arg(error_string));
-
                             user_cancelled_please_quit = true;
                             return false;
                         }
@@ -1402,7 +1403,7 @@ bool CamcopsApp::userConfirmedDeleteDatabases() const
 }
 
 
-bool CamcopsApp::deleteDatabases(QString& error_string)
+bool CamcopsApp::deleteDatabases()
 {
     QString data_error_string;
     QString sys_error_string;
@@ -1412,6 +1413,12 @@ bool CamcopsApp::deleteDatabases(QString& error_string)
     const bool sys_ok = deleteDatabase(dbfunc::SYSTEM_DATABASE_FILENAME,
                                        sys_error_string);
 
+    if (data_ok && sys_ok) {
+        return true;
+    }
+
+    QString error_string;
+
     if (!data_ok) {
         error_string = data_error_string;
     }
@@ -1419,8 +1426,13 @@ bool CamcopsApp::deleteDatabases(QString& error_string)
     if (!sys_ok) {
         error_string += "\n" + sys_error_string;
     }
+    uifunc::alert(
+        tr("CamCOPS could not delete its databases:\n\n"
+           "%1\n"
+           "Please try to delete these files manually and restart CamCOPS\n"
+    ).arg(error_string));
 
-    return data_ok && sys_ok;
+    return false;
 }
 
 

@@ -170,7 +170,7 @@ protected:
     void openOrCreateDatabases();
 
     // Delete databases, returning true if successful
-    bool deleteDatabases(QString& error_string);
+    bool deleteDatabases();
 
     // Delete the named database, returning true if successful
     bool deleteDatabase(const QString& filename, QString& error_string);
