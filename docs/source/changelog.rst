@@ -3895,3 +3895,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   the previous registration, if available. This should reduce the amount of data
   entry needed following a network or registration failure.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/104
+
+- Provide more information if the app cannot delete the SQLite databases when a user
+  has forgotten their password. Fix a bug where if the initial password dialog was
+  aborted, the next attempt to set up a password would fail.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/346
