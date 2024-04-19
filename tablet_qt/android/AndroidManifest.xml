@@ -14,13 +14,10 @@
             <!-- auto screen scale factor -->
             <meta-data android:name="android.app.auto_screen_scale_factor" android:value="false"/>
             <intent-filter>
-              <!-- Allow the app to be launched from a URL. It is possible to use a "camcops" scheme but this won't
-                   appear as a hyperlink in e.g. GMail or Yahoo Mail, even if in HTML. So we use "http", even though it isn't.
-              -->
               <action android:name="android.intent.action.VIEW"/>
               <category android:name="android.intent.category.DEFAULT"/>
               <category android:name="android.intent.category.BROWSABLE"/>
-              <data android:scheme="http" android:host="camcops.org" android:path="/register/"/>
+              <data android:scheme="camcops" android:host="camcops.org" android:path="/register/"/>
             </intent-filter>
             <meta-data android:name="android.app.splash_screen_drawable" android:resource="@drawable/logo"/>
             <meta-data android:name="android.app.splash_screen_drawable_portrait" android:resource="@drawable/logo_portrait"/>

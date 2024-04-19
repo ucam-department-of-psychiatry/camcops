@@ -31,7 +31,6 @@ import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
 from urllib.parse import urlencode, urlunsplit
 
-from cardinal_pythonlib.uriconst import UriSchemes
 from pendulum import DateTime as Pendulum, Duration
 
 from sqlalchemy import cast, Numeric
@@ -272,8 +271,8 @@ class PatientTaskSchedule(Base):
         """
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
-            android_launch_url=self.launch_url(req, UriSchemes.HTTP),
-            ios_launch_url=self.launch_url(req, "camcops"),
+            android_launch_url=self.launch_url(req),
+            ios_launch_url=self.launch_url(req),
             forename=self.patient.forename,
             server_url=req.route_url(Routes.CLIENT_API),
             surname=self.patient.surname,
@@ -284,7 +283,9 @@ class PatientTaskSchedule(Base):
             self.task_schedule.email_template, **template_dict
         )
 
-    def launch_url(self, req: "CamcopsRequest", scheme: str) -> str:
+    def launch_url(
+        self, req: "CamcopsRequest", scheme: str = "camcops"
+    ) -> str:
         # Matches intent-filter in AndroidManifest.xml
         # And CFBundleURLSchemes in Info.plist
 
