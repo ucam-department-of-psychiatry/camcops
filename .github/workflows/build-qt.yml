@@ -24,7 +24,7 @@ jobs:
                       os: windows-2019
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Free up disk space
               # The runner on Ubuntu will run out of space so we remove some of the things
               # we don't need.
@@ -32,7 +32,7 @@ jobs:
               run: |
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/free_up_disk_space.sh
-            - uses: actions/setup-python@v4
+            - uses: actions/setup-python@v5
               with:
                   python-version: 3.8
             - name: Common Linux prerequisites
