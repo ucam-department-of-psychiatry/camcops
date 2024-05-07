@@ -3900,3 +3900,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   has forgotten their password. Fix a bug where if the initial password dialog was
   aborted, the next attempt to set up a password would fail.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/346
+
+- Fix undefined behaviour if a task in a taskchain was aborted due to e.g. a missing
+  IP setting. Sometimes the tasks would be displayed if the back button was pressed.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/350

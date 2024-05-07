@@ -38,7 +38,8 @@ TaskChain::TaskChain(CamcopsApp& app,
     m_creation_method(creation_method),
     m_title(title),
     m_subtitle(subtitle),
-    m_current_task_index(-1)
+    m_current_task_index(-1),
+    m_proceed_when_app_has_closed_last_task(false)
 {
     QObject::connect(&m_app, &CamcopsApp::subWindowFinishedClosing,
                      this, &TaskChain::onAppSubWindowClosed);
@@ -188,6 +189,8 @@ void TaskChain::start()
 
 void TaskChain::startNextTask()
 {
+    m_proceed_when_app_has_closed_last_task = false;
+
     // Move to next task
     ++m_current_task_index;
     // All done?
@@ -218,7 +221,6 @@ void TaskChain::startNextTask()
             << ": " << ptask->shortname();
 
     // Launch the task
-    m_proceed_when_app_has_closed_last_task = false;
     m_app.openSubWindow(widget, task, true);
 }
 
