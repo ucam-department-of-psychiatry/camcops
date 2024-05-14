@@ -3904,3 +3904,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix undefined behaviour if a task in a taskchain was aborted due to e.g. a missing
   IP setting. Sometimes the tasks would be displayed if the back button was pressed.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/350
+
+- Fix the Qt build for 32-bit and 64-bit Android emulator.
