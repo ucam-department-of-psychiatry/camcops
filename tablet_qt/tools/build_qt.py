@@ -1537,6 +1537,7 @@ class Config(object):
         # Architectures
         self.build_all = args.build_all  # type: bool
         self.build_android_x86_32 = args.build_android_x86_32  # type: bool
+        self.build_android_x86_64 = args.build_android_x86_64  # type: bool
         self.build_android_arm_v7_32 = (
             args.build_android_arm_v7_32
         )  # type: bool  # noqa
@@ -1926,7 +1927,7 @@ class Config(object):
         env["ANDROID_API_VERSION"] = self.android_api
         env["ANDROID_ARCH"] = target_platform.android_arch_full
         env["ANDROID_DEV"] = join(android_sysroot, "usr")
-        env["ANDROID_EABI"] = self._android_eabi(target_platform)
+        env["ANDROID_EABI"] = "llvm"
         env["ANDROID_NDK_ROOT"] = self.android_ndk_root
         env["ANDROID_SDK_ROOT"] = self.android_sdk_root
         env["ANDROID_SYSROOT"] = android_sysroot
@@ -1960,35 +1961,6 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     # TODO: should this be in Platform or Config?
-
-    def _android_eabi(self, target_platform: Platform) -> str:
-        """
-        Get the name of the Android Embedded Application Binary Interface
-        for ARM processors, used for the Android SDK.
-
-        ABIs:
-
-        - https://developer.android.com/ndk/guides/abis.html
-
-        ARM supports two ABI types, one of which is the Embedded ABI:
-
-        - https://kanj.github.io/elfs/book/armMusl/cross-tools/abi.html
-        - https://www.eecs.umich.edu/courses/eeecs373/readings/ARM-AAPCS-EABI-v2.08.pdf
-          = Procedure Call Standard for the ARM Architecture
-        """  # noqa
-        if target_platform.cpu_x86_family:
-            return "{}-{}".format(
-                target_platform.android_arch_short,
-                self.android_toolchain_version,
-            )  # e.g. x86-4.9
-            # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
-            # ... "-android-arch" and "-android-toolchain-version" get
-            # concatenated, I think; for example, this gives the toolchain
-            # "x86_64-4.9"
-        elif target_platform.cpu_arm_family:
-            return "llvm"
-        else:
-            raise NotImplementedError("Unknown CPU family for Android")
 
     def android_sysroot(self, target_platform: Platform) -> str:
         """
@@ -2025,7 +1997,7 @@ class Config(object):
         return join(
             self.android_ndk_root,
             "toolchains",
-            self._android_eabi(target_platform),
+            "llvm",
             "prebuilt",
             self.android_ndk_host,
         )
@@ -3456,6 +3428,8 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # version; see android_compilation.txt
         if target_platform.cpu == Cpu.X86_32:
             android_abi = "x86"
+        elif target_platform.cpu == Cpu.X86_64:
+            android_abi = "x86_64"
         elif target_platform.cpu == Cpu.ARM_V7_32:
             android_abi = "armeabi-v7a"
         elif target_platform.cpu == Cpu.ARM_V8_64:
@@ -4118,11 +4092,15 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         ar = cfg.android_ar(target_platform)
         ranlib = cfg.android_ranlib(target_platform)
 
-        if target_platform.cpu == Cpu.ARM_V7_32:
-            cpu = "armv7-a"
-        elif target_platform.cpu == Cpu.ARM_V8_64:
-            cpu = "armv8-a"
-        else:
+        cpu_dict = {
+            Cpu.ARM_V7_32: "armv7-a",
+            Cpu.ARM_V8_64: "armv8-a",
+            Cpu.X86_32: "i686",
+            Cpu.X86_64: "x86_64",
+        }
+
+        cpu = cpu_dict.get(target_platform.cpu)
+        if cpu is None:
             raise NotImplementedError(
                 "Don't know how to build FFmpeg for Android "
                 f"with CPU {target_platform.cpu}"
@@ -4352,6 +4330,9 @@ def master_builder(args) -> None:
     if cfg.build_android_x86_32:  # for x86 Android emulator
         build_for(Os.ANDROID, Cpu.X86_32)
 
+    if cfg.build_android_x86_64:  # for x86_64 Android emulator
+        build_for(Os.ANDROID, Cpu.X86_64)
+
     if cfg.build_android_arm_v7_32:  # for native Android, 32-bit ARM
         build_for(Os.ANDROID, Cpu.ARM_V7_32)
 
@@ -4530,6 +4511,12 @@ def main() -> None:
         action="store_true",
         help="An architecture target (Android under an "
         "Intel x86 32-bit emulator)",
+    )
+    archgroup.add_argument(
+        "--build_android_x86_64",
+        action="store_true",
+        help="An architecture target (Android under an "
+        "Intel x86 64-bit emulator)",
     )
     archgroup.add_argument(
         "--build_android_arm_v7_32",

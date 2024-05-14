@@ -301,8 +301,12 @@ android {
     CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
     contains(ANDROID_TARGET_ARCH, x86) {
-        message("Building for Android/x86 (e.g. Android emulator)")
-        CAMCOPS_ARCH_TAG = "android_x86"
+        message("Building for Android/x86_32 (e.g. Android emulator)")
+        CAMCOPS_ARCH_TAG = "android_x86_32"
+    }
+    contains(ANDROID_TARGET_ARCH, x86_64) {
+        message("Building for Android/x86_64 (e.g. Android emulator)")
+        CAMCOPS_ARCH_TAG = "android_x86_64"
     }
     contains(ANDROID_TARGET_ARCH, armeabi-v7a) {
         message("Building for Android/ARMv7 32-bit architecture")
