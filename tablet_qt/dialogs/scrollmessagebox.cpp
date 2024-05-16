@@ -36,7 +36,6 @@
 #include <QScrollArea>
 #include <QSize>
 #include <QStyle>
-#include "common/platform.h"
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
@@ -104,10 +103,6 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
 #else
     auto grid = new QGridLayout();
 #endif
-
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-    }
 
     /*
         ICON    { LABEL LABEL LABEL }

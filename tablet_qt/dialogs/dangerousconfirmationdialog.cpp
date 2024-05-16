@@ -23,7 +23,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include "common/platform.h"
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 
@@ -53,20 +52,13 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
             this, &DangerousConfirmationDialog::reject);
 
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
 
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        prompt->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    prompt->setWordWrap(true);
 
     setLayout(mainlayout);
 }

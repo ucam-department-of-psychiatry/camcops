@@ -38,6 +38,9 @@ public:
                          QWidget* parent = nullptr);
     QString oldPassword() const;
     QString newPassword() const;
+    void resizeEvent(QResizeEvent* event);
+public slots:
+    void orientationChanged(Qt::ScreenOrientation orientation);
 protected:
     void okClicked();
 protected:

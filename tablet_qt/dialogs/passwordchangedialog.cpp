@@ -22,8 +22,9 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QScreen>
+
 #include <QVBoxLayout>
-#include "common/platform.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 
@@ -52,19 +53,14 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
 
     auto prompt = new QLabel(text);
+    prompt->setWordWrap(true);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
         auto prompt_old = new QLabel(tr("Enter old password:"));
-        if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-            prompt_old->setWordWrap(true);
-        }
+        prompt_old->setWordWrap(true);
         mainlayout->addWidget(prompt_old);
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
@@ -72,6 +68,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     }
 
     auto prompt_new1 = new QLabel(tr("Enter new password:"));
+    prompt_new1->setWordWrap(true);
     mainlayout->addWidget(prompt_new1);
     m_editor_new1 = new QLineEdit();
     m_editor_new1->setEchoMode(QLineEdit::Password);
@@ -81,6 +78,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     mainlayout->addWidget(m_editor_new1);
 
     auto prompt_new2 = new QLabel(tr("Enter new password again for confirmation:"));
+    prompt_new2->setWordWrap(true);
 
     mainlayout->addWidget(prompt_new2);
     m_editor_new2 = new QLineEdit();
@@ -95,13 +93,67 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        prompt->setWordWrap(true);
-        prompt_new1->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    QScreen *screen = uifunc::screen();
+
+    connect(screen, &QScreen::orientationChanged,
+            this, &PasswordChangeDialog::orientationChanged);
 
     setLayout(mainlayout);
+}
+
+void PasswordChangeDialog::orientationChanged(Qt::ScreenOrientation orientation)
+{
+    QString description;
+
+    switch (orientation) {
+
+    case Qt::LandscapeOrientation:
+        description = "landscape";
+        break;
+
+    case Qt::PortraitOrientation:
+        description = "portrait";
+        break;
+
+    case Qt::InvertedLandscapeOrientation:
+        description = "inverted landscape";
+        break;
+
+    case Qt::InvertedPortraitOrientation:
+        description = "inverted portrait";
+        break;
+
+    default:
+        description = "unknown";
+        break;
+    }
+
+    QScreen *screen = uifunc::screen();
+    QRect screen_rect = screen->geometry();
+
+    QString label = QString("Orientation:%1 Screen:%2x%3 Dialog:%4x%5 Pos:%6,%7").
+                    arg(description).arg(screen_rect.width()).arg(screen_rect.height()).arg(width()).arg(height()).arg(pos().x()).arg(pos().y());
+    qInfo() << Q_FUNC_INFO;
+    qInfo() << label;
+
+    qInfo() << "Hide";
+    hide();
+    qInfo() << "Resize";
+    //resize(height(), width());
+    qInfo() << "Show";
+    show();
+}
+
+void PasswordChangeDialog::resizeEvent(QResizeEvent* event)
+{
+    Q_UNUSED(event)
+
+    qInfo()<< Q_FUNC_INFO;
+
+    qInfo()
+            << "dialog geometry = " << geometry()
+        << "screen geometry = " << uifunc::screenGeometry();
+
 }
 
 
