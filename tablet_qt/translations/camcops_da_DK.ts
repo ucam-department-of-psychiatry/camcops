@@ -436,7 +436,7 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+863"/>
+        <location filename="../core/camcopsapp.cpp" line="+876"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
@@ -471,12 +471,12 @@
         <translation>Inkonsekvent database tilstand</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+65"/>
         <source>Decrypting databases...</source>
         <translation>Dekryptering af databaser...</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+35"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
@@ -491,7 +491,7 @@
         <translation>Nej, jeg kan ikke huske kodeordet</translation>
     </message>
     <message>
-        <location line="+798"/>
+        <location line="+837"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -506,13 +506,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1738"/>
-        <location line="+1740"/>
+        <location line="-1790"/>
+        <location line="+1792"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1909"/>
+        <location line="-1974"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -527,7 +527,7 @@
         <translation>Du kan ikke ændre tilstand, når der stadig er opgaver, der skal overføres</translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+140"/>
         <source>Registering patient...</source>
         <translation>Registrering af patient...</translation>
     </message>
@@ -614,7 +614,7 @@ Har du forbindelse til internettet?</translation>
         <translation>Prøv igen med fejllog</translation>
     </message>
     <message>
-        <location line="+697"/>
+        <location line="+710"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -641,7 +641,33 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Slet database?</translation>
     </message>
     <message>
-        <location line="+938"/>
+        <location line="+29"/>
+        <source>CamCOPS could not delete its databases:
+
+%1
+Please try to delete these files manually and restart CamCOPS
+</source>
+        <translation>CamCOPS kunne ikke slette sine databaser:
+
+%1
+Prøv venligst at slette disse filer manuelt og genstart CamCOPS
+</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Failed to delete file:
+%1
+because of this error:
+%2
+</source>
+        <translation>Kunne ikke slette filen:
+%1
+på grund af denne fejl:
+%2
+</translation>
+    </message>
+    <message>
+        <location line="+932"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -701,7 +727,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2976"/>
+        <location line="-3041"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -711,7 +737,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+3018"/>
+        <location line="+3083"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -748,7 +774,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Flyt</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.h" line="+277"/>
+        <location filename="../core/camcopsapp.h" line="+280"/>
         <source>Opening...</source>
         <translation>Åbning...</translation>
     </message>
@@ -4556,7 +4582,7 @@ enig</translation>
 <context>
     <name>PatientRegistrationDialog</name>
     <message>
-        <location filename="../dialogs/patientregistrationdialog.cpp" line="+39"/>
+        <location filename="../dialogs/patientregistrationdialog.cpp" line="+42"/>
         <source>Registration</source>
         <translation>Registrering</translation>
     </message>
@@ -7558,7 +7584,7 @@ Tak!</translation>
 <context>
     <name>ValidatingLineEdit</name>
     <message>
-        <location filename="../widgets/validatinglineedit.cpp" line="+64"/>
+        <location filename="../widgets/validatinglineedit.cpp" line="+70"/>
         <source>Valid</source>
         <translation>Gyldig</translation>
     </message>

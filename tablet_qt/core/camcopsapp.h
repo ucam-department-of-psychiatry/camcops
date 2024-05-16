@@ -169,8 +169,11 @@ protected:
     // Open our pair of databases, or create them if they don't exist.
     void openOrCreateDatabases();
 
-    // Delete databases
-    void deleteDatabases();
+    // Delete databases, returning true if successful
+    bool deleteDatabases();
+
+    // Delete the named database, returning true if successful
+    bool deleteDatabase(const QString& filename, QString& error_string);
 
     // Close our databases.
     void closeDatabases();
