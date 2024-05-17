@@ -713,6 +713,22 @@ QScreen* screen()
 }
 
 
+QRect screenAvailableGeometry()
+{
+    // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
+    return screen()->availableGeometry();
+}
+
+int screenAvailableWidth()
+{
+    return screenAvailableGeometry().width();
+}
+
+int screenAvailableHeight()
+{
+    return screenAvailableGeometry().height();
+}
+
 QRect screenGeometry()
 {
     // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
@@ -728,6 +744,7 @@ int screenHeight()
 {
     return screenGeometry().height();
 }
+
 
 qreal screenDpi()
 {

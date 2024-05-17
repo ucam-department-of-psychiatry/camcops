@@ -248,6 +248,9 @@ QSize minimumSizeForTitle(const QDialog* dialog,
                           bool include_app_name = false);
 
 QScreen* screen();
+QRect screenAvailableGeometry();
+int screenAvailableWidth();
+int screenAvailableHeight();
 QRect screenGeometry();
 int screenWidth();
 int screenHeight();

@@ -94,6 +94,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
+    mainlayout->addStretch(1);
 
     QScreen *screen = uifunc::screen();
 
@@ -161,26 +162,30 @@ void PasswordChangeDialog::centre()
 {
     sizeToScreen();
 
-    const int screen_width = uifunc::screenWidth();
-    const int screen_height = uifunc::screenHeight();
+    const int screen_width = uifunc::screenAvailableWidth();
+    const int screen_height = uifunc::screenAvailableHeight();
     const int old_height = height();
     const int old_width = width();
-    const int x = (screen_width - old_height) / 2;
-    const int y = (screen_height - old_width) / 2;
+    const int x = (screen_width - old_width) / 2;
+    const int y = (screen_height - old_height) / 2;
+    reportSize();
     qInfo() << QString("Moving to: %1, %2").arg(x).arg(y);
     move(x, y);
+    reportSize();
 }
 
 
 void PasswordChangeDialog::sizeToScreen()
 {
-    const int screen_width = uifunc::screenWidth();
-    const int screen_height = uifunc::screenHeight();
+    const int screen_width = uifunc::screenAvailableWidth();
+    const int screen_height = uifunc::screenAvailableHeight();
 
     bool changed = false;
 
     int new_width = width();
     int new_height = height();
+
+    reportSize();
 
     if (new_width > screen_width)
     {
@@ -193,15 +198,19 @@ void PasswordChangeDialog::sizeToScreen()
         changed = true;
     }
     if (changed) {
+        qInfo() << QString("Resizing to: %1, %2").arg(new_width).arg(new_height);
         resize(new_width, new_height);
     }
+
+    reportSize();
+
 }
 
 
 void PasswordChangeDialog::reportSize()
 {
-    const int screen_width = uifunc::screenWidth();
-    const int screen_height = uifunc::screenHeight();
+    const int screen_width = uifunc::screenAvailableWidth();
+    const int screen_height = uifunc::screenAvailableHeight();
     const int old_height = height();
     const int old_width = width();
     QPoint old_pos = pos();
