@@ -19,11 +19,11 @@
 */
 
 #pragma once
-#include <QDialog>
+#include "centreddialog.h"
 #include "lib/layoutdumper.h"
 
 
-class DebugDialog : public QDialog
+class DebugDialog : public CentredDialog
 {
     // Dialogue to display a widget for debugging purposes
     Q_OBJECT
