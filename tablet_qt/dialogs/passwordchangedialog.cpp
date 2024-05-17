@@ -46,7 +46,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
                                            const QString& title,
                                            const bool require_old_password,
                                            QWidget* parent) :
-    QDialog(parent),
+    CentredDialog(parent),
     m_editor_old(nullptr),
     m_editor_new1(nullptr),
     m_editor_new2(nullptr)
@@ -96,150 +96,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     mainlayout->addWidget(buttonbox);
     mainlayout->addStretch(1);
 
-    QScreen *screen = uifunc::screen();
-
-    connect(screen, &QScreen::orientationChanged,
-            this, &PasswordChangeDialog::orientationChanged);
-
     setLayout(mainlayout);
-    centre();
-    installEventFilter(this);
-}
-
-void PasswordChangeDialog::orientationChanged(Qt::ScreenOrientation orientation)
-{
-    QString description;
-
-    switch (orientation) {
-
-    case Qt::LandscapeOrientation:
-        description = "landscape";
-        break;
-
-    case Qt::PortraitOrientation:
-        description = "portrait";
-        break;
-
-    case Qt::InvertedLandscapeOrientation:
-        description = "inverted landscape";
-        break;
-
-    case Qt::InvertedPortraitOrientation:
-        description = "inverted portrait";
-        break;
-
-    default:
-        description = "unknown";
-        break;
-    }
-
-    //const int screen_width = uifunc::screenWidth();
-    //const int screen_height = uifunc::screenHeight();
-    //const int old_height = height();
-    //const int old_width = width();
-
-    qInfo() << Q_FUNC_INFO;
-    qInfo() << QString("Orientation:%1").arg(description);
-
-    reportSize();
-    //qInfo() << "Hide";
-    //hide();
-
-    //const int x = (screen_width - old_height) / 2;
-    //const int y = (screen_height - old_width) / 2;
-    //qInfo() << QString("Moving to: %1, %2").arg(x).arg(y);
-    //move(y, x);
-    //qInfo() << QString("Resizing to: %1, %2").arg(old_height).arg(old_width);
-    //resize(old_height, old_width);
-    QTimer::singleShot(200, this, &PasswordChangeDialog::centre);
-    //qInfo() << "Show";
-    //show();
-
-}
-
-
-void PasswordChangeDialog::centre()
-{
-    sizeToScreen();
-
-    const int screen_width = uifunc::screenAvailableWidth();
-    const int screen_height = uifunc::screenAvailableHeight();
-    const int old_height = height();
-    const int old_width = width();
-    const int x = (screen_width - old_width) / 2;
-    const int y = (screen_height - old_height) / 2;
-    reportSize();
-    qInfo() << QString("Moving to: %1, %2").arg(x).arg(y);
-    move(x, y);
-    reportSize();
-}
-
-
-void PasswordChangeDialog::sizeToScreen()
-{
-    const int screen_width = uifunc::screenAvailableWidth();
-    const int screen_height = uifunc::screenAvailableHeight();
-
-    bool changed = false;
-
-    int new_width = width();
-    int new_height = height();
-
-    reportSize();
-
-    if (new_width > screen_width)
-    {
-        new_width = screen_width;
-        changed = true;
-    }
-    if (new_height > screen_height)
-    {
-        new_height = screen_height;
-        changed = true;
-    }
-    if (changed) {
-        qInfo() << QString("Resizing to: %1, %2").arg(new_width).arg(new_height);
-        resize(new_width, new_height);
-    }
-
-    reportSize();
-
-}
-
-
-void PasswordChangeDialog::reportSize()
-{
-    const int screen_width = uifunc::screenAvailableWidth();
-    const int screen_height = uifunc::screenAvailableHeight();
-    const int old_height = height();
-    const int old_width = width();
-    QPoint old_pos = pos();
-
-    qInfo() << Q_FUNC_INFO;
-    qInfo() << QString("Screen:%2x%3 Dialog:%4x%5 Pos:%6,%7").
-        arg(screen_width).arg(screen_height).arg(old_width).arg(old_height).arg(old_pos.x()).arg(old_pos.y());
-
-}
-
-
-void PasswordChangeDialog::resizeEvent(QResizeEvent* event)
-{
-    Q_UNUSED(event)
-
-    qInfo()<< Q_FUNC_INFO;
-
-    reportSize();
-}
-
-
-bool PasswordChangeDialog::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::Show)
-    {
-        centre();
-    }
-
-    return QObject::eventFilter(obj, event);
 }
 
 

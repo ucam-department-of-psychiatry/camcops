@@ -17,33 +17,27 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #pragma once
-#include <QPointer>
+#include <QDialog>
 
-#include "dialogs/centreddialog.h"
-
-class QLineEdit;
-
-
-class PasswordChangeDialog : public CentredDialog
+class CentredDialog : public QDialog
 {
-    // Dialogue to request old and new passwords, and check that they
-    // match and are not blank.
-    // MODAL and BLOCKING: call exec() then check oldPassword() and
-    // newPassword() if it succeeds.
+    // Dialogue that repositions itself sensibly on orientation change.
+    //
+    // Currently we cannot rely on Android and iOS to handle this:
+    // https://bugreports.qt.io/browse/QTBUG-91363
+    // https://bugreports.qt.io/browse/QTBUG-109127
+    //
+    // Inspired by the DialogPositioner class in:
+    // https://github.com/f4exb/sdrangel/
 
     Q_OBJECT
 public:
-    PasswordChangeDialog(const QString& text, const QString& title,
-                         bool require_old_password,
-                         QWidget* parent = nullptr);
-    QString oldPassword() const;
-    QString newPassword() const;
+    CentredDialog(QWidget* parent = nullptr);
 protected:
-    void okClicked();
-protected:
-    QPointer<QLineEdit> m_editor_old;
-    QPointer<QLineEdit> m_editor_new1;
-    QPointer<QLineEdit> m_editor_new2;
+    void sizeToScreen();
+    void centre();
+    bool eventFilter(QObject *obj, QEvent *event) override;
+private slots:
+    void orientationChanged(Qt::ScreenOrientation orientation);
 };

@@ -627,6 +627,7 @@ SOURCES += \
     diagnosis/flatproxymodel.cpp \
     diagnosis/icd10.cpp \
     diagnosis/icd9cm.cpp \
+    dialogs/centreddialog.cpp \
     dialogs/dangerousconfirmationdialog.cpp \
     dialogs/debugdialog.cpp \
     dialogs/logbox.cpp \
@@ -1115,6 +1116,7 @@ HEADERS += \
     diagnosis/flatproxymodel.h \
     diagnosis/icd10.h \
     diagnosis/icd9cm.h \
+    dialogs/centreddialog.h \
     dialogs/dangerousconfirmationdialog.h \
     dialogs/debugdialog.h \
     dialogs/logbox.h \
