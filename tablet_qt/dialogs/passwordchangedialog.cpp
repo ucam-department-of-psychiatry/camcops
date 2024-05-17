@@ -20,9 +20,11 @@
 
 #include "passwordchangedialog.h"
 #include <QDialogButtonBox>
+#include <QEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QScreen>
+#include <QTimer>
 
 #include <QVBoxLayout>
 #include "lib/filefunc.h"
@@ -99,6 +101,8 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
             this, &PasswordChangeDialog::orientationChanged);
 
     setLayout(mainlayout);
+    centre();
+    installEventFilter(this);
 }
 
 void PasswordChangeDialog::orientationChanged(Qt::ScreenOrientation orientation)
@@ -128,21 +132,86 @@ void PasswordChangeDialog::orientationChanged(Qt::ScreenOrientation orientation)
         break;
     }
 
-    QScreen *screen = uifunc::screen();
-    QRect screen_rect = screen->geometry();
+    //const int screen_width = uifunc::screenWidth();
+    //const int screen_height = uifunc::screenHeight();
+    //const int old_height = height();
+    //const int old_width = width();
 
-    QString label = QString("Orientation:%1 Screen:%2x%3 Dialog:%4x%5 Pos:%6,%7").
-                    arg(description).arg(screen_rect.width()).arg(screen_rect.height()).arg(width()).arg(height()).arg(pos().x()).arg(pos().y());
     qInfo() << Q_FUNC_INFO;
-    qInfo() << label;
+    qInfo() << QString("Orientation:%1").arg(description);
 
-    qInfo() << "Hide";
-    hide();
-    qInfo() << "Resize";
-    //resize(height(), width());
-    qInfo() << "Show";
-    show();
+    reportSize();
+    //qInfo() << "Hide";
+    //hide();
+
+    //const int x = (screen_width - old_height) / 2;
+    //const int y = (screen_height - old_width) / 2;
+    //qInfo() << QString("Moving to: %1, %2").arg(x).arg(y);
+    //move(y, x);
+    //qInfo() << QString("Resizing to: %1, %2").arg(old_height).arg(old_width);
+    //resize(old_height, old_width);
+    QTimer::singleShot(200, this, &PasswordChangeDialog::centre);
+    //qInfo() << "Show";
+    //show();
+
 }
+
+
+void PasswordChangeDialog::centre()
+{
+    sizeToScreen();
+
+    const int screen_width = uifunc::screenWidth();
+    const int screen_height = uifunc::screenHeight();
+    const int old_height = height();
+    const int old_width = width();
+    const int x = (screen_width - old_height) / 2;
+    const int y = (screen_height - old_width) / 2;
+    qInfo() << QString("Moving to: %1, %2").arg(x).arg(y);
+    move(x, y);
+}
+
+
+void PasswordChangeDialog::sizeToScreen()
+{
+    const int screen_width = uifunc::screenWidth();
+    const int screen_height = uifunc::screenHeight();
+
+    bool changed = false;
+
+    int new_width = width();
+    int new_height = height();
+
+    if (new_width > screen_width)
+    {
+        new_width = screen_width;
+        changed = true;
+    }
+    if (new_height > screen_height)
+    {
+        new_height = screen_height;
+        changed = true;
+    }
+    if (changed) {
+        resize(new_width, new_height);
+    }
+}
+
+
+void PasswordChangeDialog::reportSize()
+{
+    const int screen_width = uifunc::screenWidth();
+    const int screen_height = uifunc::screenHeight();
+    const int old_height = height();
+    const int old_width = width();
+    QPoint old_pos = pos();
+
+    qInfo() << Q_FUNC_INFO;
+    qInfo() << QString("Screen:%2x%3 Dialog:%4x%5 Pos:%6,%7").
+        arg(screen_width).arg(screen_height).arg(old_width).arg(old_height).arg(old_pos.x()).arg(old_pos.y());
+
+}
+
 
 void PasswordChangeDialog::resizeEvent(QResizeEvent* event)
 {
@@ -150,10 +219,18 @@ void PasswordChangeDialog::resizeEvent(QResizeEvent* event)
 
     qInfo()<< Q_FUNC_INFO;
 
-    qInfo()
-            << "dialog geometry = " << geometry()
-        << "screen geometry = " << uifunc::screenGeometry();
+    reportSize();
+}
 
+
+bool PasswordChangeDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::Show)
+    {
+        centre();
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 
 

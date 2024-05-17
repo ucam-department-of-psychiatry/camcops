@@ -38,11 +38,15 @@ public:
                          QWidget* parent = nullptr);
     QString oldPassword() const;
     QString newPassword() const;
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
+    void reportSize();
+    void sizeToScreen();
+    void centre();
 public slots:
     void orientationChanged(Qt::ScreenOrientation orientation);
 protected:
     void okClicked();
+    bool eventFilter(QObject *obj, QEvent *event) override;
 protected:
     QPointer<QLineEdit> m_editor_old;
     QPointer<QLineEdit> m_editor_new1;
