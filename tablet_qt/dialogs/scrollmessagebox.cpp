@@ -40,6 +40,7 @@
 #include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/verticalscrollarea.h"
 
 #ifdef ENFORCE_MINIMUM
@@ -121,6 +122,8 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     // If you do this with a GridLayoutHfw, it's amusing, but not sensible;
     // you can drag the buttons *over* the label, for example.
 #endif
+    new WidgetPositioner(this);
+
     setLayout(grid);
 
     setModal(true);
