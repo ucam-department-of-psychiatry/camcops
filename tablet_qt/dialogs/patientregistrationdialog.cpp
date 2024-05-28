@@ -26,6 +26,7 @@
 #include <QUrl>
 #include "lib/uifunc.h"
 #include "qobjects/urlvalidator.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/proquintlineedit.h"
 #include "widgets/validatinglineedit.h"
 
@@ -49,6 +50,9 @@ PatientRegistrationDialog::PatientRegistrationDialog(
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
     m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
+    const int min_width = qMin(500, uifunc::screenWidth());
+    m_editor_patient_proquint->getLineEdit()->setMinimumWidth(min_width);
+
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
@@ -84,10 +88,13 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     mainlayout->addWidget(patient_proquint_label);
     mainlayout->addLayout(m_editor_patient_proquint);
 
+    mainlayout->addStretch(1);
     mainlayout->addWidget(m_buttonbox);
 
     server_url_label->setWordWrap(true);
     patient_proquint_label->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
