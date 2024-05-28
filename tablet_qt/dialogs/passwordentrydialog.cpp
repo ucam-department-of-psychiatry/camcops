@@ -52,6 +52,7 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
 
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(m_editor);
+    mainlayout->addStretch(1);
     mainlayout->addWidget(buttonbox);
 
     prompt->setWordWrap(true);
