@@ -27,6 +27,7 @@
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
+#include "qobjects/widgetpositioner.h"
 
 const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
@@ -70,6 +71,8 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     auto okbutton = new QPushButton(TextConst::ok());
     buttonlayout->addWidget(okbutton);
     connect(okbutton, &QPushButton::clicked, this, &LogMessageBox::accept);
+
+    new WidgetPositioner(this);
 
     mainlayout->addLayout(buttonlayout);
 
