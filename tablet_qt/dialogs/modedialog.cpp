@@ -27,6 +27,7 @@
 #include "common/varconst.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/radiobuttonwordwrap.h"
 
 
@@ -75,12 +76,15 @@ ModeDialog::ModeDialog(const int previous_choice,
     mainlayout->addWidget(single_user_button);
     mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
+    mainlayout->addStretch(1);
     mainlayout->addWidget(buttonbox);
 
     prompt->setWordWrap(true);
     prompt2->setWordWrap(true);
     single_user_button->setWordWrap(true);
     clinician_button->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
