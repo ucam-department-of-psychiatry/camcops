@@ -36,6 +36,7 @@
 #include "core/networkmanager.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
+#include "dialogs/progressbox.h"
 #include "dialogs/scrollmessagebox.h"
 #include "lib/convert.h"
 #include "lib/filefunc.h"
@@ -320,7 +321,7 @@ void TestMenu::testProgress()
     // https://doc.qt.io/qt-6.5/qprogressdialog.html#details
     // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
     const int num_things = 100;
-    QProgressDialog progress(
+    ProgressBox progress(
         tr("Testing progress (but not doing anything; safe to abort)..."),
         tr("Abort test"), 0, num_things, this);
     progress.setWindowTitle(tr("Progress dialog"));
