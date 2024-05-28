@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 
 PasswordEntryDialog::PasswordEntryDialog(const QString& text,
@@ -54,6 +55,8 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     mainlayout->addWidget(buttonbox);
 
     prompt->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
