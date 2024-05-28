@@ -33,5 +33,7 @@ class ProgressBox : public QProgressDialog
 
     Q_OBJECT
 public:
-    ProgressBox(const QString& label, int n_steps, QWidget* parent);
+    ProgressBox(const QString &label_text, const QString &cancel_button_text,
+                int minimum, int maximum, QWidget *parent = nullptr,
+                Qt::WindowFlags f = Qt::WindowFlags());
 };

@@ -19,16 +19,17 @@
 */
 
 #include "progressbox.h"
+#include "qobjects/widgetpositioner.h"
 
 
-ProgressBox::ProgressBox(const QString& label, const int n_steps,
-                         QWidget* parent) :
+ProgressBox::ProgressBox(const QString& label, const QString& cancel_button_text,
+                         int minimum, const int maximum, QWidget* parent, Qt::WindowFlags f) :
     QProgressDialog(label,
-                    "",  // cancelButtonText
-                    0,  // minimum
-                    n_steps,  // maximum
+                    cancel_button_text,
+                    minimum,
+                    maximum,
                     parent,
-                    Qt::WindowFlags())
+                    f)
 {
-    setCancelButton(nullptr);  // don't show cancel button
+    new WidgetPositioner(this);
 }
