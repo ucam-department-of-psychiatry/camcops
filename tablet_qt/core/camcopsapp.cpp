@@ -1384,10 +1384,14 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
 bool CamcopsApp::userConfirmedRetryPassword() const
 {
     return uifunc::confirm(
-        tr("You entered an incorrect password. Try again?"),
+        tr("You entered an incorrect password. Try again?<br><br>"
+           "Answer <b>%1</b> to enter your password again.<br>"
+           "Answer <b>%2</b> if you can't remember your password.").arg(
+               TextConst::yes()
+            ).arg(TextConst::no()),
         tr("Retry password?"),
-        tr("Yes, enter password again"),
-        tr("No, I can't remember the password")
+        TextConst::yes(),
+        TextConst::no()
     );
 }
 
