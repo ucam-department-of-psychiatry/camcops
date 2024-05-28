@@ -28,6 +28,8 @@
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
+#include "qobjects/widgetpositioner.h"
+
 
 const QSize MIN_SIZE(600, 600);
 
@@ -93,6 +95,8 @@ LogBox::LogBox(QWidget* parent,
     buttonlayout->addWidget(m_ack_fail);
     connect(m_ack_fail, &QPushButton::clicked, this, &LogBox::okClicked);
     m_ack_fail->hide();
+
+    new WidgetPositioner(this);
 
     mainlayout->addLayout(buttonlayout);
 }
