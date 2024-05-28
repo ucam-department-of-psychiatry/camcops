@@ -19,15 +19,16 @@
 */
 
 #include "debugdialog.h"
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QVariant>
 #include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
-#include "dialogs/centreddialog.h"
 #include "layouts/vboxlayouthfw.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
+#include "qobjects/widgetpositioner.h"
 
 
 DebugDialog::DebugDialog(QWidget* parent,
@@ -37,7 +38,7 @@ DebugDialog::DebugDialog(QWidget* parent,
                          const layoutdumper::DumperConfig& config,
                          const bool use_hfw_layout,
                          const QString* dialog_stylesheet) :
-    CentredDialog(parent)
+    QDialog(parent)
 {
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close;
 
@@ -92,6 +93,8 @@ DebugDialog::DebugDialog(QWidget* parent,
     connect(buttonbox, &QDialogButtonBox::rejected, this,
             &DebugDialog::reject);
     layout->addWidget(buttonbox);
+
+    new WidgetPositioner(this);
 
     setLayout(layout);
 }

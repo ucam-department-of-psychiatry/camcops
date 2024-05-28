@@ -19,14 +19,12 @@
 */
 
 #pragma once
+#include <QDialog>
 #include <QPointer>
-
-#include "dialogs/centreddialog.h"
-
 class QLineEdit;
 
 
-class PasswordChangeDialog : public CentredDialog
+class PasswordChangeDialog : public QDialog
 {
     // Dialogue to request old and new passwords, and check that they
     // match and are not blank.

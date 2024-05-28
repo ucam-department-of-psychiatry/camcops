@@ -29,6 +29,7 @@
 #include <QVBoxLayout>
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 
 const int MINIMUM_PASSWORD_LENGTH = 10;
@@ -46,7 +47,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
                                            const QString& title,
                                            const bool require_old_password,
                                            QWidget* parent) :
-    CentredDialog(parent),
+    QDialog(parent),
     m_editor_old(nullptr),
     m_editor_new1(nullptr),
     m_editor_new2(nullptr)
@@ -95,6 +96,8 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
     mainlayout->addStretch(1);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }

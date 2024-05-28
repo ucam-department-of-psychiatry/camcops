@@ -19,12 +19,11 @@
 */
 
 #pragma once
+#include <QDialog>
 #include <QPointer>
 class QLineEdit;
 
-#include "centreddialog.h"
-
-class DangerousConfirmationDialog : public CentredDialog
+class DangerousConfirmationDialog : public QDialog
 {
     // Dialogue to confirm the user wants to proceed with a dangerous operation
     Q_OBJECT

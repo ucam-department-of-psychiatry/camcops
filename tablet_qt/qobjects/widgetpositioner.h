@@ -18,11 +18,11 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <QDialog>
+#include <QWidget>
 
-class CentredDialog : public QDialog
+class WidgetPositioner : public QObject
 {
-    // Dialogue that repositions itself sensibly on orientation change.
+    // Helper class to reposition widgets sensibly on orientation change.
     //
     // Currently we cannot rely on Android and iOS to handle this:
     // https://bugreports.qt.io/browse/QTBUG-91363
@@ -33,11 +33,13 @@ class CentredDialog : public QDialog
 
     Q_OBJECT
 public:
-    CentredDialog(QWidget* parent = nullptr);
+    WidgetPositioner(QWidget* widget);
 protected:
     void sizeToScreen();
     void centre();
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
+private:
+    QWidget* m_widget;
 private slots:
     void orientationChanged(Qt::ScreenOrientation orientation);
 };

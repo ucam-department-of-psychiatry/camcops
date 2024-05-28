@@ -19,20 +19,21 @@
 */
 
 #include "dangerousconfirmationdialog.h"
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "common/textconst.h"
-#include "dialogs/centreddialog.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 
 DangerousConfirmationDialog::DangerousConfirmationDialog(
         const QString& text,
         const QString& title,
         QWidget* parent) :
-    CentredDialog(parent)
+    QDialog(parent)
 {
     setWindowTitle(title);
     setMinimumSize(uifunc::minimumSizeForTitle(this));
@@ -61,6 +62,8 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
     mainlayout->addStretch(1);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
