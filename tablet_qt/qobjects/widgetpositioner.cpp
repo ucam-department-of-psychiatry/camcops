@@ -46,7 +46,7 @@
 #include <QtDebug>
 #include <QWidget>
 
-#define DEBUG_WIDGET_POSITIONER
+// #define DEBUG_WIDGET_POSITIONER
 // #define DEBUG_WIDGET_POSITIONER_LAYOUT
 
 #ifdef DEBUG_WIDGET_POSITIONER_LAYOUT
