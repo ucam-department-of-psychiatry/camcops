@@ -20,12 +20,8 @@
 
 #include "passwordchangedialog.h"
 #include <QDialogButtonBox>
-#include <QEvent>
 #include <QLabel>
 #include <QLineEdit>
-#include <QScreen>
-#include <QTimer>
-
 #include <QVBoxLayout>
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
