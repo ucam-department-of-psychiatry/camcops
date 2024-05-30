@@ -111,7 +111,9 @@ void WidgetPositioner::centre()
 #endif
         m_widget->move(x, y);
     } else {
+#ifdef DEBUG_WIDGET_POSITIONER
         qDebug("No need to move widget");
+#endif
     }
 
 #ifdef DEBUG_WIDGET_POSITIONER_LAYOUT
