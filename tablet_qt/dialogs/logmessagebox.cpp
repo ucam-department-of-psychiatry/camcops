@@ -23,6 +23,7 @@
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScreen>
 #include <QVBoxLayout>
 #include "common/textconst.h"
 #include "lib/uifunc.h"
@@ -41,8 +42,9 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     QDialog(parent)
 {
     setWindowTitle(title);
-    const int min_width = qMin(uifunc::screenAvailableWidth(), MIN_WIDTH);
-    const int min_height = qMin(uifunc::screenAvailableHeight(), MIN_HEIGHT);
+
+    const int min_width = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
     const int min_size = qMin(min_width, min_height);
 
     setMinimumWidth(min_size);
