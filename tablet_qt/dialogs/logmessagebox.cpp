@@ -41,8 +41,11 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     QDialog(parent)
 {
     setWindowTitle(title);
-    setMinimumWidth(MIN_WIDTH);
-    setMinimumHeight(MIN_HEIGHT);
+    const int min_width = qMin(uifunc::screenAvailableWidth(), MIN_WIDTH);
+    const int min_height = qMin(uifunc::screenAvailableHeight(), MIN_HEIGHT);
+
+    setMinimumWidth(min_width);
+    setMinimumHeight(min_height);
 
     auto mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
