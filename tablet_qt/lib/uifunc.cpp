@@ -745,7 +745,6 @@ int screenHeight()
     return screenGeometry().height();
 }
 
-
 qreal screenDpi()
 {
     return screen()->logicalDotsPerInch();

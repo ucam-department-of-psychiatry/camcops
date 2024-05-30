@@ -58,7 +58,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
     m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
-
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 

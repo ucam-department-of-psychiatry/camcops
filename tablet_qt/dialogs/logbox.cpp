@@ -30,7 +30,6 @@
 #include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 
-
 const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
 
