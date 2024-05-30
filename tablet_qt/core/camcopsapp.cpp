@@ -1383,6 +1383,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
 
 bool CamcopsApp::userConfirmedRetryPassword() const
 {
+    //: %1 and %2 are Yes and No respectively i.e. the dialog button labels
     return uifunc::confirm(
         tr("You entered an incorrect password. Try again?<br><br>"
            "Answer <b>%1</b> to enter your password again.<br>"
