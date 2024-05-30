@@ -32,6 +32,8 @@
 
 #include "patientregistrationdialog.h"
 
+const int MIN_WIDTH = 500;
+const int MIN_HEIGHT = 500;
 
 PatientRegistrationDialog::PatientRegistrationDialog(
     QWidget* parent,
@@ -40,6 +42,12 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     : QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
+
+    const int min_width = qMin(uifunc::screenAvailableWidth(), MIN_WIDTH);
+    const int min_height = qMin(uifunc::screenAvailableHeight(), MIN_HEIGHT);
+    const int min_size = qMin(min_width, min_height);
+
+    setMinimumWidth(min_size);
 
     m_editor_server_url = new ValidatingLineEdit(new UrlValidator(), server_url.url());
     m_editor_server_url->getLineEdit()->setInputMethodHints(
@@ -50,8 +58,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
     m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
-    const int min_width = qMin(500, uifunc::screenWidth());
-    m_editor_patient_proquint->getLineEdit()->setMinimumWidth(min_width);
 
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
