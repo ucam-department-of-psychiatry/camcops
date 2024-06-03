@@ -1,8 +1,10 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
-                   [--no_build_qt] [--no_fetch] [--nparallel NPARALLEL]
-                   [--force] [--force_ffmpeg] [--force_openssl] [--force_qt]
-                   [--force_sqlcipher] [--tee TEE] [--verbose {0,1,2}]
-                   [--inherit_os_env] [--no_inherit_os_env] [--build_all]
+                   [--configure_qt_only] [--no_fetch] [--nparallel NPARALLEL]
+                   [--no_build_ffmpeg] [--no_build_openssl] [--no_build_qt]
+                   [--no_build_sqlcipher] [--force] [--force_ffmpeg]
+                   [--force_openssl] [--force_qt] [--force_sqlcipher]
+                   [--tee TEE] [--verbose {0,1,2}] [--inherit_os_env]
+                   [--no_inherit_os_env] [--build_all]
                    [--build_android_x86_32] [--build_android_x86_64]
                    [--build_android_arm_v7_32] [--build_android_arm_v8_64]
                    [--build_linux_x86_64] [--build_macos_x86_64]
@@ -32,10 +34,14 @@ General:
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
                         from environment variable CAMCOPS_QT6_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
-  --no_build_qt         Only run Qt configure, don't build Qt (default: True)
+  --configure_qt_only   Only run Qt configure, don't build Qt (default: False)
   --no_fetch            Skip fetching source code (default: True)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
+  --no_build_ffmpeg     Skip building FFmpeg (default: True)
+  --no_build_openssl    Skip building OpenSSL (default: True)
+  --no_build_qt         Skip building Qt (default: True)
+  --no_build_sqlcipher  Skip building SQLCipher (default: True)
   --force               Force rebuild of everything (default: False)
   --force_ffmpeg        Force rebuild of FFmpeg (default: False)
   --force_openssl       Force rebuild of OpenSSL (default: False)
