@@ -660,6 +660,7 @@ SOURCES += \
     lib/containers.cpp \
     lib/convert.cpp \
     lib/css.cpp \
+    lib/customtypes.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
     lib/diagnosticstyle.cpp \
@@ -1013,6 +1014,7 @@ SOURCES += \
     whisker/whiskerinboundmessage.cpp \
     whisker/whiskermanager.cpp \
     whisker/whiskeroutboundcommand.cpp \
+    whisker/whiskertypes.cpp \
     whisker/whiskerworker.cpp \
     widgets/adjustablepie.cpp \
     widgets/aspectratiopixmap.cpp \
@@ -1150,6 +1152,7 @@ HEADERS += \
     lib/containers.h \
     lib/convert.h \
     lib/css.h \
+    lib/customtypes.h \
     lib/datetime.h \
     lib/debugfunc.h \
     lib/diagnosticstyle.h \
@@ -1506,6 +1509,7 @@ HEADERS += \
     whisker/whiskerinboundmessage.h \
     whisker/whiskermanager.h \
     whisker/whiskeroutboundcommand.h \
+    whisker/whiskertypes.h \
     whisker/whiskerworker.h \
     widgets/adjustablepie.h \
     widgets/aspectratiopixmap.h \
