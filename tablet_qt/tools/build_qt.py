@@ -1586,6 +1586,10 @@ class Config(object):
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
+        self.build_ffmpeg = args.build_ffmpeg
+        self.build_openssl = args.build_openssl
+        self.build_qt = args.build_qt
+        self.build_sqlcipher = args.build_sqlcipher
         self.force_ffmpeg = args.force or args.force_ffmpeg  # type: bool
         self.force_openssl = args.force or args.force_openssl  # type: bool
         self.force_qt = args.force or args.force_qt  # type: bool
@@ -4292,13 +4296,17 @@ def master_builder(args) -> None:
     # Fetch
     # =========================================================================
     if cfg.fetch:
-        download_qt(cfg)
-        checkout_qt(cfg)
-        patch_qt(cfg)
-        fetch_openssl(cfg)
-        fetch_sqlcipher(cfg)
+        if cfg.build_qt:
+            download_qt(cfg)
+            checkout_qt(cfg)
+            patch_qt(cfg)
+        if cfg.build_openssl:
+            fetch_openssl(cfg)
+        if cfg.build_sqlcipher:
+            fetch_sqlcipher(cfg)
         fetch_eigen(cfg)
-        fetch_ffmpeg(cfg)
+        if cfg.build_ffmpeg:
+            fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4315,12 +4323,14 @@ def master_builder(args) -> None:
             f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
             f"for {target_platform}"
         )
-        build_openssl(cfg, target_platform)
-        build_sqlcipher(cfg, target_platform)
-        if cfg.use_ffmpeg(target_platform):
+        if cfg.build_openssl:
+            build_openssl(cfg, target_platform)
+        if cfg.build_sqlcipher:
+            build_sqlcipher(cfg, target_platform)
+        if cfg.build_ffmpeg and cfg.use_ffmpeg(target_platform):
             build_ffmpeg(cfg, target_platform)
 
-        if qt_needs_building(cfg, target_platform):
+        if cfg.build_qt and qt_needs_building(cfg, target_platform):
             configure_qt(cfg, target_platform)
             if cfg.build_qt:
                 installdirs.append(build_qt(cfg, target_platform))
@@ -4448,6 +4458,30 @@ def main() -> None:
         type=int,
         default=CPU_COUNT,
         help="Number of parallel processes to run",
+    )
+    general.add_argument(
+        "--no_build_ffmpeg",
+        dest="build_ffmpeg",
+        action="store_false",
+        help="Skip building FFmpeg",
+    )
+    general.add_argument(
+        "--no_build_openssl",
+        dest="build_openssl",
+        action="store_false",
+        help="Skip building OpenSSL",
+    )
+    general.add_argument(
+        "--no_build_qt",
+        dest="build_qt",
+        action="store_false",
+        help="Skip building Qt",
+    )
+    general.add_argument(
+        "--no_build_sqlcipher",
+        dest="build_sqlcipher",
+        action="store_false",
+        help="Skip building SQLCipher",
     )
     general.add_argument(
         "--force", action="store_true", help="Force rebuild of everything"
