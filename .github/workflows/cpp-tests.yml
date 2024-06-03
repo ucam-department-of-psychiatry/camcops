@@ -44,6 +44,7 @@ jobs:
                   python -m pip freeze
                   echo installing pip packages
                   python -m pip install cardinal_pythonlib
+                  python -m pip install distro
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
                   # Build openssl and Qt
