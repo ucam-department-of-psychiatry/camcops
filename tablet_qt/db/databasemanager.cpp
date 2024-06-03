@@ -41,10 +41,11 @@
 #include "db/dbfunc.h"
 #include "db/field.h"
 #include "db/fieldcreationplan.h"
+#include "db/queryresult.h"
 #include "db/whereconditions.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 using dbfunc::delimit;
 
 // QSqlDatabase doesn't need to be passed by pointer; it copies itself
@@ -119,7 +120,7 @@ void DatabaseManager::openDatabaseOrDie()
     if (openDatabase()) {
         qInfo() << "Opened database:" << m_filename;
     } else {
-        uifunc::stopApp(m_opening_failure_msg);
+        errorfunc::fatalError(m_opening_failure_msg);
     }
 }
 
@@ -680,7 +681,7 @@ QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
     const QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     const QueryResult result = query(sql);
     if (!result.succeeded()) {
-        uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
+        errorfunc::fatalError("getPragmaInfo: PRAGMA table_info failed for "
                         "table " + tablename);
     }
     QVector<SqlitePragmaInfoField> infolist;
@@ -760,7 +761,7 @@ void DatabaseManager::renameColumns(
     QStringList new_fieldnames = old_fieldnames;
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("renameColumns: temporary table exists: " +
+        errorfunc::fatalError("renameColumns: temporary table exists: " +
                         dummytable);
     }
     int n_changes = 0;
@@ -772,12 +773,12 @@ void DatabaseManager::renameColumns(
         }
         // Check the source is valid
         if (!old_fieldnames.contains(from)) {
-            uifunc::stopApp("renameColumns: 'from' field doesn't "
+            errorfunc::fatalError("renameColumns: 'from' field doesn't "
                             "exist: " + tablename + "." + from);
         }
         // Check the destination doesn't exist already
         if (new_fieldnames.contains(to)) {
-            uifunc::stopApp(
+            errorfunc::fatalError(
                 "renameColumns: destination field already exists (or "
                 "attempt to rename two columns to the same name): " +
                 tablename + "." + to);
@@ -830,7 +831,7 @@ void DatabaseManager::renameTable(const QString& from, const QString& to)
         return;
     }
     if (tableExists(to)) {
-        uifunc::stopApp("renameTable: destination table already exists: " +
+        errorfunc::fatalError("renameTable: destination table already exists: " +
                         to);
     }
     // http://stackoverflow.com/questions/426495
@@ -852,7 +853,7 @@ void DatabaseManager::changeColumnTypes(
     }
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("changeColumnTypes: temporary table exists: " +
+        errorfunc::fatalError("changeColumnTypes: temporary table exists: " +
                         dummytable);
     }
     QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
@@ -972,13 +973,13 @@ void DatabaseManager::createTable(const QString& tablename,
     for (const FieldCreationPlan& plan : planlist) {
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
-                uifunc::stopApp(QString(
+                errorfunc::fatalError(QString(
                     "createTable: Cannot add a PRIMARY KEY column "
                     "(%1.%2)").arg(tablename, plan.name));
             }
             if (plan.intended_field->notNull() &&
                     !plan.intended_field->hasDbDefaultValue()) {
-                uifunc::stopApp(QString(
+                errorfunc::fatalError(QString(
                     "createTable: Cannot add a NOT NULL column to an existing "
                     "table without a database default "
                     "(%1.%2)").arg(tablename, plan.name));
@@ -1025,7 +1026,7 @@ void DatabaseManager::createTable(const QString& tablename,
     // http://sqlite.org/datatype3.html
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("createTable: temporary table exists: " + dummytable);
+        errorfunc::fatalError("createTable: temporary table exists: " + dummytable);
     }
     const QString delimited_tablename = delimit(tablename);
     const QString delimited_dummytable = delimit(dummytable);
