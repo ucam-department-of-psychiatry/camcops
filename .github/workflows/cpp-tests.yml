@@ -39,6 +39,11 @@ jobs:
                   set -eux -o pipefail
                   python -m venv ${HOME}/venv
                   source ${HOME}/venv/bin/activate
+                  python -m pip install -U pip
+                  echo dumping pre-installed packages
+                  python -m pip freeze
+                  echo installing pip packages
+                  python -m pip install cardinal_pythonlib
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
                   # Build openssl and Qt
