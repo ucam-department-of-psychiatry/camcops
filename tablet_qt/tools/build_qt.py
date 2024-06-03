@@ -4383,6 +4383,10 @@ def master_builder(args) -> None:
     ):  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
+    if not cfg.build_qt:
+        log.info("Not building Qt.")
+        sys.exit(EXIT_SUCCESS)
+
     if cfg.configure_qt_only:
         log.info("Configuration only. Not building Qt.")
         sys.exit(EXIT_SUCCESS)
