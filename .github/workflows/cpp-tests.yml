@@ -57,6 +57,7 @@ jobs:
                   python-version: 3.8
 
             - name: Build SQL Cipher
+              # And OpenSSL, Eigen
               run: |
                   set -eux -o pipefail
                   python -m venv ${HOME}/venv
@@ -67,7 +68,7 @@ jobs:
                   echo installing pip packages
                   python -m pip install cardinal_pythonlib
                   python -m pip install distro
-                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
                   cd tablet_qt/tools
                   # Build openssl and Qt
                   ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
