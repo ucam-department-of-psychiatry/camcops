@@ -1582,7 +1582,7 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
-        self.build_qt = args.build_qt
+        self.configure_qt_only = args.configure_qt_only
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
@@ -4322,7 +4322,7 @@ def master_builder(args) -> None:
 
         if qt_needs_building(cfg, target_platform):
             configure_qt(cfg, target_platform)
-            if cfg.build_qt:
+            if not cfg.configure_qt_only:
                 installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
@@ -4373,7 +4373,7 @@ def master_builder(args) -> None:
     ):  # 64-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_64)
 
-    if not cfg.build_qt:
+    if cfg.configure_qt_only:
         log.info("Configuration only. Not building Qt.")
         sys.exit(EXIT_SUCCESS)
 
@@ -4432,9 +4432,9 @@ def main() -> None:
         ),
     )
     general.add_argument(
-        "--no_build_qt",
-        dest="build_qt",
-        action="store_false",
+        "--configure_qt_only",
+        dest="configure_qt_only",
+        action="store_true",
         help="Only run Qt configure, don't build Qt",
     )
     general.add_argument(
