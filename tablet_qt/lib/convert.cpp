@@ -38,15 +38,12 @@
 #include <QUrl>
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
+#include "lib/customtypes.h"
 #include "lib/datetime.h"
 #include "lib/errorfunc.h"
 #include "lib/stringfunc.h"
-#include "lib/version.h"
 #include "maths/floatingpoint.h"
 #include "maths/mathfunc.h"
-#include "whisker/whiskerconnectionstate.h"
-#include "whisker/whiskerinboundmessage.h"
-#include "whisker/whiskeroutboundcommand.h"
 
 namespace convert {
 
@@ -273,7 +270,7 @@ QString toSqlLiteral(const QVariant& value)
 #endif
 
     default:
-        if (value.typeId() == TYPE_ID_QVECTOR_INT) {
+        if (value.typeId() == customtypes::TYPE_ID_QVECTOR_INT) {
             QVector<int> intvec = qVariantToIntVector(value);
             return sqlQuoteString(numericVectorToCsvString(intvec));
         }
@@ -732,7 +729,7 @@ QString prettyValue(const QVariant& variant,
         }
     default:
         if (type_id > QMetaType::User) {
-            if (type_id == TYPE_ID_QVECTOR_INT) {
+            if (type_id == customtypes::TYPE_ID_QVECTOR_INT) {
                 QVector<int> intvec = qVariantToIntVector(variant);
                 return numericVectorToCsvString(intvec);
             }
@@ -976,37 +973,6 @@ QStringList csvStringToQStringList(const QString& str)
     }
     words.append(cppLiteralToString(word.trimmed()));
     return words;
-}
-
-
-// ============================================================================
-// QVariant modifications
-// ============================================================================
-
-int TYPE_ID_QVECTOR_INT;
-int TYPE_ID_VERSION;
-
-
-void registerTypesForQVariant()
-{
-    // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
-    TYPE_ID_QVECTOR_INT = qRegisterMetaType<QVector<int>>();
-    TYPE_ID_VERSION = qRegisterMetaType<Version>();
-
-    // See also the calls to Q_DECLARE_METATYPE().
-    // https://doc.qt.io/qt-6.5/qtcore-tools-customtype-example.html
-}
-
-
-void registerOtherTypesForSignalsSlots()
-{
-    // Types that need to be registered with qRegisterMetaType() but are not
-    // stored in QVariants, so don't need externally visible type names:
-
-    qRegisterMetaType<WhiskerConnectionState>("WhiskerConnectionState");
-    qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
-    // qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
-    qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");
 }
 
 
