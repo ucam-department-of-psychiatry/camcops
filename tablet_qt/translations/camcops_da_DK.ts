@@ -436,7 +436,7 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+876"/>
+        <location filename="../core/camcopsapp.cpp" line="+878"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
@@ -476,7 +476,7 @@
         <translation>Dekryptering af databaser...</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+45"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
@@ -506,13 +506,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1790"/>
-        <location line="+1792"/>
+        <location line="-1800"/>
+        <location line="+1802"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1974"/>
+        <location line="-1984"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -614,7 +614,7 @@ Har du forbindelse til internettet?</translation>
         <translation>Prøv igen med fejllog</translation>
     </message>
     <message>
-        <location line="+710"/>
+        <location line="+720"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -727,7 +727,7 @@ på grund af denne fejl:
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-3041"/>
+        <location line="-3051"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -737,7 +737,7 @@ på grund af denne fejl:
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+3083"/>
+        <location line="+3093"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -4953,11 +4953,6 @@ enig</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../db/dbfunc.cpp" line="+312"/>
-        <source>Error encrypting databases</source>
-        <translation>Fejl ved kryptering af databaser</translation>
-    </message>
-    <message>
         <location filename="../lib/uifunc.h" line="+133"/>
         <location line="+4"/>
         <source>Alert</source>
@@ -5007,6 +5002,13 @@ enig</translation>
         <location line="+0"/>
         <source>WRONG</source>
         <translation>FORKERT</translation>
+    </message>
+    <message>
+        <location filename="../db/dbfunc.cpp" line="+313"/>
+        <source>Error encrypting databases:
+%1</source>
+<translation>Fejl ved kryptering af databaser:
+%1</translation>
     </message>
 </context>
 <context>
@@ -6699,7 +6701,7 @@ enig</translation>
 <context>
     <name>TaskChain</name>
     <message>
-        <location filename="../tasklib/taskchain.cpp" line="+50"/>
+        <location filename="../tasklib/taskchain.cpp" line="+51"/>
         <source>Task chain</source>
         <translation>Opgavekæde</translation>
     </message>
