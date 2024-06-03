@@ -31,25 +31,6 @@ jobs:
                   version: ${{ env.QT_VERSION }}
                   arch: gcc_64
                   modules: qtmultimedia
-            - uses: actions/setup-python@v5
-              with:
-                  python-version: 3.8
-            - name: Build SQL Cipher
-              run: |
-                  set -eux -o pipefail
-                  python -m venv ${HOME}/venv
-                  source ${HOME}/venv/bin/activate
-                  python -m pip install -U pip
-                  echo dumping pre-installed packages
-                  python -m pip freeze
-                  echo installing pip packages
-                  python -m pip install cardinal_pythonlib
-                  python -m pip install distro
-                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
-                  cd tablet_qt/tools
-                  # Build openssl and Qt
-                  ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
-
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
@@ -69,6 +50,27 @@ jobs:
                   xvfb \
                   x11-xserver-utils \
                   ccache
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.8
+
+            - name: Build SQL Cipher
+              run: |
+                  set -eux -o pipefail
+                  python -m venv ${HOME}/venv
+                  source ${HOME}/venv/bin/activate
+                  python -m pip install -U pip
+                  echo dumping pre-installed packages
+                  python -m pip freeze
+                  echo installing pip packages
+                  python -m pip install cardinal_pythonlib
+                  python -m pip install distro
+                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  cd tablet_qt/tools
+                  # Build openssl and Qt
+                  ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
+
             - name: C++ tests
               run: |
                   set -eux -o pipefail
