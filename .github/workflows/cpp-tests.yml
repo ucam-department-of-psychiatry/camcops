@@ -14,24 +14,17 @@ on:
             - tablet_qt/qt_version.txt
             - tablet_qt/tools/build_qt.py
 
-env:
-    # Keep in sync with tablet_qt/qt_version.txt. We check this further down.
-    QT_VERSION: 6.5.3
 jobs:
     cpp-tests:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
-            - name: Qt version check
+            - name: Install Qt
               run: |
                   set -euxo pipefail
-                  test "${{ env.QT_VERSION }}" == "$(cat ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
-            - name: Install Qt
-              uses: jurplel/install-qt-action@v3
-              with:
-                  version: ${{ env.QT_VERSION }}
-                  arch: gcc_64
-                  modules: qtmultimedia opensslv3
+                  cd ${RUNNER_WORKSPACE}
+                  wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/qtbuild/qt.tgz
+                  tar -xzf qt.tgz
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
@@ -49,31 +42,14 @@ jobs:
                   libxcb-xinput-dev \
                   libxcb-cursor0 \
                   xvfb \
-                  x11-xserver-utils \
-                  ccache
+                  x11-xserver-utils
 
             - uses: actions/setup-python@v5
               with:
                   python-version: 3.8
 
-            - name: Build SQL Cipher
-              # And OpenSSL, Eigen
-              run: |
-                  set -eux -o pipefail
-                  python -m venv ${HOME}/venv
-                  source ${HOME}/venv/bin/activate
-                  python -m pip install -U pip
-                  echo dumping pre-installed packages
-                  python -m pip freeze
-                  echo installing pip packages
-                  python -m pip install cardinal_pythonlib
-                  python -m pip install distro
-                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}/Qt/${{ env.QT_VERSION }}
-                  cd tablet_qt/tools
-                  # Build openssl and SQLCipher
-                  ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
             - name: C++ tests
               run: |
                   set -eux -o pipefail
-                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}/Qt/${{ env.QT_VERSION }}
+                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}/qt_local_build
                   xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
