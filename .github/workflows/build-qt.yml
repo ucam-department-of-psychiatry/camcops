@@ -243,6 +243,26 @@ jobs:
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
                   ./build_qt.py --build_linux_x86_64
+            - name: Create tarfile
+              if: matrix.os == 'ubuntu-22.04'
+              run: |
+                  set -eux -o pipefail
+                  echo "Free space:"
+                  df -h
+                  tar -czvf /tmp/qt.tgz \
+                      ${HOME}/qt_local_build/ffmpeg_linux_x86_64_build \
+                      ${HOME}/qt_local_build/openssl_linux_x86_64_build \
+                      ${HOME}/qt_local_build/qt_linux_x86_64_install \
+                      ${HOME}/qt_local_build/sqlcipher_linux_x86_64
+
+            - name: Release Qt
+              if: matrix.os == 'ubuntu-22.04'
+              uses: ncipollo/release-action@v1
+              with:
+                  artifacts: "/tmp/qt.tgz"
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  tag: qtbuild
+                  prerelease: true
 
             - name: Windows Build Qt
               if: runner.os == 'Windows'
