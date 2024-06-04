@@ -34,18 +34,67 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y install \
-                  libxcb-icccm4 \
-                  libxcb-xkb1 \
-                  libxcb-icccm4 \
-                  libxcb-image0 \
-                  libxcb-render-util0 \
-                  libxcb-randr0 \
-                  libxcb-keysyms1 \
-                  libxcb-xinerama0 \
-                  libxcb-xinput-dev \
-                  libxcb-cursor0 \
-                  xvfb \
-                  x11-xserver-utils
+                  autoconf \
+                  automake \
+                  bison \
+                  build-essential \
+                  ccache \
+                  cmake \
+                  flex \
+                  git \
+                  gperf \
+                  libass-dev \
+                  libdrm-dev \
+                  libegl1-mesa-dev \
+                  libfontconfig1-dev \
+                  libfreetype6-dev \
+                  libgnutls28-dev \
+                  libmp3lame-dev \
+                  libnss3-dev \
+                  libpulse-dev \
+                  libsdl2-dev \
+                  libtool \
+                  libva-dev \
+                  libvdpau-dev \
+                  libvorbis-dev \
+                  libx11-xcb-dev \
+                  '^libxcb.*-dev' \
+                  libxcomposite-dev \
+                  libxcursor-dev \
+                  libxdamage-dev \
+                  libxi-dev \
+                  libxkbcommon-dev \
+                  libxkbcommon-x11-dev \
+                  libxrandr-dev \
+                  libxrender-dev \
+                  meson \
+                  ninja-build \
+                  nodejs \
+                  pkg-config \
+                  texinfo \
+                  wget \
+                  yasm \
+                  zlib1g-dev \
+                  clang \
+                  libatspi2.0-dev \
+                  libbluetooth-dev \
+                  libclang-13-dev \
+                  libclang-14-dev \
+                  libclang-15-dev \
+                  libcups2-dev \
+                  libfreetype6-dev \
+                  libhunspell-dev \
+                  libopengl-dev \
+                  libts-dev \
+                  libunwind-dev \
+                  libx11-dev \
+                  libxext-dev \
+                  libxfixes-dev \
+                  libxkbfile-dev \
+                  libxshmfence1 \
+                  libxshmfence-dev \
+                  llvm \
+                  python3
 
             - uses: actions/setup-python@v5
               with:
