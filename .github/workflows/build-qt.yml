@@ -16,12 +16,12 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - name: ubuntu-20.04
-                      os: ubuntu-20.04
+                    #- name: ubuntu-20.04
+                    #  os: ubuntu-20.04
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
-                    - name: windows-2019
-                      os: windows-2019
+                    #- name: windows-2019
+                    #  os: windows-2019
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
