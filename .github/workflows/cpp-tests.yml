@@ -24,7 +24,8 @@ jobs:
                   set -euxo pipefail
                   cd ${RUNNER_WORKSPACE}
                   wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/qtbuild/qt.tgz
-                  tar -xvzf qt.tgz
+                  # Remove home/runner from paths
+                  tar -xvzf --strip-components=2 qt.tgz
                   ls
                   ls qt_local_build
             - name: Ubuntu prerequisites
