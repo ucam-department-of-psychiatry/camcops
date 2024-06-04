@@ -70,7 +70,7 @@ jobs:
                   python -m pip install distro
                   export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
                   cd tablet_qt/tools
-                  # Build openssl and Qt
+                  # Build openssl and SQLCipher
                   ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
 
             - name: C++ tests
