@@ -24,7 +24,9 @@ jobs:
                   set -euxo pipefail
                   cd ${RUNNER_WORKSPACE}
                   wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/qtbuild/qt.tgz
-                  tar -xzf qt.tgz
+                  tar -xvzf qt.tgz
+                  ls
+                  ls qt_local_build
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
