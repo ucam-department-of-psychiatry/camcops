@@ -22,7 +22,7 @@ jobs:
             - name: Install Qt
               run: |
                   set -euxo pipefail
-                  cd ${RUNNER_WORKSPACE}
+                  cd ${HOME}
                   wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/qtbuild/qt.tgz
                   # Remove home/runner from paths
                   tar -xvzf qt.tgz --strip-components=2
@@ -54,5 +54,5 @@ jobs:
             - name: C++ tests
               run: |
                   set -eux -o pipefail
-                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}/qt_local_build
+                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
                   xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
