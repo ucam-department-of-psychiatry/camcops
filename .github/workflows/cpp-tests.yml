@@ -31,7 +31,7 @@ jobs:
               with:
                   version: ${{ env.QT_VERSION }}
                   arch: gcc_64
-                  modules: qtmultimedia
+                  modules: qtmultimedia opensslv3
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
