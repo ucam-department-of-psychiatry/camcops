@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euxo pipefail
 export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
-cd ${CAMCOPS_QT6_BASE_DIR}
 cd ${GITHUB_WORKSPACE}
 mkdir build-qt6-tests
 cd build-qt6-tests
