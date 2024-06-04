@@ -72,7 +72,9 @@ jobs:
                   cd tablet_qt/tools
                   # Build openssl and SQLCipher
                   ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
-
+            - name: Temp check
+              run: |
+                  nm -A ${RUNNER_WORKSPACE}/sqlcipher_linux_x86_64/sqlcipher/sqlite3.o | grep EVP_MAC_fetch
             - name: C++ tests
               run: |
                   set -eux -o pipefail
