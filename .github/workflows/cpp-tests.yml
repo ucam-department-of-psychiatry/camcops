@@ -25,7 +25,7 @@ jobs:
                   cd ${RUNNER_WORKSPACE}
                   wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/qtbuild/qt.tgz
                   # Remove home/runner from paths
-                  tar -xvzf --strip-components=2 qt.tgz
+                  tar -xvzf qt.tgz --strip-components=2
                   ls
                   ls qt_local_build
             - name: Ubuntu prerequisites
