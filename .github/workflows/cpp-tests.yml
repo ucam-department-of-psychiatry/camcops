@@ -68,14 +68,12 @@ jobs:
                   echo installing pip packages
                   python -m pip install cardinal_pythonlib
                   python -m pip install distro
-                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}
+                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}/Qt/${{ env.QT_VERSION }}
                   cd tablet_qt/tools
                   # Build openssl and SQLCipher
                   ./build_qt.py --build_linux_x86_64 --no_build_qt --no_build_ffmpeg
-            - name: Temp check
-              run: |
-                  nm -A ${RUNNER_WORKSPACE}/sqlcipher_linux_x86_64/sqlcipher/sqlite3.o | grep EVP_MAC_fetch
             - name: C++ tests
               run: |
                   set -eux -o pipefail
+                  export CAMCOPS_QT6_BASE_DIR=${RUNNER_WORKSPACE}/Qt/${{ env.QT_VERSION }}
                   xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
