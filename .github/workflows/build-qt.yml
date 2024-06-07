@@ -261,8 +261,10 @@ jobs:
               with:
                   artifacts: "/tmp/qt.tgz"
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: qtbuild
                   prerelease: true
+                  draft: true
+                  body: Qt and associated libraries for building and testing the CamCOPS app
+                  name: Qt and other libraries for CamCOPS
 
             - name: Windows Build Qt
               if: runner.os == 'Windows'
