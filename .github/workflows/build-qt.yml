@@ -263,6 +263,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   prerelease: true
                   draft: true
+                  tag: qt_${{ github.sha }}
                   body: Qt and associated libraries for building and testing the CamCOPS app
                   name: Qt and other libraries for CamCOPS
 
