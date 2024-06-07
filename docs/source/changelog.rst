@@ -3906,3 +3906,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/350
 
 - Fix the Qt build for 32-bit and 64-bit Android emulator.
+
+- Fix a bug where if the user entered an incorrect password and then cancelled the
+  dialog to prompt them to delete the database, it was impossible for them to then
+  enter the correct password.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/353

@@ -226,6 +226,12 @@ void DatabaseManager::closeDatabaseActual()
 }
 
 
+void DatabaseManager::reconnectDatabase()
+{
+    m_db.close();
+    m_db.open();
+}
+
 // ============================================================================
 // Public API
 // ============================================================================
@@ -1110,58 +1116,46 @@ bool DatabaseManager::canReadDatabase()
 }
 
 
-bool DatabaseManager::decrypt(const QString& passphrase,
-                              const bool migrate,
-                              const int compatibility_sqlcipher_major_version)
+bool DatabaseManager::decrypt(const QString& passphrase)
 {
-    bool success = pragmaKey(passphrase);
-    if (migrate) {
-        // You might think that there's no point doing cipher_migrate if we can
-        // read the database, and calls to canReadDatabase() are quick, so we
-        // should check that first. However, this sequence fails:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- OK; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- OK
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
-        //      PRAGMA cipher_migrate;  -- "1"
-        //      .tables  -- "Error: file is not a database"
-        //
-        // whereas this works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // and this also works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //      PRAGMA key = 'passphrase';
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- resets the problem
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // So we must proceed to "PRAGMA cipher_migrate" directly every time,
-        // like this:
-        //
-        //   success = success && pragmaCipherMigrate();
-        //
-        // or re-call "PRAGMA key". Since cipher_migrate takes about 0.25s to
-        // do nothing, which is significant (esp. for two databases), let's do
-        // that:
+    // Recommended process from:
+    // https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
 
-        if (!canReadDatabase()) {
-            success = success && pragmaKey(passphrase) && pragmaCipherMigrate();
-        }
+    // 1. Attempt to open and access the database as normal by keying the
+    //    database...
+    // This will return true even if the wrong password was given.
+    pragmaKey(passphrase);
 
-        // This way is obviously quicker (empirically) once cipher_migrate has
-        // become unnecessary.
-
-    } else if (compatibility_sqlcipher_major_version > 0) {
-        success = pragmaCipherCompatibility(compatibility_sqlcipher_major_version);
+    // ...and attempting a query
+    if (canReadDatabase()) {
+        return true;
     }
-    return success;
+
+    // 2. If SQLCipher throws an error on first access, close the database
+    // handle. Then open it...
+    reconnectDatabase();
+    pragmaKey(passphrase);
+
+    // ...and run PRAGMA cipher_migrate
+    pragmaCipherMigrate();
+
+    // 3. Check the result of the update by retrieving the row value result.
+    if (canReadDatabase()) {
+        // 4. If the migration succeeds, a row with a single column value of 0
+        //    is returned, the upgrade was successful and your application can
+        //    continue to use the connection for the remainder of the
+        //    application lifecycle.
+        return true;
+    }
+
+    // 5. If the key is incorrect then the PRAGMA will return a single non-zero
+    //    column value, meaning that the key material is incorrect or the
+    //    settings of the database were not consistent with defaults for
+    //    previous SQLCipher versions (i.e. custom settings were used that
+    //    require manual migration).
+    reconnectDatabase();
+
+    return false;
 }
 
 
