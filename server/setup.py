@@ -166,7 +166,7 @@ INSTALL_REQUIRES = [
     "alabaster==0.7.12",  # for sphinx
     "amqp==5.0.6",  # for celery
     "Chameleon==3.8.1",  # for Deform
-    "tornado==6.3.3",  # for celery
+    "tornado==6.4.1",  # for celery
     "webob==1.8.6",  # for pyramid
 ]
 
