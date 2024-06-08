@@ -255,6 +255,9 @@ jobs:
                       ${HOME}/qt_local_build/qt_linux_x86_64_install \
                       ${HOME}/qt_local_build/sqlcipher_linux_x86_64
 
+            - name: Work out tag
+              id: vars
+              run: echo ::set-output name=tag::qt_${GITHUB_SHA}
             - name: Release Qt
               if: matrix.os == 'ubuntu-22.04'
               uses: ncipollo/release-action@v1
@@ -263,7 +266,6 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   prerelease: true
                   draft: true
-                  tag: qt_${{ github.sha }}
                   body: Qt and associated libraries for building and testing the CamCOPS app
                   name: Qt and other libraries for CamCOPS
 
