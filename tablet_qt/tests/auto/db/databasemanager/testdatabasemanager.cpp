@@ -27,6 +27,13 @@
 #include "db/sqlcipherdriver.h"
 #include "db/whichdb.h"
 
+const QString PLAIN_CONNECTION_NAME("plain");
+const QString ENCRYPTED_CONNECTION_NAME("encrypted");
+const QString RIGHT_PASSWORD("password");
+const QString WRONG_PASSWORD("wrongpassword");
+const QString V3_ENCRYPTED_TEST_DATABASE("encrypted_test_database_v3.20.1.sqlite");
+const QString V4_ENCRYPTED_TEST_DATABASE("encrypted_test_database_v4.5.5.sqlite");
+
 class TestDatabaseManager: public QObject
 {
     Q_OBJECT
@@ -53,58 +60,69 @@ void TestDatabaseManager::initTestCase()
     m_fixtures_dir = this_dir + QDir::separator() +  "fixtures";
 }
 
+
 void TestDatabaseManager::testCanEncryptPlainDatabase()
 {
     auto plain_file = QTemporaryFile();
     plain_file.open();
-    auto plain_manager = DatabaseManager(plain_file.fileName(), "plain");
+    auto plain_manager = DatabaseManager(plain_file.fileName(),
+                                         PLAIN_CONNECTION_NAME);
     QVERIFY(plain_manager.canReadDatabase());
 
     auto encrypted_file = QTemporaryFile();
     encrypted_file.open();
-    plain_manager.encryptToAnother(encrypted_file.fileName(), "password");
+    plain_manager.encryptToAnother(encrypted_file.fileName(), RIGHT_PASSWORD);
 
-    auto encrypted_manager = DatabaseManager(encrypted_file.fileName(), "test");
+    auto encrypted_manager = DatabaseManager(encrypted_file.fileName(),
+                                             ENCRYPTED_CONNECTION_NAME);
     QVERIFY(!encrypted_manager.canReadDatabase());
 
-    QVERIFY(encrypted_manager.decrypt("password"));
+    QVERIFY(encrypted_manager.decrypt(RIGHT_PASSWORD));
 }
+
 
 void TestDatabaseManager::testCanConnectToEncryptedDatabase()
 {
     QTemporaryFile v4_test_file;
-    QVERIFY(openFixture("encrypted_test_database_v4.5.5.sqlite", v4_test_file));
+    QVERIFY(openFixture(V4_ENCRYPTED_TEST_DATABASE, v4_test_file));
 
-    auto manager = DatabaseManager(v4_test_file.fileName(), "test");
+    auto manager = DatabaseManager(v4_test_file.fileName(),
+                                   ENCRYPTED_CONNECTION_NAME);
     QVERIFY(!manager.canReadDatabase());
-    QVERIFY(manager.decrypt("password"));
+    QVERIFY(manager.decrypt(RIGHT_PASSWORD));
 }
+
 
 void TestDatabaseManager::testCanConnectToEncryptedDatabaseOnSecondAttempt()
 {
     QTemporaryFile v4_test_file;
-    QVERIFY(openFixture("encrypted_test_database_v4.5.5.sqlite", v4_test_file));
+    QVERIFY(openFixture(V4_ENCRYPTED_TEST_DATABASE, v4_test_file));
 
-    auto manager = DatabaseManager(v4_test_file.fileName(), "test");
+    auto manager = DatabaseManager(v4_test_file.fileName(),
+                                   ENCRYPTED_CONNECTION_NAME);
     QVERIFY(!manager.canReadDatabase());
-    QVERIFY(!manager.decrypt("wrongpassword"));
-    QVERIFY(manager.decrypt("password"));
+    QVERIFY(!manager.decrypt(WRONG_PASSWORD));
+    QVERIFY(manager.decrypt(RIGHT_PASSWORD));
 }
+
 
 void TestDatabaseManager::testCanConnectToEncryptedV3Database()
 {
-    // Should migrate to V4
+    // Should fail initially with key and then migrate to V4
+    // before trying again.
     QTemporaryFile v3_test_file;
 
-    QVERIFY(openFixture("encrypted_test_database_v3.20.1.sqlite", v3_test_file));
+    QVERIFY(openFixture(V3_ENCRYPTED_TEST_DATABASE, v3_test_file));
 
-    auto manager = DatabaseManager(v3_test_file.fileName(), "test");
+    auto manager = DatabaseManager(v3_test_file.fileName(),
+                                   ENCRYPTED_CONNECTION_NAME);
     QVERIFY(!manager.canReadDatabase());
-    QVERIFY(manager.decrypt("password"));
+    QVERIFY(manager.decrypt(RIGHT_PASSWORD));
 }
 
 
-bool TestDatabaseManager::openFixture(const QString filename, QTemporaryFile& test_db)
+bool TestDatabaseManager::openFixture(const QString filename,
+                                      QTemporaryFile& test_db)
 {
     // Copy fixture to temporary file so we don't change the original
     QFile original_test_db = QFile(m_fixtures_dir + QDir::separator() + filename);
