@@ -1463,10 +1463,7 @@ bool CamcopsApp::deleteDatabase(const QString& filename, QString& error_string)
 void CamcopsApp::workerDecryptDatabases(const QString& passphrase,
                                         bool& success)
 {
-    success = m_sysdb->decrypt(passphrase) &&
-            m_datadb->decrypt(passphrase) &&
-            m_sysdb->canReadDatabase() &&
-            m_datadb->canReadDatabase();
+    success = m_sysdb->decrypt(passphrase) && m_datadb->decrypt(passphrase)
     qDebug() << Q_FUNC_INFO << success;
 }
 
