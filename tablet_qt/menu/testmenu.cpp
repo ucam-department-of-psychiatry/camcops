@@ -251,8 +251,7 @@ void TestMenu::testHttps()
 {
     // To find bad certificates, see
     // https://www.ssllabs.com/ssltest/analyze.html
-    const QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
-    // const QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
+    const QString url = "https://www.cam.ac.uk/";
 
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->setTitle(tr("Test HTTPS"));
@@ -262,7 +261,9 @@ void TestMenu::testHttps()
 
 void TestMenu::testHttp()
 {
-    const QString url = "http://egret.psychol.cam.ac.uk/index.html";
+    // Most HTTP sites redirect to HTTPS. For a proper test:
+    // - https://stackoverflow.com/questions/50068127/http-only-site-to-test-rest-requests
+    const QString url = "http://neverssl.com/";
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->setTitle(tr("Test HTTP"));
     netmgr->testHttpGet(url);

@@ -139,13 +139,11 @@ void WidgetPositioner::sizeToScreen()
     int new_width = m_widget->width();
     int new_height = m_widget->height();
 
-    if (new_width > screen_width)
-    {
+    if (new_width > screen_width) {
         new_width = screen_width;
         changed = true;
     }
-    if (new_height > screen_height)
-    {
+    if (new_height > screen_height) {
         new_height = screen_height;
         changed = true;
     }
@@ -164,8 +162,7 @@ void WidgetPositioner::sizeToScreen()
 
 bool WidgetPositioner::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::Show)
-    {
+    if (event->type() == QEvent::Show) {
 #ifdef DEBUG_WIDGET_POSITIONER
         qDebug() << "Event filter calling centre()";
 #endif

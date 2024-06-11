@@ -22,14 +22,20 @@
 #include "qobjects/widgetpositioner.h"
 
 
-ProgressBox::ProgressBox(const QString& label, const QString& cancel_button_text,
-                         int minimum, const int maximum, QWidget* parent, Qt::WindowFlags f) :
-    QProgressDialog(label,
-                    cancel_button_text,
-                    minimum,
-                    maximum,
-                    parent,
-                    f)
+ProgressBox::ProgressBox(
+    const QString& label,
+    const QString& cancel_button_text,
+    int minimum,
+    const int maximum,
+    QWidget* parent,
+    Qt::WindowFlags f
+)
+    : QProgressDialog(label,
+                      cancel_button_text,
+                      minimum,
+                      maximum,
+                      parent,
+                      f)
 {
     new WidgetPositioner(this);
 }
