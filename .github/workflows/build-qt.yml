@@ -256,11 +256,13 @@ jobs:
                       ${HOME}/qt_local_build/sqlcipher_linux_x86_64
 
             - name: Work out tag
+              # TODO: This seems to be ignored and instead the release gets
+              # called untagged-<some hash>
               if: matrix.os == 'ubuntu-22.04'
               id: vars
               run: |
                   set -eux -o pipefail
-                  echo "tag=qt_${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+                  echo "tag=qt_${GITHUB_SHA}" >> $GITHUB_OUTPUT
             - name: Release Qt
               if: matrix.os == 'ubuntu-22.04'
               uses: ncipollo/release-action@v1
