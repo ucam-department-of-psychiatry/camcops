@@ -36,6 +36,7 @@
 #include "core/networkmanager.h"
 #include "diagnosis/icd10.h"
 #include "diagnosis/icd9cm.h"
+#include "dialogs/progressbox.h"
 #include "dialogs/scrollmessagebox.h"
 #include "lib/convert.h"
 #include "lib/filefunc.h"
@@ -250,8 +251,7 @@ void TestMenu::testHttps()
 {
     // To find bad certificates, see
     // https://www.ssllabs.com/ssltest/analyze.html
-    const QString url = "https://egret.psychol.cam.ac.uk/index.html";  // good cert
-    // const QString url = "https://www.veltigroup.com/";  // bad cert (then Forbidden)
+    const QString url = "https://www.cam.ac.uk/";
 
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->setTitle(tr("Test HTTPS"));
@@ -261,7 +261,9 @@ void TestMenu::testHttps()
 
 void TestMenu::testHttp()
 {
-    const QString url = "http://egret.psychol.cam.ac.uk/index.html";
+    // Most HTTP sites redirect to HTTPS. For a proper test:
+    // - https://stackoverflow.com/questions/50068127/http-only-site-to-test-rest-requests
+    const QString url = "http://neverssl.com/";
     NetworkManager* netmgr = m_app.networkManager();
     netmgr->setTitle(tr("Test HTTP"));
     netmgr->testHttpGet(url);
@@ -320,7 +322,7 @@ void TestMenu::testProgress()
     // https://doc.qt.io/qt-6.5/qprogressdialog.html#details
     // http://stackoverflow.com/questions/3752742/how-do-i-create-a-pause-wait-function-using-qt
     const int num_things = 100;
-    QProgressDialog progress(
+    ProgressBox progress(
         tr("Testing progress (but not doing anything; safe to abort)..."),
         tr("Abort test"), 0, num_things, this);
     progress.setWindowTitle(tr("Progress dialog"));

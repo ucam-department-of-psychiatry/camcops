@@ -3906,3 +3906,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/350
 
 - Fix the Qt build for 32-bit and 64-bit Android emulator.
+
+- Fix the display of various dialogues on smaller screens, particulary when the device
+  is rotated.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/347

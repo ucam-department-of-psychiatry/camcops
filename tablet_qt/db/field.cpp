@@ -21,6 +21,7 @@
 #include "field.h"
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "lib/convert.h"
+#include "lib/customtypes.h"
 #include "lib/datetime.h"
 #include "lib/errorfunc.h"
 #include "lib/version.h"
@@ -308,11 +309,11 @@ QString Field::sqlColumnType() const
         // Can't use further "case" statements here as the comparisons are to
         // a technically non-const expression (integers set by
         // convert::registerTypesForQVariant).
-        if (type_id == convert::TYPE_ID_QVECTOR_INT) {
+        if (type_id == customtypes::TYPE_ID_QVECTOR_INT) {
             return SQLITE_TYPE_TEXT;
         }
 
-        if (type_id == convert::TYPE_ID_VERSION) {
+        if (type_id == customtypes::TYPE_ID_VERSION) {
             return SQLITE_TYPE_TEXT;
         }
         break;
@@ -345,10 +346,10 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
         m_value = QVariant(convert::csvStringToQStringList(db_value.toString()));
         break;
     default:
-        if (type_id == convert::TYPE_ID_QVECTOR_INT) {
+        if (type_id == customtypes::TYPE_ID_QVECTOR_INT) {
             m_value.setValue(convert::csvStringToIntVector(
                                  db_value.toString()));
-        } else if (type_id == convert::TYPE_ID_VERSION) {
+        } else if (type_id == customtypes::TYPE_ID_VERSION) {
             m_value.setValue(Version::fromString(db_value.toString()));
         } else {
             m_value = db_value;
@@ -384,11 +385,11 @@ QVariant Field::databaseValue() const
         // see https://doc.qt.io/qt-6.5/quuid.html#toString; e.g.
         // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
     default:
-        if (type_id == convert::TYPE_ID_QVECTOR_INT) {
+        if (type_id == customtypes::TYPE_ID_QVECTOR_INT) {
             return convert::numericVectorToCsvString(
                     convert::qVariantToIntVector(m_value));
         }
-        if (type_id == convert::TYPE_ID_VERSION) {
+        if (type_id == customtypes::TYPE_ID_VERSION) {
             return Version::fromVariant(m_value).toString();
         }
     }

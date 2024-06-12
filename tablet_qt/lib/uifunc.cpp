@@ -686,6 +686,7 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     const QSize dialog_min_size = dialog->minimumSize();
     QSize size(dialog_min_size);
     size.setWidth(qMax(size.width(), final_w));
+    size.setWidth(qMin(size.width(), dialog->maximumWidth()));
 #ifdef DEBUG_MIN_SIZE_FOR_TITLE
     qDebug().nospace()
             << Q_FUNC_INFO

@@ -24,10 +24,10 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
-#include "common/platform.h"
 #include "common/varconst.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/radiobuttonwordwrap.h"
 
 
@@ -71,24 +71,20 @@ ModeDialog::ModeDialog(const int previous_choice,
     connect(buttonbox, &QDialogButtonBox::rejected, this, &ModeDialog::reject);
 
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
 
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(single_user_button);
     mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
+    mainlayout->addStretch(1);
     mainlayout->addWidget(buttonbox);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        prompt->setWordWrap(true);
-        prompt2->setWordWrap(true);
-        single_user_button->setWordWrap(true);
-        clinician_button->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    prompt->setWordWrap(true);
+    prompt2->setWordWrap(true);
+    single_user_button->setWordWrap(true);
+    clinician_button->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }

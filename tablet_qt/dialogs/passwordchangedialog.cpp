@@ -23,9 +23,9 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include "common/platform.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 
 const int MINIMUM_PASSWORD_LENGTH = 10;
@@ -52,19 +52,14 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
 
     auto prompt = new QLabel(text);
+    prompt->setWordWrap(true);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
         auto prompt_old = new QLabel(tr("Enter old password:"));
-        if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-            prompt_old->setWordWrap(true);
-        }
+        prompt_old->setWordWrap(true);
         mainlayout->addWidget(prompt_old);
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
@@ -72,6 +67,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     }
 
     auto prompt_new1 = new QLabel(tr("Enter new password:"));
+    prompt_new1->setWordWrap(true);
     mainlayout->addWidget(prompt_new1);
     m_editor_new1 = new QLineEdit();
     m_editor_new1->setEchoMode(QLineEdit::Password);
@@ -81,6 +77,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     mainlayout->addWidget(m_editor_new1);
 
     auto prompt_new2 = new QLabel(tr("Enter new password again for confirmation:"));
+    prompt_new2->setWordWrap(true);
 
     mainlayout->addWidget(prompt_new2);
     m_editor_new2 = new QLineEdit();
@@ -94,12 +91,9 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
+    mainlayout->addStretch(1);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        prompt->setWordWrap(true);
-        prompt_new1->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
