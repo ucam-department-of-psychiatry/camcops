@@ -256,6 +256,7 @@ jobs:
                       ${HOME}/qt_local_build/sqlcipher_linux_x86_64
 
             - name: Work out tag
+              if: matrix.os == 'ubuntu-22.04'
               id: vars
               run: |
                   set -eux -o pipefail
