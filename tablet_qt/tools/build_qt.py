@@ -4452,9 +4452,17 @@ def main() -> None:
         help="Only run Qt configure, don't build Qt",
     )
     general.add_argument(
+        "--fetch",
+        dest="fetch",
+        action="store_true",
+        default=True,
+        help="Fetch source code",
+    )
+    general.add_argument(
         "--no_fetch",
         dest="fetch",
         action="store_false",
+        default=False,
         help="Skip fetching source code",
     )
     general.add_argument(
@@ -4464,27 +4472,59 @@ def main() -> None:
         help="Number of parallel processes to run",
     )
     general.add_argument(
+        "--build_ffmpeg",
+        dest="build_ffmpeg",
+        action="store_true",
+        default=True,
+        help="Build FFmpeg",
+    )
+    general.add_argument(
         "--no_build_ffmpeg",
         dest="build_ffmpeg",
         action="store_false",
+        default=False,
         help="Skip building FFmpeg",
+    )
+    general.add_argument(
+        "--build_openssl",
+        dest="build_openssl",
+        action="store_true",
+        default=True,
+        help="Build OpenSSL",
     )
     general.add_argument(
         "--no_build_openssl",
         dest="build_openssl",
         action="store_false",
+        default=False,
         help="Skip building OpenSSL",
+    )
+    general.add_argument(
+        "--build_qt",
+        dest="build_qt",
+        action="store_true",
+        default=True,
+        help="Build Qt",
     )
     general.add_argument(
         "--no_build_qt",
         dest="build_qt",
         action="store_false",
+        default=False,
         help="Skip building Qt",
+    )
+    general.add_argument(
+        "--build_sqlcipher",
+        dest="build_sqlcipher",
+        action="store_true",
+        default=True,
+        help="Build SQLCipher",
     )
     general.add_argument(
         "--no_build_sqlcipher",
         dest="build_sqlcipher",
         action="store_false",
+        default=False,
         help="Skip building SQLCipher",
     )
     general.add_argument(

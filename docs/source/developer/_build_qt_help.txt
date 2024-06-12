@@ -1,6 +1,8 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
-                   [--configure_qt_only] [--no_fetch] [--nparallel NPARALLEL]
-                   [--no_build_ffmpeg] [--no_build_openssl] [--no_build_qt]
+                   [--configure_qt_only] [--fetch] [--no_fetch]
+                   [--nparallel NPARALLEL] [--build_ffmpeg]
+                   [--no_build_ffmpeg] [--build_openssl] [--no_build_openssl]
+                   [--build_qt] [--no_build_qt] [--build_sqlcipher]
                    [--no_build_sqlcipher] [--force] [--force_ffmpeg]
                    [--force_openssl] [--force_qt] [--force_sqlcipher]
                    [--tee TEE] [--verbose {0,1,2}] [--inherit_os_env]
@@ -35,13 +37,18 @@ General:
                         from environment variable CAMCOPS_QT6_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
   --configure_qt_only   Only run Qt configure, don't build Qt (default: False)
-  --no_fetch            Skip fetching source code (default: True)
+  --fetch               Fetch source code (default: True)
+  --no_fetch            Skip fetching source code (default: False)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
-  --no_build_ffmpeg     Skip building FFmpeg (default: True)
-  --no_build_openssl    Skip building OpenSSL (default: True)
-  --no_build_qt         Skip building Qt (default: True)
-  --no_build_sqlcipher  Skip building SQLCipher (default: True)
+  --build_ffmpeg        Build FFmpeg (default: True)
+  --no_build_ffmpeg     Skip building FFmpeg (default: False)
+  --build_openssl       Build OpenSSL (default: True)
+  --no_build_openssl    Skip building OpenSSL (default: False)
+  --build_qt            Build Qt (default: True)
+  --no_build_qt         Skip building Qt (default: False)
+  --build_sqlcipher     Build SQLCipher (default: True)
+  --no_build_sqlcipher  Skip building SQLCipher (default: False)
   --force               Force rebuild of everything (default: False)
   --force_ffmpeg        Force rebuild of FFmpeg (default: False)
   --force_openssl       Force rebuild of OpenSSL (default: False)
