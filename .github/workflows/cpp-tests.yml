@@ -23,7 +23,8 @@ jobs:
               run: |
                   set -euxo pipefail
                   cd ${HOME}
-                  wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/qtbuild/qt.tgz
+                  # The path is set by the build-qt.yml action
+                  wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/untagged-6d2cba07b921fd593071/qt.tgz
                   # Remove home/runner from paths
                   tar -xvzf qt.tgz --strip-components=2
                   ls
