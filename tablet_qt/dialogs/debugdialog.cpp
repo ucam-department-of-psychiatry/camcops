@@ -28,6 +28,7 @@
 #include "layouts/vboxlayouthfw.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
+#include "qobjects/widgetpositioner.h"
 
 
 DebugDialog::DebugDialog(QWidget* parent,
@@ -92,6 +93,8 @@ DebugDialog::DebugDialog(QWidget* parent,
     connect(buttonbox, &QDialogButtonBox::rejected, this,
             &DebugDialog::reject);
     layout->addWidget(buttonbox);
+
+    new WidgetPositioner(this);
 
     setLayout(layout);
 }

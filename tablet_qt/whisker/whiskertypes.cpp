@@ -18,22 +18,19 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <QProgressDialog>
+#include "whisker/whiskerconnectionstate.h"
+#include "whisker/whiskerinboundmessage.h"
+#include "whisker/whiskeroutboundcommand.h"
 
+#include "whiskertypes.h"
 
-// Prototypical use: modal, as per
-// https://doc.qt.io/qt-6.5/qprogressdialog.html#details
-
-class ProgressBox : public QProgressDialog
-{
-    // Progress dialogue.
-    // MODAL.
-    // NOT CURRENTLY USED.
-
-    Q_OBJECT
-public:
-    ProgressBox(const QString& label_text, const QString& cancel_button_text,
-                int minimum, int maximum, QWidget* parent = nullptr,
-                Qt::WindowFlags f = Qt::WindowFlags());
-};
+namespace whiskertypes {
+    void registerTypesForQVariant()
+    {
+        // Types that need to be registered with qRegisterMetaType() but are not
+        // stored in QVariants, so don't need externally visible type names:
+        qRegisterMetaType<WhiskerConnectionState>("WhiskerConnectionState");
+        qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
+        qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");
+    }
+}

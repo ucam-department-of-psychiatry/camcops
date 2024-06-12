@@ -19,21 +19,9 @@
 */
 
 #pragma once
-#include <QProgressDialog>
 
-
-// Prototypical use: modal, as per
-// https://doc.qt.io/qt-6.5/qprogressdialog.html#details
-
-class ProgressBox : public QProgressDialog
-{
-    // Progress dialogue.
-    // MODAL.
-    // NOT CURRENTLY USED.
-
-    Q_OBJECT
-public:
-    ProgressBox(const QString& label_text, const QString& cancel_button_text,
-                int minimum, int maximum, QWidget* parent = nullptr,
-                Qt::WindowFlags f = Qt::WindowFlags());
-};
+namespace whiskertypes {
+    // Register custom data types that need to be passed via Qt signals/slots, but
+    // which don't need to be stored in a QVariant.
+    void registerTypesForQVariant();
+}

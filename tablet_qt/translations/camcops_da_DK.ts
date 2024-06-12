@@ -476,7 +476,7 @@
         <translation>Dekryptering af databaser...</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+45"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
@@ -486,12 +486,7 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>No, I can&apos;t remember the password</source>
-        <translation>Nej, jeg kan ikke huske kodeordet</translation>
-    </message>
-    <message>
-        <location line="+837"/>
+        <location line="+857"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -506,13 +501,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1790"/>
-        <location line="+1792"/>
+        <location line="-1805"/>
+        <location line="+1807"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1974"/>
+        <location line="-1989"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -614,22 +609,12 @@ Har du forbindelse til internettet?</translation>
         <translation>Prøv igen med fejllog</translation>
     </message>
     <message>
-        <location line="+710"/>
-        <source>You entered an incorrect password. Try again?</source>
-        <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+726"/>
         <source>Retry password?</source>
         <translation>Prøv adgangskode igen?</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Yes, enter password again</source>
-        <translation>Ja, indtast adgangskoden igen</translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location line="+10"/>
         <source>The only way to reset your password is to delete all of the data from the database.
 Any records not uploaded to the server will be lost.</source>
         <translation>Den eneste måde at nulstille din adgangskode på er at slette alle data fra databasen.
@@ -727,7 +712,7 @@ på grund af denne fejl:
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-3041"/>
+        <location line="-3056"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -737,7 +722,13 @@ på grund af denne fejl:
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+3083"/>
+        <location line="+1166"/>
+        <source>You entered an incorrect password. Try again?&lt;br&gt;&lt;br&gt;Answer &lt;b&gt;%1&lt;/b&gt; to enter your password again.&lt;br&gt;Answer &lt;b&gt;%2&lt;/b&gt; if you can&apos;t remember your password.</source>
+        <extracomment>%1 and %2 are Yes and No respectively i.e. the dialog button labels</extracomment>
+        <translation>Du har indtastet en forkert adgangskode. Prøv igen??&lt;br&gt;&lt;br&gt;Svar &lt;b&gt;%1&lt;/b&gt; for at indtaste din adgangskode igen.&lt;br&gt;Svar &lt;b&gt;%2&lt;/b&gt; hvis du ikke kan huske din adgangskode.</translation>
+    </message>
+    <message>
+        <location line="+1932"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -1480,7 +1471,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>DangerousConfirmationDialog</name>
     <message>
-        <location filename="../dialogs/dangerousconfirmationdialog.cpp" line="+43"/>
+        <location filename="../dialogs/dangerousconfirmationdialog.cpp" line="+45"/>
         <source>If you are sure, enter &lt;b&gt;%1&lt;/b&gt; here</source>
         <extracomment>This will expand to: If you are sure, enter *Yes* here</extracomment>
         <translation>Hvis du er sikker, skal du indtaste &lt;b&gt;%1&lt;/b&gt; her</translation>
@@ -3447,7 +3438,7 @@ enig</translation>
 <context>
     <name>LogBox</name>
     <message>
-        <location filename="../dialogs/logbox.cpp" line="+92"/>
+        <location filename="../dialogs/logbox.cpp" line="+94"/>
         <source>Acknowledge failure</source>
         <translation>Bekræft fejl</translation>
     </message>
@@ -4385,7 +4376,7 @@ enig</translation>
 <context>
     <name>PagePickerDialog</name>
     <message>
-        <location filename="../dialogs/pagepickerdialog.cpp" line="+134"/>
+        <location filename="../dialogs/pagepickerdialog.cpp" line="+137"/>
         <source>You can’t select this page yet because preceding pages (marked with a warning symbol) are incomplete.</source>
         <translation>Du kan ikke vælge denne side endnu, fordi de foregående sider (markeret med et advarselssymbol) er ufuldstændige.</translation>
     </message>
@@ -4424,17 +4415,17 @@ enig</translation>
 <context>
     <name>PasswordChangeDialog</name>
     <message>
-        <location filename="../dialogs/passwordchangedialog.cpp" line="+64"/>
+        <location filename="../dialogs/passwordchangedialog.cpp" line="+65"/>
         <source>Enter old password:</source>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+8"/>
         <source>Enter new password:</source>
         <translation>Indtast ny adgangskode:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Must be at least %1 characters</source>
         <translation>Skal være mindst %1 tegn</translation>
     </message>
@@ -4444,7 +4435,7 @@ enig</translation>
         <translation>Indtast ny adgangskode igen for bekræftelse:</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+49"/>
         <source>Can&apos;t set an empty password</source>
         <translation>Kan ikke indstille en tom adgangskode</translation>
     </message>
@@ -4587,7 +4578,7 @@ enig</translation>
         <translation>Registrering</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+32"/>
         <source>&lt;b&gt;CamCOPS server location&lt;/b&gt; (e.g. https://server.example.com/camcops/api):</source>
         <translation>&lt;b&gt;CamCOPS-serverplacering&lt;/b&gt; (f.eks. https://server.example.com/camcops/api):</translation>
     </message>
@@ -6699,7 +6690,7 @@ enig</translation>
 <context>
     <name>TaskChain</name>
     <message>
-        <location filename="../tasklib/taskchain.cpp" line="+50"/>
+        <location filename="../tasklib/taskchain.cpp" line="+51"/>
         <source>Task chain</source>
         <translation>Opgavekæde</translation>
     </message>
@@ -6769,7 +6760,7 @@ Afsluttet</translation>
 <context>
     <name>TestMenu</name>
     <message>
-        <location filename="../menu/testmenu.cpp" line="+69"/>
+        <location filename="../menu/testmenu.cpp" line="+70"/>
         <source>CamCOPS self-tests</source>
         <translation>CamCOPS selvtest</translation>
     </message>

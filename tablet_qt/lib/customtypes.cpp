@@ -18,22 +18,23 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <QProgressDialog>
+#include "customtypes.h"
+#include "lib/version.h"
+
+namespace customtypes {
 
 
-// Prototypical use: modal, as per
-// https://doc.qt.io/qt-6.5/qprogressdialog.html#details
+int TYPE_ID_QVECTOR_INT;
+int TYPE_ID_VERSION;
 
-class ProgressBox : public QProgressDialog
+void registerTypesForQVariant()
 {
-    // Progress dialogue.
-    // MODAL.
-    // NOT CURRENTLY USED.
+    // http://stackoverflow.com/questions/6177906/is-there-a-reason-why-qvariant-accepts-only-qlist-and-not-qvector-nor-qlinkedlis
+    TYPE_ID_QVECTOR_INT = qRegisterMetaType<QVector<int>>();
+    TYPE_ID_VERSION = qRegisterMetaType<Version>();
 
-    Q_OBJECT
-public:
-    ProgressBox(const QString& label_text, const QString& cancel_button_text,
-                int minimum, int maximum, QWidget* parent = nullptr,
-                Qt::WindowFlags f = Qt::WindowFlags());
-};
+    // See also the calls to Q_DECLARE_METATYPE().
+    // https://doc.qt.io/qt-6.5/qtcore-tools-customtype-example.html
+}
+
+}  // namespace customtypes

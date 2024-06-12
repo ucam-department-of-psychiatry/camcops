@@ -36,11 +36,11 @@
 #include <QScrollArea>
 #include <QSize>
 #include <QStyle>
-#include "common/platform.h"
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/verticalscrollarea.h"
 
 #ifdef ENFORCE_MINIMUM
@@ -105,10 +105,6 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     auto grid = new QGridLayout();
 #endif
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-    }
-
     /*
         ICON    { LABEL LABEL LABEL }
         ICON    { LABEL LABEL LABEL } in scroller
@@ -126,6 +122,8 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     // If you do this with a GridLayoutHfw, it's amusing, but not sensible;
     // you can drag the buttons *over* the label, for example.
 #endif
+    new WidgetPositioner(this);
+
     setLayout(grid);
 
     setModal(true);

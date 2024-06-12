@@ -19,21 +19,12 @@
 */
 
 #pragma once
-#include <QProgressDialog>
 
 
-// Prototypical use: modal, as per
-// https://doc.qt.io/qt-6.5/qprogressdialog.html#details
+namespace customtypes {
+    extern int TYPE_ID_QVECTOR_INT;
+    extern int TYPE_ID_VERSION;
 
-class ProgressBox : public QProgressDialog
-{
-    // Progress dialogue.
-    // MODAL.
-    // NOT CURRENTLY USED.
-
-    Q_OBJECT
-public:
-    ProgressBox(const QString& label_text, const QString& cancel_button_text,
-                int minimum, int maximum, QWidget* parent = nullptr,
-                Qt::WindowFlags f = Qt::WindowFlags());
-};
+    // Register our custom types with QVariant, via qRegisterMetaType().
+    void registerTypesForQVariant();
+}

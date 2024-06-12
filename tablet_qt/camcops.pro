@@ -660,6 +660,7 @@ SOURCES += \
     lib/containers.cpp \
     lib/convert.cpp \
     lib/css.cpp \
+    lib/customtypes.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
     lib/diagnosticstyle.cpp \
@@ -770,6 +771,7 @@ SOURCES += \
     qobjects/threadworker.cpp \
     qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
+    qobjects/widgetpositioner.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
     questionnairelib/mcqfunc.cpp \
@@ -1013,6 +1015,7 @@ SOURCES += \
     whisker/whiskerinboundmessage.cpp \
     whisker/whiskermanager.cpp \
     whisker/whiskeroutboundcommand.cpp \
+    whisker/whiskertypes.cpp \
     whisker/whiskerworker.cpp \
     widgets/adjustablepie.cpp \
     widgets/aspectratiopixmap.cpp \
@@ -1150,6 +1153,7 @@ HEADERS += \
     lib/containers.h \
     lib/convert.h \
     lib/css.h \
+    lib/customtypes.h \
     lib/datetime.h \
     lib/debugfunc.h \
     lib/diagnosticstyle.h \
@@ -1263,6 +1267,7 @@ HEADERS += \
     qobjects/threadworker.h \
     qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
+    qobjects/widgetpositioner.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
     questionnairelib/mcqfunc.h \
@@ -1506,6 +1511,7 @@ HEADERS += \
     whisker/whiskerinboundmessage.h \
     whisker/whiskermanager.h \
     whisker/whiskeroutboundcommand.h \
+    whisker/whiskertypes.h \
     whisker/whiskerworker.h \
     widgets/adjustablepie.h \
     widgets/aspectratiopixmap.h \
