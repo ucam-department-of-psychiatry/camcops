@@ -85,6 +85,7 @@
 #include "lib/filefunc.h"
 #include "lib/slowguiguard.h"
 #include "lib/stringfunc.h"
+#include "lib/customtypes.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "menu/mainmenu.h"
@@ -97,6 +98,7 @@
 #include "tasklib/taskschedule.h"
 #include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
+#include "whisker/whiskertypes.h"
 
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
 #include "qobjects/debugeventwatcher.h"
@@ -800,8 +802,8 @@ int CamcopsApp::run()
     // This makes the GUI startup more responsive.
 
     // Baseline C++ things
-    convert::registerTypesForQVariant();
-    convert::registerOtherTypesForSignalsSlots();
+    customtypes::registerTypesForQVariant();
+    whiskertypes::registerTypesForQVariant();
 
     // Listen for application launch from URL
     auto url_handler = UrlHandler::getInstance();

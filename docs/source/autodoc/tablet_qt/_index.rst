@@ -216,6 +216,8 @@ tablet_qt
     lib/convert.h.rst
     lib/css.cpp.rst
     lib/css.h.rst
+    lib/customtypes.cpp.rst
+    lib/customtypes.h.rst
     lib/datetime.cpp.rst
     lib/datetime.h.rst
     lib/debugfunc.cpp.rst
@@ -988,6 +990,8 @@ tablet_qt
     whisker/whiskermanager.h.rst
     whisker/whiskeroutboundcommand.cpp.rst
     whisker/whiskeroutboundcommand.h.rst
+    whisker/whiskertypes.cpp.rst
+    whisker/whiskertypes.h.rst
     whisker/whiskerworker.cpp.rst
     whisker/whiskerworker.h.rst
     widgets/adjustablepie.cpp.rst

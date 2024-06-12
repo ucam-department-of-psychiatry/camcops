@@ -13,6 +13,7 @@ SOURCES += \
     $$CAMCOPS_SRC/common/textconst.cpp \
     $$CAMCOPS_SRC/common/uiconst.cpp \
     $$CAMCOPS_SRC/lib/convert.cpp \
+    $$CAMCOPS_SRC/lib/customtypes.cpp \
     $$CAMCOPS_SRC/lib/datetime.cpp \
     $$CAMCOPS_SRC/lib/errorfunc.cpp \
     $$CAMCOPS_SRC/lib/soundfunc.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     $$CAMCOPS_SRC/common/textconst.h \
     $$CAMCOPS_SRC/common/uiconst.h \
     $$CAMCOPS_SRC/lib/convert.h \
+    $$CAMCOPS_SRC/lib/customtypes.h \
     $$CAMCOPS_SRC/lib/datetime.h \
     $$CAMCOPS_SRC/lib/errorfunc.h \
     $$CAMCOPS_SRC/lib/soundfunc.h \

@@ -21,6 +21,7 @@
 #include <QtTest/QtTest>
 
 #include "lib/convert.h"
+#include "lib/customtypes.h"
 
 
 class TestConvert: public QObject
@@ -150,7 +151,7 @@ void TestConvert::testToSqlLiteralQByteArrayReturnsBase64EncodedBlob()
 
 void TestConvert::testToSqlLiteralQVectorIntReturnsQuotedCommaSeparatedString()
 {
-    registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     const QVector<int> value{1, 2, 3};
 
     QVariant variant;
@@ -216,7 +217,7 @@ void TestConvert::testPrettyValueQStringListEscapesCommaSeparatesWithLineBreaks(
 
 void TestConvert::testPrettyValueQVectorIntReturnsCommaSeparatedString()
 {
-    registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     const QVector<int> value{1, 2, 3};
 
     QVariant variant;
