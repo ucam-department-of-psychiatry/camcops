@@ -6,6 +6,7 @@ build-*/
 *.pro.user
 *.stash
 tablet_qt/.qtc_clangd/
+tablet_qt/build/
 tablet_qt/Makefile
 
 # Temporary

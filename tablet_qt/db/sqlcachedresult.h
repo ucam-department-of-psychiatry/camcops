@@ -116,7 +116,7 @@ private:
     // These bits from QSqlResultPrivate:
     // ------------------------------------------------------------------------
     struct QHolder {
-        QHolder(const QString &hldr = QString(), int index = -1) :
+        QHolder(const QString& hldr = QString(), int index = -1) :
             holder_name(hldr),
             holder_pos(index)
         {}

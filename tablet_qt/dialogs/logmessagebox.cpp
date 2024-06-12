@@ -23,10 +23,12 @@
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScreen>
 #include <QVBoxLayout>
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
+#include "qobjects/widgetpositioner.h"
 
 const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
@@ -40,8 +42,13 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     QDialog(parent)
 {
     setWindowTitle(title);
-    setMinimumWidth(MIN_WIDTH);
-    setMinimumHeight(MIN_HEIGHT);
+
+    const int min_width = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
+    const int min_size = qMin(min_width, min_height);
+
+    setMinimumWidth(min_size);
+    setMinimumHeight(min_size);
 
     auto mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
@@ -70,6 +77,8 @@ LogMessageBox::LogMessageBox(QWidget* parent,
     auto okbutton = new QPushButton(TextConst::ok());
     buttonlayout->addWidget(okbutton);
     connect(okbutton, &QPushButton::clicked, this, &LogMessageBox::accept);
+
+    new WidgetPositioner(this);
 
     mainlayout->addLayout(buttonlayout);
 

@@ -23,8 +23,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include "common/platform.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 
 PasswordEntryDialog::PasswordEntryDialog(const QString& text,
@@ -36,6 +36,7 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(text);
+    prompt->setWordWrap(true);
 
     m_editor = new QLineEdit();
     m_editor->setEchoMode(QLineEdit::Password);
@@ -48,19 +49,15 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
             this, &PasswordEntryDialog::reject);
 
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
 
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(m_editor);
+    mainlayout->addStretch(1);
     mainlayout->addWidget(buttonbox);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        prompt->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    prompt->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
