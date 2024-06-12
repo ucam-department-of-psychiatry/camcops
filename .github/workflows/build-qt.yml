@@ -257,7 +257,9 @@ jobs:
 
             - name: Work out tag
               id: vars
-              run: echo ::set-output name=tag::qt_${GITHUB_SHA}
+              run: |
+                  set -eux -o pipefail
+                  echo "tag=qt_${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
             - name: Release Qt
               if: matrix.os == 'ubuntu-22.04'
               uses: ncipollo/release-action@v1
@@ -268,6 +270,7 @@ jobs:
                   draft: true
                   body: Qt and associated libraries for building and testing the CamCOPS app
                   name: Qt and other libraries for CamCOPS
+                  tag: ${{ steps.vars.outputs.tag }}
 
             - name: Windows Build Qt
               if: runner.os == 'Windows'
