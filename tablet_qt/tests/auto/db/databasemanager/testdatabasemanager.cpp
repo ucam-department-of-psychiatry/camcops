@@ -41,6 +41,9 @@ class TestDatabaseManager: public QObject
 private:
     QString m_fixtures_dir;
     bool openFixture(const QString filename, QTemporaryFile& test_db);
+    // Call this to run a test with DatabaseManager threaded or not from
+    // the method <name of original test method>_data().
+    // See corresponding QFETCH() in the test itself.
     void threadedData();
 
 private slots:
