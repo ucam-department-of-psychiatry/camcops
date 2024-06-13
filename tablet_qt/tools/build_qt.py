@@ -1582,10 +1582,14 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
-        self.build_qt = args.build_qt
+        self.configure_qt_only = args.configure_qt_only
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
+        self.build_ffmpeg = args.build_ffmpeg
+        self.build_openssl = args.build_openssl
+        self.build_qt = args.build_qt
+        self.build_sqlcipher = args.build_sqlcipher
         self.force_ffmpeg = args.force or args.force_ffmpeg  # type: bool
         self.force_openssl = args.force or args.force_openssl  # type: bool
         self.force_qt = args.force or args.force_qt  # type: bool
@@ -4292,13 +4296,17 @@ def master_builder(args) -> None:
     # Fetch
     # =========================================================================
     if cfg.fetch:
-        download_qt(cfg)
-        checkout_qt(cfg)
-        patch_qt(cfg)
-        fetch_openssl(cfg)
-        fetch_sqlcipher(cfg)
+        if cfg.build_qt:
+            download_qt(cfg)
+            checkout_qt(cfg)
+            patch_qt(cfg)
+        if cfg.build_openssl:
+            fetch_openssl(cfg)
+        if cfg.build_sqlcipher:
+            fetch_sqlcipher(cfg)
         fetch_eigen(cfg)
-        fetch_ffmpeg(cfg)
+        if cfg.build_ffmpeg:
+            fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4315,14 +4323,16 @@ def master_builder(args) -> None:
             f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
             f"for {target_platform}"
         )
-        build_openssl(cfg, target_platform)
-        build_sqlcipher(cfg, target_platform)
-        if cfg.use_ffmpeg(target_platform):
+        if cfg.build_openssl:
+            build_openssl(cfg, target_platform)
+        if cfg.build_sqlcipher:
+            build_sqlcipher(cfg, target_platform)
+        if cfg.build_ffmpeg and cfg.use_ffmpeg(target_platform):
             build_ffmpeg(cfg, target_platform)
 
-        if qt_needs_building(cfg, target_platform):
+        if cfg.build_qt and qt_needs_building(cfg, target_platform):
             configure_qt(cfg, target_platform)
-            if cfg.build_qt:
+            if not cfg.configure_qt_only:
                 installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
@@ -4374,6 +4384,10 @@ def master_builder(args) -> None:
         build_for(Os.IOS, Cpu.X86_64)
 
     if not cfg.build_qt:
+        log.info("Not building Qt.")
+        sys.exit(EXIT_SUCCESS)
+
+    if cfg.configure_qt_only:
         log.info("Configuration only. Not building Qt.")
         sys.exit(EXIT_SUCCESS)
 
@@ -4432,15 +4446,23 @@ def main() -> None:
         ),
     )
     general.add_argument(
-        "--no_build_qt",
-        dest="build_qt",
-        action="store_false",
+        "--configure_qt_only",
+        dest="configure_qt_only",
+        action="store_true",
         help="Only run Qt configure, don't build Qt",
+    )
+    general.add_argument(
+        "--fetch",
+        dest="fetch",
+        action="store_true",
+        default=True,
+        help="Fetch source code",
     )
     general.add_argument(
         "--no_fetch",
         dest="fetch",
         action="store_false",
+        default=False,
         help="Skip fetching source code",
     )
     general.add_argument(
@@ -4448,6 +4470,62 @@ def main() -> None:
         type=int,
         default=CPU_COUNT,
         help="Number of parallel processes to run",
+    )
+    general.add_argument(
+        "--build_ffmpeg",
+        dest="build_ffmpeg",
+        action="store_true",
+        default=True,
+        help="Build FFmpeg",
+    )
+    general.add_argument(
+        "--no_build_ffmpeg",
+        dest="build_ffmpeg",
+        action="store_false",
+        default=False,
+        help="Skip building FFmpeg",
+    )
+    general.add_argument(
+        "--build_openssl",
+        dest="build_openssl",
+        action="store_true",
+        default=True,
+        help="Build OpenSSL",
+    )
+    general.add_argument(
+        "--no_build_openssl",
+        dest="build_openssl",
+        action="store_false",
+        default=False,
+        help="Skip building OpenSSL",
+    )
+    general.add_argument(
+        "--build_qt",
+        dest="build_qt",
+        action="store_true",
+        default=True,
+        help="Build Qt",
+    )
+    general.add_argument(
+        "--no_build_qt",
+        dest="build_qt",
+        action="store_false",
+        default=False,
+        help="Skip building Qt",
+    )
+    general.add_argument(
+        "--build_sqlcipher",
+        dest="build_sqlcipher",
+        action="store_true",
+        default=True,
+        help="Build SQLCipher",
+    )
+    general.add_argument(
+        "--no_build_sqlcipher",
+        dest="build_sqlcipher",
+        action="store_false",
+        default=False,
+        help="Skip building SQLCipher",
     )
     general.add_argument(
         "--force", action="store_true", help="Force rebuild of everything"
