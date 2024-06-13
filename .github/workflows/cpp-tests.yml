@@ -20,11 +20,16 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - name: Install Qt
+              uses: dsaltares/fetch-gh-release-asset@1.1.2
+              with:
+                  file: qt.tgz
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  # The release ID is set by the build-qt.yml action
+                  version: 'untagged-6d2cba07b921fd593071'
               run: |
                   set -euxo pipefail
-                  cd ${HOME}
-                  # The path is set by the build-qt.yml action
-                  wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/untagged-6d2cba07b921fd593071/qt.tgz
+                  cd ${GITHUB_WORKSPACE}
+                  ls
                   # Remove home/runner from paths
                   tar -xvzf qt.tgz --strip-components=2
                   ls
