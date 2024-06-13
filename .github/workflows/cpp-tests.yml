@@ -110,5 +110,5 @@ jobs:
             - name: C++ tests
               run: |
                   set -eux -o pipefail
-                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  export CAMCOPS_QT6_BASE_DIR=${GITHUB_WORKSPACE}/qt_local_build
                   xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
