@@ -41,13 +41,19 @@ class TestDatabaseManager: public QObject
 private:
     QString m_fixtures_dir;
     bool openFixture(const QString filename, QTemporaryFile& test_db);
+    void threadedData();
 
 private slots:
     void initTestCase();
+    // All tests are run twice: threaded and not threaded
     void testCanEncryptPlainDatabase();
+    void testCanEncryptPlainDatabase_data();
     void testCanConnectToEncryptedDatabase();
+    void testCanConnectToEncryptedDatabase_data();
     void testCanConnectToEncryptedDatabaseOnSecondAttempt();
+    void testCanConnectToEncryptedDatabaseOnSecondAttempt_data();
     void testCanConnectToEncryptedV3Database();
+    void testCanConnectToEncryptedV3Database_data();
 };
 
 
@@ -63,10 +69,14 @@ void TestDatabaseManager::initTestCase()
 
 void TestDatabaseManager::testCanEncryptPlainDatabase()
 {
+    QFETCH(bool, threaded);
+
     auto plain_file = QTemporaryFile();
     plain_file.open();
     auto plain_manager = DatabaseManager(plain_file.fileName(),
-                                         PLAIN_CONNECTION_NAME);
+                                         PLAIN_CONNECTION_NAME,
+                                         whichdb::DBTYPE,
+                                         threaded);
     QVERIFY(plain_manager.canReadDatabase());
 
     auto encrypted_file = QTemporaryFile();
@@ -74,40 +84,69 @@ void TestDatabaseManager::testCanEncryptPlainDatabase()
     plain_manager.encryptToAnother(encrypted_file.fileName(), RIGHT_PASSWORD);
 
     auto encrypted_manager = DatabaseManager(encrypted_file.fileName(),
-                                             ENCRYPTED_CONNECTION_NAME);
+                                             ENCRYPTED_CONNECTION_NAME,
+                                             whichdb::DBTYPE,
+                                             threaded);
     QVERIFY(!encrypted_manager.canReadDatabase());
 
     QVERIFY(encrypted_manager.decrypt(RIGHT_PASSWORD));
 }
 
 
+void TestDatabaseManager::testCanEncryptPlainDatabase_data()
+{
+    threadedData();
+}
+
+
 void TestDatabaseManager::testCanConnectToEncryptedDatabase()
 {
+    QFETCH(bool, threaded);
+
     QTemporaryFile v4_test_file;
     QVERIFY(openFixture(V4_ENCRYPTED_TEST_DATABASE, v4_test_file));
 
     auto manager = DatabaseManager(v4_test_file.fileName(),
-                                   ENCRYPTED_CONNECTION_NAME);
+                                   ENCRYPTED_CONNECTION_NAME,
+                                   whichdb::DBTYPE,
+                                   threaded);
     QVERIFY(!manager.canReadDatabase());
     QVERIFY(manager.decrypt(RIGHT_PASSWORD));
 }
 
 
+void TestDatabaseManager::testCanConnectToEncryptedDatabase_data()
+{
+    threadedData();
+}
+
+
 void TestDatabaseManager::testCanConnectToEncryptedDatabaseOnSecondAttempt()
 {
+    QFETCH(bool, threaded);
+
     QTemporaryFile v4_test_file;
     QVERIFY(openFixture(V4_ENCRYPTED_TEST_DATABASE, v4_test_file));
 
     auto manager = DatabaseManager(v4_test_file.fileName(),
-                                   ENCRYPTED_CONNECTION_NAME);
+                                   ENCRYPTED_CONNECTION_NAME,
+                                   whichdb::DBTYPE,
+                                   threaded);
     QVERIFY(!manager.canReadDatabase());
     QVERIFY(!manager.decrypt(WRONG_PASSWORD));
     QVERIFY(manager.decrypt(RIGHT_PASSWORD));
 }
 
 
+void TestDatabaseManager::testCanConnectToEncryptedDatabaseOnSecondAttempt_data()
+{
+    threadedData();
+}
+
+
 void TestDatabaseManager::testCanConnectToEncryptedV3Database()
 {
+    QFETCH(bool, threaded);
     // Should fail initially with key and then migrate to V4
     // before trying again.
     QTemporaryFile v3_test_file;
@@ -115,9 +154,17 @@ void TestDatabaseManager::testCanConnectToEncryptedV3Database()
     QVERIFY(openFixture(V3_ENCRYPTED_TEST_DATABASE, v3_test_file));
 
     auto manager = DatabaseManager(v3_test_file.fileName(),
-                                   ENCRYPTED_CONNECTION_NAME);
+                                   ENCRYPTED_CONNECTION_NAME,
+                                   whichdb::DBTYPE,
+                                   threaded);
     QVERIFY(!manager.canReadDatabase());
     QVERIFY(manager.decrypt(RIGHT_PASSWORD));
+}
+
+
+void TestDatabaseManager::testCanConnectToEncryptedV3Database_data()
+{
+    threadedData();
 }
 
 
@@ -150,6 +197,15 @@ bool TestDatabaseManager::openFixture(const QString filename,
 
     return true;
 }
+
+
+void TestDatabaseManager::threadedData()
+{
+    QTest::addColumn<bool>("threaded");
+    QTest::newRow("threaded") << true;
+    QTest::newRow("not threaded") << false;
+}
+
 
 QTEST_MAIN(TestDatabaseManager)
 
