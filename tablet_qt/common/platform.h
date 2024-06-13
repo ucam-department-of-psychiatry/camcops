@@ -32,11 +32,6 @@ extern const bool PLATFORM_MACOS;
 // Is it a tablet OS?
 extern const bool PLATFORM_TABLET;
 
-// Dialogs are full screen on iOS and on Android
-// they don't position correctly when rotated.
-// https://bugreports.qt.io/browse/QTBUG-91363
-extern const bool PLATFORM_FULL_SCREEN_DIALOGS;
-
 // What OS type (e.g. "Android", "Linux", "Windows", "iOS", "MacOS")?
 extern const QString OS_CLASS;
 

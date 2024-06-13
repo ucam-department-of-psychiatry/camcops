@@ -31,6 +31,7 @@
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -109,6 +110,8 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     setLayout(mainlayout);
 
     mainlayout->addStretch();
+
+    new WidgetPositioner(this);
 
     // Offer a cancel button
     auto standard_buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);

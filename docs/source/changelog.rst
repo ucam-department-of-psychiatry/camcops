@@ -3907,6 +3907,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix the Qt build for 32-bit and 64-bit Android emulator.
 
+- Fix the display of various dialogues on smaller screens, particulary when the device
+  is rotated.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/347
+
 - Fix a bug where if the user entered an incorrect password and then cancelled the
   dialog to prompt them to delete the database, it was impossible for them to then
   enter the correct password.

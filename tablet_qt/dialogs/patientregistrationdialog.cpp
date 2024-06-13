@@ -23,15 +23,17 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFormLayout>
+#include <QScreen>
 #include <QUrl>
-#include "common/platform.h"
-#include "lib/uifunc.h"
 #include "qobjects/urlvalidator.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/proquintlineedit.h"
 #include "widgets/validatinglineedit.h"
 
 #include "patientregistrationdialog.h"
 
+const int MIN_WIDTH = 500;
+const int MIN_HEIGHT = 500;
 
 PatientRegistrationDialog::PatientRegistrationDialog(
     QWidget* parent,
@@ -40,6 +42,12 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     : QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
+
+    const int min_width = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
+    const int min_size = qMin(min_width, min_height);
+
+    setMinimumWidth(min_size);
 
     m_editor_server_url = new ValidatingLineEdit(new UrlValidator(), server_url.url());
     m_editor_server_url->getLineEdit()->setInputMethodHints(
@@ -67,11 +75,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     // So we do this instead
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
-
     auto server_url_label = new QLabel(
         tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
@@ -90,13 +93,13 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     mainlayout->addWidget(patient_proquint_label);
     mainlayout->addLayout(m_editor_patient_proquint);
 
+    mainlayout->addStretch(1);
     mainlayout->addWidget(m_buttonbox);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        server_url_label->setWordWrap(true);
-        patient_proquint_label->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    server_url_label->setWordWrap(true);
+    patient_proquint_label->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }

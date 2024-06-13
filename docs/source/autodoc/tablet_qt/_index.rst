@@ -442,6 +442,8 @@ tablet_qt
     qobjects/urlhandler.h.rst
     qobjects/urlvalidator.cpp.rst
     qobjects/urlvalidator.h.rst
+    qobjects/widgetpositioner.cpp.rst
+    qobjects/widgetpositioner.h.rst
     questionnairelib/commonoptions.cpp.rst
     questionnairelib/commonoptions.h.rst
     questionnairelib/dynamicquestionnaire.cpp.rst
@@ -954,6 +956,9 @@ tablet_qt
     tests/auto/lib/soundfunc/testsoundfunc.cpp.rst
     tests/auto/lib/stringfunc/stringfunc.pro.rst
     tests/auto/lib/stringfunc/teststringfunc.cpp.rst
+    tests/auto/qobjects/qobjects.pro.rst
+    tests/auto/qobjects/widgetpositioner/testwidgetpositioner.cpp.rst
+    tests/auto/qobjects/widgetpositioner/widgetpositioner.pro.rst
     tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
     tests/auto/questionnairelib/namevalueoptions/testnamevalueoptions.cpp.rst
     tests/auto/questionnairelib/questionnairelib.pro.rst

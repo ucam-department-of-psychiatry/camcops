@@ -24,12 +24,15 @@
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScreen>
 #include <QVBoxLayout>
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
+#include "qobjects/widgetpositioner.h"
 
-const QSize MIN_SIZE(600, 600);
+const int MIN_WIDTH = 600;
+const int MIN_HEIGHT = 600;
 
 LogBox::LogBox(QWidget* parent,
                const QString& title,
@@ -49,7 +52,13 @@ LogBox::LogBox(QWidget* parent,
 {
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
-    setMinimumSize(MIN_SIZE);
+
+    const int min_width = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
+    const int min_size = qMin(min_width, min_height);
+
+    setMinimumWidth(min_size);
+    setMinimumHeight(min_size);
 
     auto mainlayout = new QVBoxLayout();
     setLayout(mainlayout);
@@ -93,6 +102,8 @@ LogBox::LogBox(QWidget* parent,
     buttonlayout->addWidget(m_ack_fail);
     connect(m_ack_fail, &QPushButton::clicked, this, &LogBox::okClicked);
     m_ack_fail->hide();
+
+    new WidgetPositioner(this);
 
     mainlayout->addLayout(buttonlayout);
 }

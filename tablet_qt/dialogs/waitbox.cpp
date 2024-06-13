@@ -24,6 +24,7 @@
 #include <QKeyEvent>
 #include <QThread>
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 /*
 
@@ -99,6 +100,8 @@ WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
 
     // Without the setMinimumDuration() call, you never see the dialog.
     setMinimumDuration(minimum_duration_ms);
+
+    new WidgetPositioner(this);
 }
 
 

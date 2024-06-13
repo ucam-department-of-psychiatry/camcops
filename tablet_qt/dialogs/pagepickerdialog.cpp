@@ -29,6 +29,7 @@
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 #include "widgets/verticalscrollarea.h"
@@ -94,6 +95,8 @@ int PagePickerDialog::choose(int* new_page_number)
     setLayout(mainlayout);
 
     mainlayout->addStretch();
+
+    new WidgetPositioner(this);
 
     // Offer a cancel button
     auto standard_buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);

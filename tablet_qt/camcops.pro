@@ -771,6 +771,7 @@ SOURCES += \
     qobjects/threadworker.cpp \
     qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
+    qobjects/widgetpositioner.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
     questionnairelib/mcqfunc.cpp \
@@ -1266,6 +1267,7 @@ HEADERS += \
     qobjects/threadworker.h \
     qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
+    qobjects/widgetpositioner.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
     questionnairelib/mcqfunc.h \
