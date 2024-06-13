@@ -25,7 +25,7 @@ jobs:
                   file: qt.tgz
                   token: ${{ secrets.GITHUB_TOKEN }}
                   # The release ID is set by the build-qt.yml action
-                  version: 'untagged-6d2cba07b921fd593071'
+                  version: 'tags/untagged-6d2cba07b921fd593071'
             - name: Install Qt
               run: |
                   set -euxo pipefail
