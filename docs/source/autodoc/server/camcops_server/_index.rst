@@ -116,6 +116,7 @@ server/camcops_server
     alembic/versions/0082_replace_isaaq_isaaq10.py.rst
     alembic/versions/0083_delete_isaaq.py.rst
     alembic/versions/0084_compulsive_exercise_test_cet.py.rst
+    alembic/versions/0085_aq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -278,6 +279,7 @@ server/camcops_server
     extra_strings/aims.xml.rst
     extra_strings/apeq_cpft_perinatal.xml.rst
     extra_strings/apeqpt.xml.rst
+    extra_strings/aq.xml.rst
     extra_strings/audit.xml.rst
     extra_strings/bmi.xml.rst
     extra_strings/bprs.xml.rst
@@ -360,6 +362,7 @@ server/camcops_server
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
     tasks/apeqpt.py.rst
+    tasks/aq.py.rst
     tasks/asdas.py.rst
     tasks/audit.py.rst
     tasks/badls.py.rst
@@ -472,6 +475,7 @@ server/camcops_server
     tasks/srs.py.rst
     tasks/suppsp.py.rst
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
+    tasks/tests/aq_tests.py.rst
     tasks/tests/basdai_tests.py.rst
     tasks/tests/cia_tests.py.rst
     tasks/tests/core10_tests.py.rst
