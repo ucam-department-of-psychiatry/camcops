@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/alembic/versions/0061_fix_up_patient_idnum_ids.py
 
@@ -93,6 +91,7 @@ class PatientIdNum(Base):
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():

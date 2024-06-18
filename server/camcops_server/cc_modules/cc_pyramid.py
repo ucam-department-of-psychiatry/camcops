@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_pyramid.py
 
@@ -659,7 +657,7 @@ class UrlParam(object):
 
     See also :class:`RoutePath`.
 
-    """  # noqa
+    """
 
     def __init__(
         self, name: str, paramtype: UrlParamType == UrlParamType.PLAIN_STRING
@@ -722,6 +720,7 @@ def make_url_path(base: str, *args: UrlParam) -> str:
 # =============================================================================
 # Routes
 # =============================================================================
+
 
 # Class to collect constants together
 # See also http://xion.io/post/code/python-enums-are-ok.html
@@ -861,7 +860,7 @@ class RoutePath(object):
       ``'/thing/{bork_id:\d+}'`` to restrict to digits. See
       https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html
 
-    """  # noqa
+    """
 
     def __init__(
         self,
@@ -1156,7 +1155,7 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
                             # ...
                             response.set_cookie(...)
 
-        """  # noqa
+        """
         cfg = req.config
         secure_cookies = not cfg.allow_insecure_cookies
         pyramid_factory = SignedCookieSessionFactory(

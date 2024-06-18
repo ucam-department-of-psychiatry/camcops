@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_simpleobjects.py
 
@@ -99,6 +97,7 @@ class IdNumReference(object):
 # =============================================================================
 # HL7PatientIdentifier
 # =============================================================================
+
 
 # noinspection PyShadowingBuiltins
 class HL7PatientIdentifier(object):

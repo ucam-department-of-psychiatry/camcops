@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/cpft_lps.py
 
@@ -280,7 +278,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             q_priority=self.wxstring(req, "f_referral_priority"),
             a_priority=(
                 answer(self.referral_priority, default_for_blank_strings=True)
-                + ": "  # noqa
+                + ": "
                 + answer(priority_name)
             ),
         )

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/pcl5.py
 
@@ -322,7 +320,7 @@ class Pcl5(TaskHasPatientMixin, Task, metaclass=Pcl5Metaclass):
                 [2] ≥1 ‘B’ symptoms and ≥1 ‘C’ symptoms and ≥2 ‘D’ symptoms
                     and ≥2 ‘E’ symptoms.
             </div>
-        """.format(  # noqa
+        """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr_qa(f"{req.sstring(SS.TOTAL_SCORE)} (0–80)", score),

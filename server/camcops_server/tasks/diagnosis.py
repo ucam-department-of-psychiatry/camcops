@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/diagnosis.py
 
@@ -583,9 +581,9 @@ def get_diagnosis_report_query(
                 # (or failure to match a row will wipe out the Patient from the
                 # OUTER JOIN):
                 aliased_table.c._current == True,  # noqa: E712
-                aliased_table.c.which_idnum == n,  # noqa: E712
+                aliased_table.c.which_idnum == n,
             ),
-        )  # noqa: E712
+        )
     select_fields += [
         diagnosis_class.when_created.label("when_created"),
         literal(system).label("system"),

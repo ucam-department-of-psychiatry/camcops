@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/ceca.py
 
@@ -1673,7 +1671,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             if self.any_fields_none(
                 [
                     "s1c_first_separated_from_mother_aged",
-                    "s1c_mother_how_long_first_separation_years",  # noqa
+                    "s1c_mother_how_long_first_separation_years",
                     "s1c_mother_separation_reason",
                 ]
             ):
@@ -1682,7 +1680,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             if self.any_fields_none(
                 [
                     "s1c_first_separated_from_father_aged",
-                    "s1c_father_how_long_first_separation_years",  # noqa
+                    "s1c_father_how_long_first_separation_years",
                     "s1c_father_separation_reason",
                 ]
             ):

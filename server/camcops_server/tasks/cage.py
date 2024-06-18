@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/cage.py
 
@@ -143,7 +141,7 @@ class Cage(TaskHasPatientMixin, Task, metaclass=CageMetaclass):
             q_a += tr_qa(
                 str(q) + " — " + self.wxstring(req, "q" + str(q)),
                 getattr(self, "q" + str(q)),
-            )  # answer is itself Y/N/NULL  # noqa
+            )  # answer is itself Y/N/NULL
         total_score = tr(
             req.sstring(SS.TOTAL_SCORE),
             answer(score) + f" / {self.NQUESTIONS}",

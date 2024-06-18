@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_constants.py
 
@@ -883,7 +881,7 @@ class ConfigDefaults(object):
 # - URLs are a bit tricky; the colons get re-interpreted sometimes; it seems
 #   that inserting an extra colon after "#:", e.g. "#: : see http://somewhere"
 #   works.
-# - If a comment needs "# noqa" for the linter, then make it a docstring,
+# - If a comment needs noqa for the linter, then make it a docstring,
 #   because it will appear in the Sphinx string.
 
 
@@ -978,13 +976,13 @@ class StringLengths:
     """
     FQDN; see
     https://stackoverflow.com/questions/8724954/what-is-the-maximum-number-of-characters-for-a-host-name-in-unix
-    """  # noqa
+    """
 
     ICD9_CODE_MAX_LEN = 6
     """
     Longest is "xxx.xx"; thus, 6; see
     https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf
-    """  # noqa
+    """
 
     #: longest is e.g. "F00.000"; "F10.202"; thus, 7
     ICD10_CODE_MAX_LEN = 7

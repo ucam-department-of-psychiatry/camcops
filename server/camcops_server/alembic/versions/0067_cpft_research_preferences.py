@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/alembic/versions/0067_cpft_research_preferences.py
 
@@ -61,6 +59,7 @@ depends_on = None
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():

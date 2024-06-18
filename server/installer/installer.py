@@ -1098,7 +1098,7 @@ class Installer:
         with open(filename, "r") as f:
             contents = f.read()
 
-        for (search, replace) in replace_dict.items():
+        for search, replace in replace_dict.items():
             if replace is None:
                 self.fail(f"Can't replace '{search}' with None")
 

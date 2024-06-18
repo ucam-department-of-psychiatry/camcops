@@ -76,11 +76,11 @@ def application_show_environment_test_database(environ, start_response):
         output = "mod_wsgi DAEMON MODE"
 
     output += "\n\nenviron parameter:\n" + linebreak
-    for (k, v) in sorted(environ.iteritems()):
+    for k, v in sorted(environ.iteritems()):
         output += str(k) + ": " + str(v) + "\n"
 
     output += "\nos.environ:\n" + linebreak
-    for (k, v) in sorted(os.environ.iteritems()):
+    for k, v in sorted(os.environ.iteritems()):
         output += str(k) + ": " + str(v) + "\n"
 
     output += "\nCGI form:\n" + linebreak

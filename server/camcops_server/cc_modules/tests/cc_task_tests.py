@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_task_tests.py
 
@@ -65,18 +63,18 @@ class TaskTests(DemoDatabaseTestCase):
         from datetime import date
         import hl7
         from sqlalchemy.sql.schema import Column
-        from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F811
-        from camcops_server.cc_modules.cc_patient import Patient  # noqa: F811
+        from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+        from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-        from camcops_server.cc_modules.cc_snomed import (  # noqa: F811
+        from camcops_server.cc_modules.cc_snomed import (
             SnomedExpression,
         )
         from camcops_server.cc_modules.cc_string import APPSTRING_TASKNAME
         from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-        from camcops_server.cc_modules.cc_trackerhelpers import (  # noqa: F811
+        from camcops_server.cc_modules.cc_trackerhelpers import (
             TrackerInfo,
         )
-        from camcops_server.cc_modules.cc_spreadsheet import (  # noqa: F811
+        from camcops_server.cc_modules.cc_spreadsheet import (
             SpreadsheetPage,
         )
         from camcops_server.cc_modules.cc_xml import XmlElement
@@ -129,9 +127,7 @@ class TaskTests(DemoDatabaseTestCase):
             for fn in t.get_blob_fields():
                 self.assertIsInstance(fn, str)
 
-            self.assertIsInstance(
-                t.pk, int
-            )  # all our examples do have PKs  # noqa
+            self.assertIsInstance(t.pk, int)  # all our examples do have PKs
             self.assertIsInstance(t.is_preserved(), bool)
             self.assertIsInstance(t.was_forcibly_preserved(), bool)
             self.assertIsInstanceOrNone(t.get_creation_datetime(), Pendulum)
