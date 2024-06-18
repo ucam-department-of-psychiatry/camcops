@@ -630,6 +630,15 @@ def upgrade():
             unique=False,
         )
 
+    with op.batch_alter_table("aq", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_aq__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
+        )
+
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
