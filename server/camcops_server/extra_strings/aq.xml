@@ -8,7 +8,7 @@
          - adds "by circling your answer"
          - has "DO NOT MISS ANY STATEMENT OUT" below
     -->
-    <string name="instructions">Below is a list of statements. Please read each statement very carefully and rate how strongly you agree or disagree with it.</string>
+    <string name="instructions">Below is a list of statements. Please read each statement <u>very carefully</u> and rate how strongly you agree or disagree with it.</string>
 
     <string name="q1">I prefer to do things with others rather than on my own.</string>
     <string name="q2">I prefer to do things the same way over and over again.</string>
