@@ -162,7 +162,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("The Adult Autism Spectrum Quotient (AQ) Ages 16+")
+        return _("The Adult Autism Spectrum Quotient (AQ)")
 
     def is_complete(self) -> bool:
         # noinspection PyUnresolvedReferences
