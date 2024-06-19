@@ -625,6 +625,8 @@ tablet_qt
     tasks/apeqcpftperinatal.h.rst
     tasks/apeqpt.cpp.rst
     tasks/apeqpt.h.rst
+    tasks/aq.cpp.rst
+    tasks/aq.h.rst
     tasks/asdas.cpp.rst
     tasks/asdas.h.rst
     tasks/audit.cpp.rst

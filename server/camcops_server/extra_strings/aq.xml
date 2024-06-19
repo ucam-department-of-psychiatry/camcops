@@ -3,8 +3,12 @@
   <task name="aq">
     <string name="title">The Adult Autism Spectrum Quotient (AQ)</string>
     <string name="subtitle">Ages 16+</string>
-    <!-- Paper version adds "by circling your answer" and has "DO NOT MISS ANY STATEMENT OUT" below -->
-    <string name="instructions">Below are a list of statements. Please read each statement very carefully and rate how strongly you agree or disagree with it.</string>
+    <!-- Paper version:
+         - says "Below are a list..."
+         - adds "by circling your answer"
+         - has "DO NOT MISS ANY STATEMENT OUT" below
+    -->
+    <string name="instructions">Below is a list of statements. Please read each statement very carefully and rate how strongly you agree or disagree with it.</string>
 
     <string name="q1">I prefer to do things with others rather than on my own.</string>
     <string name="q2">I prefer to do things the same way over and over again.</string>
@@ -61,5 +65,7 @@
     <string name="option_1">slightly agree</string>
     <string name="option_2">slightly disagree</string>
     <string name="option_3">definitely disagree</string>
+
+    <string name="score">Score</string>
   </task>
 </resources>
