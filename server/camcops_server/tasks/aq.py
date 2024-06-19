@@ -27,7 +27,7 @@ camcops_server/tasks/aq.py
 
 """
 
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Any, Dict, List, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -156,7 +156,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     AGREE_OPTIONS = [0, 1]
 
     ALL_FIELD_NAMES = strseq(PREFIX, FIRST_Q, LAST_Q)
-
+    ALL_QUESTIONS = range(FIRST_Q, LAST_Q + 1)
     SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
 
     @staticmethod
@@ -172,21 +172,15 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         return True
 
     def score(self) -> Optional[int]:
-        total = 0
-
-        for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
-            score = self.question_score(q_num)
-            if score is None:
-                return None
-
-            total += score
-
-        return total
+        return self.questions_score(self.ALL_QUESTIONS)
 
     def social_skill_score(self) -> Optional[int]:
+        return self.questions_score(self.SOCIAL_SKILL_QUESTIONS)
+
+    def questions_score(self, q_nums: List[int]) -> Optional[int]:
         total = 0
 
-        for q_num in self.SOCIAL_SKILL_QUESTIONS:
+        for q_num in q_nums:
             score = self.question_score(q_num)
             if score is None:
                 return None
