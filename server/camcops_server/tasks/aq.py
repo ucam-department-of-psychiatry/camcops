@@ -157,6 +157,8 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     ALL_FIELD_NAMES = strseq(PREFIX, FIRST_Q, LAST_Q)
 
+    SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
+
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
@@ -169,8 +171,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
         return True
 
-    def score(self) -> int:
-
+    def score(self) -> Optional[int]:
         total = 0
 
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
@@ -192,6 +193,38 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
                 total += 1
 
         return total
+
+    def social_skill_score(self) -> Optional[int]:
+        total = 0
+
+        for q_num in self.SOCIAL_SKILL_QUESTIONS:
+            score = self.question_score(q_num)
+            if score is None:
+                return None
+
+            total += score
+
+        return total
+
+    def question_score(self, q_num: int) -> Optional[int]:
+        q_field = self.PREFIX + str(q_num)
+        answer = getattr(self, q_field)
+        if answer is None:
+            return None
+
+        agree_scored = (
+            q_num in self.AGREE_SCORING_QUESTIONS
+            and answer in self.AGREE_OPTIONS
+        )
+        disagree_scored = (
+            q_num not in self.AGREE_SCORING_QUESTIONS
+            and answer not in self.AGREE_OPTIONS
+        )
+
+        if agree_scored or disagree_scored:
+            return 1
+
+        return 0
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = self.get_task_html_rows(req)

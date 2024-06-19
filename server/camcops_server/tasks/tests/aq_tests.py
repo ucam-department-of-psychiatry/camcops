@@ -87,13 +87,22 @@ class AqTests(TestCase):
         50,
     ]
 
+    DEFINITELY_AGREE = 0
+    DEFINITELY_DISAGREE = 2
+
+    SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
+    ATTENTION_SWITCHING_QUESTIONS = [2, 4, 10, 16, 25, 32, 34, 37, 43, 46]
+    ATTENTION_TO_DETAIL_QUESTIONS = [5, 6, 9, 12, 19, 23, 28, 29, 30, 49]
+    COMMUNICATION_QUESTIONS = [7, 17, 18, 26, 27, 31, 33, 35, 38, 39]
+    IMAGINATION_QUESTIONS = [3, 8, 14, 20, 21, 24, 40, 41, 42, 50]
+
     def test_max_score_is_50(self):
         aq = Aq()
         for q_num in self.AGREE_SCORING_QUESTIONS:
-            setattr(aq, f"q{q_num}", 0)
+            setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
         for q_num in self.DISAGREE_SCORING_QUESTIONS:
-            setattr(aq, f"q{q_num}", 2)
+            setattr(aq, f"q{q_num}", self.DEFINITELY_DISAGREE)
 
         self.assertEqual(aq.score(), 50)
 
@@ -101,12 +110,12 @@ class AqTests(TestCase):
         aq = Aq()
 
         for q_num in self.AGREE_SCORING_QUESTIONS:
-            setattr(aq, f"q{q_num}", 2)
+            setattr(aq, f"q{q_num}", self.DEFINITELY_DISAGREE)
 
         for q_num in self.DISAGREE_SCORING_QUESTIONS:
-            setattr(aq, f"q{q_num}", 0)
+            setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
-        self.assertEqual(aq.score(), 0)
+        self.assertEqual(aq.score(), self.DEFINITELY_AGREE)
 
     def test_incomplete_when_answers_missing(self):
         aq = Aq()
@@ -117,6 +126,44 @@ class AqTests(TestCase):
         aq = Aq()
 
         for q_num in range(1, 50 + 1):
-            setattr(aq, f"q{q_num}", 0)
+            setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
         self.assertTrue(aq.is_complete())
+
+    def test_social_skill_score_is_none_if_any_none(self):
+        aq = Aq()
+
+        for q_num in self.SOCIAL_SKILL_QUESTIONS:
+            setattr(aq, f"q{q_num}", self.non_scoring_answer(q_num))
+
+        aq.q1 = None
+
+        self.assertIsNone(aq.social_skill_score())
+
+    def test_min_social_skill_score_is_0(self):
+        aq = Aq()
+
+        for q_num in self.SOCIAL_SKILL_QUESTIONS:
+            setattr(aq, f"q{q_num}", self.non_scoring_answer(q_num))
+
+        self.assertEqual(aq.social_skill_score(), 0)
+
+    def test_max_social_skill_score_is_10(self):
+        aq = Aq()
+
+        for q_num in self.SOCIAL_SKILL_QUESTIONS:
+            setattr(aq, f"q{q_num}", self.scoring_answer(q_num))
+
+        self.assertEqual(aq.social_skill_score(), 10)
+
+    def non_scoring_answer(self, q_num: int):
+        if q_num in self.AGREE_SCORING_QUESTIONS:
+            return self.DEFINITELY_DISAGREE
+
+        return self.DEFINITELY_AGREE
+
+    def scoring_answer(self, q_num: int):
+        if q_num in self.AGREE_SCORING_QUESTIONS:
+            return self.DEFINITELY_AGREE
+
+        return self.DEFINITELY_DISAGREE
