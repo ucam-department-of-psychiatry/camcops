@@ -19,12 +19,20 @@ jobs:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
+            - name: Download Qt
+              uses: dsaltares/fetch-gh-release-asset@1.1.2
+              with:
+                  # Has to download to GITHUB_WORKSPACE
+                  file: qt.tgz
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  # The release ID is set by the build-qt.yml action
+                  version: 'tags/untagged-6d2cba07b921fd593071'
             - name: Install Qt
               run: |
                   set -euxo pipefail
+                  mv ${GITHUB_WORKSPACE}/qt.tgz ${HOME}
                   cd ${HOME}
-                  # The path is set by the build-qt.yml action
-                  wget https://github.com/ucam-department-of-psychiatry/camcops/releases/download/untagged-6d2cba07b921fd593071/qt.tgz
+                  ls
                   # Remove home/runner from paths
                   tar -xvzf qt.tgz --strip-components=2
                   ls
