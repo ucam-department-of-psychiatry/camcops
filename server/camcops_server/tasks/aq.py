@@ -175,22 +175,11 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         total = 0
 
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
-            q_field = self.PREFIX + str(q_num)
-            answer = getattr(self, q_field)
-            if answer is None:
+            score = self.question_score(q_num)
+            if score is None:
                 return None
 
-            agree_scored = (
-                q_num in self.AGREE_SCORING_QUESTIONS
-                and answer in self.AGREE_OPTIONS
-            )
-            disagree_scored = (
-                q_num not in self.AGREE_SCORING_QUESTIONS
-                and answer not in self.AGREE_OPTIONS
-            )
-
-            if agree_scored or disagree_scored:
-                total += 1
+            total += score
 
         return total
 
