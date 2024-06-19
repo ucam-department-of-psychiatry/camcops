@@ -168,6 +168,22 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.social_skill_score(), 10)
 
+    def test_min_attention_switching_score_is_0(self):
+        aq = Aq()
+
+        for q_num in self.ATTENTION_SWITCHING_QUESTIONS:
+            setattr(aq, f"q{q_num}", self.non_scoring_answer(q_num))
+
+        self.assertEqual(aq.attention_switching_score(), 0)
+
+    def test_max_attention_switching_score_is_10(self):
+        aq = Aq()
+
+        for q_num in self.ATTENTION_SWITCHING_QUESTIONS:
+            setattr(aq, f"q{q_num}", self.scoring_answer(q_num))
+
+        self.assertEqual(aq.attention_switching_score(), 10)
+
     def non_scoring_answer(self, q_num: int):
         if q_num in self.AGREE_SCORING_QUESTIONS:
             return self.DEFINITELY_DISAGREE

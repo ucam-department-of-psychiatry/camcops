@@ -158,6 +158,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     ALL_FIELD_NAMES = strseq(PREFIX, FIRST_Q, LAST_Q)
     ALL_QUESTIONS = range(FIRST_Q, LAST_Q + 1)
     SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
+    ATTENTION_SWITCHING_QUESTIONS = [2, 4, 10, 16, 25, 32, 34, 37, 43, 46]
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -176,6 +177,9 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     def social_skill_score(self) -> Optional[int]:
         return self.questions_score(self.SOCIAL_SKILL_QUESTIONS)
+
+    def attention_switching_score(self) -> Optional[int]:
+        return self.questions_score(self.ATTENTION_SWITCHING_QUESTIONS)
 
     def questions_score(self, q_nums: List[int]) -> Optional[int]:
         total = 0
