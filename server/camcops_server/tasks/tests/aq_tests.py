@@ -87,6 +87,8 @@ class AqTests(TestCase):
         50,
     ]
 
+    ALL_QUESTIONS = range(1, 50 + 1)
+
     DEFINITELY_AGREE = 0
     DEFINITELY_DISAGREE = 2
 
@@ -115,7 +117,17 @@ class AqTests(TestCase):
         for q_num in self.DISAGREE_SCORING_QUESTIONS:
             setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
-        self.assertEqual(aq.score(), self.DEFINITELY_AGREE)
+        self.assertEqual(aq.score(), 0)
+
+    def test_score_is_none_if_any_none(self):
+        aq = Aq()
+
+        for q_num in self.ALL_QUESTIONS:
+            setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
+
+        aq.q1 = None
+
+        self.assertIsNone(aq.score())
 
     def test_incomplete_when_answers_missing(self):
         aq = Aq()
@@ -125,7 +137,7 @@ class AqTests(TestCase):
     def test_complete_when_all_answered(self):
         aq = Aq()
 
-        for q_num in range(1, 50 + 1):
+        for q_num in self.ALL_QUESTIONS:
             setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
         self.assertTrue(aq.is_complete())
