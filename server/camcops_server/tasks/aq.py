@@ -161,6 +161,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     ATTENTION_SWITCHING_QUESTIONS = [2, 4, 10, 16, 25, 32, 34, 37, 43, 46]
     ATTENTION_TO_DETAIL_QUESTIONS = [5, 6, 9, 12, 19, 23, 28, 29, 30, 49]
     COMMUNICATION_QUESTIONS = [7, 17, 18, 26, 27, 31, 33, 35, 38, 39]
+    IMAGINATION_QUESTIONS = [3, 8, 14, 20, 21, 24, 40, 41, 42, 50]
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -188,6 +189,9 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     def communication_score(self) -> Optional[int]:
         return self.questions_score(self.COMMUNICATION_QUESTIONS)
+
+    def imagination_score(self) -> Optional[int]:
+        return self.questions_score(self.IMAGINATION_QUESTIONS)
 
     def questions_score(self, q_nums: List[int]) -> Optional[int]:
         total = 0
