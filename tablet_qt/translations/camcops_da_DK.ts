@@ -229,6 +229,19 @@
     </message>
 </context>
 <context>
+    <name>Aq</name>
+    <message>
+        <location filename="../tasks/aq.cpp" line="+73"/>
+        <source>The Adult Autism Spectrum Quotient</source>
+        <translation>The Adult Autism Spectrum Quotient [voksenautismespektrumkvotienten]</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>A 50 item self-report measure used to assess traits of autism in adults and adolescents aged 16 years and over.</source>
+        <translation>En selvrapporteringsmåling på 50 punkter, der bruges til at vurdere træk ved autisme hos voksne og unge i alderen 16 år og derover.</translation>
+    </message>
+</context>
+<context>
     <name>Asdas</name>
     <message>
         <location filename="../tasks/asdas.cpp" line="+84"/>
@@ -436,7 +449,7 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+876"/>
+        <location filename="../core/camcopsapp.cpp" line="+878"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
@@ -476,7 +489,7 @@
         <translation>Dekryptering af databaser...</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+35"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
@@ -501,13 +514,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1805"/>
-        <location line="+1807"/>
+        <location line="-1795"/>
+        <location line="+1797"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1989"/>
+        <location line="-1979"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -609,7 +622,7 @@ Har du forbindelse til internettet?</translation>
         <translation>Prøv igen med fejllog</translation>
     </message>
     <message>
-        <location line="+726"/>
+        <location line="+716"/>
         <source>Retry password?</source>
         <translation>Prøv adgangskode igen?</translation>
     </message>
@@ -712,7 +725,7 @@ på grund af denne fejl:
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-3056"/>
+        <location line="-3046"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -722,7 +735,7 @@ på grund af denne fejl:
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+1166"/>
+        <location line="+1156"/>
         <source>You entered an incorrect password. Try again?&lt;br&gt;&lt;br&gt;Answer &lt;b&gt;%1&lt;/b&gt; to enter your password again.&lt;br&gt;Answer &lt;b&gt;%2&lt;/b&gt; if you can&apos;t remember your password.</source>
         <extracomment>%1 and %2 are Yes and No respectively i.e. the dialog button labels</extracomment>
         <translation>Du har indtastet en forkert adgangskode. Prøv igen??&lt;br&gt;&lt;br&gt;Svar &lt;b&gt;%1&lt;/b&gt; for at indtaste din adgangskode igen.&lt;br&gt;Svar &lt;b&gt;%2&lt;/b&gt; hvis du ikke kan huske din adgangskode.</translation>
@@ -3438,7 +3451,7 @@ enig</translation>
 <context>
     <name>LogBox</name>
     <message>
-        <location filename="../dialogs/logbox.cpp" line="+94"/>
+        <location filename="../dialogs/logbox.cpp" line="+101"/>
         <source>Acknowledge failure</source>
         <translation>Bekræft fejl</translation>
     </message>
@@ -4415,7 +4428,7 @@ enig</translation>
 <context>
     <name>PasswordChangeDialog</name>
     <message>
-        <location filename="../dialogs/passwordchangedialog.cpp" line="+65"/>
+        <location filename="../dialogs/passwordchangedialog.cpp" line="+61"/>
         <source>Enter old password:</source>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
@@ -4573,12 +4586,12 @@ enig</translation>
 <context>
     <name>PatientRegistrationDialog</name>
     <message>
-        <location filename="../dialogs/patientregistrationdialog.cpp" line="+42"/>
+        <location filename="../dialogs/patientregistrationdialog.cpp" line="+44"/>
         <source>Registration</source>
         <translation>Registrering</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+35"/>
         <source>&lt;b&gt;CamCOPS server location&lt;/b&gt; (e.g. https://server.example.com/camcops/api):</source>
         <translation>&lt;b&gt;CamCOPS-serverplacering&lt;/b&gt; (f.eks. https://server.example.com/camcops/api):</translation>
     </message>
@@ -6891,13 +6904,13 @@ Afsluttet</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+540"/>
+        <location line="+541"/>
         <source>Test GLM: Gaussian</source>
         <translation>Test GLM: Gaussian</translation>
     </message>
     <message>
-        <location line="-535"/>
-        <location line="+579"/>
+        <location line="-536"/>
+        <location line="+580"/>
         <source>Test GLM: Poisson</source>
         <translation>Test GLM: Poisson</translation>
     </message>
@@ -6907,12 +6920,12 @@ Afsluttet</translation>
         <translation>Test logistisk regression og binomial GLM</translation>
     </message>
     <message>
-        <location line="-430"/>
+        <location line="-432"/>
         <source>Test HTTPS</source>
         <translation>Test HTTPS</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+11"/>
         <source>Test HTTP</source>
         <translation>Test HTTP</translation>
     </message>
