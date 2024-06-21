@@ -3861,7 +3861,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Supported SQLAlchemy version now 1.4.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
 
-- New task: :ref:`Compulsive Exercise Test (CET) <cet>`
+- New task: :ref:`Compulsive Exercise Test (CET) <cet>`. (Database revision 0084.)
 
 - Qt version is now 6.5.3. Qt now builds with FFmpeg for multimedia on all
   platforms except iOS (following Qt official releases).
@@ -3910,3 +3910,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix the display of various dialogues on smaller screens, particulary when the device
   is rotated.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/347
+
+- New task: :ref:`The Adult Autism Spectrum Quotient (AQ) <aq>`. (Database revision 0085.)
