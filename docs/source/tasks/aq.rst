@@ -25,5 +25,73 @@ The Adult Autism Spectrum Quotient (AQ)
 
 .. include:: include_permission_contextual.rst
 
-A 50 item self-report measure used to assess traits of autism in adults and
-adolescents aged 16 years and over.
+A 50-item self-administered instrument for measuring the degree to which an
+adult with normal intelligence has the traits associated with the autistic
+spectrum.
+
+The 50 questions are made up of 10 questions assessing five different areas:
+
+- social skill (items 1,11,13,15,22,36,44,45,47,48);
+- attention switching (items 2,4,10,16,25,32,34,37,43,46);
+- attention to detail (items 5,6,9,12,19,23,28,29,30,49);
+- communication (items 7,17,18,26,27,31,33,35,38,39);
+- imagination (items 3,8,14,20,21,24,40,41,42,50).
+
+
+Intellectual property rights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copyright MRC-SBC/SJW Feb 1998
+
+Email from Joanna Davis (ARC) to Pia Thiemann (CPFT) on 3rd May 2024:
+
+Tests developed at the Autism Research Centre (ARC) must only be used for
+professional, scientific, clinical, or personal purposes, and are not for
+commercial use. Use of these tests for commercial purposes violates copyright
+legislation. Full acknowledgement of the ARC as the source of the material must
+be given when using these tests, as well as the journal article where they were
+first described. You do not need permission to use the tests in your research
+because, once published, they are in the public domain. However, we do ask that
+you use the test responsibly and reference our work where appropriate. You may
+not adapt or modify any of these tests, unless permission has been given by the
+ARC.
+
+
+History
+-------
+
+Hoekstra RA, Bartels M, Cath DC, Boomsma DI.
+Factor structure, reliability and criterion validity of the Autism-Spectrum Quotient (AQ): a study in Dutch population and patient groups.
+*J Autism Dev Disord.* 2008 Sep;38(8):1555-66.
+https://doi.org/10.1007/s10803-008-0538-x
+https://pubmed.ncbi.nlm.nih.gov/16473340/
+
+Wakabayashi A, Baron-Cohen S, Wheelwright S, Tojo Y.
+The Autism-Spectrum Quotient (AQ) in Japan: A cross-cultural comparison.
+*J Autism Dev Disord.* 2006 Feb;36(2):263-70.
+https://doi.org/10.1007/s10803-005-0061-2
+https://pubmed.ncbi.nlm.nih.gov/16586157/
+
+Wheelwright S, Baron-Cohen S, Goldenfeld N, Delaney J, Fine D, Smith R, Weil L, Wakabayashi A.
+Predicting Autism Spectrum Quotient (AQ) from the Systemizing Quotient-Revised (SQ-R) and Empathy Quotient (EQ).
+*Brain Res.* 2006 Mar 24;1079(1):47-56.
+https://doi.org/10.1016/j.brainres.2006.01.012
+https://pubmed.ncbi.nlm.nih.gov/16473340/
+
+Woodbury-Smith MR, Robinson J, Wheelwright S, Baron-Cohen S.
+Screening adults for Asperger Syndrome using the AQ: a preliminary study of its diagnostic validity in clinical practice.
+*J Autism Dev Disord.* 2005 Jun;35(3):331-5.
+https://doi.org/10.1007/s10803-005-3300-7
+https://pubmed.ncbi.nlm.nih.gov/16119474/
+
+Baron-Cohen S, Wheelwright S, Skinner R, Martin J, Clubley E.
+The autism-spectrum quotient (AQ): evidence from Asperger syndrome/high-functioning autism, males and females, scientists and mathematicians.
+*J Autism Dev Disord.* 2001 Feb;31(1):5-17. Erratum in: *J Autism Dev Disord.* 2001 Dec;31(6):603.
+https://doi.org/10.1023/a:1005653411471
+https://pubmed.ncbi.nlm.nih.gov/11439754/
+
+
+Source
+~~~~~~
+
+- https://web.archive.org/web/20230926220441/https://www.autismresearchcentre.com/tests/autism-spectrum-quotient-aq-adult/
