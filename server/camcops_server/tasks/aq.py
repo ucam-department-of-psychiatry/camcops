@@ -35,7 +35,7 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_html import answer, tr_qa, tr
+from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
@@ -124,6 +124,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     FIRST_Q = 1
     LAST_Q = 50
     PREFIX = "q"
+    MAX_AREA_SCORE = 10
     MAX_SCORE = 50
 
     AGREE_SCORING_QUESTIONS = [
@@ -153,15 +154,32 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         46,
     ]
 
-    AGREE_OPTIONS = [0, 1]
+    DEFINITELY_AGREE = 0
+    SLIGHTLY_AGREE = 1
+
+    AGREE_OPTIONS = [DEFINITELY_AGREE, SLIGHTLY_AGREE]
 
     ALL_FIELD_NAMES = strseq(PREFIX, FIRST_Q, LAST_Q)
     ALL_QUESTIONS = range(FIRST_Q, LAST_Q + 1)
+
     SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
+    SOCIAL_SKILL_Q_NUMS = ", ".join(str(q) for q in SOCIAL_SKILL_QUESTIONS)
+
     ATTENTION_SWITCHING_QUESTIONS = [2, 4, 10, 16, 25, 32, 34, 37, 43, 46]
+    ATTENTION_SWITCHING_Q_NUMS = ", ".join(
+        str(q) for q in ATTENTION_SWITCHING_QUESTIONS
+    )
+
     ATTENTION_TO_DETAIL_QUESTIONS = [5, 6, 9, 12, 19, 23, 28, 29, 30, 49]
+    ATTENTION_TO_DETAIL_Q_NUMS = ", ".join(
+        str(q) for q in ATTENTION_TO_DETAIL_QUESTIONS
+    )
+
     COMMUNICATION_QUESTIONS = [7, 17, 18, 26, 27, 31, 33, 35, 38, 39]
+    COMMUNICATION_Q_NUMS = ", ".join(str(q) for q in COMMUNICATION_QUESTIONS)
+
     IMAGINATION_QUESTIONS = [3, 8, 14, 20, 21, 24, 40, 41, 42, 50]
+    IMAGINATION_Q_NUMS = ", ".join(str(q) for q in IMAGINATION_QUESTIONS)
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -233,12 +251,22 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
                     {total_score}
+                    {social_skill_score}
+                    {attention_switching_score}
+                    {attention_to_detail_score}
+                    {communication_score}
+                    {imagination_score}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
+                [1] Questions {social_skill_q_nums}.
+                [2] Questions {attention_switching_q_nums}.
+                [3] Questions {attention_to_detail_q_nums}.
+                [4] Questions {communication_q_nums}.
+                [5] Questions {imagination_q_nums}.
             </div>
         """.format(
             CssClass=CssClass,
@@ -247,6 +275,37 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
                 req.sstring(SS.TOTAL_SCORE),
                 answer(self.score()) + f" / {self.MAX_SCORE}",
             ),
+            social_skill_score=tr(
+                self.wxstring(req, "social_skill_score") + " <sup>[1]</sup>",
+                answer(self.social_skill_score())
+                + f" / {self.MAX_AREA_SCORE}",
+            ),
+            attention_switching_score=tr(
+                self.wxstring(req, "attention_switching_score")
+                + " <sup>[2]</sup>",
+                answer(self.attention_switching_score())
+                + f" / {self.MAX_AREA_SCORE}",
+            ),
+            attention_to_detail_score=tr(
+                self.wxstring(req, "attention_to_detail_score")
+                + " <sup>[3]</sup>",
+                answer(self.attention_to_detail_score())
+                + f" / {self.MAX_AREA_SCORE}",
+            ),
+            communication_score=tr(
+                self.wxstring(req, "communication_score") + " <sup>[4]</sup>",
+                answer(self.communication_score())
+                + f" / {self.MAX_AREA_SCORE}",
+            ),
+            imagination_score=tr(
+                self.wxstring(req, "imagination_score") + " <sup>[5]</sup>",
+                answer(self.imagination_score()) + f" / {self.MAX_AREA_SCORE}",
+            ),
+            social_skill_q_nums=self.SOCIAL_SKILL_Q_NUMS,
+            attention_switching_q_nums=self.ATTENTION_SWITCHING_Q_NUMS,
+            attention_to_detail_q_nums=self.ATTENTION_TO_DETAIL_Q_NUMS,
+            communication_q_nums=self.COMMUNICATION_Q_NUMS,
+            imagination_q_nums=self.IMAGINATION_Q_NUMS,
             rows=rows,
         )
         return html
@@ -256,7 +315,8 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         header_format = """
             <tr>
                 <th width="70%">Statement</th>
-                <th width="30%">Answer</th>
+                <th width="20%">Answer</th>
+                <th width="10%">Score</th>
             </tr>
         """
 
@@ -277,9 +337,12 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         for q_num in range(first_q, last_q + 1):
             field = prefix + str(q_num)
             question_cell = f"{q_num}. {self.xstring(req, field)}"
+            score = self.question_score(q_num)
 
-            rows += tr_qa(
-                question_cell, self.get_answer_cell(req, prefix, q_num)
+            rows += tr(
+                question_cell,
+                answer(self.get_answer_cell(req, prefix, q_num)),
+                score,
             )
 
         return rows
@@ -289,15 +352,8 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     ) -> Optional[str]:
         q_field = prefix + str(q_num)
 
-        score = getattr(self, q_field)
-        if score is None:
-            return score
+        response = getattr(self, q_field)
+        if response is None:
+            return response
 
-        meaning = self.get_score_meaning(req, score)
-
-        answer_cell = f"{score} [{meaning}]"
-
-        return answer_cell
-
-    def get_score_meaning(self, req: CamcopsRequest, score: int) -> str:
-        return self.wxstring(req, f"option_{score}")
+        return self.wxstring(req, f"option_{response}")
