@@ -67,5 +67,10 @@
     <string name="option_3">definitely disagree</string>
 
     <string name="score">Score</string>
+    <string name="social_skill_score">Social skill</string>
+    <string name="attention_switching_score">Attention switching</string>
+    <string name="attention_to_detail_score">Attention to detail</string>
+    <string name="communication_score">Communication</string>
+    <string name="imagination_score">Imagination</string>
   </task>
 </resources>

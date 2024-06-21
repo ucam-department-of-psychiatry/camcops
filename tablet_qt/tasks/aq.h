@@ -53,11 +53,20 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QVariant score() const;
+    QVariant socialSkillScore() const;
+    QVariant attentionSwitchingScore() const;
+    QVariant attentionToDetailScore() const;
+    QVariant communicationScore() const;
+    QVariant imaginationScore() const;
 public:
     static const QString AQ_TABLENAME;
 protected:
     QStringList fieldNames() const;
 private:
-    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, NameValueOptions *options);
+    QuMcqGrid* buildGrid(int first_qnum, int last_qnum, NameValueOptions *options);
     NameValueOptions* buildOptions() const;
+    QVariant questionsScore(const QVector<int> qnums) const;
+    QVariant questionScore(const int qnum) const;
+    bool agreeScored(const int qnum, const int answer) const;
+    bool disagreeScored(const int qnum, const int answer) const;
 };

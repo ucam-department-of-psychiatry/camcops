@@ -39,6 +39,42 @@ const int FIRST_OPTION = 0;
 const int LAST_OPTION = 3;
 const int MIN_SCORE = 0;
 const int MAX_SCORE = 50;
+const int MIN_AREA_SCORE = 0;
+const int MAX_AREA_SCORE = 10;
+
+const QVector<int> AGREE_OPTIONS = {0, 1};
+const QVector<int> AGREE_SCORING_QUESTIONS = {
+    2,
+    4,
+    5,
+    6,
+    7,
+    9,
+    12,
+    13,
+    16,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    26,
+    33,
+    35,
+    39,
+    41,
+    42,
+    43,
+    45,
+    46,
+};
+
+const QVector<int> SOCIAL_SKILL_QUESTIONS = {1, 11, 13, 15, 22, 36, 44, 45, 47, 48};
+const QVector<int> ATTENTION_SWITCHING_QUESTIONS = {2, 4, 10, 16, 25, 32, 34, 37, 43, 46};
+const QVector<int> ATTENTION_TO_DETAIL_QUESTIONS = {5, 6, 9, 12, 19, 23, 28, 29, 30, 49};
+const QVector<int> COMMUNICATION_QUESTIONS = {7, 17, 18, 26, 27, 31, 33, 35, 38, 39};
+const QVector<int> IMAGINATION_QUESTIONS = {3, 8, 14, 20, 21, 24, 40, 41, 42, 50};
 
 const QString Q_PREFIX("q");
 const QString Aq::AQ_TABLENAME("aq");
@@ -107,54 +143,81 @@ bool Aq::isComplete() const
 
 QVariant Aq::score() const
 {
+    QVector<int> all_questions(LAST_Q);
+    std::iota(all_questions.begin(), all_questions.end(), FIRST_Q);
+
+    return questionsScore(all_questions);
+}
+
+
+QVariant Aq::socialSkillScore() const
+{
+    return questionsScore(SOCIAL_SKILL_QUESTIONS);
+}
+
+
+QVariant Aq::attentionSwitchingScore() const
+{
+    return questionsScore(ATTENTION_SWITCHING_QUESTIONS);
+}
+
+
+QVariant Aq::attentionToDetailScore() const
+{
+    return questionsScore(ATTENTION_TO_DETAIL_QUESTIONS);
+}
+
+
+QVariant Aq::communicationScore() const
+{
+    return questionsScore(COMMUNICATION_QUESTIONS);
+}
+
+
+QVariant Aq::imaginationScore() const
+{
+    return questionsScore(IMAGINATION_QUESTIONS);
+}
+
+
+QVariant Aq::questionsScore(const QVector<int> qnums) const
+{
     if (!isComplete()) {
         return QVariant();
     }
 
-    const QVector<int> agree_options = {0, 1};
-    const QVector<int> agree_scoring_questions = {
-        2,
-        4,
-        5,
-        6,
-        7,
-        9,
-        12,
-        13,
-        16,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        26,
-        33,
-        35,
-        39,
-        41,
-        42,
-        43,
-        45,
-        46,
-    };
-
     int total = 0;
 
-    for (int qnum = FIRST_Q; qnum < LAST_Q; ++qnum) {
-        const QString& fieldname = Q_PREFIX + QString::number(qnum);
-        const int answer = valueInt(fieldname);
-        const bool agree_scored = agree_scoring_questions.contains(qnum) &&
-            agree_options.contains(answer);
-        const bool disagree_scored = !agree_scoring_questions.contains(qnum) &&
-            !agree_options.contains(answer);
-
-        if (agree_scored or disagree_scored) {
-            total++;
-        }
+    for (int qnum: qnums) {
+        total += questionScore(qnum).toInt();
     }
 
     return total;
+}
+
+
+QVariant Aq::questionScore(const int qnum) const
+{
+    const QString& fieldname = Q_PREFIX + QString::number(qnum);
+    const int answer = valueInt(fieldname);
+
+    if (agreeScored(qnum, answer) or disagreeScored(qnum, answer)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+bool Aq::agreeScored(const int qnum, const int answer) const
+{
+    return AGREE_SCORING_QUESTIONS.contains(qnum) && AGREE_OPTIONS.contains(answer);
+}
+
+
+bool Aq::disagreeScored(const int qnum, const int answer) const
+{
+    return !AGREE_SCORING_QUESTIONS.contains(qnum) && !AGREE_OPTIONS.contains(answer);
 }
 
 
@@ -168,7 +231,13 @@ QStringList Aq::summary() const
                     QString::number(min),
                     QString::number(max));
     };
+
     return QStringList{
+        rangeScore(xstring("social_skill_score"), socialSkillScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
+        rangeScore(xstring("attention_switching_score"), attentionSwitchingScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
+        rangeScore(xstring("attention_to_detail_score"), attentionToDetailScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
+        rangeScore(xstring("communication_score"), communicationScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
+        rangeScore(xstring("imagination_score"), imaginationScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
         rangeScore(xstring("score"), score(), MIN_SCORE, MAX_SCORE),
     };
 }
