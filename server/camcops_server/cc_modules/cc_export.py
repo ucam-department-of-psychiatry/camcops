@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_export.py
@@ -994,7 +992,7 @@ class TaskCollectionExporter(object):
             a
             :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetCollection`
             object
-        """  # noqa
+        """
         audit_descriptions = []  # type: List[str]
         options = self.options
         if options.spreadsheet_simplified:
@@ -1248,7 +1246,7 @@ class SqliteExporter(TaskCollectionExporter):
                 # SQL text
                 connection = sqlite3.connect(
                     db_filename
-                )  # type: sqlite3.Connection  # noqa
+                )  # type: sqlite3.Connection
                 sql_text = sql_from_sqlite_database(connection)
                 connection.close()
                 return sql_text
@@ -1306,7 +1304,7 @@ class SqlExporter(SqliteExporter):
 DOWNLOADER_CLASSES = {}  # type: Dict[str, Type[TaskCollectionExporter]]
 for _cls in gen_all_subclasses(
     TaskCollectionExporter
-):  # type: Type[TaskCollectionExporter]  # noqa
+):  # type: Type[TaskCollectionExporter]
     # noinspection PyTypeChecker
     DOWNLOADER_CLASSES[_cls.viewtype] = _cls
 
@@ -1464,7 +1462,7 @@ class UserDownloadFile(object):
 
         (Creation time is harder! See
         https://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python.)
-        """  # noqa
+        """
         if not self.exists:
             return None
         # noinspection PyTypeChecker

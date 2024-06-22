@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/alembic/versions/0045_das28_esr_crp_floating_point.py
 
@@ -57,6 +55,7 @@ depends_on = None
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():

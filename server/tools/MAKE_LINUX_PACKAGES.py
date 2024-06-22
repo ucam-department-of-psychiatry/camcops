@@ -801,7 +801,7 @@ def get_override() -> str:
 # If we did want to close a new-package ITP bug:
 # https://www.debian.org/doc/manuals/developers-reference/pkgs.html#upload-bugfix
 {PACKAGE} binary: new-package-should-close-itp-bug
-    """.format(  # noqa
+    """.format(
         PACKAGE=PACKAGE_DEB_NAME
     )
 

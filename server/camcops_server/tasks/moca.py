@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/moca.py
 
@@ -218,13 +216,13 @@ class Moca(
 
     trailpicture = blob_relationship(
         "Moca", "trailpicture_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
     cubepicture = blob_relationship(
         "Moca", "cubepicture_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
     clockpicture = blob_relationship(
         "Moca", "clockpicture_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
 
     NQUESTIONS = 28
     MAX_SCORE = 30

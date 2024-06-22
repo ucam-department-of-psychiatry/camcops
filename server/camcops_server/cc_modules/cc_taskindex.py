@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_taskindex.py
 
@@ -367,9 +365,9 @@ class PatientIdNumIndexEntry(Base):
                 and_(
                     PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
                     PatientIdNum.which_idnum
-                    == PatientIdNumIndexEntry.which_idnum,  # noqa
+                    == PatientIdNumIndexEntry.which_idnum,
                     PatientIdNum.idnum_value
-                    == PatientIdNumIndexEntry.idnum_value,  # noqa
+                    == PatientIdNumIndexEntry.idnum_value,
                 )
             ),
         )
@@ -464,7 +462,7 @@ class PatientIdNumIndexEntry(Base):
                                 patienttable,
                                 and_(
                                     idnumcols._device_id
-                                    == patientcols._device_id,  # noqa
+                                    == patientcols._device_id,
                                     idnumcols._era == patientcols._era,
                                     idnumcols.patient_id == patientcols.id,
                                 ),

@@ -218,7 +218,7 @@ class Task():
         ))
 
 
-"""  # noqa
+"""
 
 import datetime
 import dateutil.parser

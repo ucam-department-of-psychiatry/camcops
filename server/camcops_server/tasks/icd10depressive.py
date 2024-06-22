@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/icd10depressive.py
 
@@ -193,7 +191,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Weight loss (5 percent or more of body weight in the past "
-        "month)"
+        "month)",
         # 2017-08-24: AVOID A PERCENT SYMBOL (%) FOR NOW; SEE THIS BUG:
         # https://bitbucket.org/zzzeek/sqlalchemy/issues/4052/comment-attribute-causes-crash-during  # noqa
     )

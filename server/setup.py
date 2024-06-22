@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 setup.py
 
@@ -112,7 +110,7 @@ INSTALL_REQUIRES = [
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
     "pytest==7.2.0",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
-    "requests==2.32.0",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
+    "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.10.1",  # used by some tasks. slow installation.
@@ -120,7 +118,7 @@ INSTALL_REQUIRES = [
     "sqlalchemy==1.4.49",  # database access
     "statsmodels==0.13.5",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
-    "urllib3==1.26.18",  # dependency, pinned to avoid vulnerabilities
+    "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
     # Not installed here

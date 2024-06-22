@@ -681,11 +681,9 @@ def main() -> None:
     )
     android_res_dir = join(
         args.base_dir, "working", "dummy_image_android_res_dir"
-    )  # !!! # noqa
+    )  # !!!
     android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
-    ios_dir = join(
-        args.base_dir, "working", "dummy_image_ios_dir"
-    )  # !!! # noqa
+    ios_dir = join(args.base_dir, "working", "dummy_image_ios_dir")  # !!!
     windows_dir = join(args.base_dir, "tablet_qt", "windows")
 
     server_static_dir = join(args.base_dir, "server", "static")
@@ -929,7 +927,7 @@ def main() -> None:
             "research",
             "unlocked",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "speaker_playing",
@@ -966,7 +964,7 @@ def main() -> None:
             "check_unselected_required",
             "ok",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "check_true_black",
@@ -975,11 +973,11 @@ def main() -> None:
             "radio_unselected_required",
             "finish",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "check_false_black", None, "personality", "stop", "zoom", "magnify"
-        ),  # noqa
+        ),
         none_row,
         row(
             "check_false_red",
@@ -988,7 +986,7 @@ def main() -> None:
             "field_problem",
             "privileged",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "sets_research",
@@ -997,7 +995,7 @@ def main() -> None:
             "warning",
             "time_now",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "reload",
@@ -1006,7 +1004,7 @@ def main() -> None:
             None,
             "rotate_anticlockwise",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "choose_page",
@@ -1015,7 +1013,7 @@ def main() -> None:
             "field_incomplete_optional",
             "chain",
             "whisker",
-        ),  # noqa
+        ),
         none_row,
         row(
             "fast_forward",
@@ -1024,7 +1022,7 @@ def main() -> None:
             "radio_disabled",
             None,
             None,
-        ),  # noqa
+        ),
         none_row,
     ]
 

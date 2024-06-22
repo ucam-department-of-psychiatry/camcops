@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_client_api_core.py
 
@@ -603,7 +601,7 @@ class UploadTableChanges(object):
         Args:
             urr: a :class:`UploadRecordResult`
             preserving_new_records: are new records being preserved?
-        """  # noqa
+        """
         self.note_addition_pks(urr.addition_pks)
         self.note_removal_modified_pks(urr.removal_modified_pks)
         if preserving_new_records:

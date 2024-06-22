@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # camcops_server/tasks/factg.py
 
 """

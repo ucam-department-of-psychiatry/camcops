@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_patientidnum.py
 
@@ -174,7 +172,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         For :meth:`__hash__` and :meth:`__eq__`, as per
         https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
-        """  # noqa
+        """
         return self.which_idnum, self.idnum_value
 
     def __hash__(self) -> int:
@@ -183,7 +181,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
         See also
         https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
-        """  # noqa
+        """
         return hash(self.__members())
 
     def __eq__(self, other: "PatientIdNum") -> bool:

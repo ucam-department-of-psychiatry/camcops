@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_config.py
@@ -1940,7 +1938,7 @@ class CamcopsConfig(object):
         Returns:
             list: of
             :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
-        """  # noqa
+        """
         return self._export_recipients
 
     # -------------------------------------------------------------------------

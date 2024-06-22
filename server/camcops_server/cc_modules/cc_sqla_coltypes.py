@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_sqla_coltypes.py
 
@@ -166,11 +164,11 @@ from camcops_server.cc_modules.cc_sqlalchemy import (
 from camcops_server.cc_modules.cc_version import make_version
 
 if TYPE_CHECKING:
-    from sqlalchemy.sql.elements import ClauseElement  # noqa: F401
-    from sqlalchemy.sql.compiler import SQLCompiler  # noqa: F401
+    from sqlalchemy.sql.elements import ClauseElement
+    from sqlalchemy.sql.compiler import SQLCompiler
     from camcops_server.cc_modules.cc_db import (
         GenericTabletRecordMixin,
-    )  # noqa: F401
+    )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -209,7 +207,7 @@ class RelationshipInfo(object):
     Used as keys the ``info`` (user-defined) dictionary parameter to SQLAlchemy
     ``relationship`` calls; see
     https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship.
-    """  # noqa
+    """
 
     IS_ANCILLARY = "is_ancillary"
     IS_BLOB = "is_blob"
@@ -382,7 +380,7 @@ def isotzdatetime_to_utcdatetime_mysql(
 
     Things after ``func.`` get passed to the database engine as literal SQL
     functions; https://docs.sqlalchemy.org/en/latest/core/tutorial.html
-    """  # noqa
+    """
     x = fetch_processed_single_clause(element, compiler)
 
     # Let's do this in a clear way:
@@ -1514,14 +1512,14 @@ class CamcopsColumn(Column):
 
         See
         https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
-        """  # noqa
+        """
         kwargs["include_in_anon_staging_db"] = self.include_in_anon_staging_db
         kwargs["exempt_from_anonymisation"] = self.exempt_from_anonymisation
         kwargs["identifies_patient"] = self.identifies_patient
         kwargs["is_blob_id_field"] = self.is_blob_id_field
-        kwargs[
-            "blob_relationship_attr_name"
-        ] = self.blob_relationship_attr_name  # noqa
+        kwargs["blob_relationship_attr_name"] = (
+            self.blob_relationship_attr_name
+        )
         kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = self.permitted_value_checker
         # noinspection PyTypeChecker
         return self.__class__(*args, **kwargs)

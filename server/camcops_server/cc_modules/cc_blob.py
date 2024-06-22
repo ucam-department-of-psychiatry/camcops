@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_blob.py
 
@@ -65,9 +63,9 @@ from camcops_server.cc_modules.cc_xml import get_xml_blob_element, XmlElement
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import (
-        CamcopsRequest,  # noqa: F401
+        CamcopsRequest,
     )
-    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

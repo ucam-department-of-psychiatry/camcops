@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/alembic/versions/0038_bmi_waist.py
 
@@ -56,6 +54,7 @@ depends_on = None
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():

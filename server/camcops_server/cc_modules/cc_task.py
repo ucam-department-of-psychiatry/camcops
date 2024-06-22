@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_task.py
 
@@ -218,24 +216,24 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F401
-    from camcops_server.cc_modules.cc_exportrecipient import (  # noqa: F401
+    from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
+    from camcops_server.cc_modules.cc_exportrecipient import (
         ExportRecipient,
     )
-    from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
-    from camcops_server.cc_modules.cc_patientidnum import (  # noqa: F401
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_patientidnum import (
         PatientIdNum,
     )
-    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+    from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
     )
-    from camcops_server.cc_modules.cc_snomed import (  # noqa: F401
+    from camcops_server.cc_modules.cc_snomed import (
         SnomedExpression,
     )
-    from camcops_server.cc_modules.cc_trackerhelpers import (  # noqa: F401
+    from camcops_server.cc_modules.cc_trackerhelpers import (
         TrackerInfo,
     )
-    from camcops_server.cc_modules.cc_spreadsheet import (  # noqa: F401
+    from camcops_server.cc_modules.cc_spreadsheet import (
         SpreadsheetPage,
     )
 
@@ -669,10 +667,10 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     extrastring_taskname = (
         None
-    )  # type: str  # if None, tablename is used instead  # noqa
+    )  # type: str  # if None, tablename is used instead
     info_filename_stem = (
         None
-    )  # type: str  # if None, tablename is used instead  # noqa
+    )  # type: str  # if None, tablename is used instead
     provides_trackers = False
     use_landscape_for_pdf = False
     dependent_classes = []
@@ -737,7 +735,7 @@ class Task(GenericTabletRecordMixin, Base):
         :meth:`camcops_server.cc_modules.cc_tracker.Tracker.get_all_plots_for_one_task_html`.
 
         Time information will be retrieved using :func:`get_creation_datetime`.
-        """  # noqa
+        """
         return []
 
     # -------------------------------------------------------------------------
@@ -859,7 +857,7 @@ class Task(GenericTabletRecordMixin, Base):
         being actual tasks; we discriminate using ``__abstract__`` and/or
         ``__tablename__``. See
         https://docs.sqlalchemy.org/en/latest/orm/inheritance.html#abstract-concrete-classes
-        """  # noqa
+        """
         # noinspection PyTypeChecker
         return gen_orm_classes_from_base(cls)
 
@@ -1580,7 +1578,7 @@ class Task(GenericTabletRecordMixin, Base):
                 making the FHIR output smaller and more legible for debugging.
                 However, if the task offers no other content, this will raise
                 :exc:`FhirExportException`.
-        """  # noqa
+        """
         bundle_entries = []  # type: List[Dict]
 
         # Patient (0 or 1)
@@ -2312,7 +2310,7 @@ class Task(GenericTabletRecordMixin, Base):
             ):
                 pvc = getattr(
                     column, COLATTR_PERMITTED_VALUE_CHECKER
-                )  # type: PermittedValueChecker  # noqa
+                )  # type: PermittedValueChecker
                 if pvc is not None:
                     pv = pvc.permitted_values_inc_minmax()
                     if pv:
@@ -2526,9 +2524,7 @@ class Task(GenericTabletRecordMixin, Base):
         # 3. +/- Ancillary objects
         for (
             ancillary
-        ) in (
-            self.gen_ancillary_instances()
-        ):  # type: GenericTabletRecordMixin  # noqa
+        ) in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin
             page = ancillary._get_core_spreadsheet_page(req)
             pages.append(page)
 
@@ -2565,9 +2561,7 @@ class Task(GenericTabletRecordMixin, Base):
         # 3. Ancillary objects
         for (
             ancillary
-        ) in (
-            self.gen_ancillary_instances()
-        ):  # type: GenericTabletRecordMixin  # noqa
+        ) in self.gen_ancillary_instances():  # type: GenericTabletRecordMixin
             items.update(ancillary._get_core_spreadsheet_schema())
 
         # 4. Extra summary tables
@@ -2726,11 +2720,11 @@ class Task(GenericTabletRecordMixin, Base):
                 if rel_prop.uselist:
                     ancillaries = getattr(
                         self, attrname
-                    )  # type: List[GenericTabletRecordMixin]  # noqa
+                    )  # type: List[GenericTabletRecordMixin]
                 else:
                     ancillaries = [
                         getattr(self, attrname)
-                    ]  # type: List[GenericTabletRecordMixin]  # noqa
+                    ]  # type: List[GenericTabletRecordMixin]
                 for ancillary in ancillaries:
                     itembranches.append(
                         ancillary._get_xml_root(
@@ -3035,7 +3029,7 @@ class Task(GenericTabletRecordMixin, Base):
           - see
             :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskFileGroup.export_task`
 
-        """  # noqa
+        """
 
         try:
             client_id = self.patient.get_idnum_value(which_idnum)
@@ -3565,7 +3559,7 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     Used by
     :func:`camcops_server.cc_modules.client_api.all_tables_with_min_client_version`.
 
-    """  # noqa
+    """
     d = {}  # type: Dict[str, Version]
     classes = list(Task.gen_all_subclasses())
     for cls in classes:

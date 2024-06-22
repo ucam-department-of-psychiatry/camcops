@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 """
-camcops_server/alembic/versions/0084.py
+camcops_server/alembic/versions/0084_compulsive_exercise_test_cet.py
 
 ===============================================================================
 
