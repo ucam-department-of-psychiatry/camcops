@@ -27,7 +27,7 @@ camcops_server/tasks/aq.py
 
 """
 
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, Dict, Iterable, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -211,7 +211,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     def imagination_score(self) -> Optional[int]:
         return self.questions_score(self.IMAGINATION_QUESTIONS)
 
-    def questions_score(self, q_nums: List[int]) -> Optional[int]:
+    def questions_score(self, q_nums: Iterable[int]) -> Optional[int]:
         total = 0
 
         for q_num in q_nums:
