@@ -19,6 +19,7 @@
 */
 
 #include "aq.h"
+
 #include "db/databaseobject.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
@@ -44,41 +45,23 @@ const int MAX_AREA_SCORE = 10;
 
 const QVector<int> AGREE_OPTIONS = {0, 1};
 const QVector<int> AGREE_SCORING_QUESTIONS = {
-    2,
-    4,
-    5,
-    6,
-    7,
-    9,
-    12,
-    13,
-    16,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    26,
-    33,
-    35,
-    39,
-    41,
-    42,
-    43,
-    45,
-    46,
+    2,  4,  5,  6,  7,  9,  12, 13, 16, 18, 19, 20,
+    21, 22, 23, 26, 33, 35, 39, 41, 42, 43, 45, 46,
 };
 
-const QVector<int> SOCIAL_SKILL_QUESTIONS = {1, 11, 13, 15, 22, 36, 44, 45, 47, 48};
-const QVector<int> ATTENTION_SWITCHING_QUESTIONS = {2, 4, 10, 16, 25, 32, 34, 37, 43, 46};
-const QVector<int> ATTENTION_TO_DETAIL_QUESTIONS = {5, 6, 9, 12, 19, 23, 28, 29, 30, 49};
-const QVector<int> COMMUNICATION_QUESTIONS = {7, 17, 18, 26, 27, 31, 33, 35, 38, 39};
-const QVector<int> IMAGINATION_QUESTIONS = {3, 8, 14, 20, 21, 24, 40, 41, 42, 50};
+const QVector<int> SOCIAL_SKILL_QUESTIONS
+    = {1, 11, 13, 15, 22, 36, 44, 45, 47, 48};
+const QVector<int> ATTENTION_SWITCHING_QUESTIONS
+    = {2, 4, 10, 16, 25, 32, 34, 37, 43, 46};
+const QVector<int> ATTENTION_TO_DETAIL_QUESTIONS
+    = {5, 6, 9, 12, 19, 23, 28, 29, 30, 49};
+const QVector<int> COMMUNICATION_QUESTIONS
+    = {7, 17, 18, 26, 27, 31, 33, 35, 38, 39};
+const QVector<int> IMAGINATION_QUESTIONS
+    = {3, 8, 14, 20, 21, 24, 40, 41, 42, 50};
 
 const QString Q_PREFIX("q");
 const QString Aq::AQ_TABLENAME("aq");
-
 
 void initializeAq(TaskFactory& factory)
 {
@@ -93,7 +76,6 @@ Aq::Aq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -103,12 +85,10 @@ QString Aq::shortname() const
     return "AQ";
 }
 
-
 QString Aq::longname() const
 {
     return tr("The Adult Autism Spectrum Quotient");
 }
-
 
 QString Aq::description() const
 {
@@ -117,7 +97,6 @@ QString Aq::description() const
         "adults and adolescents aged 16 years and over."
     );
 }
-
 
 QStringList Aq::fieldNames() const
 {
@@ -140,7 +119,6 @@ bool Aq::isComplete() const
     return true;
 }
 
-
 QVariant Aq::score() const
 {
     QVector<int> all_questions(LAST_Q);
@@ -149,36 +127,30 @@ QVariant Aq::score() const
     return questionsScore(all_questions);
 }
 
-
 QVariant Aq::socialSkillScore() const
 {
     return questionsScore(SOCIAL_SKILL_QUESTIONS);
 }
-
 
 QVariant Aq::attentionSwitchingScore() const
 {
     return questionsScore(ATTENTION_SWITCHING_QUESTIONS);
 }
 
-
 QVariant Aq::attentionToDetailScore() const
 {
     return questionsScore(ATTENTION_TO_DETAIL_QUESTIONS);
 }
-
 
 QVariant Aq::communicationScore() const
 {
     return questionsScore(COMMUNICATION_QUESTIONS);
 }
 
-
 QVariant Aq::imaginationScore() const
 {
     return questionsScore(IMAGINATION_QUESTIONS);
 }
-
 
 QVariant Aq::questionsScore(const QVector<int> qnums) const
 {
@@ -188,13 +160,12 @@ QVariant Aq::questionsScore(const QVector<int> qnums) const
 
     int total = 0;
 
-    for (int qnum: qnums) {
+    for (int qnum : qnums) {
         total += questionScore(qnum).toInt();
     }
 
     return total;
 }
-
 
 QVariant Aq::questionScore(const int qnum) const
 {
@@ -208,40 +179,67 @@ QVariant Aq::questionScore(const int qnum) const
     return 0;
 }
 
-
 bool Aq::agreeScored(const int qnum, const int answer) const
 {
-    return AGREE_SCORING_QUESTIONS.contains(qnum) && AGREE_OPTIONS.contains(answer);
+    return AGREE_SCORING_QUESTIONS.contains(qnum)
+        && AGREE_OPTIONS.contains(answer);
 }
-
 
 bool Aq::disagreeScored(const int qnum, const int answer) const
 {
-    return !AGREE_SCORING_QUESTIONS.contains(qnum) && !AGREE_OPTIONS.contains(answer);
+    return !AGREE_SCORING_QUESTIONS.contains(qnum)
+        && !AGREE_OPTIONS.contains(answer);
 }
-
 
 QStringList Aq::summary() const
 {
-    auto rangeScore = [](const QString& description, const QVariant score,
-                         const int min, const int max) {
-        return QString("%1: <b>%2</b> [%3–%4].").arg(
-                    description,
-                    convert::prettyValue(score),
-                    QString::number(min),
-                    QString::number(max));
+    auto rangeScore = [](const QString& description,
+                         const QVariant score,
+                         const int min,
+                         const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].")
+            .arg(
+                description,
+                convert::prettyValue(score),
+                QString::number(min),
+                QString::number(max)
+            );
     };
 
     return QStringList{
-        rangeScore(xstring("social_skill_score"), socialSkillScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
-        rangeScore(xstring("attention_switching_score"), attentionSwitchingScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
-        rangeScore(xstring("attention_to_detail_score"), attentionToDetailScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
-        rangeScore(xstring("communication_score"), communicationScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
-        rangeScore(xstring("imagination_score"), imaginationScore(), MIN_AREA_SCORE, MAX_AREA_SCORE),
+        rangeScore(
+            xstring("social_skill_score"),
+            socialSkillScore(),
+            MIN_AREA_SCORE,
+            MAX_AREA_SCORE
+        ),
+        rangeScore(
+            xstring("attention_switching_score"),
+            attentionSwitchingScore(),
+            MIN_AREA_SCORE,
+            MAX_AREA_SCORE
+        ),
+        rangeScore(
+            xstring("attention_to_detail_score"),
+            attentionToDetailScore(),
+            MIN_AREA_SCORE,
+            MAX_AREA_SCORE
+        ),
+        rangeScore(
+            xstring("communication_score"),
+            communicationScore(),
+            MIN_AREA_SCORE,
+            MAX_AREA_SCORE
+        ),
+        rangeScore(
+            xstring("imagination_score"),
+            imaginationScore(),
+            MIN_AREA_SCORE,
+            MAX_AREA_SCORE
+        ),
         rangeScore(xstring("score"), score(), MIN_SCORE, MAX_SCORE),
     };
 }
-
 
 QStringList Aq::detail() const
 {
@@ -258,9 +256,8 @@ QStringList Aq::detail() const
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
         lines.append(fieldSummaryNameValueOptions(
-                         fieldname, *options,
-                         altname, spacer, suffix)
-        );
+            fieldname, *options, altname, spacer, suffix
+        ));
     }
 
 
@@ -269,7 +266,6 @@ QStringList Aq::detail() const
 
     return lines;
 }
-
 
 OpenableWidget* Aq::editor(const bool read_only)
 {
@@ -280,8 +276,7 @@ OpenableWidget* Aq::editor(const bool read_only)
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto grid = buildGrid(FIRST_Q, LAST_Q, options);
-    grid->setMinimumWidthInPixels(min_width_px,
-                                  min_option_widths_px);
+    grid->setMinimumWidthInPixels(min_width_px, min_option_widths_px);
 
     QVector<QuElement*> elements{
         instructions,
@@ -297,7 +292,6 @@ OpenableWidget* Aq::editor(const bool read_only)
     return questionnaire;
 }
 
-
 NameValueOptions* Aq::buildOptions() const
 {
     NameValueOptions* options = new NameValueOptions();
@@ -311,9 +305,8 @@ NameValueOptions* Aq::buildOptions() const
     return options;
 }
 
-QuMcqGrid* Aq::buildGrid(int first_qnum,
-                         int last_qnum,
-                         NameValueOptions* options)
+QuMcqGrid*
+    Aq::buildGrid(int first_qnum, int last_qnum, NameValueOptions* options)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 
@@ -321,8 +314,9 @@ QuMcqGrid* Aq::buildGrid(int first_qnum,
         const QString& fieldname = Q_PREFIX + QString::number(qnum);
         const QString& description = xstring(fieldname);
 
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
 
     auto grid = new QuMcqGrid(q_field_pairs, *options);

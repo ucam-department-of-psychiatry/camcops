@@ -33,15 +33,23 @@ void initializeAq(TaskFactory& factory);
 class Aq : public Task
 {
     Q_OBJECT
+
 public:
-    Aq(CamcopsApp& app, DatabaseManager& db, int load_pk = dbconst::NONEXISTENT_PK);
+    Aq(CamcopsApp& app,
+       DatabaseManager& db,
+       int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool prohibitsCommercial() const override { return true; }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -58,12 +66,16 @@ public:
     QVariant attentionToDetailScore() const;
     QVariant communicationScore() const;
     QVariant imaginationScore() const;
+
 public:
     static const QString AQ_TABLENAME;
+
 protected:
     QStringList fieldNames() const;
+
 private:
-    QuMcqGrid* buildGrid(int first_qnum, int last_qnum, NameValueOptions *options);
+    QuMcqGrid*
+        buildGrid(int first_qnum, int last_qnum, NameValueOptions* options);
     NameValueOptions* buildOptions() const;
     QVariant questionsScore(const QVector<int> qnums) const;
     QVariant questionScore(const int qnum) const;
