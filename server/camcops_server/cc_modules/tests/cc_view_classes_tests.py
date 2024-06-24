@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_view_classes_tests.py
 
@@ -110,7 +108,7 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertEqual(
             self.req.camcops_session.form_state[
                 FormWizardMixin.PARAM_ROUTE_NAME
-            ],  # noqa
+            ],
             "test_route",
         )
 
@@ -160,7 +158,7 @@ class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertEqual(
             self.req.camcops_session.form_state[
                 FormWizardMixin.PARAM_ROUTE_NAME
-            ],  # noqa
+            ],
             "test_route",
         )
 

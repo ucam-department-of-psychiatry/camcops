@@ -395,7 +395,6 @@ cmake under Ubuntu
 
 """  # noqa
 
-
 import argparse
 import logging
 import multiprocessing
@@ -1180,7 +1179,7 @@ class Platform(object):
         clang, and/or pass ``-arch arm64`` to clang (the latter is more
         plausible to me); see
         https://github.com/tpoechtrager/cctools-port/issues/6.
-        """  # noqa
+        """
         if self.cpu_x86_64bit_family:
             return "x86_64"
         elif self.cpu_x86_32bit_family:
@@ -1264,7 +1263,7 @@ class Platform(object):
     def target_triplet(self) -> str:
         """
         https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
-        """  # noqa
+        """
         cpu = self.triplet_cpu
         vendor = self.triplet_vendor
         os_ = self.triplet_os
@@ -1490,7 +1489,7 @@ class Platform(object):
 
         See also
         https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
-        """  # noqa
+        """
         # See sqlcipher/config.sub, sqlcipher/config.guess
         # (You can run or source config.guess to see its answer.)
         return self.target_triplet
@@ -1540,10 +1539,10 @@ class Config(object):
         self.build_android_x86_64 = args.build_android_x86_64  # type: bool
         self.build_android_arm_v7_32 = (
             args.build_android_arm_v7_32
-        )  # type: bool  # noqa
+        )  # type: bool
         self.build_android_arm_v8_64 = (
             args.build_android_arm_v8_64
-        )  # type: bool  # noqa
+        )  # type: bool
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
         self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
@@ -1552,10 +1551,10 @@ class Config(object):
         self.build_ios_arm_v8_64 = args.build_ios_arm_v8_64  # type: bool
         self.build_ios_simulator_x86_32 = (
             args.build_ios_simulator_x86_32
-        )  # type: bool  # noqa
+        )  # type: bool
         self.build_ios_simulator_x86_64 = (
             args.build_ios_simulator_x86_64
-        )  # type: bool  # noqa
+        )  # type: bool
 
         if self.build_all:
             if BUILD_PLATFORM.linux:
@@ -1613,7 +1612,7 @@ class Config(object):
         self.qt_openssl_static = args.qt_openssl_static  # type: bool
         self.qt_src_gitdir = join(
             self.src_rootdir, args.qt_src_dirname
-        )  # type: str  # noqa
+        )  # type: str
         self.qt_host_path = args.qt_host_path
         self.qt_ccache = args.qt_ccache
         self.qt_gerrit_username = args.qt_gerrit_username
@@ -1629,7 +1628,7 @@ class Config(object):
         self.android_ndk_host = args.android_ndk_host  # type: str
         self.android_toolchain_version = (
             args.android_toolchain_version
-        )  # type: str  # noqa
+        )  # type: str
         self.android_api = f"android-{self.android_sdk_version}"
         # ... see $ANDROID_SDK_ROOT/platforms/
         self.android_ndk_platform = self.android_api
@@ -1668,7 +1667,7 @@ class Config(object):
         self.sqlcipher_git_commit = SQLCIPHER_GIT_COMMIT  # type: str
         self.sqlcipher_src_gitdir = join(
             self.src_rootdir, "sqlcipher"
-        )  # type: str  # noqa
+        )  # type: str
 
         # Eigen
         # Changed location from bitbucket:
@@ -1942,9 +1941,9 @@ class Config(object):
         env["ARCH"] = target_platform.android_arch_short
         env["CC"] = self.android_cc(target_platform)
         if use_cross_compile_var:
-            env[
-                "CROSS_COMPILE"
-            ] = target_platform.android_cross_compile_prefix(self)
+            env["CROSS_COMPILE"] = (
+                target_platform.android_cross_compile_prefix(self)
+            )
             # ... unnecessary as we are specifying AR, CC directly
         env["HOSTCC"] = BUILD_PLATFORM.gcc(
             fullpath=not use_cross_compile_var, cfg=self
@@ -2063,7 +2062,7 @@ class Config(object):
             raise ValueError(
                 "Don't know how to convert library: " + lib_a_fullpath
             )
-        libname = basename[len(libprefix) :]  # noqa: E203
+        libname = basename[len(libprefix) :]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
         compiler = self.android_cc(target_platform)
@@ -2275,7 +2274,7 @@ class Config(object):
         ]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
         sdk_name = latest_sdk[: -len(suffix)]  # remove the trailing ".sdk"
-        sdk_version = sdk_name[len(xcode_platform) :]  # noqa: E203
+        sdk_version = sdk_name[len(xcode_platform) :]
         # ... remove the leading prefix, e.g. "iPhoneOS"
         # log.debug("iOS SDK version: {!r}", sdk_version)
         return sdk_version
@@ -2791,7 +2790,7 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
             return [
                 "darwin64-x86_64-cc",
                 "no-asm",
-            ]  # unsure if "no-asm" required  # noqa
+            ]  # unsure if "no-asm" required
         elif target_platform.cpu_x86_32bit_family:  # iOS on 32-bit simulator
             return ["darwin-i386-cc"]
 
@@ -2886,7 +2885,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         for t in main_targets:
             dirname, basename = os.path.split(t)
             assert basename.startswith(libprefix)
-            shortbasename = basename[len(libprefix) :]  # noqa: E203
+            shortbasename = basename[len(libprefix) :]
             shadow_targets.append(join(dirname, shortbasename))
 
     if target_platform.android:
@@ -3450,7 +3449,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             "-android-ndk",
             cfg.android_ndk_root,
             "-android-ndk-platform",
-            cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
+            cfg.android_ndk_platform,  # https://wiki.qt.io/Android
             # "-android-ndk-host",
             # cfg.android_ndk_host,
             # Multiple ABIs are supported by Qt but not by us
@@ -4001,7 +4000,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             if not isfile(target_exe) or not isfile(target_o):
                 run(
                     [MAKE, "sqlite3" + target_platform.obj_ext], env
-                )  # for static linking  # noqa
+                )  # for static linking
             if want_exe and not isfile(target_exe):
                 run([MAKE, "sqlcipher"], env)  # the command-line executable
 
@@ -4365,22 +4364,22 @@ def master_builder(args) -> None:
 
     if (
         cfg.build_ios_arm_v7_32
-    ):  # for iOS (e.g. iPad) with 32-bit ARM processor  # noqa
+    ):  # for iOS (e.g. iPad) with 32-bit ARM processor
         build_for(Os.IOS, Cpu.ARM_V7_32)
 
     if (
         cfg.build_ios_arm_v8_64
-    ):  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
+    ):  # for iOS (e.g. iPad) with 64-bit ARM processor
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
     if (
         cfg.build_ios_simulator_x86_32
-    ):  # 32-bit iOS simulator under Intel macOS  # noqa
+    ):  # 32-bit iOS simulator under Intel macOS
         build_for(Os.IOS, Cpu.X86_32)
 
     if (
         cfg.build_ios_simulator_x86_64
-    ):  # 64-bit iOS simulator under Intel macOS  # noqa
+    ):  # 64-bit iOS simulator under Intel macOS
         build_for(Os.IOS, Cpu.X86_64)
 
     if not cfg.build_qt:
@@ -4730,7 +4729,7 @@ def main() -> None:
     )
     android.add_argument(
         "--android_toolchain_version",
-        default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,  # noqa
+        default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,
         help="Android toolchain version",
     )
     android.add_argument(

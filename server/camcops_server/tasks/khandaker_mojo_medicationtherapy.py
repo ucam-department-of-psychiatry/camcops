@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 
@@ -26,7 +24,6 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 ===============================================================================
 
 """
-
 
 from typing import List, Optional, Type, TYPE_CHECKING
 

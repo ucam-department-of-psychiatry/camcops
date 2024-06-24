@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_alembic.py
 
@@ -156,7 +154,7 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
 
     It also ASSUMES (as many things do) that importing ``.cc_all_models``
     imports all the models (or ``Base.metadata`` will be incomplete).
-    """  # noqa
+    """
     import_all_models()  # delayed, for command-line interfaces
 
     log.warning("Performing one-step database creation.")

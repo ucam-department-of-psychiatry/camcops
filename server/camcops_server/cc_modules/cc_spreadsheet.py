@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_spreadsheet.py
 
@@ -72,7 +70,7 @@ if ODS_VIA_PYEXCEL:
 
     ODSWriter = ODSSheet = None
 else:
-    from odswriter import ODSWriter, Sheet as ODSSheet  # noqa
+    from odswriter import ODSWriter, Sheet as ODSSheet
 
     pyexcel_ods3 = None
 

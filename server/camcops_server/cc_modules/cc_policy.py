@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_policy.py
 
@@ -453,7 +451,7 @@ class TokenizedPolicy(object):
         if name in POLICY_TOKEN_DICT:
             return POLICY_TOKEN_DICT[name]
         if name.startswith(TOKEN_IDNUM_PREFIX):
-            nstr = name[len(TOKEN_IDNUM_PREFIX) :]  # noqa: E203
+            nstr = name[len(TOKEN_IDNUM_PREFIX) :]
             try:
                 return int(nstr)
             except (TypeError, ValueError):
@@ -1159,7 +1157,7 @@ class TokenizedPolicy(object):
             return (
                 chunk_value,
                 subchunkend + 1,
-            )  # to move past the closing bracket  # noqa
+            )  # to move past the closing bracket
         elif token == TK_NOT:
             next_value, next_index = self._content_chunk_value(
                 tokens, start + 1, content_token_processor

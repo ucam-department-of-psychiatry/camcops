@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_db.py
 
@@ -97,15 +95,15 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
-    from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
+    from camcops_server.cc_modules.cc_blob import Blob
+    from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_request import (
-        CamcopsRequest,  # noqa: F401
+        CamcopsRequest,
     )
     from camcops_server.cc_modules.cc_summaryelement import (
-        SummaryElement,  # noqa: F401
+        SummaryElement,
     )
-    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -141,7 +139,7 @@ _MYSQLDB_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]  # f(s) -> o
 
 _PYMYSQL_ENCODER_DICT_TYPE = Dict[Type, Callable]
 _PYMYSQL_PYTHON_TO_DB_TYPE = Callable[
-    [Any, Optional[_PYMYSQL_ENCODER_DICT_TYPE]], _SQL_LITERAL_TYPE  # noqa
+    [Any, Optional[_PYMYSQL_ENCODER_DICT_TYPE]], _SQL_LITERAL_TYPE
 ]  # f(o, mapping) -> s
 _PYMYSQL_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]
 
@@ -214,22 +212,22 @@ def pymysql_crash_on_bad_conversion(
 if MySQLdb:
     log.debug("Hacking MySQLdb to support pendulum.DateTime")
     if CRASH_ON_BAD_CONVERSIONS:
-        MySQLdb.converters.conversions[
-            Pendulum
-        ] = mysqldb_crash_on_bad_conversion  # noqa
+        MySQLdb.converters.conversions[Pendulum] = (
+            mysqldb_crash_on_bad_conversion
+        )
     else:
-        MySQLdb.converters.conversions[
-            Pendulum
-        ] = MySQLdb.converters.DateTime2literal  # noqa
+        MySQLdb.converters.conversions[Pendulum] = (
+            MySQLdb.converters.DateTime2literal
+        )
 
 if pymysql:
     log.debug("Hacking pymysql to support pendulum.DateTime")
     if CRASH_ON_BAD_CONVERSIONS:
         pymysql.converters.encoders[Pendulum] = pymysql_crash_on_bad_conversion
     else:
-        pymysql.converters.encoders[
-            Pendulum
-        ] = pymysql.converters.escape_datetime  # noqa
+        pymysql.converters.encoders[Pendulum] = (
+            pymysql.converters.escape_datetime
+        )
     # And also, as per the source code and
     # https://stackoverflow.com/questions/59871904/convert-pymysql-query-result-with-mysql-decimal-type-to-python-float  # noqa
     pymysql.converters.conversions = pymysql.converters.encoders.copy()
@@ -415,6 +413,7 @@ REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS = {
 # =============================================================================
 # GenericTabletRecordMixin
 # =============================================================================
+
 
 # noinspection PyAttributeOutsideInit
 class GenericTabletRecordMixin(object):
@@ -1381,7 +1380,7 @@ class TaskDescendant(object):
         applies to :class:`camcops_server.cc_modules.cc_blob.Blob` and
         :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`),
         returns ``None``.
-        """  # noqa
+        """
         raise NotImplementedError
 
     @classmethod

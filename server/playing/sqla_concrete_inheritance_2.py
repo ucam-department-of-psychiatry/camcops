@@ -28,6 +28,7 @@ playing/sqla_concrete_inheritance_2.py
 **Test SQLAlchemy inheritance.**
 
 """
+
 # https://stackoverflow.com/questions/26724897/adjacency-list-abstract-base-class-inheritance-used-in-relationship
 
 from sqlalchemy import Column, String, Integer, create_engine, Float

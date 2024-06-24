@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_tracker.py
 
@@ -67,13 +65,13 @@ import matplotlib.dates  # delayed until after the cc_plot import
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
-    from camcops_server.cc_modules.cc_patientidnum import (  # noqa: F401
+    from camcops_server.cc_modules.cc_patientidnum import (
         PatientIdNum,
     )
-    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+    from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
     )
-    from camcops_server.cc_modules.cc_trackerhelpers import (  # noqa: F401
+    from camcops_server.cc_modules.cc_trackerhelpers import (
         TrackerInfo,
     )
 
@@ -602,18 +600,20 @@ class TrackerCtvCommon(object):
             req=self.req,
             patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
             patient_spec=cfg.patient_spec,
-            filename_spec=cfg.ctv_filename_spec
-            if self.as_ctv
-            else cfg.tracker_filename_spec,  # noqa
+            filename_spec=(
+                cfg.ctv_filename_spec
+                if self.as_ctv
+                else cfg.tracker_filename_spec
+            ),
             filetype=ViewArg.PDF,
             is_anonymous=self.patient is None,
             surname=self.patient.get_surname() if self.patient else "",
             forename=self.patient.get_forename() if self.patient else "",
             dob=self.patient.get_dob() if self.patient else None,
             sex=self.patient.get_sex() if self.patient else None,
-            idnum_objects=self.patient.get_idnum_objects()
-            if self.patient
-            else None,  # noqa
+            idnum_objects=(
+                self.patient.get_idnum_objects() if self.patient else None
+            ),
             creation_datetime=None,
             basetable=None,
             serverpk=None,

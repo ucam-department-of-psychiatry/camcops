@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/deakin_s1_healthreview.py
 

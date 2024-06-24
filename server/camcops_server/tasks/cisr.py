@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/cisr.py
 
@@ -583,7 +581,7 @@ class CisrQuestion(Enum):
     SLEEP_LOSE1_NIGHTS_PAST_WEEK = next_enum()
     SLEEP_LOSE2_DIS_WORST_DURATION = (
         next_enum()
-    )  # DIS = delayed initiation of sleep  # noqa
+    )  # DIS = delayed initiation of sleep
     SLEEP_LOSE3_NIGHTS_GT_3H_DIS_PAST_WEEK = next_enum()
     SLEEP_EMW_PAST_WEEK = next_enum()  # EMW = early-morning waking
     SLEEP_CAUSE = next_enum()
@@ -1045,9 +1043,9 @@ QUESTIONS_1_NO_2_YES = [
     CQ.SOMATIC_MAND1_PAIN_PAST_MONTH,
     CQ.SOMATIC_MAND2_DISCOMFORT,
     CQ.SOMATIC_PAIN3_GT_3H_ANY_DAY,
-    CQ.SOMATIC_PAIN5_INTERRUPTED_INTERESTING,  # also has other options  # noqa
+    CQ.SOMATIC_PAIN5_INTERRUPTED_INTERESTING,  # also has other options
     CQ.SOMATIC_DIS3_GT_3H_ANY_DAY,
-    CQ.SOMATIC_DIS5_INTERRUPTED_INTERESTING,  # also has other options  # noqa
+    CQ.SOMATIC_DIS5_INTERRUPTED_INTERESTING,  # also has other options
     CQ.FATIGUE_MAND1_TIRED_PAST_MONTH,
     CQ.FATIGUE_TIRED2_GT_3H_ANY_DAY,
     CQ.FATIGUE_TIRED3_HAD_TO_PUSH,
@@ -1314,7 +1312,7 @@ class CisrResult(object):
         # reactions to events or activities that normally produce an
         # emotional response".
         self.weight_change = (
-            WTCHANGE_NONE_OR_APPETITE_INCREASE  # WTCHANGE IN original  # noqa
+            WTCHANGE_NONE_OR_APPETITE_INCREASE  # WTCHANGE IN original
         )
         self.somatic_symptoms = 0  # SOMATIC in original
         self.fatigue = 0  # FATIGUE in original
@@ -1329,7 +1327,7 @@ class CisrResult(object):
         self.psychomotor_changes = PSYCHOMOTOR_NONE  # PSYCHMOT in original
         self.suicidality = (
             SUICIDE_INTENT_NONE
-        )  # type: int  # SUICID in original  # noqa
+        )  # type: int  # SUICID in original
         self.depression_at_least_2_weeks = False  # DEPR_DUR >= 2 in original
 
         self.hypochondria = 0  # HYPO in original
@@ -3503,7 +3501,7 @@ class Cisr(TaskHasPatientMixin, Task):
                 )
                 jump_to(
                     CQ.CONC4_FORGOTTEN_IMPORTANT
-                )  # skip CONC2, CONC3, CONC_DUR  # noqa
+                )  # skip CONC2, CONC3, CONC_DUR
 
         elif q == CQ.CONC2_CONC_FOR_TV_READING_CONVERSATION:
             if self.answer_is_no(q, v):
@@ -4939,9 +4937,11 @@ class Cisr(TaskHasPatientMixin, Task):
 
         is_complete = not result.incomplete
         is_complete_html_td = """{}<b>{}</b></td>""".format(
-            "<td>"
-            if is_complete
-            else f"""<td class="{CssClass.INCOMPLETE}">""",
+            (
+                "<td>"
+                if is_complete
+                else f"""<td class="{CssClass.INCOMPLETE}">"""
+            ),
             get_yes_no(req, is_complete),
         )
 

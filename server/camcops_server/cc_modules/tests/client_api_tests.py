@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/client_api_tests.py
 
@@ -94,7 +92,7 @@ def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
                 continue
             colon_pos = line.index(camcops_k_v_sep)
             key = line[:colon_pos]
-            value = line[colon_pos + len(camcops_k_v_sep) :]  # noqa: E203
+            value = line[colon_pos + len(camcops_k_v_sep) :]
             key = key.strip()
             value = value.strip()
             d[key] = value

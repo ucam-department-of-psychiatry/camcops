@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/alembic/versions/0002_cisr_2018_01_29.py
 
@@ -58,6 +56,7 @@ depends_on = None
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():

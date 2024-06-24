@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_sms.py
 
@@ -155,7 +153,7 @@ class TwilioSmsBackend(SmsBackend):
         )
         self.client = Client(
             username=self.config[self.PARAM_SID],
-            password=self.config[self.PARAM_TOKEN]
+            password=self.config[self.PARAM_TOKEN],
             # account_sid: defaults to username
         )
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_dump.py
 
@@ -204,7 +202,7 @@ class DumpController(object):
         tablenames_seen = set()  # type: Set[str]
         for cls in gen_orm_classes_from_base(
             GenericTabletRecordMixin
-        ):  # type: Type[GenericTabletRecordMixin]  # noqa
+        ):  # type: Type[GenericTabletRecordMixin]
             instance = cls()
             for table in self.gen_all_dest_tables_for_obj(instance):
                 if table.name in tablenames_seen:
@@ -405,7 +403,7 @@ class DumpController(object):
             add_extra_id_cols:
                 Add extra ID columns, for the ``DB_PATIENT_ID_PER_ROW``
                 export option?
-        """  # noqa
+        """
         tablename = est.tablename
         if tablename in self.dst_tables:
             return self.dst_tables[tablename]
@@ -434,7 +432,7 @@ class DumpController(object):
                 :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`;
                 those are handled instead by
                 :meth:`_get_or_insert_summary_table`.
-        """  # noqa
+        """
         # noinspection PyUnresolvedReferences
         src_table = src_obj.__table__  # type: Table
         tablename = src_table.name
@@ -547,7 +545,7 @@ class DumpController(object):
             add_extra_id_cols:
                 Add extra ID columns, for the ``DB_PATIENT_ID_PER_ROW``
                 export option?
-        """  # noqa
+        """
         tablename = est.tablename
         if tablename not in self.tablenames_created:
             table = self.get_dest_table_for_est(

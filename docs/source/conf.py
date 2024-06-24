@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 docs/source/conf.py
 
@@ -257,6 +255,7 @@ todo_include_todos = True
 # Setup function
 # -----------------------------------------------------------------------------
 
+
 # noinspection PyUnusedLocal
 def skip(
     app: Sphinx,
@@ -378,7 +377,7 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
         )  # type: Element
         top_node["classes"].append(
             css_class
-        )  # see deprecated Element.set_class  # noqa
+        )  # see deprecated Element.set_class
         top_node += parsed_nodes  # adds children to this_node; see Element
         return [top_node], []
 

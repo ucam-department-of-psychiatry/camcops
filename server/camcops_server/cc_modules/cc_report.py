@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_report.py
 
@@ -83,10 +81,10 @@ if TYPE_CHECKING:
         ReportParamForm,
         ReportParamSchema,
     )
-    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+    from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
     )
-    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

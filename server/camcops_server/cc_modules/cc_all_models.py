@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_all_models.py
 
@@ -122,7 +120,7 @@ from camcops_server.cc_modules.cc_user import (
 # We need something equivalent to "from tasks.phq9 import Phq9".
 
 # noinspection PyUnresolvedReferences
-from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401,F403
+from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401, F403
 
 # -----------------------------------------------------------------------------
 # Other report imports

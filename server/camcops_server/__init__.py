@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/__init__.py
 

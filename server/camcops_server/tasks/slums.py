@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/slums.py
 
@@ -243,10 +241,10 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     clockpicture = blob_relationship(
         "Slums", "clockpicture_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
     shapespicture = blob_relationship(
         "Slums", "shapespicture_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
 
     PREAMBLE_FIELDS = ["alert", "highschooleducation"]
     SCORED_FIELDS = [

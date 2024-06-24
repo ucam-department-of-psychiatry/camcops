@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/camcops_server_core.py
 
@@ -92,7 +90,7 @@ from camcops_server.cc_modules.cc_anon import (  # noqa: E402
 )
 
 # noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.client_api  # noqa: E402,F401
+import camcops_server.cc_modules.client_api  # noqa: E402, F401
 
 # ... import side effects (register unit test)
 
@@ -147,7 +145,7 @@ log.info("Imports complete")
 log.info("Using {} task types", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
-    from pyramid.router import Router  # noqa: F401
+    from pyramid.router import Router
     from camcops_server.cc_modules.cc_exportrecipientinfo import (
         ExportRecipientInfo,
     )
@@ -843,7 +841,7 @@ def show_database_schema(
         assert shutil.which(java), f"Can't find Java executable: {java}"
         assert os.path.isfile(
             plantuml
-        ), f"Can't find PlantUML JAR file: {plantuml}"  # noqa
+        ), f"Can't find PlantUML JAR file: {plantuml}"
         log.info(f"Making schema PNG: {png_filename}")
         cmd = [
             java,
@@ -955,7 +953,7 @@ def launch_celery_beat(
 
     (This can be combined with ``celery worker``, but that's not recommended;
     https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
-    """  # noqa: E501
+    """
     ensure_directories_exist()
     config = get_default_config_from_os_env()
     cmdargs = [
