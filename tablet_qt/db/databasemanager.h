@@ -361,7 +361,7 @@ public:
     bool pragmaCipherCompatibility(int sqlcipher_major_version);
 
     // Executes "PRAGMA cipher_migrate" to migrate from an older SQLCipher
-    // version
+    // version. Returns true if migration succeeded.
     bool pragmaCipherMigrate();
 
     // Executes "PRAGMA rekey" to change a database's password.

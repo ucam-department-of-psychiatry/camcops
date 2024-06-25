@@ -1137,10 +1137,8 @@ bool DatabaseManager::decrypt(const QString& passphrase)
     pragmaKey(passphrase);
 
     // ...and run PRAGMA cipher_migrate
-    pragmaCipherMigrate();
-
     // 3. Check the result of the update by retrieving the row value result.
-    if (canReadDatabase()) {
+    if (pragmaCipherMigrate()) {
         // 4. If the migration succeeds, a row with a single column value of 0
         //    is returned, the upgrade was successful and your application can
         //    continue to use the connection for the remainder of the
@@ -1184,8 +1182,18 @@ bool DatabaseManager::pragmaCipherCompatibility(
 bool DatabaseManager::pragmaCipherMigrate()
 {
     // "PRAGMA cipher_migrate" is specific to SQLCipher
-    const QString sql("PRAGMA cipher_migrate");
-    return exec(sql);
+    // If the migration succeeded, a row with a single column value of 0
+    // is returned. If the migration failed the PRAGMA will return a single
+    // non-zero column value. This may be because the key was incorrect or
+    // manual migration is required.
+    const QueryResult result = query("PRAGMA cipher_migrate");
+
+    const QVariant value = result.firstValue();
+    if (!value.isNull()) {
+        return value.toInt() == 0;
+    }
+
+    return false;
 }
 
 
