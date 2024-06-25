@@ -94,6 +94,11 @@ ImageMagick 6.9.7 crash (observed 2019-03-18)
     or similar (the "area" bit may be unimportant; the "memory" bit mattered),
     as per https://github.com/ImageMagick/ImageMagick/issues/396.
 
+    As of ImageMagick 6.9.11-60, the units for "area" are more clearly pixels,
+    not bytes; therefore can e.g. replace "128MP" with "1GP" here; see e.g.
+    - https://bugs.launchpad.net/ubuntu/+source/imagemagick/+bug/1910980
+    - https://www.imagemagick.org/source/policy-open.xml
+
 """
 
 import argparse
@@ -257,7 +262,7 @@ def crop_pdf(
         src_filename
     Image transformation:
         transparent: colour to change to transparent, as per
-            http://www.imagemagick.org/script/command-line-options.php#fill
+            https://www.imagemagick.org/script/command-line-options.php#fill
         img_lr } describe the image to be taken; e.g. (1/3, 2/3)
         img_tb }
     Destination:
@@ -672,6 +677,17 @@ def main() -> None:
         args.server = True
         args.tablet = True
         args.windows = True
+    if not any(
+        [
+            args.android,
+            args.googleplay,
+            args.ios,
+            args.server,
+            args.tablet,
+            args.windows,
+        ]
+    ):
+        log.warning("No options specified!")
     log.info("Using base directory: {}", args.base_dir)
 
     google_play_dir = join(args.base_dir, "working", "google_play_images")
@@ -953,7 +969,14 @@ def main() -> None:
             None,
         ),
         none_row,
-        row("radio_unselected", None, "affective", "clinical", "edit", None),
+        row(
+            "radio_unselected",
+            "neurodiversity",
+            "affective",
+            "clinical",
+            "edit",
+            None,
+        ),
         none_row,
         row("check_true_red", None, "addiction", "anonymous", "delete", None),
         none_row,
@@ -991,10 +1014,10 @@ def main() -> None:
         row(
             "sets_research",
             "sets_clinical",
-            "alltasks",
+            None,  # was "alltasks", but neurodiversity symbol too similar
             "warning",
             "time_now",
-            None,
+            "alltasks",  # as of 2024-06-25
         ),
         none_row,
         row(
@@ -1046,7 +1069,7 @@ def main() -> None:
             tilenum = 0
             for r in range(nrow):
                 for c in range(ncol):
-                    tilename = join(tmpdir, "tile-{}.png".format(tilenum))
+                    tilename = join(tmpdir, f"tile-{tilenum}.png")
                     propername = iconmap[r][c]
                     if propername is not None:
                         for destdir in all_tablet_icon_dirs:

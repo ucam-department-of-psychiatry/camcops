@@ -43,11 +43,13 @@ const int MAX_SCORE = 50;
 const int MIN_AREA_SCORE = 0;
 const int MAX_AREA_SCORE = 10;
 
-const QVector<int> AGREE_OPTIONS = {0, 1};
+const QVector<int> AGREE_OPTIONS = {0, 1};  // definitely agree, slightly agree
+const QVector<int> DISAGREE_OPTIONS = {2, 3};  // slightly disagree, definitely disagree
 const QVector<int> AGREE_SCORING_QUESTIONS = {
     2,  4,  5,  6,  7,  9,  12, 13, 16, 18, 19, 20,
     21, 22, 23, 26, 33, 35, 39, 41, 42, 43, 45, 46,
 };
+// ... see aq.py re error re Q1 in published Baron-Cohen et al. (2001).
 
 const QVector<int> SOCIAL_SKILL_QUESTIONS
     = {1, 11, 13, 15, 22, 36, 44, 45, 47, 48};
@@ -87,22 +89,20 @@ QString Aq::shortname() const
 
 QString Aq::longname() const
 {
-    return tr("The Adult Autism Spectrum Quotient");
+    return tr("Adult Autism Spectrum Quotient");
 }
 
 QString Aq::description() const
 {
     return tr(
-        "A 50 item self-report measure used to assess traits of autism in "
+        "A 50-item self-report measure used to assess traits of autism in "
         "adults and adolescents aged 16 years and over."
     );
 }
 
 QStringList Aq::fieldNames() const
 {
-    auto field_names = strseq(Q_PREFIX, FIRST_Q, LAST_Q);
-
-    return field_names;
+    return strseq(Q_PREFIX, FIRST_Q, LAST_Q);
 }
 
 // ============================================================================
@@ -154,14 +154,15 @@ QVariant Aq::imaginationScore() const
 
 QVariant Aq::questionsScore(const QVector<int> qnums) const
 {
-    if (!isComplete()) {
-        return QVariant();
-    }
-
     int total = 0;
+    QVariant v;
 
     for (int qnum : qnums) {
-        total += questionScore(qnum).toInt();
+        v = questionScore(qnum);
+        if (v.isNull()) {
+            return v;
+        }
+        total += v.toInt();
     }
 
     return total;
@@ -170,25 +171,33 @@ QVariant Aq::questionsScore(const QVector<int> qnums) const
 QVariant Aq::questionScore(const int qnum) const
 {
     const QString& fieldname = Q_PREFIX + QString::number(qnum);
-    const int answer = valueInt(fieldname);
-
-    if (agreeScored(qnum, answer) or disagreeScored(qnum, answer)) {
-        return 1;
+    const QVariant v = value(fieldname);
+    if (v.isNull()) {
+        return v;
     }
+    const int answer = v.toInt();
 
-    return 0;
-}
-
-bool Aq::agreeScored(const int qnum, const int answer) const
-{
-    return AGREE_SCORING_QUESTIONS.contains(qnum)
-        && AGREE_OPTIONS.contains(answer);
-}
-
-bool Aq::disagreeScored(const int qnum, const int answer) const
-{
-    return !AGREE_SCORING_QUESTIONS.contains(qnum)
-        && !AGREE_OPTIONS.contains(answer);
+    if (AGREE_SCORING_QUESTIONS.contains(qnum)) {
+        // Questions where agreement indicates autistic-like traits
+        if (AGREE_OPTIONS.contains(answer)) {
+            return 1;
+        } else if (DISAGREE_OPTIONS.contains(answer)) {
+            return 0;
+        } else {
+            // Shouldn't happen, but for defensiveness:
+            return QVariant();
+        }
+    } else {
+        // Questions where disagreement indicates autistic-like traits
+        if (AGREE_OPTIONS.contains(answer)) {
+            return 0;
+        } else if (DISAGREE_OPTIONS.contains(answer)) {
+            return 1;
+        } else {
+            // Shouldn't happen, but for defensiveness:
+            return QVariant();
+        }
+    }
 }
 
 QStringList Aq::summary() const

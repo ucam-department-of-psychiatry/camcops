@@ -710,6 +710,7 @@ SOURCES += \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
     menu/mainmenu.cpp \
+    menu/neurodiversitymenu.cpp \
     menu/patientsummarymenu.cpp \
     menu/personalitymenu.cpp \
     menu/physicalillnessmenu.cpp \
@@ -1208,6 +1209,7 @@ HEADERS += \
     menu/globalmenu.h \
     menu/helpmenu.h \
     menu/mainmenu.h \
+    menu/neurodiversitymenu.h \
     menu/patientsummarymenu.h \
     menu/personalitymenu.h \
     menu/physicalillnessmenu.h \

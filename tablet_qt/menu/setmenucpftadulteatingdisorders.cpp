@@ -25,6 +25,7 @@
 
 #include "taskchains/cpftadulteatingdisorderss3clinicalchain.h"
 #include "taskchains/cpftadulteatingdisorderscoiinanchain.h"
+#include "tasks/aq.h"
 #include "tasks/bmi.h"
 #include "tasks/cet.h"
 #include "tasks/chit.h"
@@ -77,6 +78,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         MAKE_TASK_MENU_ITEM(Paradise24::PARADISE24_TABLENAME, m_app),
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Aq::AQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cet::CET_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),

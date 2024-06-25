@@ -4,7 +4,7 @@
     <string name="title">The Adult Autism Spectrum Quotient (AQ)</string>
     <string name="subtitle">Ages 16+</string>
     <!-- Paper version:
-         - says "Below are a list..."
+         - says "Below are [sic] a list..."
          - adds "by circling your answer"
          - has "DO NOT MISS ANY STATEMENT OUT" below
     -->
@@ -26,6 +26,23 @@
     <string name="q14">I find making up stories easy.</string>
     <string name="q15">I find myself drawn more strongly to people than to things.</string>
     <string name="q16">I tend to have very strong interests which I get upset about if I can’t pursue.</string>
+    <!--
+      RNC, re Q16: A comma after "interests" is absent in the ARC's Word
+      version, but present in Baron-Cohen et al. (2001). Per e.g. Butterfield,
+      J. (2015) "Fowler's Dictionary of Modern English Usage", fourth edition,
+      under the entry for "that (relative pronoun)": "which" can be restrictive
+      (without comma) or non-restrictive (with comma), though many feel that
+      "that" is obligatory for restrictive clauses (thus preferring always: "X
+      that Y" for restrictive or "X, which Y" for non-restrictive). Here, a
+      restrictive meaning is likely intended (if one had strong interests but
+      did not get upset if one could not pursue them, one would likely answer
+      no); otherwise, the second half of the clause would be redundant.
+      Butterfield considers it grammatically correct, if more unusual, to have
+      a non-restrictive clause with "which", and we are not going to change the
+      text, of course, so we will follow the ARC's original version rather than
+      the Baron-Cohen et al. (2001) version (which was potentially copy-edited
+      thus by the journal). (References are in aq.rst.)
+    -->
     <string name="q17">I enjoy social chit-chat.</string>
     <string name="q18">When I talk, it isn’t always easy for others to get a word in edgeways.</string>
     <string name="q19">I am fascinated by numbers.</string>
@@ -59,6 +76,11 @@
     <string name="q47">I enjoy meeting new people.</string>
     <string name="q48">I am a good diplomat.</string>
     <string name="q49">I am not very good at remembering people’s date of birth.</string>
+    <!--
+        RNC, re Q49: Singular "date" contravenes grammatical agreement with
+        "people" (they do not all share one date of birth) but is in both the
+        ARC and the Baron-Cohen et al. (2001) published version.
+    -->
     <string name="q50">I find it very easy to play games with children that involve pretending.</string>
 
     <string name="option_0">definitely agree</string>

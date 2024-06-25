@@ -79,6 +79,4 @@ private:
     NameValueOptions* buildOptions() const;
     QVariant questionsScore(const QVector<int> qnums) const;
     QVariant questionScore(const int qnum) const;
-    bool agreeScored(const int qnum, const int answer) const;
-    bool disagreeScored(const int qnum, const int answer) const;
 };

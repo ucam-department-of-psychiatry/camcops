@@ -59,51 +59,61 @@ class AqMetaclass(DeclarativeMeta):
             maximum=3,
             comment_fmt=cls.PREFIX + "{n} - {s}",
             comment_strings=[
+                # 1-5:
                 "prefer doing things with others",
                 "prefer doing things the same way",
                 "can create picture in mind",
                 "get strongly absorbed in one thing",
                 "notice small sounds",
+                # 6-10:
                 "notice car number plates",
                 "what I’ve said is impolite",
                 "can imagine what story characters look like",
                 "fascinated by dates",
                 "can keep track of conversations",
+                # 11-15:
                 "find social situations easy",
                 "notice details",
                 "prefer library to party",
                 "find making up stories easy",
                 "drawn more strongly to people",
+                # 16-20:
                 "upset if can't pursue strong interests",
                 "enjoy chit-chat",
                 "not easy for others to get a word in edgeways",
                 "fascinated by numbers",
                 "can't work out story characters’ intentions",
+                # 21-25:
                 "don’t enjoy fiction",
                 "hard to make new friends",
                 "notice patterns",
                 "prefer theatre to museum",
                 "not upset if daily routine disturbed",
+                # 26-30:
                 "don't know how to keep conversation going",
                 "easy to read between the lines",
                 "concentrate more on whole picture",
                 "can't remember phone numbers",
                 "don’t notice small changes",
+                # 31-35:
                 "can tell if person listening is bored",
                 "easy to do more than one thing",
                 "not sure when to speak on phone",
                 "enjoy doing things spontaneously",
                 "last to understand joke",
+                # 36-40:
                 "can work out thinking or feeling from face",
                 "can switch back after interruption",
                 "good at chit-chat",
                 "keep going on and on about the same thing",
                 "used to enjoy pretending games with other children",
+                # 41-45:
                 "like to collect information about categories of things",
                 "difficult to imagine being someone else",
                 "like to plan activities carefully",
                 "enjoy social occasions",
                 "difficult to work out people’s intentions",
+                # 46-50:
                 "new situations make me anxious",
                 "enjoy meeting new people",
                 "am a good diplomat",
@@ -127,6 +137,20 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     MAX_AREA_SCORE = 10
     MAX_SCORE = 50
 
+    # Questions where agreement indicates autistic-like traits.
+    # As listed in Baron-Cohen et al. (2001) [see refs in aq.rst], p7:
+    # 'Scoring the AQ: “Definitely agree” or “slightly agree” responses scored
+    # 1 point, on the following items: 1, 2, 4, 5, 6, 7, 9, 12, 13, 16, 18, 19,
+    # 20, 21, 22, 23, 26, 33, 35, 39, 41, 42, 43, 45, 46. “Definitely disagree”
+    # or “slightly disagree” responses scored 1 point, on the following items:
+    # 3, 8, 10, 11, 14, 15, 17, 24, 25, 27, 28, 29, 30, 31, 32, 34, 36, 37, 38,
+    # 40, 44, 47, 48, 49, 50.'
+    # HOWEVER, there is likely an error here in the published paper:
+    # Baron-Cohen et al. (2001) list Q1 as an "agree" question, but
+    # agreement there is a preference for doing things with others versus on
+    # one's own, so disagreement would be the more autistic-like answer (e.g.
+    # per WHO ICD-10 criteria for F84.1). The ARC's scoring sheet lists Q1 as a
+    # "disagree" question.
     AGREE_SCORING_QUESTIONS = [
         2,
         4,
@@ -154,14 +178,19 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         46,
     ]
 
+    # Internal coding (not scoring): in the order on the questionnaire:
     DEFINITELY_AGREE = 0
     SLIGHTLY_AGREE = 1
+    SLIGHTLY_DISAGREE = 2
+    DEFINITELY_DISAGREE = 3
 
     AGREE_OPTIONS = [DEFINITELY_AGREE, SLIGHTLY_AGREE]
+    DISAGREE_OPTIONS = [SLIGHTLY_DISAGREE, DEFINITELY_DISAGREE]
 
     ALL_FIELD_NAMES = strseq(PREFIX, FIRST_Q, LAST_Q)
     ALL_QUESTIONS = range(FIRST_Q, LAST_Q + 1)
 
+    # Areas (domains): see Baron-Cohen et al. (2001), p6.
     SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
     SOCIAL_SKILL_Q_NUMS = ", ".join(str(q) for q in SOCIAL_SKILL_QUESTIONS)
 
@@ -184,7 +213,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("The Adult Autism Spectrum Quotient (AQ)")
+        return _("Adult Autism Spectrum Quotient")
 
     def is_complete(self) -> bool:
         # noinspection PyUnresolvedReferences
@@ -224,24 +253,34 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         return total
 
     def question_score(self, q_num: int) -> Optional[int]:
+        """
+        Returns 1 if the answer reflects autistic-like behaviour, mildly or
+        strongly (per Baron-Cohen et al. 2001, p6). Returns 0 for the opposite.
+        Returns None for no answer or an invalid answer.
+        """
         q_field = self.PREFIX + str(q_num)
-        answer = getattr(self, q_field)
-        if answer is None:
+        a = getattr(self, q_field)
+        if a is None:
             return None
 
-        agree_scored = (
-            q_num in self.AGREE_SCORING_QUESTIONS
-            and answer in self.AGREE_OPTIONS
-        )
-        disagree_scored = (
-            q_num not in self.AGREE_SCORING_QUESTIONS
-            and answer not in self.AGREE_OPTIONS
-        )
-
-        if agree_scored or disagree_scored:
-            return 1
-
-        return 0
+        if q_num in self.AGREE_SCORING_QUESTIONS:
+            # Questions where agreement indicates autistic-like traits
+            if a in self.AGREE_OPTIONS:
+                return 1
+            elif a in self.DISAGREE_OPTIONS:
+                return 0
+            else:
+                # Shouldn't happen, but safety check
+                return None
+        else:
+            # Questions where disagreement indicates autistic-like traits
+            if a in self.AGREE_OPTIONS:
+                return 0
+            elif a in self.DISAGREE_OPTIONS:
+                return 1
+            else:
+                # Shouldn't happen, but safety check
+                return None
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = self.get_task_html_rows(req)
@@ -312,45 +351,39 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     def get_task_html_rows(self, req: CamcopsRequest) -> str:
         _ = req.gettext
-        header_format = """
+        score_text = _("Score")
+        header = f"""
             <tr>
                 <th width="70%">Statement</th>
                 <th width="20%">Answer</th>
-                <th width="10%">Score</th>
+                <th width="10%">{score_text}</th>
             </tr>
         """
-
-        score_text = _("Score")
-        header = header_format.format(
-            title=self.xstring(req, "title"),
-            score=score_text,
-        )
-
         return header + self.get_task_html_rows_for_range(
-            req, self.PREFIX, self.FIRST_Q, self.LAST_Q
+            req, self.FIRST_Q, self.LAST_Q
         )
 
     def get_task_html_rows_for_range(
-        self, req: CamcopsRequest, prefix: str, first_q: int, last_q: int
+        self, req: CamcopsRequest, first_q: int, last_q: int
     ):
         rows = ""
         for q_num in range(first_q, last_q + 1):
-            field = prefix + str(q_num)
+            field = self.PREFIX + str(q_num)
             question_cell = f"{q_num}. {self.xstring(req, field)}"
             score = self.question_score(q_num)
 
             rows += tr(
                 question_cell,
-                answer(self.get_answer_cell(req, prefix, q_num)),
+                answer(self.get_answer_cell(req, q_num)),
                 score,
             )
 
         return rows
 
     def get_answer_cell(
-        self, req: CamcopsRequest, prefix: str, q_num: int
+        self, req: CamcopsRequest, q_num: int
     ) -> Optional[str]:
-        q_field = prefix + str(q_num)
+        q_field = self.PREFIX + str(q_num)
 
         response = getattr(self, q_field)
         if response is None:
