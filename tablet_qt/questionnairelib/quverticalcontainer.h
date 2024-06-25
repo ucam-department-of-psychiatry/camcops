@@ -21,7 +21,6 @@
 #pragma once
 #include "questionnairelib/qusequencecontainerbase.h"
 
-
 class QuVerticalContainer : public QuSequenceContainerBase
 {
     // Allows the arrangements of other elements into a vertical layout.
@@ -33,13 +32,18 @@ public:
     QuVerticalContainer(QObject* parent = nullptr);
 
     // Construct with elements.
-    QuVerticalContainer(const QVector<QuElementPtr>& elements,
-                        QObject* parent = nullptr);
-    QuVerticalContainer(std::initializer_list<QuElementPtr> elements,
-                        QObject* parent = nullptr);
-    QuVerticalContainer(std::initializer_list<QuElement*> elements,
-                        QObject* parent = nullptr);  // takes ownership
+    QuVerticalContainer(
+        const QVector<QuElementPtr>& elements, QObject* parent = nullptr
+    );
+    QuVerticalContainer(
+        std::initializer_list<QuElementPtr> elements, QObject* parent = nullptr
+    );
+    QuVerticalContainer(
+        std::initializer_list<QuElement*> elements,
+        QObject* parent = nullptr
+    );  // takes ownership
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 };

@@ -38,7 +38,8 @@ const char* MCQ_GRID = "mcq_grid";
 const char* MCQ_GRID_SINGLE_BOOLEAN = "mcq_grid_single_boolean";
 const char* MCQ_INSTRUCTION = "mcq_instruction";
 const char* MENU_HEADER_CRIPPLED = "menu_header_crippled";
-const char* MENU_HEADER_SINGLE_USER_BUTTONS = "menu_header_single_user_buttons";
+const char* MENU_HEADER_SINGLE_USER_BUTTONS
+    = "menu_header_single_user_buttons";
 const char* MENU_HEADER_NO_PATIENT = "menu_header_no_patient";
 const char* MENU_HEADER_PATIENT_INFO = "menu_header_patient_info";
 const char* MENU_ITEM_EDITABLE_TASK = "menu_item_editable_task";
@@ -57,9 +58,12 @@ const char* PROPERTY_ITALIC = "italic";
 const char* PROPERTY_MISSING = "missing";
 const char* PROPERTY_READ_ONLY = "readonly";
 const char* PROPERTY_STATE = "state";
-const char* QUESTIONNAIRE_BACKGROUND_CLINICIAN = "questionnaire_background_clinician";
-const char* QUESTIONNAIRE_BACKGROUND_CONFIG = "questionnaire_background_config";
-const char* QUESTIONNAIRE_BACKGROUND_PATIENT = "questionnaire_background_patient";
+const char* QUESTIONNAIRE_BACKGROUND_CLINICIAN
+    = "questionnaire_background_clinician";
+const char* QUESTIONNAIRE_BACKGROUND_CONFIG
+    = "questionnaire_background_config";
+const char* QUESTIONNAIRE_BACKGROUND_PATIENT
+    = "questionnaire_background_patient";
 const char* QUESTIONNAIRE_HORIZONTAL_LINE = "questionnaire_horizontal_line";
 const char* QUESTION = "question";
 const char* QUHEADING = "quheading";

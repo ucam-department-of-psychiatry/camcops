@@ -20,9 +20,9 @@
 
 #pragma once
 #include <QVector>
+
 #include "whisker/whiskercallbackdefinition.h"
 class WhiskerInboundMessage;
-
 
 class WhiskerCallbackHandler
 {
@@ -30,33 +30,35 @@ class WhiskerCallbackHandler
     // objects, and processes an incoming Whisker event through them.
 
 public:
-
     // Constructor.
     WhiskerCallbackHandler();
 
     // Add a callback. See WhiskerCallbackDefinition.
-    void add(
-            const QString& event,
+    void
+        add(const QString& event,
             const WhiskerCallbackDefinition::CallbackFunction& callback,
             const QString& name = "",
-            WhiskerCallbackDefinition::ExpiryType how_expires = WhiskerCallbackDefinition::ExpiryType::Infinite,
+            WhiskerCallbackDefinition::ExpiryType how_expires
+            = WhiskerCallbackDefinition::ExpiryType::Infinite,
             int target_n_calls = 0,
             qint64 lifetime_ms = 0,
             bool swallow_event = true);
 
     // Add a single-shot callback.
     void addSingle(
-            const QString& event,
-            const WhiskerCallbackDefinition::CallbackFunction& callback,
-            const QString& name = "",
-            bool swallow_event = true);
+        const QString& event,
+        const WhiskerCallbackDefinition::CallbackFunction& callback,
+        const QString& name = "",
+        bool swallow_event = true
+    );
 
     // Adds a callback that never expires.
     void addPersistent(
-            const QString& event,
-            const WhiskerCallbackDefinition::CallbackFunction& callback,
-            const QString& name = "",
-            bool swallow_event = true);
+        const QString& event,
+        const WhiskerCallbackDefinition::CallbackFunction& callback,
+        const QString& name = "",
+        bool swallow_event = true
+    );
 
     // Remove all callbacks for a specific Whisker event.
     void removeByEvent(const QString& event);

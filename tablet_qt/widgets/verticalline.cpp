@@ -19,9 +19,9 @@
 */
 
 #include "verticalline.h"
+
 #include <QPainter>
 #include <QStyleOption>
-
 
 VerticalLine::VerticalLine(const int width, QWidget* parent) :
     QWidget(parent)
@@ -30,7 +30,6 @@ VerticalLine::VerticalLine(const int width, QWidget* parent) :
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // setStyleSheet(QString("background-color: %1;").arg(colour));
 }
-
 
 void VerticalLine::paintEvent(QPaintEvent*)
 {

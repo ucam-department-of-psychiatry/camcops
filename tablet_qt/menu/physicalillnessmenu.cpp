@@ -19,10 +19,10 @@
 */
 
 #include "physicalillnessmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/asdas.h"
 #include "tasks/basdai.h"
 #include "tasks/das28.h"
@@ -31,18 +31,15 @@
 #include "tasks/rapid3.h"
 #include "tasks/sfmpq2.h"
 
-
 PhysicalIllnessMenu::PhysicalIllnessMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PHYSICAL))
 {
 }
 
-
 QString PhysicalIllnessMenu::title() const
 {
     return tr("Physical illness measurement");
 }
-
 
 void PhysicalIllnessMenu::makeItems()
 {

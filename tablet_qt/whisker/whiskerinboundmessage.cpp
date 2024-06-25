@@ -19,15 +19,17 @@
 */
 
 #include "whiskerinboundmessage.h"
+
 #include "whisker/whiskerconstants.h"
 using namespace whiskerconstants;
 
-
-WhiskerInboundMessage::WhiskerInboundMessage(const QString& msg,
-                                             bool immediate_socket,
-                                             const QDateTime& timestamp,
-                                             bool has_timestamp,
-                                             quint64 timestamp_ms) :
+WhiskerInboundMessage::WhiskerInboundMessage(
+    const QString& msg,
+    bool immediate_socket,
+    const QDateTime& timestamp,
+    bool has_timestamp,
+    quint64 timestamp_ms
+) :
     m_msg(msg),
     m_immediate_socket(immediate_socket),
     m_timestamp(timestamp),
@@ -37,7 +39,6 @@ WhiskerInboundMessage::WhiskerInboundMessage(const QString& msg,
     splitServerTimestamp();
     parseMainSocketMessages();
 }
-
 
 void WhiskerInboundMessage::splitServerTimestamp()
 {
@@ -58,54 +59,45 @@ void WhiskerInboundMessage::splitServerTimestamp()
     }
 }
 
-
 QString WhiskerInboundMessage::message() const
 {
     return m_msg;
 }
-
 
 bool WhiskerInboundMessage::fromImmediateSocket() const
 {
     return m_immediate_socket;
 }
 
-
 QString WhiskerInboundMessage::causalCommand() const
 {
     return m_causal_command;
 }
-
 
 void WhiskerInboundMessage::setCausalCommand(const QString& causal_command)
 {
     m_causal_command = causal_command;
 }
 
-
 bool WhiskerInboundMessage::immediateReplySucceeded() const
 {
     return m_msg == RESPONSE_SUCCESS;
 }
-
 
 QDateTime WhiskerInboundMessage::timestamp() const
 {
     return m_timestamp;
 }
 
-
 bool WhiskerInboundMessage::hasServerTimestamp() const
 {
     return m_has_server_timestamp;
 }
 
-
 quint64 WhiskerInboundMessage::serverTimestampMs() const
 {
     return m_server_timestamp_ms;
 }
-
 
 void WhiskerInboundMessage::parseMainSocketMessages()
 {
@@ -136,10 +128,12 @@ void WhiskerInboundMessage::parseMainSocketMessages()
         // (in whiskermessages.h).
     }
 
-    QRegularExpressionMatch client_msg_match = CLIENT_MESSAGE_REGEX.match(m_msg);
+    QRegularExpressionMatch client_msg_match
+        = CLIENT_MESSAGE_REGEX.match(m_msg);
     if (client_msg_match.hasMatch()) {
         m_is_client_message = true;
-        m_client_message_source_clientnum = client_msg_match.captured(1).toInt();
+        m_client_message_source_clientnum
+            = client_msg_match.captured(1).toInt();
         m_client_message = client_msg_match.captured(2);
         return;
     }
@@ -150,7 +144,8 @@ void WhiskerInboundMessage::parseMainSocketMessages()
         return;
     }
 
-    QRegularExpressionMatch syntax_error_match = SYNTAX_ERROR_REGEX.match(m_msg);
+    QRegularExpressionMatch syntax_error_match
+        = SYNTAX_ERROR_REGEX.match(m_msg);
     if (syntax_error_match.hasMatch()) {
         m_is_syntax_error = true;
         return;
@@ -168,101 +163,83 @@ void WhiskerInboundMessage::parseMainSocketMessages()
     }
 }
 
-
 bool WhiskerInboundMessage::isEvent() const
 {
     return m_is_event;
 }
-
 
 QString WhiskerInboundMessage::event() const
 {
     return m_event;
 }
 
-
 bool WhiskerInboundMessage::isKeyEvent() const
 {
     return m_is_key_event;
 }
-
 
 int WhiskerInboundMessage::keyEventCode() const
 {
     return m_key_code;
 }
 
-
 bool WhiskerInboundMessage::keyEventDown() const
 {
     return m_key_down;
 }
-
 
 bool WhiskerInboundMessage::keyEventUp() const
 {
     return m_key_up;
 }
 
-
 QString WhiskerInboundMessage::keyEventDoc() const
 {
     return m_key_doc;
 }
-
 
 bool WhiskerInboundMessage::isClientMessage() const
 {
     return m_is_client_message;
 }
 
-
 int WhiskerInboundMessage::clientMessageSourceClientNum() const
 {
     return m_client_message_source_clientnum;
 }
-
 
 QString WhiskerInboundMessage::clientMessage() const
 {
     return m_client_message;
 }
 
-
 bool WhiskerInboundMessage::isWarning() const
 {
     return m_is_warning;
 }
-
 
 bool WhiskerInboundMessage::isSyntaxError() const
 {
     return m_is_syntax_error;
 }
 
-
 bool WhiskerInboundMessage::isError() const
 {
     return m_is_error;
 }
-
 
 bool WhiskerInboundMessage::isPingAck() const
 {
     return m_is_ping_ack;
 }
 
-
 QDebug operator<<(QDebug debug, const WhiskerInboundMessage& m)
 {
-    debug.nospace()
-            << "InboundMessage(msg=" << m.m_msg
-            << ", immediate_socket=" << m.m_immediate_socket
-            << ", timestamp=" << m.m_timestamp
-            << ", has_server_timestamp=" << m.m_has_server_timestamp
-            << ", server_timestamp_ms=" << m.m_server_timestamp_ms
-            << ", causal_command=" << m.m_causal_command
-            << ")";
+    debug.nospace() << "InboundMessage(msg=" << m.m_msg
+                    << ", immediate_socket=" << m.m_immediate_socket
+                    << ", timestamp=" << m.m_timestamp
+                    << ", has_server_timestamp=" << m.m_has_server_timestamp
+                    << ", server_timestamp_ms=" << m.m_server_timestamp_ms
+                    << ", causal_command=" << m.m_causal_command << ")";
     return debug;
 }
-

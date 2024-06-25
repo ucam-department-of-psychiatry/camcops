@@ -21,13 +21,14 @@
 #pragma once
 #include "menulib/menuwindow.h"
 
-
 class ResearchMenu : public MenuWindow
 {
     Q_OBJECT
+
 public:
     ResearchMenu(CamcopsApp& app);
     virtual QString title() const override;
+
 protected:
     virtual void makeItems() override;
     void soundTestCardinalExpDet();

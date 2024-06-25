@@ -23,13 +23,16 @@
 
 void initializeReferrerSatisfactionGen(TaskFactory& factory);
 
-
 class ReferrerSatisfactionGen : public SatisfactionCommon
 {
     Q_OBJECT
+
 public:
-    ReferrerSatisfactionGen(CamcopsApp& app, DatabaseManager& db,
-                            int load_pk = dbconst::NONEXISTENT_PK);
+    ReferrerSatisfactionGen(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -41,6 +44,7 @@ public:
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual OpenableWidget* editor(bool read_only = false) override;
+
 public:
     static const QString REF_SATIS_GEN_TABLENAME;
 };

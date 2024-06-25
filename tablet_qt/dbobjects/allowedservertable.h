@@ -23,24 +23,28 @@
 #include "lib/version.h"
 class CamcopsApp;
 
-
 // Represents tables that the server will allow us to upload.
 
 class AllowedServerTable : public DatabaseObject
 {
     Q_OBJECT
+
 public:
     // Specimen constructor:
     AllowedServerTable(CamcopsApp& app, DatabaseManager& db);
 
     // Loading constructor:
-    AllowedServerTable(CamcopsApp& app, DatabaseManager& db,
-                       const QString& tablename);
+    AllowedServerTable(
+        CamcopsApp& app, DatabaseManager& db, const QString& tablename
+    );
 
     // Saving constructor:
-    AllowedServerTable(CamcopsApp& app, DatabaseManager& db,
-                       const QString& tablename,
-                       const Version& min_client_version);
+    AllowedServerTable(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        const Version& min_client_version
+    );
 
     // Destructor
     virtual ~AllowedServerTable();

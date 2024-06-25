@@ -21,12 +21,12 @@
 #pragma once
 #include "questionnairelib/qulineedit.h"
 
-
 class QuLineEditEmail : public QuLineEdit
 {
     // A single-line editor for an e-mail address.
 
     Q_OBJECT
+
 public:
     QuLineEditEmail(FieldRefPtr fieldref);
 

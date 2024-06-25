@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "acefamily.h"
 
 class OpenableWidget;
@@ -28,21 +29,34 @@ class TaskFactory;
 
 void initializeMiniAce(TaskFactory& factory);
 
-
 class MiniAce : public AceFamily
 {
     Q_OBJECT
+
 public:
-    MiniAce(CamcopsApp& app, DatabaseManager& db,
-            int load_pk = dbconst::NONEXISTENT_PK, QObject* parent = nullptr);
+    MiniAce(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK,
+        QObject* parent = nullptr
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool hasClinician() const override { return true; }
-    virtual bool prohibitsCommercial() const override { return true; }
+
+    virtual bool hasClinician() const override
+    {
+        return true;
+    }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -82,6 +96,7 @@ public slots:
 
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString MINIACE_TABLENAME;
 };

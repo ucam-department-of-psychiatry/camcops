@@ -19,17 +19,18 @@
 */
 
 #include "quheading.h"
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "layouts/layouts.h"
-#include "lib/uifunc.h"
 #include "lib/sizehelpers.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
-
-QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref,
-                     QObject* parent) :
+QuHeading::QuHeading(
+    const QString& text, FieldRefPtr fieldref, QObject* parent
+) :
     QuText(text, fieldref, parent)  // uses protected constructor of base class
 {
     m_fontsize = uiconst::FontSize::Heading;
@@ -38,18 +39,15 @@ QuHeading::QuHeading(const QString& text, FieldRefPtr fieldref,
     // ... makes it span the full width of the page.
 }
 
-
 QuHeading::QuHeading(const QString& text, QObject* parent) :
     QuHeading(text, nullptr, parent)
 {
 }
 
-
 QuHeading::QuHeading(FieldRefPtr fieldref, QObject* parent) :
     QuText(QString(), fieldref, parent)
 {
 }
-
 
 QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 {

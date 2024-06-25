@@ -22,10 +22,10 @@
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QPair>
 #include <QStack>
+
 #include "diagnosticcodeset.h"
 
 class CamcopsApp;
-
 
 // Represents the ICD-10 diagnostic system.
 
@@ -34,22 +34,33 @@ class Icd10 : public DiagnosticCodeSet
     Q_OBJECT
 
 public:
-    Icd10(CamcopsApp& app, QObject* parent = nullptr,
-          bool dummy_creation_no_xstrings = false);
+    Icd10(
+        CamcopsApp& app,
+        QObject* parent = nullptr,
+        bool dummy_creation_no_xstrings = false
+    );
 
     using CodeDescriptionPair = QPair<QString, QString>;
     using DepthItemPair = QPair<int, DiagnosticCode*>;
+
 private:
     void addIcd10Codes(const QStringList& codes);
-    void addIndividualIcd10Code(const QString& code, const QString& desc,
-                                bool show_code_in_full_name = true);
-    void addSubcodes(const QString& basecode,
-                     const QString& basedesc,
-                     const QVector<CodeDescriptionPair>& level1);
-    void addSubcodes(const QString& basecode,
-                     const QString& basedesc,
-                     const QVector<CodeDescriptionPair>& level1,
-                     const QVector<CodeDescriptionPair>& level2);
+    void addIndividualIcd10Code(
+        const QString& code,
+        const QString& desc,
+        bool show_code_in_full_name = true
+    );
+    void addSubcodes(
+        const QString& basecode,
+        const QString& basedesc,
+        const QVector<CodeDescriptionPair>& level1
+    );
+    void addSubcodes(
+        const QString& basecode,
+        const QString& basedesc,
+        const QVector<CodeDescriptionPair>& level1,
+        const QVector<CodeDescriptionPair>& level2
+    );
 
     QStack<DepthItemPair> m_creation_stack;  // depth, pointer (of parents)
 
@@ -65,6 +76,7 @@ private:
     static const QVector<CodeDescriptionPair> SCHIZOPHRENIA_L1;
     static const QVector<CodeDescriptionPair> SELFHARM_L1;
     static const QVector<CodeDescriptionPair> SELFHARM_L2;
+
 public:
     static const QString XSTRING_TASKNAME;
 };

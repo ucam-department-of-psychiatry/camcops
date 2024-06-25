@@ -22,17 +22,18 @@
 #include "db/databaseobject.h"
 class CamcopsApp;
 
-
 // Represents a config variable stored in the system database for a CamcopsApp.
 
 class StoredVar : public DatabaseObject
 {
 public:
-    StoredVar(CamcopsApp& app,
-              DatabaseManager& db,
-              const QString& name = "",  // empty for a specimen
-              QMetaType type = QMetaType::fromType<int>(),
-              const QVariant& default_value = QVariant());
+    StoredVar(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& name = "",  // empty for a specimen
+        QMetaType type = QMetaType::fromType<int>(),
+        const QVariant& default_value = QVariant()
+    );
     virtual ~StoredVar() = default;
 
     // Sets the value.

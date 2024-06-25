@@ -19,28 +19,25 @@
 */
 
 #include "cognitivemenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/ace3.h"
 #include "tasks/miniace.h"
 #include "tasks/moca.h"
 #include "tasks/nart.h"
 #include "tasks/slums.h"
 
-
 CognitiveMenu::CognitiveMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_COGNITIVE))
 {
 }
 
-
 QString CognitiveMenu::title() const
 {
     return tr("Cognitive assessment");
 }
-
 
 void CognitiveMenu::makeItems()
 {

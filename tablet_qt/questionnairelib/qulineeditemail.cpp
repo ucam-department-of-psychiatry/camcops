@@ -19,14 +19,13 @@
 */
 
 #include "qulineeditemail.h"
-#include "qobjects/emailvalidator.h"
 
+#include "qobjects/emailvalidator.h"
 
 QuLineEditEmail::QuLineEditEmail(FieldRefPtr fieldref) :
     QuLineEdit(fieldref)
 {
 }
-
 
 void QuLineEditEmail::extraLineEditCreation(QLineEdit* editor)
 {

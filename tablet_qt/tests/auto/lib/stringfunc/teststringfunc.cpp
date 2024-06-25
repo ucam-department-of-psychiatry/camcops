@@ -22,15 +22,13 @@
 
 #include "lib/stringfunc.h"
 
-
-class TestStringfunc: public QObject
+class TestStringfunc : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testEscapeStringReturnsQuotedEscapedString();
 };
-
 
 using namespace stringfunc;
 

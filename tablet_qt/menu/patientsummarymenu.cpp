@@ -19,36 +19,41 @@
 */
 
 #include "patientsummarymenu.h"
+
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"
 
-
 PatientSummaryMenu::PatientSummaryMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PATIENT_SUMMARY))
 {
 }
 
-
 void PatientSummaryMenu::extraLayoutCreation()
 {
     // Signals
-    connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &PatientSummaryMenu::refreshTaskList,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::taskAlterationFinished,
-            this, &PatientSummaryMenu::refreshTaskList,
-            Qt::UniqueConnection);
+    connect(
+        &m_app,
+        &CamcopsApp::selectedPatientChanged,
+        this,
+        &PatientSummaryMenu::refreshTaskList,
+        Qt::UniqueConnection
+    );
+    connect(
+        &m_app,
+        &CamcopsApp::taskAlterationFinished,
+        this,
+        &PatientSummaryMenu::refreshTaskList,
+        Qt::UniqueConnection
+    );
 }
-
 
 QString PatientSummaryMenu::title() const
 {
     return tr("Patient summary");
 }
-
 
 void PatientSummaryMenu::makeItems()
 {
@@ -68,7 +73,6 @@ void PatientSummaryMenu::makeItems()
         m_items.append(MenuItem(task, true, false));
     }
 }
-
 
 void PatientSummaryMenu::refreshTaskList()
 {

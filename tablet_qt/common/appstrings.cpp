@@ -20,8 +20,7 @@
 
 #include "appstrings.h"
 
-namespace appstrings
-{
+namespace appstrings {
 
 // These should match constants in cc_string.py on the server,
 // and of course camcops.xml itself.
@@ -30,12 +29,18 @@ namespace appstrings
 // NHS Data Dictionary elements; for details see camcops.xml
 // ============================================================================
 
-const QString NHS_PERSON_MARITAL_STATUS_CODE_S("nhs_person_marital_status_code_S");
-const QString NHS_PERSON_MARITAL_STATUS_CODE_M("nhs_person_marital_status_code_M");
-const QString NHS_PERSON_MARITAL_STATUS_CODE_D("nhs_person_marital_status_code_D");
-const QString NHS_PERSON_MARITAL_STATUS_CODE_W("nhs_person_marital_status_code_W");
-const QString NHS_PERSON_MARITAL_STATUS_CODE_P("nhs_person_marital_status_code_P");
-const QString NHS_PERSON_MARITAL_STATUS_CODE_N("nhs_person_marital_status_code_N");
+const QString
+    NHS_PERSON_MARITAL_STATUS_CODE_S("nhs_person_marital_status_code_S");
+const QString
+    NHS_PERSON_MARITAL_STATUS_CODE_M("nhs_person_marital_status_code_M");
+const QString
+    NHS_PERSON_MARITAL_STATUS_CODE_D("nhs_person_marital_status_code_D");
+const QString
+    NHS_PERSON_MARITAL_STATUS_CODE_W("nhs_person_marital_status_code_W");
+const QString
+    NHS_PERSON_MARITAL_STATUS_CODE_P("nhs_person_marital_status_code_P");
+const QString
+    NHS_PERSON_MARITAL_STATUS_CODE_N("nhs_person_marital_status_code_N");
 
 const QString NHS_ETHNIC_CATEGORY_CODE_A("nhs_ethnic_category_code_A");
 const QString NHS_ETHNIC_CATEGORY_CODE_B("nhs_ethnic_category_code_B");

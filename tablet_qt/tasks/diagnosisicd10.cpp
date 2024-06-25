@@ -19,6 +19,7 @@
 */
 
 #include "diagnosisicd10.h"
+
 #include "db/ancillaryfunc.h"
 #include "diagnosis/icd10.h"
 #include "questionnairelib/questionnaire.h"
@@ -28,19 +29,17 @@
 
 const QString DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME("diagnosis_icd10");
 
-
 void initializeDiagnosisIcd10(TaskFactory& factory)
 {
     static TaskRegistrar<DiagnosisIcd10> registered(factory);
 }
 
-
-DiagnosisIcd10::DiagnosisIcd10(CamcopsApp& app, DatabaseManager& db,
-                               const int load_pk) :
+DiagnosisIcd10::DiagnosisIcd10(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     DiagnosisTaskBase(app, db, DIAGNOSIS_ICD10_TABLENAME, load_pk)
 {
 }
-
 
 // ============================================================================
 // Class info
@@ -51,30 +50,25 @@ QString DiagnosisIcd10::shortname() const
     return "Diagnosis_ICD10";
 }
 
-
 QString DiagnosisIcd10::longname() const
 {
     return tr("Diagnostic coding (ICD-10)");
 }
-
 
 QString DiagnosisIcd10::description() const
 {
     return tr("Diagnostic codes, using ICD-10 codes.");
 }
 
-
 QString DiagnosisIcd10::infoFilenameStem() const
 {
     return "icd";
 }
 
-
 QString DiagnosisIcd10::xstringTaskname() const
 {
     return Icd10::XSTRING_TASKNAME;
 }
-
 
 // ============================================================================
 // Ancillary management
@@ -85,21 +79,18 @@ QStringList DiagnosisIcd10::ancillaryTables() const
     return QStringList{DiagnosisIcd10Item::DIAGNOSIS_ICD10_ITEM_TABLENAME};
 }
 
-
 QString DiagnosisIcd10::ancillaryTableFKToTaskFieldname() const
 {
     return DiagnosisIcd10Item::FK_NAME;
 }
 
-
 void DiagnosisIcd10::loadAllAncillary(const int pk)
 {
     const OrderBy order_by{{DiagnosisIcd10Item::SEQNUM, true}};
     ancillaryfunc::loadAncillary<DiagnosisIcd10Item, DiagnosisItemBasePtr>(
-                m_items, m_app, m_db,
-                DiagnosisIcd10Item::FK_NAME, order_by, pk);
+        m_items, m_app, m_db, DiagnosisIcd10Item::FK_NAME, order_by, pk
+    );
 }
-
 
 QVector<DatabaseObjectPtr> DiagnosisIcd10::getAncillarySpecimens() const
 {
@@ -107,7 +98,6 @@ QVector<DatabaseObjectPtr> DiagnosisIcd10::getAncillarySpecimens() const
         DatabaseObjectPtr(new DiagnosisIcd10Item(m_app, m_db)),
     };
 }
-
 
 // ============================================================================
 // DiagnosisTaskBase extras
@@ -118,9 +108,9 @@ DiagnosticCodeSetPtr DiagnosisIcd10::makeCodeset() const
     return DiagnosticCodeSetPtr(new Icd10(m_app));
 }
 
-
 DiagnosisItemBasePtr DiagnosisIcd10::makeItem() const
 {
-    return DiagnosisItemBasePtr(new DiagnosisIcd10Item(
-                                    pkvalueInt(), m_app, m_db));
+    return DiagnosisItemBasePtr(
+        new DiagnosisIcd10Item(pkvalueInt(), m_app, m_db)
+    );
 }

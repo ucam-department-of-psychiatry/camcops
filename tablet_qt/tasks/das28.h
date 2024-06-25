@@ -21,8 +21,9 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-#include "tasklib/task.h"
+
 #include "questionnairelib/qugridcontainer.h"
+#include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
@@ -31,22 +32,28 @@ class TaskFactory;
 
 void initializeDas28(TaskFactory& factory);
 
-
 class Das28 : public Task
 {
     Q_OBJECT
+
 public:
-    Das28(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Das28(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -62,10 +69,13 @@ public:
 public slots:
     void crpChanged();
     void esrChanged();
+
 public:
     static const QString DAS28_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 private:
     QStringList fieldNames() const;
     QStringList getJointFieldNames() const;

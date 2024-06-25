@@ -19,12 +19,14 @@
 */
 
 #include "strictint64validator.h"
+
 #include <algorithm>
+
 #include "lib/numericfunc.h"
 
-
-StrictInt64Validator::StrictInt64Validator(const bool allow_empty,
-                                           QObject* parent) :
+StrictInt64Validator::StrictInt64Validator(
+    const bool allow_empty, QObject* parent
+) :
     QValidator(parent),
     m_allow_empty(allow_empty)
 {
@@ -32,10 +34,9 @@ StrictInt64Validator::StrictInt64Validator(const bool allow_empty,
     m_t = std::numeric_limits<qint64>::max();
 }
 
-
 StrictInt64Validator::StrictInt64Validator(
-        qint64 bottom, qint64 top,
-        const bool allow_empty, QObject* parent) :
+    qint64 bottom, qint64 top, const bool allow_empty, QObject* parent
+) :
     QValidator(parent),
     m_allow_empty(allow_empty)
 {
@@ -46,31 +47,27 @@ StrictInt64Validator::StrictInt64Validator(
     m_t = top;
 }
 
-
 StrictInt64Validator::~StrictInt64Validator()
 {
 }
 
-
 QValidator::State StrictInt64Validator::validate(QString& s, int& pos) const
 {
     Q_UNUSED(pos)
-    return numeric::validateInteger(s, locale(), bottom(), top(),
-                                    m_allow_empty);
+    return numeric::validateInteger(
+        s, locale(), bottom(), top(), m_allow_empty
+    );
 }
-
 
 void StrictInt64Validator::setBottom(const qint64 bottom)
 {
     setRange(bottom, top());
 }
 
-
 void StrictInt64Validator::setTop(const qint64 top)
 {
     setRange(bottom(), top);
 }
-
 
 void StrictInt64Validator::setRange(const qint64 bottom, const qint64 top)
 {

@@ -21,10 +21,11 @@
 #pragma once
 #include <QDebug>
 #include <QPair>
+#include <QSqlDatabase>
 #include <QString>
 #include <QStringList>
-#include <QSqlDatabase>
 #include <QVariant>
+
 #include "common/aliases_qt.h"
 #include "db/field.h"
 #include "sqlargs.h"
@@ -69,12 +70,17 @@ void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered);
 void addArgs(QSqlQuery& query, const ArgList& args);
 
 // Executes a QSqlQuery. (Low-level function.)
-bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs,
-               bool suppress_errors = false);
+bool execQuery(
+    QSqlQuery& query, const SqlArgs& sqlargs, bool suppress_errors = false
+);
 
 // Executes a QSqlQuery. (Low-level function.)
-bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
-               bool suppress_errors = false);
+bool execQuery(
+    QSqlQuery& query,
+    const QString& sql,
+    const ArgList& args,
+    bool suppress_errors = false
+);
 
 // Returns a string like "?,?,?" for n parameter holders
 QString sqlParamHolders(int n);
@@ -89,22 +95,22 @@ ArgList argListFromIntList(const QVector<int>& intlist);
 // Returns the field names from an SqlitePragmaInfoField object.
 // If delimited is true, delimits the output.
 QStringList fieldNamesFromPragmaInfo(
-        const QVector<SqlitePragmaInfoField>& infolist,
-        bool delimited = false);
+    const QVector<SqlitePragmaInfoField>& infolist, bool delimited = false
+);
 
 // Returns "CREATE TABLE IF NOT EXISTS ..." SQL from information describing
 // the table.
 QString makeCreationSqlFromPragmaInfo(
-        const QString& tablename,
-        const QVector<SqlitePragmaInfoField>& infolist);
+    const QString& tablename, const QVector<SqlitePragmaInfoField>& infolist
+);
 
 // ============================================================================
 // Altering structure
 // ============================================================================
 
 // Returns "CREATE TABLE IF NOT EXISTS ..." SQL from a list of Field objects.
-QString sqlCreateTable(const QString& tablename,
-                       const QVector<Field>& fieldlist);
+QString
+    sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist);
 
 // ============================================================================
 // Encryption queries, via SQLCipher
@@ -112,8 +118,10 @@ QString sqlCreateTable(const QString& tablename,
 
 // Encrypts an SQLite database via SQLCipher, on disk, in place (in the end;
 // in practice via a temporary file).
-bool encryptPlainDatabaseInPlace(const QString& filename,
-                                 const QString& tempfilename,
-                                 const QString& passphrase);
+bool encryptPlainDatabaseInPlace(
+    const QString& filename,
+    const QString& tempfilename,
+    const QString& passphrase
+);
 
 }  // namespace dbfunc

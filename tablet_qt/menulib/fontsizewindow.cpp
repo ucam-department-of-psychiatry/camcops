@@ -46,9 +46,11 @@ const QString TAG_BIG("Big");
 const QString TAG_HEADING("Heading");
 const QString TAG_TITLE("Title");
 const QString TAG_MENUS("Menus");
-const QString alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ "
-                       "abcdefghijklmnopqrstuvwxyz "
-                       "0123456789");
+const QString alphabet(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+    "abcdefghijklmnopqrstuvwxyz "
+    "0123456789"
+);
 const QMap<QString, uiconst::FontSize> FONT_SIZE_MAP{
     {TAG_NORMAL, uiconst::FontSize::Normal},
     {TAG_BIG, uiconst::FontSize::Big},
@@ -61,10 +63,9 @@ FontSizeWindow::FontSizeWindow(CamcopsApp& app) :
     m_app(app),
     m_fontsize_questionnaire(nullptr)
 {
-    m_fontsize_fr = m_app.storedVarFieldRef(
-        varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
+    m_fontsize_fr
+        = m_app.storedVarFieldRef(varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
 }
-
 
 OpenableWidget* FontSizeWindow::editor()
 {
@@ -82,8 +83,12 @@ OpenableWidget* FontSizeWindow::editor()
     }
 
     const QString font_heading(tr("Questionnaire font size"));
-    const QString font_prompt1(tr("Set the font size, as a percentage of the default."));
-    const QString font_explan(tr("Changes take effect when a screen is reloaded."));
+    const QString font_prompt1(
+        tr("Set the font size, as a percentage of the default.")
+    );
+    const QString font_explan(
+        tr("Changes take effect when a screen is reloaded.")
+    );
     const QString font_prompt2(tr("You can type it in:"));
     const QString font_prompt3(tr("... or set it with a slider:"));
 
@@ -91,35 +96,45 @@ OpenableWidget* FontSizeWindow::editor()
         new QuHeading(font_heading),
         new QuText(stringfunc::makeTitle(font_prompt1)),
         new QuText(font_explan),
-        questionnairefunc::defaultGridRawPointer({
+        questionnairefunc::defaultGridRawPointer(
             {
-                font_prompt2,
-                new QuLineEditInteger(m_fontsize_fr, fs_min, fs_max)
+                {font_prompt2,
+                 new QuLineEditInteger(m_fontsize_fr, fs_min, fs_max)},
             },
-        }, 1, 1),
+            1,
+            1
+        ),
         new QuText(font_prompt3),
         (new QuSlider(m_fontsize_fr, fs_min, fs_max, fs_slider_step))
             ->setTickInterval(fs_slider_tick_interval)
             ->setTickPosition(QSlider::TicksBothSides)
             ->setTickLabels(ticklabels)
             ->setTickLabelPosition(QSlider::TicksAbove),
-        new QuButton(tr("Reset to 100%"),
-                       [this](){ resetFontSize(); }),
-        (new QuText(demoText(TAG_NORMAL,
-                             uiconst::FontSize::Normal)))->addTag(TAG_NORMAL),
-        (new QuText(demoText(TAG_BIG,
-                             uiconst::FontSize::Big)))->addTag(TAG_BIG),
-        (new QuText(demoText(TAG_HEADING,
-                             uiconst::FontSize::Heading)))->addTag(TAG_HEADING),
-        (new QuText(demoText(TAG_TITLE,
-                             uiconst::FontSize::Title)))->addTag(TAG_TITLE),
-        (new QuText(demoText(TAG_MENUS,
-                             uiconst::FontSize::Menus)))->addTag(TAG_MENUS),
+        new QuButton(
+            tr("Reset to 100%"),
+            [this]() {
+                resetFontSize();
+            }
+        ),
+        (new QuText(demoText(TAG_NORMAL, uiconst::FontSize::Normal)))
+            ->addTag(TAG_NORMAL),
+        (new QuText(demoText(TAG_BIG, uiconst::FontSize::Big)))
+            ->addTag(TAG_BIG),
+        (new QuText(demoText(TAG_HEADING, uiconst::FontSize::Heading)))
+            ->addTag(TAG_HEADING),
+        (new QuText(demoText(TAG_TITLE, uiconst::FontSize::Title)))
+            ->addTag(TAG_TITLE),
+        (new QuText(demoText(TAG_MENUS, uiconst::FontSize::Menus)))
+            ->addTag(TAG_MENUS),
     });
 
-    connect(m_fontsize_fr.data(), &FieldRef::valueChanged,
-            this, &FontSizeWindow::fontSizeChanged,
-            Qt::UniqueConnection);
+    connect(
+        m_fontsize_fr.data(),
+        &FieldRef::valueChanged,
+        this,
+        &FontSizeWindow::fontSizeChanged,
+        Qt::UniqueConnection
+    );
 
     setUpPage(page);
     // ------------------------------------------------------------------------
@@ -128,16 +143,27 @@ OpenableWidget* FontSizeWindow::editor()
 
     m_fontsize_questionnaire = new Questionnaire(m_app, {page});
     m_fontsize_questionnaire->setFinishButtonIconToTick();
-    connect(m_fontsize_questionnaire, &Questionnaire::completed,
-            this, &FontSizeWindow::fontSettingsSaved);
-    connect(m_fontsize_questionnaire, &Questionnaire::cancelled,
-            this, &FontSizeWindow::fontSettingsCancelled);
-    connect(m_fontsize_questionnaire, &Questionnaire::pageAboutToOpen,
-            this, &FontSizeWindow::fontSizeChanged);
+    connect(
+        m_fontsize_questionnaire,
+        &Questionnaire::completed,
+        this,
+        &FontSizeWindow::fontSettingsSaved
+    );
+    connect(
+        m_fontsize_questionnaire,
+        &Questionnaire::cancelled,
+        this,
+        &FontSizeWindow::fontSettingsCancelled
+    );
+    connect(
+        m_fontsize_questionnaire,
+        &Questionnaire::pageAboutToOpen,
+        this,
+        &FontSizeWindow::fontSizeChanged
+    );
 
     return m_fontsize_questionnaire;
 }
-
 
 void FontSizeWindow::setUpPage(QuPagePtr page)
 {
@@ -145,12 +171,10 @@ void FontSizeWindow::setUpPage(QuPagePtr page)
     page->setType(QuPage::PageType::Config);
 }
 
-
 QString FontSizeWindow::getPageTitle()
 {
     return tr("Set questionnaire font size");
 }
-
 
 void FontSizeWindow::resetFontSize()
 {
@@ -159,7 +183,6 @@ void FontSizeWindow::resetFontSize()
     }
     m_fontsize_fr->setValue(100);
 }
-
 
 void FontSizeWindow::fontSizeChanged()
 {
@@ -191,7 +214,6 @@ void FontSizeWindow::fontSizeChanged()
     }
 }
 
-
 void FontSizeWindow::fontSettingsSaved()
 {
     m_app.saveCachedVars();
@@ -200,15 +222,15 @@ void FontSizeWindow::fontSettingsSaved()
     m_app.fontSizeChanged();
 }
 
-
 void FontSizeWindow::fontSettingsCancelled()
 {
     m_app.clearCachedVars();
     m_fontsize_questionnaire = nullptr;
 }
 
-QString FontSizeWindow::demoText(const QString& text,
-                                 const uiconst::FontSize fontsize_type) const
+QString FontSizeWindow::demoText(
+    const QString& text, const uiconst::FontSize fontsize_type
+) const
 {
     if (!m_fontsize_fr) {
         return "?";
@@ -216,7 +238,7 @@ QString FontSizeWindow::demoText(const QString& text,
     const double current_pct = m_fontsize_fr->valueDouble();
     const int font_size_pt = m_app.fontSizePt(fontsize_type, current_pct);
     return QString("%1 [%2 pt] %3")
-            .arg(tr(qPrintable(text)))
-            .arg(font_size_pt)
-            .arg(alphabet);
+        .arg(tr(qPrintable(text)))
+        .arg(font_size_pt)
+        .arg(alphabet);
 }

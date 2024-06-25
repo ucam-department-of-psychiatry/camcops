@@ -25,12 +25,11 @@
 #define SQLCIPHER_ENCRYPTION_ON  // Should be on!
 
 #if defined SQLCIPHER_ENCRYPTION_ON && !defined USE_SQLCIPHER
-#error Only #define SQLCIPHER_ENCRYPTION_ON if you define USE_SQLCIPHER
+    #error Only #define SQLCIPHER_ENCRYPTION_ON if you define USE_SQLCIPHER
 #endif
 
 
-namespace whichdb
-{
+namespace whichdb {
 
 extern const QString SQLITE;
 extern const QString SQLCIPHER;

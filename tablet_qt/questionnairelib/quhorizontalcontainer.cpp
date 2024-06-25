@@ -19,12 +19,13 @@
 */
 
 #include "quhorizontalcontainer.h"
+
 #include <QWidget>
+
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
-
 
 QuHorizontalContainer::QuHorizontalContainer(QObject* parent) :
     QuSequenceContainerBase(parent),
@@ -32,41 +33,39 @@ QuHorizontalContainer::QuHorizontalContainer(QObject* parent) :
 {
 }
 
-
 QuHorizontalContainer::QuHorizontalContainer(
-        const QVector<QuElementPtr>& elements, QObject* parent) :
+    const QVector<QuElementPtr>& elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
-
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    std::initializer_list<QuElementPtr> elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
-
 QuHorizontalContainer::QuHorizontalContainer(
-        std::initializer_list<QuElement*> elements, QObject* parent) :
+    std::initializer_list<QuElement*> elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent),
     m_add_stretch_right(true)
 {
 }
 
-
-QuHorizontalContainer* QuHorizontalContainer::setAddStretchRight(
-        const bool add_stretch_right)
+QuHorizontalContainer*
+    QuHorizontalContainer::setAddStretchRight(const bool add_stretch_right)
 {
     m_add_stretch_right = add_stretch_right;
     return this;
 }
 
-
-QPointer<QWidget> QuHorizontalContainer::makeWidget(
-        Questionnaire* questionnaire)
+QPointer<QWidget>
+    QuHorizontalContainer::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget(new BaseWidget());
     widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
@@ -79,8 +78,8 @@ QPointer<QWidget> QuHorizontalContainer::makeWidget(
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);
         const auto alignment = m_override_widget_alignment
-                ? DefaultWidgetAlignment
-                : e->getWidgetAlignment();
+            ? DefaultWidgetAlignment
+            : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
         if (!w) {
             qWarning() << Q_FUNC_INFO << "Element failed to create a widget!";

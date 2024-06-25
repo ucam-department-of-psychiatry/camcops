@@ -34,18 +34,23 @@ void initializeCia(TaskFactory& factory);
 class Cia : public Task
 {
     Q_OBJECT
+
 public:
-    Cia(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Cia(CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -60,14 +65,17 @@ public:
 
 public:
     static const QString CIA_TABLENAME;
+
 protected:
     QVariant subscale(QVector<int> questions) const;
     QStringList fieldNames() const;
     QStringList mandatoryFieldNames() const;
+
 private:
     QuMcqGrid* buildGrid(
-        int first_q_num, int last_q_num,
-        const NameValueOptions options, const QString title = ""
+        int first_q_num,
+        int last_q_num,
+        const NameValueOptions options,
+        const QString title = ""
     );
-
 };

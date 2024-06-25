@@ -18,20 +18,21 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "soundtestdialog.h"
+
 #include <QAudioDevice>
 #include <QAudioOutput>
 #include <QMediaDevices>
 #include <QMediaPlayer>
 
-#include "soundtestdialog.h"
 #include "common/textconst.h"
 #include "dialogs/logbox.h"
 #include "lib/soundfunc.h"
 #include "lib/uifunc.h"
 
-
-SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
-                                 QWidget* parent) :
+SoundTestDialog::SoundTestDialog(
+    const QUrl& url, const int volume_percent, QWidget* parent
+) :
     LogBox(parent, tr("Sound test"))
 {
     soundfunc::makeMediaPlayer(m_player);
@@ -39,8 +40,12 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
         uifunc::alert(TextConst::unableToCreateMediaPlayer());
         return;
     }
-    connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &SoundTestDialog::mediaStatusChanged);
+    connect(
+        m_player.data(),
+        &QMediaPlayer::mediaStatusChanged,
+        this,
+        &SoundTestDialog::mediaStatusChanged
+    );
     // https://doc.qt.io/qt-6.5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
@@ -52,15 +57,14 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
     m_player->play();
 }
 
-
 SoundTestDialog::~SoundTestDialog()
 {
     // Unsure if necessary - but similar code in QuAudioPlayer was crashing.
     soundfunc::finishMediaPlayer(m_player);
 }
 
-
-void SoundTestDialog::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
+void SoundTestDialog::mediaStatusChanged(const QMediaPlayer::MediaStatus status
+)
 {
     if (status == QMediaPlayer::EndOfMedia) {
         statusMessage("Finished");

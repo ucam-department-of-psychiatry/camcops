@@ -19,10 +19,11 @@
 */
 
 #include "satisfactioncommon.h"
+
 #include "common/appstrings.h"
-#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
+#include "core/camcopsapp.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -38,12 +39,13 @@ const QString RATING("rating");
 const QString GOOD("good");
 const QString BAD("bad");
 
-
-SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
-                                       DatabaseManager& db,
-                                       const QString& tablename,
-                                       const bool anonymous,
-                                       const int load_pk) :
+SatisfactionCommon::SatisfactionCommon(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& tablename,
+    const bool anonymous,
+    const int load_pk
+) :
     Task(app, db, tablename, anonymous, false, false)  // ... anon, clin, resp
 {
     addField(SERVICE, QMetaType::fromType<QString>());
@@ -54,7 +56,6 @@ SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -64,55 +65,56 @@ bool SatisfactionCommon::isComplete() const
     return !valueIsNull(RATING);
 }
 
-
 QStringList SatisfactionCommon::summary() const
 {
     return QStringList{standardResult(TextConst::rating(), getRatingText())};
 }
 
-
 QStringList SatisfactionCommon::detail() const
 {
     QStringList lines = completenessInfo() + summary();
-    lines.append(fieldSummary(SERVICE,
-                              appstring(appstrings::SATIS_SERVICE_BEING_RATED)));
+    lines.append(
+        fieldSummary(SERVICE, appstring(appstrings::SATIS_SERVICE_BEING_RATED))
+    );
     lines.append(fieldSummary(GOOD, appstring(appstrings::SATIS_GOOD_S)));
     lines.append(fieldSummary(BAD, appstring(appstrings::SATIS_BAD_S)));
     return lines;
 }
-
 
 void SatisfactionCommon::setDefaultsAtFirstUse()
 {
     setValue(SERVICE, m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE));
 }
 
-
-OpenableWidget* SatisfactionCommon::satisfactionEditor(const QString& rating_q,
-                                                       const bool read_only)
+OpenableWidget* SatisfactionCommon::satisfactionEditor(
+    const QString& rating_q, const bool read_only
+)
 {
     NameValueOptions options;
     for (int i = 4; i >= 0; --i) {
         options.append(NameValuePair(
-            appstring(strnum(appstrings::SATIS_RATING_A_PREFIX, i)),
-            i));
+            appstring(strnum(appstrings::SATIS_RATING_A_PREFIX, i)), i
+        ));
     }
 
-    QuPagePtr page((new QuPage{
-        (new QuText(rating_q + " " + valueString(SERVICE) + "?"))->setBold(),
-        new QuMcq(fieldRef(RATING), options),
-        new QuText(appstring(appstrings::SATIS_GOOD_Q)),
-        new QuTextEdit(fieldRef(GOOD, false)),
-        new QuText(appstring(appstrings::SATIS_BAD_Q)),
-        new QuTextEdit(fieldRef(BAD, false)),
-    })->setTitle(longname()));
+    QuPagePtr page(
+        (new QuPage{
+             (new QuText(rating_q + " " + valueString(SERVICE) + "?"))
+                 ->setBold(),
+             new QuMcq(fieldRef(RATING), options),
+             new QuText(appstring(appstrings::SATIS_GOOD_Q)),
+             new QuTextEdit(fieldRef(GOOD, false)),
+             new QuText(appstring(appstrings::SATIS_BAD_Q)),
+             new QuTextEdit(fieldRef(BAD, false)),
+         })
+            ->setTitle(longname())
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -124,6 +126,6 @@ QString SatisfactionCommon::getRatingText() const
     if (rating.isNull() || rating.toInt() < 0 || rating.toInt() > 4) {
         return "";
     }
-    return appstring(strnum(appstrings::SATIS_RATING_A_PREFIX,
-                            rating.toInt()));
+    return appstring(strnum(appstrings::SATIS_RATING_A_PREFIX, rating.toInt())
+    );
 }

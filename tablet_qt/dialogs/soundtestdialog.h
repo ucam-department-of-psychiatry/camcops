@@ -20,8 +20,8 @@
 
 #pragma once
 #include <QMediaPlayer>
-#include "dialogs/logbox.h"
 
+#include "dialogs/logbox.h"
 
 class SoundTestDialog : public LogBox
 {
@@ -29,12 +29,16 @@ class SoundTestDialog : public LogBox
     // Starts playing upon creation; user should call exec().
 
     Q_OBJECT
+
 public:
-    SoundTestDialog(const QUrl& url, int volume_percent = 50,
-                    QWidget* parent = nullptr);
+    SoundTestDialog(
+        const QUrl& url, int volume_percent = 50, QWidget* parent = nullptr
+    );
     ~SoundTestDialog();
+
 protected:
     void mediaStatusChanged(QMediaPlayer::MediaStatus status);
+
 protected:
     QSharedPointer<QMediaPlayer> m_player;
 };

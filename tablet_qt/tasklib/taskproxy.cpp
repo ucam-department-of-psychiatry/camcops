@@ -19,8 +19,8 @@
 */
 
 #include "taskproxy.h"
-#include "tasklib/taskfactory.h"
 
+#include "tasklib/taskfactory.h"
 
 TaskProxy::TaskProxy(TaskFactory& factory)
 {

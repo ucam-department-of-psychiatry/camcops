@@ -23,6 +23,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -32,22 +33,28 @@ class TaskFactory;
 
 void initializeSfmpq2(TaskFactory& factory);
 
-
 class Sfmpq2 : public Task
 {
     Q_OBJECT
+
 public:
-    Sfmpq2(CamcopsApp& app, DatabaseManager& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    Sfmpq2(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -63,10 +70,13 @@ public:
     QVariant intermittentPain() const;
     QVariant neuropathicPain() const;
     QVariant affectivePain() const;
+
 public:
     static const QString SFMPQ2_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 private:
     QStringList fieldNames() const;
     QVector<QVariant> normalizeValues(const QStringList& fieldnames) const;

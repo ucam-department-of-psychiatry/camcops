@@ -21,20 +21,25 @@
 #pragma once
 #include <QString>
 
-
 // A structure to represent a menu item for viewing local HTML.
 // Exists only to improve polymorphic constructor of MenuItem
 
 struct HtmlMenuItem
 {
 public:
-    HtmlMenuItem(const QString& title = "", const QString& filename = "",
-                 const QString& icon = "", bool fullscreen = false) :
+    HtmlMenuItem(
+        const QString& title = "",
+        const QString& filename = "",
+        const QString& icon = "",
+        bool fullscreen = false
+    ) :
         title(title),
         filename(filename),
         icon(icon),
         fullscreen(fullscreen)
-    {}
+    {
+    }
+
 public:
     // These are the title/icon shown on the HTML page, not the menu
     QString title;

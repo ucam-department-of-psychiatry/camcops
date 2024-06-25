@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,20 +32,28 @@ class TaskFactory;
 void initializeAudit(TaskFactory& factory);
 extern const QString AUDIT_TABLENAME;
 
-
 class Audit : public Task
 {
     Q_OBJECT
+
 public:
-    Audit(CamcopsApp& app, DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Audit(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool prohibitsCommercial() const override { return true; }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -61,8 +70,10 @@ public:
     // ------------------------------------------------------------------------
 public slots:
     void setPageSkip();
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString AUDIT_TABLENAME;
 };

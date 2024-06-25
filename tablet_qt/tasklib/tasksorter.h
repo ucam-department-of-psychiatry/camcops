@@ -21,7 +21,6 @@
 #pragma once
 #include "common/aliases_camcops.h"
 
-
 class TaskSorter
 {
     // Sorts task instances.

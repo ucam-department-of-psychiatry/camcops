@@ -21,8 +21,7 @@
 #pragma once
 #include <QString>
 
-namespace roman
-{
+namespace roman {
 
 // Converts an integer to Roman numerals.
 QString romanize(int num);

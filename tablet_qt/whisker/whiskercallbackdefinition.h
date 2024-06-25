@@ -24,7 +24,6 @@
 #include <QString>
 class WhiskerInboundMessage;
 
-
 class WhiskerCallbackDefinition
 {
     // Represents a Whisker callback, i.e. a user function that will be called
@@ -69,13 +68,15 @@ public:
     //      returned by swallowEvent(); meaning is: "if this callback fires,
     //      should processing of this event cease?" (so, if false, the event
     //      may be offered to other callbacks).
-    WhiskerCallbackDefinition(const QString& event,
-                              const CallbackFunction& callback,
-                              const QString& name = "",
-                              ExpiryType how_expires = ExpiryType::Infinite,
-                              int target_n_calls = 0,
-                              qint64 lifetime_ms = 0,
-                              bool swallow_event = false);
+    WhiskerCallbackDefinition(
+        const QString& event,
+        const CallbackFunction& callback,
+        const QString& name = "",
+        ExpiryType how_expires = ExpiryType::Infinite,
+        int target_n_calls = 0,
+        qint64 lifetime_ms = 0,
+        bool swallow_event = false
+    );
 
     // Default constructor, so we can live in a QVector.
     WhiskerCallbackDefinition();

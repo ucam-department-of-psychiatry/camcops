@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeDeakinS1HealthReview(TaskFactory& factory);
 
-
 class DeakinS1HealthReview : public Task
 {
     Q_OBJECT
+
 public:
-    DeakinS1HealthReview(CamcopsApp& app, DatabaseManager& db,
-                         int load_pk = dbconst::NONEXISTENT_PK);
+    DeakinS1HealthReview(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -42,7 +46,12 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     QString infoFilenameStem() const override;
-    virtual bool isCrippled() const override { return false; }
+
+    virtual bool isCrippled() const override
+    {
+        return false;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -64,6 +73,7 @@ signals:
     void setFHImmuneMinimum(int minimum_answers);
 public slots:
     void updateMandatory();
+
 public:
     static const QString DEAKIN_S1_HEALTHREVIEW_TABLENAME;
 };

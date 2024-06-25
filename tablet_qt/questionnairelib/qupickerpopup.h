@@ -25,17 +25,19 @@
 
 class ClickableLabelWordWrapWide;
 
-
 class QuPickerPopup : public QuElement
 {
     // Offers a pop-up dialogue of choices, or device equivalent.
 
     Q_OBJECT
-public:
 
+public:
     // Constructor
-    QuPickerPopup(FieldRefPtr fieldref, const NameValueOptions& options,
-                  QObject* parent = nullptr);
+    QuPickerPopup(
+        FieldRefPtr fieldref,
+        const NameValueOptions& options,
+        QObject* parent = nullptr
+    );
 
     // Set the title of the pop-up dialogue.
     QuPickerPopup* setPopupTitle(const QString& popup_title);
@@ -44,11 +46,11 @@ public:
     QuPickerPopup* setRandomize(bool randomize);
 
 protected:
-
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:

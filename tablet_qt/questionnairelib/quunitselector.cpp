@@ -19,9 +19,11 @@
 */
 
 #include "quunitselector.h"
+
 #include <QObject>
 #include <QString>
 #include <QWidget>
+
 #include "db/fieldref.h"
 #include "layouts/layouts.h"
 #include "questionnairelib/commonoptions.h"
@@ -30,14 +32,12 @@
 #include "questionnairelib/qumcq.h"
 #include "widgets/basewidget.h"
 
-
 QuUnitSelector::QuUnitSelector(NameValueOptions options) :
     m_units(CommonOptions::METRIC),
     m_fr_units(nullptr),
     m_options(options)
 {
 }
-
 
 QPointer<QWidget> QuUnitSelector::makeWidget(Questionnaire* questionnaire)
 {
@@ -46,10 +46,14 @@ QPointer<QWidget> QuUnitSelector::makeWidget(Questionnaire* questionnaire)
     auto layout = new VBoxLayout();
 
     auto unit_selector = (new QuMcq(m_fr_units, m_options))
-                          ->setHorizontal(true)
-                          ->setAsTextButton(true);
-    connect(m_fr_units.data(), &FieldRef::valueChanged,
-            this, &QuUnitSelector::fieldChanged);
+                             ->setHorizontal(true)
+                             ->setAsTextButton(true);
+    connect(
+        m_fr_units.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuUnitSelector::fieldChanged
+    );
     layout->addWidget(unit_selector->widget(questionnaire));
 
     QPointer<QWidget> widget = new BaseWidget();
@@ -58,14 +62,14 @@ QPointer<QWidget> QuUnitSelector::makeWidget(Questionnaire* questionnaire)
     return widget;
 }
 
-
 void QuUnitSelector::setUpFields()
 {
-    FieldRef::GetterFunction get_units = std::bind(&QuUnitSelector::getUnits, this);
-    FieldRef::SetterFunction set_units = std::bind(&QuUnitSelector::setUnits, this, std::placeholders::_1);
+    FieldRef::GetterFunction get_units
+        = std::bind(&QuUnitSelector::getUnits, this);
+    FieldRef::SetterFunction set_units
+        = std::bind(&QuUnitSelector::setUnits, this, std::placeholders::_1);
     m_fr_units = FieldRefPtr(new FieldRef(get_units, set_units, true));
 }
-
 
 // ============================================================================
 // Signal handlers
@@ -81,12 +85,10 @@ void QuUnitSelector::fieldChanged()
     emit unitsChanged(m_units);
 }
 
-
 QVariant QuUnitSelector::getUnits() const
 {
     return m_units;
 }
-
 
 bool QuUnitSelector::setUnits(const QVariant& value)
 {
@@ -94,8 +96,8 @@ bool QuUnitSelector::setUnits(const QVariant& value)
     qDebug() << Q_FUNC_INFO << value;
 #endif
     int units = value.toInt();
-    if (units != CommonOptions::METRIC && units != CommonOptions::IMPERIAL &&
-        units != CommonOptions::BOTH) {
+    if (units != CommonOptions::METRIC && units != CommonOptions::IMPERIAL
+        && units != CommonOptions::BOTH) {
         units = CommonOptions::METRIC;
     }
     const bool changed = units != m_units;

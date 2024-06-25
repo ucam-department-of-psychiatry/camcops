@@ -82,6 +82,6 @@ protected:
 private:
     void init();
     const int separation = 5;
-    QHBoxLayout     *m_main_layout;
-    ClickableLabel  *m_label;
+    QHBoxLayout* m_main_layout;
+    ClickableLabel* m_label;
 };

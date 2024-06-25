@@ -19,11 +19,11 @@
 */
 
 #include "setmenukhandakermojo.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menu/patientsummarymenu.h"
 #include "menulib/menuitem.h"
-
 #include "taskchains/khandakermojochain.h"
 #include "tasks/asdas.h"
 #include "tasks/basdai.h"
@@ -43,25 +43,23 @@
 #include "tasks/shaps.h"
 #include "tasks/suppsp.h"
 
-
 SetMenuKhandakerMojo::SetMenuKhandakerMojo(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
-
 
 QString SetMenuKhandakerMojo::title() const
 {
     return tr("Khandaker GM — MOJO study");
 }
 
-
 QString SetMenuKhandakerMojo::subtitle() const
 {
-    return tr("Khandaker GM, University of Cambridge, UK — "
-              "MOJO immunopsychiatry study");
+    return tr(
+        "Khandaker GM, University of Cambridge, UK — "
+        "MOJO immunopsychiatry study"
+    );
 }
-
 
 void SetMenuKhandakerMojo::makeItems()
 {
@@ -72,18 +70,22 @@ void SetMenuKhandakerMojo::makeItems()
 
         MenuItem(tr("Screening phase")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(
-            KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME,
-            m_app),
+            KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME, m_app
+        ),
 
         MenuItem(tr("Subject-rated scales (all subjects)")).setLabelOnly(),
         MAKE_TASK_CHAIN_MENU_ITEM(new KhandakerMojoChain(m_app)),
         // These in the sequence of the chain:
         MAKE_TASK_MENU_ITEM(
-            KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
-            m_app),
+            KhandakerMojoSociodemographics::
+                KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
+            m_app
+        ),
         MAKE_TASK_MENU_ITEM(
-            KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
-            m_app),
+            KhandakerMojoMedicationTherapy::
+                KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
+            m_app
+        ),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Shaps::SHAPS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
@@ -92,7 +94,8 @@ void SetMenuKhandakerMojo::makeItems()
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Rapid3::RAPID3_TABLENAME, m_app),
 
-        MenuItem(tr("Subject-rated scales (condition-specific)")).setLabelOnly(),
+        MenuItem(tr("Subject-rated scales (condition-specific)"))
+            .setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Basdai::BASDAI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
@@ -101,7 +104,8 @@ void SetMenuKhandakerMojo::makeItems()
         MenuItem(tr("Primary outcome measure (subject-rated)")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
 
-        MenuItem(tr("Clinician-/researcher-administered scales")).setLabelOnly(),
+        MenuItem(tr("Clinician-/researcher-administered scales"))
+            .setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),

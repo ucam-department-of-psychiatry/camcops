@@ -20,15 +20,16 @@
 
 #pragma once
 
-
 class ReentryDepthGuard
 {
     // As for FlagGuard (q.v.), but used to allow re-entrancy to a certain
     // depth.
+
 public:
     ReentryDepthGuard(int& counter);
     ~ReentryDepthGuard();
     int depth() const;
+
 protected:
     int& m_counter;
 };

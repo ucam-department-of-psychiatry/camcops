@@ -23,7 +23,7 @@
 // #define NUMERICFUNC_DEBUG_VALIDATOR
 
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
-#include <QDebug>
+    #include <QDebug>
 #endif
 #include <QLocale>
 #include <QString>
@@ -46,12 +46,15 @@ quint64 strToNumber(const QString& str, quint64 type_dummy);
 
 // Similarly for locale-based strings containing integers, for different
 // languages/conventions; see https://doc.qt.io/qt-6.5/qlocale.html
-int localeStrToNumber(const QString& str, bool& ok,
-                      const QLocale& locale, int type_dummy);
-qint64 localeStrToNumber(const QString&, bool& ok,
-                         const QLocale& locale, qint64 type_dummy);
-quint64 localeStrToNumber(const QString&, bool& ok,
-                          const QLocale& locale, quint64 type_dummy);
+int localeStrToNumber(
+    const QString& str, bool& ok, const QLocale& locale, int type_dummy
+);
+qint64 localeStrToNumber(
+    const QString&, bool& ok, const QLocale& locale, qint64 type_dummy
+);
+quint64 localeStrToNumber(
+    const QString&, bool& ok, const QLocale& locale, quint64 type_dummy
+);
 
 // ============================================================================
 // Digit counting; first n digits
@@ -62,20 +65,21 @@ template<typename T>
 int numDigitsInteger(const T& number, bool count_sign = false);
 
 // Returns the first n_digits of an integer, as an integer.
-template<typename T>
-int firstDigitsInteger(const T& number, int n_digits);
+template<typename T> int firstDigitsInteger(const T& number, int n_digits);
 
 // If you add extra digits to the number to make it as long as it could be,
 // must it exceed the top value?
 template<typename T>
-bool extendedIntegerMustExceedTop(const T& number, const T& bottom,
-                                  const T& top);
+bool extendedIntegerMustExceedTop(
+    const T& number, const T& bottom, const T& top
+);
 
 // If you add extra digits to the number to make it as long as it could be,
 // must it be less than the bottom value?
 template<typename T>
-bool extendedIntegerMustBeLessThanBottom(const T& number, const T& bottom,
-                                         const T& top);
+bool extendedIntegerMustBeLessThanBottom(
+    const T& number, const T& bottom, const T& top
+);
 
 // ============================================================================
 // For integer validation
@@ -88,9 +92,13 @@ bool isValidStartToInteger(const T& number, const T& bottom, const T& top);
 
 // Validates an integer.
 template<typename T>
-QValidator::State validateInteger(const QString& s, const QLocale& locale,
-                                  const T& bottom, const T& top,
-                                  bool allow_empty);
+QValidator::State validateInteger(
+    const QString& s,
+    const QLocale& locale,
+    const T& bottom,
+    const T& top,
+    bool allow_empty
+);
 
 // ============================================================================
 // For double validation:
@@ -114,10 +122,11 @@ bool isValidStartToDouble(double number, double bottom, double top);
 bool extendedDoubleMustExceedTop(double number, double bottom, double top);
 
 // If you made "number" longer, would it necessarily be below "bottom"?
-bool extendedDoubleMustBeLessThanBottom(double number, double bottom, double top);
+bool extendedDoubleMustBeLessThanBottom(
+    double number, double bottom, double top
+);
 
 }  // namespace numeric
-
 
 // ============================================================================
 // Templated functions, first declared above
@@ -140,7 +149,6 @@ int numeric::numDigitsInteger(const T& number, bool count_sign)
     return digits;
 }
 
-
 template<typename T>
 int numeric::firstDigitsInteger(const T& number, int n_digits)
 {
@@ -154,11 +162,10 @@ int numeric::firstDigitsInteger(const T& number, int n_digits)
     return working;
 }
 
-
 template<typename T>
-bool numeric::extendedIntegerMustExceedTop(const T& number,
-                                           const T& bottom,
-                                           const T& top)
+bool numeric::extendedIntegerMustExceedTop(
+    const T& number, const T& bottom, const T& top
+)
 {
     // If you add extra digits to the number to make it as long as it could be,
     // must it exceed the top value?
@@ -194,11 +201,10 @@ bool numeric::extendedIntegerMustExceedTop(const T& number,
     }
 }
 
-
 template<typename T>
-bool numeric::extendedIntegerMustBeLessThanBottom(const T& number,
-                                                  const T& bottom,
-                                                  const T& top)
+bool numeric::extendedIntegerMustBeLessThanBottom(
+    const T& number, const T& bottom, const T& top
+)
 {
     // If you add extra digits to the number to make it as long as it could be,
     // must it be less than bottom?
@@ -234,10 +240,10 @@ bool numeric::extendedIntegerMustBeLessThanBottom(const T& number,
     }
 }
 
-
 template<typename T>
-bool numeric::isValidStartToInteger(const T& number, const T& bottom,
-                                    const T& top)
+bool numeric::isValidStartToInteger(
+    const T& number, const T& bottom, const T& top
+)
 {
     // Is number an integer that is a valid start to typing a number between
     // min and max (inclusive)?
@@ -273,31 +279,34 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
     if (extendedIntegerMustBeLessThanBottom(number, bottom, top)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
-                 << "when extended must be less than bottom value of"
-                 << bottom << "=> fail";
+                 << "when extended must be less than bottom value of" << bottom
+                 << "=> fail";
 #endif
         return false;
     }
     if (extendedIntegerMustExceedTop(number, bottom, top)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
-                 << "when extended must be more than top value of"
-                 << top << "=> fail";
+                 << "when extended must be more than top value of" << top
+                 << "=> fail";
 #endif
         return false;
     }
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
-    qDebug() << Q_FUNC_INFO << number << "is OK for bottom"
-             << bottom << "top" << top;
+    qDebug() << Q_FUNC_INFO << number << "is OK for bottom" << bottom << "top"
+             << top;
 #endif
     return true;
 }
 
 template<typename T>
 QValidator::State numeric::validateInteger(
-        const QString& s, const QLocale& locale,
-        const T& bottom, const T& top,
-        bool allow_empty)
+    const QString& s,
+    const QLocale& locale,
+    const T& bottom,
+    const T& top,
+    bool allow_empty
+)
 {
     if (s.isEmpty()) {
         if (allow_empty) {
@@ -336,7 +345,8 @@ QValidator::State numeric::validateInteger(
 
     bool ok = true;
     const T type_dummy = 0;
-    const T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
+    const T i
+        = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
     if (!ok) {  // Not an integer.
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "not an integer -> Invalid";

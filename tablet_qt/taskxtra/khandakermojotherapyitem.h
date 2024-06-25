@@ -20,19 +20,26 @@
 
 #pragma once
 #include <QString>
-#include "db/databaseobject.h"
 
+#include "db/databaseobject.h"
 
 class KhandakerMojoTherapyItem : public DatabaseObject
 {
     Q_OBJECT
+
 public:
-    KhandakerMojoTherapyItem(CamcopsApp& app, DatabaseManager& db,
-                             int load_pk = dbconst::NONEXISTENT_PK);
-    KhandakerMojoTherapyItem(int owner_fk, CamcopsApp& app, DatabaseManager& db);
+    KhandakerMojoTherapyItem(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
+    KhandakerMojoTherapyItem(
+        int owner_fk, CamcopsApp& app, DatabaseManager& db
+    );
     void setSeqnum(int seqnum);
     bool isComplete() const;
     bool isEmpty() const;
+
 public:
     static const QString KHANDAKER2MOJOTHERAPYITEM_TABLENAME;
     static const QString FN_FK_NAME;
@@ -44,5 +51,6 @@ public:
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;
     static const QStringList TABLE_FIELDNAMES;
+
 protected:
 };

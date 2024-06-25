@@ -19,10 +19,10 @@
 */
 
 #include "setmenuobrien.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/ace3.h"
 #include "tasks/badls.h"
 #include "tasks/cbir.h"
@@ -38,25 +38,23 @@
 #include "tasks/npiq.h"
 #include "tasks/zbi12.h"
 
-
 SetMenuOBrien::SetMenuOBrien(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
-
 
 QString SetMenuOBrien::title() const
 {
     return "O’Brien JT — dementia clinic";
 }
 
-
 QString SetMenuOBrien::subtitle() const
 {
-    return tr("O’Brien JT, University of Cambridge, UK — "
-              "dementia research clinic");
+    return tr(
+        "O’Brien JT, University of Cambridge, UK — "
+        "dementia research clinic"
+    );
 }
-
 
 void SetMenuOBrien::makeItems()
 {

@@ -19,6 +19,7 @@
 */
 
 #include "customtypes.h"
+
 #include "lib/version.h"
 
 namespace customtypes {

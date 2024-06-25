@@ -22,8 +22,8 @@
 
 #include "eq5d5l.h"
 
-#include "lib/uifunc.h"
 #include "lib/stringfunc.h"
+#include "lib/uifunc.h"
 #include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -53,12 +53,10 @@ using mathfunc::noneNull;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
-
 void initializeEq5d5l(TaskFactory& factory)
 {
     static TaskRegistrar<Eq5d5l> registered(factory);
 }
-
 
 Eq5d5l::Eq5d5l(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, EQ5D5L_TABLENAME, false, false, false),
@@ -70,7 +68,6 @@ Eq5d5l::Eq5d5l(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -80,24 +77,22 @@ QString Eq5d5l::shortname() const
     return "EQ-5D-5L";
 }
 
-
 QString Eq5d5l::longname() const
 {
     return tr("EuroQol 5-Dimension, 5-Level Health Scale");
 }
 
-
 QString Eq5d5l::description() const
 {
-    return tr("Self-rated health scale; 5 questions plus a visual analogue scale.");
+    return tr(
+        "Self-rated health scale; 5 questions plus a visual analogue scale."
+    );
 }
-
 
 Version Eq5d5l::minimumServerVersion() const
 {
     return Version(2, 2, 8);
 }
-
 
 // ============================================================================
 // Instance info
@@ -111,7 +106,6 @@ QStringList Eq5d5l::summary() const
     };
 }
 
-
 QStringList Eq5d5l::detail() const
 {
     QStringList lines = completenessInfo() + summary();
@@ -122,8 +116,7 @@ QStringList Eq5d5l::detail() const
         const QString istr = QString::number(qnum);
         const QString qcat = xstring(QString("q%1_h").arg(qnum));
         const QString line = stringfunc::standardResult(
-            QString("Q%1 (%2)").arg(istr, qcat),
-            prettyValue(fieldname)
+            QString("Q%1 (%2)").arg(istr, qcat), prettyValue(fieldname)
         );
         lines.append(line);
     }
@@ -131,7 +124,6 @@ QStringList Eq5d5l::detail() const
     lines += completenessInfo();
     return lines;
 }
-
 
 QString Eq5d5l::getHealthStateCode() const
 {
@@ -144,13 +136,11 @@ QString Eq5d5l::getHealthStateCode() const
     return descriptive;
 }
 
-
 bool Eq5d5l::isComplete() const
 {
-    return noneNull(values(strseq(QPREFIX, FIRST_Q, LAST_Q))) &&
-            !value(VAS_QUESTION).isNull();
+    return noneNull(values(strseq(QPREFIX, FIRST_Q, LAST_Q)))
+        && !value(VAS_QUESTION).isNull();
 }
-
 
 OpenableWidget* Eq5d5l::editor(const bool read_only)
 {
@@ -170,17 +160,17 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
             {xstring(qoptprefix + "5"), 5},
         };
 
-        elements.append({
-            (new QuText(xstring("t1_instruction")))->setBold(),
-            new QuMcq(fieldRef(field), options)
-        });
+        elements.append(
+            {(new QuText(xstring("t1_instruction")))->setBold(),
+             new QuMcq(fieldRef(field), options)}
+        );
 
         const QString xheading = xstring(heading);
-        pages.append(QuPagePtr(
-            (new QuPage(elements))
-                ->setTitle(QString("%1: %2").arg(sname, xheading))
-                ->setIndexTitle(xheading)
-        ));
+        pages.append(
+            QuPagePtr((new QuPage(elements))
+                          ->setTitle(QString("%1: %2").arg(sname, xheading))
+                          ->setIndexTitle(xheading))
+        );
 
         elements.clear();
     }
@@ -192,7 +182,8 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     items.append(QuThermometerItem(
         uifunc::resourceFilename(resource_prefix + "base_sel.png"),
         uifunc::resourceFilename(resource_prefix + "base_unsel.png"),
-        "0", 0
+        "0",
+        0
     ));
 
     QString itemtext;
@@ -203,7 +194,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
             resource = resource_prefix + "mid%1.png";
             itemtext = QString::number(i);
         } else {
-            resource = resource_prefix  + "tick%1.png";
+            resource = resource_prefix + "tick%1.png";
             itemtext = "";
         }
 
@@ -220,16 +211,14 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     items.append(QuThermometerItem(
         uifunc::resourceFilename(resource_prefix + "top_sel.png"),
         uifunc::resourceFilename(resource_prefix + "top_unsel.png"),
-        "100", 100
+        "100",
+        100
     ));
 
     QVector<QuElementPtr> instructions;
     for (int i = 1; i <= 5; ++i) {
         instructions.append(
-           QuElementPtr(
-            (new QuText(xstring(strnum("t2_i", i))))
-                ->setBig()
-           )
+            QuElementPtr((new QuText(xstring(strnum("t2_i", i))))->setBig())
         );
         instructions.append(QuElementPtr(new QuSpacer));
     }
@@ -237,12 +226,9 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     FieldRefPtr fr_vas = fieldRef(VAS_QUESTION);
 
     instructions.append(QuElementPtr(new QuSpacer));
-    instructions.append(QuElementPtr(
-        new QuHorizontalContainer{
-            (new QuText(tr("YOUR HEALTH TODAY =")))->setBig(),
-            new QuLineEditInteger(fr_vas, 0, 100)
-        }
-    ));
+    instructions.append(QuElementPtr(new QuHorizontalContainer{
+        (new QuText(tr("YOUR HEALTH TODAY =")))->setBig(),
+        new QuLineEditInteger(fr_vas, 0, 100)}));
 
     const QString xtherm = xstring("t2_h");
 
@@ -265,20 +251,24 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     // An attempt via QuZoomContainer hasn't been very successful so far.
 
     pages.append(QuPagePtr(
-        (new QuPage{
-            (new QuGridContainer{
-                QuGridCell(
-                    new QuVerticalContainer{instructions},
-                    0, 0, 1, 1, Qt::AlignLeft | Qt::AlignTop),
-                QuGridCell(therm,
-                           0, 1, 1, 1, Qt::AlignHCenter | Qt::AlignTop)
-            })
-                // For equal column widths:
-             ->setFixedGrid(true)
-             ->setExpandHorizontally(true)
-        })->setTitle(QString("%1: %2").arg(sname, xtherm))
-          ->setIndexTitle(xtherm)
-          ->allowScroll(allow_scroll, zoomable)
+        (new QuPage{(new QuGridContainer{
+                         QuGridCell(
+                             new QuVerticalContainer{instructions},
+                             0,
+                             0,
+                             1,
+                             1,
+                             Qt::AlignLeft | Qt::AlignTop
+                         ),
+                         QuGridCell(
+                             therm, 0, 1, 1, 1, Qt::AlignHCenter | Qt::AlignTop
+                         )})
+                        // For equal column widths:
+                        ->setFixedGrid(true)
+                        ->setExpandHorizontally(true)})
+            ->setTitle(QString("%1: %2").arg(sname, xtherm))
+            ->setIndexTitle(xtherm)
+            ->allowScroll(allow_scroll, zoomable)
     ));
 
     auto questionnaire = new Questionnaire(m_app, pages);

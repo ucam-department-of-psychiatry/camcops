@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,22 +29,28 @@ class TaskFactory;
 
 void initializeIesr(TaskFactory& factory);
 
-
 class Iesr : public Task
 {
     Q_OBJECT
+
 public:
-    Iesr(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Iesr(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -58,6 +65,7 @@ public:
     int avoidanceScore() const;
     int intrusionScore() const;
     int hyperarousalScore() const;
+
 public:
     static const QString IESR_TABLENAME;
 };

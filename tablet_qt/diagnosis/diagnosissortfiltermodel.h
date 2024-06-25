@@ -21,16 +21,16 @@
 #pragma once
 #include <QSortFilterProxyModel>
 
-
 // Class to filter diagnoses, including parents whose children meet the filter
 // criteria. See code for details.
 
 class DiagnosisSortFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
+
 public:
     using QSortFilterProxyModel::QSortFilterProxyModel;
 
-    virtual bool filterAcceptsRow(int row,
-                                  const QModelIndex& parent) const override;
+    virtual bool
+        filterAcceptsRow(int row, const QModelIndex& parent) const override;
 };

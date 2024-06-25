@@ -21,25 +21,25 @@
 // #define DEBUG_TASK_MENU_CREATION
 
 #include "singletaskmenu.h"
+
 #include <QPushButton>
+
 #include "common/uiconst.h"
 #include "common/urlconst.h"
 #include "dbobjects/patient.h"
 #include "dialogs/scrollmessagebox.h"
-#include "lib/uifunc.h"
 #include "lib/stringfunc.h"
+#include "lib/uifunc.h"
 #include "menulib/menuheader.h"
 #include "menulib/menuitem.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
-
 
 SingleTaskMenu::SingleTaskMenu(const QString& tablename, CamcopsApp& app) :
     MenuWindow(app, ""),  // start with a blank title
     m_tablename(tablename)
 {
 }
-
 
 void SingleTaskMenu::extraLayoutCreation()
 {
@@ -56,21 +56,36 @@ void SingleTaskMenu::extraLayoutCreation()
     // m_items is EXPENSIVE (and depends on security), so leave it to build()
 
     // Signals
-    connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &SingleTaskMenu::selectedPatientChanged,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::taskAlterationFinished,
-            this, &SingleTaskMenu::refreshTaskList,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::lockStateChanged,
-            this, &SingleTaskMenu::refreshTaskList,
-            Qt::UniqueConnection);
+    connect(
+        &m_app,
+        &CamcopsApp::selectedPatientChanged,
+        this,
+        &SingleTaskMenu::selectedPatientChanged,
+        Qt::UniqueConnection
+    );
+    connect(
+        &m_app,
+        &CamcopsApp::taskAlterationFinished,
+        this,
+        &SingleTaskMenu::refreshTaskList,
+        Qt::UniqueConnection
+    );
+    connect(
+        &m_app,
+        &CamcopsApp::lockStateChanged,
+        this,
+        &SingleTaskMenu::refreshTaskList,
+        Qt::UniqueConnection
+    );
 
-    connect(m_p_header, &MenuHeader::addClicked,
-            this, &SingleTaskMenu::addTask,
-            Qt::UniqueConnection);
+    connect(
+        m_p_header,
+        &MenuHeader::addClicked,
+        this,
+        &SingleTaskMenu::addTask,
+        Qt::UniqueConnection
+    );
 }
-
 
 QString SingleTaskMenu::title() const
 {
@@ -79,36 +94,33 @@ QString SingleTaskMenu::title() const
     return specimen->menutitle();
 }
 
-
 void SingleTaskMenu::makeItems()
 {
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr specimen = factory->create(m_tablename);
 
     // Common items
-    const QString info_icon_filename = uifunc::iconFilename(uiconst::ICON_INFO);
+    const QString info_icon_filename
+        = uifunc::iconFilename(uiconst::ICON_INFO);
     m_items = {
         MenuItem(tr("Options")).setLabelOnly(),
     };
     if (!m_anonymous) {
         m_items.append(MAKE_CHANGE_PATIENT(m_app));
     }
+    m_items.append(MenuItem(
+        tr("Task information"),
+        UrlMenuItem(urlconst::taskDocUrl(specimen->infoFilenameStem())),
+        info_icon_filename
+    ));
+    m_items.append(MenuItem(
+        tr("Task status"),
+        std::bind(&SingleTaskMenu::showTaskStatus, this),
+        info_icon_filename
+    ));
     m_items.append(
-        MenuItem(
-            tr("Task information"),
-            UrlMenuItem(
-                urlconst::taskDocUrl(specimen->infoFilenameStem())
-            ),
-            info_icon_filename
-        )
-    );
-    m_items.append(MenuItem(tr("Task status"),
-                            std::bind(&SingleTaskMenu::showTaskStatus, this),
-                            info_icon_filename));
-    m_items.append(
-        MenuItem(
-            tr("Task instances") + ": " + specimen->menutitle()
-        ).setLabelOnly()
+        MenuItem(tr("Task instances") + ": " + specimen->menutitle())
+            .setLabelOnly()
     );
 
     // Task items
@@ -116,19 +128,17 @@ void SingleTaskMenu::makeItems()
 #ifdef DEBUG_TASK_MENU_CREATION
     qDebug() << Q_FUNC_INFO << "-" << tasklist.size() << "tasks";
 #endif
-    const bool show_patient_name = specimen->isAnonymous() ||
-            !m_app.isPatientSelected();
+    const bool show_patient_name
+        = specimen->isAnonymous() || !m_app.isPatientSelected();
     for (const TaskPtr& task : tasklist) {
         m_items.append(MenuItem(task, false, show_patient_name));
     }
 }
 
-
 void SingleTaskMenu::afterBuild()
 {
     emit offerAdd(m_anonymous || m_app.isPatientSelected());
 }
-
 
 void SingleTaskMenu::addTask()
 {
@@ -145,11 +155,14 @@ void SingleTaskMenu::addTask()
     // Task not permitted?
     // (Intellectual property restriction, or lack of correct string data.)
     if (!task->isTaskPermissible(failure_reason)) {
-        const QString reason = QString("%1<br><br>%2: %3").arg(
-            tr("You cannot add this task with your current settings."),
-            tr("Current reason"),
-            stringfunc::bold(failure_reason)
-        );
+        const QString reason
+            = QString("%1<br><br>%2: %3")
+                  .arg(
+                      tr("You cannot add this task with your current settings."
+                      ),
+                      tr("Current reason"),
+                      stringfunc::bold(failure_reason)
+                  );
         uifunc::alert(reason, tr("Not permitted to add task"));
         return;
     }
@@ -172,12 +185,12 @@ void SingleTaskMenu::addTask()
         ScrollMessageBox msgbox(
             QMessageBox::Warning,
             tr("Really create?"),
-            tr("This task is not currently uploadable.") + "\n\n" +
-                failure_reason + "\n\n" + tr("Create anyway?"),
+            tr("This task is not currently uploadable.") + "\n\n"
+                + failure_reason + "\n\n" + tr("Create anyway?"),
             this
         );
-        QAbstractButton* yes = msgbox.addButton(tr("Yes, create"),
-                                                QMessageBox::YesRole);
+        QAbstractButton* yes
+            = msgbox.addButton(tr("Yes, create"), QMessageBox::YesRole);
         msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
         msgbox.exec();
         if (msgbox.clickedButton() != yes) {
@@ -190,13 +203,11 @@ void SingleTaskMenu::addTask()
     editTaskConfirmed(task);
 }
 
-
 void SingleTaskMenu::selectedPatientChanged(const Patient* patient)
 {
     refreshTaskList();
     emit offerAdd(m_anonymous || patient);
 }
-
 
 void SingleTaskMenu::showTaskStatus() const
 {
@@ -206,8 +217,7 @@ void SingleTaskMenu::showTaskStatus() const
     QString why_not_permissible;
     QString why_not_uploadable;
     auto add = [&info](const QString& desc, const QString& value) -> void {
-        info.append(QString("%1: %2")
-                    .arg(desc, stringfunc::bold(value)));
+        info.append(QString("%1: %2").arg(desc, stringfunc::bold(value)));
     };
     add(tr("Long name"), specimen->longname());
     add(tr("Short name"), specimen->shortname());
@@ -216,20 +226,24 @@ void SingleTaskMenu::showTaskStatus() const
     add(tr("Anonymous"), uifunc::yesNo(specimen->isAnonymous()));
     add(tr("Has a clinician"), uifunc::yesNo(specimen->hasClinician()));
     add(tr("Has a respondent"), uifunc::yesNo(specimen->hasRespondent()));
-    add(tr("Prohibits clinical use"), uifunc::yesNo(specimen->prohibitsClinical()));
-    add(tr("Prohibits commercial use"), uifunc::yesNo(specimen->prohibitsCommercial()));
-    add(tr("Prohibits educational use"), uifunc::yesNo(specimen->prohibitsEducational()));
-    add(tr("Prohibits research use"), uifunc::yesNo(specimen->prohibitsResearch()));
+    add(tr("Prohibits clinical use"),
+        uifunc::yesNo(specimen->prohibitsClinical()));
+    add(tr("Prohibits commercial use"),
+        uifunc::yesNo(specimen->prohibitsCommercial()));
+    add(tr("Prohibits educational use"),
+        uifunc::yesNo(specimen->prohibitsEducational()));
+    add(tr("Prohibits research use"),
+        uifunc::yesNo(specimen->prohibitsResearch()));
 
-    add(tr("Extra strings present from server"), uifunc::yesNo(
-            specimen->hasExtraStrings()));
+    add(tr("Extra strings present from server"),
+        uifunc::yesNo(specimen->hasExtraStrings()));
 
-    add(tr("Permissible (creatable) with current settings"), uifunc::yesNo(
-            specimen->isTaskPermissible(why_not_permissible)));
+    add(tr("Permissible (creatable) with current settings"),
+        uifunc::yesNo(specimen->isTaskPermissible(why_not_permissible)));
     add(tr("If not, why not permissible"), why_not_permissible);
 
-    add(tr("Uploadable to current server"), uifunc::yesNo(
-            specimen->isTaskUploadable(why_not_uploadable)));
+    add(tr("Uploadable to current server"),
+        uifunc::yesNo(specimen->isTaskUploadable(why_not_uploadable)));
     add(tr("If not, why not uploadable"), why_not_uploadable);
 
     add(tr("Fully functional"), uifunc::yesNo(!specimen->isCrippled()));
@@ -237,7 +251,6 @@ void SingleTaskMenu::showTaskStatus() const
 
     uifunc::alert(info.join("<br>"), tr("Task status"));
 }
-
 
 void SingleTaskMenu::refreshTaskList()
 {

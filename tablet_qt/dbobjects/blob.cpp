@@ -21,7 +21,9 @@
 // #define DEBUG_ROTATION
 
 #include "blob.h"
+
 #include <QTransform>
+
 #include "db/databasemanager.h"
 #include "lib/convert.h"
 
@@ -32,24 +34,29 @@ const QString Blob::SRC_PK_FIELDNAME("tablepk");  // as per Blob.js
 const QString SRC_FIELD_FIELDNAME("fieldname");  // as per Blob.js
 const QString FILENAME_FIELDNAME("filename");  // as per Blob.js
 const QString MIMETYPE_FIELDNAME("mimetype");  // new in v2.0.0
-const QString BLOB_FIELDNAME("theblob"); // as per dbupload.js
+const QString BLOB_FIELDNAME("theblob");  // as per dbupload.js
 // ... was a "virtual" field under Titanium and file-based BLOBs.
 const QString ROTATION_FIELDNAME("image_rotation_deg_cw");
+
 // ... rotation is anticlockwise for "x up, y up", but clockwise for "y down",
 //     which is the computing norm.
 
 
-Blob::Blob(CamcopsApp& app,
-           DatabaseManager& db,
-           const QString& src_table,
-           const int src_pk,
-           const QString& src_field) :
-    DatabaseObject(app,
-                   db,
-                   TABLENAME,
-                   dbconst::PK_FIELDNAME,
-                   true,  // modification timestamp
-                   false)  // creation timestamp
+Blob::Blob(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& src_table,
+    const int src_pk,
+    const QString& src_field
+) :
+    DatabaseObject(
+        app,
+        db,
+        TABLENAME,
+        dbconst::PK_FIELDNAME,
+        true,  // modification timestamp
+        false
+    )  // creation timestamp
 {
     // ------------------------------------------------------------------------
     // Define fields
@@ -91,29 +98,30 @@ Blob::Blob(CamcopsApp& app,
     // but leaving a potentially ambiguous state from the C++ perspective when
     // insertion overwrites rather than creatng.
 
-    m_filename_stem = QString("blob_%1_%2_%3").arg(src_table)
-                                              .arg(src_pk)
-                                              .arg(src_field);
+    m_filename_stem
+        = QString("blob_%1_%2_%3").arg(src_table).arg(src_pk).arg(src_field);
     // ... as per Blob.js
 
     m_image_loaded_from_data = false;
 }
 
-
 Blob::~Blob()
 {
 }
 
-
-bool Blob::setBlob(const QVariant& value,
-                   const bool save_to_db,
-                   const QString& extension_without_dot,
-                   const QString& mimetype)
+bool Blob::setBlob(
+    const QVariant& value,
+    const bool save_to_db,
+    const QString& extension_without_dot,
+    const QString& mimetype
+)
 {
     bool changed = setValue(BLOB_FIELDNAME, value);
-    changed = setValue(FILENAME_FIELDNAME,
-                       QString("%1.%2").arg(m_filename_stem,
-                                            extension_without_dot)) || changed;
+    changed = setValue(
+                  FILENAME_FIELDNAME,
+                  QString("%1.%2").arg(m_filename_stem, extension_without_dot)
+              )
+        || changed;
     changed = setValue(MIMETYPE_FIELDNAME, mimetype) || changed;
     changed = setValue(ROTATION_FIELDNAME, 0) || changed;
 
@@ -124,28 +132,24 @@ bool Blob::setBlob(const QVariant& value,
     return changed;
 }
 
-
 QVariant Blob::blobVariant() const
 {
     return value(BLOB_FIELDNAME);
 }
-
 
 QByteArray Blob::blobByteArray() const
 {
     return valueByteArray(BLOB_FIELDNAME);
 }
 
-
 void Blob::makeIndexes()
 {
-    m_db.createIndex("_idx_blob_srctable_srcpk_srcfield",
-                     TABLENAME,
-                     {SRC_TABLE_FIELDNAME,
-                      SRC_PK_FIELDNAME,
-                      SRC_FIELD_FIELDNAME});
+    m_db.createIndex(
+        "_idx_blob_srctable_srcpk_srcfield",
+        TABLENAME,
+        {SRC_TABLE_FIELDNAME, SRC_PK_FIELDNAME, SRC_FIELD_FIELDNAME}
+    );
 }
-
 
 void Blob::rotateCachedImage(int angle_degrees_clockwise) const
 {
@@ -167,12 +171,12 @@ void Blob::rotateCachedImage(int angle_degrees_clockwise) const
 #endif
 }
 
-
 QImage Blob::image(bool* p_loaded) const
 {
     if (m_image.isNull()) {
-        m_image = convert::byteArrayToImage(blobByteArray(),
-                                            &m_image_loaded_from_data);
+        m_image = convert::byteArrayToImage(
+            blobByteArray(), &m_image_loaded_from_data
+        );
         const int angle_deg_cw = valueInt(ROTATION_FIELDNAME);
         rotateCachedImage(angle_deg_cw);
     }
@@ -182,9 +186,9 @@ QImage Blob::image(bool* p_loaded) const
     return m_image;
 }
 
-
-void Blob::rotateImage(const int angle_degrees_clockwise,
-                       const bool save_to_db)
+void Blob::rotateImage(
+    const int angle_degrees_clockwise, const bool save_to_db
+)
 {
     int rotation = valueInt(ROTATION_FIELDNAME);
     rotation = (rotation + angle_degrees_clockwise) % 360;
@@ -196,7 +200,6 @@ void Blob::rotateImage(const int angle_degrees_clockwise,
     rotateCachedImage(angle_degrees_clockwise);
 }
 
-
 bool Blob::setImage(const QImage& image, const bool save_to_db)
 {
     m_image = image;
@@ -206,12 +209,17 @@ bool Blob::setImage(const QImage& image, const bool save_to_db)
     return changed;
 }
 
-
-bool Blob::setRawImage(const QByteArray& data,
-                       const bool save_to_db,
-                       const QString& extension_without_dot,
-                       const QString& mimetype)
+bool Blob::setRawImage(
+    const QByteArray& data,
+    const bool save_to_db,
+    const QString& extension_without_dot,
+    const QString& mimetype
+)
 {
-    return setBlob(data,  // will autoconvert from QByteArray to QVariant
-                   save_to_db, extension_without_dot, mimetype);
+    return setBlob(
+        data,  // will autoconvert from QByteArray to QVariant
+        save_to_db,
+        extension_without_dot,
+        mimetype
+    );
 }

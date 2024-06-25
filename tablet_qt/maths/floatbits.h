@@ -23,8 +23,8 @@
 #pragma once
 #include <cstdint>
 #include <float.h>  // for FLT_MAX etc.
-#include "maths/endian.h"
 
+#include "maths/endian.h"
 
 /*
 
@@ -46,25 +46,41 @@ Detecting endianness across compilers: do it at runtime.
 */
 
 
-
-union BitRepresentationFloat
-{
+union BitRepresentationFloat {
 public:
     // Based on RUNTIME, not compile-time, checks for endian-ness.
-    explicit BitRepresentationFloat(float num) { f = num; }
-    bool isNegative() { return f < 0; }
-    bool isMaximum() const { return f == FLT_MAX; }
-    bool isMinimum() const { return f == -FLT_MAX; }
+    explicit BitRepresentationFloat(float num)
+    {
+        f = num;
+    }
+
+    bool isNegative()
+    {
+        return f < 0;
+    }
+
+    bool isMaximum() const
+    {
+        return f == FLT_MAX;
+    }
+
+    bool isMinimum() const
+    {
+        return f == -FLT_MAX;
+    }
+
     uint32_t getNegative(Endian endian)
     {
         return endian == Endian::BigEndian ? ieee_bigendian.negative
                                            : ieee_littleendian.negative;
     }
+
     uint32_t getExponent(Endian endian)
     {
         return endian == Endian::BigEndian ? ieee_bigendian.exponent
                                            : ieee_littleendian.exponent;
     }
+
     uint32_t getMantissa(Endian endian)
     {
         return endian == Endian::BigEndian ? ieee_bigendian.mantissa
@@ -75,25 +91,31 @@ public:
     float f;
 
     // This is the IEEE 754 single-precision format.
-    struct {
+    struct
+    {
         unsigned int negative : 1;
         unsigned int exponent : 8;
         unsigned int mantissa : 23;
     } ieee_bigendian;
-    struct {
+
+    struct
+    {
         unsigned int mantissa : 23;
         unsigned int exponent : 8;
         unsigned int negative : 1;
     } ieee_littleendian;
 
     // This format makes it easier to see if a NaN is a signalling NaN.
-    struct {
+    struct
+    {
         unsigned int negative : 1;
         unsigned int exponent : 8;
         unsigned int quiet_nan : 1;
         unsigned int mantissa : 22;
     } ieee_nan_bigendian;
-    struct {
+
+    struct
+    {
         unsigned int mantissa : 22;
         unsigned int quiet_nan : 1;
         unsigned int exponent : 8;
@@ -105,50 +127,70 @@ public:
     uint32_t ui;
 };
 
-
-union BitRepresentationDouble
-{
+union BitRepresentationDouble {
 public:
     // Based on RUNTIME, not compile-time, checks for endian-ness.
-    explicit BitRepresentationDouble(double num) { d = num; }
-    bool isNegative() { return d < 0; }
-    bool isMaximum() const { return d == DBL_MAX; }
-    bool isMinimum() const { return d == -DBL_MAX; }
+    explicit BitRepresentationDouble(double num)
+    {
+        d = num;
+    }
+
+    bool isNegative()
+    {
+        return d < 0;
+    }
+
+    bool isMaximum() const
+    {
+        return d == DBL_MAX;
+    }
+
+    bool isMinimum() const
+    {
+        return d == -DBL_MAX;
+    }
+
     uint64_t getMantissa(Endian byte, Endian word) const
     {
-        return makeMantissa(getMantissa0(byte, word), getMantissa1(byte, word));
+        return makeMantissa(
+            getMantissa0(byte, word), getMantissa1(byte, word)
+        );
     }
+
     uint64_t getMantissa0(Endian byte, Endian word) const
     {
         return byte == Endian::BigEndian
             ? ieee_bytebigendian.mantissa0
             : (word == Endian::BigEndian
-               ? ieee_bytelittle_floatwordbigendian.mantissa0
-               : ieee_bytelittle_floatwordlittleendian.mantissa0);
+                   ? ieee_bytelittle_floatwordbigendian.mantissa0
+                   : ieee_bytelittle_floatwordlittleendian.mantissa0);
     }
+
     uint64_t getMantissa1(Endian byte, Endian word) const
     {
         return byte == Endian::BigEndian
             ? ieee_bytebigendian.mantissa1
             : (word == Endian::BigEndian
-               ? ieee_bytelittle_floatwordbigendian.mantissa1
-               : ieee_bytelittle_floatwordlittleendian.mantissa1);
+                   ? ieee_bytelittle_floatwordbigendian.mantissa1
+                   : ieee_bytelittle_floatwordlittleendian.mantissa1);
     }
+
     uint64_t getExponent(Endian byte, Endian word) const
     {
         return byte == Endian::BigEndian
             ? ieee_bytebigendian.exponent
             : (word == Endian::BigEndian
-               ? ieee_bytelittle_floatwordbigendian.exponent
-               : ieee_bytelittle_floatwordlittleendian.exponent);
+                   ? ieee_bytelittle_floatwordbigendian.exponent
+                   : ieee_bytelittle_floatwordlittleendian.exponent);
     }
+
     uint64_t getNegative(Endian byte, Endian word) const
     {
         return byte == Endian::BigEndian
             ? ieee_bytebigendian.negative
             : (word == Endian::BigEndian
-               ? ieee_bytelittle_floatwordbigendian.negative
-               : ieee_bytelittle_floatwordlittleendian.negative);
+                   ? ieee_bytelittle_floatwordbigendian.negative
+                   : ieee_bytelittle_floatwordlittleendian.negative);
     }
 
 private:
@@ -163,20 +205,25 @@ public:
     double d;
 
     // This is the IEEE 754 double-precision format.
-    struct {
+    struct
+    {
         unsigned int negative : 1;
         unsigned int exponent : 11;
         // Together these comprise the mantissa:
         unsigned int mantissa0 : 20;
         unsigned int mantissa1 : 32;
     } ieee_bytebigendian;
-    struct {
+
+    struct
+    {
         unsigned int mantissa0 : 20;
         unsigned int exponent : 11;
         unsigned int negative : 1;
         unsigned int mantissa1 : 32;
     } ieee_bytelittle_floatwordbigendian;
-    struct {
+
+    struct
+    {
         // Together these comprise the mantissa.
         unsigned int mantissa1 : 32;
         unsigned int mantissa0 : 20;
@@ -185,7 +232,8 @@ public:
     } ieee_bytelittle_floatwordlittleendian;
 
     // This format makes it easier to see if a NaN is a signalling NaN.
-    struct {
+    struct
+    {
         unsigned int negative : 1;
         unsigned int exponent : 11;
         unsigned int quiet_nan : 1;
@@ -193,14 +241,18 @@ public:
         unsigned int mantissa0 : 19;
         unsigned int mantissa1 : 32;
     } ieee_nan_bytebigendian;
-    struct {
-            unsigned int mantissa0 : 19;
-            unsigned int quiet_nan : 1;
-            unsigned int exponent : 11;
-            unsigned int negative : 1;
-            unsigned int mantissa1 : 32;
+
+    struct
+    {
+        unsigned int mantissa0 : 19;
+        unsigned int quiet_nan : 1;
+        unsigned int exponent : 11;
+        unsigned int negative : 1;
+        unsigned int mantissa1 : 32;
     } ieee_nan_bytelittle_floatwordbigendian;
-    struct {
+
+    struct
+    {
         // Together these comprise the mantissa.
         unsigned int mantissa1 : 32;
         unsigned int mantissa0 : 19;

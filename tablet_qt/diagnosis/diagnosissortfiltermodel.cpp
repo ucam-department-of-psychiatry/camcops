@@ -20,10 +20,9 @@
 
 #include "diagnosissortfiltermodel.h"
 
-
 bool DiagnosisSortFilterModel::filterAcceptsRow(
-        const int row,
-        const QModelIndex& parent) const
+    const int row, const QModelIndex& parent
+) const
 {
     // Filter modification that accepts parents whose children meet the filter
     // criteria. (Note that calling setFilterFixedString correctly affects

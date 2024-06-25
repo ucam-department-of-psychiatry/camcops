@@ -20,13 +20,13 @@
 
 #pragma once
 #include <QDebug>
+
 #include "lib/layoutdumper.h"
 
 class Questionnaire;
 class QuElement;
 
 class QVariant;
-
 
 namespace debugfunc {
 
@@ -47,11 +47,13 @@ void dumpQObject(QObject* obj);
 // - Press <D> to dump information about the widget, including its layout and
 //   its children, and all their positional information.
 // - Press <A> to call QWidget::adjustSize().
-void debugWidget(QWidget* widget,
-                 bool set_background_by_name = false,
-                 bool set_background_by_stylesheet = true,
-                 const layoutdumper::DumperConfig& config = layoutdumper::DumperConfig(),
-                 bool use_hfw_layout = true,
-                 const QString* dialog_stylesheet = nullptr);
+void debugWidget(
+    QWidget* widget,
+    bool set_background_by_name = false,
+    bool set_background_by_stylesheet = true,
+    const layoutdumper::DumperConfig& config = layoutdumper::DumperConfig(),
+    bool use_hfw_layout = true,
+    const QString* dialog_stylesheet = nullptr
+);
 
 }  // namespace debugfunc

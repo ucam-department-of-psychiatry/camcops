@@ -21,7 +21,6 @@
 #pragma once
 #include <QString>
 
-
 class PagePickerItem
 {
     // An option presented by a PagePickerDialog.
@@ -29,7 +28,6 @@ class PagePickerItem
     // Questionnaire.
 
 public:
-
     // How should the page be shown/displayed?
     // Determines the icon shown and whether the user can select it.
     enum class PagePickerItemType {
@@ -42,8 +40,9 @@ public:
     PagePickerItem();
 
     // Usual constructor
-    PagePickerItem(const QString& text, int page_number,
-                   PagePickerItemType type);
+    PagePickerItem(
+        const QString& text, int page_number, PagePickerItemType type
+    );
 
     // Returns the text (e.g. page title)
     QString text() const;

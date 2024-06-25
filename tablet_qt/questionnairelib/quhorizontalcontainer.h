@@ -21,7 +21,6 @@
 #pragma once
 #include "questionnairelib/qusequencecontainerbase.h"
 
-
 class QuHorizontalContainer : public QuSequenceContainerBase
 {
     // Allows the arrangements of other elements into a horizontal layout.
@@ -33,12 +32,16 @@ public:
     QuHorizontalContainer(QObject* parent = nullptr);
 
     // Construct with elements
-    QuHorizontalContainer(const QVector<QuElementPtr>& elements,
-                          QObject* parent = nullptr);
-    QuHorizontalContainer(std::initializer_list<QuElementPtr> elements,
-                          QObject* parent = nullptr);
-    QuHorizontalContainer(std::initializer_list<QuElement*> elements,
-                          QObject* parent = nullptr);  // takes ownership
+    QuHorizontalContainer(
+        const QVector<QuElementPtr>& elements, QObject* parent = nullptr
+    );
+    QuHorizontalContainer(
+        std::initializer_list<QuElementPtr> elements, QObject* parent = nullptr
+    );
+    QuHorizontalContainer(
+        std::initializer_list<QuElement*> elements,
+        QObject* parent = nullptr
+    );  // takes ownership
 
     // Should we add a "stretch" to the right-hand side of the layout?
     // This makes the difference between:
@@ -52,7 +55,8 @@ public:
     QuHorizontalContainer* setAddStretchRight(bool add_stretch_right);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 
 protected:
     bool m_add_stretch_right;  // add stretch on the right?

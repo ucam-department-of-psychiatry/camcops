@@ -22,7 +22,6 @@
 #include <QString>
 class DatabaseManager;
 
-
 // Represents an SQL transaction that can be nested, using
 //      SAVEPOINT name;
 //      RELEASE name;  -- on success
@@ -31,6 +30,7 @@ class DatabaseManager;
 class DbNestableTransaction
 {
     // https://www.sqlite.org/lang_savepoint.html
+
 public:
     // Create the transaction. It starts in a "successful" state.
     DbNestableTransaction(DatabaseManager& db);
@@ -46,7 +46,6 @@ public:
     void succeed();
 
 protected:
-
     // Our database manager.
     DatabaseManager& m_db;
 

@@ -19,130 +19,384 @@
 */
 
 #include "textconst.h"
+
 #include <QObject>
 
 // ============================================================================
 // Common text via tr()
 // ============================================================================
 
-QString TextConst::abnormal() { return tr("Abnormal"); }
-QString TextConst::abort() { return tr("Abort"); }
-QString TextConst::add() { return tr("Add"); }
+QString TextConst::abnormal()
+{
+    return tr("Abnormal");
+}
 
-QString TextConst::back() { return tr("Back"); }
+QString TextConst::abort()
+{
+    return tr("Abort");
+}
 
-QString TextConst::cancel() { return tr("Cancel"); }
-QString TextConst::category() { return tr("Category"); }
-QString TextConst::clinician() { return tr("Clinician/researcher"); }
-QString TextConst::clinicianAndRespondentDetails() { return tr("Clinician/researcher’s and respondent’s details"); }
-QString TextConst::clinicianComments() { return tr("Clinician/researcher’s comments"); }
-QString TextConst::clinicianContactDetails() { return tr("Clinician/researcher’s contact details"); }
-QString TextConst::clinicianDetails() { return tr("Clinician/researcher’s details"); }
-QString TextConst::clinicianName() { return tr("Clinician/researcher’s name"); }
-QString TextConst::clinicianPost() { return tr("Clinician/researcher’s post"); }
-QString TextConst::clinicianProfessionalRegistration() { return tr("Clinician/researcher’s professional registration"); }
-QString TextConst::clinicianService() { return tr("Clinician/researcher’s service"); }
-QString TextConst::clinicianSpecialty() { return tr("Clinician/researcher’s specialty"); }
-QString TextConst::cliniciansComments() { return tr("Clinician/researcher’s comments"); }
-QString TextConst::comment() { return tr("Comment"); }
-QString TextConst::comments() { return tr("Comments"); }
-QString TextConst::copy() { return tr("Copy"); }
-QString TextConst::correct() { return tr("Correct"); }
+QString TextConst::add()
+{
+    return tr("Add");
+}
+
+QString TextConst::back()
+{
+    return tr("Back");
+}
+
+QString TextConst::cancel()
+{
+    return tr("Cancel");
+}
+
+QString TextConst::category()
+{
+    return tr("Category");
+}
+
+QString TextConst::clinician()
+{
+    return tr("Clinician/researcher");
+}
+
+QString TextConst::clinicianAndRespondentDetails()
+{
+    return tr("Clinician/researcher’s and respondent’s details");
+}
+
+QString TextConst::clinicianComments()
+{
+    return tr("Clinician/researcher’s comments");
+}
+
+QString TextConst::clinicianContactDetails()
+{
+    return tr("Clinician/researcher’s contact details");
+}
+
+QString TextConst::clinicianDetails()
+{
+    return tr("Clinician/researcher’s details");
+}
+
+QString TextConst::clinicianName()
+{
+    return tr("Clinician/researcher’s name");
+}
+
+QString TextConst::clinicianPost()
+{
+    return tr("Clinician/researcher’s post");
+}
+
+QString TextConst::clinicianProfessionalRegistration()
+{
+    return tr("Clinician/researcher’s professional registration");
+}
+
+QString TextConst::clinicianService()
+{
+    return tr("Clinician/researcher’s service");
+}
+
+QString TextConst::clinicianSpecialty()
+{
+    return tr("Clinician/researcher’s specialty");
+}
+
+QString TextConst::cliniciansComments()
+{
+    return tr("Clinician/researcher’s comments");
+}
+
+QString TextConst::comment()
+{
+    return tr("Comment");
+}
+
+QString TextConst::comments()
+{
+    return tr("Comments");
+}
+
+QString TextConst::copy()
+{
+    return tr("Copy");
+}
+
+QString TextConst::correct()
+{
+    return tr("Correct");
+}
 
 QString TextConst::dataCollectionOnlyAnnouncement()
 {
     return tr(
-       "Reproduction of this task/scale is not permitted. This is a data "
-       "collection tool only; use it only in conjunction with a licensed copy "
-       "of the original task.");
+        "Reproduction of this task/scale is not permitted. This is a data "
+        "collection tool only; use it only in conjunction with a licensed "
+        "copy "
+        "of the original task."
+    );
 }
+
 QString TextConst::DATA_COLLECTION_ONLY_SYMBOL("¶");
+
 QString TextConst::dataCollectionOnlySubtitleSuffix()
 {
     return tr("Data collection tool only.");
 }
+
 QString TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL("¶+");
+
 QString TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix()
 {
-    return tr("Data collection tool only unless host "
-              "institution adds scale text.");
+    return tr(
+        "Data collection tool only unless host "
+        "institution adds scale text."
+    );
 }
-QString TextConst::defaultHintText() { return tr("type text here"); }
+
+QString TextConst::defaultHintText()
+{
+    return tr("type text here");
+}
+
 QString TextConst::DEFUNCT_SYMBOL("†");
+
 QString TextConst::defunctSubtitleSuffix()
 {
     return tr("Defunct.");
 }
-QString TextConst::delete_() { return tr("Delete"); }
-QString TextConst::description() { return tr("Description"); }
-QString TextConst::diagnosis() { return tr("Diagnosis"); }
 
-QString TextConst::enterTheAnswers() { return tr("Enter the answers:"); }
-QString TextConst::examinerComments() { return tr("Examiner’s comments"); }
+QString TextConst::delete_()
+{
+    return tr("Delete");
+}
+
+QString TextConst::description()
+{
+    return tr("Description");
+}
+
+QString TextConst::diagnosis()
+{
+    return tr("Diagnosis");
+}
+
+QString TextConst::enterTheAnswers()
+{
+    return tr("Enter the answers:");
+}
+
+QString TextConst::examinerComments()
+{
+    return tr("Examiner’s comments");
+}
+
 QString TextConst::examinerCommentsPrompt()
 {
-    return tr("Optional — Examiner’s comments (e.g. "
-              "difficulties the subject had with the task):");
+    return tr(
+        "Optional — Examiner’s comments (e.g. "
+        "difficulties the subject had with the task):"
+    );
 }
+
 QString TextConst::EXPERIMENTAL_SYMBOL("~");
+
 QString TextConst::experimentalSubtitleSuffix()
 {
     return tr("Experimental.");
 }
 
-QString TextConst::finished() { return tr("Finished"); }
-QString TextConst::fullTask() { return tr("Full task without content restriction"); }
+QString TextConst::finished()
+{
+    return tr("Finished");
+}
 
-QString TextConst::globalScore() { return tr("Global score"); }
+QString TextConst::fullTask()
+{
+    return tr("Full task without content restriction");
+}
+
+QString TextConst::globalScore()
+{
+    return tr("Global score");
+}
 
 QString TextConst::HAS_CLINICIAN_SYMBOL("C");
-QString TextConst::hasClinicianSubtitleSuffix() {
+
+QString TextConst::hasClinicianSubtitleSuffix()
+{
     return tr("Involves assessment by clinician/researcher.");
 }
+
 QString TextConst::HAS_RESPONDENT_SYMBOL("R");
-QString TextConst::hasRespondentSubtitleSuffix() {
+
+QString TextConst::hasRespondentSubtitleSuffix()
+{
     return tr("Collects information from respondent other than the subject.");
 }
 
-QString TextConst::icd10() {
-    return tr("World Health Organization International Classification of "
-              "Diseases, 10th edition.");
+QString TextConst::icd10()
+{
+    return tr(
+        "World Health Organization International Classification of "
+        "Diseases, 10th edition."
+    );
 }
-QString TextConst::idNumberType() { return tr("ID number type"); }
-QString TextConst::inAddition() { return tr("In addition"); }
-QString TextConst::incorrect() { return tr("Incorrect"); }
 
-QString TextConst::location() { return tr("Location"); }
+QString TextConst::idNumberType()
+{
+    return tr("ID number type");
+}
 
-QString TextConst::meetsCriteria() { return tr("Meets criteria"); }
-QString TextConst::mild() { return tr("Mild"); }
-QString TextConst::mildToModerate() { return tr("Mild to moderate"); }
-QString TextConst::moderatelySevere() { return tr("Moderately severe"); }
-QString TextConst::moderateToSevere() { return tr("Moderate to severe"); }
-QString TextConst::moderate() { return tr("Moderate"); }
-QString TextConst::moveDown() { return tr("Move down"); }
-QString TextConst::moveUp() { return tr("Move up"); }
+QString TextConst::inAddition()
+{
+    return tr("In addition");
+}
 
-QString TextConst::na() { return tr("N/A"); }
-QString TextConst::none() { return tr("None"); }
-QString TextConst::no() { return tr("No"); }
-QString TextConst::noDetailSeeFacsimile() { return tr("No detail available; see the facsimile instead"); }
-QString TextConst::noSummarySeeFacsimile() { return tr("No summary available; see the facsimile instead"); }
-QString TextConst::normal() { return tr("Normal"); }
-QString TextConst::notApplicable() { return tr("Not applicable"); }
-QString TextConst::notRecalled() { return tr("Not recalled"); }
-QString TextConst::notSpecified() { return tr("<not specified>"); }
-QString TextConst::note() { return tr("Note"); }
+QString TextConst::incorrect()
+{
+    return tr("Incorrect");
+}
 
-QString TextConst::of() { return tr("of"); }
-QString TextConst::off() { return tr("Off"); }
-QString TextConst::ok() { return tr("OK"); }
-QString TextConst::on() { return tr("On"); }
+QString TextConst::location()
+{
+    return tr("Location");
+}
 
-QString TextConst::page() { return tr("page"); }
-QString TextConst::part() { return tr("Part"); }
-QString TextConst::patient() { return tr("Patient"); }
-QString TextConst::pleaseWait() { return tr("Please wait..."); }
+QString TextConst::meetsCriteria()
+{
+    return tr("Meets criteria");
+}
+
+QString TextConst::mild()
+{
+    return tr("Mild");
+}
+
+QString TextConst::mildToModerate()
+{
+    return tr("Mild to moderate");
+}
+
+QString TextConst::moderatelySevere()
+{
+    return tr("Moderately severe");
+}
+
+QString TextConst::moderateToSevere()
+{
+    return tr("Moderate to severe");
+}
+
+QString TextConst::moderate()
+{
+    return tr("Moderate");
+}
+
+QString TextConst::moveDown()
+{
+    return tr("Move down");
+}
+
+QString TextConst::moveUp()
+{
+    return tr("Move up");
+}
+
+QString TextConst::na()
+{
+    return tr("N/A");
+}
+
+QString TextConst::none()
+{
+    return tr("None");
+}
+
+QString TextConst::no()
+{
+    return tr("No");
+}
+
+QString TextConst::noDetailSeeFacsimile()
+{
+    return tr("No detail available; see the facsimile instead");
+}
+
+QString TextConst::noSummarySeeFacsimile()
+{
+    return tr("No summary available; see the facsimile instead");
+}
+
+QString TextConst::normal()
+{
+    return tr("Normal");
+}
+
+QString TextConst::notApplicable()
+{
+    return tr("Not applicable");
+}
+
+QString TextConst::notRecalled()
+{
+    return tr("Not recalled");
+}
+
+QString TextConst::notSpecified()
+{
+    return tr("<not specified>");
+}
+
+QString TextConst::note()
+{
+    return tr("Note");
+}
+
+QString TextConst::of()
+{
+    return tr("of");
+}
+
+QString TextConst::off()
+{
+    return tr("Off");
+}
+
+QString TextConst::ok()
+{
+    return tr("OK");
+}
+
+QString TextConst::on()
+{
+    return tr("On");
+}
+
+QString TextConst::page()
+{
+    return tr("page");
+}
+
+QString TextConst::part()
+{
+    return tr("Part");
+}
+
+QString TextConst::patient()
+{
+    return tr("Patient");
+}
+
+QString TextConst::pleaseWait()
+{
+    return tr("Please wait...");
+}
+
 QString TextConst::pressNextToContinue()
 {
     return tr(
@@ -151,52 +405,167 @@ QString TextConst::pressNextToContinue()
     );
 }
 
-QString TextConst::question() { return tr("Question"); }
+QString TextConst::question()
+{
+    return tr("Question");
+}
 
-QString TextConst::rating() { return tr("Rating"); }
-QString TextConst::reallyAbort() { return tr("Really abort?"); }
-QString TextConst::recalled() { return tr("Recalled"); }
-QString TextConst::respondentDetails() { return tr("Respondent’s details"); }
-QString TextConst::respondentNameSecondPerson() { return tr("Your name"); }
-QString TextConst::respondentNameThirdPerson() { return tr("Respondent’s name"); }
-QString TextConst::respondentRelationshipSecondPerson() { return tr("Your relationship to the patient"); }
-QString TextConst::respondentRelationshipThirdPerson() { return tr("Respondent’s relationship to patient"); }
+QString TextConst::rating()
+{
+    return tr("Rating");
+}
 
-QString TextConst::saving() { return tr("Saving, please wait..."); }
-QString TextConst::score() { return tr("Score"); }
-QString TextConst::seeFacsimile() { return tr("See facsimile."); }
-QString TextConst::seeFacsimileForMoreDetail() { return tr("See facsimile for more detail."); }
-QString TextConst::service() { return tr("Service"); }
-QString TextConst::severe() { return tr("Severe"); }
-QString TextConst::sex() { return tr("Sex"); }
-QString TextConst::startChainQuestion() { return tr("Start new task chain?"); }
-QString TextConst::startChainTitle() { return tr("Start task chain"); }
-QString TextConst::soundTestFor() { return tr("Sound test for"); }
+QString TextConst::reallyAbort()
+{
+    return tr("Really abort?");
+}
 
-QString TextConst::thankYou() { return tr("Thank you!"); }
-QString TextConst::thankYouTouchToExit() { return tr("Thank you! Please touch here to exit."); }
-QString TextConst::totalScore() { return tr("Total score"); }
-QString TextConst::touchToStart() { return tr("When you’re ready, touch here to start."); }
+QString TextConst::recalled()
+{
+    return tr("Recalled");
+}
 
-QString TextConst::txtAnd() { return tr("and"); }
-QString TextConst::txtTrue() { return tr("True"); }
-QString TextConst::txtFalse() { return tr("False"); }
+QString TextConst::respondentDetails()
+{
+    return tr("Respondent’s details");
+}
 
-QString TextConst::unableToCreateMediaPlayer() { return tr("Unable to create media player!"); }
-QString TextConst::unknown() { return tr("Unknown"); }
+QString TextConst::respondentNameSecondPerson()
+{
+    return tr("Your name");
+}
 
-QString TextConst::verySevere() { return tr("Very severe"); }
+QString TextConst::respondentNameThirdPerson()
+{
+    return tr("Respondent’s name");
+}
 
-QString TextConst::wrong() { return tr("Wrong"); }
+QString TextConst::respondentRelationshipSecondPerson()
+{
+    return tr("Your relationship to the patient");
+}
 
-QString TextConst::yes() { return tr("Yes"); }
+QString TextConst::respondentRelationshipThirdPerson()
+{
+    return tr("Respondent’s relationship to patient");
+}
 
+QString TextConst::saving()
+{
+    return tr("Saving, please wait...");
+}
+
+QString TextConst::score()
+{
+    return tr("Score");
+}
+
+QString TextConst::seeFacsimile()
+{
+    return tr("See facsimile.");
+}
+
+QString TextConst::seeFacsimileForMoreDetail()
+{
+    return tr("See facsimile for more detail.");
+}
+
+QString TextConst::service()
+{
+    return tr("Service");
+}
+
+QString TextConst::severe()
+{
+    return tr("Severe");
+}
+
+QString TextConst::sex()
+{
+    return tr("Sex");
+}
+
+QString TextConst::startChainQuestion()
+{
+    return tr("Start new task chain?");
+}
+
+QString TextConst::startChainTitle()
+{
+    return tr("Start task chain");
+}
+
+QString TextConst::soundTestFor()
+{
+    return tr("Sound test for");
+}
+
+QString TextConst::thankYou()
+{
+    return tr("Thank you!");
+}
+
+QString TextConst::thankYouTouchToExit()
+{
+    return tr("Thank you! Please touch here to exit.");
+}
+
+QString TextConst::totalScore()
+{
+    return tr("Total score");
+}
+
+QString TextConst::touchToStart()
+{
+    return tr("When you’re ready, touch here to start.");
+}
+
+QString TextConst::txtAnd()
+{
+    return tr("and");
+}
+
+QString TextConst::txtTrue()
+{
+    return tr("True");
+}
+
+QString TextConst::txtFalse()
+{
+    return tr("False");
+}
+
+QString TextConst::unableToCreateMediaPlayer()
+{
+    return tr("Unable to create media player!");
+}
+
+QString TextConst::unknown()
+{
+    return tr("Unknown");
+}
+
+QString TextConst::verySevere()
+{
+    return tr("Very severe");
+}
+
+QString TextConst::wrong()
+{
+    return tr("Wrong");
+}
+
+QString TextConst::yes()
+{
+    return tr("Yes");
+}
 
 // ============================================================================
 // Terms and conditions
 // ============================================================================
 
-QString TextConst::clinicianTermsConditions() {
+QString TextConst::clinicianTermsConditions()
+{
     return tr(
         "1. By using the Cambridge Cognitive and Psychiatric Assessment Kit "
         "application or web interface (“CamCOPS”), you are agreeing in full "
@@ -267,7 +636,9 @@ QString TextConst::clinicianTermsConditions() {
     // function of camcops_server/cc_modules/cc_text.py.
     // If you change this text, change TERMS_CONDITIONS_UPDATE_DATE below.
 }
-QString TextConst::singleUserTermsConditions() {
+
+QString TextConst::singleUserTermsConditions()
+{
     // We want this to be as simple as possible.
     // It's the clinicians'/researchers' job to worry about the context;
     // patients WILL NOT be able to use this software in single-user mode
@@ -298,6 +669,7 @@ QString TextConst::singleUserTermsConditions() {
     );
     // If you change this text, change TERMS_CONDITIONS_UPDATE_DATE below.
 }
+
 QDate TextConst::TERMS_CONDITIONS_UPDATE_DATE(2020, 10, 12);
 
 

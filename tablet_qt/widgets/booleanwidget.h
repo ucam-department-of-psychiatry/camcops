@@ -21,10 +21,10 @@
 #pragma once
 
 #include <QAbstractButton>
+
 #include "layouts/layouts.h"
 class ClickableLabelWordWrapWide;
 class ImageButton;
-
 
 class BooleanWidget : public QAbstractButton
 {
@@ -42,8 +42,8 @@ class BooleanWidget : public QAbstractButton
     //   access is from ABC pointer; etc.).
 
     Q_OBJECT
-public:
 
+public:
     // Current widget state.
     enum class State {
         Disabled,  // disabled
@@ -64,7 +64,6 @@ public:
     };
 
 public:
-
     // ------------------------------------------------------------------------
     // Construction and configuration
     // ------------------------------------------------------------------------
@@ -92,14 +91,13 @@ public:
     void setState(BooleanWidget::State state);
 
     // Sets the widget state from a value and a mandatory-or-not requirement.
-    void setValue(const QVariant& value, bool mandatory,
-                  bool disabled = false);
+    void
+        setValue(const QVariant& value, bool mandatory, bool disabled = false);
 
     // Sets the text, for text-button mode.
     void setText(const QString& text);
 
 protected:
-
     // Standard Qt override.
     virtual void paintEvent(QPaintEvent* e) override;
 

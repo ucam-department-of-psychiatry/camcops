@@ -31,9 +31,11 @@ class QPainter;
 class PainterTranslateRotateContext
 {
 public:
-    PainterTranslateRotateContext(QPainter& painter, const QPointF& at,
-                                  qreal rotate_clockwise_deg);
+    PainterTranslateRotateContext(
+        QPainter& painter, const QPointF& at, qreal rotate_clockwise_deg
+    );
     ~PainterTranslateRotateContext();
+
 protected:
     QPainter& m_painter;
     QPointF m_at;

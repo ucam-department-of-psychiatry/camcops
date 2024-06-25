@@ -19,36 +19,34 @@
 */
 
 #include "setmenulynalliam.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/audit.h"
 #include "tasks/cisr.h"
 #include "tasks/ctqsf.h"
-#include "tasks/lynalliammedical.h"
 #include "tasks/lynalliamlife.h"
+#include "tasks/lynalliammedical.h"
 #include "tasks/rand36.h"
-
 
 SetMenuLynallIAM::SetMenuLynallIAM(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
-
 QString SetMenuLynallIAM::title() const
 {
     return tr("Lynall M-E — IAM study");
 }
 
-
 QString SetMenuLynallIAM::subtitle() const
 {
-    return tr("Lynall M-E, University of Cambridge, UK — "
-              "Inflammation in Mind (IAM) study");
+    return tr(
+        "Lynall M-E, University of Cambridge, UK — "
+        "Inflammation in Mind (IAM) study"
+    );
 }
-
 
 void SetMenuLynallIAM::makeItems()
 {
@@ -57,7 +55,9 @@ void SetMenuLynallIAM::makeItems()
         MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(LynallIamMedical::LYNALL_IAM_MEDICAL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            LynallIamMedical::LYNALL_IAM_MEDICAL_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(LynallIamLife::LYNALL_IAM_LIFE_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
     };

@@ -21,13 +21,13 @@
 #pragma once
 #include <QListWidget>
 
-
 class HeightForWidthListWidget : public QListWidget
 {
     // Version of QListWidget that can cope with its items using the
     // height-for-width system. Used by CamCOPS menus. Compare BaseWidget.
 
     Q_OBJECT
+
 public:
     HeightForWidthListWidget(QWidget* parent = nullptr);
     virtual bool event(QEvent* event) override;

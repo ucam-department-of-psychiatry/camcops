@@ -23,6 +23,6 @@ class QString;
 
 namespace errorfunc {
 
-[[ noreturn ]] void fatalError(const QString& error);
+[[noreturn]] void fatalError(const QString& error);
 
 }  // namespace errorfunc

@@ -22,7 +22,6 @@
 #include <QSharedPointer>
 class QMediaPlayer;
 
-
 namespace soundfunc {
 
 extern const QString UNABLE_TO_CREATE_MEDIA_PLAYER;
@@ -37,7 +36,9 @@ void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player);
 void setVolume(const QSharedPointer<QMediaPlayer>& player, int volume_percent);
 
 // Sets the volume of a media player, using a scale of 0-1.
-void setVolume(const QSharedPointer<QMediaPlayer>& player, double volume_proportion);
+void setVolume(
+    const QSharedPointer<QMediaPlayer>& player, double volume_proportion
+);
 
 
 }  // namespace soundfunc

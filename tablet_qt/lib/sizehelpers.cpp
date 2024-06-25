@@ -30,6 +30,7 @@
 // #define DEBUG_WIDGET_MARGINS
 
 #include "sizehelpers.h"
+
 #include <QAbstractItemDelegate>
 #include <QAction>
 #include <QCheckBox>
@@ -37,8 +38,8 @@
 #include <QDebug>
 #include <QGroupBox>
 #include <QHeaderView>
-#include <QLayout>
 #include <QLabel>
+#include <QLayout>
 #include <QLineEdit>
 #include <QMdiSubWindow>
 #include <QMenu>
@@ -61,11 +62,10 @@
 #include <QWidget>
 
 #ifdef DEBUG_WIDGET_MARGINS
-#include "lib/layoutdumper.h"
+    #include "lib/layoutdumper.h"
 #endif
 
 #define QT_FREQUENT_STARTING_WIDTH 640
-
 
 namespace sizehelpers {
 
@@ -95,14 +95,12 @@ QSizePolicy expandingFixedHFWPolicy()
     return sp;
 }
 
-
 QSizePolicy expandingPreferredHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
     sp.setHeightForWidth(true);
     return sp;
 }
-
 
 QSizePolicy maximumFixedHFWPolicy()
 {
@@ -111,14 +109,12 @@ QSizePolicy maximumFixedHFWPolicy()
     return sp;
 }
 
-
 QSizePolicy expandingMaximumHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
     sp.setHeightForWidth(true);
     return sp;
 }
-
 
 QSizePolicy expandingExpandingHFWPolicy()
 {
@@ -127,14 +123,12 @@ QSizePolicy expandingExpandingHFWPolicy()
     return sp;
 }
 
-
 QSizePolicy maximumMaximumHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Maximum);
     sp.setHeightForWidth(true);
     return sp;
 }
-
 
 QSizePolicy preferredPreferredHFWPolicy()
 {
@@ -143,14 +137,12 @@ QSizePolicy preferredPreferredHFWPolicy()
     return sp;
 }
 
-
 QSizePolicy preferredFixedHFWPolicy()
 {
     QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Fixed);
     sp.setHeightForWidth(true);
     return sp;
 }
-
 
 void resizeEventForHFWParentWidget(QWidget* widget)
 {
@@ -174,24 +166,23 @@ void resizeEventForHFWParentWidget(QWidget* widget)
     }
 }
 
-
 QSize contentsMarginsAsSize(const QWidget* widget)
 {
     Q_ASSERT(widget);
     const QMargins margins = widget->contentsMargins();
-    return QSize(margins.left() + margins.right(),
-                 margins.top() + margins.bottom());
+    return QSize(
+        margins.left() + margins.right(), margins.top() + margins.bottom()
+    );
 }
-
 
 QSize contentsMarginsAsSize(const QLayout* layout)
 {
     Q_ASSERT(layout);
     const QMargins margins = layout->contentsMargins();
-    return QSize(margins.left() + margins.right(),
-                 margins.top() + margins.bottom());
+    return QSize(
+        margins.left() + margins.right(), margins.top() + margins.bottom()
+    );
 }
-
 
 QSize spacingAsSize(const QLayout* layout)
 {
@@ -200,12 +191,13 @@ QSize spacingAsSize(const QLayout* layout)
     return QSize(2 * spacing, 2 * spacing);
 }
 
-
-QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
-                                    const QStyleOption* opt,
-                                    const QSize& child_size,
-                                    const bool add_style_element,
-                                    const QStyle::ContentsType contents_type)
+QSize widgetExtraSizeForCssOrLayout(
+    const QWidget* widget,
+    const QStyleOption* opt,
+    const QSize& child_size,
+    const bool add_style_element,
+    const QStyle::ContentsType contents_type
+)
 {
     // See QPushButton::sizeHint()
     Q_ASSERT(widget);
@@ -215,8 +207,9 @@ QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
     if (add_style_element) {
         QStyle* style = widget->style();
         if (style) {
-            const QSize temp = style->sizeFromContents(contents_type, opt,
-                                                       child_size, widget);
+            const QSize temp = style->sizeFromContents(
+                contents_type, opt, child_size, widget
+            );
             stylesheet_extra_size = temp - child_size;
         }
     }
@@ -240,21 +233,21 @@ QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
     // size_hint += stylesheet_extra_size + extra_for_layout_margins;
 
     // Take the maximum?
-    const QSize total_extra = stylesheet_extra_size
-            .expandedTo(extra_for_layout_margins)
-            .expandedTo(QSize(0, 0));  // just to ensure it's never negative
+    const QSize total_extra
+        = stylesheet_extra_size.expandedTo(extra_for_layout_margins)
+              .expandedTo(QSize(0, 0));  // just to ensure it's never negative
 
 #ifdef DEBUG_WIDGET_MARGINS
-    qDebug().nospace() << Q_FUNC_INFO
-             << "widget " << layoutdumper::getWidgetDescriptor(widget)
-             << "; child_size " << child_size
-             << "; stylesheet_extra_size " << stylesheet_extra_size
-             << "; extra_for_layout_margins " << extra_for_layout_margins
-             << " => total_extra " << total_extra;
+    qDebug().nospace() << Q_FUNC_INFO << "widget "
+                       << layoutdumper::getWidgetDescriptor(widget)
+                       << "; child_size " << child_size
+                       << "; stylesheet_extra_size " << stylesheet_extra_size
+                       << "; extra_for_layout_margins "
+                       << extra_for_layout_margins << " => total_extra "
+                       << total_extra;
 #endif
     return total_extra;
 }
-
 
 QStyle::ContentsType guessStyleContentsType(const QWidget* widget)
 {
@@ -322,7 +315,6 @@ QStyle::ContentsType guessStyleContentsType(const QWidget* widget)
     return QStyle::CT_CustomBase;
 }
 
-
 QSize widgetExtraSizeForCssOrLayout(const QWidget* widget)
 {
     QStyleOption opt;
@@ -330,10 +322,10 @@ QSize widgetExtraSizeForCssOrLayout(const QWidget* widget)
     const QSize child_size = widget->sizeHint();
     const bool add_style_element = true;
     const QStyle::ContentsType contents_type = guessStyleContentsType(widget);
-    return widgetExtraSizeForCssOrLayout(widget, &opt, child_size,
-                                         add_style_element, contents_type);
+    return widgetExtraSizeForCssOrLayout(
+        widget, &opt, child_size, add_style_element, contents_type
+    );
 }
-
 
 /*
 QSize sizehelpers::widgetExtraSizeForCss(
@@ -372,31 +364,34 @@ QSize sizehelpers::widgetExtraSizeForCss(
 */
 
 
-QSize pushButtonExtraSizeRequired(const QPushButton* button,
-                                  const QStyleOptionButton* opt,
-                                  const QSize& child_size)
+QSize pushButtonExtraSizeRequired(
+    const QPushButton* button,
+    const QStyleOptionButton* opt,
+    const QSize& child_size
+)
 {
-    return widgetExtraSizeForCssOrLayout(button, opt, child_size,
-                                         true, QStyle::CT_PushButton);
+    return widgetExtraSizeForCssOrLayout(
+        button, opt, child_size, true, QStyle::CT_PushButton
+    );
 }
 
-
-QSize frameExtraSizeRequired(const QFrame* frame,
-                             const QStyleOptionFrame* opt,
-                             const QSize& child_size)
+QSize frameExtraSizeRequired(
+    const QFrame* frame, const QStyleOptionFrame* opt, const QSize& child_size
+)
 {
-    return widgetExtraSizeForCssOrLayout(frame, opt, child_size,
-                                         false, QStyle::CT_PushButton);
+    return widgetExtraSizeForCssOrLayout(
+        frame, opt, child_size, false, QStyle::CT_PushButton
+    );
     // Is QStyle::CT_PushButton right?
 }
 
-
-QSize labelExtraSizeRequired(const QLabel* label,
-                             const QStyleOptionFrame* opt,
-                             const QSize& child_size)
+QSize labelExtraSizeRequired(
+    const QLabel* label, const QStyleOptionFrame* opt, const QSize& child_size
+)
 {
-    QSize size = widgetExtraSizeForCssOrLayout(label, opt, child_size,
-                                               true, QStyle::CT_PushButton);
+    QSize size = widgetExtraSizeForCssOrLayout(
+        label, opt, child_size, true, QStyle::CT_PushButton
+    );
     // Is QStyle::CT_PushButton right?
     // Or QStyle::CT_ItemViewItem?
 
@@ -412,13 +407,11 @@ QSize labelExtraSizeRequired(const QLabel* label,
     return size;
 }
 
-
 bool fixedHeightEquals(QWidget* widget, const int height)
 {
-    return height == widget->minimumHeight() &&
-            height == widget->maximumHeight();
+    return height == widget->minimumHeight()
+        && height == widget->maximumHeight();
 }
-
 
 bool canHFWPolicyShrinkVertically(const QSizePolicy& sp)
 {
@@ -430,25 +423,27 @@ bool canHFWPolicyShrinkVertically(const QSizePolicy& sp)
     return can_shrink_vertically;
 }
 
-
 bool isWidgetHFWTradingDimensions(const QWidget* widget)
 {
     if (!widget->hasHeightForWidth()) {
         return false;
     }
-    const int h_for_small_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH);
-    const int h_for_big_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH * 2);
+    const int h_for_small_w
+        = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH);
+    const int h_for_big_w
+        = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH * 2);
     return h_for_small_w > h_for_big_w;
 }
-
 
 bool isWidgetHFWMaintainingAspectRatio(const QWidget* widget)
 {
     if (!widget->hasHeightForWidth()) {
         return false;
     }
-    const int h_for_small_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH);
-    const int h_for_big_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH * 2);
+    const int h_for_small_w
+        = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH);
+    const int h_for_big_w
+        = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH * 2);
     return h_for_small_w < h_for_big_w;
 }
 

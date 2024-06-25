@@ -23,7 +23,6 @@
 #include <QPointer>
 class QLineEdit;
 
-
 class PasswordChangeDialog : public QDialog
 {
     // Dialogue to request old and new passwords, and check that they
@@ -32,14 +31,20 @@ class PasswordChangeDialog : public QDialog
     // newPassword() if it succeeds.
 
     Q_OBJECT
+
 public:
-    PasswordChangeDialog(const QString& text, const QString& title,
-                         bool require_old_password,
-                         QWidget* parent = nullptr);
+    PasswordChangeDialog(
+        const QString& text,
+        const QString& title,
+        bool require_old_password,
+        QWidget* parent = nullptr
+    );
     QString oldPassword() const;
     QString newPassword() const;
+
 protected:
     void okClicked();
+
 protected:
     QPointer<QLineEdit> m_editor_old;
     QPointer<QLineEdit> m_editor_new1;

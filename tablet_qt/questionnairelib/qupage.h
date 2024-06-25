@@ -24,12 +24,12 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+
 #include "common/aliases_camcops.h"
 #include "questionnairelib/quelement.h"
 
 class QWidget;
 class Questionnaire;
-
 
 class QuPage : public QObject
 {
@@ -42,6 +42,7 @@ class QuPage : public QObject
     // ========================================================================
     // Enums
     // ========================================================================
+
 public:
     enum class PageType {  // "Who should be entering data into this page?"
         Inherit,  // from the Questionnaire
@@ -59,24 +60,30 @@ public:
     // ... it returns "ok?", adding any errors to "errors", and is an
     // opportunity for complex (e.g. multi-field) validation.
     // See registerValidator().
-    using PageValidatorFunction = std::function<bool(QStringList&, const QuPage*)>;
+    using PageValidatorFunction
+        = std::function<bool(QStringList&, const QuPage*)>;
 
     // ========================================================================
     // Construction/destruction
     // ========================================================================
+
 public:
     // Empty constructor.
     QuPage(QObject* parent = nullptr);
 
     // Construct with a list of QuElement objects.
-    QuPage(const QVector<QuElementPtr>& elements,
-           QObject* parent = nullptr);
-    QuPage(std::initializer_list<QuElementPtr> elements,
-           QObject* parent = nullptr);
-    QuPage(const QVector<QuElement*>& elements,
-           QObject* parent = nullptr);  // takes ownership
-    QuPage(std::initializer_list<QuElement*> elements,
-           QObject* parent = nullptr);  // takes ownership
+    QuPage(const QVector<QuElementPtr>& elements, QObject* parent = nullptr);
+    QuPage(
+        std::initializer_list<QuElementPtr> elements, QObject* parent = nullptr
+    );
+    QuPage(
+        const QVector<QuElement*>& elements,
+        QObject* parent = nullptr
+    );  // takes ownership
+    QuPage(
+        std::initializer_list<QuElement*> elements,
+        QObject* parent = nullptr
+    );  // takes ownership
 
     // Destructor
     virtual ~QuPage();
@@ -85,7 +92,9 @@ public:
     // Public interface
     // ========================================================================
 
-    virtual void build() {}  // for on-the-fly building
+    virtual void build()
+    {
+    }  // for on-the-fly building
 
     // Set the page type: "who should be entering data?" (e.g. patient,
     // clinician)
@@ -103,7 +112,8 @@ public:
 
     // Add multiple elements
     QuPage* addElements(const QVector<QuElementPtr>& elements);
-    QuPage* addElements(const QVector<QuElement*>& elements);  // takes ownership
+    QuPage* addElements(const QVector<QuElement*>& elements
+    );  // takes ownership
 
     // Adds a string tag to this page.
     QuPage* addTag(const QString& tag);
@@ -179,6 +189,7 @@ public slots:
     // ========================================================================
     // Internals
     // ========================================================================
+
 protected:
     // Returns this page's widget.
     QPointer<QWidget> widget(Questionnaire* questionnaire) const;
@@ -192,6 +203,7 @@ protected:
     // ========================================================================
     // Data
     // ========================================================================
+
 protected:
     PageType m_type;  // page type (e.g. patient, clinician)
     QString m_title;  // page main title
@@ -200,7 +212,8 @@ protected:
     QVector<QuElementPtr> m_elements;  // page's elements
     bool m_skip;  // skip this page?
     bool m_allow_scroll;  // allow vertical scroll?
-    bool m_zoomable;  // if !m_allow_scroll, shrink/zoom contents to fit visible area?
+    bool
+        m_zoomable;  // if !m_allow_scroll, shrink/zoom contents to fit visible area?
     bool m_progress_blocked;  // is the page blocking progress?
     QVector<PageValidatorFunction> m_validators;  // functions to validate via
 };

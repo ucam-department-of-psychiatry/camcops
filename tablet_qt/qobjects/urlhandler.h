@@ -28,6 +28,7 @@ class QUrl;
 class UrlHandler : public QObject
 {
     Q_OBJECT
+
 public:
     explicit UrlHandler();
     static UrlHandler* getInstance();

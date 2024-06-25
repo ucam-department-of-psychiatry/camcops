@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,13 +31,16 @@ class TaskFactory;
 
 void initializePerinatalPoem(TaskFactory& factory);
 
-
 class PerinatalPoem : public Task
 {
     Q_OBJECT
+
 public:
-    PerinatalPoem(CamcopsApp& app, DatabaseManager& db,
-                  int load_pk = dbconst::NONEXISTENT_PK);
+    PerinatalPoem(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -69,10 +73,12 @@ public slots:
     void respondentTypeChanged();
     void serviceTypeChanged();
     void participationChanged();
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
     FieldRefPtr m_fr_participation;
     FieldRefPtr m_fr_contact_details;
+
 public:
     static const QString PERINATAL_POEM_TABLENAME;
 };

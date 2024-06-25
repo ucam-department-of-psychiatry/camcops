@@ -24,7 +24,6 @@
 class QPlainTextEdit;
 class QPushButton;
 
-
 class LogBox : public QDialog
 {
     // Modal (but NON-BLOCKING) dialogue with a textual log window, used for
@@ -34,11 +33,18 @@ class LogBox : public QDialog
     // Compare LogMessageBox for a modal and blocking version.
 
     Q_OBJECT
+
 public:
     // Constructor
-    LogBox(QWidget* parent, const QString& title, bool offer_cancel = true,
-           bool offer_ok_at_end = true, int maximum_block_count = 1000,
-           bool scroll_to_end_on_insert = true, bool word_wrap = true);
+    LogBox(
+        QWidget* parent,
+        const QString& title,
+        bool offer_cancel = true,
+        bool offer_ok_at_end = true,
+        int maximum_block_count = 1000,
+        bool scroll_to_end_on_insert = true,
+        bool word_wrap = true
+    );
 
     // Destructor
     ~LogBox() override;

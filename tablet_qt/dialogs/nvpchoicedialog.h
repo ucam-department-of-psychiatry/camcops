@@ -22,13 +22,13 @@
 #include <QDialog>
 #include <QSize>
 #include <QString>
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 
 class QShowEvent;
 class QVariant;
-
 
 class NvpChoiceDialog : public QDialog
 {
@@ -37,16 +37,21 @@ class NvpChoiceDialog : public QDialog
     // MODAL and BLOCKING.
 
     Q_OBJECT
+
 public:
     // Constructor
-    NvpChoiceDialog(QWidget* parent, const NameValueOptions& options,
-                    const QString& title = "");
+    NvpChoiceDialog(
+        QWidget* parent,
+        const NameValueOptions& options,
+        const QString& title = ""
+    );
 
     // Choose whether any existing choice should be indicated graphically.
     void showExistingChoice(
-            bool show_existing_choice = true,
-            const QString& icon_filename = uifunc::iconFilename(uiconst::CBS_OK),
-            const QSize& icon_size = uiconst::g_small_iconsize);
+        bool show_existing_choice = true,
+        const QString& icon_filename = uifunc::iconFilename(uiconst::CBS_OK),
+        const QSize& icon_size = uiconst::g_small_iconsize
+    );
 
     // Call this to offer a choice, return the result of exec(), and write the
     // result to new_value.
@@ -57,6 +62,7 @@ public:
 
 protected slots:
     void itemClicked(int index);
+
 protected:
     NameValueOptions m_options;
     QString m_title;

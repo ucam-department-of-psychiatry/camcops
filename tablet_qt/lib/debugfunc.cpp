@@ -21,9 +21,11 @@
 // #define DEBUG_EVEN_GIANT_VARIANTS
 
 #include "debugfunc.h"
-#include "dialogs/debugdialog.h"
+
 #include <QDebug>
 #include <QVariant>
+
+#include "dialogs/debugdialog.h"
 
 namespace debugfunc {
 
@@ -35,19 +37,18 @@ void debugConcisely(QDebug debug, const QVariant& value)
 #else
     switch (value.typeId()) {
 
-    // Big things; don't show their actual value to the console
-    case QMetaType::QByteArray:
-        debug << "<ByteArray>";
-        break;
+        // Big things; don't show their actual value to the console
+        case QMetaType::QByteArray:
+            debug << "<ByteArray>";
+            break;
 
-    // Normal things
-    default:
-        debug << value;
-        break;
+        // Normal things
+        default:
+            debug << value;
+            break;
     }
 #endif
 }
-
 
 void debugConcisely(QDebug debug, const QVector<QVariant>& values)
 {
@@ -63,7 +64,6 @@ void debugConcisely(QDebug debug, const QVector<QVariant>& values)
     d << ")";
 }
 
-
 void dumpQObject(QObject* obj)
 {
     qDebug("----------------------------------------------------");
@@ -76,21 +76,24 @@ void dumpQObject(QObject* obj)
     qDebug("----------------------------------------------------");
 }
 
-
-void debugWidget(QWidget* widget,
-                 const bool set_background_by_name,
-                 const bool set_background_by_stylesheet,
-                 const layoutdumper::DumperConfig& config,
-                 const bool use_hfw_layout,
-                 const QString* dialog_stylesheet)
+void debugWidget(
+    QWidget* widget,
+    const bool set_background_by_name,
+    const bool set_background_by_stylesheet,
+    const layoutdumper::DumperConfig& config,
+    const bool use_hfw_layout,
+    const QString* dialog_stylesheet
+)
 {
-    auto dlg = new DebugDialog(nullptr,
-                               widget,
-                               set_background_by_name,
-                               set_background_by_stylesheet,
-                               config,
-                               use_hfw_layout,
-                               dialog_stylesheet);
+    auto dlg = new DebugDialog(
+        nullptr,
+        widget,
+        set_background_by_name,
+        set_background_by_stylesheet,
+        config,
+        use_hfw_layout,
+        dialog_stylesheet
+    );
 
     dlg->exec();
 }

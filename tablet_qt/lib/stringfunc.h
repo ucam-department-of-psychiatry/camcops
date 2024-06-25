@@ -21,7 +21,6 @@
 #pragma once
 #include <QStringList>
 
-
 namespace stringfunc {
 
 // ============================================================================
@@ -29,7 +28,8 @@ namespace stringfunc {
 // ============================================================================
 
 // Builds "<prefix><num><suffix>".
-QString strnum(const QString& prefix, int num, const QString& suffix = QString());
+QString
+    strnum(const QString& prefix, int num, const QString& suffix = QString());
 
 // ============================================================================
 // Make sequences of strings
@@ -40,17 +40,21 @@ QString strnum(const QString& prefix, int num, const QString& suffix = QString()
 QStringList strseq(const QString& prefix, int first, int last);
 
 // Returns a list of "<prefix><num><suffix>" for "num" in "numbers".
-QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
-                       const QString& suffix = QString());
+QStringList strnumlist(
+    const QString& prefix,
+    const QVector<int>& numbers,
+    const QString& suffix = QString()
+);
 
 // Returns a list of "<prefix><num><suffix>" for "num" in [first, last].
-QStringList strseq(const QString& prefix, int first, int last,
-                   const QString& suffix);
+QStringList
+    strseq(const QString& prefix, int first, int last, const QString& suffix);
 
 // Returns a list of "<prefix><num><suffix>" for "num" in [first, last] and
 // for "suffix" in suffixes.
-QStringList strseq(const QString& prefix, int first, int last,
-                   const QStringList& suffixes);
+QStringList strseq(
+    const QString& prefix, int first, int last, const QStringList& suffixes
+);
 
 // Returns a list of "<prefix><num><suffix>" for "prefix" in "prefixes" and
 // for "num" in [first, last].
@@ -58,8 +62,12 @@ QStringList strseq(const QStringList& prefixes, int first, int last);
 
 // Returns a list of "<prefix><num><suffix>" for "prefix" in "prefixes",
 // for "num" in [first, last], and for "suffix" in "suffixes".
-QStringList strseq(const QStringList& prefixes, int first, int last,
-                   const QStringList& suffixes);
+QStringList strseq(
+    const QStringList& prefixes,
+    int first,
+    int last,
+    const QStringList& suffixes
+);
 
 // ============================================================================
 // HTML processing
@@ -83,19 +91,21 @@ QString joinHtmlLines(const QStringList& lines);
 // Converts a string from LF (\n) to "<br>".
 // If convert_embedded_literals is true, also converts a literal "\n" (two
 // characters, backslash n) to "<br>".
-QString& toHtmlLinebreaks(QString& str,
-                          bool convert_embedded_literals = true);
+QString& toHtmlLinebreaks(QString& str, bool convert_embedded_literals = true);
 
 // Returns "<name><separator><b><value></b><suffix>" (where "<b>" and "</b>"
 // are literals and the others variables...!).
-QString standardResult(const QString& name,
-                       const QString& value,
-                       const QString& separator = QStringLiteral(": "),
-                       const QString& suffix = QStringLiteral("."));
+QString standardResult(
+    const QString& name,
+    const QString& value,
+    const QString& separator = QStringLiteral(": "),
+    const QString& suffix = QStringLiteral(".")
+);
 
 // Returns "<b><part1>[:]</b>" or "<b><part1></b> (<part2>)[:]"
-QString makeTitle(const QString& part1, const QString& part2 = QString(),
-                  bool colon = false);
+QString makeTitle(
+    const QString& part1, const QString& part2 = QString(), bool colon = false
+);
 
 // Returns "<part1> (<part2>)"
 QString makeHint(const QString& part1, const QString& part2);
@@ -113,9 +123,12 @@ QString stylizeNewlines(const QString& str, bool stylize = true);
 
 // Ensures the string is no longer than max_len (replacing the end with suffix
 // if required) and calling stylizeNewlines() on it.
-QString abbreviate(const QString& str, int max_len = 255,
-                   bool stylize_newlines = true,
-                   const QString& suffix = QStringLiteral("..."));
+QString abbreviate(
+    const QString& str,
+    int max_len = 255,
+    bool stylize_newlines = true,
+    const QString& suffix = QStringLiteral("...")
+);
 
 // Escapes a string to a double-quoted C++ literal.
 // (Some DUPLICATION; see convert.h!)

@@ -20,19 +20,21 @@
 
 #include "flatproxymodel.h"
 
-
 void FlatProxyModel::setSourceModel(QAbstractItemModel* src_model)
 {
     QAbstractProxyModel::setSourceModel(src_model);
     buildMap(src_model);
-    connect(src_model, &QAbstractItemModel::dataChanged,
-            this, &FlatProxyModel::sourceDataChanged);
+    connect(
+        src_model,
+        &QAbstractItemModel::dataChanged,
+        this,
+        &FlatProxyModel::sourceDataChanged
+    );
 }
 
-
-int FlatProxyModel::buildMap(QAbstractItemModel* src_model,
-                             const QModelIndex& src_parent,
-                             int proxy_row)
+int FlatProxyModel::buildMap(
+    QAbstractItemModel* src_model, const QModelIndex& src_parent, int proxy_row
+)
 {
     if (proxy_row == 0) {
         m_row_from_src_index.clear();
@@ -51,20 +53,18 @@ int FlatProxyModel::buildMap(QAbstractItemModel* src_model,
     return proxy_row;
 }
 
-
 void FlatProxyModel::sourceDataChanged(
-        const QModelIndex& src_top_left,
-        const QModelIndex& src_bottom_right,
-        const QVector<int>& roles)
+    const QModelIndex& src_top_left,
+    const QModelIndex& src_bottom_right,
+    const QVector<int>& roles
+)
 {
-    emit dataChanged(mapFromSource(src_top_left),
-                     mapFromSource(src_bottom_right),
-                     roles);
+    emit dataChanged(
+        mapFromSource(src_top_left), mapFromSource(src_bottom_right), roles
+    );
 }
 
-
-QModelIndex FlatProxyModel::mapFromSource(
-        const QModelIndex& src_index) const
+QModelIndex FlatProxyModel::mapFromSource(const QModelIndex& src_index) const
 {
     if (!m_row_from_src_index.contains(src_index)) {
         return {};
@@ -72,23 +72,19 @@ QModelIndex FlatProxyModel::mapFromSource(
     return createIndex(m_row_from_src_index[src_index], src_index.column());
 }
 
-
-QModelIndex FlatProxyModel::mapToSource(
-        const QModelIndex& proxy_index) const
+QModelIndex FlatProxyModel::mapToSource(const QModelIndex& proxy_index) const
 {
-    if (!proxy_index.isValid() ||
-            !m_src_index_from_row.contains(proxy_index.row())) {
+    if (!proxy_index.isValid()
+        || !m_src_index_from_row.contains(proxy_index.row())) {
         return {};
     }
     return m_src_index_from_row[proxy_index.row()];
 }
 
-
 int FlatProxyModel::columnCount(const QModelIndex& proxy_parent) const
 {
     return sourceModel()->columnCount(mapToSource(proxy_parent));
 }
-
 
 int FlatProxyModel::rowCount(const QModelIndex& proxy_parent) const
 {
@@ -96,22 +92,21 @@ int FlatProxyModel::rowCount(const QModelIndex& proxy_parent) const
     return proxy_parent.isValid() ? 0 : m_row_from_src_index.size();
 }
 
-
-QModelIndex FlatProxyModel::index(const int proxy_row, const int proxy_column,
-                                  const QModelIndex& proxy_parent) const
+QModelIndex FlatProxyModel::index(
+    const int proxy_row,
+    const int proxy_column,
+    const QModelIndex& proxy_parent
+) const
 {
-    return proxy_parent.isValid()
-            ? QModelIndex()
-            : createIndex(proxy_row, proxy_column);
+    return proxy_parent.isValid() ? QModelIndex()
+                                  : createIndex(proxy_row, proxy_column);
 }
-
 
 QModelIndex FlatProxyModel::parent(const QModelIndex& proxy_child) const
 {
     Q_UNUSED(proxy_child)
     return {};
 }
-
 
 bool FlatProxyModel::hasChildren(const QModelIndex& proxy_parent) const
 {

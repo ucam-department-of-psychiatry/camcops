@@ -19,23 +19,23 @@
 */
 
 #include "version.h"
+
 #include <QStringList>
 #include <QVariant>
-
 
 Version::Version()
 {
     setFromNumbers(0, 0, 0);
 }
 
-
-Version::Version(const unsigned int major,
-                 const unsigned int minor,
-                 const unsigned int patch)
+Version::Version(
+    const unsigned int major,
+    const unsigned int minor,
+    const unsigned int patch
+)
 {
     setFromNumbers(major, minor, patch);
 }
-
 
 Version::Version(const QString& version_string)
 {
@@ -64,16 +64,15 @@ Version::Version(const QString& version_string)
     }
 }
 
-
-void Version::setFromNumbers(const unsigned int major,
-                             const unsigned int minor,
-                             const unsigned int patch)
+void Version::setFromNumbers(
+    const unsigned int major,
+    const unsigned int minor,
+    const unsigned int patch
+)
 {
     if (minor >= 100 || patch >= 100) {
         qWarning() << Q_FUNC_INFO << "Refusing to create invalid version with:"
-                   << "major" << major
-                   << "minor" << minor
-                   << "patch" << patch
+                   << "major" << major << "minor" << minor << "patch" << patch
                    << "(creating 0.0.0=invalid instead)";
         setInvalid();
         return;
@@ -84,7 +83,6 @@ void Version::setFromNumbers(const unsigned int major,
     m_valid = true;
 }
 
-
 void Version::setInvalid()
 {
     m_valid = false;
@@ -93,39 +91,29 @@ void Version::setInvalid()
     m_patch = 0;
 }
 
-
 bool Version::isValid() const
 {
     return m_valid;
 }
 
-
 QString Version::toString() const
 {
-    return QString("%1.%2.%3")
-            .arg(m_major)
-            .arg(m_minor)
-            .arg(m_patch);
+    return QString("%1.%2.%3").arg(m_major).arg(m_minor).arg(m_patch);
     // NOT: arg(m_minor, 2, QChar('0'))
     // ... no leading zeros for semantic versioning; http://semver.org/
 }
 
-
-
 double Version::toFloat() const
 {
     // Will be zero (the lowest possible value) for an invalid version.
-    return m_major +
-            static_cast<double>(m_minor) / 100 +
-            static_cast<double>(m_patch) / 10000;
+    return m_major + static_cast<double>(m_minor) / 100
+        + static_cast<double>(m_patch) / 10000;
 }
-
 
 QString Version::toFloatString() const
 {
     return QString::number(toFloat(), 'f', 4);
 }
-
 
 QVariant Version::toVariant() const
 {
@@ -134,44 +122,36 @@ QVariant Version::toVariant() const
     return v;
 }
 
-
 bool operator<(const Version& v1, const Version& v2)
 {
     return v1.toFloat() < v2.toFloat();
 }
-
 
 bool operator<=(const Version& v1, const Version& v2)
 {
     return v1.toFloat() <= v2.toFloat();
 }
 
-
 bool operator==(const Version& v1, const Version& v2)
 {
-    return v1.m_major == v2.m_major &&
-           v1.m_minor == v2.m_minor &&
-           v1.m_patch == v2.m_patch;
+    return v1.m_major == v2.m_major && v1.m_minor == v2.m_minor
+        && v1.m_patch == v2.m_patch;
 }
-
 
 bool operator>=(const Version& v1, const Version& v2)
 {
     return v1.toFloat() >= v2.toFloat();
 }
 
-
 bool operator>(const Version& v1, const Version& v2)
 {
     return v1.toFloat() > v2.toFloat();
 }
 
-
 Version Version::fromVariant(const QVariant& variant)
 {
     return variant.value<Version>();
 }
-
 
 Version Version::fromString(const QString& s)
 {
@@ -189,26 +169,20 @@ Version Version::fromString(const QString& s)
         }
     }
     Version version;
-    version.setFromNumbers(numbers.at(0),
-                           numbers.at(1),
-                           numbers.at(2));
+    version.setFromNumbers(numbers.at(0), numbers.at(1), numbers.at(2));
     return version;
 }
-
 
 Version Version::makeInvalidVersion()
 {
     return Version(0, 0, 0);
 }
 
-
 bool operator!=(const Version& v1, const Version& v2)
 {
-    return v1.m_major != v2.m_major ||
-           v1.m_minor != v2.m_minor ||
-           v1.m_patch != v2.m_patch;
+    return v1.m_major != v2.m_major || v1.m_minor != v2.m_minor
+        || v1.m_patch != v2.m_patch;
 }
-
 
 QDebug operator<<(QDebug debug, const Version& v)
 {

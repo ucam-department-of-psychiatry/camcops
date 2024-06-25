@@ -18,11 +18,11 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "emailvalidator.h"
+
 #include <QRegularExpression>
 #include <QString>
 #include <QValidator>
-
-#include "emailvalidator.h"
 
 
 const QString EMAIL_RE_STR(
@@ -49,12 +49,11 @@ const QString EMAIL_OR_BLANK_RE_STR(
     QString("(?:%1)|(?:%2)").arg(EMAIL_RE_STR, BLANK_RE_STR)
 );
 
-
-EmailValidator::EmailValidator(QObject* parent, const bool allow_blank)
-    : QRegularExpressionValidator(
-          allow_blank ? QRegularExpression(EMAIL_OR_BLANK_RE_STR)
-                      : QRegularExpression(EMAIL_RE_STR),
-          parent
+EmailValidator::EmailValidator(QObject* parent, const bool allow_blank) :
+    QRegularExpressionValidator(
+        allow_blank ? QRegularExpression(EMAIL_OR_BLANK_RE_STR)
+                    : QRegularExpression(EMAIL_RE_STR),
+        parent
     )
 {
 }

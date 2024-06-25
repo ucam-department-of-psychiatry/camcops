@@ -19,13 +19,12 @@
 */
 
 #include "paintertranslaterotatecontext.h"
+
 #include <QPainter>
 
-
 PainterTranslateRotateContext::PainterTranslateRotateContext(
-        QPainter& painter,
-        const QPointF& at,
-        const qreal rotate_clockwise_deg) :
+    QPainter& painter, const QPointF& at, const qreal rotate_clockwise_deg
+) :
     m_painter(painter),
     m_at(at),
     m_rotate_clockwise_deg(rotate_clockwise_deg)
@@ -33,7 +32,6 @@ PainterTranslateRotateContext::PainterTranslateRotateContext(
     m_painter.translate(m_at);
     m_painter.rotate(m_rotate_clockwise_deg);
 }
-
 
 PainterTranslateRotateContext::~PainterTranslateRotateContext()
 {

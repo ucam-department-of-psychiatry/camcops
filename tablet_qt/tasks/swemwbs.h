@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeSwemwbs(TaskFactory& factory);
 
-
 class Swemwbs : public Task
 {
     Q_OBJECT
+
 public:
-    Swemwbs(CamcopsApp& app, DatabaseManager& db,
-            int load_pk = dbconst::NONEXISTENT_PK);
+    Swemwbs(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,6 +58,7 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+
 public:
     static const QString SWEMWBS_TABLENAME;
 };

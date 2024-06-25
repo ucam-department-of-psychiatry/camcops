@@ -21,13 +21,16 @@
 #pragma once
 #include "diagnosisitembase.h"
 
-
 class DiagnosisIcd9CMItem : public DiagnosisItemBase
 {
 public:
-    DiagnosisIcd9CMItem(CamcopsApp& app, DatabaseManager& db,
-                        int load_pk = dbconst::NONEXISTENT_PK);
+    DiagnosisIcd9CMItem(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     DiagnosisIcd9CMItem(int owner_fk, CamcopsApp& app, DatabaseManager& db);
+
 public:
     static const QString DIAGNOSIS_ICD9CM_ITEM_TABLENAME;
     static const QString FK_NAME;

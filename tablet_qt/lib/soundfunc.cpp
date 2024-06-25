@@ -19,18 +19,19 @@
 */
 
 #include "soundfunc.h"
+
 #include <QAudioDevice>
 #include <QAudioOutput>
 #include <QDebug>
 #include <QMediaDevices>
-#include <QObject>
 #include <QMediaPlayer>
+#include <QObject>
+
 #include "maths/mathfunc.h"
 
 namespace soundfunc {
 
 const QString UNABLE_TO_CREATE_MEDIA_PLAYER("Unable");
-
 
 void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
 {
@@ -38,8 +39,9 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
     // default "flags" argument to QMediaPlayer() is 0, i.e. no flags set.
 
     qDebug() << "About to call QMediaPlayer()...";
-    player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                          &QObject::deleteLater);
+    player = QSharedPointer<QMediaPlayer>(
+        new QMediaPlayer(), &QObject::deleteLater
+    );
     auto audio_output = new QAudioOutput();
     audio_output->setDevice(QMediaDevices::defaultAudioOutput());
     player->setAudioOutput(audio_output);
@@ -107,7 +109,6 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
     */
 }
 
-
 void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player)
 {
     // The following seems to prevent a crash (even with deleteLater set up by
@@ -122,17 +123,18 @@ void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player)
     }
 }
 
-
-void setVolume(const QSharedPointer<QMediaPlayer>& player,
-               const int volume_percent)
+void setVolume(
+    const QSharedPointer<QMediaPlayer>& player, const int volume_percent
+)
 {
-    const qreal volume_proportion = mathfunc::intPercentToProportion(volume_percent);
+    const qreal volume_proportion
+        = mathfunc::intPercentToProportion(volume_percent);
     setVolume(player, volume_proportion);
 }
 
-
-void setVolume(const QSharedPointer<QMediaPlayer>& player,
-               const double volume_proportion)
+void setVolume(
+    const QSharedPointer<QMediaPlayer>& player, const double volume_proportion
+)
 {
     QAudioOutput* output = player->audioOutput();
     if (output) {

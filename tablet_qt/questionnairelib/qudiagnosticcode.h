@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QSharedPointer>
+
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 
@@ -30,33 +31,34 @@ class QLabel;
 class QPushButton;
 class QWidget;
 
-
 class QuDiagnosticCode : public QuElement
 {
     // Allows tree browsing and search of diagnostic codes from a structured
     // classification system.
 
     Q_OBJECT
-public:
 
+public:
     // Construct with:
     // - a code set (e.g. "ICD-10");
     // - a fieldref for the code (e.g. "F20.0")
     // - a fieldref for the description (e.g. "Paranoid schizophrenia")
-    QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
-                     FieldRefPtr fieldref_code,
-                     FieldRefPtr fieldref_description,
-                     QObject* parent = nullptr);
+    QuDiagnosticCode(
+        DiagnosticCodeSetPtr codeset,
+        FieldRefPtr fieldref_code,
+        FieldRefPtr fieldref_description,
+        QObject* parent = nullptr
+    );
 
     // Should we offer a button to set the code/description to null?
     QuDiagnosticCode* setOfferNullButton(bool offer_null_button);
 
 protected:
-
     // Sets the widget state from our fieldrefs.
     virtual void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:
@@ -70,8 +72,8 @@ protected slots:
     // Having clicked the "set diagnosis" button, we've popped up a widget to
     // choose a diagnosis; the user has chosen a diagnosis, and the popup
     // widget is telling us what it is.
-    virtual void widgetChangedCode(const QString& code,
-                                   const QString& description);
+    virtual void
+        widgetChangedCode(const QString& code, const QString& description);
 
     // "Fieldref reports that the field's data has changed."
     virtual void fieldValueChanged(const FieldRef* fieldref_code);

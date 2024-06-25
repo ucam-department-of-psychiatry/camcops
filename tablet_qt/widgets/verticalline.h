@@ -23,14 +23,13 @@
 
 class QString;
 
-
 class VerticalLine : public QWidget
 {
     // Simple vertical line (taking its colour from a stylesheet).
 
     Q_OBJECT
-public:
 
+public:
     // Construct, defining the line's width.
     // To define the line's colour, use CSS "background-color".
     VerticalLine(int width, QWidget* parent = nullptr);

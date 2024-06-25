@@ -23,6 +23,7 @@
 #include "graphicsrectitemclickable.h"
 
 #include <QGraphicsSceneMouseEvent>
+
 #include "common/colourdefs.h"
 
 

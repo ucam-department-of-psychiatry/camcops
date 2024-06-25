@@ -24,23 +24,27 @@
 
 class QSpinBox;
 
-
 class QuSpinBoxInteger : public QuElement
 {
     // Offers a text editing box with spinbox controls, for integer entry.
 
     Q_OBJECT
+
 public:
     // Constructor, specifying range.
-    QuSpinBoxInteger(FieldRefPtr fieldref, int minimum, int maximum,
-                     QObject* parent = nullptr);
+    QuSpinBoxInteger(
+        FieldRefPtr fieldref,
+        int minimum,
+        int maximum,
+        QObject* parent = nullptr
+    );
 
 protected:
-
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:
@@ -52,8 +56,10 @@ protected slots:
     void widgetValueChangedString(const QString& text);
 
     // "The field's data has changed."
-    void fieldValueChanged(const FieldRef* fieldref,
-                           const QObject* originator = nullptr);
+    void fieldValueChanged(
+        const FieldRef* fieldref, const QObject* originator = nullptr
+    );
+
 protected:
     FieldRefPtr m_fieldref;  // our field
     int m_minimum;  // minimum value

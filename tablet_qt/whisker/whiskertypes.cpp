@@ -18,19 +18,19 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "whiskertypes.h"
+
 #include "whisker/whiskerconnectionstate.h"
 #include "whisker/whiskerinboundmessage.h"
 #include "whisker/whiskeroutboundcommand.h"
 
-#include "whiskertypes.h"
-
 namespace whiskertypes {
-    void registerTypesForQVariant()
-    {
-        // Types that need to be registered with qRegisterMetaType() but are not
-        // stored in QVariants, so don't need externally visible type names:
-        qRegisterMetaType<WhiskerConnectionState>("WhiskerConnectionState");
-        qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
-        qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");
-    }
+void registerTypesForQVariant()
+{
+    // Types that need to be registered with qRegisterMetaType() but are not
+    // stored in QVariants, so don't need externally visible type names:
+    qRegisterMetaType<WhiskerConnectionState>("WhiskerConnectionState");
+    qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
+    qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");
+}
 }

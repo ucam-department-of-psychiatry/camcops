@@ -21,7 +21,9 @@
 // #define DEBUG_TASK_CREATION
 
 #include "taskfactory.h"
+
 #include <algorithm>
+
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "lib/comparers.h"
@@ -29,7 +31,6 @@
 #include "tasklib/task.h"
 #include "tasklib/tasksorter.h"
 #include "version/camcopsversion.h"
-
 
 // ===========================================================================
 // TaskFactory
@@ -40,14 +41,12 @@ TaskFactory::TaskFactory(CamcopsApp& app) :
 {
 }
 
-
 void TaskFactory::registerTask(ProxyType proxy)
 {
     m_initial_proxy_list.append(proxy);
     // We are here from WITHIN A CONSTRUCTOR (TaskProxy::TaskProxy), so don't
     // call back to the proxy.
 }
-
 
 void TaskFactory::finishRegistration()
 {
@@ -62,9 +61,11 @@ void TaskFactory::finishRegistration()
         cache.proxy = proxy;
         if (m_map.contains(cache.tablename)) {
             QString msg = QString(
-                "BAD TASK REGISTRATION: table %1 being registered for a second"
-                " time by task with longname %2").arg(
-                    cache.tablename, cache.longname);
+                              "BAD TASK REGISTRATION: table %1 being "
+                              "registered for a second"
+                              " time by task with longname %2"
+            )
+                              .arg(cache.tablename, cache.longname);
             qFatal("%s", qPrintable(msg));
         }
         m_map.insert(cache.tablename, cache);  // tablenames are the keys
@@ -75,8 +76,8 @@ void TaskFactory::finishRegistration()
     m_all_tablenames.sort();
 }
 
-
-QStringList TaskFactory::tablenames(const TaskClassSortMethod sort_method) const
+QStringList TaskFactory::tablenames(const TaskClassSortMethod sort_method
+) const
 {
     if (sort_method == TaskClassSortMethod::Tablename) {
         // Already sorted by this
@@ -87,8 +88,9 @@ QStringList TaskFactory::tablenames(const TaskClassSortMethod sort_method) const
     const bool use_shortname = sort_method == TaskClassSortMethod::Shortname;
     for (const QString& tablename : m_tablenames) {
         const TaskCache& cache = m_map[tablename];
-        pairs.append(StringPair(tablename, use_shortname ? cache.shortname
-                                                         : cache.longname));
+        pairs.append(StringPair(
+            tablename, use_shortname ? cache.shortname : cache.longname
+        ));
     }
     std::sort(pairs.begin(), pairs.end(), QPairSecondComparer());
     QStringList sorted_tablenames;
@@ -98,28 +100,26 @@ QStringList TaskFactory::tablenames(const TaskClassSortMethod sort_method) const
     return sorted_tablenames;
 }
 
-
 QStringList TaskFactory::allTablenames() const
 {
     return m_all_tablenames;
 }
 
-
 TaskPtr TaskFactory::create(const QString& key, const int load_pk) const
 {
     if (!m_map.contains(key)) {
-        qWarning().nospace() << "TaskFactory::create(" << key << ", "
-                             << load_pk << ")" << "... no such task class";
+        qWarning().nospace()
+            << "TaskFactory::create(" << key << ", " << load_pk << ")"
+            << "... no such task class";
         return TaskPtr(nullptr);
     }
 #ifdef DEBUG_TASK_CREATION
-    qDebug().nospace() << "TaskFactory::create(" << key << ", "
-                       << load_pk << ")";
+    qDebug().nospace() << "TaskFactory::create(" << key << ", " << load_pk
+                       << ")";
 #endif
     ProxyType proxy = m_map[key].proxy;
     return proxy->create(m_app, m_app.db(), load_pk);
 }
-
 
 void TaskFactory::makeAllTables() const
 {
@@ -132,7 +132,6 @@ void TaskFactory::makeAllTables() const
     }
 }
 
-
 QString TaskFactory::shortname(const QString& key) const
 {
     if (!m_map.contains(key)) {
@@ -141,7 +140,6 @@ QString TaskFactory::shortname(const QString& key) const
     }
     return m_map[key].shortname;
 }
-
 
 QString TaskFactory::longname(const QString& key) const
 {
@@ -152,7 +150,6 @@ QString TaskFactory::longname(const QString& key) const
     return m_map[key].longname;
 }
 
-
 void TaskFactory::makeTables(const QString& key) const
 {
     TaskPtr p_task = create(key);
@@ -162,8 +159,8 @@ void TaskFactory::makeTables(const QString& key) const
     p_task->makeTables();
 }
 
-
-TaskPtrList TaskFactory::fetchTasks(const QString& tablename, const bool sort) const
+TaskPtrList
+    TaskFactory::fetchTasks(const QString& tablename, const bool sort) const
 {
     // KEY SECURITY DECISIONS IMPLEMENTED HERE: which tasks users can see.
     const int patient_id = m_app.selectedPatientId();
@@ -197,7 +194,8 @@ TaskPtrList TaskFactory::fetchTasks(const QString& tablename, const bool sort) c
         const bool anonymous = cache.anonymous;
         const bool locked = m_app.locked();
         if (anonymous) {
-            tasklist = proxy->fetch(m_app, m_app.db(), dbconst::NONEXISTENT_PK);
+            tasklist
+                = proxy->fetch(m_app, m_app.db(), dbconst::NONEXISTENT_PK);
         } else {
             if (patient_selected || !locked) {
                 tasklist = proxy->fetch(m_app, m_app.db(), patient_id);
@@ -214,7 +212,6 @@ TaskPtrList TaskFactory::fetchTasks(const QString& tablename, const bool sort) c
     return tasklist;
 }
 
-
 bool TaskFactory::anyTasksPresent() const
 {
     DatabaseManager& db = m_app.db();
@@ -225,7 +222,6 @@ bool TaskFactory::anyTasksPresent() const
     }
     return false;
 }
-
 
 TaskPtrList TaskFactory::fetchAllTasksForPatient(const int patient_id) const
 {
@@ -244,7 +240,6 @@ TaskPtrList TaskFactory::fetchAllTasksForPatient(const int patient_id) const
     return tasklist;
 }
 
-
 TaskPtrList TaskFactory::allSpecimens() const
 {
     TaskPtrList specimens;
@@ -253,13 +248,12 @@ TaskPtrList TaskFactory::allSpecimens() const
         it.next();
         const TaskCache& cache = it.value();
         ProxyType proxy = cache.proxy;
-        TaskPtr specimen = proxy->create(m_app, m_app.db(),
-                                         dbconst::NONEXISTENT_PK);
+        TaskPtr specimen
+            = proxy->create(m_app, m_app.db(), dbconst::NONEXISTENT_PK);
         specimens.append(specimen);
     }
     return specimens;
 }
-
 
 TaskPtrList TaskFactory::allSpecimensExceptAnonymous() const
 {
@@ -273,23 +267,22 @@ TaskPtrList TaskFactory::allSpecimensExceptAnonymous() const
             continue;
         }
         ProxyType proxy = cache.proxy;
-        TaskPtr specimen = proxy->create(m_app, m_app.db(),
-                                         dbconst::NONEXISTENT_PK);
+        TaskPtr specimen
+            = proxy->create(m_app, m_app.db(), dbconst::NONEXISTENT_PK);
         specimens.append(specimen);
     }
     return specimens;
 }
 
-
-void TaskFactory::upgradeDatabase(const Version& old_version,
-                                  const Version& new_version)
+void TaskFactory::upgradeDatabase(
+    const Version& old_version, const Version& new_version
+)
 {
     TaskPtrList specimens = allSpecimens();
     for (const TaskPtr& t : specimens) {
         t->upgradeDatabase(old_version, new_version);
     }
 }
-
 
 Version TaskFactory::minimumServerVersion(const QString& tablename) const
 {
@@ -318,18 +311,12 @@ Version TaskFactory::minimumServerVersion(const QString& tablename) const
     return camcopsversion::MINIMUM_SERVER_VERSION;
 }
 
-
 QTextStream& operator<<(QTextStream& stream, const TaskFactory& f)
 {
     const TaskPtrList specimens = f.allSpecimens();
     for (const TaskPtr& t : specimens) {
-        stream
-            << t->tablename()
-            << ": "
-            << t->shortname()
-            << ", "
-            << t->longname()
-            << Qt::endl;
+        stream << t->tablename() << ": " << t->shortname() << ", "
+               << t->longname() << Qt::endl;
     }
     // Don't bother with reporting the numbers.
     // The user can use ./camcops --print_tasks 2>/dev/null | wc

@@ -18,6 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "validatinglineedit.h"
+
 #include <QColor>
 #include <QDialog>
 #include <QLabel>
@@ -26,24 +28,25 @@
 #include <QValidator>
 #include <QWidget>
 
-#include "validatinglineedit.h"
-
 const QColor& GOOD_FOREGROUND = Qt::black;
 const QColor& GOOD_BACKGROUND = Qt::green;
 const QColor& BAD_FOREGROUND = Qt::white;
 const QColor& BAD_BACKGROUND = Qt::red;
 
-
-ValidatingLineEdit::ValidatingLineEdit(QValidator* validator,
-                                       QWidget* parent,
-                                       const QString& text) :
+ValidatingLineEdit::ValidatingLineEdit(
+    QValidator* validator, QWidget* parent, const QString& text
+) :
     QVBoxLayout(parent)
 {
     m_line_edit = new QLineEdit();
     m_line_edit->setValidator(validator);
 
-    connect(m_line_edit, &QLineEdit::textChanged, this,
-            &ValidatingLineEdit::textChanged);
+    connect(
+        m_line_edit,
+        &QLineEdit::textChanged,
+        this,
+        &ValidatingLineEdit::textChanged
+    );
     m_label = new QLabel();
 
     addWidget(m_line_edit);
@@ -54,7 +57,6 @@ ValidatingLineEdit::ValidatingLineEdit(QValidator* validator,
         m_line_edit->setText(text);
     }
 }
-
 
 void ValidatingLineEdit::textChanged()
 {
@@ -80,25 +82,21 @@ void ValidatingLineEdit::textChanged()
     emit validated();
 }
 
-
 void ValidatingLineEdit::processChangedText()
 {
     // May be implemented in base class to change the text
     // in some way before validation
 }
 
-
 QLineEdit* ValidatingLineEdit::getLineEdit()
 {
     return m_line_edit;
 }
 
-
 QValidator::State ValidatingLineEdit::getState()
 {
     return m_state;
 }
-
 
 bool ValidatingLineEdit::isValid()
 {

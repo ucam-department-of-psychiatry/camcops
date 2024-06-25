@@ -22,6 +22,7 @@
 #include <QList>
 #include <QSharedPointer>
 #include <QVariant>
+
 #include "common/aliases_camcops.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/questionwithonefield.h"
@@ -29,7 +30,6 @@
 class BooleanWidget;
 class LabelWordWrapWide;
 class QSignalMapper;
-
 
 class QuMultipleResponse : public QuElement
 {
@@ -74,16 +74,19 @@ class QuMultipleResponse : public QuElement
     //      +--------+ +---------+ +-------+ +--------+ +-----+
 
     Q_OBJECT
-public:
 
+public:
     // Construct in the empty state.
     QuMultipleResponse(QObject* parent = nullptr);
 
     // Construct from a list of questions/fields.
-    QuMultipleResponse(const QVector<QuestionWithOneField>& items,
-                       QObject* parent = nullptr);
-    QuMultipleResponse(std::initializer_list<QuestionWithOneField> items,
-                       QObject* parent = nullptr);
+    QuMultipleResponse(
+        const QVector<QuestionWithOneField>& items, QObject* parent = nullptr
+    );
+    QuMultipleResponse(
+        std::initializer_list<QuestionWithOneField> items,
+        QObject* parent = nullptr
+    );
 
     // Add an item.
     QuMultipleResponse* addItem(const QuestionWithOneField& item);
@@ -118,7 +121,8 @@ protected:
     // Set widget state from field data.
     void setFromFields();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Return the minimum number of answers.

@@ -25,11 +25,13 @@
 // TODO: See if this is fixed when we move to Qt6.2
 
 #include "wsas.h"
+
 #include <QScreen>
+
 #include "common/appstrings.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
@@ -54,22 +56,21 @@ const QString Wsas::WSAS_TABLENAME("wsas");
 const QString RETIRED_ETC("retired_etc");
 const QString Q1_TAG("q1");
 
-
 void initializeWsas(TaskFactory& factory)
 {
     static TaskRegistrar<Wsas> registered(factory);
 }
 
-
 Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, WSAS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(RETIRED_ETC, QMetaType::fromType<bool>());
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -80,18 +81,15 @@ QString Wsas::shortname() const
     return "WSAS";
 }
 
-
 QString Wsas::longname() const
 {
     return tr("Work and Social Adjustment Scale");
 }
 
-
 QString Wsas::description() const
 {
     return tr("5-item self-report scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -99,22 +97,19 @@ QString Wsas::description() const
 
 bool Wsas::isComplete() const
 {
-    return (valueBool(RETIRED_ETC) || !valueIsNull(strnum(QPREFIX, FIRST_Q))) &&
-            noneNull(values(strseq(QPREFIX, FIRST_Q + 1, N_QUESTIONS)));
+    return (valueBool(RETIRED_ETC) || !valueIsNull(strnum(QPREFIX, FIRST_Q)))
+        && noneNull(values(strseq(QPREFIX, FIRST_Q + 1, N_QUESTIONS)));
 }
-
 
 QStringList Wsas::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), maxScore())};
 }
 
-
 QStringList Wsas::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* Wsas::editor(const bool read_only)
 {
@@ -124,8 +119,9 @@ OpenableWidget* Wsas::editor(const bool read_only)
 
     rebuildPage(page);
 
-    connect(fr_retired.data(), &FieldRef::valueChanged,
-            this, &Wsas::workChanged);
+    connect(
+        fr_retired.data(), &FieldRef::valueChanged, this, &Wsas::workChanged
+    );
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);
@@ -134,21 +130,19 @@ OpenableWidget* Wsas::editor(const bool read_only)
     workChanged();
 
 #ifdef HANDLE_ORIENTATION_EVENTS
-    QScreen *screen = uifunc::screen();
+    QScreen* screen = uifunc::screen();
     screen->setOrientationUpdateMask(
-         Qt::LandscapeOrientation |
-         Qt::PortraitOrientation |
-         Qt::InvertedLandscapeOrientation |
-         Qt::InvertedPortraitOrientation
+        Qt::LandscapeOrientation | Qt::PortraitOrientation
+        | Qt::InvertedLandscapeOrientation | Qt::InvertedPortraitOrientation
     );
 
-    connect(screen, &QScreen::orientationChanged,
-            this, &Wsas::orientationChanged);
+    connect(
+        screen, &QScreen::orientationChanged, this, &Wsas::orientationChanged
+    );
 #endif
 
     return m_questionnaire;
 }
-
 
 void Wsas::orientationChanged(Qt::ScreenOrientation orientation)
 {
@@ -156,7 +150,6 @@ void Wsas::orientationChanged(Qt::ScreenOrientation orientation)
 
     refreshQuestionnaire();
 }
-
 
 void Wsas::refreshQuestionnaire()
 {
@@ -168,7 +161,6 @@ void Wsas::refreshQuestionnaire()
 
     m_questionnaire->refreshCurrentPage();
 }
-
 
 void Wsas::rebuildPage(QuPage* page)
 {
@@ -183,27 +175,24 @@ void Wsas::rebuildPage(QuPage* page)
         {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
         {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
     };
-    QVector<QuestionWithOneField> q1_fields{
-        QuestionWithOneField(
-            xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
-            fieldRef(strnum(QPREFIX, FIRST_Q))
-        )
-    };
+    QVector<QuestionWithOneField> q1_fields{QuestionWithOneField(
+        xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
+        fieldRef(strnum(QPREFIX, FIRST_Q))
+    )};
 
     QVector<QuestionWithOneField> other_q_fields;
     for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
-        other_q_fields.append(
-            QuestionWithOneField(
-                xstring(strnum("q", i), strnum("Q", i)),
-                fieldRef(strnum(QPREFIX, i))
-            )
-        );
+        other_q_fields.append(QuestionWithOneField(
+            xstring(strnum("q", i), strnum("Q", i)),
+            fieldRef(strnum(QPREFIX, i))
+        ));
     }
 
     QVector<QuElement*> elements;
     elements.append((new QuText(xstring("instruction")))->setBold());
-    elements.append(new QuBoolean(xstring("q_retired_etc"),
-                                  fieldRef(RETIRED_ETC, false)));
+    elements.append(
+        new QuBoolean(xstring("q_retired_etc"), fieldRef(RETIRED_ETC, false))
+    );
 
     const qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
     const bool use_grid = width_inches > MIN_WIDTH_INCHES_FOR_GRID;
@@ -216,8 +205,12 @@ void Wsas::rebuildPage(QuPage* page)
             // re qAsConst():
             // https://stackoverflow.com/questions/35811053/using-c11-range-based-for-loop-correctly-in-qt
             // https://doc.qt.io/qt-6.5/qtglobal.html#qAsConst
-            elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
-            elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
+            elements.append(
+                (new QuText(field.question()))->setBold()->addTag(Q1_TAG)
+            );
+            elements.append(
+                (new QuMcq(field.fieldref(), options))->addTag(Q1_TAG)
+            );
         }
         for (const auto& field : qAsConst(other_q_fields)) {
             elements.append((new QuText(field.question()))->setBold());
@@ -229,24 +222,21 @@ void Wsas::rebuildPage(QuPage* page)
     page->addElements(elements);
 }
 
-
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
 
 int Wsas::totalScore() const
 {
-    return (valueBool(RETIRED_ETC) ? 0 : valueInt(strnum(QPREFIX, FIRST_Q))) +
-            sumInt(values(strseq(QPREFIX, FIRST_Q + 1, N_QUESTIONS)));
+    return (valueBool(RETIRED_ETC) ? 0 : valueInt(strnum(QPREFIX, FIRST_Q)))
+        + sumInt(values(strseq(QPREFIX, FIRST_Q + 1, N_QUESTIONS)));
 }
-
 
 int Wsas::maxScore() const
 {
-    return MAX_PER_Q * (valueBool(RETIRED_ETC) ? (N_QUESTIONS - 1)
-                                               : N_QUESTIONS);
+    return MAX_PER_Q
+        * (valueBool(RETIRED_ETC) ? (N_QUESTIONS - 1) : N_QUESTIONS);
 }
-
 
 // ============================================================================
 // Task-specific calculations

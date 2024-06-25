@@ -19,6 +19,7 @@
 */
 
 #include "gaf.h"
+
 #include "common/appstrings.h"
 #include "common/textconst.h"
 #include "questionnairelib/questionnaire.h"
@@ -31,12 +32,10 @@ const QString QPREFIX("q");
 const QString Gaf::GAF_TABLENAME("gaf");
 const QString SCORE("score");
 
-
 void initializeGaf(TaskFactory& factory)
 {
     static TaskRegistrar<Gaf> registered(factory);
 }
-
 
 Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GAF_TABLENAME, false, true, false)  // ... anon, clin, resp
@@ -45,7 +44,6 @@ Gaf::Gaf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -56,18 +54,15 @@ QString Gaf::shortname() const
     return "GAF";
 }
 
-
 QString Gaf::longname() const
 {
     return tr("Global Assessment of Functioning");
 }
 
-
 QString Gaf::description() const
 {
     return tr("Single scale from 1–100.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -80,27 +75,28 @@ bool Gaf::isComplete() const
     return score >= 1 && score <= 100;
 }
 
-
 QStringList Gaf::summary() const
 {
     return QStringList{fieldSummary(SCORE, appstring(appstrings::GAF_SCORE))};
 }
-
 
 QStringList Gaf::detail() const
 {
     return completenessInfo() + summary();
 }
 
-
 OpenableWidget* Gaf::editor(const bool read_only)
 {
-    QuPagePtr page((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        (new QuText(TextConst::dataCollectionOnlyAnnouncement()))->setBold(),
-        new QuText(appstring(appstrings::GAF_SCORE) + ":"),
-        new QuLineEditInteger(fieldRef(SCORE), 0, 100),
-    })->setTitle(longname()));
+    QuPagePtr page(
+        (new QuPage{
+             getClinicianQuestionnaireBlockRawPointer(),
+             (new QuText(TextConst::dataCollectionOnlyAnnouncement()))
+                 ->setBold(),
+             new QuText(appstring(appstrings::GAF_SCORE) + ":"),
+             new QuLineEditInteger(fieldRef(SCORE), 0, 100),
+         })
+            ->setTitle(longname())
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);

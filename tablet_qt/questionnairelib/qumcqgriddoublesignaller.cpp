@@ -19,21 +19,25 @@
 */
 
 #include "qumcqgriddoublesignaller.h"
+
 #include "db/fieldref.h"
 #include "questionnairelib/qumcqgriddouble.h"
 
-
-QuMcqGridDoubleSignaller::QuMcqGridDoubleSignaller(QuMcqGridDouble* recipient,
-                                                   const int question_index,
-                                                   const bool first_field) :
+QuMcqGridDoubleSignaller::QuMcqGridDoubleSignaller(
+    QuMcqGridDouble* recipient,
+    const int question_index,
+    const bool first_field
+) :
     m_recipient(recipient),
     m_question_index(question_index),
     m_first_field(first_field)
 {
 }
 
-
-void QuMcqGridDoubleSignaller::valueOrMandatoryChanged(const FieldRef* fieldref)
+void QuMcqGridDoubleSignaller::valueOrMandatoryChanged(const FieldRef* fieldref
+)
 {
-    m_recipient->fieldValueOrMandatoryChanged(m_question_index, m_first_field, fieldref);
+    m_recipient->fieldValueOrMandatoryChanged(
+        m_question_index, m_first_field, fieldref
+    );
 }

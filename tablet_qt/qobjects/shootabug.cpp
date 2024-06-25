@@ -19,11 +19,12 @@
 */
 
 #include "shootabug.h"
+
 #include <QDebug>
 #include <QEvent>
 #include <QMouseEvent>
-#include "lib/debugfunc.h"
 
+#include "lib/debugfunc.h"
 
 bool ShootABug::eventFilter(QObject* recv, QEvent* event)
 {
@@ -31,8 +32,8 @@ bool ShootABug::eventFilter(QObject* recv, QEvent* event)
         return false;  // pass it on
     }
     auto mevent = static_cast<QMouseEvent*>(event);
-    if ((mevent->modifiers() & Qt::ControlModifier) &&
-            (mevent->button() & Qt::LeftButton)) {  // Ctrl + left mouse click.
+    if ((mevent->modifiers() & Qt::ControlModifier)
+        && (mevent->button() & Qt::LeftButton)) {  // Ctrl + left mouse click.
         debugfunc::dumpQObject(recv);
         // Return false, if you want the application to receive the event;
         // return true to block.

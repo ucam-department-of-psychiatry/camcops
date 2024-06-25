@@ -19,11 +19,11 @@
 */
 
 #include "researchmenu.h"
+
 #include "common/uiconst.h"
 #include "dialogs/soundtestdialog.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/cardinalexpdetthreshold.h"
 #include "tasks/cardinalexpectationdetection.h"
 #include "tasks/chit.h"
@@ -39,18 +39,15 @@
 #include "tasks/suppsp.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 
-
 ResearchMenu::ResearchMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_RESEARCH))
 {
 }
 
-
 QString ResearchMenu::title() const
 {
     return tr("Research tasks");
 }
-
 
 void ResearchMenu::makeItems()
 {
@@ -58,7 +55,9 @@ void ResearchMenu::makeItems()
         MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Well known or generic")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
@@ -74,18 +73,25 @@ void ResearchMenu::makeItems()
             "",
             cardinalexpdetcommon::ExpDetTextConst::soundtestSubtitle()
         ),
-        MAKE_TASK_MENU_ITEM(CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            CardinalExpDetThreshold::CARDINALEXPDETTHRESHOLD_TABLENAME, m_app
+        ),
+        MAKE_TASK_MENU_ITEM(
+            CardinalExpectationDetection::CARDINALEXPDET_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(Isaaq10::ISAAQ10_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IsaaqEd::ISAAQED_TABLENAME, m_app),
     };
 }
 
-
 void ResearchMenu::soundTestCardinalExpDet()
 {
-    SoundTestDialog dlg(cardinalexpdetcommon::urlFromStem(
-                            cardinalexpdetcommon::AUDITORY_BACKGROUND),
-                        cardinalexpdetcommon::SOUNDTEST_VOLUME, this);
+    SoundTestDialog dlg(
+        cardinalexpdetcommon::urlFromStem(
+            cardinalexpdetcommon::AUDITORY_BACKGROUND
+        ),
+        cardinalexpdetcommon::SOUNDTEST_VOLUME,
+        this
+    );
     dlg.exec();
 }

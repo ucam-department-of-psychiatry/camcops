@@ -19,12 +19,14 @@
 */
 
 #include "layoutdumper.h"
+
 #include <QDebug>
 #include <QScrollArea>
 #include <QString>
 #include <QStringBuilder>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QWidget>
+
 #include "lib/convert.h"
 #include "lib/sizehelpers.h"
 #include "lib/stringfunc.h"
@@ -33,45 +35,56 @@ namespace layoutdumper {
 
 const QString NULL_WIDGET_STRING("<null_widget>");
 
-
 QString toString(const QSizePolicy::Policy& policy)
 {
     switch (policy) {
-    case QSizePolicy::Fixed: return "Fixed";
-    case QSizePolicy::Minimum: return "Minimum";
-    case QSizePolicy::Maximum: return "Maximum";
-    case QSizePolicy::Preferred: return "Preferred";
-    case QSizePolicy::MinimumExpanding: return "MinimumExpanding";
-    case QSizePolicy::Expanding: return "Expanding";
-    case QSizePolicy::Ignored: return "Ignored";
+        case QSizePolicy::Fixed:
+            return "Fixed";
+        case QSizePolicy::Minimum:
+            return "Minimum";
+        case QSizePolicy::Maximum:
+            return "Maximum";
+        case QSizePolicy::Preferred:
+            return "Preferred";
+        case QSizePolicy::MinimumExpanding:
+            return "MinimumExpanding";
+        case QSizePolicy::Expanding:
+            return "Expanding";
+        case QSizePolicy::Ignored:
+            return "Ignored";
     }
     return "unknown_QSizePolicy";
 }
 
-
 QString toString(const QSizePolicy& policy)
 {
     QString result = QString("(%1, %2) [hasHeightForWidth=%3]")
-            .arg(toString(policy.horizontalPolicy()),
-                 toString(policy.verticalPolicy()),
-                 toString(policy.hasHeightForWidth()));
+                         .arg(
+                             toString(policy.horizontalPolicy()),
+                             toString(policy.verticalPolicy()),
+                             toString(policy.hasHeightForWidth())
+                         );
     return result;
 }
-
 
 QString toString(const QLayout::SizeConstraint constraint)
 {
     switch (constraint) {
-    case QLayout::SetDefaultConstraint: return "SetDefaultConstraint";
-    case QLayout::SetNoConstraint: return "SetNoConstraint";
-    case QLayout::SetMinimumSize: return "SetMinimumSize";
-    case QLayout::SetFixedSize: return "SetFixedSize";
-    case QLayout::SetMaximumSize: return "SetMaximumSize";
-    case QLayout::SetMinAndMaxSize: return "SetMinAndMaxSize";
+        case QLayout::SetDefaultConstraint:
+            return "SetDefaultConstraint";
+        case QLayout::SetNoConstraint:
+            return "SetNoConstraint";
+        case QLayout::SetMinimumSize:
+            return "SetMinimumSize";
+        case QLayout::SetFixedSize:
+            return "SetFixedSize";
+        case QLayout::SetMaximumSize:
+            return "SetMaximumSize";
+        case QLayout::SetMinAndMaxSize:
+            return "SetMinAndMaxSize";
     }
     return "unknown_SizeConstraint";
 }
-
 
 QString toString(const Qt::Alignment& alignment)
 {
@@ -115,18 +128,15 @@ QString toString(const Qt::Alignment& alignment)
     return elements.join(" | ");
 }
 
-
 QString toString(const void* pointer)
 {
     return convert::prettyPointer(pointer);
 }
 
-
 QString toString(const bool boolean)
 {
     return boolean ? "true" : "false";
 }
-
 
 QString getWidgetDescriptor(const QWidget* w)
 {
@@ -134,11 +144,12 @@ QString getWidgetDescriptor(const QWidget* w)
         return NULL_WIDGET_STRING;
     }
     return QString("%1<%2 '%3'>")
-            .arg(w->metaObject()->className(),
-                 toString(reinterpret_cast<const void*>(w)),
-                 w->objectName());
+        .arg(
+            w->metaObject()->className(),
+            toString(reinterpret_cast<const void*>(w)),
+            w->objectName()
+        );
 }
-
 
 QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
 {
@@ -153,39 +164,38 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     QStringList elements;
     elements.append(getWidgetDescriptor(w));
     elements.append(w->isVisible() ? "visible" : "HIDDEN");
-    elements.append(QString("pos[DOWN] (%1, %2)")
-                    .arg(geom.x())
-                    .arg(geom.y()));
-    elements.append(QString("size[DOWN] (%1 x %2)")
-                    .arg(geom.width())
-                    .arg(geom.height()));
+    elements.append(QString("pos[DOWN] (%1, %2)").arg(geom.x()).arg(geom.y()));
+    elements.append(
+        QString("size[DOWN] (%1 x %2)").arg(geom.width()).arg(geom.height())
+    );
     elements.append(QString("hasHeightForWidth()[UP] %1")
-                    .arg(w->hasHeightForWidth() ? "true" : "false"));
+                        .arg(w->hasHeightForWidth() ? "true" : "false"));
     elements.append(QString("heightForWidth(%1[DOWN])[UP] %2")
-                    .arg(geom.width())
-                    .arg(w->heightForWidth(geom.width())));
+                        .arg(geom.width())
+                        .arg(w->heightForWidth(geom.width())));
     elements.append(QString("minimumSize (%1 x %2)")
-                    .arg(w->minimumSize().width())
-                    .arg(w->minimumSize().height()));
+                        .arg(w->minimumSize().width())
+                        .arg(w->minimumSize().height()));
     elements.append(QString("maximumSize (%1 x %2)")
-                    .arg(w->maximumSize().width())
-                    .arg(w->maximumSize().height()));
+                        .arg(w->maximumSize().width())
+                        .arg(w->maximumSize().height()));
     elements.append(QString("sizeHint[UP] (%1 x %2)")
-                    .arg(w->sizeHint().width())
-                    .arg(w->sizeHint().height()));
+                        .arg(w->sizeHint().width())
+                        .arg(w->sizeHint().height()));
     elements.append(QString("minimumSizeHint[UP] (%1 x %2)")
-                    .arg(w->minimumSizeHint().width())
-                    .arg(w->minimumSizeHint().height()));
-    elements.append(QString("sizePolicy[UP] %1")
-                    .arg(toString(w->sizePolicy())));
+                        .arg(w->minimumSizeHint().width())
+                        .arg(w->minimumSizeHint().height()));
+    elements.append(QString("sizePolicy[UP] %1").arg(toString(w->sizePolicy()))
+    );
     elements.append(QString("stylesheet: %1")
-                    .arg(w->styleSheet().isEmpty() ? "false" : "true"));
+                        .arg(w->styleSheet().isEmpty() ? "false" : "true"));
 
-    if (config.show_all_widget_attributes ||
-            config.show_set_widget_attributes) {
+    if (config.show_all_widget_attributes
+        || config.show_set_widget_attributes) {
         elements.append(QString("attributes: [%1]")
-                        .arg(getWidgetAttributeInfo(
-                                 w, config.show_all_widget_attributes)));
+                            .arg(getWidgetAttributeInfo(
+                                w, config.show_all_widget_attributes
+                            )));
     }
 
     if (config.show_widget_properties) {
@@ -196,8 +206,9 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     }
 
     if (config.show_widget_stylesheets) {
-        elements.append(QString("stylesheet contents: %1").arg(
-                            convert::stringToCppLiteral(w->styleSheet())));
+        elements.append(QString("stylesheet contents: %1")
+                            .arg(convert::stringToCppLiteral(w->styleSheet()))
+        );
     }
 
     // Geometry within bounds?
@@ -208,13 +219,17 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
         elements.append("[BUG? geometry().height() < minimumSize().height()]");
     }
     if (geom.width() < w->minimumSizeHint().width()) {
-        elements.append("[WARNING: geometry().width() < "
-                        "minimumSizeHint().width()]");
+        elements.append(
+            "[WARNING: geometry().width() < "
+            "minimumSizeHint().width()]"
+        );
     }
-    if (!w->hasHeightForWidth() &&
-            geom.height() < w->minimumSizeHint().height()) {
-        elements.append("[WARNING: geometry().height() < "
-                        "minimumSizeHint().height()]");
+    if (!w->hasHeightForWidth()
+        && geom.height() < w->minimumSizeHint().height()) {
+        elements.append(
+            "[WARNING: geometry().height() < "
+            "minimumSizeHint().height()]"
+        );
     }
     if (geom.width() > w->maximumSize().width()) {
         elements.append("[BUG? geometry().width() > maximumSize().width()]");
@@ -222,23 +237,26 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     if (geom.height() > w->maximumSize().height()) {
         elements.append("[BUG? geometry().height() > maximumSize().height()]");
     }
-    if (w->hasHeightForWidth() &&
-            geom.height() < w->heightForWidth(geom.width())) {
-        const bool can_shrink_vertically =
-                sizehelpers::canHFWPolicyShrinkVertically(w->sizePolicy());
+    if (w->hasHeightForWidth()
+        && geom.height() < w->heightForWidth(geom.width())) {
+        const bool can_shrink_vertically
+            = sizehelpers::canHFWPolicyShrinkVertically(w->sizePolicy());
         if (!can_shrink_vertically) {
             elements.append(
                 "[WARNING: geometry().height() < "
                 "heightForWidth(geometry().width()) and policy doesn't allow "
-                "vertical shrinkage]");
+                "vertical shrinkage]"
+            );
         }
     }
 
     // Bounds themselves consistent?
     if (w->sizeHint().width() != -1 && w->sizeHint().height() != -1) {
         if (w->sizeHint().width() < w->minimumSizeHint().width()) {
-            elements.append("[WIDGET BUG? sizeHint().width() < "
-                            "minimumSizeHint().width()]");
+            elements.append(
+                "[WIDGET BUG? sizeHint().width() < "
+                "minimumSizeHint().width()]"
+            );
         }
         /*
         // Not clear that these are wrong; the layout may have other reasons
@@ -253,8 +271,10 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
         }
         */
         if (w->sizeHint().height() < w->minimumSizeHint().height()) {
-            elements.append("[WIDGET BUG? sizeHint().height() < "
-                            "minimumSizeHint().height()]");
+            elements.append(
+                "[WIDGET BUG? sizeHint().height() < "
+                "minimumSizeHint().height()]"
+            );
         }
         if (!w->hasHeightForWidth()) {
             /*
@@ -273,9 +293,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     return elements.join(", ");
 }
 
-
 #define ADD_WIDGET_ATTR(x) add(Qt::x, #x)
-
 
 QString getWidgetAttributeInfo(const QWidget* w, const bool all)
 {
@@ -284,17 +302,17 @@ QString getWidgetAttributeInfo(const QWidget* w, const bool all)
         return NULL_WIDGET_STRING;
     }
     QStringList elements;
-    auto add = [&all, &w, &elements](Qt::WidgetAttribute attr,
-            const QString& desc) {
-        const bool set = w->testAttribute(attr);
-        if (all) {
-            elements.append(QString("%1 %2").arg(desc, set));
-        } else {
-            if (set) {
-                elements.append(desc);
+    auto add =
+        [&all, &w, &elements](Qt::WidgetAttribute attr, const QString& desc) {
+            const bool set = w->testAttribute(attr);
+            if (all) {
+                elements.append(QString("%1 %2").arg(desc, set));
+            } else {
+                if (set) {
+                    elements.append(desc);
+                }
             }
-        }
-    };
+        };
 
     // https://doc.qt.io/qt-6/qt.html#WidgetAttribute-enum
     // ... sorted
@@ -379,7 +397,6 @@ QString getWidgetAttributeInfo(const QWidget* w, const bool all)
     return elements.join(", ");
 }
 
-
 QString getDynamicProperties(const QWidget* w)
 {
     if (!w) {
@@ -390,12 +407,12 @@ QString getDynamicProperties(const QWidget* w)
     for (const QByteArray& arr : property_names) {
         const QString name(arr);
         const QVariant value = w->property(arr);
-        const QString value_string = stringfunc::escapeString(value.toString());
+        const QString value_string
+            = stringfunc::escapeString(value.toString());
         elements.append(QString("%1=%2").arg(name, value_string));
     }
     return elements.join(", ");
 }
-
 
 QString getLayoutInfo(const QLayout* layout)
 {
@@ -411,26 +428,26 @@ QString getLayoutInfo(const QLayout* layout)
     // usually unhelpful (blank): layout->objectName()
     QStringList elements;
     elements.append(name);
-    elements.append(QString("constraint %1")
-                    .arg(toString(layout->sizeConstraint())));
+    elements.append(
+        QString("constraint %1").arg(toString(layout->sizeConstraint()))
+    );
     elements.append(QString("minimumSize[UP] (%1 x %2)")
-                    .arg(minsize.width())
-                    .arg(minsize.height()));
+                        .arg(minsize.width())
+                        .arg(minsize.height()));
     elements.append(QString("sizeHint[UP] (%1 x %2)")
-                    .arg(sizehint.width())
-                    .arg(sizehint.height()));
+                        .arg(sizehint.width())
+                        .arg(sizehint.height()));
     elements.append(QString("maximumSize[UP] (%1 x %2)")
-                    .arg(maxsize.width())
-                    .arg(maxsize.height()));
+                        .arg(maxsize.width())
+                        .arg(maxsize.height()));
     elements.append(QString("hasHeightForWidth[UP] %3")
-                    .arg(toString(layout->hasHeightForWidth())));
+                        .arg(toString(layout->hasHeightForWidth())));
     elements.append(QString("margin (l=%1,t=%2,r=%3,b=%4)")
-                    .arg(margins.left())
-                    .arg(margins.top())
-                    .arg(margins.right())
-                    .arg(margins.bottom()));
-    elements.append(QString("spacing[UP] %1")
-                    .arg(layout->spacing()));
+                        .arg(margins.left())
+                        .arg(margins.top())
+                        .arg(margins.right())
+                        .arg(margins.bottom()));
+    elements.append(QString("spacing[UP] %1").arg(layout->spacing()));
 
     // Check hints are consistent
     if (sizehint.width() < minsize.width()) {
@@ -451,23 +468,28 @@ QString getLayoutInfo(const QLayout* layout)
         const QSize parent_size = parent->size();
         const int parent_width = parent_size.width();
         elements.append(QString("heightForWidth(%1[parent_width])[UP] %2")
-                        .arg(parent_width)
-                        .arg(layout->heightForWidth(parent_width)));
-        elements.append(QString("minimumHeightForWidth(%1[parent_width])[UP] %2")
-                        .arg(parent_width)
-                        .arg(layout->minimumHeightForWidth(parent_width)));
+                            .arg(parent_width)
+                            .arg(layout->heightForWidth(parent_width)));
+        elements.append(
+            QString("minimumHeightForWidth(%1[parent_width])[UP] %2")
+                .arg(parent_width)
+                .arg(layout->minimumHeightForWidth(parent_width))
+        );
         if (parent_width < minsize.width()) {
-            elements.append("[WARNING: parent->size().width() < "
-                            "minimumSize().width()]");
+            elements.append(
+                "[WARNING: parent->size().width() < "
+                "minimumSize().width()]"
+            );
         }
         if (parent_size.height() < minsize.height()) {
-            elements.append("[WARNING: parent->size().height() < "
-                            "minimumSize().height()]");
+            elements.append(
+                "[WARNING: parent->size().height() < "
+                "minimumSize().height()]"
+            );
         }
     }
     return elements.join(", ");
 }
-
 
 QString getSpacerInfo(QSpacerItem* si)
 {
@@ -476,45 +498,45 @@ QString getSpacerInfo(QSpacerItem* si)
     const QLayout* si_layout = si->layout();
     QStringList elements;
     elements.append("QSpacerItem");
-    elements.append(QString("pos[DOWN] (%1, %2)")
-                    .arg(geom.x())
-                    .arg(geom.y()));
-    elements.append(QString("size[DOWN] (%1 x %2)")
-                    .arg(geom.width())
-                    .arg(geom.height()));
+    elements.append(QString("pos[DOWN] (%1, %2)").arg(geom.x()).arg(geom.y()));
+    elements.append(
+        QString("size[DOWN] (%1 x %2)").arg(geom.width()).arg(geom.height())
+    );
     elements.append(QString("sizeHint (%1 x %2)")
-                    .arg(si_hint.width())
-                    .arg(si_hint.height()));
-    elements.append(QString("sizePolicy %1")
-                    .arg(toString(si->sizePolicy())));
+                        .arg(si_hint.width())
+                        .arg(si_hint.height()));
+    elements.append(QString("sizePolicy %1").arg(toString(si->sizePolicy())));
     elements.append(QString("constraint %1 [alignment %2]")
-                    .arg(si_layout ? toString(si_layout->sizeConstraint())
-                                   : "<no_layout>",
-                         toString(si->alignment())));
+                        .arg(
+                            si_layout ? toString(si_layout->sizeConstraint())
+                                      : "<no_layout>",
+                            toString(si->alignment())
+                        ));
     return elements.join(", ");
 }
-
 
 QString paddingSpaces(const int level, const int spaces_per_level)
 {
     return QString(level * spaces_per_level, ' ');
 }
 
-
-QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
-                                              const QLayout* layout,
-                                              const int level,
-                                              const DumperConfig& config)
+QVector<const QWidget*> dumpLayoutAndChildren(
+    QDebug& os,
+    const QLayout* layout,
+    const int level,
+    const DumperConfig& config
+)
 {
     const QString padding = paddingSpaces(level, config.spaces_per_level);
-    const QString next_padding = paddingSpaces(level + 1, config.spaces_per_level);
+    const QString next_padding
+        = paddingSpaces(level + 1, config.spaces_per_level);
     QVector<const QWidget*> dumped_children;
 
     os << padding << "Layout: " << getLayoutInfo(layout);
 
     auto box_layout = dynamic_cast<const QBoxLayout*>(layout);
     if (box_layout) {
-        os << ", spacing " <<  box_layout->spacing();
+        os << ", spacing " << box_layout->spacing();
     }
     os << "\n";
 
@@ -529,14 +551,14 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
             auto si = dynamic_cast<QSpacerItem*>(layout_item);
             if (wi && wi->widget()) {
                 QString alignment = QString(" [alignment from layout: %1]")
-                        .arg(toString(wi->alignment()));
-                dumped_children.append(
-                    dumpWidgetAndChildren(os, wi->widget(), level + 1,
-                                          alignment, config));
+                                        .arg(toString(wi->alignment()));
+                dumped_children.append(dumpWidgetAndChildren(
+                    os, wi->widget(), level + 1, alignment, config
+                ));
             } else if (child_layout) {
                 dumped_children.append(
-                    dumpLayoutAndChildren(os, child_layout, level + 1,
-                                          config));
+                    dumpLayoutAndChildren(os, child_layout, level + 1, config)
+                );
             } else if (si) {
                 os << next_padding << getSpacerInfo(si) << "\n";
             } else {
@@ -547,18 +569,17 @@ QVector<const QWidget*> dumpLayoutAndChildren(QDebug& os,
     return dumped_children;
 }
 
-
-QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
-                                              const QWidget* w,
-                                              const int level,
-                                              const QString& alignment,
-                                              const DumperConfig& config)
+QVector<const QWidget*> dumpWidgetAndChildren(
+    QDebug& os,
+    const QWidget* w,
+    const int level,
+    const QString& alignment,
+    const DumperConfig& config
+)
 {
     const QString padding = paddingSpaces(level, config.spaces_per_level);
 
-    os << padding
-       << getWidgetInfo(w, config)
-       << alignment << "\n";
+    os << padding << getWidgetInfo(w, config) << alignment << "\n";
 
     QVector<const QWidget*> dumped_children;
     dumped_children.append(w);
@@ -566,21 +587,22 @@ QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
     QLayout* layout = w->layout();
     if (layout) {
         dumped_children.append(
-            dumpLayoutAndChildren(os, layout, level + 1, config));
+            dumpLayoutAndChildren(os, layout, level + 1, config)
+        );
     }
 
     // Scroll areas contain but aren't necessarily the parents of their widgets
     // However, they contain a 'qt_scrollarea_viewport' widget that is.
     auto scroll = dynamic_cast<const QScrollArea*>(w);
     if (scroll) {
-        dumped_children.append(
-            dumpWidgetAndChildren(os, scroll->viewport(), level + 1, "",
-                                  config));
+        dumped_children.append(dumpWidgetAndChildren(
+            os, scroll->viewport(), level + 1, "", config
+        ));
     }
 
     // now output any child widgets that weren't dumped as part of the layout
-    QList<QWidget*> widgets = w->findChildren<QWidget*>(
-                QString(), Qt::FindDirectChildrenOnly);
+    QList<QWidget*> widgets
+        = w->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly);
     // Search options: FindDirectChildrenOnly or FindChildrenRecursively.
     QVector<QWidget*> undumped_children;
     foreach (QWidget* child, widgets) {
@@ -593,12 +615,12 @@ QVector<const QWidget*> dumpWidgetAndChildren(QDebug& os,
            << getWidgetDescriptor(w) << ":\n";
         foreach (QWidget* child, undumped_children) {
             dumped_children.append(
-                dumpWidgetAndChildren(os, child, level + 1, "", config));
+                dumpWidgetAndChildren(os, child, level + 1, "", config)
+            );
         }
     }
     return dumped_children;
 }
-
 
 void dumpWidgetHierarchy(const QWidget* w, const DumperConfig& config)
 {
@@ -609,7 +631,6 @@ void dumpWidgetHierarchy(const QWidget* w, const DumperConfig& config)
     }
     dumpWidgetAndChildren(os, w, 0, "", config);
 }
-
 
 const QWidget* ultimateParentWidget(const QWidget* w)
 {

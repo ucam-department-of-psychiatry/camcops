@@ -21,13 +21,17 @@
 // https://stackoverflow.com/questions/5909907/drawing-an-overlay-on-top-of-an-applications-window
 
 #include "diagnosticstyle.h"
+
 #include <QBrush>
 #include <QPainter>
 #include <QWidget>
 
 void DiagnosticStyle::drawControl(
-        ControlElement element, const QStyleOption* option,
-        QPainter* painter, const QWidget* widget) const
+    ControlElement element,
+    const QStyleOption* option,
+    QPainter* painter,
+    const QWidget* widget
+) const
 {
     QCommonStyle::drawControl(element, option, painter, widget);
     if (widget && painter) {

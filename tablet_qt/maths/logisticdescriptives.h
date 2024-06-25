@@ -21,8 +21,8 @@
 #pragma once
 
 #include <QVector>
-#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
+#include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 class LogisticDescriptives
 {
@@ -43,8 +43,9 @@ public:
     LogisticDescriptives(double intercept, double slope);
 
     // Initialize from data:
-    LogisticDescriptives(const QVector<qreal>& x, const QVector<int>& y,
-                         bool verbose = false);
+    LogisticDescriptives(
+        const QVector<qreal>& x, const QVector<int>& y, bool verbose = false
+    );
 
     // OK?
     bool ok() const;

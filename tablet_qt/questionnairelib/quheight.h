@@ -20,18 +20,22 @@
 
 #pragma once
 #include "db/fieldref.h"
-#include "questionnairelib/qumeasurement.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/qumeasurement.h"
 #include "questionnairelib/quunitselector.h"
 
 class QuHeight : public QuMeasurement
 {
     // Height in metres question type with imperial conversion
     Q_OBJECT
+
 public:
-    QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
-             bool mandatory = true);
+    QuHeight(
+        FieldRefPtr fieldref,
+        QPointer<QuUnitSelector> unit_selector,
+        bool mandatory = true
+    );
     void setUpFields();
 
 protected:
@@ -59,5 +63,4 @@ protected:
 
     void updateMetric();
     void updateImperial();
-
 };

@@ -19,17 +19,18 @@
 */
 
 #include "panss.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
-using mathfunc::sumInt;
 using mathfunc::scorePhrase;
+using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::standardResult;
 using stringfunc::strnum;
@@ -48,12 +49,10 @@ const QString G_PREFIX("g");
 
 const QString Panss::PANSS_TABLENAME("panss");
 
-
 void initializePanss(TaskFactory& factory)
 {
     static TaskRegistrar<Panss> registered(factory);
 }
-
 
 Panss::Panss(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PANSS_TABLENAME, false, true, false)  // ... anon, clin, resp
@@ -65,7 +64,6 @@ Panss::Panss(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -75,20 +73,19 @@ QString Panss::shortname() const
     return "PANSS";
 }
 
-
 QString Panss::longname() const
 {
     return tr("Positive and Negative Syndrome Scale");
 }
 
-
 QString Panss::description() const
 {
-    return tr("Scale for positive (7 items) and negative symptoms of "
-              "schizophrenia (7 items), and general psychopathology "
-              "(16 items).");
+    return tr(
+        "Scale for positive (7 items) and negative symptoms of "
+        "schizophrenia (7 items), and general psychopathology "
+        "(16 items)."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -96,11 +93,10 @@ QString Panss::description() const
 
 bool Panss::isComplete() const
 {
-    return noneNull(values(strseq(P_PREFIX, 1, N_P))) &&
-            noneNull(values(strseq(N_PREFIX, 1, N_N))) &&
-            noneNull(values(strseq(G_PREFIX, 1, N_G)));
+    return noneNull(values(strseq(P_PREFIX, 1, N_P)))
+        && noneNull(values(strseq(N_PREFIX, 1, N_N)))
+        && noneNull(values(strseq(G_PREFIX, 1, N_G)));
 }
-
 
 QStringList Panss::summary() const
 {
@@ -118,7 +114,6 @@ QStringList Panss::summary() const
     };
 }
 
-
 QStringList Panss::detail() const
 {
     QStringList lines = completenessInfo();
@@ -129,7 +124,6 @@ QStringList Panss::detail() const
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Panss::editor(const bool read_only)
 {
@@ -143,13 +137,16 @@ OpenableWidget* Panss::editor(const bool read_only)
         {xstring("option7"), 7},
     };
 
-    auto addqf = [this](QVector<QuestionWithOneField>& qf,
-                        const QString& fieldprefix,
-                        const QString& xstringprefix,
-                        int q) -> void {
+    auto addqf = [this](
+                     QVector<QuestionWithOneField>& qf,
+                     const QString& fieldprefix,
+                     const QString& xstringprefix,
+                     int q
+                 ) -> void {
         qf.append(QuestionWithOneField(
-                      xstring(xstringprefix + QString::number(q) + "_s"),
-                      fieldRef(strnum(fieldprefix, q))));
+            xstring(xstringprefix + QString::number(q) + "_s"),
+            fieldRef(strnum(fieldprefix, q))
+        ));
     };
     auto boldtext = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold(true);
@@ -171,27 +168,35 @@ OpenableWidget* Panss::editor(const bool read_only)
     QVector<QuPagePtr> pages;
     pages.append(getClinicianDetailsPage());
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext(TextConst::dataCollectionOnlyAnnouncement()),
-        new QuMcqGrid(p_qfields, panss_options),
-    })->setTitle(longname() + " (P)")));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       boldtext(TextConst::dataCollectionOnlyAnnouncement()),
+                       new QuMcqGrid(p_qfields, panss_options),
+                   })
+                      ->setTitle(longname() + " (P)"))
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext(TextConst::dataCollectionOnlyAnnouncement()),
-        new QuMcqGrid(n_qfields, panss_options),
-    })->setTitle(longname() + " (N)")));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       boldtext(TextConst::dataCollectionOnlyAnnouncement()),
+                       new QuMcqGrid(n_qfields, panss_options),
+                   })
+                      ->setTitle(longname() + " (N)"))
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext(TextConst::dataCollectionOnlyAnnouncement()),
-        new QuMcqGrid(g_qfields, panss_options),
-    })->setTitle(longname() + " (G)")));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       boldtext(TextConst::dataCollectionOnlyAnnouncement()),
+                       new QuMcqGrid(g_qfields, panss_options),
+                   })
+                      ->setTitle(longname() + " (G)"))
+    );
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -202,12 +207,10 @@ int Panss::getP() const
     return sumInt(values(strseq(P_PREFIX, 1, N_P)));
 }
 
-
 int Panss::getN() const
 {
     return sumInt(values(strseq(N_PREFIX, 1, N_N)));
 }
-
 
 int Panss::getG() const
 {

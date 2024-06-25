@@ -19,9 +19,11 @@
 */
 
 #include "quboolean.h"
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QWidget>
+
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/mcqfunc.h"
@@ -32,10 +34,13 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/labelwordwrapwide.h"
 
-
-QuBoolean::QuBoolean(const QString& text, const QString& filename,
-                     const QSize& size, FieldRefPtr fieldref,
-                     QObject* parent) :
+QuBoolean::QuBoolean(
+    const QString& text,
+    const QString& filename,
+    const QSize& size,
+    FieldRefPtr fieldref,
+    QObject* parent
+) :
     QuElement(parent),
     m_text(text),
     m_image_filename(filename),
@@ -57,25 +62,36 @@ QuBoolean::QuBoolean(const QString& text, const QString& filename,
     m_image_widget(nullptr)
 {
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuBoolean::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuBoolean::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuBoolean::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuBoolean::fieldValueChanged
+    );
 }
 
-
-QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref, QObject* parent) :
+QuBoolean::QuBoolean(
+    const QString& text, FieldRefPtr fieldref, QObject* parent
+) :
     QuBoolean(text, "", QSize(), fieldref, parent)  // delegating constructor
 {
 }
 
-
-QuBoolean::QuBoolean(const QString& filename, const QSize& size,
-                     FieldRefPtr fieldref, QObject* parent) :
+QuBoolean::QuBoolean(
+    const QString& filename,
+    const QSize& size,
+    FieldRefPtr fieldref,
+    QObject* parent
+) :
     QuBoolean("", filename, size, fieldref, parent)  // delegating constructor
 {
 }
-
 
 QuBoolean* QuBoolean::setText(const QString& text)
 {
@@ -93,7 +109,6 @@ QuBoolean* QuBoolean::setText(const QString& text)
     return this;
 }
 
-
 QuBoolean* QuBoolean::setImage(const QString& filename, const QSize& size)
 {
     m_text = "";
@@ -108,13 +123,11 @@ QuBoolean* QuBoolean::setImage(const QString& filename, const QSize& size)
     return this;
 }
 
-
 QuBoolean* QuBoolean::setContentClickable(const bool clickable)
 {
     m_content_clickable = clickable;
     return this;
 }
-
 
 QuBoolean* QuBoolean::setIndicatorOnLeft(const bool indicator_on_left)
 {
@@ -122,13 +135,11 @@ QuBoolean* QuBoolean::setIndicatorOnLeft(const bool indicator_on_left)
     return this;
 }
 
-
 QuBoolean* QuBoolean::setBigIndicator(const bool big)
 {
     m_big_indicator = big;
     return this;
 }
-
 
 QuBoolean* QuBoolean::setBigText(const bool big)
 {
@@ -136,13 +147,11 @@ QuBoolean* QuBoolean::setBigText(const bool big)
     return this;
 }
 
-
 QuBoolean* QuBoolean::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
 }
-
 
 QuBoolean* QuBoolean::setItalic(const bool italic)
 {
@@ -150,13 +159,11 @@ QuBoolean* QuBoolean::setItalic(const bool italic)
     return this;
 }
 
-
 QuBoolean* QuBoolean::setAllowUnset(const bool allow_unset)
 {
     m_allow_unset = allow_unset;
     return this;
 }
-
 
 QuBoolean* QuBoolean::setAsTextButton(const bool as_text_button)
 {
@@ -164,20 +171,17 @@ QuBoolean* QuBoolean::setAsTextButton(const bool as_text_button)
     return this;
 }
 
-
 QuBoolean* QuBoolean::setAdjustImageForDpi(const bool adjust_image_for_dpi)
 {
     m_adjust_image_for_dpi = adjust_image_for_dpi;
     return this;
 }
 
-
 QuBoolean* QuBoolean::setFalseAppearsBlank(const bool false_appears_blank)
 {
     m_false_appears_blank = false_appears_blank;
     return this;
 }
-
 
 QPixmap QuBoolean::getPixmap() const
 {
@@ -187,7 +191,6 @@ QPixmap QuBoolean::getPixmap() const
     }
     return image;
 }
-
 
 QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
 {
@@ -213,8 +216,12 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         // --------------------------------------------------------------------
         if (!read_only && m_content_clickable) {
             auto label = new ClickableLabelWordWrapWide(m_text);
-            connect(label, &ClickableLabelWordWrapWide::clicked,
-                    this, &QuBoolean::clicked);
+            connect(
+                label,
+                &ClickableLabelWordWrapWide::clicked,
+                this,
+                &QuBoolean::clicked
+            );
             labelwidget = label;
             m_text_widget_clickable = label;
         } else {
@@ -223,7 +230,8 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
             m_text_widget_plain = label;
         }
         const int fontsize = questionnaire->fontSizePt(
-            m_big_text ? uiconst::FontSize::Big : uiconst::FontSize::Normal);
+            m_big_text ? uiconst::FontSize::Big : uiconst::FontSize::Normal
+        );
         QString css = uifunc::textCSS(fontsize, m_bold, m_italic);
         labelwidget->setStyleSheet(css);
         // needs_stretch stays false (or we'll prevent the text expanding)
@@ -235,8 +243,12 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         auto imglabel = new AspectRatioPixmap();
         imglabel->setPixmap(image);
         if (!read_only && m_content_clickable) {
-            connect(imglabel, &AspectRatioPixmap::clicked,
-                    this, &QuBoolean::clicked);
+            connect(
+                imglabel,
+                &AspectRatioPixmap::clicked,
+                this,
+                &QuBoolean::clicked
+            );
         }
         labelwidget = imglabel;
         m_image_widget = imglabel;
@@ -258,15 +270,17 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
         if (m_false_appears_blank) {
             // Slightly unusual
             m_indicator->setAppearance(
-                        BooleanWidget::Appearance::CheckRedFalseAppearsBlank);
+                BooleanWidget::Appearance::CheckRedFalseAppearsBlank
+            );
         } else {
             // Normal
             m_indicator->setAppearance(BooleanWidget::Appearance::CheckRed);
         }
     }
     if (!read_only) {
-        connect(m_indicator, &BooleanWidget::clicked,
-                this, &QuBoolean::clicked);
+        connect(
+            m_indicator, &BooleanWidget::clicked, this, &QuBoolean::clicked
+        );
     }
 
     // Whole thing
@@ -291,19 +305,16 @@ QPointer<QWidget> QuBoolean::makeWidget(Questionnaire* questionnaire)
     return widget;
 }
 
-
 void QuBoolean::setFromField()
 {
     fieldValueChanged(m_fieldref.data());
 }
-
 
 void QuBoolean::clicked()
 {
     mcqfunc::toggleBooleanField(m_fieldref.data(), m_allow_unset);
     emit elementValueChanged();
 }
-
 
 void QuBoolean::fieldValueChanged(const FieldRef* fieldref)
 {
@@ -313,7 +324,6 @@ void QuBoolean::fieldValueChanged(const FieldRef* fieldref)
     }
     m_indicator->setValue(fieldref->value(), fieldref->mandatory());
 }
-
 
 FieldRefPtrList QuBoolean::fieldrefs() const
 {

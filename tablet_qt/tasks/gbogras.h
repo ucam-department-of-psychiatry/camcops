@@ -20,18 +20,22 @@
 
 #pragma once
 #include <QPointer>
+
 #include "tasklib/task.h"
 
 
 void initializeGboGRaS(TaskFactory& factory);
 
-
 class GboGRaS : public Task
 {
     Q_OBJECT
+
 public:
-    GboGRaS(CamcopsApp& app, DatabaseManager& db,
-            int load_pk = dbconst::NONEXISTENT_PK);
+    GboGRaS(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -51,8 +55,10 @@ public:
     // Task specific
     // ------------------------------------------------------------------------
     void updateMandatory();
+
 public:
     static const QString GBOGRAS_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
     QPointer<QuPage> m_page;

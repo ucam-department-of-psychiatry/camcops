@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -27,21 +28,33 @@ class TaskFactory;
 class OpenableWidget;
 class QuBoolean;
 
-
 class DemoQuestionnaire : public Task
 {
     Q_OBJECT
+
 public:
-    DemoQuestionnaire(CamcopsApp& app, DatabaseManager& db,
-                      int load_pk = dbconst::NONEXISTENT_PK);
+    DemoQuestionnaire(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool isAnonymous() const override { return true; }
-    virtual bool isCrippled() const override { return false; }
+
+    virtual bool isAnonymous() const override
+    {
+        return true;
+    }
+
+    virtual bool isCrippled() const override
+    {
+        return false;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -51,10 +64,12 @@ public:
     // ------------------------------------------------------------------------
     // Extra
     // ------------------------------------------------------------------------
+
 protected:
     void callbackHello();
     void callbackArg(const QString& arg);
     QuBoolean* aceBoolean(const QString& stringname, const QString& fieldname);
+
 public:
     static const QString DEMOQUESTIONNAIRE_TABLENAME;
 };

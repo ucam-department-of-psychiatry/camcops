@@ -19,10 +19,13 @@
 */
 
 #include "quelement.h"
+
 #include <QWidget>
+
 #include "db/fieldref.h"
 
 const Qt::Alignment DEFAULT_QUELEMENT_WIDGET_ALIGNMENT = Qt::Alignment();
+
 // If you use Qt::AlignLeft, widgets will not span the full width.
 // This is relevant for QuHeading, QuSlider, etc. -- things that want maximum
 // space.
@@ -37,11 +40,9 @@ QuElement::QuElement(QObject* parent) :
 {
 }
 
-
 QuElement::~QuElement()
 {
 }
-
 
 QuElement* QuElement::addTag(const QString& tag)
 {
@@ -49,12 +50,10 @@ QuElement* QuElement::addTag(const QString& tag)
     return this;
 }
 
-
 bool QuElement::hasTag(const QString& tag) const
 {
     return m_tags.contains(tag);
 }
-
 
 QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
 {
@@ -77,12 +76,10 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
     return m_widget;
 }
 
-
 QVector<QuElementPtr> QuElement::subelements() const
 {
     return QVector<QuElementPtr>();
 }
-
 
 QVector<QuElement*> QuElement::subelementsRaw() const
 {
@@ -92,7 +89,6 @@ QVector<QuElement*> QuElement::subelementsRaw() const
     }
     return raw;
 }
-
 
 QVector<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
 {
@@ -105,7 +101,6 @@ QVector<QuElementPtr> QuElement::subelementsWithChildrenFlattened() const
     return all_children;
 }
 
-
 QVector<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
 {
     QVector<QuElement*> raw;
@@ -114,7 +109,6 @@ QVector<QuElement*> QuElement::subelementsWithChildrenFlattenedRaw() const
     }
     return raw;
 }
-
 
 bool QuElement::missingInput() const
 {
@@ -127,30 +121,25 @@ bool QuElement::missingInput() const
     return false;
 }
 
-
 FieldRefPtrList QuElement::fieldrefs() const
 {
     return FieldRefPtrList();
 }
-
 
 void QuElement::show()
 {
     setVisible(true);
 }
 
-
 void QuElement::hide()
 {
     setVisible(false);
 }
 
-
 bool QuElement::visible() const
 {
     return m_visible;
 }
-
 
 QuElement* QuElement::setVisible(const bool visible)
 {
@@ -165,13 +154,11 @@ QuElement* QuElement::setVisible(const bool visible)
     return this;
 }
 
-
 QuElement* QuElement::setWidgetInputMethodHints(Qt::InputMethodHints hints)
 {
     m_widget_input_method_hints = hints;
     return this;
 }
-
 
 QuElement* QuElement::setWidgetAlignment(const Qt::Alignment alignment)
 {
@@ -179,12 +166,10 @@ QuElement* QuElement::setWidgetAlignment(const Qt::Alignment alignment)
     return this;
 }
 
-
 Qt::Alignment QuElement::getWidgetAlignment() const
 {
     return m_widget_alignment;
 }
-
 
 void QuElement::closing()
 {

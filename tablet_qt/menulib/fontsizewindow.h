@@ -29,6 +29,7 @@ class Questionnaire;
 class FontSizeWindow : public QObject
 {
     Q_OBJECT
+
 public:
     FontSizeWindow(CamcopsApp& app);
     virtual OpenableWidget* editor();
@@ -41,7 +42,8 @@ protected:
     void fontSettingsCancelled();
     void resetFontSize();
     virtual void setUpPage(QuPagePtr page);
-    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
+    QString
+        demoText(const QString& text, uiconst::FontSize fontsize_type) const;
 
     QPointer<Questionnaire> m_fontsize_questionnaire;
     FieldRefPtr m_fontsize_fr;

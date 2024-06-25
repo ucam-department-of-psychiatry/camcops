@@ -19,15 +19,16 @@
 */
 
 #include "distressthermometer.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quthermometer.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
+#include "questionnairelib/quthermometer.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
@@ -47,24 +48,24 @@ const QString DistressThermometer::DT_TABLENAME("distressthermometer");
 const QString DISTRESS("distress");
 const QString OTHER("other");
 
-
 void initializeDistressThermometer(TaskFactory& factory)
 {
     static TaskRegistrar<DistressThermometer> registered(factory);
 }
 
-
 DistressThermometer::DistressThermometer(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     Task(app, db, DT_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
     addField(DISTRESS, QMetaType::fromType<int>());
     addField(OTHER, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -75,19 +76,18 @@ QString DistressThermometer::shortname() const
     return "Distress Thermometer";
 }
 
-
 QString DistressThermometer::longname() const
 {
     return tr("Distress Thermometer");
 }
 
-
 QString DistressThermometer::description() const
 {
-    return tr("Self-rating of overall distress, plus Y/N rating of a range "
-              "of potential problems.");
+    return tr(
+        "Self-rating of overall distress, plus Y/N rating of a range "
+        "of potential problems."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -95,10 +95,9 @@ QString DistressThermometer::description() const
 
 bool DistressThermometer::isComplete() const
 {
-    return !valueIsNull(DISTRESS) &&
-            noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return !valueIsNull(DISTRESS)
+        && noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 QStringList DistressThermometer::summary() const
 {
@@ -108,18 +107,15 @@ QStringList DistressThermometer::summary() const
     };
 }
 
-
 QStringList DistressThermometer::detail() const
 {
     QStringList lines = completenessInfo();
     lines += summary();
     lines.append("");
-    lines += fieldSummaries("q", "", ": ",
-                            QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines += fieldSummaries("q", "", ": ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines += fieldSummary(OTHER, xstring("other_s"), " ");
     return lines;
 }
-
 
 OpenableWidget* DistressThermometer::editor(const bool read_only)
 {
@@ -133,9 +129,11 @@ OpenableWidget* DistressThermometer::editor(const bool read_only)
         }
         QuThermometerItem item(
             uifunc::resourceFilename(
-                        QString("distressthermometer/dt_sel_%1.png").arg(i)),
+                QString("distressthermometer/dt_sel_%1.png").arg(i)
+            ),
             uifunc::resourceFilename(
-                        QString("distressthermometer/dt_unsel_%1.png").arg(i)),
+                QString("distressthermometer/dt_unsel_%1.png").arg(i)
+            ),
             text,
             i
         );
@@ -144,19 +142,21 @@ OpenableWidget* DistressThermometer::editor(const bool read_only)
 
     QVector<QuPagePtr> pages;
 
-    pages.append(QuPagePtr((new QuPage{
-            new QuText(xstring("distress_question")),
-            (new QuThermometer(fieldRef(DISTRESS), thermometer_items))
-                                    ->setRescale(true, 0.4),
-        })
-        ->setTitle(xstring("section1_title"))
-        ->allowScroll(false)  // 2018-10-29, for new thermometer widget
+    pages.append(QuPagePtr(
+        (new QuPage{
+             new QuText(xstring("distress_question")),
+             (new QuThermometer(fieldRef(DISTRESS), thermometer_items))
+                 ->setRescale(true, 0.4),
+         })
+            ->setTitle(xstring("section1_title"))
+            ->allowScroll(false)  // 2018-10-29, for new thermometer widget
     ));
 
     QVector<QuestionWithOneField> qfpairs;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        qfpairs.append(QuestionWithOneField(xstring(strnum("q", i)),
-                                            fieldRef(strnum(QPREFIX, i))));
+        qfpairs.append(QuestionWithOneField(
+            xstring(strnum("q", i)), fieldRef(strnum(QPREFIX, i))
+        ));
     }
     QVector<McqGridSubtitle> subtitles{
         // {1 - 1, xstring("subtitle1")},  // use title instead
@@ -169,27 +169,28 @@ OpenableWidget* DistressThermometer::editor(const bool read_only)
         {30, ""},
         {35, ""},
     };
-    pages.append(QuPagePtr((new QuPage{
-            new QuText(xstring("section2_stem")),
-            (new QuMcqGrid(qfpairs, CommonOptions::yesNoInteger()))
-                                    ->setTitle(xstring("subtitle1"))
-                                    ->setSubtitles(subtitles),
-        })
-        ->setTitle(xstring("section2_title"))
-    ));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       new QuText(xstring("section2_stem")),
+                       (new QuMcqGrid(qfpairs, CommonOptions::yesNoInteger()))
+                           ->setTitle(xstring("subtitle1"))
+                           ->setSubtitles(subtitles),
+                   })
+                      ->setTitle(xstring("section2_title")))
+    );
 
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("other_question")),
-        new QuText(xstring("other_prompt")),
-        new QuTextEdit(fieldRef(OTHER, false)),
-    })->setTitle(xstring("section3_title"))));
+                                new QuText(xstring("other_question")),
+                                new QuText(xstring("other_prompt")),
+                                new QuTextEdit(fieldRef(OTHER, false)),
+                            })
+                               ->setTitle(xstring("section3_title"))));
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

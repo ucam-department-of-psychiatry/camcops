@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeSmast(TaskFactory& factory);
 
-
 class Smast : public Task
 {
     Q_OBJECT
+
 public:
-    Smast(CamcopsApp& app, DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Smast(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,6 +58,7 @@ public:
     // ------------------------------------------------------------------------
     int score(int question) const;
     int totalScore() const;
+
 public:
     static const QString SMAST_TABLENAME;
 };

@@ -21,7 +21,6 @@
 #pragma once
 #include "questionnairelib/qulineedit.h"
 
-
 class QuLineEditDouble : public QuLineEdit
 {
     // - Offers a one-line text editor, for a floating-point number.
@@ -30,18 +29,26 @@ class QuLineEditDouble : public QuLineEdit
     //   https://doc.qt.io/qt-6.5/qdoublevalidator.html#decimals-prop
 
     Q_OBJECT
-public:
 
+public:
     // Constructor for unconstrained numbers
-    QuLineEditDouble(FieldRefPtr fieldref, bool allow_empty = true,
-                     QObject* parent = nullptr);
+    QuLineEditDouble(
+        FieldRefPtr fieldref,
+        bool allow_empty = true,
+        QObject* parent = nullptr
+    );
 
     // Constructor for constrained numbers.
     // - decimals: maximum number of decimal places; see above.
     // - allow_empty: OK to be blank?
-    QuLineEditDouble(FieldRefPtr fieldref, double minimum, double maximum,
-                     int decimals = 1000, bool allow_empty = true,
-                     QObject* parent = nullptr);
+    QuLineEditDouble(
+        FieldRefPtr fieldref,
+        double minimum,
+        double maximum,
+        int decimals = 1000,
+        bool allow_empty = true,
+        QObject* parent = nullptr
+    );
 
     // Use StrictDoubleValidator, not QDoubleValidator?
     QuLineEditDouble* setStrictValidator(bool strict);
@@ -54,5 +61,6 @@ protected:
     double m_maximum;  // maximum; may be std::numeric_limits<double>::max()
     int m_decimals;  // maximum number of decimal places, for StrictDoubleValidator
     bool m_allow_empty;  // allow an empty field?
-    bool m_strict_validator;  // Use StrictDoubleValidator, not QDoubleValidator?
+    bool
+        m_strict_validator;  // Use StrictDoubleValidator, not QDoubleValidator?
 };

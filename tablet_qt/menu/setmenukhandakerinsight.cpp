@@ -19,33 +19,31 @@
 */
 
 #include "setmenukhandakerinsight.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/bdi.h"
 #include "tasks/cisr.h"
 #include "tasks/khandakerinsightmedical.h"
-
 
 SetMenuKhandakerInsight::SetMenuKhandakerInsight(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
-
 QString SetMenuKhandakerInsight::title() const
 {
     return tr("Khandaker GM — Insight study");
 }
 
-
 QString SetMenuKhandakerInsight::subtitle() const
 {
-    return tr("Khandaker GM, University of Cambridge, UK — "
-              "Insight immunopsychiatry study");
+    return tr(
+        "Khandaker GM, University of Cambridge, UK — "
+        "Insight immunopsychiatry study"
+    );
 }
-
 
 void SetMenuKhandakerInsight::makeItems()
 {
@@ -54,6 +52,7 @@ void SetMenuKhandakerInsight::makeItems()
         MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(
-            KhandakerInsightMedical::KHANDAKERINSIGHTMEDICAL_TABLENAME, m_app),
+            KhandakerInsightMedical::KHANDAKERINSIGHTMEDICAL_TABLENAME, m_app
+        ),
     };
 }

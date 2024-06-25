@@ -30,8 +30,8 @@
 
 #include <QLabel>
 #include <QMap>
-#include "common/gui_defines.h"  // IWYU pragma: keep
 
+#include "common/gui_defines.h"  // IWYU pragma: keep
 
 class LabelWordWrapWide : public QLabel
 {
@@ -39,8 +39,8 @@ class LabelWordWrapWide : public QLabel
     // This is a surprisingly tricky thing to do.
 
     Q_OBJECT
-public:
 
+public:
     // Construct with text.
     // The default size policy is preferredPreferredHFWPolicy().
     explicit LabelWordWrapWide(const QString& text, QWidget* parent = nullptr);
@@ -109,7 +109,10 @@ protected:
     void clearCache();
 
 protected:
-    mutable QSize m_cached_unwrapped_text_size;  // cached "single-line" text size
-    mutable QSize m_cached_extra_for_css_or_layout;  // cached "extra size for CSS"
-    mutable QMap<int, int> m_cached_qlabel_height_for_width;  // cached map of width -> height
+    mutable QSize
+        m_cached_unwrapped_text_size;  // cached "single-line" text size
+    mutable QSize
+        m_cached_extra_for_css_or_layout;  // cached "extra size for CSS"
+    mutable QMap<int, int>
+        m_cached_qlabel_height_for_width;  // cached map of width -> height
 };

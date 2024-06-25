@@ -21,13 +21,14 @@
 #pragma once
 #include <QValidator>
 
-
 class ProquintValidator : public QValidator
 {
     Q_OBJECT
+
 public:
     ProquintValidator(QObject* parent = nullptr);
-    virtual QValidator::State validate(QString& input, int& pos) const override;
+    virtual QValidator::State
+        validate(QString& input, int& pos) const override;
 
 private:
     bool validateLuhnMod16(const QString& input) const;

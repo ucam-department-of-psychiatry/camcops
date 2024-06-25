@@ -29,13 +29,14 @@
 // #define DEBUG_LAYOUT
 
 #include "basewidget.h"
+
 #include <QDebug>
 #include <QLayout>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QStyleOption>
-#include "lib/sizehelpers.h"
 
+#include "lib/sizehelpers.h"
 
 BaseWidget::BaseWidget(QWidget* parent) :
     QWidget(parent)
@@ -46,7 +47,6 @@ BaseWidget::BaseWidget(QWidget* parent) :
 #endif
 }
 
-
 BaseWidget::~BaseWidget()
 {
     // qDebug() << Q_FUNC_INFO;
@@ -56,9 +56,9 @@ BaseWidget::~BaseWidget()
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
 void BaseWidget::resizeEvent(QResizeEvent* event)
 {
-#ifdef DEBUG_LAYOUT
+    #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << event->size();
-#endif
+    #endif
     QWidget::resizeEvent(event);  // doesn't actually do anything
     sizehelpers::resizeEventForHFWParentWidget(this);
 }

@@ -27,9 +27,13 @@ class QuWaist : public QuMeasurement
 {
     // Waist circumference in centimetres question type with imperial conversion
     Q_OBJECT
+
 public:
-    QuWaist(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
-            bool mandatory = true);
+    QuWaist(
+        FieldRefPtr fieldref,
+        QPointer<QuUnitSelector> unit_selector,
+        bool mandatory = true
+    );
     void setUpFields();
 
 protected:
@@ -53,5 +57,4 @@ protected:
 
     void updateMetric();
     void updateImperial();
-
 };

@@ -21,16 +21,17 @@
 #pragma once
 #include <QValidator>
 
-
 // Validator for NHS numbers, which are 10-digit numbers where the last digit
 // is a checksum.
 
 class NHSNumberValidator : public QValidator
 {
     Q_OBJECT
+
 public:
     NHSNumberValidator(bool allow_empty = false, QObject* parent = nullptr);
     QValidator::State validate(QString& input, int& pos) const override;
+
 private:
     bool m_allow_empty;
 };

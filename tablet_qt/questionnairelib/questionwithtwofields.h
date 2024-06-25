@@ -20,8 +20,8 @@
 
 #pragma once
 #include <QString>
-#include "common/aliases_camcops.h"
 
+#include "common/aliases_camcops.h"
 
 class QuestionWithTwoFields
 {
@@ -29,14 +29,15 @@ class QuestionWithTwoFields
     // Used by e.g. QuMCQGridDouble.
 
 public:
-
     // Default constructor, so it can live in a QVector
     QuestionWithTwoFields();  // so it can live in a QVector
 
     // Standard constructor
-    QuestionWithTwoFields(const QString& question,
-                          FieldRefPtr first_field,
-                          FieldRefPtr second_field);
+    QuestionWithTwoFields(
+        const QString& question,
+        FieldRefPtr first_field,
+        FieldRefPtr second_field
+    );
 
     // Return the question (text)
     QString question() const;

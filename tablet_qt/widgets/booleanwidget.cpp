@@ -19,10 +19,12 @@
 */
 
 #include "booleanwidget.h"
+
 #include <QDebug>
 #include <QPainter>
 #include <QStyle>
 #include <QVariant>
+
 #include "common/cssconst.h"
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
@@ -45,7 +47,6 @@ const QString RADIO_UNSELECTED("radio_unselected.png");
 const QString RADIO_UNSELECTED_REQUIRED("radio_unselected_required.png");
 const QString RADIO_SELECTED("radio_selected.png");
 
-
 BooleanWidget::BooleanWidget(QWidget* parent) :
     QAbstractButton(parent),
     m_read_only(false),
@@ -63,14 +64,18 @@ BooleanWidget::BooleanWidget(QWidget* parent) :
     m_layout->addWidget(m_textbutton);
     setLayout(m_layout);
 
-    connect(m_imagebutton, &ImageButton::clicked,
-            this, &BooleanWidget::clicked);
-    connect(m_textbutton, &ClickableLabelWordWrapWide::clicked,
-            this, &BooleanWidget::clicked);
+    connect(
+        m_imagebutton, &ImageButton::clicked, this, &BooleanWidget::clicked
+    );
+    connect(
+        m_textbutton,
+        &ClickableLabelWordWrapWide::clicked,
+        this,
+        &BooleanWidget::clicked
+    );
 
     updateWidget(true);
 }
-
 
 void BooleanWidget::setReadOnly(const bool read_only)
 {
@@ -80,7 +85,6 @@ void BooleanWidget::setReadOnly(const bool read_only)
     }
 }
 
-
 void BooleanWidget::setSize(const bool big)
 {
     if (big != m_big) {
@@ -89,7 +93,6 @@ void BooleanWidget::setSize(const bool big)
     }
 }
 
-
 void BooleanWidget::setBold(const bool bold)
 {
     if (bold != m_bold) {
@@ -97,7 +100,6 @@ void BooleanWidget::setBold(const bool bold)
         updateWidget(true);
     }
 }
-
 
 void BooleanWidget::setAppearance(const BooleanWidget::Appearance appearance)
 {
@@ -108,9 +110,9 @@ void BooleanWidget::setAppearance(const BooleanWidget::Appearance appearance)
     }
 }
 
-
-void BooleanWidget::setValue(const QVariant& value, const bool mandatory,
-                             const bool disabled)
+void BooleanWidget::setValue(
+    const QVariant& value, const bool mandatory, const bool disabled
+)
 {
     if (disabled) {
         setState(State::Disabled);
@@ -123,7 +125,6 @@ void BooleanWidget::setValue(const QVariant& value, const bool mandatory,
     }
 }
 
-
 void BooleanWidget::setState(const BooleanWidget::State state)
 {
     if (state != m_state) {
@@ -132,154 +133,162 @@ void BooleanWidget::setState(const BooleanWidget::State state)
     }
 }
 
-
 void BooleanWidget::updateWidget(const bool full_refresh)
 {
     QString img;
     switch (m_appearance) {
-    case Appearance::CheckBlack:
-        switch (m_state) {
-        case State::Disabled:
-            img = CHECK_DISABLED;
-            break;
-        case State::Null:
-            img = CHECK_UNSELECTED;
-            break;
-        case State::NullRequired:
-            img = CHECK_UNSELECTED_REQUIRED;
-            break;
-        case State::False:
-            img = CHECK_FALSE_BLACK;
-            break;
-        case State::True:
-            img = CHECK_TRUE_BLACK;
-            break;
-        }
-        break;
-
-    case Appearance::CheckBlackFalseAppearsBlank:
-        switch (m_state) {
-        case State::Disabled:
-            img = CHECK_DISABLED;
-            break;
-        case State::Null:
-            img = CHECK_UNSELECTED;
-            break;
-        case State::NullRequired:
-            img = CHECK_UNSELECTED_REQUIRED;
-            break;
-        case State::False:
-            img = CHECK_UNSELECTED;  // difference from CheckBlack
-            break;
-        case State::True:
-            img = CHECK_TRUE_BLACK;
-            break;
-        }
-        break;
-
-    case Appearance::CheckRed:
-#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-    default:
-#endif
-        switch (m_state) {
-        case State::Disabled:
-            img = CHECK_DISABLED;
-            break;
-        case State::Null:
-            img = CHECK_UNSELECTED;
-            break;
-        case State::NullRequired:
-            img = CHECK_UNSELECTED_REQUIRED;
-            break;
-        case State::False:
-            img = CHECK_FALSE_RED;
-            break;
-        case State::True:
-            img = CHECK_TRUE_RED;
-            break;
-        }
-        break;
-
-    case Appearance::CheckRedFalseAppearsBlank:
-        switch (m_state) {
-        case State::Disabled:
-            img = CHECK_DISABLED;
-            break;
-        case State::Null:
-            img = CHECK_UNSELECTED;
-            break;
-        case State::NullRequired:
-            img = CHECK_UNSELECTED_REQUIRED;
-            break;
-        case State::False:
-            img = CHECK_UNSELECTED;  // difference from CheckRed
-            break;
-        case State::True:
-            img = CHECK_TRUE_RED;
-            break;
-        }
-        break;
-
-    case Appearance::Radio:
-        switch (m_state) {
-        case State::Disabled:
-            img = RADIO_DISABLED;
-            break;
-        case State::Null:
-            img = RADIO_UNSELECTED;
-            break;
-        case State::NullRequired:
-            img = RADIO_UNSELECTED_REQUIRED;
-            break;
-        case State::False:
-            // not so meaningful
-            img = RADIO_UNSELECTED;
-            break;
-        case State::True:
-            img = RADIO_SELECTED;
-            break;
-        }
-        break;
-
-    case Appearance::Text:
-        // http://wiki.qt.io/DynamicPropertiesAndStylesheets
-        {
-            QString css = uifunc::textCSS(-1, m_bold, false);
-            m_textbutton->setStyleSheet(css);
-
+        case Appearance::CheckBlack:
             switch (m_state) {
-            case State::Disabled:
-                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
-                                          cssconst::VALUE_DISABLED);
-                break;
-            case State::Null:
-                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
-                                          cssconst::VALUE_NULL);
-                break;
-            case State::NullRequired:
-                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
-                                          cssconst::VALUE_NULL_REQUIRED);
-                break;
-            case State::False:
-                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
-                                          cssconst::VALUE_FALSE);
-                break;
-            case State::True:
-                m_textbutton->setProperty(cssconst::PROPERTY_STATE,
-                                          cssconst::VALUE_TRUE);
-                break;
+                case State::Disabled:
+                    img = CHECK_DISABLED;
+                    break;
+                case State::Null:
+                    img = CHECK_UNSELECTED;
+                    break;
+                case State::NullRequired:
+                    img = CHECK_UNSELECTED_REQUIRED;
+                    break;
+                case State::False:
+                    img = CHECK_FALSE_BLACK;
+                    break;
+                case State::True:
+                    img = CHECK_TRUE_BLACK;
+                    break;
             }
-            m_textbutton->setProperty(cssconst::PROPERTY_READ_ONLY,
-                                      widgetfunc::cssBoolean(m_read_only));
-        }
-        break;
+            break;
+
+        case Appearance::CheckBlackFalseAppearsBlank:
+            switch (m_state) {
+                case State::Disabled:
+                    img = CHECK_DISABLED;
+                    break;
+                case State::Null:
+                    img = CHECK_UNSELECTED;
+                    break;
+                case State::NullRequired:
+                    img = CHECK_UNSELECTED_REQUIRED;
+                    break;
+                case State::False:
+                    img = CHECK_UNSELECTED;  // difference from CheckBlack
+                    break;
+                case State::True:
+                    img = CHECK_TRUE_BLACK;
+                    break;
+            }
+            break;
+
+        case Appearance::CheckRed:
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
+        default:
+#endif
+            switch (m_state) {
+                case State::Disabled:
+                    img = CHECK_DISABLED;
+                    break;
+                case State::Null:
+                    img = CHECK_UNSELECTED;
+                    break;
+                case State::NullRequired:
+                    img = CHECK_UNSELECTED_REQUIRED;
+                    break;
+                case State::False:
+                    img = CHECK_FALSE_RED;
+                    break;
+                case State::True:
+                    img = CHECK_TRUE_RED;
+                    break;
+            }
+            break;
+
+        case Appearance::CheckRedFalseAppearsBlank:
+            switch (m_state) {
+                case State::Disabled:
+                    img = CHECK_DISABLED;
+                    break;
+                case State::Null:
+                    img = CHECK_UNSELECTED;
+                    break;
+                case State::NullRequired:
+                    img = CHECK_UNSELECTED_REQUIRED;
+                    break;
+                case State::False:
+                    img = CHECK_UNSELECTED;  // difference from CheckRed
+                    break;
+                case State::True:
+                    img = CHECK_TRUE_RED;
+                    break;
+            }
+            break;
+
+        case Appearance::Radio:
+            switch (m_state) {
+                case State::Disabled:
+                    img = RADIO_DISABLED;
+                    break;
+                case State::Null:
+                    img = RADIO_UNSELECTED;
+                    break;
+                case State::NullRequired:
+                    img = RADIO_UNSELECTED_REQUIRED;
+                    break;
+                case State::False:
+                    // not so meaningful
+                    img = RADIO_UNSELECTED;
+                    break;
+                case State::True:
+                    img = RADIO_SELECTED;
+                    break;
+            }
+            break;
+
+        case Appearance::Text:
+            // http://wiki.qt.io/DynamicPropertiesAndStylesheets
+            {
+                QString css = uifunc::textCSS(-1, m_bold, false);
+                m_textbutton->setStyleSheet(css);
+
+                switch (m_state) {
+                    case State::Disabled:
+                        m_textbutton->setProperty(
+                            cssconst::PROPERTY_STATE, cssconst::VALUE_DISABLED
+                        );
+                        break;
+                    case State::Null:
+                        m_textbutton->setProperty(
+                            cssconst::PROPERTY_STATE, cssconst::VALUE_NULL
+                        );
+                        break;
+                    case State::NullRequired:
+                        m_textbutton->setProperty(
+                            cssconst::PROPERTY_STATE,
+                            cssconst::VALUE_NULL_REQUIRED
+                        );
+                        break;
+                    case State::False:
+                        m_textbutton->setProperty(
+                            cssconst::PROPERTY_STATE, cssconst::VALUE_FALSE
+                        );
+                        break;
+                    case State::True:
+                        m_textbutton->setProperty(
+                            cssconst::PROPERTY_STATE, cssconst::VALUE_TRUE
+                        );
+                        break;
+                }
+                m_textbutton->setProperty(
+                    cssconst::PROPERTY_READ_ONLY,
+                    widgetfunc::cssBoolean(m_read_only)
+                );
+            }
+            break;
     }
     if (m_as_image) {
         if (full_refresh) {
             m_imagebutton->setVisible(true);
             m_textbutton->setVisible(false);
-            m_imagebutton->setImageSize(m_big ? uiconst::g_iconsize
-                                              : uiconst::g_small_iconsize);
+            m_imagebutton->setImageSize(
+                m_big ? uiconst::g_iconsize : uiconst::g_small_iconsize
+            );
             setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         }
         m_imagebutton->setImages(img, true, false, false, false, m_read_only);
@@ -301,7 +310,6 @@ void BooleanWidget::updateWidget(const bool full_refresh)
     }
 }
 
-
 void BooleanWidget::setText(const QString& text)
 {
     // qDebug() << Q_FUNC_INFO << text;
@@ -310,7 +318,6 @@ void BooleanWidget::setText(const QString& text)
         updateGeometry();  // text change often implies size change
     }
 }
-
 
 void BooleanWidget::paintEvent(QPaintEvent* e)
 {

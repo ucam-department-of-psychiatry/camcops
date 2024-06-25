@@ -27,12 +27,10 @@ FlagGuard::FlagGuard(bool& flag) :
     m_flag = true;
 }
 
-
 FlagGuard::~FlagGuard()
 {
     m_flag = m_previous_state;
 }
-
 
 bool FlagGuard::previousState() const
 {

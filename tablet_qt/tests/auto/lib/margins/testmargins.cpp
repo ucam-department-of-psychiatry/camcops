@@ -22,15 +22,13 @@
 
 #include "lib/margins.h"
 
-
-class TestMargins: public QObject
+class TestMargins : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testGetContentsMarginsReturnsWidgetMargins();
 };
-
 
 void TestMargins::testGetContentsMarginsReturnsWidgetMargins()
 {

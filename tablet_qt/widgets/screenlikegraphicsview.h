@@ -25,7 +25,6 @@
 #include <QColor>
 #include <QGraphicsView>
 
-
 class ScreenLikeGraphicsView : public QGraphicsView
 {
     // This is a QGraphicsView that is intended to show the whole of
@@ -51,13 +50,18 @@ protected:
 #ifdef SCREENLIKEGRAPHICSVIEW_REDO_FIT_IN_VIEW
     // Not currently used.
     void fitInView2(
-            const QRectF& rect,
-            Qt::AspectRatioMode aspect_ratio_mode = Qt::IgnoreAspectRatio);
+        const QRectF& rect,
+        Qt::AspectRatioMode aspect_ratio_mode = Qt::IgnoreAspectRatio
+    );
 
     // Not currently used.
     void fitInView2(
-            qreal x, qreal y, qreal w, qreal h,
-            Qt::AspectRatioMode aspect_ratio_mode = Qt::IgnoreAspectRatio);
+        qreal x,
+        qreal y,
+        qreal w,
+        qreal h,
+        Qt::AspectRatioMode aspect_ratio_mode = Qt::IgnoreAspectRatio
+    );
 #endif
 
     // "Fit the contents to our view."

@@ -23,7 +23,6 @@
 #include <QString>
 #include <QVector>
 
-
 // Represents an ID policy from the CamCOPS server (or a special one from
 // the client).
 
@@ -85,14 +84,17 @@ protected:
     void invalidate();
 
     // Checks a set of attributes against the policy, or part of the policy.
-    ChunkValue idPolicyChunk(const QVector<int>& tokens,
-                             const AttributesType& attributes) const;
+    ChunkValue idPolicyChunk(
+        const QVector<int>& tokens, const AttributesType& attributes
+    ) const;
 
     // Returns the truth value of a Boolean chunk of the policy. (Can recurse
     // if the policy contains parentheses.)
-    ChunkValue idPolicyContent(const QVector<int>& tokens,
-                               const AttributesType& attributes,
-                               int& index) const;
+    ChunkValue idPolicyContent(
+        const QVector<int>& tokens,
+        const AttributesType& attributes,
+        int& index
+    ) const;
 
     // Returns an operator from the policy, or a no-operator-found indicator.
     OperatorValue idPolicyOp(const QVector<int>& tokens, int& index) const;
@@ -100,8 +102,8 @@ protected:
     // Returns a boolean indicator corresponding to whether the token's
     // information is present in the patient attributes (or a failure
     // indicator).
-    ChunkValue idPolicyElement(const AttributesType& attributes,
-                               int token) const;
+    ChunkValue
+        idPolicyElement(const AttributesType& attributes, int token) const;
 
     // Returns a string version of the specified sequence of tokens.
     QString stringify(const QVector<int>& tokens) const;
@@ -116,6 +118,5 @@ protected:
     QVector<int> m_tokens;  // list of token integers
     bool m_valid;  // is this policy valid? Set by tokenize().
 };
-
 
 extern const IdPolicy TABLET_ID_POLICY;

@@ -33,8 +33,9 @@ using stringfunc::strseq;
 const int MIN_QUESTION_SCORE = 0;
 const int MAX_QUESTION_SCORE = 5;
 
-IsaaqCommon::IsaaqCommon(CamcopsApp& app, DatabaseManager& db,
-                         const QString tableName) :
+IsaaqCommon::IsaaqCommon(
+    CamcopsApp& app, DatabaseManager& db, const QString tableName
+) :
     Task(app, db, tableName, false, false, false)  // ... anon, clin, resp
 {
 }
@@ -53,13 +54,11 @@ bool IsaaqCommon::isComplete() const
     return true;
 }
 
-
 QStringList IsaaqCommon::summary() const
 {
     // There are no scores or scales
     return QStringList{TextConst::noSummarySeeFacsimile()};
 }
-
 
 QStringList IsaaqCommon::detail() const
 {
@@ -72,13 +71,13 @@ QStringList IsaaqCommon::detail() const
 
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
-        lines.append(fieldSummary(fieldname, xstring(fieldname),
-                                  spacer, suffix));
+        lines.append(
+            fieldSummary(fieldname, xstring(fieldname), spacer, suffix)
+        );
     }
 
     return lines;
 }
-
 
 OpenableWidget* IsaaqCommon::editor(const bool read_only)
 {
@@ -93,11 +92,9 @@ OpenableWidget* IsaaqCommon::editor(const bool read_only)
     return questionnaire;
 }
 
-
-QuMcqGrid* IsaaqCommon::buildGrid(const QString prefix,
-                                  int first_qnum,
-                                  int last_qnum,
-                                  const QString title)
+QuMcqGrid* IsaaqCommon::buildGrid(
+    const QString prefix, int first_qnum, int last_qnum, const QString title
+)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 
@@ -105,9 +102,9 @@ QuMcqGrid* IsaaqCommon::buildGrid(const QString prefix,
         const QString& fieldname = prefix + QString::number(qnum);
         const QString& description = xstring(fieldname);
 
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
-
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
 
     NameValueOptions options;

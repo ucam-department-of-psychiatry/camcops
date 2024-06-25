@@ -24,12 +24,13 @@
 #include <QStringList>
 #include <QVector>
 
-
-class IDED3DExemplars {
+class IDED3DExemplars
+{
 public:
     IDED3DExemplars();
-    IDED3DExemplars(const QStringList& dimensions,
-                    const QVector<QVector<int>>& indices);
+    IDED3DExemplars(
+        const QStringList& dimensions, const QVector<QVector<int>>& indices
+    );
     QStringList dimensions;
     QVector<QVector<int>> indices;
     QVector<int> getExemplars(const QString& dim_name) const;
@@ -43,10 +44,10 @@ public:
     // static QString colourName(int colour_number);
     static QColor colour(int colour_number);
     static QStringList possibleDimensions();
-    static QVector<QVector<int>> possibilities(int number_min,
-                                               int number_max);
+    static QVector<QVector<int>> possibilities(int number_min, int number_max);
     static QString allShapesAsJson();
     static QString allColoursAsJson();
+
 protected:
     static QVector<int> possibleShapeIndices();
     static QVector<int> possibleColourIndices();

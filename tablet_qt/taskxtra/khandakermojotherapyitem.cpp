@@ -20,14 +20,18 @@
 
 #include "khandakermojotherapyitem.h"
 
-const QString KhandakerMojoTherapyItem::KHANDAKER2MOJOTHERAPYITEM_TABLENAME("khandaker_mojo_therapy_item");
+const QString KhandakerMojoTherapyItem::KHANDAKER2MOJOTHERAPYITEM_TABLENAME(
+    "khandaker_mojo_therapy_item"
+);
 
 const QString KhandakerMojoTherapyItem::FN_FK_NAME("medicationtable_id");
 const QString KhandakerMojoTherapyItem::FN_SEQNUM("seqnum");
 const QString KhandakerMojoTherapyItem::FN_THERAPY("therapy");
 const QString KhandakerMojoTherapyItem::FN_FREQUENCY("frequency");
-const QString KhandakerMojoTherapyItem::FN_SESSIONS_COMPLETED("sessions_completed");
-const QString KhandakerMojoTherapyItem::FN_SESSIONS_PLANNED("sessions_planned");
+const QString
+    KhandakerMojoTherapyItem::FN_SESSIONS_COMPLETED("sessions_completed");
+const QString KhandakerMojoTherapyItem::FN_SESSIONS_PLANNED("sessions_planned"
+);
 const QString KhandakerMojoTherapyItem::FN_INDICATION("indication");
 const QString KhandakerMojoTherapyItem::FN_RESPONSE("response");
 
@@ -40,15 +44,19 @@ const QStringList KhandakerMojoTherapyItem::TABLE_FIELDNAMES{
     KhandakerMojoTherapyItem::FN_RESPONSE,
 };
 
-
 KhandakerMojoTherapyItem::KhandakerMojoTherapyItem(
-    CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    DatabaseObject(app, db, KHANDAKER2MOJOTHERAPYITEM_TABLENAME,
-                   dbconst::PK_FIELDNAME,  // pk_fieldname
-                   true,  // has_modification_timestamp
-                   false,  // has_creation_timestamp
-                   true,  // has_move_off_tablet_field
-                   true)  // triggers_need_upload
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    DatabaseObject(
+        app,
+        db,
+        KHANDAKER2MOJOTHERAPYITEM_TABLENAME,
+        dbconst::PK_FIELDNAME,  // pk_fieldname
+        true,  // has_modification_timestamp
+        false,  // has_creation_timestamp
+        true,  // has_move_off_tablet_field
+        true
+    )  // triggers_need_upload
 {
     addField(FN_FK_NAME, QMetaType::fromType<int>());
     addField(FN_SEQNUM, QMetaType::fromType<int>());
@@ -62,26 +70,23 @@ KhandakerMojoTherapyItem::KhandakerMojoTherapyItem(
     load(load_pk);
 }
 
-
 KhandakerMojoTherapyItem::KhandakerMojoTherapyItem(
-    const int owner_fk, CamcopsApp& app, DatabaseManager& db) :
+    const int owner_fk, CamcopsApp& app, DatabaseManager& db
+) :
     KhandakerMojoTherapyItem(app, db)  // delegating constructor
 {
     setValue(FN_FK_NAME, owner_fk);
 }
-
 
 void KhandakerMojoTherapyItem::setSeqnum(const int seqnum)
 {
     setValue(FN_SEQNUM, seqnum);
 }
 
-
 bool KhandakerMojoTherapyItem::isComplete() const
 {
     return noValuesNull(TABLE_FIELDNAMES);
 }
-
 
 bool KhandakerMojoTherapyItem::isEmpty() const
 {

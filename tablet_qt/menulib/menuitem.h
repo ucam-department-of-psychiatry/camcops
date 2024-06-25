@@ -24,10 +24,11 @@
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QSharedPointer>
 #include <QString>
+
 #include "common/aliases_camcops.h"
 #include "menulib/choosepatientmenuitem.h"  // many menus will want this
-#include "menulib/menuproxy.h"
 #include "menulib/htmlmenuitem.h"  // many menus will want this
+#include "menulib/menuproxy.h"
 #include "menulib/taskchainmenuitem.h"
 #include "menulib/taskmenuitem.h"  // many menus will want this
 #include "menulib/taskscheduleitemmenuitem.h"
@@ -37,7 +38,6 @@ class CamcopsApp;
 class MenuWindow;
 class OpenableWidget;
 class QWidget;
-
 
 // An item on one of the CamCOPS menus.
 
@@ -54,20 +54,39 @@ public:
     // Multiple ways of constructing:
     MenuItem();
     MenuItem(const QString& title);  // for dummy use
-    MenuItem(const QString& title, const ActionFunction& func,
-             const QString& icon = "", const QString& subtitle = "");
-    MenuItem(const QString& title, const OpenableWidgetMaker& func,
-             const QString& icon = "", const QString& subtitle = "");
+    MenuItem(
+        const QString& title,
+        const ActionFunction& func,
+        const QString& icon = "",
+        const QString& subtitle = ""
+    );
+    MenuItem(
+        const QString& title,
+        const OpenableWidgetMaker& func,
+        const QString& icon = "",
+        const QString& subtitle = ""
+    );
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
     MenuItem(const ChoosePatientMenuItem& choose_patient, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
     MenuItem(const TaskChainMenuItem& chain);
-    MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
-             const QString& icon = "", const QString& subtitle = "");
-    MenuItem(const QString& title, const UrlMenuItem& urlmenuitem,
-             const QString& icon = "", const QString& subtitle = "");
-    MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
-             bool task_shows_patient = false);
+    MenuItem(
+        const QString& title,
+        const HtmlMenuItem& htmlmenuitem,
+        const QString& icon = "",
+        const QString& subtitle = ""
+    );
+    MenuItem(
+        const QString& title,
+        const UrlMenuItem& urlmenuitem,
+        const QString& icon = "",
+        const QString& subtitle = ""
+    );
+    MenuItem(
+        TaskPtr p_task,
+        bool task_shows_taskname = true,
+        bool task_shows_patient = false
+    );
     // We don't have one for a Questionnaire or other generic OpenableWidget;
     // we don't want to have to create them all just to create the menu.
     // Use a function instead, which can create the OpenableWidget (and open
@@ -158,18 +177,17 @@ public:
     friend QDebug operator<<(QDebug debug, const MenuItem* m);
 };
 
-
 // ============================================================================
 // Convenience macros
 // ============================================================================
 
-#define MAKE_MENU_MENU_ITEM(MenuClass, app) \
+#define MAKE_MENU_MENU_ITEM(MenuClass, app)                                   \
     MenuItem(MenuProxyPtr(new MenuProxy<MenuClass>), app)
-#define MAKE_TASK_MENU_ITEM(tablename, app) \
+#define MAKE_TASK_MENU_ITEM(tablename, app)                                   \
     MenuItem(TaskMenuItem(tablename), app)
-#define MAKE_TASK_CHAIN_MENU_ITEM(chainptr) \
+#define MAKE_TASK_CHAIN_MENU_ITEM(chainptr)                                   \
     MenuItem(TaskChainMenuItem(TaskChainPtr(chainptr)))
-#define MAKE_CHANGE_PATIENT(app) \
+#define MAKE_CHANGE_PATIENT(app)                                              \
     MenuItem(ChoosePatientMenuItem(), app).setNotIfLocked()
 
 

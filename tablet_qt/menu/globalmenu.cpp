@@ -19,10 +19,10 @@
 */
 
 #include "globalmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/badls.h"
 #include "tasks/bprs.h"
 #include "tasks/bprse.h"
@@ -50,18 +50,15 @@
 #include "tasks/wsas.h"
 #include "tasks/zbi12.h"
 
-
 GlobalMenu::GlobalMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_GLOBAL))
 {
 }
 
-
 QString GlobalMenu::title() const
 {
     return tr("Global function and multiple aspects of psychopathology");
 }
-
 
 void GlobalMenu::makeItems()
 {

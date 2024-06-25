@@ -19,6 +19,7 @@
 */
 
 #include "roman.h"
+
 #include <QChar>
 #include <QDebug>
 #include <QMap>
@@ -27,7 +28,8 @@
 
 // http://blog.stevenlevithan.com/archives/javascript-roman-numeral-converter
 
-const QVector<QPair<QString, int>> ENCODER{  // used for int -> Roman
+const QVector<QPair<QString, int>> ENCODER{
+    // used for int -> Roman
     {"M", 1000},
     {"CM", 900},
     {"D", 500},
@@ -42,7 +44,8 @@ const QVector<QPair<QString, int>> ENCODER{  // used for int -> Roman
     {"IV", 4},
     {"I", 1},
 };
-const QMap<QString, int> DECODER{  // used for Roman -> int
+const QMap<QString, int> DECODER{
+    // used for Roman -> int
     {"I", 1},
     {"V", 5},
     {"X", 10},
@@ -52,9 +55,7 @@ const QMap<QString, int> DECODER{  // used for Roman -> int
     {"M", 1000},
 };
 
-
-namespace roman
-{
+namespace roman {
 
 
 QString romanize(int num)
@@ -94,7 +95,6 @@ QString romanize(int num)
     */
 }
 
-
 int deromanize(const QString& roman)
 {
     int arabic = 0;
@@ -109,8 +109,8 @@ int deromanize(const QString& roman)
         // ... so at(i) is always valid
         const QString current_char = ru.at(i);
         if (!DECODER.contains(current_char)) {
-            qWarning() << "Roman" << ru
-                       << "contains bad character" << current_char;
+            qWarning() << "Roman" << ru << "contains bad character"
+                       << current_char;
             continue;
         }
         int current_value = DECODER[current_char];

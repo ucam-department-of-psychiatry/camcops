@@ -19,8 +19,9 @@
 */
 
 #include "ybocs.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
@@ -30,8 +31,8 @@
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
-using mathfunc::sumInt;
 using mathfunc::scorePhrase;
+using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
@@ -63,35 +64,16 @@ const QString TARGET_AVOIDANCE_3("target_avoidance_3");
 
 const QVector<QPair<QString, int>> QSEQUENCE{
     // Pairs are: question name, max_score
-    {"1", 4},
-    {"1b", 4},
-    {"2", 4},
-    {"3", 4},
-    {"4", 4},
-    {"5", 4},
-    {"6", 4},
-    {"6b", 4},
-    {"7", 4},
-    {"8", 4},
-    {"9", 4},
-    {"10", 4},
-    {"11", 4},
-    {"12", 4},
-    {"13", 4},
-    {"14", 4},
-    {"15", 4},
-    {"16", 4},
-    {"17", 6},
-    {"18", 6},
-    {"19", 3},
+    {"1", 4},  {"1b", 4}, {"2", 4},  {"3", 4},  {"4", 4},  {"5", 4},
+    {"6", 4},  {"6b", 4}, {"7", 4},  {"8", 4},  {"9", 4},  {"10", 4},
+    {"11", 4}, {"12", 4}, {"13", 4}, {"14", 4}, {"15", 4}, {"16", 4},
+    {"17", 6}, {"18", 6}, {"19", 3},
 };
-
 
 void initializeYbocs(TaskFactory& factory)
 {
     static TaskRegistrar<Ybocs> registered(factory);
 }
-
 
 Ybocs::Ybocs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, YBOCS_TABLENAME, false, true, false)  // ... anon, clin, resp
@@ -107,11 +89,12 @@ Ybocs::Ybocs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(TARGET_AVOIDANCE_1, QMetaType::fromType<QString>());
     addField(TARGET_AVOIDANCE_2, QMetaType::fromType<QString>());
     addField(TARGET_AVOIDANCE_3, QMetaType::fromType<QString>());
-    addFields(strseq(QPREFIX, FIRST_Q, N_MAIN_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_MAIN_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -122,18 +105,15 @@ QString Ybocs::shortname() const
     return "Y-BOCS";
 }
 
-
 QString Ybocs::longname() const
 {
     return tr("Yale–Brown Obsessive Compulsive Scale, 9/89 revision");
 }
 
-
 QString Ybocs::description() const
 {
     return tr("10-item clinician-rated scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -144,24 +124,23 @@ bool Ybocs::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_MAIN_QUESTIONS)));
 }
 
-
 QStringList Ybocs::summary() const
 {
     return QStringList{
         totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
-        scorePhrase(tr("Obsession score"),
-                    obsessionScore(), MAX_OBSESSION_SCORE),
-        scorePhrase(tr("Compulsion score"),
-                    obsessionScore(), MAX_COMPULSION_SCORE),
+        scorePhrase(
+            tr("Obsession score"), obsessionScore(), MAX_OBSESSION_SCORE
+        ),
+        scorePhrase(
+            tr("Compulsion score"), obsessionScore(), MAX_COMPULSION_SCORE
+        ),
     };
 }
-
 
 QStringList Ybocs::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* Ybocs::editor(const bool read_only)
 {
@@ -177,8 +156,9 @@ OpenableWidget* Ybocs::editor(const bool read_only)
         return (new QuText(text))->setBold(true);
     };
 
-    auto addpage = [this, &pages, &text, &boldtext]
-            (const QString& q, int max_score) -> void {
+    auto addpage = [this, &pages, &text, &boldtext](
+                       const QString& q, int max_score
+                   ) -> void {
         NameValueOptions options;
         for (int i = 0; i <= max_score; ++i) {
             const QString name = xstring(QString("q%1_a%2").arg(q).arg(i));
@@ -189,10 +169,11 @@ OpenableWidget* Ybocs::editor(const bool read_only)
         const QString xexplanation = QString("q%1_explanation").arg(q);
         const QString fieldname = QPREFIX + q;
         QuPagePtr page((new QuPage{
-            boldtext(xquestion),
-            text(xexplanation),
-            new QuMcq(fieldRef(fieldname), options),
-        })->setTitle(pagetitle));
+                            boldtext(xquestion),
+                            text(xexplanation),
+                            new QuMcq(fieldRef(fieldname), options),
+                        })
+                           ->setTitle(pagetitle));
         pages.append(page);
     };
 
@@ -209,26 +190,50 @@ OpenableWidget* Ybocs::editor(const bool read_only)
     const QString obs = xstring("target_obsession_stem");
     const QString com = xstring("target_compulsion_stem");
     const QString avo = xstring("target_avoidance_stem");
-    pages.append(QuPagePtr((new QuPage{
-        boldtextRaw(obs),
-        questionnairefunc::defaultGridRawPointer({
-            {obs + " 1", new QuLineEdit(fieldRef(TARGET_OBSESSION_1))},
-            {obs + " 2", new QuLineEdit(fieldRef(TARGET_OBSESSION_2))},
-            {obs + " 3", new QuLineEdit(fieldRef(TARGET_OBSESSION_3))},
-        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-        boldtextRaw(com),
-        questionnairefunc::defaultGridRawPointer({
-            {com + " 1", new QuLineEdit(fieldRef(TARGET_COMPULSION_1))},
-            {com + " 2", new QuLineEdit(fieldRef(TARGET_COMPULSION_2))},
-            {com + " 3", new QuLineEdit(fieldRef(TARGET_COMPULSION_3))},
-        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-        boldtextRaw(avo),
-        questionnairefunc::defaultGridRawPointer({
-            {avo + " 1", new QuLineEdit(fieldRef(TARGET_AVOIDANCE_1))},
-            {avo + " 2", new QuLineEdit(fieldRef(TARGET_AVOIDANCE_2))},
-            {avo + " 3", new QuLineEdit(fieldRef(TARGET_AVOIDANCE_3))},
-        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-    })->setTitle(xstring("target_symptom_list_title"))));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       boldtextRaw(obs),
+                       questionnairefunc::defaultGridRawPointer(
+                           {
+                               {obs + " 1",
+                                new QuLineEdit(fieldRef(TARGET_OBSESSION_1))},
+                               {obs + " 2",
+                                new QuLineEdit(fieldRef(TARGET_OBSESSION_2))},
+                               {obs + " 3",
+                                new QuLineEdit(fieldRef(TARGET_OBSESSION_3))},
+                           },
+                           uiconst::DEFAULT_COLSPAN_Q,
+                           uiconst::DEFAULT_COLSPAN_A
+                       ),
+                       boldtextRaw(com),
+                       questionnairefunc::defaultGridRawPointer(
+                           {
+                               {com + " 1",
+                                new QuLineEdit(fieldRef(TARGET_COMPULSION_1))},
+                               {com + " 2",
+                                new QuLineEdit(fieldRef(TARGET_COMPULSION_2))},
+                               {com + " 3",
+                                new QuLineEdit(fieldRef(TARGET_COMPULSION_3))},
+                           },
+                           uiconst::DEFAULT_COLSPAN_Q,
+                           uiconst::DEFAULT_COLSPAN_A
+                       ),
+                       boldtextRaw(avo),
+                       questionnairefunc::defaultGridRawPointer(
+                           {
+                               {avo + " 1",
+                                new QuLineEdit(fieldRef(TARGET_AVOIDANCE_1))},
+                               {avo + " 2",
+                                new QuLineEdit(fieldRef(TARGET_AVOIDANCE_2))},
+                               {avo + " 3",
+                                new QuLineEdit(fieldRef(TARGET_AVOIDANCE_3))},
+                           },
+                           uiconst::DEFAULT_COLSPAN_Q,
+                           uiconst::DEFAULT_COLSPAN_A
+                       ),
+                   })
+                      ->setTitle(xstring("target_symptom_list_title")))
+    );
 
     // Question pages
     for (QPair<QString, int> pair : QSEQUENCE) {
@@ -237,17 +242,17 @@ OpenableWidget* Ybocs::editor(const bool read_only)
 
     // Last page
     pages.append(QuPagePtr((new QuPage{
-        text("closing_1"),
-        text("closing_2"),
-        text("closing_3"),
-    })->setTitle(tr("End matter"))));
+                                text("closing_1"),
+                                text("closing_2"),
+                                text("closing_3"),
+                            })
+                               ->setTitle(tr("End matter"))));
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -258,12 +263,10 @@ int Ybocs::obsessionScore() const
     return sumInt(values(strseq(QPREFIX, FIRST_Q, LAST_OBSESSION_Q)));
 }
 
-
 int Ybocs::compulsionScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_COMPULSION_Q, LAST_SCORED_Q)));
 }
-
 
 int Ybocs::totalScore() const
 {

@@ -23,6 +23,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 void initializeGboGReS(TaskFactory& factory);
@@ -30,9 +31,13 @@ void initializeGboGReS(TaskFactory& factory);
 class GboGReS : public Task
 {
     Q_OBJECT
+
 public:
-    GboGReS(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    GboGReS(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -51,14 +56,17 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
+
 protected:
     QString completedBy() const;
     QString extraGoalsDescription() const;
     QString numGoalsDescription() const;
 protected slots:
     void updateMandatory();
+
 public:
     static const QString GBOGRES_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

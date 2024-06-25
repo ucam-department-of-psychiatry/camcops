@@ -27,10 +27,13 @@ class DangerousConfirmationDialog : public QDialog
 {
     // Dialogue to confirm the user wants to proceed with a dangerous operation
     Q_OBJECT
+
 public:
-    DangerousConfirmationDialog(const QString& text, const QString& title,
-                                QWidget* parent = nullptr);
+    DangerousConfirmationDialog(
+        const QString& text, const QString& title, QWidget* parent = nullptr
+    );
     bool confirmed();
+
 protected:
     QPointer<QLineEdit> m_editor;
 };

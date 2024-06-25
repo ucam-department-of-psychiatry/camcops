@@ -19,24 +19,21 @@
 */
 
 #include "executivemenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/ifs.h"
-
 
 ExecutiveMenu::ExecutiveMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_EXECUTIVE))
 {
 }
 
-
 QString ExecutiveMenu::title() const
 {
     return tr("Executive function");
 }
-
 
 void ExecutiveMenu::makeItems()
 {

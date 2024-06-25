@@ -25,11 +25,11 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QStringList>
+
 #include "common/aliases_camcops.h"
 
 class QWidget;
 class Questionnaire;
-
 
 class QuElement : public QObject
 {
@@ -132,10 +132,10 @@ protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;  // our tags
     bool m_visible;  // are we visible?
-    Qt::Alignment m_widget_alignment;  // intended alignment of widget in layout
+    Qt::Alignment
+        m_widget_alignment;  // intended alignment of widget in layout
     Qt::InputMethodHints m_widget_input_method_hints;
 };
-
 
 /*
 ===============================================================================

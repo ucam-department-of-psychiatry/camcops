@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeQolBasic(TaskFactory& factory);
 
-
 class QolBasic : public Task
 {
     Q_OBJECT
+
 public:
-    QolBasic(CamcopsApp& app, DatabaseManager& db,
-             int load_pk = dbconst::NONEXISTENT_PK);
+    QolBasic(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -55,6 +59,7 @@ public:
     QVariant qolTto() const;
     QVariant qolRs() const;
     QVariant meanQol() const;
+
 public:
     static const QString QOLBASIC_TABLENAME;
 };

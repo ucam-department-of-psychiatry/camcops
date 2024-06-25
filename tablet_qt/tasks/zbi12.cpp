@@ -19,9 +19,10 @@
 */
 
 #include "zbi12.h"
+
 #include "common/appstrings.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -37,21 +38,20 @@ const QString QPREFIX("q");
 
 const QString Zbi12::ZBI12_TABLENAME("zbi12");
 
-
 void initializeZbi12(TaskFactory& factory)
 {
     static TaskRegistrar<Zbi12> registered(factory);
 }
 
-
 Zbi12::Zbi12(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ZBI12_TABLENAME, false, false, true)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -62,24 +62,20 @@ QString Zbi12::shortname() const
     return "ZBI-12";
 }
 
-
 QString Zbi12::longname() const
 {
     return tr("Zarit Burden Interview, 12-item version");
 }
-
 
 QString Zbi12::description() const
 {
     return tr("12-item caregiver-report scale.");
 }
 
-
 QString Zbi12::infoFilenameStem() const
 {
     return "zbi";
 }
-
 
 // ============================================================================
 // Instance info
@@ -87,22 +83,19 @@ QString Zbi12::infoFilenameStem() const
 
 bool Zbi12::isComplete() const
 {
-    return isRespondentComplete() &&
-            noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
+    return isRespondentComplete()
+        && noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 QStringList Zbi12::summary() const
 {
     return QStringList{valueString(RESPONDENT_NAME)};
 }
 
-
 QStringList Zbi12::detail() const
 {
     return completenessInfo() + recordSummaryLines();
 }
-
 
 OpenableWidget* Zbi12::editor(const bool read_only)
 {
@@ -116,22 +109,23 @@ OpenableWidget* Zbi12::editor(const bool read_only)
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         qfields.append(QuestionWithOneField(
-                           xstring(strnum("q", i), strnum("Q", i)),
-                           fieldRef(strnum(QPREFIX, i))));
+            xstring(strnum("q", i), strnum("Q", i)),
+            fieldRef(strnum(QPREFIX, i))
+        ));
     }
 
     QuPagePtr page((new QuPage{
-        getRespondentQuestionnaireBlockRawPointer(true),
-        (new QuText(xstring("instruction")))->setBold(),
-        new QuMcqGrid(qfields, options),
-    })->setTitle(longname()));
+                        getRespondentQuestionnaireBlockRawPointer(true),
+                        (new QuText(xstring("instruction")))->setBold(),
+                        new QuMcqGrid(qfields, options),
+                    })
+                       ->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

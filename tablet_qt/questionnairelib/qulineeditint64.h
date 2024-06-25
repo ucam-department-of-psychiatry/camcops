@@ -21,22 +21,25 @@
 #pragma once
 #include "questionnairelib/qulineedit.h"
 
-
 class QuLineEditInt64 : public QuLineEdit
 {
     // Offers a one-line text editor, for a 64-bit signed integer
     // (qlonglong = qint64).
 
     Q_OBJECT
-public:
 
+public:
     // Constructor for unconstrained numbers
     QuLineEditInt64(FieldRefPtr fieldref, bool allow_empty = true);
 
     // Constructor for constrained numbers.
     // - allow_empty: OK to be blank?
-    QuLineEditInt64(FieldRefPtr fieldref, qint64 minimum,
-                       qint64 maximum, bool allow_empty = true);
+    QuLineEditInt64(
+        FieldRefPtr fieldref,
+        qint64 minimum,
+        qint64 maximum,
+        bool allow_empty = true
+    );
 
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;

@@ -26,27 +26,29 @@
 class QComboBox;
 class QLabel;
 
-
 class QuPickerInline : public QuElement
 {
     // Offers a drop-down list of choices, or device equivalent.
 
     Q_OBJECT
-public:
 
+public:
     // Constructor
-    QuPickerInline(FieldRefPtr fieldref, const NameValueOptions& options,
-                   QObject* parent = nullptr);
+    QuPickerInline(
+        FieldRefPtr fieldref,
+        const NameValueOptions& options,
+        QObject* parent = nullptr
+    );
 
     // Shuffle the options (when making the widget)?
     QuPickerInline* setRandomize(bool randomize);
 
 protected:
-
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:

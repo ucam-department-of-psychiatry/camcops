@@ -21,6 +21,7 @@
 // #define DEBUG_LANGUAGE_LOOKUP
 
 #include "extrastring.h"
+
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
@@ -31,26 +32,36 @@ const QString ExtraString::NAME_FIELD("name");
 const QString ExtraString::LANGUAGE_FIELD("language");
 const QString ExtraString::VALUE_FIELD("value");
 
-
 // Specimen constructor:
 ExtraString::ExtraString(CamcopsApp& app, DatabaseManager& db) :
-    DatabaseObject(app, db, EXTRASTRINGS_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false, false)
+    DatabaseObject(
+        app,
+        db,
+        EXTRASTRINGS_TABLENAME,
+        dbconst::PK_FIELDNAME,
+        true,
+        false,
+        false,
+        false
+    )
 {
     // Define fields
     addField(TASK_FIELD, QMetaType::fromType<QString>(), true, false, false);
     addField(NAME_FIELD, QMetaType::fromType<QString>(), true, false, false);
-    addField(LANGUAGE_FIELD, QMetaType::fromType<QString>(), false, false, false);
+    addField(
+        LANGUAGE_FIELD, QMetaType::fromType<QString>(), false, false, false
+    );
     addField(VALUE_FIELD, QMetaType::fromType<QString>(), false, false, false);
 }
 
-
 // String loading constructor:
-ExtraString::ExtraString(CamcopsApp& app,
-                         DatabaseManager& db,
-                         const QString& task,
-                         const QString& name,
-                         const QString& language_code) :
+ExtraString::ExtraString(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& task,
+    const QString& name,
+    const QString& language_code
+) :
     ExtraString(app, db)  // delegating constructor
 {
     if (task.isEmpty() || name.isEmpty()) {
@@ -70,8 +81,8 @@ ExtraString::ExtraString(CamcopsApp& app,
     // The CamCOPS server, and thus our downloaded strings, use the underscore.
 
 #ifdef DEBUG_LANGUAGE_LOOKUP
-    const QString debugprefix = QString("Lookup string %1.%2[%3]:")
-            .arg(task, name, language_code);
+    const QString debugprefix
+        = QString("Lookup string %1.%2[%3]:").arg(task, name, language_code);
 #endif
 
     // 1. Exact language/country match.
@@ -102,10 +113,13 @@ ExtraString::ExtraString(CamcopsApp& app,
     }
 
     // 3. Default language or blank.
-    QString sql = QString("%1 = ? AND %2 = ? AND (%3 = ? OR %3 = '' OR %3 IS NULL)")
-            .arg(dbfunc::delimit(TASK_FIELD),
-                 dbfunc::delimit(NAME_FIELD),
-                 dbfunc::delimit(LANGUAGE_FIELD));
+    QString sql
+        = QString("%1 = ? AND %2 = ? AND (%3 = ? OR %3 = '' OR %3 IS NULL)")
+              .arg(
+                  dbfunc::delimit(TASK_FIELD),
+                  dbfunc::delimit(NAME_FIELD),
+                  dbfunc::delimit(LANGUAGE_FIELD)
+              );
     ArgList args{task, name, language_code};
     WhereConditions where_default_lang;
     where_default_lang.set(SqlArgs(sql, args));
@@ -115,19 +129,21 @@ ExtraString::ExtraString(CamcopsApp& app,
     load(where_default_lang);
 }
 
-
 // String saving constructor:
-ExtraString::ExtraString(CamcopsApp& app,
-                         DatabaseManager& db,
-                         const QString& task,
-                         const QString& name,
-                         const QString& language_code,
-                         const QString& value) :
+ExtraString::ExtraString(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& task,
+    const QString& name,
+    const QString& language_code,
+    const QString& value
+) :
     ExtraString(app, db)  // delegating constructor
 {
     if (task.isEmpty() || name.isEmpty()) {
-        qWarning() << Q_FUNC_INFO << "Using the save-blindly constructor "
-                                     "without a name or task!";
+        qWarning() << Q_FUNC_INFO
+                   << "Using the save-blindly constructor "
+                      "without a name or task!";
         return;
     }
     setValue(TASK_FIELD, task);
@@ -137,30 +153,25 @@ ExtraString::ExtraString(CamcopsApp& app,
     save();
 }
 
-
 QString ExtraString::task() const
 {
     return valueString(TASK_FIELD);
 }
-
 
 QString ExtraString::name() const
 {
     return valueString(NAME_FIELD);
 }
 
-
 QString ExtraString::languageCode() const
 {
     return valueString(LANGUAGE_FIELD);
 }
 
-
 QString ExtraString::value() const
 {
     return valueString(VALUE_FIELD);
 }
-
 
 bool ExtraString::anyExist(const QString& task) const
 {
@@ -169,29 +180,26 @@ bool ExtraString::anyExist(const QString& task) const
     return m_db.count(EXTRASTRINGS_TABLENAME, where) > 0;
 }
 
-
 void ExtraString::deleteAllExtraStrings()
 {
     m_db.deleteFrom(EXTRASTRINGS_TABLENAME);
 }
 
-
 void ExtraString::makeIndexes()
 {
-    m_db.createIndex("_idx_extrastrings_task_name",
-                     EXTRASTRINGS_TABLENAME,
-                     {ExtraString::TASK_FIELD,
-                      ExtraString::NAME_FIELD});
+    m_db.createIndex(
+        "_idx_extrastrings_task_name",
+        EXTRASTRINGS_TABLENAME,
+        {ExtraString::TASK_FIELD, ExtraString::NAME_FIELD}
+    );
 }
-
 
 QMap<QString, int> ExtraString::getStringCountByLanguage() const
 {
     using dbfunc::delimit;
     const QString sql_languages(
         QString("SELECT DISTINCT(%1) FROM %2")
-            .arg(delimit(LANGUAGE_FIELD),
-                 delimit(EXTRASTRINGS_TABLENAME))
+            .arg(delimit(LANGUAGE_FIELD), delimit(EXTRASTRINGS_TABLENAME))
     );
     const QueryResult result_languages = m_db.query(sql_languages);
     QStringList languages = result_languages.firstColumnAsStringList();
@@ -200,8 +208,7 @@ QMap<QString, int> ExtraString::getStringCountByLanguage() const
     for (const QString& language : languages) {
         const SqlArgs query_lang(
             QString("SELECT COUNT(*) FROM %1 WHERE %2 = ?")
-                    .arg(delimit(EXTRASTRINGS_TABLENAME),
-                         delimit(LANGUAGE_FIELD)),
+                .arg(delimit(EXTRASTRINGS_TABLENAME), delimit(LANGUAGE_FIELD)),
             {language}
         );
         const int c = m_db.fetchInt(query_lang);

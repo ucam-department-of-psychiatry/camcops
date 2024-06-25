@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -33,9 +34,13 @@ void initializePcl5(TaskFactory& factory);
 class Pcl5 : public Task
 {
     Q_OBJECT
+
 public:
-    Pcl5(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Pcl5(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,8 +62,10 @@ public:
     QVariant hasPtsd() const;
     int numSymptomatic(int first, int last) const;
     int numNull(int first, int last) const;
+
 public:
     static const QString PCL5_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };
