@@ -47,8 +47,7 @@ QuVerticalContainer::QuVerticalContainer(
 }
 
 QuVerticalContainer::QuVerticalContainer(
-    std::initializer_list<QuElement*> elements,
-    QObject* parent
+    std::initializer_list<QuElement*> elements, QObject* parent
 ) :
     // takes ownership
     QuSequenceContainerBase(elements, parent)
