@@ -393,8 +393,8 @@ bool LabelWordWrapWide::event(QEvent* e)
         case QEvent::Type::PolishRequest:
         case QEvent::Type::Resize:
         case QEvent::Type::StyleChange:
-        case QEvent::Type::
-            ScreenChangeInternal:  // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
+        case QEvent::Type::ScreenChangeInternal:
+            // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
     #ifdef DEBUG_EVENTS
             qDebug() << Q_FUNC_INFO
                      << "- event requiring cache clear... text:" << text();
