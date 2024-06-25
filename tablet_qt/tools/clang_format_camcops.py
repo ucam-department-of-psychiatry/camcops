@@ -47,6 +47,7 @@ from typing import List, Set, Tuple
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
+from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
     EXIT_SUCCESS,
@@ -60,7 +61,8 @@ log = logging.getLogger(__name__)
 # Constants
 # =============================================================================
 
-CLANG_FORMAT_EXECUTABLE = "clang-format-14"
+CLANG_FORMAT_VERSION = 14
+CLANG_FORMAT_EXECUTABLE = "clang-format-{CLANG_FORMAT_VERSION}"
 DIFFTOOL = "meld"
 ENC = sys.getdefaultencoding()
 
@@ -165,6 +167,28 @@ def clang_format_camcops_source() -> None:
         f"results of 'which {DIFFTOOL}'",
     )
     args = parser.parse_args()
+
+    if args.clangformat is None:
+        log.error(
+            "No clangformat executable was found on the path and no "
+            "--clangformat argument was specified"
+        )
+        sys.exit(EXIT_FAILURE)
+
+    output, error, retcode = runit([args.clangformat, "--version"])
+    if retcode:
+        raise RuntimeError(f"clang-format error: \n{error}")
+
+    version_words = output.split()
+    version_number_index = version_words.index("version") + 1
+
+    version = Version(version_words[version_number_index])
+    if version.major != CLANG_FORMAT_VERSION:
+        log.error(
+            f"clang-format version {version.major} != {CLANG_FORMAT_VERSION}"
+        )
+        sys.exit(EXIT_FAILURE)
+
     command = Command(args.command)
 
     main_only_quicksetup_rootlogger(
