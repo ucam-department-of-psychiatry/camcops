@@ -1,0 +1,38 @@
+---
+# yamllint disable rule:line-length
+name: Run clang-format
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.cpp'
+            - '**.h'
+            - .github/scripts/add_apt_sources.sh
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/python_setup.sh
+            - .github/workflows/clang-format.yml
+            - tablet_qt/tools/clang_format_camcops.py
+
+jobs:
+    cpp-tests:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            - name: Ubuntu prerequisites
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install \
+                  clang-format-14
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.8
+
+            - name: Install virtualenv
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+                  PYTHON=${HOME}/venv/bin/python
+                  ${PYTHON} ${GITHUB_WORKSPACE}/tablet_qt/tools/clang_format_camcops.py check
