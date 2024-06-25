@@ -207,9 +207,9 @@ def clang_format_camcops_source() -> None:
     else:
         cpp_files = set()  # type: Set[str]
         for inc in INCLUDE_GLOBS:
-            cpp_files = cpp_files.union(glob.glob(inc))
+            cpp_files = cpp_files.union(glob.glob(inc, recursive=True))
         for exc in EXCLUDE_GLOBS:
-            cpp_files = cpp_files.difference(glob.glob(exc))
+            cpp_files = cpp_files.difference(glob.glob(exc, recursive=True))
         cpp_files = sorted(cpp_files)  # type: List[str]
 
     # -------------------------------------------------------------------------
