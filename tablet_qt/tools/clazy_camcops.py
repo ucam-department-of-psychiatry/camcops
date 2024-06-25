@@ -39,10 +39,15 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
+
+from camcops_server.cc_modules.cc_baseconstants import (
+    EXIT_FAILURE,
+)
 
 log = logging.getLogger(__name__)
 
@@ -150,6 +155,13 @@ def clazy_camcops_source() -> None:
         help="Files to scan (leave blank for all).",
     )
     args = parser.parse_args()
+
+    if args.clazy is None:
+        log.error(
+            "No clazy executable was found on the path and no "
+            "--clazy argument was specified"
+        )
+        sys.exit(EXIT_FAILURE)
 
     main_only_quicksetup_rootlogger(
         level=logging.DEBUG if args.verbose else logging.INFO
