@@ -19,24 +19,24 @@
 */
 
 #include "graphicspixmapitemwithopacity.h"
+
 #include <QPainter>
 
-
 GraphicsPixmapItemWithOpacity::GraphicsPixmapItemWithOpacity(
-        QGraphicsItem* parent) :
+    QGraphicsItem* parent
+) :
     QGraphicsPixmapItem(parent),
     m_opacity(1.0)
 {
 }
 
-
 GraphicsPixmapItemWithOpacity::GraphicsPixmapItemWithOpacity(
-        const QPixmap& pixmap, QGraphicsItem* parent) :
+    const QPixmap& pixmap, QGraphicsItem* parent
+) :
     QGraphicsPixmapItem(pixmap, parent),
     m_opacity(1.0)
 {
 }
-
 
 void GraphicsPixmapItemWithOpacity::setOpacity(const qreal opacity)
 {
@@ -44,11 +44,9 @@ void GraphicsPixmapItemWithOpacity::setOpacity(const qreal opacity)
     update();
 }
 
-
 void GraphicsPixmapItemWithOpacity::paint(
-        QPainter* painter,
-        const QStyleOptionGraphicsItem* option,
-        QWidget* widget)
+    QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget
+)
 {
     const qreal old_opacity = painter->opacity();
     painter->setOpacity(m_opacity);

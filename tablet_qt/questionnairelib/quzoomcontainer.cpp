@@ -19,12 +19,13 @@
 */
 
 #include "quzoomcontainer.h"
+
 #include <QDebug>
 #include <QWidget>
+
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/zoomablewidget.h"
-
 
 QuZoomContainer::QuZoomContainer(QuElementPtr element) :
     m_element(element)
@@ -34,25 +35,21 @@ QuZoomContainer::QuZoomContainer(QuElementPtr element) :
     }
 }
 
-
 QuZoomContainer::QuZoomContainer(QuElement* element) :
     QuZoomContainer(QuElementPtr(element))
 {
 }
-
 
 QVector<QuElementPtr> QuZoomContainer::subelements() const
 {
     return QVector<QuElementPtr>{m_element};
 }
 
-
 QPointer<QWidget> QuZoomContainer::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> contents = m_element->widget(questionnaire);
-    auto zoom = new ZoomableWidget(
-                contents
-                // ... more options here
+    auto zoom = new ZoomableWidget(contents
+                                   // ... more options here
     );
     return zoom;
 }

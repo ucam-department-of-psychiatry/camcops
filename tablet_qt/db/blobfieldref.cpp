@@ -19,51 +19,55 @@
 */
 
 #include "blobfieldref.h"
+
 #include "dbobjects/blob.h"
 
-
-BlobFieldRef::BlobFieldRef(DatabaseObject* p_dbobject,
-                           const QString& fieldname,
-                           const bool mandatory,
-                           CamcopsApp* p_app) :
-    FieldRef(p_dbobject, fieldname, mandatory,
-             true,  // autosave
-             true,  // blob
-             p_app)
+BlobFieldRef::BlobFieldRef(
+    DatabaseObject* p_dbobject,
+    const QString& fieldname,
+    const bool mandatory,
+    CamcopsApp* p_app
+) :
+    FieldRef(
+        p_dbobject,
+        fieldname,
+        mandatory,
+        true,  // autosave
+        true,  // blob
+        p_app
+    )
 {
     Q_ASSERT(m_blob);
 }
 
-
-BlobFieldRef::BlobFieldRef(QSharedPointer<Blob> blob,
-                           const bool mandatory,
-                           const bool disable_creation_warning) :
+BlobFieldRef::BlobFieldRef(
+    QSharedPointer<Blob> blob,
+    const bool mandatory,
+    const bool disable_creation_warning
+) :
     FieldRef(blob, mandatory, disable_creation_warning)
 {
     Q_ASSERT(m_blob);
 }
-
 
 QImage BlobFieldRef::image(bool* p_loaded) const
 {
     return m_blob->image(p_loaded);
 }
 
-
 QPixmap BlobFieldRef::pixmap(bool* p_loaded) const
 {
     return QPixmap::fromImage(image(p_loaded));
 }
 
-
-void BlobFieldRef::rotateImage(const int angle_degrees_clockwise,
-                               const QObject* originator)
+void BlobFieldRef::rotateImage(
+    const int angle_degrees_clockwise, const QObject* originator
+)
 {
     m_blob->rotateImage(angle_degrees_clockwise, true);
     setFkToBlob();  // see discussion in FieldRef::setValue
     signalSetValue(true, originator);
 }
-
 
 bool BlobFieldRef::setImage(const QImage& image, const QObject* originator)
 {
@@ -74,14 +78,15 @@ bool BlobFieldRef::setImage(const QImage& image, const QObject* originator)
     return signalSetValue(changed, originator);
 }
 
-
-bool BlobFieldRef::setRawImage(const QByteArray& data,
-                               const QString& extension_without_dot,
-                               const QString& mimetype,
-                               const QObject* originator)
+bool BlobFieldRef::setRawImage(
+    const QByteArray& data,
+    const QString& extension_without_dot,
+    const QString& mimetype,
+    const QObject* originator
+)
 {
-    const bool changed = m_blob->setRawImage(data, true,
-                                             extension_without_dot, mimetype);
+    const bool changed
+        = m_blob->setRawImage(data, true, extension_without_dot, mimetype);
     if (changed) {
         setFkToBlob();  // see discussion in FieldRef::setValue
     }

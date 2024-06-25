@@ -23,7 +23,6 @@
 
 class QEvent;
 
-
 class FocusWatcher : public QObject
 {
     // Object to watch for change of focus on another widget.

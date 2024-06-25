@@ -21,10 +21,11 @@
 // #define DEBUG_LAYOUT
 
 #include "heightforwidthlistwidget.h"
+
 #include <QDebug>
 #include <QEvent>
 #ifdef DEBUG_LAYOUT
-#include "lib/layoutdumper.h"
+    #include "lib/layoutdumper.h"
 #endif
 
 
@@ -36,12 +37,13 @@ HeightForWidthListWidget::HeightForWidthListWidget(QWidget* parent) :
     setResizeMode(QListView::Adjust);
 }
 
-
 bool HeightForWidthListWidget::event(QEvent* e)
 {
     switch (e->type()) {
-    case QEvent::Resize:  // Alternative is resizeEvent() but we need to trap other events too
-    case QEvent::LayoutRequest:  // See QWidget::updateGeometry() -- they will come here
+        case QEvent::
+            Resize:  // Alternative is resizeEvent() but we need to trap other events too
+        case QEvent::
+            LayoutRequest:  // See QWidget::updateGeometry() -- they will come here
         {
             // At this point, we have already been resized, so can use width();
             // https://doc.qt.io/qt-6.5/qwidget.html#resizeEvent
@@ -66,14 +68,12 @@ bool HeightForWidthListWidget::event(QEvent* e)
                          << size_hint;
 #endif
             }
-        }
-        break;
-    default:
-        break;
+        } break;
+        default:
+            break;
     }
     return QListWidget::event(e);
 }
-
 
 QSize HeightForWidthListWidget::widgetSizeHint(QWidget* widget) const
 {
@@ -95,9 +95,8 @@ QSize HeightForWidthListWidget::widgetSizeHint(QWidget* widget) const
     QSize result(widget_new_width, widget_new_height);
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "widget"
-             << LayoutDumper::getWidgetDescriptor(widget)
-             << "widget_size_hint" << widget_size_hint
-             << "result" << result;
+             << LayoutDumper::getWidgetDescriptor(widget) << "widget_size_hint"
+             << widget_size_hint << "result" << result;
 #endif
     return result;
 }

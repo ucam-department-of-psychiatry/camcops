@@ -21,28 +21,30 @@
 #pragma once
 #include <QPointer>
 
-#include "tasklib/task.h"
 #include "questionnairelib/qumcqgrid.h"
+#include "tasklib/task.h"
 
 class OpenableWidget;
-
 
 class IsaaqCommon : public Task
 {
     // abstract base class
     Q_OBJECT
+
 public:
-    IsaaqCommon(CamcopsApp& app, DatabaseManager& db,
-                const QString tableName);
+    IsaaqCommon(CamcopsApp& app, DatabaseManager& db, const QString tableName);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override = 0;
     virtual QString longname() const override = 0;
     virtual QString description() const override = 0;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -54,6 +56,10 @@ public:
 protected:
     virtual QStringList fieldNames() const = 0;
     virtual QVector<QuElement*> buildElements() = 0;
-    QuMcqGrid* buildGrid(const QString prefix, int first_q_num, int last_q_num,
-                         const QString title = "");
+    QuMcqGrid* buildGrid(
+        const QString prefix,
+        int first_q_num,
+        int last_q_num,
+        const QString title = ""
+    );
 };

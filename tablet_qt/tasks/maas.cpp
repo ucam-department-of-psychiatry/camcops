@@ -19,6 +19,7 @@
 */
 
 #include "maas.h"
+
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
@@ -48,17 +49,16 @@ const QString XSTRING_A_FMT("q%1_a%2");
 const QVector<int> REVERSED_Q{1, 3, 5, 6, 7, 9, 10, 12, 15, 16, 18};
 
 // Questions that contribute to the "quality of attachment" score:
-const QVector<int> QUALITY_OF_ATTACHMENT_Q{3, 6, 9, 10, 11, 12, 13, 15, 16, 19};
+const QVector<int> QUALITY_OF_ATTACHMENT_Q{
+    3, 6, 9, 10, 11, 12, 13, 15, 16, 19};
 
 // Questions that contribute to the "time spent in attachment mode" score:
 const QVector<int> TIME_IN_ATTACHMENT_MODE_Q{1, 2, 4, 5, 8, 14, 17, 18};
-
 
 void initializeMaas(TaskFactory& factory)
 {
     static TaskRegistrar<Maas> registered(factory);
 }
-
 
 Maas::Maas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, MAAS_TABLENAME, false, false, false)  // ... anon, clin, resp
@@ -67,7 +67,6 @@ Maas::Maas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -78,18 +77,17 @@ QString Maas::shortname() const
     return "MAAS";
 }
 
-
 QString Maas::longname() const
 {
     return tr("Maternal Antenatal Attachment Scale");
 }
 
-
 QString Maas::description() const
 {
-    return tr("19-item self-report scale relating to attachment to an unborn baby.");
+    return tr(
+        "19-item self-report scale relating to attachment to an unborn baby."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -99,7 +97,6 @@ bool Maas::isComplete() const
 {
     return noValuesNull(strseq(FN_QPREFIX, 1, N_QUESTIONS));
 }
-
 
 QStringList Maas::summary() const
 {
@@ -134,36 +131,44 @@ QStringList Maas::summary() const
     }
     const QString fmt("%1 [%2–%3]: <b>%4</b>.");
     return QStringList{
-        fmt.arg(xstring("quality_of_attachment_score"),
-                QString::number(quality_min), QString::number(quality_max),
-                QString::number(quality_score)),
-        fmt.arg(xstring("time_in_attachment_mode_score"),
-                QString::number(time_min), QString::number(time_max),
-                QString::number(time_score)),
-        fmt.arg(xstring("global_attachment_score"),
-                QString::number(global_min), QString::number(global_max),
-                QString::number(global_score)),
+        fmt.arg(
+            xstring("quality_of_attachment_score"),
+            QString::number(quality_min),
+            QString::number(quality_max),
+            QString::number(quality_score)
+        ),
+        fmt.arg(
+            xstring("time_in_attachment_mode_score"),
+            QString::number(time_min),
+            QString::number(time_max),
+            QString::number(time_score)
+        ),
+        fmt.arg(
+            xstring("global_attachment_score"),
+            QString::number(global_min),
+            QString::number(global_max),
+            QString::number(global_score)
+        ),
     };
 }
-
 
 QStringList Maas::detail() const
 {
     QStringList lines = completenessInfo();
-    lines += fieldSummaries(XSTRING_Q_PREFIX, XSTRING_Q_SUFFIX, " ",
-                            FN_QPREFIX, 1, N_QUESTIONS);
+    lines += fieldSummaries(
+        XSTRING_Q_PREFIX, XSTRING_Q_SUFFIX, " ", FN_QPREFIX, 1, N_QUESTIONS
+    );
     lines.append("");
     return lines + summary();
 }
-
 
 OpenableWidget* Maas::editor(const bool read_only)
 {
     const QString copyright = xstring("copyright");
     const QVector<int> answers{1, 2, 3, 4, 5};
     QVector<QuPage*> pages;
-    auto addQ = [this, &answers](QVector<QuElement*>& elements,
-            const int q) -> void {
+    auto addQ =
+        [this, &answers](QVector<QuElement*>& elements, const int q) -> void {
         // Establish options
         QVector<int> answer_sequence = answers;
         // ... If you mistakenly add "const" you get the error
@@ -173,8 +178,9 @@ OpenableWidget* Maas::editor(const bool read_only)
         }
         NameValueOptions options;
         for (const int a : answer_sequence) {
-            const QString atext = xstring(XSTRING_A_FMT.arg(
-                                    QString::number(q), QString::number(a)));
+            const QString atext = xstring(
+                XSTRING_A_FMT.arg(QString::number(q), QString::number(a))
+            );
             options.append(NameValuePair(atext, a));
         }
         // Create question
@@ -187,8 +193,10 @@ OpenableWidget* Maas::editor(const bool read_only)
         QuMcq* mcq = new QuMcq(fieldRef(fieldname), options);
         elements.append(mcq);
     };
-    auto addText = [this](QVector<QuElement*>& elements,
-            const QString& xstringname) -> void {
+    auto addText
+        = [this](
+              QVector<QuElement*>& elements, const QString& xstringname
+          ) -> void {
         QuText* t = new QuText(xstring(xstringname));
         t->setBig();
         elements.append(t);
@@ -214,8 +222,9 @@ OpenableWidget* Maas::editor(const bool read_only)
             addCopyright(elements);
         }
         QuPage* page = new QuPage(elements);
-        page->setTitle(QString("%1 %2").arg(textconst.question(),
-                                            QString::number(q)));
+        page->setTitle(
+            QString("%1 %2").arg(textconst.question(), QString::number(q))
+        );
         pages.append(page);
     };
 

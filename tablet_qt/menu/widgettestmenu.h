@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QSharedPointer>
+
 #include "menulib/menuwindow.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "widgets/booleanwidget.h"
@@ -29,13 +30,14 @@ class QCustomPlot;
 class QSizePolicy;
 class QuElement;
 
-
 class WidgetTestMenu : public MenuWindow
 {
     Q_OBJECT
+
 public:
     WidgetTestMenu(CamcopsApp& app);
     virtual QString title() const override;
+
 protected:
     virtual void makeItems() override;
     QVariant dummyGetter1() const;
@@ -48,8 +50,7 @@ protected:
     // ========================================================================
     // Endogenous Qt widgets
     // ========================================================================
-    void testQLabel(const QSizePolicy& policy,
-                    bool long_text, bool word_wrap);
+    void testQLabel(const QSizePolicy& policy, bool long_text, bool word_wrap);
     void testQPushButton(const QSizePolicy& policy);
 
     // ========================================================================
@@ -57,8 +58,9 @@ protected:
     // ========================================================================
     void testAdjustablePie(int n, bool rotate_labels);
     void testAspectRatioPixmap();
-    void testBooleanWidget(BooleanWidget::Appearance appearance,
-                           bool long_text);
+    void testBooleanWidget(
+        BooleanWidget::Appearance appearance, bool long_text
+    );
     // Camera: use QuPhoto instead
     void testCanvasWidget(bool allow_shrink);
     void testClickableLabelNoWrap(bool long_text);
@@ -70,8 +72,9 @@ protected:
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();
-    void testLabelWordWrapWide(bool long_text, bool use_hfw_layout,
-                               bool with_icons = false);
+    void testLabelWordWrapWide(
+        bool long_text, bool use_hfw_layout, bool with_icons = false
+    );
     // OpenableWidget: part of main app framework instead
     // Spacer: see QuSpacer instead
     void testSvgWidgetClickable();
@@ -107,8 +110,9 @@ protected:
     // Questionnaire element widgets
     // ========================================================================
     void testQuAudioPlayer();
-    void testQuBoolean(bool as_text_button, bool long_text,
-                       bool false_appears_blank);
+    void testQuBoolean(
+        bool as_text_button, bool long_text, bool false_appears_blank
+    );
     void testQuButton();
     void testQuCanvas();
     void testQuCountdown(const int time_s, const int volume);

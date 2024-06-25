@@ -19,12 +19,12 @@
 */
 
 #include "strictintvalidator.h"
+
 #include "lib/numericfunc.h"
 
-
-StrictIntValidator::StrictIntValidator(const int bottom, const int top,
-                                       const bool allow_empty,
-                                       QObject* parent) :
+StrictIntValidator::StrictIntValidator(
+    const int bottom, const int top, const bool allow_empty, QObject* parent
+) :
     QIntValidator(bottom, top, parent),
     m_allow_empty(allow_empty)
 {
@@ -33,10 +33,10 @@ StrictIntValidator::StrictIntValidator(const int bottom, const int top,
     }
 }
 
-
 QValidator::State StrictIntValidator::validate(QString& s, int& pos) const
 {
     Q_UNUSED(pos)
-    return numeric::validateInteger(s, locale(), bottom(), top(),
-                                    m_allow_empty);
+    return numeric::validateInteger(
+        s, locale(), bottom(), top(), m_allow_empty
+    );
 }

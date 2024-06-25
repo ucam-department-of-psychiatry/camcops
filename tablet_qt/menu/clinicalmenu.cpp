@@ -19,37 +19,34 @@
 */
 
 #include "clinicalmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/bmi.h"
 #include "tasks/contactlog.h"
 #include "tasks/cpftlpsdischarge.h"
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
 #include "tasks/diagnosisicd10.h"
+#include "tasks/gbogpc.h"
 #include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
-#include "tasks/gbogpc.h"
 #include "tasks/irac.h"
 #include "tasks/photo.h"
 #include "tasks/photosequence.h"
 #include "tasks/progressnote.h"
 #include "tasks/psychiatricclerking.h"
 
-
 ClinicalMenu::ClinicalMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_CLINICAL))
 {
 }
 
-
 QString ClinicalMenu::title() const
 {
     return tr("Clinical notes and logs");
 }
-
 
 void ClinicalMenu::makeItems()
 {
@@ -58,8 +55,12 @@ void ClinicalMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(ContactLog::CONTACTLOG_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(CPFTLPSReferral::CPFTLPSREFERRAL_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME, m_app
+        ),
+        MAKE_TASK_MENU_ITEM(
+            CPFTLPSDischarge::CPFTLPSDISCHARGE_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd10::DIAGNOSIS_ICD10_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GboGReS::GBOGRES_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GboGPC::GBOGPC_TABLENAME, m_app),

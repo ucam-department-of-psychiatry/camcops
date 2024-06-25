@@ -19,25 +19,24 @@
 */
 
 #include "hadsrespondent.h"
+
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
 const QString HadsRespondent::HADSRESPONDENT_TABLENAME("hads_respondent");
-
 
 void initializeHadsRespondent(TaskFactory& factory)
 {
     static TaskRegistrar<HadsRespondent> registered(factory);
 }
 
-
-HadsRespondent::HadsRespondent(CamcopsApp& app, DatabaseManager& db,
-                               const int load_pk) :
+HadsRespondent::HadsRespondent(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     Hads(app, db, HADSRESPONDENT_TABLENAME, true, load_pk)
 {
     // Hads constructor will load for us.
 }
-
 
 // ============================================================================
 // Class info
@@ -48,19 +47,18 @@ QString HadsRespondent::shortname() const
     return "HADS-Respondent";
 }
 
-
 QString HadsRespondent::longname() const
 {
-    return tr("Hospital Anxiety and Depression Scale, "
-              "non-patient respondent version");
+    return tr(
+        "Hospital Anxiety and Depression Scale, "
+        "non-patient respondent version"
+    );
 }
-
 
 QString HadsRespondent::infoFilenameStem() const
 {
     return "hads";
 }
-
 
 QString HadsRespondent::xstringTaskname() const
 {

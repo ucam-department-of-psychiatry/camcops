@@ -19,8 +19,10 @@
 */
 
 #include "qupickerinline.h"
+
 #include <QComboBox>
 #include <QLabel>
+
 #include "common/cssconst.h"
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -29,10 +31,9 @@
 
 const int MAX_LENGTH = 100;
 
-
-QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
-                               const NameValueOptions& options,
-                               QObject* parent) :
+QuPickerInline::QuPickerInline(
+    FieldRefPtr fieldref, const NameValueOptions& options, QObject* parent
+) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
@@ -41,19 +42,25 @@ QuPickerInline::QuPickerInline(FieldRefPtr fieldref,
 {
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuPickerInline::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuPickerInline::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuPickerInline::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuPickerInline::fieldValueChanged
+    );
 }
-
 
 QuPickerInline* QuPickerInline::setRandomize(const bool randomize)
 {
     m_randomize = randomize;
     return this;
 }
-
 
 QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 {
@@ -80,15 +87,15 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
         // The currentIndex on the QCombobox is what we are calling the position
         // of the item in the list of options (the index being the original,
         // unrandomized position).
-        connect(m_cbox.data(), ic_signal,
-                this, &QuPickerInline::currentItemChanged);
+        connect(
+            m_cbox.data(), ic_signal, this, &QuPickerInline::currentItemChanged
+        );
     }
     m_cbox->setEnabled(!read_only);
     m_cbox->setObjectName(cssconst::PICKER_INLINE);
     setFromField();
     return QPointer<QWidget>(m_cbox);
 }
-
 
 void QuPickerInline::currentItemChanged(const int position)
 {
@@ -97,18 +104,17 @@ void QuPickerInline::currentItemChanged(const int position)
         return;
     }
     const QVariant newvalue = m_options.atPosition(position).value();
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed
+        = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
 
-
 void QuPickerInline::setFromField()
 {
     fieldValueChanged(m_fieldref.data());
 }
-
 
 void QuPickerInline::fieldValueChanged(const FieldRef* fieldref)
 {
@@ -123,7 +129,6 @@ void QuPickerInline::fieldValueChanged(const FieldRef* fieldref)
         widgetfunc::setPropertyMissing(m_cbox, missing);
     }
 }
-
 
 FieldRefPtrList QuPickerInline::fieldrefs() const
 {

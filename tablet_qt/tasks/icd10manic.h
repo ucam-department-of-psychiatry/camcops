@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeIcd10Manic(TaskFactory& factory);
 
-
 class Icd10Manic : public Task
 {
     Q_OBJECT
+
 public:
-    Icd10Manic(CamcopsApp& app, DatabaseManager& db,
-               int load_pk = dbconst::NONEXISTENT_PK);
+    Icd10Manic(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -52,6 +56,7 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     // The QVariant ones return true, false, or NULL (for unknown):
     QVariant meetsCriteriaManiaPsychoticSchizophrenic() const;
@@ -65,8 +70,10 @@ protected:
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
+
 protected:
     void updateMandatory();
+
 public:
     static const QString ICD10MANIC_TABLENAME;
 };

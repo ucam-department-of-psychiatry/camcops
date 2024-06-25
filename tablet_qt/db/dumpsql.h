@@ -26,16 +26,20 @@ class DatabaseManager;
 namespace dumpsql {
 
 // Complex helper function for dumpDatabase().
-void runTableDumpQuery(QTextStream& os,
-                       DatabaseManager& db,
-                       const QString& sql,
-                       const QString& firstrow);
+void runTableDumpQuery(
+    QTextStream& os,
+    DatabaseManager& db,
+    const QString& sql,
+    const QString& firstrow
+);
 
 // Complex helper function for dumpDatabase().
-bool runSchemaDumpQuery(QTextStream& os,
-                        DatabaseManager& db,
-                        const QString& schema_query_sql,
-                        bool writable_schema);
+bool runSchemaDumpQuery(
+    QTextStream& os,
+    DatabaseManager& db,
+    const QString& schema_query_sql,
+    bool writable_schema
+);
 
 // Dumps an entire SQLite database to an output stream.
 void dumpDatabase(QTextStream& os, DatabaseManager& db);

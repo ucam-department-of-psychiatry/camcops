@@ -19,8 +19,8 @@
 */
 
 #include "numericfunc.h"
-#include <QString>
 
+#include <QString>
 
 namespace numeric {
 
@@ -35,13 +35,11 @@ int strToNumber(const QString& str, const int type_dummy)
     return str.toInt();
 }
 
-
 qint64 strToNumber(const QString& str, const qint64 type_dummy)
 {
     Q_UNUSED(type_dummy)
     return str.toLongLong();
 }
-
 
 quint64 strToNumber(const QString& str, const quint64 type_dummy)
 {
@@ -49,31 +47,35 @@ quint64 strToNumber(const QString& str, const quint64 type_dummy)
     return str.toULongLong();
 }
 
-
-int localeStrToNumber(const QString& str, bool& ok,
-                      const QLocale& locale, const int type_dummy)
+int localeStrToNumber(
+    const QString& str, bool& ok, const QLocale& locale, const int type_dummy
+)
 {
     Q_UNUSED(type_dummy)
     return locale.toInt(str, &ok);
 }
 
-
-qint64 localeStrToNumber(const QString& str, bool& ok,
-                         const QLocale& locale, const qint64 type_dummy)
+qint64 localeStrToNumber(
+    const QString& str,
+    bool& ok,
+    const QLocale& locale,
+    const qint64 type_dummy
+)
 {
     Q_UNUSED(type_dummy)
     return locale.toLongLong(str, &ok);
 }
 
-
-quint64 localeStrToNumber(const QString& str, bool& ok,
-                          const QLocale& locale,
-                          const quint64 type_dummy)
+quint64 localeStrToNumber(
+    const QString& str,
+    bool& ok,
+    const QLocale& locale,
+    const quint64 type_dummy
+)
 {
     Q_UNUSED(type_dummy)
     return locale.toULongLong(str, &ok);
 }
-
 
 // ============================================================================
 // For double validation
@@ -94,56 +96,52 @@ int numDigitsDouble(const double number, const int max_dp)
     return sign_present ? length - 1 : length;
 }
 
-
-double firstDigitsDouble(const double number,
-                         const int n_digits,
-                         const int max_dp)
+double firstDigitsDouble(
+    const double number, const int n_digits, const int max_dp
+)
 {
     const QString formatted = QString::number(number, 'f', max_dp);
     const bool sign_present = number < 0;
-    const QString left = formatted.left(sign_present ? n_digits + 1 : n_digits);
+    const QString left
+        = formatted.left(sign_present ? n_digits + 1 : n_digits);
     const double result = left.toDouble();
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
-    qDebug() << Q_FUNC_INFO << "- formatted" << formatted
-             << "n_digits" << n_digits
-             << "left" << left
-             << "result" << result;
+    qDebug() << Q_FUNC_INFO << "- formatted" << formatted << "n_digits"
+             << n_digits << "left" << left << "result" << result;
 #endif
     return result;
 }
 
-
-bool isValidStartToDouble(const double number,
-                          const double bottom,
-                          const double top)
+bool isValidStartToDouble(
+    const double number, const double bottom, const double top
+)
 {
     if (extendedDoubleMustBeLessThanBottom(number, bottom, top)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
-                 << "when extended must be less than bottom value of"
-                 << bottom << "=> fail";
+                 << "when extended must be less than bottom value of" << bottom
+                 << "=> fail";
 #endif
         return false;
     }
     if (extendedDoubleMustExceedTop(number, bottom, top)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
-                 << "when extended must be more than top value of"
-                 << top << "=> fail";
+                 << "when extended must be more than top value of" << top
+                 << "=> fail";
 #endif
         return false;
     }
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
-    qDebug() << Q_FUNC_INFO << number << "is OK for bottom"
-             << bottom << "top" << top;
+    qDebug() << Q_FUNC_INFO << number << "is OK for bottom" << bottom << "top"
+             << top;
 #endif
     return true;
 }
 
-
-bool extendedDoubleMustExceedTop(const double number,
-                                 const double bottom,
-                                 const double top)
+bool extendedDoubleMustExceedTop(
+    const double number, const double bottom, const double top
+)
 {
     if (number < 0 && top > 0) {
         return false;
@@ -176,10 +174,9 @@ bool extendedDoubleMustExceedTop(const double number,
     return true;
 }
 
-
-bool extendedDoubleMustBeLessThanBottom(const double number,
-                                        const double bottom,
-                                        const double top)
+bool extendedDoubleMustBeLessThanBottom(
+    const double number, const double bottom, const double top
+)
 {
     if (number < 0 && bottom > 0) {
         return true;

@@ -18,23 +18,22 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "proquintlineedit.h"
+
 #include <QGuiApplication>
 #include <QString>
 
 #include "qobjects/proquintvalidator.h"
 #include "widgets/validatinglineedit.h"
 
-#include "proquintlineedit.h"
-
 ProquintLineEdit::ProquintLineEdit(QWidget* parent, const QString& text) :
     ValidatingLineEdit(new ProquintValidator(), parent, text)
 {
-    getLineEdit()->setInputMethodHints(Qt::ImhSensitiveData |
-                                       Qt::ImhNoAutoUppercase |
-                                       Qt::ImhNoPredictiveText);
+    getLineEdit()->setInputMethodHints(
+        Qt::ImhSensitiveData | Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
+    );
     m_old_text = "";
 };
-
 
 void ProquintLineEdit::processChangedText()
 {
@@ -45,7 +44,8 @@ void ProquintLineEdit::processChangedText()
 
     QString initial_text = line_edit->text();
 
-    const bool cursor_at_end = (line_edit->cursorPosition() == initial_text.length());
+    const bool cursor_at_end
+        = (line_edit->cursorPosition() == initial_text.length());
 
     QString new_text = initial_text.trimmed();
 
@@ -77,7 +77,6 @@ void ProquintLineEdit::processChangedText()
     m_old_text = new_text;
 }
 
-
 // Thanks to Axel Spoerl for this workaround for
 // https://bugreports.qt.io/browse/QTBUG-115756
 // On Android, the cursor does not get updated properly if a dash is appended
@@ -97,7 +96,6 @@ bool ProquintLineEdit::eventFilter(QObject* obj, QEvent* event)
 
     return false;
 }
-
 
 void ProquintLineEdit::maybeIgnoreNextInputEvent()
 {

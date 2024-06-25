@@ -21,14 +21,15 @@
 #pragma once
 #include "menulib/menuwindow.h"
 
-
 class SetMenuDeakin : public MenuWindow
 {
     Q_OBJECT
+
 public:
     SetMenuDeakin(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
+
 protected:
     virtual void makeItems() override;
     void soundTestCardinalExpDet();

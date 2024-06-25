@@ -19,12 +19,14 @@
 */
 
 #include "ided3dexemplars.h"
+
 #include <QColor>
+
 #include "lib/containers.h"
 #include "lib/convert.h"
 #include "maths/mathfunc.h"
-using mathfunc::seq;
 using mathfunc::range;
+using mathfunc::seq;
 
 
 // Dimensions
@@ -34,8 +36,7 @@ const QString IDED3DExemplars::DIM_NUMBER("number");
 const QStringList IDED3DExemplars::VALID_DIMENSION_NAMES{
     IDED3DExemplars::DIM_SHAPE,
     IDED3DExemplars::DIM_COLOUR,
-    IDED3DExemplars::DIM_NUMBER
-};
+    IDED3DExemplars::DIM_NUMBER};
 
 
 // Shapes
@@ -126,24 +127,23 @@ const QVector<QColor> POSSIBLE_COLOURS{
     // HTML colour definitions of CGA colours.
     // Note that these are fine for static initialiation (they don't depend
     // on the statically-initialized RGB colour name table in qcolor.cpp).
-    QColor("#555"), // CGA: dark grey
-    QColor("#55f"), // CGA: light blue
-    QColor("#5f5"), // CGA: light green
-    QColor("#5ff"), // CGA: light cyan
-    QColor("#f55"), // CGA: light red
-    QColor("#f5f"), // CGA: light magenta
-    QColor("#ff5"), // CGA: yellow
-    QColor("#fff"), // white
+    QColor("#555"),  // CGA: dark grey
+    QColor("#55f"),  // CGA: light blue
+    QColor("#5f5"),  // CGA: light green
+    QColor("#5ff"),  // CGA: light cyan
+    QColor("#f55"),  // CGA: light red
+    QColor("#f5f"),  // CGA: light magenta
+    QColor("#ff5"),  // CGA: yellow
+    QColor("#fff"),  // white
 };
-
 
 IDED3DExemplars::IDED3DExemplars()
 {
 }
 
-
-IDED3DExemplars::IDED3DExemplars(const QStringList& dimensions,
-                                 const QVector<QVector<int>>& indices) :
+IDED3DExemplars::IDED3DExemplars(
+    const QStringList& dimensions, const QVector<QVector<int>>& indices
+) :
     dimensions(dimensions),
     indices(indices)
 {
@@ -151,7 +151,6 @@ IDED3DExemplars::IDED3DExemplars(const QStringList& dimensions,
     Q_ASSERT(dimensions.length() == indices.length());
     Q_ASSERT(containers::containsAll(VALID_DIMENSION_NAMES, dimensions));
 }
-
 
 QVector<int> IDED3DExemplars::getExemplars(const QString& dim_name) const
 {
@@ -164,18 +163,15 @@ QVector<int> IDED3DExemplars::getExemplars(const QString& dim_name) const
     return QVector<int>();
 }
 
-
 QVector<int> IDED3DExemplars::getShapes() const
 {
     return getExemplars(DIM_SHAPE);
 }
 
-
 QVector<int> IDED3DExemplars::getColours() const
 {
     return getExemplars(DIM_COLOUR);
 }
-
 
 /*
 QStringList IDED3DExemplars::getColourNames() const
@@ -196,18 +192,15 @@ QVector<int> IDED3DExemplars::getNumbers() const
     return getExemplars(DIM_NUMBER);
 }
 
-
 int IDED3DExemplars::nShapes()
 {
     return SHAPE_DEFINITIONS.length();
 }
 
-
 QString IDED3DExemplars::shapeSvg(const int shape_num)
 {
     return SHAPE_DEFINITIONS.at(shape_num);
 }
-
 
 /*
 QString IDED3DExemplars::colourName(const int colour_number)
@@ -222,50 +215,36 @@ QColor IDED3DExemplars::colour(const int colour_number)
     return POSSIBLE_COLOURS.at(colour_number);
 }
 
-
 QVector<int> IDED3DExemplars::possibleShapeIndices()
 {
     return range(SHAPE_DEFINITIONS.length());
 }
-
 
 QVector<int> IDED3DExemplars::possibleColourIndices()
 {
     return range(POSSIBLE_COLOURS.length());
 }
 
-
 QStringList IDED3DExemplars::possibleDimensions()
 {
-    return QStringList{
-        DIM_SHAPE,
-        DIM_COLOUR,
-        DIM_NUMBER
-    };
+    return QStringList{DIM_SHAPE, DIM_COLOUR, DIM_NUMBER};
 }
 
-
-QVector<QVector<int>> IDED3DExemplars::possibilities(const int number_min,
-                                                     const int number_max)
+QVector<QVector<int>>
+    IDED3DExemplars::possibilities(const int number_min, const int number_max)
 {
     // Order of dimensions in vector must match possibleDimensions()
     const QVector<int> possible_shapes = possibleShapeIndices();
     const QVector<int> possible_colours = possibleColourIndices();
-    const QVector<int> possible_numbers = seq(number_min,
-                                                 number_max);
+    const QVector<int> possible_numbers = seq(number_min, number_max);
     return QVector<QVector<int>>{
-        possible_shapes,
-        possible_colours,
-        possible_numbers
-    };
+        possible_shapes, possible_colours, possible_numbers};
 }
-
 
 QString IDED3DExemplars::allShapesAsJson()
 {
     return convert::stringListToJson(SHAPE_DEFINITIONS);
 }
-
 
 QString IDED3DExemplars::allColoursAsJson()
 {

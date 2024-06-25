@@ -19,52 +19,52 @@
 */
 
 #include "setmenucpftperinatal.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/apeqcpftperinatal.h"
 // #include "tasks/apeqpt.h"
 #include "tasks/core10.h"
 #include "tasks/epds.h"
 #include "tasks/gad7.h"
+#include "tasks/gbogpc.h"
 #include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
-#include "tasks/gbogpc.h"
 #include "tasks/honos.h"
 #include "tasks/maas.h"
+#include "tasks/ors.h"
 #include "tasks/pbq.h"
 #include "tasks/perinatalpoem.h"
 #include "tasks/phq9.h"
-#include "tasks/ors.h"
 #include "tasks/srs.h"
-
 
 SetMenuCpftPerinatal::SetMenuCpftPerinatal(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
 
-
 QString SetMenuCpftPerinatal::title() const
 {
     return tr("CPFT Perinatal Service");
 }
 
-
 QString SetMenuCpftPerinatal::subtitle() const
 {
-    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-              "perinatal psychiatry service");
+    return tr(
+        "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+        "perinatal psychiatry service"
+    );
 }
-
 
 void SetMenuCpftPerinatal::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Assessment/choice")).setLabelOnly(),
-        MAKE_TASK_MENU_ITEM(APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, m_app),
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Core10::CORE10_TABLENAME, m_app),

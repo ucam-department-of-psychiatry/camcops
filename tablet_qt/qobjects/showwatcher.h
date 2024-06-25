@@ -21,7 +21,6 @@
 #pragma once
 #include <QObject>
 
-
 class ShowWatcher : public QObject
 {
     // Object to watch for a showEvent() on a widget.

@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,12 +29,13 @@ class TaskFactory;
 
 void initializePbq(TaskFactory& factory);
 
-
 class Pbq : public Task
 {
     Q_OBJECT
+
 public:
-    Pbq(CamcopsApp& app, DatabaseManager& db,
+    Pbq(CamcopsApp& app,
+        DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -52,6 +54,7 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+
 public:
     static const QString PBQ_TABLENAME;
 };

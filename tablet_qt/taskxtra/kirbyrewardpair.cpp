@@ -19,18 +19,24 @@
 */
 
 #include "kirbyrewardpair.h"
+
 #include <QObject>
+
 #include "../tasks/kirby.h"
 
-const QString KIRBY_DEFAULT_CURRENCY("£");  // Make configurable? Read local currency?
-const bool KIRBY_DEFAULT_CURRENCY_SYMBOL_FIRST = true;  // Make configurable? Read local currency?
+const QString KIRBY_DEFAULT_CURRENCY("£"
+);  // Make configurable? Read local currency?
+const bool KIRBY_DEFAULT_CURRENCY_SYMBOL_FIRST
+    = true;  // Make configurable? Read local currency?
 
-
-KirbyRewardPair::KirbyRewardPair(const int sir, const int ldr,
-                                 const int delay_days,
-                                 const QVariant& chose_ldr,
-                                 const QString& currency,
-                                 const bool currency_symbol_first) :
+KirbyRewardPair::KirbyRewardPair(
+    const int sir,
+    const int ldr,
+    const int delay_days,
+    const QVariant& chose_ldr,
+    const QString& currency,
+    const bool currency_symbol_first
+) :
     sir(sir),
     ldr(ldr),
     delay_days(delay_days),
@@ -40,7 +46,6 @@ KirbyRewardPair::KirbyRewardPair(const int sir, const int ldr,
 {
 }
 
-
 QString KirbyRewardPair::money(const int amount) const
 {
     if (currency_symbol_first) {
@@ -49,24 +54,20 @@ QString KirbyRewardPair::money(const int amount) const
     return QString("%1%2").arg(QString::number(amount), currency);
 }
 
-
 QString KirbyRewardPair::sirString() const
 {
     return Kirby::textXtoday().arg(money(sir));
 }
-
 
 QString KirbyRewardPair::ldrString() const
 {
     return Kirby::textXinYdays().arg(money(ldr), QString::number(delay_days));
 }
 
-
 QString KirbyRewardPair::question() const
 {
     return Kirby::textWouldYouPreferXOrY().arg(sirString(), ldrString());
 }
-
 
 QString KirbyRewardPair::answer() const
 {
@@ -75,7 +76,6 @@ QString KirbyRewardPair::answer() const
     }
     return chose_ldr.toBool() ? ldrString() : sirString();
 }
-
 
 double KirbyRewardPair::kIndifference() const
 {
@@ -101,7 +101,6 @@ double KirbyRewardPair::kIndifference() const
 
     return (a2 - a1) / (a1 * d2);
 }
-
 
 bool KirbyRewardPair::choiceConsistent(double k) const
 {

@@ -22,16 +22,19 @@
 #include <QDebug>
 #include <QString>
 #include <QVariant>
-#include "common/aliases_qt.h"
 
+#include "common/aliases_qt.h"
 
 // Represents SQL with an associated list of argument values.
 
-struct SqlArgs {
+struct SqlArgs
+{
 public:
-    SqlArgs(const QString& sql = QString(),
-            const ArgList& args = ArgList()) :
-        sql(sql), args(args) {}
+    SqlArgs(const QString& sql = QString(), const ArgList& args = ArgList()) :
+        sql(sql),
+        args(args)
+    {
+    }
 
     // Returns an SQL literal with realized parameters -- NOT for proper use
     // (risk of SQL injection).

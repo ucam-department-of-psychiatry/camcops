@@ -19,25 +19,25 @@
 */
 
 #include "referrersatisfactiongen.h"
+
 #include "common/appstrings.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
-const QString ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME("ref_satis_gen");
-
+const QString ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME("ref_satis_gen"
+);
 
 void initializeReferrerSatisfactionGen(TaskFactory& factory)
 {
     static TaskRegistrar<ReferrerSatisfactionGen> registered(factory);
 }
 
-
 ReferrerSatisfactionGen::ReferrerSatisfactionGen(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     SatisfactionCommon(app, db, REF_SATIS_GEN_TABLENAME, true, load_pk)
 {
 }
-
 
 // ============================================================================
 // Class info
@@ -48,24 +48,20 @@ QString ReferrerSatisfactionGen::shortname() const
     return "ReferrerSatisfactionSurvey";
 }
 
-
 QString ReferrerSatisfactionGen::longname() const
 {
     return tr("Referrer Satisfaction Scale (anonymous survey)");
 }
-
 
 QString ReferrerSatisfactionGen::description() const
 {
     return tr("Short rating of a clinical service received (survey).");
 }
 
-
 QString ReferrerSatisfactionGen::infoFilenameStem() const
 {
     return "rss";
 }
-
 
 // ============================================================================
 // Instance info
@@ -73,6 +69,7 @@ QString ReferrerSatisfactionGen::infoFilenameStem() const
 
 OpenableWidget* ReferrerSatisfactionGen::editor(const bool read_only)
 {
-    return satisfactionEditor(appstring(appstrings::SATIS_REF_GEN_RATING_Q),
-                              read_only);
+    return satisfactionEditor(
+        appstring(appstrings::SATIS_REF_GEN_RATING_Q), read_only
+    );
 }

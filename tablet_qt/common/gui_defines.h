@@ -115,12 +115,12 @@ Relevant web discussions include:
 
 // Switches that follow from it:
 #ifndef GUI_USE_HFW_LAYOUT
-#define GUI_USE_RESIZE_FOR_HEIGHT
+    #define GUI_USE_RESIZE_FOR_HEIGHT
 #endif
 
 // No silly combinations, please:
 #if defined(GUI_USE_HFW_LAYOUT) == defined(GUI_USE_RESIZE_FOR_HEIGHT)
-#error Define GUI_USE_HFW_LAYOUT xor GUI_USE_RESIZE_FOR_HEIGHT
+    #error Define GUI_USE_HFW_LAYOUT xor GUI_USE_RESIZE_FOR_HEIGHT
 #endif
 
 

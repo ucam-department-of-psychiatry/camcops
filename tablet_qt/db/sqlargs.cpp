@@ -19,11 +19,11 @@
 */
 
 #include "sqlargs.h"
-#include "lib/convert.h"
-using convert::SQUOTE;
-using convert::QMARK;
-using convert::toSqlLiteral;
 
+#include "lib/convert.h"
+using convert::QMARK;
+using convert::SQUOTE;
+using convert::toSqlLiteral;
 
 QString SqlArgs::literalForDebuggingOnly() const
 {
@@ -53,7 +53,6 @@ QString SqlArgs::literalForDebuggingOnly() const
     }
     return result;
 }
-
 
 QDebug operator<<(QDebug debug, const SqlArgs& s)
 {

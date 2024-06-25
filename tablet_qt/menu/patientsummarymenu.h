@@ -21,18 +21,20 @@
 #pragma once
 #include "menulib/menuwindow.h"
 
-
 class PatientSummaryMenu : public MenuWindow
 {
     Q_OBJECT
+
 public:
     PatientSummaryMenu(CamcopsApp& app);
     virtual QString title() const override;
+
 protected:
     virtual void extraLayoutCreation() override;
     virtual void makeItems() override;
 public slots:
     void refreshTaskList();
+
 protected:
     void mergePatients();
 };

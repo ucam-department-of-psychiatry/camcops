@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,13 +32,16 @@ class TaskFactory;
 
 void initializeKhandakerMojoMedical(TaskFactory& factory);
 
-
 class KhandakerMojoMedical : public Task
 {
     Q_OBJECT
+
 public:
-    KhandakerMojoMedical(CamcopsApp& app, DatabaseManager& db,
-                         int load_pk = dbconst::NONEXISTENT_PK);
+    KhandakerMojoMedical(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -55,11 +59,12 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific
     // ------------------------------------------------------------------------
+
 private:
     QString getDiagnosis() const;
     QString getOptionName(const QString& fieldname, const int index) const;
-    NameValueOptions getOptions(const QString& fieldname,
-                                int num_options) const;
+    NameValueOptions
+        getOptions(const QString& fieldname, int num_options) const;
 
     // ------------------------------------------------------------------------
     // Signal handlers
@@ -67,11 +72,13 @@ private:
 signals:
 public slots:
     void updateMandatory();
+
 private:
     QPointer<Questionnaire> m_questionnaire;
     // ------------------------------------------------------------------------
     // Getters/setters
     // ------------------------------------------------------------------------
+
 public:
     QVariant getDurationOfIllness() const;
     QVariant getDiagnosisDate() const;

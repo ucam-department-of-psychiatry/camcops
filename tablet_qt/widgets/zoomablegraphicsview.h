@@ -25,12 +25,15 @@
 class ZoomableGraphicsView : public QGraphicsView
 {
     Q_OBJECT
+
 public:
-    ZoomableGraphicsView(QGraphicsScene* scene,
-                         bool can_scale_smaller_than_viewport,
-                         qreal min_scale = 0.2,
-                         qreal max_scale = 5.0,
-                         qreal scale_step_factor = 1.1);
+    ZoomableGraphicsView(
+        QGraphicsScene* scene,
+        bool can_scale_smaller_than_viewport,
+        qreal min_scale = 0.2,
+        qreal max_scale = 5.0,
+        qreal scale_step_factor = 1.1
+    );
 
     // ------------------------------------------------------------------------
     // To zoom:

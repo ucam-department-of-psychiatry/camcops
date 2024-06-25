@@ -21,7 +21,6 @@
 #pragma once
 #include <QSvgWidget>
 
-
 class SvgWidgetClickable : public QSvgWidget
 {
     // Widget that displays an SVG graphics image, and is clickable.
@@ -55,8 +54,7 @@ public:
     SvgWidgetClickable(QWidget* parentitem = nullptr);
 
     // Construct with SVG from a file.
-    SvgWidgetClickable(const QString& filename,
-                       QWidget* parentitem = nullptr);
+    SvgWidgetClickable(const QString& filename, QWidget* parentitem = nullptr);
 
     // Sets the SVG image from a string.
     void setSvgFromString(const QString& svg);
@@ -90,7 +88,8 @@ signals:
 
 protected:
     QColor m_background_colour;  // normal background colour
-    QColor m_pressed_background_colour;  // background colour whilst being pressed
+    QColor
+        m_pressed_background_colour;  // background colour whilst being pressed
     bool m_pressed;  // being pressed?
     bool m_pressing_inside;  // being pressed and cursor remains inside us?
 };

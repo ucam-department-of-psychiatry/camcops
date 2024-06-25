@@ -20,10 +20,10 @@
 
 #pragma once
 #include <QSharedPointer>
+
 #include "menulib/menuwindow.h"
 class QMediaPlayer;
 class WhiskerInboundMessage;
-
 
 class TestMenu : public MenuWindow
 {
@@ -33,6 +33,7 @@ public:
     TestMenu(CamcopsApp& app);
     ~TestMenu() override;
     virtual QString title() const override;
+
 protected:
     virtual void makeItems() override;
     void testPhq9Creation();

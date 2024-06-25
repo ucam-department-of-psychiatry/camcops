@@ -23,7 +23,6 @@
 #include <QPointer>
 class QPlainTextEdit;
 
-
 class LogMessageBox : public QDialog
 {
     // Modal and BLOCKING dialogue, used for displaying console-style text
@@ -34,11 +33,18 @@ class LogMessageBox : public QDialog
     // Compare LogBox for a modal but non-blocking version.
 
     Q_OBJECT
+
 public:
-    LogMessageBox(QWidget* parent, const QString& title, const QString& text,
-                  bool as_html = false, bool word_wrap = false);
+    LogMessageBox(
+        QWidget* parent,
+        const QString& title,
+        const QString& text,
+        bool as_html = false,
+        bool word_wrap = false
+    );
 protected slots:
     void copyClicked();
+
 protected:
     QPointer<QPlainTextEdit> m_editor;
 };

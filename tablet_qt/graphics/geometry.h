@@ -22,11 +22,10 @@
 #include <QPointF>
 #include <QtGlobal>
 #include <QWidget>  // for QWIDGETSIZE_MAX
+
 #include "graphics/linesegment.h"
 
-
-namespace geometry
-{
+namespace geometry {
 
 /*
 
@@ -126,10 +125,16 @@ extern const qreal DEG_360;
 int sixteenthsOfADegree(qreal degrees);
 
 // Converts clockwise to anticlockwise degrees (!).
-inline qreal clockwiseToAnticlockwise(qreal degrees) { return -degrees; }
+inline qreal clockwiseToAnticlockwise(qreal degrees)
+{
+    return -degrees;
+}
 
 // Converts anticlockwise to clockwise degrees (!).
-inline qreal anticlockwiseToClockwise(qreal degrees) { return -degrees; }
+inline qreal anticlockwiseToClockwise(qreal degrees)
+{
+    return -degrees;
+}
 
 // Returns a heading normalized to [0, 360).
 qreal normalizeHeading(qreal heading_deg);
@@ -139,22 +144,26 @@ bool headingNearlyEq(qreal heading_deg, qreal value_deg);
 
 // Is heading_deg in the range (first_bound_deg, second_bound_deg)?
 // Or, if inclusive is true, in [first_bound_deg, second_bound_deg]?
-bool headingInRange(qreal first_bound_deg,
-                    qreal heading_deg,
-                    qreal second_bound_deg,
-                    bool inclusive = false);
+bool headingInRange(
+    qreal first_bound_deg,
+    qreal heading_deg,
+    qreal second_bound_deg,
+    bool inclusive = false
+);
 
 // Converts a compass heading from a "true" to a "pseudo" system, based on
 // pseudo_north_deg.
-qreal convertHeadingFromTrueNorth(qreal true_north_heading_deg,
-                                  qreal pseudo_north_deg,
-                                  bool normalize = true);
+qreal convertHeadingFromTrueNorth(
+    qreal true_north_heading_deg, qreal pseudo_north_deg, bool normalize = true
+);
 
 // Converts a compass heading from a "pseudo" to a "true" system, based on
 // pseudo_north_deg.
-qreal convertHeadingToTrueNorth(qreal pseudo_north_heading_deg,
-                                qreal pseudo_north_deg,
-                                bool normalize = true);
+qreal convertHeadingToTrueNorth(
+    qreal pseudo_north_heading_deg,
+    qreal pseudo_north_deg,
+    bool normalize = true
+);
 
 // Returns a point (relative to the origin) equivalent to the specified
 // polar coordinates.
@@ -173,20 +182,24 @@ qreal polarThetaDeg(const QPointF& to);
 qreal polarThetaToHeading(qreal theta_deg, qreal north_deg = 0.0);
 
 // Converts a compass heading to a polar angle.
-qreal headingToPolarThetaDeg(qreal heading_deg, qreal north_deg = 0.0,
-                             bool normalize = true);
+qreal headingToPolarThetaDeg(
+    qreal heading_deg, qreal north_deg = 0.0, bool normalize = true
+);
 
 // Returns a compass heading, "from" -> "to".
-qreal headingDegrees(const QPointF& from, const QPointF& to,
-                     qreal north_deg = 0.0);
+qreal headingDegrees(
+    const QPointF& from, const QPointF& to, qreal north_deg = 0.0
+);
 
 // Return a line segment starting at "point", travelling in compass direction
 // "heading" (where north_deg indicates our North direction), with line length
 // "radius".
-LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
-                                             qreal heading_deg,
-                                             qreal north_deg = 0.0,
-                                             qreal radius = QWIDGETSIZE_MAX);
+LineSegment lineFromPointInHeadingWithRadius(
+    const QPointF& point,
+    qreal heading_deg,
+    qreal north_deg = 0.0,
+    qreal radius = QWIDGETSIZE_MAX
+);
 
 // (1) Draw a line from "from" to "to".
 // (2) Draw a line from "point" in direction "heading", where increasing
@@ -194,13 +207,18 @@ LineSegment lineFromPointInHeadingWithRadius(const QPointF& point,
 //     the North direction (where that is defined by north_deg degrees
 //     clockwise of "screen up").
 // (3) Do the two lines cross?
-bool lineCrossesHeadingWithinRadius(const QPointF& from, const QPointF& to,
-                                    const QPointF& point, qreal heading_deg,
-                                    qreal north_deg = 0.0,
-                                    qreal radius = QWIDGETSIZE_MAX);
+bool lineCrossesHeadingWithinRadius(
+    const QPointF& from,
+    const QPointF& to,
+    const QPointF& point,
+    qreal heading_deg,
+    qreal north_deg = 0.0,
+    qreal radius = QWIDGETSIZE_MAX
+);
 
 // Does the line "from" -> "to" pass below "point"?
-bool linePassesBelowPoint(const QPointF& from, const QPointF& to,
-                          const QPointF& point);
+bool linePassesBelowPoint(
+    const QPointF& from, const QPointF& to, const QPointF& point
+);
 
 }  // namespace geometry

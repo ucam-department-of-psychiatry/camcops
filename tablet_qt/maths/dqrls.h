@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QStringList>
+
 #include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
 // See:
@@ -31,7 +32,8 @@ namespace dqrls {
 
 
 // Represents the result of Cdqrls()
-struct DqrlsResult {
+struct DqrlsResult
+{
     bool success = false;  // did we succeed?
     Eigen::FullPivHouseholderQR<Eigen::MatrixXd> qr;  // QR decomposition
     Eigen::MatrixXd coefficients;  // the results; B in "XB = Y"; see below
@@ -45,7 +47,6 @@ struct DqrlsResult {
         // ... I have no idea what that means.
     QStringList errors;
 };
-
 
 // Solves XB = Y, for B.
 //
@@ -61,10 +62,12 @@ struct DqrlsResult {
 // - B will have size (p, ny).
 //
 // Returns a DqrlsResult object in which B is called "coefficients".
-DqrlsResult Cdqrls(const Eigen::MatrixXd& x,  // size (n, p)
-                   const Eigen::MatrixXd& y,  // size (n, ny)
-                   double tol,  // tolerance
-                   bool check = true);  // check dimensions of result are right
+DqrlsResult Cdqrls(
+    const Eigen::MatrixXd& x,  // size (n, p)
+    const Eigen::MatrixXd& y,  // size (n, ny)
+    double tol,  // tolerance
+    bool check = true
+);  // check dimensions of result are right
 
 
 }  // namespace dqrls

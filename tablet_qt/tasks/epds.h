@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,22 +31,28 @@ class TaskFactory;
 
 void initializeEpds(TaskFactory& factory);
 
-
 class Epds : public Task
 {
     Q_OBJECT
+
 public:
-    Epds(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Epds(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -57,8 +64,10 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+
 public:
     static const QString EPDS_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

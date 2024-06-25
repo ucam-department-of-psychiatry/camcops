@@ -19,14 +19,13 @@
 */
 
 #include "qubackground.h"
-#include <QWidget>
 
+#include <QWidget>
 
 QuBackground::QuBackground(const QString& css_name) :
     m_css_name(css_name)
 {
 }
-
 
 QPointer<QWidget> QuBackground::makeWidget(Questionnaire* questionnaire)
 {

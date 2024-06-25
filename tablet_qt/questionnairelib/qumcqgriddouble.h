@@ -20,14 +20,13 @@
 
 #pragma once
 #include "layouts/layouts.h"
-#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/mcqgridsubtitle.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/questionwithtwofields.h"
 
 class BooleanWidget;
 class QuMcqGridDoubleSignaller;
-
 
 class QuMcqGridDouble : public QuElement
 {
@@ -51,21 +50,25 @@ class QuMcqGridDouble : public QuElement
 
     Q_OBJECT
     friend class QuMcqGridDoubleSignaller;
-public:
 
+public:
     // Constructor
-    QuMcqGridDouble(const QVector<QuestionWithTwoFields>& questions_with_fields,
-                    const NameValueOptions& options1,
-                    const NameValueOptions& options2,
-                    QObject* parent = nullptr);
+    QuMcqGridDouble(
+        const QVector<QuestionWithTwoFields>& questions_with_fields,
+        const NameValueOptions& options1,
+        const NameValueOptions& options2,
+        QObject* parent = nullptr
+    );
 
     // Destructor.
     virtual ~QuMcqGridDouble() override;
 
     // Set widths of question and option columns.
-    QuMcqGridDouble* setWidth(int question_width,
-                              const QVector<int>& option1_widths,
-                              const QVector<int>& option2_widths);
+    QuMcqGridDouble* setWidth(
+        int question_width,
+        const QVector<int>& option1_widths,
+        const QVector<int>& option2_widths
+    );
 
     // Set the title.
     QuMcqGridDouble* setTitle(const QString& title);
@@ -86,7 +89,8 @@ protected:
     // Set the widget state from the fields' data.
     void setFromFields();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Return the spacer column number for the first question or the second.
@@ -104,11 +108,13 @@ protected slots:
     void clicked(int question_index, bool first_field, int value_index);
 
     // "A field's value, or a field's mandatory status, has changed."
-    void fieldValueOrMandatoryChanged(int question_index, bool first_field,
-                                      const FieldRef* fieldref);
+    void fieldValueOrMandatoryChanged(
+        int question_index, bool first_field, const FieldRef* fieldref
+    );
 
 protected:
-    QVector<QuestionWithTwoFields> m_questions_with_fields;  // question/field mapping
+    QVector<QuestionWithTwoFields>
+        m_questions_with_fields;  // question/field mapping
     NameValueOptions m_options1;  // options for stem 1
     NameValueOptions m_options2;  // options for stem 2
     int m_question_width;  // relative column width for question column
@@ -124,5 +130,5 @@ protected:
     QVector<QVector<QPointer<BooleanWidget>>> m_widgets1;  // widgets for 1
     QVector<QVector<QPointer<BooleanWidget>>> m_widgets2;  // widgets for 2
     QVector<QuMcqGridDoubleSignaller*> m_signallers;
-        // ... objects to signal us when field data/mandatory status changes
+    // ... objects to signal us when field data/mandatory status changes
 };

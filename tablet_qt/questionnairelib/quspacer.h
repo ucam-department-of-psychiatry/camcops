@@ -20,19 +20,23 @@
 
 #pragma once
 #include <QSize>
-#include "questionnairelib/quelement.h"
 
+#include "questionnairelib/quelement.h"
 
 class QuSpacer : public QuElement
 {
     // Provides a fixed-size spacer object.
 
     Q_OBJECT
+
 public:
     QuSpacer(QObject* parent = nullptr);
     QuSpacer(const QSize size, QObject* parent = nullptr);
+
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
+
 protected:
     QSize m_size;
 };

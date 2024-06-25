@@ -19,24 +19,24 @@
 */
 
 #include "patientsatisfaction.h"
+
 #include "common/appstrings.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
 const QString PatientSatisfaction::PT_SATIS_TABLENAME("pt_satis");
 
-
 void initializePatientSatisfaction(TaskFactory& factory)
 {
     static TaskRegistrar<PatientSatisfaction> registered(factory);
 }
 
-
-PatientSatisfaction::PatientSatisfaction(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+PatientSatisfaction::PatientSatisfaction(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     SatisfactionCommon(app, db, PT_SATIS_TABLENAME, false, load_pk)
 {
 }
-
 
 // ============================================================================
 // Class info
@@ -47,24 +47,20 @@ QString PatientSatisfaction::shortname() const
     return "PatientSatisfaction";
 }
 
-
 QString PatientSatisfaction::longname() const
 {
     return tr("Patient Satisfaction Scale");
 }
-
 
 QString PatientSatisfaction::description() const
 {
     return tr("Short rating of a clinical service received.");
 }
 
-
 QString PatientSatisfaction::infoFilenameStem() const
 {
     return "pss";
 }
-
 
 // ============================================================================
 // Instance info
@@ -72,6 +68,7 @@ QString PatientSatisfaction::infoFilenameStem() const
 
 OpenableWidget* PatientSatisfaction::editor(const bool read_only)
 {
-    return satisfactionEditor(appstring(appstrings::SATIS_PT_RATING_Q),
-                              read_only);
+    return satisfactionEditor(
+        appstring(appstrings::SATIS_PT_RATING_Q), read_only
+    );
 }

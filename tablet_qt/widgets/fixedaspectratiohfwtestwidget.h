@@ -22,28 +22,30 @@
 #include <QColor>
 #include <QWidget>
 
-
 class FixedAspectRatioHfwTestWidget : public QWidget
 {
     // Test widget that has a fixed aspect ratio. It adjusts its height
     // according to its width.
 
     Q_OBJECT
+
 public:
     FixedAspectRatioHfwTestWidget(
-            qreal aspect_ratio = 2.0,
-            int preferred_width = 200,
-            const QSize& min_size = QSize(10, 10),
-            const QColor& background_colour = QColor(0, 0, 100),
-            int border_thickness = 0,
-            const QColor& border_colour = QColor(255, 0, 0),
-            const QColor& text_colour = QColor(255, 255, 255),
-            QWidget* parent = nullptr);
+        qreal aspect_ratio = 2.0,
+        int preferred_width = 200,
+        const QSize& min_size = QSize(10, 10),
+        const QColor& background_colour = QColor(0, 0, 100),
+        int border_thickness = 0,
+        const QColor& border_colour = QColor(255, 0, 0),
+        const QColor& text_colour = QColor(255, 255, 255),
+        QWidget* parent = nullptr
+    );
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
     virtual void paintEvent(QPaintEvent* event) override;
+
 protected:
     qreal m_aspect_ratio;
     int m_preferred_width;
