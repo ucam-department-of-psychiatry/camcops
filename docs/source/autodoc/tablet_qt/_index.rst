@@ -320,6 +320,8 @@ tablet_qt
     menu/helpmenu.h.rst
     menu/mainmenu.cpp.rst
     menu/mainmenu.h.rst
+    menu/neurodiversitymenu.cpp.rst
+    menu/neurodiversitymenu.h.rst
     menu/patientsummarymenu.cpp.rst
     menu/patientsummarymenu.h.rst
     menu/personalitymenu.cpp.rst
@@ -625,6 +627,8 @@ tablet_qt
     tasks/apeqcpftperinatal.h.rst
     tasks/apeqpt.cpp.rst
     tasks/apeqpt.h.rst
+    tasks/aq.cpp.rst
+    tasks/aq.h.rst
     tasks/asdas.cpp.rst
     tasks/asdas.h.rst
     tasks/audit.cpp.rst

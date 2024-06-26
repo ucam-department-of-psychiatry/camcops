@@ -710,6 +710,7 @@ SOURCES += \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
     menu/mainmenu.cpp \
+    menu/neurodiversitymenu.cpp \
     menu/patientsummarymenu.cpp \
     menu/personalitymenu.cpp \
     menu/physicalillnessmenu.cpp \
@@ -853,6 +854,7 @@ SOURCES += \
     tasks/aims.cpp \
     tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
+    tasks/aq.cpp \
     tasks/asdas.cpp \
     tasks/audit.cpp \
     tasks/auditc.cpp \
@@ -1207,6 +1209,7 @@ HEADERS += \
     menu/globalmenu.h \
     menu/helpmenu.h \
     menu/mainmenu.h \
+    menu/neurodiversitymenu.h \
     menu/patientsummarymenu.h \
     menu/personalitymenu.h \
     menu/physicalillnessmenu.h \
@@ -1349,6 +1352,7 @@ HEADERS += \
     tasks/aims.h \
     tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
+    tasks/aq.h \
     tasks/asdas.h \
     tasks/audit.h \
     tasks/auditc.h \
