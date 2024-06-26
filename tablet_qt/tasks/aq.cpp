@@ -170,7 +170,7 @@ QVariant Aq::questionsScore(const QVector<int> qnums) const
 
 QVariant Aq::questionScore(const int qnum) const
 {
-    const QString& fieldname = Q_PREFIX + QString::number(qnum);
+    const QString fieldname = Q_PREFIX + QString::number(qnum);
     const QVariant v = value(fieldname);
     if (v.isNull()) {
         return v;
@@ -260,7 +260,7 @@ QStringList Aq::detail() const
 
     const QStringList fieldnames = fieldNames();
 
-    NameValueOptions* options = buildOptions();
+    QSharedPointer<NameValueOptions> options = buildOptions();
 
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
@@ -301,9 +301,10 @@ OpenableWidget* Aq::editor(const bool read_only)
     return questionnaire;
 }
 
-NameValueOptions* Aq::buildOptions() const
+QSharedPointer<NameValueOptions> Aq::buildOptions() const
 {
-    NameValueOptions* options = new NameValueOptions();
+    QSharedPointer<NameValueOptions> options =
+        QSharedPointer<NameValueOptions>(new NameValueOptions());
 
     for (int i = FIRST_OPTION; i <= LAST_OPTION; ++i) {
         auto name = QString("option_%1").arg(i);
@@ -314,8 +315,8 @@ NameValueOptions* Aq::buildOptions() const
     return options;
 }
 
-QuMcqGrid*
-    Aq::buildGrid(int first_qnum, int last_qnum, NameValueOptions* options)
+QuMcqGrid* Aq::buildGrid(
+    int first_qnum, int last_qnum, QSharedPointer<NameValueOptions> options)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 
