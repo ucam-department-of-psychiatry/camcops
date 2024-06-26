@@ -23,20 +23,27 @@ camcops_server/tasks/aq.py
 
 ===============================================================================
 
-** The Adult Autism Spectrum Quotient (AQ) Ages 16+ task.**
+**The Adult Autism Spectrum Quotient (AQ) Ages 16+ task.**
 
 """
 
-from typing import Any, Dict, Iterable, Optional, Type, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Type, Tuple
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_fhir import (
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+)
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
+from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
 
@@ -215,6 +222,59 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
         return True
 
+    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
+        if not self.is_complete():
+            return CTV_INCOMPLETE
+        return [
+            CtvInfo(
+                content=(
+                    f"{req.sstring(SS.TOTAL_SCORE)} "
+                    f"{self.score()}/{self.MAX_SCORE}"
+                )
+            )
+        ]
+
+    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
+        mas = self.MAX_AREA_SCORE
+        return self.standard_task_summary_fields() + [
+            SummaryElement(
+                name="total",
+                coltype=Integer(),
+                value=self.score(),
+                comment=f"Total score (/{self.MAX_SCORE})",
+            ),
+            SummaryElement(
+                name="social_skill",
+                coltype=Integer(),
+                value=self.social_skill_score(),
+                comment=f"Social skill domain score (/{mas})",
+            ),
+            SummaryElement(
+                name="attention_switching",
+                coltype=Integer(),
+                value=self.attention_switching_score(),
+                comment=f"Attention switching domain score (/{mas})",
+            ),
+            SummaryElement(
+                name="attention_to_detail",
+                coltype=Integer(),
+                value=self.attention_to_detail_score(),
+                comment=f"Attention to detail domain score (/{mas})",
+            ),
+            SummaryElement(
+                name="communication",
+                coltype=Integer(),
+                value=self.communication_score(),
+                comment=f"Communication domain score (/{mas})",
+            ),
+            SummaryElement(
+                name="imagination",
+                coltype=Integer(),
+                value=self.imagination_score(),
+                comment=f"Imagination domain score (/{mas})",
+            ),
+        ]
+
     def score(self) -> Optional[int]:
         return self.questions_score(self.ALL_QUESTIONS)
 
@@ -387,3 +447,25 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
             return response
 
         return self.wxstring(req, f"option_{response}")
+
+    def get_fhir_questionnaire(
+        self, req: CamcopsRequest
+    ) -> List[FHIRAnsweredQuestion]:
+        items = []  # type: List[FHIRAnsweredQuestion]
+        options = {}  # type: Dict[int, str]
+        for index in range(4):
+            options[index] = self.wxstring(req, f"option_{index}")
+        for q_field in self.ALL_FIELD_NAMES:
+            items.append(
+                FHIRAnsweredQuestion(
+                    qname=q_field,
+                    qtext=self.xstring(req, q_field),
+                    qtype=FHIRQuestionType.CHOICE,
+                    answer_type=FHIRAnswerType.INTEGER,
+                    answer=getattr(self, q_field),
+                    answer_options=options,
+                )
+            )
+        return items
+
+    # No SNOMED codes for the AQ as of 2024-06-26.
