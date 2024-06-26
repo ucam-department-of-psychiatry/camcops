@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_fhir.py
@@ -139,7 +137,7 @@ This problem occurs intermittently:
   So we use a carefully sequenced file lock; see
   :func:`camcops_server.cc_modules.cc_export.export_task`.
 
-"""  # noqa
+"""
 
 
 # =============================================================================

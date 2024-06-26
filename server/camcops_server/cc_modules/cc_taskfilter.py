@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_taskfilter.py
 
@@ -537,7 +535,7 @@ class TaskFilter(Base):
                     id_filter_parts.append(
                         and_(
                             PatientIdNumIndexEntry.which_idnum
-                            == iddef.which_idnum,  # noqa
+                            == iddef.which_idnum,
                             PatientIdNumIndexEntry.idnum_value
                             == iddef.idnum_value,
                         )
@@ -550,7 +548,7 @@ class TaskFilter(Base):
                     q = q.filter(
                         and_(
                             PatientIdNumIndexEntry.which_idnum
-                            == self.must_have_idnum_type,  # noqa
+                            == self.must_have_idnum_type,
                             PatientIdNumIndexEntry.idnum_value
                             != None,  # noqa: E711
                         )

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/conftest.py
 

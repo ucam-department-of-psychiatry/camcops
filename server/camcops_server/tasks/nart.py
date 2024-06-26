@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/nart.py
 
@@ -334,7 +332,7 @@ class Nart(
             tr_total_errors=tr_qa("Total errors", self.n_errors()),
             nelson_full_scale_iq=tr_qa(
                 "Predicted WAIS full-scale IQ = 127.7 – 0.826 × errors"
-                + nelson,  # noqa
+                + nelson,
                 self.nelson_full_scale_iq(),
             ),
             nelson_verbal_iq=tr_qa(
@@ -435,7 +433,7 @@ class Nart(
                         # Best value debatable:
                         req.snomed(
                             SnomedLookup.NART_SCORE
-                        ): self.nelson_full_scale_iq()  # noqa
+                        ): self.nelson_full_scale_iq()
                     },
                 )
             )

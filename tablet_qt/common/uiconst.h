@@ -142,6 +142,7 @@ extern const QString ICON_GLOBAL;
 extern const QString ICON_HASCHILD;
 extern const QString ICON_HASPARENT;
 extern const QString ICON_INFO;
+extern const QString ICON_NEURODIVERSITY;
 extern const QString ICON_PATIENT_SUMMARY;
 extern const QString ICON_PERSONALITY;
 extern const QString ICON_PSYCHOSIS;

@@ -229,6 +229,19 @@
     </message>
 </context>
 <context>
+    <name>Aq</name>
+    <message>
+        <location filename="../tasks/aq.cpp" line="+92"/>
+        <source>Adult Autism Spectrum Quotient</source>
+        <translation>Adult Autism Spectrum Quotient [voksen autismespektrum kvotienten]</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>A 50-item self-report measure used to assess traits of autism in adults and adolescents aged 16 years and over.</source>
+        <translation>En selvrapporteringsmåling på 50 punkter, der bruges til at vurdere træk ved autisme hos voksne og unge i alderen 16 år og derover.</translation>
+    </message>
+</context>
+<context>
     <name>Asdas</name>
     <message>
         <location filename="../tasks/asdas.cpp" line="+84"/>
@@ -1185,8 +1198,8 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <name>Cia</name>
     <message>
         <location filename="../tasks/cia.cpp" line="+76"/>
-        <source>The Clinical Impairment Assessment questionnaire</source>
-        <translation>Clinical Impairment Assessment (spørgeskemaet til vurdering af klinisk svækkelse)</translation>
+        <source>Clinical Impairment Assessment questionnaire</source>
+        <translation>Clinical Impairment Assessment questionnaire [spørgeskema til vurdering af klinisk funktionsnedsættelse]</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3495,7 +3508,7 @@ enig</translation>
 <context>
     <name>MainMenu</name>
     <message>
-        <location filename="../menu/mainmenu.cpp" line="+63"/>
+        <location filename="../menu/mainmenu.cpp" line="+64"/>
         <source>CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit</source>
         <translation>CamCOPS: Cambridge Kognitive og Psykiatriske Assessment Kit</translation>
     </message>
@@ -3510,7 +3523,7 @@ enig</translation>
         <translation>Opgaver efter type</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+18"/>
         <source>Task collections</source>
         <translation>Opgave samlinger</translation>
     </message>
@@ -4332,6 +4345,14 @@ enig</translation>
         <location line="+60"/>
         <source>Starting one-step upload</source>
         <translation>Starte &quot;ét trin&quot; upload</translation>
+    </message>
+</context>
+<context>
+    <name>NeurodiversityMenu</name>
+    <message>
+        <location filename="../menu/neurodiversitymenu.cpp" line="+51"/>
+        <source>Neurodiversity</source>
+        <translation>Neurodiversitet</translation>
     </message>
 </context>
 <context>
@@ -5507,7 +5528,7 @@ enig</translation>
 <context>
     <name>SetMenuCpftAdultEatingDisorders</name>
     <message>
-        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+55"/>
+        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+56"/>
         <source>CPFT Adult Eating Disorders Service</source>
         <translation>CPFT Voksen Spiseforstyrrelser Service</translation>
     </message>
@@ -5532,7 +5553,7 @@ enig</translation>
         <translation>Særlige betingelser</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Treatment/care</source>
         <translation>Behandling/pleje</translation>
     </message>

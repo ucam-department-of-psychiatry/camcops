@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 """
-camcops_server/alembic/versions/0033.py
+camcops_server/alembic/versions/0033_asdas.py
 
 ===============================================================================
 
@@ -61,6 +59,7 @@ depends_on = None
 # =============================================================================
 # The upgrade/downgrade steps
 # =============================================================================
+
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():

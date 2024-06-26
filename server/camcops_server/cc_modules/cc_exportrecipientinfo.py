@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_exportrecipient.py
 
@@ -834,7 +832,7 @@ class ExportRecipientInfo(object):
         for groupname in self.group_names:
             group = Group.get_group_by_name(dbsession, groupname)
             if not group:
-                raise ValueError(f"No such group: {groupname!r}")
+                fail_invalid(f"No such group: {groupname!r}")
             self.group_ids.append(group.id)
         self.group_ids.sort()
 

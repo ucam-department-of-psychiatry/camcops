@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_trackerhelpers.py
 
@@ -148,7 +146,7 @@ def equally_spaced_ndarray(
     Returns:
         list of floats
 
-    """  # noqa
+    """
     return np.linspace(start, stop, num, endpoint=endpoint, dtype=float)
 
 

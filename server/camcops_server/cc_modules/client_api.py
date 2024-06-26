@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/client_api.py
 
@@ -683,7 +681,7 @@ def ensure_valid_patient_json(
             ptinfo.otherdetails = v
 
         elif k.startswith(TabletParam.IDNUM_PREFIX):
-            nstr = k[len(TabletParam.IDNUM_PREFIX) :]  # noqa: E203
+            nstr = k[len(TabletParam.IDNUM_PREFIX) :]
             try:
                 which_idnum = int(nstr)
             except (TypeError, ValueError):
@@ -919,7 +917,7 @@ def get_fields_from_post_var(
         return []
     allowed_nonexistent_fields = (
         allowed_nonexistent_fields or []
-    )  # type: List[str]  # noqa
+    )  # type: List[str]
     # can't have any commas in fields, so it's OK to use a simple
     # split() command
     fields = [x.strip() for x in csfields.split(",")]
@@ -1522,7 +1520,7 @@ def process_upload_record_special(
                         CLIENT_DATE_FIELD: client_date_value,
                         MOVE_OFF_TABLET_FIELD: valuedict[
                             MOVE_OFF_TABLET_FIELD
-                        ],  # noqa
+                        ],
                     },
                 )
             # Now, how to deal with deletion, i.e. records missing from the
@@ -1767,7 +1765,7 @@ def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     if not row:
         fail_server_error(
             f"Device {device_id} missing from Device table"
-        )  # will raise  # noqa
+        )  # will raise
     upload_batch_utc, uploading_user_id, currently_preserving = row
     if not upload_batch_utc or uploading_user_id != req.user_id:
         # SIDE EFFECT: if the username changes, we restart (and thus roll back
@@ -2254,7 +2252,7 @@ def process_table_for_onestep_upload(
 
     Returns:
         an :class:`UploadTableChanges` object
-    """  # noqa
+    """
     serverrecs = get_server_live_records(
         req,
         req.tabletsession.device_id,
@@ -2763,6 +2761,7 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
 # =============================================================================
 # Action processors that require UPLOAD privilege
 # =============================================================================
+
 
 # noinspection PyUnusedLocal
 def op_check_upload_user_and_device(req: "CamcopsRequest") -> None:

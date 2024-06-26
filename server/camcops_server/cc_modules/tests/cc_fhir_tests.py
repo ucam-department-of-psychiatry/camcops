@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
-"""camcops_server/cc_modules/tests/cc_fhir_tests.py
+"""
+camcops_server/cc_modules/tests/cc_fhir_tests.py
 
 ===============================================================================
 
@@ -29,7 +28,7 @@
 import datetime
 import json
 import logging
-from typing import Dict
+from typing import Dict, List
 from unittest import mock
 
 from cardinal_pythonlib.httpconst import HttpMethod
@@ -41,6 +40,7 @@ from camcops_server.cc_modules.cc_constants import FHIRConst as Fc, JSON_INDENT
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskFhir,
+    ExportedTaskFhirEntry,
 )
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
@@ -67,6 +67,7 @@ from camcops_server.tasks.diagnosis import (
     DiagnosisIcd9CMItem,
 )
 from camcops_server.tasks.phq9 import Phq9
+
 
 log = logging.getLogger()
 
@@ -445,7 +446,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         entries = (
             exported_task_fhir.entries
-        )  # type: List[ExportedTaskFhirEntry]  # noqa
+        )  # type: List[ExportedTaskFhirEntry]
 
         entries.sort(key=lambda e: e.location)
 

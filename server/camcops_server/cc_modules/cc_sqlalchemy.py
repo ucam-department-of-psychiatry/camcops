@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_sqlalchemy.py
 
@@ -307,7 +305,7 @@ def get_table_ddl(
             SQLAlchemy dialect name.
 
     https://stackoverflow.com/questions/2128717/sqlalchemy-printing-raw-sql-from-create
-    """  # noqa
+    """
     dialect = get_dialect_from_name(dialect_name)
     return str(CreateTable(table).compile(dialect=dialect))
 

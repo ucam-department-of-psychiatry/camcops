@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """camcops_server/cc_modules/tests/cc_redcap_tests.py
 
 ===============================================================================
@@ -24,6 +22,7 @@
 
 ===============================================================================
 """
+
 import os
 import tempfile
 from typing import Generator, TYPE_CHECKING
@@ -1199,7 +1198,7 @@ class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
       </fields>
     </instrument>
   </instruments>
-</fieldmap>"""  # noqa: E501
+</fieldmap>"""
 
     def test_raises_when_instrument_missing_from_fieldmap(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -1235,7 +1234,7 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
       </fields>
     </instrument>
   </instruments>
-</fieldmap>"""  # noqa: E501
+</fieldmap>"""
 
     def test_raises_when_record_id_is_incorrect(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -1279,7 +1278,7 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
       </fields>
     </instrument>
   </instruments>
-</fieldmap>"""  # noqa: E501
+</fieldmap>"""
 
     def test_raises_when_patient_id_is_incorrect(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -1325,7 +1324,7 @@ class MissingPatientInstrumentRedcapTests(BadConfigurationRedcapTests):
       </fields>
     </instrument>
   </instruments>
-</fieldmap>"""  # noqa: E501
+</fieldmap>"""
 
     def test_raises_when_instrument_is_missing(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -1360,7 +1359,7 @@ class MissingEventRedcapTests(BadConfigurationRedcapTests):
       </fields>
     </instrument>
   </instruments>
-</fieldmap>"""  # noqa: E501
+</fieldmap>"""
 
     def test_raises_for_longitudinal_project(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -1398,7 +1397,7 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
       </fields>
     </instrument>
   </instruments>
-</fieldmap>"""  # noqa: E501
+</fieldmap>"""
 
     def test_raises_when_instrument_missing_event(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/merge_db.py
 
@@ -436,7 +434,7 @@ def ensure_default_group_id(trcon: TranslationContext) -> None:
     else:
         default_group_name = trcon.info[
             "default_group_name"
-        ]  # type: Optional[str]  # noqa
+        ]  # type: Optional[str]
         if not default_group_name:
             assert False, (
                 "User specified neither default_group_id or "
@@ -1042,6 +1040,7 @@ def translate_fn(trcon: TranslationContext) -> None:
 # =============================================================================
 # Postprocess
 # =============================================================================
+
 
 # noinspection PyUnusedLocal
 def postprocess(src_engine: Engine, dst_session: Session) -> None:

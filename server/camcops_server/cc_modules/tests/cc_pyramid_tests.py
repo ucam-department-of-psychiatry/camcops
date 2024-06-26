@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_pyramid_tests.py
 
@@ -26,7 +24,6 @@ camcops_server/cc_modules/tests/cc_pyramid_tests.py
 ===============================================================================
 
 """
-
 
 from pyramid.security import Authenticated, Everyone
 

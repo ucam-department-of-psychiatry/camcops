@@ -238,6 +238,11 @@
    :height: 24px
    :width: 24px
 
+.. |neurodiversity| image:: ../_app_icons/neurodiversity.png
+   :align: middle
+   :height: 24px
+   :width: 24px
+
 .. |next| image:: ../_app_icons/next.png
    :align: middle
    :height: 24px

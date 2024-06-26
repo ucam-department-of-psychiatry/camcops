@@ -39,6 +39,7 @@
 #include "menu/executivemenu.h"
 #include "menu/globalmenu.h"
 #include "menu/helpmenu.h"
+#include "menu/neurodiversitymenu.h"
 #include "menu/patientsummarymenu.h"
 #include "menu/personalitymenu.h"
 #include "menu/physicalillnessmenu.h"
@@ -88,6 +89,7 @@ void MainMenu::makeItems()
         MAKE_MENU_MENU_ITEM(EatingDisordersMenu, m_app),
         MAKE_MENU_MENU_ITEM(ExecutiveMenu, m_app),
         MAKE_MENU_MENU_ITEM(GlobalMenu, m_app),
+        MAKE_MENU_MENU_ITEM(NeurodiversityMenu, m_app),
         MAKE_MENU_MENU_ITEM(PersonalityMenu, m_app),
         MAKE_MENU_MENU_ITEM(PhysicalIllnessMenu, m_app),
         MAKE_MENU_MENU_ITEM(PsychosisMenu, m_app),

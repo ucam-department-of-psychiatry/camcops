@@ -211,7 +211,7 @@ Base = declarative_base()
 
 IPAddressColType = String(
     length=45
-)  # http://stackoverflow.com/questions/166132  # noqa
+)  # http://stackoverflow.com/questions/166132
 SessionTokenColType = String(length=50)
 
 
@@ -269,6 +269,7 @@ def make_url_path(base: str, *args: UrlParam) -> str:
 # Routes
 # =============================================================================
 
+
 # Class to collect constants together
 # See also http://xion.io/post/code/python-enums-are-ok.html
 class ViewParams(object):
@@ -315,7 +316,7 @@ class RoutePath(object):
 class Routes(object):
     DEBUG_TOOLBAR = RoutePath(
         "debug_toolbar", "/_debug_toolbar/"
-    )  # hard-coded path  # noqa
+    )  # hard-coded path
     HOME = RoutePath("home", "/")
     OTHER = RoutePath("other", "/other")
     VIEW_WITH_PARAMS = RoutePath(
@@ -549,6 +550,7 @@ def dbsession_request_method(request: Request) -> SqlASession:
 # =============================================================================
 # Other per-request stuff
 # =============================================================================
+
 
 # noinspection PyUnusedLocal
 def now_arrow_request_method(request: Request) -> arrow.Arrow:
