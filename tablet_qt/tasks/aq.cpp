@@ -320,8 +320,9 @@ QuMcqGrid*
     QVector<QuestionWithOneField> q_field_pairs;
 
     for (int qnum = first_qnum; qnum <= last_qnum; qnum++) {
-        const QString& fieldname = Q_PREFIX + QString::number(qnum);
-        const QString& description = xstring(fieldname);
+        const QString qnumstr = QString::number(qnum);
+        const QString fieldname = Q_PREFIX + qnumstr;
+        const QString description = qnumstr + ". " + xstring(fieldname);
 
         q_field_pairs.append(
             QuestionWithOneField(description, fieldRef(fieldname))
