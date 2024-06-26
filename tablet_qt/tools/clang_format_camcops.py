@@ -26,6 +26,7 @@ tablet_qt/tools/clang_format_camcops.py
 ===============================================================================
 
 Run clang-format over all our C++ code.
+The formatting is controlled by clang_format_camcops.yaml.
 
 """
 
@@ -68,6 +69,10 @@ ENC = sys.getdefaultencoding()
 
 
 class Command(Enum):
+    """
+    Commands that can be given to this program. See "--help" for details.
+    """
+
     CHECK = "check"
     DIFF = "diff"
     MODIFY = "modify"
@@ -109,6 +114,9 @@ EXCLUDE_GLOBS = [
 
 
 def runit(cmdargs: List[str]) -> Tuple[str, str, int]:
+    """
+    Run an external command. Return tuple: stdout, stderr, returncode.
+    """
     log.debug(cmdargs)
     p = Popen(cmdargs, stdout=PIPE, stderr=PIPE)
     output, error = p.communicate()
