@@ -269,7 +269,6 @@ QStringList Aq::detail() const
         ));
     }
 
-
     lines.append("");
     lines += summary();
 
@@ -321,9 +320,11 @@ QuMcqGrid* Aq::buildGrid(
     QVector<QuestionWithOneField> q_field_pairs;
 
     for (int qnum = first_qnum; qnum <= last_qnum; qnum++) {
-        const QString qnumstr = QString::number(qnum);
-        const QString fieldname = Q_PREFIX + qnumstr;
-        const QString description = qnumstr + ". " + xstring(fieldname);
+        const QString& qnumstr = QString::number(qnum);
+        const QString& fieldname = Q_PREFIX + qnumstr;
+        const QString& description = qnumstr + ". " + xstring(fieldname);
+        // const lvalue references prolong the lifespan of temporary objects;
+        // https://pvs-studio.com/en/blog/posts/cpp/1006/
 
         q_field_pairs.append(
             QuestionWithOneField(description, fieldRef(fieldname))
