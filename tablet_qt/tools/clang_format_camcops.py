@@ -62,7 +62,7 @@ log = logging.getLogger(__name__)
 # Constants
 # =============================================================================
 
-CLANG_FORMAT_VERSION = 14
+CLANG_FORMAT_VERSION = 15
 CLANG_FORMAT_EXECUTABLE = f"clang-format-{CLANG_FORMAT_VERSION}"
 DIFFTOOL = "meld"
 ENC = sys.getdefaultencoding()
