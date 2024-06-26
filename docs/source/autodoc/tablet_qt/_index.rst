@@ -320,6 +320,8 @@ tablet_qt
     menu/helpmenu.h.rst
     menu/mainmenu.cpp.rst
     menu/mainmenu.h.rst
+    menu/neurodiversitymenu.cpp.rst
+    menu/neurodiversitymenu.h.rst
     menu/patientsummarymenu.cpp.rst
     menu/patientsummarymenu.h.rst
     menu/personalitymenu.cpp.rst
