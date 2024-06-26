@@ -41,6 +41,13 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
 
 
+def to_csv(values: Iterable[Any]) -> str:
+    """
+    Create a comma-separated string from iterable.
+    """
+    return ", ".join(str(v) for v in values)
+
+
 class AqMetaclass(DeclarativeMeta):
     def __init__(
         cls: Type["Aq"],
@@ -48,7 +55,6 @@ class AqMetaclass(DeclarativeMeta):
         bases: Tuple[Type, ...],
         classdict: Dict[str, Any],
     ) -> None:
-
         add_multiple_columns(
             cls,
             cls.PREFIX,
@@ -139,12 +145,12 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     # Questions where agreement indicates autistic-like traits.
     # As listed in Baron-Cohen et al. (2001) [see refs in aq.rst], p7:
-    # 'Scoring the AQ: “Definitely agree” or “slightly agree” responses scored
-    # 1 point, on the following items: 1, 2, 4, 5, 6, 7, 9, 12, 13, 16, 18, 19,
-    # 20, 21, 22, 23, 26, 33, 35, 39, 41, 42, 43, 45, 46. “Definitely disagree”
-    # or “slightly disagree” responses scored 1 point, on the following items:
-    # 3, 8, 10, 11, 14, 15, 17, 24, 25, 27, 28, 29, 30, 31, 32, 34, 36, 37, 38,
-    # 40, 44, 47, 48, 49, 50.'
+    #   'Scoring the AQ: “Definitely agree” or “slightly agree” responses
+    #   scored 1 point, on the following items: 1, 2, 4, 5, 6, 7, 9, 12, 13,
+    #   16, 18, 19, 20, 21, 22, 23, 26, 33, 35, 39, 41, 42, 43, 45, 46.
+    #   “Definitely disagree” or “slightly disagree” responses scored 1 point,
+    #   on the following items: 3, 8, 10, 11, 14, 15, 17, 24, 25, 27, 28, 29,
+    #   30, 31, 32, 34, 36, 37, 38, 40, 44, 47, 48, 49, 50.'
     # HOWEVER, there is likely an error here in the published paper:
     # Baron-Cohen et al. (2001) list Q1 as an "agree" question, but
     # agreement there is a preference for doing things with others versus on
@@ -178,7 +184,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
         46,
     ]
 
-    # Internal coding (not scoring): in the order on the questionnaire:
+    # Internal coding (not scoring) -- in the order on the questionnaire:
     DEFINITELY_AGREE = 0
     SLIGHTLY_AGREE = 1
     SLIGHTLY_DISAGREE = 2
@@ -192,23 +198,10 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     # Areas (domains): see Baron-Cohen et al. (2001), p6.
     SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
-    SOCIAL_SKILL_Q_NUMS = ", ".join(str(q) for q in SOCIAL_SKILL_QUESTIONS)
-
     ATTENTION_SWITCHING_QUESTIONS = [2, 4, 10, 16, 25, 32, 34, 37, 43, 46]
-    ATTENTION_SWITCHING_Q_NUMS = ", ".join(
-        str(q) for q in ATTENTION_SWITCHING_QUESTIONS
-    )
-
     ATTENTION_TO_DETAIL_QUESTIONS = [5, 6, 9, 12, 19, 23, 28, 29, 30, 49]
-    ATTENTION_TO_DETAIL_Q_NUMS = ", ".join(
-        str(q) for q in ATTENTION_TO_DETAIL_QUESTIONS
-    )
-
     COMMUNICATION_QUESTIONS = [7, 17, 18, 26, 27, 31, 33, 35, 38, 39]
-    COMMUNICATION_Q_NUMS = ", ".join(str(q) for q in COMMUNICATION_QUESTIONS)
-
     IMAGINATION_QUESTIONS = [3, 8, 14, 20, 21, 24, 40, 41, 42, 50]
-    IMAGINATION_Q_NUMS = ", ".join(str(q) for q in IMAGINATION_QUESTIONS)
 
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
@@ -340,11 +333,15 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
                 self.wxstring(req, "imagination_score") + " <sup>[5]</sup>",
                 answer(self.imagination_score()) + f" / {self.MAX_AREA_SCORE}",
             ),
-            social_skill_q_nums=self.SOCIAL_SKILL_Q_NUMS,
-            attention_switching_q_nums=self.ATTENTION_SWITCHING_Q_NUMS,
-            attention_to_detail_q_nums=self.ATTENTION_TO_DETAIL_Q_NUMS,
-            communication_q_nums=self.COMMUNICATION_Q_NUMS,
-            imagination_q_nums=self.IMAGINATION_Q_NUMS,
+            social_skill_q_nums=to_csv(self.SOCIAL_SKILL_QUESTIONS),
+            attention_switching_q_nums=to_csv(
+                self.ATTENTION_SWITCHING_QUESTIONS
+            ),
+            attention_to_detail_q_nums=to_csv(
+                self.ATTENTION_TO_DETAIL_QUESTIONS
+            ),
+            communication_q_nums=to_csv(self.COMMUNICATION_QUESTIONS),
+            imagination_q_nums=to_csv(self.IMAGINATION_QUESTIONS),
             rows=rows,
         )
         return html
