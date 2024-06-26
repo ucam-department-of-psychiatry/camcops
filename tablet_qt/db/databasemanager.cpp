@@ -41,10 +41,11 @@
 #include "db/dbfunc.h"
 #include "db/field.h"
 #include "db/fieldcreationplan.h"
+#include "db/queryresult.h"
 #include "db/whereconditions.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 using dbfunc::delimit;
 
 // QSqlDatabase doesn't need to be passed by pointer; it copies itself
@@ -119,7 +120,7 @@ void DatabaseManager::openDatabaseOrDie()
     if (openDatabase()) {
         qInfo() << "Opened database:" << m_filename;
     } else {
-        uifunc::stopApp(m_opening_failure_msg);
+        errorfunc::fatalError(m_opening_failure_msg);
     }
 }
 
@@ -224,6 +225,12 @@ void DatabaseManager::closeDatabaseActual()
     // http://www.qtcentre.org/archive/index.php/t-40358.html
 }
 
+
+void DatabaseManager::reconnectDatabase()
+{
+    m_db.close();
+    m_db.open();
+}
 
 // ============================================================================
 // Public API
@@ -680,7 +687,7 @@ QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
     const QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     const QueryResult result = query(sql);
     if (!result.succeeded()) {
-        uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
+        errorfunc::fatalError("getPragmaInfo: PRAGMA table_info failed for "
                         "table " + tablename);
     }
     QVector<SqlitePragmaInfoField> infolist;
@@ -760,7 +767,7 @@ void DatabaseManager::renameColumns(
     QStringList new_fieldnames = old_fieldnames;
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("renameColumns: temporary table exists: " +
+        errorfunc::fatalError("renameColumns: temporary table exists: " +
                         dummytable);
     }
     int n_changes = 0;
@@ -772,12 +779,12 @@ void DatabaseManager::renameColumns(
         }
         // Check the source is valid
         if (!old_fieldnames.contains(from)) {
-            uifunc::stopApp("renameColumns: 'from' field doesn't "
+            errorfunc::fatalError("renameColumns: 'from' field doesn't "
                             "exist: " + tablename + "." + from);
         }
         // Check the destination doesn't exist already
         if (new_fieldnames.contains(to)) {
-            uifunc::stopApp(
+            errorfunc::fatalError(
                 "renameColumns: destination field already exists (or "
                 "attempt to rename two columns to the same name): " +
                 tablename + "." + to);
@@ -830,7 +837,7 @@ void DatabaseManager::renameTable(const QString& from, const QString& to)
         return;
     }
     if (tableExists(to)) {
-        uifunc::stopApp("renameTable: destination table already exists: " +
+        errorfunc::fatalError("renameTable: destination table already exists: " +
                         to);
     }
     // http://stackoverflow.com/questions/426495
@@ -852,7 +859,7 @@ void DatabaseManager::changeColumnTypes(
     }
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("changeColumnTypes: temporary table exists: " +
+        errorfunc::fatalError("changeColumnTypes: temporary table exists: " +
                         dummytable);
     }
     QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
@@ -972,13 +979,13 @@ void DatabaseManager::createTable(const QString& tablename,
     for (const FieldCreationPlan& plan : planlist) {
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
-                uifunc::stopApp(QString(
+                errorfunc::fatalError(QString(
                     "createTable: Cannot add a PRIMARY KEY column "
                     "(%1.%2)").arg(tablename, plan.name));
             }
             if (plan.intended_field->notNull() &&
                     !plan.intended_field->hasDbDefaultValue()) {
-                uifunc::stopApp(QString(
+                errorfunc::fatalError(QString(
                     "createTable: Cannot add a NOT NULL column to an existing "
                     "table without a database default "
                     "(%1.%2)").arg(tablename, plan.name));
@@ -1025,7 +1032,7 @@ void DatabaseManager::createTable(const QString& tablename,
     // http://sqlite.org/datatype3.html
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("createTable: temporary table exists: " + dummytable);
+        errorfunc::fatalError("createTable: temporary table exists: " + dummytable);
     }
     const QString delimited_tablename = delimit(tablename);
     const QString delimited_dummytable = delimit(dummytable);
@@ -1109,58 +1116,44 @@ bool DatabaseManager::canReadDatabase()
 }
 
 
-bool DatabaseManager::decrypt(const QString& passphrase,
-                              const bool migrate,
-                              const int compatibility_sqlcipher_major_version)
+bool DatabaseManager::decrypt(const QString& passphrase)
 {
-    bool success = pragmaKey(passphrase);
-    if (migrate) {
-        // You might think that there's no point doing cipher_migrate if we can
-        // read the database, and calls to canReadDatabase() are quick, so we
-        // should check that first. However, this sequence fails:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- OK; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- OK
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
-        //      PRAGMA cipher_migrate;  -- "1"
-        //      .tables  -- "Error: file is not a database"
-        //
-        // whereas this works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // and this also works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //      PRAGMA key = 'passphrase';
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- resets the problem
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // So we must proceed to "PRAGMA cipher_migrate" directly every time,
-        // like this:
-        //
-        //   success = success && pragmaCipherMigrate();
-        //
-        // or re-call "PRAGMA key". Since cipher_migrate takes about 0.25s to
-        // do nothing, which is significant (esp. for two databases), let's do
-        // that:
+    // Recommended process from:
+    // https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
 
-        if (!canReadDatabase()) {
-            success = success && pragmaKey(passphrase) && pragmaCipherMigrate();
-        }
+    // 1. Attempt to open and access the database as normal by keying the
+    //    database...
+    // This will return true even if the wrong password was given.
+    pragmaKey(passphrase);
 
-        // This way is obviously quicker (empirically) once cipher_migrate has
-        // become unnecessary.
-
-    } else if (compatibility_sqlcipher_major_version > 0) {
-        success = pragmaCipherCompatibility(compatibility_sqlcipher_major_version);
+    // ...and attempting a query
+    if (canReadDatabase()) {
+        return true;
     }
-    return success;
+
+    // 2. If SQLCipher throws an error on first access, close the database
+    // handle. Then open it...
+    reconnectDatabase();
+    pragmaKey(passphrase);
+
+    // ...and run PRAGMA cipher_migrate
+    // 3. Check the result of the update by retrieving the row value result.
+    if (pragmaCipherMigrate()) {
+        // 4. If the migration succeeds, a row with a single column value of 0
+        //    is returned, the upgrade was successful and your application can
+        //    continue to use the connection for the remainder of the
+        //    application lifecycle.
+        return true;
+    }
+
+    // 5. If the key is incorrect then the PRAGMA will return a single non-zero
+    //    column value, meaning that the key material is incorrect or the
+    //    settings of the database were not consistent with defaults for
+    //    previous SQLCipher versions (i.e. custom settings were used that
+    //    require manual migration).
+    reconnectDatabase();
+
+    return false;
 }
 
 
@@ -1189,8 +1182,18 @@ bool DatabaseManager::pragmaCipherCompatibility(
 bool DatabaseManager::pragmaCipherMigrate()
 {
     // "PRAGMA cipher_migrate" is specific to SQLCipher
-    const QString sql("PRAGMA cipher_migrate");
-    return exec(sql);
+    // If the migration succeeded, a row with a single column value of 0
+    // is returned. If the migration failed the PRAGMA will return a single
+    // non-zero column value. This may be because the key was incorrect or
+    // manual migration is required.
+    const QueryResult result = query("PRAGMA cipher_migrate");
+
+    const QVariant value = result.firstValue();
+    if (!value.isNull()) {
+        return value.toInt() == 0;
+    }
+
+    return false;
 }
 
 

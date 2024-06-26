@@ -3912,3 +3912,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/347
 
 - New task: :ref:`The Adult Autism Spectrum Quotient (AQ) <aq>`. (Database revision 0085.)
+
+- Fix a bug where if the user entered an incorrect password and then cancelled the
+  dialog to prompt them to delete the database, it was impossible for them to then
+  enter the correct password.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/353
