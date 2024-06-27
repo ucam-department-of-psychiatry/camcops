@@ -20,8 +20,8 @@
 
 #define USE_MULTITHREADED_DATABASES  // gives much better performance
 #define ONE_SELECT_AT_A_TIME
-    // ... enforces the principle that callers using SELECT should consume
-    // their results before doing another SELECT (so: OK to leave this on).
+// ... enforces the principle that callers using SELECT should consume
+// their results before doing another SELECT (so: OK to leave this on).
 
 // #define DEBUG_BACKGROUND_QUERY
 // #define DEBUG_VERBOSE_PROCESS
@@ -41,10 +41,11 @@
 #include "db/dbfunc.h"
 #include "db/field.h"
 #include "db/fieldcreationplan.h"
+#include "db/queryresult.h"
 #include "db/whereconditions.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 using dbfunc::delimit;
 
 // QSqlDatabase doesn't need to be passed by pointer; it copies itself
@@ -119,7 +120,7 @@ void DatabaseManager::openDatabaseOrDie()
     if (openDatabase()) {
         qInfo() << "Opened database:" << m_filename;
     } else {
-        uifunc::stopApp(m_opening_failure_msg);
+        errorfunc::fatalError(m_opening_failure_msg);
     }
 }
 
@@ -133,18 +134,18 @@ bool DatabaseManager::openDatabase()
     if (m_threaded) {
         if (!m_thread) {
             m_thread = QSharedPointer<DatabaseWorkerThread>(
-                        new DatabaseWorkerThread(this));
+                new DatabaseWorkerThread(this));
             // We need a (semi-)random mutex to lock:
             m_mutex_requests.lock();
             m_thread->start();  // will call openDatabaseActual()
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO << m_connection_name
-             << "... waiting for m_open_db_complete";
+            qDebug() << Q_FUNC_INFO << m_connection_name
+                     << "... waiting for m_open_db_complete";
 #endif
             m_open_db_complete.wait(&m_mutex_requests);  // woken by: work()
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO << m_connection_name
-             << "... woken by m_open_db_complete";
+            qDebug() << Q_FUNC_INFO << m_connection_name
+                     << "... woken by m_open_db_complete";
 #endif
             m_mutex_requests.unlock();
         }
@@ -172,9 +173,9 @@ bool DatabaseManager::openDatabaseActual()
     } else {
         QSqlError error = m_db.lastError();
         m_opening_failure_msg = QString(
-            "Connection to database failed. "
-            "Database = %1; native error code = %2; error text = %3"
-        ).arg(m_filename, error.nativeErrorCode(), error.text());
+                                    "Connection to database failed. "
+                                    "Database = %1; native error code = %2; error text = %3"
+                                    ).arg(m_filename, error.nativeErrorCode(), error.text());
     }
     return m_opened_database;
 }
@@ -196,8 +197,7 @@ void DatabaseManager::closeDatabase()
                                          false, false,
                                          true);  // special "die" request
             pushRequest(request);
-            m_thread->wait();
-                // ... wait for it to finish (and close the database)
+            m_thread->wait();  // wait for it to finish (and close the database)
             m_thread = nullptr;  // deletes the thread
         }
     } else {
@@ -215,8 +215,8 @@ void DatabaseManager::closeDatabaseActual()
     if (m_db.isOpen()) {
         m_db.close();
         qInfo()<< "Qt will give a warning next (... \"all queries will cease "
-                  "to work\") as we're about to call removeDatabase(); "
-                  "this is OK";
+                   "to work\") as we're about to call removeDatabase(); "
+                   "this is OK";
         QSqlDatabase::removeDatabase(m_connection_name);
     }
     m_db = QSqlDatabase();
@@ -225,6 +225,12 @@ void DatabaseManager::closeDatabaseActual()
     // http://www.qtcentre.org/archive/index.php/t-40358.html
 }
 
+
+void DatabaseManager::reconnectDatabase()
+{
+    m_db.close();
+    m_db.open();
+}
 
 // ============================================================================
 // Public API
@@ -258,8 +264,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
     qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     Q_ASSERT(fetch_mode != QueryResult::FetchMode::NoAnswer);
-    // ... don't use the query() interface if you want no answer; use
-    //     execNoAnswer()
+    // ... don't use the query() interface if you want no answer; use execNoAnswer()
 
     if (m_threaded) {
         // 1. Queue the query
@@ -349,9 +354,9 @@ void DatabaseManager::waitForQueriesToComplete()
 #ifdef DEBUG_VERBOSE_PROCESS
         qDebug() << Q_FUNC_INFO << m_connection_name
                  << "... woken by m_queries_are_complete";
-#endif
-        // ... this mutex is UNLOCKED as we go to sleep, and LOCKED
-        //     as we wake: https://doc.qt.io/qt-6.5/qwaitcondition.html#wait
+#endif \
+    // ... this mutex is UNLOCKED as we go to sleep, and LOCKED \
+    //     as we wake: https://doc.qt.io/qt-6.5/qwaitcondition.html#wait
     }
 #ifdef DEBUG_VERBOSE_PROCESS
     else {
@@ -382,8 +387,7 @@ void DatabaseManager::work()
         // Fetch a request
         m_mutex_requests.lock();
         if (m_requests.isEmpty()) {
-            m_requests_waiting.wait(&m_mutex_requests);
-                // ... woken by: pushRequest()
+            m_requests_waiting.wait(&m_mutex_requests);  // woken by: pushRequest()
         }
         ThreadedQueryRequest request = m_requests.front();
         // DO NOT CALL pop_front() YET - might be interpreted by
@@ -414,8 +418,7 @@ void DatabaseManager::work()
         // If that (even transiently) cleared the request queue, let anyone
         // who was waiting for the results know
         if (now_empty) {
-            m_queries_are_complete.wakeAll();
-                // ... wakes: waitForQueriesToComplete()
+            m_queries_are_complete.wakeAll();  // wakes: waitForQueriesToComplete()
         }
     }
 }
@@ -431,7 +434,7 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
     // 1. Prepare query
     QSqlQuery query(m_db);
 
-    // 2. Execute query
+// 2. Execute query
 #ifdef DEBUG_BACKGROUND_QUERY
     qDebug() << m_connection_name
              << "Executing background query:" << request;
@@ -573,9 +576,9 @@ int DatabaseManager::count(const QString& tablename,
 
 
 QVector<int> DatabaseManager::getSingleFieldAsIntList(
-        const QString& tablename,
-        const QString& fieldname,
-        const WhereConditions& where)
+    const QString& tablename,
+    const QString& fieldname,
+    const WhereConditions& where)
 {
     SqlArgs sqlargs(QString("SELECT %1 FROM %2").arg(delimit(fieldname),
                                                      delimit(tablename)));
@@ -599,10 +602,10 @@ bool DatabaseManager::existsByPk(const QString& tablename,
 {
     const SqlArgs sqlargs(
         QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")
-                .arg(delimit(tablename),
-                     delimit(pkname)),
+            .arg(delimit(tablename),
+                 delimit(pkname)),
         ArgList{pkvalue}
-    );
+        );
     // EXISTS always returns 0 or 1
     // https://www.sqlite.org/lang_expr.html
     return fetchInt(sqlargs) == 1;
@@ -673,19 +676,19 @@ bool DatabaseManager::tableExists(const QString& tablename)
     const SqlArgs sqlargs(
         "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
         {tablename}
-    );
+        );
     return fetchInt(sqlargs) > 0;
 }
 
 
 QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
-        const QString& tablename)
+    const QString& tablename)
 {
     const QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     const QueryResult result = query(sql);
     if (!result.succeeded()) {
-        uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
-                        "table " + tablename);
+        errorfunc::fatalError("getPragmaInfo: PRAGMA table_info failed for "
+                              "table " + tablename);
     }
     QVector<SqlitePragmaInfoField> infolist;
     const int nrows = result.nRows();
@@ -750,9 +753,9 @@ bool DatabaseManager::createIndex(const QString& indexname,
 
 
 void DatabaseManager::renameColumns(
-        const QString& tablename,
-        const QVector<QPair<QString, QString>>& from_to,
-        const QString& tempsuffix)
+    const QString& tablename,
+    const QVector<QPair<QString, QString>>& from_to,
+    const QString& tempsuffix)
 {
     if (!tableExists(tablename)) {
         qWarning() << "WARNING: ignoring renameColumns for non-existent table:"
@@ -764,12 +767,11 @@ void DatabaseManager::renameColumns(
     QStringList new_fieldnames = old_fieldnames;
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("renameColumns: temporary table exists: " +
-                        dummytable);
+        errorfunc::fatalError("renameColumns: temporary table exists: " +
+                              dummytable);
     }
     int n_changes = 0;
-    for (const QPair<QString, QString>& pair : from_to) {
-        // For each rename...
+    for (const QPair<QString, QString>& pair : from_to) {  // For each rename...
         const QString& from = pair.first;
         const QString& to = pair.second;
         if (from == to) {
@@ -777,12 +779,12 @@ void DatabaseManager::renameColumns(
         }
         // Check the source is valid
         if (!old_fieldnames.contains(from)) {
-            uifunc::stopApp("renameColumns: 'from' field doesn't "
-                            "exist: " + tablename + "." + from);
+            errorfunc::fatalError("renameColumns: 'from' field doesn't "
+                                  "exist: " + tablename + "." + from);
         }
         // Check the destination doesn't exist already
         if (new_fieldnames.contains(to)) {
-            uifunc::stopApp(
+            errorfunc::fatalError(
                 "renameColumns: destination field already exists (or "
                 "attempt to rename two columns to the same name): " +
                 tablename + "." + to);
@@ -811,15 +813,15 @@ void DatabaseManager::renameColumns(
     }
     beginTransaction();
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
-                     delimited_tablename, delimited_dummytable));
+        delimited_tablename, delimited_dummytable));
     // Make a new, clean table:
     execNoAnswer(creation_sql);
     // Copy the data across:
     execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-             delimited_tablename,
-             new_fieldnames.join(","),
-             old_fieldnames.join(","),
-             delimited_dummytable));
+        delimited_tablename,
+        new_fieldnames.join(","),
+        old_fieldnames.join(","),
+        delimited_dummytable));
     // Drop the temporary table:
     dropTable(dummytable);
     commit();
@@ -835,8 +837,8 @@ void DatabaseManager::renameTable(const QString& from, const QString& to)
         return;
     }
     if (tableExists(to)) {
-        uifunc::stopApp("renameTable: destination table already exists: " +
-                        to);
+        errorfunc::fatalError("renameTable: destination table already exists: " +
+                              to);
     }
     // http://stackoverflow.com/questions/426495
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(from, to));
@@ -845,9 +847,9 @@ void DatabaseManager::renameTable(const QString& from, const QString& to)
 
 
 void DatabaseManager::changeColumnTypes(
-        const QString& tablename,
-        const QVector<QPair<QString, QString>>& changes,
-        const QString& tempsuffix)
+    const QString& tablename,
+    const QVector<QPair<QString, QString>>& changes,
+    const QString& tempsuffix)
 {
     // changes: pairs <fieldname, newtype>
     if (!tableExists(tablename)) {
@@ -857,8 +859,8 @@ void DatabaseManager::changeColumnTypes(
     }
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("changeColumnTypes: temporary table exists: " +
-                        dummytable);
+        errorfunc::fatalError("changeColumnTypes: temporary table exists: " +
+                              dummytable);
     }
     QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
     qDebug() << m_connection_name << "changeColumnTypes";
@@ -881,20 +883,20 @@ void DatabaseManager::changeColumnTypes(
         return;
     }
     const QString creation_sql = dbfunc::makeCreationSqlFromPragmaInfo(
-                tablename, infolist);
+        tablename, infolist);
     const QString fieldnames = dbfunc::fieldNamesFromPragmaInfo(
-                infolist, true).join(",");
+                                   infolist, true).join(",");
     const QString delimited_tablename = delimit(tablename);
     const QString delimited_dummytable = delimit(dummytable);
     beginTransaction();
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
-                     delimited_tablename, delimited_dummytable));
+        delimited_tablename, delimited_dummytable));
     execNoAnswer(creation_sql);  // make a new clean table
     execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-         delimited_tablename,
-         fieldnames,
-         fieldnames,
-         delimited_dummytable));
+        delimited_tablename,
+        fieldnames,
+        fieldnames,
+        delimited_dummytable));
     dropTable(dummytable);
     commit();
 }
@@ -954,7 +956,7 @@ void DatabaseManager::createTable(const QString& tablename,
                     info.type != intended_field->sqlColumnType() ||
                     info.notnull != intended_field->notNull() ||
                     info.pk != intended_field->isPk()
-                );
+                    );
                 plan.existing_type = info.type;
                 plan.existing_not_null = info.notnull;
                 existing_is_superfluous = false;
@@ -977,16 +979,16 @@ void DatabaseManager::createTable(const QString& tablename,
     for (const FieldCreationPlan& plan : planlist) {
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
-                uifunc::stopApp(QString(
-                    "createTable: Cannot add a PRIMARY KEY column "
-                    "(%1.%2)").arg(tablename, plan.name));
+                errorfunc::fatalError(QString(
+                                          "createTable: Cannot add a PRIMARY KEY column "
+                                          "(%1.%2)").arg(tablename, plan.name));
             }
             if (plan.intended_field->notNull() &&
-                    !plan.intended_field->hasDbDefaultValue()) {
-                uifunc::stopApp(QString(
-                    "createTable: Cannot add a NOT NULL column to an existing "
-                    "table without a database default "
-                    "(%1.%2)").arg(tablename, plan.name));
+                !plan.intended_field->hasDbDefaultValue()) {
+                errorfunc::fatalError(QString(
+                                          "createTable: Cannot add a NOT NULL column to an existing "
+                                          "table without a database default "
+                                          "(%1.%2)").arg(tablename, plan.name));
             }
             execNoAnswer(QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
                 tablename,
@@ -1030,7 +1032,7 @@ void DatabaseManager::createTable(const QString& tablename,
     // http://sqlite.org/datatype3.html
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("createTable: temporary table exists: " + dummytable);
+        errorfunc::fatalError("createTable: temporary table exists: " + dummytable);
     }
     const QString delimited_tablename = delimit(tablename);
     const QString delimited_dummytable = delimit(dummytable);
@@ -1038,13 +1040,13 @@ void DatabaseManager::createTable(const QString& tablename,
     qInfo() << "Modifying structure of table:" << tablename;
     beginTransaction();
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
-                     delimited_tablename, delimited_dummytable));
+        delimited_tablename, delimited_dummytable));
     execNoAnswer(creation_sql);  // make a new clean table
     execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-         delimited_tablename,
-         goodfieldstring,
-         goodfieldstring,
-         delimited_dummytable));
+        delimited_tablename,
+        goodfieldstring,
+        goodfieldstring,
+        delimited_dummytable));
     dropTable(dummytable);
     commit();
 }
@@ -1114,62 +1116,44 @@ bool DatabaseManager::canReadDatabase()
 }
 
 
-bool DatabaseManager::decrypt(const QString& passphrase,
-                              const bool migrate,
-                              const int compatibility_sqlcipher_major_version)
+bool DatabaseManager::decrypt(const QString& passphrase)
 {
-    bool success = pragmaKey(passphrase);
-    if (migrate) {
-        // You might think that there's no point doing cipher_migrate if we can
-        // read the database, and calls to canReadDatabase() are quick, so we
-        // should check that first. However, this sequence fails:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //          -- OK; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- OK
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //          -- causes a problem; "Error: file is not a database"
-        //      PRAGMA cipher_migrate;  -- "1"
-        //      .tables  -- "Error: file is not a database"
-        //
-        // whereas this works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //          -- "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // and this also works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //      PRAGMA key = 'passphrase';
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //          -- causes a problem; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- resets the problem
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // So we must proceed to "PRAGMA cipher_migrate" directly every time,
-        // like this:
-        //
-        //   success = success && pragmaCipherMigrate();
-        //
-        // or re-call "PRAGMA key". Since cipher_migrate takes about 0.25s to
-        // do nothing, which is significant (esp. for two databases), let's do
-        // that:
+    // Recommended process from:
+    // https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
 
-        if (!canReadDatabase()) {
-            success = success && pragmaKey(passphrase) && pragmaCipherMigrate();
-        }
+    // 1. Attempt to open and access the database as normal by keying the
+    //    database...
+    // This will return true even if the wrong password was given.
+    pragmaKey(passphrase);
 
-        // This way is obviously quicker (empirically) once cipher_migrate has
-        // become unnecessary.
-
-    } else if (compatibility_sqlcipher_major_version > 0) {
-        success = pragmaCipherCompatibility(compatibility_sqlcipher_major_version);
+    // ...and attempting a query
+    if (canReadDatabase()) {
+        return true;
     }
-    return success;
+
+    // 2. If SQLCipher throws an error on first access, close the database
+    // handle. Then open it...
+    reconnectDatabase();
+    pragmaKey(passphrase);
+
+    // ...and run PRAGMA cipher_migrate
+    // 3. Check the result of the update by retrieving the row value result.
+    if (pragmaCipherMigrate()) {
+        // 4. If the migration succeeds, a row with a single column value of 0
+        //    is returned, the upgrade was successful and your application can
+        //    continue to use the connection for the remainder of the
+        //    application lifecycle.
+        return true;
+    }
+
+    // 5. If the key is incorrect then the PRAGMA will return a single non-zero
+    //    column value, meaning that the key material is incorrect or the
+    //    settings of the database were not consistent with defaults for
+    //    previous SQLCipher versions (i.e. custom settings were used that
+    //    require manual migration).
+    reconnectDatabase();
+
+    return false;
 }
 
 
@@ -1177,20 +1161,20 @@ bool DatabaseManager::pragmaKey(const QString& passphase)
 {
     // "PRAGMA key" is specific to SQLCipher
     const QString sql = QString("PRAGMA key=%1")
-            .arg(convert::toSqlLiteral(passphase));
+                            .arg(convert::toSqlLiteral(passphase));
     return exec(sql);
 }
 
 
 bool DatabaseManager::pragmaCipherCompatibility(
-        const int sqlcipher_major_version)
+    const int sqlcipher_major_version)
 {
     // "PRAGMA cipher_compatibility = <level>" is specific to SQLCipher
     if (sqlcipher_major_version < 1) {
         return false;
     }
     const QString sql = QString("PRAGMA cipher_compatibility = %1")
-            .arg(sqlcipher_major_version);
+                            .arg(sqlcipher_major_version);
     return exec(sql);
 }
 
@@ -1198,8 +1182,18 @@ bool DatabaseManager::pragmaCipherCompatibility(
 bool DatabaseManager::pragmaCipherMigrate()
 {
     // "PRAGMA cipher_migrate" is specific to SQLCipher
-    const QString sql("PRAGMA cipher_migrate");
-    return exec(sql);
+    // If the migration succeeded, a row with a single column value of 0
+    // is returned. If the migration failed the PRAGMA will return a single
+    // non-zero column value. This may be because the key was incorrect or
+    // manual migration is required.
+    const QueryResult result = query("PRAGMA cipher_migrate");
+
+    const QVariant value = result.firstValue();
+    if (!value.isNull()) {
+        return value.toInt() == 0;
+    }
+
+    return false;
 }
 
 
@@ -1207,7 +1201,7 @@ bool DatabaseManager::pragmaRekey(const QString& passphase)
 {
     // "PRAGMA rekey" is specific to SQLCipher
     const QString sql = QString("PRAGMA rekey=%1")
-            .arg(convert::toSqlLiteral(passphase));
+                            .arg(convert::toSqlLiteral(passphase));
     return exec(sql);
 }
 
@@ -1224,10 +1218,10 @@ bool DatabaseManager::encryptToAnother(const QString& filename,
     // ATTACH DATABASE can create and encrypt from scratch, so the file
     // specified by "filename" doesn't have to exist.
     return exec(QString("ATTACH DATABASE %1 AS encrypted KEY %2")
-                .arg(convert::toSqlLiteral(filename),
-                     convert::toSqlLiteral(passphrase))) &&
-            exec("SELECT sqlcipher_export('encrypted')") &&
-            exec("DETACH DATABASE encrypted");
+                    .arg(convert::toSqlLiteral(filename),
+                         convert::toSqlLiteral(passphrase))) &&
+           exec("SELECT sqlcipher_export('encrypted')") &&
+           exec("DETACH DATABASE encrypted");
 }
 
 
