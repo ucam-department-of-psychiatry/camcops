@@ -31,8 +31,8 @@
 
 See:
 
-- https://stackoverflow.com/questions/6650219/zooming-function-on-a-qwidget
-- https://stackoverflow.com/questions/26811446/qt-scaling-zooming-contents-of-a-qframe-widgets-etc
+- https://stackoverflow.com/questions/6650219
+- https://stackoverflow.com/questions/26811446
 
 NOTES
 

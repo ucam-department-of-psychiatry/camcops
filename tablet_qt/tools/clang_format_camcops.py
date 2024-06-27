@@ -48,6 +48,8 @@ from typing import List, Set, Tuple
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
+from pygments.lexer import RegexLexer
+from pygments.token import Text, Comment, Whitespace
 from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
@@ -64,6 +66,7 @@ log = logging.getLogger(__name__)
 
 CLANG_FORMAT_VERSION = 15
 CLANG_FORMAT_EXECUTABLE = f"clang-format-{CLANG_FORMAT_VERSION}"
+DEFAULT_MAX_LINE_LENGTH = 79  # should match clang_format_camcops.yaml
 DIFFTOOL = "meld"
 ENC = sys.getdefaultencoding()
 
@@ -75,6 +78,7 @@ class Command(Enum):
 
     CHECK = "check"
     DIFF = "diff"
+    FINDLONGCOMMENTS = "findlongcomments"
     MODIFY = "modify"
     LIST = "list"
     PRINT = "print"
@@ -85,8 +89,9 @@ class Command(Enum):
 # =============================================================================
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+CLANG_FORMAT_BASE_FILENAME = "clang_format_camcops.yaml"
 CLANG_FORMAT_STYLE_FILE = os.path.abspath(
-    os.path.join(THIS_DIR, "clang_format_camcops.yaml")
+    os.path.join(THIS_DIR, CLANG_FORMAT_BASE_FILENAME)
 )
 CAMCOPS_CPP_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 
@@ -106,6 +111,97 @@ EXCLUDE_GLOBS = [
     f"{CAMCOPS_CPP_DIR}/**/sqlcipherhelpers.*",
     f"{CAMCOPS_CPP_DIR}/**/sqlcipherresult.*",
 ]
+
+
+# =============================================================================
+# Find and print long comments
+# =============================================================================
+
+
+class CppCommentLexer(RegexLexer):
+    """
+    Pygments lexer to find C++ comments. Based on
+    https://pygments.org/docs/lexerdevelopment/, but modified slightly.
+    Now it produces all lines separately from within multiline comments.
+    """
+
+    name = "C++ comment lexer"
+    tokens = {
+        "root": [
+            # At the root level:
+            # - Anything not including a forward slash is text.
+            (r"[^/]+", Text),
+            # - The sequence /* starts a multiline comment (state: "comment").
+            #   ADDED: [\n]?, to swallow a trailing newline.
+            (r"/\*", Comment.Multiline, "comment"),
+            # - The sequence // makes the rest of the line a comment.
+            (r"//.*?$", Comment.Singleline),
+            # - A plain forward slash is still plain text.
+            (r"/", Text),
+        ],
+        "comment": [
+            # Within a multiline comment:
+            # - Anything that doesn't include a star or a slash is
+            #   part of the multiline comment. I have modified to end in $,
+            #   thus creating separate tokens for each line.
+            #   ADDED: swallow newlines
+            (r"[\n]", Whitespace),
+            #   PREVIOUSLY: (r"[^*/]+", Comment.Multiline),
+            (r"[^*/\n]+", Comment.Multiline),
+            # - DISABLED: the Pygments example used the following, meaning that
+            #   a further /* entered a "deeper" level of comment, but that is
+            #   not C++ syntax.
+            #   (r"/\*", Comment.Multiline, "#push"),
+            # - The sequence */ ends a multiline comment.
+            (r"\*/", Comment.Multiline, "#pop"),
+            # - A star or a forward slash, otherwise, remains within a comment.
+            (r"[*/]", Comment.Multiline),
+        ],
+    }
+
+
+def report_line(filename: str, linenum: int, text: str) -> None:
+    """
+    Prints a line to stdout, preceded by its filename and line number, in
+    conventional format.
+    """
+    print(f"{filename}:{linenum}, {len(text)} chars: {text}")
+
+
+def get_line_at_pos(contents: str, pos: int) -> Tuple[int, str]:
+    """
+    Takes a multi-line string, and an integer (zero-based) position. Returns
+    a tuple of the line number and the line text, containing that position.
+    """
+    before = contents[:pos]
+    start_of_line = before[before.rfind("\n") + 1 :]
+    rest_of_line = contents[pos : contents.find("\n", pos)]
+    linetext = start_of_line + rest_of_line
+    linenum = before.count("\n") + 1
+    return linenum, linetext
+
+
+def print_long_comments(
+    filename: str, maxlinelength: int = DEFAULT_MAX_LINE_LENGTH
+) -> None:
+    """
+    Print any line in the file that is longer than maxlinelength and contains,
+    or is part of, a C++ comment.
+    """
+    log.debug(
+        f"Searching for comment lines >{maxlinelength} characters: {filename}"
+    )
+    lines_seen = set()  # type: Set[int]
+    with open(filename) as f:
+        contents = f.read()
+    lexer = CppCommentLexer()
+    for pos, tokentype, tokentext in lexer.get_tokens_unprocessed(contents):
+        if tokentype in (Comment.Multiline, Comment.Singleline):
+            linenum, linetext = get_line_at_pos(contents, pos)
+            if linenum not in lines_seen:
+                lines_seen.add(linenum)
+                if len(linetext) > maxlinelength:
+                    report_line(filename, linenum, linetext)
 
 
 # =============================================================================
@@ -139,6 +235,8 @@ def clang_format_camcops_source() -> None:
         f"exit code {EXIT_SUCCESS} if everything is OK and {EXIT_FAILURE} if "
         f"something needs fixing. "
         f"{Command.DIFF.value!r}: launch a diff for the first file specified. "
+        f"{Command.FINDLONGCOMMENTS.value!r}: show lines that include or are "
+        f"part of a C++ comment and are longer than the permitted length. "
         f"{Command.LIST.value!r}: list files only. "
         f"{Command.MODIFY.value!r}: modify all files in place. "
         f"{Command.PRINT.value!r}: print all results to stdout.",
@@ -156,6 +254,14 @@ def clang_format_camcops_source() -> None:
         default=shutil.which(CLANG_FORMAT_EXECUTABLE),
         help=f"Path to clang-format. Priority: (1) this argument, (2) the "
         f"results of 'which {CLANG_FORMAT_EXECUTABLE}'.",
+    )
+    parser.add_argument(
+        "--maxlinelength",
+        type=int,
+        default=DEFAULT_MAX_LINE_LENGTH,
+        help=f"Maximum line length for {Command.FINDLONGCOMMENTS.value!r} "
+        f"command (does not affect clang-format, which is governed by our "
+        f"preset {CLANG_FORMAT_BASE_FILENAME})",
     )
     parser.add_argument(
         "--diffall",
@@ -180,7 +286,8 @@ def clang_format_camcops_source() -> None:
 
     if args.clangformat is None:
         log.error(
-            "No clangformat executable was found on the path and no "
+            "No clangformat executable was found on the path "
+            f"({CLANG_FORMAT_EXECUTABLE!r}) and no "
             "--clangformat argument was specified"
         )
         sys.exit(EXIT_FAILURE)
@@ -244,6 +351,9 @@ def clang_format_camcops_source() -> None:
             log.info(f"Checking: {filename}")
         elif command == Command.DIFF:
             log.info(f"Diff: {filename}")
+        elif command == Command.FINDLONGCOMMENTS:
+            print_long_comments(filename, maxlinelength=args.maxlinelength)
+            continue
         elif command == Command.LIST:
             print(filename)
             continue

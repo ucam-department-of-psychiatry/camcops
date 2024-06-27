@@ -53,7 +53,8 @@ ZoomableGraphicsView::ZoomableGraphicsView(
 
     // Scroll bars:
     const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAlwaysOn;
-    // const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAsNeeded;  // too tricky; see resizeEvent()
+    // const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAsNeeded;
+    // ... too tricky; see resizeEvent()
     setHorizontalScrollBarPolicy(sbp);
     setVerticalScrollBarPolicy(sbp);
 
@@ -93,7 +94,8 @@ void ZoomableGraphicsView::wheelEvent(QWheelEvent* event)
 
 bool ZoomableGraphicsView::viewportEvent(QEvent* event)
 {
-    // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
+    // See
+    // https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
     // ... but modified.
     const QEvent::Type type = event->type();
     switch (type) {
@@ -106,9 +108,11 @@ bool ZoomableGraphicsView::viewportEvent(QEvent* event)
 #endif
             QTouchEvent* touch_event = static_cast<QTouchEvent*>(event);
             QList<QTouchEvent::TouchPoint> touch_points = touch_event->points();
-            if (type == QEvent::TouchEnd ||  // touch is over
-                    touch_points.count() != 2 ||  // not using 2 fingers
-                    touch_event->touchPointStates() & Qt::TouchPointReleased) {  // a finger has been released
+            if (type == QEvent::TouchEnd ||
+                    touch_points.count() != 2 ||
+                    touch_event->touchPointStates() & Qt::TouchPointReleased) {
+                // Touch is over, or not using two fingers, or a finger has
+                // been released.
                 m_two_finger_zooming = false;
                 return true;
             }
