@@ -108,9 +108,12 @@
 #include "db/sqlcipherdriver.h"
 #endif
 
-const QString APPSTRING_TASKNAME("camcops");  // task name used for generic but downloaded tablet strings
-const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO NOT ALTER
-const QString APP_PRETTY_NAME("CamCOPS");  // main window title and suffix on dialog window titles
+const QString APPSTRING_TASKNAME("camcops");
+    // ... task name used for generic but downloaded tablet strings
+const QString APP_NAME("camcops");
+    // ... e.g. subdirectory of ~/.local/share; DO NOT ALTER
+const QString APP_PRETTY_NAME("CamCOPS");
+    // ... main window title and suffix on dialog window titles
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
 const int DEFAULT_SERVER_PORT = 443;  // HTTPS
@@ -120,11 +123,13 @@ const int UPLOAD_INTERVAL_SECONDS = 10 * 60;  // 10 minutes
 CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     QApplication(argc, argv),
     m_p_task_factory(nullptr),
-    m_lockstate(LockState::Locked),  // default unless we get in via encryption password
+    m_lockstate(LockState::Locked),
+        // ... default unless we get in via encryption password
     m_p_main_window(nullptr),
     m_p_window_stack(nullptr),
     m_p_hidden_stack(nullptr),
-    m_maximized_before_fullscreen(true),  // true because openMainWindow() goes maximized
+    m_maximized_before_fullscreen(true),
+        // ... true because openMainWindow() goes maximized
     m_patient(nullptr),
     m_storedvars_available(false),
     m_netmgr(nullptr),
@@ -384,7 +389,8 @@ bool CamcopsApp::registerPatientWithServer()
         new_patient_proquint = m_default_patient_proquint;
     } else {
         // Start with a blank URL, or a URL from a previous failed attempt, to
-        // assist in reducing data entry following network/registration failure.
+        // assist in reducing data entry following network/registration
+        // failure.
         QUrl old_server_url = QUrl();
         const QString old_patient_proquint = varString(varconst::SINGLE_PATIENT_PROQUINT);
         if (!old_patient_proquint.isEmpty()) {
@@ -713,7 +719,8 @@ void CamcopsApp::maybeRetryNetworkOperation(const QString base_message,
 TaskSchedulePtrList CamcopsApp::getTaskSchedules()
 {
     TaskSchedulePtrList task_schedules;
-    TaskSchedule specimen(*this, *m_sysdb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    TaskSchedule specimen(*this, *m_sysdb, dbconst::NONEXISTENT_PK);
+        // ... this is why function can't be const
     const WhereConditions where;  // but we don't specify any
     const SqlArgs sqlargs = specimen.fetchQuerySql(where);
     const QueryResult result = m_sysdb->query(sqlargs);
@@ -879,8 +886,10 @@ int CamcopsApp::run()
             TextConst::pleaseWait());
     }
 
-    openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
-    makeNetManager();  // needs to be after main window created, and on GUI thread
+    openMainWindow();
+        // ... uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
+    makeNetManager();
+        // ... needs to be after main window created, and on GUI thread
 
     if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
         // e.g. fresh database; which mode to use?
@@ -942,7 +951,8 @@ void CamcopsApp::backgroundStartup()
     const Version old_version = upgradeDatabaseBeforeTablesMade();
     makeOtherTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
-    upgradeDatabaseAfterTasksRegistered(old_version);  // AFTER tasks registered
+    upgradeDatabaseAfterTasksRegistered(old_version);
+        // ... AFTER tasks registered
     makeTaskTables();
     // Should we drop tables we're unaware of? Clearly we should never do this
     // on the server. Doing so on the client prevents the client trying to
@@ -1767,8 +1777,10 @@ void CamcopsApp::initGuiOne()
         m_qt_physical_dpi = uiconst::DEFAULT_DPI;
     } else {
         const QScreen* screen = all_screens.at(0);
-        m_qt_logical_dpi.x = screen->logicalDotsPerInchX();  // can be e.g. 96.0126
-        m_qt_logical_dpi.y = screen->logicalDotsPerInchY();  // can be e.g. 96.0126
+        m_qt_logical_dpi.x = screen->logicalDotsPerInchX();
+            // ... can be e.g. 96.0126
+        m_qt_logical_dpi.y = screen->logicalDotsPerInchY();
+            // ... can be e.g. 96.0126
         // https://stackoverflow.com/questions/16561879/what-is-the-difference-between-logicaldpix-and-physicaldpix-in-qt
         m_qt_physical_dpi.x = screen->physicalDotsPerInchX();
         m_qt_physical_dpi.y = screen->physicalDotsPerInchY();
@@ -2040,7 +2052,8 @@ void CamcopsApp::openSubWindow(OpenableWidget* widget, TaskPtr task,
     while (m_p_window_stack->count() > 0) {
         QWidget* w = m_p_window_stack->widget(m_p_window_stack->count() - 1);
         if (w) {
-            m_p_window_stack->removeWidget(w);  // m_p_window_stack still owns w
+            m_p_window_stack->removeWidget(w);
+                // ... m_p_window_stack still owns w
             m_p_hidden_stack->addWidget(w);  // m_p_hidden_stack now owns w
         }
     }
@@ -2142,13 +2155,13 @@ void CamcopsApp::closeSubWindow()
     //   AND 5.9
     // - From https://doc.qt.io/qt-6.5/qstackedwidget.html#removeWidget :
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
-    //      but simply removed from the stacked layout, causing it to be hidden.
-    //      Note: Ownership of widget reverts to the application.
+    //      but simply removed from the stacked layout, causing it to be
+    //      hidden. Note: Ownership of widget reverts to the application.
     // - From https://doc.qt.io/qt-6.5/qstackedwidget.html#removeWidget :
     //      Removes widget from the QStackedWidget. i.e., widget is not deleted
-    //      but simply removed from the stacked layout, causing it to be hidden.
-    //      Note: Parent object and parent widget of widget will remain the
-    //      QStackedWidget. If the application wants to reuse the removed
+    //      but simply removed from the stacked layout, causing it to be
+    //      hidden. Note: Parent object and parent widget of widget will remain
+    //      the QStackedWidget. If the application wants to reuse the removed
     //      widget, then it is recommended to re-parent it.
     //   ... same for Qt 5.11.
     // - Also:
@@ -2159,10 +2172,12 @@ void CamcopsApp::closeSubWindow()
     // ------------------------------------------------------------------------
     // Restore the widget from the top of the hidden stack
     // ------------------------------------------------------------------------
-    Q_ASSERT(m_p_hidden_stack->count() > 0);  // the m_info_stack.isEmpty() check should exclude this
+    Q_ASSERT(m_p_hidden_stack->count() > 0);
+        // ... the m_info_stack.isEmpty() check should exclude this
     QWidget* w = m_p_hidden_stack->widget(m_p_hidden_stack->count() - 1);
     m_p_hidden_stack->removeWidget(w);  // m_p_hidden_stack still owns w
-    const int index = m_p_window_stack->addWidget(w);  // m_p_window_stack now owns w
+    const int index = m_p_window_stack->addWidget(w);
+        // ... m_p_window_stack now owns w
     m_p_window_stack->setCurrentIndex(index);
 
     // ------------------------------------------------------------------------
@@ -2247,8 +2262,10 @@ void CamcopsApp::enterFullscreen()
     // QWidget::showFullScreen does this:
     //
     // ensurePolished();
-    // setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
-    //               | Qt::WindowFullScreen);
+    // setWindowState(
+    //     (windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
+    //     | Qt::WindowFullScreen
+    // );
     // setVisible(true);
     // activateWindow();
 
@@ -2317,8 +2334,8 @@ void CamcopsApp::leaveFullscreen()
     } else {
         // Under Linux, the method above doesn't; that takes it to normal mode.
         // Under Linux, showMaximized() also takes it to normal mode!
-        // But under Linux, calling showNormal() then showMaximized() immediately
-        // does work.
+        // But under Linux, calling showNormal() then showMaximized()
+        // immediately does work.
         if (m_maximized_before_fullscreen) {
 #ifdef DEBUG_SCREEN_STACK
             qDebug() << Q_FUNC_INFO << "calling showMaximized() then showMaximized()";
@@ -2529,7 +2546,8 @@ void CamcopsApp::resetEncryptionKeyIfRequired()
     }
     qInfo() << "Resetting internal encryption key (and wiping stored password)";
     setVar(varconst::OBSCURING_KEY, cryptofunc::generateObscuringKeyBase64());
-    setVar(varconst::OBSCURING_IV, "");  // will be set by setEncryptedServerPassword
+    setVar(varconst::OBSCURING_IV, "");
+        // ... will be set by setEncryptedServerPassword
     setVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
 }
 
@@ -2714,7 +2732,8 @@ PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
 
 QueryResult CamcopsApp::queryAllPatients()
 {
-    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);
+        // ... this is why function can't be const
     const WhereConditions where;  // but we don't specify any
     const SqlArgs sqlargs = specimen.fetchQuerySql(where);
 
@@ -3377,8 +3396,10 @@ NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser() const
                             m_p_main_window);
     QAbstractButton* copy = msgbox.addButton(TextConst::copy(), QMessageBox::YesRole);
     QAbstractButton* move_keep = msgbox.addButton(tr("Keep patients and move"), QMessageBox::NoRole);
-    QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
-    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
+    QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);
+        // ... e.g. OK
+    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);
+        // ... e.g. Cancel
     msgbox.exec();
     QAbstractButton* reply = msgbox.clickedButton();
     if (reply == copy) {

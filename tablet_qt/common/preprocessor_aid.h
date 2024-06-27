@@ -42,7 +42,8 @@
 // GCC defines __GNUC__.
 // Visual C++ defines _MSC_VER.
 
-#if defined __clang__  // NB defined in Qt Creator; put this first for that reason
+#if defined __clang__
+    // NB defined in Qt Creator; put this first for that reason
     #define COMPILER_IS_CLANG
     #if __clang_major__ >= 10
         #define CLANG_AT_LEAST_10

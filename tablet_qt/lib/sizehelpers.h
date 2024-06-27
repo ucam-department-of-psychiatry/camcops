@@ -56,7 +56,8 @@ QSizePolicy: https://doc.qt.io/qt-6.5/qsizepolicy.html
     QSizePolicy::ShrinkFlag	4
         The widget can shrink below its size hint if necessary.
     QSizePolicy::IgnoreFlag	8
-        The widget's size hint is ignored. The widget will get as much space as possible.
+        The widget's size hint is ignored. The widget will get as much space as
+        possible.
 
 So...
 

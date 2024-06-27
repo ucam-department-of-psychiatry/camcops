@@ -73,7 +73,8 @@ struct ButtonAndProxy {
             const QMetaMethod& method,
             Qt::ConnectionType type = Qt::AutoConnection);
     */
-    // ... get "static assertion failed: Signal and slot arguments are not compatible."
+    // ... get "static assertion failed: Signal and slot arguments are not
+    //     compatible."
 };
 
 

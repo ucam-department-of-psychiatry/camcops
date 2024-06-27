@@ -101,8 +101,8 @@ INCLUDE_GLOBS = [
     f"{CAMCOPS_CPP_DIR}/**/*.h",
 ]
 EXCLUDE_GLOBS = [
-    f"{CAMCOPS_CPP_DIR}/build/**/*.cpp",
-    f"{CAMCOPS_CPP_DIR}/build/**/*.h",
+    f"{CAMCOPS_CPP_DIR}/build**/**/*.cpp",
+    f"{CAMCOPS_CPP_DIR}/build**/**/*.h",
     # Code by Qt whose format we won't fiddle with too much.
     f"{CAMCOPS_CPP_DIR}/**/boxlayouthfw.*",
     f"{CAMCOPS_CPP_DIR}/**/qcustomplot.*",

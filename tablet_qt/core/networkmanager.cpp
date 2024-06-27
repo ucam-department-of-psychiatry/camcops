@@ -414,8 +414,11 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
     }
 
     // Complete the dictionary
-    // dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toFloatString();  // outdated
-    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();  // server copes as of v2.0.0
+    //      dict[KEY_CAMCOPS_VERSION] =
+    //          camcopsversion::CAMCOPS_VERSION.toFloatString();
+    // ... outdated
+    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();
+        // ... server copes as of v2.0.0
     dict[KEY_DEVICE] = m_app.deviceId();
     if (include_user) {
         QString user = m_app.varString(varconst::SERVER_USERNAME);
@@ -670,7 +673,8 @@ void NetworkManager::cancel()
 #endif
     cleanup();
     if (m_logbox) {
-        return m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
+        return m_logbox->reject();
+        // its rejected() signal calls our logboxCancelled()
     }
 
     emit cancelled(ErrorCode::NoError, QString());
@@ -685,7 +689,8 @@ void NetworkManager::fail(const ErrorCode error_code,
 #endif
     cleanup();
     if (m_logbox) {
-        return m_logbox->finish(false);  // its signals call our logboxCancelled() or logboxFinished()
+        return m_logbox->finish(false);
+        // its signals call our logboxCancelled() or logboxFinished()
     }
 
     emit cancelled(error_code, error_string);
@@ -699,7 +704,8 @@ void NetworkManager::succeed()
 #endif
     cleanup();
     if (m_logbox) {
-        return m_logbox->finish(true);  // its signals call our logboxCancelled() or logboxFinished()
+        return m_logbox->finish(true);
+        // its signals call our logboxCancelled() or logboxFinished()
     }
 
     emit finished();
@@ -1257,9 +1263,9 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         //     ... or if the server doesn't support that, move on another step
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (m_app.isSingleUserMode()) {
-            // In single user mode, if the server has been updated, we overwrite
-            // the stored server version and refetch all server info without
-            // warning or prompting the user to refetch.
+            // In single user mode, if the server has been updated, we
+            // overwrite the stored server version and refetch all server info
+            // without warning or prompting the user to refetch.
             if (!serverVersionMatchesStored()) {
                 storeServerIdentificationInfo();
 
@@ -1313,7 +1319,9 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         statusMessage("... received allowed tables");
         storeAllowedTables();
-        if (!catalogueTablesForUpload()) {  // checks per-table version requirements
+        if (!catalogueTablesForUpload()) {
+            // ... catalogueTablesForUpload() checks per-table version
+            // requirements, amongst other things.
             fail();
             return;
         }
@@ -1399,7 +1407,8 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         statusMessage(tr("Finished"));
         m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
         m_app.setNeedsUpload(false);
-        m_app.setDefaultPatient(true);  // even for "copy" method; see changelog
+        m_app.setDefaultPatient(true);
+            // ... even for "copy" method; see changelog
         m_app.forceRefreshPatientList();
         succeed();
         break;
@@ -1558,9 +1567,9 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
 void NetworkManager::requestRecordwisePkPrune()
 {
     const QString sql = QString("SELECT %1, %2, %3 FROM %4")
-            .arg(delimit(dbconst::PK_FIELDNAME),  // result column 0
-                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),  // result column 1
-                 delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),  // result column 2
+            .arg(delimit(dbconst::PK_FIELDNAME),
+                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),
+                 delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
                  delimit(m_upload_recordwise_table_in_progress));
     const QueryResult result = m_db.query(sql);
     const QStringList pkvalues = result.columnAsStringList(0);
@@ -1572,7 +1581,8 @@ void NetworkManager::requestRecordwisePkPrune()
     dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
     dict[KEY_PKVALUES] = pkvalues.join(",");
     dict[KEY_DATEVALUES] = datevalues.join(",");
-    dict[KEY_MOVE_OFF_TABLET_VALUES] = move_off_tablet_values.join(",");  // v2.3.0
+    dict[KEY_MOVE_OFF_TABLET_VALUES] = move_off_tablet_values.join(",");
+        // ... v2.3.0
     m_recordwise_prune_req_sent = true;
     statusMessage(tr("Sending message: ") + OP_WHICH_KEYS_TO_SEND);
     serverPost(dict, &NetworkManager::uploadNext);
@@ -1782,7 +1792,8 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     }
 
     // ========================================================================
-    // Step 2: Apply flags from patients to their idnums/tasks/ancillary tables.
+    // Step 2: Apply flags from patients to their idnums/tasks/ancillary
+    // tables.
     // ========================================================================
     // m_upload_patient_ids_to_move_off has been precalculated for efficiency
 

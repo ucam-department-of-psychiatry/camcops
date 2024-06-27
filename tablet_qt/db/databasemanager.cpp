@@ -196,7 +196,8 @@ void DatabaseManager::closeDatabase()
                                          false, false,
                                          true);  // special "die" request
             pushRequest(request);
-            m_thread->wait();  // wait for it to finish (and close the database)
+            m_thread->wait();
+                // ... wait for it to finish (and close the database)
             m_thread = nullptr;  // deletes the thread
         }
     } else {
@@ -257,7 +258,8 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
     qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     Q_ASSERT(fetch_mode != QueryResult::FetchMode::NoAnswer);
-    // ... don't use the query() interface if you want no answer; use execNoAnswer()
+    // ... don't use the query() interface if you want no answer; use
+    //     execNoAnswer()
 
     if (m_threaded) {
         // 1. Queue the query
@@ -380,7 +382,8 @@ void DatabaseManager::work()
         // Fetch a request
         m_mutex_requests.lock();
         if (m_requests.isEmpty()) {
-            m_requests_waiting.wait(&m_mutex_requests);  // woken by: pushRequest()
+            m_requests_waiting.wait(&m_mutex_requests);
+                // ... woken by: pushRequest()
         }
         ThreadedQueryRequest request = m_requests.front();
         // DO NOT CALL pop_front() YET - might be interpreted by
@@ -411,7 +414,8 @@ void DatabaseManager::work()
         // If that (even transiently) cleared the request queue, let anyone
         // who was waiting for the results know
         if (now_empty) {
-            m_queries_are_complete.wakeAll();  // wakes: waitForQueriesToComplete()
+            m_queries_are_complete.wakeAll();
+                // ... wakes: waitForQueriesToComplete()
         }
     }
 }
@@ -764,7 +768,8 @@ void DatabaseManager::renameColumns(
                         dummytable);
     }
     int n_changes = 0;
-    for (const QPair<QString, QString>& pair : from_to) {  // For each rename...
+    for (const QPair<QString, QString>& pair : from_to) {
+        // For each rename...
         const QString& from = pair.first;
         const QString& to = pair.second;
         if (from == to) {
@@ -1119,15 +1124,18 @@ bool DatabaseManager::decrypt(const QString& passphrase,
         // read the database, and calls to canReadDatabase() are quick, so we
         // should check that first. However, this sequence fails:
         //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- OK; "Error: file is not a database"
+        //      SELECT COUNT(*) FROM sqlite_master;
+        //          -- OK; "Error: file is not a database"
         //      PRAGMA key = 'passphrase';  -- OK
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
+        //      SELECT COUNT(*) FROM sqlite_master;
+        //          -- causes a problem; "Error: file is not a database"
         //      PRAGMA cipher_migrate;  -- "1"
         //      .tables  -- "Error: file is not a database"
         //
         // whereas this works:
         //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- "Error: file is not a database"
+        //      SELECT COUNT(*) FROM sqlite_master;
+        //          -- "Error: file is not a database"
         //      PRAGMA key = 'passphrase';
         //      PRAGMA cipher_migrate;  -- "0"
         //      .tables  -- works fine
@@ -1136,7 +1144,8 @@ bool DatabaseManager::decrypt(const QString& passphrase,
         //
         //      SELECT COUNT(*) FROM sqlite_master;
         //      PRAGMA key = 'passphrase';
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
+        //      SELECT COUNT(*) FROM sqlite_master;
+        //          -- causes a problem; "Error: file is not a database"
         //      PRAGMA key = 'passphrase';  -- resets the problem
         //      PRAGMA cipher_migrate;  -- "0"
         //      .tables  -- works fine

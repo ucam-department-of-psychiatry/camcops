@@ -87,7 +87,8 @@ class DatabaseManager
     but we can't do this:
 
         while (!exit_flag) {
-            wait_for_stuff_to_arrive_eg_mutex_signal();  // WON'T NOTICE EXIT SIGNAL HERE
+            wait_for_stuff_to_arrive_eg_mutex_signal();
+                // ... WON'T NOTICE EXIT SIGNAL HERE
             process_stuff();
         }
 
@@ -445,17 +446,21 @@ protected:
     // ------------------------------------------------------------------------
 
     // Returns the low-level driver object.
-    QSqlDriver* driver() const;  // UNCERTAIN IF THIS IS OK to return the driver on the GUI thread, even if it lives in another
+    QSqlDriver* driver() const;
+        // ... UNCERTAIN IF THIS IS OK to return the driver on the GUI thread,
+        // even if it lives in another
 
 protected:
     // Database filename
     QString m_filename;  // written only in constructor; thread-safe access
 
     // Internal name of the database connection
-    QString m_connection_name;  // written only in constructor; thread-safe access
+    QString m_connection_name;
+        // ... written only in constructor; thread-safe access
 
     // Database type, e.g. "QSQLITE" or "SQLCIPHER".
-    QString m_database_type;  // written only in constructor; thread-safe access
+    QString m_database_type;
+        // ... written only in constructor; thread-safe access
 
     // Are we using a multithreaded approach? (Faster.)
     bool m_threaded;  // written only in constructor; thread-safe access
@@ -477,7 +482,8 @@ protected:
     QString m_opening_failure_msg;
 
     // Underlying Qt database object.
-    QSqlDatabase m_db;  // connection owned by worker thread if m_threaded, else GUI thread
+    QSqlDatabase m_db;
+        // ... connection owned by worker thread if m_threaded, else GUI thread
 
     // Mutex to lock the request queue.
     QMutex m_mutex_requests;
@@ -497,7 +503,8 @@ protected:
     QWaitCondition m_queries_are_complete;
 
     // Names of tables that we have created via createTable().
-    QStringList m_created_tables;  // trivial internal helper; accessed only by GUI thread
+    QStringList m_created_tables;
+        // ... trivial internal helper; accessed only by GUI thread
 
     friend class HelpMenu;  // for driver() access
 };

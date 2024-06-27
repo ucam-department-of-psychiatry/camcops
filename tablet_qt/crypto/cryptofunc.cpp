@@ -105,8 +105,8 @@
     // #defines and helper functions for using a DLL approach
     // ------------------------------------------------------------------------
 
-    // Define DEFINE_CRYPTO_FN such that it loads the function X from the DLL/.so
-    // file, and calls it crypto_X.
+    // Define DEFINE_CRYPTO_FN such that it loads the function X from the
+    // DLL/.so file, and calls it crypto_X.
     #define DEFINE_CRYPTO_FN(funcname) \
         prototype_##funcname crypto_##funcname = (prototype_##funcname) lib_crypto.resolve(#funcname);
 
@@ -528,7 +528,8 @@ QString cryptofunc::encryptToBase64(const QString& plaintext,
         return "";
     }
     SecureQByteArray iv_bytes = convert::base64ToSecureBytes(iv_b64);
-    SecureQByteArray plaintext_bytes = plaintext.toLocal8Bit();  // no other conversion
+    SecureQByteArray plaintext_bytes = plaintext.toLocal8Bit();
+        // ... no other conversion
     SecureQByteArray ciphertext_bytes;
     aesEncrypt(key_bytes, iv_bytes, plaintext_bytes, ciphertext_bytes);
     QString ciphertext_b64(ciphertext_bytes.toBase64());

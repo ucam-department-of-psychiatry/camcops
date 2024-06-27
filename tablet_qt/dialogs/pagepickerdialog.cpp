@@ -64,7 +64,8 @@ int PagePickerDialog::choose(int* new_page_number)
     setWindowTitle(m_title);
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
-    auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
+    auto contentwidget = new QWidget();
+        // ... doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int i = 0; i < m_pages.size(); ++i) {
@@ -90,7 +91,8 @@ int PagePickerDialog::choose(int* new_page_number)
     auto scroll = new VerticalScrollArea();
     scroll->setWidget(contentwidget);
 
-    auto mainlayout = new QVBoxLayout();  // does not need to adjust height to contents; contains scroll area
+    auto mainlayout = new QVBoxLayout();
+        // ... does not need to adjust height to contents; contains scroll area
     mainlayout->addWidget(scroll);
     setLayout(mainlayout);
 

@@ -34,7 +34,8 @@ AllowedServerTable::AllowedServerTable(CamcopsApp& app, DatabaseManager& db) :
                    true, false, false, false)
 {
     // Define fields
-    addField(TABLENAME_FIELD, QMetaType::fromType<QString>(), true, true, false);  // unique
+    addField(TABLENAME_FIELD, QMetaType::fromType<QString>(), true, true, false);
+        // ... unique
     addField(VERSION_FIELD, QMetaType::fromType<Version>(), true, false, false);
 }
 

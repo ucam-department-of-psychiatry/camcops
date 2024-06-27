@@ -505,13 +505,15 @@ QMetaObject::Connection ButtonAndProxy::connect(const QObject* receiver,
 */
 
 
-ButtonAndProxy makeTextButton(QGraphicsScene* scene,  // button is added to scene
+ButtonAndProxy makeTextButton(QGraphicsScene* scene,
                               const QRectF& rect,
                               const ButtonConfig& config,
                               const QString& text,
                               QFont font,
                               QWidget* parent)
 {
+    // The button is added to the scene.
+
     Q_ASSERT(scene);
     // We want a button that can take word-wrapping text, but not with the more
     // sophisticated width-adjusting word wrap used by
@@ -676,7 +678,8 @@ SvgWidgetAndProxy makeSvg(
     result.widget->load(contents);
     result.widget->setBackgroundColour(background_colour);
     result.widget->setPressedBackgroundColour(pressed_background_colour);
-    result.widget->setTransparentForMouseEvents(transparent_for_mouse);  // irrelevant!
+    result.widget->setTransparentForMouseEvents(transparent_for_mouse);
+        // ... irrelevant!
 
     const QSizeF size = result.widget->sizeHint();
     const QPointF top_left(centre.x() - size.width() / 2,
@@ -716,7 +719,8 @@ QGraphicsPixmapItem* makeImage(
 {
     // https://stackoverflow.com/questions/5960074/qimage-in-a-qgraphics-scene
     const QPointF top_left = rect.topLeft();
-    const QSize size = QSize(qRound(rect.width()), qRound(rect.height()));  // convert float to int
+    const QSize size = QSize(qRound(rect.width()), qRound(rect.height()));
+        // ... convert float to int
     const QPixmap pixmap_raw = QPixmap(filename);
     const QPixmap pixmap_scaled = pixmap_raw.scaled(size, aspect_ratio_mode,
                                                     transformation_mode_1);
@@ -725,7 +729,9 @@ QGraphicsPixmapItem* makeImage(
         auto opacity_img = new GraphicsPixmapItemWithOpacity(pixmap_scaled);
         opacity_img->setOpacity(opacity);
         img = opacity_img;
-        scene->addItem(img);  // the scene takes ownership: https://doc.qt.io/qt-6.5/qgraphicsscene.html#addItem
+        scene->addItem(img);
+            // ... the scene takes ownership:
+            // https://doc.qt.io/qt-6.5/qgraphicsscene.html#addItem
     } else {
         img = scene->addPixmap(pixmap_scaled);
     }
