@@ -69,7 +69,8 @@ protected:
 
 protected:
     QWidget* m_contents;  // the widget we're displaying
-    QPointer<QGraphicsScene> m_scene;  // a graphics scene containing the contents
+    QPointer<QGraphicsScene> m_scene;
+        // ... a graphics scene containing the contents.
     QPointer<ZoomableGraphicsView> m_view;  // view to display/zoom the scene
     QSize m_minimum_size;  // how small may we be displayed?
 };

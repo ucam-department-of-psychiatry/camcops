@@ -42,7 +42,8 @@
 // #define DEBUG_LAYOUT_WITH_CSS
 
 #define LWWW_USE_UNWRAPPED_CACHE  // seems OK on wombat
-// #define LWWW_USE_QLABEL_CACHE  // not OK (wombat), even if cache cleared on every event
+// #define LWWW_USE_QLABEL_CACHE
+// ... not OK (wombat), even if cache cleared on every event
 #define LWWW_USE_STYLE_CACHE  // seems OK on wombat
 
 #if defined(LWWW_USE_UNWRAPPED_CACHE) || defined(LWWW_USE_QLABEL_CACHE) || defined(LWWW_USE_STYLE_CACHE)
@@ -198,7 +199,8 @@ int LabelWordWrapWide::qlabelHeightForWidth(const int width) const
     //  QLabel::heightForWidth(w)
     //  -> QLabelPrivate::sizeForWidth(w)
     //  ... which does:
-    //      - remove contentsMargin.width() AND hextra (= 2 * margin +/- indent)
+    //      - remove contentsMargin.width() AND
+    //        hextra (= 2 * margin +/- indent)
     //      - add back contents margins AND hextra AND vextra (= hextra)
     // ... and in which:
     //      "control": QWidgetTextControl*
@@ -316,7 +318,8 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     //   #define Q_D(Class) Class##Private* const d = d_func()
     //      ... Q_D gives the class a pointer to its private-class member
     //   #define Q_Q(Class) Class* const q = q_func()
-    //      ... Q_Q gives the private class a pointer to its public-class member
+    //      ... Q_Q gives the private class a pointer to its public-class
+    //          member
     // Ah, not that much harder.
     // - http://stackoverflow.com/questions/1337523/measuring-text-width-in-qt
     // Compare:

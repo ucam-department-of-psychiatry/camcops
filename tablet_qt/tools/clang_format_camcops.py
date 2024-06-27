@@ -69,6 +69,7 @@ CLANG_FORMAT_EXECUTABLE = f"clang-format-{CLANG_FORMAT_VERSION}"
 DEFAULT_MAX_LINE_LENGTH = 79  # should match clang_format_camcops.yaml
 DIFFTOOL = "meld"
 ENC = sys.getdefaultencoding()
+URL_INDICATORS = ("http://", "https://")
 
 
 class Command(Enum):
@@ -182,11 +183,21 @@ def get_line_at_pos(contents: str, pos: int) -> Tuple[int, str]:
 
 
 def print_long_comments(
-    filename: str, maxlinelength: int = DEFAULT_MAX_LINE_LENGTH
+    filename: str,
+    maxlinelength: int = DEFAULT_MAX_LINE_LENGTH,
+    ignore_urls: bool = False,
 ) -> None:
     """
     Print any line in the file that is longer than maxlinelength and contains,
     or is part of, a C++ comment.
+
+    Args:
+        filename:
+            File to read.
+        maxlinelength:
+            Maximum permissible line length.
+        ignore_urls:
+            Ignore any lines that contain a string from URL_INDICATORS.
     """
     log.debug(
         f"Searching for comment lines >{maxlinelength} characters: {filename}"
@@ -201,6 +212,9 @@ def print_long_comments(
             if linenum not in lines_seen:
                 lines_seen.add(linenum)
                 if len(linetext) > maxlinelength:
+                    if ignore_urls:
+                        if any(u in linetext for u in URL_INDICATORS):
+                            continue
                     report_line(filename, linenum, linetext)
 
 
@@ -262,6 +276,12 @@ def clang_format_camcops_source() -> None:
         help=f"Maximum line length for {Command.FINDLONGCOMMENTS.value!r} "
         f"command (does not affect clang-format, which is governed by our "
         f"preset {CLANG_FORMAT_BASE_FILENAME})",
+    )
+    parser.add_argument(
+        "--ignore_urls",
+        action="store_true",
+        help=f"For {Command.FINDLONGCOMMENTS.value!r}, ignore any line that "
+        f"contains any of: {URL_INDICATORS!r}",
     )
     parser.add_argument(
         "--diffall",
@@ -352,7 +372,11 @@ def clang_format_camcops_source() -> None:
         elif command == Command.DIFF:
             log.info(f"Diff: {filename}")
         elif command == Command.FINDLONGCOMMENTS:
-            print_long_comments(filename, maxlinelength=args.maxlinelength)
+            print_long_comments(
+                filename,
+                maxlinelength=args.maxlinelength,
+                ignore_urls=args.ignore_urls,
+            )
             continue
         elif command == Command.LIST:
             print(filename)

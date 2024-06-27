@@ -64,7 +64,8 @@ ZoomableWidget::ZoomableWidget(QWidget* contents,
     // We create a graphics scene containing our target widget.
     contents->ensurePolished();
     m_scene = new QGraphicsScene();
-    m_scene->addWidget(contents);  // adds it at (0,0); returns QGraphicsProxyWidget*
+    m_scene->addWidget(contents);
+    // ... adds it at (0,0); returns QGraphicsProxyWidget*
 
     // We create a graphics view to show the scene.
     // The view is where we implement zooming.

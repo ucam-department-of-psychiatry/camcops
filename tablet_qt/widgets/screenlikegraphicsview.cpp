@@ -41,7 +41,8 @@ ScreenLikeGraphicsView::ScreenLikeGraphicsView(QGraphicsScene* scene,
                                                QWidget* parent) :
     ScreenLikeGraphicsView(parent)  // delegating constructor
 {
-    setScene(scene);  // this is what QGraphicsView(scene, parent) does internally
+    setScene(scene);
+    // This is what QGraphicsView(scene, parent) does internally.
 }
 
 
@@ -71,7 +72,7 @@ void ScreenLikeGraphicsView::resizeEvent(QResizeEvent* event)
 
 void ScreenLikeGraphicsView::showEvent(QShowEvent* event)
 {
-    // http://stackoverflow.com/questions/17028680/qt5-c-qgraphicsview-images-dont-fit-view-frame
+    // http://stackoverflow.com/questions/17028680/
     Q_UNUSED(event)
     fitView();
 }
