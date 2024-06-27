@@ -152,8 +152,10 @@ const QString FN_FLUENCY_LETTERS_SCORE(QStringLiteral("fluency_letters_score"));
 const QString FN_FLUENCY_ANIMALS_SCORE(QStringLiteral("fluency_animals_score"));
 const QString FP_MEM_FAMOUS(QStringLiteral("mem_famous"));
 const int N_MEM_FAMOUS = 4;
-const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));  // SCORE; matches versions before 2.0.0
-const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));  // CHOICE; v2.0.0 onwards
+const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));
+    // ... SCORE; matches versions before 2.0.0
+const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));
+    // ... CHOICE; v2.0.0 onwards
 // ... storing raw choices is new in v2.0.0, but the score field is preserved
 //     for backwards compatibility
 const int N_MEM_RECOGNIZE_ADDRESS = 5;

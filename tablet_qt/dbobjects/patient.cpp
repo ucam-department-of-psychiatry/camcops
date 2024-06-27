@@ -562,14 +562,16 @@ bool Patient::anyIdClash() const
                 "SELECT COUNT(*) "
                 "FROM %1 otherpt "
                 "INNER JOIN %1 thispt "
-                "  ON otherpt.%2 = thispt.%2 "  // which_idnum
-                "  AND otherpt.%3 = thispt.%3 "  // idnum value; will automatically ignore NULLs
-                "  AND otherpt.%4 <> thispt.%4 "  // patient PK
-                "WHERE thispt.%4 = ?")  // patient PK
+                "  ON otherpt.%2 = thispt.%2 "
+                "  AND otherpt.%3 = thispt.%3 "
+                "  AND otherpt.%4 <> thispt.%4 "
+                "WHERE thispt.%4 = ?")
             .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),  // %1
                  delimit(PatientIdNum::FN_WHICH_IDNUM),  // %2
                  delimit(PatientIdNum::FN_IDNUM_VALUE),  // %3
                  delimit(PatientIdNum::FK_PATIENT));  // %4
+        // ... %3: idnum value; comparison will automatically ignore NULLs
+        // ... %4: patient PK
     args.append(id());
     const SqlArgs sqlargs(sql, args);
     const int c = m_db.fetchInt(sqlargs);

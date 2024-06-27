@@ -78,11 +78,14 @@ const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
 const QString KEY_IP_USE_INFO("ip_use_info");  // S->C, new in v2.4.0
-const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");  // S->C, new in v2.4.0
+const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");
+    // ... S->C, new in v2.4.0
 const QString KEY_IP_USE_CLINICAL("ip_use_clinical");  // S->C, new in v2.4.0
-const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");  // S->C, new in v2.4.0
+const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");
+    // ... S->C, new in v2.4.0
 const QString KEY_IP_USE_RESEARCH("ip_use_research");  // S->C, new in v2.4.0
-const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");  // C->S, v2.3.0
+const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");
+    // ... C->S, v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
@@ -106,9 +109,12 @@ const QString KEY_VALUES("values");  // C->S
 const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
 const QString KEYSPEC_ID_DESCRIPTION(KEYPREFIX_ID_DESCRIPTION + "%1");  // S->C
 const QString KEYPREFIX_ID_SHORT_DESCRIPTION("idShortDescription");  // S->C
-const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");  // S->C
-const QString KEYPREFIX_ID_VALIDATION_METHOD("idValidationMethod");  // S->C, new in v2.2.8
-const QString KEYSPEC_ID_VALIDATION_METHOD(KEYPREFIX_ID_VALIDATION_METHOD + "%1");  // S->C, new in v2.2.8
+const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");
+    // ... S->C
+const QString KEYPREFIX_ID_VALIDATION_METHOD("idValidationMethod");
+    // ... S->C, new in v2.2.8
+const QString KEYSPEC_ID_VALIDATION_METHOD(KEYPREFIX_ID_VALIDATION_METHOD + "%1");
+    // ... S->C, new in v2.2.8
 const QString KEYSPEC_RECORD("record%1");  // B
 
 // Operations for server:

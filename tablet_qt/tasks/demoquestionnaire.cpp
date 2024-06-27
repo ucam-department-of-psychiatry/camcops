@@ -91,7 +91,8 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
 {
     using stringfunc::strseq;
 
-    addFields(strseq(QStringLiteral("mcq"), 1, 10), QMetaType::fromType<int>());  // 9-10: v2
+    addFields(strseq(QStringLiteral("mcq"), 1, 10), QMetaType::fromType<int>());
+        // ... 9-10: v2
     addFields(strseq(QStringLiteral("mcqbool"), 1, 3), QMetaType::fromType<bool>());
     addFields(strseq(QStringLiteral("multipleresponse"), 1, 6), QMetaType::fromType<bool>());
     addFields(strseq(QStringLiteral("booltext"), 1, 22), QMetaType::fromType<bool>());
@@ -101,24 +102,33 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
     addFields(strseq(QStringLiteral("mcqtext_"), 1, 3, {"a", "b"}), QMetaType::fromType<QString>());
     addField(QStringLiteral("typedvar_text"), QMetaType::fromType<QString>());
     addField(QStringLiteral("typedvar_text_multiline"), QMetaType::fromType<QString>());
-    addField(QStringLiteral("typedvar_text_rich"), QMetaType::fromType<QString>());  // v2
+    addField(QStringLiteral("typedvar_text_rich"), QMetaType::fromType<QString>());
+        // ... v2
     addField(QStringLiteral("typedvar_int"), QMetaType::fromType<int>());
     addField(QStringLiteral("typedvar_real"), QMetaType::fromType<double>());
-    addField(QStringLiteral("spinbox_int"), QMetaType::fromType<int>());  // v2
-    addField(QStringLiteral("spinbox_real"), QMetaType::fromType<double>());  // v2
+    addField(QStringLiteral("spinbox_int"), QMetaType::fromType<int>());
+        // ... v2
+    addField(QStringLiteral("spinbox_real"), QMetaType::fromType<double>());
+        // ... v2
     addField(QStringLiteral("date_time"), QMetaType::fromType<QDateTime>());
     addField(QStringLiteral("date_only"), QMetaType::fromType<QDate>());
-    addField(QStringLiteral("time_only"), QMetaType::fromType<QTime>());  // v2
+    addField(QStringLiteral("time_only"), QMetaType::fromType<QTime>());
+        // ... v2
     addField(QStringLiteral("thermometer"), QMetaType::fromType<int>());
     addField(QStringLiteral("diagnosticcode_code"), QMetaType::fromType<QString>());
     addField(QStringLiteral("diagnosticcode_description"), QMetaType::fromType<QString>());
-    addField(QStringLiteral("diagnosticcode2_code"), QMetaType::fromType<QString>());  // v2
-    addField(QStringLiteral("diagnosticcode2_description"), QMetaType::fromType<QString>());  // v2
-    addField(QStringLiteral("photo_blobid"), QMetaType::fromType<int>());  // FK to BLOB table
+    addField(QStringLiteral("diagnosticcode2_code"), QMetaType::fromType<QString>());
+        // ... v2
+    addField(QStringLiteral("diagnosticcode2_description"), QMetaType::fromType<QString>());
+        // ... v2
+    addField(QStringLiteral("photo_blobid"), QMetaType::fromType<int>());
+        // ... FK to BLOB table
     // addField(QStringLiteral("photo_rotation"),
     //          QMetaType::fromType<QString>());  // DEFUNCT in v2
-    addField(QStringLiteral("canvas_blobid"), QMetaType::fromType<int>());  // FK to BLOB table
-    addField(QStringLiteral("canvas2_blobid"), QMetaType::fromType<int>());  // FK to BLOB table; v2
+    addField(QStringLiteral("canvas_blobid"), QMetaType::fromType<int>());
+        // ... FK to BLOB table
+    addField(QStringLiteral("canvas2_blobid"), QMetaType::fromType<int>());
+        // ... FK to BLOB table; v2
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
