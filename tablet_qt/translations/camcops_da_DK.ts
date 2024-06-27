@@ -489,7 +489,7 @@
         <translation>Dekryptering af databaser...</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+38"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
@@ -499,7 +499,7 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+857"/>
+        <location line="+854"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -622,7 +622,7 @@ Har du forbindelse til internettet?</translation>
         <translation>Prøv igen med fejllog</translation>
     </message>
     <message>
-        <location line="+716"/>
+        <location line="+719"/>
         <source>Retry password?</source>
         <translation>Prøv adgangskode igen?</translation>
     </message>
@@ -665,7 +665,7 @@ på grund af denne fejl:
 </translation>
     </message>
     <message>
-        <location line="+932"/>
+        <location line="+929"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -735,13 +735,13 @@ på grund af denne fejl:
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+1156"/>
+        <location line="+1159"/>
         <source>You entered an incorrect password. Try again?&lt;br&gt;&lt;br&gt;Answer &lt;b&gt;%1&lt;/b&gt; to enter your password again.&lt;br&gt;Answer &lt;b&gt;%2&lt;/b&gt; if you can&apos;t remember your password.</source>
         <extracomment>%1 and %2 are Yes and No respectively i.e. the dialog button labels</extracomment>
         <translation>Du har indtastet en forkert adgangskode. Prøv igen??&lt;br&gt;&lt;br&gt;Svar &lt;b&gt;%1&lt;/b&gt; for at indtaste din adgangskode igen.&lt;br&gt;Svar &lt;b&gt;%2&lt;/b&gt; hvis du ikke kan huske din adgangskode.</translation>
     </message>
     <message>
-        <location line="+1932"/>
+        <location line="+1929"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -4965,11 +4965,6 @@ enig</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../db/dbfunc.cpp" line="+312"/>
-        <source>Error encrypting databases</source>
-        <translation>Fejl ved kryptering af databaser</translation>
-    </message>
-    <message>
         <location filename="../lib/uifunc.h" line="+133"/>
         <location line="+4"/>
         <source>Alert</source>
@@ -5019,6 +5014,13 @@ enig</translation>
         <location line="+0"/>
         <source>WRONG</source>
         <translation>FORKERT</translation>
+    </message>
+    <message>
+        <location filename="../db/dbfunc.cpp" line="+313"/>
+        <source>Error encrypting databases:
+%1</source>
+        <translation>Fejl ved kryptering af databaser:
+%1</translation>
     </message>
 </context>
 <context>

@@ -63,6 +63,7 @@ Quick links:
 - :ref:`v2.4.16 <changelog_v2.4.16>`
 - :ref:`v2.4.17 <changelog_v2.4.17>`
 - :ref:`v2.4.18 <changelog_v2.4.18>`
+- :ref:`v2.4.19 <changelog_v2.4.19>`
 
 Contributors
 ------------
@@ -3878,8 +3879,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   See ``tablet_qt/widgets/cameraqcamera.h``.
 
 
-**Client and server v2.4.19, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.19:
+
+**Client and server v2.4.19, released 27 Jun 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
@@ -3912,3 +3915,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/347
 
 - New task: :ref:`The Adult Autism Spectrum Quotient (AQ) <aq>`. (Database revision 0085.)
+
+- Fix a bug where if the user entered an incorrect password and then cancelled the
+  dialog to prompt them to delete the database, it was impossible for them to then
+  enter the correct password.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/353
+
+**Client and server v2.4.20, , IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

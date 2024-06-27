@@ -39,8 +39,8 @@ camcops_server/cc_modules/cc_version_string.py
 # -----------------------------------------------------------------------------
 # When you alter the server, it is normal to change these two:
 
-CAMCOPS_SERVER_VERSION_STRING = "2.4.18"
-CAMCOPS_SERVER_CHANGEDATE = "2024-02-05"
+CAMCOPS_SERVER_VERSION_STRING = "2.4.19"
+CAMCOPS_SERVER_CHANGEDATE = "2024-06-27"
 
 # +++ NOW ALSO UPDATE: +++
 #

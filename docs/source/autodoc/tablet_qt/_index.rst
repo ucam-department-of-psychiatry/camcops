@@ -938,6 +938,8 @@ tablet_qt
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
     tests/auto/auto.pro.rst
+    tests/auto/db/databasemanager/databasemanager.pro.rst
+    tests/auto/db/databasemanager/testdatabasemanager.cpp.rst
     tests/auto/db/db.pro.rst
     tests/auto/db/field/field.pro.rst
     tests/auto/db/field/testfield.cpp.rst
