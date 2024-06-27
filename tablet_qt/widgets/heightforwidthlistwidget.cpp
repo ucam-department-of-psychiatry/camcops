@@ -40,8 +40,11 @@ HeightForWidthListWidget::HeightForWidthListWidget(QWidget* parent) :
 bool HeightForWidthListWidget::event(QEvent* e)
 {
     switch (e->type()) {
-    case QEvent::Resize:  // Alternative is resizeEvent() but we need to trap other events too
-    case QEvent::LayoutRequest:  // See QWidget::updateGeometry() -- they will come here
+    case QEvent::Resize:
+        // ... Alternative is resizeEvent() but we need to trap other events
+        // too
+    case QEvent::LayoutRequest:
+        // See QWidget::updateGeometry() -- they will come here
         {
             // At this point, we have already been resized, so can use width();
             // https://doc.qt.io/qt-6.5/qwidget.html#resizeEvent

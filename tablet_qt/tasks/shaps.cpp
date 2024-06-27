@@ -60,7 +60,8 @@ void initializeShaps(TaskFactory& factory)
 
 
 Shaps::Shaps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SHAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, SHAPS_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(fieldNames(), QMetaType::fromType<int>());

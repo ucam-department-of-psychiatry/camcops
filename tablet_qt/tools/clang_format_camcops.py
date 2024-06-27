@@ -49,7 +49,7 @@ from typing import List, Set, Tuple
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
 from pygments.lexer import RegexLexer
-from pygments.token import Text, Comment, Whitespace
+from pygments.token import Comment, String, Text, Whitespace
 from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
@@ -123,20 +123,24 @@ class CppCommentLexer(RegexLexer):
     """
     Pygments lexer to find C++ comments. Based on
     https://pygments.org/docs/lexerdevelopment/, but modified slightly.
-    Now it produces all lines separately from within multiline comments.
+    Now it produces all lines separately from within multiline comments,
+    and deals with string literals a bit.
     """
 
     name = "C++ comment lexer"
     tokens = {
         "root": [
             # At the root level:
-            # - Anything not including a forward slash is text.
-            (r"[^/]+", Text),
+            # - Anything not including a forward slash or a double quote is
+            #   text.
+            (r"[^/\"]+", Text),
             # - The sequence /* starts a multiline comment (state: "comment").
             #   ADDED: [\n]?, to swallow a trailing newline.
             (r"/\*", Comment.Multiline, "comment"),
             # - The sequence // makes the rest of the line a comment.
             (r"//.*?$", Comment.Singleline),
+            # - A double quote enters a string literal.
+            (r"\"", String, "string"),
             # - A plain forward slash is still plain text.
             (r"/", Text),
         ],
@@ -157,6 +161,15 @@ class CppCommentLexer(RegexLexer):
             (r"\*/", Comment.Multiline, "#pop"),
             # - A star or a forward slash, otherwise, remains within a comment.
             (r"[*/]", Comment.Multiline),
+        ],
+        "string": [
+            # Within a string literal:
+            # - We can escape double quotes.
+            (r"\\\"", String),
+            # - Otherwise a double quote ends the string.
+            (r"\"", String, "#pop"),
+            # - Anything else is part of the string.
+            (r".+", String),
         ],
     }
 
@@ -207,6 +220,7 @@ def print_long_comments(
         contents = f.read()
     lexer = CppCommentLexer()
     for pos, tokentype, tokentext in lexer.get_tokens_unprocessed(contents):
+        # log.warning(f"{pos=}, {tokentype=}, {tokentext=}")
         if tokentype in (Comment.Multiline, Comment.Singleline):
             linenum, linetext = get_line_at_pos(contents, pos)
             if linenum not in lines_seen:

@@ -96,8 +96,8 @@ protected:
     QSize extraSizeForCssOrLayout() const;
 
     // Clear our cached information.
-    // - Widgets shouldn't need to cache their size hints; that's done by layouts
-    //   for them. See
+    // - Widgets shouldn't need to cache their size hints; that's done by
+    //   layouts for them. See
     //   http://kdemonkey.blogspot.co.uk/2013/11/understanding-qwidget-layout-flow.html
     // - However, for performance... we'll cache some things.
     //   In particular, word-wrapping labels can get asked to calculate their

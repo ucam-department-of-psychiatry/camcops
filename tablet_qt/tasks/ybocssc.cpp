@@ -155,7 +155,8 @@ void initializeYbocsSc(TaskFactory& factory)
 
 
 YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, YBOCSSC_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, YBOCSSC_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
         addField(item + SUFFIX_CURRENT, QMetaType::fromType<bool>());

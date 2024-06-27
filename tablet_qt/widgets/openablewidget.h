@@ -92,5 +92,6 @@ protected:
     QPointer<QWidget> m_subwidget;  // our subwidget
     bool m_wants_fullscreen;  // do we want to be in fullscreen mode?
     bool m_escape_key_can_abort;  // can the Esc key abort?
-    bool m_escape_aborts_without_confirmation;  // can the Esc key abort instantly?
+    bool m_escape_aborts_without_confirmation;
+        // ... can the Esc key abort instantly?
 };

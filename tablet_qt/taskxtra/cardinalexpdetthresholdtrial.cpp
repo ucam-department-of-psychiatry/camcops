@@ -47,7 +47,8 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
 {
     // Keys
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
-    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // trial number within this session, 0-based
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);
+        // ... trial number within this session, 0-based
     // Results
     addField(FN_TRIAL_IGNORING_CATCH_TRIALS, QMetaType::fromType<int>());
     addField(FN_TARGET_PRESENTED, QMetaType::fromType<bool>());
@@ -60,7 +61,8 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
     addField(FN_YES, QMetaType::fromType<bool>());
     addField(FN_NO, QMetaType::fromType<bool>());
     addField(FN_CAUGHT_OUT_RESET, QMetaType::fromType<bool>());
-    addField(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, QMetaType::fromType<int>());  // 0 or NULL for trials not used
+    addField(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, QMetaType::fromType<int>());
+        // ... 0 or NULL for trials not used
 
     load(load_pk);
 }
@@ -76,7 +78,8 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
 {
     setValue(FN_FK_TO_TASK, task_pk);
     setValue(FN_TRIAL, trial_num);  // 0-based
-    setValue(FN_TRIAL_IGNORING_CATCH_TRIALS, trial_num_ignoring_catch_trials);  // 0-based
+    setValue(FN_TRIAL_IGNORING_CATCH_TRIALS, trial_num_ignoring_catch_trials);
+        // ... 0-based
     setValue(FN_TARGET_PRESENTED, target_presented);
     if (target_presented) {
         QDateTime now = datetime::now();

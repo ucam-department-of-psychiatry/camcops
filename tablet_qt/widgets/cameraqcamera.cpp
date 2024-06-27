@@ -86,9 +86,12 @@
 #include "dialogs/scrollmessagebox.h"
 #include "lib/uifunc.h"
 
-// NOT IMPLEMENTED (see CameraQml instead): choose camera front/back
-// NOT IMPLEMENTED (see CameraQml instead): set preview resolution (from those supported)
-// NOT IMPLEMENTED (see CameraQml instead): set main resolution (from those supported)
+/*
+    NOT IMPLEMENTED (see CameraQml instead):
+    - choose camera front/back
+    - set preview resolution (from those supported)
+    - set main resolution (from those supported)
+*/
 
 /*
 
@@ -118,7 +121,8 @@ Or maybe not?
 - https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
 
 The actual error on Android is:
-... warning: The video surface is not compatible with any format supported by the camera
+... warning: The video surface is not compatible with any format supported by
+    the camera
 
 */
 
@@ -312,7 +316,8 @@ void CameraQCamera::stopCamera()
 void CameraQCamera::takeImage()
 {
     m_capturing_image = true;
-    // !!! CameraQCamera::takeImage: implement some sort of wait message -- but superseded by CameraQml
+    // !!! CameraQCamera::takeImage: implement some sort of wait message --
+    // but superseded by CameraQml
     updateButtons();
 #ifdef DEBUG_CAMERA
     qDebug() << Q_FUNC_INFO << "calling capture()";

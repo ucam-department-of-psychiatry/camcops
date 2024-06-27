@@ -116,7 +116,8 @@ const QString FN_VOLUME("volume");
 const QString FN_OFFER_ABORT("offer_abort");
 const QString FN_DEBUG_DISPLAY_STIMULI_ONLY("debug_display_stimuli_only");
 const QString FN_SHAPE_DEFINITIONS_SVG("shape_definitions_svg");
-const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");  // new in v2.0.0
+const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");
+    // ... new in v2.0.0
 const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
 const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");

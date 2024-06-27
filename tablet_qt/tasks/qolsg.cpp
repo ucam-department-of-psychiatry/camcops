@@ -71,8 +71,8 @@ const QString FN_UTILITY("utility");
 const QString TX_UTILITY("Utility");
 const QString TX_INITIAL_INSTRUCTION(
         "Quality of Life Standard Gamble<br><br><br>"
-        "<b>Please choose the statement that best describes your current health "
-        "state:</b>");
+        "<b>Please choose the statement that best describes your current "
+        "health state:</b>");
 const QString TX_CURRENT_STATE("Current state");
 const QString TX_DEAD("Dead");
 const QString TX_HEALTHY("Healthy");
@@ -139,7 +139,8 @@ const int TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
-const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;  // Qt::AlignLeft | Qt::AlignTop;
+const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
+    // ... Qt::AlignLeft | Qt::AlignTop;
 
 const qreal EDGESPACE_FRAC = 0.01; // left, right
 const qreal EDGESPACE_AT_STIM = 0.05;

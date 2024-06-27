@@ -61,17 +61,21 @@ IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
 {
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
     // More keys
-    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // 1-based trial number within this session
-    addField(FN_STAGE, QMetaType::fromType<int>(), true);  // 1-based stage number within this session
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);
+        // ... 1-based trial number within this session
+    addField(FN_STAGE, QMetaType::fromType<int>(), true);
+        // ... 1-based stage number within this session
     // Locations
     addField(FN_CORRECT_LOCATION, QMetaType::fromType<int>());
     addField(FN_INCORRECT_LOCATION, QMetaType::fromType<int>());
     // Stimuli
     addField(FN_CORRECT_SHAPE, QMetaType::fromType<int>());
-    addField(FN_CORRECT_COLOUR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_COLOUR, QMetaType::fromType<int>());
+        // ... was string prior to 2.0.0
     addField(FN_CORRECT_NUMBER, QMetaType::fromType<int>());
     addField(FN_INCORRECT_SHAPE, QMetaType::fromType<int>());
-    addField(FN_INCORRECT_COLOUR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_INCORRECT_COLOUR, QMetaType::fromType<int>());
+        // ... was string prior to 2.0.0
     addField(FN_INCORRECT_NUMBER, QMetaType::fromType<int>());
     // Trial
     addField(FN_TRIAL_START_TIME, QMetaType::fromType<QDateTime>());
@@ -89,7 +93,8 @@ IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
 IDED3DTrial::IDED3DTrial(const IDED3DStage& stage,
                          const int trial_num_zero_based,
                          CamcopsApp& app, DatabaseManager& db) :
-    IDED3DTrial::IDED3DTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
+    IDED3DTrial::IDED3DTrial(app, db, dbconst::NONEXISTENT_PK)
+        // ... delegating constructor
 {
     m_stage_num_zero_based = stage.stageNumZeroBased();
     // Keys

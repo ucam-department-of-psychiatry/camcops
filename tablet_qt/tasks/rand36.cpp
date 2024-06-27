@@ -67,7 +67,8 @@ void initializeRand36(TaskFactory& factory)
 
 
 Rand36::Rand36(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, RAND36_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, RAND36_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
