@@ -109,8 +109,12 @@ void FontSizeAndDpiWindow::setUpPage(QuPagePtr page)
     const QString override_phy_x(tr("Physical DPI, X"));
     const QString override_phy_y(tr("Physical DPI, Y"));
 
-    const double dpi_min = 50;  // 67 realistic low end; https://en.wikipedia.org/wiki/Pixel_density
-    const double dpi_max = 4000;  // 3760 has been achieved; https://en.wikipedia.org/wiki/Pixel_density
+    const double dpi_min = 50;
+        // ... 67 realistic low end;
+        //     https://en.wikipedia.org/wiki/Pixel_density
+    const double dpi_max = 4000;
+        // ... 3760 has been achieved;
+        //     https://en.wikipedia.org/wiki/Pixel_density
     const QString dpi_hint(tr("Dots per inch (DPI), e.g. 96; range %1-%2")
                            .arg(dpi_min).arg(dpi_max));
 

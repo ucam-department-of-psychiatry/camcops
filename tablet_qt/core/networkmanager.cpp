@@ -757,7 +757,8 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
     } else {
         statusMessage(tr("Network error:") + " " + reply->errorString());
     }
-    reply->deleteLater();  // https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#details
+    reply->deleteLater();
+    // ... https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#details
     succeed();
 }
 

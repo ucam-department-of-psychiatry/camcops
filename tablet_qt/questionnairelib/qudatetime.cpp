@@ -272,8 +272,8 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         // font.setPixelSize(60);  // Does NOT work!
         // m_calendar_widget->setFont(font);
 
-        // Hack: change calendar title colors
-        // See https://www.qtcentre.org/threads/30478-How-To-Change-Style-Sheet-for-QCalendarWidget
+        // Hack: change calendar title colors. See
+        // https://www.qtcentre.org/threads/30478-How-To-Change-Style-Sheet-for-QCalendarWidget
         QWidget* calendar_navbar = m_calendar_widget->findChild<QWidget*>("qt_calendar_navigationbar");
         if (calendar_navbar) {
             // Does get called.

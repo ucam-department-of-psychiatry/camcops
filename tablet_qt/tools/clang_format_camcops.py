@@ -174,12 +174,17 @@ class CppCommentLexer(RegexLexer):
     }
 
 
-def report_line(filename: str, linenum: int, text: str) -> None:
+def report_line(
+    filename: str, linenum: int, text: str, bare: bool = False
+) -> None:
     """
     Prints a line to stdout, preceded by its filename and line number, in
     conventional format.
     """
-    print(f"{filename}:{linenum}, length {len(text)}: {text}")
+    if bare:
+        print(text)
+    else:
+        print(f"{filename}:{linenum}, length {len(text)}: {text}")
 
 
 def get_line_at_pos(contents: str, pos: int) -> Tuple[int, str]:
@@ -199,6 +204,7 @@ def print_long_comments(
     filename: str,
     maxlinelength: int = DEFAULT_MAX_LINE_LENGTH,
     ignore_urls: bool = False,
+    bare: bool = False,
 ) -> None:
     """
     Print any line in the file that is longer than maxlinelength and contains,
@@ -211,6 +217,8 @@ def print_long_comments(
             Maximum permissible line length.
         ignore_urls:
             Ignore any lines that contain a string from URL_INDICATORS.
+        bare:
+            Print offending lines bare.
     """
     log.debug(
         f"Searching for comment lines >{maxlinelength} characters: {filename}"
@@ -229,7 +237,7 @@ def print_long_comments(
                     if ignore_urls:
                         if any(u in linetext for u in URL_INDICATORS):
                             continue
-                    report_line(filename, linenum, linetext)
+                    report_line(filename, linenum, linetext, bare=bare)
 
 
 # =============================================================================
@@ -296,6 +304,11 @@ def clang_format_camcops_source() -> None:
         action="store_true",
         help=f"For {Command.FINDLONGCOMMENTS.value!r}, ignore any line that "
         f"contains any of: {URL_INDICATORS!r}",
+    )
+    parser.add_argument(
+        "--bare",
+        action="store_true",
+        help=f"For {Command.FINDLONGCOMMENTS.value!r}, print lines bare",
     )
     parser.add_argument(
         "--diffall",
@@ -390,6 +403,7 @@ def clang_format_camcops_source() -> None:
                 filename,
                 maxlinelength=args.maxlinelength,
                 ignore_urls=args.ignore_urls,
+                bare=args.bare,
             )
             continue
         elif command == Command.LIST:

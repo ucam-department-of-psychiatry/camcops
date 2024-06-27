@@ -18,7 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Consider: linear v. logarithmic volume; https://doc.qt.io/qt-6.5/qaudio.html#convertVolume
+// Consider: linear v. logarithmic volume;
+// https://doc.qt.io/qt-6.5/qaudio.html#convertVolume
 
 // #define DEBUG_STEP_DETAIL
 

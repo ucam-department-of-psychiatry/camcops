@@ -1520,7 +1520,8 @@ void CamcopsApp::createStoredVars()
     // ------------------------------------------------------------------------
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
-    DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
+    DbNestableTransaction trans(*m_sysdb);
+        // ... https://www.sqlite.org/faq.html#q19
 
     // Client mode
     createVar(varconst::MODE, QMetaType::fromType<int>(), varconst::MODE_NOT_SET);
