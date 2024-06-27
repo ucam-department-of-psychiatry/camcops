@@ -46,8 +46,8 @@ ZoomableGraphicsView::ZoomableGraphicsView(
     m_two_finger_zooming(false),
     m_two_finger_start_scale(1.0)
 {
-    // For touch zoom and touch drag:
-    // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
+    // For touch zoom and touch drag. See
+    // https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
     viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
     setDragMode(ScrollHandDrag);
 
