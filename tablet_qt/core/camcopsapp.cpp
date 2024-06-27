@@ -258,7 +258,7 @@ int CamcopsApp::getModeFromUser()
             // Exit the app if called on startup
             uifunc::stopApp(
                 tr("You did not select how you would like to use CamCOPS")
-                );
+            );
         }
     }
 
@@ -273,7 +273,7 @@ bool CamcopsApp::modeChangeForbidden() const
         if (patientRecordsPresent()) {
             uifunc::alert(
                 tr("You cannot change mode when there are patient records present")
-                );
+            );
             return true;
         }
     }
@@ -281,7 +281,7 @@ bool CamcopsApp::modeChangeForbidden() const
         // Switch in either direction
         uifunc::alert(
             tr("You cannot change mode when there are tasks still to be uploaded")
-            );
+        );
         return true;
     }
 
@@ -377,7 +377,7 @@ bool CamcopsApp::registerPatientWithServer()
     QString new_patient_proquint;
 
     if (!m_default_server_url.isEmpty() &&
-        !m_default_patient_proquint.isEmpty()) {
+            !m_default_patient_proquint.isEmpty()) {
         // These defaults may have been passed in as command-line options;
         // see processCommandLineArguments().
         new_server_url = m_default_server_url;
@@ -435,7 +435,7 @@ bool CamcopsApp::confirmDeletePatient() const
         tr(
             "Registering a new patient will delete the current patient and "
             "any associated data. Are you sure you want to do this?"
-            ) + "\n\n",
+        ) + "\n\n",
         m_p_main_window);
     QAbstractButton* delete_button = msgbox.addButton(
         tr("Yes, delete"), QMessageBox::YesRole);
@@ -475,7 +475,7 @@ void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
             uifunc::alert(
                 tr("You cannot update your task schedules when there are "
                    "unfinished tasks")
-                );
+            );
         }
 
         return;
@@ -490,8 +490,8 @@ void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
 
 
 void CamcopsApp::patientRegistrationFailed(
-    const NetworkManager::ErrorCode error_code,
-    const QString& error_string)
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
 {
     deleteNetworkGuiGuard();
 
@@ -512,10 +512,10 @@ void CamcopsApp::patientRegistrationFailed(
 
     case NetworkManager::GenericNetworkError:
         additional_message = tr(
-                                 "%1\n\n"
-                                 "Are you connected to the internet?\n\n"
-                                 "Did you enter the correct CamCOPS server location?"
-                                 ).arg(error_string);
+            "%1\n\n"
+            "Are you connected to the internet?\n\n"
+            "Did you enter the correct CamCOPS server location?"
+        ).arg(error_string);
         break;
 
     default:
@@ -547,8 +547,8 @@ void CamcopsApp::patientRegistrationFinished()
 
 
 void CamcopsApp::updateTaskSchedulesFailed(
-    const NetworkManager::ErrorCode error_code,
-    const QString& error_string)
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
 {
     deleteNetworkGuiGuard();
     handleNetworkFailure(
@@ -556,7 +556,7 @@ void CamcopsApp::updateTaskSchedulesFailed(
         error_string,
         tr("There was a problem updating your task schedules."),
         NetworkOperation::UpdateTaskSchedules
-        );
+    );
 }
 
 
@@ -583,7 +583,7 @@ void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
         error_string,
         tr("There was a problem sending your completed tasks to the server."),
         NetworkOperation::Upload
-        );
+    );
 }
 
 
@@ -626,7 +626,7 @@ void CamcopsApp::retryUpload()
         const auto now = QDateTime::currentDateTimeUtc();
 
         if (!m_last_automatic_upload_time.isValid() ||
-            m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
+                m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
             upload();
             m_last_automatic_upload_time = now;
         }
@@ -648,7 +648,7 @@ void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code
         // but in the wrong way then something bad has happened.
         additional_message = tr(
             "Unexpectedly, your server settings have changed."
-            );
+        );
         break;
 
     case NetworkManager::ServerError:
@@ -657,8 +657,8 @@ void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code
 
     case NetworkManager::GenericNetworkError:
         additional_message = tr(
-                                 "%1\n\nAre you connected to the internet?"
-                                 ).arg(error_string);
+            "%1\n\nAre you connected to the internet?"
+        ).arg(error_string);
         break;
 
     default:
@@ -678,7 +678,7 @@ void CamcopsApp::maybeRetryNetworkOperation(const QString base_message,
         tr("Error"),
         tr("Try again with error log"),
         TextConst::cancel()
-        );
+    );
 
     if (!try_again_with_log) {
         recreateMainMenu();
@@ -834,7 +834,7 @@ int CamcopsApp::run()
     QString new_user_password;
     bool user_cancelled_please_quit = false;
     const bool changed_user_password = connectDatabaseEncryption(
-        new_user_password, user_cancelled_please_quit);
+                new_user_password, user_cancelled_please_quit);
     if (user_cancelled_please_quit) {
         qCritical() << "User cancelled attempt";
         return 0;  // will quit
@@ -847,8 +847,8 @@ int CamcopsApp::run()
     // Since that might have changed our language, reset it.
     setLanguage(varString(varconst::LANGUAGE));
 
-// Set the tablet internal password to match the database password, if
-// we've just changed it. Uses a storedvar.
+    // Set the tablet internal password to match the database password, if
+    // we've just changed it. Uses a storedvar.
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
 #ifndef SQLCIPHER_ENCRYPTION_ON
     // Can't mess around with the user password when it's also the database p/w
@@ -1009,13 +1009,13 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             "are used or created. Order of precedence (highest to lowest) "
             "is (1) this argument, (2) the %3 environment variable, and (3) "
             "the default, on this particular system, of %4."
-            ).arg(
-                convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
-                convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
-                ENVVAR_DB_DIR,
-                convert::stringToCppLiteral(default_database_dir)
-                )
-        );
+        ).arg(
+            convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
+            convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
+            ENVVAR_DB_DIR,
+            convert::stringToCppLiteral(default_database_dir)
+        )
+    );
     dbDirOption.setValueName("DBDIR");  // makes it take a parameter
     parser.addOption(dbDirOption);
 
@@ -1028,7 +1028,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             ),
         "DEFAULT_SINGLE_USER_MODE",
         "false"
-        );
+    );
     defaultSingleUserModeOption.setValueName("MODE");  // shorter text
     parser.addOption(defaultSingleUserModeOption);
 
@@ -1040,7 +1040,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             "e.g. https://server.example.com/camcops/api"
             ),
         "DEFAULT_SERVER_LOCATION"
-        );
+    );
     defaultServerLocationOption.setValueName("URL");
     parser.addOption(defaultServerLocationOption);
 
@@ -1052,7 +1052,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             "e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o"
             ),
         "DEFAULT_ACCESS_KEY"
-        );
+    );
     defaultAccessKeyOption.setValueName("KEY");
     parser.addOption(defaultAccessKeyOption);
 
@@ -1060,7 +1060,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     QCommandLineOption printIcd9Option(
         "print_icd9_codes",
         "Print ICD-9-CM (DSM-IV) codes used by CamCOPS, and quit."
-        );
+    );
     // We don't use setValueName(), so it behaves like a flag.
     parser.addOption(printIcd9Option);
 
@@ -1068,7 +1068,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     const QCommandLineOption printIcd10Option(
         "print_icd10_codes",
         "Print ICD-10 codes used by CamCOPS, and quit."
-        );
+    );
     // We don't use setValueName(), so it behaves like a flag.
     parser.addOption(printIcd10Option);
 
@@ -1076,7 +1076,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     const QCommandLineOption printTasks(
         "print_tasks",
         "Print tasks supported in this version of CamCOPS, and quit."
-        );
+    );
     // We don't use setValueName(), so it behaves like a flag.
     parser.addOption(printTasks);
 
@@ -1084,7 +1084,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     const QCommandLineOption printTermsConditions(
         "print_terms_conditions",
         "Print terms and conditions applicable to CamCOPS, and quit."
-        );
+    );
     // We don't use setValueName(), so it behaves like a flag.
     parser.addOption(printTermsConditions);
 
@@ -1201,13 +1201,13 @@ void CamcopsApp::openOrCreateDatabases()
     const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
     const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
     m_datadb = DatabaseManagerPtr(new DatabaseManager(
-        data_filename, CONNECTION_DATA));
+                                      data_filename, CONNECTION_DATA));
     m_sysdb = DatabaseManagerPtr(new DatabaseManager(
-        sys_filename,
-        CONNECTION_SYS,
-        whichdb::DBTYPE,
-        true, /* threaded */
-        true /* system_db */ ));
+                                     sys_filename,
+                                     CONNECTION_SYS,
+                                     whichdb::DBTYPE,
+                                     true, /* threaded */
+                                     true /* system_db */ ));
 }
 
 
@@ -1262,13 +1262,13 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
 
         if (no_password_sys != no_password_data) {
             const QString msg = QString(tr(
-                                            "CamCOPS uses a system and a data database; one has a "
-                                            "password and one doesn't (no_password_sys = %1, "
-                                            "no_password_data = %2); this is an incongruent state "
-                                            "that has probably arisen from user error, and "
-                                            "CamCOPS will not continue until this is fixed."))
-                                    .arg(no_password_sys)
-                                    .arg(no_password_data);
+                        "CamCOPS uses a system and a data database; one has a "
+                        "password and one doesn't (no_password_sys = %1, "
+                        "no_password_data = %2); this is an incongruent state "
+                        "that has probably arisen from user error, and "
+                        "CamCOPS will not continue until this is fixed."))
+                    .arg(no_password_sys)
+                    .arg(no_password_data);
             const QString title(tr("Inconsistent database state"));
             uifunc::stopApp(msg, title);
         }
@@ -1278,9 +1278,9 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             qInfo() << "Databases have no password yet, and need one.";
             QString dummy_old_password;
             if (!uifunc::getOldNewPasswords(
-                    new_pw_text, new_pw_title,
-                    false /* require_old_password */,
-                    dummy_old_password, new_user_password, nullptr)) {
+                        new_pw_text, new_pw_title,
+                        false /* require_old_password */,
+                        dummy_old_password, new_user_password, nullptr)) {
 
                 // The user quit without setting a password.
                 // If we don't delete the database here, the next attempt to
@@ -1304,10 +1304,10 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             // Whether we've encrypted an existing database (then reopened it)
             // or just opened a fresh one, we need to apply the key now.
             encryption_happy = encryption_happy &&
-                               m_sysdb->pragmaKey(new_user_password) &&
-                               m_datadb->pragmaKey(new_user_password) &&
-                               m_sysdb->canReadDatabase() &&
-                               m_datadb->canReadDatabase();
+                    m_sysdb->pragmaKey(new_user_password) &&
+                    m_datadb->pragmaKey(new_user_password) &&
+                    m_sysdb->canReadDatabase() &&
+                    m_datadb->canReadDatabase();
             if (encryption_happy) {
                 qInfo() << "... successfully encrypted the databases.";
             } else {
@@ -1336,7 +1336,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                     m_p_main_window,
                     tr("Decrypting databases..."),
                     TextConst::pleaseWait()
-                    );
+                );
                 // ... writes to encryption_happy
             }
             if (encryption_happy) {
@@ -1393,12 +1393,12 @@ bool CamcopsApp::userConfirmedRetryPassword() const
         tr("You entered an incorrect password. Try again?<br><br>"
            "Answer <b>%1</b> to enter your password again.<br>"
            "Answer <b>%2</b> if you can't remember your password.").arg(
-                TextConst::yes()
-                ).arg(TextConst::no()),
+               TextConst::yes()
+            ).arg(TextConst::no()),
         tr("Retry password?"),
         TextConst::yes(),
         TextConst::no()
-        );
+    );
 }
 
 
@@ -1409,7 +1409,7 @@ bool CamcopsApp::userConfirmedDeleteDatabases() const
            "from the database.\nAny records not uploaded to the server will be "
            "lost."),
         tr("Delete database?")
-        );
+    );
 }
 
 
@@ -1440,7 +1440,7 @@ bool CamcopsApp::deleteDatabases()
         tr("CamCOPS could not delete its databases:\n\n"
            "%1\n"
            "Please try to delete these files manually and restart CamCOPS\n"
-           ).arg(error_string));
+    ).arg(error_string));
 
     return false;
 }
@@ -1454,11 +1454,11 @@ bool CamcopsApp::deleteDatabase(const QString& filename, QString& error_string)
 
     if (!ok) {
         error_string = tr(
-                           "Failed to delete file:\n"
-                           "%1\n"
-                           "because of this error:\n"
-                           "%2\n"
-                           ).arg(fullpath, file.errorString());
+            "Failed to delete file:\n"
+            "%1\n"
+            "because of this error:\n"
+            "%2\n"
+        ).arg(fullpath, file.errorString());
     }
 
     return ok;
@@ -1698,8 +1698,8 @@ void CamcopsApp::registerTasks()
     m_p_task_factory->finishRegistration();
     const QStringList tablenames = m_p_task_factory->tablenames();
     qInfo().nospace().noquote()
-        << "Registered tasks (n = " << tablenames.length()
-        << "): " << tablenames.join(", ");
+            << "Registered tasks (n = " << tablenames.length()
+            << "): " << tablenames.join(", ");
 }
 
 
@@ -1726,7 +1726,7 @@ void CamcopsApp::dangerCommandLineMinimalSetup()
         whichdb::DBTYPE,
         true, /* threaded */
         true /* system_db */
-        ));
+    ));
 
     makeStoredVarTable();
     createStoredVars();
@@ -1774,10 +1774,10 @@ void CamcopsApp::initGuiOne()
         m_qt_physical_dpi.y = screen->physicalDotsPerInchY();
     }
     qInfo().nospace()
-        << "System's first display has logical DPI "
-        << m_qt_logical_dpi.description()
-        << " and physical DPI "
-        << m_qt_physical_dpi.description();
+            << "System's first display has logical DPI "
+            << m_qt_logical_dpi.description()
+            << " and physical DPI "
+            << m_qt_physical_dpi.description();
 }
 
 
@@ -1797,7 +1797,7 @@ void CamcopsApp::setDPI()
         uiconst::g_logical_dpi = Dpi(
             varDouble(varconst::OVERRIDE_LOGICAL_DPI_X),
             varDouble(varconst::OVERRIDE_LOGICAL_DPI_Y)
-            );
+        );
     } else {
         // Use Qt DPI directly.
         uiconst::g_logical_dpi = m_qt_logical_dpi;
@@ -1808,7 +1808,7 @@ void CamcopsApp::setDPI()
         uiconst::g_physical_dpi = Dpi(
             varDouble(varconst::OVERRIDE_PHYSICAL_DPI_X),
             varDouble(varconst::OVERRIDE_PHYSICAL_DPI_Y)
-            );
+        );
     } else {
         // Use Qt DPI directly.
         uiconst::g_physical_dpi = m_qt_physical_dpi;
@@ -1928,13 +1928,13 @@ void CamcopsApp::makeNetManager()
 {
     Q_ASSERT(m_p_main_window.data());
     m_netmgr = QSharedPointer<NetworkManager>(
-        new NetworkManager(*this, *m_datadb, m_p_task_factory,
-                           m_p_main_window.data()));
+                new NetworkManager(*this, *m_datadb, m_p_task_factory,
+                                   m_p_main_window.data()));
 }
 
 void CamcopsApp::reconnectNetManager(
-    NetMgrCancelledCallback cancelled_callback,
-    NetMgrFinishedCallback finished_callback)
+        NetMgrCancelledCallback cancelled_callback,
+        NetMgrFinishedCallback finished_callback)
 {
     if (!m_netmgr) {
         makeNetManager();
@@ -2252,7 +2252,7 @@ void CamcopsApp::enterFullscreen()
     // setVisible(true);
     // activateWindow();
 
-// In other words, it clears the maximized flag. So we want this:
+    // In other words, it clears the maximized flag. So we want this:
 #ifdef DEBUG_SCREEN_STACK
     qDebug() << Q_FUNC_INFO << "old windowState():" << m_p_main_window->windowState();
 #endif
@@ -2304,11 +2304,11 @@ void CamcopsApp::leaveFullscreen()
                 old_state &
                 // Flags to turn off:
                 ~(Qt::WindowMinimized | Qt::WindowMaximized | Qt::WindowFullScreen)
-                ) |
+            ) |
             // Flags to turn on:
             (m_maximized_before_fullscreen ? Qt::WindowMaximized : Qt::WindowNoState)
             // ... Qt::WindowNoState is zero, i.e. no flag
-            );
+        );
 #ifdef DEBUG_SCREEN_STACK
         qDebug() << Q_FUNC_INFO << "calling setWindowState() with:" << new_state;
 #endif
@@ -2322,10 +2322,10 @@ void CamcopsApp::leaveFullscreen()
         if (m_maximized_before_fullscreen) {
 #ifdef DEBUG_SCREEN_STACK
             qDebug() << Q_FUNC_INFO << "calling showMaximized() then showMaximized()";
-#endif \
-    // Under Linux, if you start with a fullscreen window and call \
-    // showMaximized(), it goes to normal mode. Also if you do this: \
-    // But this works:
+#endif
+            // Under Linux, if you start with a fullscreen window and call
+            // showMaximized(), it goes to normal mode. Also if you do this:
+            // But this works:
             m_p_main_window->showNormal();
             m_p_main_window->showMaximized();
         } else {
@@ -2336,7 +2336,7 @@ void CamcopsApp::leaveFullscreen()
         }
     }
 
-// Done.
+    // Done.
 #ifdef DEBUG_SCREEN_STACK
     qDebug() << Q_FUNC_INFO << "new windowState():" << m_p_main_window->windowState();
 #endif
@@ -2381,9 +2381,9 @@ void CamcopsApp::setLockState(const LockState lockstate)
 void CamcopsApp::unlock()
 {
     if (lockstate() == LockState::Privileged ||
-        checkPassword(varconst::USER_PASSWORD_HASH,
-                      tr("Enter app password"),
-                      tr("Unlock"))) {
+            checkPassword(varconst::USER_PASSWORD_HASH,
+                          tr("Enter app password"),
+                          tr("Unlock"))) {
         setLockState(LockState::Unlocked);
     }
 }
@@ -2467,9 +2467,9 @@ bool CamcopsApp::changePassword(const QString& hashed_password_varname,
     QString old_password_from_user;
     QString new_password;
     const bool ok = uifunc::getOldNewPasswords(
-        text, text, old_password_exists,
-        old_password_from_user, new_password,
-        m_p_main_window);
+                text, text, old_password_exists,
+                old_password_from_user, new_password,
+                m_p_main_window);
     if (!ok) {
         return false;  // user cancelled
     }
@@ -2551,7 +2551,7 @@ SecureQString CamcopsApp::getPlaintextServerPassword() const
         return "";
     }
     const QString plaintext(cryptofunc::decryptFromBase64(
-        encrypted_b64, key_b64, iv_b64));
+                                encrypted_b64, key_b64, iv_b64));
 #ifdef DANGER_DEBUG_PASSWORD_DECRYPTION
     qDebug() << Q_FUNC_INFO << "plaintext:" << plaintext;
 #endif
@@ -2745,16 +2745,16 @@ QString CamcopsApp::getSubstitutedCss(const QString& filename) const
 
 #ifdef DEBUG_CSS_SIZES
     qDebug().nospace()
-        << "CSS substituted sizes (for filename=" << filename
-        << ", DPI=" << m_dpi << "): "
-        << "p1_normal_font_size_pt = " << p1_normal_font_size_pt
-        << ", p2_big_font_size_pt = " << p2_big_font_size_pt
-        << ", p3_heading_font_size_pt = " << p3_heading_font_size_pt
-        << ", p4_title_font_size_pt = " << p4_title_font_size_pt
-        << ", p5_menu_font_size_pt = " << p5_menu_font_size_pt
-        << ", p6_slider_groove_size_px = " << p6_slider_groove_size_px
-        << ", p7_slider_handle_size_px = " << p7_slider_handle_size_px
-        << ", p8_slider_groove_margin_px = " << p8_slider_groove_margin_px;
+            << "CSS substituted sizes (for filename=" << filename
+            << ", DPI=" << m_dpi << "): "
+            << "p1_normal_font_size_pt = " << p1_normal_font_size_pt
+            << ", p2_big_font_size_pt = " << p2_big_font_size_pt
+            << ", p3_heading_font_size_pt = " << p3_heading_font_size_pt
+            << ", p4_title_font_size_pt = " << p4_title_font_size_pt
+            << ", p5_menu_font_size_pt = " << p5_menu_font_size_pt
+            << ", p6_slider_groove_size_px = " << p6_slider_groove_size_px
+            << ", p7_slider_handle_size_px = " << p7_slider_handle_size_px
+            << ", p8_slider_groove_margin_px = " << p8_slider_groove_margin_px;
 #endif
 
     return filefunc::textfileContents(filename)
@@ -2832,7 +2832,7 @@ IdNumDescriptionConstPtr CamcopsApp::getIdInfo(const int which_idnum)
 {
     if (!m_iddescription_cache.contains(which_idnum)) {
         m_iddescription_cache[which_idnum] = IdNumDescriptionPtr(
-            new IdNumDescription(*this, *m_sysdb, which_idnum));
+                    new IdNumDescription(*this, *m_sysdb, which_idnum));
     }
     return m_iddescription_cache[which_idnum];
 }
@@ -2870,9 +2870,9 @@ bool CamcopsApp::setIdDescription(const int which_idnum, const QString& desc,
                                   const QString& shortdesc,
                                   const QString& validation_method)
 {
-    //    qDebug().nospace()
-    //            << "Setting ID descriptions for which_idnum==" << which_idnum
-    //            << " to " << desc << ", " << shortdesc;
+//    qDebug().nospace()
+//            << "Setting ID descriptions for which_idnum==" << which_idnum
+//            << " to " << desc << ", " << shortdesc;
     IdNumDescription idnumdesc(*this, *m_sysdb, which_idnum);
     const bool success = idnumdesc.setDescriptions(desc, shortdesc,
                                                    validation_method);
@@ -2889,7 +2889,7 @@ QVector<IdNumDescriptionPtr> CamcopsApp::getAllIdDescriptions()
     const OrderBy order_by{{IdNumDescription::FN_IDNUM, true}};
     QVector<IdNumDescriptionPtr> descriptions;
     ancillaryfunc::loadAllRecords<IdNumDescription, IdNumDescriptionPtr>
-        (descriptions, *this, *m_sysdb, order_by);
+            (descriptions, *this, *m_sysdb, order_by);
     return descriptions;
 }
 
@@ -2925,7 +2925,7 @@ QString CamcopsApp::xstringDirect(const QString& taskname,
     }
     if (default_str.isEmpty()) {
         return QString("[string not downloaded: %1/%2]")
-            .arg(taskname, stringname);
+                .arg(taskname, stringname);
     }
     return default_str;
 }
@@ -2974,8 +2974,8 @@ void CamcopsApp::setAllExtraStrings(const RecordList& recordlist)
     deleteAllExtraStrings();
     for (auto record : recordlist) {
         if (!record.contains(ExtraString::TASK_FIELD) ||
-            !record.contains(ExtraString::NAME_FIELD) ||
-            !record.contains(ExtraString::VALUE_FIELD)) {
+                !record.contains(ExtraString::NAME_FIELD) ||
+                !record.contains(ExtraString::VALUE_FIELD)) {
             qWarning() << Q_FUNC_INFO << "Failing: recordlist has bad format";
             // The language field is optional (arriving with server 2.3.3)
             trans.fail();
@@ -3024,14 +3024,14 @@ void CamcopsApp::setAllowedServerTables(const RecordList& recordlist)
     deleteAllowedServerTables();
     for (auto record : recordlist) {
         if (!record.contains(AllowedServerTable::TABLENAME_FIELD) ||
-            !record.contains(AllowedServerTable::VERSION_FIELD)) {
+                !record.contains(AllowedServerTable::VERSION_FIELD)) {
             qWarning() << Q_FUNC_INFO << "Failing: recordlist has bad format";
             trans.fail();
             return;
         }
         const QString tablename = record[AllowedServerTable::TABLENAME_FIELD].toString();
         const Version min_client_version = Version::fromString(
-            record[AllowedServerTable::VERSION_FIELD].toString());
+                    record[AllowedServerTable::VERSION_FIELD].toString());
         if (tablename.isEmpty()) {
             qWarning() << Q_FUNC_INFO
                        << "Failing: allowed table has blank tablename";
@@ -3062,7 +3062,7 @@ bool CamcopsApp::mayUploadTable(const QString& tablename,
     }
     min_client_version = allowedtable.minClientVersion();
     return camcopsversion::CAMCOPS_CLIENT_VERSION >= min_client_version &&
-           server_version >= min_server_version;
+            server_version >= min_server_version;
 }
 
 
@@ -3312,8 +3312,8 @@ void CamcopsApp::upload()
 
     const bool logging_network = isLoggingNetwork();
     reconnectNetManager(
-        logging_network ? nullptr : &CamcopsApp::uploadFailed,
-        logging_network ? nullptr : &CamcopsApp::uploadFinished);
+                logging_network ? nullptr : &CamcopsApp::uploadFailed,
+                logging_network ? nullptr : &CamcopsApp::uploadFinished);
     // ... no failure handlers required when displaying the network log --
     // the NetworkManager will not be in silent mode, so will report the error
     // to the user directly. (And similarly, we didn't/don't need a "finished"
@@ -3361,16 +3361,16 @@ bool CamcopsApp::tasksInProgress()
 
 NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser() const
 {
-    QString text(tr(
-        "Copy data to server, or move it to server?\n"
-        "\n"
-        "COPY: copies unfinished patients, moves finished patients.\n"
-        "MOVE: moves all patients and their data.\n"
-        "KEEP PATIENTS AND MOVE: moves all task data, keeps only basic "
-        "patient details (for adding more tasks later).\n"
-        "\n"
-        "Please MOVE whenever possible; this reduces the amount of "
-        "patient-identifiable information stored on this device."));
+   QString text(tr(
+            "Copy data to server, or move it to server?\n"
+            "\n"
+            "COPY: copies unfinished patients, moves finished patients.\n"
+            "MOVE: moves all patients and their data.\n"
+            "KEEP PATIENTS AND MOVE: moves all task data, keeps only basic "
+            "patient details (for adding more tasks later).\n"
+            "\n"
+            "Please MOVE whenever possible; this reduces the amount of "
+            "patient-identifiable information stored on this device."));
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Upload to server"),
                             text,

@@ -34,8 +34,8 @@
 #include "db/sqlitepragmainfofield.h"
 #include "db/whichdb.h"
 #include "lib/debugfunc.h"
+#include "lib/errorfunc.h"
 #include "lib/filefunc.h"
-#include "lib/uifunc.h"
 
 
 namespace dbfunc {
@@ -309,15 +309,15 @@ bool encryptPlainDatabaseInPlace(const QString& filename,
             << "Converting plain database ("
             << filename << ") to encrypted database (using temporary file: "
             << tempfilename << ")";
-    const QString title(QObject::tr("Error encrypting databases"));
+
+    const QString error_format = QObject::tr("Error encrypting databases:\n%1");
 
     // 1. Check files exist/don't exist.
     if (!filefunc::fileExists(filename)) {
-        uifunc::stopApp("Missing database: " + filename, title);
+        errorfunc::fatalError(error_format.arg("Missing database: " + filename));
     }
     if (filefunc::fileExists(tempfilename)) {
-        uifunc::stopApp("Temporary file exists but shouldn't: " + tempfilename,
-                        title);
+        errorfunc::fatalError(error_format.arg("Temporary file exists but shouldn't: " + tempfilename));
     }
 
     bool success = false;

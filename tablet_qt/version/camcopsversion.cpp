@@ -27,8 +27,8 @@ namespace camcopsversion {  // http://semver.org/
 // ----------------------------------------------------------------------------
 // Increase this when the client is changed:
 
-const Version CAMCOPS_CLIENT_VERSION(2, 4, 18);
-const QDate CAMCOPS_CLIENT_CHANGEDATE(2024, 2, 5);
+const Version CAMCOPS_CLIENT_VERSION(2, 4, 19);
+const QDate CAMCOPS_CLIENT_CHANGEDATE(2024, 6, 27);
 
 // +++ NOW ALSO UPDATE: +++
 //
@@ -36,8 +36,7 @@ const QDate CAMCOPS_CLIENT_CHANGEDATE(2024, 2, 5);
 //      docs/source/developer/releasing.rst (Google Play Store versions)
 //      tablet_qt/android/AndroidManifest.xml (version code + version name)
 //      tablet_qt/camcops_windows_innosetup.iss (CamcopsClientVersion)
-//      tablet_qt/ios/Info.plist (CFBundleShortVersionString and
-//          CFBundleVersion)
+//      tablet_qt/ios/Info.plist (CFBundleShortVersionString and CFBundleVersion)
 
 // ----------------------------------------------------------------------------
 // Minimum server version that the client will upload to

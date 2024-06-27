@@ -26,7 +26,7 @@
 #include <QSqlRecord>
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "lib/convert.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 
 
 QueryResult::QueryResult(QSqlQuery& query,
@@ -205,7 +205,7 @@ QString QueryResult::csvHeader(const char sep) const
 void QueryResult::requireColumnNames() const
 {
     if (m_column_names.length() < nCols()) {
-        uifunc::stopApp(
+        errorfunc::fatalError(
             "Column names were discarded from a QueryResult but are "
             "now required!"
         );
