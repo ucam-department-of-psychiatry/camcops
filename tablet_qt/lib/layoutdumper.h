@@ -100,7 +100,8 @@ QString getWidgetInfo(const QWidget* w,
 // Provides a description of a widget's attributes, i.e. Qt::WidgetAttribute.
 QString getWidgetAttributeInfo(const QWidget* w, bool all = false);
 
-// Describes a widget's dynamic properties, via QWidget::dynamicPropertyNames().
+// Describes a widget's dynamic properties, via
+// QWidget::dynamicPropertyNames().
 QString getDynamicProperties(const QWidget* w);
 
 // Provides a lengthy description of a layout's geometry, size hints, etc.

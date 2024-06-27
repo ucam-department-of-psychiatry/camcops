@@ -670,9 +670,9 @@ plot(camcops_500_fn, col='green', add=TRUE)
 plot(rcppnumerical_fastlr_fn, col='orange', add=TRUE)
 points(x=d2$intensity, y=d2$yes)
 
-The R function is doing it better, although the IRLS-SVD-Newton one isn't dreadful.
-To see R's actual GLM method, type "glm.fit".
-See also https://www.r-bloggers.com/even-faster-linear-model-fits-with-r-using-rcppeigen/
+The R function is doing it better, although the IRLS-SVD-Newton one isn't
+dreadful. To see R's actual GLM method, type "glm.fit". See also
+https://www.r-bloggers.com/even-faster-linear-model-fits-with-r-using-rcppeigen/
 
 Implement the full method used by R, or RcppEigen:
 

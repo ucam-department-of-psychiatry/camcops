@@ -179,7 +179,7 @@ def report_line(filename: str, linenum: int, text: str) -> None:
     Prints a line to stdout, preceded by its filename and line number, in
     conventional format.
     """
-    print(f"{filename}:{linenum}, {len(text)} chars: {text}")
+    print(f"{filename}:{linenum}, length {len(text)}: {text}")
 
 
 def get_line_at_pos(contents: str, pos: int) -> Tuple[int, str]:

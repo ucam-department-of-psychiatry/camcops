@@ -51,7 +51,8 @@ void initializeAudit(TaskFactory& factory)
 
 
 Audit::Audit(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, AUDIT_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, AUDIT_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());

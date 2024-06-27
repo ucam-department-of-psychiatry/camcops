@@ -60,7 +60,8 @@ void initializeApeqpt(TaskFactory& factory)
 
 
 Apeqpt::Apeqpt(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, APEQPT_TABLENAME, true, false, false),  // ... anon, clin, resp
+    Task(app, db, APEQPT_TABLENAME, true, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_DATETIME, QMetaType::fromType<QDateTime>());

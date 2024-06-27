@@ -211,10 +211,12 @@ void initializeDeakinS1HealthReview(TaskFactory& factory)
 
 DeakinS1HealthReview::DeakinS1HealthReview(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, DEAKIN_S1_HEALTHREVIEW_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, DEAKIN_S1_HEALTHREVIEW_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addField(ETHNICITY, QMetaType::fromType<int>());
-    addField(ETHNICITY_TEXT, QMetaType::fromType<QString>());  // SEEMS TO BE UNUSED!
+    addField(ETHNICITY_TEXT, QMetaType::fromType<QString>());
+        // ... SEEMS TO BE UNUSED!
     addField(ETHNICITY_OTHER_DETAILS, QMetaType::fromType<QString>());
 
     addField(HANDEDNESS, QMetaType::fromType<QString>());

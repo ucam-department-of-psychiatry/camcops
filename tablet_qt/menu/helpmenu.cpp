@@ -69,7 +69,7 @@ void HelpMenu::makeItems()
         MenuItem(tr("Online CamCOPS documentation"),
                  UrlMenuItem(urlconst::CAMCOPS_URL),
                  uifunc::iconFilename(uiconst::ICON_INFO)),
-        // CAMCOPS_DOCS_URL and CAMCOPS_DOCS_URL are almost the same these days.
+        // CAMCOPS_URL and CAMCOPS_DOCS_URL are almost the same these days.
         // MenuItem(tr("Visit") + " " + urlconst::CAMCOPS_URL,
         //          UrlMenuItem(urlconst::CAMCOPS_DOCS_URL),
         //          uifunc::iconFilename(uiconst::ICON_CAMCOPS)),

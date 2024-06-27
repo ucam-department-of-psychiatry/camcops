@@ -36,7 +36,8 @@ CpftAdultEatingDisordersS3ClinicalChain::CpftAdultEatingDisordersS3ClinicalChain
             Phq9::PHQ9_TABLENAME,
             // Sequence as per JES to MB, 2023-02-27 and 2023-03-17.
         },
-        TaskChain::CreationMethod::OnDemandOrAbort,  // as per JES 2023-03-14; also the default.
+        TaskChain::CreationMethod::OnDemandOrAbort,
+            // ... as per JES 2023-03-14; also the default.
         tr("S3 Clinical")
     )
 {

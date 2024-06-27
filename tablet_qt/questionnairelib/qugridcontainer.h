@@ -93,7 +93,8 @@ protected:
 protected:
     QVector<QuGridCell> m_cells;  // our cells
     QMap<int, int> m_column_stretch;  // maps column_index to relative_width
-    QMap<int, int> m_column_minimum_width_in_pixels;  // maps column_index to minimum width in pixels
+    QMap<int, int> m_column_minimum_width_in_pixels;
+        // ... maps column_index to minimum width in pixels
     bool m_expand;  // expand horizontally?
     bool m_fixed_grid;  // columns of equal width (unless specified), as above?
 

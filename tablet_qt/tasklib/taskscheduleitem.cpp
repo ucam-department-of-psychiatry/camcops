@@ -77,7 +77,8 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
              false /* unique */,
              false /* pk */,
              false /* default_value */);
-    addField(FK_TASK, QMetaType::fromType<int>(), true);  // PK of task in its table
+    addField(FK_TASK, QMetaType::fromType<int>(), true);
+        // ... PK of task in its table
     addField(FN_WHEN_COMPLETED, QMetaType::fromType<QDateTime>());
 
     load(load_pk);

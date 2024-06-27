@@ -68,7 +68,8 @@ struct FlickData {
         Steady,  // Interaction without scrolling
         ManualScroll,  // Scrolling manually with the finger on the screen
         AutoScroll,  // Scrolling automatically
-        AutoScrollAcceleration  // Scrolling automatically but a finger is on the screen
+        AutoScrollAcceleration
+            // ... Scrolling automatically but a finger is on the screen
     };
     State state = State::Steady;
     QWidget* widget = nullptr;
@@ -98,7 +99,8 @@ struct FlickData {
             if (timeElapsed) {
                 const QPoint newPixelDiff = (newPosition - lastPos);
                 const QPoint pixelsPerSecond = newPixelDiff * (1000 / timeElapsed);
-                // fingers are inacurates, we ignore small changes to avoid stopping the autoscroll because
+                // fingers are inacurates, we ignore small changes to avoid
+                // stopping the autoscroll because
                 // of a small horizontal offset when scrolling vertically
                 const int newSpeedY = (qAbs(pixelsPerSecond.y()) > fingerAccuracyThreshold)
                         ? pixelsPerSecond.y() : 0;
@@ -109,14 +111,16 @@ struct FlickData {
                     const int oldSpeedY = speed.y();
                     const int oldSpeedX = speed.x();
 
-// Was this:
-//                    if ((oldSpeedY <= 0 && newSpeedY <= 0) ||  (oldSpeedY >= 0 && newSpeedY >= 0)
-//                            && (oldSpeedX <= 0 && newSpeedX <= 0) ||  (oldSpeedX >= 0 && newSpeedX >= 0)) {
-
-                    if ((oldSpeedY <= 0 && newSpeedY <= 0) ||
-                            ((oldSpeedY >= 0 && newSpeedY >= 0)
-                             && (oldSpeedX <= 0 && newSpeedX <= 0)) ||
-                            (oldSpeedX >= 0 && newSpeedX >= 0)) {
+/* Was this:
+                    if ((oldSpeedY <= 0 && newSpeedY <= 0)
+                        || (oldSpeedY >= 0 && newSpeedY >= 0)
+                        && (oldSpeedX <= 0 && newSpeedX <= 0)
+                        || (oldSpeedX >= 0 && newSpeedX >= 0)) {
+*/
+                    if ((oldSpeedY <= 0 && newSpeedY <= 0)
+                        || ((oldSpeedY >= 0 && newSpeedY >= 0)
+                             && (oldSpeedX <= 0 && newSpeedX <= 0))
+                        || (oldSpeedX >= 0 && newSpeedX >= 0)) {
                         // RNC: this was A || B && C || D.
                         // gcc flags that up as a warning ("suggest parentheses
                         // around '&&' within '||'), very sensibly.
@@ -131,7 +135,8 @@ struct FlickData {
                     }
                 } else {
                     const int max = 2500; // px by seconds
-                    // we average the speed to avoid strange effects with the last delta
+                    // we average the speed to avoid strange effects with the
+                    // last delta
                     if (!speed.isNull()) {
                         speed.setX(qBound(-max, (speed.x() / 4) + (newSpeedX * 3 / 4), max));
                         speed.setY(qBound(-max, (speed.y() / 4) + (newSpeedY * 3 / 4), max));

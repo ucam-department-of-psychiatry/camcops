@@ -51,13 +51,15 @@ QuMultipleResponse::QuMultipleResponse(
 
 QuMultipleResponse::QuMultipleResponse(
         std::initializer_list<QuestionWithOneField> items, QObject* parent) :
-    QuMultipleResponse(QVector<QuestionWithOneField>(items), parent)  // delegating constructor
+    QuMultipleResponse(QVector<QuestionWithOneField>(items), parent)
+        // ... delegating constructor
 {
 }
 
 
 QuMultipleResponse::QuMultipleResponse(QObject* parent) :
-    QuMultipleResponse(QVector<QuestionWithOneField>(), parent)  // delegating constructor
+    QuMultipleResponse(QVector<QuestionWithOneField>(), parent)
+        // ... delegating constructor
 {
 }
 
@@ -221,7 +223,8 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
-            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
+            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);
+                // ... different
             itemlayout->addStretch();
 
             mainlayout->addWidget(itemwidget);

@@ -78,5 +78,6 @@ protected:
     QPointer<QAbstractButton> m_button_previous;  // "previous page"
     QPointer<QAbstractButton> m_button_next;  // "next page"
     QPointer<ImageButton> m_button_finish;  // "finish"
-    QPointer<QLabel> m_icon_no_next;  // icon to show when next unavailable, e.g. warning triangle
+    QPointer<QLabel> m_icon_no_next;
+        // ... icon to show when next unavailable, e.g. warning triangle
 };

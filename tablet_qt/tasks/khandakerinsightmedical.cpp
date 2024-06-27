@@ -108,7 +108,8 @@ void initializeKhandakerInsightMedical(TaskFactory& factory)
 
 KhandakerInsightMedical::KhandakerInsightMedical(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     for (const KhandakerInsightQInfo& info : QUESTIONS) {
         addField(info.fieldname_yn, QMetaType::fromType<bool>());

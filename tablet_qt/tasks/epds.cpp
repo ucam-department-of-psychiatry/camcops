@@ -37,10 +37,13 @@ const int FIRST_Q = 1;
 const int N_QUESTIONS = 10;  // each scored 0-3
 const int MAX_QUESTION_SCORE = 30;
 const QString QPREFIX("q");
-const int CUTOFF_1_GREATER_OR_EQUAL = 10;  // Cox et al. 1987, PubMed ID 3651732.
-const int CUTOFF_2_GREATER_OR_EQUAL = 13;  // Cox et al. 1987, PubMed ID 3651732.
+const int CUTOFF_1_GREATER_OR_EQUAL = 10;
+    // ... Cox et al. 1987, PubMed ID 3651732.
+const int CUTOFF_2_GREATER_OR_EQUAL = 13;
+    // ... Cox et al. 1987, PubMed ID 3651732.
 
-const QVector<int> REVERSE_QUESTIONS{3, 5, 6, 7, 8, 9, 10};  // only 1, 2, 4 the other way
+const QVector<int> REVERSE_QUESTIONS{3, 5, 6, 7, 8, 9, 10};
+    // ... only 1, 2, 4 the other way
 
 const QString Epds::EPDS_TABLENAME("epds");
 
@@ -52,7 +55,8 @@ void initializeEpds(TaskFactory& factory)
 
 
 Epds::Epds(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, EPDS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, EPDS_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());

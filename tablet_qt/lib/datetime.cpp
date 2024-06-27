@@ -54,8 +54,8 @@ QString datetimeToIsoMs(const QDateTime& dt, const bool use_z_timezone)
     //    => default use_z_timezone to false
 
     // In Qt, BEWARE:
-    //      dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
-    //      dt.toString(Qt::ISODate);  // "2016-06-02T10:28:06" -- DROPS timezone
+    //   dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
+    //   dt.toString(Qt::ISODate);  // "2016-06-02T10:28:06" -- DROPS timezone
     if (!dt.isValid()) {
         return "";
     }

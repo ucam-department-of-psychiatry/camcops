@@ -46,7 +46,8 @@ MenuHeader::MenuHeader(QWidget* parent,
                        const bool debug_allowed)
     : QWidget(parent),
       m_app(app),
-      m_button_needs_upload(nullptr),  // waste of effort; constructed as nullptr
+      m_button_needs_upload(nullptr),
+        // ... waste of effort; constructed as nullptr
       m_button_debug(nullptr),
       m_button_view(nullptr),
       m_button_edit(nullptr),

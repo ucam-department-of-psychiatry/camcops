@@ -56,7 +56,8 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setRange(m_minimum, m_maximum);
     m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);  // room for spin arrows
+    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);
+        // ... room for spin arrows
     m_spinbox->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     m_spinbox->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 
@@ -91,7 +92,8 @@ void QuSpinBoxInteger::widgetValueChanged(const int value)
 #ifdef DEBUG_SIGNALS
     qDebug() << Q_FUNC_INFO << value;
 #endif
-    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(value, this);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

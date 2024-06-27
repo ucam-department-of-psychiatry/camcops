@@ -21,7 +21,8 @@
 #pragma once
 
 #define MENUWINDOW_USE_HFW_LISTWIDGET  // good
-// #define MENUWINDOW_USE_HFW_LAYOUT  // bad; window contains scroll area, which gets too short
+// #define MENUWINDOW_USE_HFW_LAYOUT
+// ... bad; window contains scroll area, which gets too short
 
 #if defined(MENUWINDOW_USE_HFW_LISTWIDGET) == defined(MENUWINDOW_USE_HFW_LAYOUT)
 #error Define MENUWINDOW_USE_HFW_LISTWIDGET xor MENUWINDOW_USE_HFW_LAYOUT

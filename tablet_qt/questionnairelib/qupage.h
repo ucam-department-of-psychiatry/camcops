@@ -103,7 +103,8 @@ public:
 
     // Add multiple elements
     QuPage* addElements(const QVector<QuElementPtr>& elements);
-    QuPage* addElements(const QVector<QuElement*>& elements);  // takes ownership
+    QuPage* addElements(const QVector<QuElement*>& elements);
+        // ... takes ownership
 
     // Adds a string tag to this page.
     QuPage* addTag(const QString& tag);
@@ -186,7 +187,8 @@ protected:
     // Returns all elements (as raw pointers, for speed).
     QVector<QuElement*> allElements() const;
 
-    // Called when the page is being closed. (In turn, signals to its elements.)
+    // Called when the page is being closed. (In turn, signals to its
+    // elements.)
     void closing();
 
     // ========================================================================
@@ -200,7 +202,8 @@ protected:
     QVector<QuElementPtr> m_elements;  // page's elements
     bool m_skip;  // skip this page?
     bool m_allow_scroll;  // allow vertical scroll?
-    bool m_zoomable;  // if !m_allow_scroll, shrink/zoom contents to fit visible area?
+    bool m_zoomable;
+        // ... if !m_allow_scroll, shrink/zoom contents to fit visible area?
     bool m_progress_blocked;  // is the page blocking progress?
     QVector<PageValidatorFunction> m_validators;  // functions to validate via
 };

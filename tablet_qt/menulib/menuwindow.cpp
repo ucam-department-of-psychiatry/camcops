@@ -97,7 +97,8 @@ MenuWindow::MenuWindow(CamcopsApp& app,
 #endif
     dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
-    auto dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list
+    auto dummy_widget = new QWidget();
+    // ... doesn't need to be BaseWidget; contains scrolling list
     dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 
@@ -485,7 +486,8 @@ void MenuWindow::viewTask()
                 this);
     QAbstractButton* summary = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
     QAbstractButton* detail = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
-    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
+    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);
+        // ... e.g. Cancel
     QAbstractButton* facsimile = nullptr;
     if (facsimile_available) {
         facsimile = msgbox.addButton(tr("Facsimile"), QMessageBox::AcceptRole);

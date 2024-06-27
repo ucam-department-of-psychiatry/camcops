@@ -59,7 +59,8 @@ void initializeCaps(TaskFactory& factory)
 
 
 Caps::Caps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, CAPS_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());

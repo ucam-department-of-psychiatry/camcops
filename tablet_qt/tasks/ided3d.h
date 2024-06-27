@@ -118,7 +118,8 @@ protected:
     int getNumTrialsThisStage() const;
     bool stageFailed() const;
     void clearScene();
-    void setTimeout(int time_ms, FuncPtr callback);  // NB QObject has startTimer(), calling timerEvent()
+    void setTimeout(int time_ms, FuncPtr callback);
+        // NB QObject has startTimer(), calling timerEvent()
 
     // ------------------------------------------------------------------------
     // Main task proper
@@ -150,8 +151,10 @@ protected:
     int m_current_stage;  // zero-based
     int m_current_trial;  // zero-based
     QSharedPointer<QTimer> m_timer;
-    QSharedPointer<QMediaPlayer> m_player_correct;  // not owned by other widgets
-    QSharedPointer<QMediaPlayer> m_player_incorrect;  // not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player_correct;
+        // ... not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player_incorrect;
+        // ... not owned by other widgets
 
     QMap<QString, QVariant> m_default_values;
     QMap<QString, QMetaType> m_types;

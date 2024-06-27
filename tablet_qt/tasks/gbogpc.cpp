@@ -67,7 +67,8 @@ void initializeGboGPC(TaskFactory& factory)
 
 
 GboGPC::GboGPC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GBOGPC_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, GBOGPC_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_DATE, QMetaType::fromType<QDate>());

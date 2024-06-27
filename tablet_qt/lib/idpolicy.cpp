@@ -319,7 +319,8 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
                                                const AttributesType& attributes,
                                                int& index) const
 {
-    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
+    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens)
+    //          << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing content at end");
         return ChunkValue::SyntaxError;
@@ -382,7 +383,8 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
 IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
                                              int& index) const
 {
-    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
+    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens)
+    //          << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing operator at end");
         return OperatorValue::None;

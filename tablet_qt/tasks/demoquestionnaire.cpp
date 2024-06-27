@@ -115,7 +115,8 @@ DemoQuestionnaire::DemoQuestionnaire(CamcopsApp& app,
     addField(QStringLiteral("diagnosticcode2_code"), QMetaType::fromType<QString>());  // v2
     addField(QStringLiteral("diagnosticcode2_description"), QMetaType::fromType<QString>());  // v2
     addField(QStringLiteral("photo_blobid"), QMetaType::fromType<int>());  // FK to BLOB table
-    // addField(QStringLiteral("photo_rotation"), QMetaType::fromType<QString>());  // DEFUNCT in v2
+    // addField(QStringLiteral("photo_rotation"),
+    //          QMetaType::fromType<QString>());  // DEFUNCT in v2
     addField(QStringLiteral("canvas_blobid"), QMetaType::fromType<int>());  // FK to BLOB table
     addField(QStringLiteral("canvas2_blobid"), QMetaType::fromType<int>());  // FK to BLOB table; v2
 

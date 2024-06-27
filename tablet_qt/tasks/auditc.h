@@ -45,7 +45,8 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
-    virtual QString xstringTaskname() const override;  // shares strings with AUDIT
+    virtual QString xstringTaskname() const override;
+        // ... shares strings with AUDIT
     virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides

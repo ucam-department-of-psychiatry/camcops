@@ -92,7 +92,8 @@ void initializeFactg(TaskFactory& factory)
 
 
 Factg::Factg(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, FACTG_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, FACTG_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_in_tickbox_change(false)
 {
     for (auto field : strseq(PREFIX_PHYSICAL, FIRST_Q, LAST_Q_PHYSICAL)) {

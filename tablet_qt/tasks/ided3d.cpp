@@ -239,7 +239,8 @@ void initializeIDED3D(TaskFactory& factory)
 // ============================================================================
 
 IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, IDED3D_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     m_default_values = initDefaultValues();
     m_types = initTypes();
@@ -1183,7 +1184,8 @@ void IDED3D::startTask()
     setValue(FN_SHAPE_DEFINITIONS_SVG, IDED3DExemplars::allShapesAsJson());
     // Similarly for colours
     setValue(FN_COLOUR_DEFINITIONS_RGB, IDED3DExemplars::allColoursAsJson());
-    onEditStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();
+        // ... will have been stopped by the end of the questionnaire?
 
     // Double-check we have a PK before we create stages/trials
     save();

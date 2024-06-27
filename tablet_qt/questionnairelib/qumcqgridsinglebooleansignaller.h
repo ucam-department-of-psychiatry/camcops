@@ -39,10 +39,12 @@ public:
     QuMcqGridSingleBooleanSignaller(QuMcqGridSingleBoolean* recipient,
                                     int question_index);
 public slots:
-    // Signalled to by a FieldRef. Passes the signal to its QuMcqGridSingleBoolean.
+    // Signalled to by a FieldRef. Passes the signal to its
+    // QuMcqGridSingleBoolean.
     void mcqFieldValueOrMandatoryChanged(const FieldRef* fieldref);
 
-    // Signalled to by a FieldRef. Passes the signal to its QuMcqGridSingleBoolean.
+    // Signalled to by a FieldRef. Passes the signal to its
+    // QuMcqGridSingleBoolean.
     void booleanFieldValueOrMandatoryChanged(const FieldRef* fieldref);
 
 protected:

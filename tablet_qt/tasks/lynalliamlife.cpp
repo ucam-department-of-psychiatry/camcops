@@ -61,7 +61,8 @@ void initializeLynallIamLife(TaskFactory& factory)
 
 LynallIamLife::LynallIamLife(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, LYNALL_IAM_LIFE_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, LYNALL_IAM_LIFE_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_MAIN), QMetaType::fromType<bool>());
     addFields(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_SEVERITY), QMetaType::fromType<int>());
