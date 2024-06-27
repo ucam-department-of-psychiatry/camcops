@@ -131,6 +131,8 @@ class CppCommentLexer(RegexLexer):
     tokens = {
         "root": [
             # At the root level:
+            # - We may as well remove plain newlines.
+            (r"[\n]", Whitespace),
             # - Anything not including a forward slash or a double quote is
             #   text.
             (r"[^/\"]+", Text),
@@ -138,7 +140,9 @@ class CppCommentLexer(RegexLexer):
             #   ADDED: [\n]?, to swallow a trailing newline.
             (r"/\*", Comment.Multiline, "comment"),
             # - The sequence // makes the rest of the line a comment.
-            (r"//.*?$", Comment.Singleline),
+            #   We can capture its contents in one go.
+            #   It was r"//.*?$", but I'm not sure what the "?" was doing.
+            (r"//.*$", Comment.Singleline),
             # - A double quote enters a string literal.
             (r"\"", String, "string"),
             # - A plain forward slash is still plain text.
@@ -168,8 +172,10 @@ class CppCommentLexer(RegexLexer):
             (r"\\\"", String),
             # - Otherwise a double quote ends the string.
             (r"\"", String, "#pop"),
-            # - Anything else is part of the string.
-            (r".+", String),
+            # - Anything else is part of the string (but we need to exclude
+            #   a double quote here or it swallows up to the end of the line
+            #   even beyond a closing quote; I'm not entirely sure why).
+            (r"[^\"]+", String),
         ],
     }
 
@@ -205,6 +211,7 @@ def print_long_comments(
     maxlinelength: int = DEFAULT_MAX_LINE_LENGTH,
     ignore_urls: bool = False,
     bare: bool = False,
+    debugtokens: bool = False,
 ) -> None:
     """
     Print any line in the file that is longer than maxlinelength and contains,
@@ -219,6 +226,8 @@ def print_long_comments(
             Ignore any lines that contain a string from URL_INDICATORS.
         bare:
             Print offending lines bare.
+        debugtokens:
+            Report tokens, for debugging.
     """
     log.debug(
         f"Searching for comment lines >{maxlinelength} characters: {filename}"
@@ -228,7 +237,8 @@ def print_long_comments(
         contents = f.read()
     lexer = CppCommentLexer()
     for pos, tokentype, tokentext in lexer.get_tokens_unprocessed(contents):
-        # log.warning(f"{pos=}, {tokentype=}, {tokentext=}")
+        if debugtokens:
+            log.debug(f"{pos=}, {tokentype=}, {tokentext=}")
         if tokentype in (Comment.Multiline, Comment.Singleline):
             linenum, linetext = get_line_at_pos(contents, pos)
             if linenum not in lines_seen:
@@ -309,6 +319,12 @@ def clang_format_camcops_source() -> None:
         "--bare",
         action="store_true",
         help=f"For {Command.FINDLONGCOMMENTS.value!r}, print lines bare",
+    )
+    parser.add_argument(
+        "--debugtokens",
+        action="store_true",
+        help=f"For {Command.FINDLONGCOMMENTS.value!r}, show tokens. "
+        f"Requires --verbose",
     )
     parser.add_argument(
         "--diffall",
@@ -404,6 +420,7 @@ def clang_format_camcops_source() -> None:
                 maxlinelength=args.maxlinelength,
                 ignore_urls=args.ignore_urls,
                 bare=args.bare,
+                debugtokens=args.debugtokens,
             )
             continue
         elif command == Command.LIST:
