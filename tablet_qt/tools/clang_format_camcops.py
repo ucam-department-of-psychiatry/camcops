@@ -26,6 +26,7 @@ tablet_qt/tools/clang_format_camcops.py
 ===============================================================================
 
 Run clang-format over all our C++ code.
+The formatting is controlled by clang_format_camcops.yaml.
 
 """
 
@@ -47,6 +48,7 @@ from typing import List, Set, Tuple
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
+from semantic_version import Version
 
 from camcops_server.cc_modules.cc_baseconstants import (
     EXIT_SUCCESS,
@@ -60,12 +62,17 @@ log = logging.getLogger(__name__)
 # Constants
 # =============================================================================
 
-CLANG_FORMAT_EXECUTABLE = "clang-format-14"
+CLANG_FORMAT_VERSION = 15
+CLANG_FORMAT_EXECUTABLE = f"clang-format-{CLANG_FORMAT_VERSION}"
 DIFFTOOL = "meld"
 ENC = sys.getdefaultencoding()
 
 
 class Command(Enum):
+    """
+    Commands that can be given to this program. See "--help" for details.
+    """
+
     CHECK = "check"
     DIFF = "diff"
     MODIFY = "modify"
@@ -88,6 +95,8 @@ INCLUDE_GLOBS = [
     f"{CAMCOPS_CPP_DIR}/**/*.h",
 ]
 EXCLUDE_GLOBS = [
+    f"{CAMCOPS_CPP_DIR}/build/**/*.cpp",
+    f"{CAMCOPS_CPP_DIR}/build/**/*.h",
     # Code by Qt whose format we won't fiddle with too much.
     f"{CAMCOPS_CPP_DIR}/**/boxlayouthfw.*",
     f"{CAMCOPS_CPP_DIR}/**/qcustomplot.*",
@@ -105,6 +114,9 @@ EXCLUDE_GLOBS = [
 
 
 def runit(cmdargs: List[str]) -> Tuple[str, str, int]:
+    """
+    Run an external command. Return tuple: stdout, stderr, returncode.
+    """
     log.debug(cmdargs)
     p = Popen(cmdargs, stdout=PIPE, stderr=PIPE)
     output, error = p.communicate()
@@ -165,6 +177,28 @@ def clang_format_camcops_source() -> None:
         f"results of 'which {DIFFTOOL}'",
     )
     args = parser.parse_args()
+
+    if args.clangformat is None:
+        log.error(
+            "No clangformat executable was found on the path and no "
+            "--clangformat argument was specified"
+        )
+        sys.exit(EXIT_FAILURE)
+
+    output, error, retcode = runit([args.clangformat, "--version"])
+    if retcode:
+        raise RuntimeError(f"clang-format error: \n{error}")
+
+    version_words = output.split()
+    version_number_index = version_words.index("version") + 1
+
+    version = Version(version_words[version_number_index])
+    if version.major != CLANG_FORMAT_VERSION:
+        log.error(
+            f"clang-format version {version.major} != {CLANG_FORMAT_VERSION}"
+        )
+        sys.exit(EXIT_FAILURE)
+
     command = Command(args.command)
 
     main_only_quicksetup_rootlogger(
@@ -181,9 +215,9 @@ def clang_format_camcops_source() -> None:
     else:
         cpp_files = set()  # type: Set[str]
         for inc in INCLUDE_GLOBS:
-            cpp_files = cpp_files.union(glob.glob(inc))
+            cpp_files = cpp_files.union(glob.glob(inc, recursive=True))
         for exc in EXCLUDE_GLOBS:
-            cpp_files = cpp_files.difference(glob.glob(exc))
+            cpp_files = cpp_files.difference(glob.glob(exc, recursive=True))
         cpp_files = sorted(cpp_files)  # type: List[str]
 
     # -------------------------------------------------------------------------
