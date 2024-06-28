@@ -27,7 +27,7 @@
             <meta-data android:name="android.app.splash_screen_drawable_landscape" android:resource="@drawable/logo_landscape"/>
         </activity>
     </application>
-    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="33"/>
+    <!-- minSdkVersion and targetSdkVersion moved to build.gradle -->
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
