@@ -290,7 +290,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // --------------------------------------------------------------------
         // Task instance
         // --------------------------------------------------------------------
-        // Stretch: http://stackoverflow.com/questions/14561516/qt-qhboxlayout-percentage-size
+        // Stretch:
+        // http://stackoverflow.com/questions/14561516/qt-qhboxlayout-percentage-size
         //
         // ICON | ICON | +----------------------------------------------------+
         // ICON | ICON | | A                   B                 C            |

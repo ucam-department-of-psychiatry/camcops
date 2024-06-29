@@ -74,11 +74,13 @@ bool isOpenGLPresent()
         glfuncs->initializeOpenGLFunctions();
 
         // Doesn't work under Android:
-        // const QOpenGLFunctions_2_0* v2funcs = ctx.versionFunctions<QOpenGLFunctions_2_0>();
+        // const QOpenGLFunctions_2_0* v2funcs =
+        //      ctx.versionFunctions<QOpenGLFunctions_2_0>();
         // const bool opengl_v2 = (v2funcs != nullptr);
 
         // Deprecated and missing on Android:
-        // const bool opengl_v2 = QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0;
+        // const bool opengl_v2 = QGLFormat::openGLVersionFlags()
+        //                        & QGLFormat::OpenGL_Version_2_0;
 
         const bool opengl_v2 = fmt.majorVersion() >= 2;
 

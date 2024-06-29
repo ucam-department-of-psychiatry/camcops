@@ -542,7 +542,8 @@ void applyScrollGestures(QWidget* widget)
                 dynamic_cast<QAbstractItemView*>(widget) ||
                 dynamic_cast<QAbstractItemView*>(widget->parent()));
     // It makes little difference which of these two we choose:
-    // const bool use_touch = platform::PLATFORM_ANDROID && !widget_is_itemview;
+    // const bool use_touch = platform::PLATFORM_ANDROID &&
+    //                        !widget_is_itemview;
     const bool use_touch = false;
 
     QScroller::ScrollerGestureType gesture_type = use_touch
@@ -558,8 +559,8 @@ void applyScrollGestures(QWidget* widget)
     */
     QScroller::grabGesture(widget, gesture_type);  // will ungrab any other
 
-    // Still a problem: scroller not responding for ScrollMessageBox on Android.
-    // Yet everything else is working.
+    // Still a problem: scroller not responding for ScrollMessageBox on
+    // Android. Yet everything else is working.
     // VerticalScrollArea versus QScrollArea? No.
 
 #ifdef DEBUG_SCROLL_GESTURES
@@ -570,7 +571,8 @@ void applyScrollGestures(QWidget* widget)
             << ", widget->isWidgetType() == " << widget->isWidgetType()
             << ", widget->testAttribute(Qt::WA_AcceptTouchEvents) == "
             << widget->testAttribute(Qt::WA_AcceptTouchEvents);
-    new DebugEventWatcher(widget, DebugEventWatcher::All);  // owned by widget henceforth
+    new DebugEventWatcher(widget, DebugEventWatcher::All);
+        // ... owned by widget henceforth
 #endif
 
     /* UNNECESSARY: done by QScroller::grabGesture if TouchGesture is used:
@@ -659,7 +661,8 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     }
     const QFont title_font = QApplication::font("QWorkspaceTitleBar");
     const QFontMetrics fm(title_font);
-    const int title_w = fm.boundingRect(full_title).width();  // "_w" means width
+    const int title_w = fm.boundingRect(full_title).width();
+        // ... "_w" means width
 
     // dialog->ensurePolished();
     // const QSize frame_size = dialog->frameSize();

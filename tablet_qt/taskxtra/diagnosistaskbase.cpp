@@ -39,7 +39,8 @@
 #include "questionnairelib/quverticalcontainer.h"
 using stringfunc::bold;
 
-const QString DiagnosisTaskBase::RELATES_TO_DATE("relates_to_date");  // new in v2.0.0
+const QString DiagnosisTaskBase::RELATES_TO_DATE("relates_to_date");
+    // ... new in v2.0.0
 
 
 DiagnosisTaskBase::DiagnosisTaskBase(
@@ -160,7 +161,8 @@ void DiagnosisTaskBase::addItem()
         return;
     }
     DiagnosisItemBasePtr item = makeItem();
-    item->setSeqnum(m_items.size() + 1);  // bugfix 2018-12-01; now always 1-based seqnum
+    item->setSeqnum(m_items.size() + 1);
+        // ... bugfix 2018-12-01; now always 1-based seqnum
     item->save();
     m_items.append(item);
     refreshQuestionnaire();

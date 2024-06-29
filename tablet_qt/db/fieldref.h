@@ -134,35 +134,36 @@ public:
 
     // Construct from a Field pointer.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
+    // - mandatory: do we require data to be present in the underlying field?
     FieldRef(Field* p_field, bool mandatory);
 
     // Construct from a named field within a DatabaseObject.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
-    //  autosave: should the database object write to disk ASAP?
-    //  blob: is this a BLOB field?
+    // - mandatory: do we require data to be present in the underlying field?
+    // - autosave: should the database object write to disk ASAP?
+    // - blob: is this a BLOB field?
     FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
              bool mandatory, bool autosave = true, bool blob = false,
              CamcopsApp* p_app = nullptr);
 
     // Construct from a Blob pointer.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
+    // - mandatory: do we require data to be present in the underlying field?
+    // - disable_creation_warning: for widget testing only; specimen BLOB
     FieldRef(QSharedPointer<Blob> blob, bool mandatory,
-             bool disable_creation_warning = false);  // for widget testing only; specimen BLOB
+             bool disable_creation_warning = false);
 
     // Construct from a pair of functions to get/set data.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
+    // - mandatory: do we require data to be present in the underlying field?
     FieldRef(const GetterFunction& getterfunc,
              const SetterFunction& setterfunc,
              bool mandatory);
 
     // Construct from a named StoredVar within a CamcopsApp.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
-    //  cached: operate on the editing cache copy?
+    // - mandatory: do we require data to be present in the underlying field?
+    // - cached: operate on the editing cache copy?
     FieldRef(CamcopsApp* app, const QString& storedvar_name,
              bool mandatory, bool cached);  // StoredVar
 
@@ -229,7 +230,8 @@ public:
     QVector<int> valueVectorInt() const;
 
     // ========================================================================
-    // BLOB-related functions, overridden by BlobFieldRef for higher performance
+    // BLOB-related functions, overridden by BlobFieldRef for higher
+    // performance
     // ========================================================================
 
     // Is this a BLOB field?

@@ -40,7 +40,8 @@ KirbyTrial::KirbyTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
 {
     // Keys
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
-    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // trial number within this session, 1-based
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);
+        // ... trial number within this session, 1-based
     // Choice
     addField(FN_SIR, QMetaType::fromType<int>());  // int for now
     addField(FN_LDR, QMetaType::fromType<int>());  // int for now

@@ -48,7 +48,8 @@ public:
     QuSequenceContainerBase* addElement(const QuElementPtr& element);
 
     // Add an element. If you add a nullptr, it will be ignored.
-    QuSequenceContainerBase* addElement(QuElement* element);  // takes ownership
+    QuSequenceContainerBase* addElement(QuElement* element);
+        // ... takes ownership
 
     // Choose whether the container overrides the alignments of its widgets, to
     // the QuFlowContainer's default, when building the Qt container widget.
@@ -67,5 +68,6 @@ protected:
 
 protected:
     QVector<QuElementPtr> m_elements;  // all our elements
-    bool m_override_widget_alignment;  // see setOverrideWidgetAlignment() above
+    bool m_override_widget_alignment;
+        // ... see setOverrideWidgetAlignment() above
 };

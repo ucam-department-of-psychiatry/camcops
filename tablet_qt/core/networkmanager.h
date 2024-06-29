@@ -20,7 +20,8 @@
 
 #pragma once
 
-// #define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
+// #define DEBUG_OFFER_HTTP_TO_SERVER
+    // ... should NOT be defined in production (which is HTTPS only)
 
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -498,7 +499,8 @@ protected:
     bool m_recordwise_prune_req_sent;
     bool m_recordwise_pks_pruned;
     QVector<int> m_upload_recordwise_pks_to_send;
-    int m_upload_n_records;  // cached as m_upload_recordwise_pks_to_send shrinks during upload
+    int m_upload_n_records;
+        // ... cached as m_upload_recordwise_pks_to_send shrinks during upload
     QStringList m_upload_tables_to_wipe;
     QString m_upload_patient_info_json;
 

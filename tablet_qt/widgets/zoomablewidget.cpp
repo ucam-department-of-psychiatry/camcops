@@ -31,8 +31,8 @@
 
 See:
 
-- https://stackoverflow.com/questions/6650219/zooming-function-on-a-qwidget
-- https://stackoverflow.com/questions/26811446/qt-scaling-zooming-contents-of-a-qframe-widgets-etc
+- https://stackoverflow.com/questions/6650219
+- https://stackoverflow.com/questions/26811446
 
 NOTES
 
@@ -64,7 +64,8 @@ ZoomableWidget::ZoomableWidget(QWidget* contents,
     // We create a graphics scene containing our target widget.
     contents->ensurePolished();
     m_scene = new QGraphicsScene();
-    m_scene->addWidget(contents);  // adds it at (0,0); returns QGraphicsProxyWidget*
+    m_scene->addWidget(contents);
+    // ... adds it at (0,0); returns QGraphicsProxyWidget*
 
     // We create a graphics view to show the scene.
     // The view is where we implement zooming.

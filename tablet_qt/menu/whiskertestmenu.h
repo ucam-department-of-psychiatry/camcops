@@ -62,7 +62,8 @@ protected:
     void status(const QString& msg);
     StatusStream stream();
     QVariant getValue(const QVariant* member) const;
-    bool setValue(QVariant* member, const QVariant& value);  // returns: changed?
+    bool setValue(QVariant* member, const QVariant& value);
+        // ... returns: changed?
 protected:
     QPointer<WhiskerManager> m_whisker;
     QPointer<LogBox> m_logbox;

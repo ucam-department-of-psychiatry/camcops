@@ -95,7 +95,8 @@ void QuPickerPopup::clicked()
     if (dlg.choose(&newvalue) != QDialog::Accepted) {
         return;  // user pressed cancel, or some such
     }
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

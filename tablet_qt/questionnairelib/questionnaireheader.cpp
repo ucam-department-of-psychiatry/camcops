@@ -49,7 +49,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     m_icon_no_next(nullptr)
 {
     if (!css_name.isEmpty()) {
-        setObjectName(css_name);  // was not working! But works for e.g. cancel button below
+        setObjectName(css_name);
+        // ... was not working! But works for e.g. cancel button below
         // Problem appears to be that WA_StyledBackground is not set.
         setAttribute(Qt::WidgetAttribute::WA_StyledBackground, true);
 
@@ -62,7 +63,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         // ... advises caution with setAutoFillBackground() and stylesheets
     }
 #ifndef QUESTIONNAIRE_HEADER_USE_HFW_BASE
-    setSizePolicy(sizehelpers::expandingFixedHFWPolicy());  // if deriving from QWidget
+    setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    // ... if deriving from QWidget
 #endif
 
     auto mainlayout = new VBoxLayout();

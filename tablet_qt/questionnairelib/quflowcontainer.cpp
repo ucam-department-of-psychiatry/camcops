@@ -62,7 +62,8 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
         Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget(new BaseWidget());
-    // NO, THIS BREAKS HFW: // widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    // DON'T DO THIS, IT BREAKS HFW:
+    // widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 
     auto layout = new FlowLayoutHfw();
 #ifdef DEBUG_LAYOUT

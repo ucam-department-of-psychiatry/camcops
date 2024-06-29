@@ -82,7 +82,8 @@ LogMessageBox::LogMessageBox(QWidget* parent,
 
     mainlayout->addLayout(buttonlayout);
 
-    widgetfunc::scrollToStart(m_editor.data());  // NOT WORKING. And exec() isn't virtual.
+    widgetfunc::scrollToStart(m_editor.data());
+        // ... NOT WORKING. And exec() isn't virtual.
 }
 
 

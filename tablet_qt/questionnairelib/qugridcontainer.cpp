@@ -79,7 +79,8 @@ What does not work properly:
         sp.setHorizontalStretch(1);
         w->setSizePolicy(sp);
 
-    Compare https://stackoverflow.com/questions/27808440/how-to-make-qt-grid-layout-auto-size-column-widths
+    Compare
+     https://stackoverflow.com/questions/27808440/how-to-make-qt-grid-layout-auto-size-column-widths
     ... not sure you can just modify the returned size policy directly, though!
     sizePolicy() returns QSizePolicy, not a reference or pointer.
 
@@ -110,14 +111,14 @@ QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells,
     m_cells(cells),
     m_expand(true),
     m_fixed_grid(true)
-
 {
 }
 
 
 QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells,
                                  QObject* parent) :
-    QuGridContainer(QVector<QuGridCell>(cells), parent)  // delegating constructor
+    QuGridContainer(QVector<QuGridCell>(cells), parent)
+        // ... delegating constructor
 {
 }
 

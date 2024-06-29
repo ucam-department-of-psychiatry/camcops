@@ -117,7 +117,8 @@ int centile(const qreal x, const qreal minimum, const qreal maximum)
     if (!qIsFinite(centile)) {
         return -1;
     }
-    return static_cast<int>(centile);  // truncates to int, which is what we want
+    return static_cast<int>(centile);
+    // ... truncates to int, which is what we want
 }
 
 

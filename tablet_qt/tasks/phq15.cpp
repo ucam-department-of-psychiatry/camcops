@@ -50,7 +50,8 @@ void initializePhq15(TaskFactory& factory)
 
 
 Phq15::Phq15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PHQ15_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, PHQ15_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 

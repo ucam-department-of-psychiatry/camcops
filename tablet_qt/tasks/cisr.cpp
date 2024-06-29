@@ -144,7 +144,8 @@ using namespace cisrconst;
 const QString Cisr::CISR_TABLENAME("cisr");
 
 // FP field prefix; NUM field numbers; FN field name
-// These match the electronic version of the CIS-R, as per "BASIC CIS-R 02-03-2010.pqs".
+// These match the electronic version of the CIS-R, as per
+// "BASIC CIS-R 02-03-2010.pqs".
 
 const QString FN_ETHNIC("ethnic");
 const QString FN_MARRIED("married");
@@ -157,7 +158,8 @@ const QString FN_WEIGHT1("weight1");
 const QString FN_WEIGHT2("weight2");
 const QString FN_WEIGHT3("weight3");
 const QString FN_APPETITE2("appetite2");
-const QString FN_WEIGHT4("weight4");  // male/female responses unified (no "weight4a")
+const QString FN_WEIGHT4("weight4");
+    // ... male/female responses unified (no "weight4a")
 const QString FN_WEIGHT5("weight5");
 
 const QString FN_GP_YEAR("gp_year");
@@ -461,7 +463,8 @@ const QVector<CQ> QUESTIONS_OVERALL_DURATION{
 const QMap<CQ, QPair<int, int>> QUESTIONS_MULTIWAY{
     // Maps questions to first and last number of answers.
     {CQ::WEIGHT3_LOST_LOTS, {1, 2}},
-    {CQ::WEIGHT4_INCREASE_PAST_MONTH, {1, 2}},  // may be modified to 3 if female
+    {CQ::WEIGHT4_INCREASE_PAST_MONTH, {1, 2}},
+        // ... may be modified to 3 if female
     {CQ::WEIGHT5_GAINED_LOTS, {1, 2}},
     {CQ::GP_YEAR, {0, 4}},  // unusual; starts at 0
     {CQ::ILLNESS, {1, 8}},
@@ -504,7 +507,8 @@ const QMap<CQ, QPair<int, int>> QUESTIONS_MULTIWAY_WITH_EXTRA_STEM{
     {CQ::ETHNIC, {1, 7}},  // 7 includes our additional "prefer not to say"
     {CQ::MARRIED, {1, 6}},  // 6 includes our additional "prefer not to say"
     {CQ::EMPSTAT, {1, 8}},  // 8 includes our additional "prefer not to say"
-    {CQ::EMPTYPE, {1, 7}},  // 7 includes our additional "not applicable" + "prefer not to say"
+    {CQ::EMPTYPE, {1, 7}},
+        // ... 7 includes our additional "not applicable" + "prefer not to say"
     {CQ::HOME, {1, 7}},  // 7 includes our additional "prefer not to say"
 };
 const QVector<CQ> QUESTIONS_DAYS_PER_WEEK{
@@ -1402,7 +1406,8 @@ QString Cisr::tagForQuestion(CisrQuestion q) const
 QVariant Cisr::valueForQuestion(CisrQuestion q) const
 {
     const QString fieldname = fieldnameForQuestion(q);
-    Q_ASSERT(!fieldname.isEmpty());  // have we asked for a field from an info-only page?
+    Q_ASSERT(!fieldname.isEmpty());
+    // ... have we asked for a field from an info-only page?
     return value(fieldname);
 }
 
@@ -1876,7 +1881,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                 answerIsYes(CQ::CONC_MAND2_FORGETFUL_PAST_MONTH)) {
             r.decide("Forgetfulness, not concentration, problems; skip over "
                      "more detailed concentration questions.");
-            jumpTo(CQ::CONC4_FORGOTTEN_IMPORTANT);  // skip CONC2, CONC3, CONC_DUR
+            jumpTo(CQ::CONC4_FORGOTTEN_IMPORTANT);
+            // ... skip CONC2, CONC3, CONC_DUR
         }
         break;
 
@@ -1972,7 +1978,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             r.decide("EMW of >2h in past week. "
                      "Setting sleep_change to SLEEPCHANGE_EMW. "
                      "Incrementing depr_crit_3_somatic_synd.");
-            // Was: SLEEPCH += answer - 1 (which only does anything for a "yes" (2) answer).
+            // Was: SLEEPCH += answer - 1 (which only does anything for a "yes"
+            // (2) answer).
             // ... but at this point, SLEEPCH is always 0.
             r.sleep_change = SLEEPCHANGE_EMW;  // LIKELY REDUNDANT.
             r.depr_crit_3_somatic_synd += 1;
@@ -3153,11 +3160,13 @@ QuPagePtr Cisr::makePageFromEnum(CisrQuestion q)
         return nullptr;
     }
     if (QUESTIONS_MULTIWAY.contains(q)) {
-        // this test must PRECEDE Y/N tests since WEIGHT4 is both multiway and Y/N
+        // this test must PRECEDE Y/N tests since WEIGHT4 is both multiway and
+        // Y/N
         return multiwayQuestion(false, QUESTIONS_MULTIWAY);
     }
     if (QUESTIONS_MULTIWAY_WITH_EXTRA_STEM.contains(q)) {
-        // this test must PRECEDE Y/N tests since WEIGHT4 is both multiway and Y/N
+        // this test must PRECEDE Y/N tests since WEIGHT4 is both multiway and
+        // Y/N
         return multiwayQuestion(true, QUESTIONS_MULTIWAY_WITH_EXTRA_STEM);
     }
     if (QUESTIONS_PROMPT_ONLY.contains(q)) {

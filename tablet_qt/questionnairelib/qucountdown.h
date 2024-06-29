@@ -76,6 +76,7 @@ protected:
     QPointer<QPushButton> m_reset_button;  // "Reset"
     QPointer<QLabel> m_label;  // text containing time-to-go information
     QSharedPointer<QTimer> m_timer;  // timer
-    QSharedPointer<QMediaPlayer> m_player;  // sound player; not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player;
+        // ... sound player; not owned by other widgets
     double m_seconds_left;  // time left
 };

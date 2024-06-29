@@ -136,7 +136,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     auto header_toprowlayout = new HBoxLayout();
     header_toprowlayout->addWidget(cancel, 0, button_align);
     header_toprowlayout->addStretch();
-    header_toprowlayout->addWidget(title_label, 0, text_align);  // default alignment fills whole cell; this is better
+    header_toprowlayout->addWidget(title_label, 0, text_align);
+    // ... default alignment fills whole cell; this is better
     header_toprowlayout->addStretch();
 #ifdef OFFER_LAYOUT_DEBUG_BUTTON
     auto button_debug = new QPushButton("Dump layout");
@@ -191,7 +192,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //         and PE_IndicatorArrowRight.
     //   - SE_TreeViewDisclosureItem
     //   - QTreeView::drawRow
-    //          d->delegateForIndex(modelIndex)->paint(painter, opt, modelIndex);
+    //          d->delegateForIndex(modelIndex)->paint(painter, opt,
+    //              modelIndex);
     //          -> QAbstractItemDelegate::paint()
     //          -> as default delegate is QStyledItemDelegate...
     //             [https://doc.qt.io/qt-6.5/model-view-programming.html]

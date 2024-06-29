@@ -116,7 +116,8 @@ FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, const int margin,
 FlowLayoutHfw::FlowLayoutHfw(const int margin,
                              const int h_spacing,
                              const int v_spacing) :
-    FlowLayoutHfw(nullptr, margin, h_spacing, v_spacing)  // delegating constructor
+    FlowLayoutHfw(nullptr, margin, h_spacing, v_spacing)
+        // ... delegating constructor
 {
 }
 
@@ -337,9 +338,12 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
 {
     // RNC: substantial modifications including vertical alignment
 
-    const Margins contents_margins = Margins::getContentsMargins(this);  // dead zone
-    const QRect effective_rect = contents_margins.removeMarginsFrom(rect);  // active rectangle
-    const int layout_width = effective_rect.width();  // width within which to work
+    const Margins contents_margins = Margins::getContentsMargins(this);
+        // ... dead zone
+    const QRect effective_rect = contents_margins.removeMarginsFrom(rect);
+        // ... active rectangle
+    const int layout_width = effective_rect.width();
+        // ... width within which to work
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
     qDebug() << "... test_only =" << test_only;
@@ -353,18 +357,24 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
     int max_row_width = 0;  // Maximum width of any row
     int y = effective_rect.y();  // Working y coordinate
     int row = 0;  // Current row
-    int preceding_space_x = 0;  // The space to the left of the widget we're inserting
-    QVector<int> line_heights{0};  // Heights of each row (line); last is the current row
-    QVector<int> row_total_widths{0};  // Total widths of each row (line); last is the current row
-    QVector<ItemCalc> itemcalcs;  // Calculation objects, one for each widget
+    int preceding_space_x = 0;
+        // ... The space to the left of the widget we're inserting
+    QVector<int> line_heights{0};
+        // ... Heights of each row (line); last is the current row
+    QVector<int> row_total_widths{0};
+        // ... Total widths of each row (line); last is the current row
+    QVector<ItemCalc> itemcalcs;
+        // ... Calculation objects, one for each widget
 
     for (auto item : m_item_list) {
         ItemCalc calc;
         calc.item = item;
         QWidget* widget = calc.widget = item->widget();
 
-        int space_x = horizontalSpacing();  // horizontal gap between items in each row
-        // ... specifically the space to the right of the widget we're inserting
+        int space_x = horizontalSpacing();
+            // ... horizontal gap between items in each row
+            // ... specifically the space to the right of the widget we're
+            //     inserting
         if (space_x == -1) {
             space_x = widget->style()->layoutSpacing(
                 QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
@@ -394,7 +404,8 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
 
         bool start_new_line = false;
         if (available_width < item_width) {
-            const int relative_x = x - effective_rect.x();  // distance to the right of left edge
+            const int relative_x = x - effective_rect.x();
+                // ... distance to the right of left edge
             if (relative_x > 0) {
                 start_new_line = true;
                 item_width = qMin(item_width, layout_width);
@@ -433,7 +444,8 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
         calc.layout_row = row;
         calc.layout_cell_top_left = QPoint(x, y);
 
-        const int next_x = x + item_width + space_x;  // x coord for next item, if it fits on this row
+        const int next_x = x + item_width + space_x;
+            // ... x coord for next item, if it fits on this row
         x = next_x;
         row_total_widths.back() += preceding_space_x + item_width;
         max_row_width = qMax(max_row_width, row_total_widths.back());
@@ -457,7 +469,8 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
     if (!test_only) {
         const int nrows = row + 1;  // row is zero-based
         // Collect offsets for each row
-        QVector<int> row_horiz_offsets(nrows);  // amounts to shift each row right
+        QVector<int> row_horiz_offsets(nrows);
+            // ... amounts to shift each row right
         for (int r = 0; r < nrows; ++r) {
             row_horiz_offsets[r] = rowShiftToRight(layout_width,
                                                    row_total_widths.at(r));
@@ -481,7 +494,8 @@ QSize FlowLayoutHfw::doLayout(const QRect& rect, const bool test_only) const
                     ;
 #endif
             calc.item->setGeometry(geometry);
-            // See qtlayouthelpers::WidgetItemHfw::setGeometry() for discussion.
+            // See qtlayouthelpers::WidgetItemHfw::setGeometry() for
+            // discussion.
         }
     }
 

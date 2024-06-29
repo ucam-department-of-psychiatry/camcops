@@ -56,8 +56,10 @@ public:
 
 public:
     QString m_command;  // the full command
-    bool m_immediate_socket;  // send via the immediate socket, not the main socket?
-    bool m_immediate_ignore_reply;  // for immediate-socket commands: ignore the reply?
+    bool m_immediate_socket;
+        // ... send via the immediate socket, not the main socket?
+    bool m_immediate_ignore_reply;
+        // ... for immediate-socket commands: ignore the reply?
 
 public:
     // Debugging description

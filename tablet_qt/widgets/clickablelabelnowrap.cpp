@@ -33,7 +33,8 @@ ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text,
                                            QWidget* parent) :
     ClickableLabelNoWrap(parent)  // delegating constructor
 {
-    m_label->setText(text);  // this is what the QLabel(text, parent) constructor does
+    m_label->setText(text);
+    // This is what the QLabel(text, parent) constructor does.
 }
 
 

@@ -47,7 +47,8 @@ Field::Field(const QString& name,
     m_set(false),
     m_dirty(true)
 {
-    setCppDefaultValue(cpp_default_value);  // will also set m_value (because m_set is false)
+    setCppDefaultValue(cpp_default_value);
+    // ... will also set m_value (because m_set is false)
     setDbDefaultValue(db_default_value);
 }
 
@@ -276,9 +277,11 @@ QString Field::sqlColumnType() const
     //      - standard int is int32
     //        32-bit signed: up to +2,147,483,647 = 2147483647
     //      - qlonglong is the same as qint64
-    //        64-bit signed: up to +9,223,372,036,854,775,807 = 9223372036854775807
+    //        64-bit signed: up to +9,223,372,036,854,775,807
+    //          = 9223372036854775807
     //      - qulonglong is the same as quint64
-    //        64-bit unsigned: 0 to +18,446,744,073,709,551,615 = 18446744073709551615
+    //        64-bit unsigned: 0 to +18,446,744,073,709,551,615
+    //          = 18446744073709551615
     // C++ type name: QVariant::typeToName(m_type);
     const int type_id = m_type.id();
 

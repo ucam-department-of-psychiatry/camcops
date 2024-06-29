@@ -84,7 +84,8 @@ protected:
 
     QPointer<Questionnaire> m_questionnaire;  // our questionnaire
     QPointer<QLabel> m_incomplete_optional_label;  // label for incomplete data
-    QPointer<QLabel> m_incomplete_mandatory_label;  // label for incomplete data
+    QPointer<QLabel> m_incomplete_mandatory_label;
+        // ... label for incomplete data
     QPointer<QLabel> m_field_problem_label;  // "something wrong" indicator
     QPointer<AspectRatioPixmap> m_image_widget;  // image display widget
 #ifdef QUPHOTO_USE_CAMERA_QML

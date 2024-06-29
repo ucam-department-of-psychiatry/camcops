@@ -757,7 +757,8 @@ void WhiskerTestMenu::demoWhiskerTaskMain()
         w->displayShowDocument(second_display, doc, ignore_reply);
     }
 
-    w->displayKeyboardEvents(doc, KeyEventType::Both, false);  // don't ignore this reply
+    w->displayKeyboardEvents(doc, KeyEventType::Both, false);
+        // ... don't ignore this reply
 
     w->lineSetEvent(digital_input, event_input_on, LineEventType::On, ignore_reply);
     w->lineSetEvent(digital_input, event_input_off, LineEventType::Off, ignore_reply);
@@ -977,7 +978,9 @@ WhiskerTestMenu::StatusStream WhiskerTestMenu::stream()
     // You can't do this:
     //      return StatusStream(*this);
     // ... or you get:
-    //      error: use of deleted function ‘WhiskerTestMenu::StatusStream::StatusStream(const WhiskerTestMenu::StatusStream&)’
+    //      error: use of deleted function
+    //      ‘WhiskerTestMenu::StatusStream::StatusStream(
+    //          const WhiskerTestMenu::StatusStream&)’
     //
     // https://stackoverflow.com/questions/3442520/how-copy-from-one-stringstream-object-to-another-in-c
     // https://stackoverflow.com/questions/7935639/can-we-return-objects-having-a-deleted-private-copy-move-constructor-by-value-fr

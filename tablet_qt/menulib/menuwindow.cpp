@@ -97,7 +97,8 @@ MenuWindow::MenuWindow(CamcopsApp& app,
 #endif
     dummy_layout->setContentsMargins(uiconst::NO_MARGINS);
     setLayout(dummy_layout);
-    auto dummy_widget = new QWidget();  // doesn't need to be BaseWidget; contains scrolling list
+    auto dummy_widget = new QWidget();
+    // ... doesn't need to be BaseWidget; contains scrolling list
     dummy_widget->setObjectName(cssconst::MENU_WINDOW_BACKGROUND);
     dummy_layout->addWidget(dummy_widget);
 
@@ -224,7 +225,8 @@ void MenuWindow::makeLayout()
     // ------------------------------------------------------------------------
     // Given that we are working with a QListWidget or derivative, searching
     // is a bit less intuitive. However...
-    // [See also https://stackoverflow.com/questions/2695878/creating-a-qlineedit-search-field-for-items-displayed-in-a-qlistview]
+    // See also
+    // https://stackoverflow.com/questions/2695878/creating-a-qlineedit-search-field-for-items-displayed-in-a-qlistview
 
     if (m_offer_search) {
         // Label
@@ -283,7 +285,8 @@ void MenuWindow::build()
     m_p_listwidget->clear();
 
     // Method 1: QListWidget, QListWidgetItem
-    // Size hints: https://forum.qt.io/topic/17481/easiest-way-to-have-a-simple-list-with-custom-items/4
+    // Size hints:
+    // https://forum.qt.io/topic/17481/easiest-way-to-have-a-simple-list-with-custom-items/4
     // Note that the widgets call setSizePolicy.
     bool preselected = false;
     const int app_selected_patient_id = m_app.selectedPatientId();
@@ -442,7 +445,8 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
 void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 {
     Q_UNUSED(lockstate)
-    // mark as unused; http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
+    // mark as unused;
+    // http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
     // qDebug() << Q_FUNC_INFO;
     build();  // calls down to derived class
 }
@@ -485,7 +489,8 @@ void MenuWindow::viewTask()
                 this);
     QAbstractButton* summary = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
     QAbstractButton* detail = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
-    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
+    msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);
+        // ... e.g. Cancel
     QAbstractButton* facsimile = nullptr;
     if (facsimile_available) {
         facsimile = msgbox.addButton(tr("Facsimile"), QMessageBox::AcceptRole);

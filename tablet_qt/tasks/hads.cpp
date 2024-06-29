@@ -67,7 +67,8 @@ Hads::Hads(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 Hads::Hads(CamcopsApp& app, DatabaseManager& db,
            const QString& tablename, const bool has_respondent,
            const int load_pk) :
-    Task(app, db, tablename, false, false, has_respondent)  // ... anon, clin, resp
+    Task(app, db, tablename, false, false, has_respondent)
+        // ... anon, clin, resp
 {
     // Constructor used directly by HadsRespondent and indirectly by the other
     // constructor.

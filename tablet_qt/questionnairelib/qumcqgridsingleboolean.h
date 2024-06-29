@@ -86,7 +86,8 @@ protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
-    // Return the column number for the specified (zero-based) MCQ option/value.
+    // Return the column number for the specified (zero-based) MCQ
+    // option/value.
     int mcqColnum(int value_index) const;
 
     // Return the column number for the boolean column.
@@ -114,7 +115,8 @@ protected slots:
                                              const FieldRef* fieldref);
 protected:
     bool m_boolean_left;  // Boolean part on left, not right?
-    QVector<QuestionWithTwoFields> m_questions_with_fields;  // Question/field map
+    QVector<QuestionWithTwoFields> m_questions_with_fields;
+        // ... Question/field map
     NameValueOptions m_mcq_options;  // Name/value options for the MCQ part
     QString m_boolean_text;  // Text to display for Boolean column
     int m_question_width;  // Relative width of question column

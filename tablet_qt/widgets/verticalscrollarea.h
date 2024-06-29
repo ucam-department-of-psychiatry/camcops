@@ -85,8 +85,10 @@ protected:
     void swipeTriggered(QSwipeGesture* gesture);
 
 protected:
-    int m_last_widget_width;  // Last widget width we were told about. Set in resetSizeLimits().
-    int m_reentry_depth;  // Used during resize events to prevent infinite recursion.
+    // Last widget width we were told about. Set in resetSizeLimits().
+    int m_last_widget_width;
+    // Used during resize events to prevent infinite recursion.
+    int m_reentry_depth;
     QSize m_widget_size_back_1;  // 1-back size of our owned widget
     QSize m_widget_size_back_2;  // 2-back size of our owned widget
 };

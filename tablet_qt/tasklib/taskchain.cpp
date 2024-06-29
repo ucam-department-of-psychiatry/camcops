@@ -211,7 +211,8 @@ void TaskChain::startNextTask()
     if (questionnaire) {
         questionnaire->setWithinChain(true);
     }
-    MenuWindow::connectQuestionnaireToTask(widget, ptask);  // in case it's a questionnaire
+    MenuWindow::connectQuestionnaireToTask(widget, ptask);
+        // ... in case it's a questionnaire
     QObject::connect(ptask, &Task::editingFinished,
                      this, &TaskChain::onTaskFinished);
     QObject::connect(ptask, &Task::editingAborted,

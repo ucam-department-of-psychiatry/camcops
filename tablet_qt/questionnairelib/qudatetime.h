@@ -39,9 +39,11 @@ public:
         DefaultDateTime,  // e.g. 2000 01 31 08:00
         DefaultDate,  // e.g. 2000 01 31
         DefaultTime,  // e.g. 08:00
-        CustomDateTime,  // user-specified format as per https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
-        CustomDate,  // user-specified format as per https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
-        CustomTime,  // user-specified format as per https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
+        CustomDateTime,
+        CustomDate,
+        CustomTime,
+        // CustomDateTime, CustomDate, CustomTime: user-specified format as per
+        // https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
     };
 public:
 

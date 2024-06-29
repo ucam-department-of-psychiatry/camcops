@@ -171,11 +171,13 @@ using GenericMatrix = Eigen::Matrix<ContentsT, Eigen::Dynamic, Eigen::Dynamic>;
 template<typename ContentsT>
 using GenericArray = Eigen::Matrix<ContentsT, Eigen::Dynamic, Eigen::Dynamic>;
 
-using IndexArray = Eigen::Array<Eigen::Index, Eigen::Dynamic, 1>;  // 1-dimensional (column) array of indices
+using IndexArray = Eigen::Array<Eigen::Index, Eigen::Dynamic, 1>;
+    // ... 1-dimensional (column) array of indices
 // Default storage is column-major, i.e. column vectors should be faster
 // (though you can change this on a per-object basis);
 // https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html
-using IndexVector = Eigen::Matrix<Eigen::Index, Eigen::Dynamic, 1>;  // 1-dimensional (column) vector of indices
+using IndexVector = Eigen::Matrix<Eigen::Index, Eigen::Dynamic, 1>;
+    // ... 1-dimensional (column) vector of indices
 
 using ArrayXb = Eigen::Array<bool, Eigen::Dynamic, 1>;
 // Eigen doesn't define ArrayXb, but it's helpful as a column vector of bool
@@ -772,7 +774,8 @@ Eigen::Array<typename Derived1::Scalar,
     // # [3,]  300    7  110 1500
     // # [4,]    4   80 1200   16
     // # Warning message:
-    // # In a * b : longer object length is not a multiple of shorter object length
+    // # In a * b : longer object length is not a multiple of shorter object
+    //      length
     //
     // b * a  # same as a * b
 
@@ -840,8 +843,9 @@ template <typename DerivedCondition, typename DerivedThenElse>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1> cyclicSelect(
         const Eigen::DenseBase<DerivedCondition>& condition,
         const Eigen::DenseBase<DerivedThenElse>& then,
-        const Eigen::DenseBase<DerivedThenElse>& _else)  // else is a C++ keyword
+        const Eigen::DenseBase<DerivedThenElse>& _else)
 {
+    // (Parameter is _else because else is a C++ keyword.)
     // Produces a column array whose length is the maximum of the lengths of
     // (condition, then, else), cycling as necessary.
 
@@ -906,19 +910,22 @@ Eigen::MatrixXd backsolve(const Eigen::MatrixXd& r,
                           const Eigen::MatrixXd& x,
                           Eigen::Index k = -1,  // default to ncol(r)
                           bool transpose = false,
-                          bool upper_tri = true);  // upper_tri = true MAKES IT A BACKSOLVE
+                          bool upper_tri = true);
+    // ... upper_tri = true MAKES IT A BACKSOLVE
 Eigen::MatrixXd forwardsolve(const Eigen::MatrixXd& l,
                              const Eigen::MatrixXd& x,
                              Eigen::Index k = -1,  // default to ncol(l)
                              bool transpose = false,
-                             bool upper_tri = false);  // upper_tri = false MAKES IT A FORWARDSOLVE
+                             bool upper_tri = false);
+    // ... upper_tri = false MAKES IT A FORWARDSOLVE
+
 // I think that forwardsolve and backsolve are basically the same thing, except
 // for the default relating to upper_tri. That's what R's documentation
 // suggests:
-//           Solves a system of linear equations where the coefficient matrix
-//           is upper (or ‘right’, ‘R’) or lower (‘left’, ‘L’) triangular.
-//           ‘x <- backsolve(R, b)’ solves R x = b [RNC: for x], and
-//           ‘x <- forwardsolve(L, b)’ solves L x = b [RNC: for x], respectively.
+//      Solves a system of linear equations where the coefficient matrix
+//      is upper (or ‘right’, ‘R’) or lower (‘left’, ‘L’) triangular.
+//      ‘x <- backsolve(R, b)’ solves R x = b [RNC: for x], and
+//      ‘x <- forwardsolve(L, b)’ solves L x = b [RNC: for x], respectively.
 // And this:
 //      http://www.stat.berkeley.edu/~paciorek/research/techVignettes/techVignette6.pdf
 //  "A quick note on backsolves and forwardsolves. If you have a

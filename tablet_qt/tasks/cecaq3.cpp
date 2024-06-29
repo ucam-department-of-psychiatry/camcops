@@ -298,7 +298,8 @@ void initializeCecaQ3(TaskFactory& factory)
 
 
 CecaQ3::CecaQ3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CECAQ3_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, CECAQ3_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(S1A_MOTHERFIGURE_BIRTHMOTHER, QMetaType::fromType<bool>());
@@ -507,9 +508,11 @@ CecaQ3::CecaQ3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(S5C_PARENTAL_ABUSE_DESCRIPTION, QMetaType::fromType<QString>());
     addField(S5C_ABUSE_BY_NONPARENT, QMetaType::fromType<bool>());
     addField(S5C_NONPARENT_ABUSE_DESCRIPTION, QMetaType::fromType<QString>());
-    addField(S6_ANY_UNWANTED_SEXUAL_EXPERIENCE, QMetaType::fromType<int>());  // not bool
+    addField(S6_ANY_UNWANTED_SEXUAL_EXPERIENCE, QMetaType::fromType<int>());
+        // ... not bool
     addField(S6_UNWANTED_INTERCOURSE, QMetaType::fromType<int>());  // not bool
-    addField(S6_UPSETTING_SEXUAL_ADULT_AUTHORITY, QMetaType::fromType<int>());  // not bool
+    addField(S6_UPSETTING_SEXUAL_ADULT_AUTHORITY, QMetaType::fromType<int>());
+        // ... not bool
     addField(S6_FIRST_AGE, QMetaType::fromType<double>());
     addField(S6_OTHER_AGE, QMetaType::fromType<double>());
     addField(S6_FIRST_PERSON_KNOWN, QMetaType::fromType<bool>());
@@ -618,14 +621,16 @@ OpenableWidget* CecaQ3::editor(const bool read_only)
         {xstring("3a_which_option5"), 5},
         {xstring("3a_which_option0"), 0},
     };
-    const NameValueOptions options_5way_no_to_yes{  // presented in yes-to-no order
+    const NameValueOptions options_5way_no_to_yes{
+        // presented in yes-to-no order
         {xstring("options5way_notoyes_5"), 5},
         {"", 4},
         {xstring("options5way_notoyes_3"), 3},
         {"", 2},
         {xstring("options5way_notoyes_1"), 1},
     };
-    const NameValueOptions options3way_no_to_yes{  // presented in yes-to-no order
+    const NameValueOptions options3way_no_to_yes{
+        // presented in yes-to-no order
         {xstring("options3way_noto_yes_2"), 2},
         {xstring("options3way_noto_yes_1"), 1},
         {xstring("options3way_noto_yes_0"), 0},
@@ -1678,7 +1683,8 @@ void CecaQ3::dataChanged2B()
         fieldRef(qstr)->setMandatory(true);
         const int v = valueInt(qstr);
         abuse = abuse || v;
-        fieldRef(qstr + FS_FREQUENCY)->setMandatory(v);  // not null and not zero
+        fieldRef(qstr + FS_FREQUENCY)->setMandatory(v);
+        // ... not null and not zero
     }
     fieldRef(S2B_AGE_BEGAN)->setMandatory(abuse);
 }
@@ -1709,7 +1715,8 @@ void CecaQ3::dataChanged3B()
         fieldRef(qstr)->setMandatory(true);
         const int v = valueInt(qstr);
         abuse = abuse || v;
-        fieldRef(qstr + FS_FREQUENCY)->setMandatory(v);  // not null and not zero
+        fieldRef(qstr + FS_FREQUENCY)->setMandatory(v);
+        // ... not null and not zero
     }
     fieldRef(S3B_AGE_BEGAN)->setMandatory(abuse);
 }
@@ -1773,7 +1780,8 @@ void CecaQ3::dataChanged5()
                      S5C_FATHER_HIT_HOW,
                      S5C_FATHER_INJURED,
                      S5C_FATHER_OUT_OF_CONTROL});
-    // setMandatory(by_nonparent, QStringList{S5C_NONPARENT_ABUSE_DESCRIPTION});
+    // setMandatory(by_nonparent,
+    //              QStringList{S5C_NONPARENT_ABUSE_DESCRIPTION});
 }
 
 

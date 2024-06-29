@@ -192,7 +192,8 @@ void initializeCardinalExpectationDetection(TaskFactory& factory)
 
 CardinalExpectationDetection::CardinalExpectationDetection(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, CARDINALEXPDET_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     // Config
     addField(FN_NUM_BLOCKS, QMetaType::fromType<int>());
@@ -207,12 +208,13 @@ CardinalExpectationDetection::CardinalExpectationDetection(
     addField(FN_ISI_DURATION_S, QMetaType::fromType<double>());
     // ... target
     addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::fromType<double>());
-    addField(FN_VISUAL_BACKGROUND_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
-    addField(FN_VISUAL_TARGET_0_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
-    addField(FN_VISUAL_TARGET_1_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
-    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
-    addField(FN_AUDITORY_TARGET_0_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
-    addField(FN_AUDITORY_TARGET_1_INTENSITY, QMetaType::fromType<double>());  // 0 to 1
+        // Intensities are all 0 to 1:
+    addField(FN_VISUAL_BACKGROUND_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_VISUAL_TARGET_0_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_VISUAL_TARGET_1_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_AUDITORY_BACKGROUND_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_AUDITORY_TARGET_0_INTENSITY, QMetaType::fromType<double>());
+    addField(FN_AUDITORY_TARGET_1_INTENSITY, QMetaType::fromType<double>());
     // ... ITI
     addField(FN_ITI_MIN_S, QMetaType::fromType<double>());
     addField(FN_ITI_MAX_S, QMetaType::fromType<double>());
@@ -515,10 +517,10 @@ void CardinalExpectationDetection::makeTrialGroupSpecs()
         const int group_num = i;
 
         // CUE             00 01 02 03 04 05 06 07
-        // TARGET_MODALITY  0  0  0  0  1  1  1  1  } define the four target types
-        // TARGET_NUMBER    0  0  1  1  0  0  1  1  }
-        // N_TARGET         2  1  2  1  2  1  2  1    } define the high-/low-probability cues
-        // N_NO_TARGET      1  2  1  2  1  2  1  2    }
+        // TARGET_MODALITY  0  0  0  0  1  1  1  1  } define the four target
+        // TARGET_NUMBER    0  0  1  1  0  0  1  1  }   types
+        // N_TARGET         2  1  2  1  2  1  2  1    } define the high-/low-
+        // N_NO_TARGET      1  2  1  2  1  2  1  2    }   probability cues
 
         const int cue = i;
         const int target_modality = i / 4;
@@ -756,7 +758,8 @@ void CardinalExpectationDetection::startTask()
 #endif
     m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
 
-    onEditStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();
+    // ... will have been stopped by the end of the questionnaire?
 
     // Set up players and timers
     soundfunc::makeMediaPlayer(m_player_cue);
@@ -879,7 +882,8 @@ void CardinalExpectationDetection::isi()
     qDebug() << Q_FUNC_INFO;
 #endif
     clearScene();
-    m_player_cue->stop();  // in case it hasn't already; also resets it to the start
+    m_player_cue->stop();
+    // ... in case it hasn't already; also resets it to the start
     setTimeout(secToIntMs(valueDouble(FN_ISI_DURATION_S)),
                &CardinalExpectationDetection::target);
 }

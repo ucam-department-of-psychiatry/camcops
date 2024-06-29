@@ -48,7 +48,8 @@ QuThermometer::QuThermometer(FieldRefPtr fieldref,
 QuThermometer::QuThermometer(FieldRefPtr fieldref,
                              std::initializer_list<QuThermometerItem> items,
                              QObject* parent) :
-    QuThermometer(fieldref, QVector<QuThermometerItem>(items), parent)  // delegating constructor
+    QuThermometer(fieldref, QVector<QuThermometerItem>(items), parent)
+        // ... delegating constructor
 {
 }
 
@@ -117,13 +118,15 @@ void QuThermometer::thermometerSelectionChanged(int thermometer_index)
 {
     // thermometer_index: thermometer's top-to-bottom index
     const int n = m_items.size();
-    const int index = (n - 1) - thermometer_index;  // QuThermometer internal index
+    const int index = (n - 1) - thermometer_index;
+        // ... QuThermometer internal index
     if (index < 0 || index >= n) {
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
     const QVariant newvalue = m_items.at(index).value();
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

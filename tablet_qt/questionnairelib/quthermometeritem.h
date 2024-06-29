@@ -38,7 +38,8 @@ public:
     // - inactive_filename: image to use when this part is inactive
     // - text: associated text to display
     // - value: value to send to the field when this part is chosen
-    // - overspill_rows: ignored if QUTHERMOMETER_USE_THERMOMETER_WIDGET is defined
+    // - overspill_rows: ignored if QUTHERMOMETER_USE_THERMOMETER_WIDGET is
+    //   defined
     // - text_alignment: alignment of "text"
     QuThermometerItem(
             const QString& active_filename,

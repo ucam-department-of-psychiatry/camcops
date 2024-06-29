@@ -137,9 +137,12 @@ protected:
 
     QImage::Format m_format;  // underlying image format
     QImage m_image;  // our image
-    bool m_allow_shrink;  // allow the widget/image to shrink, for small screens?
-    int m_minimum_shrink_height;  // if m_allow_shrink: what's our minimum height?
-    bool m_adjust_display_for_dpi;  // adjust image size for the current DPI setting?
+    bool m_allow_shrink;
+        // ... allow the widget/image to shrink, for small screens?
+    int m_minimum_shrink_height;
+        // ... if m_allow_shrink: what's our minimum height?
+    bool m_adjust_display_for_dpi;
+        // ... adjust image size for the current DPI setting?
 
     int m_border_width_px;  // border width, in pixels
     QColor m_border_colour;  // border colour

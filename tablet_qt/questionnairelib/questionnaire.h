@@ -20,7 +20,8 @@
 
 #pragma once
 
-// #define QUESTIONAIRE_USE_HFW_LAYOUT  // bad; contained scroll area gets too short
+// #define QUESTIONAIRE_USE_HFW_LAYOUT
+// ... bad; contained scroll area gets too short
 
 #include <initializer_list>
 #include <QList>
@@ -328,7 +329,8 @@ protected slots:
 protected:
     CamcopsApp& m_app;  // our app
     QVector<QuPagePtr> m_pages;  // our pages
-    QuPage::PageType m_type;  // our type, e.g. patient/clinician (pages may inherit or override)
+    QuPage::PageType m_type;
+        // ... our type, e.g. patient/clinician (pages may inherit or override)
     bool m_read_only;  // are we in read-only mode?
     bool m_jump_allowed;  // is the user allowed to jump to a page?
     bool m_within_chain;  // set setWithinChain()
@@ -342,7 +344,8 @@ protected:
     QPointer<QVBoxLayout> m_mainlayout;  // see layout described in build()
 #endif
     QPointer<QWidget> m_background_widget;  // see layout described in build()
-    QPointer<QuestionnaireHeader> m_p_header;  // see layout described in build()
+    QPointer<QuestionnaireHeader> m_p_header;
+        // ... see layout described in build()
     int m_current_page_index;  // zero-based index of the current page
     QString m_finish_button_icon_base_filename;  // see setFinishButtonIcon()
 };

@@ -64,7 +64,8 @@ public:
     // Remove all callbacks with a specific name.
     void removeByName(const QString& name);
 
-    // Remove all callbacks for a specific event that also have a specific name.
+    // Remove all callbacks for a specific event that also have a specific
+    // name.
     void removeByEventAndName(const QString& event, const QString& name);
 
     // Remove all callbacks.

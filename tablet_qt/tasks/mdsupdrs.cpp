@@ -208,7 +208,8 @@ void initializeMdsUpdrs(TaskFactory& factory)
 
 
 MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     // Part I
     addField(Q1A, QMetaType::fromType<int>());

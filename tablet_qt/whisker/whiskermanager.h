@@ -28,7 +28,8 @@ GENERAL THREADING APPROACH FOR WHISKER CLIENT
 - QTcpSocket can run via an event-driven system using the readyRead() signal,
   or a blocking system using waitForReadyRead(). The docs warn that
   waitForReadyRead() can fail randomly under Windows, so that means we must
-  use readyRead() [https://doc.qt.io/qt-6.5/qabstractsocket.html#waitForReadyRead].
+  use readyRead()
+  [https://doc.qt.io/qt-6.5/qabstractsocket.html#waitForReadyRead].
 
 - We must presume that the end user will run the task on the GUI thread (which
   is the worst-case scenario; if a separate thread is used, it can do what it
@@ -182,7 +183,8 @@ protected:
     void disconnectAllWhiskerSignals(QObject* receiver);
 
     // Return a new event name for a system event.
-    // The name is of the format <m_sysevent_prefix><m_sysevent_counter><suffix>.
+    // The name is of the format
+    // <m_sysevent_prefix><m_sysevent_counter><suffix>.
     QString getNewSysEvent(const QString& suffix = "");
 
     // Clear all user-defined Whisker event callbacks.

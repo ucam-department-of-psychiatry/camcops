@@ -71,10 +71,11 @@ void DynamicQuestionnaire::addAllAccessibleDynamicPages()
     QuPagePtr page;
     do {
         page = m_pages[page_index];
-        // Not quite the same as a standard questionnaire (see processNextClicked).
-        // We don't allow progress for blocked/missing-input pages in the
-        // read-only situation (or, for example, you get a ridiculous list of
-        // inaccessible pages; try the CIS-R).
+        // Not quite the same as a standard questionnaire (see
+        // processNextClicked). We don't allow progress for
+        // blocked/missing-input pages in the read-only situation (or, for
+        // example, you get a ridiculous list of inaccessible pages; try the
+        // CIS-R).
         bool may_progress = page && page->mayProgressIgnoringValidators();
         may_progress = may_progress && m_more_pages_to_go_fn(page_index);
         if (may_progress) {
@@ -155,7 +156,8 @@ void DynamicQuestionnaire::processNextClicked()
     }
 
     // Different:
-    // not now: allowing jump-ahead // Q_ASSERT(m_current_page_index == m_pages.length() - 1);
+    // not now: allowing jump-ahead:
+    //      Q_ASSERT(m_current_page_index == m_pages.length() - 1);
     trimFromCurrentPositionOnwards();
     const int next_qnum = m_current_page_index + 1;
     QuPagePtr new_dynamic_page = m_make_page_fn(next_qnum);

@@ -315,8 +315,10 @@ void WidgetTestMenu::makeItems()
         MenuItem("Empty questionnaire (long title + as OpenableWidget)",
                  std::bind(&WidgetTestMenu::testQuestionnaire, this, true, true)),
         /*
-        MenuItem("Dummy ACE-III [will CRASH as no patient; layout testing only]"),
-                 std::bind(&WidgetTestMenu::testAce3, this)),
+        MenuItem(
+            "Dummy ACE-III [will CRASH as no patient; layout testing only]"),
+            std::bind(&WidgetTestMenu::testAce3, this)
+        ),
         */
 
         // --------------------------------------------------------------------
@@ -1396,7 +1398,8 @@ void WidgetTestMenu::testQCustomPlot2()
 
     // set locale to english, so we get english month names:
     plot->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
-    // seconds of current time, we'll use it as starting point in time for data:
+    // seconds of current time, we'll use it as starting point in time for
+    // data:
     double now = QDateTime::currentDateTime().toSecsSinceEpoch();
     // create multiple graphs:
     const int ngraphs = 5;
@@ -1411,7 +1414,8 @@ void WidgetTestMenu::testQCustomPlot2()
         QVector<QCPGraphData> timedata(n);
         for (int i = 0; i < n; ++i) {
             timedata[i].key = now + 24 * 3600 * i;  // units are seconds
-            const double randval = rng.generateDouble() - 0.5;  // range [-0.5, +0.5)
+            const double randval = rng.generateDouble() - 0.5;
+            // ... range [-0.5, +0.5)
             if (i == 0) {
                 timedata[i].value = (i / 50.0 + 1) * randval;
             } else {

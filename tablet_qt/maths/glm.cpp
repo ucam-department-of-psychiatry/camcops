@@ -65,11 +65,13 @@ Then a general linear model is
 
 A generalized linear model extends this with a link function [11]:
     eta = Xb                        // linear predictor
-    E(Y) = mu = invlink(eta)        // Y = invlink(eta) or eta = link(y), ignoring error etc.
+    E(Y) = mu = invlink(eta)        // Y = invlink(eta) or eta = link(y),
+                                    // ignoring error etc.
 
 i.e.
 
-    Y = invlink(Xb + e)             // or Y = invlink(Xb) + e?  In any case, Y_predicted = invlink(Xb)
+    Y = invlink(Xb + e)             // or Y = invlink(Xb) + e?  In any case,
+                                    // Y_predicted = invlink(Xb)
     link(Y) = Xb + e
     g(Y) = Xb + e                   // the link function is called g()
 
@@ -80,7 +82,8 @@ i.e.
 For logistic regression, then:
 
     Y = logistic(Xb + e)            // logistic is the INVERSE link function
-    logit(Y) = Xb + e               // logit (= inverse logistic) is the link fn
+    logit(Y) = Xb + e               // logit (= inverse logistic) is the link
+                                    // function
 
 */
 
@@ -554,20 +557,23 @@ void Glm::fitIRLSKaneLewis()
         // Note also, for debugging, that you can inspect matrices, but not
         // arrays, in the Qt debugger.
         const ArrayXXd eta = (A   * x).array();
-                           // n,k * k,1  -> n,1
-        const ArrayXXd g = family.inv_link_fn(eta);  // apply invlink to eta -> n,1
+            // n,k * k,1  -> n,1
+        const ArrayXXd g = family.inv_link_fn(eta);
+            // ... apply invlink to eta -> n,1
         const ArrayXXd gprime = family.derivative_inv_link_fn(eta);  // -> n,1
         const ArrayXXd gprime_squared = gprime.square();  // -> n,1
         const VectorXd z = (eta + (b - g) / gprime).matrix();  // n,1
         const ArrayXXd var_g = family.variance_fn(g);
-        const MatrixXd W = (gprime_squared / var_g).matrix().asDiagonal();  // n,n
+        const MatrixXd W = (gprime_squared / var_g).matrix().asDiagonal();
+            // n,n
         xold = x;
 
         // Now the tricky bit.
         // The source has:
         //      Let x[j+1] = (A_T W A)^−1 A_T W z
         // In R, it uses:
-        //      x = solve(crossprod(A,W*A), crossprod(A,W*z), tol=2*.Machine$double.eps)
+        //      x = solve(crossprod(A,W*A), crossprod(A,W*z),
+        //                tol=2*.Machine$double.eps)
         // R says "solve" solves "a %*% x = b" for x
         // ... i.e.
         //              a * x = b
@@ -659,7 +665,8 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
     }
     IndexArray select_pred_indices = indexSeq(0, n_predictors - 1);
     ArrayXb tiny_singular_values = S_d / S_d(0) < m_tolerance;
-    Eigen::Index k = tiny_singular_values.cast<Eigen::Index>().sum();  // number of tiny singular values; ntiny
+    Eigen::Index k = tiny_singular_values.cast<Eigen::Index>().sum();
+        // ... number of tiny singular values; ntiny
     if (k > 0) {
         addInfo("Numerically rank-deficient model matrix");
         switch (m_rank_deficiency_method) {
@@ -667,7 +674,8 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
             addInfo("RankDeficiencyMethod::SelectColumns");
             select_pred_indices = svdsubsel(A, n - k);
             S = svd(subsetByColumnIndex(A, select_pred_indices));
-            S_d = S.singularValues().array();  // Since we change S, rewrite S_d
+            // Since we change S, rewrite S_d
+            S_d = S.singularValues().array();
             break;
         case RankDeficiencyMethod::MinimumNorm:
             addInfo("RankDeficiencyMethod::MinimiumNorm");
@@ -684,8 +692,10 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         }
     }
 
-    ArrayXd t = ArrayXd::Zero(m);  // nobs,1  // NB confusing name choice, cf. R's t() for transpose
-    MatrixXd s = VectorXd::Zero(select_pred_indices.size());  // npred_unless_subselected,1
+    ArrayXd t = ArrayXd::Zero(m);  // nobs,1
+        // ... NB confusing name choice, cf. R's t() for transpose
+    MatrixXd s = VectorXd::Zero(select_pred_indices.size());
+        // ... npred_unless_subselected,1
     MatrixXd s_old = s;  // npred_unless_subselected,1
     ArrayXb select_pred_bool = selectBoolFromIndices(select_pred_indices, n_predictors);
     ArrayXb good = weights > 0;  // nobs,1
@@ -694,9 +704,12 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
     for (m_n_iterations = 1;
             m_n_iterations <= m_max_iterations;
             ++m_n_iterations) {
-        const ArrayXd t_good = subsetByElementBoolean(t, good);  // nobs_where_good,1
-        const ArrayXd b_good = subsetByElementBoolean(b, good);  // nobs_where_good,1
-        const ArrayXd weights_good = subsetByElementBoolean(weights, good);  // nobs_where_good,1
+        const ArrayXd t_good = subsetByElementBoolean(t, good);
+            // ... nobs_where_good,1
+        const ArrayXd b_good = subsetByElementBoolean(b, good);
+            // ... nobs_where_good,1
+        const ArrayXd weights_good = subsetByElementBoolean(weights, good);
+            // ... nobs_where_good,1
 
         const ArrayXd g = family.inv_link_fn(t_good);  // nobs_where_good,1
 
@@ -720,7 +733,8 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
             return;
         }
 
-        const ArrayXd gprime = family.derivative_inv_link_fn(t_good);  // nobs_where_good,1
+        const ArrayXd gprime = family.derivative_inv_link_fn(t_good);
+            // ... nobs_where_good,1
         if (gprime.isNaN().any()) {
             // As per original...
             addError(QString("NAs in the inverse link function derivative "
@@ -737,9 +751,11 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
 
         ArrayXd z = ArrayXd::Zero(m);  // nobs,1
         ArrayXd W = ArrayXd::Zero(m);  // nobs,1
-        ArrayXd to_z_good = t_good + (b_good - g) / gprime;  // nobs_where_ngood,1
+        ArrayXd to_z_good = t_good + (b_good - g) / gprime;
+            // ... nobs_where_good,1
         assignByBooleanSequentially(z, good, to_z_good);
-        ArrayXd W_new_good = weights_good * (gprime.square() / varg);  // nobs_where_ngood,1
+        ArrayXd W_new_good = weights_good * (gprime.square() / varg);
+            // ... nobs_where_good,1
         assignByBooleanSequentially(W, good, W_new_good);
         good = W > two_epsilon;
         // --------------------------------------------------------------------
@@ -753,11 +769,14 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         s_old = s;
 
         const MatrixXd& S_u = S.matrixU();  // nobs,npred
-        const ArrayXXd S_u_good = subsetByRowBoolean(S_u, good);  // nobs_where_ngood,npred
+        const ArrayXXd S_u_good = subsetByRowBoolean(S_u, good);
+            // ... nobs_where_ngood,npred
         // Note that mat[boolvec] gives a 1-d result, whereas
         // mat[boolvec,] gives a 2-d result.
-        const ArrayXd W_good = subsetByElementBoolean(W, good);  // nobs_where_ngood,1
-        const ArrayXd z_good = subsetByElementBoolean(z, good);  // nobs_where_ngood,1
+        const ArrayXd W_good = subsetByElementBoolean(W, good);
+            // ... nobs_where_ngood,1
+        const ArrayXd z_good = subsetByElementBoolean(z, good);
+            // ... nobs_where_ngood,1
         // Now, about W_good * S_u_good, where S_u_good is e.g. 20x2:
         // In R, if W_good is 20x1, you get a "non-conformable arrays" error,
         // but if W_good is a 20-length vector, it works, applying it across
@@ -794,13 +813,16 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         S_d = tiny_singular_values.select(INF, S_d);
     }
 
-    const ArrayXd t_good = subsetByElementBoolean(t, good);  // nobs_where_good,1
+    const ArrayXd t_good = subsetByElementBoolean(t, good);
+        // ... nobs_where_good,1
     const MatrixXd S_u = S.matrixU();  // nobs,npred
-    const MatrixXd S_u_good = subsetByRowBoolean(S_u, good);  // nobs_where_good,npred
+    const MatrixXd S_u_good = subsetByRowBoolean(S_u, good);
+        // ... nobs_where_good,npred
     const MatrixXd S_v = S.matrixV();
     const MatrixXd x_possible = S_v * ((1 / S_d) * CROSSPROD(
                                            S_u_good,
-                                           t_good).array()).matrix();  // npred,1
+                                           t_good).array()).matrix();
+        // ... npred,1
     x = select_pred_bool.select(x_possible, x);
 
     m_fitted = true;
@@ -840,7 +862,8 @@ eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, Eigen::Index k)
             addInfo("k was reduced to match the rank of A");
         }
     }
-    MatrixXd subsetted = subsetByColumnIndex(S.matrixV(), indexSeq(0, index_k)).transpose();  // k,?
+    MatrixXd subsetted = subsetByColumnIndex(S.matrixV(), indexSeq(0, index_k)).transpose();
+        // ... k,?
     // The original uses qr(..., LAPACK=TRUE), and R's ?qr says "Using
     // LAPACK... uses column pivoting..." so the Eigen equivalent is probably:
     ColPivHouseholderQR<MatrixXd> Q = subsetted.colPivHouseholderQr();
@@ -895,7 +918,8 @@ void Glm::fitIRLSRglmfit()
     }
 
     // A priori known component to incorporate in the linear predictor
-    ArrayXd offset = ArrayXd::Zero(nobs);  // specifying it is not yet supported
+    ArrayXd offset = ArrayXd::Zero(nobs);
+        // ... specifying it is not yet supported
 
     // Include an intercept term?
     // const bool intercept = true;  // specifying it is not yet supported
@@ -1253,7 +1277,8 @@ void Glm::fitIRLSRglmfit()
             //      eta = X[predictors] * b[coefficients]
             //
             // eta <- drop(x %*% start)
-            // ... the drop() bit takes a one-dimensional matrix and makes a vector
+            // ... the drop() bit takes a one-dimensional matrix and makes a
+            //     vector
             eta = (x * start.matrix()).array();
 
             // Apply offset to eta.

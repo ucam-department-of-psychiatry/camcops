@@ -53,17 +53,22 @@ IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db,
 {
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
     // More keys
-    addField(FN_STAGE, QMetaType::fromType<int>(), true);  // 1-based stage number within this session
+    addField(FN_STAGE, QMetaType::fromType<int>(), true);
+        // ... 1-based stage number within this session
     // Config
     addField(FN_STAGE_NAME, QMetaType::fromType<QString>());
     addField(FN_RELEVANT_DIMENSION, QMetaType::fromType<QString>());
-    addField(FN_CORRECT_EXEMPLAR, QMetaType::fromType<int>());  // was string prior to 2.0.0
-    addField(FN_INCORRECT_EXEMPLAR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_EXEMPLAR, QMetaType::fromType<int>());
+        // ... was string prior to 2.0.0
+    addField(FN_INCORRECT_EXEMPLAR, QMetaType::fromType<int>());
+        // ... was string prior to 2.0.0
     addField(FN_CORRECT_STIMULUS_SHAPES, QMetaType::fromType<QVector<int>>());
-    addField(FN_CORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());
+        // ... was string prior to 2.0.0
     addField(FN_CORRECT_STIMULUS_NUMBERS, QMetaType::fromType<QVector<int>>());
     addField(FN_INCORRECT_STIMULUS_SHAPES, QMetaType::fromType<QVector<int>>());
-    addField(FN_INCORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());  // was string prior to 2.0.0
+    addField(FN_INCORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());
+        // ... was string prior to 2.0.0
     addField(FN_INCORRECT_STIMULUS_NUMBERS, QMetaType::fromType<QVector<int>>());
     // Results
     addField(FN_FIRST_TRIAL_NUM, QMetaType::fromType<int>());  // 1-based
@@ -86,7 +91,8 @@ IDED3DStage::IDED3DStage(const int task_id,
                          const IDED3DExemplars& incorrect_exemplars,
                          const int n_possible_locations,
                          const bool incorrect_stimulus_can_overlap) :
-    IDED3DStage::IDED3DStage(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
+    IDED3DStage::IDED3DStage(app, db, dbconst::NONEXISTENT_PK)
+        // ... delegating constructor
 {
     QVector<int> correct_stimulus_shapes = correct_exemplars.getShapes();
     QVector<int> correct_stimulus_colours = correct_exemplars.getColours();

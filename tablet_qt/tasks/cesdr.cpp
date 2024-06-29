@@ -162,7 +162,8 @@ int Cesdr::depressionCategory() const
                 categoryCountHighFrequency += 1;
             }
             if (fulfilsGroupCriteria(qgroup, false)) {
-                // Category contains an answer == FREQ_DAILY_2_WEEKS or FREQ_5_7_DAYS_LAST_WEEK
+                // Category contains an answer == FREQ_DAILY_2_WEEKS or
+                // FREQ_5_7_DAYS_LAST_WEEK
                 categoryCountLowerFrequency += 1;
             }
         }
@@ -173,11 +174,13 @@ int Cesdr::depressionCategory() const
             return CAT_MAJOR;
         } else if (categoryCountLowerFrequency >= PROB_MAJOR_THRESH) {
             // Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
-            // plus 3 other symptom groups at FREQ_DAILY_2_WEEKS or FREQ_5_7_DAYS_LAST_WEEK
+            // plus 3 other symptom groups at FREQ_DAILY_2_WEEKS or
+            // FREQ_5_7_DAYS_LAST_WEEK
             return CAT_PROB_MAJOR;
         } else if (categoryCountLowerFrequency >= POSS_MAJOR_THRESH) {
             // Anhedonia or dysphoria (at FREQ_DAILY_2_WEEKS)
-            // plus 2 other symptom groups at FREQ_DAILY_2_WEEKS or FREQ_5_7_DAYS_LAST_WEEK
+            // plus 2 other symptom groups at FREQ_DAILY_2_WEEKS or
+            // FREQ_5_7_DAYS_LAST_WEEK
             return CAT_POSS_MAJOR;
         }
     }

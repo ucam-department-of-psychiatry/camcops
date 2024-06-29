@@ -117,6 +117,7 @@ protected:
     bool m_horizontal;  // horizontal layout?
     bool m_as_text_button;  // text button (rather than radio button) layout?
     bool m_bold;  // text in bold?
-    QVector<QPointer<BooleanWidget>> m_boolean_widgets;  // our widget collection
+    QVector<QPointer<BooleanWidget>> m_boolean_widgets;
+        // ... our widget collection
     QVector<QPointer<ClickableLabelWordWrapWide>> m_label_widgets;
 };

@@ -35,7 +35,8 @@ public:
     enum class PagePickerItemType {
         CompleteSelectable,  // data complete, can jump to it
         IncompleteSelectable,  // data incomplete, can jump to it
-        BlockedByPrevious,  // can't select it; data incomplete in previous pages
+        BlockedByPrevious,
+            // ... can't select it; data incomplete in previous pages
     };
 
     // Default constructor, so it can live in a QVector

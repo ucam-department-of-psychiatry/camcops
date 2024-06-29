@@ -183,7 +183,8 @@ QPointer<QWidget> QuMcqGridDouble::makeWidget(Questionnaire* questionnaire)
     const int n_questions = m_questions_with_fields.size();
     const int n_stem_rows = m_stem1.isEmpty() && m_stem2.isEmpty() ? 0 : 1;
     const int n_rows = 1 + n_stem_rows + n_subtitles + n_questions;
-    const int n_cols = n_first + n_second + 3;  // 3 = 1 questions + 2 vertical lines
+    const int n_cols = n_first + n_second + 3;
+        // ... 3 = 1 questions + 2 vertical lines
     const Qt::Alignment response_align = mcqfunc::response_widget_align;
     int row = 0;
 
@@ -327,7 +328,8 @@ void QuMcqGridDouble::clicked(const int question_index, const bool first_field,
     const QVariant newvalue = opts.valueFromIndex(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .fieldref(first_field);
-    const bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

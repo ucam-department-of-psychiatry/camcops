@@ -43,14 +43,16 @@ QuSequenceContainerBase::QuSequenceContainerBase(
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(QObject* parent) :
-    QuSequenceContainerBase(QVector<QuElementPtr>(), parent)  // delegating constructor
+    QuSequenceContainerBase(QVector<QuElementPtr>(), parent)
+        // ... delegating constructor
 {
 }
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(
         std::initializer_list<QuElementPtr> elements, QObject* parent) :
-    QuSequenceContainerBase(QVector<QuElementPtr>(elements), parent)  // delegating constructor
+    QuSequenceContainerBase(QVector<QuElementPtr>(elements), parent)
+        // ... delegating constructor
 {
 }
 
@@ -72,7 +74,8 @@ QuSequenceContainerBase* QuSequenceContainerBase::addElement(const QuElementPtr&
 }
 
 
-QuSequenceContainerBase* QuSequenceContainerBase::addElement(QuElement* element)  // takes ownership
+QuSequenceContainerBase* QuSequenceContainerBase::addElement(QuElement* element)
+    // takes ownership
 {
     if (element) {
         m_elements.append(QuElementPtr(element));

@@ -72,7 +72,8 @@ const QFont::Weight QCALENDARWIDGET_HEADER_FONTWEIGHT = QFont::Bold;
 const QColor QCALENDARWIDGET_TEXT_WEEKDAY(0, 0, 0);  // black
 const QColor QCALENDARWIDGET_TEXT_WEEKEND(255, 0, 0);  // red
 const QDate QCALENDARWIDGET_MIN_DATE(1880, 1, 1);  // no older
-const QDate QCALENDARWIDGET_MAX_DATE = QDate();  // QCalendarWidget default ("no limit")
+const QDate QCALENDARWIDGET_MAX_DATE = QDate();
+    // ... QCalendarWidget default ("no limit")
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 
@@ -96,9 +97,12 @@ const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
 
 const QString WARNING_COLOUR_CSS("red");
 
-const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);  // translucent mid-grey
-const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);  // translucent light blue
-const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);  // very translucent mid-grey
+const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);
+    // ... translucent mid-grey
+const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);
+    // ... translucent light blue
+const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);
+    // ... very translucent mid-grey
 const qreal DISABLED_ICON_OPACITY = 0.5;
 
 // ============================================================================

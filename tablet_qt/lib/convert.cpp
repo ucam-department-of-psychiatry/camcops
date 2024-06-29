@@ -420,12 +420,14 @@ QString stringToUnquotedCppLiteral(const QString& raw)
 #ifdef ENCODE_LOW_VALUES_AS_HEX
             const QString hex = QString(QStringLiteral("\\x%1"))
                     .arg(u, HEX_NUM_DIGITS, BASE_HEX, ZERO);
-            // ... number, fieldwidth (+ right align, - left align), base, fillchar
+            // ... number, fieldwidth (+ right align, - left align),
+            //     base, fillchar
             escaped += hex;
 #else
             const QString octal = QString(QStringLiteral("\\%1"))
                     .arg(u, OCTAL_NUM_DIGITS, BASE_OCTAL, ZERO);
-            // ... number, fieldwidth (+ right align, - left align), base, fillchar
+            // ... number, fieldwidth (+ right align, - left align),
+            //     base, fillchar
             escaped += octal;
 #endif
         } else {

@@ -52,7 +52,8 @@ void initializeRapid3(TaskFactory& factory)
 }
 
 Rapid3::Rapid3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, RAPID3_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, RAPID3_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(q1Fieldnames(), QMetaType::fromType<int>());

@@ -142,7 +142,8 @@ public:
 
     // Given a base or ancillary table name for a task, find the task, and
     // return its Task::minimumServerVersion().
-    Version minimumServerVersion(const QString& tablename) const;  // main or sub-table
+    Version minimumServerVersion(const QString& tablename) const;
+    // ... parameter: main or sub-table
 
     // Are *any* tasks present?
     bool anyTasksPresent() const;
@@ -151,7 +152,8 @@ protected:
     CamcopsApp& m_app;  // our app
     QStringList m_tablenames;  // all task base table names
     QStringList m_all_tablenames;  // all task table names (base + ancillary)
-    QVector<ProxyType> m_initial_proxy_list;  // holds proxies during initial registration
+    QVector<ProxyType> m_initial_proxy_list;
+        // ... holds proxies during initial registration
     MapType m_map;  // maps base table name to TaskCache
 
 public:

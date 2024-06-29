@@ -59,7 +59,8 @@ void initializeIcd10Mixed(TaskFactory& factory)
 
 Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
                        const int load_pk) :
-    Task(app, db, ICD10MIXED_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, ICD10MIXED_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
     addField(COMMENTS, QMetaType::fromType<QString>());

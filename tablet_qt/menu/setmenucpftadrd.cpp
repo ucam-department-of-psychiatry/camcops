@@ -59,7 +59,8 @@ void SetMenuCpftADRD::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),  // = DSM-IV
+        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
+            // ... ICD-9-CM = DSM-IV
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, m_app),

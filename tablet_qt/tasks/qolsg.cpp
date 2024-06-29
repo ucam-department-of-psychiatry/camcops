@@ -71,8 +71,8 @@ const QString FN_UTILITY("utility");
 const QString TX_UTILITY("Utility");
 const QString TX_INITIAL_INSTRUCTION(
         "Quality of Life Standard Gamble<br><br><br>"
-        "<b>Please choose the statement that best describes your current health "
-        "state:</b>");
+        "<b>Please choose the statement that best describes your current "
+        "health state:</b>");
 const QString TX_CURRENT_STATE("Current state");
 const QString TX_DEAD("Dead");
 const QString TX_HEALTHY("Healthy");
@@ -139,7 +139,8 @@ const int TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
-const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;  // Qt::AlignLeft | Qt::AlignTop;
+const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
+    // ... Qt::AlignLeft | Qt::AlignTop;
 
 const qreal EDGESPACE_FRAC = 0.01; // left, right
 const qreal EDGESPACE_AT_STIM = 0.05;
@@ -208,7 +209,8 @@ void initializeQolSG(TaskFactory& factory)
 
 
 QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, QOLSG_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, QOLSG_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_pie_touched_at_least_once(false),
     m_last_p(0)
 {
@@ -398,7 +400,8 @@ void QolSG::giveChoice(const QString& category_chosen)
     setValue(FN_CATEGORY_RESPONDED, true);
     setValue(FN_CATEGORY_CHOSEN, category_chosen);
     const bool lottery_on_left = false;  // coin();
-    // task is more confusing with lots of left/right references. Fix the lottery on the right.
+    // The task is more confusing with lots of left/right references.
+    // Fix the lottery to be on the right.
     setValue(FN_GAMBLE_LOTTERY_ON_LEFT, lottery_on_left);
     clearScene();
 
@@ -412,7 +415,10 @@ void QolSG::giveChoice(const QString& category_chosen)
 
         h = 1.5;
         // RNC: h > 1, since we should consider mania...
-        // If indifferent, p * h + (1 - p) * 0 = 1 * 1  =>  h = 1/p  =>  p = 1/h
+        // If indifferent,
+        //      p * h + (1 - p) * 0 = 1 * 1
+        //      => h = 1/p
+        //      => p = 1/h
         p = 1 / h;
         setValue(FN_GAMBLE_LOTTERY_OPTION_P, LOTTERY_OPTION_CURRENT);
         setValue(FN_GAMBLE_LOTTERY_OPTION_Q, LOTTERY_OPTION_DEAD);
@@ -443,7 +449,9 @@ void QolSG::giveChoice(const QString& category_chosen)
 
         h = -0.5;
         // h < 0: if indifferent here, current state is worse than death
-        // If indifferent, Torrance gives h = -p / (1 - p) = p / (p - 1)  =>  p = h / (h - 1)
+        // If indifferent, Torrance gives
+        //      h = -p / (1 - p) = p / (p - 1)
+        //      =>  p = h / (h - 1)
         // Derivation: p * 1 + (1 - p) * h = 1 * 0  =>  h = -p / (1-p)  => etc.
         p = h / (h - 1);
         setValue(FN_GAMBLE_LOTTERY_OPTION_P, LOTTERY_OPTION_HEALTHY);
@@ -453,8 +461,10 @@ void QolSG::giveChoice(const QString& category_chosen)
         option2 = TESTSTATE;
         option_fixed = DEAD;
         // If the subject chooses A, their utility is HIGHER than h.
-        // Example: h = -1, so p = 0.5: will be indifferent between {0.5 health, 0.5 current} versus {1 death}
-        // Example: h = -0.1, so p = 0.0909: will be approx. indifferent between {0.9 health, 0.1 current} versus {1 death}
+        // Example: h = -1, so p = 0.5: will be indifferent between
+        //      {0.5 health, 0.5 current} versus {1 death}
+        // Example: h = -0.1, so p = 0.0909: will be approx. indifferent
+        //      between {0.9 health, 0.1 current} versus {1 death}
         // However, we'll ask them to aim for indifference directly -- simpler.
 
     } else {
@@ -597,7 +607,8 @@ void QolSG::pieAdjusted(const QVector<qreal>& proportions)
 void QolSG::lotteryTouched(const qreal p)
 {
     if (!m_pie_touched_at_least_once) {
-        // Make the "indifference" button appear only after the twirler has been set.
+        // Make the "indifference" button appear only after the twirler has
+        // been set.
         m_pie_touched_at_least_once = true;
         ButtonConfig indiff_button_cfg = BASE_BUTTON_CONFIG;
         indiff_button_cfg.background_colour = QCOLOR_DARKGREEN;

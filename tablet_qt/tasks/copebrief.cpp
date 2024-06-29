@@ -64,8 +64,10 @@ void initializeCopeBrief(TaskFactory& factory)
 
 
 CopeBrief::CopeBrief(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, COPEBRIEF_TABLENAME, false, false, false),  // ... anon, clin, resp
-    // There is a respondent, optionally, but the task handles this manually with more detail
+    Task(app, db, COPEBRIEF_TABLENAME, false, false, false),
+        // ... anon, clin, resp
+        // There is a respondent, optionally, but the task handles this
+        // manually with more detail.
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());

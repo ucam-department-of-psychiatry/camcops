@@ -75,7 +75,8 @@ void initializeGmcPq(TaskFactory& factory)
 
 
 GmcPq::GmcPq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GMCPQ_TABLENAME, true, false, false)  // ... anon, clin, resp
+    Task(app, db, GMCPQ_TABLENAME, true, false, false)
+        // ... anon, clin, resp
 {
     addField(DOCTOR, QMetaType::fromType<QString>());
     addField(Q1, QMetaType::fromType<int>());

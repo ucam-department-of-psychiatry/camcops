@@ -74,7 +74,8 @@ protected:
 
 protected slots:
     // "User has selected a new part of the thermometer."
-    void thermometerSelectionChanged(int thermometer_index);  // top-to-bottom index
+    void thermometerSelectionChanged(int thermometer_index);
+        // ... top-to-bottom index
 
     // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);

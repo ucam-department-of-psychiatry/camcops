@@ -52,7 +52,8 @@ WhiskerManager::WhiskerManager(QObject* parent,
     // As per https://doc.qt.io/qt-6.5/qthread.html:
     m_worker->moveToThread(&m_worker_thread);  // changes thread affinity
     connect(&m_worker_thread, &QThread::finished,
-            m_worker, &QObject::deleteLater);  // this is how we ensure deletion of m_worker
+            m_worker, &QObject::deleteLater);
+    // ... this is how we ensure deletion of m_worker
 
     // Our additional signal/slot connections:
     connect(this, &WhiskerManager::internalConnectToServer,
@@ -132,7 +133,8 @@ void WhiskerManager::sendImmediateIgnoreReply(const QString& command)
     qDebug() << "Sending immediate-socket command (for no reply):" << command;
 #endif
     WhiskerOutboundCommand cmd(command, true, true);
-    emit internalSend(cmd);  // transfer send command to our worker on its socket thread
+    emit internalSend(cmd);
+    // ... transfer send command to our worker on its socket thread
 }
 
 
@@ -143,7 +145,8 @@ WhiskerInboundMessage WhiskerManager::sendImmediateGetReply(
     qDebug() << "Sending immediate-socket command:" << command;
 #endif
     WhiskerOutboundCommand cmd(command, true, false);
-    emit internalSend(cmd);  // transfer send command to our worker on its socket thread
+    emit internalSend(cmd);
+    // ... transfer send command to our worker on its socket thread
     WhiskerInboundMessage msg = m_worker->getPendingImmediateReply();
 #ifdef WHISKERMGR_DEBUG_MESSAGES
         qDebug()
@@ -1432,7 +1435,8 @@ void WhiskerManager::disconnectAllWhiskerSignals(QObject* receiver)
 
     [qobject.h]
 
-    inline bool disconnect(const QObject *receiver, const char *member = nullptr) const
+    inline bool disconnect(const QObject *receiver,
+                           const char *member = nullptr) const
         { return disconnect(this, nullptr, receiver, member); }
 
     [qobject.cpp]
@@ -1442,7 +1446,8 @@ void WhiskerManager::disconnectAllWhiskerSignals(QObject* receiver)
     {
         // ...
             if (!method) {
-                res |= QMetaObjectPrivate::disconnect(sender, signal_index, smeta, receiver, -1, 0);
+                res |= QMetaObjectPrivate::disconnect(sender, signal_index,
+                                                      smeta, receiver, -1, 0);
                 // i.e. method_index == -1
         // ...
     }
@@ -1452,9 +1457,10 @@ void WhiskerManager::disconnectAllWhiskerSignals(QObject* receiver)
         // ... calls disconnectHelper(), passes along method_index
     }
 
-    bool QMetaObjectPrivate::disconnectHelper(QObjectPrivate::Connection *c,
-                                              const QObject *receiver, int method_index, void **slot,
-                                              QMutex *senderMutex, DisconnectType disconnectType)
+    bool QMetaObjectPrivate::disconnectHelper(
+            QObjectPrivate::Connection *c,
+            const QObject *receiver, int method_index, void **slot,
+            QMutex *senderMutex, DisconnectType disconnectType)
     {
         while (c) {
             if (c->receiver

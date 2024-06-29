@@ -301,7 +301,8 @@ void QuMcqGridSingleBoolean::mcqClicked(const int question_index,
     const QVariant newvalue = m_mcq_options.valueFromIndex(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .firstFieldRef();
-    const bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

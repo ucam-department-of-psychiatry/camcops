@@ -28,7 +28,8 @@
 
 #pragma once
 
-#define GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT  // comment out to revert to QGridLayout behaviour
+#define GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+    // ... comment out to revert to QGridLayout behaviour
 
 #include <QLayout>
 #include <QHash>
@@ -71,7 +72,8 @@ class GridLayoutHfw : public QLayout
         QSize m_size_hint;  // grid preferred size
         QSize m_min_size;  // grid minimum size
         QSize m_max_size;  // grid maximum size
-        Qt::Orientations m_expanding;  // can it expand horizontally? vertically?
+        Qt::Orientations m_expanding;
+            // ... can it expand horizontally? vertically?
         bool m_has_hfw;  // grid has height-for-width property
         int m_hfw_height;  // preferred height of the grid based on HFW calcs
         int m_hfw_min_height;  // minimum height of the grid based on HFW calcs
@@ -176,7 +178,8 @@ private:
     inline bool isDirty() const { return m_dirty; }
     inline void getNextPos(int& row, int& col) { row = m_next_r; col = m_next_c; }
 
-    QLayoutItem* replaceAt(int index, QLayoutItem* newitem);  // RNC: was override (of QLayoutPrivate)
+    QLayoutItem* replaceAt(int index, QLayoutItem* newitem);
+        // ... RNC: was override (of QLayoutPrivate)
     void deleteAll();
 
     void expand(int rows, int cols);
@@ -215,7 +218,8 @@ private:
     // void setupHfwLayoutData() const;
 
     // Translates margins under MacOS (does nothing otherwise).
-    // void effectiveMargins(int* left, int* top, int* right, int* bottom) const;
+    // void effectiveMargins(int* left, int* top,
+    //                       int* right, int* bottom) const;
     Margins effectiveMargins(const Margins& contents_margins) const;  // RNC
 
     // Returns the margins of this grid (the unusable bit).
@@ -271,24 +275,34 @@ private:
 
     int m_horizontal_spacing;  // spacing between columns
     int m_vertical_spacing;  // spacing between rows
-    bool m_h_reversed;  // right-to-left display; RNC: was uint : 1  -- and not sure it ever changes
-    bool m_v_reversed;  // bottom-to-top display; RNC: was uint : 1  -- and not sure it ever changes
+    bool m_h_reversed;
+        // ... right-to-left display; RNC: was uint : 1  -- and not sure it
+        //     ever changes
+    bool m_v_reversed;
+        // ... bottom-to-top display; RNC: was uint : 1  -- and not sure it
+        //     ever changes
 
     // This is layout/geometry/HFW data:
 
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
-    mutable int m_width_last_size_constraints_based_on;  // the width we last based our size information on
-    mutable QRect m_rect_for_next_size_constraints;  // the layout_rect we will base our size information on
-    mutable QHash<QRect, GeomInfo> m_geom_cache;  // RNC; maps layout_rect to GeomInfo
+    mutable int m_width_last_size_constraints_based_on;
+        // ... the width we last based our size information on
+    mutable QRect m_rect_for_next_size_constraints;
+        // ... the layout_rect we will base our size information on
+    mutable QHash<QRect, GeomInfo> m_geom_cache;
+        // ... RNC; maps layout_rect to GeomInfo
 #else
     mutable GeomInfo m_cached_geominfo;
     mutable int m_cached_hfw_width;
 #endif
 
-    mutable Margins m_effective_margins;  // RNC; replacing leftMargin, topMargin, rightMargin, bottomMargin
+    mutable Margins m_effective_margins;
+        // ... RNC; replacing leftMargin, topMargin, rightMargin, bottomMargin
 
-    mutable bool m_dirty;  // need to clear caches? RNC: was uint : 1  -- was needRecalc
-    int m_reentry_depth;  // RNC; reentry counter; nasty bit for resizing parent widget
+    mutable bool m_dirty;
+        // ... need to clear caches? RNC: was uint : 1  -- was needRecalc
+    int m_reentry_depth;
+        // ... RNC; reentry counter; nasty bit for resizing parent widget
 
 public:
     friend QDebug operator<<(QDebug debug, const GeomInfo& gi);

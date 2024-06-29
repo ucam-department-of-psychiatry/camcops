@@ -155,7 +155,8 @@ protected:
     bool m_as_text_button;  // text button, not tickbox indicator?
     bool m_false_appears_blank;  // false appears unticked?
     QPointer<BooleanWidget> m_indicator;  // tickbox indicator
-    QPointer<ClickableLabelWordWrapWide> m_text_widget_clickable;  // used to change text
+    QPointer<ClickableLabelWordWrapWide> m_text_widget_clickable;
+        // ... used to change text
     QPointer<LabelWordWrapWide> m_text_widget_plain;  // used to change text
     QPointer<AspectRatioPixmap> m_image_widget;  // used to change an image
 };

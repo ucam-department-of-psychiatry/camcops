@@ -88,7 +88,8 @@ const Version SERVER_ACE3_ADDRESS_VARIANT_VERSION(2, 4, 15);
 
 AceFamily::AceFamily(CamcopsApp& app, DatabaseManager& db,
                      const QString& tablename, QObject* parent) :
-    Task(app, db, tablename, false, true, false, parent),  // ... anon, clin, resp
+    Task(app, db, tablename, false, true, false, parent),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     // No fields. Subclasses should add those, and call load(load_pk).

@@ -56,7 +56,9 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     int nQuestionsCompleted() const;
-    double clinicalScore() const;  // same as total score if complete; otherwise scaled to be out of 40
+    double clinicalScore() const;
+        // ... Same as total score if complete; otherwise scaled to be out of
+        // 40.
 public:
     static const QString CORE10_TABLENAME;
 };

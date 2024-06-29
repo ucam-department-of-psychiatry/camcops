@@ -386,7 +386,8 @@ void TickSlider::paintEvent(QPaintEvent* ev)
                 }
             }
             const double prop = getDrawingProportion(i);
-            // x position (tick position and horizontal alignment point of text)
+            // x position (tick position and horizontal alignment point of
+            // text)
             const int x = getTickPos(prop, active_groove.left(),
                                      active_groove.width());
             const bool has_label = m_tick_labels.contains(i);
@@ -821,7 +822,9 @@ bool TickSlider::event(QEvent* event)
     case QEvent::Type::PolishRequest:
     case QEvent::Type::Resize:
     case QEvent::Type::StyleChange:
-    case QEvent::Type::ScreenChangeInternal:  // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
+    case QEvent::Type::ScreenChangeInternal:
+        // ... ScreenChangeInternal undocumented? But see
+        // https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
         clearCache();
         break;
 
@@ -857,7 +860,8 @@ void TickSlider::initStyleOption(QStyleOptionSlider* option) const
     option->upsideDown = horizontal
             ? (m_slider.invertedAppearance() != (option->direction == Qt::RightToLeft))
             : (!m_slider.invertedAppearance());
-    option->direction = Qt::LeftToRight; // we use the upsideDown option instead
+    option->direction = Qt::LeftToRight;
+    // ... we use the upsideDown option instead
 
     // d->position is QAbstractSliderPrivate::position, which is an int
     // ... is it a zero-based int? Let's try this:

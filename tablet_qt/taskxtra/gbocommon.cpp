@@ -28,7 +28,8 @@ const int AGENT_PARENT_CARER = 2;
 const int AGENT_CLINICIAN = 3;
 const int AGENT_OTHER = 4;
 
-const QString AGENTSTR_PATIENT = "Patient/service user";  // In original: "Child/young person"
+const QString AGENTSTR_PATIENT = "Patient/service user";
+    // ... In original: "Child/young person"
 const QString AGENTSTR_PARENT_CARER = "Parent/carer";
 const QString AGENTSTR_CLINICIAN = "Practitioner/clinician";
 const QString AGENTSTR_OTHER = "Other: ";

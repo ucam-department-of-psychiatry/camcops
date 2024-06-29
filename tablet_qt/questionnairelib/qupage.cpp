@@ -49,7 +49,8 @@ QuPage::QuPage(std::initializer_list<QuElementPtr> elements, QObject* parent) :
 }
 
 
-QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :  // takes ownership
+QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :
+    // takes ownership
     QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
     for (auto e : elements) {
@@ -58,7 +59,8 @@ QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :  // takes
 }
 
 
-QuPage::QuPage(std::initializer_list<QuElement*> elements, QObject* parent) :  // takes ownership
+QuPage::QuPage(std::initializer_list<QuElement*> elements, QObject* parent) :
+    // takes ownership
     QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
     for (auto e : elements) {
@@ -229,7 +231,8 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
                 this, &QuPage::elementValueChanged,
                 Qt::UniqueConnection);
     }
-    // pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);  // if we use QWidget
+    // pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    //      // ... if we use QWidget
     // pagewidget->setObjectName(CssConst::DEBUG_YELLOW);
     return pagewidget;
 }

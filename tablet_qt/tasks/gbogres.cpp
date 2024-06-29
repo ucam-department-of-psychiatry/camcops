@@ -61,7 +61,8 @@ void initializeGboGReS(TaskFactory& factory)
 
 
 GboGReS::GboGReS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GBOGRES_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, GBOGRES_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_DATE, QMetaType::fromType<QDate>());

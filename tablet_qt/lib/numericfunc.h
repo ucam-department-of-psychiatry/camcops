@@ -246,28 +246,34 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
     Tricky! No proper way to do it just by looking at the first n digits of
     the boundaries:
 
-    bottom  top     bottom_start    top_start   possibilities   description
+        b = bottom
+        t = top
+        bs = bottom_start
+        ts = top_start
+        poss = possibilities
 
-    10      30      1               3           1-3 yes         >= bottom_start && <= top_start
-                                                4-9 no          > top_start (3)
+    b    t      bs  ts  poss  description
 
-    30      100     3               1           1 yes           >= bottom_start || <= top_start
-                                                2 no            < bottom_start (3) && > top_start (1)
-                                                3-9 yes         >= bottom_start || <= top_start
+    10   30     1   3   1-3 yes      >= bottom_start && <= top_start
+                        4-9 no       > top_start (3)
 
-    20      30      2               3           1 no            < bottom_start (2)
-                                                2-3 yes         >= bottom_start && <= top_start
-                                                4-9 no          > top_start (3)
+    30   100    3   1   1 yes        >= bottom_start || <= top_start
+                        2 no         < bottom_start (3) && > top_start (1)
+                        3-9 yes      >= bottom_start || <= top_start
 
-    30      100     30              10          3_: 0-9 yes     >= bottom_start (30) || <= top_start (10)
-                                                1_: 0 yes       >= bottom_start (30) || <= top_start (10)
-                                                    1-9 no      > top_start
+    20   30     2   3   1 no         < bottom_start (2)
+                        2-3 yes      >= bottom_start && <= top_start
+                        4-9 no       > top_start (3)
+
+    30   100    30  10  3_: 0-9 yes  >= bottom_start (30) || <= top_start (10)
+                        1_: 0 yes    >= bottom_start (30) || <= top_start (10)
+                        1-9 no       > top_start
 
     But then:
 
-    100     30000   10              30          5_: 0-9 OK (e.g. 500-599)
+    100  30000  10  30  5_: 0-9 OK (e.g. 500-599)
 
-    70      300     7               3           0-3, 7-9 OK
+    70   300    7   3   0-3, 7-9 OK
     */
 
     if (extendedIntegerMustBeLessThanBottom(number, bottom, top)) {
@@ -336,7 +342,8 @@ QValidator::State numeric::validateInteger(
 
     bool ok = true;
     const T type_dummy = 0;
-    const T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
+    const T i = localeStrToNumber(s, ok, locale, type_dummy);
+        // ... NB: ok modified
     if (!ok) {  // Not an integer.
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "not an integer -> Invalid";

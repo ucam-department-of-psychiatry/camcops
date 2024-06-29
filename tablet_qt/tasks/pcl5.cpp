@@ -53,8 +53,9 @@ void initializePcl5(TaskFactory& factory)
 
 
 Pcl5::Pcl5(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-            Task(app, db, PCL5_TABLENAME, false, false, false),  // ... anon, clin, resp
-            m_questionnaire(nullptr)
+    Task(app, db, PCL5_TABLENAME, false, false, false),
+        // ... anon, clin, resp
+    m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 

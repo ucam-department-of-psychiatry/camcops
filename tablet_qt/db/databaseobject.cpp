@@ -90,7 +90,8 @@ DatabaseObject::DatabaseObject(CamcopsApp& app,
         addField(dbconst::CREATION_TIMESTAMP_FIELDNAME,
                  QMetaType::fromType<QDateTime>());
         QDateTime now = QDateTime::currentDateTime();
-        m_record[dbconst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+        m_record[dbconst::CREATION_TIMESTAMP_FIELDNAME].setValue(now);
+            // ... also: dirty
     }
 }
 
@@ -880,7 +881,8 @@ void DatabaseObject::touch(const bool only_if_unset)
     }
     // Don't set the timestamp value with setValue()! Infinite loop.
     const QDateTime now = QDateTime::currentDateTime();
-    m_record[dbconst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);  // also: dirty
+    m_record[dbconst::MODIFICATION_TIMESTAMP_FIELDNAME].setValue(now);
+        // ... also: dirty
     emit dataChanged();
 }
 
@@ -941,7 +943,8 @@ void DatabaseObject::deleteFromDatabase()
         }
     }
     // This generates a query like:
-    //   DELETE FROM "blobs" WHERE "tablename" = 'task_schedule' AND "tablepk" = 1
+    //   DELETE FROM "blobs" WHERE "tablename" = 'task_schedule'
+    //   AND "tablepk" = 1
     // If you try this from the "system" database, you will see
     //   [Qt]
     //   Query failed; error was: QSqlError("", "Parameter count mismatch", "")

@@ -107,12 +107,14 @@ protected:
     DiagnosticCodeSetPtr m_codeset;  // our set of diagnoses
     QPointer<QTreeView> m_treeview;  // for exploring
     QPointer<QListView> m_flatview;  // for searching
-    QPointer<QLineEdit> m_search_lineedit;  // where the user types search terms
+    QPointer<QLineEdit> m_search_lineedit;
+        // ... where the user types search terms
     QPointer<QLabel> m_heading_tree;  // heading for the tree view
     QPointer<QLabel> m_heading_search;  // heading for the search view
     QPointer<QAbstractButton> m_search_button;  // "Go to search"
     QPointer<QAbstractButton> m_tree_button;  // "Go to tree"
-    QSharedPointer<QItemSelectionModel> m_selection_model;  // model of our codeset
+    QSharedPointer<QItemSelectionModel> m_selection_model;
+        // ... model of our codeset
     QSharedPointer<FlatProxyModel> m_flat_proxy_model;
         // ... a flat model made from our codeset's tree (for searching)
     QSharedPointer<DiagnosisSortFilterModel> m_diag_filter_model;

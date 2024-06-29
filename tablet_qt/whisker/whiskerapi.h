@@ -80,7 +80,8 @@ struct Brush {
     QColor bg_colour;  // background colour for hatched brushes (if opaque)
     bool opaque;  // for hatched brushes: opaque?
     whiskerconstants::BrushStyle style;  // e.g. solid, hollow, hatched
-    whiskerconstants::BrushHatchStyle hatch_style;  // for hatched: e.g. horizontal, fdiagonal, cross
+    whiskerconstants::BrushHatchStyle hatch_style;
+        // ... for hatched: e.g. horizontal, fdiagonal, cross
 };
 
 
@@ -168,13 +169,16 @@ public:
            whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left);
     virtual QStringList options() const override;
 
-    QPoint pos;  // Coordinate of the bitmap (meaning depends on valign/halign).
+    QPoint pos;
+        // ... Coordinate of the bitmap (meaning depends on valign/halign).
     QString filename;  // Filename
     bool stretch = false;  // Stretch, rather than clip?
     int height = -1;  // Height (or -1 for the bitmap's own)
     int width = -1;  // Width (or -1 for the bitmap's own)
-    whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top;  // vertical alignment
-    whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left;  // horizontal alignment
+    whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top;
+        // ... vertical alignment
+    whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left;
+        // ... horizontal alignment
 };
 
 
@@ -339,9 +343,12 @@ public:
     int weight = 0;  // Weight ("bold"); 0 for default weight
     QColor colour = whiskerconstants::WHITE;  // Text colour
     bool opaque = false;  // Opaque, not transparent?
-    QColor bg_colour = whiskerconstants::BLACK;  // Background colour (if opaque)
-    whiskerconstants::TextVerticalAlign valign = whiskerconstants::TextVerticalAlign::Top;  // vertical alignment
-    whiskerconstants::TextHorizontalAlign halign = whiskerconstants::TextHorizontalAlign::Left;  // horizontal alignment
+    QColor bg_colour = whiskerconstants::BLACK;
+        // ... Background colour (if opaque)
+    whiskerconstants::TextVerticalAlign valign = whiskerconstants::TextVerticalAlign::Top;
+        // ... vertical alignment
+    whiskerconstants::TextHorizontalAlign halign = whiskerconstants::TextHorizontalAlign::Left;
+        // ... horizontal alignment
 };
 
 
@@ -355,16 +362,21 @@ public:
     virtual QStringList options() const override;
 
     // See Whisker docs.
-    QPoint pos;  // Coordinates of the video (meaning depends on valign/halign).
+    QPoint pos;
+        // ... Coordinates of the video (meaning depends on valign/halign).
     QString filename;  // Filename, as seen by the Whisker server.
     bool loop = false;  // Loop once it's finished?
-    whiskerconstants::VideoPlayMode playmode = whiskerconstants::VideoPlayMode::Wait;  // How to start?
+    whiskerconstants::VideoPlayMode playmode = whiskerconstants::VideoPlayMode::Wait;
+        // ... How to start?
     int width = -1;  // Width in pixels (-1 for the video's own)
     int height = -1;  // Height in pixels (-1 for the video's own)
     bool play_audio = true;  // Play any audio track?
-    whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top;  // vertical alignment
-    whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left;  // horizontal alignment
-    QColor bg_colour = whiskerconstants::BLACK;  // background colour, e.g. before playback (see docs)
+    whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top;
+        // ... vertical alignment
+    whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left;
+        // ... horizontal alignment
+    QColor bg_colour = whiskerconstants::BLACK;
+        // ... background colour, e.g. before playback (see docs)
 };
 
 

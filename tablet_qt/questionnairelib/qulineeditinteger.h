@@ -48,5 +48,6 @@ protected:
     int m_minimum;  // minimum; may be std::numeric_limits<int>::min()
     int m_maximum;  // maximum; may be std::numeric_limits<int>::max()
     bool m_allow_empty;  // allow an empty field?
-    bool m_strict_validator;  // Use StrictIntValidator, not StrictIntValidator?
+    bool m_strict_validator;
+        // ... Use StrictIntValidator, not StrictIntValidator?
 };

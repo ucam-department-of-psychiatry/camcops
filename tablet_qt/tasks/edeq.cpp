@@ -70,7 +70,8 @@ void initializeEdeq(TaskFactory& factory)
 }
 
 Edeq::Edeq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, EDEQ_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, EDEQ_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr),
     m_have_missed_periods_fr(nullptr),
     m_num_missed_periods_fr(nullptr),

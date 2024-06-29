@@ -73,7 +73,8 @@ QString escapeNewlines(QString raw);
 // Reverse escapeNewlines()
 QString unescapeNewlines(const QString& escaped);
 
-// Convert e.g. "Bob's house" to "'Bob''s house'", giving an SQL string literal.
+// Convert e.g. "Bob's house" to "'Bob''s house'", giving an SQL string
+// literal.
 QString sqlQuoteString(QString raw);
 
 // Reverse sqlQuoteString().
@@ -265,7 +266,8 @@ QString numericVectorToCsvString(const QVector<T>& vec)
 // (Duff values will be converted to 0. Whitespace around commas is ignored.)
 QVector<int> csvStringToIntVector(const QString& str);
 
-// Converts a QStringList to CSV, encoding each string via stringToCppLiteral().
+// Converts a QStringList to CSV, encoding each string via
+// stringToCppLiteral().
 QString qStringListToCsvString(const QStringList& vec);
 
 // Reverses csvStringToQStringList(). Trims off whitespace.
@@ -320,7 +322,9 @@ void stonesPoundsOuncesFromKilograms(
         double kilograms, int& stones, int& pounds, double& ounces);
 
 // Time unit conversion
-int msFromMin(qreal minutes);  // max 32-bit signed int is +2,147,483,647 ms = 35,791.39 minutes = 24.8 days
+int msFromMin(qreal minutes);
+    // ... max 32-bit signed int is +2,147,483,647 ms = 35,791.39 minutes
+    // = 24.8 days
 int msFromSec(qreal seconds);  // ditto
 
 
@@ -376,7 +380,8 @@ QMap<T2, T1> reverseMap(const QMap<T1, T2>& map)
 
 
 // ============================================================================
-// Using QVector in QVariant: see also convert::registerQVectorTypesForQVariant()
+// Using QVector in QVariant: see also
+// convert::registerQVectorTypesForQVariant()
 // ============================================================================
 
 Q_DECLARE_METATYPE(QVector<int>)

@@ -57,7 +57,8 @@ public:
     NameValueOptions optionsQ4() const;
     NameValueOptions optionsQ5() const;
     NameValueOptions optionsQ11() const;
-    static NameValueOptions ethnicityOptions(CamcopsApp& app);  // used by others, hence static
+    static NameValueOptions ethnicityOptions(CamcopsApp& app);
+        // ... used by others, hence static
     static bool ethnicityOther(int ethnicity_code);
     // ------------------------------------------------------------------------
     // Signal handlers

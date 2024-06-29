@@ -52,7 +52,9 @@ protected:
 protected:
     double m_minimum;  // minimum; may be std::numeric_limits<double>::lowest()
     double m_maximum;  // maximum; may be std::numeric_limits<double>::max()
-    int m_decimals;  // maximum number of decimal places, for StrictDoubleValidator
+    int m_decimals;
+        // ... maximum number of decimal places, for StrictDoubleValidator
     bool m_allow_empty;  // allow an empty field?
-    bool m_strict_validator;  // Use StrictDoubleValidator, not QDoubleValidator?
+    bool m_strict_validator;
+        // ... Use StrictDoubleValidator, not QDoubleValidator?
 };

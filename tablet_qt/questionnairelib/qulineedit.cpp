@@ -152,7 +152,8 @@ void QuLineEdit::widgetTextChangedAndValid()
     // to set numeric fields (where "" will be converted to 0).
     const QString text = m_editor->text();
     const QVariant value = text.isEmpty() ? QVariant() : QVariant(text);
-    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(value, this);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

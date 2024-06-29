@@ -24,7 +24,8 @@
 /*
 #include "zallocator.h"
 
-typedef std::basic_string<char, std::char_traits<char>, zallocator<char>> SecureQString;
+typedef std::basic_string<char, std::char_traits<char>, zallocator<char>>
+    SecureQString;
 */
 
 using SecureQString = QString;
@@ -33,10 +34,13 @@ using SecureQString = QString;
 // See also
 // - http://stackoverflow.com/questions/3785582/how-to-write-a-password-safe-class
 // - https://forum.qt.io/topic/15341/clear-the-password-from-memory/8
-// - OpenSSL EVP example: https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
-// - QString <-> std::string: http://stackoverflow.com/questions/1814189/how-to-change-string-into-qstring
+// - OpenSSL EVP example:
+//   https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
+// - QString <-> std::string:
+//   http://stackoverflow.com/questions/1814189/how-to-change-string-into-qstring
 // - Note also that QString has a non-virtual destructor.
-//   Not critical, I think; http://www.programmerinterview.com/index.php/c-cplusplus/virtual-destructors/
+//   Not critical, I think;
+//   http://www.programmerinterview.com/index.php/c-cplusplus/virtual-destructors/
 // - Note the difference between
 //      Type x = Type(...);  // copy initialization
 //      Type x(...);  // direct initialization

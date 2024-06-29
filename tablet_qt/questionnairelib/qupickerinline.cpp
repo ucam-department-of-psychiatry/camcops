@@ -77,9 +77,9 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
     // Disambiguate like this:
     void (QComboBox::*ic_signal)(int) = &QComboBox::currentIndexChanged;
     if (!read_only) {
-        // The currentIndex on the QCombobox is what we are calling the position
-        // of the item in the list of options (the index being the original,
-        // unrandomized position).
+        // The currentIndex on the QCombobox is what we are calling the
+        // position of the item in the list of options (the index being the
+        // original, unrandomized position).
         connect(m_cbox.data(), ic_signal,
                 this, &QuPickerInline::currentItemChanged);
     }
@@ -92,12 +92,14 @@ QPointer<QWidget> QuPickerInline::makeWidget(Questionnaire* questionnaire)
 
 void QuPickerInline::currentItemChanged(const int position)
 {
-    // qDebug().nospace() << "QuPickerInline::currentItemChanged(" << position << ")";
+    // qDebug().nospace() << "QuPickerInline::currentItemChanged("
+    //      << position << ")";
     if (!m_options.validIndex(position)) {
         return;
     }
     const QVariant newvalue = m_options.atPosition(position).value();
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

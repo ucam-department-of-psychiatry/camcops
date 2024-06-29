@@ -68,7 +68,8 @@ Or maybe not?
 - https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
 
 The actual error on Android is:
-... warning: The video surface is not compatible with any format supported by the camera
+... warning: The video surface is not compatible with any format supported by
+    the camera
 
 */
 
@@ -95,12 +96,16 @@ BUT:
     - When it doesn't work, but the declarative-camera example does:
       These errors come from both, so are not a problem:
       (a) camcops
-      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package : org.camcops.camcops
-      - E libGLESv1: HWUI Protection: wrong call from hwui context F:ES1-glDeleteTexturesSEC
+      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package :
+        org.camcops.camcops
+      - E libGLESv1: HWUI Protection: wrong call from hwui context
+        F:ES1-glDeleteTexturesSEC
       (b) declarative_camera
-      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package : org.qtproject.example.declarative_camera
+      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package :
+        org.qtproject.example.declarative_camera
       ...
-      - E libGLESv1: HWUI Protection: wrong call from hwui context F:ES1-glDeleteTexturesSEC
+      - E libGLESv1: HWUI Protection: wrong call from hwui context
+        F:ES1-glDeleteTexturesSEC
 
     - http://lists.qt-project.org/pipermail/interest/2015-November/019657.html
 
@@ -174,7 +179,8 @@ void CameraQml::qmlFinishedLoading()
     // ... we have to use SIGNAL() and SLOT() since C++ has no idea of the
     // provenance of the signal (and whether or not it exists) -- the macros
     // map signals via strings, so this works, but you'll get an error like
-    // "QObject::connect: No such signal PhotoPreview_QMLTYPE_2::imageCaptured(const QString&)"
+    // "QObject::connect: No such signal
+    //  PhotoPreview_QMLTYPE_2::imageCaptured(const QString&)"
     // if you get the type wrong.
 }
 

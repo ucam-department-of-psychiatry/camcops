@@ -48,7 +48,8 @@ void initializePhotoSequence(TaskFactory& factory)
 
 
 PhotoSequence::PhotoSequence(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PHOTOSEQUENCE_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, PHOTOSEQUENCE_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addField(SEQUENCE_DESCRIPTION, QMetaType::fromType<QString>());
 
@@ -296,7 +297,8 @@ void PhotoSequence::addPhoto()
     }
     PhotoSequencePhotoPtr photo(new PhotoSequencePhoto(
                                     pkvalueInt(), m_app, m_db));
-    photo->setSeqnum(m_photos.size() + 1);  // bugfix 2018-12-01; now always 1-based seqnum
+    photo->setSeqnum(m_photos.size() + 1);
+        // ... bugfix 2018-12-01; now always 1-based seqnum
     photo->save();
     m_photos.append(photo);
     if (m_photos.size() > 1) {

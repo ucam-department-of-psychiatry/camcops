@@ -49,7 +49,8 @@ void initializeCPFTLPSResetResponseClock(TaskFactory& factory)
 
 CPFTLPSResetResponseClock::CPFTLPSResetResponseClock(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CPFTLPSRESETCLOCK_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, CPFTLPSRESETCLOCK_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addField(RESET_START_TIME_TO, QMetaType::fromType<QDateTime>());
     addField(REASON, QMetaType::fromType<QString>());

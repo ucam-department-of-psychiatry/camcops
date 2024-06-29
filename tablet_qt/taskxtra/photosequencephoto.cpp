@@ -22,7 +22,8 @@
 
 const QString PhotoSequencePhoto::PHOTOSEQUENCEPHOTO_TABLENAME("photosequence_photos");
 
-const QString PhotoSequencePhoto::FK_NAME("photosequence_id");  // FK to photosequence.id
+const QString PhotoSequencePhoto::FK_NAME("photosequence_id");
+    // ... FK to photosequence.id
 const QString PhotoSequencePhoto::SEQNUM("seqnum");
 const QString PhotoSequencePhoto::DESCRIPTION("description");
 const QString PhotoSequencePhoto::PHOTO_BLOBID("photo_blobid");

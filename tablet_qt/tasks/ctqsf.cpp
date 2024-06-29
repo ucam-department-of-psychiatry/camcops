@@ -41,7 +41,8 @@ void initializeCtqsf(TaskFactory& factory)
 
 
 Ctqsf::Ctqsf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CTQSF_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, CTQSF_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 

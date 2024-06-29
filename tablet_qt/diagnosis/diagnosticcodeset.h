@@ -80,7 +80,8 @@ protected:
     QString m_setname;  // for xstring
     QString m_title;  // cosmetic
     DiagnosticCode* m_root_item;
-    bool m_dummy_creation_no_xstrings;  // don't use xstrings; for command-line debugging
+    bool m_dummy_creation_no_xstrings;
+        // ... don't use xstrings; for command-line debugging
 
 public:
     friend QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d);

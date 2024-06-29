@@ -34,7 +34,7 @@ class QMouseEvent;
 // Slider with tick marks/labels.
 //
 // Tick marks vanish on a styled QSlider. So:
-// http://stackoverflow.com/questions/27531542/tick-marks-disappear-on-styled-qslider
+// http://stackoverflow.com/questions/27531542/
 // ... and then modification including labels, and making it work with
 // vertical sliders.
 
@@ -339,7 +339,8 @@ protected:
     // this via sizeHint() or minimumSizeHint()!
     QSize sliderSizeWithHandle(bool minimum_size) const;
 
-    // Expand a starting "slider" size to the size required by the whole widget.
+    // Expand a starting "slider" size to the size required by the whole
+    // widget.
     QSize wholeWidgetSize(const QSize& slider_size) const;
 
     // Event handlers
@@ -357,17 +358,22 @@ protected:
     QColor m_tick_colour;  // tick colour
     int m_tick_thickness;  // tick thickness (parallel to slider)
     int m_tick_length;  // tick length (perpendicular to slider)
-    int m_tick_label_gap;  // gap between ticks and labels (perpendicular to slider)
-    int m_min_interlabel_gap;  // minimum gap between labels (parallel to slider)
+    int m_tick_label_gap;
+        // ... gap between ticks and labels (perpendicular to slider)
+    int m_min_interlabel_gap;
+        // ... minimum gap between labels (parallel to slider)
     int m_gap_to_slider;  // gap adjacent to slider (to ticks or labels)
     QSlider::TickPosition m_label_position;  // labels left/right/both (etc.)
-    QMap<int, QString> m_tick_labels;  // maps from slider position to label text
+    QMap<int, QString> m_tick_labels;
+        // ... maps from slider position to label text
     bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels()
     bool m_symmetric_overspill;  // see setSymmetricOverspill()
-    int m_slider_target_length_px;  // absolute target length; <=0 means don't use this
+    int m_slider_target_length_px;
+        // ... absolute target length; <=0 means don't use this
     bool m_absolute_size_can_shrink;
         // ... if an absolute length is set, can we shrink smaller if we have
         // to? May be preferable on physically small screens.
     mutable bool m_is_overspill_cached;  // is m_cached_overspill valid?
-    mutable Margins m_cached_overspill;  // cached margins for overspill; see setSymmetricOverspill()
+    mutable Margins m_cached_overspill;
+        // ... cached margins for overspill; see setSymmetricOverspill()
 };

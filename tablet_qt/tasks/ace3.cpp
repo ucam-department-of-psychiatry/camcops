@@ -152,8 +152,10 @@ const QString FN_FLUENCY_LETTERS_SCORE(QStringLiteral("fluency_letters_score"));
 const QString FN_FLUENCY_ANIMALS_SCORE(QStringLiteral("fluency_animals_score"));
 const QString FP_MEM_FAMOUS(QStringLiteral("mem_famous"));
 const int N_MEM_FAMOUS = 4;
-const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));  // SCORE; matches versions before 2.0.0
-const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));  // CHOICE; v2.0.0 onwards
+const QString FP_MEM_RECOGNIZE_ADDRESS_SCORE(QStringLiteral("mem_recognize_address"));
+    // ... SCORE; matches versions before 2.0.0
+const QString FP_MEM_RECOGNIZE_ADDRESS_CHOICE(QStringLiteral("mem_recognize_address_choice"));
+    // ... CHOICE; v2.0.0 onwards
 // ... storing raw choices is new in v2.0.0, but the score field is preserved
 //     for backwards compatibility
 const int N_MEM_RECOGNIZE_ADDRESS = 5;
@@ -258,8 +260,10 @@ Ace3::Ace3(CamcopsApp& app, DatabaseManager& db, const int load_pk,
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_SCORE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<int>());
     addFields(strseq(FP_MEM_RECOGNIZE_ADDRESS_CHOICE, 1, N_MEM_RECOGNIZE_ADDRESS), QMetaType::fromType<QChar>());
 
-    addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
-    addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());
+        // ... FK to BLOB table
+    addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());
+        // ... FK to BLOB table
     addField(FN_COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -514,8 +518,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
         },
         new QuFlowContainer{
             text(QStringLiteral("attn_q_register_n_trials")),
-            (new QuMcq(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),  // not mandatory
+            (new QuMcq(fieldRef(FN_ATTN_NUM_REGISTRATION_TRIALS, false),
                                  options_registration))->setHorizontal(true),
+            // ... not mandatory
         },
 
         // Serial 7s
@@ -1106,23 +1111,37 @@ int Ace3::getFluencyScore() const
 
 int Ace3::getLangScore() const
 {
-    return getFollowCommandScore() +  // 3 points
-            sumInt(values(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT))) +  // 2 points
-            getRepeatWordScore() +  // 2 points
-            sumInt(values(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE))) +  // 2 points
-            sumInt(values(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE))) +  // 12 points
-            sumInt(values(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT))) +  // 4 points
-            valueInt(FN_LANG_READ_WORDS_ALOUD);  // 1 point
+    return getFollowCommandScore() +
+            sumInt(values(strseq(FP_LANG_WRITE_SENTENCES_POINT, 1, N_LANG_WRITE_SENTENCES_POINT))) +
+            getRepeatWordScore() +
+            sumInt(values(strseq(FP_LANG_REPEAT_SENTENCE, 1, N_LANG_REPEAT_SENTENCE))) +
+            sumInt(values(strseq(FP_LANG_NAME_PICTURE, 1, N_LANG_NAME_PICTURE))) +
+            sumInt(values(strseq(FP_LANG_IDENTIFY_CONCEPT, 1, N_LANG_IDENTIFY_CONCEPT))) +
+            valueInt(FN_LANG_READ_WORDS_ALOUD);
+    /*
+        Follow commands = 3 points
+        Write sentences = 2 points
+        Repeat words = 2 points
+        Repeat sentences = 2 points
+        Name pictures = 12 points
+        Identify concepts = 4 points
+        Read words aloud = 1 point
+    */
 }
 
 
 int Ace3::getVisuospatialScore() const
 {
-    return valueInt(FN_VSP_COPY_INFINITY) +  // 1 point
-            valueInt(FN_VSP_COPY_CUBE) +  // 2 points
-            valueInt(FN_VSP_DRAW_CLOCK) +  // 5 points
+    return valueInt(FN_VSP_COPY_INFINITY) +
+            valueInt(FN_VSP_COPY_CUBE) +
+            valueInt(FN_VSP_DRAW_CLOCK) +
             sumInt(values(strseq(FP_VSP_COUNT_DOTS, 1, N_VSP_COUNT_DOTS))) +
             sumInt(values(strseq(FP_VSP_IDENTIFY_LETTER, 1, N_VSP_IDENTIFY_LETTER)));
+    /*
+        Copy infinity = 1 point
+        Copy cube = 2 points
+        Draw clock = 5 points
+    */
 }
 
 
@@ -1139,12 +1158,19 @@ int Ace3::totalScore() const
 int Ace3::miniAceScore() const
 {
     return (
-        sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE - 1)))  // 4 points; season not used
-        + valueInt(FN_FLUENCY_ANIMALS_SCORE)  // 7 points
-        + sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
-        + valueInt(FN_VSP_DRAW_CLOCK)  // 5 points
-        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))  // 7 points
+        sumInt(values(strseq(FP_ATTN_TIME, 1, N_ATTN_TIME_ACE - 1)))
+        + valueInt(FN_FLUENCY_ANIMALS_SCORE)
+        + sumInt(values(strseq(FP_MEM_REPEAT_ADDR_TRIAL3, 1, N_MEM_REPEAT_RECALL_ADDR)))
+        + valueInt(FN_VSP_DRAW_CLOCK)
+        + sumInt(values(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR)))
     );
+    /*
+        Attention/orientation = 4 points (season not used)
+        Fluency, animals = 7 points
+        Address registration/repetition = 7 points
+        Draw clock = 5 points
+        Adress recall = 7 points
+    */
 }
 
 

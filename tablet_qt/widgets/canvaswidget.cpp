@@ -92,7 +92,8 @@ void CanvasWidget::setAllowShrink(const bool allow_shrink)
         setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         // Can be shrunk in either direction.
         // We can't have a width-for-height constraint as well as a HFW
-        // constraint; see https://doc.qt.io/qt-6.5/qsizepolicy.html#setWidthForHeight
+        // constraint; see
+        // https://doc.qt.io/qt-6.5/qsizepolicy.html#setWidthForHeight
         // Instead, we can draw according to our *actual* height...
         // Similarly, we don't need a HFW constraint, which will (in many of
         // our layouts) make the effective height *fixed* once the width is

@@ -51,18 +51,30 @@ const QStringList SHAPE_DEFINITIONS{
 
 var path = [
     // DETAILS HERE
-    ["m10,-53 l20,100 l-60,0 z m50,60 l-120,20 l0,-50 z"], // 0: up-pointing triangle and right-pointing triangle
-    ["m0,-50 l-57,57 l28,28 l28,-28 l28,28 l28,-28 z"], // 1: stealth bomber flying up
-    ["m-15,-50 l-45,25 l90,0 z m15,35 l-45,25 l90,0 z m15,35 l-45,25 l90,0 z"], // 2: stacked triangle hats slightly offset horizontally
-    ["m-60,-11 l94,55 l26,-28 l-38,-15 l38,-15 l-26,-28 l-94,55 z"], // 3: small-tailed fish with gaping mouth pointing right
-    ["m-20,-50 l-40,50 l45,0 l0,50 l30,0 l0,-50 l45,0 l-45,-50 z"], // 4: top-truncated tree
-    ["m-60,-36 l120,0 l0,72 l-40,0 l0,-36 l-40,0 l0,36, l-40,0 z"], // 5: side view of block table, or blocky inverted U
-    ["m0,-40 l60,40 l-40,27 l0,13 l-40,0 l0,-13 l-40,-27 z"], // 6: diamond-like tree
-    ["m-33,40 l-27,-40 l27,-40 l33,27 l33,-27 l27,40 l-27,40 l-33,-27 z"], // 7: bow tie
-    ["m-60,-30 l60,-30 l60,30 l0,60 l-60,30 l-60,-30 z"], // 8: hexagon
-    ["m-60,60 l120,0 l-60,-60 z m0,-120 l120,0 l-60,60 z"], // 9: hourglass of triangles
-    ["m-60,-40 l0,68 l120,0 l-45,-30 l0,11 l-45,-38 l0,23 z"], // 10: mountain range
-    ["m-60,0 l34,-43 l86,0 l-34,43 l34,43 l-86,0 z"], // 11: left-pointing arrow feathers
+    ["m10,-53 l20,100 l-60,0 z m50,60 l-120,20 l0,-50 z"],
+        // ... 0: up-pointing triangle and right-pointing triangle
+    ["m0,-50 l-57,57 l28,28 l28,-28 l28,28 l28,-28 z"],
+        // ... 1: stealth bomber flying up
+    ["m-15,-50 l-45,25 l90,0 z m15,35 l-45,25 l90,0 z m15,35 l-45,25 l90,0 z"],
+        // ... 2: stacked triangle hats slightly offset horizontally
+    ["m-60,-11 l94,55 l26,-28 l-38,-15 l38,-15 l-26,-28 l-94,55 z"],
+        // ... 3: small-tailed fish with gaping mouth pointing right
+    ["m-20,-50 l-40,50 l45,0 l0,50 l30,0 l0,-50 l45,0 l-45,-50 z"],
+        // ... 4: top-truncated tree
+    ["m-60,-36 l120,0 l0,72 l-40,0 l0,-36 l-40,0 l0,36, l-40,0 z"],
+        // ... 5: side view of block table, or blocky inverted U
+    ["m0,-40 l60,40 l-40,27 l0,13 l-40,0 l0,-13 l-40,-27 z"],
+        // ... 6: diamond-like tree
+    ["m-33,40 l-27,-40 l27,-40 l33,27 l33,-27 l27,40 l-27,40 l-33,-27 z"],
+        // ... 7: bow tie
+    ["m-60,-30 l60,-30 l60,30 l0,60 l-60,30 l-60,-30 z"],
+        // ... 8: hexagon
+    ["m-60,60 l120,0 l-60,-60 z m0,-120 l120,0 l-60,60 z"],
+        // ... 9: hourglass of triangles
+    ["m-60,-40 l0,68 l120,0 l-45,-30 l0,11 l-45,-38 l0,23 z"],
+        // ... 10: mountain range
+    ["m-60,0 l34,-43 l86,0 l-34,43 l34,43 l-86,0 z"],
+        // ... 11: left-pointing arrow feathers
 ],
 index = 10,  // currently working on this one
 s = 120,  // target size; width and height

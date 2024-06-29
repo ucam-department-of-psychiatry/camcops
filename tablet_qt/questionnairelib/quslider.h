@@ -153,20 +153,28 @@ protected:
     int m_maximum;  // maximum value in slider space
     int m_step;  // step size in slider space
     int m_big_step;  // "big step" (PgUp/PgDn) in slider space
-    bool m_convert_for_real_field;  // translate to real numbers in slider space?
+    bool m_convert_for_real_field;
+        // ... translate to real numbers in slider space?
     double m_field_minimum;  // minimum in "real number field" space
     double m_field_maximum;  // maximum in "real number field" space
-    int m_display_dp;  // number of decimal places to display value in "real number field" space
-    int m_null_apparent_value;  // where (in slider space) should the slider be when the field is NULL?
+    int m_display_dp;
+        // ... number of decimal places to display value in "real number field"
+        // space
+    int m_null_apparent_value;
+        // ... where (in slider space) should the slider be when the field is
+        // NULL?
 
     // Visuals
     bool m_horizontal;  // horizontal, not vertical?
     bool m_show_value;  // show the numerical value too?
     int m_tick_interval;  // intertick interval (in slider space)
-    QSlider::TickPosition m_tick_position;  // ticks above/below/both/none, or left/right/both/none?
+    QSlider::TickPosition m_tick_position;
+        // .. ticks above/below/both/none, or left/right/both/none?
     bool m_use_default_labels;  // use default numerical labels?
-    QMap<int, QString> m_tick_labels;  // manually specified position/label pairs
-    QSlider::TickPosition m_tick_label_position;  // labels above/below/both/none, or left/right/both/none?
+    QMap<int, QString> m_tick_labels;
+        // ... manually specified position/label pairs
+    QSlider::TickPosition m_tick_label_position;
+        // ... labels above/below/both/none, or left/right/both/none?
     bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels() above
     bool m_symmetric;  // see setSymmetric() above
     bool m_inverted;  // inverted direction? See setInverted() above.
@@ -180,6 +188,8 @@ protected:
     QPointer<QLabel> m_value_label;  // value indicator
     QPointer<TickSlider> m_slider;  // slider
     bool m_field_write_pending;  // is a field writes pending?
-    int m_field_write_slider_value;  // the value to be written when m_timer expires
-    QSharedPointer<QTimer> m_timer;  // timer to delay writes for visual performance
+    int m_field_write_slider_value;
+        // ... the value to be written when m_timer expires
+    QSharedPointer<QTimer> m_timer;
+        // ... timer to delay writes for visual performance
 };

@@ -33,7 +33,8 @@ using eigenfunc::ArrayXb;
 // - https://github.com/wch/r-source/blob/trunk/src/library/stats/src/family.c
 
 #ifdef STATSFUNC_OFFER_AIC
-static const double PI = 3.141592653589793238462643383279502884197169399375;  // as per R's Constants.h
+static const double PI = 3.141592653589793238462643383279502884197169399375;
+    // ... as per R's Constants.h
 #endif
 
 static const double DOUBLE_EPS = std::numeric_limits<double>::epsilon();
@@ -491,7 +492,8 @@ bool poissonInitialize(QStringList& errors,
 
 VectorXd svdSolve(const MatrixXd& A, const VectorXd& b)
 {
-    // solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares sense)
+    // Solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares
+    // sense).
     // https://eigen.tuxfamily.org/dox/group__LeastSquares.html
     return A.jacobiSvd(ComputeThinU | ComputeThinV).solve(b);
 }

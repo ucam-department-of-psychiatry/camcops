@@ -132,6 +132,7 @@ extern const QString LINK_FAMILY_NAME_POISSON;
 
 // Some concrete link function families:
 
-extern const LinkFunctionFamily LINK_FN_FAMILY_GAUSSIAN;  // default for glm() in R
+extern const LinkFunctionFamily LINK_FN_FAMILY_GAUSSIAN;
+    // ... default for glm() in R
 extern const LinkFunctionFamily LINK_FN_FAMILY_LOGIT;
 extern const LinkFunctionFamily LINK_FN_FAMILY_POISSON;

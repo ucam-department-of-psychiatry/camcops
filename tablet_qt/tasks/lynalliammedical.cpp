@@ -120,7 +120,8 @@ void initializeLynallIamMedical(TaskFactory& factory)
 
 LynallIamMedical::LynallIamMedical(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, LYNALL_IAM_MEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, LYNALL_IAM_MEDICAL_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addField(FN_Q1_AGE_FIRST_INFLAMMATORY_SX, QMetaType::fromType<int>());
     addField(FN_Q2_WHEN_PSYCH_SX_STARTED, QMetaType::fromType<int>());

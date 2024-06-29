@@ -39,14 +39,15 @@ public:
     //
     // Note that the function doesn't even need to accept the
     // WhiskerInboundMessage, if called via std::bind.
-    // See https://stackoverflow.com/questions/29159140/why-stdbind-can-be-assigned-to-argument-mismatched-stdfunction.
+    // See https://stackoverflow.com/questions/29159140/.
 
     // How should our callback behave?
     enum class ExpiryType {
         Infinite,  // Always call
         Count,  // Call a certain number of times, then stop calling
         Time,  // Call during a specified lifetime, then stop calling
-        TimeOrCount  // Call until either a lifetime expires or a count is exceeded
+        TimeOrCount
+        // ... Call until either a lifetime expires or a count is exceeded
     };
 
 public:

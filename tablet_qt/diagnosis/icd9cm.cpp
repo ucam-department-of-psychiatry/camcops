@@ -37,7 +37,8 @@ Icd9cm::Icd9cm(CamcopsApp& app, QObject* parent,
     DiagnosticCodeSet(app, XSTRING_TASKNAME, "ICD-9-CM",
                       parent, dummy_creation_no_xstrings)
 {
-    m_creation_stack.push(DepthItemPair(0, nullptr));  // root: depth 0, no parent
+    m_creation_stack.push(DepthItemPair(0, nullptr));
+    // root: depth 0, no parent
     addIcd9cmCodes(BASE_CODES);
 }
 

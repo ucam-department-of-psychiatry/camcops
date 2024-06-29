@@ -167,10 +167,12 @@ int countNull(const QVector<QVariant>& values);
 // Return the number of values that are not null.
 int countNotNull(const QVector<QVariant>& values);
 
-// Does x equal test, using the SQL principle that null is not equal to anything?
+// Does x equal test, using the SQL principle that null is not equal to
+// anything?
 bool eq(const QVariant& x, int test);
 
-// Does x equal test, using the SQL principle that null is not equal to anything?
+// Does x equal test, using the SQL principle that null is not equal to
+// anything?
 bool eq(const QVariant& x, bool test);
 
 // Is x null or equal to test?

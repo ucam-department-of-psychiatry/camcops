@@ -70,8 +70,10 @@ protected:
     QString m_url;  // URL of sound resource
     int m_volume;  // range [0, 100]
     bool m_offer_volume_control;  // offer a volume control?
-    QPointer<QAbstractButton> m_button_speaker;  // button shown when not playing
-    QPointer<QAbstractButton> m_button_speaker_playing;  // button shown when playing
+    QPointer<QAbstractButton> m_button_speaker;
+        // ... button shown when not playing
+    QPointer<QAbstractButton> m_button_speaker_playing;
+        // ... button shown when playing
     QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
     bool m_playing;  // currently playing?
 };

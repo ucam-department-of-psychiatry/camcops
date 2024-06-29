@@ -130,14 +130,16 @@ void initializeCPFTLPSDischarge(TaskFactory& factory)
 
 CPFTLPSDischarge::CPFTLPSDischarge(CamcopsApp& app, DatabaseManager& db,
                                    const int load_pk) :
-    Task(app, db, CPFTLPSDISCHARGE_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, CPFTLPSDISCHARGE_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addField(DISCHARGE_DATE, QMetaType::fromType<QDate>());
     addField(DISCHARGE_REASON_CODE, QMetaType::fromType<QString>());
 
     addField(LEAFLET_OR_DISCHARGE_CARD_GIVEN, QMetaType::fromType<bool>());
     addField(FREQUENT_ATTENDER, QMetaType::fromType<bool>());
-    addField(PATIENT_WANTED_COPY_OF_LETTER, QMetaType::fromType<bool>());  // was erroneously String prior to 2.0.3
+    addField(PATIENT_WANTED_COPY_OF_LETTER, QMetaType::fromType<bool>());
+        // ... was erroneously String prior to 2.0.3
     addField(GAF_AT_FIRST_ASSESSMENT, QMetaType::fromType<int>());
     addField(GAF_AT_DISCHARGE, QMetaType::fromType<int>());
 

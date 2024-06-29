@@ -121,19 +121,22 @@ protected slots:
                                       const FieldRef* fieldref);
 
 protected:
-    QVector<QuestionWithOneField> m_question_field_pairs;  // Question/field mapping
+    QVector<QuestionWithOneField> m_question_field_pairs;
+        // ... Question/field mapping
     NameValueOptions m_options;  // Name/value pairs for options
     int m_question_width;  // relative width for question column
     QVector<int> m_option_widths;  // relative widths for option columns
     int m_question_min_width_px;  // minimum width in pixels for question
-    QVector<int> m_option_min_widths_px;  // minimum width in pixels for option columns
+    QVector<int> m_option_min_widths_px;
+        // ... minimum width in pixels for option columns
     QString m_title;  // title text
     QVector<McqGridSubtitle> m_subtitles;  // subtitle info
     bool m_expand;  // expand our widgets horizontally?
     bool m_stripy;  // apply a stripy background?
     bool m_show_title;  // show the title?
     bool m_questions_bold;  // show questions in bold?
-    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;  // our response widgets
+    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;
+        // ... our response widgets
     QVector<QuMcqGridSignaller*> m_signallers;
         // ... objects to signal us when field data/mandatory status changes
     QMap<int, NameValueOptions> m_alternate_options;

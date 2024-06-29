@@ -70,7 +70,8 @@ const QString COMMENT_OTHER(NL + "-- Indexes, triggers, views" + NL + NL);
 const QString COMMENT_ENDING(NL + "-- Ending" + NL + NL);
 // For comments "-- ", the space isn't standard SQL but some engines need it.
 const QString GET_VERSION("SELECT sqlite_version() FROM sqlite_master");
-const QString VALUE_SEP_COMMA = ", ";  // space less efficient but easier to read
+const QString VALUE_SEP_COMMA = ", ";
+    // ... the space is less efficient but easier to read
 
 
 void dumpsql::runTableDumpQuery(QTextStream& os,

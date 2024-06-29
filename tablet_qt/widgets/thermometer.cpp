@@ -180,7 +180,8 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
     m_image_width = imageScale(first_image_raw_width);
 
     // Then the other columns, by span allocation.
-    // Left string width is to left string span as image width is to image span:
+    // Left string width is to left string span as image width is to image
+    // span:
     m_lstring_width = spanScale(m_left_string_span);
     // Similarly on the right:
     m_rstring_width = spanScale(m_right_string_span);

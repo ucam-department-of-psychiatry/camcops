@@ -830,7 +830,8 @@ protected:
 
     // Translators; see https://doc.qt.io/qt-6.5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings
-    QSharedPointer<QTranslator> m_app_translator;  // translates CamCOPS strings
+    QSharedPointer<QTranslator> m_app_translator;
+        // ... translates CamCOPS strings
 
     // Database directory.
     QString m_database_path;
@@ -854,7 +855,8 @@ protected:
     QPointer<QStackedWidget> m_p_window_stack;
 
     // The stack of hidden windows.
-    QSharedPointer<QStackedWidget> m_p_hidden_stack;  // we own it entirely, so QSharedPointer
+    QSharedPointer<QStackedWidget> m_p_hidden_stack;
+        // ... we own it entirely, so QSharedPointer
 
     // Before we went fullscreen, were we maximized?
     bool m_maximized_before_fullscreen;
