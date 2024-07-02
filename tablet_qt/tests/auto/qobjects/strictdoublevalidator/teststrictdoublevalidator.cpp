@@ -37,6 +37,7 @@ private slots:
     void testValidateReturnsInvalidIfPlusAndPositiveNotAllowed();
     void testValidateReturnsInvalidIfNotADouble();
     void testValidateReturnsAcceptableIfADoubleWithinRange();
+    void testValidateReturnsIntermediateIfNegativeZero();
     void testValidateReturnsInvalidIfTopNegativeAndNoMinus();
     void testValidateReturnsIntermediateIfHasValidStart();
     void testValidateReturnsInvalidIfHasInvalidStart();
@@ -168,6 +169,20 @@ void TestStrictDoubleValidator::testValidateReturnsAcceptableIfADoubleWithinRang
     auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
 
     QCOMPARE(validator->validate(text, pos), QValidator::Acceptable);
+}
+
+void TestStrictDoubleValidator::testValidateReturnsIntermediateIfNegativeZero()
+{
+    const double bottom = -0.2;
+    const double top = -0.1;
+    const int decimals = 3;
+    const bool allow_empty = false;
+    QString text("-0");
+    int pos = 0;
+
+    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+
+    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsInvalidIfTopNegativeAndNoMinus()
