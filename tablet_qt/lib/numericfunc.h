@@ -99,7 +99,7 @@ QValidator::State validateInteger(const QString& s, const QLocale& locale,
 // Counts the number of digits in a floating-point number.
 // - ignores sign
 // - includes decimal point
-int numDigitsDouble(double number, int max_dp = 50);
+int numDigitsDouble(double number, int max_dp);
 
 // Returns the first n_digits of a floating point number, as a double.
 // - sign is ignored (can't compare numbers without dropping it)
@@ -108,13 +108,13 @@ double firstDigitsDouble(double number, int n_digits, int max_dp = 50);
 
 // Is "number" something you could validly type to end up with a number in the
 // range [bottom, top]?
-bool isValidStartToDouble(double number, double bottom, double top);
+bool isValidStartToDouble(double number, double bottom, double top, int max_dp);
 
 // If you made "number" longer, would it necessarily exceed "top"?
-bool extendedDoubleMustExceedTop(double number, double bottom, double top);
+bool extendedDoubleMustExceedTop(double number, double bottom, double top, int max_dp);
 
 // If you made "number" longer, would it necessarily be below "bottom"?
-bool extendedDoubleMustBeLessThanBottom(double number, double bottom, double top);
+bool extendedDoubleMustBeLessThanBottom(double number, double bottom, double top, int max_dp);
 
 }  // namespace numeric
 

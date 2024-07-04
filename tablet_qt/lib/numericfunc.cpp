@@ -82,6 +82,9 @@ quint64 localeStrToNumber(const QString& str, bool& ok,
 int numDigitsDouble(const double number, const int max_dp)
 {
     const QString formatted = QString::number(number, 'f', max_dp);
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << Q_FUNC_INFO << number << "formatted to" << max_dp << "dp is" << formatted;
+#endif
     const bool sign_present = number < 0;
     // Trim trailing zeros:
     int pos;
@@ -115,9 +118,10 @@ double firstDigitsDouble(const double number,
 
 bool isValidStartToDouble(const double number,
                           const double bottom,
-                          const double top)
+                          const double top,
+                          const int max_dp)
 {
-    if (extendedDoubleMustBeLessThanBottom(number, bottom, top)) {
+    if (extendedDoubleMustBeLessThanBottom(number, bottom, top, max_dp)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be less than bottom value of"
@@ -125,7 +129,7 @@ bool isValidStartToDouble(const double number,
 #endif
         return false;
     }
-    if (extendedDoubleMustExceedTop(number, bottom, top)) {
+    if (extendedDoubleMustExceedTop(number, bottom, top, max_dp)) {
 #ifdef NUMERICFUNC_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << number
                  << "when extended must be more than top value of"
@@ -143,72 +147,167 @@ bool isValidStartToDouble(const double number,
 
 bool extendedDoubleMustExceedTop(const double number,
                                  const double bottom,
-                                 const double top)
+                                 const double top,
+                                 const int max_dp)
 {
     if (number < 0 && top > 0) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << number << " < 0 and " << top << " > 0"
+             << " return false";
+#endif
         return false;
     }
     if (number > 0 && top < 0) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << number << " > 0 and " << top << " < 0";
+        qDebug() << "true EXIT POINT 4";
+#endif
         return true;
     }
-    const int nd_number = numDigitsDouble(number);
+    const int nd_number = numDigitsDouble(number, max_dp);
     QString str_number;
     str_number.setNum(number);
     if (number > 0) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << number << " > 0";
+#endif
         // Both positive. Extend with zeros, to length of top
-        const int nd_top = numDigitsDouble(top);
+        const int nd_top = numDigitsDouble(top, max_dp);
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << "nd_number:" << nd_number << "nd_top:" << nd_top;
+#endif
         for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "0";
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+            qDebug() << "str_number now:" << str_number;
+#endif
             if (str_number.toDouble() <= top) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+                qDebug() << Q_FUNC_INFO << str_number.toDouble() << " <= "
+                         << top << " return false";
+#endif
                 return false;
             }
         }
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << "Could not extend" << number << "with zeros"
+                 << "to make it between" << bottom << "and" << "top";
+        qDebug() << "true EXIT POINT 5";
+#endif
         return true;
     }
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << Q_FUNC_INFO << number << " <= 0";
+#endif
     // Both negative. Extend with nines.
-    const int nd_bottom = numDigitsDouble(bottom);
+    const int nd_bottom = numDigitsDouble(bottom, max_dp);
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << "nd_number:" << nd_number << "nd_bottom:" << nd_bottom;
+#endif
     for (int i = 0; i < nd_bottom - nd_number; ++i) {
         str_number += "9";
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << "str_number now:" << str_number;
+#endif
         if (str_number.toDouble() <= top) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+            qDebug() << Q_FUNC_INFO << str_number.toDouble() << " <= "
+                     << top << " return false";
+#endif
+
             return false;
         }
     }
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << Q_FUNC_INFO << "Could not extend" << number << "with nines"
+             << "to make it between" << bottom << "and" << top;
+    qDebug() << "true EXIT POINT 6";
+#endif
+
     return true;
 }
 
 
 bool extendedDoubleMustBeLessThanBottom(const double number,
                                         const double bottom,
-                                        const double top)
+                                        const double top,
+                                        const int max_dp)
 {
     if (number < 0 && bottom > 0) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << "EXIT POINT 1";
+        qDebug() << Q_FUNC_INFO << number << " < 0 and " << bottom << " > 0"
+             << " return true";
+#endif
         return true;
     }
     if (number > 0 && bottom < 0) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << number << " > 0 and " << bottom << " < 0"
+             << " return false";
+#endif
         return false;
     }
-    const int nd_number = numDigitsDouble(number);
+    const int nd_number = numDigitsDouble(number, max_dp);
     QString str_number;
     str_number.setNum(number);
     if (number > 0) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << number << " > 0";
+#endif
         // Both positive. Extend with nines, to length of top
-        const int nd_top = numDigitsDouble(top);
+        const int nd_top = numDigitsDouble(top, max_dp);
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << "nd_number:" << nd_number << "nd_top:" << nd_top;
+#endif
         for (int i = 0; i < nd_top - nd_number; ++i) {
             str_number += "9";
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+            qDebug() << "str_number now:" << str_number;
+#endif
             if (str_number.toDouble() >= bottom) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+                qDebug() << Q_FUNC_INFO << str_number.toDouble() << " >= "
+                         << bottom << " return false";
+#endif
                 return false;
             }
         }
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << "Could not extend" << number << "with nines"
+                 << "to make it between" << bottom << "and" << top;
+        qDebug() << "true EXIT POINT 2";
+#endif
         return true;
     }
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << Q_FUNC_INFO << number << " <= 0";
+#endif
     // Both negative. Extend with zeros, to length of bottom
-    const int nd_bottom = numDigitsDouble(bottom);
+    const int nd_bottom = numDigitsDouble(bottom, max_dp);
+
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << "nd_number:" << nd_number << "nd_bottom:" << nd_bottom;
+#endif
+
     for (int i = 0; i < nd_bottom - nd_number; ++i) {
         str_number += "0";
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+        qDebug() << "str_number now:" << str_number;
+#endif
         if (str_number.toDouble() >= bottom) {
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+            qDebug() << Q_FUNC_INFO << str_number.toDouble() << " >= "
+                     << bottom << " return false";
+#endif
             return false;
         }
     }
+#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+    qDebug() << Q_FUNC_INFO << "Could not extend" << number << "with zeros"
+             << "to make it between" << bottom << "and" << top;
+    qDebug() << "true EXIT POINT 3";
+#endif
     return true;
 }
 

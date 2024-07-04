@@ -122,7 +122,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 #endif
         return QValidator::Invalid;
     }
-    if (numeric::isValidStartToDouble(d, b, t)) {
+    if (numeric::isValidStartToDouble(d, b, t, decimals())) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "within range for number of digits -> Intermediate; s ="
