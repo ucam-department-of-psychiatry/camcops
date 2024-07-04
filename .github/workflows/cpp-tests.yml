@@ -26,7 +26,10 @@ jobs:
                   file: qt.tgz
                   token: ${{ secrets.GITHUB_TOKEN }}
                   # The release ID is set by the build-qt.yml action
-                  version: 'tags/untagged-6d2cba07b921fd593071'
+                  # but the tagging is broken somehow. This is brittle
+                  # because editing the release on GitHub will change
+                  # the tag (which isn't a proper tag)
+                  version: 'tags/untagged-b8b360463f95f88e986f'
             - name: Install Qt
               run: |
                   set -euxo pipefail
