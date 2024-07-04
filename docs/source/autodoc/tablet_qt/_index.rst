@@ -961,6 +961,8 @@ tablet_qt
     tests/auto/lib/stringfunc/stringfunc.pro.rst
     tests/auto/lib/stringfunc/teststringfunc.cpp.rst
     tests/auto/qobjects/qobjects.pro.rst
+    tests/auto/qobjects/strictdoublevalidator/strictdoublevalidator.pro.rst
+    tests/auto/qobjects/strictdoublevalidator/teststrictdoublevalidator.cpp.rst
     tests/auto/qobjects/widgetpositioner/testwidgetpositioner.cpp.rst
     tests/auto/qobjects/widgetpositioner/widgetpositioner.pro.rst
     tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
