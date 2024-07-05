@@ -41,6 +41,8 @@ private slots:
     void testValidateReturnsInvalidIfTopNegativeAndNoMinus();
     void testValidateReturnsIntermediateIfHasValidStart();
     void testValidateReturnsInvalidIfHasInvalidStart();
+    void testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero();
+    void testRandomNumbersAndRanges();
 };
 
 void TestStrictDoubleValidator::testValidateReturnsAcceptableIfEmptyAndEmptyAllowed()
@@ -225,6 +227,67 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfHasInvalidStart()
     auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
 
     QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+}
+
+void TestStrictDoubleValidator::testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero()
+{
+    const double bottom = 0.01;
+    const double top = 5;
+    const int decimals = 2;
+    const bool allow_empty = false;
+    QString text("0");
+    int pos = 0;
+
+    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+
+    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+}
+
+void TestStrictDoubleValidator::testRandomNumbersAndRanges()
+{
+    const int seed = 1234;
+    const int num_tests = 1000;
+    const int limit = 1000000;
+    const int max_decimals = 10;  // a large number is likely to break things
+
+    QRandomGenerator rng(seed);
+
+    for (int test = 0; test < num_tests; ++test) {
+        const int decimals = rng.bounded(0, max_decimals);
+
+        int factor = rng.bounded(-limit, limit);
+        double limit_1 = rng.generateDouble() * factor;
+        double limit_2 = rng.generateDouble() * factor;
+
+        const double bottom = std::min(limit_1, limit_2);
+        const double top = std::max(limit_1, limit_2);
+
+        double number = rng.bounded(top-bottom) + bottom;
+
+        QString str_number;
+        str_number.setNum(number);
+
+        const bool allow_empty = false;
+        int pos = 0;
+
+        auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+
+        for (int c = 1; c <= str_number.length(); ++c) {
+            QString typed = str_number.first(c);
+
+            auto state = validator->validate(typed, pos);
+
+            if (state == QValidator::Invalid) {
+                qDebug() << "Validation failed for" << typed << "from" << number
+                         << "range" << bottom << "to" << top
+                         << "with" << decimals << "dp";
+                QVERIFY(false);
+            }
+        }
+
+        QVERIFY(true);
+    }
+
 }
 
 QTEST_MAIN(TestStrictDoubleValidator)
