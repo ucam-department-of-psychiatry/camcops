@@ -54,9 +54,9 @@ void TestStrictDoubleValidator::testValidateReturnsAcceptableIfEmptyAndEmptyAllo
     QString text("");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Acceptable);
+    QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
 }
 
 
@@ -69,9 +69,9 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfEmptyAndEmptyNo
     QString text("");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 
@@ -84,9 +84,9 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfTooManyDecimalPlaces
     QString text("3.1416");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+    QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsIntermediateIfMinusAndNegativeAllowed()
@@ -98,9 +98,9 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfMinusAndNegativ
     QString text("-");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsInvalidIfMinusAndNegativeNotAllowed()
@@ -112,9 +112,9 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfMinusAndNegativeNotA
     QString text("-");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+    QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsIntermediateIfPlusAndPositiveAllowed()
@@ -126,9 +126,9 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfPlusAndPositive
     QString text("+");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsInvalidIfPlusAndPositiveNotAllowed()
@@ -140,9 +140,9 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfPlusAndPositiveNotAl
     QString text("+");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+    QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsInvalidIfNotADouble()
@@ -154,9 +154,9 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfNotADouble()
     QString text("not a double");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+    QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsAcceptableIfADoubleWithinRange()
@@ -168,9 +168,9 @@ void TestStrictDoubleValidator::testValidateReturnsAcceptableIfADoubleWithinRang
     QString text("3.141");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Acceptable);
+    QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsIntermediateIfNegativeZero()
@@ -182,9 +182,9 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfNegativeZero()
     QString text("-0");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsInvalidIfTopNegativeAndNoMinus()
@@ -196,9 +196,9 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfTopNegativeAndNoMinu
     QString text("1");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+    QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsIntermediateIfHasValidStart()
@@ -210,9 +210,9 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfHasValidStart()
     QString text("1");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsInvalidIfHasInvalidStart()
@@ -224,9 +224,9 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfHasInvalidStart()
     QString text("2");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Invalid);
+    QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
 void TestStrictDoubleValidator::testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero()
@@ -238,9 +238,9 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfZeroAndRangeGre
     QString text("0");
     int pos = 0;
 
-    auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
-    QCOMPARE(validator->validate(text, pos), QValidator::Intermediate);
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 void TestStrictDoubleValidator::testRandomNumbersAndRanges()
@@ -270,12 +270,12 @@ void TestStrictDoubleValidator::testRandomNumbersAndRanges()
         const bool allow_empty = false;
         int pos = 0;
 
-        auto validator = new StrictDoubleValidator(bottom, top, decimals, allow_empty, nullptr);
+        StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
         for (int c = 1; c <= str_number.length(); ++c) {
             QString typed = str_number.first(c);
 
-            auto state = validator->validate(typed, pos);
+            auto state = validator.validate(typed, pos);
 
             if (state == QValidator::Invalid) {
                 qDebug() << "Validation failed for" << typed << "from" << number
