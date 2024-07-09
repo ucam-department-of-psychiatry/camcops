@@ -23,6 +23,8 @@
 
 #include "qobjects/strictdoublevalidator.h"
 
+#define TESTSTRICTDOUBLE_INCLUDE_RANDOM  // should generally be defined
+
 class TestStrictDoubleValidator: public QObject
 {
     Q_OBJECT
@@ -42,7 +44,11 @@ private slots:
     void testValidateReturnsIntermediateIfHasValidStart();
     void testValidateReturnsInvalidIfHasInvalidStart();
     void testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero();
+#ifdef TESTSTRICTDOUBLE_INCLUDE_RANDOM
     void testRandomNumbersAndRanges();
+#endif
+    void testSpecificFailure1();
+    void testSpecificFailure2();
 };
 
 void TestStrictDoubleValidator::testValidateReturnsAcceptableIfEmptyAndEmptyAllowed()
@@ -226,6 +232,11 @@ void TestStrictDoubleValidator::testValidateReturnsInvalidIfHasInvalidStart()
 
     StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
 
+    // This is exceptionally tricky.
+    // Recursion (trying every potential keystroke) is slow.
+    // In this example, "2" can be extended so it is smaller than top, e.g.
+    // as "2.5". It can also be extended so that it's larger than bottom, e.g.
+    // as "20". It can't be extended to satisfy both criteria.
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
@@ -243,6 +254,7 @@ void TestStrictDoubleValidator::testValidateReturnsIntermediateIfZeroAndRangeGre
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
+#ifdef TESTSTRICTDOUBLE_INCLUDE_RANDOM
 void TestStrictDoubleValidator::testRandomNumbersAndRanges()
 {
     const int seed = 1234;
@@ -255,14 +267,22 @@ void TestStrictDoubleValidator::testRandomNumbersAndRanges()
     for (int test = 0; test < num_tests; ++test) {
         const int decimals = rng.bounded(0, max_decimals);
 
-        int factor = rng.bounded(-limit, limit);
-        double limit_1 = rng.generateDouble() * factor;
-        double limit_2 = rng.generateDouble() * factor;
+        const int factor = rng.bounded(-limit, limit);
+        const double limit_1 = rng.generateDouble() * factor;
+        const double limit_2 = rng.generateDouble() * factor;
 
-        const double bottom = std::min(limit_1, limit_2);
-        const double top = std::max(limit_1, limit_2);
+        // Ensure that we don't specify ranges to more decimal places than
+        // we will allow:
+        const double bottom = QString::number(
+            std::min(limit_1, limit_2), 'f', decimals
+        ).toDouble();
+        const double top = QString::number(
+            std::max(limit_1, limit_2), 'f', decimals
+        ).toDouble();
 
-        double number = rng.bounded(top-bottom) + bottom;
+        const double number = QString::number(
+            rng.bounded(top - bottom) + bottom, 'f', decimals
+        ).toDouble();
 
         QString str_number;
         str_number.setNum(number);
@@ -278,16 +298,43 @@ void TestStrictDoubleValidator::testRandomNumbersAndRanges()
             auto state = validator.validate(typed, pos);
 
             if (state == QValidator::Invalid) {
-                qDebug() << "Validation failed for" << typed << "from" << number
-                         << "range" << bottom << "to" << top
-                         << "with" << decimals << "dp";
+                qDebug().nospace()
+                     << "Validation failed for " << typed << " from " << number
+                     << ", range " << bottom << " to " << top
+                     << ", with " << decimals << " dp";
                 QVERIFY(false);
             }
         }
 
         QVERIFY(true);
     }
+}
+#endif
 
+void TestStrictDoubleValidator::testSpecificFailure1()
+{
+    // An example thrown up by testRandomNumbersAndRanges()
+    QString text("-1");  // intention: -124401
+    const double bottom = -154620;
+    const double top = -113217;
+    const int decimals = 0;
+    const bool allow_empty = false;
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
+    int pos = 0;
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
+}
+
+void TestStrictDoubleValidator::testSpecificFailure2()
+{
+    // An example thrown up by testRandomNumbersAndRanges()
+    QString text("-69839.7");
+    const double bottom = -70369.8;
+    const double top = -57920.8;
+    const int decimals = 1;
+    const bool allow_empty = false;
+    StrictDoubleValidator validator(bottom, top, decimals, allow_empty, nullptr);
+    int pos = 0;
+    QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
 }
 
 QTEST_MAIN(TestStrictDoubleValidator)
