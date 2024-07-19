@@ -3921,5 +3921,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
   enter the correct password.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/353
 
-**Client and server v2.4.20, , IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.20, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix the BMI task on both the client and server to avoid a division by zero
+  error when the user enters a zero height.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/353
+
+- Fix bugs in the "strict" validation of double-precision floating-point values
+  where valid values were being rejected.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/368
