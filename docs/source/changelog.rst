@@ -3926,7 +3926,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix the BMI task on both the client and server to avoid a division by zero
   error when the user enters a zero height.
-  https://github.com/ucam-department-of-psychiatry/camcops/issues/353
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/366
 
 - Fix bugs in the "strict" validation of double-precision floating-point values
   where valid values were being rejected.
