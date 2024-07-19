@@ -198,7 +198,7 @@ class Bmi(TaskHasPatientMixin, Task):
         try:
             return self.mass_kg / (self.height_m * self.height_m)
         except ZeroDivisionError:
-            # Earlier versions of the client could set height to 0
+            # The client can set height to 0
             return None
 
     def category(self, req: CamcopsRequest) -> str:
