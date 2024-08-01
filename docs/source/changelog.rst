@@ -3923,3 +3923,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.20, , IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix the installer to set the SSL options in the config file only if using
+  HTTPS directly.
