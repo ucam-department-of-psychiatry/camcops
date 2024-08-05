@@ -292,11 +292,7 @@ Tools...`. Add a tool called ``signtool`` with a command to sign the executable.
 
 For example:
 
-``C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe sign /f C:\Users\Me\certificates\certificate.p12 /tr http://timestamp.sectigo.com /td SHA256 /p "password" $f``
-
-or for a certificate generated from a Certificate Signing Request on the same machine (and installed with ``certreq -accept``):
-
-``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /f C:\Users\Me\certificates\certificate.crt /tr http://timestamp.sectigo.com /td SHA256 $f``
+``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /sha1 <SHA1 Thumbprint of certificate> /tr http://timestamp.sectigo.com /td SHA256 /fd SHA256 $f``
 
 You can use the `/debug` switch for more verbose output when running `signtool` from the command line.
 
