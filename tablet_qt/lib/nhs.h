@@ -58,12 +58,12 @@ QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
 {
     if (s.isEmpty()) {
         if (allow_empty) {
-#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+#ifdef NHS_DEBUG_VALIDATOR
             qDebug() << Q_FUNC_INFO << "empty -> Acceptable (as allow_empty)";
 #endif
             return QValidator::Acceptable;
         }
-#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+#ifdef NHS_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "empty -> Intermediate";
 #endif
         return QValidator::Intermediate;
