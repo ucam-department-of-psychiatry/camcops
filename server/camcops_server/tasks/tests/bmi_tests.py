@@ -1,4 +1,8 @@
-/*
+"""
+camcops_server/tasks/tests/bmi_tests.py
+
+===============================================================================
+
     Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
     Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
 
@@ -16,41 +20,34 @@
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
-*/
 
-#include <QtTest/QtTest>
-#include <QPushButton>
+===============================================================================
 
-#include "layouts/flowlayouthfw.h"
+"""
 
+from unittest import TestCase
 
-class TestFlowLayoutHfw: public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testMinimumSizeAddsMargins();
-};
+from camcops_server.tasks.bmi import Bmi
 
 
+class BmiTests(TestCase):
+    def test_bmi_calculation_for_healthy_mass_and_height(self):
+        bmi = Bmi()
 
-void TestFlowLayoutHfw::testMinimumSizeAddsMargins()
-{
-    FlowLayoutHfw layout;
-    auto button = new QPushButton();
+        bmi.mass_kg = 70.0
+        bmi.height_m = 1.83
 
-    layout.addWidget(button);
+        self.assertAlmostEqual(bmi.bmi(), 20.902, places=3)
 
-    const int left = 1;
-    const int top = 2;
-    const int right = 4;
-    const int bottom = 8;
+    def test_bmi_none_for_zero_height(self):
+        bmi = Bmi()
 
-    layout.setContentsMargins(left, top, right, bottom);
+        bmi.mass_kg = 70.0
+        bmi.height_m = 0
 
-    QCOMPARE(layout.minimumSize(), QSize(left + right, top + bottom));
-}
+        self.assertIsNone(bmi.bmi())
 
-QTEST_MAIN(TestFlowLayoutHfw)
+    def test_bmi_none_when_not_complete(self):
+        bmi = Bmi()
 
-#include "testflowlayouthfw.moc"
+        self.assertIsNone(bmi.bmi())

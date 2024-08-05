@@ -477,6 +477,7 @@ server/camcops_server
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
     tasks/tests/aq_tests.py.rst
     tasks/tests/basdai_tests.py.rst
+    tasks/tests/bmi_tests.py.rst
     tasks/tests/cia_tests.py.rst
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst

@@ -10,9 +10,11 @@ on:
             - .github/scripts/add_apt_sources.sh
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/cpp_tests.sh
+            - .github/scripts/python_setup.sh
             - .github/workflows/cpp-tests.yml
             - tablet_qt/qt_version.txt
             - tablet_qt/tools/build_qt.py
+            - tablet_qt/tools/run_cpp_tests.py
 
 jobs:
     cpp-tests:
@@ -26,7 +28,10 @@ jobs:
                   file: qt.tgz
                   token: ${{ secrets.GITHUB_TOKEN }}
                   # The release ID is set by the build-qt.yml action
-                  version: 'tags/untagged-6d2cba07b921fd593071'
+                  # but the tagging is broken somehow. This is brittle
+                  # because editing the release on GitHub will change
+                  # the tag (which isn't a proper tag)
+                  version: 'tags/untagged-b8b360463f95f88e986f'
             - name: Install Qt
               run: |
                   set -euxo pipefail
@@ -113,4 +118,5 @@ jobs:
               run: |
                   set -eux -o pipefail
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh
