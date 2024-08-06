@@ -3931,3 +3931,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix bugs in the "strict" validation of double-precision floating-point values
   where valid values were being rejected.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/368
+
+- Fix the installer to set the SSL options in the config file only if using
+  HTTPS directly.
