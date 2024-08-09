@@ -233,6 +233,7 @@ server/camcops_server
     cc_modules/tests/cc_sqla_coltypes_tests.py.rst
     cc_modules/tests/cc_task_collection_tests.py.rst
     cc_modules/tests/cc_task_tests.py.rst
+    cc_modules/tests/cc_taskreports_tests.py.rst
     cc_modules/tests/cc_taskschedule_tests.py.rst
     cc_modules/tests/cc_taskschedulereports_tests.py.rst
     cc_modules/tests/cc_text_tests.py.rst
@@ -483,6 +484,7 @@ server/camcops_server
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
     tasks/tests/edeq_tests.py.rst
+    tasks/tests/factories.py.rst
     tasks/tests/maas_tests.py.rst
     tasks/tests/paradise24_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst

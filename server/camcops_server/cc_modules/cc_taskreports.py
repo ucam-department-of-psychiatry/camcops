@@ -36,6 +36,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     get_rows_fieldnames_from_query,
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
+from sqlalchemy import cast, Integer
 from sqlalchemy.engine import Row
 from sqlalchemy.sql.elements import UnaryExpression
 from sqlalchemy.sql.expression import desc, func, literal, select
@@ -150,17 +151,19 @@ class TaskCountReport(Report):
             sorters = []  # type: List[Union[str, UnaryExpression]]
             if by_year:
                 selectors.append(
-                    extract_year(TaskIndexEntry.when_created_utc).label(
-                        label_year
-                    )
+                    cast(  # Necessary for SQLite tests
+                        extract_year(TaskIndexEntry.when_created_utc),
+                        Integer(),
+                    ).label(label_year)
                 )
                 groupers.append(label_year)
                 sorters.append(desc(label_year))
             if by_month:
                 selectors.append(
-                    extract_month(TaskIndexEntry.when_created_utc).label(
-                        label_month
-                    )
+                    cast(  # Necessary for SQLite tests
+                        extract_month(TaskIndexEntry.when_created_utc),
+                        Integer(),
+                    ).label(label_month)
                 )
                 groupers.append(label_month)
                 sorters.append(desc(label_month))
@@ -231,14 +234,20 @@ class TaskCountReport(Report):
                         # func.year() is specific to some DBs, e.g. MySQL
                         # so is func.extract();
                         # http://modern-sql.com/feature/extract
-                        extract_year(
-                            isotzdatetime_to_utcdatetime(cls.when_created)
+                        cast(  # Necessary for SQLite tests
+                            extract_year(
+                                isotzdatetime_to_utcdatetime(cls.when_created)
+                            ),
+                            Integer(),
                         ).label(label_year)
                     )
                 if by_month:
                     selectors.append(
-                        extract_month(
-                            isotzdatetime_to_utcdatetime(cls.when_created)
+                        cast(  # Necessary for SQLite tests
+                            extract_month(
+                                isotzdatetime_to_utcdatetime(cls.when_created)
+                            ),
+                            Integer(),
                         ).label(label_month)
                     )
                 if by_task:
