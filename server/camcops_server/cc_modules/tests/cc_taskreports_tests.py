@@ -46,23 +46,24 @@ from pendulum import DateTime as Pendulum, datetime
 
 class TaskCountReportTestBase(BasicDatabaseTestCase):
     # pytest will collect tests that are derived from unitest.TestCase
-    # regardless of what pytest.ini so we need to set this to stop
-    # tests being run in the baseclass
+    # regardless of what python_classes says in pytest.ini so we need to set
+    # this to stop tests being run in the baseclass and override in the derived
+    # class.
     __test__ = False
 
     def setUp(self) -> None:
         super().setUp()
 
-        self.january = datetime(2023, 1, 1, 12)
-        self.august = datetime(2022, 8, 1, 12)
-        self.september = datetime(2022, 9, 1, 12)
-        self.october = datetime(2022, 10, 1, 12)
-        self.november = datetime(2022, 11, 1, 12)
+        self.date_01_oct_2022 = datetime(2022, 10, 1, 12)
+        self.date_01_nov_2022 = datetime(2022, 11, 1, 12)
+        self.date_30_nov_2022 = datetime(2022, 11, 30, 12)
+        self.date_01_jan_2023 = datetime(2023, 1, 1, 12)
 
-        self.num_jan_2023_bmi_tasks = 1
-        self.num_nov_2022_bmi_tasks = 3
-        self.num_nov_2022_phq9_tasks = 4
-        self.num_oct_2022_bmi_tasks = 2
+        self.num_01_nov_2022_phq9_tasks = 4
+        self.num_30_nov_2022_phq9_tasks = 5
+        self.num_01_oct_2022_bmi_tasks = 2
+        self.num_01_nov_2022_bmi_tasks = 3
+        self.num_01_jan_2023_bmi_tasks = 1
 
         # Freda and Jim are both members of Group A. Freda took over from Jim
         # in Nov 2022
@@ -82,69 +83,84 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         )
         self.dbsession.commit()
 
-        self.num_jim_tasks = self.num_oct_2022_bmi_tasks = 2
+        self.num_jim_tasks = self.num_01_oct_2022_bmi_tasks = 2
         self.num_freda_tasks = (
-            self.num_nov_2022_phq9_tasks
-            + self.num_nov_2022_bmi_tasks
-            + self.num_jan_2023_bmi_tasks
+            self.num_01_nov_2022_phq9_tasks
+            + self.num_30_nov_2022_phq9_tasks
+            + self.num_01_nov_2022_bmi_tasks
+            + self.num_01_jan_2023_bmi_tasks
         )
 
         self.num_group_a_tasks = self.num_jim_tasks + self.num_freda_tasks
 
         all_tasks = []
 
-        for i in range(0, self.num_oct_2022_bmi_tasks):
+        for i in range(0, self.num_01_oct_2022_bmi_tasks):
             patient = PatientFactory(
-                _when_added_exact=self.october,
+                _when_added_exact=self.date_01_oct_2022,
             )
             all_tasks.append(
                 BmiFactory(
                     _group=self.group_a,
                     patient_id=patient.id,
-                    when_created=self.october,
-                    _when_added_exact=self.october,
+                    when_created=self.date_01_oct_2022,
+                    _when_added_exact=self.date_01_oct_2022,
                     _adding_user=self.jim,
                 )
             )
 
-        for i in range(0, self.num_nov_2022_bmi_tasks):
+        for i in range(0, self.num_01_nov_2022_bmi_tasks):
             patient = PatientFactory(
-                _when_added_exact=self.november,
+                _when_added_exact=self.date_01_nov_2022,
             )
             all_tasks.append(
                 BmiFactory(
                     _group=self.group_a,
                     patient_id=patient.id,
-                    when_created=self.november,
-                    _when_added_exact=self.november,
+                    when_created=self.date_01_nov_2022,
+                    _when_added_exact=self.date_01_nov_2022,
                     _adding_user=self.freda,
                 )
             )
 
-        for i in range(0, self.num_nov_2022_phq9_tasks):
+        for i in range(0, self.num_01_nov_2022_phq9_tasks):
             patient = PatientFactory(
-                _when_added_exact=self.november,
+                _when_added_exact=self.date_01_nov_2022,
             )
             all_tasks.append(
                 Phq9Factory(
                     _group=self.group_a,
                     patient_id=patient.id,
-                    when_created=self.november,
-                    _when_added_exact=self.november,
+                    when_created=self.date_01_nov_2022,
+                    _when_added_exact=self.date_01_nov_2022,
                     _adding_user=self.freda,
                 )
             )
 
-        for i in range(0, self.num_jan_2023_bmi_tasks):
+        for i in range(0, self.num_30_nov_2022_phq9_tasks):
             patient = PatientFactory(
-                _when_added_exact=self.january,
+                _when_added_exact=self.date_30_nov_2022,
+            )
+            all_tasks.append(
+                Phq9Factory(
+                    _group=self.group_a,
+                    patient_id=patient.id,
+                    when_created=self.date_30_nov_2022,
+                    _when_added_exact=self.date_30_nov_2022,
+                    _adding_user=self.freda,
+                )
+            )
+
+        for i in range(0, self.num_01_jan_2023_bmi_tasks):
+            patient = PatientFactory(
+                _when_added_exact=self.date_01_jan_2023,
             )
             all_tasks.append(
                 BmiFactory(
                     _group=self.group_a,
                     patient_id=patient.id,
-                    when_created=self.january,
-                    _when_added_exact=self.january,
+                    when_created=self.date_01_jan_2023,
+                    _when_added_exact=self.date_01_jan_2023,
                     _adding_user=self.freda,
                 )
             )
@@ -157,14 +173,14 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         )
 
         patient = PatientFactory(
-            _when_added_exact=self.january,
+            _when_added_exact=self.date_01_jan_2023,
         )
 
         all_tasks.append(
             BmiFactory(
                 _group=self.group_b,
                 patient_id=patient.id,
-                _when_added_exact=self.january,
+                _when_added_exact=self.date_01_jan_2023,
                 _adding_user=self.shabeen,
             )
         )
@@ -190,6 +206,10 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         month_column = 1
         task_column = 2
         num_tasks_added_column = 3
+
+        num_nov_2022_phq9_tasks = (
+            self.num_01_nov_2022_phq9_tasks + self.num_30_nov_2022_phq9_tasks
+        )
 
         # Default is by year and month but better to be explicit
         self.req.add_get_params(
@@ -219,7 +239,7 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         self.assertEqual(result.rows[row][task_column], "bmi")
         self.assertEqual(
             result.rows[row][num_tasks_added_column],
-            self.num_jan_2023_bmi_tasks,
+            self.num_01_jan_2023_bmi_tasks,
         )
 
         row += 1
@@ -229,7 +249,7 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         self.assertEqual(result.rows[row][task_column], "bmi")
         self.assertEqual(
             result.rows[row][num_tasks_added_column],
-            self.num_nov_2022_bmi_tasks,
+            self.num_01_nov_2022_bmi_tasks,
         )
 
         row += 1
@@ -239,7 +259,7 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         self.assertEqual(result.rows[row][task_column], "phq9")
         self.assertEqual(
             result.rows[row][num_tasks_added_column],
-            self.num_nov_2022_phq9_tasks,
+            num_nov_2022_phq9_tasks,
         )
 
         row += 1
@@ -249,7 +269,7 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         self.assertEqual(result.rows[row][task_column], "bmi")
         self.assertEqual(
             result.rows[row][num_tasks_added_column],
-            self.num_oct_2022_bmi_tasks,
+            self.num_01_oct_2022_bmi_tasks,
         )
 
         row += 1
@@ -258,10 +278,12 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
     def test_task_counts_by_year(self) -> None:
         num_2022_bmi_tasks = (
-            self.num_oct_2022_bmi_tasks + self.num_nov_2022_bmi_tasks
+            self.num_01_oct_2022_bmi_tasks + self.num_01_nov_2022_bmi_tasks
         )
-        num_2022_phq9_tasks = self.num_nov_2022_phq9_tasks
-        num_2023_bmi_tasks = self.num_jan_2023_bmi_tasks
+        num_2022_phq9_tasks = (
+            self.num_01_nov_2022_phq9_tasks + self.num_30_nov_2022_phq9_tasks
+        )
+        num_2023_bmi_tasks = self.num_01_jan_2023_bmi_tasks
 
         year_column = 0
         task_column = 1
@@ -316,11 +338,13 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
     def test_task_counts_by_task(self) -> None:
         num_bmi_tasks = (
-            self.num_oct_2022_bmi_tasks
-            + self.num_nov_2022_bmi_tasks
-            + self.num_jan_2023_bmi_tasks
+            self.num_01_oct_2022_bmi_tasks
+            + self.num_01_nov_2022_bmi_tasks
+            + self.num_01_jan_2023_bmi_tasks
         )
-        num_phq9_tasks = self.num_nov_2022_phq9_tasks
+        num_phq9_tasks = (
+            self.num_01_nov_2022_phq9_tasks + self.num_30_nov_2022_phq9_tasks
+        )
 
         task_column = 0
         num_tasks_added_column = 1
@@ -431,6 +455,59 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         total_tasks = self.num_group_a_tasks + self.num_group_b_tasks
 
         self.assertEqual(result.rows[row][num_tasks_added_column], total_tasks)
+
+        row += 1
+
+        self.assertEqual(len(result.rows), row)
+
+    def test_task_counts_by_day_of_month(self) -> None:
+        # Not a very realistic scenario. Would normally
+        # be combined with month and year but these are
+        # covered in other tests.
+        num_day_01_tasks = (
+            self.num_01_oct_2022_bmi_tasks
+            + self.num_01_nov_2022_bmi_tasks
+            + self.num_01_nov_2022_phq9_tasks
+            + self.num_01_jan_2023_bmi_tasks
+        )
+        num_day_30_tasks = self.num_30_nov_2022_phq9_tasks
+
+        day_of_month_column = 0
+        num_tasks_added_column = 1
+
+        self.req.add_get_params(
+            {
+                ViewParam.BY_YEAR: False,
+                ViewParam.BY_MONTH: False,
+                ViewParam.BY_DAY_OF_MONTH: True,
+                ViewParam.BY_TASK: False,
+                ViewParam.VIA_INDEX: self.via_index,
+            }
+        )
+
+        self.req._debugging_user = self.freda
+        result = self.report.get_rows_colnames(self.req)
+        self.assertEqual(
+            result.column_names,
+            [
+                "day_of_month",
+                "num_tasks_added",
+            ],
+        )
+
+        row = 0
+
+        self.assertEqual(result.rows[row][day_of_month_column], 30)
+        self.assertEqual(
+            result.rows[row][num_tasks_added_column], num_day_30_tasks
+        )
+
+        row += 1
+
+        self.assertEqual(result.rows[row][day_of_month_column], 1)
+        self.assertEqual(
+            result.rows[row][num_tasks_added_column], num_day_01_tasks
+        )
 
         row += 1
 
