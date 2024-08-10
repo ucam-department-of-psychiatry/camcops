@@ -3934,3 +3934,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix the installer to set the SSL options in the config file only if using
   HTTPS directly.
+
+- Modify the task count report to split by day of month.
