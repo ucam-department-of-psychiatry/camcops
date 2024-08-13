@@ -64,6 +64,7 @@ Quick links:
 - :ref:`v2.4.17 <changelog_v2.4.17>`
 - :ref:`v2.4.18 <changelog_v2.4.18>`
 - :ref:`v2.4.19 <changelog_v2.4.19>`
+- :ref:`v2.4.20 <changelog_v2.4.20>`
 
 Contributors
 ------------
@@ -3921,8 +3922,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   enter the correct password.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/353
 
-**Client and server v2.4.20, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.20:
+
+**Client and server v2.4.20, released 13 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fix the BMI task on both the client and server to avoid a division by zero
   error when the user enters a zero height.
@@ -3936,3 +3939,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   HTTPS directly.
 
 - Modify the task count report to split by day of month.
+
+**Client and server v2.4.21, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
