@@ -784,7 +784,7 @@ class VersionReleaser:
         with open(PROJECT_FILE, "r") as f:
             m = re.search(self.android_32_bit_version_code_search, f.read())
             if m is not None:
-                return m.group(2)
+                return int(m.group(2))
 
         raise MissingCodeException(
             "Could not 32-bit version code in camcops.pro"
@@ -825,7 +825,7 @@ class VersionReleaser:
         with open(PROJECT_FILE, "r") as f:
             m = re.search(self.android_64_bit_version_code_search, f.read())
             if m is not None:
-                return m.group(2)
+                return int(m.group(2))
 
         raise MissingCodeException(
             "Could not 64-bit version code in camcops.pro"
