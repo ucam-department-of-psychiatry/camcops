@@ -985,7 +985,7 @@ class VersionReleaser:
                     )
 
     def rebuild_docs(self) -> None:
-        self.run_with_check([REBUILD_DOCS])
+        self.run_with_check([REBUILD_DOCS, "--warnings_as_errors"])
 
     def release(self) -> None:
         if self.should_release_server:
