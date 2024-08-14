@@ -843,7 +843,12 @@ class VersionReleaser:
                 try:
                     version = Version(row["AndroidManifest.xml name"])
                 except ValueError:
-                    version = ""
+                    try:
+                        version = Version(
+                            row["Google Play Store release name"]
+                        )
+                    except ValueError:
+                        version = ""
 
                 m = re.match(
                     self.android_version_codes_table_search,
