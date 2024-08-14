@@ -385,9 +385,12 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
             << Q_FUNC_INFO << number << "passing on negative number";
 #endif
         return isValidStartToPositiveInt(
-            -number,  // now positive
-            std::max(typed_zero, -top),  // makes it zero or positive
-            -bottom
+            // 0- here avoids C4146 compiler error on Windows
+            // unary minus operator applied to unsigned type, result still unsigned
+            // This code will never be reached for unsigned types!
+            0-number,  // now positive
+            std::max(typed_zero, 0-top),  // makes it zero or positive
+            0-bottom
         );
     }
 }

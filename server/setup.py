@@ -85,7 +85,7 @@ INSTALL_REQUIRES = [
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
     "flower==2.0.1",  # monitor for Celery
-    "gunicorn==22.0.0",  # web server (Unix only)
+    "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
     # Celery dependency for Python <= 3.7; workaround import error
     # https://github.com/celery/celery/issues/7783; scheduled to be fixed in

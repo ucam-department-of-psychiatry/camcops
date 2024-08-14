@@ -65,6 +65,7 @@ Quick links:
 - :ref:`v2.4.18 <changelog_v2.4.18>`
 - :ref:`v2.4.19 <changelog_v2.4.19>`
 - :ref:`v2.4.20 <changelog_v2.4.20>`
+- :ref:`v2.4.21 <changelog_v2.4.21>`
 
 Contributors
 ------------
@@ -3940,5 +3941,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Modify the task count report to split by day of month.
 
-**Client and server v2.4.21, IN PROGRESS**
+.. _changelog_v2.4.21:
+
+**Server v2.4.21, released 14 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Bump ``gunicorn`` to 23.0.0 to fix CVE-2024-1135
+
+
+**Client and server v2.4.22, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
