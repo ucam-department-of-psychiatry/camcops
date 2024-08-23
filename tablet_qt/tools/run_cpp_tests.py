@@ -38,6 +38,7 @@ import logging
 from os import getcwd, pardir, walk
 from os.path import abspath, dirname, isdir, isfile, join, realpath
 import subprocess
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +52,9 @@ CAMCOPS_ROOT = abspath(join(THIS_DIR, pardir))
 CPP_ROOT = join(CAMCOPS_ROOT, "tablet_qt")
 TEST_SRC_ROOT = join(CPP_ROOT, "tests")
 TEST_PRO = join(TEST_SRC_ROOT, "tests.pro")
+
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
 
 
 # =============================================================================
@@ -66,7 +70,7 @@ def heading(text: str) -> None:
     log.info(f"\n{sep}\n{text}\n{sep}")
 
 
-def run_cpp_tests(testrootdir: str) -> None:
+def run_cpp_tests(testrootdir: str) -> int:
     required_dirs = [join(testrootdir, "auto")]
     required_files = [join(testrootdir, "Makefile")]
     for rd in required_dirs:
@@ -83,16 +87,27 @@ def run_cpp_tests(testrootdir: str) -> None:
             )
     # walk() yields tuples: dirpath, dirnames, filenames
     bindir = "bin"
-    n = 0
+    num_tests = 0
+    num_passed = 0
     for dirpath, dirnames, _ in walk(testrootdir):
         if bindir in dirnames:
             for binpath, _, filenames in walk(join(dirpath, bindir)):
                 for exe in filenames:
                     full_exe = join(binpath, exe)
                     heading(f"Running: {full_exe}")
-                    subprocess.run([full_exe])
-                    n += 1
-    heading(f"All of {n} tests passed")
+                    try:
+                        num_tests += 1
+                        subprocess.check_call([full_exe])
+                        num_passed += 1
+                    except subprocess.CalledProcessError:
+                        pass
+
+    heading(f"{num_passed}/{num_tests} tests passed")
+
+    if num_passed == num_tests:
+        return EXIT_SUCCESS
+
+    return EXIT_FAILURE
 
 
 # =============================================================================
@@ -115,7 +130,8 @@ def main() -> None:
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG)
 
-    run_cpp_tests(args.testroot)
+    exit_code = run_cpp_tests(args.testroot)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

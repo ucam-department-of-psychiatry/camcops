@@ -608,6 +608,17 @@ class Installer:
         self.configure_config()
 
     def configure_config(self) -> None:
+        ssl_certificate = ""
+        ssl_private_key = ""
+
+        if self.use_https():
+            ssl_certificate = os.path.join(
+                DockerPath.CONFIG_DIR, "camcops.crt"
+            )
+            ssl_private_key = os.path.join(
+                DockerPath.CONFIG_DIR, "camcops.key"
+            )
+
         replace_dict = {
             "db_server": os.getenv(
                 InstallerEnvVar.MYSQL_SERVER,
@@ -625,12 +636,8 @@ class Installer:
                 DockerEnvVar.MYSQL_DATABASE_NAME,
             ),
             "host": "0.0.0.0",
-            "ssl_certificate": os.path.join(
-                DockerPath.CONFIG_DIR, "camcops.crt"
-            ),
-            "ssl_private_key": os.path.join(
-                DockerPath.CONFIG_DIR, "camcops.key"
-            ),
+            "ssl_certificate": ssl_certificate,
+            "ssl_private_key": ssl_private_key,
         }
 
         self.search_replace_file(self.config_full_path(), replace_dict)

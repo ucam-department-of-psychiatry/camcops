@@ -64,6 +64,8 @@ Quick links:
 - :ref:`v2.4.17 <changelog_v2.4.17>`
 - :ref:`v2.4.18 <changelog_v2.4.18>`
 - :ref:`v2.4.19 <changelog_v2.4.19>`
+- :ref:`v2.4.20 <changelog_v2.4.20>`
+- :ref:`v2.4.21 <changelog_v2.4.21>`
 
 Contributors
 ------------
@@ -3921,5 +3923,31 @@ Current C++/SQLite client, Python/SQLAlchemy server
   enter the correct password.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/353
 
-**Client and server v2.4.20, , IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.20:
+
+**Client and server v2.4.20, released 13 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix the BMI task on both the client and server to avoid a division by zero
+  error when the user enters a zero height.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/366
+
+- Fix bugs in the "strict" validation of double-precision floating-point values
+  where valid values were being rejected.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/368
+
+- Fix the installer to set the SSL options in the config file only if using
+  HTTPS directly.
+
+- Modify the task count report to split by day of month.
+
+.. _changelog_v2.4.21:
+
+**Server v2.4.21, released 14 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Bump ``gunicorn`` to 23.0.0 to fix CVE-2024-1135
+
+
+**Client and server v2.4.22, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

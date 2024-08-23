@@ -170,6 +170,7 @@ class ViewParam(object):
     ANONYMISE = "anonymise"
     BACK_TASK_TABLENAME = "back_task_tablename"
     BACK_TASK_SERVER_PK = "back_task_server_pk"
+    BY_DAY_OF_MONTH = "by_day_of_month"
     BY_MONTH = "by_month"
     BY_TASK = "by_task"
     BY_USER = "by_user"
