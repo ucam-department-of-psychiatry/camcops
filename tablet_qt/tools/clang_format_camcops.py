@@ -212,10 +212,10 @@ def print_long_comments(
     ignore_urls: bool = False,
     bare: bool = False,
     debugtokens: bool = False,
-) -> None:
+) -> int:
     """
     Print any line in the file that is longer than maxlinelength and contains,
-    or is part of, a C++ comment.
+    or is part of, a C++ comment. Returns the number of long lines.
 
     Args:
         filename:
@@ -232,6 +232,9 @@ def print_long_comments(
     log.debug(
         f"Searching for comment lines >{maxlinelength} characters: {filename}"
     )
+
+    num_long_lines = 0
+
     lines_seen = set()  # type: Set[int]
     with open(filename) as f:
         contents = f.read()
@@ -248,6 +251,9 @@ def print_long_comments(
                         if any(u in linetext for u in URL_INDICATORS):
                             continue
                     report_line(filename, linenum, linetext, bare=bare)
+                    num_long_lines += 1
+
+    return num_long_lines
 
 
 # =============================================================================
@@ -415,13 +421,15 @@ def clang_format_camcops_source() -> None:
         elif command == Command.DIFF:
             log.info(f"Diff: {filename}")
         elif command == Command.FINDLONGCOMMENTS:
-            print_long_comments(
+            num_long_lines = print_long_comments(
                 filename,
                 maxlinelength=args.maxlinelength,
                 ignore_urls=args.ignore_urls,
                 bare=args.bare,
                 debugtokens=args.debugtokens,
             )
+            if num_long_lines > 0:
+                success = False
             continue
         elif command == Command.LIST:
             print(filename)
