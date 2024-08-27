@@ -247,7 +247,8 @@ QValidator::State numeric::validateInteger(
     // 5. Invalid as an integer?
     bool ok = true;
     const T type_dummy = 0;
-    const T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
+    const T i = localeStrToNumber(s, ok, locale, type_dummy);
+        // NB: ok modified
     if (!ok) {  // Not an integer.
 #ifdef NUMERICFUNC_DEBUG_BASIC
         qDebug() << Q_FUNC_INFO << "not an integer -> Invalid";
@@ -388,8 +389,9 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
             << Q_FUNC_INFO << number << "passing on negative number";
 #endif
         return isValidStartToPositiveInt(
-            // 0- here avoids C4146 compiler error on Windows
-            // unary minus operator applied to unsigned type, result still unsigned
+            // 0- here avoids C4146 compiler error on Windows:
+            // "unary minus operator applied to unsigned type, result still
+            // unsigned."
             // This code will never be reached for unsigned types!
             0-number,  // now positive
             std::max(typed_zero, 0-top),  // makes it zero or positive
