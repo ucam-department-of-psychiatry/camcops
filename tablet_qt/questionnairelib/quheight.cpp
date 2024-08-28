@@ -19,11 +19,9 @@
 */
 
 #include "quheight.h"
-
 #include <QObject>
 #include <QString>
 #include <QWidget>
-
 #include "db/fieldref.h"
 #include "lib/convert.h"
 #include "questionnairelib/commonoptions.h"
@@ -52,15 +50,18 @@ QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
 {
 }
 
+
 FieldRefPtrList QuHeight::getMetricFieldrefs() const
 {
     return FieldRefPtrList({m_fr_m});
 }
 
+
 FieldRefPtrList QuHeight::getImperialFieldrefs() const
 {
     return FieldRefPtrList({m_fr_ft, m_fr_in});
 }
+
 
 QPointer<QuElement> QuHeight::buildMetricGrid()
 {
@@ -69,10 +70,9 @@ QPointer<QuElement> QuHeight::buildMetricGrid()
         {
             {CommonOptions::metres(), metres_edit},
         },
-        1,
-        1
-    );
+        1, 1);
 }
+
 
 QPointer<QuElement> QuHeight::buildImperialGrid()
 {
@@ -83,42 +83,41 @@ QPointer<QuElement> QuHeight::buildImperialGrid()
         {
             {CommonOptions::feet(), ft_edit},
             {CommonOptions::inches(), in_edit},
-        },
-        1,
-        1
-    );
+        }, 1, 1);
 }
+
 
 void QuHeight::setUpFields()
 {
     FieldRef::GetterFunction get_m = std::bind(&QuHeight::getM, this);
     FieldRef::GetterFunction get_ft = std::bind(&QuHeight::getFt, this);
     FieldRef::GetterFunction get_in = std::bind(&QuHeight::getIn, this);
-    FieldRef::SetterFunction set_m
-        = std::bind(&QuHeight::setM, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_ft
-        = std::bind(&QuHeight::setFt, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_in
-        = std::bind(&QuHeight::setIn, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_m = std::bind(&QuHeight::setM, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_ft = std::bind(&QuHeight::setFt, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_in = std::bind(&QuHeight::setIn, this, std::placeholders::_1);
     m_fr_m = FieldRefPtr(new FieldRef(get_m, set_m, m_mandatory));
     m_fr_ft = FieldRefPtr(new FieldRef(get_ft, set_ft, m_mandatory));
     m_fr_in = FieldRefPtr(new FieldRef(get_in, set_in, m_mandatory));
 }
+
 
 QVariant QuHeight::getM() const
 {
     return getFieldrefValue();
 }
 
+
 QVariant QuHeight::getFt() const
 {
     return m_ft;
 }
 
+
 QVariant QuHeight::getIn() const
 {
     return m_in;
 }
+
 
 bool QuHeight::setM(const QVariant& value)
 {
@@ -131,6 +130,7 @@ bool QuHeight::setM(const QVariant& value)
     }
     return changed;
 }
+
 
 bool QuHeight::setFt(const QVariant& value)
 {
@@ -145,6 +145,7 @@ bool QuHeight::setFt(const QVariant& value)
     return changed;
 }
 
+
 bool QuHeight::setIn(const QVariant& value)
 {
 #ifdef DEBUG_DATA_FLOW
@@ -158,6 +159,7 @@ bool QuHeight::setIn(const QVariant& value)
     }
     return changed;
 }
+
 
 void QuHeight::updateMetric()
 {
@@ -176,6 +178,7 @@ void QuHeight::updateMetric()
     m_fr_m->emitValueChanged();
     emit elementValueChanged();
 }
+
 
 void QuHeight::updateImperial()
 {

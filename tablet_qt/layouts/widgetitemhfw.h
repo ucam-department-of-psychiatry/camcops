@@ -31,6 +31,7 @@
 #include <QLayout>
 #include <QMap>
 
+
 class WidgetItemHfw : public QWidgetItemV2
 {
     // Replacement for QWidgetItemV2 (inheriting from QWidgetItem, inheriting
@@ -50,7 +51,6 @@ public:
     virtual int heightForWidth(int w) const override;
     virtual void invalidate() override;
     virtual void setGeometry(const QRect& rect) override;
-
 protected:
     mutable QSize m_cached_sizehint;
     mutable QSize m_cached_minsize;

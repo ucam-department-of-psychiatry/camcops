@@ -23,7 +23,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
@@ -35,26 +34,22 @@ class TaskFactory;
 
 void initializeOrs(TaskFactory& factory);
 
+
 class Ors : public Task
 {
     Q_OBJECT
-
 public:
-    Ors(CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK);
+    Ors(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -65,15 +60,12 @@ public:
     // ------------------------------------------------------------------------
     // Task specific
     // ------------------------------------------------------------------------
-
 protected:
     double totalScore() const;
 protected slots:
     void updateMandatory();
-
 public:
     static const QString ORS_TABLENAME;
-
 protected:
     NameValueOptions m_completed_by;
     QPointer<Questionnaire> m_questionnaire;

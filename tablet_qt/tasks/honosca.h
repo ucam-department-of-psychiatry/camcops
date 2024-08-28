@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeHonosca(TaskFactory& factory);
 
+
 class Honosca : public Task
 {
     Q_OBJECT
-
 public:
-    Honosca(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Honosca(CamcopsApp& app, DatabaseManager& db,
+            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -56,11 +52,9 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     int totalScore() const;
     int scoreSum(int first, int last) const;
-
 public:
     static const QString HONOSCA_TABLENAME;
 };

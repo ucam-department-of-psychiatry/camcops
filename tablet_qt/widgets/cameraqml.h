@@ -29,12 +29,11 @@ SUMMARY OF DECISIONS about camera methods: see CameraQCamera class.
 */
 
 #include <QCamera>
-#include <QImage>
 #include <QImageCapture>
+#include <QImage>
 #include <QPointer>
-#include <QSet>
 #include <QtQuickWidgets/QQuickWidget>
-
+#include <QSet>
 #include "widgets/openablewidget.h"
 class CameraFrameGrabber;
 class QAbstractButton;
@@ -46,13 +45,13 @@ class QPushButton;
 class QStatusBar;
 class QVideoFrame;
 
+
 class CameraQml : public OpenableWidget
 {
     // Widget to take a photo, using QML.
     // See resources/camcops/camera_qml/camera.qml, the top-level QML file.
 
     Q_OBJECT
-
 public:
     // ========================================================================
     // Constructor/destructor
@@ -79,6 +78,7 @@ signals:
     // ========================================================================
 
 protected:
+
     // Called when Qt has finished loading the QML.
     // Connects the QML object signals to our slots.
     void qmlFinishedLoading();
@@ -104,7 +104,6 @@ protected slots:
 
 protected:
     QPointer<QQuickWidget> m_qml_view;  // our QML view widget
-
 private:
     QImage m_preview;
 };

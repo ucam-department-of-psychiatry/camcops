@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,13 +30,12 @@ class TaskFactory;
 
 void initializeCet(TaskFactory& factory);
 
+
 class Cet : public Task
 {
     Q_OBJECT
-
 public:
-    Cet(CamcopsApp& app,
-        DatabaseManager& db,
+    Cet(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -45,12 +43,7 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual bool prohibitsCommercial() const override
-    {
-        return true;
-    }
-
+    virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -68,7 +61,6 @@ public:
     QVariant subscale4LackEnjoyment() const;
     QVariant subscale5Rigidity() const;
     QVariant totalScore() const;
-
 public:
     static const QString CET_TABLENAME;
 };

@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,16 +30,13 @@ class TaskFactory;
 
 void initializeCopeBrief(TaskFactory& factory);
 
+
 class CopeBrief : public Task
 {
     Q_OBJECT
-
 public:
-    CopeBrief(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CopeBrief(CamcopsApp& app, DatabaseManager& db,
+              int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -67,10 +63,8 @@ public:
 public slots:
     void completedByPatientChanged();
     void relationshipChanged();
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
-
 public:
     static const QString COPEBRIEF_TABLENAME;
 };

@@ -19,9 +19,7 @@
 */
 
 #include "quthermometer.h"
-
 #include <QLabel>
-
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/thermometer.h"
@@ -29,11 +27,9 @@
 const int DEFAULT_TEXT_GAP_PX = 5;
 const int DEFAULT_IMAGE_PADDING_PX = 20;
 
-QuThermometer::QuThermometer(
-    FieldRefPtr fieldref,
-    const QVector<QuThermometerItem>& items,
-    QObject* parent
-) :
+QuThermometer::QuThermometer(FieldRefPtr fieldref,
+                             const QVector<QuThermometerItem>& items,
+                             QObject* parent) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_items(items),
@@ -42,43 +38,35 @@ QuThermometer::QuThermometer(
     m_thermometer(nullptr)
 {
     Q_ASSERT(m_fieldref);
-    connect(
-        m_fieldref.data(),
-        &FieldRef::valueChanged,
-        this,
-        &QuThermometer::fieldValueChanged
-    );
-    connect(
-        m_fieldref.data(),
-        &FieldRef::mandatoryChanged,
-        this,
-        &QuThermometer::fieldValueChanged
-    );
+    connect(m_fieldref.data(), &FieldRef::valueChanged,
+            this, &QuThermometer::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuThermometer::fieldValueChanged);
 }
 
-QuThermometer::QuThermometer(
-    FieldRefPtr fieldref,
-    std::initializer_list<QuThermometerItem> items,
-    QObject* parent
-) :
-    QuThermometer(
-        fieldref, QVector<QuThermometerItem>(items), parent
-    )  // delegating constructor
+
+QuThermometer::QuThermometer(FieldRefPtr fieldref,
+                             std::initializer_list<QuThermometerItem> items,
+                             QObject* parent) :
+    QuThermometer(fieldref, QVector<QuThermometerItem>(items), parent)
+        // ... delegating constructor
 {
 }
 
-QuThermometer* QuThermometer::setRescale(
-    const bool rescale, const double rescale_factor, const bool adjust_for_dpi
-)
+
+QuThermometer* QuThermometer::setRescale(const bool rescale,
+                                         const double rescale_factor,
+                                         const bool adjust_for_dpi)
 {
     m_rescale = rescale;
     m_rescale_factor = rescale_factor;
     if (adjust_for_dpi) {
-        m_rescale_factor
-            *= uiconst::g_logical_dpi.mean() / uiconst::DEFAULT_DPI.mean();
+        m_rescale_factor *= uiconst::g_logical_dpi.mean() /
+                            uiconst::DEFAULT_DPI.mean();
     }
     return this;
 }
+
 
 QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
 {
@@ -113,38 +101,37 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         nullptr  // parent
     );
 
-    connect(
-        m_thermometer.data(),
-        &Thermometer::selectionIndexChanged,
-        this,
-        &QuThermometer::thermometerSelectionChanged
-    );
+    connect(m_thermometer.data(), &Thermometer::selectionIndexChanged,
+            this, &QuThermometer::thermometerSelectionChanged);
     setFromField();
     return m_thermometer.data();
 }
+
 
 void QuThermometer::setFromField()
 {
     fieldValueChanged(m_fieldref.data());
 }
 
+
 void QuThermometer::thermometerSelectionChanged(int thermometer_index)
 {
     // thermometer_index: thermometer's top-to-bottom index
     const int n = m_items.size();
-    const int index
-        = (n - 1) - thermometer_index;  // QuThermometer internal index
+    const int index = (n - 1) - thermometer_index;
+        // ... QuThermometer internal index
     if (index < 0 || index >= n) {
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
     const QVariant newvalue = m_items.at(index).value();
-    const bool changed
-        = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
+
 
 int QuThermometer::indexFromValue(const QVariant& value) const
 {
@@ -159,6 +146,7 @@ int QuThermometer::indexFromValue(const QVariant& value) const
     return -1;
 }
 
+
 QVariant QuThermometer::valueFromIndex(const int index) const
 {
     if (index < 0 || index >= m_items.size()) {
@@ -166,6 +154,7 @@ QVariant QuThermometer::valueFromIndex(const int index) const
     }
     return m_items.at(index).value();
 }
+
 
 void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
 {
@@ -178,6 +167,7 @@ void QuThermometer::fieldValueChanged(const FieldRef* fieldref)
     }
     m_thermometer->setSelectedIndex(index_row);
 }
+
 
 FieldRefPtrList QuThermometer::fieldrefs() const
 {

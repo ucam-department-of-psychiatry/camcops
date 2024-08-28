@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,17 +30,13 @@ class TaskFactory;
 
 void initializePhq8(TaskFactory& factory);
 
+
 class Phq8 : public Task
 {
     Q_OBJECT
-
 public:
-    Phq8(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK,
-        QObject* parent = nullptr
-    );
+    Phq8(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK, QObject* parent = nullptr);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -62,10 +57,8 @@ public:
     int nCoreSymptoms() const;
     int nOtherSymptoms() const;
     static QString severity(int score);
-
 public:
     static const QString PHQ8_TABLENAME;
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

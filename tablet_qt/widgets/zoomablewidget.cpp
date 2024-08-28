@@ -21,20 +21,18 @@
 // #define DEBUG_PAINTING
 
 #include "zoomablewidget.h"
-
 #include <QDebug>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QVBoxLayout>
-
 #include "widgets/zoomablegraphicsview.h"
 
 /*
 
 See:
 
-- https://stackoverflow.com/questions/6650219/zooming-function-on-a-qwidget
-- https://stackoverflow.com/questions/26811446/qt-scaling-zooming-contents-of-a-qframe-widgets-etc
+- https://stackoverflow.com/questions/6650219
+- https://stackoverflow.com/questions/26811446
 
 NOTES
 
@@ -50,15 +48,13 @@ NOTES
 */
 
 
-ZoomableWidget::ZoomableWidget(
-    QWidget* contents,
-    const bool can_scale_smaller_than_viewport,
-    const qreal min_scale,
-    const qreal max_scale,
-    const qreal scale_step_factor,
-    const QSize& minimum_size,
-    QWidget* parent
-) :
+ZoomableWidget::ZoomableWidget(QWidget* contents,
+                               const bool can_scale_smaller_than_viewport,
+                               const qreal min_scale,
+                               const qreal max_scale,
+                               const qreal scale_step_factor,
+                               const QSize& minimum_size,
+                               QWidget* parent) :
     QWidget(parent),
     m_contents(contents),
     m_minimum_size(minimum_size)
@@ -68,18 +64,14 @@ ZoomableWidget::ZoomableWidget(
     // We create a graphics scene containing our target widget.
     contents->ensurePolished();
     m_scene = new QGraphicsScene();
-    m_scene->addWidget(contents
-    );  // adds it at (0,0); returns QGraphicsProxyWidget*
+    m_scene->addWidget(contents);
+    // ... adds it at (0,0); returns QGraphicsProxyWidget*
 
     // We create a graphics view to show the scene.
     // The view is where we implement zooming.
     m_view = new ZoomableGraphicsView(
-        m_scene,
-        can_scale_smaller_than_viewport,
-        min_scale,
-        max_scale,
-        scale_step_factor
-    );
+                m_scene, can_scale_smaller_than_viewport,
+                min_scale, max_scale, scale_step_factor);
     m_view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Our widget (this) has a layout containing the graphics view.
@@ -95,6 +87,7 @@ ZoomableWidget::ZoomableWidget(
     setSizePolicy(sp);
 }
 
+
 QSize ZoomableWidget::sizeHint() const
 {
     const QSize size = m_contents->sizeHint();
@@ -103,6 +96,7 @@ QSize ZoomableWidget::sizeHint() const
 #endif
     return size;
 }
+
 
 QSize ZoomableWidget::minimumSizeHint() const
 {
@@ -113,6 +107,7 @@ QSize ZoomableWidget::minimumSizeHint() const
     return m_minimum_size;
 }
 
+
 bool ZoomableWidget::hasHeightForWidth() const
 {
     const bool hfw = m_contents->hasHeightForWidth();
@@ -121,6 +116,7 @@ bool ZoomableWidget::hasHeightForWidth() const
 #endif
     return hfw;
 }
+
 
 int ZoomableWidget::heightForWidth(int width) const
 {

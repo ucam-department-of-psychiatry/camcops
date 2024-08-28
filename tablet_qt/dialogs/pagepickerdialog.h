@@ -20,8 +20,8 @@
 
 #pragma once
 #include <QDialog>
-
 #include "questionnairelib/pagepickeritem.h"
+
 
 class PagePickerDialog : public QDialog
 {
@@ -35,11 +35,9 @@ class PagePickerDialog : public QDialog
 
 public:
     // Constructor
-    PagePickerDialog(
-        QWidget* parent,
-        const PagePickerItemList& pages,
-        const QString& title = QString()
-    );
+    PagePickerDialog(QWidget* parent,
+                     const PagePickerItemList& pages,
+                     const QString& title = QString());
 
     // Call this to offer a choice, return the result of exec(), and write the
     // result to new_page_number.
@@ -50,7 +48,6 @@ public:
 
 protected slots:
     void itemClicked(int item_index);
-
 protected:
     PagePickerItemList m_pages;
     QString m_title;

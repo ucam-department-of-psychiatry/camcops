@@ -28,15 +28,9 @@ class ProquintLineEdit : public ValidatingLineEdit
 {
     // One-line editor for entering and validating patient access key
     Q_OBJECT
-
 public:
     ProquintLineEdit(QWidget* parent = nullptr, const QString& text = "");
-
-    ProquintLineEdit(const QString& text) :
-        ProquintLineEdit(nullptr, text)
-    {
-    }
-
+    ProquintLineEdit(const QString& text) : ProquintLineEdit(nullptr, text){}
     void textChanged();
 
 protected:

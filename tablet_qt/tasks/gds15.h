@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeGds15(TaskFactory& factory);
 
+
 class Gds15 : public Task
 {
     Q_OBJECT
-
 public:
-    Gds15(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Gds15(CamcopsApp& app, DatabaseManager& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,7 +53,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
-
 public:
     static const QString GDS15_TABLENAME;
 };

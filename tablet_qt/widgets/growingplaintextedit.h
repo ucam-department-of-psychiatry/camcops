@@ -28,7 +28,6 @@ class GrowingPlainTextEdit : public QPlainTextEdit
     // NOT CURRENTLY IN USE.
 
     Q_OBJECT
-
 public:
     GrowingPlainTextEdit(QWidget* parent = nullptr);
     GrowingPlainTextEdit(const QString& text, QWidget* parent = nullptr);
@@ -38,7 +37,6 @@ public:
     virtual QSize minimumSizeHint() const override;
 protected slots:
     void contentsChanged();
-
 protected:
     bool m_auto_resize;
 };

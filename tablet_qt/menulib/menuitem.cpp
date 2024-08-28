@@ -22,17 +22,15 @@
 // #define DEBUG_SHOW_PATIENT_INFO_IN_DESCRIPTION
 
 #include "menuitem.h"
-
 #include <QDebug>
 #include <QLabel>
 #include <QPushButton>
 #include <QScopedPointer>
 #include <QSize>
 #include <QUrl>
-
+#include "core/camcopsapp.h"
 #include "common/cssconst.h"
 #include "common/uiconst.h"
-#include "core/camcopsapp.h"
 #include "dbobjects/patient.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
@@ -62,11 +60,13 @@ const int STRETCH_3COL_WPATIENT_SUMMARY = 7;
 const int STRETCH_2COL_TIMESTAMP = 2;
 const int STRETCH_2COL_SUMMARY = 8;
 
+
 MenuItem::MenuItem() :
     m_title("?")
 {
     setDefaults();
 }
+
 
 MenuItem::MenuItem(const QString& title) :
     m_title(title)
@@ -76,12 +76,9 @@ MenuItem::MenuItem(const QString& title) :
     m_implemented = false;
 }
 
-MenuItem::MenuItem(
-    const QString& title,
-    const MenuItem::ActionFunction& func,
-    const QString& icon,
-    const QString& subtitle
-) :
+
+MenuItem::MenuItem(const QString& title, const MenuItem::ActionFunction& func,
+                   const QString& icon, const QString& subtitle) :
     m_title(title)
 {
     setDefaults();
@@ -90,12 +87,10 @@ MenuItem::MenuItem(
     m_subtitle = subtitle;
 }
 
-MenuItem::MenuItem(
-    const QString& title,
-    const MenuItem::OpenableWidgetMaker& func,
-    const QString& icon,
-    const QString& subtitle
-) :
+
+MenuItem::MenuItem(const QString& title,
+                   const MenuItem::OpenableWidgetMaker& func,
+                   const QString& icon, const QString& subtitle) :
     m_title(title)
 {
     setDefaults();
@@ -106,7 +101,7 @@ MenuItem::MenuItem(
 
 
 MenuItem::MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app)
-// m_title: below
+    // m_title: below
 {
     setDefaults();
     m_p_menuproxy = p_menuproxy;
@@ -117,9 +112,9 @@ MenuItem::MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app)
     m_icon = mw->icon();
 }
 
-MenuItem::MenuItem(
-    const ChoosePatientMenuItem& choose_patient, CamcopsApp& app
-)
+
+MenuItem::MenuItem(const ChoosePatientMenuItem& choose_patient,
+                   CamcopsApp& app)
 {
     // We do some more of the work for the client, since "choose patient"
     // appears on lots of menus.
@@ -137,7 +132,7 @@ MenuItem::MenuItem(
 
 
 MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
-// m_title: below
+    // m_title: below
 {
     setDefaults();
     m_task_tablename = taskmenuitem.tablename;
@@ -155,6 +150,7 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
     }
 }
 
+
 MenuItem::MenuItem(const TaskChainMenuItem& chain)
 {
     setDefaults();
@@ -164,12 +160,9 @@ MenuItem::MenuItem(const TaskChainMenuItem& chain)
     m_icon = uifunc::iconFilename(uiconst::ICON_CHAIN);
 }
 
-MenuItem::MenuItem(
-    const QString& title,
-    const HtmlMenuItem& htmlmenuitem,
-    const QString& icon,
-    const QString& subtitle
-) :
+
+MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
+                   const QString& icon, const QString& subtitle) :
     m_title(title)
 {
     setDefaults();
@@ -178,12 +171,9 @@ MenuItem::MenuItem(
     m_subtitle = subtitle;
 }
 
-MenuItem::MenuItem(
-    const QString& title,
-    const UrlMenuItem& urlmenuitem,
-    const QString& icon,
-    const QString& subtitle
-) :
+
+MenuItem::MenuItem(const QString& title, const UrlMenuItem& urlmenuitem,
+                   const QString& icon, const QString& subtitle) :
     m_title(title)
 {
     setDefaults();
@@ -192,11 +182,9 @@ MenuItem::MenuItem(
     m_subtitle = subtitle;
 }
 
-MenuItem::MenuItem(
-    TaskPtr p_task,
-    const bool task_shows_taskname,
-    const bool task_shows_patient
-) :
+
+MenuItem::MenuItem(TaskPtr p_task, const bool task_shows_taskname,
+                   const bool task_shows_patient) :
     m_title("?")
 {
     setDefaults();
@@ -204,6 +192,7 @@ MenuItem::MenuItem(
     m_task_shows_taskname = task_shows_taskname;
     m_task_shows_patient = task_shows_patient;
 }
+
 
 MenuItem::MenuItem(PatientPtr p_patient)
 {
@@ -213,6 +202,7 @@ MenuItem::MenuItem(PatientPtr p_patient)
     qDebug() << Q_FUNC_INFO << this;
 #endif
 }
+
 
 MenuItem::MenuItem(const TaskScheduleItemMenuItem& menu_item)
 {
@@ -225,6 +215,7 @@ MenuItem::MenuItem(const TaskScheduleItemMenuItem& menu_item)
         m_icon = uifunc::iconFilename(uiconst::ICON_ANONYMOUS);
     }
 }
+
 
 void MenuItem::setDefaults()
 {
@@ -255,6 +246,7 @@ void MenuItem::setDefaults()
     m_p_task_schedule_item.clear();
 }
 
+
 QString MenuItem::title() const
 {
     if (m_p_task) {
@@ -263,15 +255,18 @@ QString MenuItem::title() const
     return m_title;
 }
 
+
 QString MenuItem::subtitle() const
 {
     return m_subtitle;
 }
 
+
 TaskPtr MenuItem::task() const
 {
     return m_p_task;
 }
+
 
 PatientPtr MenuItem::patient() const
 {
@@ -280,6 +275,7 @@ PatientPtr MenuItem::patient() const
 #endif
     return m_p_patient;
 }
+
 
 QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 {
@@ -294,7 +290,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // --------------------------------------------------------------------
         // Task instance
         // --------------------------------------------------------------------
-        // Stretch: http://stackoverflow.com/questions/14561516/qt-qhboxlayout-percentage-size
+        // Stretch:
+        // http://stackoverflow.com/questions/14561516/qt-qhboxlayout-percentage-size
         //
         // ICON | ICON | +----------------------------------------------------+
         // ICON | ICON | | A                   B                 C            |
@@ -316,18 +313,16 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         // Notification of "incomplete" status
         QLabel* incomplete_icon = complete
-            ? uifunc::blankIcon()
-            : uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
+                ? uifunc::blankIcon()
+                : uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
         incomplete_icon->setSizePolicy(sp_icon);
         rowlayout->addWidget(incomplete_icon);
 
         // Move-off item, if selected (only applicable to anonymous tasks)
         if (m_p_task->isAnonymous()) {
             QLabel* icon = m_p_task->shouldMoveOffTablet()
-                ? uifunc::iconWidget(
-                    uifunc::iconFilename(uiconst::CBS_FINISHFLAG)
-                )
-                : uifunc::blankIcon();
+                    ? uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_FINISHFLAG))
+                    : uifunc::blankIcon();
             QSizePolicy sp_icon(QSizePolicy::Fixed, QSizePolicy::Fixed);
             icon->setSizePolicy(sp_icon);
             rowlayout->addWidget(icon);
@@ -360,16 +355,14 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
             }
             QLabel* taskname = new LabelWordWrapWide(contents);
             taskname->setAlignment(text_align);
-            taskname->setObjectName(
-                complete ? cssconst::TASK_ITEM_TASKNAME_COMPLETE
-                         : cssconst::TASK_ITEM_TASKNAME_INCOMPLETE
-            );
+            taskname->setObjectName(complete
+                                    ? cssconst::TASK_ITEM_TASKNAME_COMPLETE
+                                    : cssconst::TASK_ITEM_TASKNAME_INCOMPLETE);
 
             col1_hbox->addWidget(taskname);
             col1_hbox->addStretch();
-            QSizePolicy sp_taskname(
-                QSizePolicy::Preferred, QSizePolicy::Preferred
-            );
+            QSizePolicy sp_taskname(QSizePolicy::Preferred,
+                                    QSizePolicy::Preferred);
             sp_taskname.setHorizontalStretch(firstcol_stretch);
             col1_widget->setSizePolicy(sp_taskname);
             rowlayout->addWidget(col1_widget);
@@ -381,19 +374,16 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         col2_widget->setLayout(col2_hbox);
 
         QLabel* timestamp = new LabelWordWrapWide(
-            m_p_task->whenCreated().toString(datetime::SHORT_DATETIME_FORMAT)
-        );
+            m_p_task->whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
         timestamp->setAlignment(text_align);
-        timestamp->setObjectName(
-            complete ? cssconst::TASK_ITEM_TIMESTAMP_COMPLETE
-                     : cssconst::TASK_ITEM_TIMESTAMP_INCOMPLETE
-        );
+        timestamp->setObjectName(complete
+                                 ? cssconst::TASK_ITEM_TIMESTAMP_COMPLETE
+                                 : cssconst::TASK_ITEM_TIMESTAMP_INCOMPLETE);
 
         col2_hbox->addWidget(timestamp);
         col2_hbox->addStretch();
-        QSizePolicy sp_timestamp(
-            QSizePolicy::Preferred, QSizePolicy::Preferred
-        );
+        QSizePolicy sp_timestamp(QSizePolicy::Preferred,
+                                 QSizePolicy::Preferred);
         sp_timestamp.setHorizontalStretch(timestamp_stretch);
         col2_widget->setSizePolicy(sp_timestamp);
         rowlayout->addWidget(col2_widget);
@@ -404,13 +394,11 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         col3_widget->setLayout(col3_hbox);
 
         QLabel* summary = new LabelWordWrapWide(
-            (m_p_task->completenessInfo() + m_p_task->summary()).join(" ")
-        );
+                (m_p_task->completenessInfo() + m_p_task->summary()).join(" "));
         summary->setAlignment(text_align);
-        summary->setObjectName(
-            complete ? cssconst::TASK_ITEM_SUMMARY_COMPLETE
-                     : cssconst::TASK_ITEM_SUMMARY_INCOMPLETE
-        );
+        summary->setObjectName(complete
+                               ? cssconst::TASK_ITEM_SUMMARY_COMPLETE
+                               : cssconst::TASK_ITEM_SUMMARY_INCOMPLETE);
 
         col3_hbox->addWidget(summary);
         col3_hbox->addStretch();
@@ -433,11 +421,9 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-        auto title
-            = new LabelWordWrapWide(m_p_patient->surnameUpperForename());
+        auto title = new LabelWordWrapWide(m_p_patient->surnameUpperForename());
         auto subtitle1 = new LabelWordWrapWide(m_p_patient->sexAgeDob());
-        auto subtitle2
-            = new LabelWordWrapWide(m_p_patient->shortIdnumSummary());
+        auto subtitle2 = new LabelWordWrapWide(m_p_patient->shortIdnumSummary());
 
         title->setAlignment(text_align);
         subtitle1->setAlignment(text_align);
@@ -460,22 +446,19 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // or "warning" state). So... allow a slightly mis-aligned but more
         // informative state if a patient has >1 relevant icon.
         int n_icons = 0;
-        if (!m_p_patient->compliesWith(app.uploadPolicy())
-            || m_p_patient->anyIdClash()) {
-            rowlayout->addWidget(
-                uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_STOP))
-            );
+        if (!m_p_patient->compliesWith(app.uploadPolicy()) ||
+                m_p_patient->anyIdClash()) {
+            rowlayout->addWidget(uifunc::iconWidget(
+                    uifunc::iconFilename(uiconst::ICON_STOP)));
             ++n_icons;
         } else if (!m_p_patient->compliesWith(app.finalizePolicy())) {
-            rowlayout->addWidget(
-                uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING))
-            );
+            rowlayout->addWidget(uifunc::iconWidget(
+                    uifunc::iconFilename(uiconst::ICON_WARNING)));
             ++n_icons;
         }
         if (m_p_patient->shouldMoveOffTablet()) {
             rowlayout->addWidget(uifunc::iconWidget(
-                uifunc::iconFilename(uiconst::CBS_FINISHFLAG)
-            ));
+                    uifunc::iconFilename(uiconst::CBS_FINISHFLAG)));
             ++n_icons;
         }
         if (n_icons == 0) {
@@ -501,8 +484,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
                 rowlayout->addWidget(icon);
             } else if (m_chain) {
                 QLabel* icon = uifunc::iconWidget(
-                    uifunc::iconFilename(uiconst::ICON_CHAIN)
-                );
+                    uifunc::iconFilename(uiconst::ICON_CHAIN));
                 rowlayout->addWidget(icon);
             } else {
                 rowlayout->addWidget(uifunc::blankIcon());
@@ -528,8 +510,8 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // Arrow on right
         if (m_arrow_on_right) {
             QLabel* iconLabel = uifunc::iconWidget(
-                uifunc::iconFilename(uiconst::ICON_HASCHILD), nullptr, false
-            );
+                uifunc::iconFilename(uiconst::ICON_HASCHILD),
+                nullptr, false);
             rowlayout->addWidget(iconLabel);
         }
 
@@ -565,6 +547,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
     return row;
 }
 
+
 void MenuItem::act(CamcopsApp& app) const
 {
     // ========================================================================
@@ -579,12 +562,9 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (m_p_taskchain) {
-        if (!uifunc::confirm(
-                TextConst::startChainQuestion(),
-                TextConst::startChainTitle(),
-                TextConst::yes(),
-                TextConst::no()
-            )) {
+        if (!uifunc::confirm(TextConst::startChainQuestion(),
+                             TextConst::startChainTitle(),
+                             TextConst::yes(), TextConst::no())) {
             return;
         }
         m_p_taskchain->start();
@@ -630,12 +610,8 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (!m_html_item.filename.isEmpty()) {
         auto pWindow = new HtmlInfoWindow(
-            app,
-            m_html_item.title,
-            m_html_item.filename,
-            m_html_item.icon,
-            m_html_item.fullscreen
-        );
+            app, m_html_item.title, m_html_item.filename,
+            m_html_item.icon, m_html_item.fullscreen);
         app.openSubWindow(pWindow);
         return;
     }
@@ -645,21 +621,23 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (m_p_task_schedule_item) {
         if (m_p_task_schedule_item->isEditable()) {
-            auto editor
-                = new TaskScheduleItemEditor(app, m_p_task_schedule_item);
+            auto editor = new TaskScheduleItemEditor(app, m_p_task_schedule_item);
             editor->editTask();
         }
 
         return;
     }
 
-    qWarning() << "Menu item selected but no action specified:" << m_title;
+    qWarning() << "Menu item selected but no action specified:"
+               << m_title;
 }
+
 
 bool MenuItem::isImplemented() const
 {
     return m_implemented;
 }
+
 
 MenuItem& MenuItem::setImplemented(const bool implemented)
 {
@@ -667,11 +645,13 @@ MenuItem& MenuItem::setImplemented(const bool implemented)
     return *this;
 }
 
+
 MenuItem& MenuItem::setLabelOnly(const bool label_only)
 {
     m_label_only = label_only;
     return *this;
 }
+
 
 MenuItem& MenuItem::setNeedsPrivilege(const bool needs_privilege)
 {
@@ -682,11 +662,13 @@ MenuItem& MenuItem::setNeedsPrivilege(const bool needs_privilege)
     return *this;
 }
 
+
 MenuItem& MenuItem::setNotIfLocked(const bool not_if_locked)
 {
     m_not_if_locked = not_if_locked;
     return *this;
 }
+
 
 MenuItem& MenuItem::setUnsupported(const bool unsupported)
 {
@@ -694,39 +676,36 @@ MenuItem& MenuItem::setUnsupported(const bool unsupported)
     return *this;
 }
 
+
 MenuItem& MenuItem::setIcon(const QString& icon)
 {
     m_icon = icon;
     return *this;
 }
 
+
 QString MenuItem::info() const
 {
     // Prettier than operator<<
     QStringList parts{"Menu item:"};
     if (!m_title.isEmpty()) {
-        parts.append(
-            QString("title=%1").arg(convert::stringToCppLiteral(m_title))
-        );
+        parts.append(QString("title=%1")
+                     .arg(convert::stringToCppLiteral(m_title)));
     }
     if (m_p_task) {
-        parts.append(QString("task=%1").arg(
-            convert::stringToCppLiteral(m_p_task->shortname())
-        ));
+        parts.append(QString("task=%1")
+                     .arg(convert::stringToCppLiteral(m_p_task->shortname())));
     }
     if (m_p_patient) {
 #ifdef DEBUG_SHOW_PATIENT_INFO_IN_DESCRIPTION
-        QString patient_info
-            = QString("%1, %2 (%3, DOB %4); %5")
-                  .arg(
-                      m_p_patient->surname().toUpper(),
-                      m_p_patient->forename(),
-                      QString("%1 y").arg(m_p_patient->ageYears()),
-                      m_p_patient->dobText(),
-                      m_p_patient->shortIdnumSummary()
-                  );
+        QString patient_info = QString("%1, %2 (%3, DOB %4); %5")
+                        .arg(m_p_patient->surname().toUpper(),
+                             m_p_patient->forename(),
+                             QString("%1 y").arg(m_p_patient->ageYears()),
+                             m_p_patient->dobText(),
+                             m_p_patient->shortIdnumSummary());
         parts.append(QString("patient=%1")
-                         .arg(convert::stringToCppLiteral(patient_info)));
+                     .arg(convert::stringToCppLiteral(patient_info)));
 #else
         parts.append("patient=<hidden>");
 #endif
@@ -734,21 +713,25 @@ QString MenuItem::info() const
     return parts.join(" ");
 }
 
+
 bool MenuItem::matchesSearch(const QString& search_text_lower) const
 {
-    return title().toLower().contains(search_text_lower)
-        || subtitle().toLower().contains(search_text_lower);
+    return title().toLower().contains(search_text_lower) ||
+            subtitle().toLower().contains(search_text_lower);
 }
+
 
 QDebug operator<<(QDebug debug, const MenuItem& m)
 {
     debug.nospace() << "MenuItem @ " << convert::prettyPointer(&m)
-                    << " (m_title=" << m.m_title << ", m_p_task=" << m.m_p_task
+                    << " (m_title=" << m.m_title
+                    << ", m_p_task=" << m.m_p_task
                     << ", m_p_patient=" << m.m_p_patient
                     << ", m_p_task_schedule_item=" << m.m_p_task_schedule_item
                     << ")";
     return debug;
 }
+
 
 QDebug operator<<(QDebug debug, const MenuItem* m)
 {

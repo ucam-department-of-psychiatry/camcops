@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QPointer>
-
 #include "tasklib/task.h"
 
 void initializeCPFTResearchPreferences(TaskFactory& factory);
@@ -28,13 +27,9 @@ void initializeCPFTResearchPreferences(TaskFactory& factory);
 class CPFTResearchPreferences : public Task
 {
     Q_OBJECT
-
 public:
-    CPFTResearchPreferences(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CPFTResearchPreferences(CamcopsApp& app, DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -60,7 +55,6 @@ public slots:
 
 public:
     static const QString CPFTRESEARCHPREFERENCES_TABLENAME;
-
 private:
     QPointer<Questionnaire> m_questionnaire;
     bool emailQuestionMandatory() const;

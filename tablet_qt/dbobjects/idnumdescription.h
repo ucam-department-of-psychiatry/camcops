@@ -21,6 +21,7 @@
 #pragma once
 #include "db/databaseobject.h"
 
+
 // Represents an ID number type, e.g. "type 3 means NHS number".
 
 class IdNumDescription : public DatabaseObject
@@ -28,11 +29,8 @@ class IdNumDescription : public DatabaseObject
     Q_OBJECT
 
 public:
-    IdNumDescription(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int which_idnum = dbconst::NONEXISTENT_PK
-    );
+    IdNumDescription(CamcopsApp& app, DatabaseManager& db,
+                     int which_idnum = dbconst::NONEXISTENT_PK);
 
     // Returns the ID number type (e.g. 3)
     int whichIdNum() const;
@@ -44,11 +42,8 @@ public:
     QString shortDescription() const;
 
     // Sets the descriptions and validation method
-    bool setDescriptions(
-        const QString& desc,
-        const QString& shortdesc,
-        const QString& validation_method
-    );
+    bool setDescriptions(const QString& desc, const QString& shortdesc,
+                         const QString& validation_method);
 
     // Returns the validation method, if specified; see e.g.
     // VALIDATION_METHOD_UK_NHS_NUMBER.

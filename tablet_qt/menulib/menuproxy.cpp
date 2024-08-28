@@ -20,9 +20,11 @@
 
 #include "menuproxy.h"
 
+
 MenuProxyBase::MenuProxyBase()
 {
 }
+
 
 MenuProxyBase::~MenuProxyBase()
 {

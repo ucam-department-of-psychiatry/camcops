@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeIcd10SpecPD(TaskFactory& factory);
 
+
 class Icd10SpecPD : public Task
 {
     Q_OBJECT
-
 public:
-    Icd10SpecPD(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Icd10SpecPD(CamcopsApp& app, DatabaseManager& db,
+                int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -56,7 +52,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     bool isPDExcluded() const;
     bool isCompleteGeneral() const;
@@ -81,15 +76,12 @@ protected:
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
-
 protected:
     void updateMandatory();
     QVariant getHasPDYesNoUnknown() const;
     bool ignoreValue(const QVariant& value) const;
-
 protected:
     FieldRefPtr m_fr_has_pd;
-
 public:
     static const QString ICD10SPECPD_TABLENAME;
 };

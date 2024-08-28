@@ -24,6 +24,7 @@
 #include <QObject>
 class QDialog;
 
+
 class KeyPressWatcher : public QObject
 {
     // Object to watch for keypresses on another widget.
@@ -32,7 +33,6 @@ class KeyPressWatcher : public QObject
     // The watcher is OWNED BY and WATCHES the same thing.
 
     Q_OBJECT
-
 public:
     using CallbackFunction = std::function<void()>;
 

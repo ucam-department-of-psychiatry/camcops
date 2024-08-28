@@ -22,6 +22,7 @@
 
 #include "common/aliases_camcops.h"
 
+
 // A structure to represent a menu item for a task chain.
 // Exists only to improve polymorphic constructor of MenuItem
 
@@ -30,9 +31,7 @@ struct TaskChainMenuItem
 public:
     TaskChainMenuItem(TaskChainPtr chain) :
         chain(chain)
-    {
-    }
-
+    {}
 public:
     TaskChainPtr chain;
 };

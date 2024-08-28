@@ -19,23 +19,20 @@
 */
 
 #include "queryresult.h"
-
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QSqlQuery>
 #include <QSqlRecord>
-
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "lib/convert.h"
 #include "lib/errorfunc.h"
 
-QueryResult::QueryResult(
-    QSqlQuery& query,
-    const bool success,
-    const FetchMode fetch_mode,
-    const bool store_column_names
-) :
+
+QueryResult::QueryResult(QSqlQuery& query,
+                         const bool success,
+                         const FetchMode fetch_mode,
+                         const bool store_column_names) :
     m_success(success)
 {
     int ncols = 0;
@@ -77,6 +74,7 @@ QueryResult::QueryResult(
     m_n_rows = m_data.length();
 }
 
+
 QueryResult::QueryResult() :
     m_success(false),
     m_n_cols(0),
@@ -84,36 +82,43 @@ QueryResult::QueryResult() :
 {
 }
 
+
 bool QueryResult::succeeded() const
 {
     return m_success;
 }
+
 
 int QueryResult::nCols() const
 {
     return m_n_cols;
 }
 
+
 int QueryResult::nRows() const
 {
     return m_n_rows;
 }
+
 
 bool QueryResult::isEmpty() const
 {
     return m_n_rows == 0 || m_n_cols == 0;
 }
 
+
 QStringList QueryResult::columnNames() const
 {
     return m_column_names;
 }
+
 
 QVector<QVariant> QueryResult::row(const int row) const
 {
     Q_ASSERT(row >= 0 && row <= m_n_rows);
     return m_data.at(row);
 }
+
 
 QVector<QVariant> QueryResult::col(const int col) const
 {
@@ -125,12 +130,14 @@ QVector<QVariant> QueryResult::col(const int col) const
     return values;
 }
 
+
 QVariant QueryResult::at(const int row, const int col) const
 {
     Q_ASSERT(row >= 0 && row <= m_n_rows);
     Q_ASSERT(col >= 0 && col <= m_n_cols);
     return m_data.at(row).at(col);
 }
+
 
 QVariant QueryResult::at(const int row, const QString& colname) const
 {
@@ -139,6 +146,7 @@ QVariant QueryResult::at(const int row, const QString& colname) const
     return at(row, col);
 }
 
+
 QVariant QueryResult::firstValue() const
 {
     if (isEmpty()) {
@@ -146,6 +154,7 @@ QVariant QueryResult::firstValue() const
     }
     return at(0, 0);
 }
+
 
 QVector<int> QueryResult::columnAsIntList(const int col) const
 {
@@ -157,10 +166,12 @@ QVector<int> QueryResult::columnAsIntList(const int col) const
     return values;
 }
 
+
 QVector<int> QueryResult::firstColumnAsIntList() const
 {
     return columnAsIntList(0);
 }
+
 
 QStringList QueryResult::columnAsStringList(const int col) const
 {
@@ -171,21 +182,25 @@ QStringList QueryResult::columnAsStringList(const int col) const
     return values;
 }
 
+
 QStringList QueryResult::firstColumnAsStringList() const
 {
     return columnAsStringList(0);
 }
+
 
 QVariant QueryResult::lastInsertId() const
 {
     return m_last_insert_id;
 }
 
+
 QString QueryResult::csvHeader(const char sep) const
 {
     requireColumnNames();
     return m_column_names.join(sep);
 }
+
 
 void QueryResult::requireColumnNames() const
 {
@@ -197,6 +212,7 @@ void QueryResult::requireColumnNames() const
     }
 }
 
+
 QString QueryResult::csvRow(const int row, const char sep) const
 {
     const int ncols = nCols();
@@ -206,6 +222,7 @@ QString QueryResult::csvRow(const int row, const char sep) const
     }
     return values.join(sep);
 }
+
 
 QString QueryResult::csv(const char sep, const char linesep) const
 {
@@ -220,23 +237,25 @@ QString QueryResult::csv(const char sep, const char linesep) const
     return rows.join(linesep);
 }
 
+
 QString QueryResult::fetchModeDescription(const FetchMode fetch_mode)
 {
     switch (fetch_mode) {
-        case FetchMode::NoAnswer:
-            return "NoAnswer";
-        case FetchMode::NoFetch:
-            return "NoFetch";
-        case FetchMode::FetchAll:
-            return "FetchAll";
-        case FetchMode::FetchFirst:
-            return "FetchFirst";
+    case FetchMode::NoAnswer:
+        return "NoAnswer";
+    case FetchMode::NoFetch:
+        return "NoFetch";
+    case FetchMode::FetchAll:
+        return "FetchAll";
+    case FetchMode::FetchFirst:
+        return "FetchFirst";
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-        default:
-            return "?";
+    default:
+        return "?";
 #endif
     }
 }
+
 
 // ========================================================================
 // JSON
@@ -252,6 +271,7 @@ QJsonArray QueryResult::jsonRows() const
     return rows;
 }
 
+
 QJsonObject QueryResult::jsonRow(int row) const
 {
     requireColumnNames();
@@ -264,6 +284,7 @@ QJsonObject QueryResult::jsonRow(int row) const
     return jsonrow;
 }
 
+
 // ========================================================================
 // For friends
 // ========================================================================
@@ -271,8 +292,9 @@ QJsonObject QueryResult::jsonRow(int row) const
 QDebug operator<<(QDebug debug, const QueryResult& qr)
 {
     debug.nospace().noquote()
-        << "succeeded=" << qr.succeeded() << ", columns=" << qr.nCols()
-        << ", rows=" << qr.nRows() << "\n"
-        << qr.csv();
+            << "succeeded=" << qr.succeeded()
+            << ", columns=" << qr.nCols()
+            << ", rows=" << qr.nRows() << "\n"
+            << qr.csv();
     return debug;
 }

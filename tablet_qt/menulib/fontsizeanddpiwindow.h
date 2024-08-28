@@ -31,7 +31,6 @@ class FontSizeAndDpiWindow : public FontSizeWindow
     // Used by several menus.
 
     Q_OBJECT
-
 public:
     FontSizeAndDpiWindow(CamcopsApp& app);
     OpenableWidget* editor() override;

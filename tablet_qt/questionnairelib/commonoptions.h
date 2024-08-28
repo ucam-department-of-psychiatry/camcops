@@ -21,7 +21,6 @@
 #pragma once
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QString>
-
 #include "questionnairelib/namevalueoptions.h"
 
 // Encapsulates a number of common strings and NameValueOptions used by
@@ -40,7 +39,6 @@ class CommonOptions
     // ========================================================================
     // Database-level constants
     // ========================================================================
-
 public:
     static const QString NO_CHAR;
     static const QString YES_CHAR;
@@ -56,7 +54,6 @@ public:
     // ========================================================================
     // Units
     // ========================================================================
-
 public:
     static const int METRIC;
     static const int IMPERIAL;
@@ -65,7 +62,6 @@ public:
     // ========================================================================
     // Translated text
     // ========================================================================
-
 public:
     static QString yes();
     static QString no();
@@ -98,7 +94,6 @@ public:
     // ========================================================================
     // Option sets
     // ========================================================================
-
 public:
     static NameValueOptions yesNoChar();
     static NameValueOptions yesNoBoolean();
@@ -115,8 +110,8 @@ public:
 
     static NameValueOptions sexes();
 
-    static NameValueOptions
-        optionsCopyingDescriptions(const QStringList& descriptions);
+    static NameValueOptions optionsCopyingDescriptions(
+            const QStringList& descriptions);
 
     static NameValueOptions massUnits();
     static NameValueOptions waistUnits();

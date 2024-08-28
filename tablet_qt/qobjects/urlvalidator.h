@@ -21,12 +21,11 @@
 #pragma once
 #include <QValidator>
 
+
 class UrlValidator : public QValidator
 {
     Q_OBJECT
-
 public:
     UrlValidator(QObject* parent = nullptr);
-    virtual QValidator::State
-        validate(QString& input, int& pos) const override;
+    virtual QValidator::State validate(QString& input, int& pos) const override;
 };

@@ -21,7 +21,6 @@
 // #define DEBUG_TRANSLATIONS
 
 #include "canvaswidget.h"
-
 #include <QColor>
 #include <QDebug>
 #include <QMouseEvent>
@@ -30,7 +29,6 @@
 #include <QRegion>
 #include <QStyle>
 #include <QStyleOption>
-
 #include "common/colourdefs.h"
 #include "lib/convert.h"
 #include "lib/margins.h"
@@ -42,14 +40,16 @@ const int DEFAULT_MIN_SHRINK_HEIGHT = 200;
 const QColor DEFAULT_BORDER_COLOR(QCOLOR_SILVER);
 const QColor DEFAULT_UNUSED_SPACE_COLOR(QCOLOR_SILVER);
 
+
 CanvasWidget::CanvasWidget(const QImage::Format format, QWidget* parent) :
     CanvasWidget(QSize(0, 0), format, parent)
 {
 }
 
-CanvasWidget::CanvasWidget(
-    const QSize& size, const QImage::Format format, QWidget* parent
-) :
+
+CanvasWidget::CanvasWidget(const QSize& size,
+                           const QImage::Format format,
+                           QWidget* parent) :
     QFrame(parent)
 {
     m_format = format;
@@ -71,9 +71,11 @@ CanvasWidget::CanvasWidget(
     setImageSizeAndClearImage(size);
 }
 
+
 CanvasWidget::~CanvasWidget()
 {
 }
+
 
 void CanvasWidget::setImageSizeAndClearImage(const QSize& size)
 {
@@ -82,6 +84,7 @@ void CanvasWidget::setImageSizeAndClearImage(const QSize& size)
     update();
 }
 
+
 void CanvasWidget::setAllowShrink(const bool allow_shrink)
 {
     m_allow_shrink = allow_shrink;
@@ -89,7 +92,8 @@ void CanvasWidget::setAllowShrink(const bool allow_shrink)
         setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         // Can be shrunk in either direction.
         // We can't have a width-for-height constraint as well as a HFW
-        // constraint; see https://doc.qt.io/qt-6.5/qsizepolicy.html#setWidthForHeight
+        // constraint; see
+        // https://doc.qt.io/qt-6.5/qsizepolicy.html#setWidthForHeight
         // Instead, we can draw according to our *actual* height...
         // Similarly, we don't need a HFW constraint, which will (in many of
         // our layouts) make the effective height *fixed* once the width is
@@ -100,10 +104,12 @@ void CanvasWidget::setAllowShrink(const bool allow_shrink)
     }
 }
 
+
 void CanvasWidget::setMinimumShrinkHeight(const int height)
 {
     m_minimum_shrink_height = height;
 }
+
 
 void CanvasWidget::setBorderWidth(const int width)
 {
@@ -111,11 +117,13 @@ void CanvasWidget::setBorderWidth(const int width)
     setBorderCss();
 }
 
+
 void CanvasWidget::setBorderColour(const QColor& colour)
 {
     m_border_colour = colour;
     setBorderCss();
 }
+
 
 void CanvasWidget::setBorder(const int width, const QColor& colour)
 {
@@ -124,10 +132,12 @@ void CanvasWidget::setBorder(const int width, const QColor& colour)
     setBorderCss();
 }
 
+
 void CanvasWidget::setUnusedSpaceColour(const QColor& colour)
 {
     m_unused_space_colour = colour;
 }
+
 
 QSize CanvasWidget::sizeHint() const
 {
@@ -145,22 +155,24 @@ QSize CanvasWidget::sizeHint() const
     return m.addMarginsTo(desiredDisplaySize());
 }
 
+
 QSize CanvasWidget::minimumSizeHint() const
 {
     if (!m_allow_shrink) {
         return desiredDisplaySize();
     }
     QSize minsize = imageSize();
-    minsize.scale(
-        QSize(minsize.width(), m_minimum_shrink_height), Qt::KeepAspectRatio
-    );
+    minsize.scale(QSize(minsize.width(), m_minimum_shrink_height),
+                  Qt::KeepAspectRatio);
     return minsize;
 }
+
 
 void CanvasWidget::setPen(const QPen& pen)
 {
     m_pen = pen;
 }
+
 
 void CanvasWidget::clear(const QColor& background)
 {
@@ -168,6 +180,7 @@ void CanvasWidget::clear(const QColor& background)
     m_image.fill(background);
     update();
 }
+
 
 void CanvasWidget::setImage(const QImage& image)
 {
@@ -179,11 +192,13 @@ void CanvasWidget::setImage(const QImage& image)
     update();
 }
 
+
 void CanvasWidget::setAdjustDisplayForDpi(const bool adjust_display_for_dpi)
 {
     m_adjust_display_for_dpi = adjust_display_for_dpi;
     update();
 }
+
 
 void CanvasWidget::resizeEvent(QResizeEvent* event)
 {
@@ -192,18 +207,20 @@ void CanvasWidget::resizeEvent(QResizeEvent* event)
     // Store the ratio in a format that allows the most common operations to
     // use multiplication, not division:
     // http://stackoverflow.com/questions/4125033/floating-point-division-vs-floating-point-multiplication
-    m_image_to_display_ratio = static_cast<double>(imageSize().width())
-        / static_cast<double>(displaysize.width());
+    m_image_to_display_ratio = static_cast<double>(imageSize().width()) /
+                               static_cast<double>(displaysize.width());
 
 #ifdef DEBUG_TRANSLATIONS
-    qDebug().nospace() << Q_FUNC_INFO << "- widget size " << event->size()
-                       << "; contents rect " << contentsRect()
-                       << "; m_image_to_display_ratio "
-                       << m_image_to_display_ratio;
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << "- widget size " << event->size()
+            << "; contents rect " << contentsRect()
+            << "; m_image_to_display_ratio " << m_image_to_display_ratio;
 #else
     Q_UNUSED(event)
 #endif
 }
+
 
 void CanvasWidget::paintEvent(QPaintEvent* event)
 {
@@ -237,14 +254,14 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
         // http://blog.qt.io/blog/2006/05/13/fast-transformed-pixmapimage-drawing/
         // ... but I haven't implemented those optimizations.
 
-        //#ifdef DEBUG_TRANSLATIONS
-        //        QRect exposed_rect = painter.matrix().inverted()
-        //                             .mapRect(event->rect())
-        //                             .adjusted(-1, -1, 1, 1);
-        //        qDebug().nospace()
-        //                << Q_FUNC_INFO << " - contentsRect = " << cr
-        //                << ", exposed = " << exposed_rect;
-        //#endif
+//#ifdef DEBUG_TRANSLATIONS
+//        QRect exposed_rect = painter.matrix().inverted()
+//                             .mapRect(event->rect())
+//                             .adjusted(-1, -1, 1, 1);
+//        qDebug().nospace()
+//                << Q_FUNC_INFO << " - contentsRect = " << cr
+//                << ", exposed = " << exposed_rect;
+//#endif
 
         // Paint unused space:
         QRegion unused(cr);
@@ -258,6 +275,7 @@ void CanvasWidget::paintEvent(QPaintEvent* event)
         painter.drawImage(cr.left(), cr.top(), m_image);
     }
 }
+
 
 QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
 {
@@ -282,6 +300,7 @@ QPoint CanvasWidget::transformDisplayToImageCoords(QPoint point) const
     return result;
 }
 
+
 void CanvasWidget::mousePressEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
@@ -291,6 +310,7 @@ void CanvasWidget::mousePressEvent(QMouseEvent* event)
     }
 }
 
+
 void CanvasWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
@@ -298,6 +318,7 @@ void CanvasWidget::mouseMoveEvent(QMouseEvent* event)
         update();
     }
 }
+
 
 void CanvasWidget::drawTo(const QPoint& pt)
 {
@@ -320,15 +341,18 @@ void CanvasWidget::drawTo(const QPoint& pt)
     emit imageChanged();
 }
 
+
 QImage CanvasWidget::image() const
 {
     return m_image;
 }
 
+
 QSize CanvasWidget::imageSize() const
 {
     return m_image.size();
 }
+
 
 QSize CanvasWidget::desiredDisplaySize() const
 {
@@ -338,13 +362,14 @@ QSize CanvasWidget::desiredDisplaySize() const
     return imageSize();
 }
 
+
 void CanvasWidget::setBorderCss()
 {
     QString css = QString("border: %1px solid rgba(%2,%3,%4,%5);")
-                      .arg(m_border_width_px)
-                      .arg(m_border_colour.red())
-                      .arg(m_border_colour.green())
-                      .arg(m_border_colour.blue())
-                      .arg(m_border_colour.alpha());
+            .arg(m_border_width_px)
+            .arg(m_border_colour.red())
+            .arg(m_border_colour.green())
+            .arg(m_border_colour.blue())
+            .arg(m_border_colour.alpha());
     setStyleSheet(css);
 }

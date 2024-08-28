@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeCgiSch(TaskFactory& factory);
 
+
 class CgiSch : public Task
 {
     Q_OBJECT
-
 public:
-    CgiSch(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CgiSch(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -55,7 +51,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 public:
     static const QString CGISCH_TABLENAME;
 };

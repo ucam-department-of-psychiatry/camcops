@@ -30,7 +30,6 @@ class ServerSettingsWindow : public QObject
     // Used by several menus.
 
     Q_OBJECT
-
 public:
     ServerSettingsWindow(CamcopsApp& app);
     OpenableWidget* editor();

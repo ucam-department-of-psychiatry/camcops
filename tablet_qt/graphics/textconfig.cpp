@@ -20,12 +20,10 @@
 
 #include "textconfig.h"
 
-TextConfig::TextConfig(
-    int font_size_px,
-    const QColor& colour,
-    const int width,
-    const Qt::Alignment alignment
-) :
+TextConfig::TextConfig(int font_size_px,
+                       const QColor& colour,
+                       const int width,
+                       const Qt::Alignment alignment) :
     font_size_px(font_size_px),
     colour(colour),
     width(width),
@@ -41,17 +39,20 @@ TextConfig& TextConfig::setFontSize(const int font_size_px_)
     return *this;
 }
 
+
 TextConfig& TextConfig::setColour(const QColor& colour_)
 {
     colour = colour_;
     return *this;
 }
 
+
 TextConfig& TextConfig::setWidth(const int width_)
 {
     width = width_;
     return *this;
 }
+
 
 TextConfig& TextConfig::setAlignment(const Qt::Alignment alignment_)
 {

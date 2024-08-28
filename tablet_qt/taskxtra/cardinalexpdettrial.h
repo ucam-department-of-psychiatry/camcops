@@ -22,29 +22,19 @@
 #include "db/databaseobject.h"
 class CardinalExpDetRating;
 
+
 class CardinalExpDetTrial : public DatabaseObject
 {
     Q_OBJECT
-
 public:
+    CardinalExpDetTrial(CamcopsApp& app, DatabaseManager& db,
+                        int load_pk = dbconst::NONEXISTENT_PK);
     CardinalExpDetTrial(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
-    CardinalExpDetTrial(
-        int task_pk,
-        int block,
-        int group,
-        int cue,
-        int raw_cue,
-        int target_modality,
-        int target_number,
-        bool target_present,
-        double iti_s,
-        CamcopsApp& app,
-        DatabaseManager& db
-    );
+            int task_pk,
+            int block, int group, int cue, int raw_cue,
+            int target_modality, int target_number, bool target_present,
+            double iti_s,
+            CamcopsApp& app, DatabaseManager& db);
     // Setup
     void setTrialNum(int trial_num);
     // Info
@@ -62,16 +52,13 @@ public:
     void startTrialWithCue();
     void startTarget();
     void startDetection();
-    void recordResponse(
-        const CardinalExpDetRating& rating, int previous_points
-    );
+    void recordResponse(const CardinalExpDetRating& rating,
+                        int previous_points);
     void startIti();
     void endTrial();
-
 public:
     static const QString TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_TRIAL;
-
 protected:
 };

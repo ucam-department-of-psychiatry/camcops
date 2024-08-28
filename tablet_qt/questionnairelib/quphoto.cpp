@@ -22,22 +22,21 @@
 // #define DEBUG_CAMERA
 
 #include "quphoto.h"
-
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMediaDevices>
 #include <QVBoxLayout>
-
-#include "common/uiconst.h"
+#include <QMediaDevices>
 #include "core/camcopsapp.h"
-#include "lib/slowguiguard.h"
+#include "common/uiconst.h"
 #include "lib/uifunc.h"
+#include "lib/slowguiguard.h"
 #include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
 #include "widgets/cameraqcamera.h"
 #include "widgets/cameraqml.h"
 #include "widgets/imagebutton.h"
+
 
 QuPhoto::QuPhoto(BlobFieldRefPtr fieldref, QObject* parent) :
     QuElement(parent),
@@ -56,9 +55,10 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref, QObject* parent) :
     // We check for OpenGL. If it's absent, and we try to create a camera,
     // we can get an instant segfault/crash. Better to fail gracefully.
 
-    qDebug().nospace() << "OpenGL present: " << m_have_opengl
-                       << "; number of cameras: " << n_cameras
-                       << "; have a camera: " << m_have_camera;
+    qDebug().nospace()
+            << "OpenGL present: " << m_have_opengl
+            << "; number of cameras: " << n_cameras
+            << "; have a camera: " << m_have_camera;
 
     if (!m_fieldref) {
         qCritical() << "Null fieldref pointer to QuPhoto";
@@ -69,19 +69,12 @@ QuPhoto::QuPhoto(BlobFieldRefPtr fieldref, QObject* parent) :
                       "devices will support cameras!";
     }
 
-    connect(
-        m_fieldref.data(),
-        &FieldRef::valueChanged,
-        this,
-        &QuPhoto::fieldValueChanged
-    );
-    connect(
-        m_fieldref.data(),
-        &FieldRef::mandatoryChanged,
-        this,
-        &QuPhoto::fieldValueChanged
-    );
+    connect(m_fieldref.data(), &FieldRef::valueChanged,
+            this, &QuPhoto::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuPhoto::fieldValueChanged);
 }
+
 
 // ============================================================================
 // Building the main widget
@@ -109,49 +102,33 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
         button_open_camera = new ImageButton(uiconst::CBS_CAMERA);
         button_open_camera->setEnabled(!read_only && m_have_camera);
         if (!read_only) {
-            connect(
-                button_open_camera,
-                &QAbstractButton::clicked,
-                this,
-                &QuPhoto::takePhoto
-            );
+            connect(button_open_camera, &QAbstractButton::clicked,
+                    this, &QuPhoto::takePhoto);
         }
     } else {
-        no_camera
-            = new QLabel(m_have_opengl ? tr("No camera") : tr("No OpenGL"));
+        no_camera = new QLabel(m_have_opengl ? tr("No camera")
+                                             : tr("No OpenGL"));
     }
 
     auto button_reset = new ImageButton(uiconst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
-        connect(
-            button_reset,
-            &QAbstractButton::clicked,
-            this,
-            &QuPhoto::resetFieldToNull
-        );
+        connect(button_reset, &QAbstractButton::clicked,
+                this, &QuPhoto::resetFieldToNull);
     }
 
     auto button_rot_left = new ImageButton(uiconst::CBS_ROTATE_ANTICLOCKWISE);
     button_rot_left->setEnabled(!read_only);
     if (!read_only) {
-        connect(
-            button_rot_left,
-            &QAbstractButton::clicked,
-            this,
-            &QuPhoto::rotateLeft
-        );
+        connect(button_rot_left, &QAbstractButton::clicked,
+                this, &QuPhoto::rotateLeft);
     }
 
     auto button_rot_right = new ImageButton(uiconst::CBS_ROTATE_CLOCKWISE);
     button_rot_right->setEnabled(!read_only);
     if (!read_only) {
-        connect(
-            button_rot_right,
-            &QAbstractButton::clicked,
-            this,
-            &QuPhoto::rotateRight
-        );
+        connect(button_rot_right, &QAbstractButton::clicked,
+                this, &QuPhoto::rotateRight);
     }
 
     auto button_layout = new QVBoxLayout();
@@ -170,14 +147,11 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     button_widget->setLayout(button_layout);
 
     m_incomplete_optional_label = uifunc::iconWidget(
-        uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_OPTIONAL)
-    );
+                uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_OPTIONAL));
     m_incomplete_mandatory_label = uifunc::iconWidget(
-        uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_MANDATORY)
-    );
-    m_field_problem_label
-        = uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_FIELD_PROBLEM)
-        );
+                uifunc::iconFilename(uiconst::ICON_FIELD_INCOMPLETE_MANDATORY));
+    m_field_problem_label = uifunc::iconWidget(
+                uifunc::iconFilename(uiconst::ICON_FIELD_PROBLEM));
     m_image_widget = new AspectRatioPixmap();
 
     auto image_layout = new QVBoxLayout();
@@ -190,9 +164,8 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
 
     auto image_and_marker_widget = new QWidget();
     image_and_marker_widget->setLayout(image_layout);
-    image_and_marker_widget->setSizePolicy(
-        QSizePolicy::Expanding, QSizePolicy::Maximum
-    );
+    image_and_marker_widget->setSizePolicy(QSizePolicy::Expanding,
+                                           QSizePolicy::Maximum);
 
     auto top_layout = new QHBoxLayout();
     top_layout->setContentsMargins(uiconst::NO_MARGINS);
@@ -209,6 +182,7 @@ QPointer<QWidget> QuPhoto::makeWidget(Questionnaire* questionnaire)
     return m_main_widget;
 }
 
+
 // ============================================================================
 // Talking to fields
 // ============================================================================
@@ -218,10 +192,12 @@ void QuPhoto::setFromField()
     fieldValueChanged(m_fieldref.data());
 }
 
+
 FieldRefPtrList QuPhoto::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
+
 
 void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
 {
@@ -249,6 +225,7 @@ void QuPhoto::fieldValueChanged(const FieldRef* fieldref)
     }
 }
 
+
 void QuPhoto::takePhoto()
 {
     if (!m_questionnaire) {
@@ -264,35 +241,32 @@ void QuPhoto::takePhoto()
 
 #ifdef QUPHOTO_USE_CAMERA_QML
 
-    #ifdef DEBUG_CAMERA
+#ifdef DEBUG_CAMERA
     qDebug() << "Creating new CameraQml()...";
-    #endif
+#endif
     m_camera = new CameraQml();
-    #ifdef DEBUG_CAMERA
+#ifdef DEBUG_CAMERA
     qDebug() << "... CameraQml() created";
-    #endif
+#endif
     connect(m_camera, &CameraQml::cancelled, this, &QuPhoto::cameraCancelled);
-    connect(
-        m_camera, &CameraQml::imageCaptured, this, &QuPhoto::imageCaptured
-    );
+    connect(m_camera, &CameraQml::imageCaptured,
+            this, &QuPhoto::imageCaptured);
 
 #else
 
-    QString stylesheet
-        = m_questionnaire->getSubstitutedCss(uiconst::CSS_CAMCOPS_CAMERA);
-    #ifdef DEBUG_CAMERA
+    QString stylesheet = m_questionnaire->getSubstitutedCss(
+                uiconst::CSS_CAMCOPS_CAMERA);
+#ifdef DEBUG_CAMERA
     qDebug() << "Creating new CameraQCamera()...";
-    #endif
+#endif
     m_camera = new CameraQCamera(stylesheet);
-    #ifdef DEBUG_CAMERA
+#ifdef DEBUG_CAMERA
     qDebug() << "... CameraQCamera() created";
-    #endif
-    connect(
-        m_camera, &CameraQCamera::imageCaptured, this, &QuPhoto::imageCaptured
-    );
-    connect(
-        m_camera, &CameraQCamera::cancelled, this, &QuPhoto::cameraCancelled
-    );
+#endif
+    connect(m_camera, &CameraQCamera::imageCaptured,
+            this, &QuPhoto::imageCaptured);
+    connect(m_camera, &CameraQCamera::cancelled,
+            this, &QuPhoto::cameraCancelled);
 
 #endif
 
@@ -305,18 +279,17 @@ void QuPhoto::takePhoto()
 #endif
 }
 
+
 void QuPhoto::resetFieldToNull()
 {
     if (m_fieldref->isNull()) {
         return;
     }
-    if (!uifunc::confirm(
-            tr("Delete this photo?"),
-            tr("Confirm deletion"),
-            tr("Yes, delete"),
-            tr("No, cancel"),
-            m_main_widget
-        )) {
+    if (!uifunc::confirm(tr("Delete this photo?"),
+                         tr("Confirm deletion"),
+                         tr("Yes, delete"),
+                         tr("No, cancel"),
+                         m_main_widget)) {
         return;
     }
 
@@ -333,6 +306,7 @@ void QuPhoto::resetFieldToNull()
     }
 }
 
+
 void QuPhoto::cameraCancelled()
 {
 #ifdef DEBUG_CAMERA
@@ -343,6 +317,7 @@ void QuPhoto::cameraCancelled()
     }
     m_camera->finish();  // close the camera
 }
+
 
 void QuPhoto::imageCaptured(const QImage& image)
 {
@@ -358,10 +333,10 @@ void QuPhoto::imageCaptured(const QImage& image)
         return;
     }
     bool changed = false;
-    {  // guard block
+    { // guard block
         SlowGuiGuard guard = m_questionnaire->app().getSlowGuiGuard(
-            tr("Saving image..."), tr("Saving")
-        );
+                    tr("Saving image..."),
+                    tr("Saving"));
 #ifdef DEBUG_CAMERA
         qDebug() << "QuPhoto: setting field value to image...";
 #endif
@@ -376,6 +351,7 @@ void QuPhoto::imageCaptured(const QImage& image)
     }
 }
 
+
 void QuPhoto::rotate(const int angle_degrees_clockwise)
 {
     if (m_fieldref->isNull()) {
@@ -386,10 +362,9 @@ void QuPhoto::rotate(const int angle_degrees_clockwise)
 #endif
     {
         SlowNonGuiFunctionCaller slow_caller(
-            std::bind(&QuPhoto::rotateWorker, this, angle_degrees_clockwise),
-            m_main_widget,
-            "Rotating..."
-        );
+                std::bind(&QuPhoto::rotateWorker, this, angle_degrees_clockwise),
+                m_main_widget,
+                "Rotating...");
     }
 #ifdef DEBUG_ROTATION
     qDebug() << "QuPhoto: ... rotation finished.";
@@ -397,16 +372,19 @@ void QuPhoto::rotate(const int angle_degrees_clockwise)
     emit elementValueChanged();
 }
 
+
 void QuPhoto::rotateWorker(const int angle_degrees_clockwise)
 {
     m_fieldref->rotateImage(angle_degrees_clockwise);
 }
+
 
 void QuPhoto::rotateLeft()
 {
     // https://doc.qt.io/qt-6.5/qtransform.html#rotate
     rotate(-90);
 }
+
 
 void QuPhoto::rotateRight()
 {

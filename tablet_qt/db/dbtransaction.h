@@ -21,6 +21,7 @@
 #pragma once
 class DatabaseManager;
 
+
 // Represents an SQL transaction.
 //
 // In general, consider AVOIDING this and using DbNestableTransaction
@@ -45,8 +46,8 @@ public:
 
     // Mark the transaction as successful.
     void succeed();
-
 protected:
+
     // Our database manager.
     DatabaseManager& m_db;
 

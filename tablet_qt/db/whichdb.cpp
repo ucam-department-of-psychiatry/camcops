@@ -20,7 +20,9 @@
 
 #include "whichdb.h"
 
-namespace whichdb {
+
+namespace whichdb
+{
 
 const QString SQLITE("QSQLITE");
 const QString SQLCIPHER("SQLCIPHER");

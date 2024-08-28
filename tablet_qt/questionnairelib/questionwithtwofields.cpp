@@ -20,9 +20,10 @@
 
 #include "questionwithtwofields.h"
 
-QuestionWithTwoFields::QuestionWithTwoFields(
-    const QString& question, FieldRefPtr first_field, FieldRefPtr second_field
-) :
+
+QuestionWithTwoFields::QuestionWithTwoFields(const QString& question,
+                                             FieldRefPtr first_field,
+                                             FieldRefPtr second_field) :
     m_question(question),
     m_first_field(first_field),
     m_second_field(second_field)
@@ -32,26 +33,31 @@ QuestionWithTwoFields::QuestionWithTwoFields(
     Q_ASSERT(!m_second_field.isNull());
 }
 
+
 QuestionWithTwoFields::QuestionWithTwoFields() :
     m_first_field(nullptr),
     m_second_field(nullptr)
 {
 }
 
+
 QString QuestionWithTwoFields::question() const
 {
     return m_question;
 }
+
 
 FieldRefPtr QuestionWithTwoFields::firstFieldRef() const
 {
     return m_first_field;
 }
 
+
 FieldRefPtr QuestionWithTwoFields::secondFieldRef() const
 {
     return m_second_field;
 }
+
 
 FieldRefPtr QuestionWithTwoFields::fieldref(const bool first_field) const
 {

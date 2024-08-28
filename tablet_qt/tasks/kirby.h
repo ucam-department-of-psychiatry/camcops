@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -36,28 +35,20 @@ using KirbyTrialPtr = QSharedPointer<KirbyTrial>;
 
 void initializeKirby(TaskFactory& factory);
 
+
 class Kirby : public Task
 {
     Q_OBJECT
-
 public:
-    Kirby(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Kirby(CamcopsApp& app, DatabaseManager& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual bool isCrippled() const override
-    {
-        return false;
-    }
-
+    virtual bool isCrippled() const override { return false; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Ancillary management
@@ -77,7 +68,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     // Return (or create/save/return) a trial given a 1-based trial number.
     KirbyTrialPtr getTrial(int trial_num);
@@ -95,8 +85,8 @@ protected:
     static double kKirby(const QVector<KirbyRewardPair>& results);
 
     // How many choices in "results" are consistent with the given k value?
-    static int
-        nChoicesConsistent(double k, const QVector<KirbyRewardPair>& results);
+    static int nChoicesConsistent(double k,
+                                  const QVector<KirbyRewardPair>& results);
 
     // Calculate k via Wileyto et al. (2004) method (see docs)
     static double kWileyto(const QVector<KirbyRewardPair>& results);
@@ -110,7 +100,6 @@ protected:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
-
 protected:
     QVector<KirbyTrialPtr> m_trials;
     QPointer<Questionnaire> m_questionnaire;
@@ -118,7 +107,6 @@ protected:
     // ------------------------------------------------------------------------
     // Text constants
     // ------------------------------------------------------------------------
-
 public:
     static QString textXtoday();
     static QString textXinYdays();
@@ -127,7 +115,6 @@ public:
     // ------------------------------------------------------------------------
     // Constants
     // ------------------------------------------------------------------------
-
 public:
     static const QString KIRBY_TABLENAME;
 };

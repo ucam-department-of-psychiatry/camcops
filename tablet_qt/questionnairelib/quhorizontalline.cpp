@@ -19,15 +19,16 @@
 */
 
 #include "quhorizontalline.h"
-
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "widgets/horizontalline.h"
+
 
 QuHorizontalLine::QuHorizontalLine(QObject* parent) :
     QuElement(parent)
 {
 }
+
 
 QPointer<QWidget> QuHorizontalLine::makeWidget(Questionnaire* questionnaire)
 {

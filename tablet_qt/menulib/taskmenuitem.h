@@ -21,6 +21,7 @@
 #pragma once
 #include <QString>
 
+
 // A structure to represent a menu item for a task instance.
 // Exists only to improve polymorphic constructor of MenuItem
 
@@ -29,9 +30,7 @@ struct TaskMenuItem
 public:
     TaskMenuItem(const QString& tablename) :
         tablename(tablename)
-    {
-    }
-
+    {}
 public:
     QString tablename;
 };

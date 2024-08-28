@@ -19,11 +19,9 @@
 */
 
 #include "quwaist.h"
-
 #include <QObject>
 #include <QString>
 #include <QWidget>
-
 #include "db/fieldref.h"
 #include "lib/convert.h"
 #include "questionnairelib/commonoptions.h"
@@ -31,21 +29,21 @@
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/quunitselector.h"
 
-QuWaist::QuWaist(
-    FieldRefPtr fieldref,
-    QPointer<QuUnitSelector> unit_selector,
-    bool mandatory
-) :
-    QuMeasurement(fieldref, unit_selector, mandatory),
+
+QuWaist::QuWaist(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+                 bool mandatory)
+    : QuMeasurement(fieldref, unit_selector, mandatory),
     m_fr_cm(nullptr),
     m_fr_in(nullptr)
 {
 }
 
+
 FieldRefPtrList QuWaist::getMetricFieldrefs() const
 {
     return FieldRefPtrList({m_fr_cm});
 }
+
 
 FieldRefPtrList QuWaist::getImperialFieldrefs() const
 {
@@ -59,10 +57,9 @@ QPointer<QuElement> QuWaist::buildMetricGrid()
         {
             {CommonOptions::centimetres(), centimetres_edit},
         },
-        1,
-        1
-    );
+        1, 1);
 }
+
 
 QPointer<QuElement> QuWaist::buildImperialGrid()
 {
@@ -71,33 +68,32 @@ QPointer<QuElement> QuWaist::buildImperialGrid()
     return questionnairefunc::defaultGridRawPointer(
         {
             {CommonOptions::inches(), in_edit},
-        },
-        1,
-        1
-    );
+        }, 1, 1);
 }
+
 
 void QuWaist::setUpFields()
 {
     FieldRef::GetterFunction get_cm = std::bind(&QuWaist::getCm, this);
     FieldRef::GetterFunction get_in = std::bind(&QuWaist::getIn, this);
-    FieldRef::SetterFunction set_cm
-        = std::bind(&QuWaist::setCm, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_in
-        = std::bind(&QuWaist::setIn, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_cm = std::bind(&QuWaist::setCm, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_in = std::bind(&QuWaist::setIn, this, std::placeholders::_1);
     m_fr_cm = FieldRefPtr(new FieldRef(get_cm, set_cm, m_mandatory));
     m_fr_in = FieldRefPtr(new FieldRef(get_in, set_in, m_mandatory));
 }
+
 
 QVariant QuWaist::getCm() const
 {
     return getFieldrefValue();
 }
 
+
 QVariant QuWaist::getIn() const
 {
     return m_in;
 }
+
 
 bool QuWaist::setCm(const QVariant& value)
 {
@@ -110,6 +106,7 @@ bool QuWaist::setCm(const QVariant& value)
     }
     return changed;
 }
+
 
 bool QuWaist::setIn(const QVariant& value)
 {
@@ -124,6 +121,7 @@ bool QuWaist::setIn(const QVariant& value)
     }
     return changed;
 }
+
 
 void QuWaist::updateMetric()
 {
@@ -141,6 +139,7 @@ void QuWaist::updateMetric()
     m_fr_cm->emitValueChanged();
     emit elementValueChanged();
 }
+
 
 void QuWaist::updateImperial()
 {

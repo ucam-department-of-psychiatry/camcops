@@ -18,9 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "varconst.h"
-
 #include "common/dbconst.h"
+#include "varconst.h"
 
 namespace varconst {
 
@@ -97,13 +96,10 @@ const QString SERVER_USERNAME("serverUser");
 const QString SERVER_USERPASSWORD_OBSCURED("serverPasswordObscured");
 const QString DEFAULT_CLINICIAN_SPECIALTY("defaultClinicianSpecialty");
 const QString DEFAULT_CLINICIAN_NAME("defaultClinicianName");
-const QString DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION(
-    "defaultClinicianProfessionalRegistration"
-);
+const QString DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION("defaultClinicianProfessionalRegistration");
 const QString DEFAULT_CLINICIAN_POST("defaultClinicianPost");
 const QString DEFAULT_CLINICIAN_SERVICE("defaultClinicianService");
-const QString
-    DEFAULT_CLINICIAN_CONTACT_DETAILS("defaultClinicianContactDetails");
+const QString DEFAULT_CLINICIAN_CONTACT_DETAILS("defaultClinicianContactDetails");
 const QString OFFER_UPLOAD_AFTER_EDIT("offerUploadAfterEdit");
 
 // Cryptography

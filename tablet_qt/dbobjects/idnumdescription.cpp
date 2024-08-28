@@ -19,7 +19,6 @@
 */
 
 #include "idnumdescription.h"
-
 #include "common/dbconst.h"
 #include "db/databasemanager.h"
 
@@ -32,19 +31,12 @@ const QString FN_VALIDATION_METHOD("validation_method");  // new in v2.2.8
 // Must match camcops_server.cc_modules.cc_idnumdef.IdNumValidationMethod:
 const QString VALIDATION_METHOD_UK_NHS_NUMBER("uk_nhs_number");
 
-IdNumDescription::IdNumDescription(
-    CamcopsApp& app, DatabaseManager& db, const int which_idnum
-) :
-    DatabaseObject(
-        app,
-        db,
-        IDNUMDESC_TABLENAME,
-        FN_IDNUM,  // pk
-        false,
-        false,
-        false,
-        false
-    )  // internal tables only
+
+IdNumDescription::IdNumDescription(CamcopsApp& app, DatabaseManager& db,
+                                   const int which_idnum) :
+    DatabaseObject(app, db, IDNUMDESC_TABLENAME,
+                   FN_IDNUM,  // pk
+                   false, false, false, false)  // internal tables only
 {
     addField(FN_IDDESC, QMetaType::fromType<QString>());
     addField(FN_IDSHORTDESC, QMetaType::fromType<QString>());
@@ -57,10 +49,12 @@ IdNumDescription::IdNumDescription(
     }
 }
 
+
 int IdNumDescription::whichIdNum() const
 {
     return valueInt(FN_IDNUM);
 }
+
 
 QString IdNumDescription::description() const
 {
@@ -70,6 +64,7 @@ QString IdNumDescription::description() const
     return valueString(FN_IDDESC);
 }
 
+
 QString IdNumDescription::shortDescription() const
 {
     if (!m_exists_in_db) {
@@ -77,6 +72,7 @@ QString IdNumDescription::shortDescription() const
     }
     return valueString(FN_IDSHORTDESC);
 }
+
 
 QString IdNumDescription::validationMethod() const
 {
@@ -86,11 +82,10 @@ QString IdNumDescription::validationMethod() const
     return valueString(FN_VALIDATION_METHOD);
 }
 
-bool IdNumDescription::setDescriptions(
-    const QString& desc,
-    const QString& shortdesc,
-    const QString& validation_method
-)
+
+bool IdNumDescription::setDescriptions(const QString& desc,
+                                       const QString& shortdesc,
+                                       const QString& validation_method)
 {
     bool success = setValue(FN_IDDESC, desc);
     success = setValue(FN_IDSHORTDESC, shortdesc) && success;
@@ -98,15 +93,20 @@ bool IdNumDescription::setDescriptions(
     return success;
 }
 
+
 void IdNumDescription::deleteAllDescriptions()
 {
     m_db.deleteFrom(IDNUMDESC_TABLENAME);
 }
 
+
 void IdNumDescription::makeIndexes()
 {
-    m_db.createIndex("_idx_idnumdesc_idnum", IDNUMDESC_TABLENAME, {FN_IDNUM});
+    m_db.createIndex("_idx_idnumdesc_idnum",
+                     IDNUMDESC_TABLENAME,
+                     {FN_IDNUM});
 }
+
 
 bool IdNumDescription::validateAsNhsNumber() const
 {

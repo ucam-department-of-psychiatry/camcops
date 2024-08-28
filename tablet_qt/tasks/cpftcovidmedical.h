@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QPointer>
-
 #include "tasklib/task.h"
 
 void initializeCPFTCovidMedical(TaskFactory& factory);
@@ -28,13 +27,9 @@ void initializeCPFTCovidMedical(TaskFactory& factory);
 class CPFTCovidMedical : public Task
 {
     Q_OBJECT
-
 public:
-    CPFTCovidMedical(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CPFTCovidMedical(CamcopsApp& app, DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -51,7 +46,6 @@ public:
 
 public:
     static const QString CPFTCOVIDMEDICAL_TABLENAME;
-
 private:
     QPointer<Questionnaire> m_questionnaire;
     QString getHowAndWhenSymptomsAnswerText() const;

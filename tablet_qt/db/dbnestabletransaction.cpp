@@ -19,13 +19,12 @@
 */
 
 #include "dbnestabletransaction.h"
-
 #include <QDebug>
-
 #include "db/databasemanager.h"
 
 int DbNestableTransaction::s_count = 0;
 int DbNestableTransaction::s_level = 0;
+
 
 DbNestableTransaction::DbNestableTransaction(DatabaseManager& db) :
     m_db(db),
@@ -42,6 +41,7 @@ DbNestableTransaction::DbNestableTransaction(DatabaseManager& db) :
     m_db.execNoAnswer(QString("SAVEPOINT %1").arg(m_name));
 }
 
+
 DbNestableTransaction::~DbNestableTransaction()
 {
     if (m_fail) {
@@ -57,10 +57,12 @@ DbNestableTransaction::~DbNestableTransaction()
     }
 }
 
+
 void DbNestableTransaction::fail()
 {
     m_fail = true;
 }
+
 
 void DbNestableTransaction::succeed()
 {

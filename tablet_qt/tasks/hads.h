@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,6 +27,7 @@ class OpenableWidget;
 class TaskFactory;
 
 void initializeHads(TaskFactory& factory);
+
 
 class Hads : public Task
 {
@@ -46,36 +46,23 @@ class Hads : public Task
     // which inherits from this.
 
     Q_OBJECT
-
 public:
-    Hads(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
-
+    Hads(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
 protected:
-    Hads(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        const QString& tablename,
-        bool has_respondent,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Hads(CamcopsApp& app, DatabaseManager& db,
+         const QString& tablename, bool has_respondent,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-
 public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -86,10 +73,8 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     int getScore(const QVector<int>& questions) const;
-
 public:
     static const QString HADS_TABLENAME;
 };

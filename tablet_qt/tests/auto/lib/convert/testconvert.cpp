@@ -23,7 +23,8 @@
 #include "lib/convert.h"
 #include "lib/customtypes.h"
 
-class TestConvert : public QObject
+
+class TestConvert: public QObject
 {
     Q_OBJECT
 
@@ -56,13 +57,12 @@ private slots:
     void testToSqlLiteralQVectorIntReturnsQuotedCommaSeparatedString();
 };
 
+
 using namespace convert;
 
 void TestConvert::testToSqlLiteralNullReturnsNullString()
 {
-    QCOMPARE(
-        toSqlLiteral(QVariant::fromValue(nullptr)), QStringLiteral("NULL")
-    );
+    QCOMPARE(toSqlLiteral(QVariant::fromValue(nullptr)), QStringLiteral("NULL"));
 }
 
 void TestConvert::testToSqlLiteralIntReturnsIntString()
@@ -109,23 +109,17 @@ void TestConvert::testToSqlLiteralCharReturnsQuotedString()
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("'A'"));
 }
 
-void TestConvert::testToSqlLiteralStringReturnsQuotedStringWithEscapedNewlines(
-)
+void TestConvert::testToSqlLiteralStringReturnsQuotedStringWithEscapedNewlines()
 {
-    const QString value
-        = "Two's complement.\nThree's a crowd.\n\rBackslash:\\";
-    QCOMPARE(
-        toSqlLiteral(QVariant(value)),
-        QString("'Two''s complement.\\nThree''s a crowd.\\n\\rBackslash:\\\\'")
-    );
+    const QString value = "Two's complement.\nThree's a crowd.\n\rBackslash:\\";
+    QCOMPARE(toSqlLiteral(QVariant(value)),
+             QString("'Two''s complement.\\nThree''s a crowd.\\n\\rBackslash:\\\\'"));
 }
 
 void TestConvert::testToSqlLiteralStringListReturnsQuotedCommaSeparatedString()
 {
     const QStringList value = {"one", "two", "three"};
-    QCOMPARE(
-        toSqlLiteral(QVariant(value)), QString("'\"one\",\"two\",\"three\"'")
-    );
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("'\"one\",\"two\",\"three\"'"));
 }
 
 void TestConvert::testToSqlLiteralQDateReturnsIsoFormattedString()
@@ -139,10 +133,7 @@ void TestConvert::testToSqlLiteralQDateTimeReturnsIsoDateWithMs()
     const QDate date = QDate(2023, 7, 13);
     const QTime time = QTime(16, 8, 49, 512);
     const QDateTime value = QDateTime(date, time, QTimeZone::utc());
-    QCOMPARE(
-        toSqlLiteral(QVariant(value)),
-        QString("'2023-07-13T16:08:49.512+00:00'")
-    );
+    QCOMPARE(toSqlLiteral(QVariant(value)), QString("'2023-07-13T16:08:49.512+00:00'"));
 }
 
 void TestConvert::testToSqlLiteralQTimeReturnsQuotedHMSString()
@@ -154,8 +145,7 @@ void TestConvert::testToSqlLiteralQTimeReturnsQuotedHMSString()
 void TestConvert::testToSqlLiteralQByteArrayReturnsBase64EncodedBlob()
 {
     // %PDF-1.7\r
-    const QByteArray value
-        = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
+    const QByteArray value = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
     QCOMPARE(toSqlLiteral(QVariant(value)), QString("64'JVBERi0xLjcN'"));
 }
 
@@ -172,16 +162,13 @@ void TestConvert::testToSqlLiteralQVectorIntReturnsQuotedCommaSeparatedString()
 void TestConvert::testPrettyValueByteArrayReturnsBinary()
 {
     // %PDF-1.7\r
-    const QByteArray value
-        = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
+    const QByteArray value = QByteArray("\x25\x50\x44\x46\x2d\x31\x2e\x37\x0d");
     QCOMPARE(prettyValue(QVariant(value)), QStringLiteral("<binary>"));
 }
 
 void TestConvert::testPrettyValueNullReturnsNullString()
 {
-    QCOMPARE(
-        prettyValue(QVariant::fromValue(nullptr)), QStringLiteral("NULL")
-    );
+    QCOMPARE(prettyValue(QVariant::fromValue(nullptr)), QStringLiteral("NULL"));
 }
 
 void TestConvert::testPrettyValueQDateReturnsIsoDate()
@@ -195,9 +182,8 @@ void TestConvert::testPrettyValueQDateTimeReturnsIsoDateTimeWithMs()
     const QDate date = QDate(2023, 7, 13);
     const QTime time = QTime(16, 8, 49, 512);
     const QDateTime value = QDateTime(date, time, QTimeZone::utc());
-    QCOMPARE(
-        prettyValue(QVariant(value)), QString("2023-07-13T16:08:49.512+00:00")
-    );
+    QCOMPARE(prettyValue(QVariant(value)),
+             QString("2023-07-13T16:08:49.512+00:00"));
 }
 
 void TestConvert::testPrettyValueDoubleWithNegativeDPReturnsNumberAsIs()
@@ -222,14 +208,11 @@ void TestConvert::testPrettyValueQStringEscapesWithLineBreaks()
     QCOMPARE(prettyValue(QVariant(value)), QString("one<br>two &amp; three"));
 }
 
-void TestConvert::
-    testPrettyValueQStringListEscapesCommaSeparatesWithLineBreaks()
+void TestConvert::testPrettyValueQStringListEscapesCommaSeparatesWithLineBreaks()
 {
     const QStringList value = {"one", "two & three", "four\nfive"};
-    QCOMPARE(
-        prettyValue(QVariant(value)),
-        QString("one,two &amp; three,four<br>five")
-    );
+    QCOMPARE(prettyValue(QVariant(value)),
+             QString("one,two &amp; three,four<br>five"));
 }
 
 void TestConvert::testPrettyValueQVectorIntReturnsCommaSeparatedString()

@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeDemqolProxy(TaskFactory& factory);
 
+
 class DemqolProxy : public Task
 {
     Q_OBJECT
-
 public:
-    DemqolProxy(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    DemqolProxy(CamcopsApp& app, DatabaseManager& db,
+                int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -58,7 +54,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QVariant totalScore() const;
-
 public:
     static const QString DEMQOLPROXY_TABLENAME;
 };

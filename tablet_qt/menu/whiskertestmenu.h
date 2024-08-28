@@ -20,20 +20,18 @@
 
 #pragma once
 #include <QTextStream>
-
 #include "menulib/menuwindow.h"
 class LogBox;
 class WhiskerInboundMessage;
 class WhiskerManager;
 
+
 class WhiskerTestMenu : public MenuWindow
 {
     Q_OBJECT
-
 public:
     WhiskerTestMenu(CamcopsApp& app);
     virtual QString title() const override;
-
 protected:
     virtual void makeItems() override;
     OpenableWidget* configureWhisker(CamcopsApp& app);
@@ -48,19 +46,15 @@ protected slots:
     void clientMessageReceived(const WhiskerInboundMessage& msg);
     void otherMessageReceived(const WhiskerInboundMessage& msg);
     void taskCancelled();
-
 protected:
-    class StatusStream : public QTextStream
-    {
+    class StatusStream : public QTextStream {
     public:
         StatusStream(WhiskerTestMenu& parent);
         ~StatusStream();
-
     private:
         QString m_str;
         WhiskerTestMenu& m_parent;
     };
-
     void ensureWhiskerManager();
     void ensureWhiskerConnected();
     void ensureLogBox();
@@ -68,10 +62,8 @@ protected:
     void status(const QString& msg);
     StatusStream stream();
     QVariant getValue(const QVariant* member) const;
-    bool setValue(
-        QVariant* member, const QVariant& value
-    );  // returns: changed?
-
+    bool setValue(QVariant* member, const QVariant& value);
+        // ... returns: changed?
 protected:
     QPointer<WhiskerManager> m_whisker;
     QPointer<LogBox> m_logbox;

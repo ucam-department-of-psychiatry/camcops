@@ -19,7 +19,6 @@
 */
 
 #include "logbox.h"
-
 #include <QApplication>
 #include <QDebug>
 #include <QHBoxLayout>
@@ -27,7 +26,6 @@
 #include <QPushButton>
 #include <QScreen>
 #include <QVBoxLayout>
-
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
@@ -36,15 +34,13 @@
 const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
 
-LogBox::LogBox(
-    QWidget* parent,
-    const QString& title,
-    const bool offer_cancel,
-    const bool offer_ok_at_end,
-    const int maximum_block_count,
-    const bool scroll_to_end_on_insert,
-    const bool word_wrap
-) :
+LogBox::LogBox(QWidget* parent,
+               const QString& title,
+               const bool offer_cancel,
+               const bool offer_ok_at_end,
+               const int maximum_block_count,
+               const bool scroll_to_end_on_insert,
+               const bool word_wrap) :
     QDialog(parent),
     m_use_wait_cursor(true),
     m_editor(nullptr),
@@ -57,10 +53,8 @@ LogBox::LogBox(
     // qDebug() << Q_FUNC_INFO;
     setWindowTitle(title);
 
-    const int min_width
-        = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
-    const int min_height
-        = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
+    const int min_width = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
     const int min_size = qMin(min_width, min_height);
 
     setMinimumWidth(min_size);
@@ -75,9 +69,8 @@ LogBox::LogBox(
     // not insertHtml).
     m_editor->setReadOnly(true);
     m_editor->setTextInteractionFlags(Qt::NoTextInteraction);
-    m_editor->setLineWrapMode(
-        word_wrap ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap
-    );
+    m_editor->setLineWrapMode(word_wrap ? QPlainTextEdit::WidgetWidth
+                                        : QPlainTextEdit::NoWrap);
     m_editor->setMaximumBlockCount(maximum_block_count);
     mainlayout->addWidget(m_editor);
     uifunc::applyScrollGestures(m_editor->viewport());
@@ -115,6 +108,7 @@ LogBox::LogBox(
     mainlayout->addLayout(buttonlayout);
 }
 
+
 LogBox::~LogBox()
 {
     if (m_wait_cursor_on) {
@@ -122,10 +116,12 @@ LogBox::~LogBox()
     }
 }
 
+
 void LogBox::useWaitCursor(bool use_wait_cursor)
 {
     m_use_wait_cursor = use_wait_cursor;
 }
+
 
 void LogBox::open()
 {
@@ -136,6 +132,7 @@ void LogBox::open()
     }
     QDialog::open();
 }
+
 
 void LogBox::statusMessage(const QString& msg, const bool as_html)
 {
@@ -151,6 +148,7 @@ void LogBox::statusMessage(const QString& msg, const bool as_html)
         widgetfunc::scrollToEnd(m_editor.data());
     }
 }
+
 
 void LogBox::finish(const bool success)
 {
@@ -173,12 +171,14 @@ void LogBox::finish(const bool success)
     }
 }
 
+
 void LogBox::okClicked()
 {
     // qDebug() << Q_FUNC_INFO;
     accept();
     hide();  // hide explicitly, as we may be called using open() not exec()
 }
+
 
 void LogBox::copyClicked()
 {

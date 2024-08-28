@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializePsychiatricClerking(TaskFactory& factory);
 
+
 class PsychiatricClerking : public Task
 {
     Q_OBJECT
-
 public:
-    PsychiatricClerking(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
+                        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -56,7 +52,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 public:
     static const QString PSYCLERK_TABLENAME;
 };

@@ -34,12 +34,10 @@
 class VBoxLayoutHfw : public BoxLayoutHfw
 {
     Q_OBJECT
-
 public:
     VBoxLayoutHfw();
     explicit VBoxLayoutHfw(QWidget* parent);
     ~VBoxLayoutHfw();
-
 private:
     Q_DISABLE_COPY(VBoxLayoutHfw)
 };

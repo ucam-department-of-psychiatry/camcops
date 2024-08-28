@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,13 +30,12 @@ class TaskFactory;
 
 void initializeBdi(TaskFactory& factory);
 
+
 class Bdi : public Task
 {
     Q_OBJECT
-
 public:
-    Bdi(CamcopsApp& app,
-        DatabaseManager& db,
+    Bdi(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -45,12 +43,9 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::Skeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -62,7 +57,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
-
 protected:
     bool isBdiII() const;
     // ------------------------------------------------------------------------
@@ -73,12 +67,10 @@ public slots:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
-
 protected:
     QPointer<QuMcqGrid> m_grid_i;
     QPointer<QuMcqGrid> m_grid_ia;
     QPointer<QuMcqGrid> m_grid_ii;
-
 public:
     static const QString BDI_TABLENAME;
 };

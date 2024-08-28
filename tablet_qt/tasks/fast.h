@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeFast(TaskFactory& factory);
 
+
 class Fast : public Task
 {
     Q_OBJECT
-
 public:
-    Fast(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Fast(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,7 +53,6 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     bool isPositive() const;
-
 public:
     static const QString FAST_TABLENAME;
 };

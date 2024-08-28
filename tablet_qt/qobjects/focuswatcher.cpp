@@ -21,9 +21,9 @@
 // #define DEBUG_FOCUS
 
 #include "focuswatcher.h"
-
 #include <QDebug>
 #include <QEvent>
+
 
 FocusWatcher::FocusWatcher(QObject* parent) :
     QObject(parent)  // owned by parent henceforth
@@ -31,6 +31,7 @@ FocusWatcher::FocusWatcher(QObject* parent) :
     Q_ASSERT(parent);
     parent->installEventFilter(this);
 }
+
 
 bool FocusWatcher::eventFilter(QObject* obj, QEvent* event)
 {
@@ -49,6 +50,7 @@ bool FocusWatcher::eventFilter(QObject* obj, QEvent* event)
         qDebug() << obj->objectName() << "FocusOut";
 #endif
         emit focusChanged(false);
+
     }
     return false;  // continue processing the event
 }

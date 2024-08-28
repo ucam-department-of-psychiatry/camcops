@@ -19,8 +19,8 @@
 */
 
 #include "stringfunc.h"
-
 #include <QVector>
+
 
 namespace stringfunc {
 
@@ -33,9 +33,9 @@ QString strnum(const QString& prefix, const int num, const QString& suffix)
     return prefix + QString::number(num) + suffix;
 }
 
-QStringList strnumlist(
-    const QString& prefix, const QVector<int>& numbers, const QString& suffix
-)
+
+QStringList strnumlist(const QString& prefix, const QVector<int>& numbers,
+                       const QString& suffix)
 {
     QStringList strings;
     for (auto num : numbers) {
@@ -43,6 +43,7 @@ QStringList strnumlist(
     }
     return strings;
 }
+
 
 // ============================================================================
 // Make sequences of strings
@@ -58,12 +59,9 @@ QStringList strseq(const QString& prefix, const int first, const int last)
     return list;
 }
 
-QStringList strseq(
-    const QString& prefix,
-    const int first,
-    const int last,
-    const QStringList& suffixes
-)
+
+QStringList strseq(const QString& prefix, const int first, const int last,
+                   const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -75,8 +73,9 @@ QStringList strseq(
     return list;
 }
 
-QStringList
-    strseq(const QString& prefix, int first, int last, const QString& suffix)
+
+QStringList strseq(const QString& prefix, int first, int last,
+                   const QString& suffix)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -86,8 +85,9 @@ QStringList
     return list;
 }
 
-QStringList
-    strseq(const QStringList& prefixes, const int first, const int last)
+
+QStringList strseq(const QStringList& prefixes,
+                   const int first, const int last)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -99,12 +99,10 @@ QStringList
     return list;
 }
 
-QStringList strseq(
-    const QStringList& prefixes,
-    const int first,
-    const int last,
-    const QStringList& suffixes
-)
+
+QStringList strseq(const QStringList& prefixes,
+                   const int first, const int last,
+                   const QStringList& suffixes)
 {
     Q_ASSERT(first >= 0 && last >= 0 && first <= last);
     QStringList list;
@@ -118,6 +116,7 @@ QStringList strseq(
     return list;
 }
 
+
 // ============================================================================
 // HTML processing
 // ============================================================================
@@ -127,25 +126,30 @@ QString bold(const QString& str)
     return QString("<b>%1</b>").arg(str);
 }
 
+
 QString bold(const int x)
 {
     return QString("<b>%1</b>").arg(x);
 }
+
 
 QString a(const QString& url, const QString& text)
 {
     return QString("<a href=\"%1\">%2</a>").arg(url, text);
 }
 
+
 QString a(const QString& url_and_text)
 {
     return a(url_and_text, url_and_text);
 }
 
+
 QString joinHtmlLines(const QStringList& lines)
 {
     return lines.join("<br>");
 }
+
 
 QString& toHtmlLinebreaks(QString& str, const bool convert_embedded_literals)
 {
@@ -156,17 +160,19 @@ QString& toHtmlLinebreaks(QString& str, const bool convert_embedded_literals)
     return str;
 }
 
-QString standardResult(
-    const QString& name,
-    const QString& value,
-    const QString& separator,
-    const QString& suffix
-)
+
+QString standardResult(const QString& name,
+                       const QString& value,
+                       const QString& separator,
+                       const QString& suffix)
 {
     return QString("%1%2<b>%3</b>%4").arg(name, separator, value, suffix);
 }
 
-QString makeTitle(const QString& part1, const QString& part2, const bool colon)
+
+QString makeTitle(const QString& part1,
+                  const QString& part2,
+                  const bool colon)
 {
     const QString suffix = colon ? ":" : "";
     if (part2.isEmpty()) {
@@ -176,10 +182,12 @@ QString makeTitle(const QString& part1, const QString& part2, const bool colon)
     }
 }
 
+
 QString makeHint(const QString& part1, const QString& part2)
 {
     return QString("%1 (%2)").arg(part1, part2);
 }
+
 
 // ============================================================================
 // Other string processing
@@ -191,7 +199,9 @@ QString& replaceFirst(QString& str, const QString& from, const QString& to)
     return str.replace(str.indexOf(from), from.length(), to);
 }
 
+
 const QString STYLIZED_NEWLINE("↵");  // ⏎
+
 
 QString stylizeNewlines(const QString& str, const bool stylize)
 {
@@ -203,12 +213,10 @@ QString stylizeNewlines(const QString& str, const bool stylize)
     return nlstr;
 }
 
-QString abbreviate(
-    const QString& str,
-    const int max_len,
-    const bool stylize_newlines,
-    const QString& suffix
-)
+
+QString abbreviate(const QString& str,
+                   const int max_len, const bool stylize_newlines,
+                   const QString& suffix)
 {
     if (str.length() <= max_len) {
         return stylizeNewlines(str, stylize_newlines);
@@ -216,6 +224,7 @@ QString abbreviate(
     const int fragment_len = max_len - suffix.length();
     return stylizeNewlines(str.left(fragment_len) + suffix, stylize_newlines);
 }
+
 
 QString escapeString(const QString& string)
 {
@@ -227,8 +236,8 @@ QString escapeString(const QString& string)
     const QByteArray arr = string.toLatin1();
     const int len = arr.length();
     QString result;
-    result.reserve(static_cast<int>(len * 1.1)
-    );  // as per QString::toHtmlEscaped
+    result.reserve(static_cast<int>(len * 1.1));
+        // ... as per QString::toHtmlEscaped
     result.append('"');  // opening quote
     for (int i = 0; i < len; ++i) {
         const char c = arr.at(i);

@@ -42,15 +42,10 @@ public:
     //  unique: UNIQUE?
     //  pk: PRIMARY KEY?
     //  default_value: value if not otherwise set
-    Field(
-        const QString& name,
-        QMetaType type,
-        bool mandatory = false,
-        bool unique = false,
-        bool pk = false,
-        const QVariant& cpp_default_value = QVariant(),
-        const QVariant& db_default_value = QVariant()
-    );
+    Field(const QString& name, QMetaType type,
+          bool mandatory = false, bool unique = false, bool pk = false,
+          const QVariant& cpp_default_value = QVariant(),
+          const QVariant& db_default_value = QVariant());
 
     // Sets whether this field is a primary key (PK) or not.
     Field& setPk(bool pk);
@@ -132,13 +127,14 @@ public:
 
     // SQLite -> C++
     // Sets the internal value from something read from the database.
-    void setFromDatabaseValue(const QVariant& db_value);  // SQLite -> C++
+    void setFromDatabaseValue(const QVariant& db_value); // SQLite -> C++
 
     // C++ -> SQLite
     // Returns the value to be stored in the database.
-    QVariant databaseValue() const;  // C++ -> SQLite
+    QVariant databaseValue() const; // C++ -> SQLite
 
 protected:
+
     // Field name
     QString m_name;
 

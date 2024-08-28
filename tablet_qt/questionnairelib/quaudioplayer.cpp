@@ -19,20 +19,19 @@
 */
 
 #include "quaudioplayer.h"
-
 #include <QAbstractButton>
 #include <QAudioOutput>
 #include <QDial>
+#include <QUrl>
 #include <QHBoxLayout>
 #include <QMediaPlayer>
-#include <QUrl>
 #include <QWidget>
-
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/soundfunc.h"
 #include "lib/uifunc.h"
 #include "widgets/imagebutton.h"
+
 
 QuAudioPlayer::QuAudioPlayer(const QString& url, QObject* parent) :
     QuElement(parent),
@@ -47,11 +46,13 @@ QuAudioPlayer::QuAudioPlayer(const QString& url, QObject* parent) :
     // qDebug() << "QuAudioPlayer::QuAudioPlayer()";
 }
 
+
 QuAudioPlayer::~QuAudioPlayer()
 {
     // qDebug() << "QuAudioPlayer::~QuAudioPlayer()";
     soundfunc::finishMediaPlayer(m_player);
 }
+
 
 QuAudioPlayer* QuAudioPlayer::setVolume(const int volume)
 {
@@ -63,12 +64,14 @@ QuAudioPlayer* QuAudioPlayer::setVolume(const int volume)
     return this;
 }
 
-QuAudioPlayer*
-    QuAudioPlayer::setOfferVolumeControl(const bool offer_volume_control)
+
+QuAudioPlayer* QuAudioPlayer::setOfferVolumeControl(
+        const bool offer_volume_control)
 {
     m_offer_volume_control = offer_volume_control;
     return this;
 }
+
 
 QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
 {
@@ -86,29 +89,22 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     m_button_speaker_playing = new ImageButton(uiconst::CBS_SPEAKER_PLAYING);
     layout->addWidget(m_button_speaker);
     layout->addWidget(m_button_speaker_playing);
-    connect(
-        m_button_speaker, &QAbstractButton::clicked, this, &QuAudioPlayer::play
-    );
-    connect(
-        m_button_speaker_playing,
-        &QAbstractButton::clicked,
-        this,
-        &QuAudioPlayer::stop
-    );
+    connect(m_button_speaker, &QAbstractButton::clicked,
+            this, &QuAudioPlayer::play);
+    connect(m_button_speaker_playing, &QAbstractButton::clicked,
+            this, &QuAudioPlayer::stop);
     m_button_speaker->show();
     m_button_speaker_playing->hide();
 
     if (m_offer_volume_control) {
         auto dial = new QDial();
-        dial->setFixedSize(
-            uiconst::g_dial_diameter_px, uiconst::g_dial_diameter_px
-        );
+        dial->setFixedSize(uiconst::g_dial_diameter_px,
+                           uiconst::g_dial_diameter_px);
         dial->setNotchesVisible(true);
         dial->setRange(uiconst::MIN_VOLUME_QT, uiconst::MAX_VOLUME_QT);
         dial->setValue(m_volume);
-        connect(
-            dial, &QDial::valueChanged, this, &QuAudioPlayer::setVolumeNoReturn
-        );
+        connect(dial, &QDial::valueChanged,
+                this, &QuAudioPlayer::setVolumeNoReturn);
         layout->addWidget(dial);
     }
 
@@ -118,12 +114,8 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     if (m_player) {
         m_player->setSource(QUrl(m_url));
         setVolume(m_volume);
-        connect(
-            m_player.data(),
-            &QMediaPlayer::mediaStatusChanged,
-            this,
-            &QuAudioPlayer::mediaStatusChanged
-        );
+        connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
+                this, &QuAudioPlayer::mediaStatusChanged);
     } else {
         uifunc::alert(TextConst::unableToCreateMediaPlayer());
     }
@@ -131,18 +123,20 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     return widget;
 }
 
+
 void QuAudioPlayer::play()
 {
     if (!m_player || m_playing) {
         return;
     }
-    qDebug().nospace() << "Playing: " << m_url << " (volume " << m_volume
-                       << ")";
+    qDebug().nospace() << "Playing: " << m_url
+                       << " (volume " << m_volume << ")";
     m_player->play();
     m_button_speaker->hide();
     m_button_speaker_playing->show();
     m_playing = true;
 }
+
 
 void QuAudioPlayer::stop()
 {
@@ -156,6 +150,7 @@ void QuAudioPlayer::stop()
     m_playing = false;
 }
 
+
 void QuAudioPlayer::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
@@ -163,6 +158,7 @@ void QuAudioPlayer::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
         stop();
     }
 }
+
 
 void QuAudioPlayer::setVolumeNoReturn(const int volume)
 {
@@ -172,6 +168,7 @@ void QuAudioPlayer::setVolumeNoReturn(const int volume)
     setVolume(volume);
     // but don't return anything, because that makes the media player stop!
 }
+
 
 void QuAudioPlayer::closing()
 {

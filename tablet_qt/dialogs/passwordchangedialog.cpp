@@ -19,12 +19,10 @@
 */
 
 #include "passwordchangedialog.h"
-
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "qobjects/widgetpositioner.h"
@@ -32,20 +30,19 @@
 
 const int MINIMUM_PASSWORD_LENGTH = 10;
 const QString PROHIBITED_PASSWORDS_FILE(
-    ":/resources/camcops/prohibited_passwords/PwnedPasswordsTop100k.txt"
-);
+        ":/resources/camcops/prohibited_passwords/PwnedPasswordsTop100k.txt");
+
 
 bool passwordProhibited(const QString& password)
 {
     return filefunc::fileContainsLine(PROHIBITED_PASSWORDS_FILE, password);
 }
 
-PasswordChangeDialog::PasswordChangeDialog(
-    const QString& text,
-    const QString& title,
-    const bool require_old_password,
-    QWidget* parent
-) :
+
+PasswordChangeDialog::PasswordChangeDialog(const QString& text,
+                                           const QString& title,
+                                           const bool require_old_password,
+                                           QWidget* parent) :
     QDialog(parent),
     m_editor_old(nullptr),
     m_editor_new1(nullptr),
@@ -79,8 +76,7 @@ PasswordChangeDialog::PasswordChangeDialog(
     );
     mainlayout->addWidget(m_editor_new1);
 
-    auto prompt_new2
-        = new QLabel(tr("Enter new password again for confirmation:"));
+    auto prompt_new2 = new QLabel(tr("Enter new password again for confirmation:"));
     prompt_new2->setWordWrap(true);
 
     mainlayout->addWidget(prompt_new2);
@@ -89,20 +85,11 @@ PasswordChangeDialog::PasswordChangeDialog(
     mainlayout->addWidget(m_editor_new2);
 
     auto buttonbox = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel
-    );
-    connect(
-        buttonbox,
-        &QDialogButtonBox::accepted,
-        this,
-        &PasswordChangeDialog::okClicked
-    );
-    connect(
-        buttonbox,
-        &QDialogButtonBox::rejected,
-        this,
-        &PasswordChangeDialog::reject
-    );
+                QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonbox, &QDialogButtonBox::accepted,
+            this, &PasswordChangeDialog::okClicked);
+    connect(buttonbox, &QDialogButtonBox::rejected,
+            this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
     mainlayout->addStretch(1);
 
@@ -110,6 +97,7 @@ PasswordChangeDialog::PasswordChangeDialog(
 
     setLayout(mainlayout);
 }
+
 
 QString PasswordChangeDialog::oldPassword() const
 {
@@ -119,6 +107,7 @@ QString PasswordChangeDialog::oldPassword() const
     return m_editor_old->text();
 }
 
+
 QString PasswordChangeDialog::newPassword() const
 {
     if (!m_editor_new1) {
@@ -126,6 +115,7 @@ QString PasswordChangeDialog::newPassword() const
     }
     return m_editor_new1->text();
 }
+
 
 void PasswordChangeDialog::okClicked()
 {
@@ -139,8 +129,10 @@ void PasswordChangeDialog::okClicked()
         return;
     }
     if (newpw1.size() < MINIMUM_PASSWORD_LENGTH) {
-        uifunc::alert(tr("Password must be at least %1 characters long")
-                          .arg(MINIMUM_PASSWORD_LENGTH));
+        uifunc::alert(
+            tr("Password must be at least %1 characters long").arg(
+                MINIMUM_PASSWORD_LENGTH)
+        );
         return;
     }
     if (newpw1 != newpw2) {
@@ -148,9 +140,8 @@ void PasswordChangeDialog::okClicked()
         return;
     }
     if (passwordProhibited(newpw1)) {
-        uifunc::alert(
-            tr("That password is used too commonly. Please pick another.")
-        );
+        uifunc::alert(tr(
+            "That password is used too commonly. Please pick another."));
         return;
     }
     accept();

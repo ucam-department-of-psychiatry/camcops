@@ -23,7 +23,6 @@
 #include <QDateTime>
 #include <QJsonObject>
 #include <QString>
-
 #include "common/aliases_camcops.h"
 #include "db/databaseobject.h"
 
@@ -34,14 +33,15 @@ class Version;
 
 extern const QString PATIENT_FK_FIELDNAME;
 
+
 class Task : public DatabaseObject
 {
     Q_OBJECT
     friend class SingleTaskMenu;  // so it can call setupForEditingAndSave()
     friend class Patient;  // so it can call moveToPatient()
     friend class TaskChain;  // so it can call setupForEditingAndSave()
-    friend class
-        TaskScheduleItemEditor;  // so it can call setupForEditingAndSave()
+    friend class TaskScheduleItemEditor;
+        // ... so it can call setupForEditingAndSave()
 
 public:
     enum class TaskImplementationType {
@@ -59,20 +59,16 @@ public:
     //      is_anonymous: is this is an anonymous task (with no patient)?
     //      has_clinician: add standard fields for a clinician?
     //      has_respondent: add standard fields for a respondent (e.g. carer)?
-    Task(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        const QString& tablename,
-        bool is_anonymous,
-        bool has_clinician,
-        bool has_respondent,
-        QObject* parent = nullptr
-    );
+    Task(CamcopsApp& app,
+         DatabaseManager& db,
+         const QString& tablename,
+         bool is_anonymous,
+         bool has_clinician,
+         bool has_respondent,
+         QObject* parent = nullptr);
 
     // Destructor
-    virtual ~Task()
-    {
-    }
+    virtual ~Task() {}
 
     // ------------------------------------------------------------------------
     // General info
@@ -91,10 +87,7 @@ public:
     // is it a bare-bones skeleton (for tasks whose content we can't
     // reproduce), or is it an upgradeable skeleton (depending on institutional
     // permissions)?
-    virtual TaskImplementationType implementationType() const
-    {
-        return TaskImplementationType::Full;
-    }
+    virtual TaskImplementationType implementationType() const { return TaskImplementationType::Full; }
 
     QString implementationTypeDescription() const;
 
@@ -139,42 +132,24 @@ public:
     virtual bool hasRespondent() const;
 
     // Does this task prohibit clinical use?
-    virtual bool prohibitsClinical() const
-    {
-        return false;
-    }
+    virtual bool prohibitsClinical() const { return false; }
 
     // Does this task prohibit commerical use?
-    virtual bool prohibitsCommercial() const
-    {
-        return false;
-    }
+    virtual bool prohibitsCommercial() const { return false; }
 
     // Does this task prohibit research use?
-    virtual bool prohibitsEducational() const
-    {
-        return false;
-    }
+    virtual bool prohibitsEducational() const { return false; }
 
     // Does this task prohibit research use?
-    virtual bool prohibitsResearch() const
-    {
-        return false;
-    }
+    virtual bool prohibitsResearch() const { return false; }
 
     // If the task is an upgradable skeleton, and has not been upgraded, should
     // its use be prohibited (because the skeleton is so useless as to be
     // misleading/harmful)?
-    virtual bool prohibitedIfSkeleton() const
-    {
-        return false;
-    }
+    virtual bool prohibitedIfSkeleton() const { return false; }
 
     // Is the task re-editable once it's been created?
-    virtual bool isEditable() const
-    {
-        return true;
-    }
+    virtual bool isEditable() const { return true; }
 
     // Is the task less than fully functional, e.g.
     // - intrinsically a "skeleton" task at best;
@@ -184,16 +159,10 @@ public:
     virtual bool isCrippled() const;
 
     // Is this an experimental task? (Affects labelling.)
-    virtual bool isExperimental() const
-    {
-        return false;
-    }
+    virtual bool isExperimental() const { return false; }
 
     // Is this a defunct task? (Affects labelling.)
-    virtual bool isDefunct() const
-    {
-        return false;
-    }
+    virtual bool isDefunct() const { return false; }
 
     // Are there any extra strings (xstrings) for the task, downloaded from the
     // server?
@@ -224,9 +193,8 @@ protected:
 
     // Used internally by isTaskCreatable(): are the server's strings
     // sufficiently recent? Writes to failure_reason only on failure.
-    bool isServerStringVersionEnough(
-        const Version& minimum_server_version, QString& failure_reason
-    ) const;
+    bool isServerStringVersionEnough(const Version& minimum_server_version,
+                                     QString& failure_reason) const;
 
     // ------------------------------------------------------------------------
     // Tables and other classmethods
@@ -236,17 +204,11 @@ public:
     // Return a list of names of ancillary tables used by this task. (For
     // example, the PhotoSequence task has an ancillary table to contain its
     // photos. One sequence, lots of photos.)
-    virtual QStringList ancillaryTables() const
-    {
-        return QStringList();
-    }
+    virtual QStringList ancillaryTables() const { return QStringList(); }
 
     // Each ancillary table (if there are any) has a foreign key (FK) to the
     // base table. What's the FK column name?
-    virtual QString ancillaryTableFKToTaskFieldname() const
-    {
-        return QString();
-    }
+    virtual QString ancillaryTableFKToTaskFieldname() const { return QString(); }
 
     // Return all tables used by this task (base + ancillary).
     QStringList allTables() const;
@@ -255,9 +217,7 @@ public:
     virtual void makeTables();
 
     // Make all ancillary tables.
-    virtual void makeAncillaryTables()
-    {
-    }
+    virtual void makeAncillaryTables() {}
 
     // How many instances of this task type (optionally meeting a set of WHERE
     // criteria) exist in the database?
@@ -269,9 +229,8 @@ public:
 
     // Perform any special steps required by this task as we upgrade the client
     // database.
-    virtual void upgradeDatabase(
-        const Version& old_version, const Version& new_version
-    );
+    virtual void upgradeDatabase(const Version& old_version,
+                                 const Version& new_version);
 
     // ------------------------------------------------------------------------
     // Database object functions
@@ -314,7 +273,6 @@ protected:
     // ------------------------------------------------------------------------
     // Assistance functions
     // ------------------------------------------------------------------------
-
 public:
     // When was this task created?
     QDateTime whenCreated() const;
@@ -325,15 +283,13 @@ public:
 
     // Returns an xstring for this task. This is a named string, downloaded for
     // this task from the server.
-    QString xstring(
-        const QString& stringname, const QString& default_str = QString()
-    ) const;
+    QString xstring(const QString& stringname,
+                    const QString& default_str = QString()) const;
 
     // Returns an appstring. This is a named string, downloaded from the server
     // for the CamCOPS client in general.
-    QString appstring(
-        const QString& stringname, const QString& default_str = QString()
-    ) const;
+    QString appstring(const QString& stringname,
+                      const QString& default_str = QString()) const;
 
     // Assistance function for summary() or detail().
     // - Returns a list of strings of the format
@@ -366,9 +322,7 @@ public:
 
     // Returns a string list of the clinician's details (specialty, name,
     // etc.).
-    QStringList clinicianDetails(
-        const QString& separator = QStringLiteral(": ")
-    ) const;
+    QStringList clinicianDetails(const QString& separator = QStringLiteral(": ")) const;
 
     // Returns a string list of the respondent's details (name, relationship).
     QStringList respondentDetails() const;
@@ -381,17 +335,14 @@ public:
     double editingTimeSeconds() const;
 
 protected:
+
     // Set up all defaults (including setting the patient ID, for non-anonymous
     // tasks) and save to database. Use when you've created a task and want
     // to edit it.
-    void
-        setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
+    void setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
 
     // Single user mode: apply any settings (down to task implementation)
-    virtual void applySettings(const QJsonObject& settings)
-    {
-        Q_UNUSED(settings)
-    }
+    virtual void applySettings(const QJsonObject& settings) {Q_UNUSED(settings)}
 
     // Set the clinician fields to the app's default clinician information.
     // Called when the task is first created from the menus.
@@ -400,9 +351,7 @@ protected:
 
     // Override if you need to do additional configuration for a new task.
     // Called when the task is first created from the menus.
-    virtual void setDefaultsAtFirstUse()
-    {
-    }
+    virtual void setDefaultsAtFirstUse() {}
 
     // Helper function for graphical/animated tasks to create their editor.
     // Makes an OpenableWidget containing a ScreenLikeGraphicsView to display
@@ -411,21 +360,15 @@ protected:
     // - fullscreen: open this window in fullscreen mode?
     // - esc_can_abort: passed to OpenableWidget::setEscapeKeyCanAbort().
     OpenableWidget* makeGraphicsWidget(
-        QGraphicsScene* scene,
-        const QColor& background_colour,
-        bool fullscreen = true,
-        bool esc_can_abort = true
-    );
+            QGraphicsScene* scene, const QColor& background_colour,
+            bool fullscreen = true, bool esc_can_abort = true);
 
     // Helper function for graphical/animated tasks to create their editor.
     // Calls makeGraphicsWidget() [q.v.], then hooks the widget's abort signal
     // to Task::onEditFinishedAbort(), and starts the editing clock.
     OpenableWidget* makeGraphicsWidgetForImmediateEditing(
-        QGraphicsScene* scene,
-        const QColor& background_colour,
-        bool fullscreen = true,
-        bool esc_can_abort = true
-    );
+            QGraphicsScene* scene, const QColor& background_colour,
+            bool fullscreen = true, bool esc_can_abort = true);
 
     // Returns a questionnaire element representing clinician details
     // (specialty, name, etc.). Only applicable to tasks with a clinician.
@@ -464,11 +407,10 @@ protected:
     // Create a standard set of NameValueOptions from the task's xstrings,
     // in ascending or descending order.
     NameValueOptions makeOptionsFromXstrings(
-        const QString& xstring_prefix,
-        int first,
-        int last,
-        const QString& xstring_suffix = QString()
-    );
+            const QString& xstring_prefix,
+            int first,
+            int last,
+            const QString& xstring_suffix = QString());
 
 public slots:
     // "The user has started to edit this task."
@@ -497,8 +439,8 @@ signals:
     // ------------------------------------------------------------------------
     // Patient functions (for non-anonymous tasks)
     // ------------------------------------------------------------------------
-
 public:
+
     // Returns the task's patient, or nullptr.
     Patient* patient() const;
 
@@ -521,7 +463,6 @@ protected:
     // ------------------------------------------------------------------------
     // Instance data
     // ------------------------------------------------------------------------
-
 protected:
     mutable QSharedPointer<Patient> m_patient;  // our patient
     bool m_editing;  // are we editing?
@@ -532,7 +473,6 @@ protected:
     // ------------------------------------------------------------------------
     // Class data
     // ------------------------------------------------------------------------
-
 protected:
     bool m_is_anonymous;  // is the task anonymous?
     bool m_has_clinician;  // does the task have a clinician?
@@ -541,7 +481,6 @@ protected:
     // ------------------------------------------------------------------------
     // Translatable text
     // ------------------------------------------------------------------------
-
 public:
     // String for "task is incomplete", for summary views.
     static QString incompleteMarker();
@@ -549,7 +488,6 @@ public:
     // ------------------------------------------------------------------------
     // Static data
     // ------------------------------------------------------------------------
-
 public:
     // Standard fieldnames
     static const QString PATIENT_FK_FIELDNAME;

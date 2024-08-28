@@ -23,8 +23,8 @@
 #include <QMap>
 #include <QPair>
 #include <QSharedPointer>
-#include <QVector>
 #include <QWeakPointer>
+#include <QVector>
 class QString;
 
 // Phase 1:
@@ -61,8 +61,7 @@ class KhandakerMojoTherapyItem;
 using KhandakerMojoTherapyItemPtr = QSharedPointer<KhandakerMojoTherapyItem>;
 
 class KhandakerMojoMedicationItem;
-using KhandakerMojoMedicationItemPtr
-    = QSharedPointer<KhandakerMojoMedicationItem>;
+using KhandakerMojoMedicationItemPtr = QSharedPointer<KhandakerMojoMedicationItem>;
 
 class Patient;
 using PatientPtr = QSharedPointer<Patient>;

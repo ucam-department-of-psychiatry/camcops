@@ -19,9 +19,8 @@
 */
 
 #include "pdss.h"
-
-#include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quhorizontalline.h"
@@ -45,20 +44,21 @@ const QString QPREFIX("q");
 
 const QString Pdss::PDSS_TABLENAME("pdss");
 
+
 void initializePdss(TaskFactory& factory)
 {
     static TaskRegistrar<Pdss> registered(factory);
 }
 
+
 Pdss::Pdss(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PDSS_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -69,15 +69,18 @@ QString Pdss::shortname() const
     return "PDSS";
 }
 
+
 QString Pdss::longname() const
 {
     return tr("Panic Disorder Severity Scale");
 }
 
+
 QString Pdss::description() const
 {
     return tr("7-item self-report scale.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -88,6 +91,7 @@ bool Pdss::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList Pdss::summary() const
 {
     return QStringList{
@@ -96,10 +100,13 @@ QStringList Pdss::summary() const
     };
 }
 
+
 QStringList Pdss::detail() const
 {
     return completenessInfo() + summary();
+
 }
+
 
 OpenableWidget* Pdss::editor(const bool read_only)
 {
@@ -124,6 +131,7 @@ OpenableWidget* Pdss::editor(const bool read_only)
     return questionnaire;
 }
 
+
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -133,9 +141,9 @@ int Pdss::totalScore() const
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 double Pdss::compositeScore() const
 {
-    const QVariant m
-        = meanOrNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)), true);
+    const QVariant m = meanOrNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)), true);
     return m.toDouble();
 }

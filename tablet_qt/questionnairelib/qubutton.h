@@ -23,16 +23,16 @@
 #include <QMap>
 #include <QString>
 #include <QVariant>
-
 #include "questionnairelib/quelement.h"
+
 
 class QuButton : public QuElement
 {
     // Element to offer a button (calling a callback function).
 
     Q_OBJECT
-
 public:
+
     using CallbackFunction = std::function<void()>;
     // To pass other arguments, use std::bind to bind them before passing here.
     // For example:
@@ -47,11 +47,8 @@ public:
     //   std::bind(&MyClass::myFunc, this, "someparam")
 
     // Constructor: display text label
-    QuButton(
-        const QString& label,
-        const CallbackFunction& callback,
-        QObject* parent = nullptr
-    );
+    QuButton(const QString& label, const CallbackFunction& callback,
+             QObject* parent = nullptr);
 
     // Constructor: display icon.
     // Args:
@@ -64,13 +61,9 @@ public:
     //      as the "pressed" state.
     //  callback
     //      the callback function
-    QuButton(
-        const QString& icon_filename,
-        bool filename_is_camcops_stem,
-        bool alter_unpressed_image,
-        const CallbackFunction& callback,
-        QObject* parent = nullptr
-    );
+    QuButton(const QString& icon_filename, bool filename_is_camcops_stem,
+             bool alter_unpressed_image, const CallbackFunction& callback,
+             QObject* parent = nullptr);
 
     // Should the button respond, or just sit there unresponsive?
     // (It will also be inactive in read-only questionnaires, but this allows
@@ -78,8 +71,7 @@ public:
     QuButton* setActive(bool active);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
-    ) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 
 protected slots:
     // "Our internal button widget was clicked."

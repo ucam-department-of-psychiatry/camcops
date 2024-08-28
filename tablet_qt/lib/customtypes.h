@@ -20,10 +20,11 @@
 
 #pragma once
 
-namespace customtypes {
-extern int TYPE_ID_QVECTOR_INT;
-extern int TYPE_ID_VERSION;
 
-// Register our custom types with QVariant, via qRegisterMetaType().
-void registerTypesForQVariant();
+namespace customtypes {
+    extern int TYPE_ID_QVECTOR_INT;
+    extern int TYPE_ID_VERSION;
+
+    // Register our custom types with QVariant, via qRegisterMetaType().
+    void registerTypesForQVariant();
 }

@@ -22,12 +22,10 @@
 
 // Tablename
 const QString CardinalExpDetTrialGroupSpec::GROUPSPEC_TABLENAME(
-    "cardinal_expdet_trialgroupspec"
-);
+        "cardinal_expdet_trialgroupspec");
 
 // Fieldnames
-const QString CardinalExpDetTrialGroupSpec::FN_FK_TO_TASK("cardinal_expdet_id"
-);
+const QString CardinalExpDetTrialGroupSpec::FN_FK_TO_TASK("cardinal_expdet_id");
 const QString CardinalExpDetTrialGroupSpec::FN_GROUP_NUM("group_num");
 const QString FN_CUE("cue");
 const QString FN_TARGET_MODALITY("target_modality");
@@ -35,9 +33,9 @@ const QString FN_TARGET_NUMBER("target_number");
 const QString FN_N_TARGET("n_target");
 const QString FN_N_NO_TARGET("n_no_target");
 
+
 CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
-    CamcopsApp& app, DatabaseManager& db, const int load_pk
-) :
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     DatabaseObject(app, db, GROUPSPEC_TABLENAME)
 {
     // Keys
@@ -53,20 +51,14 @@ CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
     load(load_pk);
 }
 
+
 CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
-    const int task_pk,
-    const int group_num,
-    const int cue,
-    const int target_modality,
-    const int target_number,
-    const int n_target,
-    const int n_no_target,
-    CamcopsApp& app,
-    DatabaseManager& db
-) :
+        const int task_pk, const int group_num,
+        const int cue, const int target_modality, const int target_number,
+        const int n_target, const int n_no_target,
+        CamcopsApp& app, DatabaseManager& db) :
     CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
-        app, db, dbconst::NONEXISTENT_PK
-    )  // delegating constructor
+        app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {
     setValue(FN_FK_TO_TASK, task_pk);
     setValue(FN_GROUP_NUM, group_num);
@@ -79,25 +71,30 @@ CardinalExpDetTrialGroupSpec::CardinalExpDetTrialGroupSpec(
     save();
 }
 
+
 int CardinalExpDetTrialGroupSpec::cue() const
 {
     return valueInt(FN_CUE);
 }
+
 
 int CardinalExpDetTrialGroupSpec::targetModality() const
 {
     return valueInt(FN_TARGET_MODALITY);
 }
 
+
 int CardinalExpDetTrialGroupSpec::targetNumber() const
 {
     return valueInt(FN_TARGET_NUMBER);
 }
 
+
 int CardinalExpDetTrialGroupSpec::nTarget() const
 {
     return valueInt(FN_N_TARGET);
 }
+
 
 int CardinalExpDetTrialGroupSpec::nNoTarget() const
 {

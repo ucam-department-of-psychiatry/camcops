@@ -23,13 +23,15 @@
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/namevaluepair.h"
 
-class TestNameValueOptions : public QObject
+
+class TestNameValueOptions: public QObject
 {
     Q_OBJECT
 
 private slots:
     void testInitializedWithList();
 };
+
 
 void TestNameValueOptions::testInitializedWithList()
 {

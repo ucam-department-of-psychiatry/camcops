@@ -19,10 +19,9 @@
 */
 
 #include "cage.h"
-
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -44,20 +43,21 @@ const QString Cage::CAGE_TABLENAME("cage");
 
 const int CAGE_THRESHOLD = 2;
 
+
 void initializeCage(TaskFactory& factory)
 {
     static TaskRegistrar<Cage> registered(factory);
 }
 
+
 Cage::Cage(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CAGE_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -68,15 +68,18 @@ QString Cage::shortname() const
     return "CAGE";
 }
 
+
 QString Cage::longname() const
 {
     return tr("CAGE Questionnaire");
 }
 
+
 QString Cage::description() const
 {
     return tr("4-item Y/N self-report scale.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -87,10 +90,12 @@ bool Cage::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList Cage::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
+
 
 QStringList Cage::detail() const
 {
@@ -100,11 +105,11 @@ QStringList Cage::detail() const
     lines.append("");
     lines += summary();
     lines.append("");
-    lines.append(
-        xstring("over_threshold") + " " + yesNo(total >= CAGE_THRESHOLD)
-    );
+    lines.append(xstring("over_threshold") + " " +
+                 yesNo(total >= CAGE_THRESHOLD));
     return lines;
 }
+
 
 OpenableWidget* Cage::editor(const bool read_only)
 {
@@ -116,16 +121,16 @@ OpenableWidget* Cage::editor(const bool read_only)
         qfields.append(QuestionWithOneField(question, fieldRef(fieldname)));
     }
     QuPagePtr page((new QuPage{
-                        new QuText(xstring("stem")),
-                        new QuMcqGrid(qfields, options),
-                    })
-                       ->setTitle(xstring("title")));
+        new QuText(xstring("stem")),
+        new QuMcqGrid(qfields, options),
+    })->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -139,6 +144,7 @@ int Cage::totalScore() const
     }
     return total;
 }
+
 
 int Cage::score(const QVariant& value) const
 {

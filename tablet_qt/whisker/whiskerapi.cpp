@@ -19,9 +19,7 @@
 */
 
 #include "whiskerapi.h"
-
 #include <QDebug>
-
 #include "whisker/whiskerconstants.h"
 
 using namespace whiskerconstants;
@@ -36,6 +34,7 @@ QString onVal(bool on)
 {
     return on ? VAL_ON : VAL_OFF;
 }
+
 
 // ============================================================================
 // Helper structs
@@ -52,30 +51,24 @@ Pen::Pen(int width, const QColor& colour, PenStyle style) :
 {
 }
 
+
 QString Pen::whiskerOptionString() const
 {
     const QStringList args{
-        FLAG_PEN_COLOUR,
-        rgbFromColour(colour),
-        FLAG_PEN_WIDTH,
-        QString::number(width),
-        FLAG_PEN_STYLE,
-        PEN_STYLE_FLAGS[style],
+        FLAG_PEN_COLOUR, rgbFromColour(colour),
+        FLAG_PEN_WIDTH, QString::number(width),
+        FLAG_PEN_STYLE, PEN_STYLE_FLAGS[style],
     };
     return msgFromArgs(args);
 }
+
 
 // ----------------------------------------------------------------------------
 // Brush
 // ----------------------------------------------------------------------------
 
-Brush::Brush(
-    const QColor& colour,
-    const QColor& bg_colour,
-    bool opaque,
-    BrushStyle style,
-    BrushHatchStyle hatch_style
-) :
+Brush::Brush(const QColor& colour, const QColor& bg_colour, bool opaque,
+             BrushStyle style, BrushHatchStyle hatch_style) :
     colour(colour),
     bg_colour(bg_colour),
     opaque(opaque),
@@ -83,6 +76,7 @@ Brush::Brush(
     hatch_style(hatch_style)
 {
 }
+
 
 QString Brush::whiskerOptionString() const
 {
@@ -103,6 +97,7 @@ QString Brush::whiskerOptionString() const
     return msgFromArgs(args);
 }
 
+
 // ============================================================================
 // Display object definition classes
 // ============================================================================
@@ -112,15 +107,16 @@ QString DisplayObject::optionString() const
     return msgFromArgs(options());
 }
 
-Arc::Arc(
-    const QRect& rect, const QPoint& start, const QPoint& end, const Pen& pen
-) :
+
+Arc::Arc(const QRect& rect, const QPoint& start, const QPoint& end,
+         const Pen& pen) :
     rect(rect),
     start(start),
     end(end),
     pen(pen)
 {
 }
+
 
 QStringList Arc::options() const
 {
@@ -133,13 +129,9 @@ QStringList Arc::options() const
     };
 }
 
-Bezier::Bezier(
-    const QPoint& start,
-    const QPoint& control1,
-    const QPoint& control2,
-    const QPoint& end,
-    const Pen& pen
-) :
+
+Bezier::Bezier(const QPoint& start, const QPoint& control1,
+               const QPoint& control2, const QPoint& end, const Pen& pen) :
     start(start),
     control1(control1),
     control2(control2),
@@ -147,6 +139,7 @@ Bezier::Bezier(
     pen(pen)
 {
 }
+
 
 QStringList Bezier::options() const
 {
@@ -160,15 +153,10 @@ QStringList Bezier::options() const
     };
 }
 
-Bitmap::Bitmap(
-    const QPoint& pos,
-    const QString& filename,
-    bool stretch,
-    int height,
-    int width,
-    VerticalAlign valign,
-    HorizontalAlign halign
-) :
+
+Bitmap::Bitmap(const QPoint& pos, const QString& filename,
+               bool stretch, int height, int width,
+               VerticalAlign valign, HorizontalAlign halign) :
     pos(pos),
     filename(filename),
     stretch(stretch),
@@ -179,6 +167,7 @@ Bitmap::Bitmap(
 {
 }
 
+
 QStringList Bitmap::options() const
 {
     return QStringList{
@@ -186,28 +175,25 @@ QStringList Bitmap::options() const
         pointCoordinates(pos),
         quote(filename),
         stretch ? FLAG_BITMAP_STRETCH : FLAG_BITMAP_CLIP,
-        FLAG_HEIGHT,
-        QString::number(height),
-        FLAG_WIDTH,
-        QString::number(width),
+        FLAG_HEIGHT, QString::number(height),
+        FLAG_WIDTH, QString::number(width),
         HALIGN_FLAGS[halign],
         VALIGN_FLAGS[valign],
     };
 }
 
-CamcogQuadPattern::CamcogQuadPattern(
-    const QPoint& pos,
-    const QSize& pixel_size,
-    const QVector<uint8_t>& top_left_patterns,
-    const QVector<uint8_t>& top_right_patterns,
-    const QVector<uint8_t>& bottom_left_patterns,
-    const QVector<uint8_t>& bottom_right_patterns,
-    const QColor& top_left_colour,
-    const QColor& top_right_colour,
-    const QColor& bottom_left_colour,
-    const QColor& bottom_right_colour,
-    const QColor& bg_colour
-) :
+
+CamcogQuadPattern::CamcogQuadPattern(const QPoint& pos,
+                                     const QSize& pixel_size,
+                                     const QVector<uint8_t>& top_left_patterns,
+                                     const QVector<uint8_t>& top_right_patterns,
+                                     const QVector<uint8_t>& bottom_left_patterns,
+                                     const QVector<uint8_t>& bottom_right_patterns,
+                                     const QColor& top_left_colour,
+                                     const QColor& top_right_colour,
+                                     const QColor& bottom_left_colour,
+                                     const QColor& bottom_right_colour,
+                                     const QColor& bg_colour) :
     pos(pos),
     pixel_size(pixel_size),
     top_left_patterns(top_left_patterns),
@@ -222,15 +208,15 @@ CamcogQuadPattern::CamcogQuadPattern(
 {
 }
 
+
 QStringList CamcogQuadPattern::options() const
 {
     const int required_size = 8;
-    if (top_left_patterns.size() != required_size
-        || top_right_patterns.size() != required_size
-        || bottom_left_patterns.size() != required_size
-        || bottom_right_patterns.size() != required_size) {
-        qWarning() << "Whisker CamcogQuadPattern used with wrong vector size; "
-                      "will fail";
+    if (top_left_patterns.size() != required_size ||
+            top_right_patterns.size() != required_size ||
+            bottom_left_patterns.size() != required_size ||
+            bottom_right_patterns.size() != required_size) {
+        qWarning() << "Whisker CamcogQuadPattern used with wrong vector size; will fail";
         return QStringList();
     }
 
@@ -258,13 +244,9 @@ QStringList CamcogQuadPattern::options() const
     };
 }
 
-Chord::Chord(
-    const QRect& rect,
-    const QPoint& line_start,
-    const QPoint& line_end,
-    const Pen& pen,
-    const Brush& brush
-) :
+
+Chord::Chord(const QRect& rect, const QPoint& line_start,
+             const QPoint& line_end, const Pen& pen, const Brush& brush) :
     rect(rect),
     line_start(line_start),
     line_end(line_end),
@@ -272,6 +254,7 @@ Chord::Chord(
     brush(brush)
 {
 }
+
 
 QStringList Chord::options() const
 {
@@ -285,12 +268,14 @@ QStringList Chord::options() const
     };
 }
 
+
 Ellipse::Ellipse(const QRect& rect, const Pen& pen, const Brush& brush) :
     rect(rect),
     pen(pen),
     brush(brush)
 {
 }
+
 
 QStringList Ellipse::options() const
 {
@@ -302,12 +287,14 @@ QStringList Ellipse::options() const
     };
 }
 
+
 Line::Line(const QPoint& start, const QPoint& end, const Pen& pen) :
     start(start),
     end(end),
     pen(pen)
 {
 }
+
 
 QStringList Line::options() const
 {
@@ -319,13 +306,9 @@ QStringList Line::options() const
     };
 }
 
-Pie::Pie(
-    const QRect& rect,
-    const QPoint& arc_start,
-    const QPoint& arc_end,
-    const Pen& pen,
-    const Brush& brush
-) :
+
+Pie::Pie(const QRect& rect, const QPoint& arc_start, const QPoint& arc_end,
+         const Pen& pen, const Brush& brush) :
     rect(rect),
     arc_start(arc_start),
     arc_end(arc_end),
@@ -333,6 +316,7 @@ Pie::Pie(
     brush(brush)
 {
 }
+
 
 QStringList Pie::options() const
 {
@@ -346,12 +330,9 @@ QStringList Pie::options() const
     };
 }
 
-Polygon::Polygon(
-    const QVector<QPoint>& points,
-    const Pen& pen,
-    const Brush& brush,
-    bool alternate
-) :
+
+Polygon::Polygon(const QVector<QPoint>& points,
+                 const Pen& pen, const Brush& brush, bool alternate) :
     points(points),
     pen(pen),
     brush(brush),
@@ -359,11 +340,11 @@ Polygon::Polygon(
 {
 }
 
+
 QStringList Polygon::options() const
 {
     if (points.size() < 3) {
-        qWarning(
-        ) << "Whisker polygon used with fewer than 3 points; will fail";
+        qWarning() << "Whisker polygon used with fewer than 3 points; will fail";
         return QStringList();
     }
     QStringList args{
@@ -381,12 +362,14 @@ QStringList Polygon::options() const
     return args;
 }
 
+
 Rectangle::Rectangle(const QRect& rect, const Pen& pen, const Brush& brush) :
     rect(rect),
     pen(pen),
     brush(brush)
 {
 }
+
 
 QStringList Rectangle::options() const
 {
@@ -398,18 +381,16 @@ QStringList Rectangle::options() const
     };
 }
 
-RoundRect::RoundRect(
-    const QRect& rect,
-    const QSize& ellipse_size,
-    const Pen& pen,
-    const Brush& brush
-) :
+
+RoundRect::RoundRect(const QRect& rect, const QSize& ellipse_size,
+                     const Pen& pen, const Brush& brush) :
     rect(rect),
     ellipse_size(ellipse_size),
     pen(pen),
     brush(brush)
 {
 }
+
 
 QStringList RoundRect::options() const
 {
@@ -422,9 +403,9 @@ QStringList RoundRect::options() const
     };
 }
 
-Text::Text(
-    const QPoint& pos, const QString& text, int height, const QString& font
-) :
+
+Text::Text(const QPoint& pos, const QString& text, int height,
+           const QString& font) :
     pos(pos),
     text(text),
     height(height),
@@ -432,23 +413,20 @@ Text::Text(
 {
 }
 
+
 QStringList Text::options() const
 {
     QStringList args{
         VAL_OBJTYPE_TEXT,
         pointCoordinates(pos),
         quote(text),
-        FLAG_HEIGHT,
-        QString::number(height),
-        FLAG_TEXT_WEIGHT,
-        QString::number(weight),
+        FLAG_HEIGHT, QString::number(height),
+        FLAG_TEXT_WEIGHT, QString::number(weight),
         italic ? FLAG_TEXT_ITALIC : "",
         underline ? FLAG_TEXT_UNDERLINE : "",
         opaque ? FLAG_TEXT_OPAQUE : "",
-        FLAG_TEXT_COLOUR,
-        rgbFromColour(colour),
-        FLAG_BACKCOLOUR,
-        rgbFromColour(bg_colour),
+        FLAG_TEXT_COLOUR, rgbFromColour(colour),
+        FLAG_BACKCOLOUR, rgbFromColour(bg_colour),
         TEXT_HALIGN_FLAGS[halign],
         TEXT_VALIGN_FLAGS[valign],
     };
@@ -458,14 +436,9 @@ QStringList Text::options() const
     return args;
 }
 
-Video::Video(
-    const QPoint& pos,
-    const QString& filename,
-    bool loop,
-    VideoPlayMode playmode,
-    int width,
-    int height
-) :
+
+Video::Video(const QPoint& pos, const QString& filename, bool loop,
+             VideoPlayMode playmode, int width, int height) :
     pos(pos),
     filename(filename),
     loop(loop),
@@ -475,6 +448,8 @@ Video::Video(
 {
 }
 
+
+
 QStringList Video::options() const
 {
     return QStringList{
@@ -483,17 +458,15 @@ QStringList Video::options() const
         quote(filename),
         loop ? FLAG_LOOP : FLAG_VIDEO_NOLOOP,
         VIDEO_PLAYMODE_FLAGS[playmode],
-        FLAG_WIDTH,
-        QString::number(width),
-        FLAG_HEIGHT,
-        QString::number(height),
+        FLAG_WIDTH, QString::number(width),
+        FLAG_HEIGHT, QString::number(height),
         play_audio ? FLAG_VIDEO_AUDIO : FLAG_VIDEO_NOAUDIO,
         HALIGN_FLAGS[halign],
         VALIGN_FLAGS[valign],
-        FLAG_BACKCOLOUR,
-        rgbFromColour(bg_colour),
+        FLAG_BACKCOLOUR, rgbFromColour(bg_colour),
     };
 }
+
 
 // ============================================================================
 // Helper functions
@@ -504,11 +477,13 @@ bool onOffToBoolean(const QString& msg)
     return msg == VAL_ON;
 }
 
+
 QString quote(const QString& s)
 {
     return QUOTE + s + QUOTE;  // suboptimal! Doesn't escape quotes.
     // Mind you, don't think Whisker deals with that anyway.
 }
+
 
 QString msgFromArgs(const QStringList& args)
 {
@@ -521,40 +496,43 @@ QString msgFromArgs(const QStringList& args)
     return nonempty_args.join(SPACE);
 }
 
+
 QString rgbFromColour(const QColor& colour)
 {
-    return QString("%1 %2 %3")
-        .arg(
-            QString::number(colour.red()),
-            QString::number(colour.green()),
-            QString::number(colour.blue())
-        );
+    return QString("%1 %2 %3").arg(
+                QString::number(colour.red()),
+                QString::number(colour.green()),
+                QString::number(colour.blue()));
 }
+
 
 QString pointCoordinates(const QPoint& point)
 {
     return QString("%1 %2").arg(
-        QString::number(point.x()), QString::number(point.y())
-    );
+                QString::number(point.x()),
+                QString::number(point.y()));
 }
+
 
 QString rectCoordinates(const QRect& rect)
 {
-    return QString("%1 %2 %3 %4")
-        .arg(
-            QString::number(rect.left()),
-            QString::number(rect.top()),
-            QString::number(rect.right()),
-            QString::number(rect.bottom())
-        );
+    return QString("%1 %2 %3 %4").arg(
+        QString::number(rect.left()),
+        QString::number(rect.top()),
+        QString::number(rect.right()),
+        QString::number(rect.bottom())
+    );
 }
+
 
 QString sizeCoordinates(const QSize& size)
 {
     return QString("%1 %2").arg(
-        QString::number(size.width()), QString::number(size.height())
-    );
+                QString::number(size.width()),
+                QString::number(size.height()));
 }
 
 
+
 }  // namespace whiskerapi
+

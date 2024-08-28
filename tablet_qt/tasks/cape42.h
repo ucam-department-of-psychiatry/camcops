@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,16 +29,13 @@ class TaskFactory;
 
 void initializeCape42(TaskFactory& factory);
 
+
 class Cape42 : public Task
 {
     Q_OBJECT
-
 public:
-    Cape42(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Cape42(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -59,7 +55,6 @@ public:
     // ------------------------------------------------------------------------
     int distressScore(const QVector<int>& questions) const;
     int frequencyScore(const QVector<int>& questions) const;
-
 protected:
     bool questionComplete(int q) const;
     // ------------------------------------------------------------------------
@@ -67,15 +62,12 @@ protected:
     // ------------------------------------------------------------------------
 public slots:
     void frequencyChanged(const FieldRef* fieldref);
-
 protected:
     bool needDistress(int q);
     void setDistressItems(int q);
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
     QMap<int, FieldRefPtr> m_distress_fieldrefs;
-
 public:
     static const QString CAPE42_TABLENAME;
 };

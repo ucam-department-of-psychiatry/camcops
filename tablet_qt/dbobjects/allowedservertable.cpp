@@ -19,7 +19,6 @@
 */
 
 #include "allowedservertable.h"
-
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "lib/version.h"
@@ -28,32 +27,23 @@ const QString ALLOWEDSERVERTABLES_TABLENAME("allowed_server_tables");
 const QString AllowedServerTable::TABLENAME_FIELD("tablename");
 const QString AllowedServerTable::VERSION_FIELD("min_client_version");
 
+
 // Specimen constructor:
 AllowedServerTable::AllowedServerTable(CamcopsApp& app, DatabaseManager& db) :
-    DatabaseObject(
-        app,
-        db,
-        ALLOWEDSERVERTABLES_TABLENAME,
-        dbconst::PK_FIELDNAME,
-        true,
-        false,
-        false,
-        false
-    )
+    DatabaseObject(app, db, ALLOWEDSERVERTABLES_TABLENAME, dbconst::PK_FIELDNAME,
+                   true, false, false, false)
 {
     // Define fields
-    addField(
-        TABLENAME_FIELD, QMetaType::fromType<QString>(), true, true, false
-    );  // unique
-    addField(
-        VERSION_FIELD, QMetaType::fromType<Version>(), true, false, false
-    );
+    addField(TABLENAME_FIELD, QMetaType::fromType<QString>(), true, true, false);
+        // ... unique
+    addField(VERSION_FIELD, QMetaType::fromType<Version>(), true, false, false);
 }
 
+
 // Loading constructor:
-AllowedServerTable::AllowedServerTable(
-    CamcopsApp& app, DatabaseManager& db, const QString& tablename
-) :
+AllowedServerTable::AllowedServerTable(CamcopsApp& app,
+                                       DatabaseManager& db,
+                                       const QString& tablename) :
     AllowedServerTable(app, db)  // delegating constructor
 {
     if (!tablename.isEmpty()) {
@@ -64,19 +54,17 @@ AllowedServerTable::AllowedServerTable(
     }
 }
 
+
 // Saving constructor:
-AllowedServerTable::AllowedServerTable(
-    CamcopsApp& app,
-    DatabaseManager& db,
-    const QString& tablename,
-    const Version& min_client_version
-) :
+AllowedServerTable::AllowedServerTable(CamcopsApp& app,
+                                       DatabaseManager& db,
+                                       const QString& tablename,
+                                       const Version& min_client_version) :
     AllowedServerTable(app, db)  // delegating constructor
 {
     if (tablename.isEmpty()) {
-        qWarning() << Q_FUNC_INFO
-                   << "Using the save-blindly constructor "
-                      "without a tablename!";
+        qWarning() << Q_FUNC_INFO << "Using the save-blindly constructor "
+                                     "without a tablename!";
         return;
     }
     setValue(TABLENAME_FIELD, tablename);
@@ -84,30 +72,33 @@ AllowedServerTable::AllowedServerTable(
     save();
 }
 
+
 AllowedServerTable::~AllowedServerTable()
 {
 }
+
 
 QString AllowedServerTable::tablename() const
 {
     return valueString(TABLENAME_FIELD);
 }
 
+
 Version AllowedServerTable::minClientVersion() const
 {
     return Version::fromVariant(value(VERSION_FIELD));
 }
+
 
 void AllowedServerTable::deleteAllAllowedServerTables()
 {
     m_db.deleteFrom(ALLOWEDSERVERTABLES_TABLENAME);
 }
 
+
 void AllowedServerTable::makeIndexes()
 {
-    m_db.createIndex(
-        "_idx_allowedtables_tablename",
-        ALLOWEDSERVERTABLES_TABLENAME,
-        {TABLENAME_FIELD}
-    );
+    m_db.createIndex("_idx_allowedtables_tablename",
+                     ALLOWEDSERVERTABLES_TABLENAME,
+                     {TABLENAME_FIELD});
 }

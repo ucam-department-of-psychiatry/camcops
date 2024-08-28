@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,17 +30,14 @@ class TaskFactory;
 
 void initializeAuditC(TaskFactory& factory);
 
+
 class AuditC : public Task
 {
     // AUDIT-C = First three questions of the AUDIT.
     Q_OBJECT
-
 public:
-    AuditC(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    AuditC(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -49,14 +45,9 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
-    virtual QString
-        xstringTaskname() const override;  // shares strings with AUDIT
-
-    virtual bool prohibitsCommercial() const override
-    {
-        return true;
-    }
-
+    virtual QString xstringTaskname() const override;
+        // ... shares strings with AUDIT
+    virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -68,7 +59,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
-
 public:
     static const QString AUDITC_TABLENAME;
 };

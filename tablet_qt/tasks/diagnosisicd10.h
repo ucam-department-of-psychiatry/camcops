@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "taskxtra/diagnosistaskbase.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeDiagnosisIcd10(TaskFactory& factory);
 
+
 class DiagnosisIcd10 : public DiagnosisTaskBase
 {
     Q_OBJECT
-
 public:
-    DiagnosisIcd10(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    DiagnosisIcd10(CamcopsApp& app, DatabaseManager& db,
+                   int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -62,7 +58,6 @@ public:
     // ------------------------------------------------------------------------
     virtual DiagnosticCodeSetPtr makeCodeset() const override;
     virtual DiagnosisItemBasePtr makeItem() const override;
-
 public:
     static const QString DIAGNOSIS_ICD10_TABLENAME;
 };

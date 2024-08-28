@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,13 +28,12 @@ class TaskFactory;
 
 void initializeFrs(TaskFactory& factory);
 
+
 class Frs : public Task
 {
     Q_OBJECT
-
 protected:
-    struct ScoreInfo
-    {
+    struct ScoreInfo {
         int total = 0;
         int n = 0;
         QVariant score;
@@ -44,8 +42,7 @@ protected:
     };
 
 public:
-    Frs(CamcopsApp& app,
-        DatabaseManager& db,
+    Frs(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -53,12 +50,9 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -69,12 +63,10 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     ScoreInfo getScore() const;
     QVariant getTabularLogit(double score) const;
     QString getSeverity(const QVariant& logit) const;
-
 public:
     static const QString FRS_TABLENAME;
 };

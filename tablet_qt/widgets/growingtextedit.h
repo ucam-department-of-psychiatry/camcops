@@ -21,6 +21,7 @@
 #pragma once
 #include <QTextEdit>
 
+
 class GrowingTextEdit : public QTextEdit
 {
     // Text editor that expands vertically to its contents.
@@ -31,8 +32,8 @@ class GrowingTextEdit : public QTextEdit
     // http://www.qtcentre.org/threads/9840-QTextEdit-auto-resize
     // http://stackoverflow.com/questions/11851020
     Q_OBJECT
-
 public:
+
     // Plain constructor
     GrowingTextEdit(QWidget* parent = nullptr);
 

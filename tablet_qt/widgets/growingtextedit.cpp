@@ -20,21 +20,19 @@
 
 #include "growingtextedit.h"
 
+
 GrowingTextEdit::GrowingTextEdit(QWidget* parent) :
     QTextEdit(parent),
     m_auto_resize(true)
 {
-    connect(
-        document(),
-        &QTextDocument::contentsChanged,
-        this,
-        &GrowingTextEdit::contentsChanged
-    );
+    connect(document(), &QTextDocument::contentsChanged,
+            this, &GrowingTextEdit::contentsChanged);
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
+
 
 GrowingTextEdit::GrowingTextEdit(const QString& text, QWidget* parent) :
     GrowingTextEdit(parent)  // delegating constructor
@@ -42,14 +40,17 @@ GrowingTextEdit::GrowingTextEdit(const QString& text, QWidget* parent) :
     setText(text);
 }
 
+
 GrowingTextEdit::~GrowingTextEdit()
 {
 }
+
 
 void GrowingTextEdit::setAutoResize(const bool auto_resize)
 {
     m_auto_resize = auto_resize;
 }
+
 
 QSize GrowingTextEdit::sizeHint() const
 {
@@ -64,6 +65,7 @@ QSize GrowingTextEdit::sizeHint() const
     return size_hint;
 }
 
+
 QSize GrowingTextEdit::minimumSizeHint() const
 {
     // Implementing this reduces to a satisfactory level (though doesn't
@@ -76,6 +78,7 @@ QSize GrowingTextEdit::minimumSizeHint() const
     minsize.setHeight(sizeHint().height());
     return minsize;
 }
+
 
 void GrowingTextEdit::contentsChanged()
 {

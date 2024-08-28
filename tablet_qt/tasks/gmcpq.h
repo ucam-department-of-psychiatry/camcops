@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
@@ -30,16 +29,13 @@ class TaskFactory;
 
 void initializeGmcPq(TaskFactory& factory);
 
+
 class GmcPq : public Task
 {
     Q_OBJECT
-
 public:
-    GmcPq(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    GmcPq(CamcopsApp& app, DatabaseManager& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -61,8 +57,8 @@ public:
     NameValueOptions optionsQ4() const;
     NameValueOptions optionsQ5() const;
     NameValueOptions optionsQ11() const;
-    static NameValueOptions ethnicityOptions(CamcopsApp& app
-    );  // used by others, hence static
+    static NameValueOptions ethnicityOptions(CamcopsApp& app);
+        // ... used by others, hence static
     static bool ethnicityOther(int ethnicity_code);
     // ------------------------------------------------------------------------
     // Signal handlers
@@ -72,7 +68,6 @@ public slots:
     // ------------------------------------------------------------------------
     // Other
     // ------------------------------------------------------------------------
-
 public:
     static const QString GMCPQ_TABLENAME;
 };

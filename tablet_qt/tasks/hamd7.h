@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeHamD7(TaskFactory& factory);
 
+
 class HamD7 : public Task
 {
     Q_OBJECT
-
 public:
-    HamD7(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    HamD7(CamcopsApp& app, DatabaseManager& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -56,11 +52,9 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     int totalScore() const;
     int nOptions(int question) const;
-
 public:
     static const QString HAMD7_TABLENAME;
 };

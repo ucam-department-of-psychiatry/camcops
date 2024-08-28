@@ -25,7 +25,6 @@
 #define USE_FILE
 
 #include "cameraqml.h"
-
 #include <QFile>
 #include <QFileInfo>
 #include <QMimeDatabase>
@@ -33,7 +32,6 @@
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
 #include <QVBoxLayout>
-
 #include "lib/uifunc.h"
 
 #ifdef DEBUG_TEST_QML_ONLY
@@ -70,7 +68,8 @@ Or maybe not?
 - https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
 
 The actual error on Android is:
-... warning: The video surface is not compatible with any format supported by the camera
+... warning: The video surface is not compatible with any format supported by
+    the camera
 
 */
 
@@ -97,12 +96,16 @@ BUT:
     - When it doesn't work, but the declarative-camera example does:
       These errors come from both, so are not a problem:
       (a) camcops
-      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package : org.camcops.camcops
-      - E libGLESv1: HWUI Protection: wrong call from hwui context F:ES1-glDeleteTexturesSEC
+      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package :
+        org.camcops.camcops
+      - E libGLESv1: HWUI Protection: wrong call from hwui context
+        F:ES1-glDeleteTexturesSEC
       (b) declarative_camera
-      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package : org.qtproject.example.declarative_camera
+      - D libGLESv2: DTS_GLAPI : DTS is not allowed for Package :
+        org.qtproject.example.declarative_camera
       ...
-      - E libGLESv1: HWUI Protection: wrong call from hwui context F:ES1-glDeleteTexturesSEC
+      - E libGLESv1: HWUI Protection: wrong call from hwui context
+        F:ES1-glDeleteTexturesSEC
 
     - http://lists.qt-project.org/pipermail/interest/2015-November/019657.html
 
@@ -111,17 +114,12 @@ BUT:
     */
     m_qml_view = new QQuickWidget();
     m_qml_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    connect(
-        m_qml_view->engine(), &QQmlEngine::quit, this, &CameraQml::cancelled
-    );
+    connect(m_qml_view->engine(), &QQmlEngine::quit,
+            this, &CameraQml::cancelled);
     // Just after calling setSource(), calling view->rootObject() can give a
     // nullptr, because it may be loading in the background. So:
-    connect(
-        m_qml_view,
-        &QQuickWidget::statusChanged,
-        this,
-        &CameraQml::qmlStatusChanged
-    );
+    connect(m_qml_view, &QQuickWidget::statusChanged,
+            this, &CameraQml::qmlStatusChanged);
     // ... and must set that signal before calling setSource().
 #ifdef DEBUG_TEST_QML_ONLY
     m_qml_view->setSource(uifunc::resourceUrl(TEST_ANIMATION_QML));
@@ -135,6 +133,7 @@ BUT:
     setLayout(top_layout);
 }
 
+
 // ============================================================================
 // Public interface
 // ============================================================================
@@ -143,6 +142,7 @@ void CameraQml::finish()
 {
     emit finished();
 }
+
 
 // ============================================================================
 // Internals
@@ -160,6 +160,7 @@ void CameraQml::qmlStatusChanged(const QQuickWidget::Status status)
     }
 }
 
+
 void CameraQml::qmlFinishedLoading()
 {
 #ifdef DEBUG_CAMERA
@@ -170,35 +171,31 @@ void CameraQml::qmlFinishedLoading()
     Q_ASSERT(root);
     // It's possible to connect to non-root objects, but it's much cleaner to
     // route from QML child objects up to the QML root object, and then to C++.
-    connect(
-        root,
-        SIGNAL(imageCaptured(const QVariant&)),
-        this,
-        SLOT(copyPreviewImage(const QVariant&))
-    );
+    connect(root, SIGNAL(imageCaptured(const QVariant&)),
+            this, SLOT(copyPreviewImage(const QVariant&)));
     connect(root, SIGNAL(previewSaved()), this, SLOT(savePreviewImage()));
-    connect(
-        root,
-        SIGNAL(fileNoLongerNeeded(const QString&)),
-        this,
-        SLOT(deleteSuperfluousFile(const QString&))
-    );
+    connect(root, SIGNAL(fileNoLongerNeeded(const QString&)),
+            this, SLOT(deleteSuperfluousFile(const QString&)));
     // ... we have to use SIGNAL() and SLOT() since C++ has no idea of the
     // provenance of the signal (and whether or not it exists) -- the macros
     // map signals via strings, so this works, but you'll get an error like
-    // "QObject::connect: No such signal PhotoPreview_QMLTYPE_2::imageCaptured(const QString&)"
+    // "QObject::connect: No such signal
+    //  PhotoPreview_QMLTYPE_2::imageCaptured(const QString&)"
     // if you get the type wrong.
 }
+
 
 void CameraQml::copyPreviewImage(const QVariant& preview)
 {
     m_preview = preview.value<QImage>();
 }
 
+
 void CameraQml::savePreviewImage()
 {
     emit imageCaptured(m_preview);
 }
+
 
 void CameraQml::deleteFile(const QString& filename) const
 {
@@ -211,6 +208,7 @@ void CameraQml::deleteFile(const QString& filename) const
                  << (success ? "... success" : "... FAILED!");
     }
 }
+
 
 void CameraQml::deleteSuperfluousFile(const QString& filename) const
 {

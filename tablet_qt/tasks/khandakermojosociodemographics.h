@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -37,13 +36,9 @@ struct KhandakerMojoSocQInfo;
 class KhandakerMojoSociodemographics : public Task
 {
     Q_OBJECT
-
 public:
-    KhandakerMojoSociodemographics(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    KhandakerMojoSociodemographics(CamcopsApp& app, DatabaseManager& db,
+                                   int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -61,12 +56,11 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific
     // ------------------------------------------------------------------------
-
 private:
     bool answeredOther(const KhandakerMojoSocQInfo& info) const;
     NameValueOptions getOptions(const KhandakerMojoSocQInfo& info) const;
-    QString getOptionName(const KhandakerMojoSocQInfo& info, const int index)
-        const;
+    QString getOptionName(const KhandakerMojoSocQInfo& info,
+                          const int index) const;
     QString getAnswerText(const KhandakerMojoSocQInfo& info) const;
 
     // ------------------------------------------------------------------------
@@ -75,10 +69,8 @@ private:
 signals:
 public slots:
     void updateMandatory();
-
 public:
     static const QString KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME;
-
 private:
     QPointer<Questionnaire> m_questionnaire;
 };

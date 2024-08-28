@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,16 +30,13 @@ class TaskFactory;
 
 void initializePhq9(TaskFactory& factory);
 
+
 class Phq9 : public Task
 {
     Q_OBJECT
-
 public:
-    Phq9(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Phq9(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -63,10 +59,8 @@ public:
     static QString severity(int score);
 public slots:
     void mainScoreChanged();
-
 public:
     static const QString PHQ9_TABLENAME;
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

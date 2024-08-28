@@ -19,14 +19,12 @@
 */
 
 #include "logmessagebox.h"
-
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QScreen>
 #include <QVBoxLayout>
-
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
@@ -35,21 +33,18 @@
 const int MIN_WIDTH = 600;
 const int MIN_HEIGHT = 600;
 
-LogMessageBox::LogMessageBox(
-    QWidget* parent,
-    const QString& title,
-    const QString& text,
-    const bool as_html,
-    const bool word_wrap
-) :
+
+LogMessageBox::LogMessageBox(QWidget* parent,
+                             const QString& title,
+                             const QString& text,
+                             const bool as_html,
+                             const bool word_wrap) :
     QDialog(parent)
 {
     setWindowTitle(title);
 
-    const int min_width
-        = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
-    const int min_height
-        = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
+    const int min_width = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
     const int min_size = qMin(min_width, min_height);
 
     setMinimumWidth(min_size);
@@ -61,9 +56,8 @@ LogMessageBox::LogMessageBox(
     m_editor = new QPlainTextEdit();
     m_editor->setReadOnly(true);
     m_editor->setTextInteractionFlags(Qt::NoTextInteraction);
-    m_editor->setLineWrapMode(
-        word_wrap ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap
-    );
+    m_editor->setLineWrapMode(word_wrap ? QPlainTextEdit::WidgetWidth
+                                        : QPlainTextEdit::NoWrap);
     mainlayout->addWidget(m_editor);
     uifunc::applyScrollGestures(m_editor->viewport());
 
@@ -76,9 +70,7 @@ LogMessageBox::LogMessageBox(
     auto buttonlayout = new QHBoxLayout();
     auto copybutton = new QPushButton(TextConst::copy());
     buttonlayout->addWidget(copybutton);
-    connect(
-        copybutton, &QPushButton::clicked, this, &LogMessageBox::copyClicked
-    );
+    connect(copybutton, &QPushButton::clicked, this, &LogMessageBox::copyClicked);
 
     buttonlayout->addStretch();
 
@@ -90,9 +82,10 @@ LogMessageBox::LogMessageBox(
 
     mainlayout->addLayout(buttonlayout);
 
-    widgetfunc::scrollToStart(m_editor.data()
-    );  // NOT WORKING. And exec() isn't virtual.
+    widgetfunc::scrollToStart(m_editor.data());
+        // ... NOT WORKING. And exec() isn't virtual.
 }
+
 
 void LogMessageBox::copyClicked()
 {

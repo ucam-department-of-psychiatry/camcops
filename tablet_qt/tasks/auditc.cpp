@@ -19,10 +19,9 @@
 */
 
 #include "auditc.h"
-
 #include "audit.h"  // for AUDIT_TABLENAME
-#include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
@@ -40,22 +39,22 @@ const QString QPREFIX("q");
 
 const QString AuditC::AUDITC_TABLENAME("audit_c");
 
+
 void initializeAuditC(TaskFactory& factory)
 {
     static TaskRegistrar<AuditC> registered(factory);
 }
 
+
 AuditC::AuditC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(
-        app, db, AUDITC_TABLENAME, false, false, false
-    )  // ... anon, clin, resp
+    Task(app, db, AUDITC_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -66,28 +65,31 @@ QString AuditC::shortname() const
     return "AUDIT-C";
 }
 
+
 QString AuditC::longname() const
 {
     return tr("AUDIT Alcohol Consumption Questions");
 }
 
+
 QString AuditC::description() const
 {
-    return tr(
-        "3-item consumption subset of the AUDIT; "
-        "clinician-administered screening test."
-    );
+    return tr("3-item consumption subset of the AUDIT; "
+              "clinician-administered screening test.");
 }
+
 
 QString AuditC::infoFilenameStem() const
 {
     return Audit::AUDIT_TABLENAME;  // shares with AUDIT
 }
 
+
 QString AuditC::xstringTaskname() const
 {
     return Audit::AUDIT_TABLENAME;  // shares strings with AUDIT
 }
+
 
 // ============================================================================
 // Instance info
@@ -98,10 +100,12 @@ bool AuditC::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList AuditC::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
+
 
 QStringList AuditC::detail() const
 {
@@ -111,6 +115,7 @@ QStringList AuditC::detail() const
     lines += summary();
     return lines;
 }
+
 
 OpenableWidget* AuditC::editor(const bool read_only)
 {
@@ -138,43 +143,36 @@ OpenableWidget* AuditC::editor(const bool read_only)
     const QString qprefix = xstring("c_qprefix");
 
     QuPagePtr page1((new QuPage{
-                         new QuText(xstring("instructions_1")),
-                         // no "instructions_2"
-                         new QuText(xstring("instructions_3")),
-                         new QuText(xstring("instructions_4")),
-                         new QuText(xstring("instructions_5")),
-                     })
-                        ->setType(QuPage::PageType::Clinician)
-                        ->setTitle(shortname()));
+        new QuText(xstring("instructions_1")),
+        // no "instructions_2"
+        new QuText(xstring("instructions_3")),
+        new QuText(xstring("instructions_4")),
+        new QuText(xstring("instructions_5")),
+    })->setType(QuPage::PageType::Clinician)->setTitle(shortname()));
 
     QuPagePtr page2((new QuPage{
-                         (new QuText(xstring("c_q1_question")))->setBold(),
-                         new QuText(xstring("c_instruction")),
-                         new QuMcq(fieldRef("q1"), options1),
-                     })
-                        ->setType(QuPage::PageType::Clinician)
-                        ->setTitle(qprefix + " 1"));
+        (new QuText(xstring("c_q1_question")))->setBold(),
+        new QuText(xstring("c_instruction")),
+        new QuMcq(fieldRef("q1"), options1),
+    })->setType(QuPage::PageType::Clinician)->setTitle(qprefix + " 1"));
 
     QuPagePtr page3((new QuPage{
-                         (new QuText(xstring("c_q2_question")))->setBold(),
-                         new QuMcq(fieldRef("q2"), options2),
-                     })
-                        ->setType(QuPage::PageType::Clinician)
-                        ->setTitle(qprefix + " 2"));
+        (new QuText(xstring("c_q2_question")))->setBold(),
+        new QuMcq(fieldRef("q2"), options2),
+    })->setType(QuPage::PageType::Clinician)->setTitle(qprefix + " 2"));
 
     QuPagePtr page4((new QuPage{
-                         (new QuText(xstring("c_q3_question")))->setBold(),
-                         new QuMcq(fieldRef("q3"), options3),
-                     })
-                        ->setType(QuPage::PageType::Clinician)
-                        ->setTitle(qprefix + " 3"));
+        (new QuText(xstring("c_q3_question")))->setBold(),
+        new QuMcq(fieldRef("q3"), options3),
+    })->setType(QuPage::PageType::Clinician)->setTitle(qprefix + " 3"));
 
-    auto questionnaire
-        = new Questionnaire(m_app, {page1, page2, page3, page4});
+    auto questionnaire = new Questionnaire(
+                m_app, {page1, page2, page3, page4});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations

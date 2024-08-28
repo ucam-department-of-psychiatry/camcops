@@ -21,6 +21,7 @@
 #pragma once
 #include "questionnairelib/quelement.h"
 
+
 class QuGridCell
 {
     // Encapsulates a grid cell containing a QuElement.
@@ -31,24 +32,20 @@ public:
     QuGridCell();
 
     // Construct with data
-    QuGridCell(
-        const QuElementPtr& element,
-        int row,  // y position, starting from 0, going down
-        int column,  // x position, starting from 0, going right
-        int row_span = 1,  // height
-        int column_span = 1,  // width
-        Qt::Alignment alignment = Qt::Alignment(),
-        bool override_element_alignment = true
-    );
-    QuGridCell(
-        QuElement* element,  // takes ownership
-        int row,
-        int column,
-        int row_span = 1,
-        int column_span = 1,
-        Qt::Alignment alignment = Qt::Alignment(),
-        bool override_element_alignment = true
-    );
+    QuGridCell(const QuElementPtr& element,
+               int row,  // y position, starting from 0, going down
+               int column,  // x position, starting from 0, going right
+               int row_span = 1,   // height
+               int column_span = 1,  // width
+               Qt::Alignment alignment = Qt::Alignment(),
+               bool override_element_alignment = true);
+    QuGridCell(QuElement* element,  // takes ownership
+               int row,
+               int column,
+               int row_span = 1,
+               int column_span = 1,
+               Qt::Alignment alignment = Qt::Alignment(),
+               bool override_element_alignment = true);
 
 public:
     QuElementPtr element;  // the element
@@ -58,9 +55,9 @@ public:
     int column_span;  // width in columns
     bool override_element_alignment;  // override widget's own alignment?
     Qt::Alignment alignment;
-    // ... alignment to apply to element in this cell, if
-    // override_element_alignment is true;
-    // see https://doc.qt.io/qt-6.5/qgridlayout.html
+        // ... alignment to apply to element in this cell, if
+        // override_element_alignment is true;
+        // see https://doc.qt.io/qt-6.5/qgridlayout.html
 
 public:
     // Debug description

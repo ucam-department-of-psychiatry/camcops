@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,28 +30,20 @@ class TaskFactory;
 
 void initializeCaps(TaskFactory& factory);
 
+
 class Caps : public Task
 {
     Q_OBJECT
-
 public:
-    Caps(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Caps(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual bool prohibitsCommercial() const override
-    {
-        return true;
-    }
-
+    virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -67,7 +58,6 @@ public:
     int distressScore() const;
     int intrusivenessScore() const;
     int frequencyScore() const;
-
 protected:
     bool questionComplete(int q) const;
     QVariant endorse(int q) const;
@@ -79,16 +69,13 @@ protected:
     // ------------------------------------------------------------------------
 public slots:
     void endorseChanged(const FieldRef* fieldref);
-
 protected:
     bool needsDetail(int q);
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
     QMap<int, FieldRefPtr> m_fr_distress;
     QMap<int, FieldRefPtr> m_fr_intrusiveness;
     QMap<int, FieldRefPtr> m_fr_frequency;
-
 public:
     static const QString CAPS_TABLENAME;
 };

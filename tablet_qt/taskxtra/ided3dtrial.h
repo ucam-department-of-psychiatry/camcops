@@ -22,22 +22,15 @@
 #include "db/databaseobject.h"
 class IDED3DStage;
 
+
 class IDED3DTrial : public DatabaseObject
 {
     Q_OBJECT
-
 public:
-    IDED3DTrial(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
-    IDED3DTrial(
-        const IDED3DStage& stage,
-        int trial_num_zero_based,
-        CamcopsApp& app,
-        DatabaseManager& db
-    );
+    IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
+                int load_pk = dbconst::NONEXISTENT_PK);
+    IDED3DTrial(const IDED3DStage& stage, int trial_num_zero_based,
+                CamcopsApp& app, DatabaseManager& db);
     void recordTrialStart();
     void recordResponse(bool correct);
     int stageZeroBased() const;
@@ -51,13 +44,11 @@ public:
     int incorrectColour() const;
     int incorrectNumber() const;
     QString summary() const;
-
 public:
     static const QString TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_STAGE;
     static const QString FN_TRIAL;
-
 protected:
     int m_stage_num_zero_based;
     int m_trial_num_zero_based;

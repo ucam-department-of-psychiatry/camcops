@@ -21,15 +21,14 @@
 #pragma once
 #include "menulib/menuwindow.h"
 
+
 class SetMenuCpftCovid : public MenuWindow
 {
     Q_OBJECT
-
 public:
     SetMenuCpftCovid(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
-
 protected:
     virtual void makeItems() override;
 };

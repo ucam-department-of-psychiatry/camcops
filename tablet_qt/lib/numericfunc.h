@@ -47,15 +47,12 @@ quint64 strToNumber(const QString& str, quint64 type_dummy);
 
 // Similarly for locale-based strings containing integers, for different
 // languages/conventions; see https://doc.qt.io/qt-6.5/qlocale.html
-int localeStrToNumber(
-    const QString& str, bool& ok, const QLocale& locale, int type_dummy
-);
-qint64 localeStrToNumber(
-    const QString&, bool& ok, const QLocale& locale, qint64 type_dummy
-);
-quint64 localeStrToNumber(
-    const QString&, bool& ok, const QLocale& locale, quint64 type_dummy
-);
+int localeStrToNumber(const QString& str, bool& ok,
+                      const QLocale& locale, int type_dummy);
+qint64 localeStrToNumber(const QString&, bool& ok,
+                         const QLocale& locale, qint64 type_dummy);
+quint64 localeStrToNumber(const QString&, bool& ok,
+                          const QLocale& locale, quint64 type_dummy);
 
 // ============================================================================
 // Numeric string representations
@@ -178,6 +175,7 @@ int maxExtraDigitsDouble(
 
 }  // namespace numeric
 
+
 // ============================================================================
 // Templated functions, first declared above
 // ============================================================================
@@ -198,6 +196,7 @@ int numeric::numDigitsInteger(const T& number, bool count_sign)
     }
     return digits;
 }
+
 
 template<typename T>
 QValidator::State numeric::validateInteger(
@@ -248,7 +247,8 @@ QValidator::State numeric::validateInteger(
     // 5. Invalid as an integer?
     bool ok = true;
     const T type_dummy = 0;
-    const T i = localeStrToNumber(s, ok, locale, type_dummy);  // NB: ok modified
+    const T i = localeStrToNumber(s, ok, locale, type_dummy);
+        // NB: ok modified
     if (!ok) {  // Not an integer.
 #ifdef NUMERICFUNC_DEBUG_BASIC
         qDebug() << Q_FUNC_INFO << "not an integer -> Invalid";
@@ -302,10 +302,10 @@ QValidator::State numeric::validateInteger(
     return QValidator::Invalid;
 }
 
+
 template<typename T>
-bool numeric::isValidStartToInteger(
-    const T& number, const T& bottom, const T& top
-)
+bool numeric::isValidStartToInteger(const T& number, const T& bottom,
+                                    const T& top)
 {
     // Is number an integer that is a valid start to typing a number between
     // min and max (inclusive)?
@@ -339,6 +339,7 @@ bool numeric::isValidStartToInteger(
     100 30000   10  30  5_: 0-9 OK (e.g. 500-599)
 
     70  300     7   3   0-3, 7-9 OK
+
     */
 
     // 1. If "number" is negative and "bottom" is zero or positive, then
@@ -386,8 +387,9 @@ bool numeric::isValidStartToInteger(
             << Q_FUNC_INFO << number << "passing on negative number";
 #endif
         return isValidStartToPositiveInt(
-            // 0- here avoids C4146 compiler error on Windows
-            // unary minus operator applied to unsigned type, result still unsigned
+            // 0- here avoids C4146 compiler error on Windows:
+            // "unary minus operator applied to unsigned type, result still
+            // unsigned."
             // This code will never be reached for unsigned types!
             0-number,  // now positive
             std::max(typed_zero, 0-top),  // makes it zero or positive

@@ -19,7 +19,6 @@
 */
 
 #include "dad.h"
-
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
@@ -116,10 +115,12 @@ const QStringList ITEMS{
 const int LEFTCOL_STRETCH = 1;
 const int RIGHTCOL_STRETCH = 2;
 
+
 void initializeDad(TaskFactory& factory)
 {
     static TaskRegistrar<Dad> registered(factory);
 }
+
 
 Dad::Dad(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, DAD_TABLENAME, false, true, true)  // ... anon, clin, resp
@@ -131,6 +132,7 @@ Dad::Dad(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -140,15 +142,18 @@ QString Dad::shortname() const
     return "DAD";
 }
 
+
 QString Dad::longname() const
 {
     return tr("Disability Assessment for Dementia");
 }
 
+
 QString Dad::description() const
 {
     return tr("40-item clinician-administered, carer-rated scale.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -159,54 +164,41 @@ bool Dad::isComplete() const
     return noneNull(values(ITEMS));
 }
 
+
 QStringList Dad::summary() const
 {
     QStringList lines;
     lines.append("Total: " + getScore(ITEMS) + ".");
-    lines.append(
-        "BADL ACTIVITIES: "
-        "hygiene "
-        + getScore(getItemsActivity(HYGIENE)) + "; dressing "
-        + getScore(getItemsActivity(DRESSING)) + "; continence "
-        + getScore(getItemsActivity(CONTINENCE)) + "; eating "
-        + getScore(getItemsActivity(EATING)) + "."
-    );
-    lines.append(
-        "BADL OVERALL: "
-        + getScore(getItemsActivities({HYGIENE, DRESSING, CONTINENCE, EATING}))
-        + "."
-    );
-    lines.append(
-        "IADL ACTIVITIES: "
-        "mealprep "
-        + getScore(getItemsActivity(MEALPREP)) + "; telephone "
-        + getScore(getItemsActivity(TELEPHONE)) + "; outing "
-        + getScore(getItemsActivity(OUTING)) + "; finance "
-        + getScore(getItemsActivity(FINANCE)) + "; medications "
-        + getScore(getItemsActivity(MEDICATIONS)) + "; leisure "
-        + getScore(getItemsActivity(LEISURE)) + "."
-    );
-    lines.append(
-        "BADL OVERALL: "
-        + getScore(getItemsActivities(
-            {MEALPREP, TELEPHONE, OUTING, FINANCE, MEDICATIONS, LEISURE}
-        ))
-        + "."
-    );
-    lines.append(
-        "PHASES: "
-        "initiation "
-        + getScore(getItemsPhase(INIT)) + "; planning/organisation "
-        + getScore(getItemsPhase(PLAN)) + "; execution/performance "
-        + getScore(getItemsPhase(EXEC)) + "."
-    );
+    lines.append("BADL ACTIVITIES: "
+                 "hygiene " + getScore(getItemsActivity(HYGIENE)) +
+                 "; dressing " + getScore(getItemsActivity(DRESSING)) +
+                 "; continence " + getScore(getItemsActivity(CONTINENCE)) +
+                 "; eating " + getScore(getItemsActivity(EATING)) + ".");
+    lines.append("BADL OVERALL: " + getScore(getItemsActivities({
+                            HYGIENE, DRESSING, CONTINENCE, EATING})) + ".");
+    lines.append("IADL ACTIVITIES: "
+                 "mealprep " + getScore(getItemsActivity(MEALPREP)) +
+                 "; telephone " + getScore(getItemsActivity(TELEPHONE)) +
+                 "; outing " + getScore(getItemsActivity(OUTING)) +
+                 "; finance " + getScore(getItemsActivity(FINANCE)) +
+                 "; medications " + getScore(getItemsActivity(MEDICATIONS)) +
+                 "; leisure " + getScore(getItemsActivity(LEISURE)) + ".");
+    lines.append("BADL OVERALL: " + getScore(getItemsActivities({
+                            MEALPREP, TELEPHONE, OUTING,
+                            FINANCE, MEDICATIONS, LEISURE})) + ".");
+    lines.append("PHASES: "
+                 "initiation " + getScore(getItemsPhase(INIT)) +
+                 "; planning/organisation " + getScore(getItemsPhase(PLAN)) +
+                 "; execution/performance " + getScore(getItemsPhase(EXEC)) + ".");
     return lines;
 }
+
 
 QStringList Dad::detail() const
 {
     return completenessInfo() + summary();
 }
+
 
 OpenableWidget* Dad::editor(const bool read_only)
 {
@@ -219,16 +211,14 @@ OpenableWidget* Dad::editor(const bool read_only)
     QuPagePtr page1 = getClinicianAndRespondentDetailsPage(false);
 
     QVector<QuElement*> elements{
-        (new QuText(
-             xstring("instruction_1") + " " + getPatientName() + " "
-             + xstring("instruction_2")
-         ))
-            ->setBold(),
+        (new QuText(xstring("instruction_1") + " " +
+                    getPatientName() + " " +
+                    xstring("instruction_2")))->setBold(),
     };
     for (const QString& groupname : GROUPS) {
-        elements.append(
-            (new QuText(xstring(groupname)))->setBold()->setItalic()
-        );
+        elements.append((new QuText(xstring(groupname)))
+                        ->setBold()
+                        ->setItalic());
         auto grid = new QuGridContainer();
         int row = 0;
         grid->setColumnStretch(0, LEFTCOL_STRETCH);
@@ -236,11 +226,9 @@ OpenableWidget* Dad::editor(const bool read_only)
         for (const QString& itemname : getItemsActivity(groupname)) {
             grid->addCell(QuGridCell(new QuText(xstring(itemname)), row, 0));
             grid->addCell(QuGridCell(
-                (new QuMcq(fieldRef(itemname), y_n_na_options))
-                    ->setHorizontal(true),
-                row,
-                1
-            ));
+                (new QuMcq(fieldRef(itemname),
+                           y_n_na_options))->setHorizontal(true),
+                row, 1));
             ++row;
         }
         elements.append(grid);
@@ -253,6 +241,7 @@ OpenableWidget* Dad::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -269,6 +258,7 @@ QStringList Dad::getItemsActivity(const QString& activity) const
     return activity_items;
 }
 
+
 QStringList Dad::getItemsActivities(const QStringList& activities) const
 {
     QStringList activity_items;
@@ -282,6 +272,7 @@ QStringList Dad::getItemsActivities(const QStringList& activities) const
     return activity_items;
 }
 
+
 QStringList Dad::getItemsPhase(const QString& phase) const
 {
     QStringList phase_items;
@@ -293,11 +284,11 @@ QStringList Dad::getItemsPhase(const QString& phase) const
     return phase_items;
 }
 
+
 QString Dad::getScore(const QStringList& fieldnames) const
 {
     const QVector<QVariant> v = values(fieldnames);
     const int score = mathfunc::countWhere(v, QVector<QVariant>{YES});
-    const int possible
-        = mathfunc::countWhereNot(v, QVector<QVariant>{QVariant(), NA});
+    const int possible = mathfunc::countWhereNot(v, QVector<QVariant>{QVariant(), NA});
     return mathfunc::scoreString(score, possible);
 }

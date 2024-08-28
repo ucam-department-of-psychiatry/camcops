@@ -19,10 +19,9 @@
 */
 
 #include "fft.h"
-
+#include "core/camcopsapp.h"
 #include "common/textconst.h"
 #include "common/varconst.h"
-#include "core/camcopsapp.h"
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -30,18 +29,20 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
-using stringfunc::standardResult;
 using stringfunc::strnum;
+using stringfunc::standardResult;
 
 const QString Fft::FFT_TABLENAME("fft");
 
 const QString SERVICE("service");  // the service being rated
 const QString RATING("rating");
 
+
 void initializeFft(TaskFactory& factory)
 {
     static TaskRegistrar<Fft> registered(factory);
 }
+
 
 Fft::Fft(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FFT_TABLENAME, false, false, false)  // ... anon, clin, resp
@@ -53,13 +54,12 @@ Fft::Fft(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     // Extra initialization:
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        setValue(
-            SERVICE,
-            m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE),
-            false
-        );
+        setValue(SERVICE,
+                 m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE),
+                 false);
     }
 }
+
 
 // ============================================================================
 // Class info
@@ -70,15 +70,18 @@ QString Fft::shortname() const
     return "FFT";
 }
 
+
 QString Fft::longname() const
 {
     return tr("Friends and Family Test");
 }
 
+
 QString Fft::description() const
 {
     return tr("Single-question patient rating of a clinical service.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -89,6 +92,7 @@ bool Fft::isComplete() const
     return !valueIsNull(RATING);
 }
 
+
 QStringList Fft::summary() const
 {
     return QStringList{
@@ -97,10 +101,12 @@ QStringList Fft::summary() const
     };
 }
 
+
 QStringList Fft::detail() const
 {
     return completenessInfo() + summary();
 }
+
 
 OpenableWidget* Fft::editor(const bool read_only)
 {
@@ -110,17 +116,17 @@ OpenableWidget* Fft::editor(const bool read_only)
     }
 
     QuPagePtr page((new QuPage{
-                        (new QuText(valueString(SERVICE)))->setBold(),
-                        (new QuText(xstring("q")))->setBold(),
-                        new QuMcq(fieldRef(RATING), options),
-                    })
-                       ->setTitle(longname()));
+        (new QuText(valueString(SERVICE)))->setBold(),
+        (new QuText(xstring("q")))->setBold(),
+        new QuMcq(fieldRef(RATING), options),
+    })->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations

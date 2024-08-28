@@ -28,6 +28,7 @@ class TaskScheduleItem : public DatabaseObject
     Q_OBJECT
 
 public:
+
     // Possible states of a scheduled task.
     enum class State {
         Future,  // Not yet due.
@@ -43,19 +44,12 @@ public:
     // ------------------------------------------------------------------------
 
     // Normal constructor.
-    TaskScheduleItem(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
+                     int load_pk = dbconst::NONEXISTENT_PK);
 
     // Construct from JSON.
-    TaskScheduleItem(
-        int schedule_fk,
-        CamcopsApp& app,
-        DatabaseManager& db,
-        const QJsonObject& json_obj
-    );
+    TaskScheduleItem(int schedule_fk, CamcopsApp& app, DatabaseManager& db,
+                     const QJsonObject& json_obj);
 
     // Item ID number.
     int id() const;
@@ -101,9 +95,8 @@ public:
     QDateTime whenCompleted() const;
 
     // Marks the scheduled task as complete (or not).
-    void setComplete(
-        bool complete, const QDateTime& when_completed = QDateTime()
-    );
+    void setComplete(bool complete,
+                     const QDateTime& when_completed = QDateTime());
 
     // Returns the anonymous status of the scheduled task
     bool isAnonymous() const;

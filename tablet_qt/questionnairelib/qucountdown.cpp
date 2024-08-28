@@ -21,14 +21,12 @@
 // #define DEBUG_TICKS
 
 #include "qucountdown.h"
-
 #include <QAudioOutput>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMediaPlayer>
 #include <QPushButton>
 #include <QTimer>
-
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "lib/soundfunc.h"
@@ -38,6 +36,7 @@
 const int PERIOD_MS = 100;  // should divide into whole seconds!
 const int DP = 1;
 
+
 QuCountdown::QuCountdown(const int time_s, QObject* parent) :
     QuElement(parent),
     m_time_s(time_s),
@@ -46,13 +45,16 @@ QuCountdown::QuCountdown(const int time_s, QObject* parent) :
     m_timer(new QTimer())
 {
     m_timer->setTimerType(Qt::PreciseTimer);  // ms accuracy
-    connect(m_timer.data(), &QTimer::timeout, this, &QuCountdown::tick);
+    connect(m_timer.data(), &QTimer::timeout,
+            this, &QuCountdown::tick);
 }
+
 
 QuCountdown::~QuCountdown()
 {
     soundfunc::finishMediaPlayer(m_player);
 }
+
 
 QuCountdown* QuCountdown::setVolume(const int volume)
 {
@@ -62,6 +64,7 @@ QuCountdown* QuCountdown::setVolume(const int volume)
     }
     return this;
 }
+
 
 QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
 {
@@ -96,15 +99,12 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
         m_stop_button->setEnabled(false);
         m_reset_button->setEnabled(false);
     } else {
-        connect(
-            m_start_button, &QPushButton::clicked, this, &QuCountdown::start
-        );
-        connect(
-            m_stop_button, &QPushButton::clicked, this, &QuCountdown::stop
-        );
-        connect(
-            m_reset_button, &QPushButton::clicked, this, &QuCountdown::reset
-        );
+        connect(m_start_button, &QPushButton::clicked,
+                this, &QuCountdown::start);
+        connect(m_stop_button, &QPushButton::clicked,
+                this, &QuCountdown::stop);
+        connect(m_reset_button, &QPushButton::clicked,
+                this, &QuCountdown::reset);
 
         soundfunc::makeMediaPlayer(m_player);
         if (m_player) {
@@ -119,6 +119,7 @@ QPointer<QWidget> QuCountdown::makeWidget(Questionnaire* questionnaire)
     return widget;
 }
 
+
 void QuCountdown::start()
 {
     m_timer->start(PERIOD_MS);  // period in ms
@@ -126,12 +127,14 @@ void QuCountdown::start()
     updateDisplay();
 }
 
+
 void QuCountdown::stop()
 {
     m_timer->stop();
     m_running = false;
     updateDisplay();
 }
+
 
 void QuCountdown::reset()
 {
@@ -141,6 +144,7 @@ void QuCountdown::reset()
     m_seconds_left = m_time_s;
     updateDisplay();
 }
+
 
 void QuCountdown::tick()
 {
@@ -154,11 +158,13 @@ void QuCountdown::tick()
         stop();  // will call updateDisplay()
     } else {
 #ifdef DEBUG_TICKS
-        qDebug() << Q_FUNC_INFO << "-" << m_seconds_left << "seconds left";
+        qDebug() << Q_FUNC_INFO << "-" << m_seconds_left
+                 << "seconds left";
 #endif
         updateDisplay();
     }
 }
+
 
 void QuCountdown::bong()
 {
@@ -167,6 +173,7 @@ void QuCountdown::bong()
     }
     m_player->play();
 }
+
 
 void QuCountdown::updateDisplay()
 {

@@ -21,7 +21,8 @@
 #pragma once
 #include <QString>
 
-namespace gbocommon {
+namespace gbocommon
+{
 
 extern const int AGENT_PATIENT;
 extern const int AGENT_PARENT_CARER;

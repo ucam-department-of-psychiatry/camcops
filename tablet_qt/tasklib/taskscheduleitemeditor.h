@@ -29,9 +29,8 @@ class TaskScheduleItemEditor : public QObject
     Q_OBJECT
 
 public:
-    TaskScheduleItemEditor(
-        CamcopsApp& app, TaskScheduleItemPtr task_schedule_item
-    );
+    TaskScheduleItemEditor(CamcopsApp& app,
+                           TaskScheduleItemPtr task_schedule_item);
     void editTask();
 
 protected slots:

@@ -19,12 +19,11 @@
 */
 
 #include "logisticdescriptives.h"
-
 #include <limits>
-
 #include "maths/eigenfunc.h"
 #include "maths/logisticregression.h"
 #include "maths/statsfunc.h"
+
 
 // ============================================================================
 // Constructors and associated internals
@@ -37,8 +36,9 @@ LogisticDescriptives::LogisticDescriptives() :
 {
 }
 
-LogisticDescriptives::LogisticDescriptives(const Eigen::VectorXd& coefficients
-) :
+
+LogisticDescriptives::LogisticDescriptives(
+        const Eigen::VectorXd& coefficients) :
     LogisticDescriptives()  // delegating constructor
 {
     if (coefficients.size() == 2) {
@@ -46,8 +46,9 @@ LogisticDescriptives::LogisticDescriptives(const Eigen::VectorXd& coefficients
     }
 }
 
-LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& coefficients
-) :
+
+LogisticDescriptives::LogisticDescriptives(
+        const QVector<qreal>& coefficients) :
     LogisticDescriptives()  // delegating constructor
 {
     if (coefficients.length() == 2) {
@@ -55,20 +56,18 @@ LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& coefficients
     }
 }
 
-LogisticDescriptives::LogisticDescriptives(
-    const double intercept,
-    const double slope
-) :
+
+LogisticDescriptives::LogisticDescriptives(const double intercept,
+                                           const double slope) :
     LogisticDescriptives()  // delegating constructor
 {
     setFromGlmCoefficients(intercept, slope);
 }
 
-LogisticDescriptives::LogisticDescriptives(
-    const QVector<qreal>& x,
-    const QVector<int>& y,
-    const bool verbose
-) :
+
+LogisticDescriptives::LogisticDescriptives(const QVector<qreal>& x,
+                                           const QVector<int>& y,
+                                           const bool verbose) :
     LogisticDescriptives()  // delegating constructor
 {
     using namespace eigenfunc;
@@ -80,8 +79,7 @@ LogisticDescriptives::LogisticDescriptives(
         qWarning("Empty data set passed to LogisticDescriptives");
         return;
     }
-    const ColumnVector<qreal> predictors
-        = eigenColumnVectorFromQVector<qreal>(x);
+    const ColumnVector<qreal> predictors = eigenColumnVectorFromQVector<qreal>(x);
     const RowVector<int> responses = eigenColumnVectorFromQVector<int>(y);
     LogisticRegression lr;
     lr.setVerbose(verbose);
@@ -93,14 +91,15 @@ LogisticDescriptives::LogisticDescriptives(
     setFromGlmCoefficients(coefficients(0), coefficients(1));
 }
 
-void LogisticDescriptives::setFromGlmCoefficients(
-    const double b0, const double b1
-)
+
+void LogisticDescriptives::setFromGlmCoefficients(const double b0,
+                                                  const double b1)
 {
     m_b0 = b0;
     m_b1 = b1;
     m_ok = true;
 }
+
 
 // ============================================================================
 // Values
@@ -111,30 +110,36 @@ double LogisticDescriptives::b0() const
     return m_b0;
 }
 
+
 double LogisticDescriptives::b1() const
 {
     return m_b1;
 }
+
 
 double LogisticDescriptives::intercept() const
 {
     return m_b0;  // intercept = b0
 }
 
+
 double LogisticDescriptives::slope() const
 {
     return m_b1;  // slope = b1
 }
+
 
 double LogisticDescriptives::k() const
 {
     return m_b1;  // k = slope = b1
 }
 
+
 double LogisticDescriptives::theta() const
 {
     return -m_b0 / m_b1;  // theta = -intercept/k = -b0/b1
 }
+
 
 // ============================================================================
 // Prediction
@@ -145,10 +150,12 @@ double LogisticDescriptives::p(const double x) const
     return statsfunc::logistic(m_b0 + m_b1 * x);
 }
 
+
 double LogisticDescriptives::x(const double p) const
 {
     return (statsfunc::logit(p) - m_b0) / m_b1;
 }
+
 
 double LogisticDescriptives::x50() const
 {

@@ -29,7 +29,10 @@ Detecting endianness across compilers: do it at runtime.
 
 
 // Possible endian types.
-enum class Endian { BigEndian, LittleEndian };
+enum class Endian {
+    BigEndian,
+    LittleEndian
+};
 
 
 // What endianness does this computer use for integers?

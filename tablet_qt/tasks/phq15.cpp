@@ -19,19 +19,18 @@
 */
 
 #include "phq15.h"
-
 #include "common/textconst.h"
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
-using mathfunc::scorePhrase;
 using mathfunc::sumInt;
+using mathfunc::scorePhrase;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strnumlist;
@@ -43,22 +42,22 @@ const QString QPREFIX("q");
 
 const QString Phq15::PHQ15_TABLENAME("phq15");
 
+
 void initializePhq15(TaskFactory& factory)
 {
     static TaskRegistrar<Phq15> registered(factory);
 }
 
+
 Phq15::Phq15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(
-        app, db, PHQ15_TABLENAME, false, false, false
-    )  // ... anon, clin, resp
+    Task(app, db, PHQ15_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -69,18 +68,19 @@ QString Phq15::shortname() const
     return "PHQ-15";
 }
 
+
 QString Phq15::longname() const
 {
     return tr("Patient Health Questionnaire-15");
 }
 
+
 QString Phq15::description() const
 {
-    return tr(
-        "Self-scoring of 15 common somatic symptoms (relevant to "
-        "somatoform disorders)."
-    );
+    return tr("Self-scoring of 15 common somatic symptoms (relevant to "
+              "somatoform disorders).");
 }
+
 
 // ============================================================================
 // Instance info
@@ -91,15 +91,16 @@ bool Phq15::isComplete() const
     return noneNull(values(applicableQuestionFieldNames()));
 }
 
+
 QStringList Phq15::summary() const
 {
     return QStringList{
         totalScorePhrase(totalScore(), maxScore()),
-        scorePhrase(
-            xstring("n_severe_symptoms"), nSevereSymptoms(), nQuestions()
-        ),
+        scorePhrase(xstring("n_severe_symptoms"),
+                    nSevereSymptoms(), nQuestions()),
     };
 }
+
 
 QStringList Phq15::detail() const
 {
@@ -110,23 +111,22 @@ QStringList Phq15::detail() const
     const bool somatoform_likely = n_severe >= 3;
     const int total_score = totalScore();
     const QString severity = total_score >= 15
-        ? TextConst::severe()
-        : (total_score >= 10
-               ? TextConst::moderate()
-               : (total_score >= 5 ? TextConst::mild() : TextConst::none()));
+            ? TextConst::severe()
+            : (total_score >= 10 ? TextConst::moderate()
+                                 : (total_score >= 5 ? TextConst::mild()
+                                                     : TextConst::none()));
 
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     lines.append("");
-    lines.append(
-        xstring("exceeds_somatoform_cutoff") + spacer
-        + bold(yesNo(somatoform_likely))
-    );
+    lines.append(xstring("exceeds_somatoform_cutoff") + spacer +
+                 bold(yesNo(somatoform_likely)));
     lines.append(xstring("symptom_severity") + spacer + bold(severity));
     return lines;
 }
+
 
 OpenableWidget* Phq15::editor(const bool read_only)
 {
@@ -137,21 +137,20 @@ OpenableWidget* Phq15::editor(const bool read_only)
     };
     QVector<QuestionWithOneField> qfields;
     for (int i : applicableQuestionNumbers()) {
-        qfields.append(QuestionWithOneField(
-            xstring(strnum("q", i)), fieldRef(strnum(QPREFIX, i))
-        ));
+        qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
+                                            fieldRef(strnum(QPREFIX, i))));
     }
 
     QuPagePtr page((new QuPage{
-                        (new QuText(xstring("stem")))->setBold(true),
-                        new QuMcqGrid(qfields, options),
-                    })
-                       ->setTitle(xstring("title")));
+        (new QuText(xstring("stem")))->setBold(true),
+        new QuMcqGrid(qfields, options),
+    })->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -169,25 +168,30 @@ QVector<int> Phq15::applicableQuestionNumbers() const
     return questions;
 }
 
+
 QStringList Phq15::applicableQuestionFieldNames() const
 {
     return strnumlist(QPREFIX, applicableQuestionNumbers());
 }
+
 
 int Phq15::totalScore() const
 {
     return sumInt(values(applicableQuestionFieldNames()));
 }
 
+
 int Phq15::nQuestions() const
 {
     return isFemale() ? N_QUESTIONS : N_QUESTIONS - 1;
 }
 
+
 int Phq15::maxScore() const
 {
     return 2 * nQuestions();
 }
+
 
 int Phq15::nSevereSymptoms() const
 {

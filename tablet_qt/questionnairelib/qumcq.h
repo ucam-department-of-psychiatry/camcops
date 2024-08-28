@@ -21,7 +21,6 @@
 #pragma once
 #include <QList>
 #include <QPointer>
-
 #include "db/fieldref.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quelement.h"
@@ -29,21 +28,19 @@
 class BooleanWidget;
 class ClickableLabelWordWrapWide;
 
+
 class QuMcq : public QuElement
 {
     // Offers a single multiple-choice question.
     // There are a variety of display formats.
 
     Q_OBJECT
-
 public:
+
     // Constructor
-    QuMcq(
-        FieldRefPtr fieldref,
-        const NameValueOptions& options,
-        const QStringList* label_styles = nullptr,
-        QObject* parent = nullptr
-    );
+    QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
+          const QStringList* label_styles = nullptr,
+          QObject* parent = nullptr);
 
     // Shuffle the options (when making the widget)?
     QuMcq* setRandomize(bool randomize);
@@ -101,8 +98,7 @@ protected:
     // Set widget state from field data.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
-    ) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:
@@ -115,14 +111,13 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;  // field
     NameValueOptions m_options;  // possible options
-    QStringList m_label_styles;
-    ;  // optional styles to apply to each label
+    QStringList m_label_styles;;  // optional styles to apply to each label
     bool m_randomize;  // shuffle the order?
     bool m_show_instruction;  // show instruction?
     bool m_horizontal;  // horizontal layout?
     bool m_as_text_button;  // text button (rather than radio button) layout?
     bool m_bold;  // text in bold?
-    QVector<QPointer<BooleanWidget>>
-        m_boolean_widgets;  // our widget collection
+    QVector<QPointer<BooleanWidget>> m_boolean_widgets;
+        // ... our widget collection
     QVector<QPointer<ClickableLabelWordWrapWide>> m_label_widgets;
 };

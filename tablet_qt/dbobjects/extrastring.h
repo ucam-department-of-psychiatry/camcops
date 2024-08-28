@@ -22,6 +22,7 @@
 #include "db/databaseobject.h"
 class CamcopsApp;
 
+
 // Represents an extra string downloaded from the server.
 
 class ExtraString : public DatabaseObject
@@ -31,23 +32,17 @@ public:
     ExtraString(CamcopsApp& app, DatabaseManager& db);
 
     // String loading constructor:
-    ExtraString(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        const QString& task,
-        const QString& name,
-        const QString& language_code
-    );
+    ExtraString(CamcopsApp& app, DatabaseManager& db,
+                const QString& task,
+                const QString& name,
+                const QString& language_code);
 
     // String saving constructor:
-    ExtraString(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        const QString& task,
-        const QString& name,
-        const QString& language_code,
-        const QString& value
-    );
+    ExtraString(CamcopsApp& app, DatabaseManager& db,
+                const QString& task,
+                const QString& name,
+                const QString& language_code,
+                const QString& value);
 
     // Destructor
     virtual ~ExtraString() = default;

@@ -33,8 +33,7 @@
 // ... with the additional constraint of minor/patch versions being
 // limited to integers in the range 0-99.
 
-class Version
-{
+class Version {
 public:
     Version();  // public default constructor required for QVariant use
 
@@ -95,10 +94,8 @@ protected:
     void setInvalid();
 
     // Sets ourself from numbers.
-    void setFromNumbers(
-        unsigned int major, unsigned int minor, unsigned int patch
-    );
-
+    void setFromNumbers(unsigned int major, unsigned int minor,
+                        unsigned int patch);
 protected:
     bool m_valid;
     unsigned int m_major;

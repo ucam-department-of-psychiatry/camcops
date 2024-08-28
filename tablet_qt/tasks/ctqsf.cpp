@@ -20,12 +20,11 @@
 
 #if 0
 
-    #include "ctqsf.h"
-
-    #include "lib/stringfunc.h"
-    #include "lib/version.h"
-    #include "tasklib/taskfactory.h"
-    #include "tasklib/taskregistrar.h"
+#include "ctqsf.h"
+#include "lib/stringfunc.h"
+#include "lib/version.h"
+#include "tasklib/taskfactory.h"
+#include "tasklib/taskregistrar.h"
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
@@ -42,7 +41,8 @@ void initializeCtqsf(TaskFactory& factory)
 
 
 Ctqsf::Ctqsf(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CTQSF_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, CTQSF_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 

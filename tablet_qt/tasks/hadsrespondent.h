@@ -23,18 +23,15 @@
 
 void initializeHadsRespondent(TaskFactory& factory);
 
+
 class HadsRespondent : public Hads
 {
     // See Hads for reasoning about this class structure.
 
     Q_OBJECT
-
 public:
-    HadsRespondent(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    HadsRespondent(CamcopsApp& app, DatabaseManager& db,
+                   int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -42,7 +39,6 @@ public:
     virtual QString longname() const override;
     virtual QString infoFilenameStem() const override;
     virtual QString xstringTaskname() const override;
-
 public:
     static const QString HADSRESPONDENT_TABLENAME;
 };

@@ -23,6 +23,7 @@
 
 class QEvent;
 
+
 // Object to watch, and debug-log, all mouse/touch events on a QObject.
 // Create with simply:
 //      new DebugEventWatcher(this, DebugEventWatcher::All);
@@ -30,8 +31,8 @@ class QEvent;
 class DebugEventWatcher : public QObject
 {
     Q_OBJECT
-
 public:
+
     // Categories of event to watch.
     enum EventCategory {  // https://doc.qt.io/qt-6.5/qflags.html#details
         All = (1 << 0),

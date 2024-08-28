@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,16 +30,13 @@ class TaskFactory;
 
 void initializeCecaQ3(TaskFactory& factory);
 
+
 class CecaQ3 : public Task
 {
     Q_OBJECT
-
 public:
-    CecaQ3(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CecaQ3(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,7 +53,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     bool complete1A() const;
     bool complete1ASomebodySelected() const;
@@ -91,14 +86,11 @@ public slots:
     void dataChanged5();
     void dataChanged6();
     void dataChangedDummy();
-
 protected:
     void setMandatory(bool mandatory, const QStringList& fieldnames);
     void setMultipleResponseMinAnswers(const QString& tag, int min_answers);
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
-
 public:
     static const QString CECAQ3_TABLENAME;
 };

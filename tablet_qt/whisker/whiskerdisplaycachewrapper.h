@@ -22,6 +22,7 @@
 #include <QString>
 class WhiskerManager;
 
+
 class WhiskerDisplayCacheWrapper
 {
     // Create this object on the stack in a scope block {}, so that it starts
@@ -29,9 +30,9 @@ class WhiskerDisplayCacheWrapper
     // when it's created and stops caching when it's destroyed.
 
 public:
-    WhiskerDisplayCacheWrapper(WhiskerManager* manager, const QString& doc);
+    WhiskerDisplayCacheWrapper(WhiskerManager* manager,
+                               const QString& doc);
     ~WhiskerDisplayCacheWrapper();
-
 private:
     WhiskerManager* m_manager;
     QString m_doc;

@@ -21,8 +21,8 @@
 #pragma once
 #include <QString>
 #include <QWidget>
-
 #include "questionnairelib/qutext.h"
+
 
 class QuHeading : public QuText
 {
@@ -33,9 +33,7 @@ class QuHeading : public QuText
 
 protected:
     // Protected constructor, used internally and by derived classes.
-    QuHeading(
-        const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr
-    );
+    QuHeading(const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr);
 
 public:
     // Constructor to display static text.
@@ -45,8 +43,7 @@ public:
     QuHeading(FieldRefPtr fieldref, QObject* parent = nullptr);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
-    ) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 
 protected:
     QPointer<QWidget> m_container;  // our widget

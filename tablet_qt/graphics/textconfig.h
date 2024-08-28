@@ -19,8 +19,8 @@
 */
 
 #pragma once
-#include <QColor>
 #include <Qt>
+#include <QColor>
 
 // Simple information-holding class representing text "configuration" for
 // graphics functions:
@@ -37,20 +37,16 @@
 // ScreenLikeGraphicsView. It's not clear that "DPI" makes sense here, and we
 // want our text size to be predictable.
 
-struct TextConfig
-{
+struct TextConfig {
 public:
-    TextConfig(
-        int font_size_px,
-        const QColor& colour,
-        int width = -1,
-        Qt::Alignment alignment = Qt::AlignCenter
-    );
+    TextConfig(int font_size_px,
+               const QColor& colour,
+               int width = -1,
+               Qt::Alignment alignment = Qt::AlignCenter);
     TextConfig& setFontSize(int font_size_px);
     TextConfig& setColour(const QColor& colour);
     TextConfig& setWidth(int width);
     TextConfig& setAlignment(Qt::Alignment alignment);
-
 public:
     int font_size_px;
     QColor colour;

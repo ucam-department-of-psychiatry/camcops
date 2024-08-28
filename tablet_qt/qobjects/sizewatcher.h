@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QSize>
 
+
 class SizeWatcher : public QObject
 {
     // Object to watch for a resizeEvent() on a widget.

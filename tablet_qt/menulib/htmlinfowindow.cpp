@@ -19,13 +19,11 @@
 */
 
 #include "htmlinfowindow.h"
-
 #include <QLabel>
 #include <QTextBrowser>
 #include <QVBoxLayout>
-
-#include "common/cssconst.h"
 #include "core/camcopsapp.h"
+#include "common/cssconst.h"
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuheader.h"
@@ -34,13 +32,9 @@
 // https://doc.qt.io/qt-6.5/qtextbrowser.html
 
 
-HtmlInfoWindow::HtmlInfoWindow(
-    CamcopsApp& app,
-    const QString& title,
-    const QString& filename,
-    const QString& icon,
-    const bool fullscreen
-) :
+HtmlInfoWindow::HtmlInfoWindow(CamcopsApp& app, const QString& title,
+                               const QString& filename, const QString& icon,
+                               const bool fullscreen) :
     m_app(app)
 {
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));
@@ -60,7 +54,8 @@ HtmlInfoWindow::HtmlInfoWindow(
     // Header
     auto header = new MenuHeader(this, m_app, false, title, icon);
     mainlayout->addWidget(header);
-    connect(header, &MenuHeader::backClicked, this, &HtmlInfoWindow::finished);
+    connect(header, &MenuHeader::backClicked,
+            this, &HtmlInfoWindow::finished);
 
     // HTML
     if (filefunc::fileExists(filename)) {
@@ -73,8 +68,8 @@ HtmlInfoWindow::HtmlInfoWindow(
         // But not touch scrolling: touching us
         uifunc::applyScrollGestures(browser->viewport());
     } else {
-        QLabel* label
-            = new LabelWordWrapWide(tr("No such file") + ": " + filename);
+        QLabel* label = new LabelWordWrapWide(tr("No such file") + ": " +
+                                              filename);
         label->setObjectName(cssconst::WARNING);
         mainlayout->addWidget(label);
         mainlayout->addStretch();

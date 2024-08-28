@@ -26,7 +26,6 @@
 #include <QRectF>
 #include <QString>
 #include <QUrl>
-
 #include "graphics/buttonconfig.h"
 #include "graphics/textconfig.h"
 
@@ -38,7 +37,9 @@
 #define SCENE_WIDTH 1000
 #define SCENE_HEIGHT 750  // 4:3 aspect ratio
 
-namespace cardinalexpdetcommon {
+
+namespace cardinalexpdetcommon
+{
 
 extern const int N_CUES_PER_MODALITY;
 extern const qreal MIN_INTENSITY;
@@ -93,14 +94,13 @@ extern const TextConfig BASE_TEXT_CONFIG;
 QUrl urlFromStem(const QString& stem);
 QString filenameFromStem(const QString& stem);
 
+
 // ============================================================================
 // Translatable text (ugly coding for Qt lupdate tool)
 // ============================================================================
 
-class ExpDetTextConst : public QObject
-{
+class ExpDetTextConst : public QObject {
     Q_OBJECT
-
 public:
     static QString soundtestTitle();
     static QString soundtestSubtitle();

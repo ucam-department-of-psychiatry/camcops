@@ -22,7 +22,6 @@
 #include <QMediaPlayer>
 #include <QPointer>
 #include <QSharedPointer>
-
 #include "maths/logisticdescriptives.h"
 #include "tasklib/task.h"
 
@@ -36,21 +35,18 @@ class CardinalExpDetThresholdTrial;
 
 void initializeCardinalExpDetThreshold(TaskFactory& factory);
 
+
 class CardinalExpDetThreshold : public Task
 {
     Q_OBJECT
     using FuncPtr = void (CardinalExpDetThreshold::*)();
     // ... a pointer to a member function of CardinalExpDetThreshold that takes
     // no parameters and returns void
-    using CardinalExpDetThresholdTrialPtr
-        = QSharedPointer<CardinalExpDetThresholdTrial>;
+    using CardinalExpDetThresholdTrialPtr = QSharedPointer<CardinalExpDetThresholdTrial>;
 
 public:
-    CardinalExpDetThreshold(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CardinalExpDetThreshold(CamcopsApp& app, DatabaseManager& db,
+                            int load_pk = dbconst::NONEXISTENT_PK);
     ~CardinalExpDetThreshold() override;
     // ------------------------------------------------------------------------
     // Class overrides
@@ -58,22 +54,9 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual bool isEditable() const override
-    {
-        return false;
-    }
-
-    virtual bool isCrippled() const override
-    {
-        return false;
-    }
-
-    virtual bool isExperimental() const override
-    {
-        return true;
-    }
-
+    virtual bool isEditable() const override { return false; }
+    virtual bool isCrippled() const override { return false; }
+    virtual bool isExperimental() const override { return true; }
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------
@@ -99,7 +82,6 @@ protected slots:
     // ------------------------------------------------------------------------
     // Calculation/assistance functions for main task
     // ------------------------------------------------------------------------
-
 protected:
     QString getDescriptiveModality() const;
     QString getTargetName() const;
@@ -126,7 +108,6 @@ protected:
     // ------------------------------------------------------------------------
     // Main task proper
     // ------------------------------------------------------------------------
-
 protected:
     void startTask();
 protected slots:
@@ -142,7 +123,6 @@ protected slots:
     // ------------------------------------------------------------------------
     // Translatable text
     // ------------------------------------------------------------------------
-
 private:
     static QString txtAuditory();
     static QString txtVisual();
@@ -150,7 +130,6 @@ private:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
-
 protected:
     QPointer<OpenableWidget> m_widget;
     QPointer<Questionnaire> m_questionnaire;
@@ -167,7 +146,6 @@ protected:
     // ------------------------------------------------------------------------
     // Constants
     // ------------------------------------------------------------------------
-
 public:
     static const QString CARDINALEXPDETTHRESHOLD_TABLENAME;
 };

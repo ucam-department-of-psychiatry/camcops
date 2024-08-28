@@ -18,18 +18,19 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "urlvalidator.h"
-
 #include <QString>
 #include <QUrl>
 #include <QValidator>
 
-UrlValidator::UrlValidator(QObject* parent) :
-    QValidator(parent)
+#include "urlvalidator.h"
+
+
+UrlValidator::UrlValidator(QObject* parent) : QValidator(parent)
 {
 }
 
-QValidator::State UrlValidator::validate(QString& input, int&) const
+
+QValidator::State UrlValidator::validate(QString& input, int &) const
 {
     const auto url = QUrl(input);
 
@@ -37,7 +38,7 @@ QValidator::State UrlValidator::validate(QString& input, int&) const
         return QValidator::Intermediate;
     }
 
-    const QList<QString> valid_schemes = {"http", "https"};
+    const QList<QString> valid_schemes = { "http", "https" };
 
     if (!valid_schemes.contains(url.scheme())) {
         return QValidator::Intermediate;
@@ -47,7 +48,8 @@ QValidator::State UrlValidator::validate(QString& input, int&) const
         return QValidator::Intermediate;
     }
 
-    // Port can be empty and then we just won't save it (443 will be the default)
+    // Port can be empty and then we just won't save it (443 will be the
+    // default)
 
     // Path can be empty too
 

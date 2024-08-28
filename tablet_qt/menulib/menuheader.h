@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QWidget>
-
 #include "core/camcopsapp.h"  // for LockState
 
 class BaseWidget;
@@ -31,22 +30,20 @@ class QAbstractButton;
 class QLabel;
 class QPushButton;
 
+
 // A widget for the top part of a CamCOPS menu (with title and control
 // buttons).
 
 class MenuHeader : public QWidget  // breaks as BaseWidget
 {
     Q_OBJECT
-
 public:
-    MenuHeader(
-        QWidget* parent,
-        CamcopsApp& app,
-        bool top,
-        const QString& title,
-        const QString& icon_filename = "",
-        bool debug_allowed = false
-    );
+    MenuHeader(QWidget* parent,
+               CamcopsApp& app,
+               bool top,
+               const QString& title,
+               const QString& icon_filename = "",
+               bool debug_allowed = false);
 
     // Set the title.
     void setTitle(const QString& title);

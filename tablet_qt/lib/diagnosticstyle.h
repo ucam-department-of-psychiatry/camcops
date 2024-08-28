@@ -27,11 +27,7 @@ class DiagnosticStyle : public QCommonStyle
     Q_OBJECT
 
 public:
-    void drawControl(
-        ControlElement element,
-        const QStyleOption* option,
-        QPainter* painter,
-        const QWidget* widget
-    ) const;
+    void drawControl(ControlElement element, const QStyleOption* option,
+                     QPainter* painter, const QWidget* widget) const;
     typedef QStyle BaseStyle;
 };

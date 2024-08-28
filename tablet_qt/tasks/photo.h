@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializePhoto(TaskFactory& factory);
 
+
 class Photo : public Task
 {
     Q_OBJECT
-
 public:
-    Photo(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Photo(CamcopsApp& app, DatabaseManager& db,
+          int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -46,12 +42,7 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
-
-    virtual bool isCrippled() const override
-    {
-        return false;
-    }
-
+    virtual bool isCrippled() const override { return false; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -62,7 +53,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 public:
     static const QString PHOTO_TABLENAME;
 };

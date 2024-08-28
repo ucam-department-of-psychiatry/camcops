@@ -22,6 +22,7 @@
 
 #include "common/aliases_camcops.h"
 
+
 // A structure to represent a menu item for a task schedule item.
 // Exists only to improve polymorphic constructor of MenuItem
 
@@ -30,9 +31,7 @@ struct TaskScheduleItemMenuItem
 public:
     TaskScheduleItemMenuItem(TaskScheduleItemPtr task_schedule_item) :
         task_schedule_item(task_schedule_item)
-    {
-    }
-
+    {}
 public:
     TaskScheduleItemPtr task_schedule_item;
 };

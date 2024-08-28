@@ -25,7 +25,6 @@
 #include <QSharedPointer>
 #include <QSqlDatabase>
 #include <QStack>
-
 #include "common/aliases_camcops.h"
 #include "common/dpi.h"
 #include "common/textconst.h"
@@ -46,6 +45,7 @@ class QTextStream;
 class QTranslator;
 class Version;
 
+
 // The main application object.
 class CamcopsApp : public QApplication
 {
@@ -54,8 +54,9 @@ class CamcopsApp : public QApplication
     // NetMgrCancelledCallback means "a pointer to a member function of
     // CamcopsApp that takes two parameters as follows..."
     // (NB "using" syntax is nicer than "typedef"!)
-    using NetMgrCancelledCallback
-        = void (CamcopsApp::*)(const NetworkManager::ErrorCode, const QString&);
+    using NetMgrCancelledCallback = void (CamcopsApp::*)(
+            const NetworkManager::ErrorCode,
+            const QString&);
 
     // Similarly: NetMgrFinishedCallback
     using NetMgrFinishedCallback = void (CamcopsApp::*)();
@@ -65,20 +66,23 @@ class CamcopsApp : public QApplication
     // ------------------------------------------------------------------------
 
 public:
+
     // Describes the "lock state" of the whole CamCOPS app.
-    enum class LockState { Unlocked, Locked, Privileged };
+    enum class LockState {
+        Unlocked,
+        Locked,
+        Privileged
+    };
 
     // Stores information about opened windows, and information they are
     // associated with. Used to maintain a window stack, and restore state
     // nicely once the window is closed (e.g. restoring fullscreen state, or
     // ensure patient/task information is updated if the window referred to
     // one).
-    struct OpenableInfo
-    {
+    struct OpenableInfo {
     public:
         OpenableInfo()
-        {
-        }
+        {}
 
         //  widget:
         //      The window that is being opened.
@@ -93,23 +97,16 @@ public:
         //  patient:
         //      If it refers to a patient (e.g. a patient editing window),
         //      record that here.
-        OpenableInfo(
-            const QPointer<OpenableWidget>& widget,
-            TaskPtr task,
-            Qt::WindowStates prev_window_state,
-            bool wants_fullscreen,
-            bool may_alter_task,
-            PatientPtr patient
-        ) :
+        OpenableInfo(const QPointer<OpenableWidget>& widget, TaskPtr task,
+                     Qt::WindowStates prev_window_state, bool wants_fullscreen,
+                     bool may_alter_task, PatientPtr patient) :
             widget(widget),
             task(task),
             prev_window_state(prev_window_state),
             wants_fullscreen(wants_fullscreen),
             may_alter_task(may_alter_task),
             patient(patient)
-        {
-        }
-
+        {}
     public:
         QPointer<OpenableWidget> widget;
         TaskPtr task;
@@ -122,7 +119,6 @@ public:
     // ------------------------------------------------------------------------
     // Core
     // ------------------------------------------------------------------------
-
 public:
     // Create the app (with command-line arguments).
     CamcopsApp(int& argc, char* argv[]);
@@ -149,7 +145,6 @@ public:
     // ------------------------------------------------------------------------
     // Initialization
     // ------------------------------------------------------------------------
-
 public:
     // Returns the full path to a (SQLite/SQLCipher) database that we'll use.
     QString dbFullPath(const QString& filename);
@@ -186,9 +181,8 @@ protected:
     // Give the database system the encryption password (and if they were not
     // encrypted, encrypt them).
     // Returns: was the user password set (changed)?
-    bool connectDatabaseEncryption(
-        QString& new_user_password, bool& user_cancelled_please_quit
-    );
+    bool connectDatabaseEncryption(QString& new_user_password,
+                                   bool& user_cancelled_please_quit);
 
     // Function launched in a worker thread to descrypt databases. (The
     // decryption process can be slow if the database must be migrated from an
@@ -252,18 +246,14 @@ protected:
         Upload
     };
 
-    void handleNetworkFailure(
-        const NetworkManager::ErrorCode error_code,
-        const QString& error_string,
-        const QString& base_message,
-        CamcopsApp::NetworkOperation operation
-    );
+    void handleNetworkFailure(const NetworkManager::ErrorCode error_code,
+                              const QString& error_string,
+                              const QString& base_message,
+                              CamcopsApp::NetworkOperation operation);
 
-    void maybeRetryNetworkOperation(
-        const QString base_message,
-        const QString additional_message,
-        CamcopsApp::NetworkOperation operation
-    );
+    void maybeRetryNetworkOperation(const QString base_message,
+                                    const QString additional_message,
+                                    CamcopsApp::NetworkOperation operation);
 
     bool userConfirmedRetryPassword() const;
     bool userConfirmedDeleteDatabases() const;
@@ -275,27 +265,21 @@ public:
     // ------------------------------------------------------------------------
     // Opening/closing windows
     // ------------------------------------------------------------------------
-
 private:
     void closeAnyOpenSubWindows();
 
 public:
     // Launches a new window and keeps track of associated information that the
     // new window may refer to or alter.
-    void openSubWindow(
-        OpenableWidget* widget,
-        TaskPtr task = TaskPtr(nullptr),
-        bool may_alter_task = false,
-        PatientPtr patient = PatientPtr(nullptr)
-    );
+    void openSubWindow(OpenableWidget* widget, TaskPtr task = TaskPtr(nullptr),
+                       bool may_alter_task = false,
+                       PatientPtr patient = PatientPtr(nullptr));
 
     // Creates and returns an object that will show a wait box whilst you do
     // something slow via the main (GUI) thread.
-    SlowGuiGuard getSlowGuiGuard(
-        const QString& text = tr("Opening..."),
-        const QString& title = TextConst::pleaseWait(),
-        int minimum_duration_ms = 100
-    );
+    SlowGuiGuard getSlowGuiGuard(const QString& text = tr("Opening..."),
+                                 const QString& title = TextConst::pleaseWait(),
+                                 int minimum_duration_ms = 100);
 
 signals:
     // Signals that a task has been altered.
@@ -327,12 +311,11 @@ public slots:
     // ------------------------------------------------------------------------
     // Language
     // ------------------------------------------------------------------------
-
 public:
+
     // Change the language used.
-    void setLanguage(
-        const QString& language_code, bool store_to_database = false
-    );
+    void setLanguage(const QString& language_code,
+                     bool store_to_database = false);
 
     // Return the current language code
     QString getLanguage() const;
@@ -340,7 +323,6 @@ public:
     // ------------------------------------------------------------------------
     // Security and related
     // ------------------------------------------------------------------------
-
 public:
     // Is the app in privileged mode?
     bool privileged() const;
@@ -385,25 +367,19 @@ protected:
     void resetEncryptionKeyIfRequired();
 
     // Asks the user for a password and checks it against a stored hash.
-    bool checkPassword(
-        const QString& hashed_password_varname,
-        const QString& text,
-        const QString& title
-    );
+    bool checkPassword(const QString& hashed_password_varname,
+                       const QString& text, const QString& title);
 
     // Sets a stored (hashed) password. The "password" argument is plaintext.
-    void setHashedPassword(
-        const QString& hashed_password_varname, const QString& password
-    );
+    void setHashedPassword(const QString& hashed_password_varname,
+                           const QString& password);
 
     // Changes a password by asking the user for old/new passwords.
     // Returns: changed?
-    bool changePassword(
-        const QString& hashed_password_varname,
-        const QString& text,
-        QString* p_old_password = nullptr,
-        QString* p_new_password = nullptr
-    );
+    bool changePassword(const QString& hashed_password_varname,
+                        const QString& text,
+                        QString* p_old_password = nullptr,
+                        QString* p_new_password = nullptr);
 
     // Creates a new random device ID.
     void regenerateDeviceId();
@@ -418,8 +394,8 @@ signals:
     // ------------------------------------------------------------------------
     // Operating mode - Single user, clinician
     // ------------------------------------------------------------------------
-
 public:
+
     // Are we in single-user mode?
     bool isSingleUserMode() const;
 
@@ -479,7 +455,6 @@ signals:
     // ------------------------------------------------------------------------
     // Patient
     // ------------------------------------------------------------------------
-
 public:
     // Is a patient selected?
     bool isPatientSelected() const;
@@ -550,7 +525,6 @@ signals:
     // ------------------------------------------------------------------------
     // Network
     // ------------------------------------------------------------------------
-
 public:
     // Return the app's NetworkManager object.
     NetworkManager* networkManager() const;
@@ -580,8 +554,7 @@ protected:
     // Point the network manager's callbacks to new functions.
     void reconnectNetManager(
         NetMgrCancelledCallback cancelled_callback = nullptr,
-        NetMgrFinishedCallback finished_callback = nullptr
-    );
+        NetMgrFinishedCallback finished_callback = nullptr);
 
     // Callbacks for when the network manager has finished talking to the
     // server.
@@ -590,19 +563,16 @@ protected:
     void uploadFinished();
 
     // Callback for patient registration failure.
-    void patientRegistrationFailed(
-        const NetworkManager::ErrorCode error_code, const QString& error_string
-    );
+    void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
+                                   const QString& error_string);
 
     // Callback for task schedule update failure.
-    void updateTaskSchedulesFailed(
-        const NetworkManager::ErrorCode error_code, const QString& error_string
-    );
+    void updateTaskSchedulesFailed(const NetworkManager::ErrorCode error_code,
+                                   const QString& error_string);
 
     // Callback for upload failure.
-    void uploadFailed(
-        const NetworkManager::ErrorCode error_code, const QString& error_string
-    );
+    void uploadFailed(const NetworkManager::ErrorCode error_code,
+                      const QString& error_string);
 
     // Show/hide wait box before and after network operation.
     // Allocated on the heap, unlike getSlowGuiGuard().
@@ -616,7 +586,6 @@ signals:
     // ------------------------------------------------------------------------
     // CSS convenience; fonts etc.
     // ------------------------------------------------------------------------
-
 public:
     // From a .css file, perform substitutions (e.g. for our current font
     // sizes) and return the final CSS.
@@ -639,7 +608,6 @@ signals:
     // ------------------------------------------------------------------------
     // Server info: version, ID numbers, policies
     // ------------------------------------------------------------------------
-
 public:
     // The CamCOPS server's version.
     Version serverVersion() const;
@@ -663,12 +631,9 @@ public:
     void deleteAllIdDescriptions();
 
     // Store an ID numbers description and other details.
-    bool setIdDescription(
-        int which_idnum,
-        const QString& desc,
-        const QString& shortdesc,
-        const QString& validation_method
-    );
+    bool setIdDescription(int which_idnum, const QString& desc,
+                          const QString& shortdesc,
+                          const QString& validation_method);
 
     // Return all ID number descriptions.
     QVector<IdNumDescriptionPtr> getAllIdDescriptions();
@@ -686,14 +651,11 @@ protected:
     // ------------------------------------------------------------------------
     // Extra strings (downloaded from server)
     // ------------------------------------------------------------------------
-
 public:
     // Return an xstring (extra string) for the given task and string name.
-    QString xstring(
-        const QString& taskname,
-        const QString& stringname,
-        const QString& default_str = QString()
-    );
+    QString xstring(const QString& taskname,
+                    const QString& stringname,
+                    const QString& default_str = QString());
 
     // Does the app know about any extra strings for the specified task name?
     bool hasExtraStrings(const QString& taskname);
@@ -708,24 +670,19 @@ public:
     void setAllExtraStrings(const RecordList& recordlist);
 
     // Return an appstring (an extra string for the app, not a specific task).
-    QString appstring(
-        const QString& stringname, const QString& default_str = QString()
-    );
+    QString appstring(const QString& stringname,
+                      const QString& default_str = QString());
 
 protected:
     // Load an "extra string" from the database.
     // This is also (partly) where translations get implemented.
-    QString xstringDirect(
-        const QString& taskname,
-        const QString& stringname,
-        const QString& default_str = QString()
-    );
+    QString xstringDirect(const QString& taskname, const QString& stringname,
+                          const QString& default_str = QString());
     mutable QMap<QPair<QString, QString>, QString> m_extrastring_cache;
 
     // ------------------------------------------------------------------------
     // Allowed tables on the server
     // ------------------------------------------------------------------------
-
 public:
     // Tell the app (via a download record) which tables the server will
     // permit to be uploaded.
@@ -734,13 +691,11 @@ public:
     // May this app upload a specific table?
     // (This depends on whether the table exists on the server and if the
     // server/client versions permit information exchange for this table.)
-    bool mayUploadTable(
-        const QString& tablename,
-        const Version& server_version,
-        bool& server_has_table,
-        Version& min_client_version,
-        Version& min_server_version
-    );
+    bool mayUploadTable(const QString& tablename,
+                        const Version& server_version,
+                        bool& server_has_table,
+                        Version& min_client_version,
+                        Version& min_server_version);
 
 protected:
     // Return all tables from the "data" database that aren't main or ancillary
@@ -759,7 +714,6 @@ protected:
     // ------------------------------------------------------------------------
     // These have a hidden cache system to reduce database access, in that
     // m_storedvars stores values and doesn't ask the database again:
-
 public:
     // Return a stored variable.
     QVariant var(const QString& name) const;
@@ -780,17 +734,15 @@ public:
     double varDouble(const QString& name) const;
 
     // Sets a stored variable.
-    bool setVar(
-        const QString& name, const QVariant& value, bool save_to_db = true
-    );
+    bool setVar(const QString& name, const QVariant& value,
+                bool save_to_db = true);
 
     // Does a stored variable exist?
     bool hasVar(const QString& name) const;
 
     // Return a FieldRefPtr to a stored variable.
-    FieldRefPtr storedVarFieldRef(
-        const QString& name, bool mandatory = true, bool cached = true
-    );
+    FieldRefPtr storedVarFieldRef(const QString& name, bool mandatory = true,
+                                  bool cached = true);
 
     // And so we can operate on an "externally visible" cached version, for
     // editing settings (with an option to save or discard), we have a second
@@ -816,16 +768,12 @@ protected slots:
     void retryUpload();
 
 protected:
-    void createVar(
-        const QString& name,
-        QMetaType type,
-        const QVariant& default_value = QVariant()
-    );
+    void createVar(const QString& name, QMetaType type,
+                   const QVariant& default_value = QVariant());
 
     // ------------------------------------------------------------------------
     // Terms and conditions
     // ------------------------------------------------------------------------
-
 public:
     // When did the user agree the terms and conditions?
     QDateTime agreedTermsAt() const;
@@ -860,7 +808,6 @@ public:
     // ------------------------------------------------------------------------
     // App strings, or derived
     // ------------------------------------------------------------------------
-
 public:
     // Returns name/value options for the standard UK NHS marital status codes.
     NameValueOptions nhsPersonMaritalStatusCodeOptions();
@@ -873,7 +820,6 @@ public:
     // ------------------------------------------------------------------------
     // Internal data
     // ------------------------------------------------------------------------
-
 protected:
     // Default to single user mode if mode not already set
     bool m_default_single_user_mode;
@@ -884,8 +830,8 @@ protected:
 
     // Translators; see https://doc.qt.io/qt-6.5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings
-    QSharedPointer<QTranslator>
-        m_app_translator;  // translates CamCOPS strings
+    QSharedPointer<QTranslator> m_app_translator;
+        // ... translates CamCOPS strings
 
     // Database directory.
     QString m_database_path;
@@ -909,8 +855,8 @@ protected:
     QPointer<QStackedWidget> m_p_window_stack;
 
     // The stack of hidden windows.
-    QSharedPointer<QStackedWidget>
-        m_p_hidden_stack;  // we own it entirely, so QSharedPointer
+    QSharedPointer<QStackedWidget> m_p_hidden_stack;
+        // ... we own it entirely, so QSharedPointer
 
     // Before we went fullscreen, were we maximized?
     bool m_maximized_before_fullscreen;

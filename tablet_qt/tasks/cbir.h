@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeCbiR(TaskFactory& factory);
 
+
 class CbiR : public Task
 {
     Q_OBJECT
-
 public:
-    CbiR(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CbiR(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -62,14 +58,11 @@ public:
 public slots:
     void dataChanged();
     void confirmationChanged();
-
 protected:
     bool dataComplete() const;
-
 protected:
     FieldRefPtrList m_data_frs;
     FieldRefPtr m_confirmation_fr;
-
 public:
     static const QString CBIR_TABLENAME;
 };

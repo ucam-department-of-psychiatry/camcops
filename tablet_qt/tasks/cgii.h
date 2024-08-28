@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeCgiI(TaskFactory& factory);
 
+
 class CgiI : public Task
 {
     Q_OBJECT
-
 public:
-    CgiI(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CgiI(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -58,7 +54,6 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QString getRatingText() const;
-
 public:
     static const QString CGI_I_TABLENAME;
 };

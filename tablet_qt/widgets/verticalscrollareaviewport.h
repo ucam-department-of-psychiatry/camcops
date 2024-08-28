@@ -21,6 +21,7 @@
 #pragma once
 #include <QWidget>
 
+
 class VerticalScrollAreaViewport : public QWidget
 {
     // Class intended as the viewport widget for VerticalScrollArea, to
@@ -40,8 +41,8 @@ class VerticalScrollAreaViewport : public QWidget
     // QWidget::setGeometry() will be called.)
 
     Q_OBJECT
-
 public:
+
     // Constructor
     VerticalScrollAreaViewport(QWidget* parent = nullptr);
 

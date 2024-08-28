@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,49 +28,35 @@ class TaskFactory;
 
 void initializeNart(TaskFactory& factory);
 
+
 class Nart : public Task
 {
     Q_OBJECT
-
 public:
     struct NartIQ
     {
-        NartIQ(
-            const QString& quantity,
-            const QString& reference,
-            const QString& formula,
-            const QVariant& iq
-        ) :
+        NartIQ(const QString& quantity, const QString& reference,
+               const QString& formula, const QVariant& iq) :
             quantity(quantity),
             reference(reference),
             formula(formula),
             iq(iq)
-        {
-        }
-
+        {}
         QString quantity;
         QString reference;
         QString formula;
         QVariant iq;
     };
 
-    Nart(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Nart(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual bool isCrippled() const override
-    {
-        return false;
-    }
-
+    virtual bool isCrippled() const override { return false; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -82,7 +67,6 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     int numErrors() const;
     NartIQ nelsonFullScaleIQ(bool complete, int errors) const;
@@ -96,7 +80,6 @@ protected:
     NartIQ brightWorkingMemory(bool complete, int errors) const;
     NartIQ brightPerceptualSpeed(bool complete, int errors) const;
     QString result(const NartIQ& iq, bool full = true) const;
-
 public:
     static const QString NART_TABLENAME;
 };

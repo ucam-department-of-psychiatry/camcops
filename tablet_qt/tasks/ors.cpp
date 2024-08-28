@@ -21,15 +21,14 @@
 // By Joe Kearney, Rudolf Cardinal.
 
 #include "ors.h"
-
+#include "maths/mathfunc.h"
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
-#include "maths/mathfunc.h"
+#include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/questionnairefunc.h"
-#include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
+#include "questionnairelib/qugridcell.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
@@ -72,10 +71,12 @@ const QString FN_OVERALL("q_overall");
 
 const QString TAG_OTHER("other");
 
+
 void initializeOrs(TaskFactory& factory)
 {
     static TaskRegistrar<Ors> registered(factory);
 }
+
 
 Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, ORS_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -98,6 +99,7 @@ Ors::Ors(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     }
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -107,15 +109,18 @@ QString Ors::shortname() const
     return "ORS";
 }
 
+
 QString Ors::longname() const
 {
     return tr("Outcome Rating Scale");
 }
 
+
 QString Ors::description() const
 {
     return tr("Fixed-length visual analogue scales measuring well-being.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -137,23 +142,26 @@ bool Ors::isComplete() const
         return false;
     }
 
-    if (value(FN_WHOSE_GOAL).toInt() == COMPLETED_BY_OTHER
-        && valueIsNullOrEmpty(FN_WHOSE_GOAL_OTHER)) {
+    if (value(FN_WHOSE_GOAL).toInt() == COMPLETED_BY_OTHER &&
+         valueIsNullOrEmpty(FN_WHOSE_GOAL_OTHER)) {
         return false;
     }
 
     return true;
 }
 
+
 QStringList Ors::summary() const
 {
     return QStringList{
-        QString("%1<b>%2</b>.")
-            .arg(xstring("session_number_q"), value(FN_SESSION).toString()),
-        QString("%1: <b>%2</b>.")
-            .arg(xstring("date_q"), value(FN_DATE).toString()),
-        totalScorePhrase(totalScore(), static_cast<int>(VAS_MAX_TOTAL))};
+        QString("%1<b>%2</b>.").arg(xstring("session_number_q"),
+                                    value(FN_SESSION).toString()),
+        QString("%1: <b>%2</b>.").arg(xstring("date_q"),
+                                      value(FN_DATE).toString()),
+        totalScorePhrase(totalScore(), static_cast<int>(VAS_MAX_TOTAL))
+    };
 }
+
 
 QStringList Ors::detail() const
 {
@@ -161,36 +169,33 @@ QStringList Ors::detail() const
     lines.append(summary());
     lines.append("<b>Scores</b>");
     const QString vas_sep = ": ";
-    lines.append(
-        xstring("q1_title") + vas_sep + value(FN_INDIVIDUAL).toString()
-    );
-    lines.append(
-        xstring("q2_title") + vas_sep + value(FN_INTERPERSONAL).toString()
-    );
+    lines.append(xstring("q1_title") + vas_sep + value(FN_INDIVIDUAL).toString());
+    lines.append(xstring("q2_title") + vas_sep + value(FN_INTERPERSONAL).toString());
     lines.append(xstring("q3_title") + vas_sep + value(FN_SOCIAL).toString());
     lines.append(xstring("q4_title") + vas_sep + value(FN_OVERALL).toString());
     return lines;
 }
+
 
 OpenableWidget* Ors::editor(const bool read_only)
 {
     const Qt::Alignment centre = Qt::AlignHCenter | Qt::AlignVCenter;
 
     m_completed_by = NameValueOptions{
-        {xstring("who_a1"), COMPLETED_BY_SELF},
-        {xstring("who_a2"), COMPLETED_BY_OTHER},
-    };
+       { xstring("who_a1"), COMPLETED_BY_SELF },
+       { xstring("who_a2"), COMPLETED_BY_OTHER },
+     };
 
     auto who_q = new QuMcq(fieldRef(FN_WHOSE_GOAL), m_completed_by);
     who_q->setHorizontal(true)->setAsTextButton(true);
 
     auto makeTitle = [this, &centre](const QString& xstringname) -> QuText* {
         return (new QuText(xstring(xstringname)))
-            ->setTextAndWidgetAlignment(centre);
+                ->setTextAndWidgetAlignment(centre);
     };
     auto makeVAS = [this](const QString& fieldname) -> QuSlider* {
-        auto slider
-            = new QuSlider(fieldRef(fieldname), VAS_MIN_INT, VAS_MAX_INT, 1);
+        auto slider = new QuSlider(fieldRef(fieldname),
+                                   VAS_MIN_INT, VAS_MAX_INT, 1);
         slider->setConvertForRealField(true, VAS_MIN_FLOAT, VAS_MAX_FLOAT);
         slider->setAbsoluteLengthCm(VAS_ABSOLUTE_CM);
         slider->setSymmetric(true);
@@ -202,32 +207,21 @@ OpenableWidget* Ors::editor(const bool read_only)
 
     QuPagePtr page(new QuPage{
         (new QuGridContainer{
-             QuGridCell(new QuText(xstring("session_number_q")), 0, 0),
-             QuGridCell(
-                 new QuLineEditInteger(
-                     fieldRef(FN_SESSION), SESSION_MIN, SESSION_MAX
-                 ),
-                 0,
-                 1
-             )})
-            ->setExpandHorizontally(false),
+                QuGridCell(new QuText(xstring("session_number_q")), 0, 0),
+                QuGridCell(new QuLineEditInteger(fieldRef(FN_SESSION), SESSION_MIN, SESSION_MAX), 0, 1)
+        })->setExpandHorizontally(false),
         (new QuGridContainer{
-             QuGridCell(new QuText(xstring("date_q")), 0, 0),
-             QuGridCell(
-                 (new QuDateTime(fieldRef(FN_DATE)))
-                     ->setMode(QuDateTime::DefaultDate)
-                     ->setOfferNowButton(true),
-                 0,
-                 1
-             )})
-            ->setExpandHorizontally(false),
+            QuGridCell(new QuText(xstring("date_q")), 0, 0),
+            QuGridCell((new QuDateTime(fieldRef(FN_DATE)))
+                           ->setMode(QuDateTime::DefaultDate)
+                           ->setOfferNowButton(true), 0, 1)
+        })->setExpandHorizontally(false),
         (new QuGridContainer{
-             QuGridCell(new QuText(xstring("who_q")), 0, 0),
-             QuGridCell(who_q, 0, 1)})
-            ->setExpandHorizontally(false),
+            QuGridCell(new QuText(xstring("who_q")), 0, 0),
+            QuGridCell(who_q, 0, 1)
+        })->setExpandHorizontally(false),
         (new QuText(xstring("who_other_q")))->addTag(TAG_OTHER),
-        (new QuTextEdit(fieldRef(FN_WHOSE_GOAL_OTHER), false))
-            ->addTag(TAG_OTHER),
+        (new QuTextEdit(fieldRef(FN_WHOSE_GOAL_OTHER), false))->addTag(TAG_OTHER),
         new QuHorizontalLine(),
         // --------------------------------------------------------------------
         // Padding
@@ -241,23 +235,22 @@ OpenableWidget* Ors::editor(const bool read_only)
         // Visual-analogue sliders
         // --------------------------------------------------------------------
         (new QuVerticalContainer{
-             makeTitle("q1_title"),
-             makeTitle("q1_subtitle"),
-             makeVAS(FN_INDIVIDUAL),
-             new QuSpacer(),
-             makeTitle("q2_title"),
-             makeTitle("q2_subtitle"),
-             makeVAS(FN_INTERPERSONAL),
-             new QuSpacer(),
-             makeTitle("q3_title"),
-             makeTitle("q3_subtitle"),
-             makeVAS(FN_SOCIAL),
-             new QuSpacer(),
-             makeTitle("q4_title"),
-             makeTitle("q4_subtitle"),
-             makeVAS(FN_OVERALL),
-         })
-            ->setContainedWidgetAlignments(centre),
+            makeTitle("q1_title"),
+            makeTitle("q1_subtitle"),
+            makeVAS(FN_INDIVIDUAL),
+            new QuSpacer(),
+            makeTitle("q2_title"),
+            makeTitle("q2_subtitle"),
+            makeVAS(FN_INTERPERSONAL),
+            new QuSpacer(),
+            makeTitle("q3_title"),
+            makeTitle("q3_subtitle"),
+            makeVAS(FN_SOCIAL),
+            new QuSpacer(),
+            makeTitle("q4_title"),
+            makeTitle("q4_subtitle"),
+            makeVAS(FN_OVERALL),
+         })->setContainedWidgetAlignments(centre),
         // --------------------------------------------------------------------
         // Padding
         // --------------------------------------------------------------------
@@ -269,9 +262,9 @@ OpenableWidget* Ors::editor(const bool read_only)
         // Footer
         // --------------------------------------------------------------------
         (new QuVerticalContainer{
-             (new QuText(xstring("copyright")))->setTextAlignment(centre),
-             (new QuText(xstring("licensing")))->setTextAlignment(centre)})
-            ->setContainedWidgetAlignments(centre)
+            (new QuText(xstring("copyright")))->setTextAlignment(centre),
+            (new QuText(xstring("licensing")))->setTextAlignment(centre)
+        })->setContainedWidgetAlignments(centre)
 
     });
 
@@ -279,17 +272,14 @@ OpenableWidget* Ors::editor(const bool read_only)
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setReadOnly(read_only);
 
-    connect(
-        fieldRef(FN_WHOSE_GOAL).data(),
-        &FieldRef::valueChanged,
-        this,
-        &Ors::updateMandatory
-    );
+    connect(fieldRef(FN_WHOSE_GOAL).data(), &FieldRef::valueChanged,
+            this, &Ors::updateMandatory);
 
     updateMandatory();
 
     return m_questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -297,13 +287,14 @@ OpenableWidget* Ors::editor(const bool read_only)
 
 void Ors::updateMandatory()
 {
-    const bool required = valueInt(FN_WHOSE_GOAL) == COMPLETED_BY_OTHER;
+   const bool required = valueInt(FN_WHOSE_GOAL) == COMPLETED_BY_OTHER;
     fieldRef(FN_WHOSE_GOAL_OTHER)->setMandatory(required);
     if (!m_questionnaire) {
         return;
     }
     m_questionnaire->setVisibleByTag(TAG_OTHER, required);
 }
+
 
 double Ors::totalScore() const
 {

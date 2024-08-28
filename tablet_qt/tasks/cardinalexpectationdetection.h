@@ -21,7 +21,6 @@
 #pragma once
 #include <QMediaPlayer>
 #include <QPointer>
-
 #include "tasklib/task.h"
 #include "taskxtra/cardinalexpdetrating.h"
 
@@ -34,10 +33,10 @@ class TaskFactory;
 class CardinalExpDetTrial;
 class CardinalExpDetTrialGroupSpec;
 using CardinalExpDetTrialPtr = QSharedPointer<CardinalExpDetTrial>;
-using CardinalExpDetTrialGroupSpecPtr
-    = QSharedPointer<CardinalExpDetTrialGroupSpec>;
+using CardinalExpDetTrialGroupSpecPtr = QSharedPointer<CardinalExpDetTrialGroupSpec>;
 
 void initializeCardinalExpectationDetection(TaskFactory& factory);
+
 
 class CardinalExpectationDetection : public Task
 {
@@ -47,11 +46,8 @@ class CardinalExpectationDetection : public Task
     // takes no parameters and returns void
 
 public:
-    CardinalExpectationDetection(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    CardinalExpectationDetection(CamcopsApp& app, DatabaseManager& db,
+                                 int load_pk = dbconst::NONEXISTENT_PK);
     ~CardinalExpectationDetection() override;
     // ------------------------------------------------------------------------
     // Class overrides
@@ -59,22 +55,9 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual bool isEditable() const override
-    {
-        return false;
-    }
-
-    virtual bool isCrippled() const override
-    {
-        return false;
-    }
-
-    virtual bool isExperimental() const override
-    {
-        return true;
-    }
-
+    virtual bool isEditable() const override { return false; }
+    virtual bool isCrippled() const override { return false; }
+    virtual bool isExperimental() const override { return true; }
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------
@@ -94,7 +77,6 @@ public:
     // ------------------------------------------------------------------------
     // Calculation/assistance functions for main task
     // ------------------------------------------------------------------------
-
 protected:
     void makeTrialGroupSpecs();
     QRectF getRatingButtonRect(int x, int n) const;
@@ -107,13 +89,12 @@ protected:
     QString getVisualTargetFilenameStem(int target_number) const;
     QUrl getAuditoryBackgroundUrl() const;
     QString getVisualBackgroundFilename() const;
-    QString getPromptText(int modality, int target_number) const;
+    QString getPromptText(int modality,  int target_number) const;
     void reportCounterbalancing() const;
     QVector<CardinalExpDetTrialPtr> makeTrialGroup(
-        int block,  // zero-based block numbering
-        int groupnum,  // zero-based group numbering
-        const CardinalExpDetTrialGroupSpecPtr& groupspec
-    ) const;
+            int block,  // zero-based block numbering
+            int groupnum,  // zero-based group numbering
+            const CardinalExpDetTrialGroupSpecPtr& groupspec) const;
     void createTrials();
     void estimateRemaining(int& n_trials_left, double& time_min) const;
     void clearScene();
@@ -124,7 +105,6 @@ protected:
     // ------------------------------------------------------------------------
     // Main task proper
     // ------------------------------------------------------------------------
-
 protected:
     void startTask();
 protected slots:
@@ -147,7 +127,6 @@ protected slots:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
-
 protected:
     QPointer<OpenableWidget> m_widget;
     QPointer<Questionnaire> m_questionnaire;
@@ -167,7 +146,6 @@ protected:
     // ------------------------------------------------------------------------
     // Constants
     // ------------------------------------------------------------------------
-
 public:
     static const QString CARDINALEXPDET_TABLENAME;
 };

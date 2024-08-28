@@ -19,14 +19,13 @@
 */
 
 #include "svgwidgetclickable.h"
-
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPaintEvent>
-
 #include "common/colourdefs.h"
 #include "lib/widgetfunc.h"
+
 
 SvgWidgetClickable::SvgWidgetClickable(QWidget* parent) :
     QSvgWidget(parent),
@@ -40,24 +39,26 @@ SvgWidgetClickable::SvgWidgetClickable(QWidget* parent) :
     setContentsMargins(0, 0, 0, 0);
 }
 
-SvgWidgetClickable::SvgWidgetClickable(
-    const QString& filename,
-    QWidget* parent
-) :
+
+SvgWidgetClickable::SvgWidgetClickable(const QString& filename,
+                                       QWidget* parent) :
     SvgWidgetClickable(parent)  // delegating constructor
 {
     load(filename);
 }
+
 
 void SvgWidgetClickable::setSvgFromString(const QString& svg)
 {
     load(svg.toUtf8());
 }
 
+
 void SvgWidgetClickable::setSvgFromFile(const QString& filename)
 {
     load(filename);
 }
+
 
 void SvgWidgetClickable::setBackgroundColour(const QColor& colour)
 {
@@ -65,17 +66,20 @@ void SvgWidgetClickable::setBackgroundColour(const QColor& colour)
     update();
 }
 
+
 void SvgWidgetClickable::setPressedBackgroundColour(const QColor& colour)
 {
     m_pressed_background_colour = colour;
     update();
 }
 
+
 void SvgWidgetClickable::setTransparentForMouseEvents(const bool transparent)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents, transparent);
     // only applies in QWidget mode, not when it's a QGraphicsItem
 }
+
 
 void SvgWidgetClickable::mousePressEvent(QMouseEvent* event)
 {
@@ -85,6 +89,7 @@ void SvgWidgetClickable::mousePressEvent(QMouseEvent* event)
     emit pressed();
     update();
 }
+
 
 void SvgWidgetClickable::mouseMoveEvent(QMouseEvent* event)
 {
@@ -97,6 +102,7 @@ void SvgWidgetClickable::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
+
 void SvgWidgetClickable::mouseReleaseEvent(QMouseEvent* event)
 {
     m_pressed = false;
@@ -107,12 +113,13 @@ void SvgWidgetClickable::mouseReleaseEvent(QMouseEvent* event)
     update();
 }
 
+
 void SvgWidgetClickable::paintEvent(QPaintEvent* event)
 {
     {
         const QColor& bg = m_pressed && m_pressing_inside
-            ? m_pressed_background_colour
-            : m_background_colour;
+                ? m_pressed_background_colour
+                : m_background_colour;
         QPainter p(this);
         p.setPen(QPen(Qt::PenStyle::NoPen));
         p.setBrush(QBrush(bg));

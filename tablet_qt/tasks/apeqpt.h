@@ -23,7 +23,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
@@ -37,13 +36,9 @@ void initializeApeqpt(TaskFactory& factory);
 class Apeqpt : public Task
 {
     Q_OBJECT
-
 public:
-    Apeqpt(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Apeqpt(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -62,10 +57,8 @@ public:
     // ------------------------------------------------------------------------
     NameValueOptions optionsSatisfaction() const;
     NameValueOptions optionsChoiceWithNA() const;
-
 public:
     static const QString APEQPT_TABLENAME;
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

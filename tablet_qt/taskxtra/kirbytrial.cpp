@@ -19,7 +19,6 @@
 */
 
 #include "kirbytrial.h"
-
 #include "kirbyrewardpair.h"
 #include "lib/datetime.h"
 
@@ -35,14 +34,14 @@ const QString FN_CURRENCY("currency");
 const QString FN_CURRENCY_SYMBOL_FIRST("currency_symbol_first");
 const QString FN_CHOSE_LDR("chose_ldr");
 
+
 KirbyTrial::KirbyTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
-    DatabaseObject(app, db, KIRBY_TRIAL_TABLENAME)
+    DatabaseObject (app, db, KIRBY_TRIAL_TABLENAME)
 {
     // Keys
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
-    addField(
-        FN_TRIAL, QMetaType::fromType<int>(), true
-    );  // trial number within this session, 1-based
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);
+        // ... trial number within this session, 1-based
     // Choice
     addField(FN_SIR, QMetaType::fromType<int>());  // int for now
     addField(FN_LDR, QMetaType::fromType<int>());  // int for now
@@ -55,13 +54,10 @@ KirbyTrial::KirbyTrial(CamcopsApp& app, DatabaseManager& db, int load_pk) :
     load(load_pk);
 }
 
-KirbyTrial::KirbyTrial(
-    const int task_pk,
-    const int trial_num,
-    const KirbyRewardPair& choice,
-    CamcopsApp& app,
-    DatabaseManager& db
-) :
+
+KirbyTrial::KirbyTrial(const int task_pk, const int trial_num,
+                       const KirbyRewardPair& choice,
+                       CamcopsApp& app, DatabaseManager& db) :
     KirbyTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
 {
     setValue(FN_FK_TO_TASK, task_pk);
@@ -76,22 +72,25 @@ KirbyTrial::KirbyTrial(
     save();
 }
 
+
 int KirbyTrial::trialNum() const
 {
     return valueInt(FN_TRIAL);
 }
 
+
 KirbyRewardPair KirbyTrial::info() const
 {
     return KirbyRewardPair(
-        valueInt(FN_SIR),
-        valueInt(FN_LDR),
-        valueInt(FN_DELAY_DAYS),
-        value(FN_CHOSE_LDR),
-        valueString(FN_CURRENCY),
-        valueBool(FN_CURRENCY_SYMBOL_FIRST)
+                valueInt(FN_SIR),
+                valueInt(FN_LDR),
+                valueInt(FN_DELAY_DAYS),
+                value(FN_CHOSE_LDR),
+                valueString(FN_CURRENCY),
+                valueBool(FN_CURRENCY_SYMBOL_FIRST)
     );
 }
+
 
 void KirbyTrial::recordChoice(const bool chose_ldr)
 {
@@ -99,10 +98,12 @@ void KirbyTrial::recordChoice(const bool chose_ldr)
     save();
 }
 
+
 QVariant KirbyTrial::getChoice() const
 {
     return value(FN_CHOSE_LDR);
 }
+
 
 bool KirbyTrial::answered() const
 {

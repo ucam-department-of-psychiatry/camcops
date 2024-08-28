@@ -19,7 +19,6 @@
 */
 
 #include "isaaqed.h"
-
 #include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -34,6 +33,7 @@ const QString Q_PREFIX("e");
 
 const QString IsaaqEd::ISAAQED_TABLENAME("isaaqed");
 
+
 void initializeIsaaqEd(TaskFactory& factory)
 {
     static TaskRegistrar<IsaaqEd> registered(factory);
@@ -47,6 +47,7 @@ IsaaqEd::IsaaqEd(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -56,26 +57,24 @@ QString IsaaqEd::shortname() const
     return "ISAAQ-ED";
 }
 
+
 QString IsaaqEd::longname() const
 {
-    return tr(
-        "Internet Severity and Activities Addiction Questionnaire, Eating "
-        "Disorders Appendix"
-    );
+    return tr("Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix");
 }
+
 
 QString IsaaqEd::description() const
 {
-    return tr(
-        "Supplementary questionnaire (see ISAAQ) on problematic internet use "
-        "relating to eating disorders."
-    );
+    return tr("Supplementary questionnaire (see ISAAQ) on problematic internet use relating to eating disorders.");
 }
+
 
 QStringList IsaaqEd::fieldNames() const
 {
     return strseq(Q_PREFIX, FIRST_Q, LAST_Q);
 }
+
 
 QVector<QuElement*> IsaaqEd::buildElements()
 {

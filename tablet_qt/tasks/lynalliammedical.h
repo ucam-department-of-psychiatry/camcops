@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,16 +30,13 @@ class TaskFactory;
 
 void initializeLynallIamMedical(TaskFactory& factory);
 
+
 class LynallIamMedical : public Task
 {
     Q_OBJECT
-
 public:
-    LynallIamMedical(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    LynallIamMedical(CamcopsApp& app, DatabaseManager& db,
+                     int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -65,13 +61,11 @@ public:
     // ------------------------------------------------------------------------
 public slots:
     void updateMandatory();
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
     // ------------------------------------------------------------------------
     // Other
     // ------------------------------------------------------------------------
-
 public:
     static const QString LYNALL_IAM_MEDICAL_TABLENAME;
 };

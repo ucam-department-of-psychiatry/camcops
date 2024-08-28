@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeYbocsSc(TaskFactory& factory);
 
+
 class YbocsSc : public Task
 {
     Q_OBJECT
-
 public:
-    YbocsSc(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    YbocsSc(CamcopsApp& app, DatabaseManager& db,
+            int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -47,12 +43,9 @@ public:
     virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
     virtual QString xstringTaskname() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -66,7 +59,6 @@ public:
     int obsessionScore() const;
     int compulsionScore() const;
     int totalScore() const;
-
 public:
     static const QString YBOCSSC_TABLENAME;
 };

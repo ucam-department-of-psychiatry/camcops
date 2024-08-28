@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,16 +28,13 @@ class TaskFactory;
 
 void initializeIcd10Schizotypal(TaskFactory& factory);
 
+
 class Icd10Schizotypal : public Task
 {
     Q_OBJECT
-
 public:
-    Icd10Schizotypal(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
+                     int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -56,10 +52,8 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     QVariant meetsCriteria() const;
-
 public:
     static const QString ICD10SZTYPAL_TABLENAME;
 };

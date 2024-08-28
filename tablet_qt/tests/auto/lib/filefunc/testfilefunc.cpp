@@ -22,13 +22,15 @@
 
 #include "lib/filefunc.h"
 
-class TestFileFunc : public QObject
+
+class TestFileFunc: public QObject
 {
     Q_OBJECT
 
 private slots:
     void testTextFileContentsReturnsContentsOfFile();
 };
+
 
 using namespace filefunc;
 

@@ -20,24 +20,19 @@
 
 #pragma once
 #include <QString>
-
 #include "db/databaseobject.h"
+
 
 class PhotoSequencePhoto : public DatabaseObject
 {
     Q_OBJECT
-
 public:
-    PhotoSequencePhoto(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
+                       int load_pk = dbconst::NONEXISTENT_PK);
     PhotoSequencePhoto(int owner_fk, CamcopsApp& app, DatabaseManager& db);
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString description() const;
-
 public:
     static const QString PHOTOSEQUENCEPHOTO_TABLENAME;
     static const QString FK_NAME;
@@ -45,6 +40,5 @@ public:
     static const QString DESCRIPTION;
     static const QString PHOTO_BLOBID;
     // static const QString ROTATION;  // DEFUNCT in v2
-
 protected:
 };

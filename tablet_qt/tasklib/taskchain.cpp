@@ -18,10 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "taskchain.h"
-
 #include <QDebug>
-
+#include "taskchain.h"
 #include "core/camcopsapp.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
@@ -29,13 +27,12 @@
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/taskfactory.h"
 
-TaskChain::TaskChain(
-    CamcopsApp& app,
-    const QStringList& task_tablenames,
-    CreationMethod creation_method,
-    const QString& title,
-    const QString& subtitle
-) :
+
+TaskChain::TaskChain(CamcopsApp& app,
+                     const QStringList& task_tablenames,
+                     CreationMethod creation_method,
+                     const QString& title,
+                     const QString& subtitle) :
     m_app(app),
     m_task_tablenames(task_tablenames),
     m_creation_method(creation_method),
@@ -44,23 +41,22 @@ TaskChain::TaskChain(
     m_current_task_index(-1),
     m_proceed_when_app_has_closed_last_task(false)
 {
-    QObject::connect(
-        &m_app,
-        &CamcopsApp::subWindowFinishedClosing,
-        this,
-        &TaskChain::onAppSubWindowClosed
-    );
+    QObject::connect(&m_app, &CamcopsApp::subWindowFinishedClosing,
+                     this, &TaskChain::onAppSubWindowClosed);
 }
+
 
 QString TaskChain::title() const
 {
     return m_title.isEmpty() ? tr("Task chain") : m_title;
 }
 
+
 QString TaskChain::subtitle() const
 {
     return m_subtitle.isEmpty() ? description() : m_subtitle;
 }
+
 
 QString TaskChain::description(const bool longname) const
 {
@@ -71,16 +67,18 @@ QString TaskChain::description(const bool longname) const
         const auto& tablename = m_task_tablenames[i];
         const QString taskname = longname ? factory->longname(tablename)
                                           : factory->shortname(tablename);
-        tasknames.append(QString("%1. %2").arg(QString::number(pos), taskname)
-        );
+        tasknames.append(QString("%1. %2").arg(QString::number(pos),
+                                               taskname));
     }
     return tasknames.join(" → ");
 }
+
 
 int TaskChain::nTasks() const
 {
     return m_task_tablenames.length();
 }
+
 
 bool TaskChain::needsPatient() const
 {
@@ -94,6 +92,7 @@ bool TaskChain::needsPatient() const
     return false;
 }
 
+
 bool TaskChain::permissible(QStringList& failure_reasons) const
 {
     QString why_not_permissible;
@@ -102,9 +101,9 @@ bool TaskChain::permissible(QStringList& failure_reasons) const
     for (const auto& tablename : m_task_tablenames) {
         TaskPtr specimen = factory->create(tablename);
         if (!specimen->isTaskPermissible(why_not_permissible)) {
-            const QString reason = QString("%1: %2").arg(
-                specimen->shortname(), stringfunc::bold(why_not_permissible)
-            );
+            const QString reason = QString("%1: %2")
+                    .arg(specimen->shortname(),
+                         stringfunc::bold(why_not_permissible));
             failure_reasons.append(reason);
             permissible = false;
         }
@@ -112,10 +111,12 @@ bool TaskChain::permissible(QStringList& failure_reasons) const
     return permissible;
 }
 
+
 TaskChain::CreationMethod TaskChain::creationMethod() const
 {
     return m_creation_method;
 }
+
 
 void TaskChain::ensureTaskCreated(const int index)
 {
@@ -136,9 +137,11 @@ void TaskChain::ensureTaskCreated(const int index)
     const int patient_id = m_app.selectedPatientId();
     task->setupForEditingAndSave(patient_id);
 
-    qDebug().nospace() << "Task chain created task " << index + 1 << ": "
-                       << task->shortname();
+    qDebug().nospace()
+            << "Task chain created task " << index + 1
+            << ": " << task->shortname();
 }
+
 
 void TaskChain::ensureAllTasksCreated()
 {
@@ -146,6 +149,7 @@ void TaskChain::ensureAllTasksCreated()
         ensureTaskCreated(i);
     }
 }
+
 
 TaskPtr TaskChain::getTask(const int index)
 {
@@ -155,6 +159,7 @@ TaskPtr TaskChain::getTask(const int index)
     ensureTaskCreated(index);
     return m_tasks[index];
 }
+
 
 void TaskChain::start()
 {
@@ -166,11 +171,9 @@ void TaskChain::start()
     }
     QStringList failure_reasons;
     if (!permissible(failure_reasons)) {
-        uifunc::alert(QString("%1<br><br>%2")
-                          .arg(
-                              tr("Task(s) not permissible:"),
-                              failure_reasons.join("<br>")
-                          ));
+        uifunc::alert(QString("%1<br><br>%2").arg(
+                          tr("Task(s) not permissible:"),
+                          failure_reasons.join("<br>")));
         return;
     }
 
@@ -182,6 +185,7 @@ void TaskChain::start()
     }
     startNextTask();
 }
+
 
 void TaskChain::startNextTask()
 {
@@ -207,27 +211,26 @@ void TaskChain::startNextTask()
     if (questionnaire) {
         questionnaire->setWithinChain(true);
     }
-    MenuWindow::connectQuestionnaireToTask(
-        widget, ptask
-    );  // in case it's a questionnaire
-    QObject::connect(
-        ptask, &Task::editingFinished, this, &TaskChain::onTaskFinished
-    );
-    QObject::connect(
-        ptask, &Task::editingAborted, this, &TaskChain::onTaskAborted
-    );
-    qDebug().nospace() << "Task chain launching task "
-                       << m_current_task_index + 1 << ": "
-                       << ptask->shortname();
+    MenuWindow::connectQuestionnaireToTask(widget, ptask);
+        // ... in case it's a questionnaire
+    QObject::connect(ptask, &Task::editingFinished,
+                     this, &TaskChain::onTaskFinished);
+    QObject::connect(ptask, &Task::editingAborted,
+                     this, &TaskChain::onTaskAborted);
+    qDebug().nospace()
+            << "Task chain launching task " << m_current_task_index + 1
+            << ": " << ptask->shortname();
 
     // Launch the task
     m_app.openSubWindow(widget, task, true);
 }
 
+
 void TaskChain::onAllTasksFinished()
 {
     // Nothing needs doing.
 }
+
 
 void TaskChain::onTaskAborted()
 {
@@ -237,15 +240,16 @@ void TaskChain::onTaskAborted()
     }
 }
 
+
 void TaskChain::onTaskFinished()
 {
-    qDebug() << "Task chain: task has finished successfully; waiting for app "
-                "to close window";
+    qDebug() << "Task chain: task has finished successfully; waiting for app to close window";
     // Do not call startNextTask() yet.
     // The task's finishing signals will call the app's closeSubWindow(),
     // and we need that to finish first.
     m_proceed_when_app_has_closed_last_task = true;
 }
+
 
 void TaskChain::onAppSubWindowClosed()
 {

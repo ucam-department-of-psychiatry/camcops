@@ -21,14 +21,12 @@
 // #define DEBUG_LAYOUT
 
 #include "verticalscrollareaviewport.h"
-
 #include <QDebug>
 #include <QResizeEvent>
-
 #include "lib/sizehelpers.h"
 
 #ifdef DEBUG_LAYOUT
-    #include "lib/layoutdumper.h"
+#include "lib/layoutdumper.h"
 #endif
 
 
@@ -36,6 +34,7 @@ VerticalScrollAreaViewport::VerticalScrollAreaViewport(QWidget* parent) :
     QWidget(parent)
 {
 }
+
 
 void VerticalScrollAreaViewport::checkChildSize() const
 {
@@ -72,8 +71,8 @@ void VerticalScrollAreaViewport::checkChildSize() const
         desired_child_size = child->sizeHint();
     }
 #ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO
-             << "Child widget:" << layoutdumper::getWidgetInfo(child);
+    qDebug() << Q_FUNC_INFO << "Child widget:"
+             << layoutdumper::getWidgetInfo(child);
     qDebug() << Q_FUNC_INFO << "desired_child_size:" << desired_child_size;
 #endif
 
@@ -88,8 +87,10 @@ void VerticalScrollAreaViewport::checkChildSize() const
 #endif
     const QSize child_size = child->size();
     if (child_size != desired_child_size) {
-        qWarning() << Q_FUNC_INFO << "... child size problem! We expected"
-                   << desired_child_size << "and got" << child_size;
+        qWarning()
+                << Q_FUNC_INFO
+                << "... child size problem! We expected" << desired_child_size
+                << "and got" << child_size;
         if (child_size.height() > desired_child_size.height()) {
             qDebug() << Q_FUNC_INFO << "An unnecessary scroll bar is likely.";
         }

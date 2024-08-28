@@ -44,6 +44,7 @@
 class QMouseEvent;
 class QResizeEvent;
 
+
 class AspectRatioPixmap : public QWidget
 {
     // Image that retains its aspect ratio, for displaying photos.
@@ -66,12 +67,11 @@ class AspectRatioPixmap : public QWidget
     // Compare CanvasWidget, which also does that.
 
     Q_OBJECT
-
 public:
+
     // Constructor. Sets image.
-    explicit AspectRatioPixmap(
-        QPixmap* pixmap = nullptr, QWidget* parent = nullptr
-    );
+    explicit AspectRatioPixmap(QPixmap* pixmap = nullptr,
+                               QWidget* parent = nullptr);
 
     // Standard Qt widget overrides.
     virtual bool hasHeightForWidth() const override;
@@ -83,6 +83,7 @@ public:
     void clear();
 
 protected:
+
     // Standard Qt widget overrides.
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;

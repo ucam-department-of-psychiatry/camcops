@@ -24,7 +24,7 @@
 #include "lib/customtypes.h"
 #include "lib/version.h"
 
-class TestField : public QObject
+class TestField: public QObject
 {
     Q_OBJECT
 
@@ -273,30 +273,35 @@ void TestField::testSqlColumnTypeQDateIsText()
 {
     auto field = Field("test", QMetaType::fromType<QDate>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
+
 }
 
 void TestField::testSqlColumnTypeQDateTimeIsText()
 {
     auto field = Field("test", QMetaType::fromType<QDateTime>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
+
 }
 
 void TestField::testSqlColumnTypeQStringIsText()
 {
     auto field = Field("test", QMetaType::fromType<QString>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
+
 }
 
 void TestField::testSqlColumnTypeQStringListIsText()
 {
     auto field = Field("test", QMetaType::fromType<QStringList>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
+
 }
 
 void TestField::testSqlColumnTypeQTimeIsText()
 {
     auto field = Field("test", QMetaType::fromType<QTime>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
+
 }
 
 void TestField::testSqlColumnTypeQUuidIsText()
@@ -324,6 +329,7 @@ void TestField::testSqlColumnTypeVersionIsText()
     auto field = Field("test", QMetaType::fromType<Version>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
+
 
 
 QTEST_MAIN(TestField)

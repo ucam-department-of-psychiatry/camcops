@@ -19,8 +19,8 @@
 */
 
 #pragma once
-#include <QOpenGLWidget>
 #include <QtGui/QOpenGLFunctions>
+#include <QOpenGLWidget>
 
 namespace openglfunc {
 

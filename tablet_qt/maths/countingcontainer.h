@@ -27,12 +27,11 @@
 
 // A container that counts items you put into it.
 
-template<typename T> class CountingContainer
+template <typename T>
+class CountingContainer
 {
 public:
-    CountingContainer()
-    {
-    }
+    CountingContainer() {}
 
     // Add an iteam.
     void add(const T& item)

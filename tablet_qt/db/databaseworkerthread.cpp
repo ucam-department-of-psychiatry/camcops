@@ -19,14 +19,15 @@
 */
 
 #include "databaseworkerthread.h"
-
 #include "db/databasemanager.h"
+
 
 DatabaseWorkerThread::DatabaseWorkerThread(DatabaseManager* manager) :
     m_manager(manager)
 {
     Q_ASSERT(manager);
 }
+
 
 void DatabaseWorkerThread::run()
 {

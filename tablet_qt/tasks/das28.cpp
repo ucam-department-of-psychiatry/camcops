@@ -19,15 +19,14 @@
 */
 
 #include "das28.h"
-
 #include "common/uiconst.h"
+#include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "maths/mathfunc.h"
+#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qubutton.h"
-#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qulineeditdouble.h"
@@ -63,15 +62,16 @@ const QString FN_VAS("vas");
 const QString FN_CRP("crp");
 const QString FN_ESR("esr");
 
+
 void initializeDas28(TaskFactory& factory)
 {
     static TaskRegistrar<Das28> registered(factory);
 }
 
+
 Das28::Das28(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(
-        app, db, DAS28_TABLENAME, false, true, false
-    ),  // ... anon, clin, resp
+    Task(app, db, DAS28_TABLENAME, false, true, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(getJointFieldNames(), QMetaType::fromType<bool>());
@@ -83,6 +83,7 @@ Das28::Das28(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -92,18 +93,19 @@ QString Das28::shortname() const
     return "DAS28";
 }
 
+
 QString Das28::longname() const
 {
     return tr("Disease Activity Score-28");
 }
 
+
 QString Das28::description() const
 {
-    return tr(
-        "A measure of disease activity in rheumatoid arthritis "
-        "(joint examination, inflammatory marker, visual analogue scale)"
-    );
+    return tr("A measure of disease activity in rheumatoid arthritis "
+              "(joint examination, inflammatory marker, visual analogue scale)");
 }
+
 
 QStringList Das28::getJointFieldNames() const
 {
@@ -112,14 +114,14 @@ QStringList Das28::getJointFieldNames() const
     for (const QString& joint : getJointNames()) {
         for (const QString& side : SIDES) {
             for (const QString& state : STATES) {
-                field_names.append(QString("%1_%2_%3").arg(side, joint, state)
-                );
+                field_names.append(QString("%1_%2_%3").arg(side, joint, state));
             }
         }
     }
 
     return field_names;
 }
+
 
 QStringList Das28::getSwollenFieldNames() const
 {
@@ -134,6 +136,7 @@ QStringList Das28::getSwollenFieldNames() const
     return field_names;
 }
 
+
 QStringList Das28::getTenderFieldNames() const
 {
     QStringList field_names;
@@ -146,6 +149,7 @@ QStringList Das28::getTenderFieldNames() const
 
     return field_names;
 }
+
 
 QStringList Das28::getJointNames() const
 {
@@ -164,10 +168,12 @@ QStringList Das28::getJointNames() const
     return names;
 }
 
+
 QStringList Das28::fieldNames() const
 {
     return getJointFieldNames() + QStringList({FN_VAS, FN_CRP, FN_ESR});
 }
+
 
 // ============================================================================
 // Instance info
@@ -186,6 +192,7 @@ bool Das28::isComplete() const
     return true;
 }
 
+
 QVariant Das28::das28Crp() const
 {
     const QVariant crp = value(FN_CRP);
@@ -196,10 +203,13 @@ QVariant Das28::das28Crp() const
         return QVariant();
     }
 
-    return 0.56 * std::sqrt(tenderJointCount())
-        + 0.28 * std::sqrt(swollenJointCount())
-        + 0.36 * std::log(crp.toDouble() + 1) + 0.014 * vas.toInt() + 0.96;
+    return 0.56 * std::sqrt(tenderJointCount()) +
+        0.28 * std::sqrt(swollenJointCount()) +
+        0.36 * std::log(crp.toDouble() + 1) +
+        0.014 * vas.toInt() +
+        0.96;
 }
+
 
 QVariant Das28::das28Esr() const
 {
@@ -211,20 +221,24 @@ QVariant Das28::das28Esr() const
         return QVariant();
     }
 
-    return 0.56 * std::sqrt(tenderJointCount())
-        + 0.28 * std::sqrt(swollenJointCount())
-        + 0.70 * std::log(esr.toDouble()) + 0.014 * vas.toInt();
+    return 0.56 * std::sqrt(tenderJointCount()) +
+        0.28 * std::sqrt(swollenJointCount()) +
+        0.70 * std::log(esr.toDouble()) +
+        0.014 * vas.toInt();
 }
+
 
 int Das28::swollenJointCount() const
 {
     return sumInt(values(getSwollenFieldNames()));
 }
 
+
 int Das28::tenderJointCount() const
 {
     return sumInt(values(getTenderFieldNames()));
 }
+
 
 QString Das28::activityStateCrp(const QVariant& measurement) const
 {
@@ -250,6 +264,7 @@ QString Das28::activityStateCrp(const QVariant& measurement) const
 
     return xstring("moderate");
 }
+
 
 QString Das28::activityStateEsr(const QVariant& measurement) const
 {
@@ -277,6 +292,7 @@ QString Das28::activityStateEsr(const QVariant& measurement) const
     return xstring("moderate");
 }
 
+
 QStringList Das28::summary() const
 {
     using stringfunc::bold;
@@ -285,20 +301,17 @@ QStringList Das28::summary() const
     const QVariant das28_esr = das28Esr();
 
     return QStringList{
-        QString("%1: %2 (%3)")
-            .arg(
-                xstring("das28_crp"),
-                convert::prettyValue(das28_crp, CRP_ESR_DP),
-                bold(activityStateCrp(das28_crp))
-            ),
-        QString("%1: %2 (%3)")
-            .arg(
-                xstring("das28_esr"),
-                convert::prettyValue(das28_esr, CRP_ESR_DP),
-                bold(activityStateEsr(das28_esr))
-            ),
+        QString("%1: %2 (%3)").arg(xstring("das28_crp"),
+                                   convert::prettyValue(das28_crp, CRP_ESR_DP),
+                                   bold(activityStateCrp(das28_crp))
+        ),
+        QString("%1: %2 (%3)").arg(xstring("das28_esr"),
+                                   convert::prettyValue(das28_esr, CRP_ESR_DP),
+                                   bold(activityStateEsr(das28_esr))
+        ),
     };
 }
+
 
 QStringList Das28::detail() const
 {
@@ -313,8 +326,7 @@ QStringList Das28::detail() const
         html.append(QString("<th colspan='2'>%1</th>").arg(xstring(side)));
 
         for (const QString& state : STATES) {
-            states_html.append(QString("<th style='padding:0 10px;'>%1</th>")
-                                   .arg(xstring(state)));
+            states_html.append(QString("<th style='padding:0 10px;'>%1</th>").arg(xstring(state)));
         }
     }
     html.append("</tr>");
@@ -324,13 +336,12 @@ QStringList Das28::detail() const
 
     for (const QString& joint : getJointNames()) {
         html.append("<tr>");
-        html.append(QString("<th style='text-align:right;'>%1</th>")
-                        .arg(xstring(joint)));
+        html.append(QString("<th style='text-align:right;'>%1</th>").arg(xstring(joint)));
 
         for (const QString& side : SIDES) {
             for (const QString& state : STATES) {
-                const auto fieldname
-                    = QString("%1_%2_%3").arg(side, joint, state);
+                const auto fieldname = QString("%1_%2_%3").arg(
+                    side, joint, state);
 
                 html.append("<td style='text-align:center;'>");
 
@@ -361,6 +372,7 @@ QStringList Das28::detail() const
     return lines;
 }
 
+
 OpenableWidget* Das28::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage())->setTitle(xstring("title_main")));
@@ -373,7 +385,8 @@ OpenableWidget* Das28::editor(const bool read_only)
         std::bind(&Das28::markAllUnmarkedJointsOk, this)
     );
     page->addElement(all_ok_button);
-    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
+    page->addElement(
+        new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
     );
     page->addElement(getJointGrid());
 
@@ -387,8 +400,10 @@ OpenableWidget* Das28::editor(const bool read_only)
     vas_slider->setAbsoluteLengthCm(10, can_shrink);
 
     vas_slider->setTickInterval(1);
-    vas_slider->setTickLabels(
-        {{0, xstring("vas_min")}, {100, xstring("vas_max")}}
+    vas_slider->setTickLabels({
+            {0, xstring("vas_min")},
+            {100, xstring("vas_max")}
+        }
     );
     vas_slider->setTickLabelPosition(QSlider::TicksAbove);
 
@@ -401,28 +416,20 @@ OpenableWidget* Das28::editor(const bool read_only)
     page->addElement(crp_esr_inst);
 
     page->addElement(new QuText(xstring("crp")));
-    const auto crp_field
-        = new QuLineEditDouble(fieldRef(FN_CRP), CRP_MIN, CRP_MAX, CRP_ESR_DP);
+    const auto crp_field = new QuLineEditDouble(
+        fieldRef(FN_CRP), CRP_MIN, CRP_MAX, CRP_ESR_DP);
     page->addElement(crp_field);
 
     page->addElement(new QuText(xstring("esr")));
-    const auto esr_field
-        = new QuLineEditDouble(fieldRef(FN_ESR), ESR_MIN, ESR_MAX, CRP_ESR_DP);
+    const auto esr_field = new QuLineEditDouble(
+        fieldRef(FN_ESR), ESR_MIN, ESR_MAX, CRP_ESR_DP);
     page->addElement(esr_field);
 
-    connect(
-        fieldRef(FN_CRP).data(),
-        &FieldRef::valueChanged,
-        this,
-        &Das28::crpChanged
-    );
+    connect(fieldRef(FN_CRP).data(), &FieldRef::valueChanged,
+            this, &Das28::crpChanged);
 
-    connect(
-        fieldRef(FN_ESR).data(),
-        &FieldRef::valueChanged,
-        this,
-        &Das28::esrChanged
-    );
+    connect(fieldRef(FN_ESR).data(), &FieldRef::valueChanged,
+            this, &Das28::esrChanged);
 
     crpChanged();
     esrChanged();
@@ -443,6 +450,7 @@ void Das28::markAllUnmarkedJointsOk()
     }
 }
 
+
 QuGridContainer* Das28::getJointGrid()
 {
     auto grid = new QuGridContainer();
@@ -458,11 +466,8 @@ QuGridContainer* Das28::getJointGrid()
     for (const QString& joint : getJointNames()) {
         if (first_joints.contains(joint)) {
             if (row != 0) {
-                grid->addCell(QuGridCell(
-                    new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)),
-                    row,
-                    0
-                ));
+                grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
+                                                            uiconst::BIGSPACE)), row, 0));
                 row++;
             }
 
@@ -471,19 +476,14 @@ QuGridContainer* Das28::getJointGrid()
 
         int column = 0;
 
-        grid->addCell(QuGridCell(
-            new QuText(xstring(joint)),
-            row,
-            column,
-            GRID_ROW_SPAN,
-            GRID_JOINT_COLUMN_SPAN
-        ));
+        grid->addCell(QuGridCell(new QuText(xstring(joint)), row, column,
+                                 GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
         column += GRID_JOINT_COLUMN_SPAN;
 
         for (const QString& side : SIDES) {
             for (const QString& state : STATES) {
-                const auto fieldname
-                    = QString("%1_%2_%3").arg(side, joint, state);
+                const auto fieldname = QString("%1_%2_%3").arg(
+                    side, joint, state);
                 FieldRefPtr field = fieldRef(fieldname);
                 QuBoolean* element = new QuBoolean("", field);
                 m_joint_fieldrefs.append(field);
@@ -499,13 +499,13 @@ QuGridContainer* Das28::getJointGrid()
     return grid;
 }
 
+
 void Das28::addJointGridHeading(QuGridContainer* grid, int& row)
 {
     int column = 0;
 
-    grid->addCell(QuGridCell(
-        new QuText(""), row, column, GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN
-    ));
+    grid->addCell(QuGridCell(new QuText(""), row, column,
+                             GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
     column += GRID_JOINT_COLUMN_SPAN;
 
     const auto left_label = new QuText(xstring("left"));
@@ -513,32 +513,24 @@ void Das28::addJointGridHeading(QuGridContainer* grid, int& row)
 
     const auto right_label = new QuText(xstring("right"));
     right_label->setBold(true);
-    grid->addCell(QuGridCell(
-        left_label, row, column, GRID_ROW_SPAN, GRID_SIDE_COLUMN_SPAN
-    ));
+    grid->addCell(QuGridCell(left_label, row, column,
+                             GRID_ROW_SPAN, GRID_SIDE_COLUMN_SPAN));
     column += GRID_SIDE_COLUMN_SPAN;
 
-    grid->addCell(QuGridCell(
-        right_label, row, column, GRID_ROW_SPAN, GRID_SIDE_COLUMN_SPAN
-    ));
+    grid->addCell(QuGridCell(right_label, row, column,
+                             GRID_ROW_SPAN, GRID_SIDE_COLUMN_SPAN));
 
     column = 0;
     row++;
 
-    grid->addCell(QuGridCell(
-        new QuText(""), row, column, GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN
-    ));
+    grid->addCell(QuGridCell(new QuText(""), row, column,
+                             GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
     column += GRID_JOINT_COLUMN_SPAN;
 
     for (int i = 0; i < SIDES.length(); i++) {
-        for (const QString& state : STATES) {
-            grid->addCell(QuGridCell(
-                new QuText(xstring(state)),
-                row,
-                column,
-                GRID_ROW_SPAN,
-                GRID_STATE_COLUMN_SPAN
-            ));
+        for (const QString& state: STATES) {
+            grid->addCell(QuGridCell(new QuText(xstring(state)), row, column,
+                                     GRID_ROW_SPAN, GRID_STATE_COLUMN_SPAN));
             column += GRID_STATE_COLUMN_SPAN;
         }
     }
@@ -552,6 +544,7 @@ void Das28::crpChanged()
 
     fieldRef(FN_ESR)->setMandatory(esr_mandatory);
 }
+
 
 void Das28::esrChanged()
 {

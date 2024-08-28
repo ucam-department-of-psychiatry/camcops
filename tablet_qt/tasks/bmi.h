@@ -21,7 +21,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -31,13 +30,12 @@ class TaskFactory;
 
 void initializeBmi(TaskFactory& factory);
 
+
 class Bmi : public Task
 {
     Q_OBJECT
-
 public:
-    Bmi(CamcopsApp& app,
-        DatabaseManager& db,
+    Bmi(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -58,10 +56,8 @@ public:
     QVariant bmiVariant() const;
     QString bmiString(int dp = 2) const;  // to specified d.p.
     QString category() const;
-
 protected:
     QPointer<Questionnaire> m_questionnaire;
-
 public:
     static const QString BMI_TABLENAME;
 };

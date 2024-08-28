@@ -19,13 +19,14 @@
 */
 
 #include "mainmenu.h"
-
 #include <QDebug>
 #include <QSharedPointer>
-
 #include "common/uiconst.h"
 #include "core/networkmanager.h"
 #include "lib/uifunc.h"
+#include "menulib/menuitem.h"
+#include "menulib/menuproxy.h"
+
 #include "menu/addictionmenu.h"
 #include "menu/affectivemenu.h"
 #include "menu/alltasksmenu.h"
@@ -47,18 +48,22 @@
 #include "menu/researchsetsmenu.h"
 #include "menu/serviceevaluationmenu.h"
 #include "menu/settingsmenu.h"
-#include "menulib/menuitem.h"
-#include "menulib/menuproxy.h"
 
-MainMenu::MainMenu(CamcopsApp& app) :
-    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_CAMCOPS), true)
+
+MainMenu::MainMenu(CamcopsApp& app)
+    : MenuWindow(
+          app,
+          uifunc::iconFilename(uiconst::ICON_CAMCOPS),
+          true)
 {
 }
+
 
 QString MainMenu::title() const
 {
     return tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit");
 }
+
 
 void MainMenu::makeItems()
 {
@@ -69,8 +74,7 @@ void MainMenu::makeItems()
             tr("Upload data to server"),
             std::bind(&MainMenu::upload, this),
             uifunc::iconFilename(uiconst::ICON_UPLOAD)
-        )
-            .setNotIfLocked(),
+        ).setNotIfLocked(),
         MAKE_MENU_MENU_ITEM(HelpMenu, m_app),
         MAKE_MENU_MENU_ITEM(SettingsMenu, m_app),
 
@@ -97,10 +101,10 @@ void MainMenu::makeItems()
         MAKE_MENU_MENU_ITEM(ResearchSetsMenu, m_app),
         MAKE_MENU_MENU_ITEM(AllTasksMenu, m_app),
     };
-    connect(
-        &m_app, &CamcopsApp::fontSizeChanged, this, &MainMenu::reloadStyleSheet
-    );
+    connect(&m_app, &CamcopsApp::fontSizeChanged,
+            this, &MainMenu::reloadStyleSheet);
 }
+
 
 void MainMenu::upload()
 {

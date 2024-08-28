@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QImage>
-
 #include "common/aliases_camcops.h"
 #include "questionnairelib/quelement.h"
 
@@ -29,32 +28,30 @@ class QLabel;
 class QTimer;
 class Spacer;
 
+
 class QuCanvas : public QuElement
 {
     // Element controlling an image field, onto which the user can draw,
     // either from a blank canvas or from a starting image. Allows image reset.
 
     Q_OBJECT
-
 public:
+
     // Construct with a blank canvas.
-    QuCanvas(
-        BlobFieldRefPtr fieldref,
-        const QSize& size = QSize(100, 100),
-        bool allow_shrink = true,  // see setAllowShrink()
-        QImage::Format format = QImage::Format_RGB32,  // internal image format
-        const QColor& background_colour = Qt::white,
-        QObject* parent = nullptr
-    );
+    QuCanvas(BlobFieldRefPtr fieldref,
+             const QSize& size = QSize(100, 100),
+             bool allow_shrink = true,  // see setAllowShrink()
+             QImage::Format format = QImage::Format_RGB32,
+                // ... internal image format
+             const QColor& background_colour = Qt::white,
+             QObject* parent = nullptr);
 
     // Construct with an image canvas.
-    QuCanvas(
-        BlobFieldRefPtr fieldref,
-        const QString& template_filename,
-        const QSize& size = QSize(),  // = take template's size
-        bool allow_shrink = true,
-        QObject* parent = nullptr
-    );  // see setAllowShrink()
+    QuCanvas(BlobFieldRefPtr fieldref,
+             const QString& template_filename,
+             const QSize& size = QSize(),  // = take template's size
+             bool allow_shrink = true,
+             QObject* parent = nullptr);  // see setAllowShrink()
 
     // Adjust for the current DPI settings?
     QuCanvas* setAdjustForDpi(bool adjust_for_dpi);  // default is true
@@ -88,11 +85,11 @@ public:
     QuCanvas* setAllowShrink(bool allow_shrink);
 
 protected:
+
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
-    ) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
     virtual FieldRefPtrList fieldrefs() const override;
     virtual void closing() override;
 
@@ -101,8 +98,8 @@ protected:
 
 protected slots:
     // "Fieldref reports that the field's data has changed."
-    void
-        fieldValueChanged(const FieldRef* fieldref, const QObject* originator);
+    void fieldValueChanged(const FieldRef* fieldref,
+                           const QObject* originator);
 
     // "Canvas widget reports that its image has changed (e.g. user has
     // drawn)."
@@ -131,8 +128,8 @@ protected:
 
     QPointer<CanvasWidget> m_canvas;  // our canvas
     QPointer<QLabel> m_missing_indicator;  // show "data is missing"
-    QPointer<Spacer>
-        m_no_missing_indicator;  // equivalent space to m_missing_indicator
+    QPointer<Spacer> m_no_missing_indicator;
+        // ... equivalent space to m_missing_indicator
     QSharedPointer<QTimer> m_timer;  // timer for delayed write-to-field
     bool m_field_write_pending;  // is a field write pending?
 };

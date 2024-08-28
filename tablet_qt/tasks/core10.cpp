@@ -19,11 +19,10 @@
 */
 
 #include "core10.h"
-
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
-#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -31,8 +30,8 @@
 #include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
 using mathfunc::countNotNull;
-using mathfunc::scorePhrase;
 using mathfunc::sumInt;
+using mathfunc::scorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -44,22 +43,22 @@ const QVector<int> REVERSE_SCORED_Q{2, 3};  // Q2 and Q3 are reverse-scored
 
 const QString Core10::CORE10_TABLENAME("core10");
 
+
 void initializeCore10(TaskFactory& factory)
 {
     static TaskRegistrar<Core10> registered(factory);
 }
 
+
 Core10::Core10(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(
-        app, db, CORE10_TABLENAME, false, false, false
-    )  // ... anon, clin, resp
+    Task(app, db, CORE10_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -70,23 +69,25 @@ QString Core10::shortname() const
     return "CORE-10";
 }
 
+
 QString Core10::longname() const
 {
     return tr("Clinical Outcomes in Routine Evaluation, 10-item measure");
 }
 
+
 QString Core10::description() const
 {
-    return tr(
-        "Self-rating of distress (wellbeing, symptoms, functioning, "
-        "risk)."
-    );
+    return tr("Self-rating of distress (wellbeing, symptoms, functioning, "
+              "risk).");
 }
+
 
 Version Core10::minimumServerVersion() const
 {
     return Version(2, 2, 8);
 }
+
 
 // ============================================================================
 // Instance info
@@ -97,12 +98,14 @@ bool Core10::isComplete() const
     return !anyValuesNull(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
 }
 
+
 QStringList Core10::summary() const
 {
-    return QStringList{scorePhrase(
-        tr("Clinical score"), clinicalScore(), MAX_QUESTION_SCORE
-    )};
+    return QStringList{
+        scorePhrase(tr("Clinical score"), clinicalScore(), MAX_QUESTION_SCORE)
+    };
 }
+
 
 QStringList Core10::detail() const
 {
@@ -113,6 +116,7 @@ QStringList Core10::detail() const
     lines += summary();
     return lines;
 }
+
 
 OpenableWidget* Core10::editor(const bool read_only)
 {
@@ -159,18 +163,18 @@ OpenableWidget* Core10::editor(const bool read_only)
     grid->setQuestionsBold(false);
 
     QuPagePtr page((new QuPage{
-                        (new QuText(xstring("instruction_1")))->setBold(true),
-                        new QuText(xstring("instruction_2")),
-                        grid,
-                        (new QuText(xstring("thanks")))->setBold(true),
-                    })
-                       ->setTitle(xstring("title")));
+        (new QuText(xstring("instruction_1")))->setBold(true),
+        new QuText(xstring("instruction_2")),
+        grid,
+        (new QuText(xstring("thanks")))->setBold(true),
+    })->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -181,10 +185,12 @@ int Core10::totalScore() const
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 int Core10::nQuestionsCompleted() const
 {
     return countNotNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
+
 
 double Core10::clinicalScore() const
 {
@@ -193,6 +199,6 @@ double Core10::clinicalScore() const
         // Avoid division by zero. Doesn't crash, but does give "nan".
         return 0;
     }
-    return static_cast<double>(N_QUESTIONS * totalScore())
-        / static_cast<double>(n_q_completed);
+    return static_cast<double>(N_QUESTIONS * totalScore()) /
+            static_cast<double>(n_q_completed);
 }

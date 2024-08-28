@@ -23,7 +23,6 @@
 // #define DEBUG_MIN_SIZE_FOR_TITLE
 
 #include "uifunc.h"
-
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QBrush>
@@ -47,7 +46,6 @@
 #include <QThread>
 #include <QToolButton>
 #include <QUrl>
-
 #include "common/colourdefs.h"
 #include "common/languages.h"
 #include "common/platform.h"
@@ -64,7 +62,6 @@
 #include "lib/errorfunc.h"
 // #include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
-
 // #include "qobjects/debugeventwatcher.h"
 
 
@@ -74,7 +71,8 @@ namespace uifunc {
 // QPixmap loader
 // ============================================================================
 
-QPixmap getPixmap(const QString& filename, const QSize& size, const bool cache)
+QPixmap getPixmap(const QString& filename, const QSize& size,
+                  const bool cache)
 {
     QPixmap pm;
     bool success = true;
@@ -100,16 +98,13 @@ QPixmap getPixmap(const QString& filename, const QSize& size, const bool cache)
     return pm;
 }
 
+
 // ============================================================================
 // Icons
 // ============================================================================
 
-QLabel* iconWidget(
-    const QString& filename,
-    QWidget* parent,
-    const bool scale,
-    const QSize& size
-)
+QLabel* iconWidget(const QString& filename, QWidget* parent,
+                   const bool scale, const QSize& size)
 {
 #ifdef DEBUG_ICON_LOAD
     qDebug() << "iconWidget:" << filename;
@@ -119,9 +114,9 @@ QLabel* iconWidget(
     return iconlabel;
 }
 
-void setLabelToIcon(
-    QLabel* iconlabel, const QString& filename, bool scale, const QSize& size
-)
+
+void setLabelToIcon(QLabel* iconlabel, const QString& filename, bool scale,
+                    const QSize& size)
 {
     if (!iconlabel) {
         return;
@@ -140,12 +135,10 @@ void setLabelToIcon(
     }
 }
 
-QPixmap addCircleBackground(
-    const QPixmap& image,
-    const QColor& colour,
-    const bool behind,
-    const qreal pixmap_opacity
-)
+
+
+QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
+                            const bool behind, const qreal pixmap_opacity)
 {
     const QSize size(image.size());
     QPixmap pm(size);
@@ -170,27 +163,25 @@ QPixmap addCircleBackground(
     return pm;
 }
 
+
 QPixmap addPressedBackground(const QPixmap& image, const bool behind)
 {
     return addCircleBackground(image, uiconst::BUTTON_PRESSED_COLOUR, behind);
 }
 
+
 QPixmap addUnpressedBackground(const QPixmap& image, const bool behind)
 {
-    return addCircleBackground(
-        image, uiconst::BUTTON_UNPRESSED_COLOUR, behind
-    );
+    return addCircleBackground(image, uiconst::BUTTON_UNPRESSED_COLOUR, behind);
 }
+
 
 QPixmap makeDisabledIcon(const QPixmap& image)
 {
-    return addCircleBackground(
-        image,
-        uiconst::BUTTON_DISABLED_COLOUR,
-        true,
-        uiconst::DISABLED_ICON_OPACITY
-    );
+    return addCircleBackground(image, uiconst::BUTTON_DISABLED_COLOUR,
+                               true, uiconst::DISABLED_ICON_OPACITY);
 }
+
 
 QLabel* blankIcon(QWidget* parent, const QSize& size)
 {
@@ -202,28 +193,31 @@ QLabel* blankIcon(QWidget* parent, const QSize& size)
     return iconlabel;
 }
 
+
 QString resourceFilename(const QString& resourcepath)
 {
     return QString(":/resources/%1").arg(resourcepath);
 }
+
 
 QUrl resourceUrl(const QString& resourcepath)
 {
     return QUrl(QString("qrc:///resources/%1").arg(resourcepath));
 }
 
+
 QString iconFilename(const QString& basefile)
 {
     return resourceFilename(QString("camcops/images/%1").arg(basefile));
 }
 
+
 // ============================================================================
 // Buttons
 // ============================================================================
 
-QString iconButtonStylesheet(
-    const QString& normal_filename, const QString& pressed_filename
-)
+QString iconButtonStylesheet(const QString& normal_filename,
+                             const QString& pressed_filename)
 {
     QString stylesheet = "QToolButton {"
                          "border-image: url('" + normal_filename + "');"
@@ -241,19 +235,17 @@ QString iconButtonStylesheet(
     return stylesheet;
 }
 
-QAbstractButton* iconButton(
-    const QString& normal_filename,
-    const QString& pressed_filename,
-    QWidget* parent
-)
+
+QAbstractButton* iconButton(const QString& normal_filename,
+                            const QString& pressed_filename,
+                            QWidget* parent)
 {
     auto button = new QToolButton(parent);
     button->setIconSize(uiconst::g_iconsize);
     // Impossible to do this without stylesheets!
     // But you can do stylesheets in code...
-    button->setStyleSheet(
-        iconButtonStylesheet(normal_filename, pressed_filename)
-    );
+    button->setStyleSheet(iconButtonStylesheet(normal_filename,
+                                               pressed_filename));
     return button;
 }
 
@@ -280,6 +272,7 @@ bool amInGuiThread()
     // https://stackoverflow.com/questions/977653
     return QThread::currentThread() == QCoreApplication::instance()->thread();
 }
+
 
 // We're not meant to use non-GUI threads for dialogue boxes.
 // However, it is very helpful to see why the app is about to die! Definitely
@@ -309,6 +302,7 @@ void stopApp(const QString& error, const QString& title)
     errorfunc::fatalError(error);
 }
 
+
 // ============================================================================
 // Alerts
 // ============================================================================
@@ -319,46 +313,42 @@ void alert(const QString& text, const QString& title)
     ScrollMessageBox::plain(nullptr, title, text);
 }
 
+
 void alert(const QStringList& lines, const QString& title)
 {
     alert(stringfunc::joinHtmlLines(lines), title);
 }
 
-void alertLogMessageBox(
-    const QString& text, const QString& title, const bool as_html
-)
+
+void alertLogMessageBox(const QString& text, const QString& title,
+                        const bool as_html)
 {
     LogMessageBox box(nullptr, title, text, as_html);
     box.exec();
 }
 
-void alertLogMessageBox(
-    const QStringList& lines, const QString& title, const bool as_html
-)
+
+void alertLogMessageBox(const QStringList& lines, const QString& title,
+                        const bool as_html)
 {
     const QString text = lines.join(as_html ? "<br>" : "\n");
     alertLogMessageBox(text, title, as_html);
 }
 
+
 void alertNotWhenLocked()
 {
-    alert(
-        QObject::tr("Can’t perform this action when CamCOPS is locked"),
-        QObject::tr("Unlock first")
-    );
+    alert(QObject::tr("Can’t perform this action when CamCOPS is locked"),
+          QObject::tr("Unlock first"));
 }
+
 
 // ============================================================================
 // Confirmation
 // ============================================================================
 
-bool confirm(
-    const QString& text,
-    const QString& title,
-    QString yes,
-    QString no,
-    QWidget* parent
-)
+bool confirm(const QString& text, const QString& title,
+             QString yes, QString no, QWidget* parent)
 {
     if (yes.isEmpty()) {
         yes = TextConst::yes();
@@ -367,32 +357,28 @@ bool confirm(
         no = TextConst::no();
     }
     ScrollMessageBox box(QMessageBox::Question, title, text, parent);
-    QAbstractButton* yes_button
-        = box.addButton(yes, QDialogButtonBox::YesRole);
+    QAbstractButton* yes_button = box.addButton(yes, QDialogButtonBox::YesRole);
     box.addButton(no, QDialogButtonBox::NoRole);
     box.exec();
     return box.clickedButton() == yes_button;
 }
 
-bool confirmDangerousOperation(
-    const QString& text, const QString& title, QWidget* parent
-)
+
+bool confirmDangerousOperation(const QString& text, const QString& title,
+                               QWidget* parent)
 {
     DangerousConfirmationDialog dlg(text, title, parent);
 
     return dlg.confirmed();
 }
 
+
 // ============================================================================
 // Password checks/changes
 // ============================================================================
 
-bool getPassword(
-    const QString& text,
-    const QString& title,
-    QString& password,
-    QWidget* parent
-)
+bool getPassword(const QString& text, const QString& title,
+                 QString& password, QWidget* parent)
 {
     PasswordEntryDialog dlg(text, title, parent);
     const int reply = dlg.exec();
@@ -404,14 +390,11 @@ bool getPassword(
     return true;
 }
 
-bool getOldNewPasswords(
-    const QString& text,
-    const QString& title,
-    const bool require_old_password,
-    QString& old_password,
-    QString& new_password,
-    QWidget* parent
-)
+
+bool getOldNewPasswords(const QString& text, const QString& title,
+                        const bool require_old_password,
+                        QString& old_password, QString& new_password,
+                        QWidget* parent)
 {
     PasswordChangeDialog dlg(text, title, require_old_password, parent);
     const int reply = dlg.exec();
@@ -424,18 +407,15 @@ bool getOldNewPasswords(
     return true;
 }
 
+
 // ============================================================================
 // Choose language
 // ============================================================================
 
-void chooseLanguage(CamcopsApp& app, QWidget* parent_window)
-{
+void chooseLanguage(CamcopsApp& app, QWidget* parent_window) {
     QVariant language = app.getLanguage();
-    NvpChoiceDialog dlg(
-        parent_window,
-        languages::possibleLanguages(),
-        QObject::tr("Choose language")
-    );
+    NvpChoiceDialog dlg(parent_window, languages::possibleLanguages(),
+                        QObject::tr("Choose language"));
     dlg.showExistingChoice(true);
     if (dlg.choose(&language) != QDialog::Accepted) {
         return;  // user pressed cancel, or some such
@@ -443,16 +423,15 @@ void chooseLanguage(CamcopsApp& app, QWidget* parent_window)
     app.setLanguage(language.toString(), true);
 }
 
+
 // ============================================================================
 // CSS
 // ============================================================================
 
-QString textCSS(
-    const int fontsize_pt,
-    const bool bold,
-    const bool italic,
-    const QString& colour
-)
+QString textCSS(const int fontsize_pt,
+                const bool bold,
+                const bool italic,
+                const QString& colour)
 {
     QString css;
     if (fontsize_pt > 0) {
@@ -472,6 +451,7 @@ QString textCSS(
     return css;
 }
 
+
 // ============================================================================
 // Opening URLS
 // ============================================================================
@@ -485,6 +465,7 @@ void visitUrl(const QString& url)
     }
 }
 
+
 // ============================================================================
 // Strings
 // ============================================================================
@@ -494,30 +475,37 @@ QString yesNo(const bool yes)
     return yes ? TextConst::yes() : TextConst::no();
 }
 
+
 QString yesNoNull(const QVariant& value)
 {
     return value.isNull() ? convert::NULL_STR : yesNo(value.toBool());
 }
+
 
 QString yesNoUnknown(const QVariant& value)
 {
     return value.isNull() ? TextConst::unknown() : yesNo(value.toBool());
 }
 
+
 QString trueFalse(const bool yes)
 {
     return yes ? TextConst::txtTrue() : TextConst::txtFalse();
 }
+
 
 QString trueFalseNull(const QVariant& value)
 {
     return value.isNull() ? convert::NULL_STR : trueFalse(value.toBool());
 }
 
+
 QString trueFalseUnknown(const QVariant& value)
 {
     return value.isNull() ? TextConst::unknown() : trueFalse(value.toBool());
 }
+
+
 
 // ============================================================================
 // Scrolling
@@ -550,16 +538,17 @@ void applyScrollGestures(QWidget* widget)
     //    - Others have noticed this too:
     //      https://forum.qt.io/topic/37930/solved-qt-5-2-android-qscroller-on-qtablewidget-clicks
     //    - So:
-    const bool widget_is_itemview
-        = (dynamic_cast<QAbstractItemView*>(widget)
-           || dynamic_cast<QAbstractItemView*>(widget->parent()));
+    const bool widget_is_itemview = (
+                dynamic_cast<QAbstractItemView*>(widget) ||
+                dynamic_cast<QAbstractItemView*>(widget->parent()));
     // It makes little difference which of these two we choose:
-    // const bool use_touch = platform::PLATFORM_ANDROID && !widget_is_itemview;
+    // const bool use_touch = platform::PLATFORM_ANDROID &&
+    //                        !widget_is_itemview;
     const bool use_touch = false;
 
     QScroller::ScrollerGestureType gesture_type = use_touch
-        ? QScroller::TouchGesture
-        : QScroller::LeftMouseButtonGesture;
+            ? QScroller::TouchGesture
+            : QScroller::LeftMouseButtonGesture;
     /*
     if (platform::PLATFORM_ANDROID) {
         // Some widgets automatically take a two-finger swipe, a PanGesture.
@@ -570,21 +559,20 @@ void applyScrollGestures(QWidget* widget)
     */
     QScroller::grabGesture(widget, gesture_type);  // will ungrab any other
 
-    // Still a problem: scroller not responding for ScrollMessageBox on Android.
-    // Yet everything else is working.
+    // Still a problem: scroller not responding for ScrollMessageBox on
+    // Android. Yet everything else is working.
     // VerticalScrollArea versus QScrollArea? No.
 
 #ifdef DEBUG_SCROLL_GESTURES
-    qDebug().nospace(
-    ) << Q_FUNC_INFO
-      << ": widget_is_itemview == " << widget_is_itemview
-      << ", use_touch == " << use_touch
-      << ", widget->isWidgetType() == " << widget->isWidgetType()
-      << ", widget->testAttribute(Qt::WA_AcceptTouchEvents) == "
-      << widget->testAttribute(Qt::WA_AcceptTouchEvents);
-    new DebugEventWatcher(
-        widget, DebugEventWatcher::All
-    );  // owned by widget henceforth
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << ": widget_is_itemview == " << widget_is_itemview
+            << ", use_touch == " << use_touch
+            << ", widget->isWidgetType() == " << widget->isWidgetType()
+            << ", widget->testAttribute(Qt::WA_AcceptTouchEvents) == "
+            << widget->testAttribute(Qt::WA_AcceptTouchEvents);
+    new DebugEventWatcher(widget, DebugEventWatcher::All);
+        // ... owned by widget henceforth
 #endif
 
     /* UNNECESSARY: done by QScroller::grabGesture if TouchGesture is used:
@@ -599,23 +587,16 @@ void applyScrollGestures(QWidget* widget)
     if (scroller) {
         // http://stackoverflow.com/questions/24677152
         QScrollerProperties prop = scroller->scrollerProperties();
-        QVariant overshoot_policy
-            = QVariant::fromValue<QScrollerProperties::OvershootPolicy>(
-                QScrollerProperties::OvershootAlwaysOff
-            );
-        prop.setScrollMetric(
-            QScrollerProperties::HorizontalOvershootPolicy, overshoot_policy
-        );
-        prop.setScrollMetric(
-            QScrollerProperties::VerticalOvershootPolicy, overshoot_policy
-        );
+        QVariant overshoot_policy = QVariant::fromValue<QScrollerProperties::OvershootPolicy>(
+                    QScrollerProperties::OvershootAlwaysOff);
+        prop.setScrollMetric(QScrollerProperties::HorizontalOvershootPolicy,
+                             overshoot_policy);
+        prop.setScrollMetric(QScrollerProperties::VerticalOvershootPolicy,
+                             overshoot_policy);
         scroller->setScrollerProperties(prop);
 #ifdef DEBUG_SCROLL_GESTURES
-        QObject::connect(
-            scroller,
-            &QScroller::stateChanged,
-            std::bind(&debugScrollerStateChanged, std::placeholders::_1)
-        );
+        QObject::connect(scroller, &QScroller::stateChanged,
+                         std::bind(&debugScrollerStateChanged, std::placeholders::_1));
 #endif
     } else {
         qWarning() << Q_FUNC_INFO << "Couldn't make scroller!";
@@ -635,28 +616,29 @@ void applyScrollGestures(QWidget* widget)
     // - http://nootka-app.blogspot.co.uk/2015/11/story-of-porting-complex-qt-application_18.html
 }
 
+
 void makeItemViewScrollSmoothly(QObject* object)
 {
     // Nasty hacks:
     auto itemview = dynamic_cast<QAbstractItemView*>(object);
     if (itemview) {
 #ifdef DEBUG_SCROLL_GESTURES
-        qDebug(
-        ) << Q_FUNC_INFO
-          << "Calling "
-             "setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel)"
-             " and setVerticalScrollMode(QAbstractItemView::ScrollPerPixel)";
+        qDebug() << Q_FUNC_INFO
+                 << "Calling setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel)"
+                    " and setVerticalScrollMode(QAbstractItemView::ScrollPerPixel)";
 #endif
         itemview->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         itemview->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     }
 }
 
+
 // ============================================================================
 // Sizing
 // ============================================================================
 
-QSize minimumSizeForTitle(const QDialog* dialog, const bool include_app_name)
+QSize minimumSizeForTitle(const QDialog* dialog,
+                          const bool include_app_name)
 {
     if (!dialog) {
         return QSize();
@@ -679,8 +661,8 @@ QSize minimumSizeForTitle(const QDialog* dialog, const bool include_app_name)
     }
     const QFont title_font = QApplication::font("QWorkspaceTitleBar");
     const QFontMetrics fm(title_font);
-    const int title_w
-        = fm.boundingRect(full_title).width();  // "_w" means width
+    const int title_w = fm.boundingRect(full_title).width();
+        // ... "_w" means width
 
     // dialog->ensurePolished();
     // const QSize frame_size = dialog->frameSize();
@@ -709,25 +691,30 @@ QSize minimumSizeForTitle(const QDialog* dialog, const bool include_app_name)
     size.setWidth(qMax(size.width(), final_w));
     size.setWidth(qMin(size.width(), dialog->maximumWidth()));
 #ifdef DEBUG_MIN_SIZE_FOR_TITLE
-    qDebug().nospace() << Q_FUNC_INFO << "window_title = " << window_title
-                       << ", app_name = " << app_name
-                       << ", full_title = " << full_title
-                       << ", title_font = " << title_font << ", title_w = "
-                       << title_w
-                       // << ", frame_size = " << frame_size
-                       // << ", content_size = " << content_size
-                       // << ", frame_extra = " << frame_extra
-                       << ", n_icons = " << n_icons << ", icon_w = " << icon_w
-                       << ", dialog_min_size = " << dialog_min_size
-                       << ", size = " << size;
+    qDebug().nospace()
+            << Q_FUNC_INFO
+            << "window_title = " << window_title
+            << ", app_name = " << app_name
+            << ", full_title = " << full_title
+            << ", title_font = " << title_font
+            << ", title_w = " << title_w
+            // << ", frame_size = " << frame_size
+            // << ", content_size = " << content_size
+            // << ", frame_extra = " << frame_extra
+            << ", n_icons = " << n_icons
+            << ", icon_w = " << icon_w
+            << ", dialog_min_size = " << dialog_min_size
+            << ", size = " << size;
 #endif
     return size;
 }
+
 
 QScreen* screen()
 {
     return QGuiApplication::primaryScreen();
 }
+
 
 QRect screenGeometry()
 {
@@ -751,4 +738,4 @@ qreal screenDpi()
 }
 
 
-}  // namespace uifunc
+} // namespace uifunc

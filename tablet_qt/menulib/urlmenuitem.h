@@ -22,6 +22,7 @@
 
 #include <QString>
 
+
 // A structure to represent a menu item for launching a URL.
 // Exists only to improve polymorphic constructor of MenuItem
 
@@ -30,9 +31,7 @@ struct UrlMenuItem
 public:
     UrlMenuItem(const QString& url = "") :
         url(url)
-    {
-    }
-
+    {}
 public:
     QString url;
 };

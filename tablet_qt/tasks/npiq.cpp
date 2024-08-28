@@ -19,10 +19,9 @@
 */
 
 #include "npiq.h"
-
 #include "lib/convert.h"
-#include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quhorizontalline.h"
@@ -49,30 +48,24 @@ const QString NpiQ::NPIQ_TABLENAME("npiq");
 const QString ELEMENT_TAG_PREFIX("q");
 const QString PAGE_TAG_PREFIX("q");
 
+
 void initializeNpiQ(TaskFactory& factory)
 {
     static TaskRegistrar<NpiQ> registered(factory);
 }
 
+
 NpiQ::NpiQ(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, NPIQ_TABLENAME, false, false, true),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(
-        strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS),
-        QMetaType::fromType<bool>()
-    );
-    addFields(
-        strseq(SEVERITY_PREFIX, FIRST_Q, N_QUESTIONS),
-        QMetaType::fromType<int>()
-    );
-    addFields(
-        strseq(DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS),
-        QMetaType::fromType<int>()
-    );
+    addFields(strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<bool>());
+    addFields(strseq(SEVERITY_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(strseq(DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -83,15 +76,18 @@ QString NpiQ::shortname() const
     return "NPI-Q";
 }
 
+
 QString NpiQ::longname() const
 {
     return tr("Neuropsychiatry Inventory Questionnaire");
 }
 
+
 QString NpiQ::description() const
 {
     return tr("12-item carer-rated scale for use in dementia.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -107,6 +103,7 @@ bool NpiQ::isComplete() const
     return true;
 }
 
+
 QStringList NpiQ::summary() const
 {
     return QStringList{
@@ -116,20 +113,19 @@ QStringList NpiQ::summary() const
     };
 }
 
+
 QStringList NpiQ::detail() const
 {
     QStringList lines = completenessInfo();
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
         const QVariant endorsed = value(strnum(ENDORSED_PREFIX, i));
-        QString msg = standardResult(
-            xstring(strnum("t", i)), convert::prettyValue(endorsed), ": ", ""
-        );
+        QString msg = standardResult(xstring(strnum("t", i)),
+                                     convert::prettyValue(endorsed),
+                                     ": ", "");
         if (endorsed.toBool()) {
             msg += QString(" (severity <b>%1</b>, distress <b>%2</b>)")
-                       .arg(
-                           prettyValue(strnum(SEVERITY_PREFIX, i)),
-                           prettyValue(strnum(DISTRESS_PREFIX, i))
-                       );
+                    .arg(prettyValue(strnum(SEVERITY_PREFIX, i)),
+                         prettyValue(strnum(DISTRESS_PREFIX, i)));
         }
         msg += ".";
         lines.append(msg);
@@ -138,6 +134,7 @@ QStringList NpiQ::detail() const
     lines += summary();
     return lines;
 }
+
 
 OpenableWidget* NpiQ::editor(const bool read_only)
 {
@@ -163,59 +160,46 @@ OpenableWidget* NpiQ::editor(const bool read_only)
     auto boldtext = [this](const QString& stringname) -> QuElement* {
         return (new QuText(xstring(stringname)))->setBold(true);
     };
-    auto addpage = [this,
-                    &pages,
-                    &options_yesno,
-                    &options_severity,
-                    &options_distress,
-                    &text,
-                    &boldtext](int q) -> void {
+    auto addpage = [this, &pages,
+                    &options_yesno, &options_severity, &options_distress,
+                    &text, &boldtext](int q) -> void {
         const QString pagetitle = QString("NPI-Q (%1 / %2): %3")
-                                      .arg(q)
-                                      .arg(N_QUESTIONS)
-                                      .arg(xstring(strnum("t", q)));
+                .arg(q)
+                .arg(N_QUESTIONS)
+                .arg(xstring(strnum("t", q)));
         const QString pagetag = strnum(PAGE_TAG_PREFIX, q);
         const QString tag = strnum(ELEMENT_TAG_PREFIX, q);
         FieldRefPtr endorsed_fr = fieldRef(strnum(ENDORSED_PREFIX, q));
-        QuPagePtr page(
-            (new QuPage{
-                 text(strnum("q", q)),
-                 (new QuMcq(endorsed_fr, options_yesno))->setHorizontal(true),
-                 (new QuHorizontalLine())->addTag(tag),
-                 (boldtext("severity_instruction"))->addTag(tag),
-                 (new QuMcq(
-                      fieldRef(strnum(SEVERITY_PREFIX, q)), options_severity
-                  ))
-                     ->addTag(tag),
-                 (new QuHorizontalLine())->addTag(tag),
-                 (boldtext("distress_instruction"))->addTag(tag),
-                 (new QuMcq(
-                      fieldRef(strnum(DISTRESS_PREFIX, q)), options_distress
-                  ))
-                     ->addTag(tag),
-             })
-                ->setTitle(pagetitle)
-                ->addTag(pagetag)
-        );
+        QuPagePtr page((new QuPage{
+            text(strnum("q", q)),
+            (new QuMcq(endorsed_fr, options_yesno))
+                            ->setHorizontal(true),
+            (new QuHorizontalLine())
+                            ->addTag(tag),
+            (boldtext("severity_instruction"))
+                            ->addTag(tag),
+            (new QuMcq(fieldRef(strnum(SEVERITY_PREFIX, q)), options_severity))
+                            ->addTag(tag),
+            (new QuHorizontalLine())
+                            ->addTag(tag),
+            (boldtext("distress_instruction"))
+                            ->addTag(tag),
+            (new QuMcq(fieldRef(strnum(DISTRESS_PREFIX, q)), options_distress))
+                            ->addTag(tag),
+        })->setTitle(pagetitle)->addTag(pagetag));
         pages.append(page);
 
-        connect(
-            endorsed_fr.data(),
-            &FieldRef::valueChanged,
-            std::bind(&NpiQ::updateMandatory, this, q)
-        );
+        connect(endorsed_fr.data(), &FieldRef::valueChanged,
+                std::bind(&NpiQ::updateMandatory, this, q));
     };
 
-    pages.append(
-        QuPagePtr((new QuPage{
-                       getRespondentQuestionnaireBlockRawPointer(true),
-                       text("instruction_1"),
-                       boldtext("instruction_2"),
-                       boldtext("instruction_3"),
-                       text("instruction_4"),
-                   })
-                      ->setTitle(longname()))
-    );
+    pages.append(QuPagePtr((new QuPage{
+        getRespondentQuestionnaireBlockRawPointer(true),
+        text("instruction_1"),
+        boldtext("instruction_2"),
+        boldtext("instruction_3"),
+        text("instruction_4"),
+    })->setTitle(longname())));
 
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
         addpage(n);
@@ -232,6 +216,7 @@ OpenableWidget* NpiQ::editor(const bool read_only)
     return m_questionnaire;
 }
 
+
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -240,6 +225,7 @@ int NpiQ::endorsedScore() const
 {
     return countTrue(values(strseq(ENDORSED_PREFIX, FIRST_Q, N_QUESTIONS)));
 }
+
 
 int NpiQ::distressScore() const
 {
@@ -252,6 +238,7 @@ int NpiQ::distressScore() const
     return score;
 }
 
+
 int NpiQ::severityScore() const
 {
     int score = 0;
@@ -263,6 +250,7 @@ int NpiQ::severityScore() const
     return score;
 }
 
+
 bool NpiQ::questionComplete(const int q) const
 {
     const QVariant endorsed = value(strnum(ENDORSED_PREFIX, q));
@@ -270,13 +258,14 @@ bool NpiQ::questionComplete(const int q) const
         return false;
     }
     if (endorsed.toBool()) {
-        if (valueIsNull(strnum(DISTRESS_PREFIX, q))
-            || valueIsNull(strnum(SEVERITY_PREFIX, q))) {
+        if (valueIsNull(strnum(DISTRESS_PREFIX, q)) ||
+                valueIsNull(strnum(SEVERITY_PREFIX, q))) {
             return false;
         }
     }
     return true;
 }
+
 
 // ============================================================================
 // Signal handlers

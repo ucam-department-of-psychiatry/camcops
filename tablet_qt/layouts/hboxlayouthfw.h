@@ -34,12 +34,10 @@
 class HBoxLayoutHfw : public BoxLayoutHfw
 {
     Q_OBJECT
-
 public:
     HBoxLayoutHfw();
     explicit HBoxLayoutHfw(QWidget* parent);
     ~HBoxLayoutHfw();
-
 private:
     Q_DISABLE_COPY(HBoxLayoutHfw)
 };

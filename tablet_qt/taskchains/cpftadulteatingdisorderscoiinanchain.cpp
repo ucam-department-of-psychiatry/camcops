@@ -19,7 +19,6 @@
 */
 
 #include "cpftadulteatingdisorderscoiinanchain.h"
-
 #include "tasks/chit.h"
 #include "tasks/ided3d.h"
 #include "tasks/isaaq10.h"
@@ -27,9 +26,7 @@
 #include "tasks/kirby.h"
 #include "tasks/suppsp.h"
 
-CpftAdultEatingDisordersCoiinAnChain::CpftAdultEatingDisordersCoiinAnChain(
-    CamcopsApp& app
-) :
+CpftAdultEatingDisordersCoiinAnChain::CpftAdultEatingDisordersCoiinAnChain(CamcopsApp& app) :
     TaskChain(
         app,
         {
@@ -41,8 +38,8 @@ CpftAdultEatingDisordersCoiinAnChain::CpftAdultEatingDisordersCoiinAnChain(
             IDED3D::IDED3D_TABLENAME,
             // Sequence as per JES to MB, 2023-02-27.
         },
-        TaskChain::CreationMethod::
-            OnDemandOrAbort,  // as per JES 2023-03-14; also the default.
+        TaskChain::CreationMethod::OnDemandOrAbort,
+            // ... as per JES 2023-03-14; also the default.
         tr("COIIN-AN")
     )
 {

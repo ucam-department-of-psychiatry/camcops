@@ -23,7 +23,8 @@
 class QColor;
 class QPen;
 
-namespace css {
+namespace css
+{
 
 // Returns CSS like "3px" or "0".
 QString pixelCss(int px);

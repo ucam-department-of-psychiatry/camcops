@@ -19,7 +19,6 @@
 */
 
 #include "cgii.h"
-
 #include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -33,10 +32,12 @@ const QString CgiI::CGI_I_TABLENAME("cgi_i");
 
 const QString Q("q");
 
+
 void initializeCgiI(TaskFactory& factory)
 {
     static TaskRegistrar<CgiI> registered(factory);
 }
+
 
 CgiI::CgiI(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_I_TABLENAME, false, true, false)  // ... anon, clin, resp
@@ -45,6 +46,7 @@ CgiI::CgiI(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -55,28 +57,31 @@ QString CgiI::shortname() const
     return "CGI-I";
 }
 
+
 QString CgiI::longname() const
 {
-    return tr(
-        "Clinical Global Impressions – Improvement subscale "
-        "(FROM-LP version)"
-    );
+    return tr("Clinical Global Impressions – Improvement subscale "
+              "(FROM-LP version)");
 }
+
 
 QString CgiI::description() const
 {
     return tr("Clinician-administered; briefly rates global improvement.");
 }
 
+
 QString CgiI::xstringTaskname() const
 {
     return "cgi";
 }
 
+
 QString CgiI::infoFilenameStem() const
 {
     return "cgi";
 }
+
 
 // ============================================================================
 // Instance info
@@ -87,15 +92,18 @@ bool CgiI::isComplete() const
     return !valueIsNull(Q);
 }
 
+
 QStringList CgiI::summary() const
 {
     return QStringList{getRatingText()};
 }
 
+
 QStringList CgiI::detail() const
 {
     return completenessInfo() + summary();
 }
+
 
 OpenableWidget* CgiI::editor(const bool read_only)
 {
@@ -108,16 +116,16 @@ OpenableWidget* CgiI::editor(const bool read_only)
         options.append(NameValuePair(name, i));
     }
     pages.append(QuPagePtr((new QuPage{
-                                new QuText(xstring("i_q")),
-                                new QuMcq(fieldRef(Q), options),
-                            })
-                               ->setTitle(shortname())));
+        new QuText(xstring("i_q")),
+        new QuMcq(fieldRef(Q), options),
+    })->setTitle(shortname())));
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations

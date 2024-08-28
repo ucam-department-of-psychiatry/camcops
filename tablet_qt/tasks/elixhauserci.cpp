@@ -19,14 +19,13 @@
 */
 
 #include "elixhauserci.h"
-
 #include "common/textconst.h"
 #include "common/uiconst.h"
-#include "lib/uifunc.h"
 #include "maths/mathfunc.h"
-#include "questionnairelib/quboolean.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/qubutton.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/quboolean.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
@@ -82,12 +81,10 @@ void initializeElixhauserCI(TaskFactory& factory)
     static TaskRegistrar<ElixhauserCI> registered(factory);
 }
 
-ElixhauserCI::ElixhauserCI(
-    CamcopsApp& app, DatabaseManager& db, const int load_pk
-) :
-    Task(
-        app, db, ELIXHAUSERCI_TABLENAME, false, true, false
-    ),  // ... anon, clin, resp
+
+ElixhauserCI::ElixhauserCI(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    Task(app, db, ELIXHAUSERCI_TABLENAME, false, true, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     for (const QString& fieldname : FIELDNAMES) {
@@ -96,6 +93,7 @@ ElixhauserCI::ElixhauserCI(
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -106,15 +104,18 @@ QString ElixhauserCI::shortname() const
     return "ElixhauserCI";
 }
 
+
 QString ElixhauserCI::longname() const
 {
     return tr("Elixhauser Comorbidity Index");
 }
 
+
 QString ElixhauserCI::description() const
 {
     return tr("31-item clinician-rated comorbidity catalogue.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -125,10 +126,12 @@ bool ElixhauserCI::isComplete() const
     return noValuesNull(FIELDNAMES);
 }
 
+
 QStringList ElixhauserCI::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
+
 
 QStringList ElixhauserCI::detail() const
 {
@@ -142,6 +145,7 @@ QStringList ElixhauserCI::detail() const
     lines += summary();
     return lines;
 }
+
 
 OpenableWidget* ElixhauserCI::editor(const bool read_only)
 {

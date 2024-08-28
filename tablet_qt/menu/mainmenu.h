@@ -21,6 +21,7 @@
 #pragma once
 #include "menulib/menuwindow.h"
 
+
 class MainMenu : public MenuWindow
 {
     Q_OBJECT
@@ -28,7 +29,6 @@ class MainMenu : public MenuWindow
 public:
     MainMenu(CamcopsApp& app);
     virtual QString title() const override;
-
 protected:
     virtual void makeItems() override;
     void upload();

@@ -22,26 +22,18 @@
 #include "db/databaseobject.h"
 #include "kirbyrewardpair.h"
 
+
 class KirbyTrial : public DatabaseObject
 {
     Q_OBJECT
-
 public:
     // Load, or create blank
-    KirbyTrial(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    KirbyTrial(CamcopsApp& app, DatabaseManager& db,
+               int load_pk = dbconst::NONEXISTENT_PK);
 
     // Create and save
-    KirbyTrial(
-        int task_pk,
-        int trial_num,
-        const KirbyRewardPair& info,
-        CamcopsApp& app,
-        DatabaseManager& db
-    );
+    KirbyTrial(int task_pk, int trial_num, const KirbyRewardPair& info,
+               CamcopsApp& app, DatabaseManager& db);
 
     // Trial number (1-based)
     int trialNum() const;
@@ -62,6 +54,5 @@ public:
     static const QString KIRBY_TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_TRIAL;
-
 protected:
 };

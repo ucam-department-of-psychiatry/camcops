@@ -19,10 +19,9 @@
 */
 
 #include "audit.h"
-
+#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
@@ -44,23 +43,23 @@ const QString Audit::AUDIT_TABLENAME("audit");
 const QString TAG_Q2TO3("q2to3");
 const QString TAG_Q4TO8("q4to8");
 
+
 void initializeAudit(TaskFactory& factory)
 {
     static TaskRegistrar<Audit> registered(factory);
 }
 
+
 Audit::Audit(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(
-        app, db, AUDIT_TABLENAME, false, false, false
-    ),  // ... anon, clin, resp
+    Task(app, db, AUDIT_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -71,18 +70,19 @@ QString Audit::shortname() const
     return "AUDIT";
 }
 
+
 QString Audit::longname() const
 {
     return tr("Alcohol Use Disorders Identification Test");
 }
 
+
 QString Audit::description() const
 {
-    return tr(
-        "World Health Organization; "
-        "10-item clinician-administered screening test."
-    );
+    return tr("World Health Organization; "
+              "10-item clinician-administered screening test.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -98,8 +98,8 @@ bool Audit::isComplete() const
         // Special limited-information completeness
         return true;
     }
-    if (noneNull(values({"q2", "q3"}))
-        && valueInt("q2") + valueInt("q3") == 0) {
+    if (noneNull(values({"q2", "q3"})) &&
+            valueInt("q2") + valueInt("q3") == 0) {
         // Special limited-information completeness
         return true;
     }
@@ -107,10 +107,12 @@ bool Audit::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList Audit::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
+
 
 QStringList Audit::detail() const
 {
@@ -123,12 +125,11 @@ QStringList Audit::detail() const
     lines.append("");
     lines += summary();
     lines.append("");
-    lines.append(
-        xstring("exceeds_standard_cutoff") + spacer
-        + bold(yesNo(exceeds_standard_cutoff))
-    );
+    lines.append(xstring("exceeds_standard_cutoff") + spacer +
+                 bold(yesNo(exceeds_standard_cutoff)));
     return lines;
 }
+
 
 OpenableWidget* Audit::editor(const bool read_only)
 {
@@ -161,32 +162,27 @@ OpenableWidget* Audit::editor(const bool read_only)
 
     QVector<QuPagePtr> pages;
 
-    pages.append(
-        QuPagePtr((new QuPage{
-                       new QuText(xstring("instructions_1")),
-                       (new QuText(xstring("instructions_2")))->setBold(true),
-                       new QuText(xstring("instructions_3")),
-                       new QuText(xstring("instructions_4")),
-                       new QuText(xstring("instructions_5")),
-                   })
-                      ->setType(QuPage::PageType::Clinician)
-                      ->setTitle(shortname()))
-    );
+    pages.append(QuPagePtr((new QuPage{
+        new QuText(xstring("instructions_1")),
+        (new QuText(xstring("instructions_2")))->setBold(true),
+        new QuText(xstring("instructions_3")),
+        new QuText(xstring("instructions_4")),
+        new QuText(xstring("instructions_5")),
+    })->setType(QuPage::PageType::Clinician)->setTitle(shortname())));
 
-    auto addPage = [this, &pages](
-                       int question,
-                       const NameValueOptions& options,
-                       const QString& tag = ""
-                   ) -> void {
+    auto addPage = [this, &pages](int question,
+                                  const NameValueOptions& options,
+                                  const QString& tag = "") -> void {
         const QString titlename = QString("q%1_title").arg(question);
         const QString qname = QString("q%1_question").arg(question);
         const QString fieldname = QString("q%1").arg(question);
         QuPagePtr page((new QuPage{
-                            new QuText(xstring(qname)),
-                            new QuMcq(fieldRef(fieldname), options),
-                        })
-                           ->setTitle(xstring(titlename))
-                           ->setType(QuPage::PageType::Clinician));
+                new QuText(xstring(qname)),
+                new QuMcq(fieldRef(fieldname), options),
+            })
+                ->setTitle(xstring(titlename))
+                ->setType(QuPage::PageType::Clinician)
+        );
         if (!tag.isEmpty()) {
             page->addTag(tag);
         }
@@ -220,6 +216,7 @@ OpenableWidget* Audit::editor(const bool read_only)
     return m_questionnaire;
 }
 
+
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -228,6 +225,7 @@ int Audit::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
+
 
 // ============================================================================
 // Signal handlers
@@ -242,9 +240,10 @@ void Audit::setPageSkip()
     const QVariant q2value = value("q2");
     const QVariant q3value = value("q3");
     const bool need2to3 = q1value.isNull() || q1value.toInt() != 0;
-    const bool need4to8 = need2to3
-        && (q2value.isNull() || q3value.isNull() || q2value.toInt() != 0
-            || q3value.toInt() != 0);
+    const bool need4to8 = need2to3 && (q2value.isNull() ||
+                                       q3value.isNull() ||
+                                       q2value.toInt() != 0 ||
+                                       q3value.toInt() != 0);
     m_questionnaire->setPageSkip(TAG_Q2TO3, !need2to3, false);
     m_questionnaire->setPageSkip(TAG_Q4TO8, !need4to8, true);
 }

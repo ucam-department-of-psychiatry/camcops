@@ -23,7 +23,6 @@
 #pragma once
 #include <QPointer>
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -33,28 +32,22 @@ class TaskFactory;
 
 void initializeFactg(TaskFactory& factory);
 
+
 class Factg : public Task
 {
     Q_OBJECT
-
 public:
-    Factg(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Factg(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -69,26 +62,20 @@ public:
 protected slots:
     void updateQ7(const FieldRef* fieldref);
     void untickBox();
-
 protected:
-    struct FactgScore
-    {
+    struct FactgScore {
         double score_phys = 0;
-        double score_soc = 0;
-        double score_emo = 0;
+        double score_soc  = 0;
+        double score_emo  = 0;
         double score_func = 0;
-
-        double total()
-        {
+        double total() {
             return score_phys + score_soc + score_emo + score_func;
         }
     };
-
     virtual FactgScore getScores() const;
 
 public:
     static const QString FACTG_TABLENAME;
-
 protected:
     bool m_in_tickbox_change;
 };

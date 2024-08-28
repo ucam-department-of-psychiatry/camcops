@@ -19,9 +19,7 @@
 */
 
 #include "qutextedit.h"
-
 #include <QTimer>
-
 #include "common/textconst.h"
 #include "lib/timerfunc.h"
 #include "lib/widgetfunc.h"
@@ -33,9 +31,8 @@
 const int WRITE_DELAY_MS = 400;
 
 
-QuTextEdit::QuTextEdit(
-    FieldRefPtr fieldref, const bool accept_rich_text, QObject* parent
-) :
+QuTextEdit::QuTextEdit(FieldRefPtr fieldref, const bool accept_rich_text,
+                       QObject* parent) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_accept_rich_text(accept_rich_text),
@@ -50,20 +47,14 @@ QuTextEdit::QuTextEdit(
 {
     Q_ASSERT(m_fieldref);
     timerfunc::makeSingleShotTimer(m_timer);
-    connect(m_timer.data(), &QTimer::timeout, this, &QuTextEdit::textChanged);
-    connect(
-        m_fieldref.data(),
-        &FieldRef::valueChanged,
-        this,
-        &QuTextEdit::fieldValueChanged
-    );
-    connect(
-        m_fieldref.data(),
-        &FieldRef::mandatoryChanged,
-        this,
-        &QuTextEdit::fieldValueChanged
-    );
+    connect(m_timer.data(), &QTimer::timeout,
+            this, &QuTextEdit::textChanged);
+    connect(m_fieldref.data(), &FieldRef::valueChanged,
+            this, &QuTextEdit::fieldValueChanged);
+    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
+            this, &QuTextEdit::fieldValueChanged);
 }
+
 
 QuTextEdit* QuTextEdit::setAllowTabsInContent(const bool allow_tabs_in_content)
 {
@@ -71,11 +62,13 @@ QuTextEdit* QuTextEdit::setAllowTabsInContent(const bool allow_tabs_in_content)
     return this;
 }
 
+
 QuTextEdit* QuTextEdit::setHint(const QString& hint)
 {
     m_hint = hint;
     return this;
 }
+
 
 void QuTextEdit::setFromField()
 {
@@ -83,6 +76,7 @@ void QuTextEdit::setFromField()
     // special; pretend "it didn't come from us" to disable the efficiency
     // check in fieldValueChanged
 }
+
 
 QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
 {
@@ -98,23 +92,15 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
         m_rich_editor->setPlaceholderText(m_hint);
         m_rich_editor->setTabChangesFocus(!m_allow_tabs_in_content);
         if (!read_only) {
-            connect(
-                m_rich_editor.data(),
-                &GrowingTextEdit::textChanged,
-                this,
-                &QuTextEdit::widgetTextChanged
-            );
+            connect(m_rich_editor.data(), &GrowingTextEdit::textChanged,
+                    this, &QuTextEdit::widgetTextChanged);
             // QTextEdit::textChanged - Called *whenever* contents changed.
             // https://doc.qt.io/qt-6.5/qtextedit.html#textChanged
             // Note: no data sent along with the signal
 
             m_focus_watcher = new FocusWatcher(m_rich_editor.data());
-            connect(
-                m_focus_watcher.data(),
-                &FocusWatcher::focusChanged,
-                this,
-                &QuTextEdit::widgetFocusChanged
-            );
+            connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
+                    this, &QuTextEdit::widgetFocusChanged);
         }
         setFromField();
         return QPointer<QWidget>(m_rich_editor);
@@ -126,22 +112,15 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
         m_plain_editor->setPlaceholderText(m_hint);
         m_plain_editor->setTabChangesFocus(!m_allow_tabs_in_content);
         if (!read_only) {
-            connect(
-                m_plain_editor.data(),
-                &GrowingPlainTextEdit::textChanged,
-                this,
-                &QuTextEdit::widgetTextChanged
-            );
-            // QPlainTextEdit::textChanged - Called *whenever* contents changed.
+            connect(m_plain_editor.data(), &GrowingPlainTextEdit::textChanged,
+                    this, &QuTextEdit::widgetTextChanged);
+            // QPlainTextEdit::textChanged - Called *whenever* contents
+            // changed.
             // https://doc.qt.io/qt-6.5/qplaintextedit.html#textChanged
 
             m_focus_watcher = new FocusWatcher(m_plain_editor.data());
-            connect(
-                m_focus_watcher.data(),
-                &FocusWatcher::focusChanged,
-                this,
-                &QuTextEdit::widgetFocusChanged
-            );
+            connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
+                    this, &QuTextEdit::widgetFocusChanged);
         }
         setFromField();
         return QPointer<QWidget>(m_plain_editor);
@@ -149,10 +128,12 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
 #endif
 }
 
+
 FieldRefPtrList QuTextEdit::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
+
 
 void QuTextEdit::widgetTextChanged()
 {
@@ -166,6 +147,7 @@ void QuTextEdit::widgetTextChanged()
     m_timer->start(WRITE_DELAY_MS);  // will restart if already timing
     // ... goes to textChanged()
 }
+
 
 void QuTextEdit::textChanged()
 {
@@ -193,21 +175,21 @@ void QuTextEdit::textChanged()
         text = m_rich_editor->toPlainText();
 #endif
     }
-    const bool changed
-        = m_fieldref->setValue(text, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(text, this);
+        // ... Will trigger valueChanged.
     if (changed) {
         emit elementValueChanged();
     }
 }
 
-void QuTextEdit::fieldValueChanged(
-    const FieldRef* fieldref, const QObject* originator
-)
+
+void QuTextEdit::fieldValueChanged(const FieldRef* fieldref,
+                                   const QObject* originator)
 {
 #ifdef QUTEXTEDIT_USE_PLAIN_TEXT_EDITOR
     QWidget* pwidget = m_accept_rich_text
-        ? static_cast<QWidget*>(m_rich_editor.data())
-        : static_cast<QWidget*>(m_plain_editor.data());
+            ? static_cast<QWidget*>(m_rich_editor.data())
+            : static_cast<QWidget*>(m_plain_editor.data());
 #else
     auto pwidget = static_cast<QWidget*>(m_rich_editor.data());
 #endif
@@ -233,6 +215,7 @@ void QuTextEdit::fieldValueChanged(
         m_ignore_widget_signal = false;
     }
 }
+
 
 void QuTextEdit::widgetFocusChanged(const bool in)
 {

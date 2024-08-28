@@ -19,20 +19,20 @@
 */
 
 #include "dangerousconfirmationdialog.h"
-
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-
 #include "common/textconst.h"
 #include "lib/uifunc.h"
 #include "qobjects/widgetpositioner.h"
 
+
 DangerousConfirmationDialog::DangerousConfirmationDialog(
-    const QString& text, const QString& title, QWidget* parent
-) :
+        const QString& text,
+        const QString& title,
+        QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(title);
@@ -49,20 +49,11 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     m_editor = new QLineEdit();
 
     auto buttonbox = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel
-    );
-    connect(
-        buttonbox,
-        &QDialogButtonBox::accepted,
-        this,
-        &DangerousConfirmationDialog::accept
-    );
-    connect(
-        buttonbox,
-        &QDialogButtonBox::rejected,
-        this,
-        &DangerousConfirmationDialog::reject
-    );
+                QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonbox, &QDialogButtonBox::accepted,
+            this, &DangerousConfirmationDialog::accept);
+    connect(buttonbox, &QDialogButtonBox::rejected,
+            this, &DangerousConfirmationDialog::reject);
 
     auto mainlayout = new QVBoxLayout();
 
@@ -76,6 +67,7 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
 
     setLayout(mainlayout);
 }
+
 
 bool DangerousConfirmationDialog::confirmed()
 {

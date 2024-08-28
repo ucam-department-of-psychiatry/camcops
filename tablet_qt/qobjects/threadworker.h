@@ -22,6 +22,7 @@
 #include <functional>
 #include <QObject>
 
+
 class ThreadWorker : public QObject
 {
     // Helper object for SlowNonGuiFunctionCaller.

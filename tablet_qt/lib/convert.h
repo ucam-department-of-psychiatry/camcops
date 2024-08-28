@@ -27,12 +27,12 @@
 #include <QString>
 #include <QUrlQuery>
 #include <QVariant>
-
 #include "common/dpi.h"
 #include "crypto/secureqbytearray.h"
 
 class QByteArray;
 class QImage;
+
 
 namespace convert {
 
@@ -73,7 +73,8 @@ QString escapeNewlines(QString raw);
 // Reverse escapeNewlines()
 QString unescapeNewlines(const QString& escaped);
 
-// Convert e.g. "Bob's house" to "'Bob''s house'", giving an SQL string literal.
+// Convert e.g. "Bob's house" to "'Bob''s house'", giving an SQL string
+// literal.
 QString sqlQuoteString(QString raw);
 
 // Reverse sqlQuoteString().
@@ -134,16 +135,17 @@ QString cppLiteralToString(const QString& escaped);
 // ============================================================================
 
 // Writes a QImage to bytes in the specified image format.
-QByteArray imageToByteArray(const QImage& image, const char* format = "png");
+QByteArray imageToByteArray(const QImage& image,
+                            const char* format = "png");
 
 // Writes a QImage to a QVariant (of bytes) in the specified image format.
 QVariant imageToVariant(const QImage& image, const char* format = "png");
 
 // Converts a byte array to a QImage. You can specify the format or allow Qt
 // to autodetect it.
-QImage byteArrayToImage(
-    const QByteArray& array, bool* successful, const char* format = nullptr
-);
+QImage byteArrayToImage(const QByteArray& array,
+                        bool* successful,
+                        const char* format = nullptr);
 
 // Converts a length in pixels from one DPI setting to another (maintaining the
 // same real-world length).
@@ -156,9 +158,8 @@ int convertLengthByLogicalDpiX(int old_length);
 int convertLengthByLogicalDpiY(int old_length);
 
 // Converts a QSize by DPI; as for convertLengthByDpi(int, qreal, qreal).
-QSize convertSizeByDpi(
-    const QSize& old_size, const Dpi& to_dpi, const Dpi& from_dpi
-);
+QSize convertSizeByDpi(const QSize& old_size,
+                       const Dpi& to_dpi, const Dpi& from_dpi);
 
 // Converts a QSize by default logical DPI.
 QSize convertSizeByLogicalDpi(const QSize& old_size);
@@ -190,13 +191,8 @@ QString prettyValue(const QVariant& variant, int dp, const QMetaType type);
 QString prettyValue(const QVariant& variant, int dp = -1);
 
 // Formats a size in bytes in a pretty way, e.g. "3 KiB" or "3 kb" etc.
-QString prettySize(
-    double num,
-    bool space = true,
-    bool binary = false,
-    bool longform = false,
-    const QString& suffix = QStringLiteral("B")
-);
+QString prettySize(double num, bool space = true, bool binary = false,
+                   bool longform = false, const QString& suffix = QStringLiteral("B"));
 
 // Returns a string form of an arbitrary pointer.
 QString prettyPointer(const void* pointer);
@@ -255,7 +251,8 @@ QVariant toQCharVariant(const QVariant& v);
 
 // Converts a numeric (e.g. int) vector into a CSV string representation,
 // via QString::number.
-template<typename T> QString numericVectorToCsvString(const QVector<T>& vec)
+template<typename T>
+QString numericVectorToCsvString(const QVector<T>& vec)
 {
     QStringList strings;
     for (const T& value : vec) {
@@ -264,11 +261,13 @@ template<typename T> QString numericVectorToCsvString(const QVector<T>& vec)
     return strings.join(COMMA);
 }
 
+
 // Converts a CSV string into an int vector.
 // (Duff values will be converted to 0. Whitespace around commas is ignored.)
 QVector<int> csvStringToIntVector(const QString& str);
 
-// Converts a QStringList to CSV, encoding each string via stringToCppLiteral().
+// Converts a QStringList to CSV, encoding each string via
+// stringToCppLiteral().
 QString qStringListToCsvString(const QStringList& vec);
 
 // Reverses csvStringToQStringList(). Trims off whitespace.
@@ -313,20 +312,21 @@ void feetInchesFromMetres(double metres, int& feet, double& inches);
 double inchesFromCentimetres(double centimeters);
 
 // Mass: imperial to metric
-double kilogramsFromStonesPoundsOunces(
-    double stones, double pounds, double ounces = 0
-);
+double kilogramsFromStonesPoundsOunces(double stones, double pounds,
+                                       double ounces = 0);
 
 // Mass: metric to imperial
-void stonesPoundsFromKilograms(double kilograms, int& stones, double& pounds);
+void stonesPoundsFromKilograms(
+        double kilograms, int& stones, double& pounds);
 void stonesPoundsOuncesFromKilograms(
-    double kilograms, int& stones, int& pounds, double& ounces
-);
+        double kilograms, int& stones, int& pounds, double& ounces);
 
 // Time unit conversion
-int msFromMin(qreal minutes
-);  // max 32-bit signed int is +2,147,483,647 ms = 35,791.39 minutes = 24.8 days
+int msFromMin(qreal minutes);
+    // ... max 32-bit signed int is +2,147,483,647 ms = 35,791.39 minutes
+    // = 24.8 days
 int msFromSec(qreal seconds);  // ditto
+
 
 // ============================================================================
 // Tests
@@ -334,7 +334,8 @@ int msFromSec(qreal seconds);  // ditto
 
 // Assert that two things are equal, or crash.
 
-template<typename T> void assert_eq(const T& a, const T& b)
+template<typename T>
+void assert_eq(const T& a, const T& b)
 {
     if (a == b) {
         qDebug() << "Conversion success:" << a << "==" << b;
@@ -347,11 +348,13 @@ template<typename T> void assert_eq(const T& a, const T& b)
 
 // Specialization of assert_eq().
 
-template<> void assert_eq(const double& a, const double& b);
+template<>
+void assert_eq(const double& a, const double& b);
 
 // Perform a self-test of our conversion functions.
 
 void testConversions();
+
 
 // ============================================================================
 // QMap operations
@@ -377,7 +380,8 @@ QMap<T2, T1> reverseMap(const QMap<T1, T2>& map)
 
 
 // ============================================================================
-// Using QVector in QVariant: see also convert::registerQVectorTypesForQVariant()
+// Using QVector in QVariant: see also
+// convert::registerQVectorTypesForQVariant()
 // ============================================================================
 
 Q_DECLARE_METATYPE(QVector<int>)

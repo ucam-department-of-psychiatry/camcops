@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,13 +28,12 @@ class TaskFactory;
 
 void initializeDad(TaskFactory& factory);
 
+
 class Dad : public Task
 {
     Q_OBJECT
-
 public:
-    Dad(CamcopsApp& app,
-        DatabaseManager& db,
+    Dad(CamcopsApp& app, DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -43,12 +41,9 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -59,13 +54,11 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-
 protected:
     QStringList getItemsActivity(const QString& activity) const;
     QStringList getItemsActivities(const QStringList& activities) const;
     QStringList getItemsPhase(const QString& phase) const;
     QString getScore(const QStringList& fieldnames) const;
-
 public:
     static const QString DAD_TABLENAME;
 };

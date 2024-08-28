@@ -22,7 +22,8 @@
 #include <QString>
 class NameValueOptions;
 
-namespace languages {
+namespace languages
+{
 
 extern const QString DANISH;
 extern const QString ENGLISH_UK;

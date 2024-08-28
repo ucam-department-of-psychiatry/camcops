@@ -19,7 +19,6 @@
 */
 
 #include "horizontalline.h"
-
 #include <QPainter>
 #include <QStyleOption>
 
@@ -48,6 +47,7 @@ HorizontalLine::HorizontalLine(const int width, QWidget* parent) :
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     // setStyleSheet(QString("background-color: %1;").arg(colour));
 }
+
 
 void HorizontalLine::paintEvent(QPaintEvent*)
 {

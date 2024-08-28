@@ -19,9 +19,8 @@
 */
 
 #include "gds15.h"
-
-#include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -43,22 +42,23 @@ const QString Gds15::GDS15_TABLENAME("gds15");
 const QVector<int> SCORE_IF_YES{2, 3, 4, 6, 8, 9, 10, 12, 14, 15};
 const QVector<int> SCORE_IF_NO{1, 5, 7, 11, 13};
 
+
 void initializeGds15(TaskFactory& factory)
 {
     static TaskRegistrar<Gds15> registered(factory);
 }
 
+
 Gds15::Gds15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(
-        app, db, GDS15_TABLENAME, false, false, false
-    )  // ... anon, clin, resp
+    Task(app, db, GDS15_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>()
-    );  // Y,N
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());
+        // ... Y,N
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -69,20 +69,24 @@ QString Gds15::shortname() const
     return "GDS-15";
 }
 
+
 QString Gds15::longname() const
 {
     return tr("Geriatric Depression Scale, 15-item version");
 }
+
 
 QString Gds15::description() const
 {
     return tr("15-item self-report scale.");
 }
 
+
 QString Gds15::infoFilenameStem() const
 {
     return "gds";
 }
+
 
 // ============================================================================
 // Instance info
@@ -93,10 +97,12 @@ bool Gds15::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList Gds15::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
+
 
 QStringList Gds15::detail() const
 {
@@ -107,27 +113,27 @@ QStringList Gds15::detail() const
     return lines;
 }
 
+
 OpenableWidget* Gds15::editor(const bool read_only)
 {
     const NameValueOptions options = CommonOptions::yesNoChar();
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        qfields.append(QuestionWithOneField(
-            xstring(strnum("q", i)), fieldRef(strnum(QPREFIX, i))
-        ));
+        qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
+                                            fieldRef(strnum(QPREFIX, i))));
     }
 
     QuPagePtr page((new QuPage{
-                        new QuText(xstring("instruction")),
-                        new QuMcqGrid(qfields, options),
-                    })
-                       ->setTitle(shortname()));
+        new QuText(xstring("instruction")),
+        new QuMcqGrid(qfields, options),
+    })->setTitle(shortname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations

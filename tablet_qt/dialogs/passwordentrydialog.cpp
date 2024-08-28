@@ -19,18 +19,17 @@
 */
 
 #include "passwordentrydialog.h"
-
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-
 #include "lib/uifunc.h"
 #include "qobjects/widgetpositioner.h"
 
-PasswordEntryDialog::PasswordEntryDialog(
-    const QString& text, const QString& title, QWidget* parent
-) :
+
+PasswordEntryDialog::PasswordEntryDialog(const QString& text,
+                                         const QString& title,
+                                         QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(title);
@@ -43,20 +42,11 @@ PasswordEntryDialog::PasswordEntryDialog(
     m_editor->setEchoMode(QLineEdit::Password);
 
     auto buttonbox = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel
-    );
-    connect(
-        buttonbox,
-        &QDialogButtonBox::accepted,
-        this,
-        &PasswordEntryDialog::accept
-    );
-    connect(
-        buttonbox,
-        &QDialogButtonBox::rejected,
-        this,
-        &PasswordEntryDialog::reject
-    );
+                QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonbox, &QDialogButtonBox::accepted,
+            this, &PasswordEntryDialog::accept);
+    connect(buttonbox, &QDialogButtonBox::rejected,
+            this, &PasswordEntryDialog::reject);
 
     auto mainlayout = new QVBoxLayout();
 
@@ -71,6 +61,7 @@ PasswordEntryDialog::PasswordEntryDialog(
 
     setLayout(mainlayout);
 }
+
 
 QString PasswordEntryDialog::password() const
 {

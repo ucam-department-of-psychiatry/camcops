@@ -19,17 +19,17 @@
 */
 
 #include "qupage.h"
-
 #include <QWidget>
-
-#include "layouts/layouts.h"
 #include "lib/uifunc.h"
+#include "layouts/layouts.h"
 #include "widgets/basewidget.h"
+
 
 QuPage::QuPage(QObject* parent) :
     QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
 {
 }
+
 
 QuPage::QuPage(const QVector<QuElementPtr>& elements, QObject* parent) :
     QObject(parent),
@@ -42,10 +42,12 @@ QuPage::QuPage(const QVector<QuElementPtr>& elements, QObject* parent) :
 {
 }
 
+
 QuPage::QuPage(std::initializer_list<QuElementPtr> elements, QObject* parent) :
     QuPage(QVector<QuElementPtr>(elements), parent)  // delegating constructor
 {
 }
+
 
 QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :
     // takes ownership
@@ -56,6 +58,7 @@ QuPage::QuPage(const QVector<QuElement*>& elements, QObject* parent) :
     }
 }
 
+
 QuPage::QuPage(std::initializer_list<QuElement*> elements, QObject* parent) :
     // takes ownership
     QuPage(QVector<QuElementPtr>(), parent)  // delegating constructor
@@ -65,9 +68,11 @@ QuPage::QuPage(std::initializer_list<QuElement*> elements, QObject* parent) :
     }
 }
 
+
 QuPage::~QuPage()
 {
 }
+
 
 QuPage* QuPage::setType(const PageType type)
 {
@@ -75,11 +80,13 @@ QuPage* QuPage::setType(const PageType type)
     return this;
 }
 
+
 QuPage* QuPage::setTitle(const QString& title)
 {
     m_title = title;
     return this;
 }
+
 
 QuPage* QuPage::setIndexTitle(const QString& index_title)
 {
@@ -87,17 +94,20 @@ QuPage* QuPage::setIndexTitle(const QString& index_title)
     return this;
 }
 
+
 QuPage* QuPage::setSkip(const bool skip)
 {
     m_skip = skip;
     return this;
 }
 
+
 QuPage* QuPage::addElement(const QuElementPtr& element)
 {
     m_elements.append(element);
     return this;
 }
+
 
 QuPage* QuPage::addElement(QuElement* element)  // takes ownership
 {
@@ -108,6 +118,7 @@ QuPage* QuPage::addElement(QuElement* element)  // takes ownership
     return this;
 }
 
+
 QuPage* QuPage::addElements(const QVector<QuElementPtr>& elements)
 {
     for (const QuElementPtr& e : elements) {
@@ -115,6 +126,7 @@ QuPage* QuPage::addElements(const QVector<QuElementPtr>& elements)
     }
     return this;
 }
+
 
 QuPage* QuPage::addElements(const QVector<QuElement*>& elements)
 {
@@ -124,10 +136,12 @@ QuPage* QuPage::addElements(const QVector<QuElement*>& elements)
     return this;
 }
 
+
 void QuPage::clearElements()
 {
     m_elements.clear();
 }
+
 
 QuPage* QuPage::allowScroll(const bool allow_scroll, const bool shrink_to_fit)
 {
@@ -136,15 +150,18 @@ QuPage* QuPage::allowScroll(const bool allow_scroll, const bool shrink_to_fit)
     return this;
 }
 
+
 bool QuPage::allowsScroll() const
 {
     return m_allow_scroll;
 }
 
+
 bool QuPage::isZoomable() const
 {
     return m_zoomable;
 }
+
 
 QuPage* QuPage::addTag(const QString& tag)
 {
@@ -152,15 +169,18 @@ QuPage* QuPage::addTag(const QString& tag)
     return this;
 }
 
+
 QuPage::PageType QuPage::type() const
 {
     return m_type;
 }
 
+
 QString QuPage::title() const
 {
     return m_title;
 }
+
 
 QString QuPage::indexTitle() const
 {
@@ -170,6 +190,7 @@ QString QuPage::indexTitle() const
     return m_title;
 }
 
+
 bool QuPage::skip() const
 {
     // You *can* skip a page that has "required input" missing; "skip" takes
@@ -177,10 +198,12 @@ bool QuPage::skip() const
     return m_skip;
 }
 
+
 bool QuPage::hasTag(const QString& tag) const
 {
     return m_tags.contains(tag);
 }
+
 
 QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
 {
@@ -204,18 +227,16 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     // Propagate up events from *all* widgets, including those in grids etc.
     const QVector<QuElement*> elements = allElements();
     for (QuElement* e : elements) {
-        connect(
-            e,
-            &QuElement::elementValueChanged,
-            this,
-            &QuPage::elementValueChanged,
-            Qt::UniqueConnection
-        );
+        connect(e, &QuElement::elementValueChanged,
+                this, &QuPage::elementValueChanged,
+                Qt::UniqueConnection);
     }
-    // pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);  // if we use QWidget
+    // pagewidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    //      // ... if we use QWidget
     // pagewidget->setObjectName(CssConst::DEBUG_YELLOW);
     return pagewidget;
 }
+
 
 QVector<QuElement*> QuPage::allElements() const
 {
@@ -226,6 +247,7 @@ QVector<QuElement*> QuPage::allElements() const
     }
     return elements;
 }
+
 
 QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 {
@@ -239,10 +261,12 @@ QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
     return matching_elements;
 }
 
+
 bool QuPage::mayProgressIgnoringValidators() const
 {
     return !(progressBlocked() || missingInput());
 }
+
 
 bool QuPage::missingInput() const
 {
@@ -268,15 +292,18 @@ bool QuPage::missingInput() const
     return false;
 }
 
+
 void QuPage::blockProgress(const bool block)
 {
     m_progress_blocked = block;
 }
 
+
 bool QuPage::progressBlocked() const
 {
     return m_progress_blocked;
 }
+
 
 void QuPage::registerValidator(const PageValidatorFunction& validator)
 {
@@ -287,6 +314,7 @@ void QuPage::registerValidator(const PageValidatorFunction& validator)
 
     m_validators.append(validator);
 }
+
 
 bool QuPage::validate() const
 {
@@ -301,6 +329,7 @@ bool QuPage::validate() const
     }
     return success;
 }
+
 
 void QuPage::closing()
 {

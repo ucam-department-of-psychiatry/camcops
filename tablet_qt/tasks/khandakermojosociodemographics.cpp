@@ -19,7 +19,6 @@
 */
 
 #include "khandakermojosociodemographics.h"
-
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
@@ -34,18 +33,14 @@
 #include "tasklib/taskregistrar.h"
 
 
-const QString
-    KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME(
-        "khandaker_mojo_sociodemographics"
-    );
+const QString KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME(
+    "khandaker_mojo_sociodemographics");
 
 const QString Q_XML_PREFIX = "q_";
 
-struct KhandakerMojoSocQInfo
-{
-    KhandakerMojoSocQInfo(
-        const QString& stem, const int max_option, const bool has_other = false
-    ) :
+struct KhandakerMojoSocQInfo {
+    KhandakerMojoSocQInfo(const QString& stem, const int max_option,
+           const bool has_other = false) :
         m_fieldname(stem),
         m_max_option(max_option),
         m_has_other(has_other)
@@ -56,30 +51,11 @@ struct KhandakerMojoSocQInfo
         m_question_xml_name = Q_XML_PREFIX + stem;
     }
 
-    bool hasOther() const
-    {
-        return m_has_other;
-    }
-
-    QString getFieldname() const
-    {
-        return m_fieldname;
-    }
-
-    QString getOtherFieldname() const
-    {
-        return m_other_fieldname;
-    }
-
-    QString getQuestionXmlName() const
-    {
-        return m_question_xml_name;
-    }
-
-    int getMaxOption() const
-    {
-        return m_max_option;
-    }
+    bool hasOther() const { return m_has_other; }
+    QString getFieldname() const { return m_fieldname; }
+    QString getOtherFieldname() const { return m_other_fieldname; }
+    QString getQuestionXmlName() const { return m_question_xml_name; }
+    int getMaxOption() const { return m_max_option; }
 
 private:
     QString m_fieldname;
@@ -88,7 +64,6 @@ private:
     int m_max_option;
     bool m_has_other;
 };
-
 using KQInfo = KhandakerMojoSocQInfo;
 
 const QVector<KQInfo> MC_QUESTIONS{
@@ -101,17 +76,17 @@ const QVector<KQInfo> MC_QUESTIONS{
     KQInfo("accommodation", 6, true),
 };
 
+
 void initializeKhandakerMojoSociodemographics(TaskFactory& factory)
 {
     static TaskRegistrar<KhandakerMojoSociodemographics> registered(factory);
 }
 
+
 KhandakerMojoSociodemographics::KhandakerMojoSociodemographics(
-    CamcopsApp& app, DatabaseManager& db, const int load_pk
-) :
-    Task(
-        app, db, KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME, false, false, false
-    ),  // ... anon, clin, resp
+        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    Task(app, db, KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
+         false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     for (const auto& info : MC_QUESTIONS) {
@@ -125,6 +100,8 @@ KhandakerMojoSociodemographics::KhandakerMojoSociodemographics(
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -134,20 +111,24 @@ QString KhandakerMojoSociodemographics::shortname() const
     return "Khandaker_MOJO_Sociodemographics";
 }
 
+
 QString KhandakerMojoSociodemographics::longname() const
 {
     return tr("Khandaker GM — MOJO — Sociodemographics");
 }
+
 
 QString KhandakerMojoSociodemographics::description() const
 {
     return tr("Sociodemographics questionnaire for MOJO study.");
 }
 
+
 QString KhandakerMojoSociodemographics::infoFilenameStem() const
 {
     return "khandaker_mojo";
 }
+
 
 // ============================================================================
 // Instance info
@@ -168,10 +149,12 @@ bool KhandakerMojoSociodemographics::isComplete() const
     return true;
 }
 
+
 QStringList KhandakerMojoSociodemographics::summary() const
 {
     return QStringList{TextConst::noSummarySeeFacsimile()};
 }
+
 
 QStringList KhandakerMojoSociodemographics::detail() const
 {
@@ -185,6 +168,7 @@ QStringList KhandakerMojoSociodemographics::detail() const
     return completenessInfo() + lines;
 }
 
+
 OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
 {
     QuPagePtr page(new QuPage);
@@ -193,16 +177,11 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
 
     for (const KQInfo& info : MC_QUESTIONS) {
         page->addElement(
-            (new QuText(xstring(info.getQuestionXmlName())))->setBold()
-        );
+            (new QuText(xstring(info.getQuestionXmlName())))->setBold());
 
         FieldRefPtr fieldref = fieldRef(info.getFieldname());
-        connect(
-            fieldref.data(),
-            &FieldRef::valueChanged,
-            this,
-            &KhandakerMojoSociodemographics::updateMandatory
-        );
+        connect(fieldref.data(), &FieldRef::valueChanged,
+                this, &KhandakerMojoSociodemographics::updateMandatory);
 
         QuMcq* mcq = new QuMcq(fieldref, getOptions(info));
         mcq->setHorizontal(true);
@@ -216,9 +195,8 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
             page->addElement(text_edit);
         }
 
-        page->addElement(
-            new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
-        );
+        page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE,
+                                            uiconst::BIGSPACE)));
     }
 
     QVector<QuPagePtr> pages{page};
@@ -232,9 +210,9 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
     return m_questionnaire;
 }
 
+
 bool KhandakerMojoSociodemographics::answeredOther(
-    const KhandakerMojoSocQInfo& info
-) const
+        const KhandakerMojoSocQInfo& info) const
 {
     // For this task, the 'other' option is always the last one
     const int answer = valueInt(info.getFieldname());
@@ -242,9 +220,9 @@ bool KhandakerMojoSociodemographics::answeredOther(
     return info.hasOther() && answer == info.getMaxOption();
 }
 
+
 NameValueOptions KhandakerMojoSociodemographics::getOptions(
-    const KhandakerMojoSocQInfo& info
-) const
+    const KhandakerMojoSocQInfo& info) const
 {
     NameValueOptions options;
 
@@ -257,15 +235,14 @@ NameValueOptions KhandakerMojoSociodemographics::getOptions(
 }
 
 QString KhandakerMojoSociodemographics::getOptionName(
-    const KhandakerMojoSocQInfo& info, const int index
-) const
+    const KhandakerMojoSocQInfo& info, const int index) const
 {
     return xstring(QString("%1_option%2").arg(info.getFieldname()).arg(index));
 }
 
+
 QString KhandakerMojoSociodemographics::getAnswerText(
-    const KhandakerMojoSocQInfo& info
-) const
+    const KhandakerMojoSocQInfo& info) const
 {
     if (valueIsNull(info.getFieldname())) {
         return convert::NULL_STR;
@@ -277,7 +254,8 @@ QString KhandakerMojoSociodemographics::getAnswerText(
 
     if (answeredOther(info)) {
         answer_text = QString("%1 (%2)").arg(
-            answer_text, prettyValue(info.getOtherFieldname())
+            answer_text,
+            prettyValue(info.getOtherFieldname())
         );
     }
 
@@ -298,9 +276,8 @@ void KhandakerMojoSociodemographics::updateMandatory()
             fieldRef(info.getOtherFieldname())->setMandatory(mandatory);
 
             if (m_questionnaire) {
-                m_questionnaire->setVisibleByTag(
-                    info.getOtherFieldname(), mandatory
-                );
+                m_questionnaire->setVisibleByTag(info.getOtherFieldname(),
+                                                 mandatory);
             }
         }
     }

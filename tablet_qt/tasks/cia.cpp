@@ -19,7 +19,6 @@
 */
 
 #include "cia.h"
-
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
@@ -47,6 +46,7 @@ const QString QPREFIX("q");
 
 const QString Cia::CIA_TABLENAME("cia");
 
+
 void initializeCia(TaskFactory& factory)
 {
     static TaskRegistrar<Cia> registered(factory);
@@ -60,6 +60,7 @@ Cia::Cia(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -69,23 +70,25 @@ QString Cia::shortname() const
     return "CIA";
 }
 
+
 QString Cia::longname() const
 {
     return tr("Clinical Impairment Assessment questionnaire");
 }
 
+
 QString Cia::description() const
 {
-    return tr(
-        "A 16-item self-report measure of the severity of psychosocial "
-        "impairment due to eating disorder features."
-    );
+    return tr("A 16-item self-report measure of the severity of psychosocial "
+              "impairment due to eating disorder features.");
 }
+
 
 QStringList Cia::fieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, LAST_Q);
 }
+
 
 QStringList Cia::mandatoryFieldNames() const
 {
@@ -96,7 +99,9 @@ QStringList Cia::mandatoryFieldNames() const
         }
     }
     return list;
+
 }
+
 
 // ============================================================================
 // Instance info
@@ -112,34 +117,28 @@ bool Cia::isComplete() const
     return true;
 }
 
+
 QStringList Cia::summary() const
 {
-    auto rangeScore = [](const QString& description,
-                         const QVariant score,
-                         const int min,
-                         const int max) {
+    auto rangeScore = [](const QString& description, const QVariant score,
+                         const int min, const int max) {
         if (score.isNull()) {
             return QString("%1: <b>?</b>.").arg(description);
         }
 
-        return QString("%1: <b>%2</b> [%3–%4].")
-            .arg(
-                description,
-                QString::number(score.toDouble(), 'f', 2),
-                QString::number(min),
-                QString::number(max)
-            );
+        return QString("%1: <b>%2</b> [%3–%4].").arg(
+                    description,
+                    QString::number(score.toDouble(), 'f', 2),
+                    QString::number(min),
+                    QString::number(max));
     };
 
     return QStringList{
-        rangeScore(
-            TextConst::totalScore(),
-            globalScore(),
-            MIN_GLOBAL_SCORE,
-            MAX_GLOBAL_SCORE
-        ),
+        rangeScore(TextConst::totalScore(), globalScore(),
+                   MIN_GLOBAL_SCORE, MAX_GLOBAL_SCORE),
     };
 }
+
 
 QVariant Cia::globalScore() const
 {
@@ -156,7 +155,7 @@ QVariant Cia::globalScore() const
         const QVariant& value = responses.at(i);
 
         if (value.isNull()) {
-            if (!OPTIONAL_QUESTIONS.contains(i + 1)) {
+            if (!OPTIONAL_QUESTIONS.contains(i+1)) {
                 return QVariant();
             }
         } else {
@@ -169,10 +168,11 @@ QVariant Cia::globalScore() const
         return QVariant();
     }
 
-    const float scale_factor = (float)LAST_Q / num_applicable;
+    const float scale_factor = (float) LAST_Q / num_applicable;
 
     return scale_factor * total;
 }
+
 
 QStringList Cia::detail() const
 {
@@ -187,9 +187,8 @@ QStringList Cia::detail() const
 
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
-        lines.append(
-            fieldSummary(fieldname, xstring(fieldname), spacer, suffix)
-        );
+        lines.append(fieldSummary(fieldname, xstring(fieldname),
+                                  spacer, suffix));
     }
 
     lines.append("");
@@ -197,6 +196,7 @@ QStringList Cia::detail() const
 
     return lines;
 }
+
 
 OpenableWidget* Cia::editor(const bool read_only)
 {
@@ -225,12 +225,11 @@ OpenableWidget* Cia::editor(const bool read_only)
     return questionnaire;
 }
 
-QuMcqGrid* Cia::buildGrid(
-    int first_qnum,
-    int last_qnum,
-    const NameValueOptions options,
-    const QString title
-)
+
+QuMcqGrid* Cia::buildGrid(int first_qnum,
+                          int last_qnum,
+                          const NameValueOptions options,
+                          const QString title)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 
@@ -244,7 +243,9 @@ QuMcqGrid* Cia::buildGrid(
             fieldref->setMandatory(false);
         }
 
-        q_field_pairs.append(QuestionWithOneField(description, fieldref));
+        q_field_pairs.append(QuestionWithOneField(description,
+                                                  fieldref));
+
     }
 
     auto grid = new QuMcqGrid(q_field_pairs, options);

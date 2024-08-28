@@ -23,16 +23,13 @@
 
 void initializePatientSatisfaction(TaskFactory& factory);
 
+
 class PatientSatisfaction : public SatisfactionCommon
 {
     Q_OBJECT
-
 public:
-    PatientSatisfaction(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    PatientSatisfaction(CamcopsApp& app, DatabaseManager& db,
+                        int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -44,7 +41,6 @@ public:
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual OpenableWidget* editor(bool read_only = false) override;
-
 public:
     static const QString PT_SATIS_TABLENAME;
 };

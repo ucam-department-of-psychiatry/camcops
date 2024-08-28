@@ -19,9 +19,8 @@
 */
 
 #include "cet.h"
-
-#include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -51,20 +50,21 @@ const QString SPREFIX("subscale");
 
 const QString Cet::CET_TABLENAME("cet");
 
+
 void initializeCet(TaskFactory& factory)
 {
     static TaskRegistrar<Cet> registered(factory);
 }
 
+
 Cet::Cet(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CET_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -75,15 +75,18 @@ QString Cet::shortname() const
     return "CET";
 }
 
+
 QString Cet::longname() const
 {
     return tr("Compulsive Exercise Test");
 }
 
+
 QString Cet::description() const
 {
     return tr("Self-rated 24-item questionnaire about compulsive exercise.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -94,6 +97,7 @@ bool Cet::isComplete() const
     using mathfunc::noneNull;
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
+
 
 QStringList Cet::summary() const
 {
@@ -110,7 +114,8 @@ QStringList Cet::summary() const
             subscale2WeightControl().toDouble(),
             subscale3MoodImprovement().toDouble(),
             subscale4LackEnjoyment().toDouble(),
-            subscale5Rigidity().toDouble()};
+            subscale5Rigidity().toDouble()
+        };
         for (int i = 0; i < N_SUBSCALES; ++i) {
             const int s = i + 1;
             lines.append(scorePhrase(
@@ -122,6 +127,7 @@ QStringList Cet::summary() const
     }
     return lines;
 }
+
 
 OpenableWidget* Cet::editor(const bool read_only)
 {
@@ -143,18 +149,17 @@ OpenableWidget* Cet::editor(const bool read_only)
     QuMcqGrid* grid = new QuMcqGrid(qfp, options);
     grid->setSubtitles(subtitles);
 
-    QuPagePtr page(
-        (new QuPage{
-             (new QuText(xstring("instruction_title")))->setBold(true),
-             new QuText(xstring("instruction_contents")),
-             grid})
-            ->setTitle(longname())
-    );
+    QuPagePtr page((new QuPage{
+        (new QuText(xstring("instruction_title")))->setBold(true),
+        new QuText(xstring("instruction_contents")),
+        grid
+    })->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -174,6 +179,7 @@ QVariant Cet::score(const int question) const
     return raw;
 }
 
+
 QVariant Cet::meanScore(const QVector<int>& questions) const
 {
     QVector<QVariant> values;
@@ -183,30 +189,36 @@ QVariant Cet::meanScore(const QVector<int>& questions) const
     return mathfunc::meanOrNull(values);
 }
 
+
 QVariant Cet::subscale1AvoidanceRuleBased() const
 {
     return meanScore(Q_SUBSCALE_1_AVOID_RULE);
 }
+
 
 QVariant Cet::subscale2WeightControl() const
 {
     return meanScore(Q_SUBSCALE_2_WT_CONTROL);
 }
 
+
 QVariant Cet::subscale3MoodImprovement() const
 {
     return meanScore(Q_SUBSCALE_3_MOOD);
 }
+
 
 QVariant Cet::subscale4LackEnjoyment() const
 {
     return meanScore(Q_SUBSCALE_4_LACK_EX_ENJOY);
 }
 
+
 QVariant Cet::subscale5Rigidity() const
 {
     return meanScore(Q_SUBSCALE_5_EX_RIGIDITY);
 }
+
 
 QVariant Cet::totalScore() const
 {

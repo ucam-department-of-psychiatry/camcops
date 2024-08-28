@@ -22,6 +22,7 @@
 #include <QSharedPointer>
 class QTimer;
 
+
 namespace timerfunc {
 
 // Creates a QTimer in the supplied shared pointer, and sets it to single-shot

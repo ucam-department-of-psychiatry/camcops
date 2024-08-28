@@ -21,6 +21,7 @@
 #pragma once
 #include "questionnairelib/quelement.h"
 
+
 class QuSequenceContainerBase : public QuElement
 {
     // Abstract base class from which questionnaire containers are implemented
@@ -28,7 +29,6 @@ class QuSequenceContainerBase : public QuElement
     // QuVerticalContainer, QuFlowContainer (but not QuGridContainer).
 
     Q_OBJECT
-
 public:
     static const Qt::Alignment DefaultWidgetAlignment;
 
@@ -37,22 +37,19 @@ public:
     QuSequenceContainerBase(QObject* parent = nullptr);
 
     // Construct and add elements
-    QuSequenceContainerBase(
-        const QVector<QuElementPtr>& elements, QObject* parent = nullptr
-    );
-    QuSequenceContainerBase(
-        std::initializer_list<QuElementPtr> elements, QObject* parent = nullptr
-    );
-    QuSequenceContainerBase(
-        std::initializer_list<QuElement*> elements, QObject* parent = nullptr
-    );
+    QuSequenceContainerBase(const QVector<QuElementPtr>& elements,
+                            QObject* parent = nullptr);
+    QuSequenceContainerBase(std::initializer_list<QuElementPtr> elements,
+                            QObject* parent = nullptr);
+    QuSequenceContainerBase(std::initializer_list<QuElement*> elements,
+                            QObject* parent = nullptr);
 
     // Add an element.
     QuSequenceContainerBase* addElement(const QuElementPtr& element);
 
     // Add an element. If you add a nullptr, it will be ignored.
-    QuSequenceContainerBase* addElement(QuElement* element
-    );  // takes ownership
+    QuSequenceContainerBase* addElement(QuElement* element);
+        // ... takes ownership
 
     // Choose whether the container overrides the alignments of its widgets, to
     // the QuFlowContainer's default, when building the Qt container widget.
@@ -63,16 +60,14 @@ public:
     // Set alignment of all our widgets, by calling through to
     // QuElement::setWidgetAlignment() for each.
     // This also (effectively) calls setOverrideWidgetAlignment(false).
-    QuSequenceContainerBase*
-        setContainedWidgetAlignments(Qt::Alignment alignment);
+    QuSequenceContainerBase* setContainedWidgetAlignments(Qt::Alignment alignment);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
-    ) override = 0;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override = 0;
     virtual QVector<QuElementPtr> subelements() const override;
 
 protected:
     QVector<QuElementPtr> m_elements;  // all our elements
-    bool
-        m_override_widget_alignment;  // see setOverrideWidgetAlignment() above
+    bool m_override_widget_alignment;
+        // ... see setOverrideWidgetAlignment() above
 };

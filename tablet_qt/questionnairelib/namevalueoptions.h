@@ -20,12 +20,12 @@
 
 #pragma once
 #include <QVector>
-
 #include "questionnairelib/namevaluepair.h"
+
 
 class NameValueOptions
 {
-    /*
+/*
     Encapsulates a list of name/value pairs.
 
     We don't allow duplicate values.
@@ -64,6 +64,7 @@ class NameValueOptions
 */
 
 public:
+
     // Default constructor
     NameValueOptions();
 
@@ -130,15 +131,13 @@ public:
 
     // Returns the name for a given value, or a default string if there isn't
     // one.
-    QString nameFromValue(
-        const QVariant& value, const QString& default_ = QString()
-    ) const;
+    QString nameFromValue(const QVariant& value,
+                          const QString& default_ = QString()) const;
 
     // Returns the first value for a given name, or a default if there isn't
     // one.
-    QVariant valueFromName(
-        const QString& name, const QVariant& default_ = QVariant()
-    ) const;
+    QVariant valueFromName(const QString& name,
+                           const QVariant& default_ = QVariant()) const;
 
     bool valuesMatch(const NameValueOptions& other) const;
 
@@ -149,6 +148,7 @@ protected:
     const NameValuePair& atIndex(int index) const;
 
 public:
+
     // Returns a NameValueOptions like {{"1", 1}, {"2", 2}, {"3", 3}...}
     // where the number progresses from "first" to "last" in steps of "step".
     static NameValueOptions makeNumbers(int first, int last, int step = 1);

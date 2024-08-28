@@ -21,13 +21,11 @@
 // #define DEBUG_GUI_GUARD
 
 #include "slowguiguard.h"
-
 #include <QApplication>
 #ifdef DEBUG_GUI_GUARD
-    #include <QDebug>
+#include <QDebug>
 #endif
 #include <QWidget>
-
 #include "dialogs/waitbox.h"
 
 
@@ -35,20 +33,17 @@ bool SlowGuiGuard::s_waiting = false;
 
 
 #ifdef _MSC_VER  // Compiling under Microsoft Visual C++
-    // Fix a Visual C++ warning bug (Visual Studio 14 version).
-    // 'app' is clearly used, but the warning appears nonetheless.
-    #pragma warning(push)
-    #pragma warning(disable : 4100                                            \
-    )  // C4100: 'app': unreferenced formal parameter
+// Fix a Visual C++ warning bug (Visual Studio 14 version).
+// 'app' is clearly used, but the warning appears nonetheless.
+#pragma warning(push)
+#pragma warning(disable: 4100)  // C4100: 'app': unreferenced formal parameter
 #endif
 
-SlowGuiGuard::SlowGuiGuard(
-    QApplication& app,
-    QWidget* parent,
-    const QString& text,
-    const QString& title,
-    const int minimum_duration_ms
-) :
+SlowGuiGuard::SlowGuiGuard(QApplication& app,
+                           QWidget* parent,
+                           const QString& text,
+                           const QString& title,
+                           const int minimum_duration_ms) :
     m_wait_box(nullptr)
 {
     if (!s_waiting) {
@@ -68,7 +63,7 @@ SlowGuiGuard::SlowGuiGuard(
 }
 
 #ifdef _MSC_VER
-    #pragma warning(pop)
+#pragma warning(pop)
 #endif
 
 

@@ -19,9 +19,8 @@
 */
 
 #include "bprse.h"
-
-#include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "lib/stringfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -41,20 +40,21 @@ const QString QPREFIX("q");
 
 const QString BprsE::BPRSE_TABLENAME("bprse");
 
+
 void initializeBprsE(TaskFactory& factory)
 {
     static TaskRegistrar<BprsE> registered(factory);
 }
 
+
 BprsE::BprsE(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BPRSE_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(
-        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
-    );
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
+
 
 // ============================================================================
 // Class info
@@ -65,18 +65,19 @@ QString BprsE::shortname() const
     return "BPRS-E";
 }
 
+
 QString BprsE::longname() const
 {
     return tr("Brief Psychiatric Rating Scale, Expanded");
 }
 
+
 QString BprsE::description() const
 {
-    return tr(
-        "24-item clinician-administered rating of multiple aspects of "
-        "psychopathology."
-    );
+    return tr("24-item clinician-administered rating of multiple aspects of "
+              "psychopathology.");
 }
+
 
 // ============================================================================
 // Instance info
@@ -87,10 +88,12 @@ bool BprsE::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
+
 QStringList BprsE::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
+
 
 QStringList BprsE::detail() const
 {
@@ -101,6 +104,7 @@ QStringList BprsE::detail() const
     return lines;
 }
 
+
 OpenableWidget* BprsE::editor(const bool read_only)
 {
     NameValuePair option0(xstring("option0"), 0);
@@ -110,18 +114,16 @@ OpenableWidget* BprsE::editor(const bool read_only)
     auto addpage = [this, &pages, &option0, &option1](int n) -> void {
         NameValueOptions options{option0, option1};
         for (int i = 2; i <= 7; ++i) {
-            const QString name
-                = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         const QString pagetitle = xstring(QString("q%1_title").arg(n));
         const QString question = xstring(QString("q%1_question").arg(n));
         const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
-                            new QuText(question),
-                            new QuMcq(fieldRef(fieldname), options),
-                        })
-                           ->setTitle(pagetitle));
+            new QuText(question),
+            new QuMcq(fieldRef(fieldname), options),
+        })->setTitle(pagetitle));
         pages.append(page);
     };
 
@@ -135,6 +137,7 @@ OpenableWidget* BprsE::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
+
 
 // ============================================================================
 // Task-specific calculations

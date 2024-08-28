@@ -21,16 +21,13 @@
 #pragma once
 #include <QProxyStyle>
 
+
 class TreeViewProxyStyle : public QProxyStyle
 {
     // UNUSED
 
 public:
     TreeViewProxyStyle(QStyle* style = nullptr);
-    void drawPrimitive(
-        PrimitiveElement element,
-        const QStyleOption* option,
-        QPainter* painter,
-        const QWidget* widget = nullptr
-    ) const override;
+    void drawPrimitive(PrimitiveElement element, const QStyleOption* option,
+                       QPainter* painter, const QWidget* widget = nullptr) const override;
 };

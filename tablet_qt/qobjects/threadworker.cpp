@@ -20,10 +20,12 @@
 
 #include "threadworker.h"
 
+
 ThreadWorker::ThreadWorker(const PlainWorkerFunction& func) :
     m_plainfunc(func)
 {
 }
+
 
 void ThreadWorker::work()
 {

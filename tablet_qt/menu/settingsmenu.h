@@ -20,9 +20,8 @@
 
 #pragma once
 #include <QPointer>
-
-#include "crypto/secureqstring.h"
 #include "menulib/menuwindow.h"
+#include "crypto/secureqstring.h"
 class Questionnaire;
 
 // #define SETTINGSMENU_OFFER_SPECIFIC_FETCHES
@@ -31,11 +30,9 @@ class Questionnaire;
 class SettingsMenu : public MenuWindow
 {
     Q_OBJECT
-
 public:
     SettingsMenu(CamcopsApp& app);
     virtual QString title() const override;
-
 protected:
     virtual void makeItems() override;
     OpenableWidget* configureServer(CamcopsApp& app);
@@ -78,13 +75,9 @@ protected:
     bool serverPasswordSetter(const QVariant& value);
     void viewDbAsSql(DatabaseManager& db, const QString& title);
     void debugDbAsSql(DatabaseManager& db, const QString& prefix);
-    void saveDbAsSql(
-        DatabaseManager& db,
-        const QString& save_title,
-        const QString& finish_prefix
-    );
+    void saveDbAsSql(DatabaseManager& db, const QString& save_title,
+                     const QString& finish_prefix);
     void viewCounts(DatabaseManager& db, const QString& title);
-
 protected:
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;

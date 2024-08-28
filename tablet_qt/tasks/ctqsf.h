@@ -20,11 +20,10 @@
 
 #if 0
 
-    #pragma once
-    #include <QPointer>
-    #include <QString>
-
-    #include "tasklib/task.h"
+#pragma once
+#include <QPointer>
+#include <QString>
+#include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;

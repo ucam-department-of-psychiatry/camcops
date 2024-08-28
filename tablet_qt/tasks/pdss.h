@@ -20,7 +20,6 @@
 
 #pragma once
 #include <QString>
-
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -29,28 +28,22 @@ class TaskFactory;
 
 void initializePdss(TaskFactory& factory);
 
+
 class Pdss : public Task
 {
     Q_OBJECT
-
 public:
-    Pdss(
-        CamcopsApp& app,
-        DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK
-    );
+    Pdss(CamcopsApp& app, DatabaseManager& db,
+         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-
-    virtual TaskImplementationType implementationType() const override
-    {
+    virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::UpgradableSkeleton;
     }
-
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -63,7 +56,6 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     double compositeScore() const;
-
 public:
     static const QString PDSS_TABLENAME;
 };

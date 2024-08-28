@@ -19,8 +19,8 @@
 */
 
 #include "dbtransaction.h"
-
 #include "db/databasemanager.h"
+
 
 DbTransaction::DbTransaction(DatabaseManager& db) :
     m_db(db),
@@ -28,6 +28,7 @@ DbTransaction::DbTransaction(DatabaseManager& db) :
 {
     m_db.beginTransaction();
 }
+
 
 DbTransaction::~DbTransaction()
 {
@@ -38,10 +39,12 @@ DbTransaction::~DbTransaction()
     }
 }
 
+
 void DbTransaction::fail()
 {
     m_fail = true;
 }
+
 
 void DbTransaction::succeed()
 {

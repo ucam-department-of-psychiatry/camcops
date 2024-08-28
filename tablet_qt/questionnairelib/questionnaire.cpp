@@ -24,22 +24,20 @@
 // #define DISABLE_ZOOMABLE_WIDGET
 
 #include "questionnaire.h"
-
 #include <QDebug>
 #include <QKeyEvent>
+#include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
-#include <QPushButton>
-
-#include "common/cssconst.h"
 #include "core/camcopsapp.h"
+#include "common/cssconst.h"
 #include "dialogs/pagepickerdialog.h"
 #include "lib/filefunc.h"
 #include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
-    #include "qobjects/showwatcher.h"
+#include "qobjects/showwatcher.h"
 #endif
 #include "questionnairelib/pagepickeritem.h"
 #include "questionnairelib/questionnaireheader.h"
@@ -47,15 +45,17 @@
 #include "widgets/verticalscrollarea.h"
 #include "widgets/zoomablewidget.h"
 
-Questionnaire::Questionnaire(CamcopsApp& app, QWidget* parent) :
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             QWidget* parent) :
     Questionnaire(app, QVector<QuPagePtr>(), parent)  // delegating constructor
 {
 }
 
 
-Questionnaire::Questionnaire(
-    CamcopsApp& app, const QVector<QuPagePtr>& pages, QWidget* parent
-) :
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             const QVector<QuPagePtr>& pages,
+                             QWidget* parent) :
     OpenableWidget(parent),
     m_app(app),
     m_pages(pages),
@@ -81,18 +81,19 @@ Questionnaire::Questionnaire(
     setEscapeKeyCanAbort(false);
 }
 
-Questionnaire::Questionnaire(
-    CamcopsApp& app, std::initializer_list<QuPagePtr> pages, QWidget* parent
-) :
-    Questionnaire(
-        app, QVector<QuPagePtr>(pages), parent
-    )  // delegating constructor
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             std::initializer_list<QuPagePtr> pages,
+                             QWidget* parent) :
+    Questionnaire(app, QVector<QuPagePtr>(pages), parent)
+        // ... delegating constructor
 {
 }
 
-Questionnaire::Questionnaire(
-    CamcopsApp& app, const QVector<QuPage*>& pages, QWidget* parent
-) :
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             const QVector<QuPage*>& pages,
+                             QWidget* parent) :
     Questionnaire(app, QVector<QuPagePtr>(), parent)  // delegating constructor
 {
     for (auto p : pages) {
@@ -100,31 +101,34 @@ Questionnaire::Questionnaire(
     }
 }
 
-Questionnaire::Questionnaire(
-    CamcopsApp& app, std::initializer_list<QuPage*> pages, QWidget* parent
-) :
+
+Questionnaire::Questionnaire(CamcopsApp& app,
+                             std::initializer_list<QuPage*> pages,
+                             QWidget* parent) :
     Questionnaire(app, QVector<QuPagePtr>(), parent)  // delegating constructor
 {
     for (auto p : pages) {
         addPage(p);
     }
 }
+
 
 void Questionnaire::setType(const QuPage::PageType type)
 {
     if (type == QuPage::PageType::Inherit) {
-        qWarning() << Q_FUNC_INFO
-                   << "Can only set PageType::Inherit on Page, "
-                      "not Questionnaire";
+        qWarning() << Q_FUNC_INFO << "Can only set PageType::Inherit on Page, "
+                                     "not Questionnaire";
     } else {
         m_type = type;
     }
 }
 
+
 void Questionnaire::addPage(const QuPagePtr& page)
 {
     m_pages.append(page);
 }
+
 
 void Questionnaire::addPage(QuPage* page)
 {
@@ -134,20 +138,24 @@ void Questionnaire::addPage(QuPage* page)
     }
 }
 
+
 void Questionnaire::setReadOnly(const bool read_only)
 {
     m_read_only = read_only;
 }
+
 
 void Questionnaire::setJumpAllowed(const bool jump_allowed)
 {
     m_jump_allowed = jump_allowed;
 }
 
+
 void Questionnaire::setWithinChain(const bool within_chain)
 {
     m_within_chain = within_chain;
 }
+
 
 void Questionnaire::build()
 {
@@ -196,19 +204,16 @@ void Questionnaire::build()
     }
 
     // Get page
-    if (m_current_page_index < 0 || m_current_page_index >= m_pages.size()) {
+    if (m_current_page_index < 0 ||
+            m_current_page_index >= m_pages.size()) {
         // Duff page!
-        qWarning() << Q_FUNC_INFO
-                   << "Bad page number:" << m_current_page_index;
-        uifunc::stopApp(
-            QStringLiteral("BUG! Bad page number in Questionnaire::build")
-        );
+        qWarning() << Q_FUNC_INFO << "Bad page number:"
+                   << m_current_page_index;
+        uifunc::stopApp(QStringLiteral("BUG! Bad page number in Questionnaire::build"));
     }
     QuPage* page = currentPagePtr();
     if (!page) {
-        uifunc::stopApp(
-            QStringLiteral("BUG! Null page pointer in Questionnaire::build")
-        );
+        uifunc::stopApp(QStringLiteral("BUG! Null page pointer in Questionnaire::build"));
     }
 
     // In case we're building on the fly...
@@ -221,17 +226,17 @@ void Questionnaire::build()
     }
     QString background_css_name;
     switch (page_type) {
-        case QuPage::PageType::Patient:
-        case QuPage::PageType::ClinicianWithPatient:
-        default:
-            background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_PATIENT;
-            break;
-        case QuPage::PageType::Clinician:
-            background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
-            break;
-        case QuPage::PageType::Config:
-            background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CONFIG;
-            break;
+    case QuPage::PageType::Patient:
+    case QuPage::PageType::ClinicianWithPatient:
+    default:
+        background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_PATIENT;
+        break;
+    case QuPage::PageType::Clinician:
+        background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CLINICIAN;
+        break;
+    case QuPage::PageType::Config:
+        background_css_name = cssconst::QUESTIONNAIRE_BACKGROUND_CONFIG;
+        break;
     }
 
     // Header
@@ -247,56 +252,26 @@ void Questionnaire::build()
 #else
     const bool offer_debug_layout = false;
 #endif
-    const bool offer_page_jump
-        = m_jump_allowed && (isDynamic() || nPages() > 1);
+    const bool offer_page_jump = m_jump_allowed && (isDynamic() || nPages() > 1);
     m_p_header = new QuestionnaireHeader(
-        this,
-        page->title(),
-        m_read_only,
-        offer_page_jump,
-        m_within_chain,
-        header_css_name,
-        offer_debug_layout
-    );
+        this, page->title(),
+        m_read_only, offer_page_jump, m_within_chain,
+        header_css_name, offer_debug_layout);
     if (!m_finish_button_icon_base_filename.isEmpty()) {
         m_p_header->setFinishButtonIcon(m_finish_button_icon_base_filename);
     }
-    connect(
-        m_p_header,
-        &QuestionnaireHeader::cancelClicked,
-        this,
-        &Questionnaire::cancelClicked
-    );
-    connect(
-        m_p_header,
-        &QuestionnaireHeader::jumpClicked,
-        this,
-        &Questionnaire::jumpClicked
-    );
-    connect(
-        m_p_header,
-        &QuestionnaireHeader::previousClicked,
-        this,
-        &Questionnaire::previousClicked
-    );
-    connect(
-        m_p_header,
-        &QuestionnaireHeader::nextClicked,
-        this,
-        &Questionnaire::nextClicked
-    );
-    connect(
-        m_p_header,
-        &QuestionnaireHeader::finishClicked,
-        this,
-        &Questionnaire::finishClicked
-    );
-    connect(
-        m_p_header,
-        &QuestionnaireHeader::debugLayout,
-        this,
-        &Questionnaire::debugLayout
-    );
+    connect(m_p_header, &QuestionnaireHeader::cancelClicked,
+            this, &Questionnaire::cancelClicked);
+    connect(m_p_header, &QuestionnaireHeader::jumpClicked,
+            this, &Questionnaire::jumpClicked);
+    connect(m_p_header, &QuestionnaireHeader::previousClicked,
+            this, &Questionnaire::previousClicked);
+    connect(m_p_header, &QuestionnaireHeader::nextClicked,
+            this, &Questionnaire::nextClicked);
+    connect(m_p_header, &QuestionnaireHeader::finishClicked,
+            this, &Questionnaire::finishClicked);
+    connect(m_p_header, &QuestionnaireHeader::debugLayout,
+            this, &Questionnaire::debugLayout);
 
     // Content
     QWidget* pagewidget = page->widget(this);  // adds the content
@@ -304,13 +279,9 @@ void Questionnaire::build()
     auto showwatcher = new ShowWatcher(pagewidget, true);
     Q_UNUSED(showwatcher)
 #endif
-    connect(
-        page,
-        &QuPage::elementValueChanged,
-        this,
-        &Questionnaire::resetButtons,
-        Qt::UniqueConnection
-    );
+    connect(page, &QuPage::elementValueChanged,
+            this, &Questionnaire::resetButtons,
+            Qt::UniqueConnection);
 
     // Main layout: header and scrollable content
 #ifdef QUESTIONAIRE_USE_HFW_LAYOUT
@@ -352,16 +323,16 @@ void Questionnaire::build()
     /*
 #ifdef QUESTIONAIRE_USE_HFW_LAYOUT
     setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
-    m_background_widget->setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+    m_background_widget->setSizePolicy(
+        sizehelpers::expandingExpandingHFWPolicy());
 #else
     m_background_widget->setSizePolicy(QSizePolicy::Expanding,
                                        QSizePolicy::Expanding);
 #endif
     */
     setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
-    m_background_widget->setSizePolicy(
-        QSizePolicy::Expanding, QSizePolicy::Expanding
-    );
+    m_background_widget->setSizePolicy(QSizePolicy::Expanding,
+                                       QSizePolicy::Expanding);
 
     m_background_widget->setObjectName(background_css_name);
     m_background_widget->setLayout(m_mainlayout);
@@ -378,6 +349,7 @@ void Questionnaire::build()
     emit pageAboutToOpen();
 }
 
+
 bool Questionnaire::event(QEvent* e)
 {
     const bool result = OpenableWidget::event(e);
@@ -389,6 +361,7 @@ bool Questionnaire::event(QEvent* e)
     }
     return result;
 }
+
 
 bool Questionnaire::morePagesToGo() const
 {
@@ -402,14 +375,15 @@ bool Questionnaire::morePagesToGo() const
     return false;
 }
 
+
 void Questionnaire::resetButtons()
 {
     QuPage* page = currentPagePtr();
     if (!page || !m_p_header) {
         return;
     }
-    const bool allow_progression
-        = readOnly() || page->mayProgressIgnoringValidators();
+    const bool allow_progression =
+            readOnly() || page->mayProgressIgnoringValidators();
     // Optimization: calculate on_last_page only if necessary
     const bool on_last_page = allow_progression && !morePagesToGo();
     m_p_header->setButtons(
@@ -419,30 +393,36 @@ void Questionnaire::resetButtons()
     );
 }
 
+
 int Questionnaire::currentPageIndex() const
 {
     return m_current_page_index;
 }
+
 
 int Questionnaire::currentPageNumOneBased() const
 {
     return m_current_page_index + 1;
 }
 
+
 int Questionnaire::nPages() const
 {
     return m_pages.size();
 }
+
 
 bool Questionnaire::isDynamic() const
 {
     return false;
 }
 
+
 QuPage* Questionnaire::currentPagePtr() const
 {
     return pagePtr(m_current_page_index);
 }
+
 
 QuPage* Questionnaire::pagePtr(const int index) const
 {
@@ -452,15 +432,18 @@ QuPage* Questionnaire::pagePtr(const int index) const
     return m_pages.at(index).data();
 }
 
+
 bool Questionnaire::readOnly() const
 {
     return m_read_only;
 }
 
+
 int Questionnaire::fontSizePt(const uiconst::FontSize fontsize) const
 {
     return m_app.fontSizePt(fontsize);
 }
+
 
 void Questionnaire::keyPressEvent(QKeyEvent* event)
 {
@@ -473,6 +456,7 @@ void Questionnaire::keyPressEvent(QKeyEvent* event)
     }
 }
 
+
 void Questionnaire::cancelClicked()
 {
     if (m_read_only) {
@@ -483,8 +467,8 @@ void Questionnaire::cancelClicked()
     msgbox.setIcon(QMessageBox::Question);
     msgbox.setWindowTitle(tr("Abort"));
     msgbox.setText(tr("Abort this questionnaire?"));
-    QAbstractButton* yes
-        = msgbox.addButton(tr("Yes, abort"), QMessageBox::YesRole);
+    QAbstractButton* yes = msgbox.addButton(tr("Yes, abort"),
+                                            QMessageBox::YesRole);
     msgbox.addButton(tr("No, go back"), QMessageBox::NoRole);
     msgbox.exec();
     if (msgbox.clickedButton() == yes) {
@@ -492,17 +476,20 @@ void Questionnaire::cancelClicked()
     }
 }
 
+
 void Questionnaire::addFirstDynamicPage()
 {
     // only here to be overridden in DynamicQuestionnaire
     // ... but here so it can be called by build().
 }
 
+
 void Questionnaire::addAllAccessibleDynamicPages()
 {
     // only here to be overridden in DynamicQuestionnaire
     // ... but here so it can be called by jumpClicked().
 }
+
 
 void Questionnaire::jumpClicked()
 {
@@ -529,9 +516,8 @@ void Questionnaire::jumpClicked()
         const bool missing_input = !page->mayProgressIgnoringValidators();
         PagePickerItem::PagePickerItemType type = blocked
             ? PagePickerItem::PagePickerItemType::BlockedByPrevious
-            : (missing_input
-                   ? PagePickerItem::PagePickerItemType::IncompleteSelectable
-                   : PagePickerItem::PagePickerItemType::CompleteSelectable);
+            : (missing_input ? PagePickerItem::PagePickerItemType::IncompleteSelectable
+                             : PagePickerItem::PagePickerItemType::CompleteSelectable);
         if (!m_read_only && missing_input) {
             blocked = true;
         }
@@ -546,6 +532,7 @@ void Questionnaire::jumpClicked()
     goToPage(new_page_zero_based);
 }
 
+
 void Questionnaire::previousClicked()
 {
     for (int i = m_current_page_index - 1; i >= 0; --i) {
@@ -557,6 +544,7 @@ void Questionnaire::previousClicked()
     }
 }
 
+
 void Questionnaire::nextClicked()
 {
     // We separate the signal receiver from the "doing things" function so
@@ -565,6 +553,7 @@ void Questionnaire::nextClicked()
     // receiver; we always connect() to the base class).
     processNextClicked();
 }
+
 
 void Questionnaire::processNextClicked()
 {
@@ -588,10 +577,12 @@ void Questionnaire::processNextClicked()
     }
 }
 
+
 void Questionnaire::refreshCurrentPage()
 {
     goToPage(m_current_page_index, true);
 }
+
 
 void Questionnaire::deletePage(const int index)
 {
@@ -622,6 +613,7 @@ void Questionnaire::deletePage(const int index)
     }
 }
 
+
 void Questionnaire::movePageBackwards(const int index)
 {
     if (index < 1 || index >= m_pages.size()) {
@@ -630,6 +622,7 @@ void Questionnaire::movePageBackwards(const int index)
     std::swap(m_pages[index - 1], m_pages[index]);
     goToPage(m_current_page_index);
 }
+
 
 void Questionnaire::movePageForwards(const int index)
 {
@@ -640,6 +633,7 @@ void Questionnaire::movePageForwards(const int index)
     goToPage(m_current_page_index);
 }
 
+
 void Questionnaire::goToPage(const int index, const bool allow_refresh)
 {
     if (index < 0 || index >= nPages()) {
@@ -647,13 +641,15 @@ void Questionnaire::goToPage(const int index, const bool allow_refresh)
         return;
     }
     if (index == m_current_page_index && !allow_refresh) {
-        qDebug() << "Page" << index << "(zero-based index) already selected";
+        qDebug() << "Page" << index
+                 << "(zero-based index) already selected";
         return;
     }
     pageClosing();
     m_current_page_index = index;
     build();
 }
+
 
 void Questionnaire::finishClicked()
 {
@@ -674,6 +670,7 @@ void Questionnaire::finishClicked()
     doFinish();
 }
 
+
 void Questionnaire::pageClosing()
 {
     QuPage* page = currentPagePtr();
@@ -682,6 +679,7 @@ void Questionnaire::pageClosing()
     }
     page->closing();
 }
+
 
 void Questionnaire::doCancel()
 {
@@ -693,6 +691,7 @@ void Questionnaire::doCancel()
     emit finished();
 }
 
+
 void Questionnaire::doFinish()
 {
     if (!readOnly()) {
@@ -703,6 +702,7 @@ void Questionnaire::doFinish()
     emit finished();
 }
 
+
 void Questionnaire::openSubWidget(OpenableWidget* widget)
 {
 #ifdef DEBUG_REPORT_OPEN_SUBWIDGET
@@ -712,38 +712,39 @@ void Questionnaire::openSubWidget(OpenableWidget* widget)
     m_app.openSubWindow(widget);
 }
 
+
 CamcopsApp& Questionnaire::app() const
 {
     return m_app;
 }
+
 
 QString Questionnaire::getSubstitutedCss(const QString& filename) const
 {
     return m_app.getSubstitutedCss(filename);
 }
 
+
 void Questionnaire::debugLayout()
 {
     layoutdumper::dumpWidgetHierarchy(this);
 }
 
-void Questionnaire::setVisibleByTag(
-    const QString& tag,
-    const bool visible,
-    const bool current_page_only,
-    const QString& page_tag
-)
+
+void Questionnaire::setVisibleByTag(const QString& tag, const bool visible,
+                                    const bool current_page_only,
+                                    const QString& page_tag)
 {
-    const QVector<QuElement*> elements
-        = getElementsByTag(tag, current_page_only, page_tag);
+    const QVector<QuElement*> elements =
+            getElementsByTag(tag, current_page_only, page_tag);
     for (auto element : elements) {
         element->setVisible(visible);
     }
 }
 
-QVector<QuPage*> Questionnaire::getPages(
-    const bool current_page_only, const QString& page_tag
-)
+
+QVector<QuPage*> Questionnaire::getPages(const bool current_page_only,
+                                         const QString& page_tag)
 {
     QVector<QuPage*> pages;
     if (current_page_only) {
@@ -761,9 +762,9 @@ QVector<QuPage*> Questionnaire::getPages(
     return pages;
 }
 
-void Questionnaire::setPageSkip(
-    const int page, const bool skip, const bool reset_buttons
-)
+
+void Questionnaire::setPageSkip(const int page, const bool skip,
+                                const bool reset_buttons)
 {
     if (page < 0 || page >= m_pages.size()) {
         return;
@@ -774,9 +775,9 @@ void Questionnaire::setPageSkip(
     }
 }
 
-void Questionnaire::setPageSkip(
-    const QString& page_tag, const bool skip, const bool reset_buttons
-)
+
+void Questionnaire::setPageSkip(const QString& page_tag, const bool skip,
+                                const bool reset_buttons)
 {
     const QVector<QuPage*> pages = getPages(false, page_tag);
     for (auto page : pages) {
@@ -787,9 +788,10 @@ void Questionnaire::setPageSkip(
     }
 }
 
+
 QVector<QuElement*> Questionnaire::getElementsByTag(
-    const QString& tag, const bool current_page_only, const QString& page_tag
-)
+        const QString& tag, const bool current_page_only,
+        const QString& page_tag)
 {
     const QVector<QuPage*> pages = getPages(current_page_only, page_tag);
     QVector<QuElement*> elements;
@@ -799,17 +801,19 @@ QVector<QuElement*> Questionnaire::getElementsByTag(
     return elements;
 }
 
+
 QuElement* Questionnaire::getFirstElementByTag(
-    const QString& tag, const bool current_page_only, const QString& page_tag
-)
+        const QString& tag, const bool current_page_only,
+        const QString& page_tag)
 {
-    const QVector<QuElement*> elements
-        = getElementsByTag(tag, current_page_only, page_tag);
+    const QVector<QuElement*> elements = getElementsByTag(
+                tag, current_page_only, page_tag);
     if (elements.isEmpty()) {
         return nullptr;
     }
     return elements.at(0);
 }
+
 
 void Questionnaire::setFinishButtonIcon(const QString& base_filename)
 {
@@ -819,10 +823,12 @@ void Questionnaire::setFinishButtonIcon(const QString& base_filename)
     }
 }
 
+
 void Questionnaire::setFinishButtonIconToTick()
 {
     setFinishButtonIcon(uiconst::CBS_OK);
 }
+
 
 QString Questionnaire::questionnaireStylesheet() const
 {

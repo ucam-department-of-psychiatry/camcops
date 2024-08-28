@@ -24,7 +24,6 @@
 #define RESPOND_VIA_ITEM_CLICKED  // good
 
 #include "diagnosticcodeselector.h"
-
 #include <QApplication>
 #include <QDebug>
 #include <QEvent>
@@ -36,11 +35,10 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 #include <QVBoxLayout>
-
 #include "common/cssconst.h"
 #include "common/uiconst.h"
-#include "diagnosis/diagnosissortfiltermodel.h"
 #include "diagnosis/diagnosticcodeset.h"
+#include "diagnosis/diagnosissortfiltermodel.h"
 #include "diagnosis/flatproxymodel.h"
 #include "layouts/layouts.h"
 #include "lib/layoutdumper.h"
@@ -83,11 +81,10 @@
 
 
 DiagnosticCodeSelector::DiagnosticCodeSelector(
-    const QString& stylesheet,
-    const DiagnosticCodeSetPtr& codeset,
-    const QModelIndex& selected,
-    QWidget* parent
-) :
+        const QString& stylesheet,
+        const DiagnosticCodeSetPtr& codeset,
+        const QModelIndex& selected,
+        QWidget* parent) :
     OpenableWidget(parent),
     m_codeset(codeset),
     m_treeview(nullptr),
@@ -120,12 +117,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 
     // Cancel button
     auto cancel = new ImageButton(uiconst::CBS_CANCEL);
-    connect(
-        cancel,
-        &QAbstractButton::clicked,
-        this,
-        &DiagnosticCodeSelector::finished
-    );
+    connect(cancel, &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::finished);
 
     // Title
     auto title_label = new LabelWordWrapWide(m_codeset->title());
@@ -133,36 +126,23 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     title_label->setObjectName(cssconst::TITLE);
 
     m_search_button = new ImageButton(uiconst::CBS_MAGNIFY);
-    connect(
-        m_search_button.data(),
-        &QAbstractButton::clicked,
-        this,
-        &DiagnosticCodeSelector::goToSearch
-    );
+    connect(m_search_button.data(), &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::goToSearch);
 
     m_tree_button = new ImageButton(uiconst::CBS_TREE_VIEW);
-    connect(
-        m_tree_button.data(),
-        &QAbstractButton::clicked,
-        this,
-        &DiagnosticCodeSelector::goToTree
-    );
+    connect(m_tree_button.data(), &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::goToTree);
 
     auto header_toprowlayout = new HBoxLayout();
     header_toprowlayout->addWidget(cancel, 0, button_align);
     header_toprowlayout->addStretch();
-    header_toprowlayout->addWidget(
-        title_label, 0, text_align
-    );  // default alignment fills whole cell; this is better
+    header_toprowlayout->addWidget(title_label, 0, text_align);
+    // ... default alignment fills whole cell; this is better
     header_toprowlayout->addStretch();
 #ifdef OFFER_LAYOUT_DEBUG_BUTTON
     auto button_debug = new QPushButton("Dump layout");
-    connect(
-        button_debug,
-        &QAbstractButton::clicked,
-        this,
-        &DiagnosticCodeSelector::debugLayout
-    );
+    connect(button_debug, &QAbstractButton::clicked,
+            this, &DiagnosticCodeSelector::debugLayout);
     header_toprowlayout->addWidget(button_debug, 0, text_align);
 #endif
     header_toprowlayout->addWidget(m_search_button, 0, button_align);
@@ -188,15 +168,10 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
 
     m_selection_model = QSharedPointer<QItemSelectionModel>(
-        new QItemSelectionModel(m_codeset.data())
-    );
+                new QItemSelectionModel(m_codeset.data()));
 #ifdef RESPOND_VIA_ITEM_SELECTION
-    connect(
-        m_selection_model.data(),
-        &QItemSelectionModel::selectionChanged,
-        this,
-        &DiagnosticCodeSelector::selectionChanged
-    );
+    connect(m_selection_model.data(), &QItemSelectionModel::selectionChanged,
+            this, &DiagnosticCodeSelector::selectionChanged);
 #endif
     m_selection_model->select(selected, QItemSelectionModel::ClearAndSelect);
 
@@ -217,7 +192,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //         and PE_IndicatorArrowRight.
     //   - SE_TreeViewDisclosureItem
     //   - QTreeView::drawRow
-    //          d->delegateForIndex(modelIndex)->paint(painter, opt, modelIndex);
+    //          d->delegateForIndex(modelIndex)->paint(painter, opt,
+    //              modelIndex);
     //          -> QAbstractItemDelegate::paint()
     //          -> as default delegate is QStyledItemDelegate...
     //             [https://doc.qt.io/qt-6.5/model-view-programming.html]
@@ -229,8 +205,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //   UPSHOT: fiddly. The trouble is that the CSS just lets us do
     //   url(filename); see qcssparser.cpp and search for "url".
 
-    m_heading_tree
-        = new QLabel(tr("Explore as tree [use icon at top right to search]:"));
+    m_heading_tree = new QLabel(
+                tr("Explore as tree [use icon at top right to search]:"));
     m_heading_tree->setObjectName(cssconst::HEADING);
 
     m_treeview = new QTreeView();
@@ -251,12 +227,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_treeview->scrollTo(selected);
     uifunc::applyScrollGestures(m_treeview->viewport());
 #ifdef RESPOND_VIA_ITEM_CLICKED
-    connect(
-        m_treeview.data(),
-        &QListView::clicked,
-        this,
-        &DiagnosticCodeSelector::treeItemClicked
-    );
+    connect(m_treeview.data(), &QListView::clicked,
+            this, &DiagnosticCodeSelector::treeItemClicked);
 #endif
 
     // ========================================================================
@@ -264,51 +236,40 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     // ========================================================================
 
     m_search_lineedit = new QLineEdit();
-    connect(
-        m_search_lineedit,
-        &QLineEdit::textEdited,
-        this,
-        &DiagnosticCodeSelector::searchTextEdited
-    );
+    connect(m_search_lineedit, &QLineEdit::textEdited,
+            this, &DiagnosticCodeSelector::searchTextEdited);
 
     // ========================================================================
     // Proxy models: (1) flatten (2) filter
     // ========================================================================
     // https://doc.qt.io/qt-6.5/qsortfilterproxymodel.html#details
 
-    m_flat_proxy_model = QSharedPointer<FlatProxyModel>(new FlatProxyModel());
+    m_flat_proxy_model = QSharedPointer<FlatProxyModel>(
+                new FlatProxyModel());
     m_flat_proxy_model->setSourceModel(m_codeset.data());
 
     m_diag_filter_model = QSharedPointer<DiagnosisSortFilterModel>(
-        new DiagnosisSortFilterModel()
-    );
+                new DiagnosisSortFilterModel());
     m_diag_filter_model->setSourceModel(m_flat_proxy_model.data());
     m_diag_filter_model->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_diag_filter_model->sort(DiagnosticCode::COLUMN_CODE, Qt::AscendingOrder);
     m_diag_filter_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_diag_filter_model->setFilterKeyColumn(DiagnosticCode::COLUMN_DESCRIPTION
-    );
+    m_diag_filter_model->setFilterKeyColumn(DiagnosticCode::COLUMN_DESCRIPTION);
 
     // ========================================================================
     // Selection model for proxy model
     // ========================================================================
 
     m_proxy_selection_model = QSharedPointer<QItemSelectionModel>(
-        new QItemSelectionModel(m_diag_filter_model.data())
-    );
+                new QItemSelectionModel(m_diag_filter_model.data()));
 
 #ifdef RESPOND_VIA_ITEM_SELECTION
-    connect(
-        m_proxy_selection_model.data(),
-        &QItemSelectionModel::selectionChanged,
-        this,
-        &DiagnosticCodeSelector::proxySelectionChanged
-    );
+    connect(m_proxy_selection_model.data(), &QItemSelectionModel::selectionChanged,
+            this, &DiagnosticCodeSelector::proxySelectionChanged);
 #endif
     QModelIndex proxy_selected = proxyFromSource(selected);
-    m_proxy_selection_model->select(
-        proxy_selected, QItemSelectionModel::ClearAndSelect
-    );
+    m_proxy_selection_model->select(proxy_selected,
+                                    QItemSelectionModel::ClearAndSelect);
 
     // ========================================================================
     // List view, for search
@@ -323,8 +284,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     //   same link). We'll do that, and use a real QListView.
 
     m_heading_search = new QLabel(
-        tr("Search diagnoses [use icon at top right for tree view]:")
-    );
+                tr("Search diagnoses [use icon at top right for tree view]:"));
     m_heading_search->setObjectName(cssconst::HEADING);
 
     m_flatview = new QListView();
@@ -334,12 +294,8 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     m_flatview->scrollTo(proxy_selected);
     uifunc::applyScrollGestures(m_flatview->viewport());
 #ifdef RESPOND_VIA_ITEM_CLICKED
-    connect(
-        m_flatview.data(),
-        &QListView::clicked,
-        this,
-        &DiagnosticCodeSelector::searchItemClicked
-    );
+    connect(m_flatview.data(), &QListView::clicked,
+            this, &DiagnosticCodeSelector::searchItemClicked);
 #endif
 
     // ========================================================================
@@ -370,9 +326,9 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
     setSearchAppearance();
 }
 
-void DiagnosticCodeSelector::selectionChanged(
-    const QItemSelection& selected, const QItemSelection& deselected
-)
+
+void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
+                                              const QItemSelection& deselected)
 {
     Q_UNUSED(deselected)
 #ifdef RESPOND_VIA_ITEM_SELECTION
@@ -386,6 +342,7 @@ void DiagnosticCodeSelector::selectionChanged(
     Q_UNUSED(selected)
 #endif
 }
+
 
 void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
 {
@@ -403,17 +360,17 @@ void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
     const QModelIndex parent = index.parent();
     const int row = index.row();
     const QAbstractItemModel* model = index.model();
-    const QModelIndex selectable_index
-        = model->index(row, DiagnosticCode::COLUMN_SELECTABLE, parent);
+    const QModelIndex selectable_index = model->index(
+                row, DiagnosticCode::COLUMN_SELECTABLE, parent);
     const bool selectable = selectable_index.data().toBool();
     if (!selectable) {
         // qDebug() << Q_FUNC_INFO << "Unselectable";
         return;
     }
-    const QModelIndex code_index
-        = model->index(row, DiagnosticCode::COLUMN_CODE, parent);
-    const QModelIndex description_index
-        = model->index(row, DiagnosticCode::COLUMN_DESCRIPTION, parent);
+    const QModelIndex code_index = model->index(
+                row, DiagnosticCode::COLUMN_CODE, parent);
+    const QModelIndex description_index = model->index(
+                row, DiagnosticCode::COLUMN_DESCRIPTION, parent);
     const QString code = code_index.data().toString();
     const QString description = description_index.data().toString();
 
@@ -421,10 +378,10 @@ void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
     emit finished();
 }
 
+
 void DiagnosticCodeSelector::proxySelectionChanged(
-    const QItemSelection& proxy_selected,
-    const QItemSelection& proxy_deselected
-)
+        const QItemSelection& proxy_selected,
+        const QItemSelection& proxy_deselected)
 {
     Q_UNUSED(proxy_deselected)
     QModelIndexList proxy_indexes = proxy_selected.indexes();
@@ -436,6 +393,7 @@ void DiagnosticCodeSelector::proxySelectionChanged(
     itemChosen(src_index);
 }
 
+
 void DiagnosticCodeSelector::searchItemClicked(const QModelIndex& index)
 {
     // The search view uses a proxy model.
@@ -443,11 +401,13 @@ void DiagnosticCodeSelector::searchItemClicked(const QModelIndex& index)
     itemChosen(src_index);
 }
 
+
 void DiagnosticCodeSelector::treeItemClicked(const QModelIndex& index)
 {
     // The tree view uses the underlying model directly.
     itemChosen(index);
 }
+
 
 //void DiagnosticCodeSelector::toggleSearch()
 //{
@@ -462,11 +422,13 @@ void DiagnosticCodeSelector::goToSearch()
     setSearchAppearance();
 }
 
+
 void DiagnosticCodeSelector::goToTree()
 {
     m_searching = false;
     setSearchAppearance();
 }
+
 
 void DiagnosticCodeSelector::setSearchAppearance()
 {
@@ -488,10 +450,12 @@ void DiagnosticCodeSelector::setSearchAppearance()
     update();
 }
 
+
 void DiagnosticCodeSelector::searchTextEdited(const QString& text)
 {
     m_diag_filter_model->setFilterFixedString(text);
 }
+
 
 QModelIndex DiagnosticCodeSelector::sourceFromProxy(const QModelIndex& index)
 {
@@ -499,11 +463,13 @@ QModelIndex DiagnosticCodeSelector::sourceFromProxy(const QModelIndex& index)
     return m_flat_proxy_model->mapToSource(intermediate);
 }
 
+
 QModelIndex DiagnosticCodeSelector::proxyFromSource(const QModelIndex& index)
 {
     const QModelIndex intermediate = m_flat_proxy_model->mapFromSource(index);
     return m_diag_filter_model->mapFromSource(intermediate);
 }
+
 
 void DiagnosticCodeSelector::debugLayout()
 {
