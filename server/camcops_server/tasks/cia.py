@@ -99,7 +99,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("The Clinical Impairment Assessment questionnaire")
+        return _("Clinical Impairment Assessment questionnaire")
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.MANDATORY_FIELD_NAMES):

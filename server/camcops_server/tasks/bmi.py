@@ -195,7 +195,11 @@ class Bmi(TaskHasPatientMixin, Task):
     def bmi(self) -> Optional[float]:
         if not self.is_complete():
             return None
-        return self.mass_kg / (self.height_m * self.height_m)
+        try:
+            return self.mass_kg / (self.height_m * self.height_m)
+        except ZeroDivisionError:
+            # The client can set height to 0
+            return None
 
     def category(self, req: CamcopsRequest) -> str:
         bmi = self.bmi()

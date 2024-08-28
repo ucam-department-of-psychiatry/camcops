@@ -133,6 +133,7 @@ const QString ICON_GLOBAL("global.png");
 const QString ICON_HASCHILD("hasChild.png");
 const QString ICON_HASPARENT("hasParent.png");
 const QString ICON_INFO("info.png");
+const QString ICON_NEURODIVERSITY("neurodiversity.png");
 const QString ICON_PATIENT_SUMMARY("patient_summary.png");
 const QString ICON_PERSONALITY("personality.png");
 const QString ICON_PHYSICAL("physical.png");

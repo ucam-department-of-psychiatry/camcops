@@ -63,6 +63,9 @@ Quick links:
 - :ref:`v2.4.16 <changelog_v2.4.16>`
 - :ref:`v2.4.17 <changelog_v2.4.17>`
 - :ref:`v2.4.18 <changelog_v2.4.18>`
+- :ref:`v2.4.19 <changelog_v2.4.19>`
+- :ref:`v2.4.20 <changelog_v2.4.20>`
+- :ref:`v2.4.21 <changelog_v2.4.21>`
 
 Contributors
 ------------
@@ -3861,7 +3864,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Supported SQLAlchemy version now 1.4.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
 
-- New task: :ref:`Compulsive Exercise Test (CET) <cet>`
+- New task: :ref:`Compulsive Exercise Test (CET) <cet>`. (Database revision 0084.)
 
 - Qt version is now 6.5.3. Qt now builds with FFmpeg for multimedia on all
   platforms except iOS (following Qt official releases).
@@ -3878,8 +3881,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   See ``tablet_qt/widgets/cameraqcamera.h``.
 
 
-**Client and server v2.4.19, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.19:
+
+**Client and server v2.4.19, released 27 Jun 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
@@ -3910,3 +3915,39 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix the display of various dialogues on smaller screens, particulary when the device
   is rotated.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/347
+
+- New task: :ref:`The Adult Autism Spectrum Quotient (AQ) <aq>`. (Database revision 0085.)
+
+- Fix a bug where if the user entered an incorrect password and then cancelled the
+  dialog to prompt them to delete the database, it was impossible for them to then
+  enter the correct password.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/353
+
+.. _changelog_v2.4.20:
+
+**Client and server v2.4.20, released 13 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix the BMI task on both the client and server to avoid a division by zero
+  error when the user enters a zero height.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/366
+
+- Fix bugs in the "strict" validation of double-precision floating-point values
+  where valid values were being rejected.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/368
+
+- Fix the installer to set the SSL options in the config file only if using
+  HTTPS directly.
+
+- Modify the task count report to split by day of month.
+
+.. _changelog_v2.4.21:
+
+**Server v2.4.21, released 14 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Bump ``gunicorn`` to 23.0.0 to fix CVE-2024-1135
+
+
+**Client and server v2.4.22, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

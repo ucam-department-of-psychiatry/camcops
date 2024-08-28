@@ -52,7 +52,7 @@ class WidgetPositioner : public QObject
 
 public:
     WidgetPositioner(QWidget* widget);
-
+    // ... widget will become our parent and own us
 protected:
     void sizeToScreen();
     void centre();

@@ -1374,6 +1374,9 @@ bool CamcopsApp::connectDatabaseEncryption(
                         qInfo() << "... deleting databases.";
                         const bool ok = deleteDatabases();
                         if (!ok) {
+                            // For some reason the sqlite files couldn't be
+                            // deleted. User has been prompted to delete the
+                            // files manually.
                             user_cancelled_please_quit = true;
                             return false;
                         }
@@ -1490,9 +1493,7 @@ void CamcopsApp::workerDecryptDatabases(
     const QString& passphrase, bool& success
 )
 {
-    success = m_sysdb->decrypt(passphrase, true)
-        && m_datadb->decrypt(passphrase, true) && m_sysdb->canReadDatabase()
-        && m_datadb->canReadDatabase();
+    success = m_sysdb->decrypt(passphrase) && m_datadb->decrypt(passphrase);
     qDebug() << Q_FUNC_INFO << success;
 }
 

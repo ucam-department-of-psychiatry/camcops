@@ -33,19 +33,19 @@ private slots:
 
 void TestFlowLayoutHfw::testMinimumSizeAddsMargins()
 {
-    auto layout = new FlowLayoutHfw();
+    FlowLayoutHfw layout;
     auto button = new QPushButton();
 
-    layout->addWidget(button);
+    layout.addWidget(button);
 
     const int left = 1;
     const int top = 2;
     const int right = 4;
     const int bottom = 8;
 
-    layout->setContentsMargins(left, top, right, bottom);
+    layout.setContentsMargins(left, top, right, bottom);
 
-    QCOMPARE(layout->minimumSize(), QSize(left + right, top + bottom));
+    QCOMPARE(layout.minimumSize(), QSize(left + right, top + bottom));
 }
 
 QTEST_MAIN(TestFlowLayoutHfw)

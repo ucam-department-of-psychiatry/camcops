@@ -56,7 +56,7 @@
 #include "widgetpositioner.h"
 
 WidgetPositioner::WidgetPositioner(QWidget* widget) :
-    QObject(widget),
+    QObject(widget),  // make widget our parent; it will own us
     m_widget(widget)
 {
     Q_ASSERT(widget);

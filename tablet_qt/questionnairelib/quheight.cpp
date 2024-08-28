@@ -32,12 +32,20 @@
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quunitselector.h"
 
-QuHeight::QuHeight(
-    FieldRefPtr fieldref,
-    QPointer<QuUnitSelector> unit_selector,
-    bool mandatory
-) :
-    QuMeasurement(fieldref, unit_selector, mandatory),
+const double MINIMUM_HEIGHT_CM = 0;
+const double MINIMUM_HEIGHT_M = MINIMUM_HEIGHT_CM / convert::CM_PER_M;
+const double MAXIMUM_HEIGHT_M = 5;
+const int HEIGHT_M_DP = 3;
+
+const int MINIMUM_HEIGHT_FT = 0;
+const int MAXIMUM_HEIGHT_FT = 15;
+const double MINIMUM_HEIGHT_IN = convert::inchesFromCentimetres(MINIMUM_HEIGHT_CM);
+const double MAXIMUM_HEIGHT_IN = convert::INCHES_PER_FOOT;
+const int HEIGHT_IN_DP = 2;
+
+QuHeight::QuHeight(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
+                   bool mandatory)
+    : QuMeasurement(fieldref, unit_selector, mandatory),
     m_fr_m(nullptr),
     m_fr_ft(nullptr),
     m_fr_in(nullptr)
@@ -56,7 +64,7 @@ FieldRefPtrList QuHeight::getImperialFieldrefs() const
 
 QPointer<QuElement> QuHeight::buildMetricGrid()
 {
-    auto metres_edit = new QuLineEditDouble(m_fr_m, 0, 5, 3);
+    auto metres_edit = new QuLineEditDouble(m_fr_m, MINIMUM_HEIGHT_M, MAXIMUM_HEIGHT_M, HEIGHT_M_DP);
     return questionnairefunc::defaultGridRawPointer(
         {
             {CommonOptions::metres(), metres_edit},
@@ -68,9 +76,8 @@ QPointer<QuElement> QuHeight::buildMetricGrid()
 
 QPointer<QuElement> QuHeight::buildImperialGrid()
 {
-    auto ft_edit = new QuLineEditInteger(m_fr_ft, 0, 15);
-    auto in_edit
-        = new QuLineEditDouble(m_fr_in, 0, convert::INCHES_PER_FOOT, 2);
+    auto ft_edit = new QuLineEditInteger(m_fr_ft, MINIMUM_HEIGHT_FT, MAXIMUM_HEIGHT_FT);
+    auto in_edit = new QuLineEditDouble(m_fr_in, MINIMUM_HEIGHT_IN, MAXIMUM_HEIGHT_IN, HEIGHT_IN_DP);
 
     return questionnairefunc::defaultGridRawPointer(
         {

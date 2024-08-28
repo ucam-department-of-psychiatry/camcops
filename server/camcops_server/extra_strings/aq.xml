@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="aq">
+    <string name="title">The Adult Autism Spectrum Quotient (AQ)</string>
+    <string name="subtitle">Ages 16+</string>
+    <!-- Paper version:
+         - says "Below are [sic] a list..."
+         - adds "by circling your answer"
+         - has "DO NOT MISS ANY STATEMENT OUT" below
+    -->
+    <string name="instructions">Below is a list of statements. Please read each statement <u>very carefully</u> and rate how strongly you agree or disagree with it.</string>
+
+    <string name="q1">I prefer to do things with others rather than on my own.</string>
+    <string name="q2">I prefer to do things the same way over and over again.</string>
+    <string name="q3">If I try to imagine something, I find it very easy to create a picture in my mind.</string>
+    <string name="q4">I frequently get so strongly absorbed in one thing that I lose sight of other things.</string>
+    <string name="q5">I often notice small sounds when others do not.</string>
+    <string name="q6">I usually notice car number plates or similar strings of information.</string>
+    <string name="q7">Other people frequently tell me that what I’ve said is impolite, even though I think it is polite.</string>
+    <string name="q8">When I’m reading a story, I can easily imagine what the characters might look like.</string>
+    <string name="q9">I am fascinated by dates.</string>
+    <string name="q10">In a social group, I can easily keep track of several different people’s conversations.</string>
+    <string name="q11">I find social situations easy.</string>
+    <string name="q12">I tend to notice details that others do not.</string>
+    <string name="q13">I would rather go to a library than a party.</string>
+    <string name="q14">I find making up stories easy.</string>
+    <string name="q15">I find myself drawn more strongly to people than to things.</string>
+    <string name="q16">I tend to have very strong interests which I get upset about if I can’t pursue.</string>
+    <!--
+      RNC, re Q16: A comma after "interests" is absent in the ARC's Word
+      version, but present in Baron-Cohen et al. (2001). Per e.g. Butterfield,
+      J. (2015) "Fowler's Dictionary of Modern English Usage", fourth edition,
+      under the entry for "that (relative pronoun)": "which" can be restrictive
+      (without comma) or non-restrictive (with comma), though many feel that
+      "that" is obligatory for restrictive clauses (thus preferring always: "X
+      that Y" for restrictive or "X, which Y" for non-restrictive). Here, a
+      restrictive meaning is likely intended (if one had strong interests but
+      did not get upset if one could not pursue them, one would likely answer
+      no); otherwise, the second half of the clause would be redundant.
+      Butterfield considers it grammatically correct, if more unusual, to have
+      a non-restrictive clause with "which", and we are not going to change the
+      text, of course, so we will follow the ARC's original version rather than
+      the Baron-Cohen et al. (2001) version (which was potentially copy-edited
+      thus by the journal). (References are in aq.rst.)
+    -->
+    <string name="q17">I enjoy social chit-chat.</string>
+    <string name="q18">When I talk, it isn’t always easy for others to get a word in edgeways.</string>
+    <string name="q19">I am fascinated by numbers.</string>
+    <string name="q20">When I’m reading a story, I find it difficult to work out the characters’ intentions.</string>
+    <string name="q21">I don’t particularly enjoy reading fiction.</string>
+    <string name="q22">I find it hard to make new friends.</string>
+    <string name="q23">I notice patterns in things all the time.</string>
+    <string name="q24">I would rather go to the theatre than a museum.</string>
+    <string name="q25">It does not upset me if my daily routine is disturbed.</string>
+    <string name="q26">I frequently find that I don’t know how to keep a conversation going.</string>
+    <string name="q27">I find it easy to “read between the lines” when someone is talking to me.</string>
+    <string name="q28">I usually concentrate more on the whole picture, rather than the small details.</string>
+    <string name="q29">I am not very good at remembering phone numbers.</string>
+    <string name="q30">I don’t usually notice small changes in a situation, or a person’s appearance.</string>
+    <string name="q31">I know how to tell if someone listening to me is getting bored.</string>
+    <string name="q32">I find it easy to do more than one thing at once.</string>
+    <string name="q33">When I talk on the phone, I’m not sure when it’s my turn to speak.</string>
+    <string name="q34">I enjoy doing things spontaneously.</string>
+    <string name="q35">I am often the last to understand the point of a joke.</string>
+    <string name="q36">I find it easy to work out what someone is thinking or feeling just by looking at their face.</string>
+    <string name="q37">If there is an interruption, I can switch back to what I was doing very quickly.</string>
+    <string name="q38">I am good at social chit-chat.</string>
+    <string name="q39">People often tell me that I keep going on and on about the same thing.</string>
+    <string name="q40">When I was young, I used to enjoy playing games involving pretending with other children.</string>
+    <string name="q41">I like to collect information about categories of things (e.g. types of car, types of bird, types of train, types of plant, etc.).</string>
+    <string name="q42">I find it difficult to imagine what it would be like to be someone else.</string>
+    <string name="q43">I like to plan any activities I participate in carefully.</string>
+    <string name="q44">I enjoy social occasions.</string>
+    <string name="q45">I find it difficult to work out people’s intentions.</string>
+    <string name="q46">New situations make me anxious.</string>
+    <string name="q47">I enjoy meeting new people.</string>
+    <string name="q48">I am a good diplomat.</string>
+    <string name="q49">I am not very good at remembering people’s date of birth.</string>
+    <!--
+        RNC, re Q49: Singular "date" contravenes grammatical agreement with
+        "people" (they do not all share one date of birth) but is in both the
+        ARC and the Baron-Cohen et al. (2001) published version.
+    -->
+    <string name="q50">I find it very easy to play games with children that involve pretending.</string>
+
+    <string name="option_0">definitely agree</string>
+    <string name="option_1">slightly agree</string>
+    <string name="option_2">slightly disagree</string>
+    <string name="option_3">definitely disagree</string>
+
+    <string name="score">Score</string>
+    <string name="social_skill_score">Social skill</string>
+    <string name="attention_switching_score">Attention switching</string>
+    <string name="attention_to_detail_score">Attention to detail</string>
+    <string name="communication_score">Communication</string>
+    <string name="imagination_score">Imagination</string>
+  </task>
+</resources>

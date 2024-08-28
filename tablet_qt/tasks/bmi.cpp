@@ -197,6 +197,15 @@ QVariant Bmi::bmiVariant() const
     }
     const double mass_kg = valueDouble(FN_MASS_KG);
     const double height_m = valueDouble(FN_HEIGHT_M);
+
+    if (abs(height_m) < 0.0001) {
+        // It is possible that a platform may not handle division by zero. We
+        // could also limit height to a sensible range. It's probably better to
+        // allow a patient to skip this task altogether rather than end up with
+        // silly small height values.
+        return QVariant();
+    }
+
     const double bmi = mass_kg / (height_m * height_m);
     return QVariant(bmi);
 }

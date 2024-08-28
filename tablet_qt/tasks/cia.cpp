@@ -71,7 +71,7 @@ QString Cia::shortname() const
 
 QString Cia::longname() const
 {
-    return tr("The Clinical Impairment Assessment questionnaire");
+    return tr("Clinical Impairment Assessment questionnaire");
 }
 
 QString Cia::description() const
