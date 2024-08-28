@@ -68,7 +68,8 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
         button = new ClickableLabelWordWrapWide(m_label);
         button->setObjectName(cssconst::BUTTON);
         if (read_only) {
-            button->setEnabled(false);  // NB setDisabled and setEnabled are not exact opposites
+            button->setEnabled(false);
+            // NB setDisabled and setEnabled are not exact opposites
         }
     } else {
         // Image

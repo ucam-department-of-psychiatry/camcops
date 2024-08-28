@@ -116,7 +116,8 @@ const QString FN_VOLUME("volume");
 const QString FN_OFFER_ABORT("offer_abort");
 const QString FN_DEBUG_DISPLAY_STIMULI_ONLY("debug_display_stimuli_only");
 const QString FN_SHAPE_DEFINITIONS_SVG("shape_definitions_svg");
-const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");  // new in v2.0.0
+const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");
+    // ... new in v2.0.0
 const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
 const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
@@ -238,7 +239,8 @@ void initializeIDED3D(TaskFactory& factory)
 // ============================================================================
 
 IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, IDED3D_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     m_default_values = initDefaultValues();
     m_types = initTypes();
@@ -1182,7 +1184,8 @@ void IDED3D::startTask()
     setValue(FN_SHAPE_DEFINITIONS_SVG, IDED3DExemplars::allShapesAsJson());
     // Similarly for colours
     setValue(FN_COLOUR_DEFINITIONS_RGB, IDED3DExemplars::allColoursAsJson());
-    onEditStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();
+        // ... will have been stopped by the end of the questionnaire?
 
     // Double-check we have a PK before we create stages/trials
     save();

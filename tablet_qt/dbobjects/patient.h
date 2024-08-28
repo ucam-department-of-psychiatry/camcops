@@ -199,7 +199,8 @@ public:
 
     // Helper functions for various viewers:
 
-    // e.g. "<b>JONES, Bob</b><br>M, 19y, DOB 1 Jan 2000<br>RiO 12345, NHS 9876543210"
+    // e.g. "<b>JONES, Bob</b><br>M, 19y, DOB 1 Jan 2000<br>
+    // RiO 12345, NHS 9876543210"
     QString descriptionForMerge() const;
 
     // e.g. "Bob Jones"
@@ -217,7 +218,8 @@ public:
     // e.g. "JONES, Bob (M, 19y, DOB 1 Jan 2000)\nRiO 12345, NHS 9876543210"
     QString twoLineDetailString() const;
 
-    // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345, NHS 9876543210"
+    // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345,
+    // NHS 9876543210"
     QString oneLineHtmlDetailString() const;
 
     // e.g. "<b>Bob Jones</b>"

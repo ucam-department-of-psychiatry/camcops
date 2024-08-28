@@ -79,7 +79,8 @@ int AspectRatioPixmap::heightForWidth(const int width) const
     // Step 2: never give an answer that is greater than our maximum height,
     // or the framework may allocate too much space for it (and then display
     // us at our correct maximum size, but with giant gaps in the layout).
-    h = qMin(h, m_pixmap.height());  // height() is 0 for a null pixmap anyway; see qpixmap.cpp
+    h = qMin(h, m_pixmap.height());
+    // ... height() is 0 for a null pixmap anyway; see qpixmap.cpp
 
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << h;

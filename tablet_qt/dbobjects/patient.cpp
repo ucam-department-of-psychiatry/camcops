@@ -488,10 +488,9 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
         fieldRef(fieldname)->setMandatory(!tablet_ok);
     }
     for (const PatientIdNumPtr& idnum : m_idnums) {
-        // idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
         idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(true);
-        // ... mandatory was "!tablet_ok", but that makes it easier to create blank
-        // ID number entries, which help nobody; changed 2019-03-23.
+        // ... mandatory was "!tablet_ok", but that makes it easier to create
+        // blank ID number entries, which help nobody; changed 2019-03-23.
     }
 
     const bool upload_ok = compliesWithUpload();
@@ -563,14 +562,16 @@ bool Patient::anyIdClash() const
                 "SELECT COUNT(*) "
                 "FROM %1 otherpt "
                 "INNER JOIN %1 thispt "
-                "  ON otherpt.%2 = thispt.%2 "  // which_idnum
-                "  AND otherpt.%3 = thispt.%3 "  // idnum value; will automatically ignore NULLs
-                "  AND otherpt.%4 <> thispt.%4 "  // patient PK
-                "WHERE thispt.%4 = ?")  // patient PK
+                "  ON otherpt.%2 = thispt.%2 "
+                "  AND otherpt.%3 = thispt.%3 "
+                "  AND otherpt.%4 <> thispt.%4 "
+                "WHERE thispt.%4 = ?")
             .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),  // %1
                  delimit(PatientIdNum::FN_WHICH_IDNUM),  // %2
                  delimit(PatientIdNum::FN_IDNUM_VALUE),  // %3
                  delimit(PatientIdNum::FK_PATIENT));  // %4
+        // ... %3: idnum value; comparison will automatically ignore NULLs
+        // ... %4: patient PK
     args.append(id());
     const SqlArgs sqlargs(sql, args);
     const int c = m_db.fetchInt(sqlargs);
@@ -733,7 +734,8 @@ void Patient::buildPage(bool read_only)
     auto addIcon = [this](const QString& name, const QString& tag) {
         auto image = new QuImage(uifunc::iconFilename(name),
                                  uiconst::g_iconsize);
-        image->setAdjustForDpi(false);  // uiconst::ICONSIZE already corrects for this
+        image->setAdjustForDpi(false);
+            // ... uiconst::ICONSIZE already corrects for this
         image->addTag(tag);
         m_page->addElement(image);
     };
@@ -777,7 +779,8 @@ void Patient::buildPage(bool read_only)
     grid->addCell(QuGridCell(
         (new QuDateTime(fieldRef(DOB_FIELD, false)))
                       ->setMode(QuDateTime::DefaultDate)
-                      ->setOfferNullButton(true),  // in case policy disallows DOB
+                      ->setOfferNullButton(true),
+        // ... offer null button in case policy disallows DOB
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Email")),
                              row, 0, rowspan, colspan, ralign));
@@ -912,7 +915,8 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
                                 << ", other: " << other_id->idnumAsVariant()
                                 << ") yet we shouldn't be copying if there is mismatch!";
                     }
-                    this_id->setIdnumValue(other_id->idnumAsInteger(), true);  // save
+                    this_id->setIdnumValue(other_id->idnumAsInteger(), true);
+                    // ... save
                 }
             }
             if (!found) {

@@ -95,20 +95,24 @@ QSize WidgetItemHfw::sizeHint() const
         }
 #ifdef DEBUG_LAYOUT
         qDebug().nospace()
-                << Q_FUNC_INFO
-                << " [wid->metaObject()->className() == "
-                << wid->metaObject()->className()
-                << ", wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
-                << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
-                << ", wid->minimumSize() == " << wid->minimumSize()
-                << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
-                << ", wid->sizeHint() == " << wid->sizeHint()
-                << ", wid->sizePolicy() == " << wid->sizePolicy()
-                << ", wid->sizePolicy().hasHeightForWidth() == "
-                << wid->sizePolicy().hasHeightForWidth()
-                // << ", wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag == "
-                // << (wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag)
-                << "]";
+            << Q_FUNC_INFO
+            << " [wid->metaObject()->className() == "
+            << wid->metaObject()->className()
+            << ", wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
+            << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
+            << ", wid->minimumSize() == " << wid->minimumSize()
+            << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
+            << ", wid->sizeHint() == " << wid->sizeHint()
+            << ", wid->sizePolicy() == " << wid->sizePolicy()
+            << ", wid->sizePolicy().hasHeightForWidth() == "
+            << wid->sizePolicy().hasHeightForWidth()
+        /*
+            << ", wid->sizePolicy().horizontalPolicy() "
+            << "& QSizePolicy::ShrinkFlag == "
+            << (wid->sizePolicy().horizontalPolicy()
+                & QSizePolicy::ShrinkFlag)
+        */
+            << "]";
         qDebug() << Q_FUNC_INFO << "->" << hint;
 #endif
     }
@@ -154,7 +158,8 @@ QSize WidgetItemHfw::minimumSize() const
     //        }
     //    }
     //
-    //    void QWidgetItemV2::updateCacheIfNecessary() const  // RNC: NOT VIRTUAL
+    //    void QWidgetItemV2::updateCacheIfNecessary() const
+    //          // RNC: NOT VIRTUAL
     //    {
     //        if (q_cachedMinimumSize.width() != Dirty)
     //            return;
@@ -164,12 +169,16 @@ QSize WidgetItemHfw::minimumSize() const
     //        const QSize minimumSize(wid->minimumSize());
     //        const QSize maximumSize(wid->maximumSize());
     //        const QSizePolicy sizePolicy(wid->sizePolicy());
-    //        const QSize expandedSizeHint(sizeHint.expandedTo(minimumSizeHint));
+    //        const QSize expandedSizeHint(
+    //          sizeHint.expandedTo(minimumSizeHint));
     //
-    //        const QSize smartMinSize(qSmartMinSize(sizeHint, minimumSizeHint, minimumSize, maximumSize, sizePolicy));
-    //        const QSize smartMaxSize(qSmartMaxSize(expandedSizeHint, minimumSize, maximumSize, sizePolicy, align));
+    //        const QSize smartMinSize(qSmartMinSize(sizeHint, minimumSizeHint,
+    //              minimumSize, maximumSize, sizePolicy));
+    //        const QSize smartMaxSize(qSmartMaxSize(expandedSizeHint,
+    //              minimumSize, maximumSize, sizePolicy, align));
     //
-    //        const bool useLayoutItemRect = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect);
+    //        const bool useLayoutItemRect =
+    //              !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect);
     //
     //        q_cachedMinimumSize = useLayoutItemRect
     //               ? toLayoutItemSize(wid->d_func(), smartMinSize)

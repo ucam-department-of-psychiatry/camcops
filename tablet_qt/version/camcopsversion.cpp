@@ -32,11 +32,11 @@ const QDate CAMCOPS_CLIENT_CHANGEDATE(2024, 8, 13);
 
 // +++ NOW ALSO UPDATE: +++
 //
-//      docs/source/changelog.rst
-//      docs/source/developer/releasing.rst (Google Play Store versions)
-//      tablet_qt/android/AndroidManifest.xml (version code + version name)
-//      tablet_qt/camcops_windows_innosetup.iss (CamcopsClientVersion)
-//      tablet_qt/ios/Info.plist (CFBundleShortVersionString and CFBundleVersion)
+//  docs/source/changelog.rst
+//  docs/source/developer/releasing.rst (Google Play Store versions)
+//  tablet_qt/android/AndroidManifest.xml (version code + version name)
+//  tablet_qt/camcops_windows_innosetup.iss (CamcopsClientVersion)
+//  tablet_qt/ios/Info.plist (CFBundleShortVersionString and CFBundleVersion)
 
 // ----------------------------------------------------------------------------
 // Minimum server version that the client will upload to

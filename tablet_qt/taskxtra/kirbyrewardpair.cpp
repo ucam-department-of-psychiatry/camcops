@@ -22,8 +22,10 @@
 #include <QObject>
 #include "../tasks/kirby.h"
 
-const QString KIRBY_DEFAULT_CURRENCY("£");  // Make configurable? Read local currency?
-const bool KIRBY_DEFAULT_CURRENCY_SYMBOL_FIRST = true;  // Make configurable? Read local currency?
+const QString KIRBY_DEFAULT_CURRENCY("£");
+    // ... Make configurable? Read local currency?
+const bool KIRBY_DEFAULT_CURRENCY_SYMBOL_FIRST = true;
+    // ... Make configurable? Read local currency?
 
 
 KirbyRewardPair::KirbyRewardPair(const int sir, const int ldr,
@@ -116,7 +118,8 @@ bool KirbyRewardPair::choiceConsistent(double k) const
         return true;
     }
     const bool chose_the_ldr = chose_ldr.toBool();
-    // If subject's k < k_indiff, subject should choose the large/delayed option.
-    // If subject's k > k_indiff, subject should choose the small/immediate option.
+    // If subject's k < k_indiff, subject should choose the large/delayed
+    // option. If subject's k > k_indiff, subject should choose the
+    // small/immediate option.
     return chose_the_ldr == (k < k_indiff);
 }

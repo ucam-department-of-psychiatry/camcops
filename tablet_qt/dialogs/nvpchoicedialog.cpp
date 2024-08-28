@@ -78,7 +78,8 @@ int NvpChoiceDialog::choose(QVariant* new_value)
 
     m_resized_to_contents = false;
 
-    auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
+    auto contentwidget = new QWidget();
+        // ... doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int position = 0; position < m_options.size(); ++position) {

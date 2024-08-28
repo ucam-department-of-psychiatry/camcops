@@ -85,7 +85,8 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 Questionnaire::Questionnaire(CamcopsApp& app,
                              std::initializer_list<QuPagePtr> pages,
                              QWidget* parent) :
-    Questionnaire(app, QVector<QuPagePtr>(pages), parent)  // delegating constructor
+    Questionnaire(app, QVector<QuPagePtr>(pages), parent)
+        // ... delegating constructor
 {
 }
 
@@ -322,7 +323,8 @@ void Questionnaire::build()
     /*
 #ifdef QUESTIONAIRE_USE_HFW_LAYOUT
     setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
-    m_background_widget->setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+    m_background_widget->setSizePolicy(
+        sizehelpers::expandingExpandingHFWPolicy());
 #else
     m_background_widget->setSizePolicy(QSizePolicy::Expanding,
                                        QSizePolicy::Expanding);

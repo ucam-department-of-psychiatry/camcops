@@ -102,7 +102,8 @@ public:
 
     // QLayout supplies: void addWidget(QWidget* w);  // no alignment option
     // QVBoxLayout/QHBoxLayout supply:
-    //    void addWidget(QWidget* widget, int stretch, Qt::Alignment alignment);
+    //    void addWidget(QWidget* widget, int stretch,
+    //                   Qt::Alignment alignment);
     // Alignment does make sense, specifically top alignment.
     void addWidget(QWidget* w);  // RNC
     void addWidget(QWidget* w, Qt::Alignment alignment);  // RNC

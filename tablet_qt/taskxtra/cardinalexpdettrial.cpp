@@ -68,7 +68,8 @@ CardinalExpDetTrial::CardinalExpDetTrial(
     addField(FN_BLOCK, QMetaType::fromType<int>());
     addField(FN_GROUP_NUM, QMetaType::fromType<int>());
     addField(FN_CUE, QMetaType::fromType<int>());
-    addField(FN_RAW_CUE_NUMBER, QMetaType::fromType<int>()); // following counterbalancing
+    addField(FN_RAW_CUE_NUMBER, QMetaType::fromType<int>());
+        // ... following counterbalancing
     addField(FN_TARGET_MODALITY, QMetaType::fromType<int>());
     addField(FN_TARGET_NUMBER, QMetaType::fromType<int>());
     addField(FN_TARGET_PRESENT, QMetaType::fromType<bool>());
@@ -103,7 +104,8 @@ CardinalExpDetTrial::CardinalExpDetTrial(
         const int target_modality, const int target_number, const bool target_present,
         const double iti_s,
         CamcopsApp& app, DatabaseManager& db) :
-    CardinalExpDetTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
+    CardinalExpDetTrial(app, db, dbconst::NONEXISTENT_PK)
+        // ... delegating constructor
 {
     setValue(FN_FK_TO_TASK, task_pk);
     setValue(FN_BLOCK, block);

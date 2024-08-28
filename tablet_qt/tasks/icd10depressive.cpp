@@ -117,7 +117,8 @@ void initializeIcd10Depressive(TaskFactory& factory)
 
 Icd10Depressive::Icd10Depressive(CamcopsApp& app, DatabaseManager& db,
                                  const int load_pk) :
-    Task(app, db, ICD10DEP_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, ICD10DEP_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addFields(CORE_NAMES, QMetaType::fromType<bool>());
     addFields(ADDITIONAL_NAMES, QMetaType::fromType<bool>());
@@ -401,7 +402,8 @@ QVariant Icd10Depressive::meetsCriteriaSevereIgnoringPsychosis() const
         return true;  // ICD-10 definition of severe deperssion
     }
     if (!mainComplete()) {
-        return QVariant();  // addition of more information might increase severity
+        return QVariant();
+        // addition of more information might increase severity
     }
     return false;
 }
@@ -416,7 +418,8 @@ QVariant Icd10Depressive::meetsCriteriaModerate() const
         return false;  // too short
     }
     if (!mainComplete()) {
-        return QVariant();  // addition of more information might increase severity
+        return QVariant();
+        // addition of more information might increase severity
     }
     if (nCore() >= 2 && nTotal() >= 6) {
         return true;  // ICD-10 definition of moderate depression
@@ -435,7 +438,8 @@ QVariant Icd10Depressive::meetsCriteriaMild() const
         return false;  // too short
     }
     if (!mainComplete()) {
-        return QVariant();  // addition of more information might increase severity
+        return QVariant();
+        // addition of more information might increase severity
     }
     if (nCore() >= 2 && nTotal() >= 4) {
         return true;  // ICD-10 definition of mild depression
@@ -455,7 +459,8 @@ QVariant Icd10Depressive::meetsCriteriaNone() const
         return true;  // too short to have depression
     }
     if (!mainComplete()) {
-        return QVariant();  // addition of more information might increase severity
+        return QVariant();
+        // addition of more information might increase severity
     }
     return true;
 }
@@ -514,12 +519,22 @@ QString Icd10Depressive::getMainDescription() const
 
 QString Icd10Depressive::getFullDescription() const
 {
-    // I note in passing:
-    //   QVariant v;
-    //   bool b = bool(v);  // won't compile: invalid cast from type 'QVariant' to type 'bool'
-    //   bool b = v;  // won't compile: cannot convert 'QVariant' to 'bool' in initialization
-    //   bool b = true && v;  // won't compile: no match for 'operator&&' (operand types are 'bool' and 'QVariant')
-    // ... which is good, as it means we can't forget the .toBool() part!
+    /*
+        I note in passing:
+
+            QVariant v;
+            bool b = bool(v);
+                // ... won't compile: invalid cast from type 'QVariant' to type
+                // 'bool'
+            bool b = v;
+                // ... won't compile: cannot convert 'QVariant' to 'bool' in
+                // initialization
+            bool b = true && v;
+                // .. won't compile: no match for 'operator&&' (operand types
+                // are 'bool' and 'QVariant')
+    
+        ... which is good, as it means we can't forget the .toBool() part!
+    */
     const bool skip_somatic = mainComplete() && meetsCriteriaNone().toBool();
     return getMainDescription() + (skip_somatic
                                    ? ""

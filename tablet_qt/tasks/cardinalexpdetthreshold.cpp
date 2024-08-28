@@ -18,7 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Consider: linear v. logarithmic volume; https://doc.qt.io/qt-6.5/qaudio.html#convertVolume
+// Consider: linear v. logarithmic volume;
+// https://doc.qt.io/qt-6.5/qaudio.html#convertVolume
 
 // #define DEBUG_STEP_DETAIL
 
@@ -125,13 +126,16 @@ void initializeCardinalExpDetThreshold(TaskFactory& factory)
 
 CardinalExpDetThreshold::CardinalExpDetThreshold(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, CARDINALEXPDETTHRESHOLD_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     // Config
     addField(FN_MODALITY, QMetaType::fromType<int>());
     addField(FN_TARGET_NUMBER, QMetaType::fromType<int>());
-    addField(FN_BACKGROUND_FILENAME, QMetaType::fromType<QString>());  // set automatically
-    addField(FN_TARGET_FILENAME, QMetaType::fromType<QString>());  // set automatically
+    addField(FN_BACKGROUND_FILENAME, QMetaType::fromType<QString>());
+        // ... set automatically
+    addField(FN_TARGET_FILENAME, QMetaType::fromType<QString>());
+        // ... set automatically
     addField(FN_VISUAL_TARGET_DURATION_S, QMetaType::fromType<double>());
     addField(FN_BACKGROUND_INTENSITY, QMetaType::fromType<double>());
     addField(FN_START_INTENSITY_MIN, QMetaType::fromType<double>());
@@ -633,7 +637,8 @@ bool CardinalExpDetThreshold::wantCatchTrial(const int trial_num) const
     if (m_trials.at(trial_num - 2)->wasCaughtOutReset()) {
         return true;  // always on the second of a fresh run
     }
-    return coin(valueDouble(FN_P_CATCH_TRIAL));  // otherwise on e.g. 20% of trials
+    return coin(valueDouble(FN_P_CATCH_TRIAL));
+    // ... otherwise on e.g. 20% of trials
 }
 
 
@@ -755,7 +760,8 @@ void CardinalExpDetThreshold::startTask()
     qDebug() << Q_FUNC_INFO;
 #endif
     m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
-    onEditStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();
+    // ... will have been stopped by the end of the questionnaire?
 
     // Finalize the parameters
     const QString TX_DETECTION_Q_VISUAL(tr("Did you see a"));
@@ -827,7 +833,8 @@ void CardinalExpDetThreshold::nextTrial()
     if (timeToStop()) {
         qDebug() << "Time to stop";
         savingWait();
-        setValue(FN_FINISHED, true);  // will also be set by thanks() -> finish()
+        setValue(FN_FINISHED, true);
+            // ... will also be set by thanks() -> finish()
         labelTrialsForAnalysis();
         calculateAndStoreFit();
         save();
@@ -857,18 +864,20 @@ void CardinalExpDetThreshold::startTrial()
             : m_current_trial_ignoring_catch_trials;
     CardinalExpDetThresholdTrialPtr tr(new CardinalExpDetThresholdTrial(
                                            pkvalueInt(),
-                                           m_current_trial,  // zero-based trial number
+                                           m_current_trial,
                                            trial_ignoring_catch_trials,
                                            present_target,
                                            m_app,
                                            m_db));
+        // m_current_trial: zero-based trial number
     m_trials.append(tr);
     qDebug() << tr->summary();
 
     // Display stimulus
     const bool auditory = isAuditory();
     if (present_target) {
-        // Now we've put the new trial in the vector, we can calculate intensity:
+        // Now we've put the new trial in the vector, we can calculate
+        // intensity:
         const qreal intensity = qBound(0.0, getIntensity(), 1.0);
         // ... intensity is in the range [0, 1]
         tr->setIntensity(intensity);

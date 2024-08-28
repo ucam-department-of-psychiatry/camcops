@@ -27,7 +27,8 @@ namespace soundfunc {
 
 extern const QString UNABLE_TO_CREATE_MEDIA_PLAYER;
 
-// Creates a media player that will be deleted later via QObject::deleteLater().
+// Creates a media player that will be deleted later via
+// QObject::deleteLater().
 void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player);
 
 // Ensure the media player is stopped. See code for rationale.

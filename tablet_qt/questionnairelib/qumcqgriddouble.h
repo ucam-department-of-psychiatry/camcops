@@ -31,23 +31,27 @@ class QuMcqGridDoubleSignaller;
 
 class QuMcqGridDouble : public QuElement
 {
-    // Offers a grid of pairs of multiple-choice questions, where several
-    // sets of questions share the same possible responses. For example:
-    //
-    //      TITLE
-    //      |
-    //      v
-    //      Survey       How much do you like it?    How expensive is it?   <-- STEMS
-    //                   Not at all ... Lots         Cheap ... Expensive    <-- OPTIONS (1, 2)
-    //      1. Banana        O       O   O             O    O      O
-    //      2. Diamond       O       O   O             O    O      O
-    //      3. ...
-    //
-    //      ^
-    //      |
-    //      QUESTIONS
-    //
-    // See QuMcqGrid for the basics.
+    /*
+        Offers a grid of pairs of multiple-choice questions, where several
+        sets of questions share the same possible responses. For example:
+
+        TITLE
+        |
+        v
+        Survey      How much do you like it?  How expensive is it? <-- STEMS
+                    Not at all ... Lots       Cheap ... Expensive  <-- OPTIONS
+        1. Banana        O       O   O           O    O      O
+        2. Diamond       O       O   O           O    O      O
+        3. ...
+
+        ^
+        |
+        QUESTIONS
+
+        There are two sets of options here, for the two stems.
+
+        See QuMcqGrid for the basics.
+    */
 
     Q_OBJECT
     friend class QuMcqGridDoubleSignaller;
@@ -108,7 +112,8 @@ protected slots:
                                       const FieldRef* fieldref);
 
 protected:
-    QVector<QuestionWithTwoFields> m_questions_with_fields;  // question/field mapping
+    QVector<QuestionWithTwoFields> m_questions_with_fields;
+        // ... question/field mapping
     NameValueOptions m_options1;  // options for stem 1
     NameValueOptions m_options2;  // options for stem 2
     int m_question_width;  // relative column width for question column

@@ -53,7 +53,8 @@ void initializeHonosca(TaskFactory& factory)
 
 
 Honosca::Honosca(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, HONOSCA_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, HONOSCA_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
     addField(PERIOD_RATED, QMetaType::fromType<QString>());

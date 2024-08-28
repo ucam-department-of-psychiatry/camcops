@@ -236,7 +236,8 @@ QString escapeString(const QString& string)
     const QByteArray arr = string.toLatin1();
     const int len = arr.length();
     QString result;
-    result.reserve(static_cast<int>(len * 1.1));  // as per QString::toHtmlEscaped
+    result.reserve(static_cast<int>(len * 1.1));
+        // ... as per QString::toHtmlEscaped
     result.append('"');  // opening quote
     for (int i = 0; i < len; ++i) {
         const char c = arr.at(i);

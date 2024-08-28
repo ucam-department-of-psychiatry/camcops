@@ -27,8 +27,9 @@
 namespace whiskertypes {
     void registerTypesForQVariant()
     {
-        // Types that need to be registered with qRegisterMetaType() but are not
-        // stored in QVariants, so don't need externally visible type names:
+        // Types that need to be registered with qRegisterMetaType() but are
+        // not stored in QVariants, so don't need externally visible type
+        // names:
         qRegisterMetaType<WhiskerConnectionState>("WhiskerConnectionState");
         qRegisterMetaType<WhiskerInboundMessage>("WhiskerInboundMessage");
         qRegisterMetaType<WhiskerOutboundCommand>("WhiskerOutboundCommand");

@@ -87,9 +87,12 @@ More detail on (4)/(5), with working thoughts
             const QColor TEST_COLOUR("purple");
 
             -> qcolor.h
-                inline QColor(const char *aname) : QColor(QLatin1String(aname)) {}
+                inline QColor(const char *aname) : QColor(QLatin1String(aname))
+                    {}
             -> qcolor.h
-                inline QColor::QColor(QLatin1String name) { setNamedColor(aname); }
+                inline QColor::QColor(QLatin1String name) {
+                    setNamedColor(aname);
+                }
             -> qcolor.cpp
                 void QColor::setNamedColor(const QString &name) {
                     setColorFromString(qToStringViewIgnoringNull(name));
@@ -104,7 +107,8 @@ More detail on (4)/(5), with working thoughts
             -> qcolor.cpp
                 static bool get_named_rgb(const char *name, int len, QRgb* rgb)
             -> qcolor.cpp
-                static bool get_named_rgb_no_space(const char *name_no_space, QRgb *rgb)
+                static bool get_named_rgb_no_space(const char *name_no_space,
+                    QRgb *rgb)
                 // reads rgbTbl
 
         qcolor.cpp:
@@ -120,10 +124,10 @@ More detail on (4)/(5), with working thoughts
     can be called, since they're in the same compilation unit. [INCORRECT]
 
     Possibly this is a Visual C++ bug; see
-    https://blogs.msdn.microsoft.com/vcblog/2016/03/31/visual-c-2015-update-2-bug-fixes/
+        https://blogs.msdn.microsoft.com/vcblog/2016/03/31/visual-c-2015-update-2-bug-fixes/
     and search for "init".
-    I'm using (2018-04-29) Visual C++ 19.00.23918, which is Update 2 of VS 2015.
-    Let's try Visual Studio Community 2017.
+    I'm using (2018-04-29) Visual C++ 19.00.23918, which is Update 2 of VS
+    2015. Let's try Visual Studio Community 2017.
 
         - install the "C++" (and "C++ for Linux") options
         - goes into C:\Program Files (x86)\Microsoft Visual Studio\2017
@@ -141,7 +145,8 @@ More detail on (4)/(5), with working thoughts
 
         You can also run
 
-            C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat amd64
+            C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\
+                Auxiliary\Build\vcvarsall.bat amd64
 
         or similar, and then when you run "cl.exe" it'll pick the right one.
         This gives Visual Studio 2017 Developer Command Prompt of 15.6.7 and a

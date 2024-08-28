@@ -38,7 +38,8 @@ const int N_QUESTIONS = 32;
 const int N_SCORED_QUESTIONS = 31;
 const int MISSING_VALUE = -99;
 const int MINIMUM_N_FOR_TOTAL_SCORE = 16;
-const QVector<int>REVERSE_SCORE{1, 4, 6, 8, 11, 32};  // questions scored backwards
+const QVector<int>REVERSE_SCORE{1, 4, 6, 8, 11, 32};
+    // ... questions scored backwards
 
 const QString QPREFIX("q");
 
@@ -53,7 +54,8 @@ void initializeDemqolProxy(TaskFactory& factory)
 
 DemqolProxy::DemqolProxy(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)  // ... anon, clin, resp
+    Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)
+        // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
 

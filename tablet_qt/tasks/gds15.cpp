@@ -50,9 +50,11 @@ void initializeGds15(TaskFactory& factory)
 
 
 Gds15::Gds15(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GDS15_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, GDS15_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());  // Y,N
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());
+        // ... Y,N
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }

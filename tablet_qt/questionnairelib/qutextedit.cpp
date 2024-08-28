@@ -114,7 +114,8 @@ QPointer<QWidget> QuTextEdit::makeWidget(Questionnaire* questionnaire)
         if (!read_only) {
             connect(m_plain_editor.data(), &GrowingPlainTextEdit::textChanged,
                     this, &QuTextEdit::widgetTextChanged);
-            // QPlainTextEdit::textChanged - Called *whenever* contents changed.
+            // QPlainTextEdit::textChanged - Called *whenever* contents
+            // changed.
             // https://doc.qt.io/qt-6.5/qplaintextedit.html#textChanged
 
             m_focus_watcher = new FocusWatcher(m_plain_editor.data());
@@ -174,7 +175,8 @@ void QuTextEdit::textChanged()
         text = m_rich_editor->toPlainText();
 #endif
     }
-    const bool changed = m_fieldref->setValue(text, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(text, this);
+        // ... Will trigger valueChanged.
     if (changed) {
         emit elementValueChanged();
     }

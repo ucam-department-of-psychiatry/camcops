@@ -59,7 +59,8 @@ Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CIWA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QMetaType::fromType<int>());
-    addField(T, QMetaType::fromType<double>());  // previously int, which was wrong (is temp in degrees C)
+    addField(T, QMetaType::fromType<double>());
+        // ... previously int, which was wrong (is temp in degrees C)
     addField(HR, QMetaType::fromType<int>());
     addField(SBP, QMetaType::fromType<int>());
     addField(DBP, QMetaType::fromType<int>());

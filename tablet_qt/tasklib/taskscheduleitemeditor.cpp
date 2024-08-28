@@ -71,7 +71,8 @@ void TaskScheduleItemEditor::editTask()
 
     Task* ptask = task.data();
 
-    MenuWindow::connectQuestionnaireToTask(widget, ptask);  // in case it's a questionnaire
+    MenuWindow::connectQuestionnaireToTask(widget, ptask);
+        // ... in case it's a questionnaire
     QObject::connect(ptask, &Task::editingFinished,
                      this, &TaskScheduleItemEditor::onTaskFinished);
 

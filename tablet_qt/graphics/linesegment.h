@@ -36,7 +36,8 @@ public:
     LineSegment(const QPointF& from, const QPointF& to);
 
     // Return c for given values of x and y; see [1] above
-    qreal c(qreal x, qreal y) const;  // 0 if point is on the line; otherwise, sign gives side
+    qreal c(qreal x, qreal y) const;
+    // ... 0 if point is on the line; otherwise, sign gives side
 
     // Return c for a point pt = (x, y); see [1] above
     qreal c(const QPointF& pt) const;

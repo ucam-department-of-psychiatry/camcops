@@ -22,7 +22,8 @@
 
 #define FULL_LOG_FORMAT  // Include time and thread ID.
 // #define DISABLE_ANDROID_NATIVE_DIALOGS  // For a bug fixed in Qt 5.2.1.
-// #define QT_OPENGL_IN_SOFTWARE  // Unnecessary once proper OpenGL detection added.
+// #define QT_OPENGL_IN_SOFTWARE
+    // ... Unnecessary once proper OpenGL detection added.
 // #define DEBUG_WITH_DIAGNOSTIC_STYLE
 
 
@@ -90,12 +91,14 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
 #ifdef DISABLE_ANDROID_NATIVE_DIALOGS
     // To fix a message box bug: https://bugreports.qt.io/browse/QTBUG-35313
     qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
-    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in qandroidplatformtheme.cpp
+    // ... read by QAndroidPlatformTheme::usePlatformNativeDialog in
+    //     qandroidplatformtheme.cpp
 #endif
 
 #ifdef QT_OPENGL_IN_SOFTWARE
     // To fix a crash when opening the camera system of
-    // "fatal: unknown(0): Failed to create OpenGL context for format QSurfaceFormat"
+    // "fatal: unknown(0): Failed to create OpenGL context for format
+    //      QSurfaceFormat"
     // ... see https://bugreports.qt.io/browse/QTBUG-47540
 
     // Set OpenGL to use software rendering:

@@ -41,7 +41,8 @@ public:
     QuCanvas(BlobFieldRefPtr fieldref,
              const QSize& size = QSize(100, 100),
              bool allow_shrink = true,  // see setAllowShrink()
-             QImage::Format format = QImage::Format_RGB32,  // internal image format
+             QImage::Format format = QImage::Format_RGB32,
+                // ... internal image format
              const QColor& background_colour = Qt::white,
              QObject* parent = nullptr);
 
@@ -127,7 +128,8 @@ protected:
 
     QPointer<CanvasWidget> m_canvas;  // our canvas
     QPointer<QLabel> m_missing_indicator;  // show "data is missing"
-    QPointer<Spacer> m_no_missing_indicator;  // equivalent space to m_missing_indicator
+    QPointer<Spacer> m_no_missing_indicator;
+        // ... equivalent space to m_missing_indicator
     QSharedPointer<QTimer> m_timer;  // timer for delayed write-to-field
     bool m_field_write_pending;  // is a field write pending?
 };

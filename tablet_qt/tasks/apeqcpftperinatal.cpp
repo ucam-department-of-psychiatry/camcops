@@ -59,7 +59,8 @@ void initializeAPEQCPFTPerinatal(TaskFactory& factory)
 
 APEQCPFTPerinatal::APEQCPFTPerinatal(CamcopsApp& app, DatabaseManager& db,
                                      const int load_pk) :
-    Task(app, db, APEQCPFTPERINATAL_TABLENAME, true, false, false) // ... anon, clin, resp
+    Task(app, db, APEQCPFTPERINATAL_TABLENAME, true, false, false)
+        // ... anon, clin, resp
 {
     for (const QString& field : strseq(FN_QPREFIX, FIRST_MAIN_Q, LAST_MAIN_Q)) {
         addField(field, QMetaType::fromType<int>());

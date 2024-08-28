@@ -72,7 +72,8 @@ void ChoosePatientMenu::makeItems()
             txtMergeTitle(),
             std::bind(&ChoosePatientMenu::mergePatients, this),
             "",  // icon
-            tr("Choose one patient, then select this option to merge with another")  // subtitle
+            tr("Choose one patient, then select this option to merge with another")
+                // ... subtitle
         ).setNotIfLocked(),
         MenuItem(tr("Patients")).setLabelOnly(),
     };

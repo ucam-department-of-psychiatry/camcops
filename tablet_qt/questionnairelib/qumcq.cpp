@@ -202,7 +202,8 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
-            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
+            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);
+                // ... different
             itemlayout->addStretch();
 
             mainlayout->addWidget(itemwidget);
@@ -243,7 +244,8 @@ void QuMcq::clicked(const int position)
         return;
     }
     const QVariant newvalue = m_options.valueFromPosition(position);
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+        // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }

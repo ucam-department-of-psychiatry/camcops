@@ -48,7 +48,8 @@ QValidator::State UrlValidator::validate(QString& input, int &) const
         return QValidator::Intermediate;
     }
 
-    // Port can be empty and then we just won't save it (443 will be the default)
+    // Port can be empty and then we just won't save it (443 will be the
+    // default)
 
     // Path can be empty too
 

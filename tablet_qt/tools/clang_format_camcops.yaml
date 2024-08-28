@@ -27,7 +27,7 @@ BasedOnStyle: WebKit
 # - There are 7 core styles: Chromium, Default (= LLVM), Google, LLVM,
 #   Microsoft, Mozilla, WebKit.
 # - To see the defaults for this style:
-#       clang-format-14 -style=webkit -dump-config > clang_format_webkit.txt
+#       clang-format-15 -style=webkit -dump-config > clang_format_webkit.txt
 #   ... as below.
 # - To explore interactively:
 #       https://clang-format-configurator.site/
@@ -62,6 +62,8 @@ BreakBeforeBraces: Custom
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 ColumnLimit: 79  # as for Python
+# ContinuationIndentWidth: default is 4; this extra-indents e.g. "if (...)"
+#   conditions, but also a whole bunch of other things, reducing readability.
 Cpp11BracedListStyle: true
 EmptyLineBeforeAccessModifier: Always
 IncludeBlocks: Regroup
@@ -78,10 +80,17 @@ IncludeCategories:
 IndentCaseLabels: true
 IndentPPDirectives: BeforeHash
 IndentWrappedFunctionNames: true
-# InsertBraces: true  # requires clang-format-15
+InsertBraces: true  # requires clang-format-15
 MaxEmptyLinesToKeep: 2
 PackConstructorInitializers: Never
+PenaltyBreakComment: 1
+# ... default is 300; something like 0 or similar is desirable visually, but
+#     at present (clang-format-15), this can split comments including URLs by
+#     removing a necessary "//"; see e.g. cisr.cpp -- thus, left at present
+PenaltyBreakOpenParenthesis: 5  # default is 0
 ReflowComments: false
+# ... default is false; see PenaltyBreakComment, PenaltyBreakOpenParenthesis,
+#     https://stackoverflow.com/questions/44731978/
 SeparateDefinitionBlocks: Always  # includes functions defined in class headers
 SortIncludes: CaseInsensitive
 SpaceAfterTemplateKeyword: false
@@ -96,6 +105,12 @@ SpacesInContainerLiterals: false
 #   can control this with ReflowComments and PenaltyBreakComment.
 
 ...
+
+# Three dots end a YAML document.
+
+# -----------------------------------------------------------------------------
+# Defaults for clang-format-14 (now superseded)
+# -----------------------------------------------------------------------------
 
 #clang-format-14 -style=webkit -dump-config
 #---
@@ -256,6 +271,226 @@ SpacesInContainerLiterals: false
 #  AfterFunctionDeclarationName: false
 #  AfterIfMacros:   true
 #  AfterOverloadedOperator: false
+#  BeforeNonEmptyParentheses: false
+#SpaceAroundPointerQualifiers: Default
+#SpaceBeforeRangeBasedForLoopColon: true
+#SpaceInEmptyBlock: true
+#SpaceInEmptyParentheses: false
+#SpacesBeforeTrailingComments: 1
+#SpacesInAngles:  Never
+#SpacesInConditionalStatement: false
+#SpacesInContainerLiterals: true
+#SpacesInCStyleCastParentheses: false
+#SpacesInLineCommentPrefix:
+#  Minimum:         1
+#  Maximum:         -1
+#SpacesInParentheses: false
+#SpacesInSquareBrackets: false
+#SpaceBeforeSquareBrackets: false
+#BitFieldColonSpacing: Both
+#Standard:        Latest
+#StatementAttributeLikeMacros:
+#  - Q_EMIT
+#StatementMacros:
+#  - Q_UNUSED
+#  - QT_REQUIRE_VERSION
+#TabWidth:        8
+#UseCRLF:         false
+#UseTab:          Never
+#WhitespaceSensitiveMacros:
+#  - STRINGIZE
+#  - PP_STRINGIZE
+#  - BOOST_PP_STRINGIZE
+#  - NS_SWIFT_NAME
+#  - CF_SWIFT_NAME
+#...
+
+# -----------------------------------------------------------------------------
+# Defaults for clang-format-15
+# -----------------------------------------------------------------------------
+
+#---
+#Language:        Cpp
+## BasedOnStyle:  WebKit
+#AccessModifierOffset: -4
+#AlignAfterOpenBracket: DontAlign
+#AlignArrayOfStructures: None
+#AlignConsecutiveAssignments:
+#  Enabled:         false
+#  AcrossEmptyLines: false
+#  AcrossComments:  false
+#  AlignCompound:   false
+#  PadOperators:    true
+#AlignConsecutiveBitFields:
+#  Enabled:         false
+#  AcrossEmptyLines: false
+#  AcrossComments:  false
+#  AlignCompound:   false
+#  PadOperators:    false
+#AlignConsecutiveDeclarations:
+#  Enabled:         false
+#  AcrossEmptyLines: false
+#  AcrossComments:  false
+#  AlignCompound:   false
+#  PadOperators:    false
+#AlignConsecutiveMacros:
+#  Enabled:         false
+#  AcrossEmptyLines: false
+#  AcrossComments:  false
+#  AlignCompound:   false
+#  PadOperators:    false
+#AlignEscapedNewlines: Right
+#AlignOperands:   DontAlign
+#AlignTrailingComments: false
+#AllowAllArgumentsOnNextLine: true
+#AllowAllParametersOfDeclarationOnNextLine: true
+#AllowShortEnumsOnASingleLine: true
+#AllowShortBlocksOnASingleLine: Empty
+#AllowShortCaseLabelsOnASingleLine: false
+#AllowShortFunctionsOnASingleLine: All
+#AllowShortLambdasOnASingleLine: All
+#AllowShortIfStatementsOnASingleLine: Never
+#AllowShortLoopsOnASingleLine: false
+#AlwaysBreakAfterDefinitionReturnType: None
+#AlwaysBreakAfterReturnType: None
+#AlwaysBreakBeforeMultilineStrings: false
+#AlwaysBreakTemplateDeclarations: MultiLine
+#AttributeMacros:
+#  - __capability
+#BinPackArguments: true
+#BinPackParameters: true
+#BraceWrapping:
+#  AfterCaseLabel:  false
+#  AfterClass:      false
+#  AfterControlStatement: Never
+#  AfterEnum:       false
+#  AfterFunction:   true
+#  AfterNamespace:  false
+#  AfterObjCDeclaration: false
+#  AfterStruct:     false
+#  AfterUnion:      false
+#  AfterExternBlock: false
+#  BeforeCatch:     false
+#  BeforeElse:      false
+#  BeforeLambdaBody: false
+#  BeforeWhile:     false
+#  IndentBraces:    false
+#  SplitEmptyFunction: true
+#  SplitEmptyRecord: true
+#  SplitEmptyNamespace: true
+#BreakBeforeBinaryOperators: All
+#BreakBeforeConceptDeclarations: Always
+#BreakBeforeBraces: WebKit
+#BreakBeforeInheritanceComma: false
+#BreakInheritanceList: BeforeColon
+#BreakBeforeTernaryOperators: true
+#BreakConstructorInitializersBeforeComma: false
+#BreakConstructorInitializers: BeforeComma
+#BreakAfterJavaFieldAnnotations: false
+#BreakStringLiterals: true
+#ColumnLimit:     0
+#CommentPragmas:  '^ IWYU pragma:'
+#QualifierAlignment: Leave
+#CompactNamespaces: false
+#ConstructorInitializerIndentWidth: 4
+#ContinuationIndentWidth: 4
+#Cpp11BracedListStyle: false
+#DeriveLineEnding: true
+#DerivePointerAlignment: false
+#DisableFormat:   false
+#EmptyLineAfterAccessModifier: Never
+#EmptyLineBeforeAccessModifier: LogicalBlock
+#ExperimentalAutoDetectBinPacking: false
+#PackConstructorInitializers: BinPack
+#BasedOnStyle:    ''
+#ConstructorInitializerAllOnOneLineOrOnePerLine: false
+#AllowAllConstructorInitializersOnNextLine: true
+#FixNamespaceComments: false
+#ForEachMacros:
+#  - foreach
+#  - Q_FOREACH
+#  - BOOST_FOREACH
+#IfMacros:
+#  - KJ_IF_MAYBE
+#IncludeBlocks:   Preserve
+#IncludeCategories:
+#  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+#    Priority:        2
+#    SortPriority:    0
+#    CaseSensitive:   false
+#  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+#    Priority:        3
+#    SortPriority:    0
+#    CaseSensitive:   false
+#  - Regex:           '.*'
+#    Priority:        1
+#    SortPriority:    0
+#    CaseSensitive:   false
+#IncludeIsMainRegex: '(Test)?$'
+#IncludeIsMainSourceRegex: ''
+#IndentAccessModifiers: false
+#IndentCaseLabels: false
+#IndentCaseBlocks: false
+#IndentGotoLabels: true
+#IndentPPDirectives: None
+#IndentExternBlock: AfterExternBlock
+#IndentRequiresClause: true
+#IndentWidth:     4
+#IndentWrappedFunctionNames: false
+#InsertBraces:    false
+#InsertTrailingCommas: None
+#JavaScriptQuotes: Leave
+#JavaScriptWrapImports: true
+#KeepEmptyLinesAtTheStartOfBlocks: true
+#LambdaBodyIndentation: Signature
+#MacroBlockBegin: ''
+#MacroBlockEnd:   ''
+#MaxEmptyLinesToKeep: 1
+#NamespaceIndentation: Inner
+#ObjCBinPackProtocolList: Auto
+#ObjCBlockIndentWidth: 4
+#ObjCBreakBeforeNestedBlockParam: true
+#ObjCSpaceAfterProperty: true
+#ObjCSpaceBeforeProtocolList: true
+#PenaltyBreakAssignment: 2
+#PenaltyBreakBeforeFirstCallParameter: 19
+#PenaltyBreakComment: 300
+#PenaltyBreakFirstLessLess: 120
+#PenaltyBreakOpenParenthesis: 0
+#PenaltyBreakString: 1000
+#PenaltyBreakTemplateDeclaration: 10
+#PenaltyExcessCharacter: 1000000
+#PenaltyReturnTypeOnItsOwnLine: 60
+#PenaltyIndentedWhitespace: 0
+#PointerAlignment: Left
+#PPIndentWidth:   -1
+#ReferenceAlignment: Pointer
+#ReflowComments:  true
+#RemoveBracesLLVM: false
+#RequiresClausePosition: OwnLine
+#SeparateDefinitionBlocks: Leave
+#ShortNamespaceLines: 1
+#SortIncludes:    CaseSensitive
+#SortJavaStaticImport: Before
+#SortUsingDeclarations: true
+#SpaceAfterCStyleCast: false
+#SpaceAfterLogicalNot: false
+#SpaceAfterTemplateKeyword: true
+#SpaceBeforeAssignmentOperators: true
+#SpaceBeforeCaseColon: false
+#SpaceBeforeCpp11BracedList: true
+#SpaceBeforeCtorInitializerColon: true
+#SpaceBeforeInheritanceColon: true
+#SpaceBeforeParens: ControlStatements
+#SpaceBeforeParensOptions:
+#  AfterControlStatements: true
+#  AfterForeachMacros: true
+#  AfterFunctionDefinitionName: false
+#  AfterFunctionDeclarationName: false
+#  AfterIfMacros:   true
+#  AfterOverloadedOperator: false
+#  AfterRequiresInClause: false
+#  AfterRequiresInExpression: false
 #  BeforeNonEmptyParentheses: false
 #SpaceAroundPointerQualifiers: Default
 #SpaceBeforeRangeBasedForLoopColon: true

@@ -36,7 +36,8 @@ const int N_QUESTIONS = 25;
 const int MAX_PER_QUESTION = 5;  // each question scored 0-5
 const int MAX_QUESTION_SCORE = N_QUESTIONS * MAX_PER_QUESTION;
 const QString QPREFIX("q");
-const QVector<int> SCORED_A0N5_Q{1, 4, 8, 9, 11, 16, 22, 25};  // rest scored A5N0
+const QVector<int> SCORED_A0N5_Q{1, 4, 8, 9, 11, 16, 22, 25};
+    // ... rest scored A5N0
 
 const QString Pbq::PBQ_TABLENAME("pbq");
 

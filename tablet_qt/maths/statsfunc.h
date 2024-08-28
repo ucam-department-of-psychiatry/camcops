@@ -253,7 +253,7 @@ double poissonAIC(const Eigen::ArrayXd& y,
 // Solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares
 // sense).
 Eigen::VectorXd svdSolve(const Eigen::MatrixXd& A,
-                         const Eigen::VectorXd& b);  // solves Ax = b [or b = Ax + e], for x, minimizing e
+                         const Eigen::VectorXd& b);
 
 
 // ============================================================================

@@ -144,9 +144,11 @@ void initializePsychiatricClerking(TaskFactory& factory)
 
 PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
                                          const int load_pk) :
-    Task(app, db, PSYCLERK_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, PSYCLERK_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
-    // In the Javascript version, EXTRAFIELDS_A was the set of clinician fields.
+    // In the Javascript version, EXTRAFIELDS_A was the set of clinician
+    // fields.
     addFields(EXTRAFIELDS_B, QMetaType::fromType<QString>());
     addFields(EXTRAFIELDS_C, QMetaType::fromType<QString>());
     addFields(EXTRAFIELDS_MSE, QMetaType::fromType<QString>());

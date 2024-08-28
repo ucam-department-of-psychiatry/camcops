@@ -83,7 +83,8 @@ void initializeElixhauserCI(TaskFactory& factory)
 
 
 ElixhauserCI::ElixhauserCI(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ELIXHAUSERCI_TABLENAME, false, true, false),  // ... anon, clin, resp
+    Task(app, db, ELIXHAUSERCI_TABLENAME, false, true, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     for (const QString& fieldname : FIELDNAMES) {

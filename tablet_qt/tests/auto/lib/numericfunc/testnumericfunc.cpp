@@ -147,8 +147,8 @@ void TestNumericFunc::testIsValidStartToDoubleFalseWhenAbovePositiveRange()
 
 void TestNumericFunc::testIsValidStartToDoubleFalseWhenAboveNegativeRangeEvenWhenExtended()
 {
-    // Invalid because appending nines to number up to the length of bottom will
-    // not make it less than or equal to top.
+    // Invalid because appending nines to number up to the length of bottom
+    // will not make it less than or equal to top.
     const double number = -1.1;
     const double bottom = -5.1234;
     const double top = -2;

@@ -42,7 +42,8 @@ void initializeProgressNote(TaskFactory& factory)
 
 ProgressNote::ProgressNote(CamcopsApp& app, DatabaseManager& db,
                            const int load_pk) :
-    Task(app, db, PROGNOTE_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, PROGNOTE_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addField(LOCATION, QMetaType::fromType<QString>());
     addField(NOTE, QMetaType::fromType<QString>());

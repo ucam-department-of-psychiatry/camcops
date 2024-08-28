@@ -76,7 +76,8 @@ void GraphicsRectItemClickable::setClickedAppearance(const QPen& pen,
 }
 
 
-void GraphicsRectItemClickable::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void GraphicsRectItemClickable::mousePressEvent(
+    QGraphicsSceneMouseEvent* event)
 {
     Q_UNUSED(event)
     m_pressed = true;
@@ -98,7 +99,8 @@ void GraphicsRectItemClickable::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 }
 
 
-void GraphicsRectItemClickable::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void GraphicsRectItemClickable::mouseReleaseEvent(
+    QGraphicsSceneMouseEvent* event)
 {
     m_pressed = false;
     if (rect().contains(event->pos())) {

@@ -43,7 +43,8 @@ KhandakerMojoChain::KhandakerMojoChain(CamcopsApp& app) :
             Sfmpq2::SFMPQ2_TABLENAME,
             // Sequence as per Joel Parkinson to Rudolf Cardinal, 2019-10-22.
         },
-        TaskChain::CreationMethod::OnDemandOrAbort  // as per JP 2019-10-22; also the default.
+        TaskChain::CreationMethod::OnDemandOrAbort
+            // ... as per JP 2019-10-22; also the default.
     )
 {
 }

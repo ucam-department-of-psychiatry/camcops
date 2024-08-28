@@ -68,7 +68,8 @@ void initializeCape42(TaskFactory& factory)
 
 
 Cape42::Cape42(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CAPE42_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, CAPE42_TABLENAME, false, false, false),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
@@ -253,7 +254,8 @@ int Cape42::frequencyScore(const QVector<int>& questions) const
     int score = 0;
     for (auto q : questions) {
         score += qMax(MIN_SCORE_PER_Q,
-                      valueInt(strnum(FN_FREQ_PREFIX, q)));  // will be 0 if null
+                      valueInt(strnum(FN_FREQ_PREFIX, q)));
+        // valueInt(...) will be 0 if null
     }
     return score;
 }

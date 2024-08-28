@@ -67,7 +67,8 @@ signals:
     // "We are now fully connected."
     void onFullyConnected();
 
-    // "Message received on main socket." (Will be connected to WhiskerManager.)
+    // "Message received on main socket."
+    // (Will be connected to WhiskerManager.)
     void receivedFromServerMainSocket(const WhiskerInboundMessage& msg);
 
     // "A socket error has occurred."
@@ -83,7 +84,8 @@ public slots:
     void disconnectFromServer();
 
     // "Send this message to the server." (See WhiskerOutboundCommand.)
-    void sendToServer(const WhiskerOutboundCommand& cmd);  // from WhiskerManager
+    void sendToServer(const WhiskerOutboundCommand& cmd);
+    // ... from WhiskerManager
 
 protected slots:
     // "The main socket is connected."
@@ -139,7 +141,8 @@ protected:
     QTcpSocket* m_immediate_socket;  // immediate socket
     WhiskerConnectionState m_connection_state;  // overall connection status
     QString m_inbound_buffer_main;  // inbound message buffer for main socket
-    QString m_inbound_buffer_imm;  // inbound message buffer for immediate socket
+    QString m_inbound_buffer_imm;
+        // ... inbound message buffer for immediate socket
     QVector<WhiskerOutboundCommand> m_imm_commands_awaiting_reply;
         // ... outbound commands waiting to be matched to a reply
     QVector<WhiskerInboundMessage> m_imm_replies_awaiting_collection;

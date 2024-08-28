@@ -87,20 +87,21 @@ QPointer<QWidget> QuMeasurement::makeWidget(Questionnaire* questionnaire)
 
     if (m_unit_selector) {
         // Internal plumbing:
-        // - We want imperial units to update when metric values are changed, and
-        //   vice versa.
+        // - We want imperial units to update when metric values are changed,
+        //   and vice versa.
         // - We can't set up an infinite loop, though, e.g.
         //      metres.valueChanged() -> feet.valueChanged()
         //      feet.valueChanged() -> metres.valueChanged()
-        // - The other obvious way is to hold onto a member copy of the fieldrefs,
-        //   and manually cause them to emit valueChanged() at approriate times.
+        // - The other obvious way is to hold onto a member copy of the
+        //   fieldrefs, and manually cause them to emit valueChanged() at
+        //   approriate times.
         //
         // BEWARE the consequences of floating-point error, e.g.
         // - 7 st 12 lb 0 oz -> 49.8951 kg
         // - 49.8951 kg -> 7 st 11 lb 0.999779 oz
         // ... the potential change in OTHER units means that all parts must be
-        // updated, OR, a little more elegantly, internal records of the imperial
-        // units kept.
+        // updated, OR, a little more elegantly, internal records of the
+        // imperial units kept.
         connect(m_unit_selector, &QuUnitSelector::unitsChanged,
                 this, &QuMeasurement::unitsChanged);
         unitsChanged(m_unit_selector->getUnits().toInt());

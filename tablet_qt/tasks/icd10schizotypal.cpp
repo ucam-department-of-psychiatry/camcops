@@ -58,7 +58,8 @@ void initializeIcd10Schizotypal(TaskFactory& factory)
 
 Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
                                    const int load_pk) :
-    Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)
+        // ... anon, clin, resp
 {
     addFields(strseq(A_PREFIX, 1, N_A), QMetaType::fromType<bool>());
     addField(B, QMetaType::fromType<bool>());

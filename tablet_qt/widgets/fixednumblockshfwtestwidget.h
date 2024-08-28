@@ -32,7 +32,8 @@ class FixedNumBlocksHfwTestWidget : public QWidget
 public:
     FixedNumBlocksHfwTestWidget(
             int num_blocks = 20,
-            const QSize& block_size = QSize(20, 30),  // unequal is more complex
+            const QSize& block_size = QSize(20, 30),
+            // ... unequal is more complex
             qreal preferred_aspect_ratio = 1.6,  // golden ratio
             const QColor& block_colour = QColor(100, 100, 100),
             const QColor& background_colour = QColor(0, 0, 100),

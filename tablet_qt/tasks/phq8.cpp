@@ -50,7 +50,8 @@ void initializePhq8(TaskFactory& factory)
 
 Phq8::Phq8(CamcopsApp& app, DatabaseManager& db, const int load_pk,
            QObject* parent) :
-    Task(app, db, PHQ8_TABLENAME, false, false, false, parent),  // ... anon, clin, resp
+    Task(app, db, PHQ8_TABLENAME, false, false, false, parent),
+        // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());

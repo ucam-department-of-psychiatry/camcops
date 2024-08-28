@@ -25,7 +25,8 @@
 class StrictDoubleValidator : public QDoubleValidator
 {
     // - Validates a double (floating-point) being typed in.
-    // - Checks the characters against the specified bottom/top (min/max) values.
+    // - Checks the characters against the specified bottom/top (min/max)
+    //   values.
     // - The default maximum number of decimal places, 1000, matches
     //   QDoubleValidator; see
     //   https://doc.qt.io/qt-6.5/qdoublevalidator.html#decimals-prop

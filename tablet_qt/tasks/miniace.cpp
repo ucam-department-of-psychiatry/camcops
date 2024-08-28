@@ -109,8 +109,10 @@ MiniAce::MiniAce(CamcopsApp& app, DatabaseManager& db, const int load_pk,
 
     addFields(strseq(FP_MEM_RECALL_ADDRESS, 1, N_MEM_REPEAT_RECALL_ADDR), QMetaType::fromType<int>());
 
-    addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
-    addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(FN_PICTURE1_BLOBID, QMetaType::fromType<int>());
+        // ... FK to BLOB table
+    addField(FN_PICTURE2_BLOBID, QMetaType::fromType<int>());
+        // ... FK to BLOB table
     addField(FN_COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.

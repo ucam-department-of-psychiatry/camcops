@@ -107,7 +107,8 @@ const int TOTAL_N_TRIALS = TRIALS.size();  // 27
 // ============================================================================
 
 Kirby::Kirby(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, KIRBY_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, KIRBY_TABLENAME, false, false, false)
+        // ... anon, clin, resp
 {
     // No fields beyond the basics.
 

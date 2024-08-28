@@ -35,28 +35,41 @@ public:
             RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::Error);
 
     // Fit
+    // - X: predictors, EXCLUDING intercept;
+    //      dimensions: n_observations x (n_predictors - 1)
+    // - y: depvar; n_observations x 1
     void fitAddingIntercept(
-            const Eigen::MatrixXd& X,  // predictors, EXCLUDING intercept; n_observations x (n_predictors - 1)
-            const Eigen::VectorXi& y);  // depvar; n_observations x 1
+            const Eigen::MatrixXd& X,
+            const Eigen::VectorXi& y);
+
+    // Fit
+    // - X: predictors, INCLUDING intercept; n_observations x n_predictors
+    // - y: depvar; n_observations x 1
     void fitDirectly(
-            const Eigen::MatrixXd& X,  // predictors, INCLUDING intercept; n_observations x n_predictors
-            const Eigen::VectorXi& y);  // depvar; n_observations x 1
+            const Eigen::MatrixXd& X,
+            const Eigen::VectorXi& y);
 
     // Predict probabilities:
+    // - With original predictors:
     Eigen::VectorXd predictProb() const;  // synonym for predict()
+    // - With new predictors:
     Eigen::VectorXd predictProb(const Eigen::MatrixXd& X,
-                                bool add_intercept = true) const;  // with new predictors
+                                bool add_intercept = true) const;
 
     // Predict binary outcomes:
-    Eigen::VectorXi predictBinary(double threshold = 0.5) const;  // with original predictors
+    // - With original predictors:
+    Eigen::VectorXi predictBinary(double threshold = 0.5) const;
+    // - With new predictors:
     Eigen::VectorXi predictBinary(const Eigen::MatrixXd& X,
                                   double threshold = 0.5,
-                                  bool add_intercept = true) const;  // with new predictors
+                                  bool add_intercept = true) const;
 
     // Predict logit:
+    // - With original predictors:
     Eigen::VectorXd predictLogit() const;  // synonym for predictEta()
+    // - With new predictors:
     Eigen::VectorXd predictLogit(const Eigen::MatrixXd& X,
-                                 bool add_intercept = true) const;  // with new predictors
+                                 bool add_intercept = true) const;
 
 protected:
     // Convert probabilities to binary using a threshold:

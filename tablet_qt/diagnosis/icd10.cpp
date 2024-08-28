@@ -42,7 +42,8 @@ Icd10::Icd10(CamcopsApp& app, QObject* parent,
     DiagnosticCodeSet(app, XSTRING_TASKNAME, "ICD-10",
                       parent, dummy_creation_no_xstrings)
 {
-    m_creation_stack.push(DepthItemPair(0, nullptr));  // root: depth 0, no parent
+    m_creation_stack.push(DepthItemPair(0, nullptr));
+    // root: depth 0, no parent
     addIcd10Codes(BASE_CODES);
 }
 
@@ -208,7 +209,8 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
     {".241", "substance_241"},
     {".242", "substance_242"},
     {".25", "substance_25"},
-    {".26", "substance_26"},  // FOR ALCOHOL: APPEND substance_26_alcohol_suffix
+    {".26", "substance_26"},
+        // ... FOR ALCOHOL: APPEND substance_26_alcohol_suffix
     {".3", "substance_3"},
     {".30", "substance_30"},
     {".31", "substance_31"},

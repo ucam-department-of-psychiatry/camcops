@@ -49,10 +49,15 @@ namespace sizehelpers {
 
 QSizePolicy: https://doc.qt.io/qt-6.5/qsizepolicy.html
 
-    QSizePolicy::GrowFlag	1	The widget can grow beyond its size hint if necessary.
-    QSizePolicy::ExpandFlag	2	The widget should get as much space as possible.
-    QSizePolicy::ShrinkFlag	4	The widget can shrink below its size hint if necessary.
-    QSizePolicy::IgnoreFlag	8	The widget's size hint is ignored. The widget will get as much space as possible.
+    QSizePolicy::GrowFlag	1
+        The widget can grow beyond its size hint if necessary.
+    QSizePolicy::ExpandFlag	2
+        The widget should get as much space as possible.
+    QSizePolicy::ShrinkFlag	4
+        The widget can shrink below its size hint if necessary.
+    QSizePolicy::IgnoreFlag	8
+        The widget's size hint is ignored. The widget will get as much space as
+        possible.
 
 So...
 

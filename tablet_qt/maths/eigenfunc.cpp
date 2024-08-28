@@ -231,7 +231,8 @@ Eigen::MatrixXd chol(const Eigen::MatrixXd& x, const bool pivot)
     // - https://stats.stackexchange.com/questions/117661/why-use-upper-triangular-cholesky
     // - https://eigen.tuxfamily.org/dox/group__Cholesky__Module.html
     if (pivot) {
-        // Eigen's LDLT: "Robust Cholesky decomposition of a matrix with pivoting"
+        // Eigen's LDLT: "Robust Cholesky decomposition of a matrix with
+        // pivoting"
         LDLT<MatrixXd> c(x);
         return c.matrixU();  // upper triangular
     }

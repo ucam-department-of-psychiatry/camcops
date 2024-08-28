@@ -593,7 +593,8 @@ static void distributeMultiBox(QVector<QQLayoutStruct>& chain,
             }
             pos = next_pos;
         }
-    } else if (w < min_size) {  // [RNC] minimum is less than required, but maximum is OK?
+    } else if (w < min_size) {
+        // [RNC] minimum is less than required, but maximum is OK?
         qGeomCalc(chain, start, end - start + 1, 0, min_size);
         for (i = start; i <= end; i++) {
             QQLayoutStruct* data = &chain[i];
@@ -603,7 +604,8 @@ static void distributeMultiBox(QVector<QQLayoutStruct>& chain,
         }
     }
 
-    // [RNC] we now know that maximum_size is OK, but redistribute to get closer to hints?
+    // [RNC] we now know that maximum_size is OK, but redistribute to get
+    // closer to hints?
     if (wh < size_hint) {
         qGeomCalc(chain, start, end - start + 1, 0, size_hint);
         for (i = start; i <= end; i++) {
@@ -711,7 +713,8 @@ void GridLayoutHfw::setupSpacings(QVector<QLayoutStruct>& chain,
 void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
 {
     QVector<QLayoutStruct>& rdata = gi.m_hfw_data;
-    QLayoutStruct& ls = rdata[box->row];  // May have been influenced by OTHER items already
+    QLayoutStruct& ls = rdata[box->row];
+        // ... May have been influenced by OTHER items already
 
     // We are setting properties for the QLayoutStruct, which represents an
     // entire row.
@@ -753,7 +756,8 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
         //  -> QLayoutItem::minimumSize() [pure virtual]
         //  -> [generally] QWidgetItemV2::minimumSize()
         //  -> QWidgetItem::minimumSize()
-        //  -> QSize qSmartMinSize(const QWidget *w) [from qlayoutengine_p.h / qlayoutengine.cpp]
+        //  -> QSize qSmartMinSize(const QWidget *w)
+        //          [from qlayoutengine_p.h / qlayoutengine.cpp]
         //  -> picks up QWidget::minimumSizeHint(), as well as sizeHint(),
         //     minimumSize(), maximumSize(), sizePolicy()
         //  -> QSize qSmartMinSize(...)
@@ -848,8 +852,10 @@ void GridLayoutHfw::distribute(const QRect& layout_rect)
 
         int x = gi.m_col_data.at(c1).pos;
         int y = rowdata.at(r1).pos;
-        const int x2p = gi.m_col_data.at(c2).pos + gi.m_col_data.at(c2).size; // x2+1
-        const int y2p = rowdata.at(r2).pos + rowdata.at(r2).size;    // y2+1
+        const int x2p = gi.m_col_data.at(c2).pos + gi.m_col_data.at(c2).size;
+            // ... x2+1
+        const int y2p = rowdata.at(r2).pos + rowdata.at(r2).size;
+            // ... y2+1
         const int w = x2p - x;
         const int h = y2p - y;
 
@@ -1147,7 +1153,8 @@ QLayoutItem* GridLayoutHfw::takeAt(int index)
         if (QQGridBox* b = m_things.takeAt(index)) {
             QLayoutItem* item = b->takeItem();
             if (QLayout* l = item->layout()) {
-                // sanity check in case the user passed something weird to QObject::setParent()
+                // sanity check in case the user passed something weird to
+                // QObject::setParent()
                 if (l->parent() == this) {
                     l->setParent(nullptr);
                 }
@@ -1250,7 +1257,8 @@ void GridLayoutHfw::setGeometry(const QRect& rect)
     }
     const int parent_new_height = getParentTargetHeight(parent, parent_margins, gi);
     if (parent_new_height != -1) {
-        r.setHeight(parent_new_height - parent_margins.totalHeight());  // change
+        r.setHeight(parent_new_height - parent_margins.totalHeight());
+            // ... change
     }
 #endif
 
@@ -1278,7 +1286,8 @@ void GridLayoutHfw::setGeometry(const QRect& rect)
                     << "to"
                     << parent_new_height;
 #endif
-            parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
+            parent->setFixedHeight(parent_new_height);
+            // ... RISK OF INFINITE RECURSION
             // ... hence the ReentryDepthGuard
             parent->updateGeometry();
         }
@@ -1851,8 +1860,10 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 
     // From calcHfw (but then altered):
     if (gi.m_has_hfw) {
-        gi.m_hfw_height = gi.m_size_hint.height();  // already incorporates extra
-        gi.m_hfw_min_height = gi.m_min_size.height();  // already incorporates extra
+        gi.m_hfw_height = gi.m_size_hint.height();
+            // ... already incorporates extra
+        gi.m_hfw_min_height = gi.m_min_size.height();
+            // ... already incorporates extra
     } else {
         gi.m_hfw_height = -1;
         gi.m_hfw_min_height = -1;
