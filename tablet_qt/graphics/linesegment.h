@@ -23,7 +23,6 @@
 #include <QRectF>
 #include <QTransform>
 
-
 // Represents a line segment: a line from one piont to another.
 //
 // Its equation is
@@ -31,7 +30,8 @@
 //
 // http://stackoverflow.com/questions/385305/efficient-maths-algorithm-to-calculate-intersections
 
-class LineSegment {
+class LineSegment
+{
 public:
     LineSegment(const QPointF& from, const QPointF& to);
 

@@ -51,6 +51,7 @@ Qt is now built with FFmpeg for all platforms except iOS.
 #include <QMediaCaptureSession>
 #include <QPointer>
 #include <QSet>
+
 #include "widgets/openablewidget.h"
 class QAbstractButton;
 class QCameraDevice;
@@ -61,13 +62,13 @@ class QStatusBar;
 class QVideoFrame;
 class QVideoWidget;
 
-
 class CameraQCamera : public OpenableWidget
 {
     // Widget to take a photo.
     // DEPRECATED at present in favour of QML version; see CameraQml.
 
     Q_OBJECT
+
 public:
     // ========================================================================
     // Constructor/destructor
@@ -77,8 +78,11 @@ public:
     CameraQCamera(const QString& stylesheet, QWidget* parent = nullptr);
 
     // Construct with QCameraDevice and stylesheet.
-    CameraQCamera(const QCameraDevice& camera_device, const QString& stylesheet,
-           QWidget* parent = nullptr);
+    CameraQCamera(
+        const QCameraDevice& camera_device,
+        const QString& stylesheet,
+        QWidget* parent = nullptr
+    );
 
     // Destructor.
     ~CameraQCamera();
@@ -104,8 +108,8 @@ signals:
     // ========================================================================
     // Internals
     // ========================================================================
-protected:
 
+protected:
     // Update the display state for the buttons ("take", "lock", "cancel").
     void updateButtons();
 
@@ -138,8 +142,9 @@ protected slots:
     void imageSaved(int id, const QString& filename);
 
     // "Display an error that occurred during the image capture process."
-    void displayCaptureError(int id, QImageCapture::Error error,
-                             const QString& error_string);
+    void displayCaptureError(
+        int id, QImageCapture::Error error, const QString& error_string
+    );
 
 protected:
     QSharedPointer<QCamera> m_camera;  // our camera

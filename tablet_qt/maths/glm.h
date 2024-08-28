@@ -22,6 +22,7 @@
 
 #include <QDateTime>
 #include <QStringList>
+
 #include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 #include "maths/linkfunctionfamily.h"
 
@@ -33,6 +34,7 @@ const int GLM_DEFAULT_MAX_ITERATIONS = 25;
 // when the GLM does not converge. See the logistic regression test menu.
 
 const double GLM_DEFAULT_TOLERANCE = 1e-8;
+
 // As per both:
 // - https://bwlewis.github.io/GLM/
 // - R: ?glm.control
@@ -43,7 +45,6 @@ class Glm
     // Generalized linear model (GLM), using Eigen
 
 public:
-
     // How to solve
     enum class SolveMethod {
         IRLS_KaneLewis,
@@ -63,7 +64,8 @@ public:
         SolveMethod solve_method = SolveMethod::IRLS_R_glmfit,
         int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
         double tolerance = GLM_DEFAULT_TOLERANCE,
-        RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
+        RankDeficiencyMethod rank_deficiency_method
+        = RankDeficiencyMethod::SelectColumns);
 
     // Construct and quick fit (without weights option):
     // - predictors: model matrix (predictors), n_observations x n_predictors
@@ -75,7 +77,8 @@ public:
         SolveMethod solve_method = SolveMethod::IRLS_R_glmfit,
         int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
         double tolerance = GLM_DEFAULT_TOLERANCE,
-        RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
+        RankDeficiencyMethod rank_deficiency_method
+        = RankDeficiencyMethod::SelectColumns);
 
     // Set options:
     void setVerbose(bool verbose);
@@ -103,17 +106,19 @@ public:
     // - predictors: model matrix (predictors), n_observations x n_predictors
     // - dependent_variable: n_observations x 1
     // - p_weights: n_predictors x 1
-    void fit(const Eigen::MatrixXd& predictors,
-             const Eigen::VectorXd& dependent_variable,
-             Eigen::VectorXd* p_weights = nullptr);
+    void
+        fit(const Eigen::MatrixXd& predictors,
+            const Eigen::VectorXd& dependent_variable,
+            Eigen::VectorXd* p_weights = nullptr);
     // Adds an initial intercept column (all ones), then fits (without weights
     // option):
     // - predictors_excluding_intercept:
     //   model matrix (predictors), n_observations x (n_predictors - 1)
     // - predictors_excluding_intercept: n_observations x 1
     void fitAddingIntercept(
-            const Eigen::MatrixXd& predictors_excluding_intercept,
-            const Eigen::VectorXd& dependent_variable);
+        const Eigen::MatrixXd& predictors_excluding_intercept,
+        const Eigen::VectorXd& dependent_variable
+    );
 
     // Get output:
     bool fitted() const;
@@ -126,17 +131,25 @@ public:
     Eigen::VectorXd predict() const;
     // - With new predictors:
     Eigen::VectorXd predict(const Eigen::MatrixXd& predictors) const;
+
     // Synonyms:
-    Eigen::VectorXd predictMu() const {
+    Eigen::VectorXd predictMu() const
+    {
         return predict();
     }
-    Eigen::VectorXd predictMu(const Eigen::MatrixXd& predictors) const {
+
+    Eigen::VectorXd predictMu(const Eigen::MatrixXd& predictors) const
+    {
         return predict(predictors);
     }
-    Eigen::VectorXd predictResponse() const {
+
+    Eigen::VectorXd predictResponse() const
+    {
         return predict();
     }
-    Eigen::VectorXd predictResponse(const Eigen::MatrixXd& predictors) const {
+
+    Eigen::VectorXd predictResponse(const Eigen::MatrixXd& predictors) const
+    {
         return predict(predictors);
     }
 
@@ -151,16 +164,21 @@ public:
     Eigen::ArrayXXd predictEta() const;
     // - With new predictors:
     Eigen::ArrayXXd predictEta(const Eigen::MatrixXd& predictors) const;
+
     // Synonyms:
-    Eigen::ArrayXXd predictLink() const {
+    Eigen::ArrayXXd predictLink() const
+    {
         return predictEta();
     }
-    Eigen::ArrayXXd predictLink(const Eigen::MatrixXd& predictors) const {
+
+    Eigen::ArrayXXd predictLink(const Eigen::MatrixXd& predictors) const
+    {
         return predictEta(predictors);
     }
 
     // Dumb stuff (see code):
-    Eigen::VectorXd retrodictUnivariatePredictor(const Eigen::VectorXd& depvar) const;
+    Eigen::VectorXd retrodictUnivariatePredictor(const Eigen::VectorXd& depvar
+    ) const;
 
     // Get debugging info:
     QStringList calculationErrors() const;
@@ -177,8 +195,8 @@ protected:
     void fitIRLSKaneLewis();
     void fitIRLSSVDNewtonKaneLewis();
     void fitIRLSRglmfit();
-    Eigen::Array<Eigen::Index, Eigen::Dynamic, 1> svdsubsel(
-            const Eigen::MatrixXd& A, Eigen::Index k);
+    Eigen::Array<Eigen::Index, Eigen::Dynamic, 1>
+        svdsubsel(const Eigen::MatrixXd& A, Eigen::Index k);
 
 protected:
     // Config:

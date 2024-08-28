@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,13 +31,16 @@ class TaskFactory;
 
 void initializeElixhauserCI(TaskFactory& factory);
 
-
 class ElixhauserCI : public Task
 {
     Q_OBJECT
+
 public:
-    ElixhauserCI(CamcopsApp& app, DatabaseManager& db,
-                 int load_pk = dbconst::NONEXISTENT_PK);
+    ElixhauserCI(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,10 +58,13 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+
 public:
     static const QString ELIXHAUSERCI_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 private:
     FieldRefPtrList m_fieldrefs;
     void markAllUnmarkedAbsent();

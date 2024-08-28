@@ -22,10 +22,10 @@
 
 #include <QObject>
 #include <QStringList>
+
 #include "common/aliases_camcops.h"
 
 class CamcopsApp;
-
 
 class TaskChain : public QObject
 {
@@ -74,11 +74,13 @@ public:
 
 public:
     // Create the chain definition
-    TaskChain(CamcopsApp& app,
-              const QStringList& task_tablenames,
-              CreationMethod creation_method = CreationMethod::OnDemandOrAbort,
-              const QString& title = "",
-              const QString& subtitle = "");
+    TaskChain(
+        CamcopsApp& app,
+        const QStringList& task_tablenames,
+        CreationMethod creation_method = CreationMethod::OnDemandOrAbort,
+        const QString& title = "",
+        const QString& subtitle = ""
+    );
 
     // Title/subtitle, for menus
     QString title() const;

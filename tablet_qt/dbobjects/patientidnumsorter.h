@@ -21,13 +21,13 @@
 #pragma once
 #include "common/aliases_camcops.h"
 
-
 // Class to sort a patient's ID numbers (by ID number type).
 
 class PatientIdNumSorter
 {
 public:
     PatientIdNumSorter();
-    bool operator()(const PatientIdNumPtr& left,
-                    const PatientIdNumPtr& right) const;
+    bool operator()(
+        const PatientIdNumPtr& left, const PatientIdNumPtr& right
+    ) const;
 };

@@ -21,7 +21,7 @@
 #pragma once
 
 namespace whiskertypes {
-    // Register custom data types that need to be passed via Qt signals/slots,
-    // but which don't need to be stored in a QVariant.
-    void registerTypesForQVariant();
+// Register custom data types that need to be passed via Qt signals/slots,
+// but which don't need to be stored in a QVariant.
+void registerTypesForQVariant();
 }

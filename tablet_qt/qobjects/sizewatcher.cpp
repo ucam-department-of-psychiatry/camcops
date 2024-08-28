@@ -21,11 +21,11 @@
 // #define DEBUG_EVENTS
 
 #include "sizewatcher.h"
+
 #include <QDebug>
 #include <QEvent>
 #include <QResizeEvent>
 #include <QWidget>
-
 
 SizeWatcher::SizeWatcher(QObject* parent) :
     QObject(parent)  // owned by parent henceforth
@@ -33,7 +33,6 @@ SizeWatcher::SizeWatcher(QObject* parent) :
     Q_ASSERT(parent);
     parent->installEventFilter(this);
 }
-
 
 bool SizeWatcher::eventFilter(QObject* obj, QEvent* event)
 {

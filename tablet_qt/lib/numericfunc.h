@@ -24,7 +24,7 @@
 // #define NUMERICFUNC_DEBUG_DETAIL
 
 #if defined NUMERICFUNC_DEBUG_BASIC || defined NUMERICFUNC_DEBUG_DETAIL
-#include <QDebug>
+    #include <QDebug>
 #endif
 #include <QLocale>
 #include <QString>
@@ -47,12 +47,15 @@ quint64 strToNumber(const QString& str, quint64 type_dummy);
 
 // Similarly for locale-based strings containing integers, for different
 // languages/conventions; see https://doc.qt.io/qt-6.5/qlocale.html
-int localeStrToNumber(const QString& str, bool& ok,
-                      const QLocale& locale, int type_dummy);
-qint64 localeStrToNumber(const QString&, bool& ok,
-                         const QLocale& locale, qint64 type_dummy);
-quint64 localeStrToNumber(const QString&, bool& ok,
-                          const QLocale& locale, quint64 type_dummy);
+int localeStrToNumber(
+    const QString& str, bool& ok, const QLocale& locale, int type_dummy
+);
+qint64 localeStrToNumber(
+    const QString&, bool& ok, const QLocale& locale, qint64 type_dummy
+);
+quint64 localeStrToNumber(
+    const QString&, bool& ok, const QLocale& locale, quint64 type_dummy
+);
 
 // ============================================================================
 // Numeric string representations
@@ -82,9 +85,13 @@ int numDigitsInteger(const T& number, bool count_sign = false);
 
 // Validates an integer.
 template<typename T>
-QValidator::State validateInteger(const QString& s, const QLocale& locale,
-                                  const T& bottom, const T& top,
-                                  bool allow_empty);
+QValidator::State validateInteger(
+    const QString& s,
+    const QLocale& locale,
+    const T& bottom,
+    const T& top,
+    bool allow_empty
+);
 
 // Is number an integer that is a valid start to typing a number between
 // min and max (inclusive)?
@@ -96,8 +103,7 @@ bool isValidStartToInteger(const T& number, const T& bottom, const T& top);
 // How many digits can pos_number be extended by, for range boundaries
 // [pos_bottom, pos_top]? All are positive.
 template<typename T>
-int maxExtraDigits(
-    const T& pos_number, const T& pos_bottom, const T& pos_top);
+int maxExtraDigits(const T& pos_number, const T& pos_bottom, const T& pos_top);
 
 // INTERNAL FUNCTION
 // If you add extra digits to a positive number, can it enter a valid positive
@@ -105,21 +111,24 @@ int maxExtraDigits(
 // - Does not consider "number" itself (un-extended).
 template<typename T>
 bool isValidStartToPositiveInt(
-    const T& pos_number, const T& pos_bottom, const T& pos_top);
+    const T& pos_number, const T& pos_bottom, const T& pos_top
+);
 
 // INTERNAL FUNCTION.
 // If you add extra digits to the number, must it be less than "bottom"?
 // - Does not consider "number" itself (un-extended).
 template<typename T>
 bool extendedPositiveIntMustBeLessThanBottom(
-    const T& pos_number, const T& pos_bottom, const int n_extra_digits);
+    const T& pos_number, const T& pos_bottom, const int n_extra_digits
+);
 
 // INTERNAL FUNCTION.
 // If you add extra digits to the number, must it exceed the top value?
 // - Does not consider "number" itself (un-extended).
 template<typename T>
 bool extendedPositiveIntMustExceedTop(
-    const T& pos_number, const T& pos_top, const int n_extra_digits);
+    const T& pos_number, const T& pos_top, const int n_extra_digits
+);
 
 
 // ============================================================================
@@ -135,30 +144,46 @@ QString getDefaultDecimalPoint();
 // potentially end up with a number in the range [bottom, top]?
 // - Does not consider "number" itself (un-extended).
 bool isValidStartToDouble(
-    double number, double bottom, double top, int max_dp,
-    const QString& decimal_point = getDefaultDecimalPoint());
+    double number,
+    double bottom,
+    double top,
+    int max_dp,
+    const QString& decimal_point = getDefaultDecimalPoint()
+);
 
 // INTERNAL FUNCTION
 // If you add extra digits to a positive number, can it enter a valid positive
 // range [pos_bottom, pos_top]?
 // - Does not consider "number" itself (un-extended).
 bool isValidStartToPosDouble(
-    double pos_number, double pos_bottom, double pos_top, int max_dp,
-    const QString& decimal_point = getDefaultDecimalPoint());
+    double pos_number,
+    double pos_bottom,
+    double pos_top,
+    int max_dp,
+    const QString& decimal_point = getDefaultDecimalPoint()
+);
 
 // INTERNAL FUNCTION.
 // Must any typed extension of "number" necessarily be less than "bottom"?
 // - Does not consider "number" itself (un-extended).
 bool extendedPosDoubleMustBeLessThanBottom(
-    double pos_number, double pos_bottom, int n_extra_digits,
-    bool add_dp, const QString& decimal_point = getDefaultDecimalPoint());
+    double pos_number,
+    double pos_bottom,
+    int n_extra_digits,
+    bool add_dp,
+    const QString& decimal_point = getDefaultDecimalPoint()
+);
 
 // INTERNAL FUNCTION.
 // Must any typed extension of "number" necessarily exceed "top"?
 // - Does not consider "number" itself (un-extended).
 bool extendedPosDoubleMustExceedTop(
-    double pos_number, double pos_top, int n_extra_digits,
-    bool add_dp, const QString& decimal_point = getDefaultDecimalPoint());
+    double pos_number,
+    double pos_top,
+    int n_extra_digits,
+    bool add_dp,
+    const QString& decimal_point = getDefaultDecimalPoint()
+);
 
 // INTERNAL FUNCTION.
 // Counts the number of characters in a floating-point number, specified to a
@@ -171,10 +196,10 @@ int numCharsDouble(double number, int max_dp, bool count_sign = false);
 // How many digits can pos_number be extended by, for range boundaries
 // [pos_bottom, pos_top]? All are positive.
 int maxExtraDigitsDouble(
-    double pos_number, double pos_bottom, double pos_top, int max_dp);
+    double pos_number, double pos_bottom, double pos_top, int max_dp
+);
 
 }  // namespace numeric
-
 
 // ============================================================================
 // Templated functions, first declared above
@@ -197,12 +222,14 @@ int numeric::numDigitsInteger(const T& number, bool count_sign)
     return digits;
 }
 
-
 template<typename T>
 QValidator::State numeric::validateInteger(
-    const QString& s, const QLocale& locale,
-    const T& bottom, const T& top,
-    bool allow_empty)
+    const QString& s,
+    const QLocale& locale,
+    const T& bottom,
+    const T& top,
+    bool allow_empty
+)
 {
     // 1. Empty string?
     if (s.isEmpty()) {
@@ -248,7 +275,7 @@ QValidator::State numeric::validateInteger(
     bool ok = true;
     const T type_dummy = 0;
     const T i = localeStrToNumber(s, ok, locale, type_dummy);
-        // NB: ok modified
+    // NB: ok modified
     if (!ok) {  // Not an integer.
 #ifdef NUMERICFUNC_DEBUG_BASIC
         qDebug() << Q_FUNC_INFO << "not an integer -> Invalid";
@@ -302,10 +329,10 @@ QValidator::State numeric::validateInteger(
     return QValidator::Invalid;
 }
 
-
 template<typename T>
-bool numeric::isValidStartToInteger(const T& number, const T& bottom,
-                                    const T& top)
+bool numeric::isValidStartToInteger(
+    const T& number, const T& bottom, const T& top
+)
 {
     // Is number an integer that is a valid start to typing a number between
     // min and max (inclusive)?
@@ -347,8 +374,8 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
     //    a minus sign at the start), and therefore always less than "bottom".
     if (number < 0 && bottom >= 0) {
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "invalid (negative and bottom >= 0)";
+        qDebug() << Q_FUNC_INFO << number
+                 << "invalid (negative and bottom >= 0)";
 #endif
         return false;  // invalid
     }
@@ -358,8 +385,7 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
     //    therefore always more than "top".
     if (number > 0 && top <= 0) {
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "invalid (positive and top <= 0)";
+        qDebug() << Q_FUNC_INFO << number << "invalid (positive and top <= 0)";
 #endif
         return false;  // invalid
     }
@@ -370,8 +396,7 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
         // Number is already positive (or zero).
         // We already know that top > 0, and by definition bottom <= top.
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "passing on positive/zero number";
+        qDebug() << Q_FUNC_INFO << number << "passing on positive/zero number";
 #endif
         return isValidStartToPositiveInt(
             number,  // already positive or zero
@@ -383,25 +408,24 @@ bool numeric::isValidStartToInteger(const T& number, const T& bottom,
         // We already know that bottom < 0, and by definition bottom <= top;
         // therefore, -top <= -bottom.
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "passing on negative number";
+        qDebug() << Q_FUNC_INFO << number << "passing on negative number";
 #endif
         return isValidStartToPositiveInt(
             // 0- here avoids C4146 compiler error on Windows:
             // "unary minus operator applied to unsigned type, result still
             // unsigned."
             // This code will never be reached for unsigned types!
-            0-number,  // now positive
-            std::max(typed_zero, 0-top),  // makes it zero or positive
-            0-bottom
+            0 - number,  // now positive
+            std::max(typed_zero, 0 - top),  // makes it zero or positive
+            0 - bottom
         );
     }
 }
 
-
 template<typename T>
 int numeric::maxExtraDigits(
-    const T& pos_number, const T& pos_bottom, const T& pos_top)
+    const T& pos_number, const T& pos_bottom, const T& pos_top
+)
 {
     // The maximum number of extra digits we might permit.
     int nd_number = numDigitsInteger(pos_number);  // minimum: 1
@@ -411,27 +435,24 @@ int numeric::maxExtraDigits(
         --nd_number;  // nd_number can still not be less than 0
     }
     // How many digits in our longest range boundary?
-    const int max_nd_target = std::max(
-        numDigitsInteger(pos_bottom),
-        numDigitsInteger(pos_top)
-    );
+    const int max_nd_target
+        = std::max(numDigitsInteger(pos_bottom), numDigitsInteger(pos_top));
     // We can extend up to that many:
     const int n_extra = std::max(0, max_nd_target - nd_number);
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-    qDebug().nospace()
-        << Q_FUNC_INFO
-        << "(" << pos_number << ", " << pos_bottom << ", " << pos_top
-        << "): nd_number = " << nd_number
-        << ": max_nd_target = " << max_nd_target
-        << " -> " << n_extra;
+    qDebug().nospace() << Q_FUNC_INFO << "(" << pos_number << ", "
+                       << pos_bottom << ", " << pos_top
+                       << "): nd_number = " << nd_number
+                       << ": max_nd_target = " << max_nd_target << " -> "
+                       << n_extra;
 #endif
     return n_extra;
 }
 
-
 template<typename T>
 bool numeric::isValidStartToPositiveInt(
-    const T& pos_number, const T& pos_bottom, const T& pos_top)
+    const T& pos_number, const T& pos_bottom, const T& pos_top
+)
 {
     // Is "number" an integer that, if extended (but not by itself), might
     // make it into the range [pos_bottom, pos_top]?
@@ -440,7 +461,8 @@ bool numeric::isValidStartToPositiveInt(
     const int n_extra = maxExtraDigits(pos_number, pos_bottom, pos_top);
 
     if (extendedPositiveIntMustBeLessThanBottom(
-            pos_number, pos_bottom, n_extra)) {
+            pos_number, pos_bottom, n_extra
+        )) {
 #ifdef NUMERICFUNC_DEBUG_DETAIL
         qDebug() << Q_FUNC_INFO << pos_number
                  << "when extended must be less than bottom value of"
@@ -449,12 +471,11 @@ bool numeric::isValidStartToPositiveInt(
         return false;
     }
 
-    if (extendedPositiveIntMustExceedTop(
-            pos_number, pos_top, n_extra)) {
+    if (extendedPositiveIntMustExceedTop(pos_number, pos_top, n_extra)) {
 #ifdef NUMERICFUNC_DEBUG_DETAIL
         qDebug() << Q_FUNC_INFO << pos_number
-                 << "when extended must be more than top value of"
-                 << pos_top << "=> fail";
+                 << "when extended must be more than top value of" << pos_top
+                 << "=> fail";
 #endif
         return false;
     }
@@ -471,11 +492,10 @@ bool numeric::isValidStartToPositiveInt(
     return true;
 }
 
-
 template<typename T>
-bool numeric::extendedPositiveIntMustBeLessThanBottom(const T& pos_number,
-                                                      const T& pos_bottom,
-                                                      const int n_extra_digits)
+bool numeric::extendedPositiveIntMustBeLessThanBottom(
+    const T& pos_number, const T& pos_bottom, const int n_extra_digits
+)
 {
     // If you add extra digits to the number, must it be less than the bottom
     // value?
@@ -487,10 +507,9 @@ bool numeric::extendedPositiveIntMustBeLessThanBottom(const T& pos_number,
     str_number.setNum(pos_number);
     const QString extension_digit = "9";  // make the largest possible number
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-    qDebug().nospace()
-        << Q_FUNC_INFO << "; pos_number = " << pos_number
-        << ", pos_bottom = " << pos_bottom
-        << ", n_extra = " << n_extra_digits;
+    qDebug().nospace() << Q_FUNC_INFO << "; pos_number = " << pos_number
+                       << ", pos_bottom = " << pos_bottom
+                       << ", n_extra = " << n_extra_digits;
 #endif
     for (int i = 0; i < n_extra_digits; ++i) {
         str_number += extension_digit;
@@ -501,11 +520,10 @@ bool numeric::extendedPositiveIntMustBeLessThanBottom(const T& pos_number,
     return true;
 }
 
-
 template<typename T>
-bool numeric::extendedPositiveIntMustExceedTop(const T& pos_number,
-                                               const T& pos_top,
-                                               const int n_extra_digits)
+bool numeric::extendedPositiveIntMustExceedTop(
+    const T& pos_number, const T& pos_top, const int n_extra_digits
+)
 {
     // If you add extra digits to the number, must it exceed the top value?
     // - All arguments are positive.
@@ -522,10 +540,9 @@ bool numeric::extendedPositiveIntMustExceedTop(const T& pos_number,
     str_number.setNum(pos_number);
     const QString extension_digit = "0";  // make the smallest possible number
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-    qDebug().nospace()
-        << Q_FUNC_INFO << "; pos_number = " << pos_number
-        << ", pos_top = " << pos_top
-        << ", n_extra_digits = " << n_extra_digits;
+    qDebug().nospace() << Q_FUNC_INFO << "; pos_number = " << pos_number
+                       << ", pos_top = " << pos_top
+                       << ", n_extra_digits = " << n_extra_digits;
 #endif
     for (int i = 0; i < n_extra_digits; ++i) {
         str_number += extension_digit;

@@ -19,20 +19,23 @@
 */
 
 #include "fixedareahfwtestwidget.h"
+
 #include <QBrush>
 #include <QPainter>
 #include <QPen>
+
 #include "lib/sizehelpers.h"
 
-
-FixedAreaHfwTestWidget::FixedAreaHfwTestWidget(const int area,
-                                               const int preferred_width,
-                                               const QSize& min_size,
-                                               const QColor& background_colour,
-                                               const int border_thickness,
-                                               const QColor& border_colour,
-                                               const QColor& text_colour,
-                                               QWidget* parent) :
+FixedAreaHfwTestWidget::FixedAreaHfwTestWidget(
+    const int area,
+    const int preferred_width,
+    const QSize& min_size,
+    const QColor& background_colour,
+    const int border_thickness,
+    const QColor& border_colour,
+    const QColor& text_colour,
+    QWidget* parent
+) :
     QWidget(parent),
     m_area(area),
     m_preferred_width(preferred_width),
@@ -47,24 +50,20 @@ FixedAreaHfwTestWidget::FixedAreaHfwTestWidget(const int area,
     setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
 }
 
-
 QSize FixedAreaHfwTestWidget::sizeHint() const
 {
     return QSize(m_preferred_width, heightForWidth(m_preferred_width));
 }
-
 
 QSize FixedAreaHfwTestWidget::minimumSizeHint() const
 {
     return m_min_size;
 }
 
-
 bool FixedAreaHfwTestWidget::hasHeightForWidth() const
 {
     return true;
 }
-
 
 int FixedAreaHfwTestWidget::heightForWidth(const int width) const
 {
@@ -72,7 +71,6 @@ int FixedAreaHfwTestWidget::heightForWidth(const int width) const
     // http://stackoverflow.com/questions/13663545/does-one-double-promote-every-int-in-the-equation-to-double
     // http://stackoverflow.com/questions/5563000/implicit-type-conversion-rules-in-c-operators
 }
-
 
 void FixedAreaHfwTestWidget::paintEvent(QPaintEvent* event)
 {
@@ -88,19 +86,18 @@ void FixedAreaHfwTestWidget::paintEvent(QPaintEvent* event)
     const int h = s.height();
     const int a = w * h;
     const int hfw = heightForWidth(w);
-    const QString hfw_description = hfw == h
-        ? "matches HFW"
-        : QString("MISMATCH to HFW %1").arg(hfw);
+    const QString hfw_description
+        = hfw == h ? "matches HFW" : QString("MISMATCH to HFW %1").arg(hfw);
     m_min_area = qMin(m_min_area, a);
     m_max_area = qMax(m_max_area, a);
-    const QString description = QString(
-        "Fixed area; %1 w x %2 h (%3) = area %4 [range %5-%6]")
-            .arg(w)
-            .arg(h)
-            .arg(hfw_description)
-            .arg(a)
-            .arg(m_min_area)
-            .arg(m_max_area);
+    const QString description
+        = QString("Fixed area; %1 w x %2 h (%3) = area %4 [range %5-%6]")
+              .arg(w)
+              .arg(h)
+              .arg(hfw_description)
+              .arg(a)
+              .arg(m_min_area)
+              .arg(m_max_area);
 
     QPen border_pen(m_border_colour);
     border_pen.setWidth(m_border_thickness);
@@ -113,8 +110,6 @@ void FixedAreaHfwTestWidget::paintEvent(QPaintEvent* event)
     painter.drawRect(rect);
     painter.setPen(text_pen);
     painter.drawText(
-        rect,
-        Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
-        description
+        rect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, description
     );
 }

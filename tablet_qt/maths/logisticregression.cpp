@@ -19,10 +19,11 @@
 */
 
 #include "logisticregression.h"
+
 #include <QDebug>
+
 #include "maths/linkfunctionfamily.h"
 using namespace Eigen;
-
 
 /*
 
@@ -150,42 +151,45 @@ Implement a GLM in Eigen, and subspecialize it for logistic regression.
 
 
 LogisticRegression::LogisticRegression(
-        const SolveMethod solve_method,
-        const int max_iterations,
-        const double tolerance,
-        const RankDeficiencyMethod rank_deficiency_method) :
-    Glm(LINK_FN_FAMILY_LOGIT, solve_method, max_iterations, tolerance,
+    const SolveMethod solve_method,
+    const int max_iterations,
+    const double tolerance,
+    const RankDeficiencyMethod rank_deficiency_method
+) :
+    Glm(LINK_FN_FAMILY_LOGIT,
+        solve_method,
+        max_iterations,
+        tolerance,
         rank_deficiency_method)
 {
 }
 
-
 void LogisticRegression::fitAddingIntercept(
-        const MatrixXd& X,  // predictors, EXCLUDING intercept
-        const VectorXi& y)  // depvar
+    const MatrixXd& X,  // predictors, EXCLUDING intercept
+    const VectorXi& y
+)  // depvar
 {
     const MatrixXd predictors = addInterceptToPredictors(X);
     fitDirectly(predictors, y);
 }
 
-
 void LogisticRegression::fitDirectly(
-        const MatrixXd& X,  // predictors, INCLUDING intercept
-        const VectorXi& y)  // depvar
+    const MatrixXd& X,  // predictors, INCLUDING intercept
+    const VectorXi& y
+)  // depvar
 {
     const VectorXd dependent_variable = y.cast<double>();
     Glm::fit(X, dependent_variable);
 }
-
 
 VectorXd LogisticRegression::predictProb() const
 {
     return predict();
 }
 
-
-VectorXd LogisticRegression::predictProb(const MatrixXd& X,
-                                         bool add_intercept) const
+VectorXd LogisticRegression::predictProb(
+    const MatrixXd& X, bool add_intercept
+) const
 {
     if (add_intercept) {
         return predict(addInterceptToPredictors(X));
@@ -194,9 +198,9 @@ VectorXd LogisticRegression::predictProb(const MatrixXd& X,
     }
 }
 
-
-VectorXi LogisticRegression::binaryFromP(const VectorXd& p,
-                                         const double threshold) const
+VectorXi LogisticRegression::binaryFromP(
+    const VectorXd& p, const double threshold
+) const
 {
     const ArrayXXd a = p.array();
     const Array<bool, Dynamic, Dynamic> b = a >= threshold;
@@ -205,29 +209,26 @@ VectorXi LogisticRegression::binaryFromP(const VectorXd& p,
     return b.cast<int>().matrix();
 }
 
-
 VectorXi LogisticRegression::predictBinary(const double threshold) const
 {
     return binaryFromP(predict(), threshold);
 }
 
-
-VectorXi LogisticRegression::predictBinary(const MatrixXd& X,
-                                           const double threshold,
-                                           bool add_intercept) const
+VectorXi LogisticRegression::predictBinary(
+    const MatrixXd& X, const double threshold, bool add_intercept
+) const
 {
     return binaryFromP(predictProb(X, add_intercept), threshold);
 }
-
 
 VectorXd LogisticRegression::predictLogit() const
 {
     return predictEta().matrix();
 }
 
-
-VectorXd LogisticRegression::predictLogit(const MatrixXd& X,
-                                          bool add_intercept) const
+VectorXd LogisticRegression::predictLogit(
+    const MatrixXd& X, bool add_intercept
+) const
 {
     if (add_intercept) {
         return predictEta(addInterceptToPredictors(X)).matrix();

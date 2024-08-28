@@ -19,10 +19,9 @@
 */
 
 #pragma once
-#include <Qt>
 #include <QColor>
 #include <QPen>
-
+#include <Qt>
 
 // Represents a graphical button with text in it.
 // Used by graphicsfunc::makeTextButton().
@@ -34,25 +33,30 @@
 // ScreenLikeGraphicsView. It's not clear that "DPI" makes sense here, and we
 // want our text size to be predictable.
 
-struct ButtonConfig {
+struct ButtonConfig
+{
 public:
-    ButtonConfig(int padding_px,
-                 int font_size_px,
-                 const QColor& text_colour,
-                 Qt::Alignment text_alignment,
-                 const QColor& background_colour,
-                 const QColor& pressed_background_colour,
-                 const QPen& border_pen,
-                 int corner_radius_px);
+    ButtonConfig(
+        int padding_px,
+        int font_size_px,
+        const QColor& text_colour,
+        Qt::Alignment text_alignment,
+        const QColor& background_colour,
+        const QColor& pressed_background_colour,
+        const QPen& border_pen,
+        int corner_radius_px
+    );
     ButtonConfig clone() const;
     ButtonConfig& setPadding(int font_size_px);
     ButtonConfig& setFontSize(int font_size_px);
     ButtonConfig& setTextColour(const QColor& text_colour);
     ButtonConfig& setTextAlignment(Qt::Alignment text_alignment);
     ButtonConfig& setBackgroundColour(const QColor& background_colour);
-    ButtonConfig& setPressedBackgroundColour(const QColor& pressed_background_colour);
+    ButtonConfig&
+        setPressedBackgroundColour(const QColor& pressed_background_colour);
     ButtonConfig& setBorderPen(const QPen& border_pen);
     ButtonConfig& setCornerRadius(int corner_radius_px);
+
 public:
     int padding_px;
     int font_size_px;

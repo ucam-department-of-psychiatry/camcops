@@ -24,11 +24,13 @@
 // #define DEBUG_MOVE
 
 #include "adjustablepie.h"
+
 #include <QDebug>
 #include <QFrame>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QTimer>
+
 #include "common/colourdefs.h"
 #include "graphics/geometry.h"
 #include "graphics/graphicsfunc.h"
@@ -40,19 +42,19 @@
 using containers::forceVectorSize;
 using geometry::convertHeadingToTrueNorth;
 using geometry::DEG_0;
-using geometry::DEG_90;
 using geometry::DEG_180;
 using geometry::DEG_270;
 using geometry::DEG_360;
+using geometry::DEG_90;
 using geometry::distanceBetween;
 using geometry::headingInRange;
 using geometry::headingNearlyEq;
 using geometry::headingToPolarThetaDeg;
 using geometry::lineFromPointInHeadingWithRadius;
 using geometry::normalizeHeading;
-using geometry::polarToCartesian;
 using geometry::polarThetaDeg;
 using geometry::polarThetaToHeading;
+using geometry::polarToCartesian;
 using graphicsfunc::drawSector;
 using graphicsfunc::drawText;
 
@@ -69,29 +71,28 @@ const QColor DEFAULT_LABEL_COLOUR(QCOLOR_DARKBLUE);
 // #defines
 // ============================================================================
 
-#define ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index) \
-    if ((sector_index) < 0 || (sector_index) >= m_n_sectors) { \
-        qWarning() << Q_FUNC_INFO << "Bad sector index:" << (sector_index); \
-        return; \
+#define ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index)                        \
+    if ((sector_index) < 0 || (sector_index) >= m_n_sectors) {                \
+        qWarning() << Q_FUNC_INFO << "Bad sector index:" << (sector_index);   \
+        return;                                                               \
     }
-#define ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index) \
-    if ((cursor_index) < 0 || (cursor_index) >= m_n_sectors - 1) { \
-        qWarning() << Q_FUNC_INFO << "Bad cursor index:" << (cursor_index); \
-        return; \
+#define ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index)                        \
+    if ((cursor_index) < 0 || (cursor_index) >= m_n_sectors - 1) {            \
+        qWarning() << Q_FUNC_INFO << "Bad cursor index:" << (cursor_index);   \
+        return;                                                               \
     }
-#define ENSURE_VECTOR_SIZE_MATCHES_SECTORS(vec) \
-    if ((vec).size() != m_n_sectors) { \
-        qWarning() << Q_FUNC_INFO << "Bad vector size:" << (vec).size() \
-                   << "- should match #sectors of" << m_n_sectors; \
-        return; \
+#define ENSURE_VECTOR_SIZE_MATCHES_SECTORS(vec)                               \
+    if ((vec).size() != m_n_sectors) {                                        \
+        qWarning() << Q_FUNC_INFO << "Bad vector size:" << (vec).size()       \
+                   << "- should match #sectors of" << m_n_sectors;            \
+        return;                                                               \
     }
-#define ENSURE_VECTOR_SIZE_MATCHES_CURSORS(vec) \
-    if ((vec).size() != m_n_sectors - 1) { \
-        qWarning() << Q_FUNC_INFO << "Bad vector size:" << (vec).size() \
-                   << "- should match #cursors of" << m_n_sectors - 1; \
-        return; \
+#define ENSURE_VECTOR_SIZE_MATCHES_CURSORS(vec)                               \
+    if ((vec).size() != m_n_sectors - 1) {                                    \
+        qWarning() << Q_FUNC_INFO << "Bad vector size:" << (vec).size()       \
+                   << "- should match #cursors of" << m_n_sectors - 1;        \
+        return;                                                               \
     }
-
 
 // ============================================================================
 // Construction and configuration
@@ -118,10 +119,8 @@ AdjustablePie::AdjustablePie(const int n_sectors, QWidget* parent) :
 
     setNSectors(n_sectors);
     timerfunc::makeSingleShotTimer(m_timer);
-    connect(m_timer.data(), &QTimer::timeout,
-            this, &AdjustablePie::report);
+    connect(m_timer.data(), &QTimer::timeout, this, &AdjustablePie::report);
 }
-
 
 void AdjustablePie::setNSectors(int n_sectors)
 {
@@ -133,27 +132,24 @@ void AdjustablePie::setNSectors(int n_sectors)
     normalize();
 }
 
-
 int AdjustablePie::nSectors() const
 {
     return m_n_sectors;
 }
-
 
 void AdjustablePie::setBackgroundBrush(const QBrush& brush)
 {
     m_background_brush = brush;
 }
 
-
-void AdjustablePie::setSectorPenBrush(const int sector_index,
-                                      const PenBrush& penbrush)
+void AdjustablePie::setSectorPenBrush(
+    const int sector_index, const PenBrush& penbrush
+)
 {
     ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index);
     m_sector_penbrushes[sector_index] = penbrush;
     update();
 }
-
 
 void AdjustablePie::setSectorPenBrushes(const QVector<PenBrush>& penbrushes)
 {
@@ -162,14 +158,12 @@ void AdjustablePie::setSectorPenBrushes(const QVector<PenBrush>& penbrushes)
     update();
 }
 
-
 void AdjustablePie::setLabel(const int sector_index, const QString& label)
 {
     ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index);
     m_labels[sector_index] = label;
     update();
 }
-
 
 void AdjustablePie::setLabels(const QVector<QString>& labels)
 {
@@ -178,14 +172,14 @@ void AdjustablePie::setLabels(const QVector<QString>& labels)
     update();
 }
 
-
-void AdjustablePie::setLabelColour(const int sector_index, const QColor& colour)
+void AdjustablePie::setLabelColour(
+    const int sector_index, const QColor& colour
+)
 {
     ENSURE_SECTOR_INDEX_OK_OR_RETURN(sector_index);
     m_label_colours[sector_index] = colour;
     update();
 }
-
 
 void AdjustablePie::setLabelColours(const QVector<QColor>& colours)
 {
@@ -194,27 +188,24 @@ void AdjustablePie::setLabelColours(const QVector<QColor>& colours)
     update();
 }
 
-
 void AdjustablePie::setLabelRotation(bool rotate)
 {
     m_rotate_labels = rotate;
 }
-
 
 int AdjustablePie::nCursors() const
 {
     return m_n_sectors - 1;
 }
 
-
-void AdjustablePie::setCursorPenBrush(const int cursor_index,
-                                      const PenBrush& penbrush)
+void AdjustablePie::setCursorPenBrush(
+    const int cursor_index, const PenBrush& penbrush
+)
 {
     ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index);
     m_cursor_penbrushes[cursor_index] = penbrush;
     update();
 }
-
 
 void AdjustablePie::setCursorPenBrushes(const QVector<PenBrush>& penbrushes)
 {
@@ -223,37 +214,34 @@ void AdjustablePie::setCursorPenBrushes(const QVector<PenBrush>& penbrushes)
     update();
 }
 
-
-void AdjustablePie::setCursorActivePenBrush(const int cursor_index,
-                                            const PenBrush& penbrush)
+void AdjustablePie::setCursorActivePenBrush(
+    const int cursor_index, const PenBrush& penbrush
+)
 {
     ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index);
     m_cursor_active_penbrushes[cursor_index] = penbrush;
     update();
 }
 
-
 void AdjustablePie::setCursorActivePenBrushes(
-        const QVector<PenBrush>& penbrushes)
+    const QVector<PenBrush>& penbrushes
+)
 {
     ENSURE_VECTOR_SIZE_MATCHES_CURSORS(penbrushes);
     m_cursor_active_penbrushes = penbrushes;
     update();
 }
 
-
 void AdjustablePie::setOuterLabelFont(const QFont& font)
 {
     m_outer_label_font = font;
 }
-
 
 void AdjustablePie::setSectorRadius(const qreal radius)
 {
     m_sector_radius = radius;
     updateGeometry();
 }
-
 
 void AdjustablePie::setCursorRadius(qreal inner_radius, qreal outer_radius)
 {
@@ -265,19 +253,16 @@ void AdjustablePie::setCursorRadius(qreal inner_radius, qreal outer_radius)
     updateGeometry();
 }
 
-
 void AdjustablePie::setCursorAngle(const qreal degrees)
 {
     m_cursor_angle_degrees = degrees;
     update();
 }
 
-
 void AdjustablePie::setLabelStartRadius(const qreal radius)
 {
     m_label_start_radius = radius;
 }
-
 
 void AdjustablePie::setCentreLabel(const QString& label)
 {
@@ -285,13 +270,11 @@ void AdjustablePie::setCentreLabel(const QString& label)
     update();
 }
 
-
 void AdjustablePie::setCentreLabelFont(const QFont& font)
 {
     m_centre_label_font = font;
     update();
 }
-
 
 void AdjustablePie::setCentreLabelColour(const QColor& colour)
 {
@@ -299,27 +282,24 @@ void AdjustablePie::setCentreLabelColour(const QColor& colour)
     update();
 }
 
-
 void AdjustablePie::setOverallRadius(const qreal radius)
 {
     m_overall_radius = radius;
 }
-
 
 void AdjustablePie::setBaseCompassHeading(const qreal degrees)
 {
     m_base_compass_heading_deg = degrees;
 }
 
-
 void AdjustablePie::setReportingDelay(const int delay_ms)
 {
     m_reporting_delay_ms = delay_ms;
 }
 
-
-void AdjustablePie::setProportionCumulative(const int cursor_index,
-                                            const qreal proportion)
+void AdjustablePie::setProportionCumulative(
+    const int cursor_index, const qreal proportion
+)
 {
     ENSURE_CURSOR_INDEX_OK_OR_RETURN(cursor_index);
     if (proportion < 0.0 || proportion > 1.0) {
@@ -330,11 +310,11 @@ void AdjustablePie::setProportionCumulative(const int cursor_index,
     m_cursor_props_cum[cursor_index] = proportion;
     for (int i = 0; i < m_n_sectors - 1; ++i) {
         if (i < cursor_index) {
-            m_cursor_props_cum[i] = qBound(
-                        0.0, m_cursor_props_cum.at(i), proportion);
+            m_cursor_props_cum[i]
+                = qBound(0.0, m_cursor_props_cum.at(i), proportion);
         } else if (i > cursor_index) {
-            m_cursor_props_cum[i] = qBound(
-                        proportion, m_cursor_props_cum.at(i), 1.0);
+            m_cursor_props_cum[i]
+                = qBound(proportion, m_cursor_props_cum.at(i), 1.0);
         }
     }
 #ifdef DEBUG_CHANGES
@@ -342,7 +322,6 @@ void AdjustablePie::setProportionCumulative(const int cursor_index,
 #endif
     update();
 }
-
 
 void AdjustablePie::setProportions(const QVector<qreal>& proportions)
 {
@@ -374,7 +353,6 @@ void AdjustablePie::setProportions(const QVector<qreal>& proportions)
     update();
 }
 
-
 void AdjustablePie::setProportionsCumulative(const QVector<qreal>& proportions)
 {
     for (qreal p : proportions) {
@@ -398,7 +376,6 @@ void AdjustablePie::setProportionsCumulative(const QVector<qreal>& proportions)
     update();
 }
 
-
 qreal AdjustablePie::sectorProportionCumulative(const int sector_index) const
 {
     if (sector_index < m_n_sectors - 1) {
@@ -406,7 +383,6 @@ qreal AdjustablePie::sectorProportionCumulative(const int sector_index) const
     }
     return 1.0;
 }
-
 
 // ============================================================================
 // Widget information and events
@@ -417,7 +393,6 @@ QSize AdjustablePie::sizeHint() const
     auto diameter = static_cast<int>(m_overall_radius * 2);
     return QSize(diameter, diameter);
 }
-
 
 void AdjustablePie::paintEvent(QPaintEvent* event)
 {
@@ -435,10 +410,8 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     p.drawRect(cr);
 
 #ifdef DEBUG_DRAW
-    qDebug() << Q_FUNC_INFO
-             << "contentsRect()" << cr
-             << "widget_centre" << widget_centre
-             << "m_cursor_props_cum" << m_cursor_props_cum;
+    qDebug() << Q_FUNC_INFO << "contentsRect()" << cr << "widget_centre"
+             << widget_centre << "m_cursor_props_cum" << m_cursor_props_cum;
 #endif
 
     // ------------------------------------------------------------------------
@@ -451,13 +424,15 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
 
     qreal sector_start_angle;
     qreal sector_end_angle;
-    auto startLoop = [this, &sector_start_angle, &sector_end_angle] (int i) -> void {
-        const qreal prev_prop = i == 0 ? 0.0 : sectorProportionCumulative(i - 1);
+    auto startLoop
+        = [this, &sector_start_angle, &sector_end_angle](int i) -> void {
+        const qreal prev_prop
+            = i == 0 ? 0.0 : sectorProportionCumulative(i - 1);
         sector_start_angle = prev_prop * DEG_360;
         const qreal prop = sectorProportionCumulative(i);
         sector_end_angle = prop * DEG_360;
     };
-    auto endLoop = [&sector_start_angle, &sector_end_angle] () -> void {
+    auto endLoop = [&sector_start_angle, &sector_end_angle]() -> void {
         sector_start_angle = sector_end_angle;  // for the next one
     };
 
@@ -474,11 +449,16 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
             p.setBrush(spb.brush);
             p.drawEllipse(sector_tip, m_sector_radius, m_sector_radius);
         } else {
-            drawSector(p, sector_tip, m_sector_radius,
-                       convertAngleToQt(sector_start_angle),
-                       convertAngleToQt(sector_end_angle),
-                       true,
-                       spb.pen, spb.brush);
+            drawSector(
+                p,
+                sector_tip,
+                m_sector_radius,
+                convertAngleToQt(sector_start_angle),
+                convertAngleToQt(sector_end_angle),
+                true,
+                spb.pen,
+                spb.brush
+            );
         }
         endLoop();
     }
@@ -489,19 +469,28 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
         startLoop(i);
         if (i < m_n_sectors - 1) {
             const qreal cursor_half_angle = m_cursor_angle_degrees / 2.0;
-            const qreal cursor_start_angle = sector_end_angle - cursor_half_angle;
-            const qreal cursor_end_angle = sector_end_angle + cursor_half_angle;
-            const QPointF cursor_tip = widget_centre +
-                    polarToCartesian(m_cursor_inner_radius,
-                                     convertAngleToQt(sector_end_angle));
-            const PenBrush& cpb = (
-                        (m_user_dragging_cursor && i == m_cursor_num_being_dragged)
-                        ? m_cursor_active_penbrushes
-                        : m_cursor_penbrushes).at(i);
-            drawSector(p, cursor_tip, cursor_radius,
-                       convertAngleToQt(cursor_start_angle),
-                       convertAngleToQt(cursor_end_angle), true,
-                       cpb.pen, cpb.brush);
+            const qreal cursor_start_angle
+                = sector_end_angle - cursor_half_angle;
+            const qreal cursor_end_angle
+                = sector_end_angle + cursor_half_angle;
+            const QPointF cursor_tip = widget_centre
+                + polarToCartesian(m_cursor_inner_radius,
+                                   convertAngleToQt(sector_end_angle));
+            const PenBrush& cpb
+                = ((m_user_dragging_cursor && i == m_cursor_num_being_dragged)
+                       ? m_cursor_active_penbrushes
+                       : m_cursor_penbrushes)
+                      .at(i);
+            drawSector(
+                p,
+                cursor_tip,
+                cursor_radius,
+                convertAngleToQt(cursor_start_angle),
+                convertAngleToQt(cursor_end_angle),
+                true,
+                cpb.pen,
+                cpb.brush
+            );
         }
         endLoop();
     }
@@ -511,15 +500,16 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     for (int i = 0; i < m_n_sectors; ++i) {
         // Label
         startLoop(i);
-        const qreal sector_mid_angle = sector_end_angle -
-                (sector_end_angle - sector_start_angle) / 2;
-        const QPointF label_tip = widget_centre +
-                polarToCartesian(m_label_start_radius,
-                                 convertAngleToQt(sector_mid_angle));
+        const qreal sector_mid_angle
+            = sector_end_angle - (sector_end_angle - sector_start_angle) / 2;
+        const QPointF label_tip = widget_centre
+            + polarToCartesian(m_label_start_radius,
+                               convertAngleToQt(sector_mid_angle));
         const QString label = m_labels.at(i);
         if (!label.isEmpty()) {
             const qreal abs_heading = convertHeadingToTrueNorth(
-                        sector_mid_angle, m_base_compass_heading_deg);
+                sector_mid_angle, m_base_compass_heading_deg
+            );
             // 0 up, 90 right...
             const qreal rotation = abs_heading;
             // Easiest way to think of it: something at 180 is at the top
@@ -530,46 +520,51 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
             p.setPen(m_label_colours.at(i));
             if (m_rotate_labels) {
 #ifdef DEBUG_DRAW
-            qDebug() << "... label:" << label
-                     << "label_tip" << label_tip
-                     << "sector_mid_angle" << sector_mid_angle
-                     << "rotation" << rotation;
+                qDebug() << "... label:" << label << "label_tip" << label_tip
+                         << "sector_mid_angle" << sector_mid_angle
+                         << "rotation" << rotation;
 #endif
                 PainterTranslateRotateContext ptrc(p, label_tip, rotation);
                 // rotation is clockwise
 
-                drawText(p, QPointF(0, 0), label, m_outer_label_font,
-                         Qt::AlignHCenter | Qt::AlignBottom);
+                drawText(
+                    p,
+                    QPointF(0, 0),
+                    label,
+                    m_outer_label_font,
+                    Qt::AlignHCenter | Qt::AlignBottom
+                );
             } else {
                 PainterTranslateRotateContext ptrc(p, label_tip, 0);
                 // ... relative to North = up
-                const bool hcentre = headingNearlyEq(abs_heading, DEG_0) ||
-                        headingNearlyEq(abs_heading, DEG_180);
-                const bool left = !hcentre &&
-                        headingInRange(DEG_180, abs_heading, DEG_360);
-                const bool vcentre = headingNearlyEq(abs_heading, DEG_90) ||
-                        headingNearlyEq(abs_heading, DEG_270);
-                const bool bottom = !vcentre &&
-                        headingInRange(DEG_90, abs_heading, DEG_270);
-                Qt::Alignment halign = hcentre ? Qt::AlignHCenter
-                                               : (left ? Qt::AlignRight
-                                                       : Qt::AlignLeft);
-                Qt::Alignment valign = vcentre ? Qt::AlignVCenter
-                                               : (bottom ? Qt::AlignTop
-                                                         : Qt::AlignBottom);
+                const bool hcentre = headingNearlyEq(abs_heading, DEG_0)
+                    || headingNearlyEq(abs_heading, DEG_180);
+                const bool left = !hcentre
+                    && headingInRange(DEG_180, abs_heading, DEG_360);
+                const bool vcentre = headingNearlyEq(abs_heading, DEG_90)
+                    || headingNearlyEq(abs_heading, DEG_270);
+                const bool bottom
+                    = !vcentre && headingInRange(DEG_90, abs_heading, DEG_270);
+                Qt::Alignment halign = hcentre
+                    ? Qt::AlignHCenter
+                    : (left ? Qt::AlignRight : Qt::AlignLeft);
+                Qt::Alignment valign = vcentre
+                    ? Qt::AlignVCenter
+                    : (bottom ? Qt::AlignTop : Qt::AlignBottom);
 #ifdef DEBUG_DRAW
-            qDebug() << "... label:" << label
-                     << "label_tip" << label_tip
-                     << "sector_mid_angle" << sector_mid_angle
-                     << "hcentre" << hcentre
-                     << "left" << left
-                     << "vcentre" << vcentre
-                     << "bottom" << bottom
-                     << "halign" << halign
-                     << "valign" << valign;
+                qDebug() << "... label:" << label << "label_tip" << label_tip
+                         << "sector_mid_angle" << sector_mid_angle << "hcentre"
+                         << hcentre << "left" << left << "vcentre" << vcentre
+                         << "bottom" << bottom << "halign" << halign
+                         << "valign" << valign;
 #endif
-                drawText(p, QPointF(0, 0), label, m_outer_label_font,
-                         halign | valign);
+                drawText(
+                    p,
+                    QPointF(0, 0),
+                    label,
+                    m_outer_label_font,
+                    halign | valign
+                );
             }
         }
         endLoop();
@@ -580,11 +575,15 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
     // ------------------------------------------------------------------------
     if (!m_centre_label.isEmpty()) {
         p.setPen(m_centre_label_colour);
-        drawText(p, widget_centre, m_centre_label, m_centre_label_font,
-                 Qt::AlignHCenter | Qt::AlignVCenter);
+        drawText(
+            p,
+            widget_centre,
+            m_centre_label,
+            m_centre_label_font,
+            Qt::AlignHCenter | Qt::AlignVCenter
+        );
     }
 }
-
 
 void AdjustablePie::mousePressEvent(QMouseEvent* event)
 {
@@ -611,7 +610,6 @@ void AdjustablePie::mousePressEvent(QMouseEvent* event)
     }
 }
 
-
 void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
 {
     if (!m_user_dragging_cursor) {
@@ -626,7 +624,8 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
     const QPoint oldpos = m_last_mouse_pos;
     m_last_mouse_pos = newpos;
     const qreal mouse_angle = angleOfPos(newpos);
-    const qreal new_cursor_angle = mouse_angle - m_angle_offset_from_cursor_centre;
+    const qreal new_cursor_angle
+        = mouse_angle - m_angle_offset_from_cursor_centre;
     const qreal oldprop = m_cursor_props_cum.at(m_cursor_num_being_dragged);
     qreal target_prop = angleToProportion(new_cursor_angle);
     // Post-processing magic since target_prop will never be 1.0:
@@ -634,8 +633,8 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
         target_prop = 1.0;
     }
 
-    if ((oldprop <= 0.0 && target_prop > 0.5) ||
-            (oldprop >= 1.0 && target_prop < 0.5)) {
+    if ((oldprop <= 0.0 && target_prop > 0.5)
+        || (oldprop >= 1.0 && target_prop < 0.5)) {
 #ifdef DEBUG_MOVE
         qDebug() << "DECISION: already at end stop; ignored";
 #endif
@@ -645,22 +644,19 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
     qreal prop;
     const QPoint pie_centre = contentsRect().center();
     const LineSegment baseline = lineFromPointInHeadingWithRadius(
-                pie_centre,
-                DEG_0,
-                m_base_compass_heading_deg);
+        pie_centre, DEG_0, m_base_compass_heading_deg
+    );
     const LineSegment movement(oldpos, newpos);
     const bool from_on = baseline.pointOn(oldpos);
     const bool to_on = baseline.pointOn(newpos);
     const bool crosses = movement.intersects(baseline) && !from_on && !to_on;
 
-    if (oldprop < 0.5 && target_prop > 0.75 &&
-            !(oldprop > 0.25 && !crosses)) {
+    if (oldprop < 0.5 && target_prop > 0.75 && !(oldprop > 0.25 && !crosses)) {
 #ifdef DEBUG_MOVE
         qDebug() << "DECISION: hit bottom end stop";
 #endif
         prop = 0.0;
-    } else if (oldprop > 0.5 && target_prop < 0.25 &&
-               !(oldprop < 0.75 && !crosses)) {
+    } else if (oldprop > 0.5 && target_prop < 0.25 && !(oldprop < 0.75 && !crosses)) {
 #ifdef DEBUG_MOVE
         qDebug() << "DECISION: hit top end stop";
 #endif
@@ -680,7 +676,6 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
     scheduleReport();
 }
 
-
 void AdjustablePie::mouseReleaseEvent(QMouseEvent* event)
 {
     Q_UNUSED(event)
@@ -693,7 +688,6 @@ void AdjustablePie::mouseReleaseEvent(QMouseEvent* event)
     }
 }
 
-
 // ============================================================================
 // Readout
 // ============================================================================
@@ -702,7 +696,6 @@ QVector<qreal> AdjustablePie::cursorProportionsCumulative() const
 {
     return m_cursor_props_cum;
 }
-
 
 QVector<qreal> AdjustablePie::cursorProportions() const
 {
@@ -716,7 +709,6 @@ QVector<qreal> AdjustablePie::cursorProportions() const
     return props;
 }
 
-
 QVector<qreal> AdjustablePie::allProportionsCumulative() const
 {
     QVector<qreal> props = m_cursor_props_cum;
@@ -727,7 +719,6 @@ QVector<qreal> AdjustablePie::allProportionsCumulative() const
     props.append(1.0 - sum);
     return props;
 }
-
 
 QVector<qreal> AdjustablePie::allProportions() const
 {
@@ -742,7 +733,6 @@ QVector<qreal> AdjustablePie::allProportions() const
     return props;
 }
 
-
 // ============================================================================
 // Internals
 // ============================================================================
@@ -752,15 +742,14 @@ qreal AdjustablePie::convertAngleToQt(const qreal degrees) const
     return headingToPolarThetaDeg(degrees, m_base_compass_heading_deg, false);
 }
 
-
 qreal AdjustablePie::convertAngleToInternal(const qreal degrees) const
 {
     return polarThetaToHeading(degrees, m_base_compass_heading_deg);
 }
 
-
-bool AdjustablePie::posInCursor(const QPoint& pos,
-                                const int cursor_index) const
+bool AdjustablePie::posInCursor(
+    const QPoint& pos, const int cursor_index
+) const
 {
     const qreal angle = angleOfPos(pos);
     const qreal cursor_angle_centre = cursorAngle(cursor_index);
@@ -779,7 +768,6 @@ bool AdjustablePie::posInCursor(const QPoint& pos,
     return true;
 }
 
-
 qreal AdjustablePie::angleToProportion(const qreal angle_degrees) const
 {
     // BEWARE that this will never produce 1.0, so some post-processing
@@ -787,12 +775,10 @@ qreal AdjustablePie::angleToProportion(const qreal angle_degrees) const
     return qBound(0.0, normalizeHeading(angle_degrees) / DEG_360, 1.0);
 }
 
-
 qreal AdjustablePie::proportionToAngle(const qreal proportion) const
 {
     return DEG_360 * proportion;
 }
-
 
 qreal AdjustablePie::angleOfPos(const QPoint& pos) const
 {
@@ -800,19 +786,16 @@ qreal AdjustablePie::angleOfPos(const QPoint& pos) const
     return convertAngleToInternal(polarThetaDeg(pie_centre, pos));
 }
 
-
 qreal AdjustablePie::radiusOfPos(const QPoint& pos) const
 {
     return distanceBetween(pos, contentsRect().center());
 }
-
 
 qreal AdjustablePie::cursorAngle(const int cursor_index) const
 {
     const qreal prop = m_cursor_props_cum.at(cursor_index);
     return proportionToAngle(prop);
 }
-
 
 void AdjustablePie::scheduleReport()
 {
@@ -823,28 +806,29 @@ void AdjustablePie::scheduleReport()
     }
 }
 
-
 void AdjustablePie::report()
 {
     emit proportionsChanged(allProportions());
     emit cumulativeProportionsChanged(allProportionsCumulative());
 }
 
-
 void AdjustablePie::normalize()
 {
     forceVectorSize(m_sector_penbrushes, m_n_sectors, DEFAULT_SECTOR_PENBRUSH);
     forceVectorSize(m_labels, m_n_sectors);
     forceVectorSize(m_label_colours, m_n_sectors, DEFAULT_LABEL_COLOUR);
-    forceVectorSize(m_cursor_penbrushes, m_n_sectors - 1,
-                    DEFAULT_CURSOR_PENBRUSH);
-    forceVectorSize(m_cursor_active_penbrushes, m_n_sectors - 1,
-                    DEFAULT_CURSOR_ACTIVE_PENBRUSH);
+    forceVectorSize(
+        m_cursor_penbrushes, m_n_sectors - 1, DEFAULT_CURSOR_PENBRUSH
+    );
+    forceVectorSize(
+        m_cursor_active_penbrushes,
+        m_n_sectors - 1,
+        DEFAULT_CURSOR_ACTIVE_PENBRUSH
+    );
     forceVectorSize(m_cursor_props_cum, m_n_sectors - 1, 0.0);
     normalizeProportions();
     update();
 }
-
 
 void AdjustablePie::normalizeProportions()
 {
@@ -853,7 +837,8 @@ void AdjustablePie::normalizeProportions()
     }
     m_cursor_props_cum[0] = qBound(0.0, m_cursor_props_cum[0], 1.0);
     for (int i = 1; i < m_n_sectors - 1; ++i) {
-        m_cursor_props_cum[i] = qBound(m_cursor_props_cum.at(i - 1),
-                                       m_cursor_props_cum.at(i), 1.0);
+        m_cursor_props_cum[i] = qBound(
+            m_cursor_props_cum.at(i - 1), m_cursor_props_cum.at(i), 1.0
+        );
     }
 }

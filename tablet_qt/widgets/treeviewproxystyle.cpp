@@ -35,6 +35,7 @@ Reported as bug: https://bugreports.qt.io/browse/QTBUG-62323
 */
 
 #include "treeviewproxystyle.h"
+
 #include <QDebug>
 
 TreeViewProxyStyle::TreeViewProxyStyle(QStyle* style) :
@@ -42,27 +43,28 @@ TreeViewProxyStyle::TreeViewProxyStyle(QStyle* style) :
 {
 }
 
-
-void TreeViewProxyStyle::drawPrimitive(PrimitiveElement element,
-                                       const QStyleOption* option,
-                                       QPainter* painter,
-                                       const QWidget* widget) const
+void TreeViewProxyStyle::drawPrimitive(
+    PrimitiveElement element,
+    const QStyleOption* option,
+    QPainter* painter,
+    const QWidget* widget
+) const
 {
     switch (element) {
-    case QStyle::PE_IndicatorArrowUp:
-        qDebug() << "arrow up";
-        break;
-    case QStyle::PE_IndicatorArrowDown:
-        qDebug() << "arrow down";
-        break;
-    case QStyle::PE_IndicatorArrowRight:
-        qDebug() << "arrow right";
-        break;
-    case QStyle::PE_IndicatorArrowLeft:
-        qDebug() << "arrow left";
-        break;
-    default:
-        QProxyStyle::drawPrimitive(element, option, painter, widget);
-        break;
+        case QStyle::PE_IndicatorArrowUp:
+            qDebug() << "arrow up";
+            break;
+        case QStyle::PE_IndicatorArrowDown:
+            qDebug() << "arrow down";
+            break;
+        case QStyle::PE_IndicatorArrowRight:
+            qDebug() << "arrow right";
+            break;
+        case QStyle::PE_IndicatorArrowLeft:
+            qDebug() << "arrow left";
+            break;
+        default:
+            QProxyStyle::drawPrimitive(element, option, painter, widget);
+            break;
     }
 }

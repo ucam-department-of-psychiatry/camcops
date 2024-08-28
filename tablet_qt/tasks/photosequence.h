@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,13 +31,16 @@ class TaskFactory;
 
 void initializePhotoSequence(TaskFactory& factory);
 
-
 class PhotoSequence : public Task
 {
     Q_OBJECT
+
 public:
-    PhotoSequence(CamcopsApp& app, DatabaseManager& db,
-                  int load_pk = dbconst::NONEXISTENT_PK);
+    PhotoSequence(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -44,7 +48,12 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
-    virtual bool isCrippled() const override { return false; }
+
+    virtual bool isCrippled() const override
+    {
+        return false;
+    }
+
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------
@@ -63,6 +72,7 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     int numPhotos() const;
     // ------------------------------------------------------------------------
@@ -85,9 +95,11 @@ protected:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
+
 protected:
     QVector<PhotoSequencePhotoPtr> m_photos;
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString PHOTOSEQUENCE_TABLENAME;
 };

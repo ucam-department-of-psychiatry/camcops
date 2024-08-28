@@ -20,28 +20,38 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-
 class SatisfactionCommon : public Task
 {
     // abstract base class
     // not a Q_OBJECT
+
 public:
-    SatisfactionCommon(CamcopsApp& app, DatabaseManager& db,
-                       const QString& tablename, bool anonymous,
-                       int load_pk = dbconst::NONEXISTENT_PK);
+    SatisfactionCommon(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        bool anonymous,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override = 0;
     virtual QString longname() const override = 0;
     virtual QString description() const override = 0;
-    virtual bool isCrippled() const override { return false; }
+
+    virtual bool isCrippled() const override
+    {
+        return false;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -50,11 +60,12 @@ public:
     virtual QStringList detail() const override;
     virtual void setDefaultsAtFirstUse() override;
     virtual OpenableWidget* editor(bool read_only = false) override = 0;
-    OpenableWidget* satisfactionEditor(const QString& rating_q,
-                                       bool read_only);
+    OpenableWidget*
+        satisfactionEditor(const QString& rating_q, bool read_only);
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     QString getRatingText() const;
 };

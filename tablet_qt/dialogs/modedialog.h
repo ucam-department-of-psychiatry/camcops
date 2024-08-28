@@ -21,10 +21,10 @@
 #pragma once
 #include <QDialog>
 #include <QPointer>
+
 #include "common/varconst.h"
 
 class QButtonGroup;
-
 
 class ModeDialog : public QDialog
 {
@@ -32,10 +32,13 @@ class ModeDialog : public QDialog
     // MODAL and BLOCKING: call exec() and read mode() if it succeeds.
 
     Q_OBJECT
+
 public:
-    ModeDialog(int previous_choice = varconst::MODE_NOT_SET,
-               QWidget* parent = nullptr);
+    ModeDialog(
+        int previous_choice = varconst::MODE_NOT_SET, QWidget* parent = nullptr
+    );
     int mode() const;
+
 protected:
     QPointer<QButtonGroup> m_mode_selector;
 };

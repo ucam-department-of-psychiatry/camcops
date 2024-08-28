@@ -25,6 +25,7 @@
 #define USE_FILE
 
 #include "cameraqml.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QMimeDatabase>
@@ -32,6 +33,7 @@
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
 #include <QVBoxLayout>
+
 #include "lib/uifunc.h"
 
 #ifdef DEBUG_TEST_QML_ONLY
@@ -114,12 +116,17 @@ BUT:
     */
     m_qml_view = new QQuickWidget();
     m_qml_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    connect(m_qml_view->engine(), &QQmlEngine::quit,
-            this, &CameraQml::cancelled);
+    connect(
+        m_qml_view->engine(), &QQmlEngine::quit, this, &CameraQml::cancelled
+    );
     // Just after calling setSource(), calling view->rootObject() can give a
     // nullptr, because it may be loading in the background. So:
-    connect(m_qml_view, &QQuickWidget::statusChanged,
-            this, &CameraQml::qmlStatusChanged);
+    connect(
+        m_qml_view,
+        &QQuickWidget::statusChanged,
+        this,
+        &CameraQml::qmlStatusChanged
+    );
     // ... and must set that signal before calling setSource().
 #ifdef DEBUG_TEST_QML_ONLY
     m_qml_view->setSource(uifunc::resourceUrl(TEST_ANIMATION_QML));
@@ -133,7 +140,6 @@ BUT:
     setLayout(top_layout);
 }
 
-
 // ============================================================================
 // Public interface
 // ============================================================================
@@ -142,7 +148,6 @@ void CameraQml::finish()
 {
     emit finished();
 }
-
 
 // ============================================================================
 // Internals
@@ -160,7 +165,6 @@ void CameraQml::qmlStatusChanged(const QQuickWidget::Status status)
     }
 }
 
-
 void CameraQml::qmlFinishedLoading()
 {
 #ifdef DEBUG_CAMERA
@@ -171,11 +175,19 @@ void CameraQml::qmlFinishedLoading()
     Q_ASSERT(root);
     // It's possible to connect to non-root objects, but it's much cleaner to
     // route from QML child objects up to the QML root object, and then to C++.
-    connect(root, SIGNAL(imageCaptured(const QVariant&)),
-            this, SLOT(copyPreviewImage(const QVariant&)));
+    connect(
+        root,
+        SIGNAL(imageCaptured(const QVariant&)),
+        this,
+        SLOT(copyPreviewImage(const QVariant&))
+    );
     connect(root, SIGNAL(previewSaved()), this, SLOT(savePreviewImage()));
-    connect(root, SIGNAL(fileNoLongerNeeded(const QString&)),
-            this, SLOT(deleteSuperfluousFile(const QString&)));
+    connect(
+        root,
+        SIGNAL(fileNoLongerNeeded(const QString&)),
+        this,
+        SLOT(deleteSuperfluousFile(const QString&))
+    );
     // ... we have to use SIGNAL() and SLOT() since C++ has no idea of the
     // provenance of the signal (and whether or not it exists) -- the macros
     // map signals via strings, so this works, but you'll get an error like
@@ -184,18 +196,15 @@ void CameraQml::qmlFinishedLoading()
     // if you get the type wrong.
 }
 
-
 void CameraQml::copyPreviewImage(const QVariant& preview)
 {
     m_preview = preview.value<QImage>();
 }
 
-
 void CameraQml::savePreviewImage()
 {
     emit imageCaptured(m_preview);
 }
-
 
 void CameraQml::deleteFile(const QString& filename) const
 {
@@ -208,7 +217,6 @@ void CameraQml::deleteFile(const QString& filename) const
                  << (success ? "... success" : "... FAILED!");
     }
 }
-
 
 void CameraQml::deleteSuperfluousFile(const QString& filename) const
 {

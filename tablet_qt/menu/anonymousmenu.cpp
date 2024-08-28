@@ -19,27 +19,24 @@
 */
 
 #include "anonymousmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/apeqpt.h"
 #include "tasks/gmcpq.h"
 #include "tasks/perinatalpoem.h"
 #include "tasks/referrersatisfactiongen.h"
-
 
 AnonymousMenu::AnonymousMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_ANONYMOUS))
 {
 }
 
-
 QString AnonymousMenu::title() const
 {
     return tr("Anonymous questionnaires");
 }
-
 
 void AnonymousMenu::makeItems()
 {
@@ -48,6 +45,8 @@ void AnonymousMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app
+        ),
     };
 }

@@ -19,9 +19,10 @@
 */
 
 #include "pswq.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -38,21 +39,20 @@ const QVector<int> REVERSE_SCORE{1, 3, 8, 10, 11};
 
 const QString Pswq::PSWQ_TABLENAME("pswq");
 
-
 void initializePswq(TaskFactory& factory)
 {
     static TaskRegistrar<Pswq> registered(factory);
 }
 
-
 Pswq::Pswq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PSWQ_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -63,18 +63,15 @@ QString Pswq::shortname() const
     return "PSWQ";
 }
 
-
 QString Pswq::longname() const
 {
     return tr("Penn State Worry Questionnaire");
 }
 
-
 QString Pswq::description() const
 {
     return tr("16-item self-report scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -85,16 +82,14 @@ bool Pswq::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Pswq::summary() const
 {
     return QStringList{
         QString("%1: <b>%2</b> (range 16–80)")
-                .arg(TextConst::totalScore())
-                .arg(totalScore()),
+            .arg(TextConst::totalScore())
+            .arg(totalScore()),
     };
 }
-
 
 QStringList Pswq::detail() const
 {
@@ -104,7 +99,6 @@ QStringList Pswq::detail() const
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Pswq::editor(const bool read_only)
 {
@@ -117,21 +111,22 @@ OpenableWidget* Pswq::editor(const bool read_only)
     };
     QVector<QuestionWithOneField> qfields;
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
-        qfields.append(QuestionWithOneField(xstring(strnum("q", q)),
-                                            fieldRef(strnum(QPREFIX, q))));
+        qfields.append(QuestionWithOneField(
+            xstring(strnum("q", q)), fieldRef(strnum(QPREFIX, q))
+        ));
     }
 
     QuPagePtr page((new QuPage{
-        (new QuText(xstring("instruction")))->setBold(true),
-        new QuMcqGrid(qfields, options),
-    })->setTitle(longname()));
+                        (new QuText(xstring("instruction")))->setBold(true),
+                        new QuMcqGrid(qfields, options),
+                    })
+                       ->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

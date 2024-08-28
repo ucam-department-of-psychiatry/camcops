@@ -21,26 +21,37 @@
 #pragma once
 #include "db/databaseobject.h"
 
-
 class CardinalExpDetTrialGroupSpec : public DatabaseObject
 {
     Q_OBJECT
+
 public:
-    CardinalExpDetTrialGroupSpec(CamcopsApp& app, DatabaseManager& db,
-                                 int load_pk = dbconst::NONEXISTENT_PK);
     CardinalExpDetTrialGroupSpec(
-            int task_pk, int group_num,
-            int cue, int target_modality, int target_number,
-            int n_target, int n_no_target,
-            CamcopsApp& app, DatabaseManager& db);
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
+    CardinalExpDetTrialGroupSpec(
+        int task_pk,
+        int group_num,
+        int cue,
+        int target_modality,
+        int target_number,
+        int n_target,
+        int n_no_target,
+        CamcopsApp& app,
+        DatabaseManager& db
+    );
     int cue() const;
     int targetModality() const;
     int targetNumber() const;
     int nTarget() const;
     int nNoTarget() const;
+
 public:
     static const QString GROUPSPEC_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_GROUP_NUM;
+
 protected:
 };

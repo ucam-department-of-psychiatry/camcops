@@ -49,23 +49,27 @@ SOFTWARE.
 #pragma once
 
 #include <QLabel>
-#include <QWidget>
 #include <Qt>
+#include <QWidget>
 
-class ClickableLabel : public QLabel {
+class ClickableLabel : public QLabel
+{
     Q_OBJECT
 
 public:
-    explicit ClickableLabel(QWidget* parent = Q_NULLPTR,
-                            Qt::WindowFlags f = Qt::WindowFlags());
-    explicit ClickableLabel(const QString& text,
-                            QWidget* parent = Q_NULLPTR,
-                            Qt::WindowFlags f = Qt::WindowFlags());
+    explicit ClickableLabel(
+        QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags()
+    );
+    explicit ClickableLabel(
+        const QString& text,
+        QWidget* parent = Q_NULLPTR,
+        Qt::WindowFlags f = Qt::WindowFlags()
+    );
     ~ClickableLabel() override;
 
 signals:
-   void clicked();
+    void clicked();
 
 protected:
-   void mousePressEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 };

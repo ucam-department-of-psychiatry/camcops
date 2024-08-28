@@ -19,9 +19,9 @@
 */
 
 #pragma once
-#include "lib/version.h"
 #include <QDate>
 
+#include "lib/version.h"
 
 namespace camcopsversion {
 
@@ -29,8 +29,8 @@ namespace camcopsversion {
 
 extern const Version CAMCOPS_CLIENT_VERSION;  // Client version
 extern const QDate CAMCOPS_CLIENT_CHANGEDATE;
-    // ... When was the client last changed?
+// ... When was the client last changed?
 extern const Version MINIMUM_SERVER_VERSION;
-    // ... What's the minimum acceptable server version?
+// ... What's the minimum acceptable server version?
 
 }  // namespace camcopsversion

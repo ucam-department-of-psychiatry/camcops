@@ -19,12 +19,11 @@
 */
 
 #include "neurodiversitymenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/aq.h"
-
 
 NeurodiversityMenu::NeurodiversityMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_NEURODIVERSITY))
@@ -45,12 +44,10 @@ NeurodiversityMenu::NeurodiversityMenu(CamcopsApp& app) :
     */
 }
 
-
 QString NeurodiversityMenu::title() const
 {
     return tr("Neurodiversity");
 }
-
 
 void NeurodiversityMenu::makeItems()
 {

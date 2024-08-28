@@ -19,16 +19,18 @@
 */
 
 #include "mcqfunc.h"
+
 #include <QDebug>
 #include <QString>
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "db/fieldref.h"
 #include "lib/sizehelpers.h"
+#include "namevalueoptions.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalline.h"
-#include "namevalueoptions.h"
 
 namespace mcqfunc {
 
@@ -94,16 +96,15 @@ void addVerticalLine(GridLayout* grid, const int col, const int n_rows)
     grid->addWidget(vline, 0, col, n_rows, 1);
 }
 
-
-void addQuestion(GridLayout* grid, const int row, const QString& question,
-                 bool bold)
+void addQuestion(
+    GridLayout* grid, const int row, const QString& question, bool bold
+)
 {
     auto q = new LabelWordWrapWide(question);
     q->setAlignment(question_text_align);
     q->setObjectName(bold ? cssconst::QUESTION : cssconst::OPTION);
     grid->addWidget(q, row, 0, question_widget_align);
 }
-
 
 void addTitle(GridLayout* grid, const int row, const QString& title)
 {
@@ -115,7 +116,6 @@ void addTitle(GridLayout* grid, const int row, const QString& title)
     }
 }
 
-
 void addSubtitle(GridLayout* grid, const int row, const QString& subtitle)
 {
     if (!subtitle.isEmpty()) {
@@ -126,9 +126,13 @@ void addSubtitle(GridLayout* grid, const int row, const QString& subtitle)
     }
 }
 
-
-void addStem(GridLayout* grid, const int row, const int firstcol,
-             const int colspan, const QString& stem)
+void addStem(
+    GridLayout* grid,
+    const int row,
+    const int firstcol,
+    const int colspan,
+    const QString& stem
+)
 {
     if (!stem.isEmpty()) {
         auto w = new LabelWordWrapWide(stem);
@@ -138,9 +142,9 @@ void addStem(GridLayout* grid, const int row, const int firstcol,
     }
 }
 
-
-void addOption(GridLayout* grid, const int row, const int col,
-               const QString& option)
+void addOption(
+    GridLayout* grid, const int row, const int col, const QString& option
+)
 {
     auto w = new LabelWordWrapWide(option);
     w->setAlignment(option_text_align);
@@ -148,30 +152,41 @@ void addOption(GridLayout* grid, const int row, const int col,
     grid->addWidget(w, row, col, option_widget_align);
 }
 
-
-void addOptionBackground(GridLayout* grid, const int row, const int firstcol,
-                         const int ncols, const int nrows)
+void addOptionBackground(
+    GridLayout* grid,
+    const int row,
+    const int firstcol,
+    const int ncols,
+    const int nrows
+)
 {
     auto bg = new QWidget();
     bg->setObjectName(cssconst::OPTION_BACKGROUND);
     grid->addWidget(bg, row, firstcol, nrows, ncols);
 }
 
-
-void addStripeBackground(GridLayout* grid, const int row, const int firstcol,
-                         const int ncols, const int nrows)
+void addStripeBackground(
+    GridLayout* grid,
+    const int row,
+    const int firstcol,
+    const int ncols,
+    const int nrows
+)
 {
     const bool even = row % 2 == 0;
     auto bg = new QWidget();
-    bg->setObjectName(even ? cssconst::STRIPE_BACKGROUND_EVEN
-                           : cssconst::STRIPE_BACKGROUND_ODD);
+    bg->setObjectName(
+        even ? cssconst::STRIPE_BACKGROUND_EVEN
+             : cssconst::STRIPE_BACKGROUND_ODD
+    );
     grid->addWidget(bg, row, firstcol, nrows, ncols);
 }
 
-
-void setResponseWidgets(const NameValueOptions& options,
-                        const QVector<QPointer<BooleanWidget>>& question_widgets,
-                        const FieldRef* fieldref)
+void setResponseWidgets(
+    const NameValueOptions& options,
+    const QVector<QPointer<BooleanWidget>>& question_widgets,
+    const FieldRef* fieldref
+)
 {
     if (!fieldref) {
         qWarning() << Q_FUNC_INFO << "Bad fieldref!";
@@ -181,9 +196,8 @@ void setResponseWidgets(const NameValueOptions& options,
     const bool null = value.isNull();
     const int position = options.positionFromValue(value);
     if (!null && position == -1) {
-        qWarning().nospace()
-                << Q_FUNC_INFO << " - unknown value " << value
-                << " (options are " << options << ")";
+        qWarning().nospace() << Q_FUNC_INFO << " - unknown value " << value
+                             << " (options are " << options << ")";
         // But we must PROCEED so that the widgets are shown.
     }
     for (int vi = 0; vi < question_widgets.size(); ++vi) {
@@ -195,15 +209,15 @@ void setResponseWidgets(const NameValueOptions& options,
         if (vi == position) {
             w->setState(BooleanWidget::State::True);
         } else if (position == -1) {  // null but not selected
-            w->setState(fieldref->mandatory()
-                        ? BooleanWidget::State::NullRequired
-                        : BooleanWidget::State::Null);
+            w->setState(
+                fieldref->mandatory() ? BooleanWidget::State::NullRequired
+                                      : BooleanWidget::State::Null
+            );
         } else {
             w->setState(BooleanWidget::State::False);
         }
     }
 }
-
 
 void toggleBooleanField(FieldRef* fieldref, const bool allow_unset)
 {

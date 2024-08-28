@@ -24,16 +24,14 @@
 
 #include "qobjects/widgetpositioner.h"
 
-class TestWidgetPositioner: public QObject
+class TestWidgetPositioner : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testOrientationChangeClipsToScreenIfTooBig();
     void testOrientationChangeCentresWidget();
-
 };
-
 
 void TestWidgetPositioner::testOrientationChangeClipsToScreenIfTooBig()
 {
@@ -44,8 +42,9 @@ void TestWidgetPositioner::testOrientationChangeClipsToScreenIfTooBig()
     auto positioner = new WidgetPositioner(&dialog);
 
     // The orientation actually gets ignored but we have to put in something
-    const bool ok = QMetaObject::invokeMethod(positioner, "orientationChanged",
-                                              Qt::PortraitOrientation);
+    const bool ok = QMetaObject::invokeMethod(
+        positioner, "orientationChanged", Qt::PortraitOrientation
+    );
     QVERIFY(ok);
 
     QRect screen_geometry = dialog.screen()->availableGeometry();
@@ -53,7 +52,6 @@ void TestWidgetPositioner::testOrientationChangeClipsToScreenIfTooBig()
     QCOMPARE(dialog.width(), screen_geometry.width());
     QCOMPARE(dialog.height(), screen_geometry.height());
 }
-
 
 void TestWidgetPositioner::testOrientationChangeCentresWidget()
 {
@@ -68,16 +66,17 @@ void TestWidgetPositioner::testOrientationChangeCentresWidget()
     auto positioner = new WidgetPositioner(&dialog);
 
     // The orientation actually gets ignored but we have to put in something
-    const bool ok = QMetaObject::invokeMethod(positioner, "orientationChanged",
-                                              Qt::PortraitOrientation);
+    const bool ok = QMetaObject::invokeMethod(
+        positioner, "orientationChanged", Qt::PortraitOrientation
+    );
     QVERIFY(ok);
 
     QRect screen_geometry = dialog.screen()->availableGeometry();
 
     QCOMPARE(dialog.width(), dialog_width);
     QCOMPARE(dialog.height(), dialog_height);
-    QCOMPARE(dialog.pos().x(), (screen_geometry.width() - dialog_width) /2);
-    QCOMPARE(dialog.pos().y(), (screen_geometry.height() - dialog_height) /2);
+    QCOMPARE(dialog.pos().x(), (screen_geometry.width() - dialog_width) / 2);
+    QCOMPARE(dialog.pos().y(), (screen_geometry.height() - dialog_height) / 2);
 }
 
 QTEST_MAIN(TestWidgetPositioner)

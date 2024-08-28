@@ -21,13 +21,15 @@
 // #define DEBUG_DX_SELECTOR_SPEED
 
 #include "qudiagnosticcode.h"
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
-#include "core/camcopsapp.h"
+
 #include "common/cssconst.h"
+#include "core/camcopsapp.h"
 #include "diagnosis/diagnosticcodeset.h"
 #include "lib/slowguiguard.h"
 #include "lib/uifunc.h"
@@ -37,11 +39,12 @@
 #include "widgets/diagnosticcodeselector.h"
 #include "widgets/labelwordwrapwide.h"
 
-
-QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
-                                   FieldRefPtr fieldref_code,
-                                   FieldRefPtr fieldref_description,
-                                   QObject* parent) :
+QuDiagnosticCode::QuDiagnosticCode(
+    DiagnosticCodeSetPtr codeset,
+    FieldRefPtr fieldref_code,
+    FieldRefPtr fieldref_description,
+    QObject* parent
+) :
     QuElement(parent),
     m_codeset(codeset),
     m_fieldref_code(fieldref_code),
@@ -54,10 +57,18 @@ QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
     Q_ASSERT(m_codeset);
     Q_ASSERT(m_fieldref_code);
     Q_ASSERT(m_fieldref_description);
-    connect(m_fieldref_code.data(), &FieldRef::valueChanged,
-            this, &QuDiagnosticCode::fieldValueChanged);
-    connect(m_fieldref_code.data(), &FieldRef::mandatoryChanged,
-            this, &QuDiagnosticCode::fieldValueChanged);
+    connect(
+        m_fieldref_code.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuDiagnosticCode::fieldValueChanged
+    );
+    connect(
+        m_fieldref_code.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuDiagnosticCode::fieldValueChanged
+    );
     // We don't track changes to the description; they're assumed to follow
     // code changes directly.
     // NOTE that this method violates the "DRY" principle but is for clinical
@@ -65,28 +76,25 @@ QuDiagnosticCode::QuDiagnosticCode(DiagnosticCodeSetPtr codeset,
     // picked the diagnosis is preserved with the code.
 }
 
-
-QuDiagnosticCode* QuDiagnosticCode::setOfferNullButton(
-        const bool offer_null_button)
+QuDiagnosticCode*
+    QuDiagnosticCode::setOfferNullButton(const bool offer_null_button)
 {
     m_offer_null_button = offer_null_button;
     return this;
 }
-
 
 void QuDiagnosticCode::setFromField()
 {
     fieldValueChanged(m_fieldref_code.data());
 }
 
-
 QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
 {
     m_questionnaire = questionnaire;
     const bool read_only = questionnaire->readOnly();
 
-    m_missing_indicator = uifunc::iconWidget(
-                uifunc::iconFilename(uiconst::ICON_WARNING));
+    m_missing_indicator
+        = uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
     m_label_code = new LabelWordWrapWide();
     m_label_code->setObjectName(cssconst::DIAGNOSTIC_CODE);
     m_label_description = new LabelWordWrapWide();
@@ -106,8 +114,12 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     // button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setEnabled(!read_only);
     if (!read_only) {
-        connect(button, &ClickableLabelWordWrapWide::clicked,
-                this, &QuDiagnosticCode::setButtonClicked);
+        connect(
+            button,
+            &ClickableLabelWordWrapWide::clicked,
+            this,
+            &QuDiagnosticCode::setButtonClicked
+        );
     }
 
     auto buttonlayout = new HBoxLayout();
@@ -120,8 +132,12 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
         // null_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         null_button->setEnabled(!read_only);
         if (!read_only) {
-            connect(null_button, &ClickableLabelWordWrapWide::clicked,
-                    this, &QuDiagnosticCode::nullButtonClicked);
+            connect(
+                null_button,
+                &ClickableLabelWordWrapWide::clicked,
+                this,
+                &QuDiagnosticCode::nullButtonClicked
+            );
         }
         buttonlayout->addWidget(null_button, 0, widget_align);
     }
@@ -142,7 +158,6 @@ QPointer<QWidget> QuDiagnosticCode::makeWidget(Questionnaire* questionnaire)
     return m_widget;
 }
 
-
 void QuDiagnosticCode::setButtonClicked()
 {
     if (!m_questionnaire) {
@@ -153,16 +168,22 @@ void QuDiagnosticCode::setButtonClicked()
     const QString code = m_fieldref_code->valueString();
     const QModelIndex selected = m_codeset->firstMatchCode(code);
     const QString stylesheet = m_questionnaire->getSubstitutedCss(
-                uiconst::CSS_CAMCOPS_DIAGNOSTIC_CODE);
+        uiconst::CSS_CAMCOPS_DIAGNOSTIC_CODE
+    );
 #ifdef DEBUG_DX_SELECTOR_SPEED
     qDebug() << Q_FUNC_INFO << "Making DiagnosticCodeSelector...";
 #endif
-    auto selector = new DiagnosticCodeSelector(stylesheet, m_codeset, selected);
+    auto selector
+        = new DiagnosticCodeSelector(stylesheet, m_codeset, selected);
 #ifdef DEBUG_DX_SELECTOR_SPEED
     qDebug() << Q_FUNC_INFO << "... done";
 #endif
-    connect(selector, &DiagnosticCodeSelector::codeChanged,
-            this, &QuDiagnosticCode::widgetChangedCode);
+    connect(
+        selector,
+        &DiagnosticCodeSelector::codeChanged,
+        this,
+        &QuDiagnosticCode::widgetChangedCode
+    );
 #ifdef DEBUG_DX_SELECTOR_SPEED
     qDebug() << Q_FUNC_INFO << "Opening DiagnosticCodeSelector widget...";
 #endif
@@ -172,7 +193,6 @@ void QuDiagnosticCode::setButtonClicked()
 #endif
 }
 
-
 void QuDiagnosticCode::nullButtonClicked()
 {
     const QVariant nullvalue;
@@ -181,22 +201,19 @@ void QuDiagnosticCode::nullButtonClicked()
     emit elementValueChanged();
 }
 
-
 FieldRefPtrList QuDiagnosticCode::fieldrefs() const
 {
-    return FieldRefPtrList{m_fieldref_code,
-                           m_fieldref_description};
+    return FieldRefPtrList{m_fieldref_code, m_fieldref_description};
 }
 
-
-void QuDiagnosticCode::widgetChangedCode(const QString& code,
-                                         const QString& description)
+void QuDiagnosticCode::widgetChangedCode(
+    const QString& code, const QString& description
+)
 {
     m_fieldref_description->setValue(description);  // BEFORE setting code, as:
     m_fieldref_code->setValue(code);  // ... will trigger valueChanged
     emit elementValueChanged();
 }
-
 
 void QuDiagnosticCode::fieldValueChanged(const FieldRef* fieldref_code)
 {

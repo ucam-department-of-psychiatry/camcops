@@ -23,18 +23,22 @@
 
 void initializePclM(TaskFactory& factory);
 
-
 class PclM : public PclCommon
 {
     Q_OBJECT
+
 public:
-    PclM(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    PclM(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
+
 public:
     static const QString PCLM_TABLENAME;
 };

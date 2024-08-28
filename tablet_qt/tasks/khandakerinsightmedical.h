@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeKhandakerInsightMedical(TaskFactory& factory);
 
-
 class KhandakerInsightMedical : public Task
 {
     Q_OBJECT
+
 public:
-    KhandakerInsightMedical(CamcopsApp& app, DatabaseManager& db,
-                            int load_pk = dbconst::NONEXISTENT_PK);
+    KhandakerInsightMedical(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -42,7 +46,12 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual QString infoFilenameStem() const override;
-    virtual bool isCrippled() const override { return false; }
+
+    virtual bool isCrippled() const override
+    {
+        return false;
+    }
+
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -60,6 +69,7 @@ public:
 signals:
 public slots:
     void updateMandatory();
+
 public:
     static const QString KHANDAKERINSIGHTMEDICAL_TABLENAME;
 };

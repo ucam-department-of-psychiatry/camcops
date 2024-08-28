@@ -20,11 +20,12 @@
 
 #if 0
 
-#include "ctqsf.h"
-#include "lib/stringfunc.h"
-#include "lib/version.h"
-#include "tasklib/taskfactory.h"
-#include "tasklib/taskregistrar.h"
+    #include "ctqsf.h"
+
+    #include "lib/stringfunc.h"
+    #include "lib/version.h"
+    #include "tasklib/taskfactory.h"
+    #include "tasklib/taskregistrar.h"
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;

@@ -64,6 +64,7 @@
 // #define DEBUG_CAMERA
 
 #include "cameraqcamera.h"
+
 #include <QCameraDevice>
 #include <QCloseEvent>
 #include <QFile>
@@ -80,6 +81,7 @@
 #include <QVBoxLayout>
 #include <QVideoFrame>
 #include <QVideoWidget>
+
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
@@ -136,10 +138,11 @@ CameraQCamera::CameraQCamera(const QString& stylesheet, QWidget* parent) :
 {
 }
 
-
-CameraQCamera::CameraQCamera(const QCameraDevice& camera_device,
-                             const QString& stylesheet,
-                             QWidget* parent) :
+CameraQCamera::CameraQCamera(
+    const QCameraDevice& camera_device,
+    const QString& stylesheet,
+    QWidget* parent
+) :
     OpenableWidget(parent)
 {
     setStyleSheet(stylesheet);
@@ -156,12 +159,20 @@ CameraQCamera::CameraQCamera(const QCameraDevice& camera_device,
     Qt::Alignment align_top_left = Qt::AlignLeft | Qt::AlignTop;
 
     m_button_take = new QPushButton(tr("Take"));
-    connect(m_button_take, &QAbstractButton::clicked,
-            this, &CameraQCamera::takeImage);
+    connect(
+        m_button_take,
+        &QAbstractButton::clicked,
+        this,
+        &CameraQCamera::takeImage
+    );
 
     m_button_cancel = new QPushButton(TextConst::cancel());
-    connect(m_button_cancel, &QAbstractButton::clicked,
-            this, &CameraQCamera::cancelled);
+    connect(
+        m_button_cancel,
+        &QAbstractButton::clicked,
+        this,
+        &CameraQCamera::cancelled
+    );
 
     auto button_layout = new QVBoxLayout();
     button_layout->addWidget(m_button_take, 0, align_top_left);
@@ -171,7 +182,9 @@ CameraQCamera::CameraQCamera(const QCameraDevice& camera_device,
     button_widget->setLayout(button_layout);
 
     m_viewfinder = new QVideoWidget();
-    m_viewfinder->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_viewfinder->setSizePolicy(
+        QSizePolicy::Expanding, QSizePolicy::Expanding
+    );
 
     auto middle_layout = new QHBoxLayout();
     middle_layout->addWidget(button_widget);
@@ -198,7 +211,6 @@ CameraQCamera::CameraQCamera(const QCameraDevice& camera_device,
     setCamera(camera_device);
 }
 
-
 CameraQCamera::~CameraQCamera()
 {
 #ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
@@ -211,7 +223,6 @@ CameraQCamera::~CameraQCamera()
 #endif
 }
 
-
 // ============================================================================
 // Public interface
 // ============================================================================
@@ -221,31 +232,29 @@ void CameraQCamera::finish()
     emit finished();
 }
 
-
 QImage CameraQCamera::image() const
 {
     return m_most_recent_image;
 #ifndef CAMERA_LOAD_FROM_DISK_PROMPTLY
     QImage img;
     switch (m_captured_state) {
-    case CapturedState::Nothing:
-        qDebug() << "... no file captured yet";
-        break;
-    case CapturedState::File:
-        qDebug() << "... returning contents of" << m_most_recent_filename;
-        qInfo() << "Camera::image: Loading image file...";
-        img.load(m_most_recent_filename);
-        qInfo() << "Camera::image: ... loaded.";
-        break;
-    case CapturedState::Buffer:
-        qDebug() << "... returning image from buffer";
-        img = m_most_recent_image;  // no cost; copy-on-write
-        break;
+        case CapturedState::Nothing:
+            qDebug() << "... no file captured yet";
+            break;
+        case CapturedState::File:
+            qDebug() << "... returning contents of" << m_most_recent_filename;
+            qInfo() << "Camera::image: Loading image file...";
+            img.load(m_most_recent_filename);
+            qInfo() << "Camera::image: ... loaded.";
+            break;
+        case CapturedState::Buffer:
+            qDebug() << "... returning image from buffer";
+            img = m_most_recent_image;  // no cost; copy-on-write
+            break;
     }
     return img;
 #endif
 }
-
 
 // ============================================================================
 // Talking to the camera
@@ -267,20 +276,36 @@ void CameraQCamera::setCamera(const QCameraDevice& camera_device)
 #endif
     m_capture_session.setCamera(m_camera.data());
 
-    connect(m_camera.data(), &QCamera::errorOccurred,
-            this, &CameraQCamera::displayCameraError);
+    connect(
+        m_camera.data(),
+        &QCamera::errorOccurred,
+        this,
+        &CameraQCamera::displayCameraError
+    );
     // ------------------------------------------------------------------------
     // QImageCapture
     // ------------------------------------------------------------------------
     m_capture = QSharedPointer<QImageCapture>(new QImageCapture);
     m_capture_session.setImageCapture(m_capture.data());
 
-    connect(m_capture.data(), &QImageCapture::readyForCaptureChanged,
-            this, &CameraQCamera::readyForCapture);
-    connect(m_capture.data(), &QImageCapture::imageSaved,
-            this, &CameraQCamera::imageSaved);
-    connect(m_capture.data(), &QImageCapture::errorOccurred,
-            this, &CameraQCamera::displayCaptureError);
+    connect(
+        m_capture.data(),
+        &QImageCapture::readyForCaptureChanged,
+        this,
+        &CameraQCamera::readyForCapture
+    );
+    connect(
+        m_capture.data(),
+        &QImageCapture::imageSaved,
+        this,
+        &CameraQCamera::imageSaved
+    );
+    connect(
+        m_capture.data(),
+        &QImageCapture::errorOccurred,
+        this,
+        &CameraQCamera::displayCaptureError
+    );
 
     // ------------------------------------------------------------------------
     // Viewfinder
@@ -294,7 +319,6 @@ void CameraQCamera::setCamera(const QCameraDevice& camera_device)
     startCamera();
 }
 
-
 void CameraQCamera::startCamera()
 {
 #ifdef DEBUG_CAMERA
@@ -303,7 +327,6 @@ void CameraQCamera::startCamera()
     m_camera->start();
 }
 
-
 void CameraQCamera::stopCamera()
 {
 #ifdef DEBUG_CAMERA
@@ -311,7 +334,6 @@ void CameraQCamera::stopCamera()
 #endif
     m_camera->stop();
 }
-
 
 void CameraQCamera::takeImage()
 {
@@ -325,10 +347,9 @@ void CameraQCamera::takeImage()
     m_capture->captureToFile();  // a bit slow, so update buttons first
 }
 
-
-void CameraQCamera::displayCaptureError(const int id,
-                                        const QImageCapture::Error error,
-                                        const QString& error_string)
+void CameraQCamera::displayCaptureError(
+    const int id, const QImageCapture::Error error, const QString& error_string
+)
 {
     qWarning() << "Capture error:" << id << error << error_string;
     ScrollMessageBox::warning(this, tr("Image capture error"), error_string);
@@ -336,14 +357,12 @@ void CameraQCamera::displayCaptureError(const int id,
     updateButtons();
 }
 
-
 void CameraQCamera::displayCameraError(const QCamera::Error value)
 {
     QString err = m_camera->errorString();
     qWarning() << "Camera error:" << value << err;
     ScrollMessageBox::warning(this, tr("Camera error"), err);
 }
-
 
 void CameraQCamera::updateButtons()
 {
@@ -354,7 +373,6 @@ void CameraQCamera::updateButtons()
         m_button_cancel->setEnabled(!m_capturing_image);
     }
 }
-
 
 void CameraQCamera::readyForCapture(const bool ready)
 {
@@ -393,7 +411,6 @@ void CameraQCamera::imageSaved(const int id, const QString& filename)
     }
 }
 
-
 void CameraQCamera::closeEvent(QCloseEvent* event)
 {
     if (m_capturing_image) {
@@ -405,7 +422,6 @@ void CameraQCamera::closeEvent(QCloseEvent* event)
     }
 }
 
-
 void CameraQCamera::keyPressEvent(QKeyEvent* event)
 {
     if (event->isAutoRepeat()) {
@@ -413,15 +429,14 @@ void CameraQCamera::keyPressEvent(QKeyEvent* event)
     }
 
     switch (event->key()) {
-    case Qt::Key_Camera:
-        takeImage();
-        event->accept();
-        break;
-    default:
-        OpenableWidget::keyPressEvent(event);
+        case Qt::Key_Camera:
+            takeImage();
+            event->accept();
+            break;
+        default:
+            OpenableWidget::keyPressEvent(event);
     }
 }
-
 
 void CameraQCamera::keyReleaseEvent(QKeyEvent* event)
 {

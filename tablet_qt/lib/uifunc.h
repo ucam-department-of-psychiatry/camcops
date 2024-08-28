@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QSize>
 #include <QString>
+
 #include "common/uiconst.h"
 
 class CamcopsApp;
@@ -34,7 +35,6 @@ class QPlainTextEdit;
 class QPointF;
 class QWidget;
 
-
 namespace uifunc {
 
 // ============================================================================
@@ -43,8 +43,9 @@ namespace uifunc {
 
 // Loads a pixmap from disk (or a resource file). By default, cache it by
 // filename. If size is specified, rescale it.
-QPixmap getPixmap(const QString& filename, const QSize& size = QSize(),
-                  bool cache = true);
+QPixmap getPixmap(
+    const QString& filename, const QSize& size = QSize(), bool cache = true
+);
 
 // ============================================================================
 // Icons
@@ -52,21 +53,30 @@ QPixmap getPixmap(const QString& filename, const QSize& size = QSize(),
 
 // Returns a QLabel with an image loaded from the specified filename.
 // If scale is true, scale to the specified size.
-QLabel* iconWidget(const QString& filename,
-                   QWidget* parent = nullptr,
-                   bool scale = true,
-                   const QSize& size = uiconst::g_iconsize);
+QLabel* iconWidget(
+    const QString& filename,
+    QWidget* parent = nullptr,
+    bool scale = true,
+    const QSize& size = uiconst::g_iconsize
+);
 
 // Given an existing QLabel, force it to show an icon of the standard size
 // (or nothing, with zero size, if "filename" is empty).
-void setLabelToIcon(QLabel* iconlabel, const QString& filename,
-                    bool scale = true, const QSize& size = uiconst::g_iconsize);
+void setLabelToIcon(
+    QLabel* iconlabel,
+    const QString& filename,
+    bool scale = true,
+    const QSize& size = uiconst::g_iconsize
+);
 
 // Adds a circle behind (or on top of) the supplied image (used for "you are
 // touching this" indicators on icons).
-QPixmap addCircleBackground(const QPixmap& image, const QColor& colour,
-                            bool behind = true,
-                            qreal pixmap_opacity = 1.0);
+QPixmap addCircleBackground(
+    const QPixmap& image,
+    const QColor& colour,
+    bool behind = true,
+    qreal pixmap_opacity = 1.0
+);
 
 // Adds a standard "you are touching this" indicator.
 QPixmap addPressedBackground(const QPixmap& image, bool behind = true);
@@ -78,8 +88,9 @@ QPixmap addUnpressedBackground(const QPixmap& image, bool behind = true);
 QPixmap makeDisabledIcon(const QPixmap& image);
 
 // Creates a blank icon of our standard size (or a specified size).
-QLabel* blankIcon(QWidget* parent = nullptr,
-                  const QSize& size = uiconst::g_iconsize);
+QLabel* blankIcon(
+    QWidget* parent = nullptr, const QSize& size = uiconst::g_iconsize
+);
 
 // Returns the full "path" to a Qt QRC resource file; e.g. if given
 // "somepath/somefile.txt", returns ":/resources/somepath/somefile.txt".
@@ -100,14 +111,17 @@ QString iconFilename(const QString& basefile);
 
 // Returns CSS for a QToolButton that shows one image normally and another
 // when being pressed/touched.
-QString iconButtonStylesheet(const QString& normal_filename,
-                             const QString& pressed_filename);
+QString iconButtonStylesheet(
+    const QString& normal_filename, const QString& pressed_filename
+);
 
 // Returns a button (a QToolButton) that shows one image normally and another
 // when being pressed/touched.
-QAbstractButton* iconButton(const QString& normal_filename,
-                            const QString& pressed_filename = QString(),
-                            QWidget* parent = nullptr);
+QAbstractButton* iconButton(
+    const QString& normal_filename,
+    const QString& pressed_filename = QString(),
+    QWidget* parent = nullptr
+);
 
 
 // ============================================================================
@@ -118,32 +132,35 @@ QAbstractButton* iconButton(const QString& normal_filename,
 bool amInGuiThread();
 
 // Kill the app. Pops up a modal dialogue, then performs a hard kill.
-[[ noreturn ]] void stopApp(
-        const QString& error,
-        // QStringLiteral() here causing compilation error on Windows
-        // "function declared with 'noreturn' has a return statement"
-        const QString& title = "CamCOPS internal bug: stopping");
+[[noreturn]] void stopApp(
+    const QString& error,
+    // QStringLiteral() here causing compilation error on Windows
+    // "function declared with 'noreturn' has a return statement"
+    const QString& title = "CamCOPS internal bug: stopping"
+);
 
 // ============================================================================
 // Alerts
 // ============================================================================
 
 // Show an alert message via a ScrollMessageBox.
-void alert(const QString& text,
-           const QString& title = QObject::tr("Alert"));
+void alert(const QString& text, const QString& title = QObject::tr("Alert"));
 
 // Show an alert message via a ScrollMessageBox, joining the lines with "<br>".
-void alert(const QStringList& lines,
-           const QString& title = QObject::tr("Alert"));
+void alert(
+    const QStringList& lines, const QString& title = QObject::tr("Alert")
+);
 
 // Show an alert via a LogMessageBox.
-void alertLogMessageBox(const QString& text, const QString& title,
-                        bool as_html = true);
+void alertLogMessageBox(
+    const QString& text, const QString& title, bool as_html = true
+);
 
 // Show an alert via a LogMessageBox, joining the lines with "\n" or
 // "<br>" depending on as_html.
-void alertLogMessageBox(const QStringList& lines, const QString& title,
-                        bool as_html = true);
+void alertLogMessageBox(
+    const QStringList& lines, const QString& title, bool as_html = true
+);
 
 // Show an alert to say "you can't do this while CamCOPS is locked".
 void alertNotWhenLocked();
@@ -154,13 +171,19 @@ void alertNotWhenLocked();
 
 // Shows text and yes/no options in a modal dialogue box.
 // Returns: does the user want to proceed?
-bool confirm(const QString& text, const QString& title,
-             QString yes, QString no, QWidget* parent = nullptr);
+bool confirm(
+    const QString& text,
+    const QString& title,
+    QString yes,
+    QString no,
+    QWidget* parent = nullptr
+);
 
 // Shows text in a modal dialogue box. The user must type 'Yes' to proceed
 // Returns: does the user want to proceed?
-bool confirmDangerousOperation(const QString& text, const QString& title,
-                               QWidget* parent = nullptr);
+bool confirmDangerousOperation(
+    const QString& text, const QString& title, QWidget* parent = nullptr
+);
 
 // ============================================================================
 // Password checks/changes
@@ -168,17 +191,25 @@ bool confirmDangerousOperation(const QString& text, const QString& title,
 
 // Asks the user for a password and stores it in "password".
 // Returns: did the user enter one (rather than cancel)?
-bool getPassword(const QString& text, const QString& title,
-                 QString& password, QWidget* parent);
+bool getPassword(
+    const QString& text,
+    const QString& title,
+    QString& password,
+    QWidget* parent
+);
 
 // Asks the user for an old password and a new password (twice) and stores
 // them.
 // Ensures that the new password is not blank and that the two copies match.
 // Returns: did the user enter one (rather than cancel)?
-bool getOldNewPasswords(const QString& text, const QString& title,
-                        bool require_old_password,
-                        QString& old_password, QString& new_password,
-                        QWidget* parent);
+bool getOldNewPasswords(
+    const QString& text,
+    const QString& title,
+    bool require_old_password,
+    QString& old_password,
+    QString& new_password,
+    QWidget* parent
+);
 
 // ============================================================================
 // Choose language
@@ -194,8 +225,12 @@ void chooseLanguage(CamcopsApp& app, QWidget* parent_window);
 
 // Generates a CSS string applicable to text, such as
 // "font-size: 11pt; font-weight: bold;"
-QString textCSS(int fontsize_pt, bool bold = false, bool italic = false,
-                const QString& colour = QString());
+QString textCSS(
+    int fontsize_pt,
+    bool bold = false,
+    bool italic = false,
+    const QString& colour = QString()
+);
 
 // ============================================================================
 // Opening URLS
@@ -244,8 +279,9 @@ void makeItemViewScrollSmoothly(QObject* object);
 // Sizing
 // ============================================================================
 
-QSize minimumSizeForTitle(const QDialog* dialog,
-                          bool include_app_name = false);
+QSize minimumSizeForTitle(
+    const QDialog* dialog, bool include_app_name = false
+);
 
 QScreen* screen();
 QRect screenGeometry();

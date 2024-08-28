@@ -20,11 +20,11 @@
 
 #pragma once
 #include <QSqlDatabase>
+
 #include "common/dbconst.h"
 #include "task.h"
 
 class TaskFactory;
-
 
 // For TaskFactory:
 // ===========================================================================
@@ -42,7 +42,6 @@ class TaskProxy
     Q_DISABLE_COPY(TaskProxy)
 
 public:
-
     // Construct the proxy, which registers itself with the factory.
     TaskProxy(TaskFactory& factory);
 
@@ -50,19 +49,25 @@ public:
     virtual ~TaskProxy() = default;
 
     // Create an instance of the task and return it.
-    virtual TaskPtr create(CamcopsApp& app,
-                           DatabaseManager& db,
-                           int load_pk = dbconst::NONEXISTENT_PK) const = 0;
+    virtual TaskPtr create(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    ) const
+        = 0;
 
     // Fetch tasks from the database.
-    virtual TaskPtrList fetch(CamcopsApp& app,
-                              DatabaseManager& db,
-                              int patient_id = dbconst::NONEXISTENT_PK) const = 0;
+    virtual TaskPtrList fetch(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int patient_id = dbconst::NONEXISTENT_PK
+    ) const
+        = 0;
 
 protected:
-
     // Fetch tasks from the database that meet specified criteria.
-    virtual TaskPtrList fetchWhere(CamcopsApp& app,
-                                   DatabaseManager& db,
-                                   const WhereConditions& where) const = 0;
+    virtual TaskPtrList fetchWhere(
+        CamcopsApp& app, DatabaseManager& db, const WhereConditions& where
+    ) const
+        = 0;
 };

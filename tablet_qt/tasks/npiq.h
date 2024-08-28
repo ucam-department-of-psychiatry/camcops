@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,22 +31,28 @@ class TaskFactory;
 
 void initializeNpiQ(TaskFactory& factory);
 
-
 class NpiQ : public Task
 {
     Q_OBJECT
+
 public:
-    NpiQ(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    NpiQ(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -56,6 +63,7 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     int endorsedScore() const;
     int distressScore() const;
@@ -64,10 +72,13 @@ protected:
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
+
 protected:
     void updateMandatory(int q);
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString NPIQ_TABLENAME;
 };

@@ -33,16 +33,16 @@
 // Choose which layout system we will use. (GUI_USE_HFW_LAYOUT is better.)
 
 #ifdef GUI_USE_HFW_LAYOUT
-#include "layouts/gridlayouthfw.h"
-#include "layouts/hboxlayouthfw.h"
-#include "layouts/vboxlayouthfw.h"
+    #include "layouts/gridlayouthfw.h"
+    #include "layouts/hboxlayouthfw.h"
+    #include "layouts/vboxlayouthfw.h"
 using GridLayout = GridLayoutHfw;
 using HBoxLayout = HBoxLayoutHfw;
 using VBoxLayout = VBoxLayoutHfw;
 #else
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+    #include <QGridLayout>
+    #include <QHBoxLayout>
+    #include <QVBoxLayout>
 using GridLayout = QGridLayout;
 using HBoxLayout = QHBoxLayout;
 using VBoxLayout = QVBoxLayout;

@@ -19,9 +19,10 @@
 */
 
 #include "showwatcher.h"
-#include <QEvent>
-#include "lib/layoutdumper.h"
 
+#include <QEvent>
+
+#include "lib/layoutdumper.h"
 
 ShowWatcher::ShowWatcher(QObject* parent, const bool debug_layout) :
     QObject(parent),  // owned by parent henceforth
@@ -30,7 +31,6 @@ ShowWatcher::ShowWatcher(QObject* parent, const bool debug_layout) :
     Q_ASSERT(parent);
     parent->installEventFilter(this);
 }
-
 
 bool ShowWatcher::eventFilter(QObject* obj, QEvent* event)
 {

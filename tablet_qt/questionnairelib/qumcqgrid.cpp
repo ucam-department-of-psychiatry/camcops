@@ -19,6 +19,7 @@
 */
 
 #include "qumcqgrid.h"
+
 #include "common/cssconst.h"
 #include "db/fieldref.h"
 #include "lib/uifunc.h"
@@ -28,10 +29,11 @@
 #include "widgets/basewidget.h"
 #include "widgets/booleanwidget.h"
 
-
-QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
-                     const NameValueOptions& options,
-                     QObject* parent) :
+QuMcqGrid::QuMcqGrid(
+    const QVector<QuestionWithOneField>& question_field_pairs,
+    const NameValueOptions& options,
+    QObject* parent
+) :
     QuElement(parent),
     m_question_field_pairs(question_field_pairs),
     m_options(options),
@@ -50,13 +52,20 @@ QuMcqGrid::QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
         // DANGEROUS OBJECT LIFESPAN SIGNAL: do not use std::bind
         auto sig = new QuMcqGridSignaller(this, qi);
         m_signallers.append(sig);
-        connect(fieldref.data(), &FieldRef::valueChanged,
-                sig, &QuMcqGridSignaller::valueOrMandatoryChanged);
-        connect(fieldref.data(), &FieldRef::mandatoryChanged,
-                sig, &QuMcqGridSignaller::valueOrMandatoryChanged);
+        connect(
+            fieldref.data(),
+            &FieldRef::valueChanged,
+            sig,
+            &QuMcqGridSignaller::valueOrMandatoryChanged
+        );
+        connect(
+            fieldref.data(),
+            &FieldRef::mandatoryChanged,
+            sig,
+            &QuMcqGridSignaller::valueOrMandatoryChanged
+        );
     }
 }
-
 
 QuMcqGrid::~QuMcqGrid()
 {
@@ -65,9 +74,9 @@ QuMcqGrid::~QuMcqGrid()
     }
 }
 
-
-QuMcqGrid* QuMcqGrid::setWidth(const int question_width,
-                               const QVector<int>& option_widths)
+QuMcqGrid* QuMcqGrid::setWidth(
+    const int question_width, const QVector<int>& option_widths
+)
 {
     if (option_widths.size() != m_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option_widths; command ignored";
@@ -78,9 +87,9 @@ QuMcqGrid* QuMcqGrid::setWidth(const int question_width,
     return this;
 }
 
-
-QuMcqGrid* QuMcqGrid::setMinimumWidthInPixels(const int question_width,
-                                              const QVector<int>& option_widths)
+QuMcqGrid* QuMcqGrid::setMinimumWidthInPixels(
+    const int question_width, const QVector<int>& option_widths
+)
 {
     if (option_widths.size() != m_options.size()) {
         qWarning() << Q_FUNC_INFO << "Bad option_widths; command ignored";
@@ -91,13 +100,11 @@ QuMcqGrid* QuMcqGrid::setMinimumWidthInPixels(const int question_width,
     return this;
 }
 
-
 QuMcqGrid* QuMcqGrid::setTitle(const QString& title)
 {
     m_title = title;
     return this;
 }
-
 
 QuMcqGrid* QuMcqGrid::setSubtitles(const QVector<McqGridSubtitle>& subtitles)
 {
@@ -105,13 +112,11 @@ QuMcqGrid* QuMcqGrid::setSubtitles(const QVector<McqGridSubtitle>& subtitles)
     return this;
 }
 
-
 QuMcqGrid* QuMcqGrid::setExpand(const bool expand)
 {
     m_expand = expand;
     return this;
 }
-
 
 QuMcqGrid* QuMcqGrid::setStripy(const bool stripy)
 {
@@ -119,13 +124,11 @@ QuMcqGrid* QuMcqGrid::setStripy(const bool stripy)
     return this;
 }
 
-
 QuMcqGrid* QuMcqGrid::showTitle(const bool show_title)
 {
     m_show_title = show_title;
     return this;
 }
-
 
 QuMcqGrid* QuMcqGrid::setQuestionsBold(bool bold)
 {
@@ -133,14 +136,15 @@ QuMcqGrid* QuMcqGrid::setQuestionsBold(bool bold)
     return this;
 }
 
-
 QuMcqGrid* QuMcqGrid::setAlternateNameValueOptions(
-        const QVector<int>& question_indexes,
-        const NameValueOptions& options)
+    const QVector<int>& question_indexes, const NameValueOptions& options
+)
 {
     if (options.size() != m_options.size()) {
-        uifunc::stopApp("NameValueOptions size mismatch to "
-                        "QuMcqGrid::setAlternateNameValueOptions");
+        uifunc::stopApp(
+            "NameValueOptions size mismatch to "
+            "QuMcqGrid::setAlternateNameValueOptions"
+        );
     }
     for (const int idx : question_indexes) {
         m_alternate_options[idx] = options;
@@ -148,29 +152,28 @@ QuMcqGrid* QuMcqGrid::setAlternateNameValueOptions(
     return this;
 }
 
-
-
 void QuMcqGrid::setFromFields()
 {
     for (int qi = 0; qi < m_question_field_pairs.size(); ++qi) {
-        fieldValueOrMandatoryChanged(qi, m_question_field_pairs.at(qi).fieldref().data());
+        fieldValueOrMandatoryChanged(
+            qi, m_question_field_pairs.at(qi).fieldref().data()
+        );
     }
 }
-
 
 int QuMcqGrid::colnum(const int value_index) const
 {
     return 2 + value_index;
 }
 
-
 void QuMcqGrid::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, colnum(i), m_options.atPosition(i).name());
+        mcqfunc::addOption(
+            grid, row, colnum(i), m_options.atPosition(i).name()
+        );
     }
 }
-
 
 QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
 {
@@ -234,9 +237,12 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
         }
 
         // The question
-        mcqfunc::addQuestion(grid, row,
-                             m_question_field_pairs.at(qi).question(),
-                             m_questions_bold);
+        mcqfunc::addQuestion(
+            grid,
+            row,
+            m_question_field_pairs.at(qi).question(),
+            m_questions_bold
+        );
 
         // The response widgets
         QVector<QPointer<BooleanWidget>> question_widgets;
@@ -246,8 +252,11 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
             w->setReadOnly(read_only);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
-                connect(w, &BooleanWidget::clicked,
-                        std::bind(&QuMcqGrid::clicked, this, qi, vi));
+                connect(
+                    w,
+                    &BooleanWidget::clicked,
+                    std::bind(&QuMcqGrid::clicked, this, qi, vi)
+                );
             }
             grid->addWidget(w, row, colnum(vi), response_align);
             question_widgets.append(w);
@@ -265,10 +274,13 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
         }
     }
 
-    if (m_question_min_width_px > 0 && m_option_min_widths_px.size() == m_option_min_widths_px.size()) {
+    if (m_question_min_width_px > 0
+        && m_option_min_widths_px.size() == m_option_min_widths_px.size()) {
         grid->setColumnMinimumWidth(0, m_question_min_width_px);
         for (int i = 0; i < n_options; ++i) {
-            grid->setColumnMinimumWidth(colnum(i), m_option_min_widths_px.at(i));
+            grid->setColumnMinimumWidth(
+                colnum(i), m_option_min_widths_px.at(i)
+            );
         }
     }
     // Vertical lines
@@ -288,7 +300,6 @@ QPointer<QWidget> QuMcqGrid::makeWidget(Questionnaire* questionnaire)
     return widget;
 }
 
-
 FieldRefPtrList QuMcqGrid::fieldrefs() const
 {
     FieldRefPtrList refs;
@@ -298,11 +309,10 @@ FieldRefPtrList QuMcqGrid::fieldrefs() const
     return refs;
 }
 
-
-void QuMcqGrid::clicked(const int question_index,
-                        const int value_index)
+void QuMcqGrid::clicked(const int question_index, const int value_index)
 {
-    if (question_index < 0 || question_index >= m_question_field_pairs.size()) {
+    if (question_index < 0
+        || question_index >= m_question_field_pairs.size()) {
         qWarning() << Q_FUNC_INFO << "Bad question_index:" << question_index;
         return;
     }
@@ -310,28 +320,27 @@ void QuMcqGrid::clicked(const int question_index,
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    const NameValueOptions& options =
-            m_alternate_options.contains(question_index)
-            ? m_alternate_options[question_index]
-            : m_options;
+    const NameValueOptions& options
+        = m_alternate_options.contains(question_index)
+        ? m_alternate_options[question_index]
+        : m_options;
     const QVariant newvalue = options.valueFromIndex(value_index);
-    FieldRefPtr fieldref = m_question_field_pairs.at(question_index).fieldref();
+    FieldRefPtr fieldref
+        = m_question_field_pairs.at(question_index).fieldref();
     fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();
 }
 
-
-void QuMcqGrid::fieldValueOrMandatoryChanged(const int question_index,
-                                             const FieldRef* fieldref)
+void QuMcqGrid::fieldValueOrMandatoryChanged(
+    const int question_index, const FieldRef* fieldref
+)
 {
-    if (question_index < 0 ||
-            question_index >= m_question_field_pairs.size()) {
+    if (question_index < 0
+        || question_index >= m_question_field_pairs.size()) {
         qWarning().nospace()
-                << Q_FUNC_INFO
-                << " Bad question_index: " << question_index
-                << " (m_question_field_pairs.size() == "
-                << m_question_field_pairs.size()
-                << ")";
+            << Q_FUNC_INFO << " Bad question_index: " << question_index
+            << " (m_question_field_pairs.size() == "
+            << m_question_field_pairs.size() << ")";
         return;
     }
     if (question_index >= m_widgets.size()) {
@@ -340,12 +349,12 @@ void QuMcqGrid::fieldValueOrMandatoryChanged(const int question_index,
         // widgets.
         return;
     }
-    const QVector<QPointer<BooleanWidget>>& question_widgets = m_widgets.at(
-                question_index);
+    const QVector<QPointer<BooleanWidget>>& question_widgets
+        = m_widgets.at(question_index);
 
-    const NameValueOptions& options =
-            m_alternate_options.contains(question_index)
-            ? m_alternate_options[question_index]
-            : m_options;
+    const NameValueOptions& options
+        = m_alternate_options.contains(question_index)
+        ? m_alternate_options[question_index]
+        : m_options;
     mcqfunc::setResponseWidgets(options, question_widgets, fieldref);
 }

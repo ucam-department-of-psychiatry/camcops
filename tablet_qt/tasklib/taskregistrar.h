@@ -23,7 +23,6 @@
 #include "task.h"
 #include "taskproxy.h"
 
-
 // For TaskFactory:
 // ===========================================================================
 // Wrapper that makes a TaskProxy out of any Task-derived class
@@ -33,29 +32,36 @@ template<class Derived> class TaskRegistrar : public TaskProxy
 {
     // For example, the PHQ9 task creates a single TaskRegistrar<Phq9> object.
 
-    static_assert(std::is_base_of<Task, Derived>::value,
-                  "You can only use Task-derived classes here.");
+    static_assert(
+        std::is_base_of<Task, Derived>::value,
+        "You can only use Task-derived classes here."
+    );
 
 public:
     // Constructor. This registers the proxy with the task factory (see
     // TaskProxy::TaskProxy).
     TaskRegistrar(TaskFactory& factory) :
         TaskProxy(factory)
-    {}
+    {
+    }
 
     // Create a single instance of a task (optionally, loading it).
-    TaskPtr create(CamcopsApp& app,
-                   DatabaseManager& db,
-                   int load_pk = dbconst::NONEXISTENT_PK) const override
+    TaskPtr create(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    ) const override
     {
         return TaskPtr(new Derived(app, db, load_pk));
     }
 
     // Fetch multiple tasks, either matching a patient_id, or all for
     // the task type.
-    TaskPtrList fetch(CamcopsApp& app,
-                      DatabaseManager& db,
-                      int patient_id = dbconst::NONEXISTENT_PK) const override
+    TaskPtrList fetch(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int patient_id = dbconst::NONEXISTENT_PK
+    ) const override
     {
         Derived specimen(app, db, dbconst::NONEXISTENT_PK);
         bool anonymous = specimen.isAnonymous();
@@ -71,11 +77,10 @@ public:
     }
 
 protected:
-
     // Fetch multiple tasks according to the field/value "where" criteria
-    TaskPtrList fetchWhere(CamcopsApp& app,
-                           DatabaseManager& db,
-                           const WhereConditions& where) const override
+    TaskPtrList fetchWhere(
+        CamcopsApp& app, DatabaseManager& db, const WhereConditions& where
+    ) const override
     {
         TaskPtrList tasklist;
         Derived specimen(app, db, dbconst::NONEXISTENT_PK);
@@ -83,8 +88,7 @@ protected:
         QueryResult result = db.query(sqlargs);
         int nrows = result.nRows();
         for (int row = 0; row < nrows; ++row) {
-            TaskPtr p_new_task(new Derived(app, db,
-                                           dbconst::NONEXISTENT_PK));
+            TaskPtr p_new_task(new Derived(app, db, dbconst::NONEXISTENT_PK));
             p_new_task->setFromQuery(result, row, true);
             tasklist.append(p_new_task);
         }

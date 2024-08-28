@@ -24,7 +24,7 @@
 
 using namespace numeric;
 
-class TestNumericFunc: public QObject
+class TestNumericFunc : public QObject
 {
     Q_OBJECT
 
@@ -44,20 +44,21 @@ private slots:
     void testIsValidStartToDoubleFalseWhenAboveNegativeRangeEvenWhenExtended();
 };
 
-
-void TestNumericFunc::testIsValidStartToDoubleFalseWhenNegativeAndBottomPositive()
+void TestNumericFunc::
+    testIsValidStartToDoubleFalseWhenNegativeAndBottomPositive()
 {
     // Invalid because number is negative and bottom is positive. No need to
     // check any further because of the minus sign.
     const double number = -1;
     const double bottom = 1;
-    const double top = 10; // irrelevant
+    const double top = 10;  // irrelevant
     const int max_dp = 5;
 
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
 
-void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowPositiveRangeEvenWhenExtended()
+void TestNumericFunc::
+    testIsValidStartToDoubleFalseWhenBelowPositiveRangeEvenWhenExtended()
 {
     // Invalid because appending nines to number up to the length of top will
     // not make it greater than or equal to bottom.
@@ -68,7 +69,6 @@ void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowPositiveRangeEvenWhe
 
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
-
 
 void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowPositiveRange()
 {
@@ -82,19 +82,18 @@ void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowPositiveRange()
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
 
-
-void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowNegativeRangeEvenWhenExtended()
+void TestNumericFunc::
+    testIsValidStartToDoubleFalseWhenBelowNegativeRangeEvenWhenExtended()
 {
     // Invalid because appending zeros to number up to the length of bottom
     // will not make it greater than or equal to bottom
     const double number = -0.02;
     const double bottom = -0.012345;
-    const double top = 10; // irrelevant
+    const double top = 10;  // irrelevant
     const int max_dp = 5;
 
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
-
 
 void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowNegativeRange()
 {
@@ -102,12 +101,11 @@ void TestNumericFunc::testIsValidStartToDoubleFalseWhenBelowNegativeRange()
     // change that because of the length of bottom.
     const double number = -0.02;
     const double bottom = -0.01;
-    const double top = 10; // irrelevant
+    const double top = 10;  // irrelevant
     const int max_dp = 5;
 
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
-
 
 void TestNumericFunc::testIsValidStartToDoubleFalseWhenPositiveAndTopNegative()
 {
@@ -121,7 +119,8 @@ void TestNumericFunc::testIsValidStartToDoubleFalseWhenPositiveAndTopNegative()
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
 
-void TestNumericFunc::testIsValidStartToDoubleFalseWhenAbovePositiveRangeEvenWhenExtended()
+void TestNumericFunc::
+    testIsValidStartToDoubleFalseWhenAbovePositiveRangeEvenWhenExtended()
 {
     // Invalid because appending zeros to number up to the length of top will
     // not make it less than or equal to top
@@ -145,7 +144,8 @@ void TestNumericFunc::testIsValidStartToDoubleFalseWhenAbovePositiveRange()
     QVERIFY(!isValidStartToDouble(number, bottom, top, max_dp));
 }
 
-void TestNumericFunc::testIsValidStartToDoubleFalseWhenAboveNegativeRangeEvenWhenExtended()
+void TestNumericFunc::
+    testIsValidStartToDoubleFalseWhenAboveNegativeRangeEvenWhenExtended()
 {
     // Invalid because appending nines to number up to the length of bottom
     // will not make it less than or equal to top.

@@ -25,6 +25,7 @@
 #include <QSize>
 #include <QSizePolicy>
 #include <QString>
+
 #include "common/dpi.h"
 
 namespace uiconst {
@@ -66,7 +67,7 @@ extern const int DEFAULT_COLSPAN_A;
 extern const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
 extern int g_min_spinbox_height;  // not const!
 extern const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS;
-    // ... how to display a spinbox
+// ... how to display a spinbox
 extern const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
 extern int g_slider_handle_size_px;  // not const!
 extern const int SLIDER_GROOVE_MARGIN_PX;

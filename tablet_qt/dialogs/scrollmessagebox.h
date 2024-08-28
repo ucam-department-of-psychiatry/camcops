@@ -22,9 +22,8 @@
 // ... modified a bit
 
 #pragma once
-#include <QMessageBox>
 #include <QDialogButtonBox>
-
+#include <QMessageBox>
 
 class ScrollMessageBox : public QDialog
 {
@@ -37,13 +36,16 @@ class ScrollMessageBox : public QDialog
     using StandardButton = QDialogButtonBox::StandardButton;
 
 public:
-    ScrollMessageBox(const QMessageBox::Icon& icon,
-                     const QString& title,
-                     const QString& text,
-                     QWidget* parent = nullptr);
+    ScrollMessageBox(
+        const QMessageBox::Icon& icon,
+        const QString& title,
+        const QString& text,
+        QWidget* parent = nullptr
+    );
     void addButton(QAbstractButton* button, QDialogButtonBox::ButtonRole role);
     void addButton(QAbstractButton* button, QMessageBox::ButtonRole role);
-    QPushButton* addButton(const QString& text, QDialogButtonBox::ButtonRole role);
+    QPushButton*
+        addButton(const QString& text, QDialogButtonBox::ButtonRole role);
     QPushButton* addButton(const QString& text, QMessageBox::ButtonRole role);
     void setDefaultButton(QPushButton* button);
     QAbstractButton* clickedButton() const;
@@ -55,8 +57,10 @@ protected:
     // QSize minimumSizeHint() const override; // NOT CALLED
     void setIcon(QMessageBox::Icon icon);
     QPixmap standardIcon(QMessageBox::Icon icon);
-    static QDialogButtonBox::ButtonRole forceEnumMD(QMessageBox::ButtonRole role);
-    static QMessageBox::ButtonRole forceEnumDM(QDialogButtonBox::ButtonRole role);
+    static QDialogButtonBox::ButtonRole
+        forceEnumMD(QMessageBox::ButtonRole role);
+    static QMessageBox::ButtonRole
+        forceEnumDM(QDialogButtonBox::ButtonRole role);
 
     QLabel* m_text_label;
     QLabel* m_icon_label;
@@ -67,14 +71,15 @@ private slots:
     void handleButtonClicked(QAbstractButton* button);
 
 public:
-    static StandardButton critical(
-            QWidget* parent, const QString& title, const QString& text);
+    static StandardButton
+        critical(QWidget* parent, const QString& title, const QString& text);
     static StandardButton information(
-            QWidget* parent, const QString& title, const QString& text);
-    static StandardButton question(
-            QWidget* parent, const QString& title, const QString& text);
-    static StandardButton warning(
-            QWidget* parent, const QString& title, const QString& text);
-    static StandardButton plain(
-            QWidget* parent, const QString& title, const QString& text);
+        QWidget* parent, const QString& title, const QString& text
+    );
+    static StandardButton
+        question(QWidget* parent, const QString& title, const QString& text);
+    static StandardButton
+        warning(QWidget* parent, const QString& title, const QString& text);
+    static StandardButton
+        plain(QWidget* parent, const QString& title, const QString& text);
 };

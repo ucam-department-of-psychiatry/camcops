@@ -21,12 +21,12 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "common/textconst.h"
 
 class QApplication;
 class QWidget;
 class WaitBox;
-
 
 class SlowGuiGuard
 {
@@ -53,6 +53,7 @@ public:
         int minimum_duration_ms = 100
     );
     ~SlowGuiGuard();
+
 protected:
     QPointer<WaitBox> m_wait_box;
 

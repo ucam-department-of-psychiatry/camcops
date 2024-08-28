@@ -21,14 +21,15 @@
 #pragma once
 #include <QStyledItemDelegate>
 
-
 class TreeViewControlDelegate : public QStyledItemDelegate
 {
     // UNUSED
 
 public:
     TreeViewControlDelegate(QObject* parent = nullptr);
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionViewItem& option,
-                       const QModelIndex& index) const override;
+    virtual void paint(
+        QPainter* painter,
+        const QStyleOptionViewItem& option,
+        const QModelIndex& index
+    ) const override;
 };

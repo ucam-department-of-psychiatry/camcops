@@ -21,13 +21,14 @@
 // #define WHISKERWORKER_DEBUG_SOCKETS
 
 #include "whiskerworker.h"
+
 #include <QDebug>
 #include <QTcpSocket>
 #include <QTextStream>
+
 #include "lib/datetime.h"
 #include "whisker/whiskermanager.h"
 using namespace whiskerconstants;
-
 
 // ============================================================================
 // Helper functions
@@ -40,7 +41,6 @@ void disableNagle(QTcpSocket* socket)
     Q_ASSERT(socket);
     socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 }
-
 
 // ============================================================================
 // WhiskerWorker
@@ -60,36 +60,66 @@ WhiskerWorker::WhiskerWorker() :
     disableNagle(m_main_socket);
     disableNagle(m_immediate_socket);
 
-    connect(m_main_socket, &QTcpSocket::connected,
-            this, &WhiskerWorker::onMainSocketConnected);
-    connect(m_main_socket, &QTcpSocket::readyRead,
-            this, &WhiskerWorker::onDataReadyFromMainSocket);
-    connect(m_main_socket, &QTcpSocket::disconnected,
-            this, &WhiskerWorker::onAnySocketDisconnected);
-    connect(m_main_socket, &QTcpSocket::errorOccurred,
-            this, &WhiskerWorker::onMainSocketError);
+    connect(
+        m_main_socket,
+        &QTcpSocket::connected,
+        this,
+        &WhiskerWorker::onMainSocketConnected
+    );
+    connect(
+        m_main_socket,
+        &QTcpSocket::readyRead,
+        this,
+        &WhiskerWorker::onDataReadyFromMainSocket
+    );
+    connect(
+        m_main_socket,
+        &QTcpSocket::disconnected,
+        this,
+        &WhiskerWorker::onAnySocketDisconnected
+    );
+    connect(
+        m_main_socket,
+        &QTcpSocket::errorOccurred,
+        this,
+        &WhiskerWorker::onMainSocketError
+    );
 
-    connect(m_immediate_socket, &QTcpSocket::connected,
-            this, &WhiskerWorker::onImmSocketConnected);
-    connect(m_immediate_socket, &QTcpSocket::readyRead,
-            this, &WhiskerWorker::onDataReadyFromImmediateSocket);
-    connect(m_immediate_socket, &QTcpSocket::disconnected,
-            this, &WhiskerWorker::onAnySocketDisconnected);
-    connect(m_immediate_socket, &QTcpSocket::errorOccurred,
-            this, &WhiskerWorker::onImmSocketError);
+    connect(
+        m_immediate_socket,
+        &QTcpSocket::connected,
+        this,
+        &WhiskerWorker::onImmSocketConnected
+    );
+    connect(
+        m_immediate_socket,
+        &QTcpSocket::readyRead,
+        this,
+        &WhiskerWorker::onDataReadyFromImmediateSocket
+    );
+    connect(
+        m_immediate_socket,
+        &QTcpSocket::disconnected,
+        this,
+        &WhiskerWorker::onAnySocketDisconnected
+    );
+    connect(
+        m_immediate_socket,
+        &QTcpSocket::errorOccurred,
+        this,
+        &WhiskerWorker::onImmSocketError
+    );
 
     setConnectionState(WhiskerConnectionState::A_Disconnected);
 }
-
 
 void WhiskerWorker::connectToServer(const QString& host, quint16 main_port)
 {
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
     qDebug() << Q_FUNC_INFO;
 #endif
-    qInfo().nospace()
-            << "Connecting to Whisker server: host " << host
-            << ", main port " << main_port;
+    qInfo().nospace() << "Connecting to Whisker server: host " << host
+                      << ", main port " << main_port;
     if (m_connection_state != WhiskerConnectionState::A_Disconnected) {
         disconnectFromServer();
     }
@@ -98,7 +128,6 @@ void WhiskerWorker::connectToServer(const QString& host, quint16 main_port)
     m_main_socket->connectToHost(host, main_port);
     setConnectionState(WhiskerConnectionState::B_RequestingMain);
 }
-
 
 void WhiskerWorker::disconnectFromServer()
 {
@@ -120,7 +149,6 @@ void WhiskerWorker::disconnectFromServer()
     setConnectionState(WhiskerConnectionState::A_Disconnected);
 }
 
-
 void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
 {
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
@@ -128,7 +156,8 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
 #endif
     if (cmd.m_immediate_socket) {
         if (!isImmediateConnected()) {
-            qWarning() << Q_FUNC_INFO << "Attempt to write to closed immediate socket";
+            qWarning() << Q_FUNC_INFO
+                       << "Attempt to write to closed immediate socket";
             return;
         }
         // WHETHER OR NOT we want the reply, we push the command.
@@ -137,12 +166,14 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
         m_imm_commands_awaiting_reply.push_back(cmd);
         m_mutex_imm.unlock();
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
-        qDebug() << Q_FUNC_INFO << "Writing to immediate socket:" << cmd.bytes();
+        qDebug() << Q_FUNC_INFO
+                 << "Writing to immediate socket:" << cmd.bytes();
 #endif
         m_immediate_socket->write(cmd.bytes());
     } else {
         if (!isMainConnected()) {
-            qWarning() << Q_FUNC_INFO << "Attempt to write to closed main socket";
+            qWarning() << Q_FUNC_INFO
+                       << "Attempt to write to closed main socket";
             return;
         }
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
@@ -152,14 +183,14 @@ void WhiskerWorker::sendToServer(const WhiskerOutboundCommand& cmd)
     }
 }
 
-
 void WhiskerWorker::setConnectionState(WhiskerConnectionState state)
 {
     if (state == m_connection_state) {
         return;
     }
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
-    qDebug() << "New Whisker connection state:" << whiskerConnectionStateDescription(state);
+    qDebug() << "New Whisker connection state:"
+             << whiskerConnectionStateDescription(state);
 #endif
     m_connection_state = state;
     emit connectionStateChanged(state);
@@ -168,32 +199,28 @@ void WhiskerWorker::setConnectionState(WhiskerConnectionState state)
     }
 }
 
-
 bool WhiskerWorker::isMainConnected() const
 {
-    return m_connection_state != WhiskerConnectionState::A_Disconnected &&
-            m_connection_state != WhiskerConnectionState::B_RequestingMain;
+    return m_connection_state != WhiskerConnectionState::A_Disconnected
+        && m_connection_state != WhiskerConnectionState::B_RequestingMain;
 }
-
 
 bool WhiskerWorker::isImmediateConnected() const
 {
-    return m_connection_state == WhiskerConnectionState::F_BothConnectedAwaitingLink ||
-            m_connection_state == WhiskerConnectionState::G_FullyConnected;
+    return m_connection_state
+        == WhiskerConnectionState::F_BothConnectedAwaitingLink
+        || m_connection_state == WhiskerConnectionState::G_FullyConnected;
 }
-
 
 bool WhiskerWorker::isFullyConnected() const
 {
     return m_connection_state == WhiskerConnectionState::G_FullyConnected;
 }
 
-
 bool WhiskerWorker::isFullyDisconnected() const
 {
     return m_connection_state == WhiskerConnectionState::A_Disconnected;
 }
-
 
 void WhiskerWorker::onMainSocketConnected()
 {
@@ -202,7 +229,6 @@ void WhiskerWorker::onMainSocketConnected()
 #endif
     setConnectionState(WhiskerConnectionState::C_MainConnectedAwaitingImmPort);
 }
-
 
 void WhiskerWorker::onImmSocketConnected()
 {
@@ -215,7 +241,6 @@ void WhiskerWorker::onImmSocketConnected()
     sendToServer(cmd);  // will send only when we quit back to the event loop
 }
 
-
 void WhiskerWorker::onAnySocketDisconnected()
 {
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
@@ -223,7 +248,6 @@ void WhiskerWorker::onAnySocketDisconnected()
 #endif
     disconnectFromServer();
 }
-
 
 void WhiskerWorker::onMainSocketError(QAbstractSocket::SocketError error)
 {
@@ -235,7 +259,6 @@ void WhiskerWorker::onMainSocketError(QAbstractSocket::SocketError error)
     disconnectFromServer();
 }
 
-
 void WhiskerWorker::onImmSocketError(QAbstractSocket::SocketError error)
 {
     QString msg;
@@ -246,26 +269,25 @@ void WhiskerWorker::onImmSocketError(QAbstractSocket::SocketError error)
     disconnectFromServer();
 }
 
-
 void WhiskerWorker::onDataReadyFromMainSocket()
 {
     // We get here from a QTcpSocket event.
-    const QVector<WhiskerInboundMessage> messages = getIncomingMessagesFromSocket(false);
+    const QVector<WhiskerInboundMessage> messages
+        = getIncomingMessagesFromSocket(false);
     for (const WhiskerInboundMessage& msg : messages) {
         processMainSocketMessage(msg);
     }
 }
 
-
 void WhiskerWorker::onDataReadyFromImmediateSocket()
 {
     // We get here from a QTcpSocket event.
-    QVector<WhiskerInboundMessage> messages = getIncomingMessagesFromSocket(true);
+    QVector<WhiskerInboundMessage> messages
+        = getIncomingMessagesFromSocket(true);
     for (WhiskerInboundMessage& msg : messages) {
         pushImmediateReply(msg);
     }
 }
-
 
 void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
 {
@@ -280,7 +302,8 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
 
     const QRegularExpressionMatch immport_match = IMMPORT_REGEX.match(line);
     if (immport_match.hasMatch()) {
-        if (m_connection_state != WhiskerConnectionState::C_MainConnectedAwaitingImmPort) {
+        if (m_connection_state
+            != WhiskerConnectionState::C_MainConnectedAwaitingImmPort) {
             qWarning() << "ImmPort message received at wrong stage";
             disconnectFromServer();
             return;
@@ -289,13 +312,15 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << "Whisker server offers immediate port" << m_imm_port;
 #endif
-        setConnectionState(WhiskerConnectionState::D_MainConnectedAwaitingCode);
+        setConnectionState(WhiskerConnectionState::D_MainConnectedAwaitingCode
+        );
         return;
     }
 
     const QRegularExpressionMatch code_match = CODE_REGEX.match(line);
     if (code_match.hasMatch()) {
-        if (m_connection_state != WhiskerConnectionState::D_MainConnectedAwaitingCode) {
+        if (m_connection_state
+            != WhiskerConnectionState::D_MainConnectedAwaitingCode) {
             qWarning() << "Code message received at wrong stage";
             disconnectFromServer();
             return;
@@ -304,11 +329,13 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
 #ifdef WHISKERWORKER_DEBUG_SOCKETS
         qDebug() << "Whisker server has provided code for immediate port";
 #endif
-        qInfo().nospace()
-                << "Connecting immediate socket to Whisker server: host "
-                << m_host << ", immediate port " << m_imm_port;
+        qInfo().nospace(
+        ) << "Connecting immediate socket to Whisker server: host "
+          << m_host << ", immediate port " << m_imm_port;
         m_immediate_socket->connectToHost(m_host, m_imm_port);
-        setConnectionState(WhiskerConnectionState::E_MainConnectedRequestingImmediate);
+        setConnectionState(
+            WhiskerConnectionState::E_MainConnectedRequestingImmediate
+        );
         return;
     }
 
@@ -320,7 +347,6 @@ void WhiskerWorker::processMainSocketMessage(const WhiskerInboundMessage& msg)
 
     emit receivedFromServerMainSocket(msg);
 }
-
 
 void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
 {
@@ -341,13 +367,13 @@ void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
     m_imm_commands_awaiting_reply.pop_front();
     m_mutex_imm.unlock();
 
-    if (m_connection_state == WhiskerConnectionState::F_BothConnectedAwaitingLink) {
+    if (m_connection_state
+        == WhiskerConnectionState::F_BothConnectedAwaitingLink) {
         // Special!
         if (msg.immediateReplySucceeded()) {
-            qInfo().nospace()
-                    << "Fully connected to Whisker server: host " << m_host
-                    << ", main port " << m_main_port
-                    << ", immediate port " << m_imm_port;
+            qInfo().nospace() << "Fully connected to Whisker server: host "
+                              << m_host << ", main port " << m_main_port
+                              << ", immediate port " << m_imm_port;
             setConnectionState(WhiskerConnectionState::G_FullyConnected);
         } else {
             qWarning() << "Failed to execute Link command; reply was"
@@ -361,7 +387,6 @@ void WhiskerWorker::pushImmediateReply(WhiskerInboundMessage& msg)
         m_immediate_reply_arrived.wakeAll();  // wakes: waitForImmediateReply()
     }
 }
-
 
 WhiskerInboundMessage WhiskerWorker::getPendingImmediateReply()
 {
@@ -390,22 +415,25 @@ WhiskerInboundMessage WhiskerWorker::getPendingImmediateReply()
     return msg;
 }
 
-
-QVector<WhiskerInboundMessage> WhiskerWorker::getIncomingMessagesFromSocket(
-        bool via_immediate_socket)
+QVector<WhiskerInboundMessage>
+    WhiskerWorker::getIncomingMessagesFromSocket(bool via_immediate_socket)
 {
     const QDateTime timestamp = datetime::now();
-    QTcpSocket* socket = via_immediate_socket ? m_immediate_socket : m_main_socket;
-    QString& buffer = via_immediate_socket ? m_inbound_buffer_imm : m_inbound_buffer_main;
+    QTcpSocket* socket
+        = via_immediate_socket ? m_immediate_socket : m_main_socket;
+    QString& buffer
+        = via_immediate_socket ? m_inbound_buffer_imm : m_inbound_buffer_main;
     const QByteArray bytes = socket->readAll();
     const QString& string = QString::fromLatin1(bytes);
     buffer += string;
-    return getIncomingMessagesFromBuffer(buffer, via_immediate_socket, timestamp);
+    return getIncomingMessagesFromBuffer(
+        buffer, via_immediate_socket, timestamp
+    );
 }
 
-
 QVector<WhiskerInboundMessage> WhiskerWorker::getIncomingMessagesFromBuffer(
-        QString& buffer, bool via_immediate_socket, const QDateTime& timestamp)
+    QString& buffer, bool via_immediate_socket, const QDateTime& timestamp
+)
 {
     QStringList strings = buffer.split(EOL);
     // If the buffer contains complete responses, the last string will be

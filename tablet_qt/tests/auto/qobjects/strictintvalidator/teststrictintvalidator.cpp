@@ -18,14 +18,14 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <QValidator>
 #include <QtTest/QtTest>
+#include <QValidator>
 
 #include "qobjects/strictintvalidator.h"
 
 #define TESTSTRICTINT_INCLUDE_RANDOM  // should generally be defined
 
-class TestStrictIntValidator: public QObject
+class TestStrictIntValidator : public QObject
 {
     Q_OBJECT
 
@@ -49,8 +49,8 @@ private slots:
 #endif
 };
 
-
-void TestStrictIntValidator::testValidateReturnsAcceptableIfEmptyAndEmptyAllowed()
+void TestStrictIntValidator::
+    testValidateReturnsAcceptableIfEmptyAndEmptyAllowed()
 {
     const int bottom = 0;
     const int top = 10;
@@ -63,8 +63,8 @@ void TestStrictIntValidator::testValidateReturnsAcceptableIfEmptyAndEmptyAllowed
     QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsIntermediateIfEmptyAndEmptyNotAllowed()
+void TestStrictIntValidator::
+    testValidateReturnsIntermediateIfEmptyAndEmptyNotAllowed()
 {
     const int bottom = 0;
     const int top = 10;
@@ -76,7 +76,6 @@ void TestStrictIntValidator::testValidateReturnsIntermediateIfEmptyAndEmptyNotAl
 
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
-
 
 void TestStrictIntValidator::testValidateReturnsInvalidIfDecimalPoint()
 {
@@ -91,8 +90,8 @@ void TestStrictIntValidator::testValidateReturnsInvalidIfDecimalPoint()
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsIntermediateIfMinusAndNegativeAllowed()
+void TestStrictIntValidator::
+    testValidateReturnsIntermediateIfMinusAndNegativeAllowed()
 {
     const int bottom = -1;
     const int top = 10;
@@ -105,8 +104,8 @@ void TestStrictIntValidator::testValidateReturnsIntermediateIfMinusAndNegativeAl
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsInvalidIfMinusAndNegativeNotAllowed()
+void TestStrictIntValidator::
+    testValidateReturnsInvalidIfMinusAndNegativeNotAllowed()
 {
     const int bottom = 0;
     const int top = 10;
@@ -119,8 +118,8 @@ void TestStrictIntValidator::testValidateReturnsInvalidIfMinusAndNegativeNotAllo
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsIntermediateIfPlusAndPositiveAllowed()
+void TestStrictIntValidator::
+    testValidateReturnsIntermediateIfPlusAndPositiveAllowed()
 {
     const int bottom = 0;
     const int top = 10;
@@ -133,8 +132,8 @@ void TestStrictIntValidator::testValidateReturnsIntermediateIfPlusAndPositiveAll
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsInvalidIfPlusAndPositiveNotAllowed()
+void TestStrictIntValidator::
+    testValidateReturnsInvalidIfPlusAndPositiveNotAllowed()
 {
     const int bottom = -100;
     const int top = -1;
@@ -146,7 +145,6 @@ void TestStrictIntValidator::testValidateReturnsInvalidIfPlusAndPositiveNotAllow
 
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
-
 
 void TestStrictIntValidator::testValidateReturnsInvalidIfNotAnInt()
 {
@@ -161,7 +159,6 @@ void TestStrictIntValidator::testValidateReturnsInvalidIfNotAnInt()
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
-
 void TestStrictIntValidator::testValidateReturnsAcceptableIfAnIntWithinRange()
 {
     const int bottom = 0;
@@ -174,7 +171,6 @@ void TestStrictIntValidator::testValidateReturnsAcceptableIfAnIntWithinRange()
 
     QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
 }
-
 
 void TestStrictIntValidator::testValidateReturnsIntermediateIfNegativeZero()
 {
@@ -189,8 +185,8 @@ void TestStrictIntValidator::testValidateReturnsIntermediateIfNegativeZero()
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsInvalidIfTopNegativeAndNoMinus()
+void TestStrictIntValidator::testValidateReturnsInvalidIfTopNegativeAndNoMinus(
+)
 {
     const int bottom = -10;
     const int top = -1;
@@ -202,7 +198,6 @@ void TestStrictIntValidator::testValidateReturnsInvalidIfTopNegativeAndNoMinus()
 
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
-
 
 void TestStrictIntValidator::testValidateReturnsIntermediateIfHasValidStart()
 {
@@ -217,7 +212,6 @@ void TestStrictIntValidator::testValidateReturnsIntermediateIfHasValidStart()
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
-
 void TestStrictIntValidator::testValidateReturnsInvalidIfHasInvalidStart()
 {
     const int bottom = 10;
@@ -231,8 +225,8 @@ void TestStrictIntValidator::testValidateReturnsInvalidIfHasInvalidStart()
     QCOMPARE(validator.validate(text, pos), QValidator::Invalid);
 }
 
-
-void TestStrictIntValidator::testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero()
+void TestStrictIntValidator::
+    testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero()
 {
     const int bottom = 1;
     const int top = 5;
@@ -278,9 +272,8 @@ void TestStrictIntValidator::testRandomNumbersAndRanges()
             auto state = validator.validate(typed, pos);
 
             if (state == QValidator::Invalid) {
-                qDebug()
-                    << "Validation failed for" << typed << "from" << number
-                    << "range" << bottom << "to" << top;
+                qDebug() << "Validation failed for" << typed << "from"
+                         << number << "range" << bottom << "to" << top;
                 QVERIFY(false);
             }
         }

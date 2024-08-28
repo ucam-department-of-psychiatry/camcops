@@ -19,6 +19,7 @@
 */
 
 #include "timerfunc.h"
+
 #include <QTimer>
 
 namespace timerfunc {

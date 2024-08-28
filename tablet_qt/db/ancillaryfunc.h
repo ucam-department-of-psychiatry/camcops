@@ -21,13 +21,12 @@
 #pragma once
 #include <QSqlDatabase>
 #include <QSqlQuery>
+
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/sqlargs.h"
 
-
-namespace ancillaryfunc
-{
+namespace ancillaryfunc {
 
 // ============================================================================
 // Assistance function to load multiple ancillary objects
@@ -37,12 +36,14 @@ namespace ancillaryfunc
 
 // Load ancillary objects for a task (e.g. photos for a PhotoSequence).
 template<class AncillaryType, class AncillaryPtrType>
-void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
-                   CamcopsApp& app,
-                   DatabaseManager& db,
-                   const QString& fk_name,
-                   const OrderBy& order_by,
-                   int parent_pk)
+void loadAncillary(
+    QVector<AncillaryPtrType>& ancillaries,
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& fk_name,
+    const OrderBy& order_by,
+    int parent_pk
+)
 {
     // Load all objects whose FK match the specified PK.
     ancillaries.clear();
@@ -53,21 +54,22 @@ void loadAncillary(QVector<AncillaryPtrType>& ancillaries,
     QueryResult result = db.query(sqlargs);
     int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
-        auto raw_ptr_ancillary = new AncillaryType(
-                    app, db, dbconst::NONEXISTENT_PK);
+        auto raw_ptr_ancillary
+            = new AncillaryType(app, db, dbconst::NONEXISTENT_PK);
         raw_ptr_ancillary->setFromQuery(result, row, true);
         AncillaryPtrType ancillary(raw_ptr_ancillary);
         ancillaries.append(ancillary);
     }
 }
 
-
 // Load *all* objects from a table.
 template<class Type, class PtrType>
-void loadAllRecords(QVector<PtrType>& objects,
-                    CamcopsApp& app,
-                    DatabaseManager& db,
-                    const OrderBy& order_by)
+void loadAllRecords(
+    QVector<PtrType>& objects,
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const OrderBy& order_by
+)
 {
     objects.clear();
     WhereConditions where;

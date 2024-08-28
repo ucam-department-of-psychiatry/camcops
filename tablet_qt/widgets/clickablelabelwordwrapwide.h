@@ -21,10 +21,10 @@
 #pragma once
 
 #include <QPushButton>
+
 #include "common/gui_defines.h"  // IWYU pragma: keep
 #include "layouts/layouts.h"
 class LabelWordWrapWide;
-
 
 class ClickableLabelWordWrapWide : public QPushButton
 {
@@ -32,16 +32,18 @@ class ClickableLabelWordWrapWide : public QPushButton
     // height-for-width manner to take up width in preference to height.
 
     Q_OBJECT
-public:
 
+public:
     // Construct with text.
     // - stretch: add stretch at the bottom of our layout?
-    ClickableLabelWordWrapWide(const QString& text, bool stretch = false,
-                               QWidget* parent = nullptr);
+    ClickableLabelWordWrapWide(
+        const QString& text, bool stretch = false, QWidget* parent = nullptr
+    );
 
     // Construct without text. You can use setText() later.
-    ClickableLabelWordWrapWide(bool stretch = false,
-                               QWidget* parent = nullptr);
+    ClickableLabelWordWrapWide(
+        bool stretch = false, QWidget* parent = nullptr
+    );
 
     // Set text format (e.g. plain text, rich text).
     virtual void setTextFormat(Qt::TextFormat format);

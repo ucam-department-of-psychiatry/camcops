@@ -19,8 +19,8 @@
 */
 
 #include "dbconst.h"
-#include <QDebug>
 
+#include <QDebug>
 
 namespace dbconst {
 
@@ -33,7 +33,6 @@ const QString CREATION_TIMESTAMP_FIELDNAME("when_created");
 const int NONEXISTENT_PK = -1;
 
 const QString UNKNOWN_IDNUM_DESC("<ID_number_%1>");
-
 
 bool isValidWhichIdnum(int which_idnum)
 {

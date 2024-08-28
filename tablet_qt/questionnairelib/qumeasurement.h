@@ -28,13 +28,19 @@ class QuMeasurement : public QuElement
     // conversion
 
     Q_OBJECT
+
 public:
-    QuMeasurement(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
-                  bool mandatory = true);
+    QuMeasurement(
+        FieldRefPtr fieldref,
+        QPointer<QuUnitSelector> unit_selector,
+        bool mandatory = true
+    );
 public slots:
     void unitsChanged(int units);
+
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
     virtual FieldRefPtrList getMetricFieldrefs() const = 0;
     virtual FieldRefPtrList getImperialFieldrefs() const = 0;

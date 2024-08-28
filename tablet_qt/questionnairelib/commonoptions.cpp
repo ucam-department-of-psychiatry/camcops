@@ -38,7 +38,6 @@ const int CommonOptions::METRIC = 0;
 const int CommonOptions::IMPERIAL = 1;
 const int CommonOptions::BOTH = 2;
 
-
 // ============================================================================
 // Translatables
 // ============================================================================
@@ -48,162 +47,135 @@ QString CommonOptions::yes()
     return tr("Yes");
 }
 
-
 QString CommonOptions::no()
 {
     return tr("No");
 }
-
 
 QString CommonOptions::correct()
 {
     return tr("Correct");
 }
 
-
 QString CommonOptions::incorrect()
 {
     return tr("Incorrect");
 }
-
 
 QString CommonOptions::false_str()
 {
     return tr("False");
 }
 
-
 QString CommonOptions::true_str()
 {
     return tr("True");
 }
-
 
 QString CommonOptions::absent()
 {
     return tr("Absent");
 }
 
-
 QString CommonOptions::present()
 {
     return tr("Present");
 }
-
 
 QString CommonOptions::unknown()
 {
     return tr("Unknown");
 }
 
-
 QString CommonOptions::sexFemale()
 {
     return tr("Female (F)");
 }
-
 
 QString CommonOptions::sexMale()
 {
     return tr("Male (M)");
 }
 
-
 QString CommonOptions::sexUnspecified()
 {
     return tr("Other/unspecified (X)");
 }
-
 
 QString CommonOptions::metricM()
 {
     return tr("Metric (m)");
 }
 
-
 QString CommonOptions::imperialFtIn()
 {
     return tr("Imperial (ft, in)");
 }
-
 
 QString CommonOptions::metres()
 {
     return tr("metres (m)");
 }
 
-
 QString CommonOptions::feet()
 {
     return tr("feet (ft)");
 }
-
 
 QString CommonOptions::inches()
 {
     return tr("inches (in)");
 }
 
-
 QString CommonOptions::metricKg()
 {
     return tr("Metric (kg)");
 }
-
 
 QString CommonOptions::imperialStLbOz()
 {
     return tr("Imperial (st, lb, oz)");
 }
 
-
 QString CommonOptions::kilograms()
 {
     return tr("kilograms (kg)");
 }
-
 
 QString CommonOptions::stones()
 {
     return tr("stones (st)");
 }
 
-
 QString CommonOptions::pounds()
 {
     return tr("pounds (lb)");
 }
-
 
 QString CommonOptions::ounces()
 {
     return tr("ounces (oz)");
 }
 
-
 QString CommonOptions::metricCm()
 {
     return tr("Metric (cm)");
 }
-
 
 QString CommonOptions::imperialIn()
 {
     return tr("Imperial (in)");
 }
 
-
 QString CommonOptions::centimetres()
 {
     return tr("centimetres (cm)");
 }
 
-
 QString CommonOptions::showBoth()
 {
     return tr("Show both");
 }
-
 
 // ============================================================================
 // Option sets
@@ -217,7 +189,6 @@ NameValueOptions CommonOptions::yesNoChar()
     };
 }
 
-
 NameValueOptions CommonOptions::yesNoBoolean()
 {
     return NameValueOptions{
@@ -225,7 +196,6 @@ NameValueOptions CommonOptions::yesNoBoolean()
         {no(), false},
     };
 }
-
 
 NameValueOptions CommonOptions::yesNoInteger()
 {
@@ -235,7 +205,6 @@ NameValueOptions CommonOptions::yesNoInteger()
     };
 }
 
-
 NameValueOptions CommonOptions::noYesChar()
 {
     return NameValueOptions{
@@ -243,7 +212,6 @@ NameValueOptions CommonOptions::noYesChar()
         {yes(), YES_CHAR},
     };
 }
-
 
 NameValueOptions CommonOptions::noYesBoolean()
 {
@@ -253,7 +221,6 @@ NameValueOptions CommonOptions::noYesBoolean()
     };
 }
 
-
 NameValueOptions CommonOptions::noYesInteger()
 {
     return NameValueOptions{
@@ -261,7 +228,6 @@ NameValueOptions CommonOptions::noYesInteger()
         {yes(), YES_INT},
     };
 }
-
 
 NameValueOptions CommonOptions::incorrectCorrectBoolean()
 {
@@ -271,7 +237,6 @@ NameValueOptions CommonOptions::incorrectCorrectBoolean()
     };
 }
 
-
 NameValueOptions CommonOptions::incorrectCorrectInteger()
 {
     return NameValueOptions{
@@ -279,7 +244,6 @@ NameValueOptions CommonOptions::incorrectCorrectInteger()
         {correct(), CORRECT_INT},
     };
 }
-
 
 NameValueOptions CommonOptions::falseTrueBoolean()
 {
@@ -289,7 +253,6 @@ NameValueOptions CommonOptions::falseTrueBoolean()
     };
 }
 
-
 NameValueOptions CommonOptions::absentPresentBoolean()
 {
     return NameValueOptions{
@@ -297,7 +260,6 @@ NameValueOptions CommonOptions::absentPresentBoolean()
         {present(), true},
     };
 }
-
 
 NameValueOptions CommonOptions::unknownNoYesInteger()
 {
@@ -308,7 +270,6 @@ NameValueOptions CommonOptions::unknownNoYesInteger()
     };
 }
 
-
 NameValueOptions CommonOptions::sexes()
 {
     return NameValueOptions{
@@ -318,9 +279,8 @@ NameValueOptions CommonOptions::sexes()
     };
 }
 
-
-NameValueOptions CommonOptions::optionsCopyingDescriptions(
-        const QStringList& descriptions)
+NameValueOptions
+    CommonOptions::optionsCopyingDescriptions(const QStringList& descriptions)
 {
     NameValueOptions options;
     for (const QString& desc : descriptions) {
@@ -328,7 +288,6 @@ NameValueOptions CommonOptions::optionsCopyingDescriptions(
     }
     return options;
 }
-
 
 NameValueOptions CommonOptions::massUnits()
 {
@@ -339,7 +298,6 @@ NameValueOptions CommonOptions::massUnits()
     };
 }
 
-
 NameValueOptions CommonOptions::waistUnits()
 {
     return NameValueOptions{
@@ -348,7 +306,6 @@ NameValueOptions CommonOptions::waistUnits()
         {showBoth(), BOTH},
     };
 }
-
 
 NameValueOptions CommonOptions::heightUnits()
 {

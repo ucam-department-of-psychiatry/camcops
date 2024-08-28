@@ -20,8 +20,8 @@
 
 #pragma once
 #include <QString>
-#include "common/aliases_camcops.h"
 
+#include "common/aliases_camcops.h"
 
 class QuestionWithOneField
 {
@@ -29,25 +29,24 @@ class QuestionWithOneField
     // Used by e.g. QuMCQGrid; QuMultipleResponse.
 
 public:
-    
     // Default constructor, so it can live in a QVector
     QuestionWithOneField();
-    
+
     // Standard constructor
     QuestionWithOneField(const QString& question, FieldRefPtr fieldref);
-    
+
     // Alternative standard constructor, for convenience.
     QuestionWithOneField(FieldRefPtr fieldref, const QString& question);
-    
+
     // Return the question (text)
     QString question() const;
 
     // Return the question (text) -- synonym
     QString text() const;
-    
+
     // Return the fieldref.
     FieldRefPtr fieldref() const;
-    
+
 protected:
     QString m_question;  // question text
     FieldRefPtr m_fieldref;  // fieldref

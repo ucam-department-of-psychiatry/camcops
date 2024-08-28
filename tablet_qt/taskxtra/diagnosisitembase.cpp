@@ -25,17 +25,23 @@ const QString DiagnosisItemBase::CODE("code");
 const QString DiagnosisItemBase::DESCRIPTION("description");
 const QString DiagnosisItemBase::COMMENT("comment");  // new in v2.0.0
 
-
-DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
-                                     const QString& tablename,
-                                     const QString& fkname,
-                                     const int load_pk) :
-    DatabaseObject(app, db, tablename,
-                   dbconst::PK_FIELDNAME,  // pk_fieldname
-                   true,  // has_modification_timestamp
-                   false,  // has_creation_timestamp
-                   true,  // has_move_off_tablet_field
-                   true),  // triggers_need_upload
+DiagnosisItemBase::DiagnosisItemBase(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& tablename,
+    const QString& fkname,
+    const int load_pk
+) :
+    DatabaseObject(
+        app,
+        db,
+        tablename,
+        dbconst::PK_FIELDNAME,  // pk_fieldname
+        true,  // has_modification_timestamp
+        false,  // has_creation_timestamp
+        true,  // has_move_off_tablet_field
+        true
+    ),  // triggers_need_upload
     m_fkname(fkname)
 {
     addField(m_fkname, QMetaType::fromType<int>());
@@ -47,46 +53,42 @@ DiagnosisItemBase::DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
     load(load_pk);
 }
 
-
-DiagnosisItemBase::DiagnosisItemBase(const int owner_fk,
-                                     CamcopsApp& app, DatabaseManager& db,
-                                     const QString& tablename,
-                                     const QString& fkname) :
+DiagnosisItemBase::DiagnosisItemBase(
+    const int owner_fk,
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& tablename,
+    const QString& fkname
+) :
     DiagnosisItemBase(app, db, tablename, fkname)  // delegating constructor
 {
     setValue(m_fkname, owner_fk);
 }
-
 
 void DiagnosisItemBase::setSeqnum(const int seqnum)
 {
     setValue(SEQNUM, seqnum);
 }
 
-
 int DiagnosisItemBase::seqnum() const
 {
     return valueInt(SEQNUM);
 }
-
 
 QString DiagnosisItemBase::code() const
 {
     return valueString(CODE);
 }
 
-
 QString DiagnosisItemBase::description() const
 {
     return valueString(DESCRIPTION);
 }
 
-
 QString DiagnosisItemBase::comment() const
 {
     return valueString(COMMENT);
 }
-
 
 bool DiagnosisItemBase::isEmpty() const
 {

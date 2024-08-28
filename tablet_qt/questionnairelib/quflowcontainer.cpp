@@ -21,13 +21,15 @@
 // #define DEBUG_LAYOUT
 
 #include "quflowcontainer.h"
+
 #include <QWidget>
+
 #include "layouts/flowlayouthfw.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
 #ifdef DEBUG_LAYOUT
-#include "common/cssconst.h"
+    #include "common/cssconst.h"
 #endif
 
 
@@ -36,30 +38,28 @@ QuFlowContainer::QuFlowContainer(QObject* parent) :
 {
 }
 
-
-QuFlowContainer::QuFlowContainer(const QVector<QuElementPtr>& elements,
-                                 QObject* parent) :
+QuFlowContainer::QuFlowContainer(
+    const QVector<QuElementPtr>& elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent)
 {
 }
 
-
-QuFlowContainer::QuFlowContainer(std::initializer_list<QuElementPtr> elements,
-                                 QObject* parent) :
+QuFlowContainer::QuFlowContainer(
+    std::initializer_list<QuElementPtr> elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent)
 {
 }
 
-
-QuFlowContainer::QuFlowContainer(std::initializer_list<QuElement*> elements,
-                                 QObject* parent) :
+QuFlowContainer::QuFlowContainer(
+    std::initializer_list<QuElement*> elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent)
 {
 }
 
-
-QPointer<QWidget> QuFlowContainer::makeWidget(
-        Questionnaire* questionnaire)
+QPointer<QWidget> QuFlowContainer::makeWidget(Questionnaire* questionnaire)
 {
     QPointer<QWidget> widget(new BaseWidget());
     // DON'T DO THIS, IT BREAKS HFW:
@@ -74,8 +74,8 @@ QPointer<QWidget> QuFlowContainer::makeWidget(
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);
         const auto alignment = m_override_widget_alignment
-                ? DefaultWidgetAlignment
-                : e->getWidgetAlignment();
+            ? DefaultWidgetAlignment
+            : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
         if (!w) {
             qWarning() << Q_FUNC_INFO << "Element failed to create a widget!";

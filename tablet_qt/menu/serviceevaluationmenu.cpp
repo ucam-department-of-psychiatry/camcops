@@ -19,12 +19,12 @@
 */
 
 #include "serviceevaluationmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
-#include "tasks/apeqpt.h"
 #include "tasks/apeqcpftperinatal.h"
+#include "tasks/apeqpt.h"
 #include "tasks/fft.h"
 #include "tasks/gmcpq.h"
 #include "tasks/patientsatisfaction.h"
@@ -33,31 +33,34 @@
 #include "tasks/referrersatisfactionspec.h"
 #include "tasks/srs.h"
 
-
 ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SERVICE_EVALUATION))
 {
 }
-
 
 QString ServiceEvaluationMenu::title() const
 {
     return tr("Service evaluation");
 }
 
-
 void ServiceEvaluationMenu::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Apeqpt::APEQPT_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(GmcPq::GMCPQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(PerinatalPoem::PERINATAL_POEM_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app
+        ),
+        MAKE_TASK_MENU_ITEM(
+            ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, m_app
+        ),
         MAKE_TASK_MENU_ITEM(Srs::SRS_TABLENAME, m_app),
     };
 }

@@ -42,19 +42,18 @@
 #include <QEvent>
 #include <QObject>
 #include <QScreen>
-#include <QTimer>
 #include <QtDebug>
+#include <QTimer>
 #include <QWidget>
 
 // #define DEBUG_WIDGET_POSITIONER
 // #define DEBUG_WIDGET_POSITIONER_LAYOUT
 
 #ifdef DEBUG_WIDGET_POSITIONER_LAYOUT
-#include "lib/layoutdumper.h"
+    #include "lib/layoutdumper.h"
 #endif
 
 #include "widgetpositioner.h"
-
 
 WidgetPositioner::WidgetPositioner(QWidget* widget) :
     QObject(widget),  // make widget our parent; it will own us
@@ -65,10 +64,13 @@ WidgetPositioner::WidgetPositioner(QWidget* widget) :
     centre();
     m_widget->installEventFilter(this);
 
-    connect(m_widget->screen(), &QScreen::orientationChanged,
-            this, &WidgetPositioner::orientationChanged);
+    connect(
+        m_widget->screen(),
+        &QScreen::orientationChanged,
+        this,
+        &WidgetPositioner::orientationChanged
+    );
 }
-
 
 void WidgetPositioner::orientationChanged(Qt::ScreenOrientation orientation)
 {
@@ -87,7 +89,6 @@ void WidgetPositioner::orientationChanged(Qt::ScreenOrientation orientation)
     // after a short delay.
     QTimer::singleShot(200, this, &WidgetPositioner::centre);
 }
-
 
 void WidgetPositioner::centre()
 {
@@ -120,7 +121,6 @@ void WidgetPositioner::centre()
     layoutdumper::dumpWidgetHierarchy(m_widget);
 #endif
 }
-
 
 void WidgetPositioner::sizeToScreen()
 {
@@ -159,8 +159,7 @@ void WidgetPositioner::sizeToScreen()
     }
 }
 
-
-bool WidgetPositioner::eventFilter(QObject *obj, QEvent *event)
+bool WidgetPositioner::eventFilter(QObject* obj, QEvent* event)
 {
     if (event->type() == QEvent::Show) {
 #ifdef DEBUG_WIDGET_POSITIONER

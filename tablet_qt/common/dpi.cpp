@@ -20,23 +20,18 @@
 
 #include "dpi.h"
 
-
 Dpi::Dpi(const qreal x, const qreal y) :
     x(x),
     y(y)
-{}
-
+{
+}
 
 qreal Dpi::mean() const
 {
     return (x + y) / 2;
 }
 
-
 QString Dpi::description() const
 {
-    return QString("(x=%1,y=%2)").arg(
-        QString::number(x),
-        QString::number(y)
-    );
+    return QString("(x=%1,y=%2)").arg(QString::number(x), QString::number(y));
 }

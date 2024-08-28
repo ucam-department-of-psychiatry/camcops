@@ -21,25 +21,29 @@
 #pragma once
 #include "questionnairelib/qusequencecontainerbase.h"
 
-
 class QuFlowContainer : public QuSequenceContainerBase
 {
     // Allows the arrangements of other elements into a horizontal
     // but flowing layout. It uses FlowLayoutHfw (q.v.).
 
     Q_OBJECT
+
 public:
     // Plain constructor
     QuFlowContainer(QObject* parent = nullptr);
 
     // Construct and add elements
-    QuFlowContainer(const QVector<QuElementPtr>& elements,
-                    QObject* parent = nullptr);
-    QuFlowContainer(std::initializer_list<QuElementPtr> elements,
-                    QObject* parent = nullptr);
-    QuFlowContainer(std::initializer_list<QuElement*> elements,
-                    QObject* parent = nullptr);
+    QuFlowContainer(
+        const QVector<QuElementPtr>& elements, QObject* parent = nullptr
+    );
+    QuFlowContainer(
+        std::initializer_list<QuElementPtr> elements, QObject* parent = nullptr
+    );
+    QuFlowContainer(
+        std::initializer_list<QuElement*> elements, QObject* parent = nullptr
+    );
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 };

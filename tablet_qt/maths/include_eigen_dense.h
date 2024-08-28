@@ -25,13 +25,15 @@
 
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 
-#if defined GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT || defined CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
+#if defined GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT                               \
+    || defined CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #endif
 
 #include <Eigen/Dense>
 
-#if defined GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT || defined CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
+#if defined GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT                               \
+    || defined CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
     #pragma GCC diagnostic pop
 #endif

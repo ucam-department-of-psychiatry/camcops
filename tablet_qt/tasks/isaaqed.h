@@ -21,8 +21,8 @@
 #pragma once
 #include <QPointer>
 
-#include "taskxtra/isaaqcommon.h"
 #include "tasklib/task.h"
+#include "taskxtra/isaaqcommon.h"
 
 class CamcopsApp;
 
@@ -31,21 +31,28 @@ void initializeIsaaqEd(TaskFactory& factory);
 class IsaaqEd : public IsaaqCommon
 {
     Q_OBJECT
+
 public:
-    IsaaqEd(CamcopsApp& app, DatabaseManager& db,
-            int load_pk = dbconst::NONEXISTENT_PK);
+    IsaaqEd(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
 
 public:
     static const QString ISAAQED_TABLENAME;
+
 protected:
     QStringList fieldNames() const override;
     QVector<QuElement*> buildElements() override;

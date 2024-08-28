@@ -19,10 +19,10 @@
 */
 
 #include "setmenufromlp.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/ace3.h"
 #include "tasks/auditc.h"
 #include "tasks/bmi.h"
@@ -39,25 +39,23 @@
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
 
-
 SetMenuFromLp::SetMenuFromLp(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
-
 
 QString SetMenuFromLp::title() const
 {
     return "FROM-LP";
 }
 
-
 QString SetMenuFromLp::subtitle() const
 {
-    return tr("RCPsych Framework for Routine Outcome Measurement in "
-              "Liaison Psychiatry (FROM-LP)");
+    return tr(
+        "RCPsych Framework for Routine Outcome Measurement in "
+        "Liaison Psychiatry (FROM-LP)"
+    );
 }
-
 
 void SetMenuFromLp::makeItems()
 {
@@ -70,8 +68,12 @@ void SetMenuFromLp::makeItems()
         MAKE_TASK_MENU_ITEM(Fft::FFT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Irac::IRAC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(PatientSatisfaction::PT_SATIS_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(
+            ReferrerSatisfactionGen::REF_SATIS_GEN_TABLENAME, m_app
+        ),
+        MAKE_TASK_MENU_ITEM(
+            ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME, m_app
+        ),
 
         MenuItem(tr("DISEASE-SPECIFIC SCALES")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Ace3::ACE3_TABLENAME, m_app),

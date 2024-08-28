@@ -19,7 +19,9 @@
 */
 
 #include "quverticalcontainer.h"
+
 #include <QWidget>
+
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
@@ -30,28 +32,27 @@ QuVerticalContainer::QuVerticalContainer(QObject* parent) :
 {
 }
 
-
 QuVerticalContainer::QuVerticalContainer(
-        const QVector<QuElementPtr>& elements, QObject* parent) :
+    const QVector<QuElementPtr>& elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent)
 {
 }
 
-
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElementPtr> elements, QObject* parent) :
+    std::initializer_list<QuElementPtr> elements, QObject* parent
+) :
     QuSequenceContainerBase(elements, parent)
 {
 }
 
-
 QuVerticalContainer::QuVerticalContainer(
-        std::initializer_list<QuElement*> elements,
-        QObject* parent) :  // takes ownership
+    std::initializer_list<QuElement*> elements,
+    QObject* parent
+) :  // takes ownership
     QuSequenceContainerBase(elements, parent)
 {
 }
-
 
 QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
 {
@@ -66,8 +67,8 @@ QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
     for (int i = 0; i < m_elements.size(); ++i) {
         auto e = m_elements.at(i);
         const auto alignment = m_override_widget_alignment
-                ? DefaultWidgetAlignment
-                : e->getWidgetAlignment();
+            ? DefaultWidgetAlignment
+            : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
         if (!w) {
             qWarning() << Q_FUNC_INFO << "Element failed to create a widget!";

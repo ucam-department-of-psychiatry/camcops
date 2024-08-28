@@ -19,8 +19,8 @@
 */
 
 #include "numericfunc.h"
-#include <QString>
 
+#include <QString>
 
 namespace numeric {
 
@@ -35,13 +35,11 @@ int strToNumber(const QString& str, const int type_dummy)
     return str.toInt();
 }
 
-
 qint64 strToNumber(const QString& str, const qint64 type_dummy)
 {
     Q_UNUSED(type_dummy)
     return str.toLongLong();
 }
-
 
 quint64 strToNumber(const QString& str, const quint64 type_dummy)
 {
@@ -49,31 +47,35 @@ quint64 strToNumber(const QString& str, const quint64 type_dummy)
     return str.toULongLong();
 }
 
-
-int localeStrToNumber(const QString& str, bool& ok,
-                      const QLocale& locale, const int type_dummy)
+int localeStrToNumber(
+    const QString& str, bool& ok, const QLocale& locale, const int type_dummy
+)
 {
     Q_UNUSED(type_dummy)
     return locale.toInt(str, &ok);
 }
 
-
-qint64 localeStrToNumber(const QString& str, bool& ok,
-                         const QLocale& locale, const qint64 type_dummy)
+qint64 localeStrToNumber(
+    const QString& str,
+    bool& ok,
+    const QLocale& locale,
+    const qint64 type_dummy
+)
 {
     Q_UNUSED(type_dummy)
     return locale.toLongLong(str, &ok);
 }
 
-
-quint64 localeStrToNumber(const QString& str, bool& ok,
-                          const QLocale& locale,
-                          const quint64 type_dummy)
+quint64 localeStrToNumber(
+    const QString& str,
+    bool& ok,
+    const QLocale& locale,
+    const quint64 type_dummy
+)
 {
     Q_UNUSED(type_dummy)
     return locale.toULongLong(str, &ok);
 }
-
 
 // ============================================================================
 // Numeric string representations
@@ -95,7 +97,6 @@ bool containsOnlySignOrZeros(const QString& number_string)
     return true;
 }
 
-
 // ============================================================================
 // For double validation
 // ============================================================================
@@ -108,12 +109,13 @@ QString getDefaultDecimalPoint()
     return QLocale().decimalPoint();
 }
 
-
-bool isValidStartToDouble(const double number,
-                          const double bottom,
-                          const double top,
-                          const int max_dp,
-                          const QString& decimal_point)
+bool isValidStartToDouble(
+    const double number,
+    const double bottom,
+    const double top,
+    const int max_dp,
+    const QString& decimal_point
+)
 {
     // If you type more after "number", could you end up with a legitimate
     // value, in the range [bottom, top]?
@@ -123,8 +125,8 @@ bool isValidStartToDouble(const double number,
     //    a minus sign at the start), and therefore always less than "bottom".
     if (number < 0 && bottom >= 0) {
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "invalid (negative and bottom >= 0)";
+        qDebug() << Q_FUNC_INFO << number
+                 << "invalid (negative and bottom >= 0)";
 #endif
         return false;  // invalid
     }
@@ -134,8 +136,7 @@ bool isValidStartToDouble(const double number,
     //    therefore always more than "top".
     if (number > 0 && top <= 0) {
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "invalid (positive and top <= 0)";
+        qDebug() << Q_FUNC_INFO << number << "invalid (positive and top <= 0)";
 #endif
         return false;  // invalid
     }
@@ -145,8 +146,7 @@ bool isValidStartToDouble(const double number,
         // Number is already positive (or zero).
         // We already know that top > 0, and by definition bottom <= top.
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "passing on positive/zero number";
+        qDebug() << Q_FUNC_INFO << number << "passing on positive/zero number";
 #endif
         return isValidStartToPosDouble(
             number,  // already positive or zero
@@ -160,8 +160,7 @@ bool isValidStartToDouble(const double number,
         // We already know that bottom < 0, and by definition bottom <= top;
         // therefore, -top <= -bottom.
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-        qDebug()
-            << Q_FUNC_INFO << number << "passing on negative number";
+        qDebug() << Q_FUNC_INFO << number << "passing on negative number";
 #endif
         return isValidStartToPosDouble(
             -number,  // now positive
@@ -173,36 +172,36 @@ bool isValidStartToDouble(const double number,
     }
 }
 
-
-bool isValidStartToPosDouble(const double pos_number,
-                             const double pos_bottom,
-                             const double pos_top,
-                             const int max_dp,
-                             const QString& decimal_point)
+bool isValidStartToPosDouble(
+    const double pos_number,
+    const double pos_bottom,
+    const double pos_top,
+    const int max_dp,
+    const QString& decimal_point
+)
 {
     // If you type more after "number", could you end up with a legitimate
     // value, in the range [bottom, top]?
 
-    const int n_extra = maxExtraDigitsDouble(
-        pos_number, pos_bottom, pos_top, max_dp);
+    const int n_extra
+        = maxExtraDigitsDouble(pos_number, pos_bottom, pos_top, max_dp);
     const QString str_number = QString("%1").arg(pos_number);
     const bool contains_dp = str_number.contains(decimal_point);
 
     // 1. If any extended version must be less than "bottom", it is invalid.
     // Check without adding a decimal point.
-    const bool must_be_lt_bottom_noextradp = extendedPosDoubleMustBeLessThanBottom(
-        pos_number, pos_bottom,
-        n_extra, false, decimal_point
-    );
+    const bool must_be_lt_bottom_noextradp
+        = extendedPosDoubleMustBeLessThanBottom(
+            pos_number, pos_bottom, n_extra, false, decimal_point
+        );
     // Or with an extra decimal point, if applicable.
     const bool must_be_lt_bottom_extradp = contains_dp
         ? must_be_lt_bottom_noextradp
         : extendedPosDoubleMustBeLessThanBottom(
-            pos_number, pos_bottom,
-            n_extra, true, decimal_point
+            pos_number, pos_bottom, n_extra, true, decimal_point
         );
-    const bool must_be_lt_bottom =
-        must_be_lt_bottom_noextradp && must_be_lt_bottom_noextradp;
+    const bool must_be_lt_bottom
+        = must_be_lt_bottom_noextradp && must_be_lt_bottom_noextradp;
 
     if (must_be_lt_bottom) {
 #ifdef NUMERICFUNC_DEBUG_BASIC
@@ -216,40 +215,37 @@ bool isValidStartToPosDouble(const double pos_number,
     // 2. If any extended version must be more than "top", it is invalid.
     // Check without adding a decimal point.
     const bool must_be_gt_top_noextradp = extendedPosDoubleMustExceedTop(
-        pos_number, pos_top,
-        n_extra, false, decimal_point
+        pos_number, pos_top, n_extra, false, decimal_point
     );
     // Or with an extra decimal point, if applicable.
     const bool must_be_gt_top_extradp = contains_dp
         ? must_be_gt_top_noextradp
         : extendedPosDoubleMustExceedTop(
-            pos_number, pos_top,
-            n_extra, true, decimal_point
+            pos_number, pos_top, n_extra, true, decimal_point
         );
-    const bool must_be_gt_top =
-        must_be_gt_top_noextradp && must_be_gt_top_extradp;
+    const bool must_be_gt_top
+        = must_be_gt_top_noextradp && must_be_gt_top_extradp;
 
     if (must_be_gt_top) {
 #ifdef NUMERICFUNC_DEBUG_BASIC
         qDebug() << Q_FUNC_INFO << ":" << pos_number
-                 << "when extended must be more than top value of"
-                 << pos_top << "=> fail";
+                 << "when extended must be more than top value of" << pos_top
+                 << "=> fail";
 #endif
         return false;
     }
 
     // 3. Check that we haven't allowed through obvious exclusionary
     // conditions.
-    const bool no_extra_dp_ok = !must_be_lt_bottom_noextradp
-                                && !must_be_gt_top_noextradp;
-    const bool extra_dp_ok = !must_be_lt_bottom_extradp
-                                && !must_be_gt_top_extradp;
+    const bool no_extra_dp_ok
+        = !must_be_lt_bottom_noextradp && !must_be_gt_top_noextradp;
+    const bool extra_dp_ok
+        = !must_be_lt_bottom_extradp && !must_be_gt_top_extradp;
     if (!no_extra_dp_ok && !extra_dp_ok) {
 #ifdef NUMERICFUNC_DEBUG_BASIC
-        qDebug().nospace()
-            << Q_FUNC_INFO << ": " << pos_number
-            << "when extended must out of range [" << pos_bottom
-            << ", " << pos_top << "] => fail";
+        qDebug().nospace() << Q_FUNC_INFO << ": " << pos_number
+                           << "when extended must out of range [" << pos_bottom
+                           << ", " << pos_top << "] => fail";
 #endif
         return false;
     }
@@ -260,19 +256,20 @@ bool isValidStartToPosDouble(const double pos_number,
     // BOTH criteria. The only way to check that is recursion, which is very
     // slow.
 #ifdef NUMERICFUNC_DEBUG_BASIC
-    qDebug().nospace()
-        << Q_FUNC_INFO << ": " << pos_number << " is potentially OK for bottom "
-        << pos_bottom << ", top " << pos_top;
+    qDebug().nospace() << Q_FUNC_INFO << ": " << pos_number
+                       << " is potentially OK for bottom " << pos_bottom
+                       << ", top " << pos_top;
 #endif
     return true;
 }
 
-
-bool extendedPosDoubleMustBeLessThanBottom(const double pos_number,
-                                           const double pos_bottom,
-                                           const int n_extra_digits,
-                                           const bool add_dp,
-                                           const QString& decimal_point)
+bool extendedPosDoubleMustBeLessThanBottom(
+    const double pos_number,
+    const double pos_bottom,
+    const int n_extra_digits,
+    const bool add_dp,
+    const QString& decimal_point
+)
 {
     // If you add extra digits to the number, must it be less than the bottom
     // value?
@@ -288,10 +285,9 @@ bool extendedPosDoubleMustBeLessThanBottom(const double pos_number,
     }
     const QString extension_digit = "9";  // make the largest possible number
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-    qDebug().nospace()
-        << Q_FUNC_INFO << "; pos_number = " << pos_number
-        << ", pos_bottom = " << pos_bottom
-        << ", n_extra = " << n_extra_digits;
+    qDebug().nospace() << Q_FUNC_INFO << "; pos_number = " << pos_number
+                       << ", pos_bottom = " << pos_bottom
+                       << ", n_extra = " << n_extra_digits;
 #endif
     for (int i = 0; i < n_extra_digits; ++i) {
         str_number += extension_digit;
@@ -302,12 +298,13 @@ bool extendedPosDoubleMustBeLessThanBottom(const double pos_number,
     return true;
 }
 
-
-bool extendedPosDoubleMustExceedTop(const double pos_number,
-                                    const double pos_top,
-                                    const int n_extra_digits,
-                                    const bool add_dp,
-                                    const QString& decimal_point)
+bool extendedPosDoubleMustExceedTop(
+    const double pos_number,
+    const double pos_top,
+    const int n_extra_digits,
+    const bool add_dp,
+    const QString& decimal_point
+)
 {
     // If you add extra digits to the number, must it exceed the top value?
     // - All arguments are positive.
@@ -327,10 +324,9 @@ bool extendedPosDoubleMustExceedTop(const double pos_number,
     }
     const QString extension_digit = "0";  // make the smallest possible number
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-    qDebug().nospace()
-        << Q_FUNC_INFO << "; pos_number = " << pos_number
-        << ", pos_top = " << pos_top
-        << ", n_extra_digits = " << n_extra_digits;
+    qDebug().nospace() << Q_FUNC_INFO << "; pos_number = " << pos_number
+                       << ", pos_top = " << pos_top
+                       << ", n_extra_digits = " << n_extra_digits;
 #endif
     for (int i = 0; i < n_extra_digits; ++i) {
         str_number += extension_digit;
@@ -341,7 +337,6 @@ bool extendedPosDoubleMustExceedTop(const double pos_number,
     return true;  // all extended versions exceed top
 }
 
-
 int numCharsDouble(const double number, const int max_dp, bool count_sign)
 {
     const QString formatted = QString::number(number, 'f', max_dp);
@@ -349,20 +344,20 @@ int numCharsDouble(const double number, const int max_dp, bool count_sign)
     const int length = formatted.length();
     const int nchars = (sign_present && !count_sign) ? length - 1 : length;
 #ifdef NUMERICFUNC_DEBUG_DETAIL
-    qDebug().nospace()
-        << Q_FUNC_INFO << ": " << number << " formatted to "
-        << max_dp << " dp is " << formatted << "; nchars " << nchars
-        << (count_sign ? " (inc. sign)" : " (exc. sign)");
+    qDebug().nospace() << Q_FUNC_INFO << ": " << number << " formatted to "
+                       << max_dp << " dp is " << formatted << "; nchars "
+                       << nchars
+                       << (count_sign ? " (inc. sign)" : " (exc. sign)");
 #endif
     return nchars;
 }
-
 
 int maxExtraDigitsDouble(
     const double pos_number,
     const double pos_bottom,
     const double pos_top,
-    const int max_dp)
+    const int max_dp
+)
 {
     // Follows logic of maxExtraDigits().
     int nd_number = numCharsDouble(pos_number, max_dp);
@@ -370,8 +365,7 @@ int maxExtraDigitsDouble(
         --nd_number;
     }
     const int max_nd_target = std::max(
-        numCharsDouble(pos_bottom, max_dp),
-        numCharsDouble(pos_top, max_dp)
+        numCharsDouble(pos_bottom, max_dp), numCharsDouble(pos_top, max_dp)
     );
     return std::max(0, max_nd_target - nd_number);
 }

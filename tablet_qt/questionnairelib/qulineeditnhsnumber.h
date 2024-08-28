@@ -21,21 +21,21 @@
 #pragma once
 #include "questionnairelib/qulineeditint64.h"
 
-
 class QuLineEditNHSNumber : public QuLineEditInt64
 {
     // Offers a one-line text editor, for a UK NHS number.
 
     Q_OBJECT
-public:
 
+public:
     // Constructor for unconstrained NHS numbers
     // - allow_empty: OK to be blank?
     QuLineEditNHSNumber(FieldRefPtr fieldref, bool allow_empty = true);
 
     // Don't allow a version with minimum/maximum, by deleting this signature.
-    QuLineEditNHSNumber(FieldRefPtr fieldref, int minimum, int maximum,
-                        bool allow_empty) = delete;
+    QuLineEditNHSNumber(
+        FieldRefPtr fieldref, int minimum, int maximum, bool allow_empty
+    ) = delete;
 
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;
