@@ -1519,8 +1519,8 @@ QString Cisr::tagForQuestion(CisrQuestion q) const
     }
     switch (q) {
         // Aim to be relatively cryptic; use the original CIS-R tags, not our
-        // expanded explanatory versions (in case anyone uses the debug version for
-        // patient testing!).
+        // expanded explanatory versions (in case anyone uses the debug version
+        // for patient testing!).
         case CQ::INTRO_1:
             return "INTRO_1";
         case CQ::INTRO_2:
@@ -1660,12 +1660,12 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
     switch (q) {
 
             // FOLLOW THE EXACT SEQUENCE of the CIS-R. Don't agglomerate case
-            // statements just because it's shorter (except empty ones when they are
-            // in sequence). Clarity is key.
+            // statements just because it's shorter (except empty ones when
+            // they are in sequence). Clarity is key.
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Demographics/preamble
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::INTRO_1:
         case CQ::INTRO_2:
@@ -1679,9 +1679,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             // Nothing special
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Appetite/weight
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::APPETITE1_LOSS_PAST_MONTH:
             if (answerIsNo(q, v)) {
@@ -1756,9 +1756,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             }
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Somatic symptoms
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::GP_YEAR:
             // Score the preceding block:
@@ -1910,9 +1910,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             }
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Fatigue/energy
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::FATIGUE_MAND1_TIRED_PAST_MONTH:
             if (answerIsNo(q, v)) {
@@ -2040,9 +2040,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             }
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Concentration/memory
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::CONC_MAND1_POOR_CONC_PAST_MONTH:
             // Score preceding:
@@ -2124,9 +2124,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         case CQ::FORGET_DUR:
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Sleep
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::SLEEP_MAND1_LOSS_PAST_MONTH:
             // Score previous block:
@@ -2198,8 +2198,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                     "Setting sleep_change to SLEEPCHANGE_EMW. "
                     "Incrementing depr_crit_3_somatic_synd."
                 );
-                // Was: SLEEPCH += answer - 1 (which only does anything for a "yes"
-                // (2) answer).
+                // Was: SLEEPCH += answer - 1 (which only does anything for a
+                // "yes" (2) answer).
                 // ... but at this point, SLEEPCH is always 0.
                 r.sleep_change = SLEEPCHANGE_EMW;  // LIKELY REDUNDANT.
                 r.depr_crit_3_somatic_synd += 1;
@@ -2265,9 +2265,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                 r.sleep_change = SLEEPCHANGE_INCREASE;
                 // Note that in the original, if the answer was 3
                 // (V_SLEEP_CHANGE_1_TO_3_H) or greater, first 2 was added to
-                // sleep, and then if sleep was >=1, sleepch [sleep_change] was set
-                // to 3. However, sleep is never decremented/set below 0, so that
-                // was a redundant test (always true).
+                // sleep, and then if sleep was >=1, sleepch [sleep_change] was
+                // set to 3. However, sleep is never decremented/set below 0,
+                // so that was a redundant test (always true).
             }
             break;
 
@@ -2284,9 +2284,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         case CQ::SLEEP_DUR:
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Irritability
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::IRRIT_MAND1_PEOPLE_PAST_MONTH:
             // Score previous block:
@@ -2376,19 +2376,20 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                 r.neurasthenia += 1;
             }
             // In the original, we had the rule "sleep_problems >=2 and
-            // fatigue >=2 -> incrementing neurasthenia" here, but that would mean
-            // we would fail to score sleep if the patient didn't report
-            // irritability (because if you say no at IRRIT_MAND2, you jump beyond
-            // this point to HYPO_MAND1). Checked with Glyn Lewis 2017-12-04, who
-            // agreed on 2017-12-05. Therefore, moved to IRRIT_MAND1 as above.
+            // fatigue >=2 -> incrementing neurasthenia" here, but that would
+            // mean we would fail to score sleep if the patient didn't report
+            // irritability (because if you say no at IRRIT_MAND2, you jump
+            // beyond this point to HYPO_MAND1). Checked with Glyn Lewis
+            // 2017-12-04, who agreed on 2017-12-05. Therefore, moved to
+            // IRRIT_MAND1 as above.
             // Note that the only implication would have been potential small
             // mis-scoring of the CFS criterion (not any of the diagnoses that
             // the CIS-R reports as its primary/secondary diagnoses).
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Hypochondriasis
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::HYPO_MAND1_WORRIED_RE_HEALTH_PAST_MONTH:
             if (answerIsYes(q, v)) {
@@ -2457,9 +2458,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         case CQ::HYPO_DUR:
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Depression
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::DEPR_MAND1_LOW_MOOD_PAST_MONTH:
             if (answerIsNo(q, v)) {
@@ -2733,9 +2734,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         case CQ::DEPR_OUTRO:
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Worry/anxiety
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::WORRY_MAND1_MORE_THAN_NEEDED_PAST_MONTH:
             if (v >= V_NSO_SOMETIMES) {
@@ -2830,7 +2831,8 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
                 jumpTo(CQ::ANX2_GENERAL_DAYS_PAST_WEEK);
             } else if (answerIsYes(q, v)) {
                 // This was in ANX_PHOBIA2; PHOBIAS_FLAG was set by arriving
-                // there (but that only happens when we get a 'yes' answer here).
+                // there (but that only happens when we get a 'yes' answer
+                // here).
                 r.decide("Phobias. Exploring further. Setting phobias flag.");
                 r.phobias_flag = true;
             }
@@ -3126,9 +3128,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
         case CQ::ANX_OUTRO:
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // Compulsions and obsessions
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::COMP_MAND1_COMPULSIONS_PAST_MONTH:
             if (v == V_NSO_NO) {
@@ -3261,9 +3263,9 @@ Cisr::CisrQuestion Cisr::nextQ(Cisr::CisrQuestion q, Cisr::CisrResult& r) const
             }
             break;
 
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
             // End
-            // --------------------------------------------------------------------
+            // ----------------------------------------------------------------
 
         case CQ::OVERALL1_INFO_ONLY:
             break;

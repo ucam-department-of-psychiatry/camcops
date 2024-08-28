@@ -286,8 +286,8 @@ QString Field::sqlColumnType() const
             return SQLITE_TYPE_BLOB;
 
         default:
-            // Can't use further "case" statements here as the comparisons are to
-            // a technically non-const expression (integers set by
+            // Can't use further "case" statements here as the comparisons are
+            // to a technically non-const expression (integers set by
             // convert::registerTypesForQVariant).
             if (type_id == customtypes::TYPE_ID_QVECTOR_INT) {
                 return SQLITE_TYPE_TEXT;
@@ -313,7 +313,8 @@ void Field::setFromDatabaseValue(const QVariant& db_value)
     switch (m_type.id()) {
         case QMetaType::QChar:
             // If you just do "m_value = db_value", it will become an invalid
-            // value when the convert() call is made below, so will appear as NULL.
+            // value when the convert() call is made below, so will appear as
+            // NULL.
             m_value = convert::toQCharVariant(db_value);
             break;
         case QMetaType::QDate:
@@ -365,7 +366,8 @@ QVariant Field::databaseValue() const
         case QMetaType::QUuid:
             return m_value.toString();
             // see https://doc.qt.io/qt-6.5/quuid.html#toString; e.g.
-            // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex digit
+            // "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}" where 'x' is a hex
+            // digit
         default:
             if (type_id == customtypes::TYPE_ID_QVECTOR_INT) {
                 return convert::numericVectorToCsvString(

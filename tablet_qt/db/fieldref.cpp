@@ -300,12 +300,12 @@ bool FieldRef::setValue(const QVariant& value, const QObject* originator)
             if (changed) {
                 setFkToBlob();
             }
-            // ... (a) sets the BLOB, and (b) if the BLOB has changed or is being
-            // set for the first time, sets the "original" field to contain the PK
-            // of the BLOB entry.
+            // ... (a) sets the BLOB, and (b) if the BLOB has changed or is
+            // being set for the first time, sets the "original" field to
+            // contain the PK of the BLOB entry.
             // ... and (c) we ensure that the setValue() command touches the
-            // record, on the basis that a task has changed if one of its BLOBs has
-            // changed, even if the BLOB PK has not changed.
+            // record, on the basis that a task has changed if one of its BLOBs
+            // has changed, even if the BLOB PK has not changed.
             // NOTE ALSO THE OTHER FUNCTIONS THAT MUST DO THIS:
             //      BlobFieldRef::rotateImage
             //      BlobFieldRef::setImage

@@ -1255,20 +1255,20 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
     switch (m_upload_next_stage) {
 
         case NextUploadStage::CheckUser:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: check device registration. (Checked implicitly.)
             // TO: check user OK.
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             checkUploadUser();
             m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
             break;
 
         case NextUploadStage::FetchServerIdInfo:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: check user OK. (Checked implicitly.)
             // TO: fetch server ID info (server version, database title,
             //      which ID numbers, ID policies)
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             uploadFetchServerIdInfo();
             m_upload_next_stage = NextUploadStage::ValidatePatients;
             break;
@@ -1282,15 +1282,16 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
             break;
 
         case NextUploadStage::ValidatePatients:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: fetch server ID info
             // TO: ask server to validate patients
-            //     ... or if the server doesn't support that, move on another step
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //     ... or if the server doesn't support that, move on another
+            //     step
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (m_app.isSingleUserMode()) {
                 // In single user mode, if the server has been updated, we
-                // overwrite the stored server version and refetch all server info
-                // without warning or prompting the user to refetch.
+                // overwrite the stored server version and refetch all server
+                // info without warning or prompting the user to refetch.
                 if (!serverVersionMatchesStored()) {
                     storeServerIdentificationInfo();
 
@@ -1330,20 +1331,20 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
             }
 
         case NextUploadStage::FetchAllowedTables:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: ask server to validate patients
             // TO: fetch allowed tables/minimum client versions
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             uploadFetchAllowedTables();
             m_upload_next_stage
                 = NextUploadStage::CheckPoliciesThenStartUpload;
             break;
 
         case NextUploadStage::CheckPoliciesThenStartUpload:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: fetch allowed tables/minimum client versions
             // TO: start upload or preservation
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             statusMessage("... received allowed tables");
             storeAllowedTables();
             if (!catalogueTablesForUpload()) {
@@ -1373,10 +1374,11 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
             break;
 
         case NextUploadStage::Uploading:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: start upload or preservation
-            // TO: upload, tablewise then recordwise (CYCLES ROUND here until done)
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // TO: upload, tablewise then recordwise (CYCLES ROUND here until
+            //     done)
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (!m_upload_empty_tables.isEmpty()) {
 
                 sendEmptyTables(m_upload_empty_tables);
@@ -1399,9 +1401,10 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
                             return;
                         }
                         if (m_upload_recordwise_pks_to_send.isEmpty()) {
-                            // Quasi-recursive way of saying "do whatever you would
-                            // have done otherwise", since the server had said "I'm
-                            // not interested in any records from that table".
+                            // Quasi-recursive way of saying "do whatever you
+                            // would have done otherwise", since the server had
+                            // said "I'm not interested in any records from
+                            // that table".
                             statusMessage(
                                 tr("... server doesn't want anything "
                                    "from this table")
@@ -1427,10 +1430,10 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
             break;
 
         case NextUploadStage::Finished:
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // FROM: upload, or uploadOneStep()
             // All done successfully!
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             wipeTables();
             statusMessage(tr("Finished"));
             m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());

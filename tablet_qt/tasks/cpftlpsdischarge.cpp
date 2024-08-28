@@ -422,7 +422,7 @@ OpenableWidget* CPFTLPSDischarge::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("referral_reason_t"),
              new QuFlowContainer{
@@ -516,7 +516,7 @@ OpenableWidget* CPFTLPSDischarge::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("diagnoses_t"),
              boolbutton(
@@ -568,7 +568,7 @@ OpenableWidget* CPFTLPSDischarge::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("referral_reason_t"),
              new QuFlowContainer{
@@ -643,7 +643,7 @@ OpenableWidget* CPFTLPSDischarge::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("outcome_t"),
              mcq(OUTCOME, outcome_options),

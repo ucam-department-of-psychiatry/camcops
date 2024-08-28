@@ -21,7 +21,7 @@
 #include "mlpackfunc.h"  // IWYU pragma: keep
 #ifdef USE_MLPACK
 
-    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Disable warnings for external code:
     // - https://stackoverflow.com/questions/3378560/how-to-disable-gcc-warnings-for-a-few-lines-of-code
     // - https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html
@@ -56,7 +56,7 @@ arma::vec getParamsLogisticFitSinglePredictor(
 
 }  // namespace mlpackfunc
 
-    // ............................................................................
+    // ........................................................................
     #pragma GCC diagnostic pop
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

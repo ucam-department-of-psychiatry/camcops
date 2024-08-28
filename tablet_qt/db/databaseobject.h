@@ -51,11 +51,12 @@ class DatabaseObject : public QObject
 {
     Q_OBJECT  // so our derived classes can be too
         public :
-        // ========================================================================
+        // ====================================================================
         // Constructor/destructor
-        // ========================================================================
+        // ====================================================================
 
-        // Subclass constructors should follow a specific format, in which they:
+        // Subclass constructors should follow a specific format, in which
+        // they:
         //
         // - create all fields, via addField() or addFields()
         // - if they're the final subclass, they should call load()
@@ -68,7 +69,8 @@ class DatabaseObject : public QObject
         //  tablename:
         //      this object's database table name
         //  pk_fieldname:
-        //      the name of a field (column) containing an integer primary key (PK)
+        //      the name of a field (column) containing an integer primary key
+        //      (PK)
         //  has_modification_timestamp:
         //      add the "when_last_modified" field and track modification time?
         //  has_creation_timestamp:

@@ -648,8 +648,8 @@ void CamcopsApp::handleNetworkFailure(
     switch (error_code) {
 
         case NetworkManager::IncorrectReplyFormat:
-            // If we've managed to register our patient and the server is replying
-            // but in the wrong way then something bad has happened.
+            // If we've managed to register our patient and the server is
+            // replying but in the wrong way then something bad has happened.
             additional_message
                 = tr("Unexpectedly, your server settings have changed.");
             break;
@@ -697,8 +697,8 @@ void CamcopsApp::maybeRetryNetworkOperation(
             break;
 
         case NetworkOperation::UpdateTaskSchedules:
-            // it doesn't matter if we pass alert_unfinished_tasks as True or False
-            // here. We wouldn't be here if there were unfinished tasks.
+            // it doesn't matter if we pass alert_unfinished_tasks as True or
+            // False here. We wouldn't be here if there were unfinished tasks.
             updateTaskSchedules();
             break;
 

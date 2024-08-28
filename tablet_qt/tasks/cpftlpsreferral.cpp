@@ -310,7 +310,7 @@ OpenableWidget* CPFTLPSReferral::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("t_patient"),
              questionnairefunc::defaultGridRawPointer(
@@ -340,7 +340,7 @@ OpenableWidget* CPFTLPSReferral::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("t_referral_reason"),
              new QuFlowContainer{
@@ -372,7 +372,7 @@ OpenableWidget* CPFTLPSReferral::editor(const bool read_only)
                  ),
              },
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("t_other_people"),
              questionnairefunc::defaultGridRawPointer(
@@ -390,7 +390,7 @@ OpenableWidget* CPFTLPSReferral::editor(const bool read_only)
                  uiconst::DEFAULT_COLSPAN_A
              ),
 
-             // --------------------------------------------------------------------
+             // ---------------------------------------------------------------
              new QuHorizontalLine(),
              boldtext("t_referral_reason"),
              questionnairefunc::defaultGridRawPointer(

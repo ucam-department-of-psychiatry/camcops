@@ -118,9 +118,9 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
         // - https://stackoverflow.com/questions/41021681/qt-how-to-detect-which-version-of-opengl-is-being-used
         // - https://blog.qt.io/blog/2017/01/18/opengl-implementation-qt-quick-app-using-today/
 
-        // THE UPSHOT: I needed (1) to reboot my computer, and (2) to make CamCOPS
-        // check for OpenGL, rather than just crashing if it wasn't present.
-        // See QuPhoto.
+        // THE UPSHOT: I needed (1) to reboot my computer, and (2) to make
+        // CamCOPS check for OpenGL, rather than just crashing if it wasn't
+        // present. See QuPhoto.
     #endif
 
     // ========================================================================
