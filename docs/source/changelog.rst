@@ -3951,3 +3951,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.22, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Update the Docker image to use Debian 11. Debian 10 has now reached end-of-life.
