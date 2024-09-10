@@ -82,7 +82,7 @@ WORKDIR /camcops
 #   setup.py
 # - libmagickwand-dev: ImageMagick, used by CamCOPS
 # - libmysqlclient-dev: for MySQL access (needed by Python mysqlclient package)
-#   ... replaced by libmariadbclient-dev in Debian 10
+#   ... replaced by libmariadb-dev in Debian 11
 # - wget: for fetching other stuff! See below.
 # - wait-for-it: wait for a host/TCP port (to synchronize containers)
 #
@@ -146,7 +146,7 @@ RUN echo "- Updating package information..." \
         wait-for-it \
         \
         libmagickwand-dev \
-        libmariadbclient-dev \
+        libmariadb-dev \
     && echo "- wkhtmltopdf: Fetching wkhtmltopdf with patched Qt..." \
     && wget -O /tmp/wkhtmltopdf.deb \
         https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
