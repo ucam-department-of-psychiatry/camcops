@@ -19,11 +19,13 @@
 */
 
 #include "frs.h"
+
 #include <limits>
+
 #include "common/textconst.h"
 #include "lib/convert.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -92,6 +94,7 @@ const QMap<int, int> SCORE{
     {SOMETIMES, 0},
     {ALWAYS, 0},
 };
+
 // Confirmed by Eneida Mioshi 2015-01-20; "sometimes" and "always"
 // score the same.
 
@@ -101,16 +104,16 @@ void initializeFrs(TaskFactory& factory)
     static TaskRegistrar<Frs> registered(factory);
 }
 
-
 Frs::Frs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FRS_TABLENAME, false, true, true)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
     addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -121,19 +124,18 @@ QString Frs::shortname() const
     return "FRS";
 }
 
-
 QString Frs::longname() const
 {
     return tr("Frontotemporal Dementia Rating Scale");
 }
 
-
 QString Frs::description() const
 {
-    return tr("30-item clinician-administered scale based on carer "
-              "information.");
+    return tr(
+        "30-item clinician-administered scale based on carer "
+        "information."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -144,31 +146,36 @@ bool Frs::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Frs::summary() const
 {
     const ScoreInfo si = getScore();
     QStringList lines;
     const QString sep = " = ";
-    lines.append(standardResult("Total", convert::prettyValue(si.total), sep,
-                                " (0–n, higher better)."));
-    lines.append(standardResult("n", convert::prettyValue(si.n), sep,
-                                QString(" (out of %1).").arg(N_QUESTIONS)));
-    lines.append(standardResult("Score", convert::prettyValue(si.score), sep,
-                                " (0–1)."));
-    lines.append(standardResult("Tabulated logit of score",
-                                convert::prettyValue(si.logit), sep, "."));
-    lines.append(standardResult("Severity", convert::prettyValue(si.severity),
-                                sep, "."));
+    lines.append(standardResult(
+        "Total", convert::prettyValue(si.total), sep, " (0–n, higher better)."
+    ));
+    lines.append(standardResult(
+        "n",
+        convert::prettyValue(si.n),
+        sep,
+        QString(" (out of %1).").arg(N_QUESTIONS)
+    ));
+    lines.append(
+        standardResult("Score", convert::prettyValue(si.score), sep, " (0–1).")
+    );
+    lines.append(standardResult(
+        "Tabulated logit of score", convert::prettyValue(si.logit), sep, "."
+    ));
+    lines.append(
+        standardResult("Severity", convert::prettyValue(si.severity), sep, ".")
+    );
     return lines;
 }
-
 
 QStringList Frs::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* Frs::editor(const bool read_only)
 {
@@ -178,11 +185,11 @@ OpenableWidget* Frs::editor(const bool read_only)
             {xstring(prefix + "never"), NEVER},
         };
         if (!NO_SOMETIMES_QUESTIONS.contains(q)) {
-            options.append(NameValuePair(xstring(prefix + "sometimes"),
-                                          SOMETIMES));
+            options.append(
+                NameValuePair(xstring(prefix + "sometimes"), SOMETIMES)
+            );
         }
-        options.append(NameValuePair(xstring(prefix + "always"),
-                                      ALWAYS));
+        options.append(NameValuePair(xstring(prefix + "always"), ALWAYS));
         if (NA_QUESTIONS.contains(q)) {
             if (SPECIAL_NA_TEXT_QUESTIONS.contains(q)) {
                 options.append(NameValuePair(xstring(prefix + "na"), NA));
@@ -200,8 +207,8 @@ OpenableWidget* Frs::editor(const bool read_only)
             new QuMcq(fieldRef(strnum(QPREFIX, q)), options),
         };
     };
-    auto makeqgroup = [&makeqelements](int start,
-                                       int end) -> QVector<QuElement*> {
+    auto makeqgroup
+        = [&makeqelements](int start, int end) -> QVector<QuElement*> {
         QVector<QuElement*> elements;
         for (int q = start; q <= end; ++q) {
             elements += makeqelements(q);
@@ -215,43 +222,59 @@ OpenableWidget* Frs::editor(const bool read_only)
     QVector<QuPagePtr> pages{
         getClinicianAndRespondentDetailsPage(false),
 
-        QuPagePtr((new QuPage(makeqgroup(1, 7)))
-                  ->setTitle(xstring("h_behaviour"))),
+        QuPagePtr(
+            (new QuPage(makeqgroup(1, 7)))->setTitle(xstring("h_behaviour"))
+        ),
 
-        QuPagePtr((new QuPage(makeqgroup(8, 9)))
-                  ->setTitle(xstring("h_outing"))),
+        QuPagePtr((new QuPage(makeqgroup(8, 9)))->setTitle(xstring("h_outing"))
+        ),
 
-        QuPagePtr((new QuPage(QVector<QuElement*>{
-            text("houshold_instruction"),
-        } + makeqgroup(10, 12)))
-                  ->setTitle(xstring("h_household"))),
+        QuPagePtr((new QuPage(
+                       QVector<QuElement*>{
+                           text("houshold_instruction"),
+                       }
+                       + makeqgroup(10, 12)
+                   ))
+                      ->setTitle(xstring("h_household"))),
 
-        QuPagePtr((new QuPage(QVector<QuElement*>{
-            text("finances_instruction_1"),
-            text("finances_instruction_2"),
-        } + makeqgroup(13, 16)))
-                  ->setTitle(xstring("h_finances"))),
+        QuPagePtr((new QuPage(
+                       QVector<QuElement*>{
+                           text("finances_instruction_1"),
+                           text("finances_instruction_2"),
+                       }
+                       + makeqgroup(13, 16)
+                   ))
+                      ->setTitle(xstring("h_finances"))),
 
-        QuPagePtr((new QuPage(QVector<QuElement*>{
-            text("medications_instruction"),
-        } + makeqgroup(17, 18)))
-                  ->setTitle(xstring("h_medications"))),
+        QuPagePtr((new QuPage(
+                       QVector<QuElement*>{
+                           text("medications_instruction"),
+                       }
+                       + makeqgroup(17, 18)
+                   ))
+                      ->setTitle(xstring("h_medications"))),
 
-        QuPagePtr((new QuPage(QVector<QuElement*>{
-            text("mealprep_instruction"),
-        } + makeqgroup(19, 26)))
-                  ->setTitle(xstring("h_mealprep"))),
+        QuPagePtr((new QuPage(
+                       QVector<QuElement*>{
+                           text("mealprep_instruction"),
+                       }
+                       + makeqgroup(19, 26)
+                   ))
+                      ->setTitle(xstring("h_mealprep"))),
 
-        QuPagePtr((new QuPage(QVector<QuElement*>{
-            text("selfcare_instruction"),
-        } + makeqgroup(27, 30)))
-                  ->setTitle(xstring("h_selfcare"))),
+        QuPagePtr((new QuPage(
+                       QVector<QuElement*>{
+                           text("selfcare_instruction"),
+                       }
+                       + makeqgroup(27, 30)
+                   ))
+                      ->setTitle(xstring("h_selfcare"))),
 
         QuPagePtr((new QuPage{
-            new QuText(TextConst::cliniciansComments()),
-            new QuTextEdit(fieldRef(COMMENTS, false)),
-        })
-                  ->setTitle(TextConst::comments())),
+                       new QuText(TextConst::cliniciansComments()),
+                       new QuTextEdit(fieldRef(COMMENTS, false)),
+                   })
+                      ->setTitle(TextConst::comments())),
     };
 
     auto questionnaire = new Questionnaire(m_app, pages);
@@ -259,7 +282,6 @@ OpenableWidget* Frs::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -283,7 +305,6 @@ Frs::ScoreInfo Frs::getScore() const
     return si;
 }
 
-
 QVariant Frs::getTabularLogit(const double score) const
 {
     const double pct_score = 100 * score;
@@ -298,7 +319,6 @@ QVariant Frs::getTabularLogit(const double score) const
     }
     return QVariant();
 }
-
 
 QString Frs::getSeverity(const QVariant& logit) const
 {

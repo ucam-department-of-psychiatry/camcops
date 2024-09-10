@@ -19,14 +19,16 @@
 */
 
 #include "dynamicquestionnaire.h"
+
 #include <QDebug>
+
 #include "lib/uifunc.h"
 
-
 DynamicQuestionnaire::DynamicQuestionnaire(
-        CamcopsApp& app,
-        const MakePageFn& make_page_fn,
-        const MorePagesToGoFn& more_pages_to_go_fn) :
+    CamcopsApp& app,
+    const MakePageFn& make_page_fn,
+    const MorePagesToGoFn& more_pages_to_go_fn
+) :
     Questionnaire(app),
     m_make_page_fn(make_page_fn),
     m_more_pages_to_go_fn(more_pages_to_go_fn)
@@ -36,23 +38,22 @@ DynamicQuestionnaire::DynamicQuestionnaire(
     // See addFirstDynamicPage() instead.
 }
 
-
 bool DynamicQuestionnaire::isDynamic() const
 {
     return true;
 }
 
-
 void DynamicQuestionnaire::addFirstDynamicPage()
 {
     QuPagePtr first_page = m_make_page_fn(m_current_page_index);
     if (!first_page) {
-        uifunc::stopApp("Dynamic questionnaire created but caller refuses to "
-                        "supply first page");
+        uifunc::stopApp(
+            "Dynamic questionnaire created but caller refuses to "
+            "supply first page"
+        );
     }
     m_pages.append(first_page);
 }
-
 
 void DynamicQuestionnaire::addAllAccessibleDynamicPages()
 {
@@ -90,13 +91,11 @@ void DynamicQuestionnaire::addAllAccessibleDynamicPages()
     } while (page);
 }
 
-
 bool DynamicQuestionnaire::morePagesToGo() const
 {
     const int current_qnum = currentPageIndex();
     return m_more_pages_to_go_fn(current_qnum);
 }
-
 
 void DynamicQuestionnaire::addPage(const QuPagePtr& page)
 {
@@ -104,13 +103,11 @@ void DynamicQuestionnaire::addPage(const QuPagePtr& page)
     uifunc::stopApp("Don't call addPage() on a DynamicQuestionnaire!");
 }
 
-
 void DynamicQuestionnaire::deletePage(const int index)
 {
     Q_UNUSED(index)
     uifunc::stopApp("Don't call deletePage() on a DynamicQuestionnaire!");
 }
-
 
 void DynamicQuestionnaire::goToPage(const int index, const bool allow_refresh)
 {
@@ -119,8 +116,7 @@ void DynamicQuestionnaire::goToPage(const int index, const bool allow_refresh)
         return;
     }
     if (index == m_current_page_index && !allow_refresh) {
-        qDebug() << "Page" << index <<
-                    "(zero-based index) already selected";
+        qDebug() << "Page" << index << "(zero-based index) already selected";
         return;
     }
     pageClosing();
@@ -133,7 +129,6 @@ void DynamicQuestionnaire::goToPage(const int index, const bool allow_refresh)
     build();
 }
 
-
 void DynamicQuestionnaire::trimFromCurrentPositionOnwards()
 {
     // Chop off all pages beyond the current one
@@ -141,7 +136,6 @@ void DynamicQuestionnaire::trimFromCurrentPositionOnwards()
         m_pages.removeLast();
     }
 }
-
 
 void DynamicQuestionnaire::processNextClicked()
 {
@@ -162,12 +156,12 @@ void DynamicQuestionnaire::processNextClicked()
     const int next_qnum = m_current_page_index + 1;
     QuPagePtr new_dynamic_page = m_make_page_fn(next_qnum);
     if (!new_dynamic_page) {
-        qWarning()
-                << Q_FUNC_INFO
-                << "Miscalculation: we have offered a Next button but the "
-                   "task wants to finish, so we should have offered a Finish "
-                   "button; this implies the task has got its "
-                   "'more_pages_to_go_fn' function wrong";
+        qWarning(
+        ) << Q_FUNC_INFO
+          << "Miscalculation: we have offered a Next button but the "
+             "task wants to finish, so we should have offered a Finish "
+             "button; this implies the task has got its "
+             "'more_pages_to_go_fn' function wrong";
         doFinish();
         return;
     }

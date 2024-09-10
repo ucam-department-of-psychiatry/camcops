@@ -18,21 +18,18 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <QtTest/QtTest>
 #include <QPushButton>
+#include <QtTest/QtTest>
 
 #include "layouts/flowlayouthfw.h"
 
-
-class TestFlowLayoutHfw: public QObject
+class TestFlowLayoutHfw : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testMinimumSizeAddsMargins();
 };
-
-
 
 void TestFlowLayoutHfw::testMinimumSizeAddsMargins()
 {

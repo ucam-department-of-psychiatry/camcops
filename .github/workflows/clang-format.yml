@@ -32,3 +32,4 @@ jobs:
                   which clang-format-15
                   which clang-format
                   ${PYTHON} ${GITHUB_WORKSPACE}/tablet_qt/tools/clang_format_camcops.py findlongcomments --ignore_urls
+                  ${PYTHON} ${GITHUB_WORKSPACE}/tablet_qt/tools/clang_format_camcops.py check

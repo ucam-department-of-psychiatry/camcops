@@ -49,13 +49,16 @@ class WidgetPositioner : public QObject
     // https://bugreports.qt.io/browse/QTBUG-109127
 
     Q_OBJECT
+
 public:
     WidgetPositioner(QWidget* widget);
     // ... widget will become our parent and own us
+
 protected:
     void sizeToScreen();
     void centre();
     bool eventFilter(QObject* obj, QEvent* event) override;
+
 private:
     QWidget* m_widget;
 private slots:

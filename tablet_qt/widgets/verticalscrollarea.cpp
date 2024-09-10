@@ -45,12 +45,14 @@
 // #define TOUCHSCROLL_FLICKCHARM  // DOESN'T WORK (well? at all?)
 
 #include "verticalscrollarea.h"
+
 #include <QDebug>
 #include <QEvent>
 #include <QGestureEvent>
 #include <QLayout>
 #include <QScrollBar>
 #include <QScroller>
+
 #include "common/widgetconst.h"
 #include "lib/margins.h"
 #include "lib/reentrydepthguard.h"
@@ -60,28 +62,31 @@
 #include "widgets/verticalscrollareaviewport.h"
 
 #ifdef DEBUG_LAYOUT
-#include "lib/layoutdumper.h"
+    #include "lib/layoutdumper.h"
 #endif
 #ifdef USE_STRETCH
-#include "layouts/layouts.h"  // for VBoxLayout
-#include "widgets/basewidget.h"
+    #include "layouts/layouts.h"  // for VBoxLayout
+    #include "widgets/basewidget.h"
 #endif
 
 
 #if defined USE_STRETCH && defined RESIZE_FOR_HFW
-#error Cannot #define both USE_SPACER and RESIZE_FOR_HFW
+    #error Cannot #define both USE_SPACER and RESIZE_FOR_HFW
 #endif
 
-#if defined TOUCHSCROLL_DIRECT && (defined TOUCHSCROLL_SCROLLER || defined TOUCHSCROLL_FLICKCHARM)
-#error #define only one touch scrolling method
+#if defined TOUCHSCROLL_DIRECT                                                \
+    && (defined TOUCHSCROLL_SCROLLER || defined TOUCHSCROLL_FLICKCHARM)
+    #error #define only one touch scrolling method
 #endif
 
-#if defined TOUCHSCROLL_SCROLLER && (defined TOUCHSCROLL_DIRECT || defined TOUCHSCROLL_FLICKCHARM)
-#error #define only one touch scrolling method
+#if defined TOUCHSCROLL_SCROLLER                                              \
+    && (defined TOUCHSCROLL_DIRECT || defined TOUCHSCROLL_FLICKCHARM)
+    #error #define only one touch scrolling method
 #endif
 
-#if defined TOUCHSCROLL_FLICKCHARM && (defined TOUCHSCROLL_DIRECT || defined TOUCHSCROLL_SCROLLER)
-#error #define only one touch scrolling method
+#if defined TOUCHSCROLL_FLICKCHARM                                            \
+    && (defined TOUCHSCROLL_DIRECT || defined TOUCHSCROLL_SCROLLER)
+    #error #define only one touch scrolling method
 #endif
 
 
@@ -368,9 +373,9 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
     // ------------------------------------------------------------------------
 #ifdef USE_CUSTOM_VIEWPORT
     auto vp = new VerticalScrollAreaViewport();
-#ifdef USE_STRETCH
+    #ifdef USE_STRETCH
     vp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-#endif
+    #endif
     setViewport(vp);
 #endif
 
@@ -438,7 +443,6 @@ VerticalScrollArea::VerticalScrollArea(QWidget* parent) :
 #endif
 }
 
-
 // ============================================================================
 // Resizing
 // ============================================================================
@@ -457,7 +461,6 @@ void VerticalScrollArea::setWidget(QWidget* widget)  // hides parent version
 #endif
 }
 
-
 void VerticalScrollArea::resizeEvent(QResizeEvent* event)
 {
 #ifdef DEBUG_LAYOUT
@@ -468,16 +471,16 @@ void VerticalScrollArea::resizeEvent(QResizeEvent* event)
     // sizehelpers::resizeEventForHFWParentWidget(this);
 #endif
 #ifdef USE_CUSTOM_VIEWPORT
-#ifdef DEBUG_VIEWPORT_CHILD_SIZE
+    #ifdef DEBUG_VIEWPORT_CHILD_SIZE
     QWidget* w = viewport();
-    VerticalScrollAreaViewport* vp = dynamic_cast<VerticalScrollAreaViewport*>(w);
+    VerticalScrollAreaViewport* vp
+        = dynamic_cast<VerticalScrollAreaViewport*>(w);
     if (vp) {
         vp->checkChildSize();
     }
-#endif
+    #endif
 #endif
 }
-
 
 bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 {
@@ -496,8 +499,8 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 #ifdef DEBUG_LAYOUT
         qDebug() << Q_FUNC_INFO << "- Child is resizing to" << w->geometry();
 #endif
-        const bool skip = w->size() == m_widget_size_back_1 ||
-                w->size() == m_widget_size_back_2;
+        const bool skip = w->size() == m_widget_size_back_1
+            || w->size() == m_widget_size_back_2;
         m_widget_size_back_2 = m_widget_size_back_1;
         m_widget_size_back_1 = w->size();
 
@@ -513,9 +516,10 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
         // Prevent infinite recursion
         // --------------------------------------------------------------------
         if (m_reentry_depth >= widgetconst::SET_GEOMETRY_MAX_REENTRY_DEPTH) {
-#ifdef DEBUG_LAYOUT
-            qDebug() << Q_FUNC_INFO << "- ... recursion depth exceeded; ignoring";
-#endif
+    #ifdef DEBUG_LAYOUT
+            qDebug() << Q_FUNC_INFO
+                     << "- ... recursion depth exceeded; ignoring";
+    #endif
             return false;
         }
         ReentryDepthGuard guard(m_reentry_depth);
@@ -557,7 +561,6 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
 #endif
     return QScrollArea::eventFilter(o, e);
 }
-
 
 // RNC addition:
 // Without this (and a vertical size policy of Maximum), it's very hard to
@@ -608,18 +611,16 @@ QSize VerticalScrollArea::sizeHint() const
     // Correct for our margins
     const QRect viewport_rect = viewport()->geometry();
     const QRect scrollarea_rect = geometry();
-    const Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
+    const Margins marg
+        = Margins::subRectMargins(scrollarea_rect, viewport_rect);
     sh.rheight() += marg.totalHeight();
 
 #ifdef DEBUG_LAYOUT
-    qDebug().nospace()
-            << Q_FUNC_INFO
-            << " - [widget sizeHint() " << w->sizeHint()
-            << "] -> final sizeHint() " << sh;
+    qDebug().nospace() << Q_FUNC_INFO << " - [widget sizeHint() "
+                       << w->sizeHint() << "] -> final sizeHint() " << sh;
 #endif
     return sh;
 }
-
 
 void VerticalScrollArea::resetSizeLimits()
 {
@@ -659,10 +660,10 @@ void VerticalScrollArea::resetSizeLimits()
 #endif
 #ifdef DEBUG_LAYOUT
     const int vsb_value = vsb->value();
-    const bool scrollbar_active = vsb_value != vsb->minimum() ||
-            vsb_value != vsb->maximum();
-    const QString hfw_explanation = scrollbar_active ? "[scrollbar active] "
-                                                     : "[scrollbar inactive] ";
+    const bool scrollbar_active
+        = vsb_value != vsb->minimum() || vsb_value != vsb->maximum();
+    const QString hfw_explanation
+        = scrollbar_active ? "[scrollbar active] " : "[scrollbar inactive] ";
 #endif
 
     // And: in this example, we want (I think) our minimum width to be 4,
@@ -690,22 +691,27 @@ void VerticalScrollArea::resetSizeLimits()
             // us without scroll bars - so when we add scroll bars, it'll get
             // narrower and thus taller. If we don't account for these, our
             // scroll area will often be a fraction too short vertically.
-            int narrower_widget_width = qMax(1, widget_width - scrollbar_width);
+            int narrower_widget_width
+                = qMax(1, widget_width - scrollbar_width);
             widget_max_height = w->heightForWidth(narrower_widget_width);
     #ifdef DEBUG_LAYOUT
-            hfw_explanation += QString("widget's width %1 -> narrowed %2 in "
-                                       "case scrollbars added -> HFW %3")
-                    .arg(widget_width)
-                    .arg(narrower_widget_width)
-                    .arg(widget_max_height);
+            hfw_explanation += QString(
+                                   "widget's width %1 -> narrowed %2 in "
+                                   "case scrollbars added -> HFW %3"
+            )
+                                   .arg(widget_width)
+                                   .arg(narrower_widget_width)
+                                   .arg(widget_max_height);
     #endif
         } else {
             widget_max_height = w->heightForWidth(widget_width);
     #ifdef DEBUG_LAYOUT
-            hfw_explanation += QString("widget's width %1 -> not narrowed -> "
-                                       "max height remains %2")
-                    .arg(widget_width)
-                    .arg(widget_max_height);
+            hfw_explanation += QString(
+                                   "widget's width %1 -> not narrowed -> "
+                                   "max height remains %2"
+            )
+                                   .arg(widget_width)
+                                   .arg(widget_max_height);
     #endif
         }
 
@@ -713,20 +719,26 @@ void VerticalScrollArea::resetSizeLimits()
         // For height-for-width widgets, minimumSizeHint().height() may be
         // misleading.
         int widget_max_width = qMin(w->maximumWidth(), QWIDGETSIZE_MAX);
-        widget_min_height = qMin(w->heightForWidth(widget_min_width),
-                                 qMin(w->heightForWidth(widget_width),
-                                      w->heightForWidth(widget_max_width)));
+        widget_min_height = qMin(
+            w->heightForWidth(widget_min_width),
+            qMin(
+                w->heightForWidth(widget_width),
+                w->heightForWidth(widget_max_width)
+            )
+        );
     #ifdef DEBUG_LAYOUT
-        hfw_explanation += QString(
-                    "; widget HFWs: min_width %1 -> %2; width %3 -> %4; "
-                    "max_width %5 -> %6; overall widget_min_height %7")
-                .arg(widget_min_width)
-                .arg(w->heightForWidth(widget_min_width))
-                .arg(widget_width)
-                .arg(w->heightForWidth(widget_width))
-                .arg(widget_max_width)
-                .arg(w->heightForWidth(widget_max_width))
-                .arg(widget_min_height);
+        hfw_explanation
+            += QString(
+                   "; widget HFWs: min_width %1 -> %2; width %3 -> %4; "
+                   "max_width %5 -> %6; overall widget_min_height %7"
+            )
+                   .arg(widget_min_width)
+                   .arg(w->heightForWidth(widget_min_width))
+                   .arg(widget_width)
+                   .arg(w->heightForWidth(widget_width))
+                   .arg(widget_max_width)
+                   .arg(w->heightForWidth(widget_max_width))
+                   .arg(widget_min_height);
     #endif
 
 #else
@@ -761,14 +773,14 @@ void VerticalScrollArea::resetSizeLimits()
         widget_max_height = w->maximumHeight();
 #ifdef DEBUG_LAYOUT
         hfw_explanation += QString("[widget does not have HFW] ");
-        hfw_explanation += QString("widget's maximum height is %1")
-                .arg(widget_max_height);
+        hfw_explanation
+            += QString("widget's maximum height is %1").arg(widget_max_height);
 #endif
-
     }
 
     int new_min_width = widget_min_width;
-    const int new_min_height = qBound(0, widget_min_height, SQUASH_DOWN_TO_HEIGHT);
+    const int new_min_height
+        = qBound(0, widget_min_height, SQUASH_DOWN_TO_HEIGHT);
     int new_max_height = widget_max_height;
 
     // The only other odd bit is that VerticalScrollArea can position its
@@ -777,33 +789,31 @@ void VerticalScrollArea::resetSizeLimits()
     // Basically, there is small boundary, as above.
     const QRect viewport_rect = viewport()->geometry();
     const QRect scrollarea_rect = geometry();
-    const Margins marg = Margins::subRectMargins(scrollarea_rect, viewport_rect);
+    const Margins marg
+        = Margins::subRectMargins(scrollarea_rect, viewport_rect);
     new_min_width += marg.totalWidth();
     new_max_height += marg.totalHeight();
 
 #ifdef DEBUG_LAYOUT
     QMargins viewport_margins = viewportMargins();  // zero!
     qDebug().nospace().noquote()
-            << Q_FUNC_INFO
-            << " - Child widget resized to " << w->geometry()
-            << "; setting VerticalScrollArea minimum width to "
-            << new_min_width
-            << " (" << widget_min_width << " for widget, "
-            << marg.totalWidth() << " for margins)"
-            << "; setting minimum height to " << new_min_height
-            << "; setting maximum height to " << new_max_height
-            << " (" << hfw_explanation << ") "
-            << "[viewport margins: " << viewport_margins
-            << ", viewport_geometry: " << viewport_rect
-            << ", scrollarea_geometry: " << scrollarea_rect
-            << "]";
-    qDebug() << Q_FUNC_INFO << "Child widget:"
-             << layoutdumper::getWidgetInfo(w);
+        << Q_FUNC_INFO << " - Child widget resized to " << w->geometry()
+        << "; setting VerticalScrollArea minimum width to " << new_min_width
+        << " (" << widget_min_width << " for widget, " << marg.totalWidth()
+        << " for margins)"
+        << "; setting minimum height to " << new_min_height
+        << "; setting maximum height to " << new_max_height << " ("
+        << hfw_explanation << ") "
+        << "[viewport margins: " << viewport_margins
+        << ", viewport_geometry: " << viewport_rect
+        << ", scrollarea_geometry: " << scrollarea_rect << "]";
+    qDebug() << Q_FUNC_INFO
+             << "Child widget:" << layoutdumper::getWidgetInfo(w);
 #endif
 
-    const bool change = new_min_width != minimumWidth() ||
-            new_min_height != minimumHeight() ||
-            new_max_height != maximumHeight();
+    const bool change = new_min_width != minimumWidth()
+        || new_min_height != minimumHeight()
+        || new_max_height != maximumHeight();
     if (!change) {
         return;
     }
@@ -867,7 +877,6 @@ void VerticalScrollArea::resetSizeLimits()
     //   Works well on Wombat!
 }
 
-
 // ============================================================================
 // Swipe to scroll
 // ============================================================================
@@ -883,7 +892,6 @@ bool VerticalScrollArea::event(QEvent* event)
     return QScrollArea::event(event);
 }
 
-
 bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
 {
 #ifdef TOUCHSCROLL_DIRECT
@@ -897,7 +905,6 @@ bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
 #endif
     return true;
 }
-
 
 void VerticalScrollArea::swipeTriggered(QSwipeGesture* gesture)
 {

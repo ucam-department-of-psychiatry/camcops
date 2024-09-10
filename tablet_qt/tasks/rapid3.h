@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,22 +31,28 @@ class TaskFactory;
 
 void initializeRapid3(TaskFactory& factory);
 
-
 class Rapid3 : public Task
 {
     Q_OBJECT
+
 public:
-    Rapid3(CamcopsApp& app, DatabaseManager& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    Rapid3(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -60,10 +67,13 @@ public:
     double functionalStatus() const;
     double painTolerance() const;
     double globalEstimate() const;
+
 public:
     static const QString RAPID3_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 private:
     QStringList allFieldnames() const;
     QStringList q1Fieldnames() const;

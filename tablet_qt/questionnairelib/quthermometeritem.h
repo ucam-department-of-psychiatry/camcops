@@ -22,8 +22,8 @@
 #include <QString>
 #include <QVariant>
 
-
-class QuThermometerItem {
+class QuThermometerItem
+{
     // Describes part of a thermometer-style display. Used by QuThermometer.
     //
     // On the left is an image, which can take one of two states (active or
@@ -42,11 +42,12 @@ public:
     //   defined
     // - text_alignment: alignment of "text"
     QuThermometerItem(
-            const QString& active_filename,
-            const QString& inactive_filename,
-            const QString& text,
-            const QVariant& value,
-            Qt::Alignment text_alignment = Qt::AlignLeft | Qt::AlignVCenter);
+        const QString& active_filename,
+        const QString& inactive_filename,
+        const QString& text,
+        const QVariant& value,
+        Qt::Alignment text_alignment = Qt::AlignLeft | Qt::AlignVCenter
+    );
 
     // Returns the active image filename.
     QString activeFilename() const;

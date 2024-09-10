@@ -19,17 +19,17 @@
 */
 
 #include "whiskerdisplaycachewrapper.h"
+
 #include "whisker/whiskermanager.h"
 
-
-WhiskerDisplayCacheWrapper::WhiskerDisplayCacheWrapper(WhiskerManager* manager,
-                                                       const QString& doc) :
+WhiskerDisplayCacheWrapper::WhiskerDisplayCacheWrapper(
+    WhiskerManager* manager, const QString& doc
+) :
     m_manager(manager),
     m_doc(doc)
 {
     m_manager->displayCacheChanges(m_doc, true);
 }
-
 
 WhiskerDisplayCacheWrapper::~WhiskerDisplayCacheWrapper()
 {

@@ -19,47 +19,44 @@
 */
 
 #include "whiskeroutboundcommand.h"
+
 #include "whisker/whiskerapi.h"
 #include "whisker/whiskerconstants.h"
 using whiskerapi::msgFromArgs;
 
-
-WhiskerOutboundCommand::WhiskerOutboundCommand(const QString& command,
-                                               bool immediate_socket,
-                                               bool immediate_ignore_reply) :
+WhiskerOutboundCommand::WhiskerOutboundCommand(
+    const QString& command, bool immediate_socket, bool immediate_ignore_reply
+) :
     m_command(command),
     m_immediate_socket(immediate_socket),
     m_immediate_ignore_reply(immediate_ignore_reply)
 {
 }
 
-
-WhiskerOutboundCommand::WhiskerOutboundCommand(const QStringList& args,
-                                               bool immediate_socket,
-                                               bool immediate_ignore_reply) :
+WhiskerOutboundCommand::WhiskerOutboundCommand(
+    const QStringList& args, bool immediate_socket, bool immediate_ignore_reply
+) :
     m_command(msgFromArgs(args)),
     m_immediate_socket(immediate_socket),
     m_immediate_ignore_reply(immediate_ignore_reply)
 {
 }
 
-
 WhiskerOutboundCommand::WhiskerOutboundCommand(
-        std::initializer_list<QString> args,
-        bool immediate_socket,
-        bool immediate_ignore_reply) :
+    std::initializer_list<QString> args,
+    bool immediate_socket,
+    bool immediate_ignore_reply
+) :
     m_command(msgFromArgs(QStringList(args))),
     m_immediate_socket(immediate_socket),
     m_immediate_ignore_reply(immediate_ignore_reply)
 {
 }
 
-
 QString WhiskerOutboundCommand::terminatedCommand() const
 {
     return m_command + whiskerconstants::EOL;
 }
-
 
 QByteArray WhiskerOutboundCommand::bytes() const
 {
@@ -70,13 +67,11 @@ QByteArray WhiskerOutboundCommand::bytes() const
     // Moving from const char* to QByteArray immediately fixed this.
 }
 
-
 QDebug operator<<(QDebug debug, const WhiskerOutboundCommand& c)
 {
-    debug.nospace()
-            << "WhiskerOutboundCommand(command=" << c.m_command
-            << ", immediate_socket=" << c.m_immediate_socket
-            << ", immediate_ignore_reply=" << c.m_immediate_ignore_reply
-            << ")";
+    debug.nospace() << "WhiskerOutboundCommand(command=" << c.m_command
+                    << ", immediate_socket=" << c.m_immediate_socket
+                    << ", immediate_ignore_reply="
+                    << c.m_immediate_ignore_reply << ")";
     return debug;
 }

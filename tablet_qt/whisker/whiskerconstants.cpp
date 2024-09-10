@@ -60,7 +60,8 @@ const QString PING_ACK("PingAcknowledged");
 
 const QRegularExpression EVENT_REGEX("^Event: (.*)$");
 const QRegularExpression KEY_EVENT_REGEX(R"(^KeyEvent: (\d+) (\w+) (.*)$)");
-const QRegularExpression CLIENT_MESSAGE_REGEX(R"(^ClientMessage: (\d+) (.*)$)");
+const QRegularExpression CLIENT_MESSAGE_REGEX(R"(^ClientMessage: (\d+) (.*)$)"
+);
 const QRegularExpression INFO_REGEX("^Info: (.*)$");
 const QRegularExpression WARNING_REGEX("Warning: (.*)$");
 const QRegularExpression SYNTAX_ERROR_REGEX("^SyntaxError: (.*)$");
@@ -109,7 +110,8 @@ const QString CMD_DISPLAY_BLANK("DisplayBlank");
 const QString CMD_DISPLAY_BRING_TO_FRONT("DisplayBringToFront");
 const QString CMD_DISPLAY_CACHE_CHANGES("DisplayCacheChanges");
 const QString CMD_DISPLAY_CLAIM("DisplayClaim");
-const QString CMD_DISPLAY_CLEAR_BACKGROUND_EVENT("DisplayClearBackgroundEvent");
+const QString CMD_DISPLAY_CLEAR_BACKGROUND_EVENT("DisplayClearBackgroundEvent"
+);
 const QString CMD_DISPLAY_CLEAR_EVENT("DisplayClearEvent");
 const QString CMD_DISPLAY_CREATE_DEVICE("DisplayCreateDevice");
 const QString CMD_DISPLAY_CREATE_DOCUMENT("DisplayCreateDocument");
@@ -130,7 +132,9 @@ const QString CMD_DISPLAY_SET_BACKGROUND_COLOUR("DisplaySetBackgroundColour");
 const QString CMD_DISPLAY_SET_BACKGROUND_EVENT("DisplaySetBackgroundEvent");
 const QString CMD_DISPLAY_SET_DOCUMENT_SIZE("DisplaySetDocumentSize");
 const QString CMD_DISPLAY_SET_EVENT("DisplaySetEvent");
-const QString CMD_DISPLAY_SET_OBJ_EVENT_TRANSPARENCY("DisplaySetObjectEventTransparency");
+const QString CMD_DISPLAY_SET_OBJ_EVENT_TRANSPARENCY(
+    "DisplaySetObjectEventTransparency"
+);
 const QString CMD_DISPLAY_SHOW_CHANGES("DisplayShowChanges");
 const QString CMD_DISPLAY_SHOW_DOCUMENT("DisplayShowDocument");
 const QString CMD_LINE_CLAIM("LineClaim");

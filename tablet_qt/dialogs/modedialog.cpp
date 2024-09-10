@@ -19,25 +19,25 @@
 */
 
 #include "modedialog.h"
+
 #include <QButtonGroup>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
+
 #include "common/varconst.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "qobjects/widgetpositioner.h"
 #include "widgets/radiobuttonwordwrap.h"
 
-
-ModeDialog::ModeDialog(const int previous_choice,
-                       QWidget* parent) :
+ModeDialog::ModeDialog(const int previous_choice, QWidget* parent) :
     QDialog(parent)
 {
     const int default_choice = previous_choice == varconst::MODE_NOT_SET
-            ? varconst::MODE_SINGLE_USER  // default for first choice
-            : previous_choice;  // default for subsequent choices
+        ? varconst::MODE_SINGLE_USER  // default for first choice
+        : previous_choice;  // default for subsequent choices
     const bool offer_cancel = previous_choice != varconst::MODE_NOT_SET;
 
     setWindowTitle(tr("Select clinician or single user mode"));
@@ -45,11 +45,13 @@ ModeDialog::ModeDialog(const int previous_choice,
 
     auto prompt = new QLabel(tr("I would like to use CamCOPS as a:"));
     const QString single_user_text = tr("single user");
-    const QString clinician_text = tr(
-        "clinician/researcher, with multiple patients/participants");
+    const QString clinician_text
+        = tr("clinician/researcher, with multiple patients/participants");
 
     auto single_user_button = new RadioButtonWordWrap(single_user_text);
-    single_user_button->setChecked(default_choice == varconst::MODE_SINGLE_USER);
+    single_user_button->setChecked(
+        default_choice == varconst::MODE_SINGLE_USER
+    );
 
     auto clinician_button = new RadioButtonWordWrap(clinician_text);
     clinician_button->setChecked(default_choice == varconst::MODE_CLINICIAN);
@@ -58,8 +60,8 @@ ModeDialog::ModeDialog(const int previous_choice,
     m_mode_selector->addButton(clinician_button, varconst::MODE_CLINICIAN);
 
     auto prompt2 = new QLabel(
-        tr("If you are not sure, choose") + " " +
-        stringfunc::bold(single_user_text)
+        tr("If you are not sure, choose") + " "
+        + stringfunc::bold(single_user_text)
     );
 
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok;
@@ -88,7 +90,6 @@ ModeDialog::ModeDialog(const int previous_choice,
 
     setLayout(mainlayout);
 }
-
 
 int ModeDialog::mode() const
 {

@@ -33,9 +33,13 @@ void initializeParadise24(TaskFactory& factory);
 class Paradise24 : public Task
 {
     Q_OBJECT
+
 public:
-    Paradise24(CamcopsApp& app, DatabaseManager& db,
-               int load_pk = dbconst::NONEXISTENT_PK);
+    Paradise24(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,10 +58,15 @@ public:
     // ------------------------------------------------------------------------
     QVariant rawTotalScore() const;
     QVariant metricScore() const;
+
 public:
     static const QString PARADISE24_TABLENAME;
+
 protected:
     QStringList fieldNames() const;
+
 private:
-    QuMcqGrid* buildGrid(int first_q_num, int last_q_num, const NameValueOptions options);
+    QuMcqGrid* buildGrid(
+        int first_q_num, int last_q_num, const NameValueOptions options
+    );
 };

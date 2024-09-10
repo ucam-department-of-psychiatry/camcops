@@ -19,16 +19,16 @@
 */
 
 #include "nhsnumbervalidator.h"
+
 #include "lib/nhs.h"
 
-
-NHSNumberValidator::NHSNumberValidator(const bool allow_empty,
-                                       QObject* parent) :
+NHSNumberValidator::NHSNumberValidator(
+    const bool allow_empty, QObject* parent
+) :
     QValidator(parent),
     m_allow_empty(allow_empty)
 {
 }
-
 
 QValidator::State NHSNumberValidator::validate(QString& input, int& pos) const
 {

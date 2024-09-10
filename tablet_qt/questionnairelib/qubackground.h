@@ -21,7 +21,6 @@
 #pragma once
 #include "questionnairelib/quelement.h"
 
-
 class QuBackground : public QuElement
 {
     // Provides a background (e.g. for use in grids).
@@ -29,8 +28,11 @@ class QuBackground : public QuElement
 
 public:
     QuBackground(const QString& css_name);
+
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
+
 protected:
     QString m_css_name;  // CSS name for the QWidget
 };

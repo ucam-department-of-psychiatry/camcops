@@ -19,10 +19,10 @@
 */
 
 #include "addictionmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
 #include "tasks/cage.h"
@@ -32,18 +32,15 @@
 #include "tasks/mast.h"
 #include "tasks/smast.h"
 
-
 AddictionMenu::AddictionMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_ADDICTION))
 {
 }
 
-
 QString AddictionMenu::title() const
 {
     return tr("Drug/alcohol abuse and addiction");
 }
-
 
 void AddictionMenu::makeItems()
 {

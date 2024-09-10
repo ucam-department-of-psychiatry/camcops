@@ -27,9 +27,13 @@ class QuMass : public QuMeasurement
 {
     // Mass in kilograms question type with imperial conversion
     Q_OBJECT
+
 public:
-    QuMass(FieldRefPtr fieldref, QPointer<QuUnitSelector> unit_selector,
-           bool mandatory = true);
+    QuMass(
+        FieldRefPtr fieldref,
+        QPointer<QuUnitSelector> unit_selector,
+        bool mandatory = true
+    );
     void setUpFields();
 
     QVariant getKg() const;
@@ -44,7 +48,7 @@ public slots:
     bool setOz(const QVariant& value);
 
 protected:
-    virtual FieldRefPtrList getMetricFieldrefs() const ;
+    virtual FieldRefPtrList getMetricFieldrefs() const;
     virtual FieldRefPtrList getImperialFieldrefs() const;
 
     QVariant m_st;

@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeMaas(TaskFactory& factory);
 
-
 class Maas : public Task
 {
     Q_OBJECT
+
 public:
-    Maas(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Maas(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -51,6 +55,7 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 public:
     static const QString MAAS_TABLENAME;
 };

@@ -46,24 +46,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "radiobuttonwordwrap.h"
+
 #include <QHBoxLayout>
 #include <QStyle>
 #include <QStyleOptionButton>
 #include <QWidget>
 
 #include "clickablelabel.h"
-#include "radiobuttonwordwrap.h"
 
-RadioButtonWordWrap::RadioButtonWordWrap(QWidget* parent)
-    : QRadioButton (parent),
+RadioButtonWordWrap::RadioButtonWordWrap(QWidget* parent) :
+    QRadioButton(parent),
     m_main_layout(new QHBoxLayout(this)),
     m_label(new ClickableLabel(this))
 {
     init();
 }
 
-RadioButtonWordWrap::RadioButtonWordWrap(const QString& text, QWidget* parent)
-    : QRadioButton (parent),
+RadioButtonWordWrap::RadioButtonWordWrap(
+    const QString& text, QWidget* parent
+) :
+    QRadioButton(parent),
     m_main_layout(new QHBoxLayout(this)),
     m_label(new ClickableLabel(text, this))
 {
@@ -100,8 +103,12 @@ QSize RadioButtonWordWrap::sizeHint() const
 {
     QFontMetrics fm(m_label->font());
     QRect r = m_label->rect();
-    r.setLeft(r.left()+m_label->indent()+separation);
-    QRect bRect = fm.boundingRect(r, int(Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap), m_label->text());
+    r.setLeft(r.left() + m_label->indent() + separation);
+    QRect bRect = fm.boundingRect(
+        r,
+        int(Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap),
+        m_label->text()
+    );
     QSize ret = QSize(QWidget::sizeHint().width(), bRect.height());
 
     return ret;
@@ -123,7 +130,9 @@ void RadioButtonWordWrap::init()
     setLayout(m_main_layout);
     QStyleOptionButton opt;
     initStyleOption(&opt);
-    int indicator_width = style()->pixelMetric(QStyle::PixelMetric::PM_IndicatorWidth, &opt, this);
+    int indicator_width = style()->pixelMetric(
+        QStyle::PixelMetric::PM_IndicatorWidth, &opt, this
+    );
 
     m_main_layout->setContentsMargins(0, 0, 0, 0);
     m_main_layout->addWidget(m_label);

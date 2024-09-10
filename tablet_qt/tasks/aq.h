@@ -74,8 +74,9 @@ protected:
     QStringList fieldNames() const;
 
 private:
-    QuMcqGrid* buildGrid(int first_qnum, int last_qnum,
-                         QSharedPointer<NameValueOptions> options);
+    QuMcqGrid* buildGrid(
+        int first_qnum, int last_qnum, QSharedPointer<NameValueOptions> options
+    );
     QSharedPointer<NameValueOptions> buildOptions() const;
     QVariant questionsScore(const QVector<int> qnums) const;
     QVariant questionScore(const int qnum) const;

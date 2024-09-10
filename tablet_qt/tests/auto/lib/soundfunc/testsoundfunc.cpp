@@ -18,15 +18,15 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <QtTest/QtTest>
 #include <QAudioOutput>
 #include <QMediaPlayer>
+#include <QtTest/QtTest>
 
 #include "lib/soundfunc.h"
 
 using namespace soundfunc;
 
-class TestSoundfunc: public QObject
+class TestSoundfunc : public QObject
 {
     Q_OBJECT
 
@@ -34,7 +34,6 @@ private slots:
     void testSetVolumePercentSetsVolumeOnAudioOutput();
     void testSetVolumeProportionSetsVolumeOnAudioOutput();
 };
-
 
 void TestSoundfunc::testSetVolumePercentSetsVolumeOnAudioOutput()
 {

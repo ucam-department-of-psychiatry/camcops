@@ -19,11 +19,13 @@
 */
 
 #include "questionnairefunc.h"
+
 #include <QObject>
-#include "questionnairelib/qugridcontainer.h"
+
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/task.h"
 
@@ -34,12 +36,14 @@ namespace questionnairefunc {
 // Grids
 // ============================================================================
 
-QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
-                                 const int left_column_span,
-                                 const int right_column_span,
-                                 const Qt::Alignment label_alignment,
-                                 const Qt::Alignment left_column_alignment,
-                                 const Qt::Alignment right_column_alignment)
+QuElement* defaultGridRawPointer(
+    const QVector<GridRowDefinition>& deflist,
+    const int left_column_span,
+    const int right_column_span,
+    const Qt::Alignment label_alignment,
+    const Qt::Alignment left_column_alignment,
+    const Qt::Alignment right_column_alignment
+)
 {
     QVector<QuGridCell> cells;
     int row = 0;
@@ -50,14 +54,25 @@ QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
     for (GridRowDefinition def : deflist) {
         const QString text = def.first;
         QuElementPtr label_element = QuElementPtr(
-                    (new QuText(text))->setTextAlignment(label_alignment));
-        const QuGridCell label_cell(label_element, row, left_col,
-                                    row_span, col_span,
-                                    left_column_alignment);
+            (new QuText(text))->setTextAlignment(label_alignment)
+        );
+        const QuGridCell label_cell(
+            label_element,
+            row,
+            left_col,
+            row_span,
+            col_span,
+            left_column_alignment
+        );
         QuElementPtr main_element = def.second;
-        const QuGridCell main_cell(main_element, row, right_col,
-                                   row_span, col_span,
-                                   right_column_alignment);
+        const QuGridCell main_cell(
+            main_element,
+            row,
+            right_col,
+            row_span,
+            col_span,
+            right_column_alignment
+        );
         cells.append(label_cell);
         cells.append(main_cell);
         ++row;
@@ -68,57 +83,72 @@ QuElement* defaultGridRawPointer(const QVector<GridRowDefinition>& deflist,
     return grid;
 }
 
-
-QuElementPtr defaultGrid(const QVector<GridRowDefinition>& deflist,
-                         const int left_column_span,
-                         const int right_column_span,
-                         const Qt::Alignment label_alignment,
-                         const Qt::Alignment left_column_alignment,
-                         const Qt::Alignment right_column_alignment)
+QuElementPtr defaultGrid(
+    const QVector<GridRowDefinition>& deflist,
+    const int left_column_span,
+    const int right_column_span,
+    const Qt::Alignment label_alignment,
+    const Qt::Alignment left_column_alignment,
+    const Qt::Alignment right_column_alignment
+)
 {
     return QuElementPtr(defaultGridRawPointer(
-                            deflist, left_column_span, right_column_span,
-                            label_alignment,
-                            left_column_alignment, right_column_alignment));
+        deflist,
+        left_column_span,
+        right_column_span,
+        label_alignment,
+        left_column_alignment,
+        right_column_alignment
+    ));
 }
 
-
-QuElementPtr defaultGrid(std::initializer_list<GridRowDefinition> defs,
-                         const int left_column_span,
-                         const int right_column_span,
-                         const Qt::Alignment label_alignment,
-                         const Qt::Alignment left_column_alignment,
-                         const Qt::Alignment right_column_alignment)
+QuElementPtr defaultGrid(
+    std::initializer_list<GridRowDefinition> defs,
+    const int left_column_span,
+    const int right_column_span,
+    const Qt::Alignment label_alignment,
+    const Qt::Alignment left_column_alignment,
+    const Qt::Alignment right_column_alignment
+)
 {
     const QVector<GridRowDefinition> deflist(defs);
-    return defaultGrid(deflist, left_column_span, right_column_span,
-                       label_alignment,
-                       left_column_alignment, right_column_alignment);
+    return defaultGrid(
+        deflist,
+        left_column_span,
+        right_column_span,
+        label_alignment,
+        left_column_alignment,
+        right_column_alignment
+    );
 }
 
-
 QuElement* defaultGridRawPointer(
-        std::initializer_list<GridRowDefinitionRawPtr> defs,
-        const int left_column_span,
-        const int right_column_span,
-        const Qt::Alignment label_alignment,
-        const Qt::Alignment left_column_alignment,
-        const Qt::Alignment right_column_alignment)
+    std::initializer_list<GridRowDefinitionRawPtr> defs,
+    const int left_column_span,
+    const int right_column_span,
+    const Qt::Alignment label_alignment,
+    const Qt::Alignment left_column_alignment,
+    const Qt::Alignment right_column_alignment
+)
 {
     QVector<GridRowDefinition> deflist;
     for (auto rawptrdef : defs) {
         // rawptrdef will be of type GridRowDefinitionRawPtr
         //
-        GridRowDefinition sharedptrdef(rawptrdef.first,
-                                       QuElementPtr(rawptrdef.second));
+        GridRowDefinition sharedptrdef(
+            rawptrdef.first, QuElementPtr(rawptrdef.second)
+        );
         deflist.append(sharedptrdef);
     }
     return defaultGridRawPointer(
-                deflist, left_column_span, right_column_span,
-                label_alignment,
-                left_column_alignment, right_column_alignment);
+        deflist,
+        left_column_span,
+        right_column_span,
+        label_alignment,
+        left_column_alignment,
+        right_column_alignment
+    );
 }
-
 
 // ============================================================================
 // Signals
@@ -129,10 +159,15 @@ void connectQuestionnaireToTask(Questionnaire* questionnaire, Task* task)
     if (!questionnaire || !task) {
         return;
     }
-    QObject::connect(questionnaire, &Questionnaire::editStarted,
-                     task, &Task::onEditStarted);
-    QObject::connect(questionnaire, &Questionnaire::editFinished,
-                     task, &Task::onEditFinished);
+    QObject::connect(
+        questionnaire, &Questionnaire::editStarted, task, &Task::onEditStarted
+    );
+    QObject::connect(
+        questionnaire,
+        &Questionnaire::editFinished,
+        task,
+        &Task::onEditFinished
+    );
 }
 
 

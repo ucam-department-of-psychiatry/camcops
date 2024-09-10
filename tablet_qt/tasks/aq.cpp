@@ -45,7 +45,7 @@ const int MAX_AREA_SCORE = 10;
 
 const QVector<int> AGREE_OPTIONS = {0, 1};  // definitely agree, slightly agree
 const QVector<int> DISAGREE_OPTIONS = {2, 3};
-    // ... slightly disagree, definitely disagree
+// ... slightly disagree, definitely disagree
 const QVector<int> AGREE_SCORING_QUESTIONS = {
     2,  4,  5,  6,  7,  9,  12, 13, 16, 18, 19, 20,
     21, 22, 23, 26, 33, 35, 39, 41, 42, 43, 45, 46,
@@ -303,8 +303,8 @@ OpenableWidget* Aq::editor(const bool read_only)
 
 QSharedPointer<NameValueOptions> Aq::buildOptions() const
 {
-    QSharedPointer<NameValueOptions> options =
-        QSharedPointer<NameValueOptions>(new NameValueOptions());
+    QSharedPointer<NameValueOptions> options
+        = QSharedPointer<NameValueOptions>(new NameValueOptions());
 
     for (int i = FIRST_OPTION; i <= LAST_OPTION; ++i) {
         auto name = QString("option_%1").arg(i);
@@ -316,7 +316,8 @@ QSharedPointer<NameValueOptions> Aq::buildOptions() const
 }
 
 QuMcqGrid* Aq::buildGrid(
-    int first_qnum, int last_qnum, QSharedPointer<NameValueOptions> options)
+    int first_qnum, int last_qnum, QSharedPointer<NameValueOptions> options
+)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 

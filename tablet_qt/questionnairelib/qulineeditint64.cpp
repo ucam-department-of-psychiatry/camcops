@@ -19,23 +19,27 @@
 */
 
 #include "qulineeditint64.h"
+
 #include "qobjects/strictint64validator.h"
 
-
-QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
-                                 const bool allow_empty) :
-    QuLineEditInt64(fieldref,
-                    std::numeric_limits<qint64>::min(),
-                    std::numeric_limits<qint64>::max(),
-                    allow_empty)
+QuLineEditInt64::QuLineEditInt64(
+    FieldRefPtr fieldref, const bool allow_empty
+) :
+    QuLineEditInt64(
+        fieldref,
+        std::numeric_limits<qint64>::min(),
+        std::numeric_limits<qint64>::max(),
+        allow_empty
+    )
 {
 }
 
-
-QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
-                                 const qint64 minimum,
-                                 const qint64 maximum,
-                                 const bool allow_empty) :
+QuLineEditInt64::QuLineEditInt64(
+    FieldRefPtr fieldref,
+    const qint64 minimum,
+    const qint64 maximum,
+    const bool allow_empty
+) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
     m_maximum(maximum),
@@ -44,10 +48,10 @@ QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref,
     setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }
 
-
 void QuLineEditInt64::extraLineEditCreation(QLineEdit* editor)
 {
-    editor->setValidator(new StrictInt64Validator(m_minimum, m_maximum,
-                                                  m_allow_empty, this));
+    editor->setValidator(
+        new StrictInt64Validator(m_minimum, m_maximum, m_allow_empty, this)
+    );
     editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 }

@@ -25,17 +25,17 @@
 
 
 #include "openglfunc.h"
+
 #include <QDebug>
+#include <QOpenGLWidget>
 #include <QtGui/QOffscreenSurface>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLFunctions>
 #include <QtGui/QSurface>
 #include <QtGui/QSurfaceFormat>
-#include <QOpenGLWidget>
 
 static bool s_opengl_presence_checked = false;
 static bool s_opengl_present = false;
-
 
 namespace openglfunc {
 
@@ -84,9 +84,12 @@ bool isOpenGLPresent()
 
         const bool opengl_v2 = fmt.majorVersion() >= 2;
 
-        const bool npot_textures = glfuncs->hasOpenGLFeature(QOpenGLFunctions::NPOTTextures);
-        const bool shaders = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Shaders);
-        const bool framebuffers = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Framebuffers);
+        const bool npot_textures
+            = glfuncs->hasOpenGLFeature(QOpenGLFunctions::NPOTTextures);
+        const bool shaders
+            = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Shaders);
+        const bool framebuffers
+            = glfuncs->hasOpenGLFeature(QOpenGLFunctions::Framebuffers);
         qInfo() << "OpenGL v2.0 present:" << opengl_v2;
         qInfo() << "OpenGL has NPOTTextures:" << npot_textures;
         // ... "not powers of two" textures
@@ -101,7 +104,6 @@ bool isOpenGLPresent()
             qCritical() << "Error: This program requires OpenGL version 2.0+";
         }
 #endif
-
     }
     return s_opengl_present;
 }

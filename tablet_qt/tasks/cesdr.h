@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -33,9 +34,13 @@ void initializeCesdr(TaskFactory& factory);
 class Cesdr : public Task
 {
     Q_OBJECT
+
 public:
-    Cesdr(CamcopsApp& app, DatabaseManager& db,
-        int load_pk = dbconst::NONEXISTENT_PK);
+    Cesdr(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,10 +62,13 @@ public:
     int totalScore() const;
     int numNull(int first, int last) const;
     int depressionCategory() const;
-    bool fulfilsGroupCriteria(const QVector<int>& qnums,
-                              bool nearly_every_day_2w = false) const;
+    bool fulfilsGroupCriteria(
+        const QVector<int>& qnums, bool nearly_every_day_2w = false
+    ) const;
+
 public:
     static const QString CESDR_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

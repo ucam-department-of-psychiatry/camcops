@@ -21,7 +21,6 @@
 #pragma once
 #include <QGraphicsPixmapItem>
 
-
 // An extension of QGraphicsPixmapItem that implement opacity.
 
 class GraphicsPixmapItemWithOpacity : public QGraphicsPixmapItem
@@ -29,14 +28,19 @@ class GraphicsPixmapItemWithOpacity : public QGraphicsPixmapItem
     // Don't use the Q_OBJECT macro! QGraphicsItem is not a QObject.
     // If you do, you'll get:
     // error: ‘staticMetaObject’ is not a member of ‘QGraphicsPixmapItem’
+
 public:
     GraphicsPixmapItemWithOpacity(QGraphicsItem* parent = nullptr);
-    GraphicsPixmapItemWithOpacity(const QPixmap& pixmap,
-                                  QGraphicsItem* parent = nullptr);
+    GraphicsPixmapItemWithOpacity(
+        const QPixmap& pixmap, QGraphicsItem* parent = nullptr
+    );
     void setOpacity(qreal opacity);
-    virtual void paint(QPainter* painter,
-                       const QStyleOptionGraphicsItem* option,
-                       QWidget* widget) override;
+    virtual void paint(
+        QPainter* painter,
+        const QStyleOptionGraphicsItem* option,
+        QWidget* widget
+    ) override;
+
 protected:
     qreal m_opacity;
 };

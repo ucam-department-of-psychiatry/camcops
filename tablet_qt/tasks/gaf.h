@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,12 +29,13 @@ class TaskFactory;
 
 void initializeGaf(TaskFactory& factory);
 
-
 class Gaf : public Task
 {
     Q_OBJECT
+
 public:
-    Gaf(CamcopsApp& app, DatabaseManager& db,
+    Gaf(CamcopsApp& app,
+        DatabaseManager& db,
         int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -41,9 +43,12 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::Skeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -54,6 +59,7 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 public:
     static const QString GAF_TABLENAME;
 };

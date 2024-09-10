@@ -19,37 +19,39 @@
 */
 
 #include "setmenucpftcovid.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
-#include "tasks/cpftresearchpreferences.h"
 #include "tasks/cpftcovidmedical.h"
+#include "tasks/cpftresearchpreferences.h"
 
 SetMenuCpftCovid::SetMenuCpftCovid(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
 
-
 QString SetMenuCpftCovid::title() const
 {
     return tr("CPFT Post-COVID-19 Clinic");
 }
 
-
 QString SetMenuCpftCovid::subtitle() const
 {
-    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-              "post-COVID-19 clinic");
+    return tr(
+        "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+        "post-COVID-19 clinic"
+    );
 }
-
 
 void SetMenuCpftCovid::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(CPFTResearchPreferences::CPFTRESEARCHPREFERENCES_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(CPFTCovidMedical::CPFTCOVIDMEDICAL_TABLENAME, m_app)
-    };
+        MAKE_TASK_MENU_ITEM(
+            CPFTResearchPreferences::CPFTRESEARCHPREFERENCES_TABLENAME, m_app
+        ),
+        MAKE_TASK_MENU_ITEM(
+            CPFTCovidMedical::CPFTCOVIDMEDICAL_TABLENAME, m_app
+        )};
 }

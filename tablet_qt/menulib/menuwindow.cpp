@@ -24,13 +24,13 @@
 #include "lib/widgetfunc.h"
 #define SHOW_TASK_TIMING
 
-#include "menuwindow.h"
 #include <QDebug>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "db/dbnestabletransaction.h"
@@ -42,6 +42,7 @@
 #include "lib/uifunc.h"
 #include "lib/widgetfunc.h"
 #include "menulib/menuheader.h"
+#include "menuwindow.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "tasklib/task.h"
@@ -49,10 +50,12 @@
 
 const int BAD_INDEX = -1;
 
-
-MenuWindow::MenuWindow(CamcopsApp& app,
-                       const QString& icon, const bool top,
-                       const bool offer_search) :
+MenuWindow::MenuWindow(
+    CamcopsApp& app,
+    const QString& icon,
+    const bool top,
+    const bool offer_search
+) :
     m_app(app),
     m_icon(icon),
     m_top(top),
@@ -129,11 +132,14 @@ MenuWindow::MenuWindow(CamcopsApp& app,
 
     // Do this in main constructor, not build(), since build() can be called
     // from this signal!
-    connect(&m_app, &CamcopsApp::lockStateChanged,
-            this, &MenuWindow::lockStateChanged,
-            Qt::UniqueConnection);
+    connect(
+        &m_app,
+        &CamcopsApp::lockStateChanged,
+        this,
+        &MenuWindow::lockStateChanged,
+        Qt::UniqueConnection
+    );
 }
-
 
 void MenuWindow::setIcon(const QString& icon)
 {
@@ -141,19 +147,16 @@ void MenuWindow::setIcon(const QString& icon)
     m_p_header->setIcon(icon);
 }
 
-
 void MenuWindow::loadStyleSheet()
 {
     setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MENU));
 }
-
 
 void MenuWindow::reloadStyleSheet()
 {
     loadStyleSheet();
     widgetfunc::repolish(this);
 }
-
 
 void MenuWindow::rebuild(bool rebuild_header)
 {
@@ -163,7 +166,6 @@ void MenuWindow::rebuild(bool rebuild_header)
     makeItems();
     build();
 }
-
 
 void MenuWindow::makeLayout()
 {
@@ -181,44 +183,84 @@ void MenuWindow::makeLayout()
 #else
     const bool offer_debug_layout = false;
 #endif
-    m_p_header = new MenuHeader(this, m_app, m_top, "", m_icon,
-                                offer_debug_layout);
+    m_p_header
+        = new MenuHeader(this, m_app, m_top, "", m_icon, offer_debug_layout);
     // ... we'll set its title later in build()
     m_mainlayout->addWidget(m_p_header);
 
     // header to us
-    connect(m_p_header, &MenuHeader::backClicked,
-            this, &MenuWindow::finished,
-            Qt::UniqueConnection);  // unique as we may rebuild... safer.
-    connect(m_p_header, &MenuHeader::debugLayout,
-            this, &MenuWindow::debugLayout,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::viewClicked,
-            this, &MenuWindow::viewItem,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::editClicked,
-            this, &MenuWindow::editItem,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::deleteClicked,
-            this, &MenuWindow::deleteItem,
-            Qt::UniqueConnection);
-    connect(m_p_header, &MenuHeader::finishFlagClicked,
-            this, &MenuWindow::toggleFinishFlag,
-            Qt::UniqueConnection);
+    connect(
+        m_p_header,
+        &MenuHeader::backClicked,
+        this,
+        &MenuWindow::finished,
+        Qt::UniqueConnection
+    );  // unique as we may rebuild... safer.
+    connect(
+        m_p_header,
+        &MenuHeader::debugLayout,
+        this,
+        &MenuWindow::debugLayout,
+        Qt::UniqueConnection
+    );
+    connect(
+        m_p_header,
+        &MenuHeader::viewClicked,
+        this,
+        &MenuWindow::viewItem,
+        Qt::UniqueConnection
+    );
+    connect(
+        m_p_header,
+        &MenuHeader::editClicked,
+        this,
+        &MenuWindow::editItem,
+        Qt::UniqueConnection
+    );
+    connect(
+        m_p_header,
+        &MenuHeader::deleteClicked,
+        this,
+        &MenuWindow::deleteItem,
+        Qt::UniqueConnection
+    );
+    connect(
+        m_p_header,
+        &MenuHeader::finishFlagClicked,
+        this,
+        &MenuWindow::toggleFinishFlag,
+        Qt::UniqueConnection
+    );
 
     // us to header
-    connect(this, &MenuWindow::offerAdd,
-            m_p_header, &MenuHeader::offerAdd,
-            Qt::UniqueConnection);
-    connect(this, &MenuWindow::offerView,
-            m_p_header, &MenuHeader::offerView,
-            Qt::UniqueConnection);
-    connect(this, &MenuWindow::offerEditDelete,
-            m_p_header, &MenuHeader::offerEditDelete,
-            Qt::UniqueConnection);
-    connect(this, &MenuWindow::offerFinishFlag,
-            m_p_header, &MenuHeader::offerFinishFlag,
-            Qt::UniqueConnection);
+    connect(
+        this,
+        &MenuWindow::offerAdd,
+        m_p_header,
+        &MenuHeader::offerAdd,
+        Qt::UniqueConnection
+    );
+    connect(
+        this,
+        &MenuWindow::offerView,
+        m_p_header,
+        &MenuHeader::offerView,
+        Qt::UniqueConnection
+    );
+    connect(
+        this,
+        &MenuWindow::offerEditDelete,
+        m_p_header,
+        &MenuHeader::offerEditDelete,
+        Qt::UniqueConnection
+    );
+    connect(
+        this,
+        &MenuWindow::offerFinishFlag,
+        m_p_header,
+        &MenuHeader::offerFinishFlag,
+        Qt::UniqueConnection
+    );
 
     // ------------------------------------------------------------------------
     // Search box
@@ -236,8 +278,12 @@ void MenuWindow::makeLayout()
         m_search_box = new QLineEdit();
         m_mainlayout->addWidget(m_search_box);
         // Signals
-        connect(m_search_box.data(), &QLineEdit::textChanged,
-                this, &MenuWindow::searchTextChanged);
+        connect(
+            m_search_box.data(),
+            &QLineEdit::textChanged,
+            this,
+            &MenuWindow::searchTextChanged
+        );
     }
 
     // ------------------------------------------------------------------------
@@ -251,15 +297,27 @@ void MenuWindow::makeLayout()
 #endif
     m_mainlayout->addWidget(m_p_listwidget);
 
-    connect(m_p_listwidget, &QListWidget::itemSelectionChanged,
-            this, &MenuWindow::menuItemSelectionChanged,
-            Qt::UniqueConnection);
-    connect(m_p_listwidget, &QListWidget::itemClicked,
-            this, &MenuWindow::menuItemClicked,
-            Qt::UniqueConnection);
-    connect(m_p_listwidget, &QListWidget::itemActivated,
-            this, &MenuWindow::menuItemClicked,
-            Qt::UniqueConnection);
+    connect(
+        m_p_listwidget,
+        &QListWidget::itemSelectionChanged,
+        this,
+        &MenuWindow::menuItemSelectionChanged,
+        Qt::UniqueConnection
+    );
+    connect(
+        m_p_listwidget,
+        &QListWidget::itemClicked,
+        this,
+        &MenuWindow::menuItemClicked,
+        Qt::UniqueConnection
+    );
+    connect(
+        m_p_listwidget,
+        &QListWidget::itemActivated,
+        this,
+        &MenuWindow::menuItemClicked,
+        Qt::UniqueConnection
+    );
 
     uifunc::applyScrollGestures(m_p_listwidget->viewport());
 
@@ -269,7 +327,6 @@ void MenuWindow::makeLayout()
 
     extraLayoutCreation();
 }
-
 
 void MenuWindow::build()
 {
@@ -302,7 +359,7 @@ void MenuWindow::build()
 #endif
         m_p_listwidget->setItemWidget(listitem, row);
         if (item.patient()
-                && item.patient()->id() == app_selected_patient_id) {
+            && item.patient()->id() == app_selected_patient_id) {
 #ifdef DEBUG_SELECTIONS
             qDebug() << Q_FUNC_INFO << "preselecting patient at index" << i;
 #endif
@@ -336,18 +393,15 @@ void MenuWindow::build()
     afterBuild();
 }
 
-
 QString MenuWindow::subtitle() const
 {
     return "";
 }
 
-
 QString MenuWindow::icon() const
 {
     return m_icon;
 }
-
 
 void MenuWindow::menuItemSelectionChanged()
 {
@@ -401,7 +455,6 @@ void MenuWindow::menuItemSelectionChanged()
     // the "copy" style of upload.
 }
 
-
 void MenuWindow::menuItemClicked(QListWidgetItem* item)
 {
     // Act on a click
@@ -441,7 +494,6 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
     }
 }
 
-
 void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
 {
     Q_UNUSED(lockstate)
@@ -450,7 +502,6 @@ void MenuWindow::lockStateChanged(CamcopsApp::LockState lockstate)
     // qDebug() << Q_FUNC_INFO;
     build();  // calls down to derived class
 }
-
 
 bool MenuWindow::event(QEvent* e)
 {
@@ -462,12 +513,10 @@ bool MenuWindow::event(QEvent* e)
     return result;
 }
 
-
 void MenuWindow::viewItem()
 {
     viewTask();
 }
-
 
 void MenuWindow::viewTask()
 {
@@ -483,14 +532,17 @@ void MenuWindow::viewTask()
 #endif
     const QString instance_title = task->instanceTitle(with_pid);
     ScrollMessageBox msgbox(
-                QMessageBox::Question,
-                tr("View task"),
-                tr("View in what format?"),
-                this);
-    QAbstractButton* summary = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
-    QAbstractButton* detail = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
+        QMessageBox::Question,
+        tr("View task"),
+        tr("View in what format?"),
+        this
+    );
+    QAbstractButton* summary
+        = msgbox.addButton(tr("Summary"), QMessageBox::YesRole);
+    QAbstractButton* detail
+        = msgbox.addButton(tr("Detail"), QMessageBox::NoRole);
     msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);
-        // ... e.g. Cancel
+    // ... e.g. Cancel
     QAbstractButton* facsimile = nullptr;
     if (facsimile_available) {
         facsimile = msgbox.addButton(tr("Facsimile"), QMessageBox::AcceptRole);
@@ -511,7 +563,7 @@ void MenuWindow::viewTask()
         QString detail = stringfunc::joinHtmlLines(task->detail());
 #ifdef SHOW_TASK_TIMING
         detail += QString("<br><br>Editing time: <b>%1</b> s")
-                .arg(task->editingTimeSeconds());
+                      .arg(task->editingTimeSeconds());
 #endif
         uifunc::alert(detail, instance_title);
 
@@ -521,12 +573,10 @@ void MenuWindow::viewTask()
     }
 }
 
-
 void MenuWindow::editItem()
 {
     editTask();
 }
-
 
 void MenuWindow::editTask()
 {
@@ -536,12 +586,13 @@ void MenuWindow::editTask()
     }
     const QString instance_title = task->instanceTitle();
     ScrollMessageBox msgbox(
-                QMessageBox::Question,
-                tr("Edit"),
-                tr("Edit this task?") + "\n\n" +  instance_title,
-                this);
-    QAbstractButton* yes = msgbox.addButton(tr("Yes, edit"),
-                                            QMessageBox::YesRole);
+        QMessageBox::Question,
+        tr("Edit"),
+        tr("Edit this task?") + "\n\n" + instance_title,
+        this
+    );
+    QAbstractButton* yes
+        = msgbox.addButton(tr("Yes, edit"), QMessageBox::YesRole);
     msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
     msgbox.exec();
     if (msgbox.clickedButton() != yes) {
@@ -549,7 +600,6 @@ void MenuWindow::editTask()
     }
     editTaskConfirmed(task);
 }
-
 
 void MenuWindow::editTaskConfirmed(const TaskPtr& task)
 {
@@ -569,13 +619,13 @@ void MenuWindow::editTaskConfirmed(const TaskPtr& task)
     m_app.openSubWindow(widget, task, true);
 }
 
-
 void MenuWindow::complainTaskNotOfferingEditor()
 {
-    uifunc::alert(tr("Task has declined to supply an editor!"),
-                  tr("Can't edit/view task"));
+    uifunc::alert(
+        tr("Task has declined to supply an editor!"),
+        tr("Can't edit/view task")
+    );
 }
-
 
 void MenuWindow::connectQuestionnaireToTask(OpenableWidget* widget, Task* task)
 {
@@ -590,12 +640,10 @@ void MenuWindow::connectQuestionnaireToTask(OpenableWidget* widget, Task* task)
     questionnairefunc::connectQuestionnaireToTask(questionnaire, task);
 }
 
-
 void MenuWindow::deleteItem()
 {
     deleteTask();
 }
-
 
 void MenuWindow::deleteTask()
 {
@@ -605,20 +653,22 @@ void MenuWindow::deleteTask()
     }
     const QString instance_title_for_user = task->instanceTitle();
     ScrollMessageBox msgbox(
-                QMessageBox::Warning,
-                tr("Delete"),
-                tr("Delete this task?") + "\n\n" +  instance_title_for_user,
-                this);
-    QAbstractButton* yes = msgbox.addButton(tr("Yes, delete"),
-                                            QMessageBox::YesRole);
+        QMessageBox::Warning,
+        tr("Delete"),
+        tr("Delete this task?") + "\n\n" + instance_title_for_user,
+        this
+    );
+    QAbstractButton* yes
+        = msgbox.addButton(tr("Yes, delete"), QMessageBox::YesRole);
     msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
     msgbox.exec();
     if (msgbox.clickedButton() != yes) {
         return;
     }
     {
-        SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Deleting task"),
-                                                   TextConst::pleaseWait());
+        SlowGuiGuard guard = m_app.getSlowGuiGuard(
+            tr("Deleting task"), TextConst::pleaseWait()
+        );
 #ifdef SHOW_PID_TO_DEBUG_STREAM
         const QString& instance_title_for_debug = instance_title_for_user;
 #else
@@ -630,7 +680,6 @@ void MenuWindow::deleteTask()
         rebuild();
     }
 }
-
 
 void MenuWindow::toggleFinishFlag()
 {
@@ -645,7 +694,6 @@ void MenuWindow::toggleFinishFlag()
         build();
     }
 }
-
 
 int MenuWindow::currentIndex() const
 {
@@ -662,7 +710,6 @@ int MenuWindow::currentIndex() const
     return i;
 }
 
-
 TaskPtr MenuWindow::currentTask() const
 {
     const int index = currentIndex();
@@ -672,7 +719,6 @@ TaskPtr MenuWindow::currentTask() const
     const MenuItem& item = m_items[index];
     return item.task();
 }
-
 
 PatientPtr MenuWindow::currentPatient() const
 {
@@ -688,12 +734,10 @@ PatientPtr MenuWindow::currentPatient() const
     return item.patient();
 }
 
-
 void MenuWindow::debugLayout()
 {
     layoutdumper::dumpWidgetHierarchy(this);
 }
-
 
 void MenuWindow::searchTextChanged(const QString& text)
 {
@@ -702,8 +746,8 @@ void MenuWindow::searchTextChanged(const QString& text)
     const QString search_text_lower = text.toLower();
     const int n_items = m_items.size();
     for (int i = 0; i < n_items; ++i) {
-        const bool show = search_empty ||
-                m_items.at(i).matchesSearch(search_text_lower);
+        const bool show
+            = search_empty || m_items.at(i).matchesSearch(search_text_lower);
         QListWidgetItem* item = m_p_listwidget->item(i);
         item->setHidden(!show);
     }

@@ -20,19 +20,23 @@
 
 #pragma once
 #include <QDialog>
-#include "lib/layoutdumper.h"
 
+#include "lib/layoutdumper.h"
 
 class DebugDialog : public QDialog
 {
     // Dialogue to display a widget for debugging purposes
     Q_OBJECT
+
 public:
-    DebugDialog(QWidget* parent,
-                QWidget* widget,
-                const bool set_background_by_name = false,
-                const bool set_background_by_stylesheet = true,
-                const layoutdumper::DumperConfig& config = layoutdumper::DumperConfig(),
-                const bool use_hfw_layout = true,
-                const QString* dialog_stylesheet = nullptr);
+    DebugDialog(
+        QWidget* parent,
+        QWidget* widget,
+        const bool set_background_by_name = false,
+        const bool set_background_by_stylesheet = true,
+        const layoutdumper::DumperConfig& config
+        = layoutdumper::DumperConfig(),
+        const bool use_hfw_layout = true,
+        const QString* dialog_stylesheet = nullptr
+    );
 };

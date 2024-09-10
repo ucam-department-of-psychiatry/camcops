@@ -22,15 +22,17 @@
 
 #include "strictdoublevalidator.h"
 #ifdef DEBUG_VALIDATOR
-#include <QDebug>
+    #include <QDebug>
 #endif
 #include "lib/numericfunc.h"
 
-
 StrictDoubleValidator::StrictDoubleValidator(
-        const double bottom, const double top,
-        const int decimals, const bool allow_empty,
-        QObject* parent) :
+    const double bottom,
+    const double top,
+    const int decimals,
+    const bool allow_empty,
+    QObject* parent
+) :
     QDoubleValidator(bottom, top, decimals, parent),
     m_allow_empty(allow_empty)
 {
@@ -38,7 +40,6 @@ StrictDoubleValidator::StrictDoubleValidator(
         setRange(top, bottom, decimals);  // reverse the range
     }
 }
-
 
 QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 {
@@ -66,8 +67,8 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
     }
     if (charsAfterPoint > decimals()) {  // Too many decimals
 #ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO <<
-                    "too many digits after decimal point -> Invalid";
+        qDebug() << Q_FUNC_INFO
+                 << "too many digits after decimal point -> Invalid";
 #endif
         return QValidator::Invalid;
     }
@@ -81,13 +82,13 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "plain -";
 #endif
-        return b < 0 ? QValidator::Intermediate  : QValidator::Invalid;
+        return b < 0 ? QValidator::Intermediate : QValidator::Invalid;
     }
     if (s == "+") {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "plain +";
 #endif
-        return t > 0 ? QValidator::Intermediate  : QValidator::Invalid;
+        return t > 0 ? QValidator::Intermediate : QValidator::Invalid;
     }
 
     // 4. Garbage that isn't a number?
@@ -140,7 +141,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 
     // 8. By elimination: it is invalid.
 #ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << "end of function -> Invalid; s =" << s;
+    qDebug() << Q_FUNC_INFO << "end of function -> Invalid; s =" << s;
 #endif
     return QValidator::Invalid;
 }

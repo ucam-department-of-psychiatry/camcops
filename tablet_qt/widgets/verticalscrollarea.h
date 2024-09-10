@@ -55,8 +55,8 @@ class VerticalScrollArea : public QScrollArea
     //     QAbstractScrollArea::viewport().
 
     Q_OBJECT
-public:
 
+public:
     // Constructor
     explicit VerticalScrollArea(QWidget* parent = nullptr);
 
@@ -70,7 +70,6 @@ public:
     void setWidget(QWidget* widget);  // hides parent version of this function
 
 protected:
-
     // Called when our child widget resizes, via eventFilter().
     // Sets min width and min/max height. Updates our geometry.
     // We use this code plus the Expanding policy.

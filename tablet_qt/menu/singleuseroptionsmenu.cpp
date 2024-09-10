@@ -25,21 +25,15 @@
 #include "menu/singleuseradvancedmenu.h"
 #include "menulib/fontsizewindow.h"
 
-
-SingleUserOptionsMenu::SingleUserOptionsMenu(CamcopsApp& app)
-    : MenuWindow(
-          app,
-          uifunc::iconFilename(uiconst::ICON_SETTINGS)
-    )
+SingleUserOptionsMenu::SingleUserOptionsMenu(CamcopsApp& app) :
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETTINGS))
 {
 }
-
 
 QString SingleUserOptionsMenu::title() const
 {
     return tr("Options");
 }
-
 
 void SingleUserOptionsMenu::makeItems()
 {
@@ -50,55 +44,56 @@ void SingleUserOptionsMenu::makeItems()
             MenuItem(
                 tr("Get updates to my schedules"),
                 std::bind(&SingleUserOptionsMenu::updateTaskSchedules, this)
-            ).setNotIfLocked()
+            )
+                .setNotIfLocked()
         );
     }
 
-    m_items.append({
-        MenuItem(
-            tr("Choose language"),
-            std::bind(&SingleUserOptionsMenu::chooseLanguage, this),
-            uifunc::iconFilename(uiconst::CBS_LANGUAGE)
-        ),
-        MenuItem(
-            tr("Online CamCOPS documentation"),
-            UrlMenuItem(urlconst::CAMCOPS_URL),
-            uifunc::iconFilename(uiconst::ICON_INFO)
-        ),
-        MenuItem(
-            tr("Questionnaire font size"),
-            MenuItem::OpenableWidgetMaker(
-                std::bind(&SingleUserOptionsMenu::setQuestionnaireFontSize, this,
-                          std::placeholders::_1)
-            )
-        ),
-        MenuItem(
-            tr("Re-register me"),
-            std::bind(&SingleUserOptionsMenu::registerPatient, this)
-        ).setNotIfLocked(),
-        MAKE_MENU_MENU_ITEM(SingleUserAdvancedMenu, m_app)
-    });
+    m_items.append(
+        {MenuItem(
+             tr("Choose language"),
+             std::bind(&SingleUserOptionsMenu::chooseLanguage, this),
+             uifunc::iconFilename(uiconst::CBS_LANGUAGE)
+         ),
+         MenuItem(
+             tr("Online CamCOPS documentation"),
+             UrlMenuItem(urlconst::CAMCOPS_URL),
+             uifunc::iconFilename(uiconst::ICON_INFO)
+         ),
+         MenuItem(
+             tr("Questionnaire font size"),
+             MenuItem::OpenableWidgetMaker(std::bind(
+                 &SingleUserOptionsMenu::setQuestionnaireFontSize,
+                 this,
+                 std::placeholders::_1
+             ))
+         ),
+         MenuItem(
+             tr("Re-register me"),
+             std::bind(&SingleUserOptionsMenu::registerPatient, this)
+         )
+             .setNotIfLocked(),
+         MAKE_MENU_MENU_ITEM(SingleUserAdvancedMenu, m_app)}
+    );
 }
-
 
 void SingleUserOptionsMenu::registerPatient()
 {
     m_app.registerPatientWithServer();
 }
 
-
 void SingleUserOptionsMenu::updateTaskSchedules()
 {
     m_app.updateTaskSchedules();
 }
-
 
 void SingleUserOptionsMenu::chooseLanguage()
 {
     uifunc::chooseLanguage(m_app, this);
 }
 
-OpenableWidget* SingleUserOptionsMenu::setQuestionnaireFontSize(CamcopsApp& app)
+OpenableWidget* SingleUserOptionsMenu::setQuestionnaireFontSize(CamcopsApp& app
+)
 {
     auto window = new FontSizeWindow(app);
 

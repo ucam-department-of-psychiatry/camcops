@@ -25,15 +25,19 @@ const QString PatientIdNum::FK_PATIENT("patient_id");
 const QString PatientIdNum::FN_WHICH_IDNUM("which_idnum");
 const QString PatientIdNum::FN_IDNUM_VALUE("idnum_value");
 
-
-PatientIdNum::PatientIdNum(CamcopsApp& app, DatabaseManager& db,
-                           const int load_pk) :
-    DatabaseObject(app, db, PATIENT_IDNUM_TABLENAME,
-                   dbconst::PK_FIELDNAME,  // pk_fieldname
-                   true,  // has_modification_timestamp
-                   false,  // has_creation_timestamp
-                   true,  // has_move_off_tablet_field
-                   true)  // triggers_need_upload
+PatientIdNum::PatientIdNum(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    DatabaseObject(
+        app,
+        db,
+        PATIENT_IDNUM_TABLENAME,
+        dbconst::PK_FIELDNAME,  // pk_fieldname
+        true,  // has_modification_timestamp
+        false,  // has_creation_timestamp
+        true,  // has_move_off_tablet_field
+        true
+    )  // triggers_need_upload
 {
     addField(FK_PATIENT, QMetaType::fromType<int>(), true);
     addField(FN_WHICH_IDNUM, QMetaType::fromType<int>(), true);
@@ -42,9 +46,12 @@ PatientIdNum::PatientIdNum(CamcopsApp& app, DatabaseManager& db,
     load(load_pk);
 }
 
-
-PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
-                           CamcopsApp& app, DatabaseManager& db) :
+PatientIdNum::PatientIdNum(
+    const int patient_fk,
+    const int which_idnum,
+    CamcopsApp& app,
+    DatabaseManager& db
+) :
     PatientIdNum(app, db)  // delegating constructor
 {
     setValue(FK_PATIENT, patient_fk);
@@ -52,10 +59,13 @@ PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
     save();
 }
 
-
-PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
-                           const qint64 idnum_value,
-                           CamcopsApp& app, DatabaseManager& db) :
+PatientIdNum::PatientIdNum(
+    const int patient_fk,
+    const int which_idnum,
+    const qint64 idnum_value,
+    CamcopsApp& app,
+    DatabaseManager& db
+) :
     PatientIdNum(app, db)  // delegating constructor
 {
     setValue(FK_PATIENT, patient_fk);
@@ -64,24 +74,20 @@ PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
     save();
 }
 
-
 int PatientIdNum::whichIdNum() const
 {
     return valueInt(FN_WHICH_IDNUM);
 }
-
 
 QVariant PatientIdNum::idnumAsVariant() const
 {
     return value(FN_IDNUM_VALUE);
 }
 
-
 qint64 PatientIdNum::idnumAsInteger() const
 {
     return valueInt64(FN_IDNUM_VALUE);
 }
-
 
 QString PatientIdNum::idnumAsString() const
 {
@@ -92,15 +98,14 @@ QString PatientIdNum::idnumAsString() const
     return QString::number(var.toULongLong());
 }
 
-
 bool PatientIdNum::idnumIsPresent() const
 {
     return !idnumAsVariant().isNull();
 }
 
-
-bool PatientIdNum::setIdnumValue(const qint64 idnum_value,
-                                 const bool save_to_db)
+bool PatientIdNum::setIdnumValue(
+    const qint64 idnum_value, const bool save_to_db
+)
 {
     bool success = setValue(FN_IDNUM_VALUE, idnum_value);
     if (save_to_db) {

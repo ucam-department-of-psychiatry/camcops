@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeHonos(TaskFactory& factory);
 
-
 class Honos : public Task
 {
     Q_OBJECT
+
 public:
-    Honos(CamcopsApp& app, DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Honos(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -55,8 +59,10 @@ public:
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
+
 protected:
     void updateMandatory(const FieldRef* fieldref, const QObject* originator);
+
 public:
     static const QString HONOS_TABLENAME;
 };

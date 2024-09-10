@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -33,13 +34,16 @@ class TaskFactory;
 
 void initializeKhandakerMojoMedicationTherapy(TaskFactory& factory);
 
-
 class KhandakerMojoMedicationTherapy : public Task
 {
     Q_OBJECT
+
 public:
-    KhandakerMojoMedicationTherapy(CamcopsApp& app, DatabaseManager& db,
-                                   int load_pk = dbconst::NONEXISTENT_PK);
+    KhandakerMojoMedicationTherapy(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -65,16 +69,18 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific
     // ------------------------------------------------------------------------
+
 private:
-    QuPickerPopup* getResponsePicker(
-        FieldRefPtr fieldref, const QString fieldname);
+    QuPickerPopup*
+        getResponsePicker(FieldRefPtr fieldref, const QString fieldname);
     QuFlowContainer* getMedicationButtons();
     bool isCustomMedicationSet() const;
     QString getCustomMedicationName() const;
     QString getCustomMedicationName(const int index) const;
     QString getOptionName(const QString& fieldname, const int index) const;
-    QString getOptionName(const QString& fieldname, const int index,
-                          const QString default_str) const;
+    QString getOptionName(
+        const QString& fieldname, const int index, const QString default_str
+    ) const;
     void addMedicationItem(int index);
     void addTherapyItem();
     void deleteMedicationItem(int index);
@@ -94,6 +100,7 @@ private:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
+
 protected:
     QVector<KhandakerMojoMedicationItemPtr> m_medications;
     QVector<KhandakerMojoTherapyItemPtr> m_therapies;
@@ -101,9 +108,11 @@ protected:
     // ------------------------------------------------------------------------
     // Getters/setters
     // ------------------------------------------------------------------------
+
 public:
     QVariant getCustomMedication() const;
     bool setCustomMedication(const QVariant& value);
+
 public:
     static const QString KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME;
 };

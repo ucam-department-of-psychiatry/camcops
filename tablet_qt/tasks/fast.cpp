@@ -19,9 +19,10 @@
 */
 
 #include "fast.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
@@ -40,21 +41,20 @@ const QString QPREFIX("q");
 
 const QString Fast::FAST_TABLENAME("fast");
 
-
 void initializeFast(TaskFactory& factory)
 {
     static TaskRegistrar<Fast> registered(factory);
 }
 
-
 Fast::Fast(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, FAST_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -65,18 +65,15 @@ QString Fast::shortname() const
     return "FAST";
 }
 
-
 QString Fast::longname() const
 {
     return tr("Fast Alcohol Screening Test");
 }
 
-
 QString Fast::description() const
 {
     return tr("4-item self-report scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -87,26 +84,22 @@ bool Fast::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Fast::summary() const
 {
-    return QStringList{stringfunc::standardResult(xstring("positive"),
-                                                  uifunc::yesNo(isPositive()),
-                                                  " ")};
+    return QStringList{stringfunc::standardResult(
+        xstring("positive"), uifunc::yesNo(isPositive()), " "
+    )};
 }
-
 
 QStringList Fast::detail() const
 {
     QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "_s", " ",
-                            QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines.append(totalScorePhrase(totalScore(), MAX_QUESTION_SCORE));
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Fast::editor(const bool read_only)
 {
@@ -129,29 +122,30 @@ OpenableWidget* Fast::editor(const bool read_only)
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold(true);
     };
-    auto mcq = [this](const QString& fieldname,
-                      const NameValueOptions& options) -> QuElement* {
+    auto mcq = [this](
+                   const QString& fieldname, const NameValueOptions& options
+               ) -> QuElement* {
         return new QuMcq(fieldRef(fieldname), options);
     };
 
     QuPagePtr page((new QuPage{
-        text("info"),
-        boldtext("q1"),
-        mcq(strnum(QPREFIX, 1), main_options),
-        boldtext("q2"),
-        mcq(strnum(QPREFIX, 2), main_options),
-        boldtext("q3"),
-        mcq(strnum(QPREFIX, 3), main_options),
-        boldtext("q4"),
-        mcq(strnum(QPREFIX, 4), q4_options),
-    })->setTitle(xstring("title")));
+                        text("info"),
+                        boldtext("q1"),
+                        mcq(strnum(QPREFIX, 1), main_options),
+                        boldtext("q2"),
+                        mcq(strnum(QPREFIX, 2), main_options),
+                        boldtext("q3"),
+                        mcq(strnum(QPREFIX, 3), main_options),
+                        boldtext("q4"),
+                        mcq(strnum(QPREFIX, 4), q4_options),
+                    })
+                       ->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -161,7 +155,6 @@ int Fast::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 bool Fast::isPositive() const
 {

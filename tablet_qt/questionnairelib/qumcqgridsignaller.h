@@ -24,8 +24,8 @@
 class FieldRef;
 class QuMcqGrid;
 
-
-class QuMcqGridSignaller : public QObject {
+class QuMcqGridSignaller : public QObject
+{
 
     // Signals to QuMCQGrid that one of its fields has changed data or
     // mandatory state.
@@ -35,8 +35,8 @@ class QuMcqGridSignaller : public QObject {
     // classes").
 
     Q_OBJECT
-public:
 
+public:
     // Constructor:
     // - recipient: to what are we signalling?
     // - question_index: information to convey

@@ -19,9 +19,10 @@
 */
 
 #include "iesr.h"
+
 #include "common/appstrings.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -29,8 +30,8 @@
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
-using mathfunc::sumInt;
 using mathfunc::scorePhrase;
+using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strnumlist;
@@ -50,22 +51,21 @@ const QVector<int> INTRUSION_QUESTIONS{1, 2, 3, 6, 9, 16, 20};
 const QVector<int> HYPERAROUSAL_QUESTIONS{4, 10, 14, 15, 18, 19, 21};
 const QString FN_EVENT("event");
 
-
 void initializeIesr(TaskFactory& factory)
 {
     static TaskRegistrar<Iesr> registered(factory);
 }
 
-
 Iesr::Iesr(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IESR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
     addField(FN_EVENT, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -76,18 +76,15 @@ QString Iesr::shortname() const
     return "IES-R";
 }
 
-
 QString Iesr::longname() const
 {
     return tr("Impact of Events Scale – Revised");
 }
 
-
 QString Iesr::description() const
 {
     return tr("22-item self-report scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -97,7 +94,6 @@ bool Iesr::isComplete() const
 {
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 QStringList Iesr::summary() const
 {
@@ -109,7 +105,6 @@ QStringList Iesr::summary() const
     };
 }
 
-
 QStringList Iesr::detail() const
 {
     QStringList lines = completenessInfo();
@@ -118,7 +113,6 @@ QStringList Iesr::detail() const
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Iesr::editor(const bool read_only)
 {
@@ -136,20 +130,21 @@ OpenableWidget* Iesr::editor(const bool read_only)
         qfields.append(QuestionWithOneField(xstring(qstr), fieldRef(qstr)));
     }
 
-    QuPagePtr page = QuPagePtr((new QuPage{
-        (new QuText(xstring("instruction_1")))->setBold(),
-        new QuText(tr("Event:")),
-        new QuTextEdit(fieldRef(FN_EVENT)),
-        (new QuText(xstring("instruction_2")))->setBold(),
-        new QuMcqGrid(qfields, options),
-    })->setTitle(longname()));
+    QuPagePtr page
+        = QuPagePtr((new QuPage{
+                         (new QuText(xstring("instruction_1")))->setBold(),
+                         new QuText(tr("Event:")),
+                         new QuTextEdit(fieldRef(FN_EVENT)),
+                         (new QuText(xstring("instruction_2")))->setBold(),
+                         new QuMcqGrid(qfields, options),
+                     })
+                        ->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -160,18 +155,15 @@ int Iesr::totalScore() const
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 int Iesr::avoidanceScore() const
 {
     return sumInt(values(strnumlist(QPREFIX, AVOIDANCE_QUESTIONS)));
 }
 
-
 int Iesr::intrusionScore() const
 {
     return sumInt(values(strnumlist(QPREFIX, INTRUSION_QUESTIONS)));
 }
-
 
 int Iesr::hyperarousalScore() const
 {

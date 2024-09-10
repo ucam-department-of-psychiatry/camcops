@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,23 +31,33 @@ class TaskFactory;
 
 void initializeLynallIamLife(TaskFactory& factory);
 
-
 class LynallIamLife : public Task
 {
     Q_OBJECT
+
 public:
-    LynallIamLife(CamcopsApp& app, DatabaseManager& db,
-                  int load_pk = dbconst::NONEXISTENT_PK);
+    LynallIamLife(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
-    virtual bool prohibitsCommercial() const override { return true; }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -60,6 +71,7 @@ public:
     // ------------------------------------------------------------------------
     int nCategoriesEndorsed() const;
     int severityScore() const;
+
 protected:
     QString qfieldnameMain(int qnum) const;
     QString qfieldnameSeverity(int qnum) const;
@@ -74,8 +86,10 @@ public slots:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString LYNALL_IAM_LIFE_TABLENAME;
 };

@@ -21,12 +21,11 @@
 #pragma once
 #include <QDebug>
 #include <QString>
-#include <QVector>
 #include <QVariant>
+#include <QVector>
 class QJsonArray;
 class QJsonObject;
 class QSqlQuery;
-
 
 // Represents the results of an SQL query.
 
@@ -45,8 +44,12 @@ public:
     // Normal constructor
     // - Note that later access by column name requires store_column_names to
     //   be true.
-    QueryResult(QSqlQuery& query, bool success,
-                FetchMode fetch_mode, bool store_column_names = false);
+    QueryResult(
+        QSqlQuery& query,
+        bool success,
+        FetchMode fetch_mode,
+        bool store_column_names = false
+    );
 
     // Default constructor (required to put this object in a QVector)
     QueryResult();

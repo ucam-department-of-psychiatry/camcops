@@ -19,15 +19,17 @@
 */
 
 #include "debugeventwatcher.h"
+
 #include <QDebug>
 #include <QEvent>
 #include <QGestureEvent>
 #include <QGraphicsSceneEvent>
 #include <QStateMachine>
 
-
-DebugEventWatcher::DebugEventWatcher(QObject* parent,
-                                     const EventCategories categories) :
+DebugEventWatcher::DebugEventWatcher(
+    QObject* parent,
+    const EventCategories categories
+) :
     QObject(parent),  // owned by parent henceforth
     m_categories(categories)
 {
@@ -35,44 +37,16 @@ DebugEventWatcher::DebugEventWatcher(QObject* parent,
     parent->installEventFilter(this);
 }
 
-
 bool DebugEventWatcher::eventFilter(QObject* obj, QEvent* event)
 {
     const QEvent::Type type = event->type();
     if (m_categories & EventCategory::All) {
         report(obj, event);
-    } else if (m_categories & EventCategory::MouseTouch && (
-                   type == QEvent::Enter ||
-                   type == QEvent::GrabMouse ||
-                   type == QEvent::GraphicsSceneMouseDoubleClick ||
-                   type == QEvent::GraphicsSceneMouseMove ||
-                   type == QEvent::GraphicsSceneMousePress ||
-                   type == QEvent::GraphicsSceneMouseRelease ||
-                   type == QEvent::GraphicsSceneWheel ||
-                   type == QEvent::HoverEnter ||
-                   type == QEvent::HoverLeave ||
-                   type == QEvent::HoverMove ||
-                   type == QEvent::Leave ||
-                   type == QEvent::NonClientAreaMouseButtonDblClick ||
-                   type == QEvent::NonClientAreaMouseButtonPress ||
-                   type == QEvent::NonClientAreaMouseButtonRelease ||
-                   type == QEvent::NonClientAreaMouseMove ||
-                   type == QEvent::MouseButtonDblClick ||
-                   type == QEvent::MouseButtonPress ||
-                   type == QEvent::MouseButtonRelease ||
-                   type == QEvent::MouseMove ||
-                   type == QEvent::MouseTrackingChange ||
-                   type == QEvent::TouchBegin ||
-                   type == QEvent::TouchCancel ||
-                   type == QEvent::TouchEnd ||
-                   type == QEvent::TouchUpdate ||
-                   type == QEvent::UngrabMouse ||
-                   type == QEvent::Wheel)) {
+    } else if (m_categories & EventCategory::MouseTouch && (type == QEvent::Enter || type == QEvent::GrabMouse || type == QEvent::GraphicsSceneMouseDoubleClick || type == QEvent::GraphicsSceneMouseMove || type == QEvent::GraphicsSceneMousePress || type == QEvent::GraphicsSceneMouseRelease || type == QEvent::GraphicsSceneWheel || type == QEvent::HoverEnter || type == QEvent::HoverLeave || type == QEvent::HoverMove || type == QEvent::Leave || type == QEvent::NonClientAreaMouseButtonDblClick || type == QEvent::NonClientAreaMouseButtonPress || type == QEvent::NonClientAreaMouseButtonRelease || type == QEvent::NonClientAreaMouseMove || type == QEvent::MouseButtonDblClick || type == QEvent::MouseButtonPress || type == QEvent::MouseButtonRelease || type == QEvent::MouseMove || type == QEvent::MouseTrackingChange || type == QEvent::TouchBegin || type == QEvent::TouchCancel || type == QEvent::TouchEnd || type == QEvent::TouchUpdate || type == QEvent::UngrabMouse || type == QEvent::Wheel)) {
         report(obj, event);
     }
     return false;  // continue processing the event
 }
-
 
 template<typename EventSubType>
 void reportSubtype(QDebug& debug, QEvent* event)
@@ -82,9 +56,7 @@ void reportSubtype(QDebug& debug, QEvent* event)
     }
 }
 
-
 #define REPORT_SUBTYPE(classtype) reportSubtype<classtype>(debug, event)
-
 
 void DebugEventWatcher::report(QObject* obj, QEvent* event) const
 {

@@ -21,9 +21,7 @@
 #pragma once
 #include <QString>
 
-
-namespace appstrings
-{
+namespace appstrings {
 
 // Names of strings in the "appstring" zone of the downloaded strings (i.e.
 // those used across CamCOPS, rather than relating to a specific task, for
