@@ -33,6 +33,10 @@ import pendulum
 import redcap
 
 from camcops_server.cc_modules.cc_constants import ConfigParamExportRecipient
+from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTask,
+    ExportedTaskRedcap,
+)
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportRecipientInfo,
@@ -535,11 +539,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         )
 
     def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -590,11 +589,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEqual(record["patient_id"], self.patient_idnum.idnum_value)
 
     def test_record_exported_with_non_integer_id(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -610,11 +604,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEqual(exported_task_redcap.redcap_record_id, "15-123")
 
     def test_record_id_generated_when_no_autonumbering(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -640,11 +629,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertFalse(kwargs["force_auto_number"])
 
     def test_record_imported_when_no_existing_records(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.export_records.return_value = DataFrame()
@@ -674,11 +658,6 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         )
 
     def test_existing_record_id_used_for_update(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
@@ -781,11 +760,6 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         )
 
     def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -887,11 +861,6 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         )
 
     def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -974,11 +943,6 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         self.bmi_task = BmiFactory(patient=self.patient)
 
     def test_instance_ids_on_different_tasks_in_same_record(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
@@ -1024,11 +988,6 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         self.assertEqual(record["redcap_repeat_instance"], 1)
 
     def test_imported_into_different_events(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
 
@@ -1093,11 +1052,6 @@ class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
 </fieldmap>"""
 
     def test_raises_when_instrument_missing_from_fieldmap(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -1129,11 +1083,6 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
 </fieldmap>"""
 
     def test_raises_when_record_id_is_incorrect(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -1173,11 +1122,6 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
 </fieldmap>"""
 
     def test_raises_when_patient_id_is_incorrect(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -1219,11 +1163,6 @@ class MissingPatientInstrumentRedcapTests(BadConfigurationRedcapTests):
 </fieldmap>"""
 
     def test_raises_when_instrument_is_missing(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -1254,11 +1193,6 @@ class MissingEventRedcapTests(BadConfigurationRedcapTests):
 </fieldmap>"""
 
     def test_raises_for_longitudinal_project(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -1292,11 +1226,6 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
 </fieldmap>"""
 
     def test_raises_when_instrument_missing_event(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
@@ -1319,11 +1248,6 @@ class AnonymousTaskRedcapTests(RedcapExportTestCase):
         self.task = APEQCPFTPerinatalFactory()
 
     def test_raises_when_task_is_anonymous(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
