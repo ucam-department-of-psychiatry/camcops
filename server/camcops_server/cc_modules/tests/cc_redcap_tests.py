@@ -50,8 +50,10 @@ from camcops_server.cc_modules.cc_testfactories import (
     PatientFactory,
 )
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
-
-from camcops_server.tasks.tests.factories import BmiFactory
+from camcops_server.tasks.tests.factories import (
+    BmiFactory,
+    Phq9Factory,
+)
 
 # =============================================================================
 # Unit testing
@@ -775,39 +777,24 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
 
     def setUp(self) -> None:
         super().setUp()
 
-        from camcops_server.tasks.phq9 import Phq9
-
-        self.task = Phq9()
-        self.apply_standard_task_fields(
-            self.task, self.patient._era, device=self.patient._device
+        self.task = Phq9Factory(
+            patient=self.patient,
+            q1=0,
+            q2=1,
+            q3=2,
+            q4=3,
+            q5=0,
+            q6=1,
+            q7=2,
+            q8=3,
+            q9=0,
+            q10=3,
+            when_created=pendulum.parse("2010-07-07"),
         )
-        self.task.id = next(self.id_sequence)
-        self.task.q1 = 0
-        self.task.q2 = 1
-        self.task.q3 = 2
-        self.task.q4 = 3
-        self.task.q5 = 0
-        self.task.q6 = 1
-        self.task.q7 = 2
-        self.task.q8 = 3
-        self.task.q9 = 0
-        self.task.q10 = 3
-        self.task.patient_id = self.patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
 
     def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
