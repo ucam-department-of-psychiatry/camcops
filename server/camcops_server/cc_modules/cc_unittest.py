@@ -44,7 +44,6 @@ import pytest
 from sqlalchemy.engine.base import Engine
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
-from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group
@@ -61,6 +60,14 @@ from camcops_server.cc_modules.cc_testfactories import (
     BaseFactory,
     DeviceFactory,
     GroupFactory,
+    IdNumDefinitionFactory,
+    NHSPatientIdNumFactory,
+    PatientFactory,
+    RioPatientIdNumFactory,
+    ServerCreatedPatientFactory,
+    ServerCreatedNHSPatientIdNumFactory,
+    ServerCreatedRioPatientIdNumFactory,
+    ServerCreatedStudyPatientIdNumFactory,
     UserFactory,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -279,11 +286,14 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
             when_registered_utc=self.era_time_utc,
             camcops_version=CAMCOPS_SERVER_VERSION,
         )
+        DeviceFactory.reset_sequence(self.other_device.id + 1)
         # ... export recipient definition (the minimum)
         self.recipdef.primary_idnum = idnum_type_nhs
 
         self.dbsession.flush()  # sets PK fields
         UserFactory.reset_sequence(self.user.id + 1)
+
+        IdNumDefinitionFactory.reset_sequence(idnum_type_study + 1)
 
         self.create_tasks()
 
@@ -299,93 +309,85 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
 
     def create_patient_with_two_idnums(self) -> "Patient":
-        from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-
         # Populate database with two of everything
-        patient = Patient()
-        patient.id = 1
-        self.apply_standard_db_fields(patient)
-        patient.forename = "Forename1"
-        patient.surname = "Surname1"
-        patient.dob = pendulum.parse("1950-01-01")
-        self.dbsession.add(patient)
-        patient_idnum1 = PatientIdNum()
-        patient_idnum1.id = 1
-        self.apply_standard_db_fields(patient_idnum1)
-        patient_idnum1.patient_id = patient.id
-        patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
-        patient_idnum1.idnum_value = 333
-        self.dbsession.add(patient_idnum1)
-        patient_idnum2 = PatientIdNum()
-        patient_idnum2.id = 2
-        self.apply_standard_db_fields(patient_idnum2)
-        patient_idnum2.patient_id = patient.id
-        patient_idnum2.which_idnum = self.rio_iddef.which_idnum
-        patient_idnum2.idnum_value = 444
-        self.dbsession.add(patient_idnum2)
-        self.dbsession.commit()
+        patient = self.create_patient(
+            forename="Forename1",
+            surname="Surname1",
+            dob=pendulum.parse("1950-01-01"),
+        )
+        self.create_nhs_patient_idnum(
+            patient=patient,
+            idnum_value=333,
+        )
+        self.create_rio_patient_idnum(
+            patient=patient,
+            idnum_value=444,
+        )
 
         return patient
 
     def create_patient_with_one_idnum(self) -> "Patient":
-        from camcops_server.cc_modules.cc_patient import Patient
-
-        patient = Patient()
-        patient.id = 2
-        self.apply_standard_db_fields(patient)
-        patient.forename = "Forename2"
-        patient.surname = "Surname2"
-        patient.dob = pendulum.parse("1975-12-12")
+        patient = self.create_patient(
+            forename="Forename2",
+            surname="Surname2",
+            dob=pendulum.parse("1975-12-12"),
+        )
         self.dbsession.add(patient)
 
-        self.create_patient_idnum(
-            id=3,
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        self.create_nhs_patient_idnum(
+            patient=patient,
             idnum_value=555,
         )
 
         return patient
 
-    def create_patient_idnum(
+    def create_server_nhs_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
+        return self.create_nhs_patient_idnum(as_server_patient=True, **kwargs)
+
+    def create_server_rio_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
+        return self.create_patient_idnum(
+            ServerCreatedRioPatientIdNumFactory, **kwargs
+        )
+
+    def create_rio_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
+        return self.create_patient_idnum(RioPatientIdNumFactory, **kwargs)
+
+    def create_server_study_patient_idnum(
+        self, **kwargs: Any
+    ) -> "PatientIdNum":
+        return self.create_patient_idnum(
+            ServerCreatedStudyPatientIdNumFactory, **kwargs
+        )
+
+    def create_nhs_patient_idnum(
         self, as_server_patient: bool = False, **kwargs: Any
     ) -> "PatientIdNum":
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-
-        patient_idnum = PatientIdNum()
-        self.apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
-
-        for key, value in kwargs.items():
-            setattr(patient_idnum, key, value)
-
-        if "id" not in kwargs:
-            patient_idnum.save_with_next_available_id(
-                self.req, patient_idnum._device_id
+        if as_server_patient:
+            return self.create_patient_idnum(
+                ServerCreatedNHSPatientIdNumFactory, **kwargs
             )
-        else:
-            self.dbsession.add(patient_idnum)
+        return self.create_patient_idnum(NHSPatientIdNumFactory, **kwargs)
 
+    def create_patient_idnum(self, factory, **kwargs) -> "PatientIdNum":
+        patient_idnum = factory(**kwargs)
+
+        self.dbsession.add(patient_idnum)
         self.dbsession.commit()
 
         return patient_idnum
 
+    def create_server_patient(self, **kwargs: Any) -> "Patient":
+        return self.create_patient(as_server_patient=True, **kwargs)
+
     def create_patient(
         self, as_server_patient: bool = False, **kwargs: Any
     ) -> "Patient":
-        from camcops_server.cc_modules.cc_patient import Patient
-
-        patient = Patient()
-        self.apply_standard_db_fields(patient, era_now=as_server_patient)
-
-        for key, value in kwargs.items():
-            setattr(patient, key, value)
-
-        if "id" not in kwargs:
-            patient.save_with_next_available_id(self.req, patient._device_id)
+        if as_server_patient:
+            patient = ServerCreatedPatientFactory(**kwargs)
         else:
-            self.dbsession.add(patient)
+            patient = PatientFactory(**kwargs)
 
+        self.dbsession.add(patient)
         self.dbsession.commit()
 
         return patient
@@ -394,16 +396,21 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         # Override in subclass
         pass
 
-    def apply_standard_task_fields(self, task: "Task") -> None:
+    def apply_standard_task_fields(
+        self, task: "Task", era: str, device: Device = None
+    ) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing
         a task.
         """
-        self.apply_standard_db_fields(task)
+        self.apply_standard_db_fields(task, era, device=device)
         task.when_created = self.era_time
 
     def apply_standard_db_fields(
-        self, obj: "GenericTabletRecordMixin", era_now: bool = False
+        self,
+        obj: "GenericTabletRecordMixin",
+        era: str,
+        device: Device = None,
     ) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
@@ -411,8 +418,10 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         Though we use the server device ID.
         """
-        obj._device_id = self.server_device.id
-        obj._era = ERA_NOW if era_now else self.era
+        if device is None:
+            device = self.server_device
+        obj._device_id = device.id
+        obj._era = era
         obj._group_id = self.group.id
         obj._current = True
         obj._adding_user_id = self.user.id
@@ -473,14 +482,22 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
         for cls in Task.all_subclasses_by_tablename():
             t1 = cls()
             t1.id = 1
-            self.apply_standard_task_fields(t1)
+            self.apply_standard_task_fields(
+                t1,
+                patient_with_two_idnums._era,
+                device=patient_with_two_idnums._device,
+            )
             if t1.has_patient:
                 t1.patient_id = patient_with_two_idnums.id
 
             if isinstance(t1, Photo):
                 b = Blob()
                 b.id = 1
-                self.apply_standard_db_fields(b)
+                self.apply_standard_db_fields(
+                    b,
+                    patient_with_two_idnums._era,
+                    device=patient_with_two_idnums._device,
+                )
                 b.tablename = t1.tablename
                 b.tablepk = t1.id
                 b.fieldname = "photo_blobid"
@@ -496,7 +513,11 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
 
             t2 = cls()
             t2.id = 2
-            self.apply_standard_task_fields(t2)
+            self.apply_standard_task_fields(
+                t2,
+                patient_with_one_idnum._era,
+                device=patient_with_one_idnum._device,
+            )
             if t2.has_patient:
                 t2.patient_id = patient_with_one_idnum.id
             self.dbsession.add(t2)

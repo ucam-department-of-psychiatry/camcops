@@ -207,12 +207,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
             as_server_patient=True,
         )
 
-        self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-            as_server_patient=True,
-        )
+        idnum = self.create_server_nhs_patient_idnum(patient=patient)
 
         proquint = patient.uuid_as_proquint
 
@@ -245,7 +240,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
         self.assertEqual(patient_dict[TabletParam.GP], "GP")
         self.assertEqual(patient_dict[TabletParam.OTHER], "Other")
         self.assertEqual(
-            patient_dict[f"idnum{self.nhs_iddef.which_idnum}"], TEST_NHS_NUMBER
+            patient_dict[f"idnum{idnum.which_idnum}"], idnum.idnum_value
         )
 
     def test_creates_user(self) -> None:
@@ -256,12 +251,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
         patient = self.create_patient(
             _group_id=self.group.id, as_server_patient=True
         )
-        idnum = self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-            as_server_patient=True,
-        )
+        idnum = self.create_server_nhs_patient_idnum(patient=patient)
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         proquint = patient.uuid_as_proquint
@@ -317,12 +307,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
         patient = self.create_patient(
             _group_id=self.group.id, as_server_patient=True
         )
-        idnum = self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-            as_server_patient=True,
-        )
+        idnum = self.create_server_nhs_patient_idnum(patient=patient)
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         proquint = patient.uuid_as_proquint
@@ -451,9 +436,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
         )
 
     def test_raises_when_patient_not_created_on_server(self) -> None:
-        patient = self.create_patient(
-            _device_id=self.other_device.id, as_server_patient=True
-        )
+        patient = self.create_patient()
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict(
@@ -491,12 +474,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
             other="Other",
             as_server_patient=True,
         )
-        idnum = self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-            as_server_patient=True,
-        )
+        idnum = self.create_server_nhs_patient_idnum(patient=patient)
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         patient.group.ip_use = IpUse()
@@ -592,21 +570,20 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
         self.dbsession.add(item4)
         self.dbsession.commit()
 
+        # This is the patient originally created om the server
+        server_patient = self.create_patient(as_server_patient=True)
+        server_idnum = self.create_server_nhs_patient_idnum(
+            patient=server_patient
+        )
+
+        # This is the same patient but from the device
         patient = self.create_patient()
-        idnum = self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
+        idnum = self.create_nhs_patient_idnum(
+            patient=patient,
+            which_idnum=server_idnum.which_idnum,
+            idnum_value=server_idnum.idnum_value,
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
-
-        server_patient = self.create_patient(as_server_patient=True)
-        _ = self.create_patient_idnum(
-            patient_id=server_patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-            as_server_patient=True,
-        )
 
         schedule_1 = PatientTaskSchedule()
         schedule_1.patient_pk = server_patient.pk
@@ -624,7 +601,9 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
         self.dbsession.add(schedule_2)
 
         bmi = Bmi()
-        self.apply_standard_task_fields(bmi)
+        self.apply_standard_task_fields(
+            bmi, patient._era, device=patient._device
+        )
         bmi.id = 1
         bmi.height_m = 1.83
         bmi.mass_kg = 67.57

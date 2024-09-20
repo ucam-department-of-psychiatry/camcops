@@ -66,6 +66,9 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleItem,
 )
+from camcops_server.cc_modules.cc_testfactories import (
+    DeviceFactory,
+)
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase,
@@ -798,7 +801,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         )
 
     def test_raises_when_patient_not_finalized(self) -> None:
-        device = Device(name="Not the server device")
+        device = DeviceFactory(name="Not the server device")
         self.req.dbsession.add(device)
         self.req.dbsession.commit()
 
@@ -909,11 +912,12 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
             gp="GP",
             other="Other",
         )
-        patient_idnum = self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+
+        patient_idnum = self.create_nhs_patient_idnum(
+            patient=patient,
             idnum_value=TEST_NHS_NUMBER_1,
         )
+
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
         schedule1.name = "Test 1"
@@ -1006,9 +1010,8 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
             gp="GP",
             other="Other",
         )
-        self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        self.create_nhs_patient_idnum(
+            patient=patient,
             idnum_value=TEST_NHS_NUMBER_1,
         )
 
@@ -1090,15 +1093,13 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
 
     def test_changes_to_idrefs(self) -> None:
         view = EditFinalizedPatientView(self.req)
-        patient = self.create_patient(id=1)
-        self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        patient = self.create_server_patient(id=1)
+        nhs_patient_idnum = self.create_server_nhs_patient_idnum(
+            patient=patient,
             idnum_value=TEST_NHS_NUMBER_1,
         )
-        self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.study_iddef.which_idnum,
+        study_patient_idnum = self.create_server_study_patient_idnum(
+            patient=patient,
             idnum_value=123,
         )
 
@@ -1109,7 +1110,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         appstruct = {
             ViewParam.ID_REFERENCES: [
                 {
-                    ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
+                    ViewParam.WHICH_IDNUM: nhs_patient_idnum.which_idnum,
                     ViewParam.IDNUM_VALUE: TEST_NHS_NUMBER_2,
                 },
                 {
@@ -1121,12 +1122,22 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
 
         view._save_idrefs(appstruct, changes)
 
+        nhs_key = f"idnum{nhs_patient_idnum.which_idnum} (NHS number)"
+        self.assertIn(nhs_key, changes)
+
+        study_key = f"idnum{study_patient_idnum.which_idnum} (Study number)"
+        self.assertIn(study_key, changes)
+
+        rio_key = f"idnum{self.rio_iddef.which_idnum} (RiO number)"
+        self.assertIn(rio_key, changes)
+
         self.assertEqual(
-            changes["idnum1 (NHS number)"],
+            changes[nhs_key],
             (TEST_NHS_NUMBER_1, TEST_NHS_NUMBER_2),
         )
-        self.assertEqual(changes["idnum3 (Study number)"], (123, None))
-        self.assertEqual(changes["idnum2 (RiO number)"], (None, 456))
+
+        self.assertEqual(changes[study_key], (123, None))
+        self.assertEqual(changes[rio_key], (None, 456))
 
 
 class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
@@ -1136,6 +1147,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
     def test_group_updated(self) -> None:
         patient = self.create_patient(sex="F", as_server_patient=True)
+        old_group = patient.group
         new_group = Group()
         new_group.name = "newgroup"
         new_group.description = "New group"
@@ -1155,7 +1167,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
-        self.assertIn("testgroup", messages[0])
+        self.assertIn(old_group.name, messages[0])
         self.assertIn("newgroup", messages[0])
         self.assertIn("group:", messages[0])
 
@@ -1398,9 +1410,8 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.dbsession.add(patient_task_schedule)
         self.dbsession.commit()
 
-        self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        patient_idnum = self.create_nhs_patient_idnum(
+            patient=patient,
             idnum_value=TEST_NHS_NUMBER_1,
         )
 
@@ -1427,7 +1438,8 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         idnum = form_values[ViewParam.ID_REFERENCES][0]
         self.assertEqual(
-            idnum[ViewParam.WHICH_IDNUM], self.nhs_iddef.which_idnum
+            idnum[ViewParam.WHICH_IDNUM],
+            patient_idnum.which_idnum,
         )
         self.assertEqual(idnum[ViewParam.IDNUM_VALUE], TEST_NHS_NUMBER_1)
 
@@ -1511,7 +1523,6 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         server_device = Device.get_server_device(self.req.dbsession)
 
-        self.assertEqual(patient.id, 1)
         self.assertEqual(patient.device_id, server_device.id)
         self.assertEqual(patient.era, ERA_NOW)
         self.assertEqual(patient.group.id, self.group.id)
@@ -1526,7 +1537,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(patient.other, "Other")
 
         idnum = patient.get_idnum_objects()[0]
-        self.assertEqual(idnum.patient_id, 1)
+        self.assertEqual(idnum.patient_id, patient.id)
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, 1192220552)
 
@@ -1640,10 +1651,8 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         patient_pk = self.patient.pk
 
-        idnum = self.create_patient_idnum(
-            as_server_patient=True,
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        idnum = self.create_server_nhs_patient_idnum(
+            patient=self.patient,
             idnum_value=TEST_NHS_NUMBER_1,
         )
 
@@ -1790,10 +1799,8 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         self.assertIsNotNone(saved_patient)
 
-        idnum = self.create_patient_idnum(
-            as_server_patient=True,
-            patient_id=other_patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        idnum = self.create_server_nhs_patient_idnum(
+            patient=other_patient,
             idnum_value=TEST_NHS_NUMBER_2,
         )
 
@@ -1906,10 +1913,12 @@ class EraseTaskTestCase(BasicDatabaseTestCase):
     def create_tasks(self) -> None:
         from camcops_server.tasks.bmi import Bmi
 
+        patient = self.create_patient_with_one_idnum()
         self.task = Bmi()
         self.task.id = 1
-        self.apply_standard_task_fields(self.task)
-        patient = self.create_patient_with_one_idnum()
+        self.apply_standard_task_fields(
+            self.task, patient._era, device=patient._device
+        )
         self.task.patient_id = patient.id
 
         self.dbsession.add(self.task)
@@ -2318,10 +2327,8 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
         patient_pk = self.patient.pk
 
-        idnum = self.create_patient_idnum(
-            as_server_patient=True,
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        idnum = self.create_server_nhs_patient_idnum(
+            patient=self.patient,
             idnum_value=TEST_NHS_NUMBER_1,
         )
 

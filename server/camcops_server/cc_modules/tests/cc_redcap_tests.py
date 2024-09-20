@@ -498,7 +498,8 @@ class RedcapExportTestCase(BasicDatabaseTestCase):
 
         patient = Patient()
         patient.id = 2
-        self.apply_standard_db_fields(patient)
+        era = "1970-01-01T12:00:00 +0100"
+        self.apply_standard_db_fields(patient, era)
         patient.forename = "Forename2"
         patient.surname = "Surname2"
         patient.dob = pendulum.parse("1975-12-12")
@@ -512,7 +513,9 @@ class RedcapExportTestCase(BasicDatabaseTestCase):
 
         patient_idnum1 = PatientIdNum()
         patient_idnum1.id = 3
-        self.apply_standard_db_fields(patient_idnum1)
+        self.apply_standard_db_fields(
+            patient_idnum1, patient._era, device=patient._device
+        )
         patient_idnum1.patient_id = patient.id
         patient_idnum1.which_idnum = 1001
         patient_idnum1.idnum_value = 555
@@ -564,7 +567,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, patient._era, device=patient._device
+        )
         self.task.id = next(self.id_sequence)
         self.task.height_m = 1.83
         self.task.mass_kg = 67.57
@@ -706,7 +711,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
 
         patient = self.create_patient_with_idnum_1001()
         self.task1 = Bmi()
-        self.apply_standard_task_fields(self.task1)
+        self.apply_standard_task_fields(
+            self.task1, patient._era, device=patient._device
+        )
         self.task1.id = next(self.id_sequence)
         self.task1.height_m = 1.83
         self.task1.mass_kg = 67.57
@@ -714,7 +721,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         self.dbsession.add(self.task1)
 
         self.task2 = Bmi()
-        self.apply_standard_task_fields(self.task2)
+        self.apply_standard_task_fields(
+            self.task2, patient._era, device=patient._device
+        )
         self.task2.id = next(self.id_sequence)
         self.task2.height_m = 1.83
         self.task2.mass_kg = 68.5
@@ -825,7 +834,9 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         patient = self.create_patient_with_idnum_1001()
         self.task = Phq9()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, patient._era, device=patient._device
+        )
         self.task.id = next(self.id_sequence)
         self.task.q1 = 0
         self.task.q2 = 1
@@ -947,7 +958,9 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         patient = self.create_patient_with_idnum_1001()
         self.task = KhandakerMojoMedicationTherapy()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, patient._era, device=patient._device
+        )
         self.task.id = next(self.id_sequence)
         self.task.patient_id = patient.id
         self.dbsession.add(self.task)
@@ -1047,7 +1060,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
         patient = self.create_patient_with_idnum_1001()
         self.mojo_task = KhandakerMojoMedicationTherapy()
-        self.apply_standard_task_fields(self.mojo_task)
+        self.apply_standard_task_fields(
+            self.mojo_task, patient._era, device=patient._device
+        )
         self.mojo_task.id = next(self.id_sequence)
         self.mojo_task.patient_id = patient.id
         self.dbsession.add(self.mojo_task)
@@ -1056,7 +1071,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         from camcops_server.tasks.bmi import Bmi
 
         self.bmi_task = Bmi()
-        self.apply_standard_task_fields(self.bmi_task)
+        self.apply_standard_task_fields(
+            self.bmi_task, patient._era, device=patient._device
+        )
         self.bmi_task.id = next(self.id_sequence)
         self.bmi_task.height_m = 1.83
         self.bmi_task.mass_kg = 67.57
@@ -1178,7 +1195,9 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
 
         patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, patient._era, device=patient._device
+        )
         self.task.id = next(self.id_sequence)
         self.task.height_m = 1.83
         self.task.mass_kg = 67.57
@@ -1425,7 +1444,8 @@ class AnonymousTaskRedcapTests(RedcapExportTestCase):
         from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 
         self.task = APEQCPFTPerinatal()
-        self.apply_standard_task_fields(self.task)
+        era = "1970-01-01T12:00:00 +0100"
+        self.apply_standard_task_fields(self.task, era)
         self.task.id = 1
         self.dbsession.add(self.task)
         self.dbsession.commit()

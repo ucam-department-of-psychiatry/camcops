@@ -32,14 +32,18 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
 )
 import factory
+from faker import Faker
 import pendulum
 
-from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_testproviders import register_all_providers
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
     PatientTaskScheduleEmail,
@@ -49,9 +53,25 @@ from camcops_server.cc_modules.cc_taskschedule import (
 from camcops_server.cc_modules.cc_user import User
 
 
+class Fake:
+    # Factory Boy has its own interface to Faker (factory.Faker()). This
+    # takes a function to be called at object generation time and as far as I
+    # can tell this doesn't support being able to create fake data based on
+    # other fake attributes such as notes for a patient. You can work
+    # around this by adding a lot of logic to the factories. To me it makes
+    # sense to keep the factories simple and do as much as possible of the
+    # content generation in the providers. So we call Faker directly instead.
+    en_gb = Faker("en_GB")  # For UK postcodes, phone numbers etc
+    en_us = Faker("en_US")  # en_GB gives Lorem ipsum for pad words.
+
+
+register_all_providers(Fake.en_gb)
+
+
 # sqlalchemy_session gets poked in by DemoRequestCase.setUp()
 class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
-    pass
+    class Meta:
+        sqlalchemy_session_persistence = "commit"
 
 
 class DeviceFactory(BaseFactory):
@@ -70,20 +90,29 @@ class GroupFactory(BaseFactory):
     name = factory.Sequence(lambda n: f"Group {n}")
 
 
+class AnyIdNumGroupFactory(GroupFactory):
+    upload_policy = "sex and anyidnum"
+    finalize_policy = "sex and anyidnum"
+
+
 class UserFactory(BaseFactory):
     class Meta:
         model = User
 
-    id = factory.Sequence(lambda n: n)
-    username = factory.Sequence(lambda n: f"user{n}")
+    id = factory.Sequence(lambda n: n + 1)
+    username = factory.Sequence(lambda n: f"user{n + 1}")
     hashedpw = ""
 
 
 class GenericTabletRecordFactory(BaseFactory):
+    class Meta:
+        exclude = ("default_iso_datetime",)
+        abstract = True
+
     default_iso_datetime = "1970-01-01T12:00"
 
     _device = factory.SubFactory(DeviceFactory)
-    _group = factory.SubFactory(GroupFactory)
+    _group = factory.SubFactory(AnyIdNumGroupFactory)
     _adding_user = factory.SubFactory(UserFactory)
 
     @factory.lazy_attribute
@@ -105,16 +134,13 @@ class GenericTabletRecordFactory(BaseFactory):
         # _current = True gets ignored for some reason
         return True
 
-    class Meta:
-        exclude = ("default_iso_datetime",)
-        abstract = True
-
 
 class PatientFactory(GenericTabletRecordFactory):
     class Meta:
         model = Patient
 
-    id = factory.Sequence(lambda n: n)
+    id = factory.Sequence(lambda n: n + 1)
+    sex = factory.LazyFunction(Fake.en_gb.sex)
 
 
 class ServerCreatedPatientFactory(PatientFactory):
@@ -123,6 +149,122 @@ class ServerCreatedPatientFactory(PatientFactory):
         # Should have been created in BasicDatabaseTestCase.setUp
         return Device.get_server_device(
             ServerCreatedPatientFactory._meta.sqlalchemy_session
+        )
+
+    @factory.lazy_attribute
+    def _era(self) -> str:
+        return ERA_NOW
+
+
+class IdNumDefinitionFactory(BaseFactory):
+    class Meta:
+        model = IdNumDefinition
+
+    which_idnum = factory.Sequence(lambda n: n + 1)
+
+
+class NHSIdNumDefinitionFactory(IdNumDefinitionFactory):
+    description = "NHS number"
+    short_description = "NHS#"
+    hl7_assigning_authority = "NHS"
+    hl7_id_type = "NHSN"
+
+
+class StudyIdNumDefinitionFactory(IdNumDefinitionFactory):
+    description = "Study number"
+    short_description = "Study"
+
+
+class RioIdNumDefinitionFactory(IdNumDefinitionFactory):
+    description = "RiO number"
+    short_description = "RiO"
+    hl7_assigning_authority = "CPFT"
+    hl7_id_type = "CPRiO"
+
+
+class PatientIdNumFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = PatientIdNum
+
+    id = factory.Sequence(lambda n: n + 1)
+    patient = factory.SubFactory(PatientFactory)
+    patient_id = factory.SelfAttribute("patient.id")
+    _group = factory.SelfAttribute("patient._group")
+    _device = factory.SelfAttribute("patient._device")
+
+
+class NHSPatientIdNumFactory(PatientIdNumFactory):
+    class Meta:
+        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+
+    idnum = factory.SubFactory(NHSIdNumDefinitionFactory)
+
+    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    idnum_value = factory.LazyFunction(Fake.en_gb.nhs_number)
+
+
+class RioPatientIdNumFactory(PatientIdNumFactory):
+    class Meta:
+        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+
+    idnum = factory.SubFactory(RioIdNumDefinitionFactory)
+
+    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    idnum_value = factory.Sequence(lambda n: n + 10000)
+
+
+class StudyPatientIdNumFactory(PatientIdNumFactory):
+    class Meta:
+        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+
+    idnum = factory.SubFactory(StudyIdNumDefinitionFactory)
+
+    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    idnum_value = factory.Sequence(lambda n: n + 1000)
+
+
+class ServerCreatedPatientIdNumFactory(PatientIdNumFactory):
+    patient = factory.SubFactory(ServerCreatedPatientFactory)
+
+    @factory.lazy_attribute
+    def _device(self) -> Device:
+        # Should have been created in BasicDatabaseTestCase.setUp
+        return Device.get_server_device(
+            ServerCreatedPatientIdNumFactory._meta.sqlalchemy_session
+        )
+
+    @factory.lazy_attribute
+    def _era(self) -> str:
+        return ERA_NOW
+
+
+class ServerCreatedNHSPatientIdNumFactory(
+    ServerCreatedPatientIdNumFactory, NHSPatientIdNumFactory
+):
+    class Meta:
+        exclude = (
+            ServerCreatedPatientIdNumFactory._meta.exclude
+            + NHSPatientIdNumFactory._meta.exclude
+        )
+
+
+class ServerCreatedRioPatientIdNumFactory(
+    ServerCreatedPatientIdNumFactory, RioPatientIdNumFactory
+):
+    class Meta:
+        exclude = (
+            ServerCreatedPatientIdNumFactory._meta.exclude
+            + RioPatientIdNumFactory._meta.exclude
+        )
+
+
+class ServerCreatedStudyPatientIdNumFactory(
+    ServerCreatedPatientIdNumFactory, StudyPatientIdNumFactory
+):
+    class Meta:
+        exclude = (
+            ServerCreatedPatientIdNumFactory._meta.exclude
+            + StudyPatientIdNumFactory._meta.exclude
         )
 
 

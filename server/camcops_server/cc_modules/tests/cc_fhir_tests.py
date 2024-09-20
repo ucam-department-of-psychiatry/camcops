@@ -102,11 +102,16 @@ class MockFhirResponse(mock.Mock):
 
 class FhirExportTestCase(DemoDatabaseTestCase):
     def setUp(self) -> None:
+        self.patient = None
+        self.patient_nhs = None
+        self.patient_rio = None
+
         super().setUp()
         recipientinfo = ExportRecipientInfo()
 
         self.recipient = ExportRecipient(recipientinfo)
-        self.recipient.primary_idnum = self.rio_iddef.which_idnum
+        if self.patient_rio is not None:
+            self.recipient.primary_idnum = self.patient_rio.which_idnum
         self.recipient.fhir_api_url = "https://www.example.com/fhir"
 
         # auto increment doesn't work for BigInteger with SQLite
@@ -117,17 +122,15 @@ class FhirExportTestCase(DemoDatabaseTestCase):
         # ... no trailing slash
 
     def create_fhir_patient(self) -> None:
-        self.patient = self.create_patient(
+        self.patient = self.create_server_patient(
             forename=TEST_FORENAME, surname=TEST_SURNAME, sex=TEST_SEX
         )
-        self.patient_nhs = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
+        self.patient_nhs = self.create_server_nhs_patient_idnum(
+            patient=self.patient,
             idnum_value=TEST_NHS_NUMBER,
         )
-        self.patient_rio = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.rio_iddef.which_idnum,
+        self.patient_rio = self.create_server_rio_patient_idnum(
+            patient=self.patient,
             idnum_value=TEST_RIO_NUMBER,
         )
 
@@ -142,7 +145,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.create_fhir_patient()
 
         self.task = Phq9()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, self.patient._era, device=self.patient._device
+        )
         self.task.q1 = 0
         self.task.q2 = 1
         self.task.q3 = 2
@@ -536,7 +541,9 @@ APEQ_SATIS_A0 = "Not at all satisfied"
 class FhirTaskExporterAnonymousTests(FhirExportTestCase):
     def create_tasks(self) -> None:
         self.task = Apeqpt()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, "1970-01-01T12:00:00 +0100"
+        ),
         self.task.q_datetime = pendulum.now()
         self.task.q1_choice = 0
         self.task.q2_choice = 1
@@ -769,7 +776,11 @@ class FhirTaskExporterBMITests(FhirExportTestCase):
         self.create_fhir_patient()
 
         self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task,
+            self.patient._era,
+            device=self.patient._device,
+        )
         self.task.mass_kg = 70
         self.task.height_m = 1.8
         self.task.waist_cm = 82
@@ -793,7 +804,11 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
         self.create_fhir_patient()
 
         self.task = DiagnosisIcd10()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task,
+            self.patient._era,
+            device=self.patient._device,
+        )
         self.task.patient_id = self.patient.id
         self.task.save_with_next_available_id(
             self.req, self.patient._device_id
@@ -810,7 +825,11 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
             "with mood-congruent psychotic symptoms",
             comment="Cotard's syndrome",
         )
-        self.apply_standard_db_fields(item1)
+        self.apply_standard_db_fields(
+            item1,
+            self.patient._era,
+            device=self.patient._device,
+        )
         item1.save_with_next_available_id(self.req, self.task._device_id)
         # noinspection PyArgumentList
         item2 = DiagnosisIcd10Item(
@@ -819,7 +838,9 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
             code="F43.1",
             description="Post-traumatic stress disorder",
         )
-        self.apply_standard_db_fields(item2)
+        self.apply_standard_db_fields(
+            item2, self.patient._era, device=self.patient._device
+        )
         item2.save_with_next_available_id(self.req, self.task._device_id)
 
     def test_observations(self) -> None:
@@ -836,7 +857,11 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
         self.create_fhir_patient()
 
         self.task = DiagnosisIcd9CM()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task,
+            self.patient._era,
+            device=self.patient._device,
+        )
         self.task.patient_id = self.patient.id
         self.task.save_with_next_available_id(
             self.req, self.patient._device_id
@@ -851,7 +876,11 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
             description="Vascular dementia",
             comment="or perhaps mixed dementia",
         )
-        self.apply_standard_db_fields(item1)
+        self.apply_standard_db_fields(
+            item1,
+            self.patient._era,
+            device=self.patient._device,
+        )
         item1.save_with_next_available_id(self.req, self.task._device_id)
         # noinspection PyArgumentList
         item2 = DiagnosisIcd9CMItem(
@@ -860,7 +889,11 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
             code="303.0",
             description="Acute alcoholic intoxication",
         )
-        self.apply_standard_db_fields(item2)
+        self.apply_standard_db_fields(
+            item2,
+            self.patient._era,
+            device=self.patient._device,
+        )
         item2.save_with_next_available_id(self.req, self.task._device_id)
 
     def test_observations(self) -> None:
@@ -882,7 +915,9 @@ class FhirTaskExporterGad7Tests(FhirExportTestCase):
         self.create_fhir_patient()
 
         self.task = Gad7()
-        self.apply_standard_task_fields(self.task)
+        self.apply_standard_task_fields(
+            self.task, self.patient._era, device=self.patient._device
+        )
         self.task.patient_id = self.patient.id
         self.task.save_with_next_available_id(
             self.req, self.patient._device_id
