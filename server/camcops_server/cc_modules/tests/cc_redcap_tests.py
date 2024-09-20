@@ -993,18 +993,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
-            KhandakerMojoMedicationTherapy,
+        self.mojo_task = KhandakerMojoMedicationTherapyFactory(
+            patient=self.patient
         )
-
-        self.mojo_task = KhandakerMojoMedicationTherapy()
-        self.apply_standard_task_fields(
-            self.mojo_task, self.patient._era, device=self.patient._device
-        )
-        self.mojo_task.id = next(self.id_sequence)
-        self.mojo_task.patient_id = self.patient.id
-        self.dbsession.add(self.mojo_task)
-        self.dbsession.commit()
 
         from camcops_server.tasks.bmi import Bmi
 
