@@ -25,7 +25,7 @@
 
 import os
 import tempfile
-from typing import Generator, TYPE_CHECKING
+from typing import Generator
 from unittest import mock, TestCase
 
 from pandas import DataFrame
@@ -45,11 +45,11 @@ from camcops_server.cc_modules.cc_redcap import (
     RedcapRecordStatus,
     RedcapTaskExporter,
 )
-from camcops_server.cc_modules.cc_testfactories import PatientFactory
+from camcops_server.cc_modules.cc_testfactories import (
+    NHSPatientIdNumFactory,
+    PatientFactory,
+)
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_patient import Patient
 
 from camcops_server.tasks.tests.factories import BmiFactory
 
@@ -474,10 +474,15 @@ class RedcapExportTestCase(BasicDatabaseTestCase):
     fieldmap = ""
 
     def setUp(self) -> None:
+        super().setUp()
+
+        self.patient = PatientFactory()
+        self.patient_idnum = NHSPatientIdNumFactory(patient=self.patient)
+
         recipientinfo = ExportRecipientInfo()
 
         self.recipient = ExportRecipient(recipientinfo)
-        self.recipient.primary_idnum = 1001
+        self.recipient.primary_idnum = self.patient_idnum.which_idnum
 
         # auto increment doesn't work for BigInteger with SQLite
         self.recipient.id = 1
@@ -487,36 +492,9 @@ class RedcapExportTestCase(BasicDatabaseTestCase):
         )
         self.write_fieldmaps(self.recipient.redcap_fieldmap_filename)
 
-        super().setUp()
-
     def write_fieldmaps(self, filename: str) -> None:
         with open(filename, "w") as f:
             f.write(self.fieldmap)
-
-    def create_patient_with_idnum_1001(self) -> "Patient":
-        from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-
-        patient = PatientFactory()
-
-        idnumdef_1001 = IdNumDefinition()
-        idnumdef_1001.which_idnum = 1001
-        idnumdef_1001.description = "Test idnumdef 1001"
-        self.dbsession.add(idnumdef_1001)
-        self.dbsession.commit()
-
-        patient_idnum1 = PatientIdNum()
-        patient_idnum1.id = 3
-        self.apply_standard_db_fields(
-            patient_idnum1, patient._era, device=patient._device
-        )
-        patient_idnum1.patient_id = patient.id
-        patient_idnum1.which_idnum = 1001
-        patient_idnum1.idnum_value = 555
-        self.dbsession.add(patient_idnum1)
-        self.dbsession.commit()
-
-        return patient
 
 
 class BmiRedcapExportTestCase(RedcapExportTestCase):
@@ -556,10 +534,11 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
     related to the BMI task
     """
 
-    def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
+    def setUp(self) -> None:
+        super().setUp()
+
         self.task = BmiFactory(
-            patient=patient,
+            patient=self.patient,
             height_m=1.83,
             mass_kg=67.57,
             when_created=pendulum.parse("2010-07-07"),
@@ -618,7 +597,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEqual(record["patient_id"], 555)
+        self.assertEqual(record["patient_id"], self.patient_idnum.idnum_value)
 
     def test_record_exported_with_non_integer_id(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -694,28 +673,29 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
+
         from camcops_server.tasks.bmi import Bmi
 
-        patient = self.create_patient_with_idnum_1001()
         self.task1 = Bmi()
         self.apply_standard_task_fields(
-            self.task1, patient._era, device=patient._device
+            self.task1, self.patient._era, device=self.patient._device
         )
         self.task1.id = next(self.id_sequence)
         self.task1.height_m = 1.83
         self.task1.mass_kg = 67.57
-        self.task1.patient_id = patient.id
+        self.task1.patient_id = self.patient.id
         self.dbsession.add(self.task1)
 
         self.task2 = Bmi()
         self.apply_standard_task_fields(
-            self.task2, patient._era, device=patient._device
+            self.task2, self.patient._era, device=self.patient._device
         )
         self.task2.id = next(self.id_sequence)
         self.task2.height_m = 1.83
         self.task2.mass_kg = 68.5
-        self.task2.patient_id = patient.id
+        self.task2.patient_id = self.patient.id
         self.dbsession.add(self.task2)
         self.dbsession.commit()
 
@@ -745,7 +725,7 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         project.export_records.return_value = DataFrame(
             {
                 "record_id": ["123"],
-                "patient_id": [555],
+                "patient_id": [self.patient_idnum.idnum_value],
                 "redcap_repeat_instrument": ["bmi"],
                 "redcap_repeat_instance": [1],
             }
@@ -817,10 +797,11 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
             yield i
             i += 1
 
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
+
         from camcops_server.tasks.phq9 import Phq9
 
-        self.patient = self.create_patient_with_idnum_1001()
         self.task = Phq9()
         self.apply_standard_task_fields(
             self.task, self.patient._era, device=self.patient._device
@@ -904,7 +885,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         rows = args[0]
         record = rows[0]
-        self.assertEqual(record["patient_id"], 555)
+        self.assertEqual(record["patient_id"], self.patient_idnum.idnum_value)
 
 
 class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
@@ -939,18 +920,19 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
             yield i
             i += 1
 
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
+
         from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
             KhandakerMojoMedicationTherapy,
         )
 
-        patient = self.create_patient_with_idnum_1001()
         self.task = KhandakerMojoMedicationTherapy()
         self.apply_standard_task_fields(
-            self.task, patient._era, device=patient._device
+            self.task, self.patient._era, device=self.patient._device
         )
         self.task.id = next(self.id_sequence)
-        self.task.patient_id = patient.id
+        self.task.patient_id = self.patient.id
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
@@ -1041,18 +1023,19 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
             yield i
             i += 1
 
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
+
         from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
             KhandakerMojoMedicationTherapy,
         )
 
-        patient = self.create_patient_with_idnum_1001()
         self.mojo_task = KhandakerMojoMedicationTherapy()
         self.apply_standard_task_fields(
-            self.mojo_task, patient._era, device=patient._device
+            self.mojo_task, self.patient._era, device=self.patient._device
         )
         self.mojo_task.id = next(self.id_sequence)
-        self.mojo_task.patient_id = patient.id
+        self.mojo_task.patient_id = self.patient.id
         self.dbsession.add(self.mojo_task)
         self.dbsession.commit()
 
@@ -1060,12 +1043,12 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
         self.bmi_task = Bmi()
         self.apply_standard_task_fields(
-            self.bmi_task, patient._era, device=patient._device
+            self.bmi_task, self.patient._era, device=self.patient._device
         )
         self.bmi_task.id = next(self.id_sequence)
         self.bmi_task.height_m = 1.83
         self.bmi_task.mass_kg = 67.57
-        self.bmi_task.patient_id = patient.id
+        self.bmi_task.patient_id = self.patient.id
         self.dbsession.add(self.bmi_task)
         self.dbsession.commit()
 
@@ -1096,7 +1079,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         project.export_records.return_value = DataFrame(
             {
                 "record_id": ["123"],
-                "patient_id": [555],
+                "patient_id": [self.patient_idnum.idnum_value],
                 "redcap_repeat_instrument": [
                     "khandaker_mojo_medicationtherapy"
                 ],
@@ -1178,18 +1161,19 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
             yield i
             i += 1
 
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
+
         from camcops_server.tasks.bmi import Bmi
 
-        patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
         self.apply_standard_task_fields(
-            self.task, patient._era, device=patient._device
+            self.task, self.patient._era, device=self.patient._device
         )
         self.task.id = next(self.id_sequence)
         self.task.height_m = 1.83
         self.task.mass_kg = 67.57
-        self.task.patient_id = patient.id
+        self.task.patient_id = self.patient.id
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
@@ -1257,7 +1241,7 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
         project.export_records.return_value = DataFrame(
             {
                 "record_id": ["123"],
-                "patient_id": [555],
+                "patient_id": [self.patient_idnum.idnum_value],
                 "redcap_repeat_instrument": ["bmi"],
                 "redcap_repeat_instance": [1],
             }
@@ -1301,7 +1285,7 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
         project.export_records.return_value = DataFrame(
             {
                 "record_id": ["123"],
-                "patient_id": [555],
+                "patient_id": [self.patient_idnum.idnum_value],
                 "redcap_repeat_instrument": ["bmi"],
                 "redcap_repeat_instance": [1],
             }
@@ -1428,7 +1412,9 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
 
 
 class AnonymousTaskRedcapTests(RedcapExportTestCase):
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
+
         from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 
         self.task = APEQCPFTPerinatal()
