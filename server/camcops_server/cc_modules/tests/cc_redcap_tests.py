@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_testfactories import (
     NHSPatientIdNumFactory,
     PatientFactory,
 )
-from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.tests.factories import (
     APEQCPFTPerinatalFactory,
     BmiFactory,
@@ -478,7 +478,7 @@ class RedcapFieldmapTests(TestCase):
 # =============================================================================
 
 
-class RedcapExportTestCase(BasicDatabaseTestCase):
+class RedcapExportTestCase(DemoRequestTestCase):
     fieldmap = ""
 
     def setUp(self) -> None:
