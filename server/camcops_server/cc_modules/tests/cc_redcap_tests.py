@@ -51,6 +51,7 @@ from camcops_server.cc_modules.cc_testfactories import (
 )
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 from camcops_server.tasks.tests.factories import (
+    APEQCPFTPerinatalFactory,
     BmiFactory,
     KhandakerMojoMedicationTherapyFactory,
     Phq9Factory,
@@ -1315,14 +1316,7 @@ class AnonymousTaskRedcapTests(RedcapExportTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
-
-        self.task = APEQCPFTPerinatal()
-        era = "1970-01-01T12:00:00 +0100"
-        self.apply_standard_task_fields(self.task, era)
-        self.task.id = 1
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
+        self.task = APEQCPFTPerinatalFactory()
 
     def test_raises_when_task_is_anonymous(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
