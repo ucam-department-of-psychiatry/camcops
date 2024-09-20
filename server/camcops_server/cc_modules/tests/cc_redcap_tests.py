@@ -676,28 +676,16 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        from camcops_server.tasks.bmi import Bmi
-
-        self.task1 = Bmi()
-        self.apply_standard_task_fields(
-            self.task1, self.patient._era, device=self.patient._device
+        self.task1 = BmiFactory(
+            patient=self.patient,
+            height_m=1.83,
+            mass_kg=67.57,
         )
-        self.task1.id = next(self.id_sequence)
-        self.task1.height_m = 1.83
-        self.task1.mass_kg = 67.57
-        self.task1.patient_id = self.patient.id
-        self.dbsession.add(self.task1)
-
-        self.task2 = Bmi()
-        self.apply_standard_task_fields(
-            self.task2, self.patient._era, device=self.patient._device
+        self.task2 = BmiFactory(
+            patient=self.patient,
+            height_m=1.83,
+            mass_kg=68.5,
         )
-        self.task2.id = next(self.id_sequence)
-        self.task2.height_m = 1.83
-        self.task2.mass_kg = 68.5
-        self.task2.patient_id = self.patient.id
-        self.dbsession.add(self.task2)
-        self.dbsession.commit()
 
     def test_existing_record_id_used_for_update(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
