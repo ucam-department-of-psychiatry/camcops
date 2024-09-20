@@ -500,21 +500,7 @@ class RedcapExportTestCase(BasicDatabaseTestCase):
             f.write(self.fieldmap)
 
 
-class BmiRedcapExportTestCase(RedcapExportTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-
-class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
+class BmiRedcapValidFieldmapTestCase(RedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
@@ -1085,31 +1071,11 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 class BadConfigurationRedcapTests(RedcapExportTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
 
     def setUp(self) -> None:
         super().setUp()
 
-        from camcops_server.tasks.bmi import Bmi
-
-        self.task = Bmi()
-        self.apply_standard_task_fields(
-            self.task, self.patient._era, device=self.patient._device
-        )
-        self.task.id = next(self.id_sequence)
-        self.task.height_m = 1.83
-        self.task.mass_kg = 67.57
-        self.task.patient_id = self.patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
+        self.task = BmiFactory(patient=self.patient)
 
 
 class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
