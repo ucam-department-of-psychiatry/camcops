@@ -38,6 +38,9 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 from camcops_server.tasks.bmi import Bmi
 from camcops_server.tasks.core10 import Core10
+from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
+    KhandakerMojoMedicationTherapy,
+)
 from camcops_server.tasks.maas import Maas
 from camcops_server.tasks.perinatalpoem import PerinatalPoem
 from camcops_server.tasks.phq9 import Phq9
@@ -114,6 +117,13 @@ class Core10Factory(TaskHasPatientFactory):
     q8 = 0
     q9 = 0
     q10 = 0
+
+
+class KhandakerMojoMedicationTherapyFactory(TaskHasPatientFactory):
+    class Meta:
+        model = KhandakerMojoMedicationTherapy
+
+    id = factory.Sequence(lambda n: n)
 
 
 class MaasFactory(TaskHasPatientFactory):

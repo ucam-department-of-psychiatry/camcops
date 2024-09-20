@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 from camcops_server.tasks.tests.factories import (
     BmiFactory,
+    KhandakerMojoMedicationTherapyFactory,
     Phq9Factory,
 )
 
@@ -898,18 +899,9 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
-            KhandakerMojoMedicationTherapy,
+        self.task = KhandakerMojoMedicationTherapyFactory(
+            patient=self.patient,
         )
-
-        self.task = KhandakerMojoMedicationTherapy()
-        self.apply_standard_task_fields(
-            self.task, self.patient._era, device=self.patient._device
-        )
-        self.task.id = next(self.id_sequence)
-        self.task.patient_id = self.patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
 
     def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
