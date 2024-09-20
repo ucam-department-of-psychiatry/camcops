@@ -29,7 +29,6 @@ from typing import Generator, TYPE_CHECKING
 from unittest import mock, TestCase
 
 from pandas import DataFrame
-import pendulum
 import redcap
 
 from camcops_server.cc_modules.cc_constants import ConfigParamExportRecipient
@@ -45,6 +44,7 @@ from camcops_server.cc_modules.cc_redcap import (
     RedcapRecordStatus,
     RedcapTaskExporter,
 )
+from camcops_server.cc_modules.cc_testfactories import PatientFactory
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 
 if TYPE_CHECKING:
@@ -493,17 +493,9 @@ class RedcapExportTestCase(BasicDatabaseTestCase):
 
     def create_patient_with_idnum_1001(self) -> "Patient":
         from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
-        from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 
-        patient = Patient()
-        patient.id = 2
-        era = "1970-01-01T12:00:00 +0100"
-        self.apply_standard_db_fields(patient, era)
-        patient.forename = "Forename2"
-        patient.surname = "Surname2"
-        patient.dob = pendulum.parse("1975-12-12")
-        self.dbsession.add(patient)
+        patient = PatientFactory()
 
         idnumdef_1001 = IdNumDefinition()
         idnumdef_1001.which_idnum = 1001
@@ -832,10 +824,10 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
     def create_tasks(self) -> None:
         from camcops_server.tasks.phq9 import Phq9
 
-        patient = self.create_patient_with_idnum_1001()
+        self.patient = self.create_patient_with_idnum_1001()
         self.task = Phq9()
         self.apply_standard_task_fields(
-            self.task, patient._era, device=patient._device
+            self.task, self.patient._era, device=self.patient._device
         )
         self.task.id = next(self.id_sequence)
         self.task.q1 = 0
@@ -848,7 +840,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         self.task.q8 = 3
         self.task.q9 = 0
         self.task.q10 = 3
-        self.task.patient_id = patient.id
+        self.task.patient_id = self.patient.id
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
@@ -894,8 +886,8 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         )
         self.assertEqual(record["phq9_how_difficult"], 4)
         self.assertEqual(record["phq9_total_score"], 12)
-        self.assertEqual(record["phq9_first_name"], "Forename2")
-        self.assertEqual(record["phq9_last_name"], "Surname2")
+        self.assertEqual(record["phq9_first_name"], self.patient.forename)
+        self.assertEqual(record["phq9_last_name"], self.patient.surname)
         self.assertEqual(record["phq9_date_enrolled"], "2010-07-07")
 
         self.assertEqual(record["phq9_1"], 0)

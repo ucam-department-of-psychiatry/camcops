@@ -27,6 +27,8 @@ camcops_server/cc_modules/cc_testfactories.py
 
 """
 
+from typing import TYPE_CHECKING
+
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
     format_datetime,
@@ -51,6 +53,9 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_user import User
+
+if TYPE_CHECKING:
+    from factory.builder import Resolver
 
 
 class Fake:
@@ -141,6 +146,12 @@ class PatientFactory(GenericTabletRecordFactory):
 
     id = factory.Sequence(lambda n: n + 1)
     sex = factory.LazyFunction(Fake.en_gb.sex)
+
+    @factory.lazy_attribute
+    def forename(obj: "Resolver") -> str:
+        return Fake.en_gb.forename(obj.sex)
+
+    surname = factory.LazyFunction(Fake.en_gb.last_name)
 
 
 class ServerCreatedPatientFactory(PatientFactory):

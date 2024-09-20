@@ -29,8 +29,10 @@ camcops_server/cc_modules/cc_unittest.py
 
 import base64
 import copy
+from faker import Faker
 import logging
 import os
+import random
 import sqlite3
 from typing import Any, List, Type, TYPE_CHECKING
 import unittest
@@ -99,6 +101,14 @@ DEMO_PNG_BYTES = base64.b64decode(
 
 
 class ExtendedTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        # Arbitrary seed
+        Faker.seed(1234)
+        random.seed(1234)
+
     """
     A subclass of :class:`unittest.TestCase` that provides some additional
     functionality.
@@ -142,6 +152,8 @@ class DemoRequestTestCase(ExtendedTestCase):
     db_filename: str
 
     def setUp(self) -> None:
+        super().setUp()
+
         for factory in all_subclasses(BaseFactory):
             factory._meta.sqlalchemy_session = self.dbsession
 

@@ -55,6 +55,21 @@ class ChoiceProvider(BaseProvider):
         return choices[0]
 
 
+class ForenameProvider(BaseProvider):
+    """
+    Return a forename given the sex of the person
+    """
+
+    def forename(self, sex: str) -> str:
+        if sex == "M":
+            return self.generator.first_name_male()
+
+        if sex == "F":
+            return self.generator.first_name_female()
+
+        return self.generator.first_name()[:1]
+
+
 class SexProvider(ChoiceProvider):
     """
     Return a random sex, with realistic distribution.
@@ -66,5 +81,6 @@ class SexProvider(ChoiceProvider):
 
 def register_all_providers(fake: Faker) -> None:
     fake.add_provider(ChoiceProvider)
+    fake.add_provider(ForenameProvider)
     fake.add_provider(NhsNumberProvider)
     fake.add_provider(SexProvider)
