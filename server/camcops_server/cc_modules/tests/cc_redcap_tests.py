@@ -29,6 +29,7 @@ from typing import Generator, TYPE_CHECKING
 from unittest import mock, TestCase
 
 from pandas import DataFrame
+import pendulum
 import redcap
 
 from camcops_server.cc_modules.cc_constants import ConfigParamExportRecipient
@@ -50,6 +51,7 @@ from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patient import Patient
 
+from camcops_server.tasks.tests.factories import BmiFactory
 
 # =============================================================================
 # Unit testing
@@ -555,19 +557,13 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
     """
 
     def create_tasks(self) -> None:
-        from camcops_server.tasks.bmi import Bmi
-
         patient = self.create_patient_with_idnum_1001()
-        self.task = Bmi()
-        self.apply_standard_task_fields(
-            self.task, patient._era, device=patient._device
+        self.task = BmiFactory(
+            patient=patient,
+            height_m=1.83,
+            mass_kg=67.57,
+            when_created=pendulum.parse("2010-07-07"),
         )
-        self.task.id = next(self.id_sequence)
-        self.task.height_m = 1.83
-        self.task.mass_kg = 67.57
-        self.task.patient_id = patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
 
     def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
