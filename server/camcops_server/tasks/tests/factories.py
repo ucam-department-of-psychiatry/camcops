@@ -32,6 +32,7 @@ import pendulum
 from typing import TypeVar
 
 from camcops_server.cc_modules.cc_testfactories import (
+    Fake,
     GenericTabletRecordFactory,
 )
 
@@ -99,6 +100,9 @@ class BmiFactory(TaskHasPatientFactory):
         model = Bmi
 
     id = factory.Sequence(lambda n: n)
+
+    height_m = factory.LazyFunction(Fake.en_gb.height_m)
+    mass_kg = factory.LazyFunction(Fake.en_gb.mass_kg)
 
 
 class Core10Factory(TaskHasPatientFactory):

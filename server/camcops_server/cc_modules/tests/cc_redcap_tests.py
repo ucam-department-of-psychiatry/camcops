@@ -681,13 +681,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
 
         self.task1 = BmiFactory(
             patient=self.patient,
-            height_m=1.83,
-            mass_kg=67.57,
         )
         self.task2 = BmiFactory(
             patient=self.patient,
-            height_m=1.83,
-            mass_kg=68.5,
         )
 
     def test_existing_record_id_used_for_update(self) -> None:
@@ -980,15 +976,6 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
 
     def setUp(self) -> None:
         super().setUp()
@@ -997,18 +984,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
             patient=self.patient
         )
 
-        from camcops_server.tasks.bmi import Bmi
-
-        self.bmi_task = Bmi()
-        self.apply_standard_task_fields(
-            self.bmi_task, self.patient._era, device=self.patient._device
-        )
-        self.bmi_task.id = next(self.id_sequence)
-        self.bmi_task.height_m = 1.83
-        self.bmi_task.mass_kg = 67.57
-        self.bmi_task.patient_id = self.patient.id
-        self.dbsession.add(self.bmi_task)
-        self.dbsession.commit()
+        self.bmi_task = BmiFactory(patient=self.patient)
 
     def test_instance_ids_on_different_tasks_in_same_record(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (

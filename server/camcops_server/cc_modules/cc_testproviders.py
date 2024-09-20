@@ -30,7 +30,7 @@ was worth the effort.
 
 https://github.com/joke2k/faker/issues/1142
 
-See also CRATE: crate_anon/testing/providers.py
+See also duplicate functionality in CRATE: crate_anon/testing/providers.py
 
 """
 
@@ -70,6 +70,16 @@ class ForenameProvider(BaseProvider):
         return self.generator.first_name()[:1]
 
 
+class HeightProvider(BaseProvider):
+    def height_m(self) -> float:
+        return float(self.generator.random_int(min=145, max=191) / 100.0)
+
+
+class MassProvider(BaseProvider):
+    def mass_kg(self) -> float:
+        return float(self.generator.random_int(min=400, max=1000) / 10.0)
+
+
 class SexProvider(ChoiceProvider):
     """
     Return a random sex, with realistic distribution.
@@ -82,5 +92,7 @@ class SexProvider(ChoiceProvider):
 def register_all_providers(fake: Faker) -> None:
     fake.add_provider(ChoiceProvider)
     fake.add_provider(ForenameProvider)
+    fake.add_provider(HeightProvider)
+    fake.add_provider(MassProvider)
     fake.add_provider(NhsNumberProvider)
     fake.add_provider(SexProvider)
