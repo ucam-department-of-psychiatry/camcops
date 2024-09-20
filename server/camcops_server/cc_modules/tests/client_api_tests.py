@@ -67,7 +67,7 @@ from camcops_server.cc_modules.client_api import (
     Operations,
     SUCCESS_CODE,
 )
-
+from camcops_server.tasks.tests.factories import BmiFactory
 
 TEST_NHS_NUMBER = generate_random_nhs_number()
 
@@ -529,7 +529,6 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
             TaskSchedule,
             TaskScheduleItem,
         )
-        from camcops_server.tasks.bmi import Bmi
 
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
@@ -600,17 +599,12 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
         schedule_2.schedule_id = schedule2.id
         self.dbsession.add(schedule_2)
 
-        bmi = Bmi()
-        self.apply_standard_task_fields(
-            bmi, patient._era, device=patient._device
+        bmi = BmiFactory(
+            height_m=1.83,
+            mass_kg=67.57,
+            patient=patient,
+            when_created=local(2020, 8, 1),
         )
-        bmi.id = 1
-        bmi.height_m = 1.83
-        bmi.mass_kg = 67.57
-        bmi.patient_id = patient.id
-        bmi.when_created = local(2020, 8, 1)
-        self.dbsession.add(bmi)
-        self.dbsession.commit()
         self.assertTrue(bmi.is_complete())
 
         TaskIndexEntry.index_task(
