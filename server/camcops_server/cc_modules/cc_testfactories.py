@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
@@ -87,12 +88,23 @@ class DeviceFactory(BaseFactory):
     name = factory.Sequence(lambda n: f"test-device-{n}")
 
 
+class IpUseFactory(BaseFactory):
+    class Meta:
+        model = IpUse
+
+    clinical = factory.LazyFunction(Fake.en_gb.pybool)
+    commercial = factory.LazyFunction(Fake.en_gb.pybool)
+    educational = factory.LazyFunction(Fake.en_gb.pybool)
+    research = factory.LazyFunction(Fake.en_gb.pybool)
+
+
 class GroupFactory(BaseFactory):
     class Meta:
         model = Group
 
     id = factory.Sequence(lambda n: n)
     name = factory.Sequence(lambda n: f"Group {n}")
+    ip_use = factory.SubFactory(IpUseFactory)
 
 
 class AnyIdNumGroupFactory(GroupFactory):
