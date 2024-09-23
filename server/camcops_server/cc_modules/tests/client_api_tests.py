@@ -53,6 +53,8 @@ from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_testfactories import (
     DeviceFactory,
+    ServerCreatedNHSPatientIdNumFactory,
+    ServerCreatedPatientFactory,
 )
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
@@ -196,20 +198,8 @@ class ClientApiTests(DemoRequestTestCase):
 
 class PatientRegistrationTests(BasicDatabaseTestCase):
     def test_returns_patient_info(self) -> None:
-        import datetime
-
-        patient = self.create_patient(
-            forename="JO",
-            surname="PATIENT",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            gp="GP",
-            other="Other",
-            as_server_patient=True,
-        )
-
-        idnum = self.create_server_nhs_patient_idnum(patient=patient)
+        patient = ServerCreatedPatientFactory()
+        idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
 
         proquint = patient.uuid_as_proquint
 
@@ -234,13 +224,15 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
 
         patient_dict = json.loads(reply_dict[TabletParam.PATIENT_INFO])[0]
 
-        self.assertEqual(patient_dict[TabletParam.SURNAME], "PATIENT")
-        self.assertEqual(patient_dict[TabletParam.FORENAME], "JO")
-        self.assertEqual(patient_dict[TabletParam.SEX], "F")
-        self.assertEqual(patient_dict[TabletParam.DOB], "1958-04-19")
-        self.assertEqual(patient_dict[TabletParam.ADDRESS], "Address")
-        self.assertEqual(patient_dict[TabletParam.GP], "GP")
-        self.assertEqual(patient_dict[TabletParam.OTHER], "Other")
+        self.assertEqual(patient_dict[TabletParam.SURNAME], patient.surname)
+        self.assertEqual(patient_dict[TabletParam.FORENAME], patient.forename)
+        self.assertEqual(patient_dict[TabletParam.SEX], patient.sex)
+        self.assertEqual(
+            patient_dict[TabletParam.DOB], patient.dob.isoformat()
+        )
+        self.assertEqual(patient_dict[TabletParam.ADDRESS], patient.address)
+        self.assertEqual(patient_dict[TabletParam.GP], patient.gp)
+        self.assertEqual(patient_dict[TabletParam.OTHER], patient.other)
         self.assertEqual(
             patient_dict[f"idnum{idnum.which_idnum}"], idnum.idnum_value
         )

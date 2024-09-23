@@ -147,6 +147,10 @@ class PatientFactory(GenericTabletRecordFactory):
 
     id = factory.Sequence(lambda n: n + 1)
     sex = factory.LazyFunction(Fake.en_gb.sex)
+    dob = factory.LazyFunction(Fake.en_gb.consistent_date_of_birth)
+    address = factory.LazyFunction(Fake.en_gb.address)
+    gp = factory.LazyFunction(Fake.en_gb.name)
+    other = factory.LazyFunction(Fake.en_us.paragraph)
 
     @factory.lazy_attribute
     def forename(obj: "Resolver") -> str:

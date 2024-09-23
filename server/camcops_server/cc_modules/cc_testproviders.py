@@ -34,9 +34,13 @@ See also duplicate functionality in CRATE: crate_anon/testing/providers.py
 
 """
 
+import datetime
+
 from cardinal_pythonlib.nhs import generate_random_nhs_number
 from faker import Faker
 from faker.providers import BaseProvider
+import pendulum
+from pendulum import DateTime as Pendulum
 from typing import Any, List
 
 
@@ -53,6 +57,23 @@ class ChoiceProvider(BaseProvider):
         choices = self.generator.random.choices(choices, **kwargs)
 
         return choices[0]
+
+
+# No one is born after this
+_max_birth_datetime = Pendulum(year=2000, month=1, day=1, hour=9)
+
+
+class ConsistentDateOfBirthProvider(BaseProvider):
+    """
+    Faker date_of_birth calculates from the current time so gives different
+    results on different days.
+    """
+
+    def consistent_date_of_birth(self) -> datetime.datetime:
+        return self.generator.date_between_dates(
+            date_start=pendulum.date(1900, 1, 1),
+            date_end=_max_birth_datetime,
+        )
 
 
 class ForenameProvider(BaseProvider):
@@ -96,6 +117,7 @@ class WaistProvider(BaseProvider):
 
 def register_all_providers(fake: Faker) -> None:
     fake.add_provider(ChoiceProvider)
+    fake.add_provider(ConsistentDateOfBirthProvider)
     fake.add_provider(ForenameProvider)
     fake.add_provider(HeightProvider)
     fake.add_provider(MassProvider)
