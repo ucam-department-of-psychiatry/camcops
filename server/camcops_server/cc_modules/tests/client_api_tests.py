@@ -53,6 +53,7 @@ from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_testfactories import (
     DeviceFactory,
+    PatientFactory,
     ServerCreatedNHSPatientIdNumFactory,
     ServerCreatedPatientFactory,
 )
@@ -404,7 +405,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
     def test_raises_when_no_patient_idnums(self) -> None:
         # In theory this shouldn't be possible in normal operation as the
         # patient cannot be created without any idnums
-        patient = self.create_patient(as_server_patient=True)
+        patient = ServerCreatedPatientFactory()
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict(
@@ -426,7 +427,7 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
         )
 
     def test_raises_when_patient_not_created_on_server(self) -> None:
-        patient = self.create_patient()
+        patient = PatientFactory()
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict(
