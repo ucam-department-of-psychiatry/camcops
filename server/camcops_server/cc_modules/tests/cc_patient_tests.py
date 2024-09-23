@@ -29,7 +29,6 @@ import hl7
 import pendulum
 
 from camcops_server.cc_modules.cc_simpleobjects import BarePatientInfo
-from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_taskschedule import (
@@ -156,43 +155,27 @@ class PatientTests(DemoRequestTestCase):
         )
 
 
-class LineageTests(DemoDatabaseTestCase):
-    def create_tasks(self) -> None:
-        # Actually not creating any tasks but we don't want the patients
-        # created by default in the baseclass
+class LineageTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
 
-        # First record for patient 1
-        era = "1970-01-01T12:00:00 +0100"
+        self.patient = PatientFactory()
+        self.current_patient_idnum = NHSPatientIdNumFactory(
+            patient=self.patient
+        )
+        self.assertTrue(self.current_patient_idnum._current)
 
-        self.patient_1 = Patient()
-        self.patient_1.id = 1
-        self.apply_standard_db_fields(self.patient_1, era)
-        self.dbsession.add(self.patient_1)
-
-        # First ID number record for patient 1
-        self.patient_idnum_1_1 = PatientIdNum()
-        self.patient_idnum_1_1.id = 3
-        self.apply_standard_db_fields(self.patient_idnum_1_1, era)
-        self.patient_idnum_1_1.patient_id = 1
-        self.patient_idnum_1_1.which_idnum = self.nhs_iddef.which_idnum
-        self.patient_idnum_1_1.idnum_value = 555
-        self.dbsession.add(self.patient_idnum_1_1)
-
-        # Second ID number record for patient 1
-        self.patient_idnum_1_2 = PatientIdNum()
-        self.patient_idnum_1_2.id = 3
-        self.apply_standard_db_fields(self.patient_idnum_1_2, era)
-        # This one is not current
-        self.patient_idnum_1_2._current = False
-        self.patient_idnum_1_2.patient_id = 1
-        self.patient_idnum_1_2.which_idnum = self.nhs_iddef.which_idnum
-        self.patient_idnum_1_2.idnum_value = 555
-        self.dbsession.add(self.patient_idnum_1_2)
-
-        self.dbsession.commit()
+        self.not_current_patient_idnum = NHSPatientIdNumFactory(
+            patient=self.patient,
+            _current=False,
+            id=self.current_patient_idnum.id,
+            which_idnum=self.current_patient_idnum.which_idnum,
+            idnum_value=self.current_patient_idnum.idnum_value,
+        )
+        self.assertFalse(self.not_current_patient_idnum._current)
 
     def test_gen_patient_idnums_even_noncurrent(self) -> None:
-        idnums = list(self.patient_1.gen_patient_idnums_even_noncurrent())
+        idnums = list(self.patient.gen_patient_idnums_even_noncurrent())
 
         self.assertEqual(len(idnums), 2)
 
