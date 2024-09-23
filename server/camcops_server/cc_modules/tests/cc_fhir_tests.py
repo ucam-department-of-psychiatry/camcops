@@ -814,7 +814,7 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportPatientTestCase):
 
         # noinspection PyArgumentList
         self.item1 = DiagnosisIcd10ItemFactory(
-            diagnosis_icd10_id=self.task.id,
+            diagnosis_icd10=self.task,
             seqnum=1,
             code="F33.30",
             description="Recurrent depressive disorder, current episode "
@@ -824,7 +824,7 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportPatientTestCase):
         )
         # noinspection PyArgumentList
         self.item2 = DiagnosisIcd10ItemFactory(
-            diagnosis_icd10_id=self.task.id,
+            diagnosis_icd10=self.task,
             seqnum=2,
             code="F43.1",
             description="Post-traumatic stress disorder",
@@ -834,13 +834,30 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportPatientTestCase):
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.debug(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
 
-        import ipdb
+        bundle_json = bundle.as_json()
 
-        ipdb.set_trace()
+        cotard_resource = bundle_json[Fc.ENTRY][4][Fc.RESOURCE]
+        ptsd_resource = bundle_json[Fc.ENTRY][5][Fc.RESOURCE]
+
+        self.assertEqual(
+            cotard_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_CONDITION
+        )
+        self.assertEqual(
+            cotard_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "F33.30"
+        )
+        self.assertIn(
+            "Cotard's syndrome",
+            cotard_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+        self.assertIn(
+            "Recurrent depressive",
+            cotard_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+
+        self.assertEqual(
+            ptsd_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "F43.1"
+        )
 
 
 class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportPatientTestCase):
@@ -907,14 +924,18 @@ class FhirTaskExporterGad7Tests(FhirExportPatientTestCase):
         answers = bundle_json[Fc.ENTRY][2][Fc.RESOURCE][Fc.ITEM]
 
         # Question text
-        self.assertIn("1. Feeling nervous, anxious or on edge", questions[0][Fc.TEXT])
+        self.assertIn(
+            "1. Feeling nervous, anxious or on edge", questions[0][Fc.TEXT]
+        )
         # Comment string
         self.assertIn(
             "Q1, nervous/anxious/on edge (0 not at all - 3 nearly every day)",
             questions[0][Fc.TEXT],
         )
 
-        self.assertIn("1. Feeling nervous, anxious or on edge", answers[0][Fc.TEXT])
+        self.assertIn(
+            "1. Feeling nervous, anxious or on edge", answers[0][Fc.TEXT]
+        )
         self.assertIn(
             "Q1, nervous/anxious/on edge (0 not at all - 3 nearly every day)",
             answers[0][Fc.TEXT],
