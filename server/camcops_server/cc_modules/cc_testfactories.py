@@ -84,7 +84,7 @@ class DeviceFactory(BaseFactory):
         model = Device
 
     id = factory.Sequence(lambda n: n)
-    name = factory.Sequence(lambda n: f"Test device {n}")
+    name = factory.Sequence(lambda n: f"test-device-{n}")
 
 
 class GroupFactory(BaseFactory):
