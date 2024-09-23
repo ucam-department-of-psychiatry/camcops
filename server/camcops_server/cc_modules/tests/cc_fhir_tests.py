@@ -866,32 +866,61 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportPatientTestCase):
         )
 
     def test_observations(self) -> None:
+        import ipdb
+        ipdb.set_trace()
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.debug(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
-        import ipdb
+        bundle_json = bundle.as_json()
 
-        ipdb.set_trace()
+        self.assertTrue(False)
 
 
 class FhirTaskExporterGad7Tests(FhirExportPatientTestCase):
     """
     The GAD7 is a standard questionnaire that we don't provide any special
-    FHIR support for; we rely on autodiscovery.
+    FHIR support for; we rely on autodiscovery. This is essentially a high
+    level test for _fhir_autodiscover() in cc_task.py, albeit not a
+    particularly thorough one.
     """
 
     def setUp(self) -> None:
         super().setUp()
 
-        self.task = Gad7Factory(patient=self.patient)
+        self.task = Gad7Factory(
+            patient=self.patient,
+            q1=0,
+            q2=1,
+            q3=2,
+            q4=3,
+            q5=0,
+            q6=1,
+            q7=2,
+        )
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.critical(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
+        bundle_json = bundle.as_json()
+        questions = bundle_json[Fc.ENTRY][1][Fc.RESOURCE][Fc.ITEM]
+        answers = bundle_json[Fc.ENTRY][2][Fc.RESOURCE][Fc.ITEM]
+
+        # Question text
+        self.assertIn("1. Feeling nervous, anxious or on edge", questions[0][Fc.TEXT])
+        # Comment string
+        self.assertIn(
+            "Q1, nervous/anxious/on edge (0 not at all - 3 nearly every day)",
+            questions[0][Fc.TEXT],
+        )
+
+        self.assertIn("1. Feeling nervous, anxious or on edge", answers[0][Fc.TEXT])
+        self.assertIn(
+            "Q1, nervous/anxious/on edge (0 not at all - 3 nearly every day)",
+            answers[0][Fc.TEXT],
+        )
+
+        self.assertEqual(answers[0][Fc.ANSWER][0][Fc.VALUE_INTEGER], 0)
+        self.assertEqual(answers[1][Fc.ANSWER][0][Fc.VALUE_INTEGER], 1)
+        self.assertEqual(answers[2][Fc.ANSWER][0][Fc.VALUE_INTEGER], 2)
+        self.assertEqual(answers[3][Fc.ANSWER][0][Fc.VALUE_INTEGER], 3)
