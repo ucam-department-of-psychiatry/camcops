@@ -301,6 +301,7 @@ class TaskScheduleFactory(BaseFactory):
         model = TaskSchedule
 
     group = factory.SubFactory(GroupFactory)
+    name = factory.Sequence(lambda n: f"Schedule {n + 1}")
 
 
 class TaskScheduleItemFactory(BaseFactory):

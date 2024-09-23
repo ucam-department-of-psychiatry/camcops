@@ -52,9 +52,13 @@ from camcops_server.cc_modules.cc_convert import decode_values
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_testfactories import (
     DeviceFactory,
+    NHSPatientIdNumFactory,
     PatientFactory,
+    PatientTaskScheduleFactory,
     ServerCreatedNHSPatientIdNumFactory,
     ServerCreatedPatientFactory,
+    TaskScheduleFactory,
+    TaskScheduleItemFactory,
 )
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
@@ -506,84 +510,66 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
             PatientIdNumIndexEntry,
             TaskIndexEntry,
         )
-        from camcops_server.cc_modules.cc_taskschedule import (
-            PatientTaskSchedule,
-            TaskSchedule,
-            TaskScheduleItem,
+
+        schedule1 = TaskScheduleFactory()
+        schedule2 = TaskScheduleFactory()
+
+        TaskScheduleItemFactory(
+            task_schedule=schedule1,
+            task_table_name="phq9",
+            due_from=Duration(days=0),
+            due_by=Duration(days=7),
+        )
+        TaskScheduleItemFactory(
+            task_schedule=schedule1,
+            task_table_name="bmi",
+            due_from=Duration(days=0),
+            due_by=Duration(days=8),
+        )
+        TaskScheduleItemFactory(
+            task_schedule=schedule1,
+            task_table_name="phq9",
+            due_from=Duration(days=30),
+            due_by=Duration(days=37),
+        )
+        TaskScheduleItemFactory(
+            task_schedule=schedule1,
+            task_table_name="gmcpq",
+            due_from=Duration(days=30),
+            due_by=Duration(days=38),
         )
 
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-
-        schedule2 = TaskSchedule()
-        schedule2.group_id = self.group.id
-        self.dbsession.add(schedule2)
-        self.dbsession.commit()
-
-        item1 = TaskScheduleItem()
-        item1.schedule_id = schedule1.id
-        item1.task_table_name = "phq9"
-        item1.due_from = Duration(days=0)
-        item1.due_by = Duration(days=7)
-        self.dbsession.add(item1)
-
-        item2 = TaskScheduleItem()
-        item2.schedule_id = schedule1.id
-        item2.task_table_name = "bmi"
-        item2.due_from = Duration(days=0)
-        item2.due_by = Duration(days=8)
-        self.dbsession.add(item2)
-
-        item3 = TaskScheduleItem()
-        item3.schedule_id = schedule1.id
-        item3.task_table_name = "phq9"
-        item3.due_from = Duration(days=30)
-        item3.due_by = Duration(days=37)
-        self.dbsession.add(item3)
-
-        item4 = TaskScheduleItem()
-        item4.schedule_id = schedule1.id
-        item4.task_table_name = "gmcpq"
-        item4.due_from = Duration(days=30)
-        item4.due_by = Duration(days=38)
-        self.dbsession.add(item4)
-        self.dbsession.commit()
-
         # This is the patient originally created om the server
-        server_patient = self.create_patient(as_server_patient=True)
-        server_idnum = self.create_server_nhs_patient_idnum(
+        server_patient = ServerCreatedPatientFactory()
+        server_idnum = ServerCreatedNHSPatientIdNumFactory(
             patient=server_patient
         )
 
         # This is the same patient but from the device
-        patient = self.create_patient()
-        idnum = self.create_nhs_patient_idnum(
+        patient = PatientFactory()
+        idnum = NHSPatientIdNumFactory(
             patient=patient,
             which_idnum=server_idnum.which_idnum,
             idnum_value=server_idnum.idnum_value,
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        schedule_1 = PatientTaskSchedule()
-        schedule_1.patient_pk = server_patient.pk
-        schedule_1.schedule_id = schedule1.id
-        schedule_1.settings = {
-            "bmi": {"bmi_key": "bmi_value"},
-            "phq9": {"phq9_key": "phq9_value"},
-        }
-        schedule_1.start_datetime = local(2020, 7, 31)
-        self.dbsession.add(schedule_1)
+        PatientTaskScheduleFactory(
+            patient=server_patient,
+            task_schedule=schedule1,
+            settings={
+                "bmi": {"bmi_key": "bmi_value"},
+                "phq9": {"phq9_key": "phq9_value"},
+            },
+            start_datetime=local(2020, 7, 31),
+        )
 
-        schedule_2 = PatientTaskSchedule()
-        schedule_2.patient_pk = server_patient.pk
-        schedule_2.schedule_id = schedule2.id
-        self.dbsession.add(schedule_2)
+        PatientTaskScheduleFactory(
+            patient=server_patient,
+            task_schedule=schedule2,
+        )
 
         bmi = BmiFactory(
-            height_m=1.83,
-            mass_kg=67.57,
             patient=patient,
             when_created=local(2020, 8, 1),
         )
@@ -592,7 +578,6 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
         TaskIndexEntry.index_task(
             bmi, self.dbsession, indexed_at_utc=Pendulum.utcnow()
         )
-        self.dbsession.commit()
 
         proquint = server_patient.uuid_as_proquint
 
@@ -603,7 +588,7 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(
             {
                 TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.other_device.name,
+                TabletParam.DEVICE: patient._device.name,
                 TabletParam.OPERATION: Operations.GET_TASK_SCHEDULES,
                 TabletParam.PATIENT_PROQUINT: proquint,
             }
@@ -620,7 +605,7 @@ class GetTaskSchedulesTests(BasicDatabaseTestCase):
         self.assertEqual(len(task_schedules), 2)
 
         s = task_schedules[0]
-        self.assertEqual(s[TabletParam.TASK_SCHEDULE_NAME], "Test 1")
+        self.assertEqual(s[TabletParam.TASK_SCHEDULE_NAME], schedule1.name)
 
         schedule_items = s[TabletParam.TASK_SCHEDULE_ITEMS]
         self.assertEqual(len(schedule_items), 4)
