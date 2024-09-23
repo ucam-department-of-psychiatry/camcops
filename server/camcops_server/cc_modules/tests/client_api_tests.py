@@ -51,9 +51,12 @@ from camcops_server.cc_modules.cc_client_api_core import (
 from camcops_server.cc_modules.cc_convert import decode_values
 from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
+from camcops_server.cc_modules.cc_testfactories import (
+    DeviceFactory,
+)
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
-    DemoDatabaseTestCase,
+    DemoRequestTestCase,
 )
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import MINIMUM_TABLET_VERSION
@@ -101,14 +104,12 @@ def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
         return {}
 
 
-class ClientApiTests(DemoDatabaseTestCase):
+class ClientApiTests(DemoRequestTestCase):
     """
     Unit tests.
     """
 
     def test_client_api_basics(self) -> None:
-        self.announce("test_client_api_basics")
-
         with self.assertRaises(UserErrorException):
             fail_user_error("testmsg")
         with self.assertRaises(ServerErrorException):
@@ -171,10 +172,12 @@ class ClientApiTests(DemoDatabaseTestCase):
         # TODO: client_api.ClientApiTests: more tests here... ?
 
     def test_non_existent_table_rejected(self) -> None:
+        device = DeviceFactory()
+
         self.req.fake_request_post_from_dict(
             {
                 TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.other_device.name,
+                TabletParam.DEVICE: device.name,
                 TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
                 TabletParam.TABLE: "nonexistent_table",
             }
@@ -184,7 +187,6 @@ class ClientApiTests(DemoDatabaseTestCase):
         self.assertEqual(d[TabletParam.SUCCESS], FAILURE_CODE)
 
     def test_client_api_validators(self) -> None:
-        self.announce("test_client_api_validators")
         for x in class_attribute_names(Operations):
             try:
                 validate_alphanum_underscore(x, self.req)
