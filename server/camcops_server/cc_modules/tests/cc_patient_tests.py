@@ -142,14 +142,14 @@ class PatientTests(DemoRequestTestCase):
         )
 
     def test_surname_forename_upper_no_forename(self) -> None:
-        patient = PatientFactory(surname="Surname")
+        patient = PatientFactory(forename=None, surname="Surname")
 
         self.assertEqual(
             patient.get_surname_forename_upper(), "SURNAME, (UNKNOWN)"
         )
 
     def test_surname_forename_upper_no_surname(self) -> None:
-        patient = PatientFactory(forename="Forename")
+        patient = PatientFactory(forename="Forename", surname=None)
 
         self.assertEqual(
             patient.get_surname_forename_upper(), "(UNKNOWN), FORENAME"
