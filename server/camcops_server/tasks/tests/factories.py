@@ -194,6 +194,29 @@ class DiagnosisIcd9CMItemFactory(DiagnosisItemFactory):
 
     id = factory.Sequence(lambda n: n)
 
+    @classmethod
+    def create(cls, *args, **kwargs) -> T:
+        diagnosis_icd9cm = kwargs.pop("diagnosis_icd9cm", None)
+        if diagnosis_icd9cm is not None:
+            if "diagnosis_icd9cm_id" in kwargs:
+                raise TypeError(
+                    "Both 'diagnosis_icd9cm' and 'diagnosis_icd9cm_id' "
+                    "keyword arguments unexpectedly passed to a task factory. "
+                    "Use one or the other."
+                )
+            kwargs["diagnosis_icd9cm_id"] = diagnosis_icd9cm.id
+
+            if "_device" not in kwargs:
+                kwargs["_device"] = diagnosis_icd9cm._device
+
+            if "_era" not in kwargs:
+                kwargs["_era"] = diagnosis_icd9cm._era
+
+            if "_current" not in kwargs:
+                kwargs["_current"] = True
+
+        return super().create(*args, **kwargs)
+
 
 class Gad7Factory(TaskHasPatientFactory):
     class Meta:

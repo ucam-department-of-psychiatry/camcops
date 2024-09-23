@@ -35,7 +35,7 @@ from cardinal_pythonlib.httpconst import HttpMethod
 import pendulum
 from requests.exceptions import HTTPError
 
-from camcops_server.cc_modules.cc_constants import FHIRConst as Fc, JSON_INDENT
+from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskFhir,
@@ -868,7 +868,7 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportPatientTestCase):
 
         # noinspection PyArgumentList
         self.item1 = DiagnosisIcd9CMItemFactory(
-            diagnosis_icd9cm_id=self.task.id,
+            diagnosis_icd9cm=self.task,
             seqnum=1,
             code="290.4",
             description="Vascular dementia",
@@ -876,21 +876,38 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportPatientTestCase):
         )
         # noinspection PyArgumentList
         self.item2 = DiagnosisIcd9CMItemFactory(
-            diagnosis_icd9cm_id=self.task.id,
+            diagnosis_icd9cm=self.task,
             seqnum=2,
             code="303.0",
             description="Acute alcoholic intoxication",
         )
 
     def test_observations(self) -> None:
-        import ipdb
-        ipdb.set_trace()
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
         bundle_json = bundle.as_json()
+        dementia_resource = bundle_json[Fc.ENTRY][4][Fc.RESOURCE]
+        intoxication_resource = bundle_json[Fc.ENTRY][5][Fc.RESOURCE]
 
-        self.assertTrue(False)
+        self.assertEqual(
+            dementia_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_CONDITION
+        )
+        self.assertEqual(
+            dementia_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "290.4"
+        )
+        self.assertIn(
+            "Vascular dementia",
+            dementia_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+        self.assertIn(
+            "or perhaps mixed dementia",
+            dementia_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+
+        self.assertEqual(
+            intoxication_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "303.0"
+        )
 
 
 class FhirTaskExporterGad7Tests(FhirExportPatientTestCase):
