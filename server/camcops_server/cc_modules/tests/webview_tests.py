@@ -68,6 +68,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
 )
 from camcops_server.cc_modules.cc_testfactories import (
     DeviceFactory,
+    PatientFactory,
 )
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
@@ -82,6 +83,7 @@ from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
 )
 from camcops_server.cc_modules.cc_view_classes import FormWizardMixin
+from camcops_server.tasks.tests.factories import BmiFactory
 from camcops_server.cc_modules.tests.cc_view_classes_tests import (
     TestStateMixin,
 )
@@ -1910,19 +1912,11 @@ class EraseTaskTestCase(BasicDatabaseTestCase):
     Unit tests.
     """
 
-    def create_tasks(self) -> None:
-        from camcops_server.tasks.bmi import Bmi
+    def setUp(self) -> None:
+        super().setUp()
 
-        patient = self.create_patient_with_one_idnum()
-        self.task = Bmi()
-        self.task.id = 1
-        self.apply_standard_task_fields(
-            self.task, patient._era, device=patient._device
-        )
-        self.task.patient_id = patient.id
-
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
+        patient = PatientFactory()
+        self.task = BmiFactory(patient=patient)
 
 
 class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):

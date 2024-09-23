@@ -116,6 +116,7 @@ class GenericTabletRecordFactory(BaseFactory):
 
     default_iso_datetime = "1970-01-01T12:00"
 
+    _pk = factory.Sequence(lambda n: n + 1)
     _device = factory.SubFactory(DeviceFactory)
     _group = factory.SubFactory(AnyIdNumGroupFactory)
     _adding_user = factory.SubFactory(UserFactory)
