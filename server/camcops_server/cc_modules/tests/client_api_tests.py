@@ -242,10 +242,8 @@ class PatientRegistrationTests(BasicDatabaseTestCase):
             PatientIdNumIndexEntry,
         )
 
-        patient = self.create_patient(
-            _group_id=self.group.id, as_server_patient=True
-        )
-        idnum = self.create_server_nhs_patient_idnum(patient=patient)
+        patient = ServerCreatedPatientFactory()
+        idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         proquint = patient.uuid_as_proquint
