@@ -89,10 +89,16 @@ class SexProvider(ChoiceProvider):
         return self.random_choice(["M", "F", "X"], weights=[49.8, 49.8, 0.4])
 
 
+class WaistProvider(BaseProvider):
+    def waist_cm(self) -> float:
+        return float(self.generator.random_int(min=40, max=130))
+
+
 def register_all_providers(fake: Faker) -> None:
     fake.add_provider(ChoiceProvider)
     fake.add_provider(ForenameProvider)
     fake.add_provider(HeightProvider)
     fake.add_provider(MassProvider)
     fake.add_provider(NhsNumberProvider)
+    fake.add_provider(WaistProvider)
     fake.add_provider(SexProvider)

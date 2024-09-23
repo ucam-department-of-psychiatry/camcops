@@ -36,9 +36,17 @@ from camcops_server.cc_modules.cc_testfactories import (
     GenericTabletRecordFactory,
 )
 
+from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 from camcops_server.tasks.bmi import Bmi
 from camcops_server.tasks.core10 import Core10
+from camcops_server.tasks.diagnosis import (
+    DiagnosisIcd10,
+    DiagnosisIcd10Item,
+    DiagnosisIcd9CM,
+    DiagnosisIcd9CMItem,
+)
+from camcops_server.tasks.gad7 import Gad7
 from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
     KhandakerMojoMedicationTherapy,
 )
@@ -95,6 +103,13 @@ class APEQCPFTPerinatalFactory(TaskFactory):
     id = factory.Sequence(lambda n: n)
 
 
+class ApeqptFactory(TaskFactory):
+    class Meta:
+        model = Apeqpt
+
+    id = factory.Sequence(lambda n: n)
+
+
 class BmiFactory(TaskHasPatientFactory):
     class Meta:
         model = Bmi
@@ -103,6 +118,7 @@ class BmiFactory(TaskHasPatientFactory):
 
     height_m = factory.LazyFunction(Fake.en_gb.height_m)
     mass_kg = factory.LazyFunction(Fake.en_gb.mass_kg)
+    waist_cm = factory.LazyFunction(Fake.en_gb.waist_cm)
 
 
 class Core10Factory(TaskHasPatientFactory):
@@ -121,6 +137,46 @@ class Core10Factory(TaskHasPatientFactory):
     q8 = 0
     q9 = 0
     q10 = 0
+
+
+class DiagnosisIcd10Factory(TaskHasPatientFactory):
+    class Meta:
+        model = DiagnosisIcd10
+
+    id = factory.Sequence(lambda n: n)
+
+
+class DiagnosisItemFactory(GenericTabletRecordFactory):
+    class Meta:
+        abstract = True
+
+
+class DiagnosisIcd10ItemFactory(DiagnosisItemFactory):
+    class Meta:
+        model = DiagnosisIcd10Item
+
+    id = factory.Sequence(lambda n: n)
+
+
+class DiagnosisIcd9CMFactory(TaskHasPatientFactory):
+    class Meta:
+        model = DiagnosisIcd9CM
+
+    id = factory.Sequence(lambda n: n)
+
+
+class DiagnosisIcd9CMItemFactory(DiagnosisItemFactory):
+    class Meta:
+        model = DiagnosisIcd9CMItem
+
+    id = factory.Sequence(lambda n: n)
+
+
+class Gad7Factory(TaskHasPatientFactory):
+    class Meta:
+        model = Gad7
+
+    id = factory.Sequence(lambda n: n)
 
 
 class KhandakerMojoMedicationTherapyFactory(TaskHasPatientFactory):
