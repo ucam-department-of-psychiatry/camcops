@@ -38,13 +38,19 @@ from camcops_server.cc_modules.cc_taskschedule import (
 )
 from camcops_server.cc_modules.cc_spreadsheet import SpreadsheetPage
 from camcops_server.cc_modules.cc_testfactories import (
+    GroupFactory,
     NHSPatientIdNumFactory,
     PatientFactory,
+    PatientTaskScheduleFactory,
     RioPatientIdNumFactory,
+    ServerCreatedPatientFactory,
+    TaskScheduleFactory,
+    TaskScheduleItemFactory,
+    UserFactory,
+    UserGroupMembershipFactory,
 )
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
-    DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
 from camcops_server.cc_modules.cc_xml import XmlElement
@@ -61,18 +67,13 @@ class PatientTests(DemoRequestTestCase):
     """
 
     def test_patient(self) -> None:
-        self.announce("test_patient")
         from camcops_server.cc_modules.cc_group import Group
 
         req = self.req
 
         p = PatientFactory()
-        self.dbsession.add(p)
         nhs_idnum = NHSPatientIdNumFactory(patient=p)
-        self.dbsession.add(nhs_idnum)
-        rio_idnum = RioPatientIdNumFactory(patient=p)
-        self.dbsession.add(rio_idnum)
-        self.dbsession.commit()
+        RioPatientIdNumFactory(patient=p)
 
         idnum_objects = p.get_idnum_objects()
         self.assertEqual(len(idnum_objects), 2)
@@ -135,21 +136,18 @@ class PatientTests(DemoRequestTestCase):
 
     def test_surname_forename_upper(self) -> None:
         patient = PatientFactory(forename="Forename", surname="Surname")
-
         self.assertEqual(
             patient.get_surname_forename_upper(), "SURNAME, FORENAME"
         )
 
     def test_surname_forename_upper_no_forename(self) -> None:
         patient = PatientFactory(forename=None, surname="Surname")
-
         self.assertEqual(
             patient.get_surname_forename_upper(), "SURNAME, (UNKNOWN)"
         )
 
     def test_surname_forename_upper_no_surname(self) -> None:
         patient = PatientFactory(forename="Forename", surname=None)
-
         self.assertEqual(
             patient.get_surname_forename_upper(), "(UNKNOWN), FORENAME"
         )
@@ -180,28 +178,23 @@ class LineageTests(DemoRequestTestCase):
         self.assertEqual(len(idnums), 2)
 
 
-class PatientDeleteTests(DemoDatabaseTestCase):
+class PatientDeleteTests(DemoRequestTestCase):
     def test_deletes_patient_task_schedule(self) -> None:
-        schedule = TaskSchedule()
-        schedule.group_id = self.group.id
-        self.dbsession.add(schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory()
 
-        item = TaskScheduleItem()
-        item.schedule_id = schedule.id
-        item.task_table_name = "ace3"
-        item.due_from = pendulum.Duration(days=30)
-        item.due_by = pendulum.Duration(days=60)
-        self.dbsession.add(item)
-        self.dbsession.flush()
+        item = TaskScheduleItemFactory(
+            task_schedule=schedule,
+            task_table_name="ace3",
+            due_from=pendulum.Duration(days=30),
+            due_by=pendulum.Duration(days=60),
+        )
 
-        patient = self.create_patient()
+        patient = ServerCreatedPatientFactory()
 
-        pts = PatientTaskSchedule()
-        pts.schedule_id = schedule.id
-        pts.patient_pk = patient.pk
-        self.dbsession.add(pts)
-        self.dbsession.commit()
+        pts = PatientTaskScheduleFactory(
+            task_schedule=schedule,
+            patient=patient,
+        )
 
         self.assertIsNotNone(
             self.dbsession.query(TaskSchedule)
@@ -241,60 +234,52 @@ class PatientDeleteTests(DemoDatabaseTestCase):
 
 
 class PatientPermissionTests(BasicDatabaseTestCase):
-    def test_group_administrator_may_edit_server_created(self) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
+    def setUp(self) -> None:
+        super().setUp()
 
-        patient = self.create_patient(
-            _group=self.group, as_server_patient=True
+        self.user = UserFactory()
+        self.group = GroupFactory()
+
+    def test_group_administrator_may_edit_server_patient(self) -> None:
+        patient = ServerCreatedPatientFactory(_group=self.group)
+        ugm = UserGroupMembershipFactory(
+            user_id=self.user.id, group_id=self.group.id, groupadmin=True
         )
 
-        self.create_membership(user, self.group, groupadmin=True)
-        self.dbsession.commit()
-
-        self.req._debugging_user = user
+        self.req._debugging_user = ugm.user
         self.assertTrue(patient.user_may_edit(self.req))
 
-    def test_group_administrator_may_edit_finalized(self) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
-
-        patient = self.create_patient(
-            _group=self.group, as_server_patient=False
+    def test_group_administrator_may_edit_finalized_patient(self) -> None:
+        patient = PatientFactory(_group=self.group)
+        ugm = UserGroupMembershipFactory(
+            user_id=self.user.id, group_id=self.group.id, groupadmin=True
         )
 
-        self.create_membership(user, self.group, groupadmin=True)
-        self.dbsession.commit()
+        self.assertTrue(ugm.groupadmin)
 
-        self.req._debugging_user = user
+        self.req._debugging_user = ugm.user
         self.assertTrue(patient.user_may_edit(self.req))
 
     def test_group_member_with_permission_may_edit_server_created(
         self,
     ) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
-
-        patient = self.create_patient(
-            _group=self.group, as_server_patient=True
+        patient = ServerCreatedPatientFactory(_group=self.group)
+        ugm = UserGroupMembershipFactory(
+            user_id=self.user.id,
+            group_id=self.group.id,
+            may_manage_patients=True,
         )
 
-        self.create_membership(user, self.group, may_manage_patients=True)
-        self.dbsession.commit()
-
-        self.req._debugging_user = user
+        self.req._debugging_user = ugm.user
         self.assertTrue(patient.user_may_edit(self.req))
 
     def test_group_member_with_permission_may_not_edit_finalized(self) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
-
-        patient = self.create_patient(
-            _group=self.group, as_server_patient=False
+        patient = PatientFactory(_group=self.group)
+        ugm = UserGroupMembershipFactory(
+            user_id=self.user.id,
+            group_id=self.group.id,
+            may_manage_patients=True,
         )
 
-        self.create_membership(user, self.group, may_manage_patients=True)
-        self.dbsession.commit()
-
-        self.req._debugging_user = user
+        self.req._debugging_user = ugm.user
         self.assertFalse(patient.user_may_edit(self.req))

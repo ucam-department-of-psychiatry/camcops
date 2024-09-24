@@ -370,6 +370,8 @@ class UserGroupMembershipFactory(BaseFactory):
     class Meta:
         model = UserGroupMembership
 
+    # TODO: This seems to be necessary because UserGroupMembership
+    # __init__() does not accept arbitrary keyword args.
     @factory.post_generation
     def may_run_reports(
         self, create: bool, may_run_reports: bool, **kwargs
@@ -378,3 +380,19 @@ class UserGroupMembershipFactory(BaseFactory):
             return
 
         self.may_run_reports = may_run_reports
+
+    @factory.post_generation
+    def groupadmin(self, create: bool, groupadmin: bool, **kwargs) -> None:
+        if not create:
+            return
+
+        self.groupadmin = groupadmin
+
+    @factory.post_generation
+    def may_manage_patients(
+        self, create: bool, may_manage_patients: bool, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        self.may_manage_patients = may_manage_patients
