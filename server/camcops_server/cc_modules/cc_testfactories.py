@@ -360,6 +360,11 @@ class PatientTaskScheduleEmailFactory(BaseFactory):
     class Meta:
         model = PatientTaskScheduleEmail
 
+    patient_task_schedule = factory.SubFactory(
+        PatientTaskScheduleFactory,
+    )
+    email = factory.SubFactory(EmailFactory, sent=True)
+
 
 class UserGroupMembershipFactory(BaseFactory):
     class Meta:
