@@ -58,6 +58,11 @@ from camcops_server.cc_modules.cc_user import User
 if TYPE_CHECKING:
     from factory.builder import Resolver
 
+# Avoid any ID clashes with objects not created with factories
+ID_OFFSET = 1000
+RIO_ID_OFFSET = 10000
+STUDY_ID_OFFSET = 5000
+
 
 class Fake:
     # Factory Boy has its own interface to Faker (factory.Faker()). This
@@ -84,8 +89,8 @@ class DeviceFactory(BaseFactory):
     class Meta:
         model = Device
 
-    id = factory.Sequence(lambda n: n)
-    name = factory.Sequence(lambda n: f"test-device-{n}")
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
+    name = factory.Sequence(lambda n: f"test-device-{n + ID_OFFSET}")
 
 
 class IpUseFactory(BaseFactory):
@@ -102,8 +107,8 @@ class GroupFactory(BaseFactory):
     class Meta:
         model = Group
 
-    id = factory.Sequence(lambda n: n)
-    name = factory.Sequence(lambda n: f"Group {n}")
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
+    name = factory.Sequence(lambda n: f"Group {n + ID_OFFSET}")
     ip_use = factory.SubFactory(IpUseFactory)
 
 
@@ -116,8 +121,8 @@ class UserFactory(BaseFactory):
     class Meta:
         model = User
 
-    id = factory.Sequence(lambda n: n + 1)
-    username = factory.Sequence(lambda n: f"user{n + 1}")
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
+    username = factory.Sequence(lambda n: f"user{n + ID_OFFSET}")
     hashedpw = ""
 
 
@@ -128,7 +133,7 @@ class GenericTabletRecordFactory(BaseFactory):
 
     default_iso_datetime = "1970-01-01T12:00"
 
-    _pk = factory.Sequence(lambda n: n + 1)
+    _pk = factory.Sequence(lambda n: n + ID_OFFSET)
     _device = factory.SubFactory(DeviceFactory)
     _group = factory.SubFactory(AnyIdNumGroupFactory)
     _adding_user = factory.SubFactory(UserFactory)
@@ -157,7 +162,7 @@ class PatientFactory(GenericTabletRecordFactory):
     class Meta:
         model = Patient
 
-    id = factory.Sequence(lambda n: n + 1)
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
     sex = factory.LazyFunction(Fake.en_gb.sex)
     dob = factory.LazyFunction(Fake.en_gb.consistent_date_of_birth)
     address = factory.LazyFunction(Fake.en_gb.address)
@@ -188,7 +193,7 @@ class IdNumDefinitionFactory(BaseFactory):
     class Meta:
         model = IdNumDefinition
 
-    which_idnum = factory.Sequence(lambda n: n + 1)
+    which_idnum = factory.Sequence(lambda n: n + ID_OFFSET)
 
 
 class NHSIdNumDefinitionFactory(IdNumDefinitionFactory):
@@ -214,7 +219,7 @@ class PatientIdNumFactory(GenericTabletRecordFactory):
     class Meta:
         model = PatientIdNum
 
-    id = factory.Sequence(lambda n: n + 1)
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
     patient = factory.SubFactory(PatientFactory)
     patient_id = factory.SelfAttribute("patient.id")
     _group = factory.SelfAttribute("patient._group")
@@ -238,7 +243,7 @@ class RioPatientIdNumFactory(PatientIdNumFactory):
     idnum = factory.SubFactory(RioIdNumDefinitionFactory)
 
     which_idnum = factory.SelfAttribute("idnum.which_idnum")
-    idnum_value = factory.Sequence(lambda n: n + 10000)
+    idnum_value = factory.Sequence(lambda n: n + RIO_ID_OFFSET)
 
 
 class StudyPatientIdNumFactory(PatientIdNumFactory):
@@ -248,7 +253,7 @@ class StudyPatientIdNumFactory(PatientIdNumFactory):
     idnum = factory.SubFactory(StudyIdNumDefinitionFactory)
 
     which_idnum = factory.SelfAttribute("idnum.which_idnum")
-    idnum_value = factory.Sequence(lambda n: n + 1000)
+    idnum_value = factory.Sequence(lambda n: n + STUDY_ID_OFFSET)
 
 
 class ServerCreatedPatientIdNumFactory(PatientIdNumFactory):
@@ -301,7 +306,7 @@ class TaskScheduleFactory(BaseFactory):
         model = TaskSchedule
 
     group = factory.SubFactory(GroupFactory)
-    name = factory.Sequence(lambda n: f"Schedule {n + 1}")
+    name = factory.Sequence(lambda n: f"Schedule {n + ID_OFFSET}")
 
 
 class TaskScheduleItemFactory(BaseFactory):
