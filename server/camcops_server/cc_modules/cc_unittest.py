@@ -321,35 +321,15 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
 
     def create_patient_with_two_idnums(self) -> "Patient":
-        # Populate database with two of everything
-        patient = self.create_patient(
-            forename="Forename1",
-            surname="Surname1",
-            dob=pendulum.parse("1950-01-01"),
-        )
-        self.create_nhs_patient_idnum(
-            patient=patient,
-            idnum_value=333,
-        )
-        self.create_rio_patient_idnum(
-            patient=patient,
-            idnum_value=444,
-        )
+        patient = PatientFactory()
+        NHSPatientIdNumFactory(patient=patient)
+        RioPatientIdNumFactory(patient=patient)
 
         return patient
 
     def create_patient_with_one_idnum(self) -> "Patient":
-        patient = self.create_patient(
-            forename="Forename2",
-            surname="Surname2",
-            dob=pendulum.parse("1975-12-12"),
-        )
-        self.dbsession.add(patient)
-
-        self.create_nhs_patient_idnum(
-            patient=patient,
-            idnum_value=555,
-        )
+        patient = PatientFactory()
+        NHSPatientIdNumFactory(patient=patient)
 
         return patient
 
