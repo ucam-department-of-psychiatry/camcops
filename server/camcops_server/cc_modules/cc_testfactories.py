@@ -334,6 +334,11 @@ class EmailFactory(BaseFactory):
     class Meta:
         model = Email
 
+    # TODO: Although sent and sent_at_utc are columns, they are not keyword
+    # arguments to Email's constructor so they are populated after the object
+    # has been created. For some reason 'sent' needs to be set explicitly
+    # when creating the factory even though the default should be False. Might
+    # be a SQLite thing.
     @factory.post_generation
     def sent_at_utc(
         self, create: bool, sent_at_utc: pendulum.DateTime, **kwargs
