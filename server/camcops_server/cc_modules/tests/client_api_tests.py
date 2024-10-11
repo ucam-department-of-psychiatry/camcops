@@ -671,3 +671,10 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.dbsession.flush()
 
         self.assertEqual(user.username, "test")
+
+    def test_user_is_assigned_password(self) -> None:
+        _, password = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        valid_chars = string.ascii_letters + string.digits + string.punctuation
+        self.assertTrue(all(c in valid_chars for c in password))
