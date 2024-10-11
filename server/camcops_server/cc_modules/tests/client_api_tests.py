@@ -684,3 +684,9 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.dbsession.flush()
 
         self.assertEqual(user.upload_group, self.patient.group)
+
+    def test_user_auto_generated_flag_set(self) -> None:
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertTrue(user.auto_generated)
