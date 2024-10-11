@@ -454,9 +454,6 @@ class PatientRegistrationTests(DemoRequestTestCase):
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
         ip_use = patient.group.ip_use
 
-        self.dbsession.add(patient.group)
-        self.dbsession.commit()
-
         proquint = patient.uuid_as_proquint
 
         # For type checker

@@ -1685,16 +1685,16 @@ class EraseTaskTestCase(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        patient = PatientFactory(_group=self.group)
-        self.task = BmiFactory(patient=patient)
+        self.patient = PatientFactory(_group=self.group)
 
 
 class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
     def test_displays_form(self) -> None:
+        task = BmiFactory(patient=self.patient)
         self.req.add_get_params(
             {
-                ViewParam.SERVER_PK: str(self.task.pk),
-                ViewParam.TABLE_NAME: self.task.tablename,
+                ViewParam.SERVER_PK: str(task.pk),
+                ViewParam.TABLE_NAME: task.tablename,
             },
             set_method_get=False,
         )
@@ -1709,13 +1709,14 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertIn("form", context)
 
     def test_deletes_task_leaving_placeholder(self) -> None:
+        task = BmiFactory(patient=self.patient)
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-                (ViewParam.SERVER_PK, self.task.pk),
-                (ViewParam.TABLE_NAME, self.task.tablename),
+                (ViewParam.SERVER_PK, task.pk),
+                (ViewParam.TABLE_NAME, task.tablename),
                 ("confirm_1_t", "true"),
                 ("confirm_2_t", "true"),
                 ("confirm_4_t", "true"),
@@ -1731,9 +1732,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = EraseTaskLeavingPlaceholderView(self.req)
-        with mock.patch.object(
-            self.task, "manually_erase"
-        ) as mock_manually_erase:
+        with mock.patch.object(task, "manually_erase") as mock_manually_erase:
 
             with self.assertRaises(HTTPFound):
                 view.dispatch()
@@ -1745,12 +1744,13 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertEqual(request, self.req)
 
     def test_task_not_deleted_on_cancel(self) -> None:
+        task = BmiFactory(patient=self.patient)
         self.req.fake_request_post_from_dict({FormAction.CANCEL: "cancel"})
 
         self.req.add_get_params(
             {
-                ViewParam.SERVER_PK: str(self.task.pk),
-                ViewParam.TABLE_NAME: self.task.tablename,
+                ViewParam.SERVER_PK: str(task.pk),
+                ViewParam.TABLE_NAME: task.tablename,
             },
             set_method_get=False,
         )
@@ -1759,17 +1759,18 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        task = self.dbsession.query(self.task.__class__).one_or_none()
+        task = self.dbsession.query(task.__class__).one_or_none()
 
         self.assertIsNotNone(task)
 
     def test_redirect_on_cancel(self) -> None:
+        task = BmiFactory(patient=self.patient)
         self.req.fake_request_post_from_dict({FormAction.CANCEL: "cancel"})
 
         self.req.add_get_params(
             {
-                ViewParam.SERVER_PK: str(self.task.pk),
-                ViewParam.TABLE_NAME: self.task.tablename,
+                ViewParam.SERVER_PK: str(task.pk),
+                ViewParam.TABLE_NAME: task.tablename,
             },
             set_method_get=False,
         )
@@ -1781,11 +1782,11 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(f"/{Routes.TASK}", cm.exception.headers["Location"])
         self.assertIn(
-            f"{ViewParam.TABLE_NAME}={self.task.tablename}",
+            f"{ViewParam.TABLE_NAME}={task.tablename}",
             cm.exception.headers["Location"],
         )
         self.assertIn(
-            f"{ViewParam.SERVER_PK}={self.task.pk}",
+            f"{ViewParam.SERVER_PK}={task.pk}",
             cm.exception.headers["Location"],
         )
         self.assertIn(
@@ -1806,14 +1807,12 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertEqual(cm.exception.message, "No such task: phq9, PK=123")
 
     def test_raises_when_task_is_live_on_tablet(self) -> None:
-        self.task._era = ERA_NOW
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
+        task = BmiFactory(patient=self.patient, _era=ERA_NOW)
 
         self.req.add_get_params(
             {
-                ViewParam.SERVER_PK: str(self.task.pk),
-                ViewParam.TABLE_NAME: self.task.tablename,
+                ViewParam.SERVER_PK: str(task.pk),
+                ViewParam.TABLE_NAME: task.tablename,
             },
             set_method_get=False,
         )
@@ -1825,6 +1824,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertIn("Task is live on tablet", cm.exception.message)
 
     def test_raises_when_user_not_authorized_to_erase(self) -> None:
+        task = BmiFactory(patient=self.patient)
         user = UserFactory()
 
         self.req._debugging_user = user
@@ -1837,8 +1837,8 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         ):
             self.req.add_get_params(
                 {
-                    ViewParam.SERVER_PK: str(self.task.pk),
-                    ViewParam.TABLE_NAME: self.task.tablename,
+                    ViewParam.SERVER_PK: str(task.pk),
+                    ViewParam.TABLE_NAME: task.tablename,
                 },
                 set_method_get=False,
             )
@@ -1850,14 +1850,12 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertIn("Not authorized to erase tasks", cm.exception.message)
 
     def test_raises_when_task_already_erased(self) -> None:
-        self.task._manually_erased = True
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
+        task = BmiFactory(patient=self.patient, _manually_erased=True)
 
         self.req.add_get_params(
             {
-                ViewParam.SERVER_PK: str(self.task.pk),
-                ViewParam.TABLE_NAME: self.task.tablename,
+                ViewParam.SERVER_PK: str(task.pk),
+                ViewParam.TABLE_NAME: task.tablename,
             },
             set_method_get=False,
         )
@@ -1871,13 +1869,14 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
 class EraseTaskEntirelyViewTests(EraseTaskTestCase):
     def test_deletes_task_entirely(self) -> None:
+        task = BmiFactory(patient=self.patient)
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-                (ViewParam.SERVER_PK, self.task.pk),
-                (ViewParam.TABLE_NAME, self.task.tablename),
+                (ViewParam.SERVER_PK, task.pk),
+                (ViewParam.TABLE_NAME, task.tablename),
                 ("confirm_1_t", "true"),
                 ("confirm_2_t", "true"),
                 ("confirm_4_t", "true"),
@@ -1895,7 +1894,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         view = EraseTaskEntirelyView(self.req)
 
         with mock.patch.object(
-            self.task, "delete_entirely"
+            task, "delete_entirely"
         ) as mock_delete_entirely:
 
             with self.assertRaises(HTTPFound):
@@ -1911,8 +1910,8 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         self.assertTrue(len(messages) > 0)
 
         self.assertIn("Task erased", messages[0])
-        self.assertIn(self.task.tablename, messages[0])
-        self.assertIn("server PK {}".format(self.task.pk), messages[0])
+        self.assertIn(task.tablename, messages[0])
+        self.assertIn("server PK {}".format(task.pk), messages[0])
 
 
 class EditGroupViewTests(DemoRequestTestCase):

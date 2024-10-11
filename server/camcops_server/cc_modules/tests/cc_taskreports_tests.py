@@ -81,7 +81,6 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         UserGroupMembershipFactory(
             group_id=self.group_a.id, user_id=self.jim.id, may_run_reports=True
         )
-        self.dbsession.commit()
 
         self.num_jim_tasks = self.num_01_oct_2022_bmi_tasks = 2
         self.num_freda_tasks = (
