@@ -650,5 +650,6 @@ server/camcops_server
     templates/test/test_template_filters.mako.rst
     templates/test/testpage.mako.rst
     tools/fetch_snomed_codes.py.rst
+    tools/generate_task_factories.py.rst
     tools/print_latest_github_version.py.rst
     tools/run_server_self_tests.py.rst
