@@ -931,3 +931,20 @@ class UserPermissionTests(DemoRequestTestCase):
         self.assertTrue(user.may_email_patients_in_group(self.group_b.id))
         self.assertTrue(user.may_email_patients_in_group(self.group_c.id))
         self.assertTrue(user.may_email_patients_in_group(self.group_d.id))
+
+
+class SetGroupIdsTests(DemoRequestTestCase):
+    def test_old_group_ids_removed(self):
+        group_a = GroupFactory()
+        group_b = GroupFactory()
+
+        user = UserFactory()
+
+        UserGroupMembershipFactory(user_id=user.id, group_id=group_a.id)
+        UserGroupMembershipFactory(user_id=user.id, group_id=group_b.id)
+        self.assertEqual(len(user.user_group_memberships), 2)
+
+        user.set_group_ids([])
+        self.dbsession.refresh(user)
+
+        self.assertEqual(len(user.user_group_memberships), 0)
