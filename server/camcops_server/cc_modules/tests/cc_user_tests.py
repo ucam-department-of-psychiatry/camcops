@@ -948,3 +948,16 @@ class SetGroupIdsTests(DemoRequestTestCase):
         self.dbsession.refresh(user)
 
         self.assertEqual(len(user.user_group_memberships), 0)
+
+    def test_new_group_ids_added(self):
+        group_a = GroupFactory()
+        group_b = GroupFactory()
+
+        user = UserFactory()
+
+        self.assertEqual(len(user.user_group_memberships), 0)
+
+        user.set_group_ids([group_a.id, group_b.id])
+        self.dbsession.refresh(user)
+
+        self.assertEqual(len(user.user_group_memberships), 2)
