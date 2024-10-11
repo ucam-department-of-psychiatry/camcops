@@ -665,3 +665,9 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.dbsession.flush()
 
         self.assertIn(self.patient._group.id, user.group_ids)
+
+    def test_user_is_created_with_username(self) -> None:
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertEqual(user.username, "test")
