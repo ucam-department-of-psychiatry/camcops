@@ -78,6 +78,7 @@ from camcops_server.cc_modules.cc_validators import (
 from camcops_server.cc_modules.client_api import (
     client_api,
     FAILURE_CODE,
+    get_or_create_single_user,
     make_single_user_mode_username,
     Operations,
     SUCCESS_CODE,
@@ -650,3 +651,17 @@ class GetTaskSchedulesTests(DemoRequestTestCase):
         # GMCPQ
         gmcpq_sched = schedule_items[3]
         self.assertTrue(gmcpq_sched[TabletParam.ANONYMOUS])
+
+
+class GetOrCreateSingleUserTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.patient = PatientFactory()
+        self.req._debugging_user = UserFactory()
+
+    def test_user_is_added_to_patient_group(self) -> None:
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertIn(self.patient._group.id, user.group_ids)
