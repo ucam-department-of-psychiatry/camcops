@@ -708,3 +708,9 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.dbsession.flush()
 
         self.assertTrue(user.user_group_memberships[0].may_register_devices)
+
+    def test_user_may_upload(self) -> None:
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertTrue(user.user_group_memberships[0].may_upload)
