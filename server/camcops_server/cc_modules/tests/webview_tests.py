@@ -35,8 +35,7 @@ from unittest import mock
 
 from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.httpconst import MimeType
-from cardinal_pythonlib.nhs import generate_random_nhs_number
-from pendulum import local
+from pendulum import Duration, local
 import phonenumbers
 import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
@@ -49,7 +48,6 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
-from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pyramid import (
@@ -67,12 +65,26 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_testfactories import (
-    DeviceFactory,
+    AnyIdNumGroupFactory,
+    Fake,
+    GroupFactory,
+    NHSIdNumDefinitionFactory,
+    NHSPatientIdNumFactory,
     PatientFactory,
+    PatientTaskScheduleFactory,
+    RioIdNumDefinitionFactory,
+    ServerCreatedNHSPatientIdNumFactory,
+    ServerCreatedPatientFactory,
+    StudyPatientIdNumFactory,
+    TaskScheduleFactory,
+    TaskScheduleItemFactory,
+    UserFactory,
+    UserGroupMembershipFactory,
 )
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase,
+    DemoRequestTestCase,
 )
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
@@ -128,30 +140,13 @@ log = logging.getLogger(__name__)
 
 UTF8 = "utf-8"
 
-TEST_NHS_NUMBER_1 = generate_random_nhs_number()
-TEST_NHS_NUMBER_2 = generate_random_nhs_number()
-
-# https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
-# 07700 900000 to 900999 reserved for TV and Radio drama purposes
-# but unfortunately phonenumbers considers these invalid. However, it offers
-# some examples:
-TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
-    ctry=phonenumbers.PhoneMetadata.metadata_for_region("GB").country_code,
-    tel=phonenumbers.PhoneMetadata.metadata_for_region(
-        "GB"
-    ).personal_number.example_number,
-)
-
 
 class WebviewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
     def test_any_records_use_group_true(self) -> None:
         # All tasks created in DemoDatabaseTestCase will be in this group
-        self.announce("test_any_records_use_group_true")
-        self.assertTrue(any_records_use_group(self.req, self.group))
+        self.assertTrue(
+            any_records_use_group(self.req, self.demo_database_group)
+        )
 
     def test_any_records_use_group_false(self) -> None:
         """
@@ -161,15 +156,11 @@ class WebviewTests(DemoDatabaseTestCase):
         then the base class probably needs to be declared __abstract__. See
         DiagnosisItemBase as an example.
         """
-        self.announce("test_any_records_use_group_false")
-        group = Group()
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory()
 
         self.assertFalse(any_records_use_group(self.req, group))
 
     def test_webview_constant_validators(self) -> None:
-        self.announce("test_webview_constant_validators")
         for x in class_attribute_names(ViewArg):
             try:
                 validate_alphanum_underscore(x, self.req)
@@ -177,11 +168,7 @@ class WebviewTests(DemoDatabaseTestCase):
                 self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
-class AddTaskScheduleViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
+class AddTaskScheduleViewTests(BasicDatabaseTestCase):
     def test_schedule_form_displayed(self) -> None:
         view = AddTaskScheduleView(self.req)
 
@@ -227,35 +214,29 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
         )
 
 
-class EditTaskScheduleViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test"
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
-
+class EditTaskScheduleViewTests(DemoRequestTestCase):
     def test_schedule_name_can_be_updated(self) -> None:
+        user = self.req._debugging_user = UserFactory()
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            group_id=group.id, user_id=user.id, groupadmin=True
+        )
+
+        schedule = TaskScheduleFactory(group=group)
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
                 (ViewParam.NAME, "MOJO"),
-                (ViewParam.GROUP_ID, self.group.id),
+                (ViewParam.GROUP_ID, group.id),
                 (FormAction.SUBMIT, "submit"),
             ]
         )
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params(
-            {ViewParam.SCHEDULE_ID: str(self.schedule.id)},
+            {ViewParam.SCHEDULE_ID: str(schedule.id)},
             set_method_get=False,
         )
 
@@ -274,28 +255,16 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
         )
 
     def test_group_a_schedule_cannot_be_edited_by_group_b_admin(self) -> None:
-        group_a = Group()
-        group_a.name = "Group A"
-        self.dbsession.add(group_a)
+        group_a = GroupFactory()
+        group_b = GroupFactory()
 
-        group_b = Group()
-        group_b.name = "Group B"
-        self.dbsession.add(group_b)
-        self.dbsession.commit()
+        group_a_schedule = TaskScheduleFactory(group=group_a)
 
-        group_a_schedule = TaskSchedule()
-        group_a_schedule.group_id = group_a.id
-        group_a_schedule.name = "Group A schedule"
-        self.dbsession.add(group_a_schedule)
-        self.dbsession.commit()
-
-        self.user = User()
-        self.user.upload_group_id = group_b.id
-        self.user.username = "group b admin"
-        self.user.set_password(self.req, "secret123")
-        self.dbsession.add(self.user)
-        self.dbsession.commit()
-        self.req._debugging_user = self.user
+        group_b_user = UserFactory()
+        UserGroupMembershipFactory(
+            group_id=group_b.id, user_id=group_b_user.id, groupadmin=True
+        )
+        self.req._debugging_user = group_b_user
 
         multidict = MultiDict(
             [
@@ -303,14 +272,14 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
                 (ViewParam.NAME, "Something else"),
-                (ViewParam.GROUP_ID, self.group.id),
+                (ViewParam.GROUP_ID, group_b.id),
                 (FormAction.SUBMIT, "submit"),
             ]
         )
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params(
-            {ViewParam.SCHEDULE_ID: str(self.schedule.id)},
+            {ViewParam.SCHEDULE_ID: str(group_a_schedule.id)},
             set_method_get=False,
         )
 
@@ -322,21 +291,16 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
         self.assertIn("not a group administrator", cm.exception.message)
 
 
-class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test"
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
-
+class DeleteTaskScheduleViewTests(DemoRequestTestCase):
     def test_schedule_item_is_deleted(self) -> None:
+        user = self.req._debugging_user = UserFactory()
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            group_id=group.id, user_id=user.id, groupadmin=True
+        )
+        schedule = TaskScheduleFactory(group=group)
+        self.assertIsNotNone(self.dbsession.query(TaskSchedule).one_or_none())
+
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
@@ -357,7 +321,7 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params(
-            {ViewParam.SCHEDULE_ID: str(self.schedule.id)},
+            {ViewParam.SCHEDULE_ID: str(schedule.id)},
             set_method_get=False,
         )
         view = DeleteTaskScheduleView(self.req)
@@ -370,25 +334,14 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
             Routes.VIEW_TASK_SCHEDULES, e.exception.headers["Location"]
         )
 
-        item = self.dbsession.query(TaskScheduleItem).one_or_none()
-
-        self.assertIsNone(item)
+        self.assertIsNone(self.dbsession.query(TaskSchedule).one_or_none())
 
 
-class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
+class AddTaskScheduleItemViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test"
-
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
+        self.schedule = TaskScheduleFactory(group=self.group)
 
     def test_schedule_item_form_displayed(self) -> None:
         view = AddTaskScheduleItemView(self.req)
@@ -485,31 +438,19 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
             view.dispatch()
 
 
-class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
+class EditTaskScheduleItemViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
-        from pendulum import Duration
-
         super().setUp()
-
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test"
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
-
-        self.item = TaskScheduleItem()
-        self.item.schedule_id = self.schedule.id
-        self.item.task_table_name = "ace3"
-        self.item.due_from = Duration(days=30)
-        self.item.due_by = Duration(days=60)
-        self.dbsession.add(self.item)
-        self.dbsession.commit()
+        self.schedule = TaskScheduleFactory(group=self.group)
 
     def test_schedule_item_is_updated(self) -> None:
+        item = TaskScheduleItemFactory(
+            task_schedule=self.schedule,
+            task_table_name="ace3",
+            due_from=Duration(days=30),
+            due_by=Duration(days=60),
+        )
+
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
@@ -534,7 +475,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params(
-            {ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)},
+            {ViewParam.SCHEDULE_ITEM_ID: str(item.id)},
             set_method_get=False,
         )
         view = EditTaskScheduleItemView(self.req)
@@ -542,15 +483,22 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound) as cm:
             view.dispatch()
 
-        self.assertEqual(self.item.task_table_name, "bmi")
+        self.assertEqual(item.task_table_name, "bmi")
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
             f"{Routes.VIEW_TASK_SCHEDULE_ITEMS}"
-            f"?{ViewParam.SCHEDULE_ID}={self.item.schedule_id}",
+            f"?{ViewParam.SCHEDULE_ID}={item.schedule_id}",
             cm.exception.headers["Location"],
         )
 
     def test_schedule_item_is_not_updated_on_cancel(self) -> None:
+        item = TaskScheduleItemFactory(
+            task_schedule=self.schedule,
+            task_table_name="ace3",
+            due_from=Duration(days=30),
+            due_by=Duration(days=60),
+        )
+
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
@@ -575,7 +523,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params(
-            {ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)},
+            {ViewParam.SCHEDULE_ITEM_ID: str(item.id)},
             set_method_get=False,
         )
         view = EditTaskScheduleItemView(self.req)
@@ -583,7 +531,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        self.assertEqual(self.item.task_table_name, "ace3")
+        self.assertEqual(item.task_table_name, "ace3")
 
     def test_non_existent_item_handled(self) -> None:
         self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: "99999"})
@@ -600,53 +548,37 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
             view.dispatch()
 
     def test_get_form_values(self) -> None:
+        item = TaskScheduleItemFactory(
+            task_schedule=self.schedule,
+            task_table_name="ace3",
+            due_from=Duration(days=30),
+            due_by=Duration(days=60),
+        )
         view = EditTaskScheduleItemView(self.req)
-        view.object = self.item
+        view.object = item
 
         form_values = view.get_form_values()
 
         self.assertEqual(form_values[ViewParam.SCHEDULE_ID], self.schedule.id)
         self.assertEqual(
-            form_values[ViewParam.TABLE_NAME], self.item.task_table_name
+            form_values[ViewParam.TABLE_NAME], item.task_table_name
         )
-        self.assertEqual(form_values[ViewParam.DUE_FROM], self.item.due_from)
+        self.assertEqual(form_values[ViewParam.DUE_FROM], item.due_from)
 
-        due_within = self.item.due_by - self.item.due_from
+        due_within = item.due_by - item.due_from
         self.assertEqual(form_values[ViewParam.DUE_WITHIN], due_within)
 
     def test_group_a_item_cannot_be_edited_by_group_b_admin(self) -> None:
-        from pendulum import Duration
+        group_a = GroupFactory()
+        group_b = GroupFactory()
 
-        group_a = Group()
-        group_a.name = "Group A"
-        self.dbsession.add(group_a)
+        group_b_admin = self.req._debugging_user = UserFactory()
+        UserGroupMembershipFactory(
+            group_id=group_b.id, user_id=group_b_admin.id, groupadmin=True
+        )
 
-        group_b = Group()
-        group_b.name = "Group B"
-        self.dbsession.add(group_b)
-        self.dbsession.commit()
-
-        group_a_schedule = TaskSchedule()
-        group_a_schedule.group_id = group_a.id
-        group_a_schedule.name = "Group A schedule"
-        self.dbsession.add(group_a_schedule)
-        self.dbsession.commit()
-
-        group_a_item = TaskScheduleItem()
-        group_a_item.schedule_id = group_a_schedule.id
-        group_a_item.task_table_name = "ace3"
-        group_a_item.due_from = Duration(days=30)
-        group_a_item.due_by = Duration(days=60)
-        self.dbsession.add(group_a_item)
-        self.dbsession.commit()
-
-        self.user = User()
-        self.user.upload_group_id = group_b.id
-        self.user.username = "group b admin"
-        self.user.set_password(self.req, "secret123")
-        self.dbsession.add(self.user)
-        self.dbsession.commit()
-        self.req._debugging_user = self.user
+        group_a_schedule = TaskScheduleFactory(group=group_a)
+        group_a_item = TaskScheduleItemFactory(task_schedule=group_a_schedule)
 
         view = EditTaskScheduleItemView(self.req)
         view.object = group_a_item
@@ -657,25 +589,16 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertIn("not a group administrator", cm.exception.message)
 
 
-class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
+class DeleteTaskScheduleItemViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test"
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
+        self.schedule = TaskScheduleFactory(group=self.group)
 
-        self.item = TaskScheduleItem()
-        self.item.schedule_id = self.schedule.id
-        self.item.task_table_name = "ace3"
-        self.dbsession.add(self.item)
-        self.dbsession.commit()
+        self.schedule = TaskScheduleFactory()
+        self.item = TaskScheduleItemFactory(
+            task_schedule=self.schedule, task_table_name="ace3"
+        )
 
     def test_delete_form_displayed(self) -> None:
         view = DeleteTaskScheduleItemView(self.req)
@@ -759,10 +682,19 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertIsNotNone(item)
 
 
-class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
-    """
-    Unit tests.
-    """
+class EditFinalizedPatientViewTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.group = AnyIdNumGroupFactory()
+        user = self.req._debugging_user = UserFactory()
+
+        UserGroupMembershipFactory(
+            group_id=self.group.id,
+            user_id=user.id,
+            groupadmin=True,
+            view_all_patients_when_unfiltered=True,
+        )
 
     def test_raises_when_patient_does_not_exists(self) -> None:
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -774,7 +706,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
 
     @unittest.skip("Can't save patient in database without group")
     def test_raises_when_patient_not_in_a_group(self) -> None:
-        patient = self.create_patient(_group_id=None)
+        patient = PatientFactory(_group=None)
 
         self.req.add_get_params({ViewParam.SERVER_PK: str(patient.pk)})
 
@@ -784,9 +716,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         self.assertEqual(str(cm.exception), "Bad patient: not in a group")
 
     def test_raises_when_not_authorized(self) -> None:
-        patient = self.create_patient()
-
-        self.req._debugging_user = User()
+        patient = PatientFactory()
 
         with mock.patch.object(
             self.req._debugging_user,
@@ -803,11 +733,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         )
 
     def test_raises_when_patient_not_finalized(self) -> None:
-        device = DeviceFactory(name="Not the server device")
-        self.req.dbsession.add(device)
-        self.req.dbsession.commit()
-
-        patient = self.create_patient(id=1, _device_id=device.id, _era=ERA_NOW)
+        patient = PatientFactory(_era=ERA_NOW, _group=self.group)
 
         self.req.add_get_params({ViewParam.SERVER_PK: str(patient.pk)})
 
@@ -817,11 +743,22 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         self.assertIn("Patient is not editable", str(cm.exception))
 
     def test_patient_updated(self) -> None:
-        patient = self.create_patient()
+        patient = PatientFactory(_group=self.group)
+        nhs_patient_idnum = NHSPatientIdNumFactory(patient=patient)
 
         self.req.add_get_params(
             {ViewParam.SERVER_PK: str(patient.pk)}, set_method_get=False
         )
+
+        new_sex = Fake.en_gb.sex()
+        new_forename = Fake.en_gb.forename(new_sex)
+        new_surname = Fake.en_gb.last_name()
+        new_address = Fake.en_gb.address()
+        new_email = Fake.en_gb.email()
+        new_gp = Fake.en_gb.name()
+        new_other = Fake.en_us.paragraph()
+        new_dob = Fake.en_gb.consistent_date_of_birth()
+        new_nhs_number = Fake.en_gb.nhs_number()
 
         multidict = MultiDict(
             [
@@ -830,22 +767,22 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
                 (ViewParam.SERVER_PK, str(patient.pk)),
                 (ViewParam.GROUP_ID, str(patient.group.id)),
-                (ViewParam.FORENAME, "Jo"),
-                (ViewParam.SURNAME, "Patient"),
+                (ViewParam.FORENAME, new_forename),
+                (ViewParam.SURNAME, new_surname),
                 ("__start__", "dob:mapping"),
-                ("date", "1958-04-19"),
+                ("date", new_dob),
                 ("__end__", "dob:mapping"),
                 ("__start__", "sex:rename"),
-                ("deformField7", "X"),
+                ("deformField7", new_sex),
                 ("__end__", "sex:rename"),
-                (ViewParam.ADDRESS, "New address"),
-                (ViewParam.EMAIL, "newjopatient@example.com"),
-                (ViewParam.GP, "New GP"),
-                (ViewParam.OTHER, "New other"),
+                (ViewParam.ADDRESS, new_address),
+                (ViewParam.EMAIL, new_email),
+                (ViewParam.GP, new_gp),
+                (ViewParam.OTHER, new_other),
                 ("__start__", "id_references:sequence"),
                 ("__start__", "idnum_sequence:mapping"),
-                (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
-                (ViewParam.IDNUM_VALUE, str(TEST_NHS_NUMBER_1)),
+                (ViewParam.WHICH_IDNUM, nhs_patient_idnum.which_idnum),
+                (ViewParam.IDNUM_VALUE, new_nhs_number),
                 ("__end__", "idnum_sequence:mapping"),
                 ("__end__", "id_references:sequence"),
                 ("__start__", "danger:mapping"),
@@ -863,32 +800,32 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
 
         self.dbsession.commit()
 
-        self.assertEqual(patient.forename, "Jo")
-        self.assertEqual(patient.surname, "Patient")
-        self.assertEqual(patient.dob.isoformat(), "1958-04-19")
-        self.assertEqual(patient.sex, "X")
-        self.assertEqual(patient.address, "New address")
-        self.assertEqual(patient.email, "newjopatient@example.com")
-        self.assertEqual(patient.gp, "New GP")
-        self.assertEqual(patient.other, "New other")
+        self.assertEqual(patient.forename, new_forename)
+        self.assertEqual(patient.surname, new_surname)
+        self.assertEqual(patient.dob, new_dob)
+        self.assertEqual(patient.sex, new_sex)
+        self.assertEqual(patient.address, new_address)
+        self.assertEqual(patient.email, new_email)
+        self.assertEqual(patient.gp, new_gp)
+        self.assertEqual(patient.other, new_other)
 
         idnum = patient.get_idnum_objects()[0]
         self.assertEqual(idnum.patient_id, patient.id)
-        self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
-        self.assertEqual(idnum.idnum_value, TEST_NHS_NUMBER_1)
+        self.assertEqual(idnum.which_idnum, nhs_patient_idnum.which_idnum)
+        self.assertEqual(idnum.idnum_value, new_nhs_number)
 
         self.assertEqual(len(patient.special_notes), 1)
         note = patient.special_notes[0].note
 
         self.assertIn("Patient details edited", note)
         self.assertIn("forename", note)
-        self.assertIn("Jo", note)
+        self.assertIn(new_forename, note)
 
         self.assertIn("surname", note)
-        self.assertIn("Patient", note)
+        self.assertIn(new_surname, note)
 
-        self.assertIn("idnum1", note)
-        self.assertIn(str(TEST_NHS_NUMBER_1), note)
+        self.assertIn(f"idnum{nhs_patient_idnum.which_idnum}", note)
+        self.assertIn(str(new_nhs_number), note)
 
         messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
@@ -896,47 +833,20 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
             f"Amended patient record with server PK {patient.pk}", messages[0]
         )
         self.assertIn("forename", messages[0])
-        self.assertIn("Jo", messages[0])
+        self.assertIn(new_forename, messages[0])
 
         self.assertIn("surname", messages[0])
-        self.assertIn("Patient", messages[0])
+        self.assertIn(new_surname, messages[0])
 
         self.assertIn("idnum1", messages[0])
-        self.assertIn(str(TEST_NHS_NUMBER_1), messages[0])
+        self.assertIn(str(new_nhs_number), messages[0])
 
     def test_message_when_no_changes(self) -> None:
-        patient = self.create_patient(
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            gp="GP",
-            other="Other",
-        )
+        patient = PatientFactory(_group=self.group)
 
-        patient_idnum = self.create_nhs_patient_idnum(
+        patient_idnum = NHSPatientIdNumFactory(
             patient=patient,
-            idnum_value=TEST_NHS_NUMBER_1,
         )
-
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-        self.dbsession.commit()
-
-        patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient.pk
-        patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_datetime = local(2020, 6, 12, 9)
-        patient_task_schedule.settings = {
-            "name 1": "value 1",
-            "name 2": "value 2",
-            "name 3": "value 3",
-        }
-
-        self.dbsession.add(patient_task_schedule)
         self.req.add_get_params(
             {ViewParam.SERVER_PK: str(patient.pk)}, set_method_get=False
         )
@@ -957,6 +867,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
                 ("deformField7", patient.sex),
                 ("__end__", "sex:rename"),
                 (ViewParam.ADDRESS, patient.address),
+                (ViewParam.EMAIL, patient.email),
                 (ViewParam.GP, patient.gp),
                 (ViewParam.OTHER, patient.other),
                 ("__start__", "id_references:sequence"),
@@ -969,25 +880,6 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
                 ("target", "7836"),
                 ("user_entry", "7836"),
                 ("__end__", "danger:mapping"),
-                ("__start__", "task_schedules:sequence"),
-                ("__start__", "task_schedule_sequence:mapping"),
-                ("schedule_id", schedule1.id),
-                ("__start__", "start_datetime:mapping"),
-                ("date", "2020-06-12"),
-                ("time", "09:00:00"),
-                ("__end__", "start_datetime:mapping"),
-                (
-                    "settings",
-                    json.dumps(
-                        {
-                            "name 1": "value 1",
-                            "name 2": "value 2",
-                            "name 3": "value 3",
-                        }
-                    ),
-                ),
-                ("__end__", "task_schedule_sequence:mapping"),
-                ("__end__", "task_schedules:sequence"),
                 (FormAction.SUBMIT, "submit"),
             ]
         )
@@ -1002,43 +894,11 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         self.assertIn("No changes required", messages[0])
 
     def test_template_rendered_with_values(self) -> None:
-        patient = self.create_patient(
-            id=1,
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            gp="GP",
-            other="Other",
-        )
-        self.create_nhs_patient_idnum(
-            patient=patient,
-            idnum_value=TEST_NHS_NUMBER_1,
-        )
+        patient = PatientFactory(_group=self.group)
+        NHSPatientIdNumFactory(patient=patient)
 
-        from camcops_server.tasks import Bmi
-
-        task1 = Bmi()
-        task1.id = 1
-        task1._device_id = patient.device_id
-        task1._group_id = patient.group_id
-        task1._era = patient.era
-        task1.patient_id = patient.id
-        task1.when_created = self.era_time
-        task1._current = False
-        self.dbsession.add(task1)
-
-        task2 = Bmi()
-        task2.id = 2
-        task2._device_id = patient.device_id
-        task2._group_id = patient.group_id
-        task2._era = patient.era
-        task2.patient_id = patient.id
-        task2.when_created = self.era_time
-        task2._current = False
-        self.dbsession.add(task2)
-        self.dbsession.commit()
+        task1 = BmiFactory(patient=patient, _current=False)
+        task2 = BmiFactory(patient=patient, _current=False)
 
         self.req.add_get_params({ViewParam.SERVER_PK: str(patient.pk)})
 
@@ -1058,52 +918,48 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
 
     def test_changes_to_simple_params(self) -> None:
         view = EditFinalizedPatientView(self.req)
-        patient = self.create_patient(
-            id=1,
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            email="jopatient@example.com",
-            gp="GP",
-            other=None,
-        )
+        patient = PatientFactory()
+        old_forename = patient.forename
+        old_surname = patient.surname
+        old_address = patient.address
+        new_forename = Fake.en_gb.forename(patient.sex)
+        new_surname = Fake.en_gb.last_name()
+        new_address = Fake.en_gb.address()
+
         view.object = patient
 
         changes = OrderedDict()  # type: OrderedDict
 
         appstruct = {
-            ViewParam.FORENAME: "Joanna",
-            ViewParam.SURNAME: "Patient-Patient",
-            ViewParam.DOB: datetime.date(1958, 4, 19),
-            ViewParam.ADDRESS: "New address",
-            ViewParam.OTHER: "",
+            ViewParam.FORENAME: new_forename,
+            ViewParam.SURNAME: new_surname,
+            ViewParam.DOB: patient.dob,
+            ViewParam.ADDRESS: new_address,
+            ViewParam.OTHER: patient.other,
         }
 
         view._save_simple_params(appstruct, changes)
 
-        self.assertEqual(changes[ViewParam.FORENAME], ("Jo", "Joanna"))
         self.assertEqual(
-            changes[ViewParam.SURNAME], ("Patient", "Patient-Patient")
+            changes[ViewParam.FORENAME], (old_forename, new_forename)
+        )
+        self.assertEqual(
+            changes[ViewParam.SURNAME], (old_surname, new_surname)
         )
         self.assertNotIn(ViewParam.DOB, changes)
         self.assertEqual(
-            changes[ViewParam.ADDRESS], ("Address", "New address")
+            changes[ViewParam.ADDRESS], (old_address, new_address)
         )
         self.assertNotIn(ViewParam.OTHER, changes)
 
     def test_changes_to_idrefs(self) -> None:
         view = EditFinalizedPatientView(self.req)
-        patient = self.create_server_patient(id=1)
-        nhs_patient_idnum = self.create_server_nhs_patient_idnum(
-            patient=patient,
-            idnum_value=TEST_NHS_NUMBER_1,
-        )
-        study_patient_idnum = self.create_server_study_patient_idnum(
-            patient=patient,
-            idnum_value=123,
-        )
+        patient = PatientFactory()
+        nhs_patient_idnum = NHSPatientIdNumFactory(patient=patient)
+        study_patient_idnum = StudyPatientIdNumFactory(patient=patient)
+        rio_iddef = RioIdNumDefinitionFactory()
+        new_nhs_number = Fake.en_gb.nhs_number()
+        new_rio_number = 9999  # Below the range the factory would use
 
         view.object = patient
 
@@ -1113,11 +969,11 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
             ViewParam.ID_REFERENCES: [
                 {
                     ViewParam.WHICH_IDNUM: nhs_patient_idnum.which_idnum,
-                    ViewParam.IDNUM_VALUE: TEST_NHS_NUMBER_2,
+                    ViewParam.IDNUM_VALUE: new_nhs_number,
                 },
                 {
-                    ViewParam.WHICH_IDNUM: self.rio_iddef.which_idnum,
-                    ViewParam.IDNUM_VALUE: 456,
+                    ViewParam.WHICH_IDNUM: rio_iddef.which_idnum,
+                    ViewParam.IDNUM_VALUE: new_rio_number,
                 },
             ]
         }
@@ -1130,33 +986,25 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         study_key = f"idnum{study_patient_idnum.which_idnum} (Study number)"
         self.assertIn(study_key, changes)
 
-        rio_key = f"idnum{self.rio_iddef.which_idnum} (RiO number)"
+        rio_key = f"idnum{rio_iddef.which_idnum} (RiO number)"
         self.assertIn(rio_key, changes)
 
         self.assertEqual(
             changes[nhs_key],
-            (TEST_NHS_NUMBER_1, TEST_NHS_NUMBER_2),
+            (nhs_patient_idnum.idnum_value, new_nhs_number),
         )
 
-        self.assertEqual(changes[study_key], (123, None))
-        self.assertEqual(changes[rio_key], (None, 456))
+        self.assertEqual(
+            changes[study_key], (study_patient_idnum.idnum_value, None)
+        )
+        self.assertEqual(changes[rio_key], (None, new_rio_number))
 
 
 class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
     def test_group_updated(self) -> None:
-        patient = self.create_patient(sex="F", as_server_patient=True)
+        patient = ServerCreatedPatientFactory(_group=self.group)
         old_group = patient.group
-        new_group = Group()
-        new_group.name = "newgroup"
-        new_group.description = "New group"
-        new_group.upload_policy = "sex AND anyidnum"
-        new_group.finalize_policy = "sex AND idnum1"
-        self.dbsession.add(new_group)
-        self.dbsession.commit()
+        new_group = GroupFactory()
 
         view = EditServerCreatedPatientView(self.req)
         view.object = patient
@@ -1170,11 +1018,11 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
         self.assertIn(old_group.name, messages[0])
-        self.assertIn("newgroup", messages[0])
+        self.assertIn(new_group.name, messages[0])
         self.assertIn("group:", messages[0])
 
     def test_raises_when_not_created_on_the_server(self) -> None:
-        patient = self.create_patient(id=1, _device_id=self.other_device.id)
+        patient = PatientFactory()
 
         view = EditServerCreatedPatientView(self.req)
 
@@ -1186,41 +1034,29 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.assertIn("Patient is not editable", str(cm.exception))
 
     def test_patient_task_schedules_updated(self) -> None:
-        patient = self.create_patient(sex="F", as_server_patient=True)
+        patient = ServerCreatedPatientFactory()
+        nhs_patient_idnum = NHSPatientIdNumFactory(patient=patient)
+        group = patient._group
 
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-        schedule2 = TaskSchedule()
-        schedule2.group_id = self.group.id
-        schedule2.name = "Test 2"
-        self.dbsession.add(schedule2)
-        schedule3 = TaskSchedule()
-        schedule3.group_id = self.group.id
-        schedule3.name = "Test 3"
-        self.dbsession.add(schedule3)
-        self.dbsession.commit()
+        schedule1 = TaskScheduleFactory(group=group)
+        schedule2 = TaskScheduleFactory(group=group)
+        schedule3 = TaskScheduleFactory(group=group)
 
-        patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient.pk
-        patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_datetime = local(2020, 6, 12, 9)
-        patient_task_schedule.settings = {
-            "name 1": "value 1",
-            "name 2": "value 2",
-            "name 3": "value 3",
-        }
+        PatientTaskScheduleFactory(
+            patient=patient,
+            task_schedule=schedule1,
+            start_datetime=local(2020, 6, 12, 9),
+            settings={
+                "name 1": "value 1",
+                "name 2": "value 2",
+                "name 3": "value 3",
+            },
+        )
 
-        self.dbsession.add(patient_task_schedule)
-
-        patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient.pk
-        patient_task_schedule.schedule_id = schedule3.id
-
-        self.dbsession.add(patient_task_schedule)
-        self.dbsession.commit()
-
+        PatientTaskScheduleFactory(
+            patient=patient,
+            task_schedule=schedule3,
+        )
         self.req.add_get_params(
             {ViewParam.SERVER_PK: str(patient.pk)}, set_method_get=False
         )
@@ -1230,11 +1066,14 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
             "name 2": "new value 2",
             "name 3": "new value 3",
         }
+        changed_schedule_1_datetime = local(2020, 6, 19, 8, 0, 0)
         new_schedule_2_settings = {
             "name 4": "value 4",
             "name 5": "value 5",
             "name 6": "value 6",
         }
+        new_schedule_2_datetime = local(2020, 7, 1, 13, 45, 0)
+        new_nhs_number = Fake.en_gb.nhs_number()
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
@@ -1255,8 +1094,8 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
                 (ViewParam.OTHER, patient.other),
                 ("__start__", "id_references:sequence"),
                 ("__start__", "idnum_sequence:mapping"),
-                (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
-                (ViewParam.IDNUM_VALUE, str(TEST_NHS_NUMBER_1)),
+                (ViewParam.WHICH_IDNUM, nhs_patient_idnum.which_idnum),
+                (ViewParam.IDNUM_VALUE, str(new_nhs_number)),
                 ("__end__", "idnum_sequence:mapping"),
                 ("__end__", "id_references:sequence"),
                 ("__start__", "danger:mapping"),
@@ -1267,16 +1106,16 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
                 ("__start__", "task_schedule_sequence:mapping"),
                 ("schedule_id", schedule1.id),
                 ("__start__", "start_datetime:mapping"),
-                ("date", "2020-06-19"),
-                ("time", "08:00:00"),
+                ("date", changed_schedule_1_datetime.to_date_string()),
+                ("time", changed_schedule_1_datetime.to_time_string()),
                 ("__end__", "start_datetime:mapping"),
                 ("settings", json.dumps(changed_schedule_1_settings)),
                 ("__end__", "task_schedule_sequence:mapping"),
                 ("__start__", "task_schedule_sequence:mapping"),
                 ("schedule_id", schedule2.id),
                 ("__start__", "start_datetime:mapping"),
-                ("date", "2020-07-01"),
-                ("time", "13:45:00"),
+                ("date", new_schedule_2_datetime.to_date_string()),
+                ("time", new_schedule_2_datetime.to_time_string()),
                 ("__end__", "start_datetime:mapping"),
                 ("settings", json.dumps(new_schedule_2_settings)),
                 ("__end__", "task_schedule_sequence:mapping"),
@@ -1295,20 +1134,24 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         schedules = {
             pts.task_schedule.name: pts for pts in patient.task_schedules
         }
-        self.assertIn("Test 1", schedules)
-        self.assertIn("Test 2", schedules)
-        self.assertNotIn("Test 3", schedules)
+        self.assertIn(schedule1.name, schedules)
+        self.assertIn(schedule2.name, schedules)
+        self.assertNotIn(schedule3.name, schedules)
 
         self.assertEqual(
-            schedules["Test 1"].start_datetime, local(2020, 6, 19, 8)
+            schedules[schedule1.name].start_datetime,
+            changed_schedule_1_datetime,
         )
         self.assertEqual(
-            schedules["Test 1"].settings, changed_schedule_1_settings
+            schedules[schedule1.name].settings, changed_schedule_1_settings
         )
         self.assertEqual(
-            schedules["Test 2"].start_datetime, local(2020, 7, 1, 13, 45)
+            schedules[schedule2.name].start_datetime,
+            new_schedule_2_datetime,
         )
-        self.assertEqual(schedules["Test 2"].settings, new_schedule_2_settings)
+        self.assertEqual(
+            schedules[schedule2.name].settings, new_schedule_2_settings
+        )
 
         messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
@@ -1318,12 +1161,9 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.assertIn("Task schedules", messages[0])
 
     def test_unprivileged_user_cannot_edit_patient(self) -> None:
-        patient = self.create_patient(sex="F", as_server_patient=True)
+        patient = ServerCreatedPatientFactory()
 
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
-
-        self.req._debugging_user = user
+        self.req._debugging_user = UserFactory()
 
         view = EditServerCreatedPatientView(self.req)
         view.object = patient
@@ -1338,20 +1178,15 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         )
 
     def test_patient_can_be_assigned_the_same_schedule_twice(self) -> None:
-        patient = self.create_patient(sex="F", as_server_patient=True)
+        patient = ServerCreatedPatientFactory()
 
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-        self.dbsession.flush()
+        schedule1 = TaskScheduleFactory(group=self.group)
 
-        pts = PatientTaskSchedule()
-        pts.patient_pk = patient.pk
-        pts.schedule_id = schedule1.id
-        pts.start_datetime = local(2020, 6, 12, 12, 34)
-        self.dbsession.add(pts)
-        self.dbsession.commit()
+        pts = PatientTaskScheduleFactory(
+            patient=patient,
+            task_schedule=schedule1,
+            start_datetime=local(2020, 6, 12, 12, 34),
+        )
 
         appstruct = {
             ViewParam.TASK_SCHEDULES: [
@@ -1381,42 +1216,24 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.assertEqual(patient.task_schedules[1].task_schedule, schedule1)
 
     def test_form_values_for_existing_patient(self) -> None:
-        patient = self.create_patient(
-            id=1,
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            email="jopatient@example.com",
-            gp="GP",
-            other="Other",
+        patient = PatientFactory()
+
+        schedule1 = TaskScheduleFactory(
+            group=self.group,
         )
 
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-        self.dbsession.commit()
-
-        patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient.pk
-        patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_datetime = local(2020, 6, 12)
-        patient_task_schedule.settings = {
-            "name 1": "value 1",
-            "name 2": "value 2",
-            "name 3": "value 3",
-        }
-
-        self.dbsession.add(patient_task_schedule)
-        self.dbsession.commit()
-
-        patient_idnum = self.create_nhs_patient_idnum(
+        patient_task_schedule = PatientTaskScheduleFactory(
             patient=patient,
-            idnum_value=TEST_NHS_NUMBER_1,
+            task_schedule=schedule1,
+            start_datetime=local(2020, 6, 12),
+            settings={
+                "name 1": "value 1",
+                "name 2": "value 2",
+                "name 3": "value 3",
+            },
         )
 
+        patient_idnum = NHSPatientIdNumFactory(patient=patient)
         self.req.add_get_params({ViewParam.SERVER_PK: str(patient.pk)})
 
         view = EditServerCreatedPatientView(self.req)
@@ -1424,16 +1241,14 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         form_values = view.get_form_values()
 
-        self.assertEqual(form_values[ViewParam.FORENAME], "Jo")
-        self.assertEqual(form_values[ViewParam.SURNAME], "Patient")
-        self.assertEqual(
-            form_values[ViewParam.DOB], datetime.date(1958, 4, 19)
-        )
-        self.assertEqual(form_values[ViewParam.SEX], "F")
-        self.assertEqual(form_values[ViewParam.ADDRESS], "Address")
-        self.assertEqual(form_values[ViewParam.EMAIL], "jopatient@example.com")
-        self.assertEqual(form_values[ViewParam.GP], "GP")
-        self.assertEqual(form_values[ViewParam.OTHER], "Other")
+        self.assertEqual(form_values[ViewParam.FORENAME], patient.forename)
+        self.assertEqual(form_values[ViewParam.SURNAME], patient.surname)
+        self.assertEqual(form_values[ViewParam.DOB], patient.dob)
+        self.assertEqual(form_values[ViewParam.SEX], patient.sex)
+        self.assertEqual(form_values[ViewParam.ADDRESS], patient.address)
+        self.assertEqual(form_values[ViewParam.EMAIL], patient.email)
+        self.assertEqual(form_values[ViewParam.GP], patient.gp)
+        self.assertEqual(form_values[ViewParam.OTHER], patient.other)
 
         self.assertEqual(form_values[ViewParam.SERVER_PK], patient.pk)
         self.assertEqual(form_values[ViewParam.GROUP_ID], patient.group.id)
@@ -1443,7 +1258,9 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
             idnum[ViewParam.WHICH_IDNUM],
             patient_idnum.which_idnum,
         )
-        self.assertEqual(idnum[ViewParam.IDNUM_VALUE], TEST_NHS_NUMBER_1)
+        self.assertEqual(
+            idnum[ViewParam.IDNUM_VALUE], patient_idnum.idnum_value
+        )
 
         task_schedule = form_values[ViewParam.TASK_SCHEDULES][0]
         self.assertEqual(
@@ -1463,24 +1280,12 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         )
 
 
-class AddPatientViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
+class AddPatientViewTests(BasicDatabaseTestCase):
     def test_patient_created(self) -> None:
         view = AddPatientView(self.req)
 
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-
-        schedule2 = TaskSchedule()
-        schedule2.group_id = self.group.id
-        schedule2.name = "Test 2"
-        self.dbsession.add(schedule2)
-        self.dbsession.commit()
+        schedule1 = TaskScheduleFactory()
+        schedule2 = TaskScheduleFactory()
 
         start_datetime1 = local(2020, 6, 12)
         start_datetime2 = local(2020, 7, 1)
@@ -1488,6 +1293,9 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         settings1 = json.dumps(
             {"name 1": "value 1", "name 2": "value 2", "name 3": "value 3"}
         )
+
+        nhs_iddef = NHSIdNumDefinitionFactory()
+        nhs_number = Fake.en_gb.nhs_number()
 
         appstruct = {
             ViewParam.GROUP_ID: self.group.id,
@@ -1501,8 +1309,8 @@ class AddPatientViewTests(DemoDatabaseTestCase):
             ViewParam.OTHER: "Other",
             ViewParam.ID_REFERENCES: [
                 {
-                    ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
-                    ViewParam.IDNUM_VALUE: 1192220552,
+                    ViewParam.WHICH_IDNUM: nhs_iddef.which_idnum,
+                    ViewParam.IDNUM_VALUE: nhs_number,
                 }
             ],
             ViewParam.TASK_SCHEDULES: [
@@ -1520,6 +1328,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         }
 
         view.save_object(appstruct)
+        self.dbsession.commit()
 
         patient = cast(Patient, view.object)
 
@@ -1540,26 +1349,31 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         idnum = patient.get_idnum_objects()[0]
         self.assertEqual(idnum.patient_id, patient.id)
-        self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
-        self.assertEqual(idnum.idnum_value, 1192220552)
+        self.assertEqual(idnum.which_idnum, nhs_iddef.which_idnum)
+        self.assertEqual(idnum.idnum_value, nhs_number)
 
         patient_task_schedules = {
             pts.task_schedule.name: pts for pts in patient.task_schedules
         }
 
-        self.assertIn("Test 1", patient_task_schedules)
-        self.assertIn("Test 2", patient_task_schedules)
+        self.assertIn(schedule1.name, patient_task_schedules)
+        self.assertIn(schedule2.name, patient_task_schedules)
 
         self.assertEqual(
-            patient_task_schedules["Test 1"].start_datetime, start_datetime1
+            patient_task_schedules[schedule1.name].start_datetime,
+            start_datetime1,
         )
-        self.assertEqual(patient_task_schedules["Test 1"].settings, settings1)
         self.assertEqual(
-            patient_task_schedules["Test 2"].start_datetime, start_datetime2
+            patient_task_schedules[schedule1.name].settings, settings1
+        )
+        self.assertEqual(
+            patient_task_schedules[schedule2.name].start_datetime,
+            start_datetime2,
         )
 
     def test_patient_takes_next_available_id(self) -> None:
-        self.create_patient(id=1234, as_server_patient=True)
+        patient = ServerCreatedPatientFactory(id=1234)
+        nhs_iddef = NHSIdNumDefinitionFactory()
 
         view = AddPatientView(self.req)
 
@@ -1574,8 +1388,8 @@ class AddPatientViewTests(DemoDatabaseTestCase):
             ViewParam.OTHER: "Other",
             ViewParam.ID_REFERENCES: [
                 {
-                    ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
-                    ViewParam.IDNUM_VALUE: 1192220552,
+                    ViewParam.WHICH_IDNUM: nhs_iddef.which_idnum,
+                    ViewParam.IDNUM_VALUE: Fake.en_gb.nhs_number(),
                 }
             ],
             ViewParam.TASK_SCHEDULES: [],
@@ -1600,8 +1414,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("form", context)
 
     def test_unprivileged_user_cannot_add_patient(self) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
+        user = UserFactory(username="testuser")
 
         self.req._debugging_user = user
 
@@ -1613,10 +1426,11 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         )
 
     def test_group_listed_for_privileged_group_member(self) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
-        self.create_membership(user, self.group, may_manage_patients=True)
-        self.dbsession.commit()
+        user = UserFactory()
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_manage_patients=True
+        )
 
         self.req._debugging_user = user
 
@@ -1629,48 +1443,24 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         context = args[0]
 
-        self.assertIn("testgroup", context["form"])
+        self.assertIn(group.name, context["form"])
 
 
 class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
     def setUp(self) -> None:
         super().setUp()
 
-        self.patient = self.create_patient(
-            as_server_patient=True,
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            gp="GP",
-            other="Other",
-        )
+        self.patient = ServerCreatedPatientFactory()
 
-        patient_pk = self.patient.pk
-
-        idnum = self.create_server_nhs_patient_idnum(
-            patient=self.patient,
-            idnum_value=TEST_NHS_NUMBER_1,
-        )
-
+        idnum = ServerCreatedNHSPatientIdNumFactory(patient=self.patient)
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test 1"
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
+        self.schedule = TaskScheduleFactory(group=self.group)
 
-        pts = PatientTaskSchedule()
-        pts.patient_pk = patient_pk
-        pts.schedule_id = self.schedule.id
-        self.dbsession.add(pts)
-        self.dbsession.commit()
+        PatientTaskScheduleFactory(
+            patient=self.patient,
+            task_schedule=self.schedule,
+        )
 
         self.multidict = MultiDict(
             [
@@ -1781,16 +1571,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         # self.assertIsNone(user.single_patient_pk)
 
     def test_unrelated_patient_unaffected(self) -> None:
-        other_patient = self.create_patient(
-            as_server_patient=True,
-            forename="Mo",
-            surname="Patient",
-            dob=datetime.date(1968, 11, 30),
-            sex="M",
-            address="Address",
-            gp="GP",
-            other="Other",
-        )
+        other_patient = ServerCreatedPatientFactory()
         patient_pk = other_patient._pk
 
         saved_patient = (
@@ -1801,10 +1582,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         self.assertIsNotNone(saved_patient)
 
-        idnum = self.create_server_nhs_patient_idnum(
-            patient=other_patient,
-            idnum_value=TEST_NHS_NUMBER_2,
-        )
+        idnum = ServerCreatedNHSPatientIdNumFactory(patient=other_patient)
 
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -1821,11 +1599,9 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         self.assertIsNotNone(saved_idnum)
 
-        pts = PatientTaskSchedule()
-        pts.patient_pk = patient_pk
-        pts.schedule_id = self.schedule.id
-        self.dbsession.add(pts)
-        self.dbsession.commit()
+        PatientTaskScheduleFactory(
+            patient=other_patient, task_schedule=self.schedule
+        )
 
         self.req.fake_request_post_from_dict(self.multidict)
 
@@ -1875,8 +1651,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         )
         view = DeleteServerCreatedPatientView(self.req)
 
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
+        user = UserFactory(username="testuser")
 
         self.req._debugging_user = user
 
@@ -1894,8 +1669,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({ViewParam.SERVER_PK: str(patient_pk)})
         view = DeleteServerCreatedPatientView(self.req)
 
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
+        user = UserFactory()
 
         self.req._debugging_user = user
 
@@ -1908,22 +1682,14 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
 
 class EraseTaskTestCase(BasicDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
     def setUp(self) -> None:
         super().setUp()
 
-        patient = PatientFactory()
+        patient = PatientFactory(_group=self.group)
         self.task = BmiFactory(patient=patient)
 
 
 class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
-    """
-    Unit tests.
-    """
-
     def test_displays_form(self) -> None:
         self.req.add_get_params(
             {
@@ -2059,10 +1825,16 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.assertIn("Task is live on tablet", cm.exception.message)
 
     def test_raises_when_user_not_authorized_to_erase(self) -> None:
-        with mock.patch.object(
-            self.user, "authorized_to_erase_tasks", return_value=False
-        ):
+        user = UserFactory()
 
+        self.req._debugging_user = user
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=self.group.id, groupadmin=True
+        )
+
+        with mock.patch.object(
+            user, "authorized_to_erase_tasks", return_value=False
+        ):
             self.req.add_get_params(
                 {
                     ViewParam.SERVER_PK: str(self.task.pk),
@@ -2098,10 +1870,6 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
 
 class EraseTaskEntirelyViewTests(EraseTaskTestCase):
-    """
-    Unit tests.
-    """
-
     def test_deletes_task_entirely(self) -> None:
         multidict = MultiDict(
             [
@@ -2147,32 +1915,33 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         self.assertIn("server PK {}".format(self.task.pk), messages[0])
 
 
-class EditGroupViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-
+class EditGroupViewTests(DemoRequestTestCase):
     def test_group_updated(self) -> None:
-        other_group_1 = Group()
-        other_group_1.name = "other-group-1"
-        self.dbsession.add(other_group_1)
+        groupadmin = self.req._debugging_user = UserFactory()
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            group_id=group.id, user_id=groupadmin.id, groupadmin=True
+        )
+        other_group_1 = GroupFactory()
+        other_group_2 = GroupFactory()
 
-        other_group_2 = Group()
-        other_group_2.name = "other-group-2"
-        self.dbsession.add(other_group_2)
+        nhs_iddef = NHSIdNumDefinitionFactory()
 
-        self.dbsession.commit()
+        new_name = "new-name"
+        new_description = "new description"
+        new_upload_policy = "anyidnum AND sex"
+        new_finalize_policy = f"idnum{nhs_iddef.which_idnum} AND sex"
 
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-                (ViewParam.GROUP_ID, self.group.id),
-                (ViewParam.NAME, "new-name"),
-                (ViewParam.DESCRIPTION, "new description"),
-                (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),  # reversed
-                (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),  # reversed
+                (ViewParam.GROUP_ID, group.id),
+                (ViewParam.NAME, new_name),
+                (ViewParam.DESCRIPTION, new_description),
+                (ViewParam.UPLOAD_POLICY, new_upload_policy),
+                (ViewParam.FINALIZE_POLICY, new_finalize_policy),
                 ("__start__", "group_ids:sequence"),
                 ("group_id_sequence", str(other_group_1.id)),
                 ("group_id_sequence", str(other_group_2.id)),
@@ -2185,26 +1954,38 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             edit_group(self.req)
 
-        self.assertEqual(self.group.name, "new-name")
-        self.assertEqual(self.group.description, "new description")
-        self.assertEqual(self.group.upload_policy, "anyidnum AND sex")
-        self.assertEqual(self.group.finalize_policy, "idnum1 AND sex")
-        self.assertIn(other_group_1, self.group.can_see_other_groups)
-        self.assertIn(other_group_2, self.group.can_see_other_groups)
+        self.assertEqual(group.name, new_name)
+        self.assertEqual(group.description, new_description)
+        self.assertEqual(group.upload_policy, new_upload_policy)
+        self.assertEqual(group.finalize_policy, new_finalize_policy)
+        self.assertIn(other_group_1, group.can_see_other_groups)
+        self.assertIn(other_group_2, group.can_see_other_groups)
 
     def test_ip_use_added(self) -> None:
         from camcops_server.cc_modules.cc_ipuse import IpContexts
 
+        group = GroupFactory()
+        groupadmin = self.req._debugging_user = UserFactory()
+        UserGroupMembershipFactory(
+            group_id=group.id, user_id=groupadmin.id, groupadmin=True
+        )
+        nhs_iddef = NHSIdNumDefinitionFactory()
+
+        new_name = "new-name"
+        new_description = "new description"
+        new_upload_policy = "anyidnum AND sex"
+        new_finalize_policy = f"idnum{nhs_iddef.which_idnum} AND sex"
+
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-                (ViewParam.GROUP_ID, self.group.id),
-                (ViewParam.NAME, "new-name"),
-                (ViewParam.DESCRIPTION, "new description"),
-                (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
-                (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
+                (ViewParam.GROUP_ID, group.id),
+                (ViewParam.NAME, new_name),
+                (ViewParam.DESCRIPTION, new_description),
+                (ViewParam.UPLOAD_POLICY, new_upload_policy),
+                (ViewParam.FINALIZE_POLICY, new_finalize_policy),
                 ("__start__", "ip_use:mapping"),
                 (IpContexts.CLINICAL, "true"),
                 (IpContexts.COMMERCIAL, "true"),
@@ -2217,31 +1998,39 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             edit_group(self.req)
 
-        self.assertTrue(self.group.ip_use.clinical)
-        self.assertTrue(self.group.ip_use.commercial)
-        self.assertFalse(self.group.ip_use.educational)
-        self.assertFalse(self.group.ip_use.research)
+        self.assertTrue(group.ip_use.clinical)
+        self.assertTrue(group.ip_use.commercial)
+        self.assertFalse(group.ip_use.educational)
+        self.assertFalse(group.ip_use.research)
 
     def test_ip_use_updated(self) -> None:
         from camcops_server.cc_modules.cc_ipuse import IpContexts
 
-        self.group.ip_use.educational = True
-        self.group.ip_use.research = True
-        self.dbsession.add(self.group.ip_use)
-        self.dbsession.commit()
+        group = GroupFactory(ip_use__educational=True, ip_use__research=True)
+        groupadmin = self.req._debugging_user = UserFactory()
+        UserGroupMembershipFactory(
+            group_id=group.id, user_id=groupadmin.id, groupadmin=True
+        )
 
-        old_id = self.group.ip_use.id
+        old_id = group.ip_use.id
+
+        nhs_iddef = NHSIdNumDefinitionFactory()
+
+        new_name = "new-name"
+        new_description = "new description"
+        new_upload_policy = "anyidnum AND sex"
+        new_finalize_policy = f"idnum{nhs_iddef.which_idnum} AND sex"
 
         multidict = MultiDict(
             [
                 ("_charset_", UTF8),
                 ("__formid__", "deform"),
                 (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-                (ViewParam.GROUP_ID, self.group.id),
-                (ViewParam.NAME, "new-name"),
-                (ViewParam.DESCRIPTION, "new description"),
-                (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
-                (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
+                (ViewParam.GROUP_ID, group.id),
+                (ViewParam.NAME, new_name),
+                (ViewParam.DESCRIPTION, new_description),
+                (ViewParam.UPLOAD_POLICY, new_upload_policy),
+                (ViewParam.FINALIZE_POLICY, new_finalize_policy),
                 ("__start__", "ip_use:mapping"),
                 (IpContexts.CLINICAL, "true"),
                 (IpContexts.COMMERCIAL, "true"),
@@ -2254,32 +2043,23 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             edit_group(self.req)
 
-        self.assertTrue(self.group.ip_use.clinical)
-        self.assertTrue(self.group.ip_use.commercial)
-        self.assertFalse(self.group.ip_use.educational)
-        self.assertFalse(self.group.ip_use.research)
-        self.assertEqual(self.group.ip_use.id, old_id)
+        self.assertTrue(group.ip_use.clinical)
+        self.assertTrue(group.ip_use.commercial)
+        self.assertFalse(group.ip_use.educational)
+        self.assertFalse(group.ip_use.research)
+        self.assertEqual(group.ip_use.id, old_id)
 
     def test_other_groups_displayed_in_form(self) -> None:
-        z_group = Group()
-        z_group.name = "z-group"
-        self.dbsession.add(z_group)
-
-        a_group = Group()
-        a_group.name = "a-group"
-        self.dbsession.add(a_group)
-        self.dbsession.commit()
+        z_group = GroupFactory(name="z-group")
+        a_group = GroupFactory(name="a-group")
 
         other_groups = Group.get_groups_from_id_list(
             self.dbsession, [z_group.id, a_group.id]
         )
-        self.group.can_see_other_groups = other_groups
-
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory(can_see_other_groups=other_groups)
 
         view = EditGroupView(self.req)
-        view.object = self.group
+        view.object = group
 
         form_values = view.get_form_values()
 
@@ -2288,57 +2068,38 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         )
 
     def test_group_id_displayed_in_form(self) -> None:
+        group = GroupFactory()
         view = EditGroupView(self.req)
-        view.object = self.group
+        view.object = group
 
         form_values = view.get_form_values()
 
-        self.assertEqual(form_values[ViewParam.GROUP_ID], self.group.id)
+        self.assertEqual(form_values[ViewParam.GROUP_ID], group.id)
 
     def test_ip_use_displayed_in_form(self) -> None:
+        group = GroupFactory()
         view = EditGroupView(self.req)
-        view.object = self.group
+        view.object = group
 
         form_values = view.get_form_values()
 
-        self.assertEqual(form_values[ViewParam.IP_USE], self.group.ip_use)
+        self.assertEqual(form_values[ViewParam.IP_USE], group.ip_use)
 
 
 class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.patient = self.create_patient(
-            as_server_patient=True,
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            gp="GP",
-            other="Other",
-        )
-
-        patient_pk = self.patient.pk
-
-        idnum = self.create_server_nhs_patient_idnum(
-            patient=self.patient,
-            idnum_value=TEST_NHS_NUMBER_1,
-        )
+        self.patient = ServerCreatedPatientFactory()
+        idnum = ServerCreatedNHSPatientIdNumFactory(patient=self.patient)
 
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.schedule.name = "Test 1"
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
+        self.schedule = TaskScheduleFactory(group=self.group)
 
-        self.pts = PatientTaskSchedule()
-        self.pts.patient_pk = patient_pk
-        self.pts.schedule_id = self.schedule.id
-        self.dbsession.add(self.pts)
-        self.dbsession.commit()
+        self.pts = PatientTaskScheduleFactory(
+            patient=self.patient, task_schedule=self.schedule
+        )
 
     def test_displays_form(self) -> None:
         self.req.add_get_params(
@@ -2577,8 +2338,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")
 
     def test_unprivileged_user_cannot_email_patient(self) -> None:
-        user = self.create_user(username="testuser")
-        self.dbsession.flush()
+        user = UserFactory(username="testuser")
 
         self.req._debugging_user = user
 
@@ -2648,7 +2408,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn('autocomplete="current-password"', context["form"])
 
     def test_fails_when_user_locked_out(self) -> None:
-        user = self.create_user(username="test")
+        user = UserFactory(username="test")
         user.set_password(self.req, "secret")
         SecurityAccountLockout.lock_user_out(
             self.req, user.username, lockout_minutes=1
@@ -2680,10 +2440,11 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_can_log_in(self, mock_audit: mock.Mock) -> None:
-        user = self.create_user(username="test")
+        user = UserFactory(username="test")
         user.set_password(self.req, "secret")
-        self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=self.group.id, may_use_webviewer=True
+        )
 
         multidict = MultiDict(
             [
@@ -2716,14 +2477,16 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertEqual(kwargs["user_id"], user.id)
 
     def test_user_with_totp_sees_token_form(self) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.TOTP,
         )
+        group = GroupFactory()
         user.set_password(self.req, "secret")
-        self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         view = LoginView(self.req)
         view.state.update(
@@ -2750,7 +2513,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_user_with_hotp_email_sees_token_form(
         self, mock_make_email: mock.Mock, mock_send_msg: mock.Mock
     ) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -2759,7 +2522,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
         view = LoginView(self.req)
         view.state.update(
             mfa_user_id=user.id,
@@ -2784,17 +2550,20 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             SmsBackendNames.CONSOLE, {}
         )
 
-        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
-        user = self.create_user(
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        user = UserFactory(
             username="test",
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_SMS,
-            phone_number=phone_number,
+            phone_number=phonenumbers.parse(phone_number_str),
             hotp_counter=0,
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         view = LoginView(self.req)
         view.state.update(
@@ -2825,7 +2594,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         mock_make_email: mock.Mock,
         mock_send_msg: mock.Mock,
     ) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -2833,7 +2602,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         multidict = MultiDict(
             [
@@ -2877,7 +2649,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.req.config.email_use_tls = True
         self.req.config.email_from = "server@example.com"
 
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             email="user@example.com",
             mfa_secret_key=pyotp.random_base32(),
@@ -2886,7 +2658,11 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         multidict = MultiDict(
             [
@@ -2927,18 +2703,21 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
         self.req.config.sms_config = test_config
 
-        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
-        user = self.create_user(
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        user = UserFactory(
             username="test",
             email="user@example.com",
-            phone_number=phone_number,
+            phone_number=phonenumbers.parse(phone_number_str),
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_SMS,
             hotp_counter=0,
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         multidict = MultiDict(
             [
@@ -2959,7 +2738,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
+            ConsoleSmsBackend.make_msg(phone_number_str, expected_message),
             logging_cm.output[0],
         )
 
@@ -2968,7 +2747,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_login_with_hotp_increments_counter(
         self, mock_make_email: mock.Mock, mock_send_msg: mock.Mock
     ) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             email="user@example.com",
             mfa_secret_key=pyotp.random_base32(),
@@ -2977,7 +2756,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         multidict = MultiDict(
             [
@@ -2997,7 +2779,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_totp_can_log_in(self, mock_audit: mock.Mock) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),
@@ -3005,7 +2787,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         user.set_password(self.req, "secret")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         totp = pyotp.TOTP(user.mfa_secret_key)
 
@@ -3043,7 +2828,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_hotp_can_log_in(self, mock_audit: mock.Mock) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_method=MfaMethod.HOTP_EMAIL,
             mfa_secret_key=pyotp.random_base32(),
@@ -3052,7 +2837,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         user.set_password(self.req, "secret")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
         multidict = MultiDict(
@@ -3088,7 +2876,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assert_state_is_finished()
 
     def test_form_state_cleared_on_failed_login(self) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_method=MfaMethod.HOTP_EMAIL,
             mfa_secret_key=pyotp.random_base32(),
@@ -3096,7 +2884,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
 
@@ -3124,14 +2915,17 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     def test_user_cannot_log_in_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
-        user = self.create_user(
+        user = UserFactory(
             username="test",
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),
         )
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.create_membership(user, self.group, may_use_webviewer=True)
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=group.id, may_use_webviewer=True
+        )
 
         totp = pyotp.TOTP(user.mfa_secret_key)
 
@@ -3160,11 +2954,13 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         mock_fail_timed_out.assert_called_once()
 
     def test_unprivileged_user_cannot_log_in(self) -> None:
-        user = self.create_user(username="test")
+        user = UserFactory(username="test")
         user.set_password(self.req, "secret")
         self.dbsession.flush()
 
-        self.create_membership(user, self.group, may_use_webviewer=False)
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=self.group.id, may_use_webviewer=False
+        )
 
         multidict = MultiDict(
             [
@@ -3236,7 +3032,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_timed_out_false_when_no_authentication_time(self) -> None:
         view = LoginView(self.req)
 
-        user = self.create_user(username="test")
+        user = UserFactory(username="test")
         # Should never be the case that we have a user ID but no
         # authentication time
         view.state["mfa_user_id"] = user.id
@@ -3246,8 +3042,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
 
 class EditUserViewTests(BasicDatabaseTestCase):
     def test_redirect_on_cancel(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
+        regular_user = UserFactory(username="regular_user")
         self.req.fake_request_post_from_dict({FormAction.CANCEL: "cancel"})
         self.req.add_get_params(
             {ViewParam.USER_ID: str(regular_user.id)}, set_method_get=False
@@ -3262,10 +3057,9 @@ class EditUserViewTests(BasicDatabaseTestCase):
         )
 
     def test_raises_if_user_may_not_edit_another(self) -> None:
-        self.req.add_get_params({ViewParam.USER_ID: str(self.user.id)})
+        self.req.add_get_params({ViewParam.USER_ID: str(self.system_user.id)})
 
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
+        regular_user = UserFactory(username="regular_user")
         self.req._debugging_user = regular_user
         with self.assertRaises(HTTPBadRequest) as cm:
             edit_user(self.req)
@@ -3273,8 +3067,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertIn("Nobody may edit the system user", cm.exception.message)
 
     def test_superuser_sees_full_form(self) -> None:
-        superuser = self.create_user(username="admin", superuser=True)
-        self.dbsession.flush()
+        superuser = UserFactory(username="admin", superuser=True)
         self.req._debugging_user = superuser
 
         self.req.add_get_params({ViewParam.USER_ID: str(superuser.id)})
@@ -3284,12 +3077,13 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertIn("Superuser (CAUTION!)", response.body.decode(UTF8))
 
     def test_groupadmin_sees_groupadmin_form(self) -> None:
-        groupadmin = self.create_user(username="groupadmin")
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
-        self.create_membership(groupadmin, self.group, groupadmin=True)
-        self.create_membership(regular_user, self.group)
-        self.dbsession.flush()
+        groupadmin = UserFactory(username="groupadmin")
+        regular_user = UserFactory(username="regular_user")
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id, group_id=group.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(user_id=regular_user.id, group_id=group.id)
         self.req._debugging_user = groupadmin
 
         self.req.add_get_params({ViewParam.USER_ID: str(regular_user.id)})
@@ -3301,9 +3095,8 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertNotIn("Superuser (CAUTION!)", content)
 
     def test_raises_for_conflicting_user_name(self) -> None:
-        self.create_user(username="existing_user")
-        other_user = self.create_user(username="other_user")
-        self.dbsession.flush()
+        UserFactory(username="existing_user")
+        other_user = UserFactory(username="other_user")
 
         multidict = MultiDict(
             [
@@ -3322,13 +3115,12 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertIn("Can't rename user", cm.exception.message)
 
     def test_user_is_updated(self) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="old_username",
             fullname="Old Name",
             email="old@example.com",
             language="da_DK",
         )
-        self.dbsession.flush()
 
         multidict = MultiDict(
             [
@@ -3353,9 +3145,8 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertEqual(user.language, "en_GB")
 
     def test_user_is_added_to_group(self) -> None:
-        user = self.create_user(username="regular_user")
-        group = self.create_group("group")
-        self.dbsession.flush()
+        user = UserFactory()
+        group = GroupFactory()
 
         multidict = MultiDict(
             [
@@ -3378,15 +3169,19 @@ class EditUserViewTests(BasicDatabaseTestCase):
         mock_set_group_ids.assert_called_once_with([group.id])
 
     def test_user_stays_in_group_the_groupadmin_cannot_edit(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        group_b_admin = self.create_user(username="group_b_admin")
-        group_a = self.create_group("group_a")
-        group_b = self.create_group("group_b")
-        self.dbsession.flush()
-        self.create_membership(regular_user, group_a)
-        self.create_membership(regular_user, group_b)
-        self.create_membership(group_b_admin, group_b, groupadmin=True)
-        self.dbsession.flush()
+        regular_user = UserFactory(username="regular_user")
+        group_b_admin = UserFactory(username="group_b_admin")
+        group_a = GroupFactory()
+        group_b = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group_a.id
+        )
+        UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group_b.id
+        )
+        UserGroupMembershipFactory(
+            user_id=group_b_admin.id, group_id=group_b.id, groupadmin=True
+        )
         self.req._debugging_user = group_b_admin
 
         multidict = MultiDict(
@@ -3412,18 +3207,22 @@ class EditUserViewTests(BasicDatabaseTestCase):
         mock_set_group_ids.assert_called_once_with([group_a.id, group_b.id])
 
     def test_upload_group_id_unset_when_membership_removed(self) -> None:
-        group_a = self.create_group("group_a")
-        group_b = self.create_group("group_b")
-        regular_user = self.create_user(
-            username="regular_user", upload_group=group_a
+        group_a = GroupFactory()
+        group_b = GroupFactory()
+        regular_user = UserFactory(upload_group=group_a)
+        groupadmin = UserFactory()
+        UserGroupMembershipFactory(
+            group_id=group_a.id, user_id=regular_user.id
         )
-        groupadmin = self.create_user(username="groupadmin")
-        self.dbsession.flush()
-        self.create_membership(regular_user, group_a)
-        self.create_membership(regular_user, group_b)
-        self.create_membership(groupadmin, group_a, groupadmin=True)
-        self.create_membership(groupadmin, group_b, groupadmin=True)
-        self.dbsession.flush()
+        UserGroupMembershipFactory(
+            group_id=group_b.id, user_id=regular_user.id
+        )
+        UserGroupMembershipFactory(
+            group_id=group_a.id, user_id=groupadmin.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(
+            group_id=group_b.id, user_id=groupadmin.id, groupadmin=True
+        )
         self.req._debugging_user = groupadmin
 
         multidict = MultiDict(
@@ -3446,20 +3245,24 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertIsNone(regular_user.upload_group_id)
 
     def test_get_form_values(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user",
             fullname="Full Name",
             email="user@example.com",
             language="da_DK",
         )
-        group_b_admin = self.create_user(username="group_b_admin")
-        group_a = self.create_group("group_a")
-        group_b = self.create_group("group_b")
-        self.dbsession.flush()
-        self.create_membership(regular_user, group_a)
-        self.create_membership(regular_user, group_b)
-        self.create_membership(group_b_admin, group_b, groupadmin=True)
-        self.dbsession.flush()
+        group_b_admin = UserFactory(username="group_b_admin")
+        group_a = GroupFactory()
+        group_b = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group_a.id
+        )
+        UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group_b.id
+        )
+        UserGroupMembershipFactory(
+            user_id=group_b_admin.id, group_id=group_b.id, groupadmin=True
+        )
         self.req._debugging_user = group_b_admin
 
         view = EditUserGroupAdminView(self.req)
@@ -3481,12 +3284,11 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertEqual(form_values[ViewParam.GROUP_IDS], [group_b.id])
 
     def test_raises_if_email_address_used_for_mfa(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user",
             mfa_method=MfaMethod.HOTP_EMAIL,
             email="user@example.com",
         )
-        self.dbsession.flush()
 
         multidict = MultiDict(
             [
@@ -3510,11 +3312,9 @@ class EditUserViewTests(BasicDatabaseTestCase):
 
 class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
     def test_get_form_values_mfa_method(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user", mfa_method=MfaMethod.HOTP_SMS
         )
-        self.dbsession.flush()
-
         self.req._debugging_user = regular_user
         view = EditOwnUserMfaView(self.req)
 
@@ -3528,13 +3328,11 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         )
 
     def test_get_form_values_hotp_email(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user",
             mfa_method=MfaMethod.HOTP_EMAIL,
             email="regular_user@example.com",
         )
-        self.dbsession.flush()
-
         self.req._debugging_user = regular_user
         view = EditOwnUserMfaView(self.req)
 
@@ -3557,13 +3355,11 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(form_values[ViewParam.EMAIL], regular_user.email)
 
     def test_get_form_values_hotp_sms(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user",
             mfa_method=MfaMethod.HOTP_SMS,
-            phone_number=phonenumbers.parse(TEST_PHONE_NUMBER),
+            phone_number=phonenumbers.parse(Fake.en_gb.valid_phone_number()),
         )
-        self.dbsession.flush()
-
         self.req._debugging_user = regular_user
         view = EditOwnUserMfaView(self.req)
 
@@ -3588,11 +3384,9 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         )
 
     def test_get_form_values_totp(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user", mfa_method=MfaMethod.TOTP
         )
-        self.dbsession.flush()
-
         self.req._debugging_user = regular_user
         view = EditOwnUserMfaView(self.req)
 
@@ -3614,13 +3408,11 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         )
 
     def test_user_can_set_secret_key(self) -> None:
-        regular_user = self.create_user(username="regular_user")
+        regular_user = UserFactory(username="regular_user")
         regular_user.mfa_method = MfaMethod.TOTP
         regular_user.ensure_mfa_info()
         # ... otherwise, the absence of e.g. the HOTP counter will cause a
         # secret key reset.
-        self.dbsession.flush()
-
         mfa_secret_key = pyotp.random_base32()
 
         multidict = MultiDict(
@@ -3641,9 +3433,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
 
     def test_user_can_set_method_totp(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
-
+        regular_user = UserFactory(username="regular_user")
         multidict = MultiDict(
             [
                 (ViewParam.MFA_METHOD, MfaMethod.TOTP),
@@ -3661,9 +3451,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.mfa_method, MfaMethod.TOTP)
 
     def test_user_can_set_method_hotp_email(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
-
+        regular_user = UserFactory(username="regular_user")
         multidict = MultiDict(
             [
                 (ViewParam.MFA_METHOD, MfaMethod.HOTP_EMAIL),
@@ -3682,9 +3470,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.hotp_counter, 0)
 
     def test_user_can_set_method_hotp_sms(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
-
+        regular_user = UserFactory(username="regular_user")
         multidict = MultiDict(
             [
                 (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
@@ -3703,11 +3489,9 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.hotp_counter, 0)
 
     def test_user_can_disable_mfa(self) -> None:
-        regular_user = self.create_user(
+        regular_user = UserFactory(
             username="regular_user", mfa_method=MfaMethod.TOTP
         )
-        self.dbsession.flush()
-
         multidict = MultiDict(
             [
                 (ViewParam.MFA_METHOD, MfaMethod.NO_MFA),
@@ -3731,13 +3515,14 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.mfa_method, MfaMethod.NO_MFA)
 
     def test_user_can_set_phone_number(self) -> None:
-        regular_user = self.create_user(username="regular_user")
+        regular_user = UserFactory(username="regular_user")
         regular_user.mfa_method = MfaMethod.HOTP_SMS
-        self.dbsession.flush()
+
+        phone_number_str = Fake.en_gb.valid_phone_number()
 
         multidict = MultiDict(
             [
-                (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
+                (ViewParam.PHONE_NUMBER, phone_number_str),
                 (FormAction.SUBMIT, "submit"),
             ]
         )
@@ -3750,16 +3535,15 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         view.dispatch()
 
-        test_number = phonenumbers.parse(TEST_PHONE_NUMBER)
-        self.assertEqual(regular_user.phone_number, test_number)
+        self.assertEqual(
+            regular_user.phone_number, phonenumbers.parse(phone_number_str)
+        )
 
     def test_user_can_set_email_address(self) -> None:
-        regular_user = self.create_user(username="regular_user")
+        regular_user = UserFactory(username="regular_user")
         # We're going to force this user to the e-mail verification step, so
         # we need to ensure it's set to use e-mail MFA:
         regular_user.mfa_method = MfaMethod.HOTP_EMAIL
-        self.dbsession.flush()
-
         multidict = MultiDict(
             [
                 (ViewParam.EMAIL, "regular_user@example.com"),
@@ -3798,8 +3582,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn("Cannot find User with id:123", cm.exception.message)
 
     def test_raises_when_user_may_not_edit_other_user(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
+        regular_user = UserFactory(username="regular_user")
         multidict = MultiDict(
             [
                 ("__start__", "new_password:mapping"),
@@ -3813,7 +3596,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params(
-            {ViewParam.USER_ID: str(self.user.id)}, set_method_get=False
+            {ViewParam.USER_ID: str(self.system_user.id)}, set_method_get=False
         )
 
         view = ChangeOtherPasswordView(self.req)
@@ -3823,12 +3606,13 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn("Nobody may edit the system user", cm.exception.message)
 
     def test_password_set(self) -> None:
-        groupadmin = self.create_user(username="groupadmin")
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
-        self.create_membership(groupadmin, self.group, groupadmin=True)
-        self.create_membership(regular_user, self.group)
-        self.dbsession.flush()
+        groupadmin = UserFactory(username="groupadmin")
+        regular_user = UserFactory(username="regular_user")
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id, group_id=group.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(user_id=regular_user.id, group_id=group.id)
 
         self.assertFalse(regular_user.must_change_password)
 
@@ -3864,13 +3648,13 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn("Password changed for user 'regular_user'", messages[0])
 
     def test_user_forced_to_change_password(self) -> None:
-        groupadmin = self.create_user(username="groupadmin")
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
-        self.create_membership(groupadmin, self.group, groupadmin=True)
-        self.create_membership(regular_user, self.group)
-        self.dbsession.flush()
-
+        groupadmin = UserFactory(username="groupadmin")
+        regular_user = UserFactory(username="regular_user")
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id, group_id=group.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(user_id=regular_user.id, group_id=group.id)
         multidict = MultiDict(
             [
                 (ViewParam.MUST_CHANGE_PASSWORD, "true"),
@@ -3899,8 +3683,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         mock_force_change.assert_called_once()
 
     def test_redirects_if_editing_own_account(self) -> None:
-        superuser = self.create_user(username="admin", superuser=True)
-        self.dbsession.flush()
+        superuser = UserFactory(username="admin", superuser=True)
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(superuser.id)}, set_method_get=False
@@ -3920,7 +3703,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_user_sees_otp_form_if_mfa_setup(
         self, mock_make_email: mock.Mock, mock_send_msg: mock.Mock
     ) -> None:
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             email="admin@example.com",
@@ -3929,8 +3712,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             hotp_counter=0,
         )
 
-        user = self.create_user(username="user")
-        self.dbsession.flush()
+        user = UserFactory(username="user")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -3952,19 +3734,17 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             SmsBackendNames.CONSOLE, {}
         )
 
-        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
-        superuser = self.create_user(
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             email="admin@example.com",
-            phone_number=phone_number,
+            phone_number=phonenumbers.parse(phone_number_str),
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_SMS,
             hotp_counter=0,
         )
-        user = self.create_user(username="user", email="user@example.com")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user", email="user@example.com")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -3978,12 +3758,12 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
+            ConsoleSmsBackend.make_msg(phone_number_str, expected_message),
             logging_cm.output[0],
         )
 
     def test_user_can_enter_token(self) -> None:
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -3991,9 +3771,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             email="user@example.com",
             hotp_counter=1,
         )
-        user = self.create_user(username="user", email="user@example.com")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user", email="user@example.com")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4022,7 +3800,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
 
     def test_form_state_cleared_on_invalid_token(self) -> None:
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="superuser",
             superuser=True,
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -4030,9 +3808,7 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             email="user@example.com",
             hotp_counter=1,
         )
-        user = self.create_user(username="user", email="user@example.com")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user", email="user@example.com")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4060,15 +3836,13 @@ class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     def test_cannot_change_password_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),
         )
-        user = self.create_user(username="user")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4120,14 +3894,13 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn("Cannot find User with id:123", cm.exception.message)
 
     def test_raises_when_user_may_not_edit_other_user(self) -> None:
-        regular_user = self.create_user(username="regular_user")
-        self.dbsession.flush()
+        regular_user = UserFactory(username="regular_user")
         multidict = MultiDict([(FormAction.SUBMIT, "submit")])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params(
-            {ViewParam.USER_ID: str(self.user.id)}, set_method_get=False
+            {ViewParam.USER_ID: str(self.system_user.id)}, set_method_get=False
         )
 
         view = EditOtherUserMfaView(self.req)
@@ -4137,15 +3910,15 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn("Nobody may edit the system user", cm.exception.message)
 
     def test_disable_mfa(self) -> None:
-        groupadmin = self.create_user(username="groupadmin")
-        regular_user = self.create_user(
+        groupadmin = UserFactory(username="groupadmin")
+        regular_user = UserFactory(
             username="regular_user", mfa_method=MfaMethod.TOTP
         )
-        self.dbsession.flush()
-        self.create_membership(groupadmin, self.group, groupadmin=True)
-        self.create_membership(regular_user, self.group)
-        self.dbsession.flush()
-
+        group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id, group_id=group.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(user_id=regular_user.id, group_id=group.id)
         self.assertFalse(regular_user.must_change_password)
 
         multidict = MultiDict(
@@ -4172,8 +3945,7 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
 
     def test_redirects_if_editing_own_account(self) -> None:
-        superuser = self.create_user(username="admin", superuser=True)
-        self.dbsession.flush()
+        superuser = UserFactory(username="admin", superuser=True)
         self.req._debugging_user = superuser
         self.req.add_get_params({ViewParam.USER_ID: str(superuser.id)})
 
@@ -4191,7 +3963,7 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_user_sees_otp_form_if_mfa_setup(
         self, mock_make_email: mock.Mock, mock_send_msg: mock.Mock
     ) -> None:
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             email="admin@example.com",
@@ -4200,8 +3972,7 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
             hotp_counter=0,
         )
 
-        user = self.create_user(username="user")
-        self.dbsession.flush()
+        user = UserFactory(username="user")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4223,19 +3994,17 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
             SmsBackendNames.CONSOLE, {}
         )
 
-        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
-        superuser = self.create_user(
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             email="admin@example.com",
-            phone_number=phone_number,
+            phone_number=phonenumbers.parse(phone_number_str),
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_SMS,
             hotp_counter=0,
         )
-        user = self.create_user(username="user", email="user@example.com")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user", email="user@example.com")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4249,12 +4018,12 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
+            ConsoleSmsBackend.make_msg(phone_number_str, expected_message),
             logging_cm.output[0],
         )
 
     def test_user_can_enter_token(self) -> None:
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="admin",
             superuser=True,
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -4262,9 +4031,7 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
             email="user@example.com",
             hotp_counter=1,
         )
-        user = self.create_user(username="user", email="user@example.com")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user", email="user@example.com")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4293,7 +4060,7 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
 
     def test_form_state_cleared_on_invalid_token(self) -> None:
-        superuser = self.create_user(
+        superuser = UserFactory(
             username="superuser",
             superuser=True,
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -4301,9 +4068,7 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
             email="user@example.com",
             hotp_counter=1,
         )
-        user = self.create_user(username="user", email="user@example.com")
-        self.dbsession.flush()
-
+        user = UserFactory(username="user", email="user@example.com")
         self.req._debugging_user = superuser
         self.req.add_get_params(
             {ViewParam.USER_ID: str(user.id)}, set_method_get=False
@@ -4330,45 +4095,34 @@ class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assert_state_is_clean()
 
 
-class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.regular_user = User()
-        self.regular_user.username = "ruser"
-        self.regular_user.hashedpw = ""
-        self.dbsession.add(self.regular_user)
-        self.dbsession.flush()
-
-        self.group_admin = User()
-        self.group_admin.username = "gadmin"
-        self.group_admin.hashedpw = ""
-        self.dbsession.add(self.group_admin)
-        self.dbsession.flush()
-
-        admin_ugm = UserGroupMembership(
-            user_id=self.group_admin.id, group_id=self.group.id
-        )
-        admin_ugm.groupadmin = True
-        self.dbsession.add(admin_ugm)
-
-        self.ugm = UserGroupMembership(
-            user_id=self.regular_user.id, group_id=self.group.id
-        )
-        self.dbsession.add(self.ugm)
-        self.dbsession.commit()
-
+class EditUserGroupMembershipViewTests(DemoRequestTestCase):
     def test_superuser_can_update_user_group_membership(self) -> None:
-        self.assertFalse(self.ugm.may_upload)
-        self.assertFalse(self.ugm.may_register_devices)
-        self.assertFalse(self.ugm.may_use_webviewer)
-        self.assertFalse(self.ugm.view_all_patients_when_unfiltered)
-        self.assertFalse(self.ugm.may_dump_data)
-        self.assertFalse(self.ugm.may_run_reports)
-        self.assertFalse(self.ugm.may_add_notes)
-        self.assertFalse(self.ugm.may_manage_patients)
-        self.assertFalse(self.ugm.may_email_patients)
-        self.assertFalse(self.ugm.groupadmin)
+        regular_user = UserFactory()
+        groupadmin = UserFactory()
+        group = GroupFactory()
+
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id,
+            group_id=group.id,
+            groupadmin=True,
+        )
+
+        ugm = UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group.id
+        )
+
+        self.req._debugging_user = groupadmin
+
+        self.assertFalse(ugm.may_upload)
+        self.assertFalse(ugm.may_register_devices)
+        self.assertFalse(ugm.may_use_webviewer)
+        self.assertFalse(ugm.view_all_patients_when_unfiltered)
+        self.assertFalse(ugm.may_dump_data)
+        self.assertFalse(ugm.may_run_reports)
+        self.assertFalse(ugm.may_add_notes)
+        self.assertFalse(ugm.may_manage_patients)
+        self.assertFalse(ugm.may_email_patients)
+        self.assertFalse(ugm.groupadmin)
 
         multidict = MultiDict(
             [
@@ -4388,35 +4142,49 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params(
-            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)},
+            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(ugm.id)},
             set_method_get=False,
         )
 
         with self.assertRaises(HTTPFound):
             edit_user_group_membership(self.req)
 
-        self.assertTrue(self.ugm.may_upload)
-        self.assertTrue(self.ugm.may_register_devices)
-        self.assertTrue(self.ugm.may_use_webviewer)
-        self.assertTrue(self.ugm.view_all_patients_when_unfiltered)
-        self.assertTrue(self.ugm.may_dump_data)
-        self.assertTrue(self.ugm.may_run_reports)
-        self.assertTrue(self.ugm.may_add_notes)
-        self.assertTrue(self.ugm.may_manage_patients)
-        self.assertTrue(self.ugm.may_email_patients)
+        self.assertTrue(ugm.may_upload)
+        self.assertTrue(ugm.may_register_devices)
+        self.assertTrue(ugm.may_use_webviewer)
+        self.assertTrue(ugm.view_all_patients_when_unfiltered)
+        self.assertTrue(ugm.may_dump_data)
+        self.assertTrue(ugm.may_run_reports)
+        self.assertTrue(ugm.may_add_notes)
+        self.assertTrue(ugm.may_manage_patients)
+        self.assertTrue(ugm.may_email_patients)
 
     def test_groupadmin_can_update_user_group_membership(self) -> None:
-        self.req._debugging_user = self.group_admin
+        regular_user = UserFactory()
+        groupadmin = UserFactory()
+        group = GroupFactory()
 
-        self.assertFalse(self.ugm.may_upload)
-        self.assertFalse(self.ugm.may_register_devices)
-        self.assertFalse(self.ugm.may_use_webviewer)
-        self.assertFalse(self.ugm.view_all_patients_when_unfiltered)
-        self.assertFalse(self.ugm.may_dump_data)
-        self.assertFalse(self.ugm.may_run_reports)
-        self.assertFalse(self.ugm.may_add_notes)
-        self.assertFalse(self.ugm.may_manage_patients)
-        self.assertFalse(self.ugm.may_email_patients)
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id,
+            group_id=group.id,
+            groupadmin=True,
+        )
+
+        ugm = UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group.id
+        )
+
+        self.req._debugging_user = groupadmin
+
+        self.assertFalse(ugm.may_upload)
+        self.assertFalse(ugm.may_register_devices)
+        self.assertFalse(ugm.may_use_webviewer)
+        self.assertFalse(ugm.view_all_patients_when_unfiltered)
+        self.assertFalse(ugm.may_dump_data)
+        self.assertFalse(ugm.may_run_reports)
+        self.assertFalse(ugm.may_add_notes)
+        self.assertFalse(ugm.may_manage_patients)
+        self.assertFalse(ugm.may_email_patients)
 
         multidict = MultiDict(
             [
@@ -4435,33 +4203,45 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params(
-            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)},
+            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(ugm.id)},
             set_method_get=False,
         )
 
         with self.assertRaises(HTTPFound):
             edit_user_group_membership(self.req)
 
-        self.assertTrue(self.ugm.may_upload)
-        self.assertTrue(self.ugm.may_register_devices)
-        self.assertTrue(self.ugm.may_use_webviewer)
-        self.assertTrue(self.ugm.view_all_patients_when_unfiltered)
-        self.assertTrue(self.ugm.may_dump_data)
-        self.assertTrue(self.ugm.may_run_reports)
-        self.assertTrue(self.ugm.may_add_notes)
-        self.assertTrue(self.ugm.may_manage_patients)
-        self.assertTrue(self.ugm.may_email_patients)
+        self.assertTrue(ugm.may_upload)
+        self.assertTrue(ugm.may_register_devices)
+        self.assertTrue(ugm.may_use_webviewer)
+        self.assertTrue(ugm.view_all_patients_when_unfiltered)
+        self.assertTrue(ugm.may_dump_data)
+        self.assertTrue(ugm.may_run_reports)
+        self.assertTrue(ugm.may_add_notes)
+        self.assertTrue(ugm.may_manage_patients)
+        self.assertTrue(ugm.may_email_patients)
 
     def test_raises_if_cant_edit_user(self) -> None:
-        self.ugm.user_id = self.user.id
-        self.dbsession.add(self.ugm)
-        self.dbsession.commit()
+        system_user = User.get_system_user(self.dbsession)
+        groupadmin = UserFactory()
+        group = GroupFactory()
+
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id,
+            group_id=group.id,
+            groupadmin=True,
+        )
+
+        system_ugm = UserGroupMembershipFactory(
+            user_id=system_user.id, group_id=group.id
+        )
+
+        self.req._debugging_user = groupadmin
 
         multidict = MultiDict([(FormAction.SUBMIT, "submit")])
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params(
-            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)},
+            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(system_ugm.id)},
             set_method_get=False,
         )
 
@@ -4471,22 +4251,22 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertIn("Nobody may edit the system user", cm.exception.message)
 
     def test_raises_if_cant_administer_group(self) -> None:
-        group_a = self.create_group("groupa")
-        group_b = self.create_group("groupb")
+        group_a = GroupFactory()
+        group_b = GroupFactory()
 
-        user1 = self.create_user(username="user1")
-        user2 = self.create_user(username="user2")
-        self.dbsession.flush()
+        user1 = UserFactory()
+        user2 = UserFactory()
 
         # User 1 is a group administrator for group A,
         # User 2 is a member if group A
-        self.create_membership(user1, group_a, groupadmin=True)
-        self.create_membership(user2, group_a),
+        UserGroupMembershipFactory(
+            user_id=user1.id, group_id=group_a.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(user_id=user2.id, group_id=group_a.id),
 
         # User 1 is not an administrator of group B
         # User 2 is a member of group B
-        ugm = self.create_membership(user2, group_b)
-        self.dbsession.commit()
+        ugm = UserGroupMembershipFactory(user_id=user2.id, group_id=group_b.id)
 
         multidict = MultiDict([(FormAction.SUBMIT, "submit")])
 
@@ -4506,11 +4286,26 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         )
 
     def test_cancel_returns_to_users_list(self) -> None:
+        regular_user = UserFactory()
+        groupadmin = UserFactory()
+        group = GroupFactory()
+
+        UserGroupMembershipFactory(
+            user_id=groupadmin.id,
+            group_id=group.id,
+            groupadmin=True,
+        )
+
+        ugm = UserGroupMembershipFactory(
+            user_id=regular_user.id, group_id=group.id
+        )
+
+        self.req._debugging_user = groupadmin
         multidict = MultiDict([(FormAction.CANCEL, "cancel")])
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params(
-            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)},
+            {ViewParam.USER_GROUP_MEMBERSHIP_ID: str(ugm.id)},
             set_method_get=False,
         )
 
@@ -4531,7 +4326,7 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_user_can_change_password(self) -> None:
         new_password = "monkeybusiness"
 
-        user = self.create_user(username="user", mfa_method=MfaMethod.NO_MFA)
+        user = UserFactory(username="user", mfa_method=MfaMethod.NO_MFA)
         user.set_password(self.req, "secret")
         multidict = MultiDict(
             [
@@ -4559,7 +4354,7 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assert_state_is_finished()
 
     def test_user_sees_expiry_message(self) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="user",
             mfa_method=MfaMethod.NO_MFA,
             must_change_password=True,
@@ -4585,7 +4380,7 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_user_sees_otp_form_if_mfa_setup(
         self, mock_make_email: mock.Mock, mock_send_msg: mock.Mock
     ) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="user",
             email="user@example.com",
             mfa_method=MfaMethod.HOTP_EMAIL,
@@ -4609,11 +4404,11 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.req.config.sms_backend = get_sms_backend(
             SmsBackendNames.CONSOLE, {}
         )
-        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
-        user = self.create_user(
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        user = UserFactory(
             username="user",
             email="user@example.com",
-            phone_number=phone_number,
+            phone_number=phonenumbers.parse(phone_number_str),
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_SMS,
             hotp_counter=0,
@@ -4628,12 +4423,12 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
+            ConsoleSmsBackend.make_msg(phone_number_str, expected_message),
             logging_cm.output[0],
         )
 
     def test_user_can_enter_token(self) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="user",
             mfa_method=MfaMethod.HOTP_EMAIL,
             mfa_secret_key=pyotp.random_base32(),
@@ -4668,7 +4463,7 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
         )
 
     def test_form_state_cleared_on_invalid_token(self) -> None:
-        user = self.create_user(
+        user = UserFactory(
             username="user",
             mfa_method=MfaMethod.HOTP_EMAIL,
             mfa_secret_key=pyotp.random_base32(),
@@ -4702,7 +4497,7 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     def test_cannot_change_password_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
-        user = self.create_user(
+        user = UserFactory(
             username="user",
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),

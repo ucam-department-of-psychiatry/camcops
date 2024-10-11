@@ -110,6 +110,17 @@ class SexProvider(ChoiceProvider):
         return self.random_choice(["M", "F", "X"], weights=[49.8, 49.8, 0.4])
 
 
+class ValidPhoneNumberProvider(BaseProvider):
+    # The default Faker phone_number provider for en_GB uses
+    # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
+    # 07700 900000 to 900999 reserved for TV and Radio drama purposes
+    # but unfortunately the phonenumbers library considers these invalid.
+    def valid_phone_number(self) -> str:
+        number = self.generator.random_int(min=7000000000, max=7999999999)
+
+        return f"+44{number}"
+
+
 class WaistProvider(BaseProvider):
     def waist_cm(self) -> float:
         return float(self.generator.random_int(min=40, max=130))
@@ -122,5 +133,6 @@ def register_all_providers(fake: Faker) -> None:
     fake.add_provider(HeightProvider)
     fake.add_provider(MassProvider)
     fake.add_provider(NhsNumberProvider)
+    fake.add_provider(ValidPhoneNumberProvider)
     fake.add_provider(WaistProvider)
     fake.add_provider(SexProvider)

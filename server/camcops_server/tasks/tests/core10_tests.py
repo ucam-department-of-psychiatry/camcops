@@ -27,7 +27,10 @@ camcops_server/tasks/tests/core10_tests.py
 
 import pendulum
 
-from camcops_server.cc_modules.cc_testfactories import PatientFactory
+from camcops_server.cc_modules.cc_testfactories import (
+    PatientFactory,
+    UserFactory,
+)
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.core10 import Core10, Core10Report
 from camcops_server.tasks.tests.factories import Core10Factory
@@ -38,6 +41,7 @@ class Core10ReportTestCase(DemoRequestTestCase):
         super().setUp()
 
         self.report = self.create_report()
+        self.req._debugging_user = UserFactory(superuser=True)
 
     def create_report(self) -> Core10Report:
         return Core10Report(via_index=False)

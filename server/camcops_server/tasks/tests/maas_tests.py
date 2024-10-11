@@ -27,7 +27,10 @@ camcops_server/tasks/tests/maas_tests.py
 
 import pendulum
 
-from camcops_server.cc_modules.cc_testfactories import PatientFactory
+from camcops_server.cc_modules.cc_testfactories import (
+    PatientFactory,
+    UserFactory,
+)
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.maas import Maas, MaasReport
 from camcops_server.tasks.tests.factories import MaasFactory
@@ -40,6 +43,7 @@ class MaasReportTests(DemoRequestTestCase):
         super().setUp()
 
         self.report = self.create_report()
+        self.req._debugging_user = UserFactory(superuser=True)
 
         patient = PatientFactory()
 

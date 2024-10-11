@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_testfactories.py
 
 """
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -37,6 +37,7 @@ import factory
 from faker import Faker
 import pendulum
 
+from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
@@ -57,6 +58,8 @@ from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
     from factory.builder import Resolver
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+
 
 # Avoid any ID clashes with objects not created with factories
 ID_OFFSET = 1000
@@ -121,9 +124,26 @@ class UserFactory(BaseFactory):
     class Meta:
         model = User
 
-    id = factory.Sequence(lambda n: n + ID_OFFSET)
-    username = factory.Sequence(lambda n: f"user{n + ID_OFFSET}")
+    username = factory.Sequence(lambda n: f"user{n}")
     hashedpw = ""
+
+    @factory.post_generation
+    def password(
+        obj: "Resolver",
+        create: bool,
+        password: Optional[str],
+        request: "CamcopsRequest" = None,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        if password is None:
+            return
+
+        assert request is not None
+
+        obj.set_password(request, password)
 
 
 class GenericTabletRecordFactory(BaseFactory):
@@ -139,21 +159,21 @@ class GenericTabletRecordFactory(BaseFactory):
     _adding_user = factory.SubFactory(UserFactory)
 
     @factory.lazy_attribute
-    def _when_added_exact(self) -> pendulum.DateTime:
-        return pendulum.parse(self.default_iso_datetime)
+    def _when_added_exact(obj: "Resolver") -> pendulum.DateTime:
+        return pendulum.parse(obj.default_iso_datetime)
 
     @factory.lazy_attribute
-    def _when_added_batch_utc(self) -> pendulum.DateTime:
-        era_time = pendulum.parse(self.default_iso_datetime)
+    def _when_added_batch_utc(obj: "Resolver") -> pendulum.DateTime:
+        era_time = pendulum.parse(obj.default_iso_datetime)
         return convert_datetime_to_utc(era_time)
 
     @factory.lazy_attribute
-    def _era(self) -> str:
-        era_time = pendulum.parse(self.default_iso_datetime)
+    def _era(obj: "Resolver") -> str:
+        era_time = pendulum.parse(obj.default_iso_datetime)
         return format_datetime(era_time, DateFormat.ISO8601)
 
     @factory.lazy_attribute
-    def _current(self) -> bool:
+    def _current(obj: "Resolver") -> bool:
         # _current = True gets ignored for some reason
         return True
 
@@ -168,6 +188,7 @@ class PatientFactory(GenericTabletRecordFactory):
     address = factory.LazyFunction(Fake.en_gb.address)
     gp = factory.LazyFunction(Fake.en_gb.name)
     other = factory.LazyFunction(Fake.en_us.paragraph)
+    email = factory.LazyFunction(Fake.en_gb.email)
 
     @factory.lazy_attribute
     def forename(obj: "Resolver") -> str:
@@ -178,14 +199,14 @@ class PatientFactory(GenericTabletRecordFactory):
 
 class ServerCreatedPatientFactory(PatientFactory):
     @factory.lazy_attribute
-    def _device(self) -> Device:
+    def _device(obj: "Resolver") -> Device:
         # Should have been created in BasicDatabaseTestCase.setUp
         return Device.get_server_device(
             ServerCreatedPatientFactory._meta.sqlalchemy_session
         )
 
     @factory.lazy_attribute
-    def _era(self) -> str:
+    def _era(obj: "Resolver") -> str:
         return ERA_NOW
 
 
@@ -260,14 +281,14 @@ class ServerCreatedPatientIdNumFactory(PatientIdNumFactory):
     patient = factory.SubFactory(ServerCreatedPatientFactory)
 
     @factory.lazy_attribute
-    def _device(self) -> Device:
+    def _device(obj: "Resolver") -> Device:
         # Should have been created in BasicDatabaseTestCase.setUp
         return Device.get_server_device(
             ServerCreatedPatientIdNumFactory._meta.sqlalchemy_session
         )
 
     @factory.lazy_attribute
-    def _era(self) -> str:
+    def _era(obj: "Resolver") -> str:
         return ERA_NOW
 
 
@@ -341,19 +362,19 @@ class EmailFactory(BaseFactory):
     # be a SQLite thing.
     @factory.post_generation
     def sent_at_utc(
-        self, create: bool, sent_at_utc: pendulum.DateTime, **kwargs
+        obj: "Resolver", create: bool, sent_at_utc: pendulum.DateTime, **kwargs
     ) -> None:
         if not create:
             return
 
-        self.sent_at_utc = sent_at_utc
+        obj.sent_at_utc = sent_at_utc
 
     @factory.post_generation
-    def sent(self, create: bool, sent: bool, **kwargs) -> None:
+    def sent(obj: "Resolver", create: bool, sent: bool, **kwargs) -> None:
         if not create:
             return
 
-        self.sent = sent
+        obj.sent = sent
 
 
 class PatientTaskScheduleEmailFactory(BaseFactory):
@@ -374,25 +395,117 @@ class UserGroupMembershipFactory(BaseFactory):
     # __init__() does not accept arbitrary keyword args.
     @factory.post_generation
     def may_run_reports(
-        self, create: bool, may_run_reports: bool, **kwargs
+        obj: "Resolver", create: bool, may_run_reports: bool, **kwargs
     ) -> None:
         if not create:
             return
 
-        self.may_run_reports = may_run_reports
+        obj.may_run_reports = may_run_reports
 
     @factory.post_generation
-    def groupadmin(self, create: bool, groupadmin: bool, **kwargs) -> None:
+    def groupadmin(
+        obj: "Resolver", create: bool, groupadmin: bool, **kwargs
+    ) -> None:
         if not create:
             return
 
-        self.groupadmin = groupadmin
+        obj.groupadmin = groupadmin
 
     @factory.post_generation
     def may_manage_patients(
-        self, create: bool, may_manage_patients: bool, **kwargs
+        obj: "Resolver", create: bool, may_manage_patients: bool, **kwargs
     ) -> None:
         if not create:
             return
 
-        self.may_manage_patients = may_manage_patients
+        obj.may_manage_patients = may_manage_patients
+
+    @factory.post_generation
+    def may_use_webviewer(
+        obj: "Resolver", create: bool, may_use_webviewer: bool, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        obj.may_use_webviewer = may_use_webviewer
+
+    @factory.post_generation
+    def view_all_patients_when_unfiltered(
+        obj: "Resolver",
+        create: bool,
+        view_all_patients_when_unfiltered: bool,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        obj.view_all_patients_when_unfiltered = (
+            view_all_patients_when_unfiltered
+        )
+
+    @factory.post_generation
+    def may_add_notes(
+        obj: "Resolver",
+        create: bool,
+        may_add_notes: bool,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        obj.may_add_notes = may_add_notes
+
+    @factory.post_generation
+    def may_dump_data(
+        obj: "Resolver",
+        create: bool,
+        may_dump_data: bool,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        obj.may_dump_data = may_dump_data
+
+    @factory.post_generation
+    def may_email_patients(
+        obj: "Resolver",
+        create: bool,
+        may_email_patients: bool,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        obj.may_email_patients = may_email_patients
+
+    @factory.post_generation
+    def may_upload(
+        obj: "Resolver",
+        create: bool,
+        may_upload: bool,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        obj.may_upload = may_upload
+
+    @factory.post_generation
+    def may_register_devices(
+        obj: "Resolver",
+        create: bool,
+        may_register_devices: bool,
+        **kwargs,
+    ) -> None:
+        if not create:
+            return
+
+        obj.may_register_devices = may_register_devices
+
+
+class BlobFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = Blob
+
+    id = factory.Sequence(lambda n: n + ID_OFFSET)

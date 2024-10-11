@@ -34,52 +34,39 @@ import logging
 import os
 import random
 import sqlite3
-from typing import Any, List, Type, TYPE_CHECKING
+from typing import List, Type, TYPE_CHECKING
 import unittest
 
 from cardinal_pythonlib.classes import all_subclasses
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
-import pendulum
 import pytest
 from sqlalchemy.engine.base import Engine
 
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-from camcops_server.cc_modules.cc_group import Group
-from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
-from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_request import (
     CamcopsRequest,
     get_unittest_request,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
+from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_user import User
-from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_testfactories import (
     BaseFactory,
-    DeviceFactory,
     GroupFactory,
-    IdNumDefinitionFactory,
     NHSPatientIdNumFactory,
     PatientFactory,
     RioPatientIdNumFactory,
-    ServerCreatedPatientFactory,
-    ServerCreatedNHSPatientIdNumFactory,
-    ServerCreatedRioPatientIdNumFactory,
-    ServerCreatedStudyPatientIdNumFactory,
     UserFactory,
+    UserGroupMembershipFactory,
 )
-from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.tasks.tests import factories as task_factories
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
-    from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
-    from camcops_server.cc_modules.cc_patient import Patient
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -234,227 +221,28 @@ class DemoRequestTestCase(ExtendedTestCase):
 
 class BasicDatabaseTestCase(DemoRequestTestCase):
     """
-    Test case that sets up some useful database records for testing:
-    ID numbers, user, group, devices etc and has helper methods for
-    creating patients and tasks
+    Test case that sets up some minimal database records for testing.
     """
 
     def setUp(self) -> None:
         super().setUp()
 
-        self.set_era("2010-07-07T13:40+0100")
+        self.group = GroupFactory()
+        self.groupadmin = UserFactory()
 
-        # Set up groups, users, etc.
-        # ... ID number definitions
-        idnum_type_nhs = 1
-        idnum_type_rio = 2
-        idnum_type_study = 3
-        self.nhs_iddef = IdNumDefinition(
-            which_idnum=idnum_type_nhs,
-            description="NHS number",
-            short_description="NHS#",
-            hl7_assigning_authority="NHS",
-            hl7_id_type="NHSN",
+        UserGroupMembershipFactory(
+            group_id=self.group.id, user_id=self.groupadmin.id, groupadmin=True
         )
-        self.dbsession.add(self.nhs_iddef)
-        self.rio_iddef = IdNumDefinition(
-            which_idnum=idnum_type_rio,
-            description="RiO number",
-            short_description="RiO",
-            hl7_assigning_authority="CPFT",
-            hl7_id_type="CPRiO",
-        )
-        self.dbsession.add(self.rio_iddef)
-        self.study_iddef = IdNumDefinition(
-            which_idnum=idnum_type_study,
-            description="Study number",
-            short_description="Study",
-        )
-        self.dbsession.add(self.study_iddef)
-        # ... group
-        self.group = Group()
-        self.group.name = "testgroup"
-        self.group.description = "Test group"
-        self.group.upload_policy = "sex AND anyidnum"
-        self.group.finalize_policy = "sex AND idnum1"
-        self.group.ip_use = IpUse()
-        self.dbsession.add(self.group)
-        self.dbsession.flush()  # sets PK fields
-        GroupFactory.reset_sequence(self.group.id + 1)
 
-        # ... users
+        self.system_user = User.get_system_user(self.dbsession)
+        self.system_user.upload_group_id = self.group.id
 
-        self.user = User.get_system_user(self.dbsession)
-        self.user.upload_group_id = self.group.id
-        self.req._debugging_user = self.user  # improve our debugging user
+        self.req._debugging_user = (
+            self.system_user
+        )  # improve our debugging user
 
-        # ... devices
         self.server_device = Device.get_server_device(self.dbsession)
-        DeviceFactory.reset_sequence(self.server_device.id + 1)
-        self.other_device = DeviceFactory(
-            name="other_device",
-            friendly_name="Test device that may upload",
-            registered_by_user=self.user,
-            when_registered_utc=self.era_time_utc,
-            camcops_version=CAMCOPS_SERVER_VERSION,
-        )
-        DeviceFactory.reset_sequence(self.other_device.id + 1)
-        # ... export recipient definition (the minimum)
-        self.recipdef.primary_idnum = idnum_type_nhs
-
-        self.dbsession.flush()  # sets PK fields
-        UserFactory.reset_sequence(self.user.id + 1)
-
-        IdNumDefinitionFactory.reset_sequence(idnum_type_study + 1)
-
-        self.create_tasks()
-
-    def set_era(self, iso_datetime: str) -> None:
-        from cardinal_pythonlib.datetimefunc import (
-            convert_datetime_to_utc,
-            format_datetime,
-        )
-        from camcops_server.cc_modules.cc_constants import DateFormat
-
-        self.era_time = pendulum.parse(iso_datetime)
-        self.era_time_utc = convert_datetime_to_utc(self.era_time)
-        self.era = format_datetime(self.era_time, DateFormat.ISO8601)
-
-    def create_patient_with_two_idnums(self) -> "Patient":
-        patient = PatientFactory()
-        NHSPatientIdNumFactory(patient=patient)
-        RioPatientIdNumFactory(patient=patient)
-
-        return patient
-
-    def create_patient_with_one_idnum(self) -> "Patient":
-        patient = PatientFactory()
-        NHSPatientIdNumFactory(patient=patient)
-
-        return patient
-
-    def create_server_nhs_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
-        return self.create_nhs_patient_idnum(as_server_patient=True, **kwargs)
-
-    def create_server_rio_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
-        return self.create_patient_idnum(
-            ServerCreatedRioPatientIdNumFactory, **kwargs
-        )
-
-    def create_rio_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
-        return self.create_patient_idnum(RioPatientIdNumFactory, **kwargs)
-
-    def create_server_study_patient_idnum(
-        self, **kwargs: Any
-    ) -> "PatientIdNum":
-        return self.create_patient_idnum(
-            ServerCreatedStudyPatientIdNumFactory, **kwargs
-        )
-
-    def create_nhs_patient_idnum(
-        self, as_server_patient: bool = False, **kwargs: Any
-    ) -> "PatientIdNum":
-        if as_server_patient:
-            return self.create_patient_idnum(
-                ServerCreatedNHSPatientIdNumFactory, **kwargs
-            )
-        return self.create_patient_idnum(NHSPatientIdNumFactory, **kwargs)
-
-    def create_patient_idnum(self, factory, **kwargs) -> "PatientIdNum":
-        patient_idnum = factory(**kwargs)
-
-        self.dbsession.add(patient_idnum)
         self.dbsession.commit()
-
-        return patient_idnum
-
-    def create_server_patient(self, **kwargs: Any) -> "Patient":
-        return self.create_patient(as_server_patient=True, **kwargs)
-
-    def create_patient(
-        self, as_server_patient: bool = False, **kwargs: Any
-    ) -> "Patient":
-        if as_server_patient:
-            patient = ServerCreatedPatientFactory(**kwargs)
-        else:
-            patient = PatientFactory(**kwargs)
-
-        self.dbsession.add(patient)
-        self.dbsession.commit()
-
-        return patient
-
-    def create_tasks(self) -> None:
-        # Override in subclass
-        pass
-
-    def apply_standard_task_fields(
-        self, task: "Task", era: str, device: Device = None
-    ) -> None:
-        """
-        Writes some default values to an SQLAlchemy ORM object representing
-        a task.
-        """
-        self.apply_standard_db_fields(task, era, device=device)
-        task.when_created = self.era_time
-
-    def apply_standard_db_fields(
-        self,
-        obj: "GenericTabletRecordMixin",
-        era: str,
-        device: Device = None,
-    ) -> None:
-        """
-        Writes some default values to an SQLAlchemy ORM object representing a
-        record uploaded from a client (tablet) device.
-
-        Though we use the server device ID.
-        """
-        if device is None:
-            device = self.server_device
-        obj._device_id = device.id
-        obj._era = era
-        obj._group_id = self.group.id
-        obj._current = True
-        obj._adding_user_id = self.user.id
-        obj._when_added_batch_utc = self.era_time_utc
-
-    def create_user(self, **kwargs) -> User:
-        user = User()
-        user.hashedpw = ""
-
-        for key, value in kwargs.items():
-            setattr(user, key, value)
-
-        self.dbsession.add(user)
-
-        return user
-
-    def create_group(self, name: str, **kwargs) -> Group:
-        group = Group()
-        group.name = name
-
-        for key, value in kwargs.items():
-            setattr(group, key, value)
-
-        self.dbsession.add(group)
-
-        return group
-
-    def create_membership(
-        self, user: User, group: Group, **kwargs
-    ) -> UserGroupMembership:
-        ugm = UserGroupMembership(user_id=user.id, group_id=group.id)
-
-        for key, value in kwargs.items():
-            setattr(ugm, key, value)
-
-        self.dbsession.add(ugm)
-
-        return ugm
-
-    def tearDown(self) -> None:
-        pass
 
 
 class DemoDatabaseTestCase(BasicDatabaseTestCase):
@@ -463,55 +251,38 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
     each type
     """
 
-    def create_tasks(self) -> None:
-        from camcops_server.cc_modules.cc_blob import Blob
-        from camcops_server.tasks.photo import Photo
-        from camcops_server.cc_modules.cc_task import Task
+    def setUp(self) -> None:
+        super().setUp()
 
-        patient_with_two_idnums = self.create_patient_with_two_idnums()
-        patient_with_one_idnum = self.create_patient_with_one_idnum()
+        self.demo_database_group = GroupFactory()
+
+        patient_with_two_idnums = PatientFactory(
+            _group=self.demo_database_group
+        )
+        NHSPatientIdNumFactory(patient=patient_with_two_idnums)
+        RioPatientIdNumFactory(patient=patient_with_two_idnums)
+
+        patient_with_one_idnum = PatientFactory(
+            _group=self.demo_database_group
+        )
+        NHSPatientIdNumFactory(patient=patient_with_one_idnum)
 
         for cls in Task.all_subclasses_by_tablename():
-            t1 = cls()
-            t1.id = 1
-            self.apply_standard_task_fields(
-                t1,
-                patient_with_two_idnums._era,
-                device=patient_with_two_idnums._device,
-            )
-            if t1.has_patient:
-                t1.patient_id = patient_with_two_idnums.id
+            factory_class = getattr(task_factories, f"{cls.__name__}Factory")
 
-            if isinstance(t1, Photo):
-                b = Blob()
-                b.id = 1
-                self.apply_standard_db_fields(
-                    b,
-                    patient_with_two_idnums._era,
-                    device=patient_with_two_idnums._device,
+            t1_kwargs = t2_kwargs = dict(_group=self.demo_database_group)
+            if issubclass(cls, TaskHasPatientMixin):
+                t1_kwargs.update(patient=patient_with_two_idnums)
+                t2_kwargs.update(patient=patient_with_one_idnum)
+
+            if cls.__name__ == "Photo":
+                t1_kwargs.update(
+                    create_blob__fieldname="photo_blobid",
+                    create_blob__filename="some_picture.png",
+                    create_blob__mimetype=MimeType.PNG,
+                    create_blob__image_rotation_deg_cw=0,
+                    create_blob__theblob=DEMO_PNG_BYTES,
                 )
-                b.tablename = t1.tablename
-                b.tablepk = t1.id
-                b.fieldname = "photo_blobid"
-                b.filename = "some_picture.png"
-                b.mimetype = MimeType.PNG
-                b.image_rotation_deg_cw = 0
-                b.theblob = DEMO_PNG_BYTES
-                self.dbsession.add(b)
 
-                t1.photo_blobid = b.id
-
-            self.dbsession.add(t1)
-
-            t2 = cls()
-            t2.id = 2
-            self.apply_standard_task_fields(
-                t2,
-                patient_with_one_idnum._era,
-                device=patient_with_one_idnum._device,
-            )
-            if t2.has_patient:
-                t2.patient_id = patient_with_one_idnum.id
-            self.dbsession.add(t2)
-
-        self.dbsession.commit()
+            factory_class(**t1_kwargs)
+            factory_class(**t2_kwargs)

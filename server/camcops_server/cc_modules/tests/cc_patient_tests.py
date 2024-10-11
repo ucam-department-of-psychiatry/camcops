@@ -28,6 +28,7 @@ camcops_server/cc_modules/tests/cc_patient_tests.py
 import hl7
 import pendulum
 
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_simpleobjects import BarePatientInfo
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
@@ -62,14 +63,9 @@ from camcops_server.cc_modules.cc_xml import XmlElement
 
 
 class PatientTests(DemoRequestTestCase):
-    """
-    Unit tests.
-    """
-
     def test_patient(self) -> None:
-        from camcops_server.cc_modules.cc_group import Group
-
         req = self.req
+        req._debugging_user = UserFactory()
 
         p = PatientFactory()
         nhs_idnum = NHSPatientIdNumFactory(patient=p)
