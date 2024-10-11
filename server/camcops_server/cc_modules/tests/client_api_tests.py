@@ -664,7 +664,7 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         user, _ = get_or_create_single_user(self.req, "test", self.patient)
         self.dbsession.flush()
 
-        self.assertIn(self.patient._group.id, user.group_ids)
+        self.assertIn(self.patient.group.id, user.group_ids)
 
     def test_user_is_created_with_username(self) -> None:
         user, _ = get_or_create_single_user(self.req, "test", self.patient)
@@ -678,3 +678,9 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
 
         valid_chars = string.ascii_letters + string.digits + string.punctuation
         self.assertTrue(all(c in valid_chars for c in password))
+
+    def test_user_upload_group_set(self) -> None:
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertEqual(user.upload_group, self.patient.group)
