@@ -696,3 +696,9 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.dbsession.flush()
 
         self.assertFalse(user.superuser)
+
+    def test_single_patient_pk_set(self) -> None:
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertEqual(user.single_patient_pk, self.patient._pk)
