@@ -2407,8 +2407,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         self.assertIn('autocomplete="current-password"', context["form"])
 
     def test_fails_when_user_locked_out(self) -> None:
-        user = UserFactory(username="test")
-        user.set_password(self.req, "secret")
+        user = UserFactory(
+            username="test", password__request=self.req, password="secret"
+        )
         SecurityAccountLockout.lock_user_out(
             self.req, user.username, lockout_minutes=1
         )
@@ -2439,8 +2440,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_can_log_in(self, mock_audit: mock.Mock) -> None:
-        user = UserFactory(username="test")
-        user.set_password(self.req, "secret")
+        user = UserFactory(
+            username="test", password__request=self.req, password="secret"
+        )
         UserGroupMembershipFactory(
             user_id=user.id, group_id=self.group.id, may_use_webviewer=True
         )
@@ -2480,9 +2482,10 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             username="test",
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.TOTP,
+            password__request=self.req,
+            password="secret",
         )
         group = GroupFactory()
-        user.set_password(self.req, "secret")
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
         )
@@ -2518,9 +2521,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_method=MfaMethod.HOTP_EMAIL,
             email="user@example.com",
             hotp_counter=0,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2556,9 +2559,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_method=MfaMethod.HOTP_SMS,
             phone_number=phonenumbers.parse(phone_number_str),
             hotp_counter=0,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2598,9 +2601,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_EMAIL,
             email="user@example.com",
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2654,10 +2657,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_EMAIL,
             hotp_counter=0,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
-
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2710,9 +2712,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_SMS,
             hotp_counter=0,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2752,9 +2754,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_secret_key=pyotp.random_base32(),
             mfa_method=MfaMethod.HOTP_EMAIL,
             hotp_counter=0,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2782,9 +2784,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             username="test",
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
 
         group = GroupFactory()
         UserGroupMembershipFactory(
@@ -2832,10 +2834,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_method=MfaMethod.HOTP_EMAIL,
             mfa_secret_key=pyotp.random_base32(),
             hotp_counter=1,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
-
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2880,9 +2881,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_method=MfaMethod.HOTP_EMAIL,
             mfa_secret_key=pyotp.random_base32(),
             hotp_counter=1,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2918,9 +2919,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
             username="test",
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
         group = GroupFactory()
         UserGroupMembershipFactory(
             user_id=user.id, group_id=group.id, may_use_webviewer=True
@@ -2953,10 +2954,9 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         mock_fail_timed_out.assert_called_once()
 
     def test_unprivileged_user_cannot_log_in(self) -> None:
-        user = UserFactory(username="test")
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
-
+        user = UserFactory(
+            username="test", password__request=self.req, password="secret"
+        )
         UserGroupMembershipFactory(
             user_id=user.id, group_id=self.group.id, may_use_webviewer=False
         )
@@ -4325,8 +4325,12 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
     def test_user_can_change_password(self) -> None:
         new_password = "monkeybusiness"
 
-        user = UserFactory(username="user", mfa_method=MfaMethod.NO_MFA)
-        user.set_password(self.req, "secret")
+        user = UserFactory(
+            username="user",
+            mfa_method=MfaMethod.NO_MFA,
+            password__request=self.req,
+            password="secret",
+        )
         multidict = MultiDict(
             [
                 (ViewParam.OLD_PASSWORD, "secret"),
@@ -4433,10 +4437,9 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_secret_key=pyotp.random_base32(),
             email="user@example.com",
             hotp_counter=1,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
-
         self.req._debugging_user = user
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
@@ -4468,10 +4471,9 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             mfa_secret_key=pyotp.random_base32(),
             email="user@example.com",
             hotp_counter=1,
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
-
         self.req._debugging_user = user
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
@@ -4500,10 +4502,9 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
             username="user",
             mfa_method=MfaMethod.TOTP,
             mfa_secret_key=pyotp.random_base32(),
+            password__request=self.req,
+            password="secret",
         )
-        user.set_password(self.req, "secret")
-        self.dbsession.flush()
-
         self.req._debugging_user = user
 
         totp = pyotp.TOTP(user.mfa_secret_key)
