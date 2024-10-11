@@ -714,3 +714,11 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.dbsession.flush()
 
         self.assertTrue(user.user_group_memberships[0].may_upload)
+
+    def test_existing_user_is_updated(self) -> None:
+        existing_user = UserFactory(username="test")
+
+        user, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.dbsession.flush()
+
+        self.assertEqual(user, existing_user)
