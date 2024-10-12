@@ -101,6 +101,7 @@ from camcops_server.cc_modules.tests.cc_view_classes_tests import (
 )
 from camcops_server.cc_modules.webview import (
     add_patient,
+    add_user,
     AddPatientView,
     AddTaskScheduleItemView,
     AddTaskScheduleView,
@@ -4530,3 +4531,58 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
                 view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
+
+
+class AddUserTests(DemoRequestTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.groupadmin = self.req._debugging_user = UserFactory()
+
+    def test_user_created(self) -> None:
+        group_1 = GroupFactory()
+        group_2 = GroupFactory()
+
+        UserGroupMembershipFactory(
+            user_id=self.groupadmin.id, group_id=group_1.id, groupadmin=True
+        )
+        UserGroupMembershipFactory(
+            user_id=self.groupadmin.id, group_id=group_2.id, groupadmin=True
+        )
+
+        multidict = MultiDict(
+            [
+                ("_charset_", UTF8),
+                ("__formid__", "deform"),
+                (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+                (ViewParam.USERNAME, "test"),
+                ("__start__", "new_password:mapping"),
+                (ViewParam.NEW_PASSWORD, "monkeybusiness"),
+                ("new_password-confirm", "monkeybusiness"),
+                ("__end__", "new_password:mapping"),
+                (ViewParam.MUST_CHANGE_PASSWORD, "true"),
+                ("__start__", "group_ids:sequence"),
+                ("group_id_sequence", str(group_1.id)),
+                ("group_id_sequence", str(group_2.id)),
+                ("__end__", "group_ids:sequence"),
+                (FormAction.SUBMIT, "submit"),
+            ]
+        )
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            add_user(self.req)
+
+        user = (
+            self.dbsession.query(User)
+            .filter(
+                User.username == "test",
+            )
+            .one_or_none()
+        )
+
+        self.assertIsNotNone(user)
+
+        self.assertTrue(user.must_change_password)
+        self.assertIn(group_1.id, user.group_ids)
+        self.assertIn(group_2.id, user.group_ids)
