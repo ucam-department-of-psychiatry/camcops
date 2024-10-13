@@ -230,6 +230,8 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.group = GroupFactory()
         self.groupadmin = UserFactory()
 
+        self.superuser = UserFactory(superuser=True)
+
         UserGroupMembershipFactory(
             group_id=self.group.id, user_id=self.groupadmin.id, groupadmin=True
         )
@@ -237,9 +239,7 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.system_user = User.get_system_user(self.dbsession)
         self.system_user.upload_group_id = self.group.id
 
-        self.req._debugging_user = (
-            self.system_user
-        )  # improve our debugging user
+        self.req._debugging_user = self.superuser  # improve our debugging user
 
         self.server_device = Device.get_server_device(self.dbsession)
         self.dbsession.commit()
