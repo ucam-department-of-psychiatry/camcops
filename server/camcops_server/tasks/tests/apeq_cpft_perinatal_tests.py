@@ -176,12 +176,12 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 
     def test_main_rows_contain_percentages(self) -> None:
         expected_percentages = [
-            [20, 50, 25, 25],  # q1
-            [20, "", 100, ""],  # q2
-            [20, 5, 20, 75],  # q3
-            [20, 10, 40, 50],  # q4
-            [20, 15, 55, 30],  # q5
-            [18, "", 50, 50],  # q6
+            ["20", "50", "25", "25"],  # q1
+            ["20", "", "100", ""],  # q2
+            ["20", "5", "20", "75"],  # q3
+            ["20", "10", "40", "50"],  # q4
+            ["20", "15", "55", "30"],  # q5
+            ["18", "", "50", "50"],  # q6
         ]
 
         main_rows = self.report._get_main_rows(self.req)
