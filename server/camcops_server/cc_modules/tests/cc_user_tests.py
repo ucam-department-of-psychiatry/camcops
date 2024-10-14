@@ -934,7 +934,7 @@ class UserPermissionTests(DemoRequestTestCase):
 
 
 class SetGroupIdsTests(DemoRequestTestCase):
-    def test_old_group_ids_removed(self):
+    def test_old_group_ids_removed(self) -> None:
         group_a = GroupFactory()
         group_b = GroupFactory()
 
@@ -949,7 +949,7 @@ class SetGroupIdsTests(DemoRequestTestCase):
 
         self.assertEqual(len(user.user_group_memberships), 0)
 
-    def test_new_group_ids_added(self):
+    def test_new_group_ids_added(self) -> None:
         group_a = GroupFactory()
         group_b = GroupFactory()
 

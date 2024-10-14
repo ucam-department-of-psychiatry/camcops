@@ -303,13 +303,8 @@ class Core10ReportDateRangeTests(Core10ReportTestCase):
         )
 
     def test_report_filtered_by_date_range(self) -> None:
-        # self.report.start_datetime = pendulum.parse("2018-05-01T00:00:00.000000+00:00")  # noqa
-        self.report.start_datetime = pendulum.parse(
-            "2018-06-01T00:00:00.000000+00:00"
-        )
-        self.report.end_datetime = pendulum.parse(
-            "2018-09-01T00:00:00.000000+00:00"
-        )
+        self.report.start_datetime = "2018-06-01T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-09-01T00:00:00.000000+00:00"
 
         self.set_echo(True)
         pages = self.report.get_spreadsheet_pages(req=self.req)

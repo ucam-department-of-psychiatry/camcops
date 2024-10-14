@@ -1209,7 +1209,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         view = EditServerCreatedPatientView(self.req)
         view.object = patient
 
-        changes = {}
+        changes: OrderedDict = OrderedDict()
         view._save_task_schedules(appstruct, changes)
         self.req.dbsession.commit()
 
@@ -4534,7 +4534,7 @@ class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
 
 
 class AddUserTests(DemoRequestTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.groupadmin = self.req._debugging_user = UserFactory()

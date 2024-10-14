@@ -35,9 +35,6 @@ from camcops_server.tasks.tests.factories import PerinatalPoemFactory
 
 
 class PerinatalPoemReportTestCase(DemoRequestTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def setUp(self) -> None:
         super().setUp()
 
@@ -54,7 +51,7 @@ class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
     sanity checking here
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         t1 = PerinatalPoemFactory(general_comments="comment 1")

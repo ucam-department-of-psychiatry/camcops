@@ -34,8 +34,8 @@ import logging
 import os
 import random
 import sqlite3
-from typing import List, Type, TYPE_CHECKING
-import unittest
+from typing import Any, Dict, List, Type, TYPE_CHECKING
+from unittest import mock, TestCase
 
 from cardinal_pythonlib.classes import all_subclasses
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
@@ -87,7 +87,7 @@ DEMO_PNG_BYTES = base64.b64decode(
 # =============================================================================
 
 
-class ExtendedTestCase(unittest.TestCase):
+class ExtendedTestCase(TestCase):
 
     def setUp(self) -> None:
         super().setUp()
@@ -154,7 +154,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         # afterwards.
         self.old_config = copy.copy(self.req.config)
 
-        self.req.matched_route = unittest.mock.Mock()
+        self.req.matched_route = mock.Mock()
         self.recipdef = ExportRecipient()
 
     def tearDown(self) -> None:
@@ -270,7 +270,8 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
         for cls in Task.all_subclasses_by_tablename():
             factory_class = getattr(task_factories, f"{cls.__name__}Factory")
 
-            t1_kwargs = t2_kwargs = dict(_group=self.demo_database_group)
+            t1_kwargs: Dict[str, Any] = dict(_group=self.demo_database_group)
+            t2_kwargs = t1_kwargs
             if issubclass(cls, TaskHasPatientMixin):
                 t1_kwargs.update(patient=patient_with_two_idnums)
                 t2_kwargs.update(patient=patient_with_one_idnum)

@@ -192,7 +192,7 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 
             for p in row[1:]:
                 if p != "":
-                    p = int(float(p))
+                    p = str(int(float(p)))
 
                 percentages.append(p)
 

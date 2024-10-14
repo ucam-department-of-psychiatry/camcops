@@ -29,8 +29,9 @@ camcops_server/tasks/tests/factories.py
 
 import factory
 import pendulum
-from typing import TypeVar, TYPE_CHECKING
+from typing import cast, TYPE_CHECKING
 
+from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_testfactories import (
     BlobFactory,
     Fake,
@@ -185,16 +186,17 @@ if TYPE_CHECKING:
     from factory.builder import Resolver
 
 
-T = TypeVar("T")
-
-
 class TaskFactory(GenericTabletRecordFactory):
     class Meta:
         abstract = True
 
     @factory.lazy_attribute
     def when_created(self) -> pendulum.DateTime:
-        return pendulum.parse(self.default_iso_datetime)
+        datetime = cast(
+            pendulum.DateTime, pendulum.parse(self.default_iso_datetime)
+        )
+
+        return datetime
 
 
 class TaskHasPatientFactory(TaskFactory):
@@ -204,7 +206,7 @@ class TaskHasPatientFactory(TaskFactory):
     patient_id = None
 
     @classmethod
-    def create(cls, *args, **kwargs) -> T:
+    def create(cls, *args, **kwargs) -> Task:
         patient = kwargs.pop("patient", None)
         if patient is not None:
             if "patient_id" in kwargs:
@@ -292,7 +294,7 @@ class DiagnosisIcd10ItemFactory(DiagnosisItemFactory):
     id = factory.Sequence(lambda n: n)
 
     @classmethod
-    def create(cls, *args, **kwargs) -> T:
+    def create(cls, *args, **kwargs) -> DiagnosisIcd10Item:
         diagnosis_icd10 = kwargs.pop("diagnosis_icd10", None)
         if diagnosis_icd10 is not None:
             if "diagnosis_icd10_id" in kwargs:
@@ -329,7 +331,7 @@ class DiagnosisIcd9CMItemFactory(DiagnosisItemFactory):
     id = factory.Sequence(lambda n: n)
 
     @classmethod
-    def create(cls, *args, **kwargs) -> T:
+    def create(cls, *args, **kwargs) -> DiagnosisIcd9CMItem:
         diagnosis_icd9cm = kwargs.pop("diagnosis_icd9cm", None)
         if diagnosis_icd9cm is not None:
             if "diagnosis_icd9cm_id" in kwargs:

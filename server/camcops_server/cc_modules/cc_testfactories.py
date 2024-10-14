@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_testfactories.py
 
 """
 
-from typing import Optional, TYPE_CHECKING
+from typing import cast, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -129,7 +129,7 @@ class UserFactory(BaseFactory):
 
     @factory.post_generation
     def password(
-        obj: "Resolver",
+        obj: User,
         create: bool,
         password: Optional[str],
         request: "CamcopsRequest" = None,
@@ -160,7 +160,11 @@ class GenericTabletRecordFactory(BaseFactory):
 
     @factory.lazy_attribute
     def _when_added_exact(obj: "Resolver") -> pendulum.DateTime:
-        return pendulum.parse(obj.default_iso_datetime)
+        datetime = cast(
+            pendulum.DateTime, pendulum.parse(obj.default_iso_datetime)
+        )
+
+        return datetime
 
     @factory.lazy_attribute
     def _when_added_batch_utc(obj: "Resolver") -> pendulum.DateTime:
@@ -200,7 +204,7 @@ class PatientFactory(GenericTabletRecordFactory):
 class ServerCreatedPatientFactory(PatientFactory):
     @factory.lazy_attribute
     def _device(obj: "Resolver") -> Device:
-        # Should have been created in BasicDatabaseTestCase.setUp
+        # May have been created in BasicDatabaseTestCase.setUp
         return Device.get_server_device(
             ServerCreatedPatientFactory._meta.sqlalchemy_session
         )
@@ -355,14 +359,14 @@ class EmailFactory(BaseFactory):
     class Meta:
         model = Email
 
-    # TODO: Although sent and sent_at_utc are columns, they are not keyword
+    # Although sent and sent_at_utc are columns, they are not keyword
     # arguments to Email's constructor so they are populated after the object
     # has been created. For some reason 'sent' needs to be set explicitly
     # when creating the factory even though the default should be False. Might
     # be a SQLite thing.
     @factory.post_generation
     def sent_at_utc(
-        obj: "Resolver", create: bool, sent_at_utc: pendulum.DateTime, **kwargs
+        obj: Email, create: bool, sent_at_utc: pendulum.DateTime, **kwargs
     ) -> None:
         if not create:
             return
@@ -370,7 +374,7 @@ class EmailFactory(BaseFactory):
         obj.sent_at_utc = sent_at_utc
 
     @factory.post_generation
-    def sent(obj: "Resolver", create: bool, sent: bool, **kwargs) -> None:
+    def sent(obj: Email, create: bool, sent: bool, **kwargs) -> None:
         if not create:
             return
 

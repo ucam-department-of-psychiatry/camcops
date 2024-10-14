@@ -25,7 +25,7 @@
 
 import os
 import tempfile
-from typing import Generator
+from typing import Any, Dict, Generator
 from unittest import mock, TestCase
 
 from pandas import DataFrame
@@ -134,7 +134,7 @@ class RedcapExportErrorTests(TestCase):
         task = mock.Mock(tablename="bmi")
         fieldmap = {"pa_height": "sys.platform"}
 
-        field_dict = {}
+        field_dict: Dict[str, Any] = {}
 
         with self.assertRaises(RedcapExportException) as cm:
             exporter.transform_fields(field_dict, task, fieldmap)
@@ -182,7 +182,7 @@ class RedcapExportErrorTests(TestCase):
         )
 
         with self.assertRaises(RedcapExportException) as cm:
-            record = {}
+            record: Dict[str, Any] = {}
             exporter.upload_record(record)
         message = str(cm.exception)
 
