@@ -93,11 +93,19 @@ class ForenameProvider(BaseProvider):
 
 class HeightProvider(BaseProvider):
     def height_m(self) -> float:
+        """
+        Return a random patient height in metres
+        """
+
         return float(self.generator.random_int(min=145, max=191) / 100.0)
 
 
 class MassProvider(BaseProvider):
     def mass_kg(self) -> float:
+        """
+        Return a random patient mass in kilograms
+        """
+
         return float(self.generator.random_int(min=400, max=1000) / 10.0)
 
 
@@ -111,6 +119,10 @@ class SexProvider(ChoiceProvider):
 
 
 class ValidPhoneNumberProvider(BaseProvider):
+    """
+    Return a random mobile phone number
+    """
+
     # The default Faker phone_number provider for en_GB uses
     # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
     # 07700 900000 to 900999 reserved for TV and Radio drama purposes
@@ -122,6 +134,10 @@ class ValidPhoneNumberProvider(BaseProvider):
 
 
 class WaistProvider(BaseProvider):
+    """
+    Return a random waist circumference in centimetres
+    """
+
     def waist_cm(self) -> float:
         return float(self.generator.random_int(min=40, max=130))
 
