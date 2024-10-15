@@ -27,48 +27,53 @@ camcops_server/tasks/tests/maas_tests.py
 
 import pendulum
 
-from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.cc_modules.tests.cc_report_tests import (
-    AverageScoreReportTestCase,
+from camcops_server.cc_modules.cc_testfactories import (
+    PatientFactory,
+    UserFactory,
 )
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.maas import Maas, MaasReport
+from camcops_server.tasks.tests.factories import MaasFactory
 
 
-class MaasReportTests(AverageScoreReportTestCase):
+class MaasReportTests(DemoRequestTestCase):
     PROGRESS_COL = 4
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.report = self.create_report()
+        self.req._debugging_user = UserFactory(superuser=True)
+
+        patient = PatientFactory()
+
+        # Default to answering 1 to everything
+        response_dict = {q: 1 for q in Maas.TASK_FIELDS}
+
+        # Same patient completing the task at different intervals
+        response_dict["q1"] = 2
+        response_dict["q2"] = 2
+        MaasFactory(
+            patient=patient,
+            when_created=pendulum.parse("2019-03-01"),
+            **response_dict,
+        )  # total 17 * 1 + 2 + 2 = 21
+
+        response_dict["q1"] = 5
+        response_dict["q2"] = 5
+        MaasFactory(
+            patient=patient,
+            when_created=pendulum.parse("2019-06-01"),
+            **response_dict,
+        )  # total 17 * 1 + 5 + 5 = 27
 
     def create_report(self) -> MaasReport:
         return MaasReport(via_index=False)
 
-    def create_tasks(self) -> None:
-        self.patient_1 = self.create_patient()
-
-        self.create_task(
-            patient=self.patient_1, q1=2, q2=2, era="2019-03-01"
-        )  # total 17 + 2 + 2
-        self.create_task(
-            patient=self.patient_1, q1=5, q2=5, era="2019-06-01"
-        )  # total 17 + 5 + 5
-        self.dbsession.commit()
-
-    def create_task(self, patient: Patient, era: str = None, **kwargs) -> None:
-        task = Maas()
-        self.apply_standard_task_fields(task)
-        task.id = next(self.task_id_sequence)
-
-        task.patient_id = patient.id
-        for fieldname in Maas.TASK_FIELDS:
-            value = kwargs.get(fieldname, 1)
-            setattr(task, fieldname, value)
-
-        if era is not None:
-            task.when_created = pendulum.parse(era)
-
-        self.dbsession.add(task)
-
     def test_average_progress_is_positive(self) -> None:
         pages = self.report.get_spreadsheet_pages(req=self.req)
 
+        # Numbers as above
         expected_progress = 27 - 21
         actual_progress = pages[0].plainrows[0][self.PROGRESS_COL]
 

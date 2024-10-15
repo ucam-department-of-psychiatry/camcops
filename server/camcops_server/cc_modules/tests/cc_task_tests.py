@@ -34,6 +34,7 @@ from pendulum import Date, DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_dummy_database import DummyDataInserter
 from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_testfactories import UserFactory
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_validators import validate_task_tablename
 
@@ -46,9 +47,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 class TaskTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
 
     def test_query_phq9(self) -> None:
         self.announce("test_query_phq9")
@@ -78,6 +76,8 @@ class TaskTests(DemoDatabaseTestCase):
             SpreadsheetPage,
         )
         from camcops_server.cc_modules.cc_xml import XmlElement
+
+        user = UserFactory()
 
         subclasses = Task.all_subclasses_by_tablename()
         tables = [cls.tablename for cls in subclasses]
@@ -214,7 +214,7 @@ class TaskTests(DemoDatabaseTestCase):
                 t.get_rio_metadata(
                     req,
                     which_idnum=1,
-                    uploading_user_id=self.user.id,
+                    uploading_user_id=user.id,
                     document_type="some_doc_type",
                 ),
                 str,

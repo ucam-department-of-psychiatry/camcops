@@ -27,86 +27,75 @@ camcops_server/tasks/tests/core10_tests.py
 
 import pendulum
 
-from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.cc_modules.tests.cc_report_tests import (
-    AverageScoreReportTestCase,
+from camcops_server.cc_modules.cc_testfactories import (
+    PatientFactory,
+    UserFactory,
 )
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.core10 import Core10, Core10Report
+from camcops_server.tasks.tests.factories import Core10Factory
 
 
-class Core10ReportTestCase(AverageScoreReportTestCase):
+class Core10ReportTestCase(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.report = self.create_report()
+        self.req._debugging_user = UserFactory(superuser=True)
+
     def create_report(self) -> Core10Report:
         return Core10Report(via_index=False)
 
-    def create_task(
-        self,
-        patient: Patient,
-        q1: int = 0,
-        q2: int = 0,
-        q3: int = 0,
-        q4: int = 0,
-        q5: int = 0,
-        q6: int = 0,
-        q7: int = 0,
-        q8: int = 0,
-        q9: int = 0,
-        q10: int = 0,
-        era: str = None,
-    ) -> None:
-        task = Core10()
-        self.apply_standard_task_fields(task)
-        task.id = next(self.task_id_sequence)
 
-        task.patient_id = patient.id
+class Core10ReportTotalsTests(Core10ReportTestCase):
+    def setUp(self) -> None:
+        super().setUp()
 
-        task.q1 = q1
-        task.q2 = q2
-        task.q3 = q3
-        task.q4 = q4
-        task.q5 = q5
-        task.q6 = q6
-        task.q7 = q7
-        task.q8 = q8
-        task.q9 = q9
-        task.q10 = q10
-
-        if era is not None:
-            task.when_created = pendulum.parse(era)
-            # log.info(f"Creating task, when_created = {task.when_created}")
-
-        self.dbsession.add(task)
-
-
-class Core10ReportTests(Core10ReportTestCase):
-    def create_tasks(self) -> None:
-        self.patient_1 = self.create_patient(idnum_value=333)
-        self.patient_2 = self.create_patient(idnum_value=444)
-        self.patient_3 = self.create_patient(idnum_value=555)
+        patient_1 = PatientFactory()
+        patient_2 = PatientFactory()
+        patient_3 = PatientFactory()
 
         # Initial average score = (8 + 6 + 4) / 3 = 6
         # Latest average score = (2 + 3 + 4) / 3 = 3
 
-        self.create_task(
-            patient=self.patient_1, q1=4, q2=4, era="2018-06-01"
+        Core10Factory(
+            patient=patient_1,
+            q1=4,
+            q2=4,
+            when_created=pendulum.parse("2018-06-01"),
         )  # Score 8
-        self.create_task(
-            patient=self.patient_1, q7=1, q8=1, era="2018-10-04"
+        Core10Factory(
+            patient=patient_1,
+            q7=1,
+            q8=1,
+            when_created=pendulum.parse("2018-10-04"),
         )  # Score 2
 
-        self.create_task(
-            patient=self.patient_2, q3=3, q4=3, era="2018-05-02"
+        Core10Factory(
+            patient=patient_2,
+            q3=3,
+            q4=3,
+            when_created=pendulum.parse("2018-05-02"),
         )  # Score 6
-        self.create_task(
-            patient=self.patient_2, q3=2, q4=1, era="2018-10-03"
+        Core10Factory(
+            patient=patient_2,
+            q3=2,
+            q4=1,
+            when_created=pendulum.parse("2018-10-03"),
         )  # Score 3
 
-        self.create_task(
-            patient=self.patient_3, q5=2, q6=2, era="2018-01-10"
+        Core10Factory(
+            patient=patient_3,
+            q5=2,
+            q6=2,
+            when_created=pendulum.parse("2018-01-10"),
         )  # Score 4
-        self.create_task(
-            patient=self.patient_3, q9=1, q10=3, era="2018-10-01"
+        Core10Factory(
+            patient=patient_3,
+            q9=1,
+            q10=3,
+            when_created=pendulum.parse("2018-10-01"),
         )  # Score 4
-        self.dbsession.commit()
 
     def test_row_has_totals_and_averages(self) -> None:
         pages = self.report.get_spreadsheet_pages(req=self.req)
@@ -131,32 +120,49 @@ class Core10ReportEmptyTests(Core10ReportTestCase):
 
 
 class Core10ReportDoubleCountingTests(Core10ReportTestCase):
-    def create_tasks(self) -> None:
-        self.patient_1 = self.create_patient(idnum_value=333)
-        self.patient_2 = self.create_patient(idnum_value=444)
-        self.patient_3 = self.create_patient(idnum_value=555)
+    def setUp(self) -> None:
+        super().setUp()
+
+        patient_1 = PatientFactory()
+        patient_2 = PatientFactory()
+        patient_3 = PatientFactory()
 
         # Initial average score = (8 + 6 + 4) / 3 = 6
         # Latest average score  = (    3 + 3) / 2 = 3
         # Progress avg score    = (    3 + 1) / 2 = 2  ... NOT 3.
-        self.create_task(
-            patient=self.patient_1, q1=4, q2=4, era="2018-06-01"
+
+        Core10Factory(
+            patient=patient_1,
+            q1=4,
+            q2=4,
+            when_created=pendulum.parse("2018-06-01"),
         )  # Score 8
 
-        self.create_task(
-            patient=self.patient_2, q3=3, q4=3, era="2018-05-02"
+        Core10Factory(
+            patient=patient_2,
+            q3=3,
+            q4=3,
+            when_created=pendulum.parse("2018-05-02"),
         )  # Score 6
-        self.create_task(
-            patient=self.patient_2, q3=2, q4=1, era="2018-10-03"
+        Core10Factory(
+            patient=patient_2,
+            q3=2,
+            q4=1,
+            when_created=pendulum.parse("2018-10-03"),
         )  # Score 3
 
-        self.create_task(
-            patient=self.patient_3, q5=2, q6=2, era="2018-01-10"
+        Core10Factory(
+            patient=patient_3,
+            q5=2,
+            q6=2,
+            when_created=pendulum.parse("2018-01-10"),
         )  # Score 4
-        self.create_task(
-            patient=self.patient_3, q9=1, q10=2, era="2018-10-01"
+        Core10Factory(
+            patient=patient_3,
+            q9=1,
+            q10=2,
+            when_created=pendulum.parse("2018-10-01"),
         )  # Score 3
-        self.dbsession.commit()
 
     def test_record_does_not_appear_in_first_and_latest(self) -> None:
         pages = self.report.get_spreadsheet_pages(req=self.req)
@@ -223,45 +229,73 @@ class Core10ReportDateRangeTests(Core10ReportTestCase):
 
     """  # noqa
 
-    def create_tasks(self) -> None:
-        self.patient_1 = self.create_patient(idnum_value=333)
-        self.patient_2 = self.create_patient(idnum_value=444)
-        self.patient_3 = self.create_patient(idnum_value=555)
+    def setUp(self) -> None:
+        super().setUp()
+
+        patient_1 = PatientFactory()
+        patient_2 = PatientFactory()
+        patient_3 = PatientFactory()
 
         # 2018-06 average score = (8 + 6 + 4) / 3 = 6
         # 2018-08 average score = (4 + 4 + 4) / 3 = 4
         # 2018-10 average score = (2 + 3 + 4) / 3 = 3
 
-        self.create_task(
-            patient=self.patient_1, q1=4, q2=4, era="2018-06-01"
+        Core10Factory(
+            patient=patient_1,
+            q1=4,
+            q2=4,
+            when_created=pendulum.parse("2018-06-01"),
         )  # Score 8
-        self.create_task(
-            patient=self.patient_1, q7=3, q8=1, era="2018-08-01"
+        Core10Factory(
+            patient=patient_1,
+            q7=3,
+            q8=1,
+            when_created=pendulum.parse("2018-08-01"),
         )  # Score 4
-        self.create_task(
-            patient=self.patient_1, q7=1, q8=1, era="2018-10-01"
+        Core10Factory(
+            patient=patient_1,
+            q7=1,
+            q8=1,
+            when_created=pendulum.parse("2018-10-01"),
         )  # Score 2
 
-        self.create_task(
-            patient=self.patient_2, q3=3, q4=3, era="2018-06-01"
+        Core10Factory(
+            patient=patient_2,
+            q3=3,
+            q4=3,
+            when_created=pendulum.parse("2018-06-01"),
         )  # Score 6
-        self.create_task(
-            patient=self.patient_2, q3=2, q4=2, era="2018-08-01"
+        Core10Factory(
+            patient=patient_2,
+            q3=2,
+            q4=2,
+            when_created=pendulum.parse("2018-08-01"),
         )  # Score 4
-        self.create_task(
-            patient=self.patient_2, q3=1, q4=2, era="2018-10-01"
+        Core10Factory(
+            patient=patient_2,
+            q3=1,
+            q4=2,
+            when_created=pendulum.parse("2018-10-01"),
         )  # Score 3
 
-        self.create_task(
-            patient=self.patient_3, q5=2, q6=2, era="2018-06-01"
+        Core10Factory(
+            patient=patient_3,
+            q5=2,
+            q6=2,
+            when_created=pendulum.parse("2018-06-01"),
         )  # Score 4
-        self.create_task(
-            patient=self.patient_3, q9=1, q10=3, era="2018-08-01"
+        Core10Factory(
+            patient=patient_3,
+            q9=1,
+            q10=3,
+            when_created=pendulum.parse("2018-08-01"),
         )  # Score 4
-        self.create_task(
-            patient=self.patient_3, q9=1, q10=3, era="2018-10-01"
+        Core10Factory(
+            patient=patient_3,
+            q9=1,
+            q10=3,
+            when_created=pendulum.parse("2018-10-01"),
         )  # Score 4
-        self.dbsession.commit()
 
         self.dump_table(
             Core10.__tablename__,
@@ -269,13 +303,8 @@ class Core10ReportDateRangeTests(Core10ReportTestCase):
         )
 
     def test_report_filtered_by_date_range(self) -> None:
-        # self.report.start_datetime = pendulum.parse("2018-05-01T00:00:00.000000+00:00")  # noqa
-        self.report.start_datetime = pendulum.parse(
-            "2018-06-01T00:00:00.000000+00:00"
-        )
-        self.report.end_datetime = pendulum.parse(
-            "2018-09-01T00:00:00.000000+00:00"
-        )
+        self.report.start_datetime = "2018-06-01T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-09-01T00:00:00.000000+00:00"
 
         self.set_echo(True)
         pages = self.report.get_spreadsheet_pages(req=self.req)

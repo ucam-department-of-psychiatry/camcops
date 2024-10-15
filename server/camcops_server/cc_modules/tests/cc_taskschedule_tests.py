@@ -35,13 +35,17 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
     PatientTaskScheduleEmail,
-    TaskSchedule,
     TaskScheduleItem,
 )
-from camcops_server.cc_modules.cc_unittest import (
-    DemoDatabaseTestCase,
-    DemoRequestTestCase,
+from camcops_server.cc_modules.cc_testfactories import (
+    EmailFactory,
+    PatientTaskScheduleEmailFactory,
+    PatientTaskScheduleFactory,
+    ServerCreatedPatientFactory,
+    TaskScheduleFactory,
+    TaskScheduleItemFactory,
 )
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 
 # =============================================================================
@@ -49,38 +53,24 @@ from camcops_server.cc_modules.cc_unittest import (
 # =============================================================================
 
 
-class TaskScheduleTests(DemoDatabaseTestCase):
+class TaskScheduleTests(DemoRequestTestCase):
     def test_deleting_deletes_related_objects(self) -> None:
-        schedule = TaskSchedule()
-        schedule.group_id = self.group.id
-        self.dbsession.add(schedule)
-        self.dbsession.flush()
+        patient = ServerCreatedPatientFactory()
+        schedule = TaskScheduleFactory(group=patient._group)
 
-        item = TaskScheduleItem()
-        item.schedule_id = schedule.id
-        item.task_table_name = "ace3"
-        item.due_from = Duration(days=30)
-        item.due_by = Duration(days=60)
-        self.dbsession.add(item)
-        self.dbsession.flush()
+        item = TaskScheduleItemFactory(
+            task_schedule=schedule,
+            task_table_name="ace3",
+        )
 
-        patient = self.create_patient()
+        pts = PatientTaskScheduleFactory(
+            task_schedule=schedule,
+            patient=patient,
+        )
 
-        pts = PatientTaskSchedule()
-        pts.schedule_id = schedule.id
-        pts.patient_pk = patient.pk
-        self.dbsession.add(pts)
-        self.dbsession.flush()
-
-        email = Email()
-        self.dbsession.add(email)
-        self.dbsession.flush()
-
-        pts_email = PatientTaskScheduleEmail()
-        pts_email.email_id = email.id
-        pts_email.patient_task_schedule_id = pts.id
-        self.dbsession.add(pts_email)
-        self.dbsession.commit()
+        pts_email = PatientTaskScheduleEmailFactory(
+            patient_task_schedule=pts,
+        )
 
         self.assertIsNotNone(
             self.dbsession.query(TaskScheduleItem)
@@ -101,7 +91,7 @@ class TaskScheduleTests(DemoDatabaseTestCase):
         )
         self.assertIsNotNone(
             self.dbsession.query(Email)
-            .filter(Email.id == email.id)
+            .filter(Email.id == pts_email.email.id)
             .one_or_none()
         )
 
@@ -127,114 +117,73 @@ class TaskScheduleTests(DemoDatabaseTestCase):
         )
         self.assertIsNone(
             self.dbsession.query(Email)
-            .filter(Email.id == email.id)
+            .filter(Email.id == pts_email.email.id)
             .one_or_none()
         )
 
 
 class TaskScheduleItemTests(DemoRequestTestCase):
     def test_description_shows_shortname_and_number_of_days(self) -> None:
-        item = TaskScheduleItem()
-        item.task_table_name = "bmi"
-        item.due_from = Duration(days=30)
-
+        item = TaskScheduleItemFactory(
+            task_table_name="bmi",
+            due_from=Duration(days=30),
+        )
         self.assertEqual(item.description(self.req), "BMI @ 30 days")
 
     def test_description_with_no_durations(self) -> None:
-        item = TaskScheduleItem()
-        item.task_table_name = "bmi"
-
+        item = TaskScheduleItemFactory(task_table_name="bmi")
         self.assertEqual(item.description(self.req), "BMI @ ? days")
 
     def test_due_within_calculated_from_due_by_and_due_from(self) -> None:
-        item = TaskScheduleItem()
-        item.due_from = Duration(days=30)
-        item.due_by = Duration(days=50)
-
+        item = TaskScheduleItemFactory(
+            due_from=Duration(days=30),
+            due_by=Duration(days=50),
+        )
         self.assertEqual(item.due_within.in_days(), 20)
 
     def test_due_within_is_none_when_missing_due_by(self) -> None:
-        item = TaskScheduleItem()
-        item.due_from = Duration(days=30)
-
+        item = TaskScheduleItemFactory(due_from=Duration(days=30))
         self.assertIsNone(item.due_within)
 
     def test_due_within_calculated_when_missing_due_from(self) -> None:
-        item = TaskScheduleItem()
-        item.due_by = Duration(days=30)
-
+        item = TaskScheduleItemFactory(due_by=Duration(days=30))
         self.assertEqual(item.due_within.in_days(), 30)
 
 
-class PatientTaskScheduleTests(DemoDatabaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        import datetime
-
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.dbsession.add(self.schedule)
-
-        self.patient = self.create_patient(
-            id=1,
-            forename="Jo",
-            surname="Patient",
-            dob=datetime.date(1958, 4, 19),
-            sex="F",
-            address="Address",
-            gp="GP",
-            other="Other",
-        )
-
-        self.pts = PatientTaskSchedule()
-        self.pts.schedule_id = self.schedule.id
-        self.pts.patient_pk = self.patient.pk
-        self.dbsession.add(self.pts)
-        self.dbsession.flush()
-
+class PatientTaskScheduleTests(DemoRequestTestCase):
     def test_email_body_contains_access_key(self) -> None:
-        self.schedule.email_template = "{access_key}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{access_key}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
         self.assertIn(
-            f"{self.patient.uuid_as_proquint}", self.pts.email_body(self.req)
+            f"{pts.patient.uuid_as_proquint}", pts.email_body(self.req)
         )
 
     def test_email_body_contains_server_url(self) -> None:
-        self.schedule.email_template = "{server_url}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{server_url}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
         expected_url = self.req.route_url(Routes.CLIENT_API)
 
-        self.assertIn(f"{expected_url}", self.pts.email_body(self.req))
+        self.assertIn(f"{expected_url}", pts.email_body(self.req))
 
     def test_email_body_contains_patient_forename(self) -> None:
-        self.schedule.email_template = "{forename}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{forename}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
-        self.assertIn(
-            f"{self.pts.patient.forename}", self.pts.email_body(self.req)
-        )
+        self.assertIn(f"{pts.patient.forename}", pts.email_body(self.req))
 
     def test_email_body_contains_patient_surname(self) -> None:
-        self.schedule.email_template = "{surname}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{surname}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
-        self.assertIn(
-            f"{self.pts.patient.surname}", self.pts.email_body(self.req)
-        )
+        self.assertIn(f"{pts.patient.surname}", pts.email_body(self.req))
 
     def test_email_body_contains_android_launch_url(self) -> None:
-        self.schedule.email_template = "{android_launch_url}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{android_launch_url}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
-        url = self.pts.email_body(self.req)
+        url = pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
         self.assertEqual(scheme, UriSchemes.HTTP)
         self.assertEqual(netloc, "camcops.org")
@@ -246,15 +195,14 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
             [self.req.route_url(Routes.CLIENT_API)],
         )
         self.assertEqual(
-            query_dict["default_access_key"], [self.patient.uuid_as_proquint]
+            query_dict["default_access_key"], [pts.patient.uuid_as_proquint]
         )
 
     def test_email_body_contains_ios_launch_url(self) -> None:
-        self.schedule.email_template = "{ios_launch_url}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{ios_launch_url}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
-        url = self.pts.email_body(self.req)
+        url = pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
         self.assertEqual(scheme, "camcops")
         self.assertEqual(netloc, "camcops.org")
@@ -266,59 +214,33 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
             [self.req.route_url(Routes.CLIENT_API)],
         )
         self.assertEqual(
-            query_dict["default_access_key"], [self.patient.uuid_as_proquint]
+            query_dict["default_access_key"], [pts.patient.uuid_as_proquint]
         )
 
     def test_email_body_disallows_invalid_template(self) -> None:
-        self.schedule.email_template = "{foobar}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{foobar}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
         with self.assertRaises(KeyError):
-            self.pts.email_body(self.req)
+            pts.email_body(self.req)
 
     def test_email_body_disallows_accessing_properties(self) -> None:
-        self.schedule.email_template = "{server_url.__class__}"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        schedule = TaskScheduleFactory(email_template="{server_url.__class__}")
+        pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
         with self.assertRaises(KeyError):
-            self.pts.email_body(self.req)
+            pts.email_body(self.req)
 
     def test_email_sent_false_for_no_emails(self) -> None:
-        self.assertFalse(self.pts.email_sent)
+        pts = PatientTaskScheduleFactory()
+        self.assertFalse(pts.email_sent)
 
     def test_email_sent_false_for_one_unsent_email(self) -> None:
-        email1 = Email()
-        email1.sent = False
-        self.dbsession.add(email1)
-        self.dbsession.flush()
-        pts_email1 = PatientTaskScheduleEmail()
-        pts_email1.email_id = email1.id
-        pts_email1.patient_task_schedule_id = self.pts.id
-        self.dbsession.add(pts_email1)
-        self.dbsession.commit()
-
-        self.assertFalse(self.pts.email_sent)
+        email1 = EmailFactory(sent=False)
+        pts_email1 = PatientTaskScheduleEmailFactory(email=email1)
+        self.assertFalse(pts_email1.patient_task_schedule.email_sent)
 
     def test_email_sent_true_for_one_sent_email(self) -> None:
-        email1 = Email()
-        email1.sent = False
-        self.dbsession.add(email1)
-        self.dbsession.flush()
-        pts_email1 = PatientTaskScheduleEmail()
-        pts_email1.email_id = email1.id
-        pts_email1.patient_task_schedule_id = self.pts.id
-        self.dbsession.add(pts_email1)
-
-        email2 = Email()
-        email2.sent = True
-        self.dbsession.add(email2)
-        self.dbsession.flush()
-        pts_email2 = PatientTaskScheduleEmail()
-        pts_email2.email_id = email2.id
-        pts_email2.patient_task_schedule_id = self.pts.id
-        self.dbsession.add(pts_email2)
-        self.dbsession.commit()
-
-        self.assertTrue(self.pts.email_sent)
+        email1 = EmailFactory(sent=True)
+        pts_email1 = PatientTaskScheduleEmailFactory(email=email1)
+        self.assertTrue(pts_email1.patient_task_schedule.email_sent)

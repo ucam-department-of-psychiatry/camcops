@@ -81,7 +81,6 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         UserGroupMembershipFactory(
             group_id=self.group_a.id, user_id=self.jim.id, may_run_reports=True
         )
-        self.dbsession.commit()
 
         self.num_jim_tasks = self.num_01_oct_2022_bmi_tasks = 2
         self.num_freda_tasks = (
@@ -214,9 +213,9 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
         # Default is by year and month but better to be explicit
         self.req.add_get_params(
             {
-                ViewParam.BY_YEAR: True,
-                ViewParam.BY_MONTH: True,
-                ViewParam.VIA_INDEX: self.via_index,
+                ViewParam.BY_YEAR: "true",
+                ViewParam.BY_MONTH: "true",
+                ViewParam.VIA_INDEX: "true" if self.via_index else "false",
             }
         )
 
@@ -291,9 +290,9 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
         self.req.add_get_params(
             {
-                ViewParam.BY_YEAR: True,
-                ViewParam.BY_MONTH: False,
-                ViewParam.VIA_INDEX: self.via_index,
+                ViewParam.BY_YEAR: "true",
+                ViewParam.BY_MONTH: "false",
+                ViewParam.VIA_INDEX: "true" if self.via_index else "false",
             }
         )
 
@@ -351,10 +350,10 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
         self.req.add_get_params(
             {
-                ViewParam.BY_YEAR: False,
-                ViewParam.BY_MONTH: False,
-                ViewParam.BY_TASK: True,
-                ViewParam.VIA_INDEX: self.via_index,
+                ViewParam.BY_YEAR: "false",
+                ViewParam.BY_MONTH: "false",
+                ViewParam.BY_TASK: "true",
+                ViewParam.VIA_INDEX: "true" if self.via_index else "false",
             }
         )
 
@@ -393,11 +392,11 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
         self.req.add_get_params(
             {
-                ViewParam.BY_YEAR: False,
-                ViewParam.BY_MONTH: False,
-                ViewParam.BY_TASK: False,
-                ViewParam.BY_USER: True,
-                ViewParam.VIA_INDEX: self.via_index,
+                ViewParam.BY_YEAR: "false",
+                ViewParam.BY_MONTH: "false",
+                ViewParam.BY_TASK: "false",
+                ViewParam.BY_USER: "true",
+                ViewParam.VIA_INDEX: "true" if self.via_index else "false",
             }
         )
 
@@ -434,11 +433,11 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
         self.req.add_get_params(
             {
-                ViewParam.BY_YEAR: False,
-                ViewParam.BY_MONTH: False,
-                ViewParam.BY_TASK: False,
-                ViewParam.BY_USER: False,
-                ViewParam.VIA_INDEX: self.via_index,
+                ViewParam.BY_YEAR: "false",
+                ViewParam.BY_MONTH: "false",
+                ViewParam.BY_TASK: "false",
+                ViewParam.BY_USER: "false",
+                ViewParam.VIA_INDEX: "true" if self.via_index else "false",
             }
         )
 
@@ -477,11 +476,11 @@ class TaskCountReportTestBase(BasicDatabaseTestCase):
 
         self.req.add_get_params(
             {
-                ViewParam.BY_YEAR: False,
-                ViewParam.BY_MONTH: False,
-                ViewParam.BY_DAY_OF_MONTH: True,
-                ViewParam.BY_TASK: False,
-                ViewParam.VIA_INDEX: self.via_index,
+                ViewParam.BY_YEAR: "false",
+                ViewParam.BY_MONTH: "false",
+                ViewParam.BY_DAY_OF_MONTH: "true",
+                ViewParam.BY_TASK: "false",
+                ViewParam.VIA_INDEX: "true" if self.via_index else "false",
             }
         )
 

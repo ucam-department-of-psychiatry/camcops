@@ -156,10 +156,6 @@ class UserGroupMembership(Base):
     group = relationship("Group", back_populates="user_group_memberships")
     user = relationship("User", back_populates="user_group_memberships")
 
-    def __init__(self, user_id: int, group_id: int):
-        self.user_id = user_id
-        self.group_id = group_id
-
     @classmethod
     def get_ugm_by_id(
         cls, dbsession: SqlASession, ugm_id: Optional[int]

@@ -25,32 +25,25 @@ camcops_server/tasks/tests/apeq_cpft_perinatal_tests.py
 
 """
 
-from typing import Generator, Optional
-
 import pendulum
 
-from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.apeq_cpft_perinatal import (
-    APEQCPFTPerinatal,
     APEQCPFTPerinatalReport,
 )
-
+from camcops_server.tasks.tests.factories import APEQCPFTPerinatalFactory
 
 # =============================================================================
 # Unit tests
 # =============================================================================
 
 
-class APEQCPFTPerinatalReportTestCase(BasicDatabaseTestCase):
+class APEQCPFTPerinatalReportTestCase(DemoRequestTestCase):
     COL_Q = 0
     COL_TOTAL = 1
     COL_RESPONSE_START = 2
 
     COL_FF_WHY = 1
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
 
     def setUp(self) -> None:
         super().setUp()
@@ -61,48 +54,9 @@ class APEQCPFTPerinatalReportTestCase(BasicDatabaseTestCase):
         self.report.start_datetime = None
         self.report.end_datetime = None
 
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    def create_task(
-        self,
-        q1: Optional[int],
-        q2: Optional[int],
-        q3: Optional[int],
-        q4: Optional[int],
-        q5: Optional[int],
-        q6: Optional[int],
-        ff_rating: int,
-        ff_why: str = None,
-        comments: str = None,
-        era: str = None,
-    ) -> None:
-        task = APEQCPFTPerinatal()
-        self.apply_standard_task_fields(task)
-        task.id = next(self.id_sequence)
-        task.q1 = q1
-        task.q2 = q2
-        task.q3 = q3
-        task.q4 = q4
-        task.q5 = q5
-        task.q6 = q6
-        task.ff_rating = ff_rating
-        task.ff_why = ff_why
-        task.comments = comments
-
-        if era is not None:
-            task.when_created = pendulum.parse(era)
-
-        self.dbsession.add(task)
-
 
 class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
-    def create_tasks(self) -> None:
+    def setUp(self) -> None:
         """
         Creates 20 tasks.
         Should give us:
@@ -132,43 +86,102 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
                 5 - 35%
 
         """
-        #                q1 q2 q3 q4 q5 q6 ff
-        self.create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
-        self.create_task(
-            0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2", comments="comments_2"
+        super().setUp()
+
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=0, q4=0, q5=2, q6=2, ff_rating=5, ff_why="ff_5_1"
         )
-        self.create_task(0, 1, 1, 1, 2, 2, 5)
-        self.create_task(0, 1, 1, 1, 2, 2, 5)
-        self.create_task(0, 1, 1, 1, 2, 2, 5, comments="comments_5")
+        APEQCPFTPerinatalFactory(
+            q1=0,
+            q2=1,
+            q3=1,
+            q4=0,
+            q5=2,
+            q6=2,
+            ff_rating=5,
+            ff_why="ff_5_2",
+            comments="comments_2",
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=1, q4=1, q5=2, q6=2, ff_rating=5
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=1, q4=1, q5=2, q6=2, ff_rating=5
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0,
+            q2=1,
+            q3=1,
+            q4=1,
+            q5=2,
+            q6=2,
+            ff_rating=5,
+            comments="comments_5",
+        )
 
-        self.create_task(0, 1, 2, 1, 2, 2, 5)
-        self.create_task(0, 1, 2, 1, 1, 2, 5)
-        self.create_task(0, 1, 2, 1, 1, 2, 4, ff_why="ff_4_1")
-        self.create_task(0, 1, 2, 1, 1, 2, 3)
-        self.create_task(0, 1, 2, 1, 1, 1, 3, ff_why="ff_3_1")
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=2, q4=1, q5=2, q6=2, ff_rating=5
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=2, q4=1, q5=1, q6=2, ff_rating=5
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=2, q4=1, q5=1, q6=2, ff_rating=4, ff_why="ff_4_1"
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=2, q4=1, q5=1, q6=2, ff_rating=3
+        )
+        APEQCPFTPerinatalFactory(
+            q1=0, q2=1, q3=2, q4=1, q5=1, q6=1, ff_rating=3, ff_why="ff_3_1"
+        )
 
-        self.create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_1")
-        self.create_task(1, 1, 2, 2, 1, 1, 2)
-        self.create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_2")
-        self.create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_1")
-        self.create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_2")
+        APEQCPFTPerinatalFactory(
+            q1=1, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=2, ff_why="ff_2_1"
+        )
+        APEQCPFTPerinatalFactory(
+            q1=1, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=2
+        )
+        APEQCPFTPerinatalFactory(
+            q1=1, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=2, ff_why="ff_2_2"
+        )
+        APEQCPFTPerinatalFactory(
+            q1=1, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=1, ff_why="ff_1_1"
+        )
+        APEQCPFTPerinatalFactory(
+            q1=1, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=1, ff_why="ff_1_2"
+        )
 
-        self.create_task(2, 1, 2, 2, 1, 1, 0)
-        self.create_task(2, 1, 2, 2, 1, 1, 0)
-        self.create_task(2, 1, 2, 2, 0, None, 0)
-        self.create_task(2, 1, 2, 2, 0, None, 0)
-        self.create_task(2, 1, 2, 2, 0, 1, 0, comments="comments_20")
-
-        self.dbsession.commit()
+        APEQCPFTPerinatalFactory(
+            q1=2, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=0
+        )
+        APEQCPFTPerinatalFactory(
+            q1=2, q2=1, q3=2, q4=2, q5=1, q6=1, ff_rating=0
+        )
+        APEQCPFTPerinatalFactory(
+            q1=2, q2=1, q3=2, q4=2, q5=0, q6=None, ff_rating=0
+        )
+        APEQCPFTPerinatalFactory(
+            q1=2, q2=1, q3=2, q4=2, q5=0, q6=None, ff_rating=0
+        )
+        APEQCPFTPerinatalFactory(
+            q1=2,
+            q2=1,
+            q3=2,
+            q4=2,
+            q5=0,
+            q6=1,
+            ff_rating=0,
+            comments="comments_20",
+        )
 
     def test_main_rows_contain_percentages(self) -> None:
         expected_percentages = [
-            [20, 50, 25, 25],  # q1
-            [20, "", 100, ""],  # q2
-            [20, 5, 20, 75],  # q3
-            [20, 10, 40, 50],  # q4
-            [20, 15, 55, 30],  # q5
-            [18, "", 50, 50],  # q6
+            ["20", "50", "25", "25"],  # q1
+            ["20", "", "100", ""],  # q2
+            ["20", "5", "20", "75"],  # q3
+            ["20", "10", "40", "50"],  # q4
+            ["20", "15", "55", "30"],  # q5
+            ["18", "", "50", "50"],  # q6
         ]
 
         main_rows = self.report._get_main_rows(self.req)
@@ -179,7 +192,7 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 
             for p in row[1:]:
                 if p != "":
-                    p = int(float(p))
+                    p = str(int(float(p)))
 
                 percentages.append(p)
 
@@ -229,73 +242,75 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 
     def test_comments(self) -> None:
         expected_comments = ["comments_2", "comments_5", "comments_20"]
+
         comments = self.report._get_comments(self.req)
         self.assertEqual(comments, expected_comments)
 
 
 class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
-    def create_tasks(self) -> None:
-        self.create_task(
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
+    def setUp(self) -> None:
+        super().setUp()
+
+        APEQCPFTPerinatalFactory(
+            q1=1,
+            q2=0,
+            q3=0,
+            q4=0,
+            q5=0,
+            q6=0,
+            ff_rating=0,
             ff_why="ff why 1",
             comments="comments 1",
-            era="2018-10-01T00:00:00.000000+00:00",
+            when_created=pendulum.parse("2018-10-01"),
         )
-        self.create_task(
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            2,
+        APEQCPFTPerinatalFactory(
+            q1=0,
+            q2=0,
+            q3=0,
+            q4=0,
+            q5=0,
+            q6=0,
+            ff_rating=2,
             ff_why="ff why 2",
             comments="comments 2",
-            era="2018-10-02T00:00:00.000000+00:00",
+            when_created=pendulum.parse("2018-10-02"),
         )
-        self.create_task(
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            2,
+        APEQCPFTPerinatalFactory(
+            q1=0,
+            q2=0,
+            q3=0,
+            q4=0,
+            q5=0,
+            q6=0,
+            ff_rating=2,
             ff_why="ff why 3",
             comments="comments 3",
-            era="2018-10-03T00:00:00.000000+00:00",
+            when_created=pendulum.parse("2018-10-03"),
         )
-        self.create_task(
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            2,
+        APEQCPFTPerinatalFactory(
+            q1=0,
+            q2=0,
+            q3=0,
+            q4=0,
+            q5=0,
+            q6=0,
+            ff_rating=2,
             ff_why="ff why 4",
             comments="comments 4",
-            era="2018-10-04T00:00:00.000000+00:00",
+            when_created=pendulum.parse("2018-10-04"),
         )
-        self.create_task(
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
+        APEQCPFTPerinatalFactory(
+            q1=1,
+            q2=0,
+            q3=0,
+            q4=0,
+            q5=0,
+            q6=0,
+            ff_rating=0,
             ff_why="ff why 5",
             comments="comments 5",
-            era="2018-10-05T00:00:00.000000+00:00",
+            when_created=pendulum.parse("2018-10-05"),
         )
-        self.dbsession.commit()
 
     def test_main_rows_filtered_by_date(self) -> None:
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"

@@ -2540,8 +2540,5 @@ def get_unittest_request(
     req.set_get_params(params)
 
     req._debugging_db_session = dbsession
-    user = User()
-    user.superuser = True
-    req._debugging_user = user
 
     return req

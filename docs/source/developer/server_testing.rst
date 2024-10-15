@@ -20,7 +20,7 @@
 
 
 .. _pytest: https://docs.pytest.org/en/stable/
-
+.. _Factory Boy: https://factoryboy.readthedocs.io/en/stable/
 
 Testing the server code
 =======================
@@ -32,12 +32,26 @@ with the filename of the module appended with ``_tests.py``. So the module
 ``camcops_server/cc_modules/cc_patient.py`` is tested in
 ``camcops_server/cc_modules/tests/cc_patient_tests.py``.
 
-Test classes should end in ``Tests`` e.g. ``PatientTests``. Tests that require
-an empty database should inherit from ``DemoRequestTestCase``. Tests that
-require the demonstration database should inherit from
-``DemoDatabaseTestCase``. See ``camcops_server/cc_modules/cc_unittest``. Tests
-that do not require a database can just inherit from the standard python
-``unittest.TestCase``
+Test classes should end in ``Tests`` e.g. ``PatientTests``. A number of
+``unittest.TestCase`` subclasses are defined in
+``camcops_server/cc_modules/cc_unittest``.
+
+- Tests that require an empty database and a request object should inherit from
+  ``DemoRequestTestCase``.
+
+- Tests that require a minimal database setup (system user, superuser set on the
+  request object, group administrator and a server device) should inherit from
+  ``BasicDatabaseTestCase``.
+
+- Tests that require the demonstration database, which has a patient and two
+  instances of each type of task should inherit from ``DemoDatabaseTestCase``.
+
+- Tests that do not require a database
+  can just inherit from the standard python ``unittest.TestCase``.
+
+Use `Factory Boy`_ test factories to create test instances of SQLAlchemy
+database models. See ``camcops_server/cc_modules/cc_testfactories.py`` and
+``camcops_server/tasks/tests/factories.py``.
 
 .. _run_all_server_tests:
 
