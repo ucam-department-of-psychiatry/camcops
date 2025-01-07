@@ -5186,6 +5186,7 @@ class EditPatientSchema(CSRFSchema):
             pidnum.which_idnum = idrefdict[ViewParam.WHICH_IDNUM]
             pidnum.idnum_value = idrefdict[ViewParam.IDNUM_VALUE]
             testpatient.idnums.append(pidnum)
+
         tk_finalize_policy = TokenizedPolicy(group.finalize_policy)
         if not testpatient.satisfies_id_policy(tk_finalize_policy):
             _ = self.gettext

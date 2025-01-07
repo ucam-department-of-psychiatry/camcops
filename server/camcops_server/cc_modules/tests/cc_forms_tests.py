@@ -40,6 +40,7 @@ from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_forms import (
     DurationType,
     DurationWidget,
+    EditServerCreatedPatientSchema,
     GroupIpUseWidget,
     IpUseType,
     MfaSecretWidget,
@@ -58,6 +59,8 @@ from camcops_server.cc_modules.cc_testfactories import (
     Fake,
     GroupFactory,
     TaskScheduleFactory,
+    ServerCreatedNHSPatientIdNumFactory,
+    ServerCreatedPatientFactory,
     UserFactory,
     UserGroupMembershipFactory,
 )
@@ -1025,3 +1028,91 @@ class PhoneNumberTypeMandatoryDeserializeTests(
         # For allow_empty=False:
         with self.assertRaises(Invalid):
             self.phone_type.deserialize(self.node, null)
+
+
+class EditServerCreatedPatientSchemaTests(DemoRequestTestCase):
+    def test_raises_when_patient_does_not_meet_finalize_id_policy(
+        self,
+    ) -> None:
+        group = GroupFactory(
+            finalize_policy="forename AND surname AND anyidnum"
+        )
+        patient = ServerCreatedPatientFactory(_group=group)
+        nhs_idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
+
+        self.req._debugging_user = groupadmin = UserFactory()
+
+        UserGroupMembershipFactory(
+            group=group, user=groupadmin, groupadmin=True
+        )
+
+        schema = EditServerCreatedPatientSchema().bind(request=self.req)
+
+        appstruct = {
+            ViewParam.GROUP_ID: group.id,
+            ViewParam.FORENAME: "",
+            ViewParam.SURNAME: "",
+            ViewParam.DOB: patient.dob,
+            ViewParam.SEX: patient.sex,
+            ViewParam.ADDRESS: patient.address,
+            ViewParam.EMAIL: patient.email,
+            ViewParam.GP: patient.gp,
+            ViewParam.OTHER: patient.other,
+            ViewParam.ID_REFERENCES: [
+                {
+                    ViewParam.WHICH_IDNUM: nhs_idnum.which_idnum,
+                    ViewParam.IDNUM_VALUE: nhs_idnum.idnum_value,
+                }
+            ],
+            ViewParam.TASK_SCHEDULES: [],
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn(
+            "Patient would not meet 'finalize' ID policy",
+            cm.exception.messages()[0],
+        )
+
+    def test_raises_when_patient_exists_in_group_(self) -> None:
+        patient = ServerCreatedPatientFactory()
+        nhs_idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
+
+        self.req._debugging_user = groupadmin = UserFactory()
+
+        UserGroupMembershipFactory(
+            group=patient.group, user=groupadmin, groupadmin=True
+        )
+
+        schema = EditServerCreatedPatientSchema().bind(request=self.req)
+
+        appstruct = {
+            ViewParam.GROUP_ID: patient.group.id,
+            ViewParam.FORENAME: patient.forename,
+            ViewParam.SURNAME: patient.surname,
+            ViewParam.DOB: patient.dob,
+            ViewParam.SEX: patient.sex,
+            ViewParam.ADDRESS: patient.address,
+            ViewParam.EMAIL: patient.email,
+            ViewParam.GP: patient.gp,
+            ViewParam.OTHER: patient.other,
+            ViewParam.ID_REFERENCES: [
+                {
+                    ViewParam.WHICH_IDNUM: nhs_idnum.which_idnum,
+                    ViewParam.IDNUM_VALUE: nhs_idnum.idnum_value,
+                }
+            ],
+            ViewParam.TASK_SCHEDULES: [],
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn(
+            f"Patient with ID Number {nhs_idnum.idnum_value} already exists "
+            "in this group",
+            cm.exception.messages()[0],
+        )
