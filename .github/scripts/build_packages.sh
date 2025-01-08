@@ -11,14 +11,6 @@ wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sour
 fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
 sudo dpkg -i rpmrebuild_2.15-2_all.deb
 
-python3 -m venv ${HOME}/venv
-PYTHON=${HOME}/venv/bin/python
-${PYTHON} -VV
-${PYTHON} -m site
-${PYTHON} -m pip install -U pip setuptools
-echo dumping pre-installed packages
-${PYTHON} -m pip freeze
-echo installing pip packages
-${PYTHON} -m pip install -e server/.
 echo building packages
-server/tools/MAKE_LINUX_PACKAGES.py
+PYTHON=${HOME}/venv/bin/python
+${PYTHON} server/tools/MAKE_LINUX_PACKAGES.py

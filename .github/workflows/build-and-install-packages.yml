@@ -10,6 +10,7 @@ on:
             - .github/workflows/build-and-install-packages.yml
             - .github/scripts/build_packages.sh
             - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/python_setup.sh
             - server/tools/MAKE_LINUX_PACKAGES.py
             - server/requirements-deb.txt
             - server/requirements-rpm.txt
@@ -28,11 +29,12 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - name: Change apt mirror
               run: |
-                  set -eux -o pipefail
+                  set -euo pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
             - name: Build and install debian package
               run: |
-                  set -eux -o pipefail
+                  set -euo pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
                   # Possible scope for confusion here: at this point we should
