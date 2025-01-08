@@ -222,7 +222,7 @@ def main() -> None:
     print("OK")
 
     title("Upgrading pip within virtualenv")
-    check_call([venv_pip, "install", "--upgrade", "pip setuptools"])
+    check_call([venv_pip, "install", "--upgrade", "pip", "setuptools"])
 
     title("Checking version of tools within new virtualenv")
     print(venv_python)
