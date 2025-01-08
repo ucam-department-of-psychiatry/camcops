@@ -116,7 +116,7 @@ INSTALL_REQUIRES = [
     "scipy==1.13.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.4.49",  # database access
-    "statsmodels==0.13.5",  # e.g. logistic regression
+    "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
@@ -149,7 +149,7 @@ INSTALL_REQUIRES = [
     "colorlog==4.1.0",
     "isodate==0.6.0",
     "openpyxl==3.0.7",  # also for pyexcel-xlsx
-    "pandas==1.3.4",
+    "pandas==1.4.4",
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
