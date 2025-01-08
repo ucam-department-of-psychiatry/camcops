@@ -651,6 +651,7 @@ export XDG_CACHE_HOME={DSTPYTHONCACHE}
 $(system_python_executable) {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
 
 echo 'About to install CamCOPS into virtual environment'
+{DSTVENVPIP} install -U pip setuptools
 {DSTVENVPIP} install {dst_sdist_file}
 
 #------------------------------------------------------------------------------
