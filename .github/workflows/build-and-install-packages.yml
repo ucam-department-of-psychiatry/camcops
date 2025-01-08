@@ -5,6 +5,7 @@ name: Build and install Linux packages
 on:
     push:
         paths:
+            - 'server/setup.py'
             - 'server/camcops_server/**'
             - .github/workflows/build-and-install-packages.yml
             - .github/scripts/build_packages.sh
