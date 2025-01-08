@@ -11,6 +11,7 @@ on:
             - .github/scripts/build_packages.sh
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/python_setup.sh
+            - server/tools/install_virtualenv.py
             - server/tools/MAKE_LINUX_PACKAGES.py
             - server/requirements-deb.txt
             - server/requirements-rpm.txt
