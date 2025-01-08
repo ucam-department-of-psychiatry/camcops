@@ -94,7 +94,7 @@ INSTALL_REQUIRES = [
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==4.9.4",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-    "numpy==1.23.5",  # Used by some tasks. SLOW INSTALLATION.
+    "numpy==1.26.4",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
     "pendulum==2.1.2",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
@@ -148,7 +148,7 @@ INSTALL_REQUIRES = [
     "beautifulsoup4==4.9.1",
     "colorlog==4.1.0",
     "isodate==0.6.0",
-    "openpyxl==3.0.4",  # also for pyexcel-xlsx
+    "openpyxl==3.0.7",  # also for pyexcel-xlsx
     "pandas==1.3.4",
     "prettytable==0.7.2",
     "psutil==5.7.0",
