@@ -93,7 +93,7 @@ INSTALL_REQUIRES = [
     "importlib-metadata<5.0",
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
-    "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+    "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
     "numpy==1.23.5",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
     "pendulum==2.1.2",  # date/time classes
