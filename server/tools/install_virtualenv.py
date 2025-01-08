@@ -218,6 +218,9 @@ def main() -> None:
             PYTHON, venv_tool, args.virtualenv
         )
     )
+    check_call([PYTHON, "-m", "ensurepip"])
+    print("OK")
+
     check_call([PYTHON, "-m", venv_tool, args.virtualenv])
     print("OK")
 

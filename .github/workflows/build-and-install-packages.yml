@@ -18,7 +18,9 @@ jobs:
     build-and-install-package:
         strategy:
             matrix:
-                python-version: [3.9, "3.10", 3.11]
+                # Just one here as the OS will determine the version used
+                # when the package is installed
+                python-version: ["3.10"]
                 # LTS versions
                 os: [ubuntu-22.04, ubuntu-24.04]
         runs-on: ${{ matrix.os }}

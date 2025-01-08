@@ -248,6 +248,7 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
+        python3.12 python312
         python3.11 python311
         python3.10 python310
         python3.9 python39
@@ -551,7 +552,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.9, <= 3.11
+X-Python3-Version: >= 3.9, <= 3.12
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
@@ -651,7 +652,6 @@ export XDG_CACHE_HOME={DSTPYTHONCACHE}
 $(system_python_executable) {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
 
 echo 'About to install CamCOPS into virtual environment'
-{DSTVENVPIP} install -U pip setuptools
 {DSTVENVPIP} install {dst_sdist_file}
 
 #------------------------------------------------------------------------------
