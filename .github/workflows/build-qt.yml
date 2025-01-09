@@ -34,7 +34,7 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/free_up_disk_space.sh
             - uses: actions/setup-python@v5
               with:
-                  python-version: 3.8
+                  python-version: 3.9
             - name: Common Linux prerequisites
               if: runner.os == 'Linux'
               run: |

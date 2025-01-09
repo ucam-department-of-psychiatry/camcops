@@ -68,7 +68,7 @@ INSTALL_REQUIRES = [
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
     "cardinal_pythonlib==1.1.25",  # RNC libraries
-    "celery==5.2.2",  # background tasks
+    "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
     (  # deform: web forms
@@ -87,16 +87,12 @@ INSTALL_REQUIRES = [
     "flower==2.0.1",  # monitor for Celery
     "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
-    # Celery dependency for Python <= 3.7; workaround import error
-    # https://github.com/celery/celery/issues/7783; scheduled to be fixed in
-    # Celery 5.3
-    "importlib-metadata<5.0",
     "lockfile==0.12.2",  # File locking for background tasks
-    "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
-    "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-    "numpy==1.23.5",  # Used by some tasks. SLOW INSTALLATION.
+    "lxml==4.9.4",  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+    "numpy==1.26.4",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
-    "pendulum==2.1.2",  # date/time classes
+    "pendulum==3.0.0",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
@@ -113,10 +109,10 @@ INSTALL_REQUIRES = [
     "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
-    "scipy==1.10.1",  # used by some tasks. slow installation.
+    "scipy==1.13.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.4.49",  # database access
-    "statsmodels==0.13.5",  # e.g. logistic regression
+    "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
@@ -148,13 +144,13 @@ INSTALL_REQUIRES = [
     "beautifulsoup4==4.9.1",
     "colorlog==4.1.0",
     "isodate==0.6.0",
-    "openpyxl==3.0.4",  # also for pyexcel-xlsx
-    "pandas==1.3.4",
+    "openpyxl==3.0.7",  # also for pyexcel-xlsx
+    "pandas==1.4.4",
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
     "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
-    "python-dateutil==2.8.1",  # date/time extensions.
+    "python-dateutil==2.9.0.post0",  # date/time extensions.
     "sqlparse==0.5.0",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
@@ -162,9 +158,9 @@ INSTALL_REQUIRES = [
     # Dependencies of other things above
     # -------------------------------------------------------------------------
     "alabaster==0.7.12",  # for sphinx
-    "amqp==5.0.6",  # for celery
+    "amqp==5.3.1",  # for celery
     "Chameleon==3.8.1",  # for Deform
-    "tornado==6.4.1",  # for celery
+    "tornado==6.4.2",  # for celery
     "webob==1.8.8",  # for pyramid
 ]
 
@@ -197,9 +193,10 @@ setup(
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
     ],
     keywords="cardinal",

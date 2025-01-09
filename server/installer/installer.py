@@ -99,7 +99,7 @@ class DockerPath:
 
     VENV_DIR = os.path.join(ROOT_DIR, "venv")
     CAMCOPS_INSTALL_DIR = os.path.join(
-        VENV_DIR, "lib", "python3.8", "site-packages"
+        VENV_DIR, "lib", "python3.9", "site-packages"
     )
 
 

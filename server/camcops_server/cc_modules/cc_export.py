@@ -188,7 +188,7 @@ from cardinal_pythonlib.pyramid.responses import (
 from cardinal_pythonlib.sizeformatter import bytes2human
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 import lockfile
-from pendulum import DateTime as Pendulum, Duration, Period
+from pendulum import DateTime as Pendulum, Duration
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
@@ -230,6 +230,8 @@ from camcops_server.cc_modules.celery import (
 )
 
 if TYPE_CHECKING:
+    from pendulum import Interval
+
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
@@ -1497,10 +1499,10 @@ class UserDownloadFile(object):
         death = self.when_last_modified + Duration(
             minutes=self.permitted_lifespan_min
         )
-        remaining = death - now  # type: Period
-        # Note that Period is a subclass of Duration, but its __str__()
+        remaining = death - now  # type: Interval
+        # Note that Interval is a subclass of Duration, but its __str__()
         # method is different. Duration maps __str__() to in_words(), but
-        # Period maps __str__() to __repr__().
+        # Interval maps __str__() to __repr__().
         return remaining
 
     @property
