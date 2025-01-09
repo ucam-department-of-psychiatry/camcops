@@ -87,10 +87,6 @@ INSTALL_REQUIRES = [
     "flower==2.0.1",  # monitor for Celery
     "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
-    # Celery dependency for Python <= 3.7; workaround import error
-    # https://github.com/celery/celery/issues/7783; scheduled to be fixed in
-    # Celery 5.3
-    "importlib-metadata<5.0",
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==4.9.4",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
@@ -154,7 +150,7 @@ INSTALL_REQUIRES = [
     "psutil==5.7.0",
     "pyparsing==2.4.7",
     "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
-    "python-dateutil==2.8.1",  # date/time extensions.
+    "python-dateutil==2.9.0.post0",  # date/time extensions.
     "sqlparse==0.5.0",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
@@ -162,7 +158,7 @@ INSTALL_REQUIRES = [
     # Dependencies of other things above
     # -------------------------------------------------------------------------
     "alabaster==0.7.12",  # for sphinx
-    "amqp==5.0.6",  # for celery
+    "amqp==5.3.1",  # for celery
     "Chameleon==3.8.1",  # for Deform
     "tornado==6.4.2",  # for celery
     "webob==1.8.8",  # for pyramid
