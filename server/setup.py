@@ -96,7 +96,7 @@ INSTALL_REQUIRES = [
     "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
     "numpy==1.26.4",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
-    "pendulum==2.1.2",  # date/time classes
+    "pendulum==3.0.0",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
