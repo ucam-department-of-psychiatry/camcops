@@ -104,7 +104,8 @@ INSTALL_REQUIRES = [
     "pyotp==2.6.0",  # Multi-factor authentication
     "pyramid==1.10.8",  # web framework
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
-    "pytest==7.2.0",  # automatic testing
+    "pytest==8.3.4",  # automatic testing
+    "pytest-env==1.1.5",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
     "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
