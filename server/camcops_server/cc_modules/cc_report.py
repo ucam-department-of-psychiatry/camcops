@@ -521,7 +521,7 @@ class PercentageSummaryReportMixin(object):
 
             # noinspection PyUnresolvedReferences
             total_query = (
-                select([func.count(column_name)])
+                select(func.count(column_name))
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))
             )
@@ -539,10 +539,8 @@ class PercentageSummaryReportMixin(object):
             # noinspection PyUnresolvedReferences
             query = (
                 select(
-                    [
-                        column(column_name),
-                        ((100 * func.count(column_name)) / total_responses),
-                    ]
+                    column(column_name),
+                    ((100 * func.count(column_name)) / total_responses),
                 )
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))
