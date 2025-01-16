@@ -5717,24 +5717,24 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     patient_idnum_b = aliased(PatientIdNum, name="all_idnums")
 
     duplicates = func.count(patient_idnum_a.idnum_value).label("duplicates")
-    duplicates_query = req.dbsession.query(
-        patient_idnum_a._group_id,
-        patient_idnum_a.which_idnum,
-        patient_idnum_a.idnum_value,
-        duplicates,
-    ).select_from(
-        patient_idnum_a
-    ).filter(
-        patient_idnum_a._device_id == server_device.id
-    ).filter(
-        patient_idnum_a._era == ERA_NOW
-    ).filter(
-        patient_idnum_a._group_id.in_(allowed_group_ids)
-    ).group_by(
-        patient_idnum_a._group_id,
-        patient_idnum_a.which_idnum,
-        patient_idnum_a.idnum_value,
-    ).subquery(name="duplicates")
+    duplicates_query = (
+        req.dbsession.query(
+            patient_idnum_a._group_id,
+            patient_idnum_a.which_idnum,
+            patient_idnum_a.idnum_value,
+            duplicates,
+        )
+        .select_from(patient_idnum_a)
+        .filter(patient_idnum_a._device_id == server_device.id)
+        .filter(patient_idnum_a._era == ERA_NOW)
+        .filter(patient_idnum_a._group_id.in_(allowed_group_ids))
+        .group_by(
+            patient_idnum_a._group_id,
+            patient_idnum_a.which_idnum,
+            patient_idnum_a.idnum_value,
+        )
+        .subquery(name="duplicates")
+    )
 
     # patient_idnum_query = req.dbsession.query(
     #     patient_idnum_b._pk,
@@ -5759,20 +5759,14 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     # ).subquery(name="patient_idnum")
 
     # noinspection PyProtectedMember
-    q = req.dbsession.query(
-        Patient
-    ).filter(
-        Patient._era == ERA_NOW
-    ).filter(
-        Patient._group_id.in_(allowed_group_ids)
-    ).filter(
-        Patient._device_id == server_device.id
-    ).order_by(
-        Patient.surname, Patient.forename
-    ).options(
-        joinedload("task_schedules")
-    ).options(
-        joinedload("idnums")
+    q = (
+        req.dbsession.query(Patient)
+        .filter(Patient._era == ERA_NOW)
+        .filter(Patient._group_id.in_(allowed_group_ids))
+        .filter(Patient._device_id == server_device.id)
+        .order_by(Patient.surname, Patient.forename)
+        .options(joinedload("task_schedules"))
+        .options(joinedload("idnums"))
     )
 
     # .join(
