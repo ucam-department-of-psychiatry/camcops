@@ -167,7 +167,9 @@ class PatientTaskSchedule(Base):
 
     patient = relationship("Patient", back_populates="task_schedules")
     task_schedule = relationship(
-        "TaskSchedule", back_populates="patient_task_schedules"
+        "TaskSchedule",
+        back_populates="patient_task_schedules",
+        cascade_backrefs=False,
     )
 
     emails = relationship(
@@ -439,6 +441,7 @@ class TaskSchedule(Base):
         back_populates="task_schedule",
         order_by=task_schedule_item_sort_order,
         cascade="all, delete",
+        cascade_backrefs=False,
     )  # type: Iterable[TaskScheduleItem]
 
     group = relationship(Group)
@@ -447,6 +450,7 @@ class TaskSchedule(Base):
         "PatientTaskSchedule",
         back_populates="task_schedule",
         cascade="all, delete",
+        cascade_backrefs=False,
     )
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
@@ -506,7 +510,9 @@ class TaskScheduleItem(Base):
         ),
     )  # type: Optional[Duration]
 
-    task_schedule = relationship("TaskSchedule", back_populates="items")
+    task_schedule = relationship(
+        "TaskSchedule", back_populates="items", cascade_backrefs=False
+    )
 
     @property
     def task_shortname(self) -> str:

@@ -237,7 +237,10 @@ class Patient(GenericTabletRecordMixin, Base):
     )  # type: List[PatientIdNum]
 
     task_schedules = relationship(
-        "PatientTaskSchedule", back_populates="patient", cascade="all, delete"
+        "PatientTaskSchedule",
+        back_populates="patient",
+        cascade="all, delete",
+        cascade_backrefs=False,
     )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
