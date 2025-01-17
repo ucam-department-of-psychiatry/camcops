@@ -196,7 +196,7 @@ class TaskAssignmentReport(Report):
             func.sum(all_data.c.emails_sent).label(self.label_emails_sent),
         ]
         query = (
-            select(selectors)
+            select(*selectors)
             .select_from(all_data)
             .group_by(*groupers)
             .order_by(*sorters)
@@ -365,7 +365,7 @@ class TaskAssignmentReport(Report):
         selectors.append(ts.c.name.label(self.label_schedule_name))
         selectors += count_selectors
         # noinspection PyUnresolvedReferences
-        query = select(selectors).select_from(tables).group_by(*groupers)
+        query = select(*selectors).select_from(tables).group_by(*groupers)
         if not superuser:
             # Restrict to accessible groups
             # noinspection PyProtectedMember

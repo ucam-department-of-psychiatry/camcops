@@ -1373,7 +1373,7 @@ class DistinctPatientReport(Report):
             Patient.sex,
         ]
         query = (
-            select(select_fields)
+            select(*select_fields)
             .select_from(select_from)
             .where(and_(*wheres))
             .order_by(*order_by)

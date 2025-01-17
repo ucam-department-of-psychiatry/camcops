@@ -602,7 +602,9 @@ def get_diagnosis_report_query(
         wheres.append(diagnosis_class._group_id.in_(group_ids))
         # Helpfully, SQLAlchemy will render this as "... AND 1 != 1" if we
         # pass an empty list to in_().
-    query = select(select_fields).select_from(from_clause).where(and_(*wheres))
+    query = (
+        select(*select_fields).select_from(from_clause).where(and_(*wheres))
+    )
     return query
 
 
