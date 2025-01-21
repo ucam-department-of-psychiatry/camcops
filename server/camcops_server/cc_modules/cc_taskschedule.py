@@ -176,6 +176,7 @@ class PatientTaskSchedule(Base):
         "PatientTaskScheduleEmail",
         back_populates="patient_task_schedule",
         cascade="all, delete",
+        cascade_backrefs=False,
     )
 
     def get_list_of_scheduled_tasks(
@@ -373,7 +374,9 @@ class PatientTaskScheduleEmail(Base):
     )
 
     patient_task_schedule = relationship(
-        PatientTaskSchedule, back_populates="emails"
+        PatientTaskSchedule,
+        back_populates="emails",
+        cascade_backrefs=False,
     )
     email = relationship(Email, cascade="all, delete")
 
