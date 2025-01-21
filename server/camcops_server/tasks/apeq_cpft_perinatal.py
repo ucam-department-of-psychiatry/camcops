@@ -356,7 +356,7 @@ class APEQCPFTPerinatalReport(
 
         # noinspection PyUnresolvedReferences
         query = (
-            select([column("ff_rating"), column("ff_why")])
+            select(column("ff_rating"), column("ff_why"))
             .select_from(self.task.__table__)
             .where(and_(*wheres))
             .order_by("ff_why")
@@ -380,7 +380,7 @@ class APEQCPFTPerinatalReport(
 
         # noinspection PyUnresolvedReferences
         query = (
-            select([column("comments")])
+            select(column("comments"))
             .select_from(self.task.__table__)
             .where(and_(*wheres))
         )
