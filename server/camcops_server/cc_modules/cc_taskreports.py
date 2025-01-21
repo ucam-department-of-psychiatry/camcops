@@ -32,9 +32,9 @@ from operator import attrgetter
 from typing import Any, List, Sequence, Tuple, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.sqlalchemy.orm_query import (
-    get_rows_fieldnames_from_query,
-)  # when this crashes with cardinal_pythonlib==1.0.28, replace with cardinal_pythonlib.core_query.get_rows_fieldnames_from_select  # noqa: E501
+from cardinal_pythonlib.sqlalchemy.core_query import (
+    get_rows_fieldnames_from_select,
+)
 from cardinal_pythonlib.sqlalchemy.sqlfunc import (
     extract_month,
     extract_year,
@@ -203,7 +203,7 @@ class TaskCountReport(Report):
             selectors.append(func.count().label(label_n))
 
             # noinspection PyUnresolvedReferences
-            query = (
+            statement = (
                 select(*selectors)
                 .select_from(TaskIndexEntry.__table__)
                 .group_by(*groupers)
@@ -212,14 +212,18 @@ class TaskCountReport(Report):
             )
             if by_user:
                 # noinspection PyUnresolvedReferences
-                query = query.select_from(User.__table__).where(
+                statement = statement.select_from(User.__table__).where(
                     TaskIndexEntry.adding_user_id == User.id
                 )
             if not superuser:
                 # Restrict to accessible groups
                 # noinspection PyProtectedMember
-                query = query.where(TaskIndexEntry.group_id.in_(group_ids))
-            rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
+                statement = statement.where(
+                    TaskIndexEntry.group_id.in_(group_ids)
+                )
+            rows, colnames = get_rows_fieldnames_from_select(
+                dbsession, statement
+            )
             # noinspection PyTypeChecker
             final_rows = rows
         else:
@@ -294,30 +298,33 @@ class TaskCountReport(Report):
                 selectors.append(func.count().label(label_n))
 
                 # noinspection PyUnresolvedReferences
-                query = (
-                    select(selectors)
+                statement = (
+                    select(*selectors)
                     .select_from(cls.__table__)
                     .where(cls._current == True)  # noqa: E712
                     .group_by(*groupers)
                 )
                 if by_user:
                     # noinspection PyUnresolvedReferences
-                    query = query.select_from(User.__table__).where(
+                    statement = statement.select_from(User.__table__).where(
                         cls._adding_user_id == User.id
                     )
                 if not superuser:
                     # Restrict to accessible groups
                     # noinspection PyProtectedMember
-                    query = query.where(cls._group_id.in_(group_ids))
-                rows, colnames = get_rows_fieldnames_from_query(
-                    dbsession, query
+                    statement = statement.where(cls._group_id.in_(group_ids))
+
+                rows, colnames = get_rows_fieldnames_from_select(
+                    dbsession, statement
                 )
                 if by_task:
                     final_rows.extend(rows)
                 else:
                     for row in rows:  # type: Row
-                        key = tuple(row[keyname] for keyname in groupers)
-                        count = row[label_n]
+                        key = tuple(
+                            getattr(row, keyname) for keyname in groupers
+                        )
+                        count = getattr(row, label_n)
                         counter.update({key: count})
             if not by_task:
                 PseudoRow = namedtuple("PseudoRow", groupers + [label_n])
