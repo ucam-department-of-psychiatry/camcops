@@ -68,7 +68,7 @@ INSTALL_REQUIRES = [
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
     "black==24.4.2",  # auto code formatter, keep in sync with .pre-commit-config.yaml  # noqa: E501
-    "cardinal_pythonlib==2.0.0",  # RNC libraries
+    "cardinal_pythonlib @ git+https://github.com/RudolfCardinal/pythonlib@sqlalchemy-2.0-fixes#egg=cardinal_pythonlib-2.0.1-rc1",  # RNC libraries  # noqa: E501
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
