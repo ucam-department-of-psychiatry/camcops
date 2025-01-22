@@ -763,3 +763,28 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("PK name info JSON is not a dict", logging_cm.output[0])
+
+    def test_fails_if_databasedata_is_not_a_dict(self) -> None:
+        self.req.fake_request_post_from_dict(
+            {
+                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+                TabletParam.DEVICE: self.device.name,
+                TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
+                TabletParam.FINALIZING: 1,
+                TabletParam.PKNAMEINFO: json.dumps({"key": "valid JSON"}),
+                TabletParam.DBDATA: json.dumps(
+                    [{"key": "valid JSON but list not dict"}]
+                ),
+            }
+        )
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Database data JSON is not a dict", logging_cm.output[0])
