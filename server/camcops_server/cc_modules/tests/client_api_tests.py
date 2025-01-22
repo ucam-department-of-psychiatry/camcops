@@ -740,18 +740,19 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
         )
         self.device = DeviceFactory()
 
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+            TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
+            TabletParam.FINALIZING: 1,
+        }
+
     def test_fails_if_pknameinfo_is_not_a_dict(self) -> None:
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
-                TabletParam.FINALIZING: 1,
-                TabletParam.PKNAMEINFO: json.dumps(
-                    [{"key": "valid JSON but list not dict"}]
-                ),
-            }
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
+            [{"key": "valid JSON but list not dict"}]
         )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
             response = client_api(self.req)
             reply_dict = get_reply_dict_from_response(response)
@@ -765,18 +766,14 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
         self.assertIn("PK name info JSON is not a dict", logging_cm.output[0])
 
     def test_fails_if_databasedata_is_not_a_dict(self) -> None:
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
-                TabletParam.FINALIZING: 1,
-                TabletParam.PKNAMEINFO: json.dumps({"key": "valid JSON"}),
-                TabletParam.DBDATA: json.dumps(
-                    [{"key": "valid JSON but list not dict"}]
-                ),
-            }
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
+            {"key": "valid JSON"}
         )
+        self.post_dict[TabletParam.DBDATA] = json.dumps(
+            [{"key": "valid JSON but list not dict"}]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
             response = client_api(self.req)
             reply_dict = get_reply_dict_from_response(response)
@@ -790,20 +787,14 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
         self.assertIn("Database data JSON is not a dict", logging_cm.output[0])
 
     def test_fails_if_table_names_do_not_match(self) -> None:
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
-                TabletParam.FINALIZING: 1,
-                TabletParam.PKNAMEINFO: json.dumps(
-                    {"table1": "", "table2": "", "table3": ""}
-                ),
-                TabletParam.DBDATA: json.dumps(
-                    {"table4": "", "table5": "", "table6": ""}
-                ),
-            }
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
+            {"table1": "", "table2": "", "table3": ""}
         )
+        self.post_dict[TabletParam.DBDATA] = json.dumps(
+            {"table4": "", "table5": "", "table6": ""}
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
             response = client_api(self.req)
             reply_dict = get_reply_dict_from_response(response)
