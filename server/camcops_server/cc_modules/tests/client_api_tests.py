@@ -42,6 +42,7 @@ from pendulum import DateTime as Pendulum, Duration, local, parse
 
 from pyramid.response import Response
 
+from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
 from camcops_server.cc_modules.cc_client_api_core import (
     fail_server_error,
     fail_unsupported_operation,
@@ -828,4 +829,19 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn(
             "Attempt to upload nonexistent tables", logging_cm.output[0]
+        )
+
+    def test_empty_upload_succeeds(self) -> None:
+        pknameinfo = {key: "" for key in CLIENT_TABLE_MAP.keys()}
+        dbdata = {key: "" for key in CLIENT_TABLE_MAP.keys()}
+
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(pknameinfo)
+        self.post_dict[TabletParam.DBDATA] = json.dumps(dbdata)
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
