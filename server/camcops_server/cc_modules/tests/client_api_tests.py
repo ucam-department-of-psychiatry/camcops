@@ -845,3 +845,43 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
+
+
+class ValidatePatientsTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.group = GroupFactory()
+        user = self.req._debugging_user = UserFactory(
+            upload_group_id=self.group.id,
+        )
+
+        UserGroupMembershipFactory(
+            user_id=user.id,
+            group_id=self.group.id,
+            may_upload=True,
+        )
+        self.device = DeviceFactory()
+
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+            TabletParam.OPERATION: Operations.VALIDATE_PATIENTS,
+        }
+
+    def test_fails_if_patient_info_is_not_a_list(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps({})
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Top-level JSON is not a list", logging_cm.output[0])
