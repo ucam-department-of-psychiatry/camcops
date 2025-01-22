@@ -3204,7 +3204,10 @@ class EditUserViewTests(BasicDatabaseTestCase):
             with self.assertRaises(HTTPFound):
                 edit_user(self.req)
 
-        mock_set_group_ids.assert_called_once_with([group_a.id, group_b.id])
+        [actual_group_ids] = mock_set_group_ids.call_args[0]
+        self.assertEqual(
+            sorted(actual_group_ids), sorted([group_a.id, group_b.id])
+        )
 
     def test_upload_group_id_unset_when_membership_removed(self) -> None:
         group_a = GroupFactory()
