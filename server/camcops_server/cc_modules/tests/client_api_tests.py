@@ -203,7 +203,7 @@ class ClientApiTests(DemoRequestTestCase):
                 self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
-class PatientRegistrationTests(DemoRequestTestCase):
+class RegisterPatientTests(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
 
