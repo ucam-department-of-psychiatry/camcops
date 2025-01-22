@@ -806,3 +806,26 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Table names don't match", logging_cm.output[0])
+
+    def test_fails_if_table_names_do_not_exist(self) -> None:
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
+            {"table1": "", "table2": "", "table3": ""}
+        )
+        self.post_dict[TabletParam.DBDATA] = json.dumps(
+            {"table1": "", "table2": "", "table3": ""}
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn(
+            "Attempt to upload nonexistent tables", logging_cm.output[0]
+        )
