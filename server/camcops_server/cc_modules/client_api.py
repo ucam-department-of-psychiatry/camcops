@@ -1964,7 +1964,7 @@ def get_dirty_tables(req: "CamcopsRequest") -> List[Table]:
     Returns tables marked as dirty for this device. (See
     :func:`mark_table_dirty`.)
     """
-    query = select([DirtyTable.tablename]).where(
+    query = select(DirtyTable.tablename).where(
         DirtyTable.device_id == req.tabletsession.device_id
     )
     tablenames = fetch_all_first_values(req.dbsession, query)
