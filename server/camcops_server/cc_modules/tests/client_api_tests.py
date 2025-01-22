@@ -788,3 +788,30 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Database data JSON is not a dict", logging_cm.output[0])
+
+    def test_fails_if_table_names_do_not_match(self) -> None:
+        self.req.fake_request_post_from_dict(
+            {
+                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+                TabletParam.DEVICE: self.device.name,
+                TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
+                TabletParam.FINALIZING: 1,
+                TabletParam.PKNAMEINFO: json.dumps(
+                    {"table1": "", "table2": "", "table3": ""}
+                ),
+                TabletParam.DBDATA: json.dumps(
+                    {"table4": "", "table5": "", "table6": ""}
+                ),
+            }
+        )
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Table names don't match", logging_cm.output[0])
