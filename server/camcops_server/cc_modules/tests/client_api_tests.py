@@ -1418,3 +1418,47 @@ class ValidatePatientsTests(DemoRequestTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
+
+
+class WhichKeysToSendTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.group = GroupFactory()
+        user = self.req._debugging_user = UserFactory(
+            upload_group_id=self.group.id,
+        )
+
+        UserGroupMembershipFactory(
+            user_id=user.id,
+            group_id=self.group.id,
+            may_upload=True,
+        )
+        self.device = DeviceFactory()
+
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+            TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
+            TabletParam.TABLE: "bmi",
+            TabletParam.PKNAME: "id",
+        }
+
+    def test_fails_for_pk_value_date_count_mismatch(self) -> None:
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.DATEVALUES] = ""
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Number of PK values", logging_cm.output[0])
+        self.assertIn("doesn't match number of dates", logging_cm.output[0])
