@@ -655,10 +655,10 @@ def ensure_valid_patient_json(
             ensure_string(v)
             if v:
                 try:
+                    # This will only return None if v is empty/None and we have
+                    # already checked that
                     dob = coerce_to_pendulum_date(v)
                 except ParserError:
-                    dob = None
-                if dob is None:
                     fail_user_error(f"Invalid DOB: {v!r}")
             else:
                 dob = None
