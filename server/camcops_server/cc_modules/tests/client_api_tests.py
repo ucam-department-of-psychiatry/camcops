@@ -1391,3 +1391,30 @@ class ValidatePatientsTests(DemoRequestTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
+
+    def test_succeeds_for_empty_dob(self) -> None:
+        # All values set for maximum test coverage
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [
+                {
+                    TabletParam.DOB: "",
+                    TabletParam.FINALIZING: True,
+                }
+            ]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        mock_valid = mock.Mock(return_value=(True, ""))
+
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.client_api",
+            is_candidate_patient_valid_for_group=mock_valid,
+            is_candidate_patient_valid_for_restricted_user=mock_valid,
+        ):
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
