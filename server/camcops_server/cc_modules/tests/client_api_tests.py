@@ -1208,3 +1208,26 @@ class ValidatePatientsTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Bad ID number value: 'foo'", logging_cm.output[0])
+
+    def test_fails_if_idref_invalid(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [{f"{TabletParam.IDNUM_PREFIX}1": 0}]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+        self.req.valid_which_idnums = [1]
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn(
+            "Bad ID number: IdNumReference(idnum_value=0, which_idnum=1)",
+            logging_cm.output[0],
+        )
