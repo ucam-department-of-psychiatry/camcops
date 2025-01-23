@@ -932,7 +932,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Patient JSON is empty", logging_cm.output[0])
 
-    def test_fails_if_forename_not_a_string(self) -> None:
+    def test_fails_if_forename_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.FORENAME: 1}]
         )
@@ -951,7 +951,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("non-string: 1", logging_cm.output[0])
 
-    def test_fails_if_surname_not_a_string(self) -> None:
+    def test_fails_if_surname_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.SURNAME: 2}]
         )
@@ -1064,3 +1064,22 @@ class ValidatePatientsTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Bad e-mail address: 'email'", logging_cm.output[0])
+
+    def test_fails_if_address_is_not_a_string(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [{TabletParam.ADDRESS: 5}]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("non-string: 5", logging_cm.output[0])
