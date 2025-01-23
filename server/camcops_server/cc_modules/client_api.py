@@ -362,6 +362,7 @@ from cardinal_pythonlib.sqlalchemy.core_query import (
     fetch_all_first_values,
 )
 from cardinal_pythonlib.text import escape_newlines
+from pendulum.exceptions import ParserError
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from pyramid.response import Response
@@ -653,7 +654,10 @@ def ensure_valid_patient_json(
         elif k == TabletParam.DOB:
             ensure_string(v)
             if v:
-                dob = coerce_to_pendulum_date(v)
+                try:
+                    dob = coerce_to_pendulum_date(v)
+                except ParserError:
+                    dob = None
                 if dob is None:
                     fail_user_error(f"Invalid DOB: {v!r}")
             else:
