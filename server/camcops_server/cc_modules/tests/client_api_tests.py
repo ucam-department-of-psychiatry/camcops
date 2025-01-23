@@ -1290,7 +1290,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Missing 'finalizing' JSON key", logging_cm.output[0])
 
-    def test_fails_when_candidate_patient_invalid_for_group(self) -> None:
+    def test_fails_when_candidate_invalid_for_group(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [
                 {
@@ -1302,11 +1302,44 @@ class ValidatePatientsTests(DemoRequestTestCase):
 
         self.req.fake_request_post_from_dict(self.post_dict)
 
-        mock_is_valid = mock.Mock(return_value=(False, "Mock reason"))
+        mock_invalid = mock.Mock(return_value=(False, "Mock reason"))
 
         with mock.patch.multiple(
             "camcops_server.cc_modules.client_api",
-            is_candidate_patient_valid_for_group=mock_is_valid,
+            is_candidate_patient_valid_for_group=mock_invalid,
+        ):
+            with self.assertLogs(level=logging.WARN) as logging_cm:
+                response = client_api(self.req)
+                reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Invalid patient", logging_cm.output[0])
+        self.assertIn("Mock reason", logging_cm.output[0])
+
+    def test_fails_when_candidate_invalid_for_restricted_user(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [
+                {
+                    TabletParam.SURNAME: "Valid",  # Needs to have something
+                    TabletParam.FINALIZING: True,
+                }
+            ]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        mock_valid = mock.Mock(return_value=(True, ""))
+        mock_invalid = mock.Mock(return_value=(False, "Mock reason"))
+
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.client_api",
+            is_candidate_patient_valid_for_group=mock_valid,
+            is_candidate_patient_valid_for_restricted_user=mock_invalid,
         ):
             with self.assertLogs(level=logging.WARN) as logging_cm:
                 response = client_api(self.req)
