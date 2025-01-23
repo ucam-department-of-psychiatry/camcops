@@ -914,3 +914,20 @@ class ValidatePatientsTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Patient JSON is not a dict", logging_cm.output[0])
+
+    def test_fails_if_one_patients_info_is_empty(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([{}])
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Patient JSON is empty", logging_cm.output[0])
