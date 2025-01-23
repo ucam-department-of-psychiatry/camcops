@@ -885,3 +885,15 @@ class ValidatePatientsTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Top-level JSON is not a list", logging_cm.output[0])
+
+    def test_succeeds_for_empty_list(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([])
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
