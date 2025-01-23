@@ -1539,3 +1539,17 @@ class WhichKeysToSendTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Bad date/time", logging_cm.output[0])
+
+    def test_succeeds_for_valid_values(self) -> None:
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
+        self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )

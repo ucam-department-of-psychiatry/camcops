@@ -1181,14 +1181,10 @@ def client_pks_that_exist(
     """
     query = (
         select(
-            [
-                table.c[FN_PK],  # server PK
-                table.c[clientpk_name],  # client PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
-            ]
+            table.c[FN_PK],  # server PK
+            table.c[clientpk_name],  # client PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
         )
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
@@ -1757,11 +1753,9 @@ def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     # noinspection PyUnresolvedReferences
     query = (
         select(
-            [
-                Device.ongoing_upload_batch_utc,
-                Device.uploading_user_id,
-                Device.currently_preserving,
-            ]
+            Device.ongoing_upload_batch_utc,
+            Device.uploading_user_id,
+            Device.currently_preserving,
         )
         .select_from(Device.__table__)
         .where(Device.id == device_id)
