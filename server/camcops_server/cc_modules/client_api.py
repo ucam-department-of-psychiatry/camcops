@@ -634,6 +634,7 @@ def ensure_valid_patient_json(
     ptinfo = BarePatientInfo()
     idnum_types_seen = set()  # type: Set[int]
     for k, v in pt_dict.items():
+        # May not be necessary as JSON has already been validated
         ensure_string(k, allow_none=False)
 
         if k == TabletParam.FORENAME:
