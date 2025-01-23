@@ -1188,3 +1188,23 @@ class ValidatePatientsTests(DemoRequestTestCase):
             "More than one ID number supplied for ID number type 1",
             logging_cm.output[0],
         )
+
+    def test_fails_if_idnum_not_an_int(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [{f"{TabletParam.IDNUM_PREFIX}1": "foo"}]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+        self.req.valid_which_idnums = [1]
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Bad ID number value: 'foo'", logging_cm.output[0])
