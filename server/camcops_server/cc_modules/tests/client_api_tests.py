@@ -1482,3 +1482,22 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Number of move-off-tablet values", logging_cm.output[0])
         self.assertIn("doesn't match number of PKs", logging_cm.output[0])
+
+    def test_fails_for_non_integer_client_pk(self) -> None:
+        self.post_dict[TabletParam.PKVALUES] = "1,strawberry"
+        self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
+        self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1,1"
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Bad (non-integer) client PK", logging_cm.output[0])

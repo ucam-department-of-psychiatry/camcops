@@ -3111,6 +3111,8 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
         try:
             move_off_tablet_values = [bool(x) for x in move_off_tablet_values]
         except (TypeError, ValueError):
+            # Probably never reached given pretty much anything standard can be
+            # converted to bool
             fail_user_error(
                 f"Bad move-off-tablet values: {move_off_tablet_values!r}"
             )
