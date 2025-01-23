@@ -60,6 +60,7 @@ from camcops_server.cc_modules.cc_taskindex import (
 )
 from camcops_server.cc_modules.cc_testfactories import (
     DeviceFactory,
+    Fake,
     GroupFactory,
     NHSPatientIdNumFactory,
     PatientFactory,
@@ -1353,3 +1354,40 @@ class ValidatePatientsTests(DemoRequestTestCase):
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Invalid patient", logging_cm.output[0])
         self.assertIn("Mock reason", logging_cm.output[0])
+
+    def test_succeeds_for_valid_patient(self) -> None:
+        sex = Fake.en_gb.sex()
+        dob = Fake.en_gb.consistent_date_of_birth().isoformat()
+
+        # All values set for maximum test coverage
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [
+                {
+                    TabletParam.FORENAME: Fake.en_gb.forename(sex),
+                    TabletParam.SURNAME: Fake.en_gb.last_name(),
+                    TabletParam.SEX: sex,
+                    TabletParam.DOB: dob,
+                    TabletParam.ADDRESS: Fake.en_gb.address(),
+                    TabletParam.GP: Fake.en_gb.name(),
+                    TabletParam.OTHER: Fake.en_us.paragraph(),
+                    TabletParam.EMAIL: Fake.en_gb.email(),
+                    TabletParam.FINALIZING: True,
+                }
+            ]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        mock_valid = mock.Mock(return_value=(True, ""))
+
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.client_api",
+            is_candidate_patient_valid_for_group=mock_valid,
+            is_candidate_patient_valid_for_restricted_user=mock_valid,
+        ):
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
