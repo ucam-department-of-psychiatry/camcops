@@ -1250,3 +1250,22 @@ class ValidatePatientsTests(DemoRequestTestCase):
 
         self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn("Bad 'finalizing' value: 123", logging_cm.output[0])
+
+    def test_fails_for_unknown_json_key(self) -> None:
+        self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
+            [{"foobar": 123}]
+        )
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        with self.assertLogs(level=logging.WARN) as logging_cm:
+            response = client_api(self.req)
+            reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        logger_name = "camcops_server.cc_modules.client_api"
+
+        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
+        self.assertIn("Unknown JSON key: 'foobar'", logging_cm.output[0])
