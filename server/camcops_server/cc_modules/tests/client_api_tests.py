@@ -1541,7 +1541,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn("Bad date/time", logging_cm.output[0])
 
     def test_succeeds_for_valid_values(self) -> None:
-        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.PKVALUES] = "123"
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
@@ -1553,3 +1553,4 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
+        self.assertEqual(reply_dict[TabletParam.RESULT], "123", msg=reply_dict)
