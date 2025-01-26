@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
     TabletParam,
     UserErrorException,
 )
+from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_convert import decode_values
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_taskindex import (
@@ -1542,6 +1543,26 @@ class WhichKeysToSendTests(DemoRequestTestCase):
 
     def test_succeeds_for_valid_values(self) -> None:
         self.post_dict[TabletParam.PKVALUES] = "123"
+        self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
+        self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(reply_dict[TabletParam.RESULT], "123", msg=reply_dict)
+
+    def test_succeeds_for_existing_record(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            id=123, patient=patient, _device=self.device, _era=ERA_NOW
+        )
+
+        self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
