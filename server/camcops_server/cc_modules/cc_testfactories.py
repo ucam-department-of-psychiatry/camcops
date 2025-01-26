@@ -181,6 +181,11 @@ class GenericTabletRecordFactory(BaseFactory):
         # _current = True gets ignored for some reason
         return True
 
+    @factory.lazy_attribute
+    def when_last_modified(obj: "Resolver") -> str:
+        era_time = pendulum.parse(obj.default_iso_datetime)
+        return format_datetime(era_time, DateFormat.ISO8601)
+
 
 class PatientFactory(GenericTabletRecordFactory):
     class Meta:
