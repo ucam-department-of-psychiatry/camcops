@@ -1607,3 +1607,57 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.dbsession.commit()
 
         self.assertTrue(bmi._move_off_tablet)
+
+
+class DeleteWhereKeyNotTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.group = GroupFactory()
+        user = self.req._debugging_user = UserFactory(
+            upload_group_id=self.group.id,
+        )
+
+        UserGroupMembershipFactory(
+            user_id=user.id,
+            group_id=self.group.id,
+            may_upload=True,
+        )
+        self.device = DeviceFactory()
+
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+            TabletParam.OPERATION: Operations.DELETE_WHERE_KEY_NOT,
+            TabletParam.TABLE: "bmi",
+            TabletParam.PKNAME: "id",
+        }
+
+    def test_records_not_specified_marked_for_removal(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        bmis = BmiFactory.create_batch(
+            3,
+            patient=patient,
+            _device=self.device,
+            _removal_pending=False,
+            _era=ERA_NOW,
+        )
+
+        self.post_dict[TabletParam.PKVALUES] = f"{bmis[0].id},{bmis[1].id}"
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT], "Trimmed", msg=reply_dict
+        )
+
+        self.dbsession.commit()
+
+        self.assertFalse(bmis[0]._removal_pending)
+        self.assertFalse(bmis[1]._removal_pending)
+        self.assertTrue(bmis[2]._removal_pending)
