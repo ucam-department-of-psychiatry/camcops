@@ -1575,3 +1575,35 @@ class WhichKeysToSendTests(DemoRequestTestCase):
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
         self.assertEqual(reply_dict[TabletParam.RESULT], "123", msg=reply_dict)
+
+    def test_succeeds_for_unmodified_record_marked_for_preservation(
+        self,
+    ) -> None:
+        time_now = local(2025, 1, 26)
+
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            id=123,
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            when_last_modified=time_now,
+            _move_off_tablet=False,
+        )
+
+        self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
+        self.post_dict[TabletParam.DATEVALUES] = time_now.isoformat()
+        self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(reply_dict[TabletParam.RESULT], "", msg=reply_dict)
+        self.dbsession.commit()
+
+        self.assertTrue(bmi._move_off_tablet)
