@@ -1227,7 +1227,7 @@ def get_all_predecessor_pks(
     finished = False
     while not finished:
         next_pk = dbsession.execute(
-            select([table.c[FN_PREDECESSOR_PK]]).where(
+            select(table.c[FN_PREDECESSOR_PK]).where(
                 table.c[FN_PK] == current_pk
             )
         ).scalar()  # type: Optional[int]
