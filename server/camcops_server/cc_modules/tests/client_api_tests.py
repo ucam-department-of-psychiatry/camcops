@@ -39,7 +39,7 @@ from cardinal_pythonlib.convert import (
 from cardinal_pythonlib.nhs import generate_random_nhs_number
 from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
-from pendulum import DateTime as Pendulum, Duration, local, parse
+from pendulum import DateTime as Pendulum, Duration, local, now, parse
 
 from pyramid.response import Response
 
@@ -62,6 +62,7 @@ from camcops_server.cc_modules.cc_taskindex import (
 )
 from camcops_server.cc_modules.cc_testfactories import (
     DeviceFactory,
+    DirtyTableFactory,
     Fake,
     GroupFactory,
     NHSPatientIdNumFactory,
@@ -1762,7 +1763,7 @@ class UploadEmptyTablesTests(DemoRequestTestCase):
             group_id=self.group.id,
             may_upload=True,
         )
-        self.device = DeviceFactory()
+        self.device = DeviceFactory(uploading_user_id=user.id)
 
         self.post_dict = {
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
@@ -1777,12 +1778,14 @@ class UploadEmptyTablesTests(DemoRequestTestCase):
             patient=patient,
             _device=self.device,
             _era=ERA_NOW,
+            _current=True,
             _removal_pending=False,
         )
         phq9 = Phq9Factory(
             patient=patient,
             _device=self.device,
             _era=ERA_NOW,
+            _current=True,
             _removal_pending=False,
         )
         self.req.fake_request_post_from_dict(self.post_dict)
@@ -1802,3 +1805,75 @@ class UploadEmptyTablesTests(DemoRequestTestCase):
 
         self.assertTrue(bmi._removal_pending)
         self.assertTrue(phq9._removal_pending)
+
+    def test_tables_marked_dirty_if_records_in_current_era(self) -> None:
+        self.assertIsNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "bmi")
+            .one_or_none()
+        )
+        self.assertIsNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "phq9")
+            .one_or_none()
+        )
+        patient = PatientFactory(_device=self.device)
+        BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _current=True,
+        )
+        Phq9Factory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _current=True,
+        )
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+        self.assertIsNotNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "bmi")
+            .one_or_none()
+        )
+        self.assertIsNotNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "phq9")
+            .one_or_none()
+        )
+
+    def test_tables_marked_clean_if_no_records_in_current_era(self) -> None:
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+        DirtyTableFactory(tablename="phq9", device_id=self.device.id)
+        self.device.currently_preserving = True
+        self.device.ongoing_upload_batch_utc = now("UTC")
+        self.dbsession.add(self.device)
+        self.dbsession.commit()
+
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+        self.assertIsNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "bmi")
+            .one_or_none()
+        )
+        self.assertIsNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "phq9")
+            .one_or_none()
+        )

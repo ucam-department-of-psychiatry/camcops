@@ -40,6 +40,7 @@ import pendulum
 from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
@@ -406,3 +407,8 @@ class BlobFactory(GenericTabletRecordFactory):
         model = Blob
 
     id = factory.Sequence(lambda n: n + ID_OFFSET)
+
+
+class DirtyTableFactory(BaseFactory):
+    class Meta:
+        model = DirtyTable
