@@ -1135,13 +1135,9 @@ def record_exists(
     """
     query = (
         select(
-            [
-                table.c[FN_PK],  # server PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
-            ]
+            table.c[FN_PK],  # server PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
         )
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
