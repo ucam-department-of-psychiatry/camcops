@@ -1949,3 +1949,60 @@ class UploadRecordTests(DemoRequestTestCase):
 
         self.assertAlmostEqual(bmi.height_m, 1.83)
         self.assertAlmostEqual(bmi.mass_kg, 67)
+
+    def test_upload_updates_record(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            height_m=1.8,
+            mass_kg=70,
+        )
+
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "height_m",
+                "mass_kg",
+                "when_created",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                str(bmi.id),
+                "1.83",
+                "67",
+                now_utc_string,
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT],
+            "UPLOAD-UPDATE",
+            msg=reply_dict,
+        )
+        new_bmi = (
+            self.req.dbsession.query(Bmi)
+            .filter(Bmi._predecessor_pk == bmi._pk)
+            .one_or_none()
+        )
+        self.assertIsNotNone(new_bmi)
+
+        self.assertAlmostEqual(new_bmi.height_m, 1.83)
+        self.assertAlmostEqual(new_bmi.mass_kg, 67)
