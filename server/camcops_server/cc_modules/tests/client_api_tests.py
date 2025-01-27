@@ -54,6 +54,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
 )
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_convert import decode_values
+from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_taskindex import (
     PatientIdNumIndexEntry,
@@ -1712,3 +1713,36 @@ class StartPreservationTests(DemoRequestTestCase):
 
         self.dbsession.commit()
         self.assertTrue(self.device.currently_preserving)
+
+    def test_marks_table_dirty(self) -> None:
+        self.assertIsNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "bmi")
+            .one_or_none()
+        )
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            id=123,
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+        )
+        self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT], "STARTPRESERVATION", msg=reply_dict
+        )
+
+        self.dbsession.commit()
+        self.assertIsNotNone(
+            self.req.dbsession.query(DirtyTable)
+            .filter(DirtyTable.tablename == "bmi")
+            .one_or_none()
+        )
