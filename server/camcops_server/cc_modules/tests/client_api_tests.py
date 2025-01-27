@@ -89,6 +89,7 @@ from camcops_server.cc_modules.client_api import (
     Operations,
     SUCCESS_CODE,
 )
+from camcops_server.tasks import Bmi
 from camcops_server.tasks.tests.factories import BmiFactory, Phq9Factory
 
 TEST_NHS_NUMBER = generate_random_nhs_number()
@@ -1877,3 +1878,74 @@ class UploadEmptyTablesTests(DemoRequestTestCase):
             .filter(DirtyTable.tablename == "phq9")
             .one_or_none()
         )
+
+
+class UploadRecordTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.group = GroupFactory()
+        user = self.req._debugging_user = UserFactory(
+            upload_group_id=self.group.id,
+        )
+
+        UserGroupMembershipFactory(
+            user_id=user.id,
+            group_id=self.group.id,
+            may_upload=True,
+        )
+        self.device = DeviceFactory(uploading_user_id=user.id)
+
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+            TabletParam.OPERATION: Operations.UPLOAD_RECORD,
+            TabletParam.TABLE: "bmi",
+            TabletParam.PKNAME: "id",
+        }
+
+    def test_upload_inserts_record(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "height_m",
+                "mass_kg",
+                "when_created",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                "1",
+                "1.83",
+                "67",
+                now_utc_string,
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT],
+            "UPLOAD-INSERT",
+            msg=reply_dict,
+        )
+        bmi = self.req.dbsession.query(Bmi).one_or_none()
+        self.assertIsNotNone(bmi)
+
+        self.assertAlmostEqual(bmi.height_m, 1.83)
+        self.assertAlmostEqual(bmi.mass_kg, 67)
