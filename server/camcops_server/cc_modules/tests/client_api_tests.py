@@ -1772,3 +1772,28 @@ class UploadTableTests(ClientApiTestCase):
         self.dbsession.commit()
 
         self.assertTrue(bmi_to_delete._removal_pending)
+
+    def test_no_records_marks_table_clean(self) -> None:
+        self.device.currently_preserving = True
+        self.device.ongoing_upload_batch_utc = now("UTC")
+        self.dbsession.add(self.device)
+        self.dbsession.commit()
+
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+        self.assertIsNotNone(
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
+        )
+        self.post_dict[TabletParam.NRECORDS] = "0"
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        self.assertIsNone(
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
+        )
