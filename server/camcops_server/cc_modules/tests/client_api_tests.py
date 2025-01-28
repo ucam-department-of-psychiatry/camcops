@@ -1694,28 +1694,11 @@ class UploadRecordTests(ClientApiTestCase):
         self.assertAlmostEqual(new_bmi.mass_kg, 67)
 
 
-class UploadTableTests(DemoRequestTestCase):
+class UploadTableTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
-
-        self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
-            upload_group_id=self.group.id,
-        )
-
-        UserGroupMembershipFactory(
-            user_id=user.id,
-            group_id=self.group.id,
-            may_upload=True,
-        )
-        self.device = DeviceFactory(uploading_user_id=user.id)
-
-        self.post_dict = {
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.device.name,
-            TabletParam.OPERATION: Operations.UPLOAD_TABLE,
-            TabletParam.TABLE: "bmi",
-        }
+        self.post_dict[TabletParam.OPERATION] = Operations.UPLOAD_TABLE
+        self.post_dict[TabletParam.TABLE] = "bmi"
 
     def test_table_uploaded(self) -> None:
         now_utc_string = now("UTC").isoformat()
@@ -1756,10 +1739,7 @@ class UploadTableTests(DemoRequestTestCase):
                 str(patient2.id),
             ]
         )
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
