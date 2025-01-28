@@ -1797,3 +1797,32 @@ class UploadTableTests(ClientApiTestCase):
                 select(DirtyTable).where(DirtyTable.tablename == "bmi")
             ).scalar_one_or_none()
         )
+
+
+class EndUploadTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = Operations.END_UPLOAD
+        self.device.ongoing_upload_batch_utc = now("UTC")
+        self.dbsession.add(self.device)
+        self.dbsession.commit()
+
+    def test_updates_added_records(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _addition_pending=True,
+        )
+
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertFalse(bmi._addition_pending)
+        self.assertIsNotNone(bmi._when_added_exact)
+        self.assertIsNotNone(bmi._when_added_batch_utc)
