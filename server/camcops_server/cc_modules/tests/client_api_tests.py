@@ -214,19 +214,19 @@ class ClientApiTestCase(DemoRequestTestCase):
         super().setUp()
 
         self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
+        self.user = self.req._debugging_user = UserFactory(
             upload_group_id=self.group.id,
         )
 
         UserGroupMembershipFactory(
-            user_id=user.id,
+            user_id=self.user.id,
             group_id=self.group.id,
             may_upload=True,
             may_register_devices=True,
         )
         # Ensure the server device exists so that we don't get ID clashes
         Device.get_server_device(self.dbsession)
-        self.device = DeviceFactory(uploading_user_id=user.id)
+        self.device = DeviceFactory(uploading_user_id=self.user.id)
 
         self.post_dict = {
             TabletParam.CAMCOPS_VERSION: (
@@ -1826,3 +1826,26 @@ class EndUploadTests(ClientApiTestCase):
         self.assertFalse(bmi._addition_pending)
         self.assertIsNotNone(bmi._when_added_exact)
         self.assertIsNotNone(bmi._when_added_batch_utc)
+
+    def test_updates_removed_records(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _current=True,
+            _removal_pending=True,
+        )
+
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertFalse(bmi._current)
+        self.assertFalse(bmi._removal_pending)
+        self.assertEqual(bmi._removing_user_id, self.user.id)
+        self.assertIsNotNone(bmi._when_removed_exact)
+        self.assertIsNotNone(bmi._when_removed_batch_utc)
