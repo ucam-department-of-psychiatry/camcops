@@ -432,21 +432,7 @@ class RegisterPatientTests(ClientApiTestCase):
         )
 
 
-class GetTaskSchedulesTests(DemoRequestTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
-            upload_group_id=self.group.id,
-        )
-
-        UserGroupMembershipFactory(
-            user_id=user.id,
-            group_id=self.group.id,
-            may_register_devices=True,
-        )
-
+class GetTaskSchedulesTests(ClientApiTestCase):
     def test_returns_task_schedules(self) -> None:
         schedule1 = TaskScheduleFactory(group=self.group)
         schedule2 = TaskScheduleFactory(group=self.group)
@@ -521,16 +507,10 @@ class GetTaskSchedulesTests(DemoRequestTestCase):
         # For type checker
         assert proquint is not None
 
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: patient._device.name,
-                TabletParam.OPERATION: Operations.GET_TASK_SCHEDULES,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        self.post_dict[TabletParam.OPERATION] = Operations.GET_TASK_SCHEDULES
+        self.post_dict[TabletParam.PATIENT_PROQUINT] = proquint
+
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
