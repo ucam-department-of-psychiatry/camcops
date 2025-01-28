@@ -40,8 +40,8 @@ from cardinal_pythonlib.nhs import generate_random_nhs_number
 from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 from pendulum import DateTime as Pendulum, Duration, local, now, parse
-
 from pyramid.response import Response
+from sqlalchemy import select
 
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
 from camcops_server.cc_modules.cc_client_api_core import (
@@ -2006,3 +2006,92 @@ class UploadRecordTests(DemoRequestTestCase):
 
         self.assertAlmostEqual(new_bmi.height_m, 1.83)
         self.assertAlmostEqual(new_bmi.mass_kg, 67)
+
+
+class UploadTableTests(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.group = GroupFactory()
+        user = self.req._debugging_user = UserFactory(
+            upload_group_id=self.group.id,
+        )
+
+        UserGroupMembershipFactory(
+            user_id=user.id,
+            group_id=self.group.id,
+            may_upload=True,
+        )
+        self.device = DeviceFactory(uploading_user_id=user.id)
+
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+            TabletParam.OPERATION: Operations.UPLOAD_TABLE,
+            TabletParam.TABLE: "bmi",
+        }
+
+    def test_table_uploaded(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient1 = PatientFactory(_device=self.device)
+        patient2 = PatientFactory(_device=self.device)
+
+        self.post_dict[TabletParam.NRECORDS] = "2"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "height_m",
+                "mass_kg",
+                "when_created",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+        self.post_dict["record0"] = ",".join(
+            [
+                "1",
+                "1.83",
+                "67",
+                now_utc_string,
+                now_utc_string,
+                "1",
+                str(patient1.id),
+            ]
+        )
+        self.post_dict["record1"] = ",".join(
+            [
+                "2",
+                "1.6",
+                "50",
+                now_utc_string,
+                now_utc_string,
+                "1",
+                str(patient2.id),
+            ]
+        )
+        self.req.fake_request_post_from_dict(self.post_dict)
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT],
+            "Table bmi upload successful",
+            msg=reply_dict,
+        )
+
+        bmi_1 = self.dbsession.execute(
+            select(Bmi).where(Bmi.id == 1)
+        ).scalar_one()
+        self.assertAlmostEqual(bmi_1.height_m, 1.83)
+        self.assertAlmostEqual(bmi_1.mass_kg, 67)
+
+        bmi_2 = self.dbsession.execute(
+            select(Bmi).where(Bmi.id == 2)
+        ).scalar_one()
+        self.assertAlmostEqual(bmi_2.height_m, 1.6)
+        self.assertAlmostEqual(bmi_2.mass_kg, 50)
