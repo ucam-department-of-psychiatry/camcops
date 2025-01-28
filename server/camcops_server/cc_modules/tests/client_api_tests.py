@@ -1849,3 +1849,23 @@ class EndUploadTests(ClientApiTestCase):
         self.assertEqual(bmi._removing_user_id, self.user.id)
         self.assertIsNotNone(bmi._when_removed_exact)
         self.assertIsNotNone(bmi._when_removed_batch_utc)
+
+    def test_updates_preserved_records(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _move_off_tablet=True,
+        )
+
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertFalse(bmi._move_off_tablet)
+        self.assertEqual(bmi._preserving_user_id, self.user.id)
+        self.assertNotEqual(bmi._era, ERA_NOW)
