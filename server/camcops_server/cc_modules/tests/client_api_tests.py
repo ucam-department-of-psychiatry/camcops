@@ -644,38 +644,21 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.assertEqual(user, existing_user)
 
 
-class UploadEntireDatabaseTests(DemoRequestTestCase):
+class UploadEntireDatabaseTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
-
-        self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
-            upload_group_id=self.group.id,
+        self.post_dict[TabletParam.OPERATION] = (
+            Operations.UPLOAD_ENTIRE_DATABASE
         )
-
-        UserGroupMembershipFactory(
-            user_id=user.id,
-            group_id=self.group.id,
-            may_upload=True,
-        )
-        self.device = DeviceFactory()
-
-        self.post_dict = {
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.device.name,
-            TabletParam.OPERATION: Operations.UPLOAD_ENTIRE_DATABASE,
-            TabletParam.FINALIZING: 1,
-        }
+        self.post_dict[TabletParam.FINALIZING] = 1
 
     def test_fails_if_pknameinfo_is_not_a_dict(self) -> None:
         self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
             [{"key": "valid JSON but list not dict"}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -693,10 +676,8 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
             [{"key": "valid JSON but list not dict"}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -714,10 +695,8 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
             {"table4": "", "table5": "", "table6": ""}
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -735,10 +714,8 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
             {"table1": "", "table2": "", "table3": ""}
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -757,10 +734,7 @@ class UploadEntireDatabaseTests(DemoRequestTestCase):
         self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(pknameinfo)
         self.post_dict[TabletParam.DBDATA] = json.dumps(dbdata)
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
