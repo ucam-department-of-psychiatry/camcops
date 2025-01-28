@@ -1909,6 +1909,33 @@ class StartUploadTests(ClientApiTestCase):
             self.dbsession.execute(select(Bmi)).scalar_one_or_none()
         )
 
+    def test_updates_records_with_removal_pending(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _removal_pending=True,
+            _when_added_exact=self.req.now,
+            _when_removed_batch_utc=self.req.now_utc,
+            _removing_user_id=self.user.id,
+            _successor_pk=1234,
+        )
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+
+        bmi = self.dbsession.execute(select(Bmi)).scalar_one_or_none()
+        self.assertFalse(bmi._removal_pending)
+        self.assertIsNone(bmi._when_added_exact)
+        self.assertIsNone(bmi._when_removed_batch_utc)
+        self.assertIsNone(bmi._removing_user_id)
+        self.assertIsNone(bmi._successor_pk)
+
     # TODO:
-    # test_updates_records_with_removal_pending
     # test_sets_move_off_tablet_field_to_zero
