@@ -77,7 +77,9 @@ from camcops_server.cc_modules.cc_testfactories import (
 )
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.cc_modules.cc_user import User
-from camcops_server.cc_modules.cc_version import MINIMUM_TABLET_VERSION
+from camcops_server.cc_modules.cc_version import (
+    FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE,
+)
 from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
 )
@@ -227,7 +229,9 @@ class ClientApiTestCase(DemoRequestTestCase):
         self.device = DeviceFactory(uploading_user_id=user.id)
 
         self.post_dict = {
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.CAMCOPS_VERSION: (
+                FIRST_TABLET_VER_WITH_EXPLICIT_PKNAME_IN_UPLOAD_TABLE
+            ),
             TabletParam.DEVICE: self.device.name,
         }
 
@@ -1601,13 +1605,7 @@ class UploadTableTests(ClientApiTestCase):
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = Operations.UPLOAD_TABLE
         self.post_dict[TabletParam.TABLE] = "bmi"
-
-    def test_table_uploaded(self) -> None:
-        now_utc_string = now("UTC").isoformat()
-        patient1 = PatientFactory(_device=self.device)
-        patient2 = PatientFactory(_device=self.device)
-
-        self.post_dict[TabletParam.NRECORDS] = "2"
+        self.post_dict[TabletParam.PKNAME] = "id"
         self.post_dict[TabletParam.FIELDS] = ",".join(
             [
                 "id",
@@ -1619,6 +1617,13 @@ class UploadTableTests(ClientApiTestCase):
                 "patient_id",
             ]
         )
+
+    def test_table_uploaded(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient1 = PatientFactory(_device=self.device)
+        patient2 = PatientFactory(_device=self.device)
+
+        self.post_dict[TabletParam.NRECORDS] = "2"
         self.post_dict["record0"] = ",".join(
             [
                 "1",
@@ -1666,18 +1671,6 @@ class UploadTableTests(ClientApiTestCase):
 
     def test_fails_if_nrecords_less_than_zero(self) -> None:
         self.post_dict[TabletParam.NRECORDS] = "-1"
-        self.post_dict[TabletParam.FIELDS] = ",".join(
-            [
-                "id",
-                "height_m",
-                "mass_kg",
-                "when_created",
-                "when_last_modified",
-                "_move_off_tablet",
-                "patient_id",
-            ]
-        )
-
         reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1685,4 +1678,17 @@ class UploadTableTests(ClientApiTestCase):
         self.assertIn(
             reply_dict[TabletParam.ERROR],
             f"{TabletParam.NRECORDS}=-1: can't be less than 0",
+        )
+
+    def test_fails_if_fields_do_not_match_values(self) -> None:
+        self.post_dict[TabletParam.NRECORDS] = "1"
+        self.post_dict["record0"] = ",".join(["1"])
+        reply_dict = self.call_api()
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            reply_dict[TabletParam.ERROR],
+            "Number of fields in field list (7) "
+            "doesn't match number of values in record 0 (1)",
         )
