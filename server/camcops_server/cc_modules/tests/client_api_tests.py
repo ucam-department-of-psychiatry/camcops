@@ -1219,34 +1219,16 @@ class ValidatePatientsTests(ClientApiTestCase):
         )
 
 
-class WhichKeysToSendTests(DemoRequestTestCase):
+class WhichKeysToSendTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
-            upload_group_id=self.group.id,
-        )
-
-        UserGroupMembershipFactory(
-            user_id=user.id,
-            group_id=self.group.id,
-            may_upload=True,
-        )
-        self.device = DeviceFactory()
-
-        self.post_dict = {
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.device.name,
-            TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
-            TabletParam.PKNAME: "id",
-        }
+        self.post_dict[TabletParam.OPERATION] = Operations.WHICH_KEYS_TO_SEND
+        self.post_dict[TabletParam.PKNAME] = "id"
 
     def test_non_existent_table_rejected(self) -> None:
         self.post_dict[TabletParam.TABLE] = "nonexistent_table"
-        self.req.fake_request_post_from_dict(self.post_dict)
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
@@ -1261,11 +1243,8 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.DATEVALUES] = ""
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1282,11 +1261,8 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1303,11 +1279,8 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1,1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1323,11 +1296,8 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "null"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1343,11 +1313,8 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "Tuesday"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1363,10 +1330,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -1384,10 +1348,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -1414,10 +1375,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.post_dict[TabletParam.DATEVALUES] = time_now.isoformat()
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
