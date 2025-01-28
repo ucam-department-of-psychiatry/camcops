@@ -366,9 +366,7 @@ class RegisterPatientTests(ClientApiTestCase):
         uuid_from_proquint(valid_proquint)
 
         self.post_dict[TabletParam.PATIENT_PROQUINT] = valid_proquint
-        self.req.fake_request_post_from_dict(self.post_dict)
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
