@@ -1887,3 +1887,28 @@ class StartUploadTests(ClientApiTestCase):
         self.assertIsNotNone(self.device.last_upload_batch_utc)
         self.assertIsNotNone(self.device.ongoing_upload_batch_utc)
         self.uploading_user_id = self.user.id
+
+    def test_deletes_records_with_addition_pending(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _addition_pending=True,
+        )
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+
+        self.assertIsNone(
+            self.dbsession.execute(select(Bmi)).scalar_one_or_none()
+        )
+
+    # TODO:
+    # test_updates_records_with_removal_pending
+    # test_sets_move_off_tablet_field_to_zero
