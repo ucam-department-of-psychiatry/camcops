@@ -1386,29 +1386,13 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.assertTrue(bmi._move_off_tablet)
 
 
-class DeleteWhereKeyNotTests(DemoRequestTestCase):
+class DeleteWhereKeyNotTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
-            upload_group_id=self.group.id,
-        )
-
-        UserGroupMembershipFactory(
-            user_id=user.id,
-            group_id=self.group.id,
-            may_upload=True,
-        )
-        self.device = DeviceFactory()
-
-        self.post_dict = {
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.device.name,
-            TabletParam.OPERATION: Operations.DELETE_WHERE_KEY_NOT,
-            TabletParam.TABLE: "bmi",
-            TabletParam.PKNAME: "id",
-        }
+        self.post_dict[TabletParam.OPERATION] = Operations.DELETE_WHERE_KEY_NOT
+        self.post_dict[TabletParam.TABLE] = "bmi"
+        self.post_dict[TabletParam.PKNAME] = "id"
 
     def test_records_not_specified_marked_for_removal(self) -> None:
         patient = PatientFactory(_device=self.device)
@@ -1421,10 +1405,7 @@ class DeleteWhereKeyNotTests(DemoRequestTestCase):
         )
 
         self.post_dict[TabletParam.PKVALUES] = f"{bmis[0].id},{bmis[1].id}"
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
