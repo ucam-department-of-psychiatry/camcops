@@ -738,36 +738,17 @@ class UploadEntireDatabaseTests(ClientApiTestCase):
         )
 
 
-class ValidatePatientsTests(DemoRequestTestCase):
+class ValidatePatientsTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.group = GroupFactory()
-        user = self.req._debugging_user = UserFactory(
-            upload_group_id=self.group.id,
-        )
-
-        UserGroupMembershipFactory(
-            user_id=user.id,
-            group_id=self.group.id,
-            may_upload=True,
-        )
-        self.device = DeviceFactory()
-
-        self.post_dict = {
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.device.name,
-            TabletParam.OPERATION: Operations.VALIDATE_PATIENTS,
-        }
+        self.post_dict[TabletParam.OPERATION] = Operations.VALIDATE_PATIENTS
 
     def test_fails_if_patient_info_is_not_a_list(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps({})
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -780,10 +761,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
     def test_succeeds_for_empty_list(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([])
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -792,11 +770,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
     def test_fails_if_one_patients_info_is_not_a_dict(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([[]])
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -809,11 +784,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
     def test_fails_if_one_patients_info_is_empty(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([{}])
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -828,11 +800,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.FORENAME: 1}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -847,11 +816,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.SURNAME: 2}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -866,11 +832,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.SEX: "Q"}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -885,11 +848,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.DOB: 3}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -904,11 +864,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.DOB: "Yesterday"}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -923,11 +880,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.EMAIL: 4}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -942,11 +896,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.EMAIL: "email"}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -961,11 +912,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.ADDRESS: 5}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -980,11 +928,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.GP: 6}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -999,11 +944,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.OTHER: 7}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1018,11 +960,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{f"{TabletParam.IDNUM_PREFIX}foo": 12345}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1037,12 +976,10 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{f"{TabletParam.IDNUM_PREFIX}2": 12345}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         self.req.valid_which_idnums = [1]
 
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1062,12 +999,10 @@ class ValidatePatientsTests(DemoRequestTestCase):
             ]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         self.req.valid_which_idnums = [1]
 
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1085,12 +1020,10 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{f"{TabletParam.IDNUM_PREFIX}1": "foo"}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         self.req.valid_which_idnums = [1]
 
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1105,12 +1038,10 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{f"{TabletParam.IDNUM_PREFIX}1": 0}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
         self.req.valid_which_idnums = [1]
 
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1128,11 +1059,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.FINALIZING: 123}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1147,11 +1075,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{"foobar": 123}]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1166,11 +1091,8 @@ class ValidatePatientsTests(DemoRequestTestCase):
             [{TabletParam.SURNAME: "Valid"}]  # Needs to have something
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         with self.assertLogs(level=logging.WARN) as logging_cm:
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1190,8 +1112,6 @@ class ValidatePatientsTests(DemoRequestTestCase):
             ]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         mock_invalid = mock.Mock(return_value=(False, "Mock reason"))
 
         with mock.patch.multiple(
@@ -1199,8 +1119,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
             is_candidate_patient_valid_for_group=mock_invalid,
         ):
             with self.assertLogs(level=logging.WARN) as logging_cm:
-                response = client_api(self.req)
-                reply_dict = get_reply_dict_from_response(response)
+                reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1221,8 +1140,6 @@ class ValidatePatientsTests(DemoRequestTestCase):
             ]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         mock_valid = mock.Mock(return_value=(True, ""))
         mock_invalid = mock.Mock(return_value=(False, "Mock reason"))
 
@@ -1232,8 +1149,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
             is_candidate_patient_valid_for_restricted_user=mock_invalid,
         ):
             with self.assertLogs(level=logging.WARN) as logging_cm:
-                response = client_api(self.req)
-                reply_dict = get_reply_dict_from_response(response)
+                reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
@@ -1265,8 +1181,6 @@ class ValidatePatientsTests(DemoRequestTestCase):
             ]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         mock_valid = mock.Mock(return_value=(True, ""))
 
         with mock.patch.multiple(
@@ -1274,8 +1188,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
             is_candidate_patient_valid_for_group=mock_valid,
             is_candidate_patient_valid_for_restricted_user=mock_valid,
         ):
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -1292,8 +1205,6 @@ class ValidatePatientsTests(DemoRequestTestCase):
             ]
         )
 
-        self.req.fake_request_post_from_dict(self.post_dict)
-
         mock_valid = mock.Mock(return_value=(True, ""))
 
         with mock.patch.multiple(
@@ -1301,8 +1212,7 @@ class ValidatePatientsTests(DemoRequestTestCase):
             is_candidate_patient_valid_for_group=mock_valid,
             is_candidate_patient_valid_for_restricted_user=mock_valid,
         ):
-            response = client_api(self.req)
-            reply_dict = get_reply_dict_from_response(response)
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
