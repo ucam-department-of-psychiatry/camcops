@@ -1663,3 +1663,26 @@ class UploadTableTests(ClientApiTestCase):
         ).scalar_one()
         self.assertAlmostEqual(bmi_2.height_m, 1.6)
         self.assertAlmostEqual(bmi_2.mass_kg, 50)
+
+    def test_fails_if_nrecords_less_than_zero(self) -> None:
+        self.post_dict[TabletParam.NRECORDS] = "-1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "height_m",
+                "mass_kg",
+                "when_created",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+
+        reply_dict = self.call_api()
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            reply_dict[TabletParam.ERROR],
+            f"{TabletParam.NRECORDS}=-1: can't be less than 0",
+        )

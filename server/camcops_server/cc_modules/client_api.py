@@ -2828,6 +2828,8 @@ def op_upload_table(req: "CamcopsRequest") -> str:
 
     nfields = len(fields)
     if nfields < 1:
+        # MB: Don't think this is ever reached as the POST var can't
+        # be empty
         fail_user_error(
             f"{TabletParam.FIELDS}={nfields}: can't be less than 1"
         )
