@@ -1732,3 +1732,43 @@ class UploadTableTests(ClientApiTestCase):
         ).scalar_one()
         self.assertAlmostEqual(bmi_1.height_m, 1.83)
         self.assertAlmostEqual(bmi_1.mass_kg, 67)
+
+    def test_record_flagged_for_deletion(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            height_m=1.8,
+            mass_kg=70,
+        )
+
+        # No record for this on the tablet
+        bmi_to_delete = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+        )
+        self.assertFalse(bmi_to_delete._removal_pending)
+
+        self.post_dict[TabletParam.NRECORDS] = "1"
+        self.post_dict["record0"] = ",".join(
+            [
+                str(bmi.id),
+                "1.83",
+                "67",
+                now_utc_string,
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+
+        self.assertTrue(bmi_to_delete._removal_pending)
