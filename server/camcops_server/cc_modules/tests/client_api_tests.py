@@ -29,7 +29,7 @@ import json
 import logging
 import string
 from typing import Dict
-from unittest import mock
+from unittest import mock, TestCase
 
 from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.convert import (
@@ -54,6 +54,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
 )
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_convert import decode_values
+from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_taskindex import (
@@ -124,15 +125,22 @@ def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
         return {}
 
 
-class ClientApiTests(DemoRequestTestCase):
-    def test_client_api_basics(self) -> None:
+class ExceptionTests(TestCase):
+    def test_fail_user_error_raises(self) -> None:
         with self.assertRaises(UserErrorException):
             fail_user_error("testmsg")
+
+    def test_fail_server_error_raises(self) -> None:
         with self.assertRaises(ServerErrorException):
             fail_server_error("testmsg")
+
+    def test_fail_unsupported_operation_raises(self) -> None:
         with self.assertRaises(UserErrorException):
             fail_unsupported_operation("duffop")
 
+
+class EncodeDecodeValuesTests(TestCase):
+    def test_values_decoded_correctly(self) -> None:
         # Encoding/decoding tests
         # data = bytearray("hello")
         data = b"hello"
@@ -174,68 +182,77 @@ class ClientApiTests(DemoRequestTestCase):
                 "Key was: {k!s}".format(r=r, v=v, k=k),
             )
 
+
+class EscapeUnescapeNewlinesTests(TestCase):
+    def test_escapes_and_unescapes_correctly(self) -> None:
+
         # Newline encoding/decodine
-        ts2 = (
+        test_string = (
             "slash \\ newline \n ctrl_r \r special \\n other special \\r "
             "quote ' doublequote \" "
         )
         self.assertEqual(
-            unescape_newlines(escape_newlines(ts2)),
-            ts2,
+            unescape_newlines(escape_newlines(test_string)),
+            test_string,
             "Bug in escape_newlines() or unescape_newlines()",
         )
 
-        # TODO: client_api.ClientApiTests: more tests here... ?
 
-    def test_non_existent_table_rejected(self) -> None:
-        device = DeviceFactory()
-
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: device.name,
-                TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
-                TabletParam.TABLE: "nonexistent_table",
-            }
-        )
-        response = client_api(self.req)
-        d = get_reply_dict_from_response(response)
-        self.assertEqual(d[TabletParam.SUCCESS], FAILURE_CODE)
-
-    def test_client_api_validators(self) -> None:
+class ValidateAlphanumUnderscoreTests(TestCase):
+    def test_class_attribute_names_validate(self) -> None:
         for x in class_attribute_names(Operations):
             try:
-                validate_alphanum_underscore(x, self.req)
+                request = None
+                validate_alphanum_underscore(x, request)
             except ValueError:
                 self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
-class RegisterPatientTests(DemoRequestTestCase):
+class ClientApiTestCase(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.device = DeviceFactory()
+        self.group = GroupFactory()
+        user = self.req._debugging_user = UserFactory(
+            upload_group_id=self.group.id,
+        )
+
+        UserGroupMembershipFactory(
+            user_id=user.id,
+            group_id=self.group.id,
+            may_upload=True,
+            may_register_devices=True,
+        )
+        # Ensure the server device exists so that we don't get ID clashes
+        Device.get_server_device(self.dbsession)
+        self.device = DeviceFactory(uploading_user_id=user.id)
+
+        self.post_dict = {
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.device.name,
+        }
+
+    def call_api(self) -> Dict[str, str]:
+        self.req.fake_request_post_from_dict(self.post_dict)
+        response = client_api(self.req)
+        return get_reply_dict_from_response(response)
+
+
+class RegisterPatientTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.patient = ServerCreatedPatientFactory()
+        self.idnum = ServerCreatedNHSPatientIdNumFactory(patient=self.patient)
+        PatientIdNumIndexEntry.index_idnum(self.idnum, self.dbsession)
+
+        proquint = self.patient.uuid_as_proquint
+
+        self.post_dict[TabletParam.OPERATION] = Operations.REGISTER_PATIENT
+        self.post_dict[TabletParam.PATIENT_PROQUINT] = proquint
 
     def test_returns_patient_info(self) -> None:
-        patient = ServerCreatedPatientFactory()
-        idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
-
-        proquint = patient.uuid_as_proquint
-
-        # For type checker
-        assert proquint is not None
-        assert self.device is not None
-
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -243,41 +260,28 @@ class RegisterPatientTests(DemoRequestTestCase):
 
         patient_dict = json.loads(reply_dict[TabletParam.PATIENT_INFO])[0]
 
-        self.assertEqual(patient_dict[TabletParam.SURNAME], patient.surname)
-        self.assertEqual(patient_dict[TabletParam.FORENAME], patient.forename)
-        self.assertEqual(patient_dict[TabletParam.SEX], patient.sex)
         self.assertEqual(
-            patient_dict[TabletParam.DOB], patient.dob.isoformat()
+            patient_dict[TabletParam.SURNAME], self.patient.surname
         )
-        self.assertEqual(patient_dict[TabletParam.ADDRESS], patient.address)
-        self.assertEqual(patient_dict[TabletParam.GP], patient.gp)
-        self.assertEqual(patient_dict[TabletParam.OTHER], patient.other)
         self.assertEqual(
-            patient_dict[f"idnum{idnum.which_idnum}"], idnum.idnum_value
+            patient_dict[TabletParam.FORENAME], self.patient.forename
+        )
+        self.assertEqual(patient_dict[TabletParam.SEX], self.patient.sex)
+        self.assertEqual(
+            patient_dict[TabletParam.DOB], self.patient.dob.isoformat()
+        )
+        self.assertEqual(
+            patient_dict[TabletParam.ADDRESS], self.patient.address
+        )
+        self.assertEqual(patient_dict[TabletParam.GP], self.patient.gp)
+        self.assertEqual(patient_dict[TabletParam.OTHER], self.patient.other)
+        self.assertEqual(
+            patient_dict[f"idnum{self.idnum.which_idnum}"],
+            self.idnum.idnum_value,
         )
 
     def test_creates_user(self) -> None:
-        patient = ServerCreatedPatientFactory()
-        idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
-        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
-
-        proquint = patient.uuid_as_proquint
-
-        # For type checker
-        assert proquint is not None
-        assert self.device.name is not None
-
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
-
+        reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
@@ -285,7 +289,7 @@ class RegisterPatientTests(DemoRequestTestCase):
         username = reply_dict[TabletParam.USER]
         self.assertEqual(
             username,
-            make_single_user_mode_username(self.device.name, patient._pk),
+            make_single_user_mode_username(self.device.name, self.patient._pk),
         )
         password = reply_dict[TabletParam.PASSWORD]
         self.assertEqual(len(password), 32)
@@ -299,20 +303,14 @@ class RegisterPatientTests(DemoRequestTestCase):
             .one_or_none()
         )
         self.assertIsNotNone(user)
-        self.assertEqual(user.upload_group, patient.group)
+        self.assertEqual(user.upload_group, self.patient.group)
         self.assertTrue(user.auto_generated)
         self.assertTrue(user.may_register_devices)
         self.assertTrue(user.may_upload)
 
     def test_does_not_create_user_when_name_exists(self) -> None:
-        patient = ServerCreatedPatientFactory()
-        idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
-        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
-
-        proquint = patient.uuid_as_proquint
-
         single_user_username = make_single_user_mode_username(
-            self.device.name, patient._pk
+            self.device.name, self.patient._pk
         )
 
         user = UserFactory(
@@ -321,16 +319,7 @@ class RegisterPatientTests(DemoRequestTestCase):
             password__request=self.req,
         )
 
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -339,7 +328,7 @@ class RegisterPatientTests(DemoRequestTestCase):
         username = reply_dict[TabletParam.USER]
         self.assertEqual(
             username,
-            make_single_user_mode_username(self.device.name, patient._pk),
+            make_single_user_mode_username(self.device.name, self.patient._pk),
         )
         password = reply_dict[TabletParam.PASSWORD]
         self.assertEqual(len(password), 32)
@@ -353,26 +342,14 @@ class RegisterPatientTests(DemoRequestTestCase):
             .one_or_none()
         )
         self.assertIsNotNone(user)
-        self.assertEqual(user.upload_group, patient.group)
+        self.assertEqual(user.upload_group, self.patient.group)
         self.assertTrue(user.auto_generated)
         self.assertTrue(user.may_register_devices)
         self.assertTrue(user.may_upload)
 
     def test_raises_for_invalid_proquint(self) -> None:
-        # For type checker
-        assert self.device.name is not None
-
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: "invalid",
-            }
-        )
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
-
+        self.post_dict[TabletParam.PATIENT_PROQUINT] = "invalid"
+        reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
@@ -388,16 +365,8 @@ class RegisterPatientTests(DemoRequestTestCase):
         # test proquint really is valid (should not raise)
         uuid_from_proquint(valid_proquint)
 
-        assert self.device.name is not None
-
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: valid_proquint,
-            }
-        )
+        self.post_dict[TabletParam.PATIENT_PROQUINT] = valid_proquint
+        self.req.fake_request_post_from_dict(self.post_dict)
         response = client_api(self.req)
         reply_dict = get_reply_dict_from_response(response)
 
@@ -415,17 +384,8 @@ class RegisterPatientTests(DemoRequestTestCase):
         patient = ServerCreatedPatientFactory()
 
         proquint = patient.uuid_as_proquint
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        self.post_dict[TabletParam.PATIENT_PROQUINT] = proquint
+        reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
@@ -437,17 +397,8 @@ class RegisterPatientTests(DemoRequestTestCase):
         patient = PatientFactory()
 
         proquint = patient.uuid_as_proquint
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        self.post_dict[TabletParam.PATIENT_PROQUINT] = proquint
+        reply_dict = self.call_api()
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
@@ -457,27 +408,9 @@ class RegisterPatientTests(DemoRequestTestCase):
         )
 
     def test_returns_ip_use_flags(self) -> None:
-        patient = ServerCreatedPatientFactory()
-        idnum = ServerCreatedNHSPatientIdNumFactory(patient=patient)
-        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
-        ip_use = patient.group.ip_use
+        ip_use = self.patient.group.ip_use
 
-        proquint = patient.uuid_as_proquint
-
-        # For type checker
-        assert proquint is not None
-        assert self.device.name is not None
-
-        self.req.fake_request_post_from_dict(
-            {
-                TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-                TabletParam.DEVICE: self.device.name,
-                TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-                TabletParam.PATIENT_PROQUINT: proquint,
-            }
-        )
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
@@ -1444,11 +1377,25 @@ class WhichKeysToSendTests(DemoRequestTestCase):
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.device.name,
             TabletParam.OPERATION: Operations.WHICH_KEYS_TO_SEND,
-            TabletParam.TABLE: "bmi",
             TabletParam.PKNAME: "id",
         }
 
+    def test_non_existent_table_rejected(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "nonexistent_table"
+        self.req.fake_request_post_from_dict(self.post_dict)
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.ERROR],
+            "Invalid client table name: nonexistent_table",
+            msg=reply_dict,
+        )
+
     def test_fails_for_pk_value_date_count_mismatch(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.DATEVALUES] = ""
 
@@ -1468,6 +1415,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn("doesn't match number of dates", logging_cm.output[0])
 
     def test_fails_for_pk_value_move_off_tablet_count_mismatch(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1,2"
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
@@ -1488,6 +1436,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn("doesn't match number of PKs", logging_cm.output[0])
 
     def test_fails_for_non_integer_client_pk(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1,strawberry"
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1,1"
@@ -1507,6 +1456,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn("Bad (non-integer) client PK", logging_cm.output[0])
 
     def test_fails_for_missing_date_time(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.DATEVALUES] = "null"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
@@ -1526,6 +1476,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn("Missing date/time", logging_cm.output[0])
 
     def test_fails_for_bad_date_time(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.DATEVALUES] = "Tuesday"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
@@ -1545,6 +1496,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertIn("Bad date/time", logging_cm.output[0])
 
     def test_succeeds_for_valid_values(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "123"
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
@@ -1560,6 +1512,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
         self.assertEqual(reply_dict[TabletParam.RESULT], "123", msg=reply_dict)
 
     def test_succeeds_for_existing_record(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             id=123, patient=patient, _device=self.device, _era=ERA_NOW
@@ -1594,6 +1547,7 @@ class WhichKeysToSendTests(DemoRequestTestCase):
             _move_off_tablet=False,
         )
 
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
         self.post_dict[TabletParam.DATEVALUES] = time_now.isoformat()
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
