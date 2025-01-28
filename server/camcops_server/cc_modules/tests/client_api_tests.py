@@ -1937,5 +1937,22 @@ class StartUploadTests(ClientApiTestCase):
         self.assertIsNone(bmi._removing_user_id)
         self.assertIsNone(bmi._successor_pk)
 
-    # TODO:
-    # test_sets_move_off_tablet_field_to_zero
+    def test_sets_move_off_tablet_field_to_false(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            _move_off_tablet=True,
+        )
+        DirtyTableFactory(tablename="bmi", device_id=self.device.id)
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+
+        bmi = self.dbsession.execute(select(Bmi)).scalar_one_or_none()
+        self.assertFalse(bmi._move_off_tablet)
