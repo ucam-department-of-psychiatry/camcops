@@ -1692,3 +1692,43 @@ class UploadTableTests(ClientApiTestCase):
             "Number of fields in field list (7) "
             "doesn't match number of values in record 0 (1)",
         )
+
+    def test_record_updated(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _era=ERA_NOW,
+            height_m=1.8,
+            mass_kg=70,
+        )
+
+        self.post_dict[TabletParam.NRECORDS] = "1"
+        self.post_dict["record0"] = ",".join(
+            [
+                str(bmi.id),
+                "1.83",
+                "67",
+                now_utc_string,
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT],
+            "Table bmi upload successful",
+            msg=reply_dict,
+        )
+
+        bmi_1 = self.dbsession.execute(
+            select(Bmi).where(Bmi._predecessor_pk == bmi._pk)
+        ).scalar_one()
+        self.assertAlmostEqual(bmi_1.height_m, 1.83)
+        self.assertAlmostEqual(bmi_1.mass_kg, 67)
