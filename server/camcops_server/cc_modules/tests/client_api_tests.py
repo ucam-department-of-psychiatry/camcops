@@ -226,7 +226,7 @@ class ClientApiTestCase(DemoRequestTestCase):
         )
         # Ensure the server device exists so that we don't get ID clashes
         Device.get_server_device(self.dbsession)
-        self.device = DeviceFactory(uploading_user_id=self.user.id)
+        self.device = DeviceFactory()
 
         self.post_dict = {
             TabletParam.CAMCOPS_VERSION: (
@@ -1804,6 +1804,7 @@ class EndUploadTests(ClientApiTestCase):
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = Operations.END_UPLOAD
         self.device.ongoing_upload_batch_utc = now("UTC")
+        self.device.uploading_user_id = self.user.id
         self.dbsession.add(self.device)
         self.dbsession.commit()
 
@@ -1869,3 +1870,20 @@ class EndUploadTests(ClientApiTestCase):
         self.assertFalse(bmi._move_off_tablet)
         self.assertEqual(bmi._preserving_user_id, self.user.id)
         self.assertNotEqual(bmi._era, ERA_NOW)
+
+
+class StartUploadTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = Operations.START_UPLOAD
+
+    def test_updates_device_batch_utc_details(self) -> None:
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+        self.assertIsNotNone(self.device.last_upload_batch_utc)
+        self.assertIsNotNone(self.device.ongoing_upload_batch_utc)
+        self.uploading_user_id = self.user.id
