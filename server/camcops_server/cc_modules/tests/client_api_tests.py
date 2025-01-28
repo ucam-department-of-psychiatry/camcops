@@ -26,7 +26,6 @@ camcops_server/cc_modules/tests/client_api_tests.py
 """
 
 import json
-import logging
 import string
 from typing import Dict
 from unittest import mock, TestCase
@@ -655,16 +654,14 @@ class UploadEntireDatabaseTests(ClientApiTestCase):
             [{"key": "valid JSON but list not dict"}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("PK name info JSON is not a dict", logging_cm.output[0])
+        self.assertIn(
+            "PK name info JSON is not a dict", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_databasedata_is_not_a_dict(self) -> None:
         self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
@@ -674,16 +671,14 @@ class UploadEntireDatabaseTests(ClientApiTestCase):
             [{"key": "valid JSON but list not dict"}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Database data JSON is not a dict", logging_cm.output[0])
+        self.assertIn(
+            "Database data JSON is not a dict", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_table_names_do_not_match(self) -> None:
         self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
@@ -693,16 +688,12 @@ class UploadEntireDatabaseTests(ClientApiTestCase):
             {"table4": "", "table5": "", "table6": ""}
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Table names don't match", logging_cm.output[0])
+        self.assertIn("Table names don't match", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_table_names_do_not_exist(self) -> None:
         self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(
@@ -712,17 +703,14 @@ class UploadEntireDatabaseTests(ClientApiTestCase):
             {"table1": "", "table2": "", "table3": ""}
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn(
-            "Attempt to upload nonexistent tables", logging_cm.output[0]
+            "Attempt to upload nonexistent tables",
+            reply_dict[TabletParam.ERROR],
         )
 
     def test_empty_upload_succeeds(self) -> None:
@@ -747,16 +735,14 @@ class ValidatePatientsTests(ClientApiTestCase):
     def test_fails_if_patient_info_is_not_a_list(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps({})
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Top-level JSON is not a list", logging_cm.output[0])
+        self.assertIn(
+            "Top-level JSON is not a list", reply_dict[TabletParam.ERROR]
+        )
 
     def test_succeeds_for_empty_list(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([])
@@ -770,206 +756,162 @@ class ValidatePatientsTests(ClientApiTestCase):
     def test_fails_if_one_patients_info_is_not_a_dict(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([[]])
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Patient JSON is not a dict", logging_cm.output[0])
+        self.assertIn(
+            "Patient JSON is not a dict", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_one_patients_info_is_empty(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps([{}])
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Patient JSON is empty", logging_cm.output[0])
+        self.assertIn("Patient JSON is empty", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_forename_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.FORENAME: 1}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 1", logging_cm.output[0])
+        self.assertIn("non-string: 1", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_surname_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.SURNAME: 2}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 2", logging_cm.output[0])
+        self.assertIn("non-string: 2", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_sex_is_not_valid(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.SEX: "Q"}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad sex value: 'Q'", logging_cm.output[0])
+        self.assertIn("Bad sex value: 'Q'", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_dob_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.DOB: 3}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 3", logging_cm.output[0])
+        self.assertIn("non-string: 3", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_dob_fails_to_parse(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.DOB: "Yesterday"}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Invalid DOB: 'Yesterday'", logging_cm.output[0])
+        self.assertIn(
+            "Invalid DOB: 'Yesterday'", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_email_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.EMAIL: 4}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 4", logging_cm.output[0])
+        self.assertIn("non-string: 4", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_email_invalid(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.EMAIL: "email"}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad e-mail address: 'email'", logging_cm.output[0])
+        self.assertIn(
+            "Bad e-mail address: 'email'", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_address_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.ADDRESS: 5}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 5", logging_cm.output[0])
+        self.assertIn("non-string: 5", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_gp_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.GP: 6}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 6", logging_cm.output[0])
+        self.assertIn("non-string: 6", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_other_is_not_a_string(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.OTHER: 7}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("non-string: 7", logging_cm.output[0])
+        self.assertIn("non-string: 7", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_which_idnum_is_not_an_int(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{f"{TabletParam.IDNUM_PREFIX}foo": 12345}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad idnum key: 'idnumfoo'", logging_cm.output[0])
+        self.assertIn(
+            "Bad idnum key: 'idnumfoo'", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_which_idnum_is_not_valid(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
@@ -978,16 +920,12 @@ class ValidatePatientsTests(ClientApiTestCase):
 
         self.req.valid_which_idnums = [1]
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad ID number type: 2", logging_cm.output[0])
+        self.assertIn("Bad ID number type: 2", reply_dict[TabletParam.ERROR])
 
     def test_fails_if_which_idnum_already_seen(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
@@ -1001,18 +939,14 @@ class ValidatePatientsTests(ClientApiTestCase):
 
         self.req.valid_which_idnums = [1]
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn(
             "More than one ID number supplied for ID number type 1",
-            logging_cm.output[0],
+            reply_dict[TabletParam.ERROR],
         )
 
     def test_fails_if_idnum_not_an_int(self) -> None:
@@ -1022,16 +956,14 @@ class ValidatePatientsTests(ClientApiTestCase):
 
         self.req.valid_which_idnums = [1]
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad ID number value: 'foo'", logging_cm.output[0])
+        self.assertIn(
+            "Bad ID number value: 'foo'", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_if_idref_invalid(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
@@ -1040,18 +972,14 @@ class ValidatePatientsTests(ClientApiTestCase):
 
         self.req.valid_which_idnums = [1]
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
         self.assertIn(
             "Bad ID number: IdNumReference(idnum_value=0, which_idnum=1)",
-            logging_cm.output[0],
+            reply_dict[TabletParam.ERROR],
         )
 
     def test_fails_if_finalizing_is_not_a_bool(self) -> None:
@@ -1059,48 +987,42 @@ class ValidatePatientsTests(ClientApiTestCase):
             [{TabletParam.FINALIZING: 123}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad 'finalizing' value: 123", logging_cm.output[0])
+        self.assertIn(
+            "Bad 'finalizing' value: 123", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_for_unknown_json_key(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{"foobar": 123}]
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Unknown JSON key: 'foobar'", logging_cm.output[0])
+        self.assertIn(
+            "Unknown JSON key: 'foobar'", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_for_missing_finalizing_key(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
             [{TabletParam.SURNAME: "Valid"}]  # Needs to have something
         )
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Missing 'finalizing' JSON key", logging_cm.output[0])
+        self.assertIn(
+            "Missing 'finalizing' JSON key", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_when_candidate_invalid_for_group(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
@@ -1118,17 +1040,13 @@ class ValidatePatientsTests(ClientApiTestCase):
             "camcops_server.cc_modules.client_api",
             is_candidate_patient_valid_for_group=mock_invalid,
         ):
-            with self.assertLogs(level=logging.WARN) as logging_cm:
-                reply_dict = self.call_api()
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Invalid patient", logging_cm.output[0])
-        self.assertIn("Mock reason", logging_cm.output[0])
+        self.assertIn("Invalid patient", reply_dict[TabletParam.ERROR])
+        self.assertIn("Mock reason", reply_dict[TabletParam.ERROR])
 
     def test_fails_when_candidate_invalid_for_restricted_user(self) -> None:
         self.post_dict[TabletParam.PATIENT_INFO] = json.dumps(
@@ -1148,17 +1066,13 @@ class ValidatePatientsTests(ClientApiTestCase):
             is_candidate_patient_valid_for_group=mock_valid,
             is_candidate_patient_valid_for_restricted_user=mock_invalid,
         ):
-            with self.assertLogs(level=logging.WARN) as logging_cm:
-                reply_dict = self.call_api()
+            reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Invalid patient", logging_cm.output[0])
-        self.assertIn("Mock reason", logging_cm.output[0])
+        self.assertIn("Invalid patient", reply_dict[TabletParam.ERROR])
+        self.assertIn("Mock reason", reply_dict[TabletParam.ERROR])
 
     def test_succeeds_for_valid_patient(self) -> None:
         sex = Fake.en_gb.sex()
@@ -1243,17 +1157,15 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.DATEVALUES] = ""
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Number of PK values", logging_cm.output[0])
-        self.assertIn("doesn't match number of dates", logging_cm.output[0])
+        self.assertIn("Number of PK values", reply_dict[TabletParam.ERROR])
+        self.assertIn(
+            "doesn't match number of dates", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_for_pk_value_move_off_tablet_count_mismatch(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
@@ -1261,17 +1173,17 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Number of move-off-tablet values", logging_cm.output[0])
-        self.assertIn("doesn't match number of PKs", logging_cm.output[0])
+        self.assertIn(
+            "Number of move-off-tablet values", reply_dict[TabletParam.ERROR]
+        )
+        self.assertIn(
+            "doesn't match number of PKs", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_for_non_integer_client_pk(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
@@ -1279,16 +1191,14 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23,2025-01-24"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1,1"
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad (non-integer) client PK", logging_cm.output[0])
+        self.assertIn(
+            "Bad (non-integer) client PK", reply_dict[TabletParam.ERROR]
+        )
 
     def test_fails_for_missing_date_time(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
@@ -1296,16 +1206,12 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "null"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Missing date/time", logging_cm.output[0])
+        self.assertIn("Missing date/time", reply_dict[TabletParam.ERROR])
 
     def test_fails_for_bad_date_time(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
@@ -1313,16 +1219,12 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.post_dict[TabletParam.DATEVALUES] = "Tuesday"
         self.post_dict[TabletParam.MOVE_OFF_TABLET_VALUES] = "1"
 
-        with self.assertLogs(level=logging.WARN) as logging_cm:
-            reply_dict = self.call_api()
+        reply_dict = self.call_api()
 
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
         )
-        logger_name = "camcops_server.cc_modules.client_api"
-
-        self.assertIn(f"WARNING:{logger_name}", logging_cm.output[0])
-        self.assertIn("Bad date/time", logging_cm.output[0])
+        self.assertIn("Bad date/time", reply_dict[TabletParam.ERROR])
 
     def test_succeeds_for_valid_values(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
