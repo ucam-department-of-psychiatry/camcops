@@ -767,6 +767,34 @@ class OpUploadEntireDatabaseTests(ClientApiTestCase):
         self.assertAlmostEqual(bmi.height_m, 1.83)
         self.assertAlmostEqual(bmi.mass_kg, 67)
 
+    def test_empty_upload_flags_existing_for_deletion(self) -> None:
+        patient = PatientFactory(_device=self.device)
+        bmi = BmiFactory(
+            patient=patient,
+            _device=self.device,
+            _removal_pending=True,
+            _era=ERA_NOW,
+            _current=True,
+        )
+
+        pknameinfo = {key: "" for key in CLIENT_TABLE_MAP.keys()}
+        dbdata = {key: "" for key in CLIENT_TABLE_MAP.keys()}
+
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(pknameinfo)
+        self.post_dict[TabletParam.DBDATA] = json.dumps(dbdata)
+
+        reply_dict = self.call_api()
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.dbsession.commit()
+
+        self.assertFalse(bmi._current)
+        self.assertFalse(bmi._removal_pending)
+        self.assertTrue(bmi._removing_user_id, self.user.id)
+        self.assertIsNotNone(bmi._when_removed_exact)
+        self.assertIsNotNone(bmi._when_removed_batch_utc)
+
 
 class OpValidatePatientsTests(ClientApiTestCase):
     def setUp(self) -> None:
