@@ -737,6 +737,36 @@ class OpUploadEntireDatabaseTests(ClientApiTestCase):
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
 
+    def test_upload_row_succeeds(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+        bmi_data = {
+            "id": "1",
+            "height_m": "1.83",
+            "mass_kg": "67",
+            "when_created": now_utc_string,
+            "when_last_modified": now_utc_string,
+            "_move_off_tablet": "1",
+            "patient_id": str(patient.id),
+        }
+
+        pknameinfo = {"bmi": "id"}
+        dbdata = {"bmi": [bmi_data]}
+
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(pknameinfo)
+        self.post_dict[TabletParam.DBDATA] = json.dumps(dbdata)
+
+        reply_dict = self.call_api()
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        bmi = self.dbsession.execute(
+            select(Bmi).where(Bmi.id == 1)
+        ).scalar_one()
+
+        self.assertAlmostEqual(bmi.height_m, 1.83)
+        self.assertAlmostEqual(bmi.mass_kg, 67)
+
 
 class OpValidatePatientsTests(ClientApiTestCase):
     def setUp(self) -> None:
