@@ -2018,3 +2018,22 @@ class GetIdInfoTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.ID_POLICY_FINALIZE], "sex and anyidnum"
         )
+
+    def test_returns_server_version_string(self) -> None:
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.client_api",
+            CAMCOPS_SERVER_VERSION_STRING="test version",
+        ):
+            with mock.patch.object(
+                self.req,
+                "database_title",
+                "test database",
+            ):
+                reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.SERVER_CAMCOPS_VERSION], "test version"
+        )
