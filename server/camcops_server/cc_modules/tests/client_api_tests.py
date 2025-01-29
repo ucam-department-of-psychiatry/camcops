@@ -1974,7 +1974,6 @@ class GetIdInfoTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
-
         self.assertEqual(
             reply_dict[TabletParam.DATABASE_TITLE], "test database"
         )
@@ -1994,7 +1993,6 @@ class GetIdInfoTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
-
         self.assertEqual(
             reply_dict[TabletParam.ID_POLICY_UPLOAD], "sex and anyidnum"
         )
@@ -2014,7 +2012,6 @@ class GetIdInfoTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
-
         self.assertEqual(
             reply_dict[TabletParam.ID_POLICY_FINALIZE], "sex and anyidnum"
         )
