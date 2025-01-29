@@ -2034,3 +2034,34 @@ class GetIdInfoTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SERVER_CAMCOPS_VERSION], "test version"
         )
+
+    def test_returns_idnum_definition(self) -> None:
+        mock_idnum_definition = mock.Mock(
+            which_idnum=1,
+            description="Mock NHS Number",
+            short_description="Mock NHS#",
+            validation_method="Mock validation method",
+        )
+
+        with mock.patch.multiple(
+            self.req,
+            database_title="test database",
+            idnum_definitions=[mock_idnum_definition],
+        ):
+            reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict["idDescription1"],
+            "Mock NHS Number",
+        )
+        self.assertEqual(
+            reply_dict["idShortDescription1"],
+            "Mock NHS#",
+        )
+        self.assertEqual(
+            reply_dict["idValidationMethod1"],
+            "Mock validation method",
+        )
