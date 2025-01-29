@@ -2065,3 +2065,18 @@ class GetIdInfoTests(ClientApiTestCase):
             reply_dict["idValidationMethod1"],
             "Mock validation method",
         )
+
+
+class CheckUploadUserAndDeviceTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = (
+            Operations.CHECK_UPLOAD_USER_DEVICE
+        )
+
+    def test_succeeds(self) -> None:
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
