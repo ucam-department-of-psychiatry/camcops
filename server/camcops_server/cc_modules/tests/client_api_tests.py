@@ -1978,3 +1978,23 @@ class GetIdInfoTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.DATABASE_TITLE], "test database"
         )
+
+    def test_returns_upload_policy(self) -> None:
+        self.group.upload_policy = "sex and anyidnum"
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        with mock.patch.object(
+            self.req,
+            "database_title",
+            "test database",
+        ):
+            reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        self.assertEqual(
+            reply_dict[TabletParam.ID_POLICY_UPLOAD], "sex and anyidnum"
+        )
