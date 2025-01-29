@@ -767,6 +767,35 @@ class OpUploadEntireDatabaseTests(ClientApiTestCase):
         self.assertAlmostEqual(bmi.height_m, 1.83)
         self.assertAlmostEqual(bmi.mass_kg, 67)
 
+    def test_upload_row_fails_with_no_pkname(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+        bmi_data = {
+            "id": "1",
+            "height_m": "1.83",
+            "mass_kg": "67",
+            "when_created": now_utc_string,
+            "when_last_modified": now_utc_string,
+            "_move_off_tablet": "1",
+            "patient_id": str(patient.id),
+        }
+
+        pknameinfo = {"bmi": ""}
+        dbdata = {"bmi": [bmi_data]}
+
+        self.post_dict[TabletParam.PKNAMEINFO] = json.dumps(pknameinfo)
+        self.post_dict[TabletParam.DBDATA] = json.dumps(dbdata)
+
+        reply_dict = self.call_api()
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            "Client-side PK name not specified by client for non-empty table",
+            reply_dict[TabletParam.ERROR],
+            msg=reply_dict,
+        )
+
     def test_empty_upload_flags_existing_for_deletion(self) -> None:
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
