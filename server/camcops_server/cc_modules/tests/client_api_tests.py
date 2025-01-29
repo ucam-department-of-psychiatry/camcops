@@ -2231,3 +2231,18 @@ class OpRegisterDeviceTests(ClientApiTestCase):
         )
         self.assertIsNotNone(device.when_registered_utc)
         self.assertEqual(device.registered_by_user_id, self.user.id)
+
+
+class OpCheckDeviceRegisteredTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = (
+            Operations.CHECK_DEVICE_REGISTERED
+        )
+
+    def test_device_registered(self) -> None:
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
