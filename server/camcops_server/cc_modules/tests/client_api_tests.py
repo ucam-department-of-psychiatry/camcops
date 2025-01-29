@@ -40,10 +40,12 @@ from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 from pendulum import DateTime as Pendulum, Duration, local, now, parse
 from pyramid.response import Response
+from semantic_version import Version
 from sqlalchemy import select
 
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
 from camcops_server.cc_modules.cc_client_api_core import (
+    AllowedTablesFieldNames,
     fail_server_error,
     fail_unsupported_operation,
     fail_user_error,
@@ -2080,3 +2082,47 @@ class OpCheckUploadUserAndDeviceTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
         )
+
+
+class OpGetAllowedTablesTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = Operations.GET_ALLOWED_TABLES
+
+    def test_returns_allowed_tables(self) -> None:
+        mock_task_tables = mock.Mock(
+            return_value={
+                "table_1": Version("2.0.0"),
+                "table_2": Version("2.0.1"),
+                # These get overridden
+                "blobs": Version("1.0.0"),
+                "patient": Version("1.0.0"),
+                "patient_idnum": Version("1.0.0"),
+            }
+        )
+
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.client_api",
+            all_task_tables_with_min_client_version=mock_task_tables,
+            MINIMUM_TABLET_VERSION=Version("2.0.2"),
+        ):
+            reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        fields = ",".join(
+            [
+                AllowedTablesFieldNames.TABLENAME,
+                AllowedTablesFieldNames.MIN_CLIENT_VERSION,
+            ]
+        )
+        self.assertEqual(reply_dict[TabletParam.NFIELDS], "2")
+        self.assertEqual(reply_dict[TabletParam.FIELDS], fields)
+        self.assertEqual(reply_dict[TabletParam.NRECORDS], "5")
+        self.assertEqual(reply_dict["record0"], "'table_1','2.0.0'")
+        self.assertEqual(reply_dict["record1"], "'table_2','2.0.1'")
+        self.assertEqual(reply_dict["record2"], "'blobs','2.0.2'")
+        self.assertEqual(reply_dict["record3"], "'patient','2.0.2'")
+        self.assertEqual(reply_dict["record4"], "'patient_idnum','2.0.2'")
