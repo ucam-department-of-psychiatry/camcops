@@ -44,6 +44,7 @@ from semantic_version import Version
 from sqlalchemy import select
 
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
+from camcops_server.cc_modules.cc_cache import cache_region_static
 from camcops_server.cc_modules.cc_client_api_core import (
     AllowedTablesFieldNames,
     fail_server_error,
@@ -236,6 +237,10 @@ class ClientApiTestCase(DemoRequestTestCase):
             ),
             TabletParam.DEVICE: self.device.name,
         }
+        # To prevent test failures when mocking cached functions
+        cache_region_static.configure(
+            backend="dogpile.cache.null", replace_existing_backend=True
+        )
 
     def call_api(self) -> Dict[str, str]:
         self.req.fake_request_post_from_dict(self.post_dict)
