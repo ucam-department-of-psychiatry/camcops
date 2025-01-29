@@ -2175,3 +2175,33 @@ class OpGetExtraStringsTests(ClientApiTestCase):
         self.assertEqual(
             reply_dict["record1"], "'task2','name2','language2','value2'"
         )
+
+
+class OpRegisterDeviceTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = Operations.REGISTER
+
+    def test_updates_existing_device(self) -> None:
+        self.assertIsNone(self.device.when_registered_utc)
+        self.assertIsNone(self.device.registered_by_user_id)
+        self.post_dict[TabletParam.DEVICE_FRIENDLY_NAME] = "Test device name"
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        self.dbsession.commit()
+
+        # Server ID info tested elsewhere
+        self.assertIn(TabletParam.SERVER_CAMCOPS_VERSION, reply_dict)
+
+        self.assertEqual(self.device.friendly_name, "Test device name")
+        self.assertEqual(
+            self.device.camcops_version,
+            Version(self.req.tabletsession.tablet_version_str),
+        )
+        self.assertIsNotNone(self.device.when_registered_utc)
+        self.assertEqual(self.device.registered_by_user_id, self.user.id)
