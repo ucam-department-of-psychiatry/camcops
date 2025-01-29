@@ -2205,3 +2205,29 @@ class OpRegisterDeviceTests(ClientApiTestCase):
         )
         self.assertIsNotNone(self.device.when_registered_utc)
         self.assertEqual(self.device.registered_by_user_id, self.user.id)
+
+    def test_registers_new_device(self) -> None:
+        self.assertIsNone(self.device.when_registered_utc)
+        self.assertIsNone(self.device.registered_by_user_id)
+        self.post_dict[TabletParam.DEVICE] = "unregistered"
+        self.post_dict[TabletParam.DEVICE_FRIENDLY_NAME] = "Test device name"
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        self.dbsession.commit()
+
+        device = self.dbsession.execute(
+            select(Device).where(Device.name == "unregistered")
+        ).scalar_one()
+
+        self.assertEqual(device.friendly_name, "Test device name")
+        self.assertEqual(
+            device.camcops_version,
+            Version(self.req.tabletsession.tablet_version_str),
+        )
+        self.assertIsNotNone(device.when_registered_utc)
+        self.assertEqual(device.registered_by_user_id, self.user.id)
