@@ -47,6 +47,7 @@ from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
 from camcops_server.cc_modules.cc_cache import cache_region_static
 from camcops_server.cc_modules.cc_client_api_core import (
     AllowedTablesFieldNames,
+    ExtraStringFieldNames,
     fail_server_error,
     fail_unsupported_operation,
     fail_user_error,
@@ -2131,3 +2132,46 @@ class OpGetAllowedTablesTests(ClientApiTestCase):
         self.assertEqual(reply_dict["record2"], "'blobs','2.0.2'")
         self.assertEqual(reply_dict["record3"], "'patient','2.0.2'")
         self.assertEqual(reply_dict["record4"], "'patient_idnum','2.0.2'")
+
+
+class OpGetExtraStringsTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = Operations.GET_EXTRA_STRINGS
+
+    def test_returns_extra_strings(self) -> None:
+        mock_extra_strings = mock.Mock(
+            return_value=[
+                ("task1", "name1", "language1", "value1"),
+                ("task2", "name2", "language2", "value2"),
+            ]
+        )
+
+        with mock.patch.object(
+            self.req,
+            "get_all_extra_strings",
+            mock_extra_strings,
+        ):
+            reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        fields = ",".join(
+            [
+                ExtraStringFieldNames.TASK,
+                ExtraStringFieldNames.NAME,
+                ExtraStringFieldNames.LANGUAGE,
+                ExtraStringFieldNames.VALUE,
+            ]
+        )
+        self.assertEqual(reply_dict[TabletParam.NFIELDS], "4")
+        self.assertEqual(reply_dict[TabletParam.FIELDS], fields)
+        self.assertEqual(reply_dict[TabletParam.NRECORDS], "2")
+        self.assertEqual(
+            reply_dict["record0"], "'task1','name1','language1','value1'"
+        )
+        self.assertEqual(
+            reply_dict["record1"], "'task2','name2','language2','value2'"
+        )
