@@ -241,7 +241,7 @@ class ClientApiTestCase(DemoRequestTestCase):
         return get_reply_dict_from_response(response)
 
 
-class RegisterPatientTests(ClientApiTestCase):
+class OpRegisterPatientTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -433,7 +433,7 @@ class RegisterPatientTests(ClientApiTestCase):
         )
 
 
-class GetTaskSchedulesTests(ClientApiTestCase):
+class OpGetTaskSchedulesTests(ClientApiTestCase):
     def test_returns_task_schedules(self) -> None:
         schedule1 = TaskScheduleFactory(group=self.group)
         schedule2 = TaskScheduleFactory(group=self.group)
@@ -574,7 +574,7 @@ class GetTaskSchedulesTests(ClientApiTestCase):
         self.assertTrue(gmcpq_sched[TabletParam.ANONYMOUS])
 
 
-class GetOrCreateSingleUserTests(DemoRequestTestCase):
+class OpGetOrCreateSingleUserTests(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -645,7 +645,7 @@ class GetOrCreateSingleUserTests(DemoRequestTestCase):
         self.assertEqual(user, existing_user)
 
 
-class UploadEntireDatabaseTests(ClientApiTestCase):
+class OpUploadEntireDatabaseTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = (
@@ -730,7 +730,7 @@ class UploadEntireDatabaseTests(ClientApiTestCase):
         )
 
 
-class ValidatePatientsTests(ClientApiTestCase):
+class OpValidatePatientsTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -1137,7 +1137,7 @@ class ValidatePatientsTests(ClientApiTestCase):
         )
 
 
-class WhichKeysToSendTests(ClientApiTestCase):
+class OpWhichKeysToSendTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -1292,7 +1292,7 @@ class WhichKeysToSendTests(ClientApiTestCase):
         self.assertTrue(bmi._move_off_tablet)
 
 
-class DeleteWhereKeyNotTests(ClientApiTestCase):
+class OpDeleteWhereKeyNotTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -1327,7 +1327,7 @@ class DeleteWhereKeyNotTests(ClientApiTestCase):
         self.assertTrue(bmis[2]._removal_pending)
 
 
-class StartPreservationTests(ClientApiTestCase):
+class OpStartPreservationTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -1389,7 +1389,7 @@ class StartPreservationTests(ClientApiTestCase):
         )
 
 
-class UploadEmptyTablesTests(ClientApiTestCase):
+class OpUploadEmptyTablesTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -1494,7 +1494,7 @@ class UploadEmptyTablesTests(ClientApiTestCase):
         )
 
 
-class UploadRecordTests(ClientApiTestCase):
+class OpUploadRecordTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -1600,7 +1600,7 @@ class UploadRecordTests(ClientApiTestCase):
         self.assertAlmostEqual(new_bmi.mass_kg, 67)
 
 
-class UploadTableTests(ClientApiTestCase):
+class OpUploadTableTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = Operations.UPLOAD_TABLE
@@ -1799,7 +1799,7 @@ class UploadTableTests(ClientApiTestCase):
         )
 
 
-class EndUploadTests(ClientApiTestCase):
+class OpEndUploadTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = Operations.END_UPLOAD
@@ -1872,7 +1872,7 @@ class EndUploadTests(ClientApiTestCase):
         self.assertNotEqual(bmi._era, ERA_NOW)
 
 
-class StartUploadTests(ClientApiTestCase):
+class OpStartUploadTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = Operations.START_UPLOAD
@@ -1958,7 +1958,7 @@ class StartUploadTests(ClientApiTestCase):
         self.assertFalse(bmi._move_off_tablet)
 
 
-class GetIdInfoTests(ClientApiTestCase):
+class OpGetIdInfoTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = Operations.GET_ID_INFO
@@ -2067,7 +2067,7 @@ class GetIdInfoTests(ClientApiTestCase):
         )
 
 
-class CheckUploadUserAndDeviceTests(ClientApiTestCase):
+class OpCheckUploadUserAndDeviceTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.post_dict[TabletParam.OPERATION] = (
