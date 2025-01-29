@@ -1251,6 +1251,31 @@ class OpWhichKeysToSendTests(ClientApiTestCase):
             msg=reply_dict,
         )
 
+    def test_table_rejected_if_client_too_old(self) -> None:
+        self.post_dict[TabletParam.CAMCOPS_VERSION] = "2.0.0"
+        self.post_dict[TabletParam.TABLE] = "table_1"
+        mock_tables = mock.Mock(
+            return_value={
+                "table_1": Version("2.0.1"),
+            }
+        )
+        mock_client_table_map = {"table_1": mock.Mock()}
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.client_api",
+            all_tables_with_min_client_version=mock_tables,
+            CLIENT_TABLE_MAP=mock_client_table_map,
+        ):
+            reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            "Client CamCOPS version 2.0.0 is less than the version (2.0.1)",
+            reply_dict[TabletParam.ERROR],
+            msg=reply_dict,
+        )
+
     def test_fails_for_pk_value_date_count_mismatch(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
