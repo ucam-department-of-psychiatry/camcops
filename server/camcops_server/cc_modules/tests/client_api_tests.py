@@ -1956,3 +1956,25 @@ class StartUploadTests(ClientApiTestCase):
 
         bmi = self.dbsession.execute(select(Bmi)).scalar_one_or_none()
         self.assertFalse(bmi._move_off_tablet)
+
+
+class GetIdInfoTests(ClientApiTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.post_dict[TabletParam.OPERATION] = Operations.GET_ID_INFO
+
+    def test_returns_database_title(self) -> None:
+        with mock.patch.object(
+            self.req,
+            "database_title",
+            "test database",
+        ):
+            reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+
+        self.assertEqual(
+            reply_dict[TabletParam.DATABASE_TITLE], "test database"
+        )
