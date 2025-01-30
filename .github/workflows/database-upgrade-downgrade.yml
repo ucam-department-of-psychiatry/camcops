@@ -10,6 +10,7 @@ on:
             - .github/scripts/python_setup.sh
             - .github/workflows/database-upgrade-downgrade.yml
             - 'server/camcops_server/**'
+            - 'server/setup.py'
 jobs:
     database-upgrade-downgrade:
         runs-on: ubuntu-20.04
