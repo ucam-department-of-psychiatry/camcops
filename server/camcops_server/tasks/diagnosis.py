@@ -914,7 +914,7 @@ def get_diagnosis_inc_exc_report_query(
     inclusion_criteria = []  # type: List[ColumnElement]
     for idx in inclusion_dx:
         inclusion_criteria.append(item_class.code.like(idx))
-    wheres.append(or_(*inclusion_criteria))
+    wheres.append(or_(True, *inclusion_criteria))
 
     # Exclusion criteria are the trickier: we need to be able to link
     # multiple diagnoses for the same patient, so we need to use a linking
