@@ -979,7 +979,7 @@ def get_diagnosis_inc_exc_report_query(
             edx_wheres.append(edx_sets.c._group_id.in_(group_ids))
             # ... bugfix 2018-06-19: "wheres" -> "edx_wheres"
         exclusion_select = (
-            select(["*"]).select_from(edx_joined).where(and_(*edx_wheres))
+            select("*").select_from(edx_joined).where(and_(*edx_wheres))
         )
         wheres.append(not_(exists(exclusion_select)))
 
