@@ -1744,6 +1744,31 @@ class OpUploadRecordTests(ClientApiTestCase):
             msg=reply_dict,
         )
 
+    def test_fails_if_field_does_not_exist(self) -> None:
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "nonsense",
+            ]
+        )
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                "1",
+                "0",
+            ]
+        )
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            "Invalid field name for table",
+            reply_dict[TabletParam.ERROR],
+            msg=reply_dict,
+        )
+
 
 class OpUploadTableTests(ClientApiTestCase):
     def setUp(self) -> None:
