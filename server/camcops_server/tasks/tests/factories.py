@@ -292,6 +292,7 @@ class DiagnosisIcd10ItemFactory(DiagnosisItemFactory):
         model = DiagnosisIcd10Item
 
     id = factory.Sequence(lambda n: n + 1)
+    seqnum = factory.Sequence(lambda n: n + 1)
 
     @classmethod
     def create(cls, *args, **kwargs) -> DiagnosisIcd10Item:
@@ -329,6 +330,7 @@ class DiagnosisIcd9CMItemFactory(DiagnosisItemFactory):
         model = DiagnosisIcd9CMItem
 
     id = factory.Sequence(lambda n: n + 1)
+    seqnum = factory.Sequence(lambda n: n + 1)
 
     @classmethod
     def create(cls, *args, **kwargs) -> DiagnosisIcd9CMItem:
