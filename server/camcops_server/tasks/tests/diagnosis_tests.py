@@ -26,6 +26,7 @@ camcops_server/tasks/tests/diagnosis_tests.py
 """
 
 from camcops_server.cc_modules.cc_testfactories import (
+    NHSIdNumDefinitionFactory,
     NHSPatientIdNumFactory,
     PatientFactory,
     UserFactory,
@@ -83,5 +84,56 @@ class DiagnosisICD10FinderReportTests(DemoRequestTestCase):
                 "system": "ICD-10",
                 "code": item.code,
                 "description": item.description,
+            },
+        )
+
+    def test_code_excluded(self) -> None:
+        patient1 = PatientFactory()
+        nhs_iddef = NHSIdNumDefinitionFactory()
+        idnum1 = NHSPatientIdNumFactory(idnum=nhs_iddef, patient=patient1)
+        diagnosis1 = DiagnosisIcd10Factory(patient=patient1)
+        item1 = DiagnosisIcd10ItemFactory(
+            diagnosis_icd10=diagnosis1,
+            code="code1",
+            description="description1",
+        )
+
+        patient2 = PatientFactory()
+        NHSPatientIdNumFactory(
+            patient=patient2,
+            idnum=nhs_iddef,
+        )
+        diagnosis2 = DiagnosisIcd10Factory(patient=patient2)
+
+        DiagnosisIcd10ItemFactory(
+            diagnosis_icd10=diagnosis2,
+            code="code2",
+            description="description2",
+        )
+
+        params = {
+            ViewParam.WHICH_IDNUM: nhs_iddef.which_idnum,
+            ViewParam.DIAGNOSES_INCLUSION: "code1",
+            ViewParam.DIAGNOSES_EXCLUSION: "code2",
+        }
+
+        self.req.set_get_params(params)
+        pages = self.report.get_spreadsheet_pages(self.req)
+
+        self.assertEqual(len(pages), 1)
+        page = pages[0]
+        self.assertEqual(len(page.rows), 1)
+        self.assertEqual(
+            page.rows[0],
+            {
+                "surname": patient1.surname,
+                "forename": patient1.forename,
+                "dob": patient1.dob,
+                "sex": patient1.sex,
+                "NHS number": idnum1.idnum_value,
+                "when_created": diagnosis1.when_created,
+                "system": "ICD-10",
+                "code": item1.code,
+                "description": item1.description,
             },
         )
