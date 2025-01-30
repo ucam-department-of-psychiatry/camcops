@@ -26,14 +26,14 @@ jobs:
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   source ${HOME}/venv/bin/activate
-                  PYTHON=SQLALCHEMY_WARN_20=1 python -W error::sqlalchemy.exc.RemovedIn20Warning
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
+                  export SQLALCHEMY_WARN_20=1
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
-                  ${PYTHON} -m pip install pymysql
-                  ${PYTHON} camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
-                  ${PYTHON} camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
+                  python -m pip install pymysql
+                  camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
+                  camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
                   # WARNING: Current Alembic v1.0.0 bug in downgrading with as_sql=True; may fail
                   # camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db --show_sql_only
-                  ${PYTHON} camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db
-                  ${PYTHON} camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
-                  ${PYTHON} camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
+                  camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db
+                  camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
+                  camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
