@@ -59,6 +59,7 @@ from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_convert import decode_values
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_taskindex import (
     PatientIdNumIndexEntry,
@@ -69,6 +70,7 @@ from camcops_server.cc_modules.cc_testfactories import (
     DirtyTableFactory,
     Fake,
     GroupFactory,
+    NHSIdNumDefinitionFactory,
     NHSPatientIdNumFactory,
     PatientFactory,
     PatientTaskScheduleFactory,
@@ -1619,13 +1621,13 @@ class OpUploadRecordTests(ClientApiTestCase):
         super().setUp()
 
         self.post_dict[TabletParam.OPERATION] = Operations.UPLOAD_RECORD
-        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKNAME] = "id"
 
     def test_upload_inserts_record(self) -> None:
         now_utc_string = now("UTC").isoformat()
         patient = PatientFactory(_device=self.device)
 
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.FIELDS] = ",".join(
             [
@@ -1676,6 +1678,7 @@ class OpUploadRecordTests(ClientApiTestCase):
             mass_kg=70,
         )
 
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.FIELDS] = ",".join(
             [
@@ -1720,6 +1723,7 @@ class OpUploadRecordTests(ClientApiTestCase):
         self.assertAlmostEqual(new_bmi.mass_kg, 67)
 
     def test_fails_if_field_is_reserved(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.FIELDS] = ",".join(
             [
@@ -1745,6 +1749,7 @@ class OpUploadRecordTests(ClientApiTestCase):
         )
 
     def test_fails_if_field_does_not_exist(self) -> None:
+        self.post_dict[TabletParam.TABLE] = "bmi"
         self.post_dict[TabletParam.PKVALUES] = "1"
         self.post_dict[TabletParam.FIELDS] = ",".join(
             [
@@ -1765,6 +1770,89 @@ class OpUploadRecordTests(ClientApiTestCase):
         )
         self.assertIn(
             "Invalid field name for table",
+            reply_dict[TabletParam.ERROR],
+            msg=reply_dict,
+        )
+
+    def test_upload_inserts_patient_idnum_record(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        iddef = NHSIdNumDefinitionFactory()
+        patient = PatientFactory(_device=self.device)
+
+        self.post_dict[TabletParam.TABLE] = "patient_idnum"
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "which_idnum",
+                "idnum_value",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+        nhs_number = Fake.en_gb.nhs_number()
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                "1",
+                str(iddef.which_idnum),
+                str(nhs_number),
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], SUCCESS_CODE, msg=reply_dict
+        )
+        self.assertEqual(
+            reply_dict[TabletParam.RESULT],
+            "UPLOAD-INSERT",
+            msg=reply_dict,
+        )
+        patient_idnum = self.req.dbsession.query(PatientIdNum).one_or_none()
+        self.assertIsNotNone(patient_idnum)
+
+        self.assertEqual(patient_idnum.which_idnum, iddef.which_idnum)
+        self.assertEqual(patient_idnum.idnum_value, nhs_number)
+
+    def test_fails_if_patient_idnum_invalid(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        patient = PatientFactory(_device=self.device)
+
+        self.post_dict[TabletParam.TABLE] = "patient_idnum"
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "which_idnum",
+                "idnum_value",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+        nhs_number = Fake.en_gb.nhs_number()
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                "1",
+                "1",
+                str(nhs_number),
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            "No such ID number type: 1",
             reply_dict[TabletParam.ERROR],
             msg=reply_dict,
         )
