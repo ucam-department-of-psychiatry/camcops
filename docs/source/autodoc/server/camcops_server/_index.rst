@@ -360,6 +360,7 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
+    htmlcov/style_cb_8e611ae1.css.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
@@ -484,6 +485,7 @@ server/camcops_server
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/diagnosis_tests.py.rst
     tasks/tests/edeq_tests.py.rst
     tasks/tests/factories.py.rst
     tasks/tests/maas_tests.py.rst
