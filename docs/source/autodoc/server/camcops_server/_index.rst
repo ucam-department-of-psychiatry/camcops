@@ -360,7 +360,6 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
-    htmlcov/style_cb_8e611ae1.css.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
