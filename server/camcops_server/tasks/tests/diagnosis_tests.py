@@ -90,7 +90,7 @@ class DiagnosisICD10FinderReportTests(DemoRequestTestCase):
     def test_code_excluded(self) -> None:
         patient1 = PatientFactory()
         nhs_iddef = NHSIdNumDefinitionFactory()
-        idnum1 = NHSPatientIdNumFactory(idnum=nhs_iddef, patient=patient1)
+        idnum1 = NHSPatientIdNumFactory(iddef=nhs_iddef, patient=patient1)
         diagnosis1 = DiagnosisIcd10Factory(patient=patient1)
         item1 = DiagnosisIcd10ItemFactory(
             diagnosis_icd10=diagnosis1,
@@ -99,10 +99,7 @@ class DiagnosisICD10FinderReportTests(DemoRequestTestCase):
         )
 
         patient2 = PatientFactory()
-        NHSPatientIdNumFactory(
-            patient=patient2,
-            idnum=nhs_iddef,
-        )
+        NHSPatientIdNumFactory(patient=patient2, iddef=nhs_iddef)
         diagnosis2 = DiagnosisIcd10Factory(patient=patient2)
 
         DiagnosisIcd10ItemFactory(
