@@ -310,12 +310,9 @@ class OpRegisterPatientTests(ClientApiTestCase):
         valid_chars = string.ascii_letters + string.digits + string.punctuation
         self.assertTrue(all(c in valid_chars for c in password))
 
-        user = (
-            self.req.dbsession.query(User)
-            .filter(User.username == username)
-            .one_or_none()
-        )
-        self.assertIsNotNone(user)
+        user = self.dbsession.execute(
+            select(User).where(User.username == username)
+        ).scalar_one()
         self.assertEqual(user.upload_group, self.patient.group)
         self.assertTrue(user.auto_generated)
         self.assertTrue(user.may_register_devices)
@@ -349,12 +346,9 @@ class OpRegisterPatientTests(ClientApiTestCase):
         valid_chars = string.ascii_letters + string.digits + string.punctuation
         self.assertTrue(all(c in valid_chars for c in password))
 
-        user = (
-            self.req.dbsession.query(User)
-            .filter(User.username == username)
-            .one_or_none()
-        )
-        self.assertIsNotNone(user)
+        user = self.dbsession.execute(
+            select(User).where(User.username == username)
+        ).scalar_one()
         self.assertEqual(user.upload_group, self.patient.group)
         self.assertTrue(user.auto_generated)
         self.assertTrue(user.may_register_devices)
@@ -1482,10 +1476,11 @@ class OpStartPreservationTests(ClientApiTestCase):
 
     def test_marks_table_dirty(self) -> None:
         self.assertIsNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "bmi")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
         )
+
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             id=123,
@@ -1504,10 +1499,11 @@ class OpStartPreservationTests(ClientApiTestCase):
         )
 
         self.dbsession.commit()
+
         self.assertIsNotNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "bmi")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
         )
 
 
@@ -1551,15 +1547,16 @@ class OpUploadEmptyTablesTests(ClientApiTestCase):
 
     def test_tables_marked_dirty_if_records_in_current_era(self) -> None:
         self.assertIsNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "bmi")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
         )
         self.assertIsNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "phq9")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "phq9")
+            ).scalar_one_or_none()
         )
+
         patient = PatientFactory(_device=self.device)
         BmiFactory(
             patient=patient,
@@ -1580,14 +1577,14 @@ class OpUploadEmptyTablesTests(ClientApiTestCase):
         )
         self.dbsession.commit()
         self.assertIsNotNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "bmi")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
         )
         self.assertIsNotNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "phq9")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "phq9")
+            ).scalar_one_or_none()
         )
 
     def test_tables_marked_clean_if_no_records_in_current_era(self) -> None:
@@ -1605,14 +1602,14 @@ class OpUploadEmptyTablesTests(ClientApiTestCase):
         )
         self.dbsession.commit()
         self.assertIsNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "bmi")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "bmi")
+            ).scalar_one_or_none()
         )
         self.assertIsNone(
-            self.req.dbsession.query(DirtyTable)
-            .filter(DirtyTable.tablename == "phq9")
-            .one_or_none()
+            self.dbsession.execute(
+                select(DirtyTable).where(DirtyTable.tablename == "phq9")
+            ).scalar_one_or_none()
         )
 
 
@@ -1661,7 +1658,7 @@ class OpUploadRecordTests(ClientApiTestCase):
             "UPLOAD-INSERT",
             msg=reply_dict,
         )
-        bmi = self.req.dbsession.query(Bmi).one_or_none()
+        bmi = self.dbsession.execute(select(Bmi)).scalar_one_or_none()
         self.assertIsNotNone(bmi)
 
         self.assertAlmostEqual(bmi.height_m, 1.83)
@@ -1712,11 +1709,9 @@ class OpUploadRecordTests(ClientApiTestCase):
             "UPLOAD-UPDATE",
             msg=reply_dict,
         )
-        new_bmi = (
-            self.req.dbsession.query(Bmi)
-            .filter(Bmi._predecessor_pk == bmi._pk)
-            .one_or_none()
-        )
+        new_bmi = self.dbsession.execute(
+            select(Bmi).where(Bmi._predecessor_pk == bmi._pk)
+        ).scalar_one_or_none()
         self.assertIsNotNone(new_bmi)
 
         self.assertAlmostEqual(new_bmi.height_m, 1.83)
@@ -1812,7 +1807,9 @@ class OpUploadRecordTests(ClientApiTestCase):
             "UPLOAD-INSERT",
             msg=reply_dict,
         )
-        patient_idnum = self.req.dbsession.query(PatientIdNum).one_or_none()
+        patient_idnum = self.dbsession.execute(
+            select(PatientIdNum)
+        ).scalar_one_or_none()
         self.assertIsNotNone(patient_idnum)
 
         self.assertEqual(patient_idnum.which_idnum, iddef.which_idnum)
