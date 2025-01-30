@@ -1719,6 +1719,31 @@ class OpUploadRecordTests(ClientApiTestCase):
         self.assertAlmostEqual(new_bmi.height_m, 1.83)
         self.assertAlmostEqual(new_bmi.mass_kg, 67)
 
+    def test_fails_if_field_is_reserved(self) -> None:
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "_current",
+            ]
+        )
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                "1",
+                "0",
+            ]
+        )
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            "Reserved field name for table",
+            reply_dict[TabletParam.ERROR],
+            msg=reply_dict,
+        )
+
 
 class OpUploadTableTests(ClientApiTestCase):
     def setUp(self) -> None:
