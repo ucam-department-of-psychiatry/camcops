@@ -983,7 +983,9 @@ def get_diagnosis_inc_exc_report_query(
         )
         wheres.append(not_(exists(exclusion_select)))
 
-    query = select(select_fields).select_from(select_from).where(and_(*wheres))
+    query = (
+        select(*select_fields).select_from(select_from).where(and_(*wheres))
+    )
     return query
 
 
