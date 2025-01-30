@@ -38,7 +38,8 @@ jobs:
                   sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
                   sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
-                  PYTEST=SQLALCHEMY_WARN_20=1 ${HOME}/venv/bin/pytest -v -W error::sqlalchemy.exc.RemovedIn20Warning
+                  source ${HOME}/venv/bin/activate
+                  PYTEST=SQLALCHEMY_WARN_20=1 pytest -v -W error::sqlalchemy.exc.RemovedIn20Warning
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   echo running tests

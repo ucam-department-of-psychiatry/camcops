@@ -25,7 +25,8 @@ jobs:
               run: |
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
-                  PYTHON=SQLALCHEMY_WARN_20=1 ${HOME}/venv/bin/python -W error::sqlalchemy.exc.RemovedIn20Warning
+                  source ${HOME}/venv/bin/activate
+                  PYTHON=SQLALCHEMY_WARN_20=1 python -W error::sqlalchemy.exc.RemovedIn20Warning
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   ${PYTHON} -m pip install pymysql
