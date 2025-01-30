@@ -25,9 +25,18 @@ camcops_server/tasks/tests/diagnosis_tests.py
 
 """
 
-from camcops_server.cc_modules.cc_testfactories import UserFactory
+from camcops_server.cc_modules.cc_testfactories import (
+    NHSPatientIdNumFactory,
+    PatientFactory,
+    UserFactory,
+)
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.tasks.diagnosis import DiagnosisICD10FinderReport
+from camcops_server.tasks.tests.factories import (
+    DiagnosisIcd10Factory,
+    DiagnosisIcd10ItemFactory,
+)
 
 
 class DiagnosisICD10FinderReportTests(DemoRequestTestCase):
@@ -35,7 +44,7 @@ class DiagnosisICD10FinderReportTests(DemoRequestTestCase):
         super().setUp()
 
         self.report = DiagnosisICD10FinderReport()
-        self.req._debugging_user = UserFactory()
+        self.req._debugging_user = UserFactory(superuser=True)
 
     def test_no_records_creates_empty_report(self) -> None:
         pages = self.report.get_spreadsheet_pages(self.req)
@@ -43,3 +52,36 @@ class DiagnosisICD10FinderReportTests(DemoRequestTestCase):
         self.assertEqual(len(pages), 1)
         self.assertEqual(pages[0].headings, [])
         self.assertEqual(pages[0].rows, [])
+
+    def test_creates_report_from_one_record(self) -> None:
+        patient = PatientFactory()
+        idnum = NHSPatientIdNumFactory(patient=patient)
+        diagnosis = DiagnosisIcd10Factory(patient=patient)
+        item = DiagnosisIcd10ItemFactory(
+            diagnosis_icd10=diagnosis,
+            code="code",
+            description="description",
+        )
+
+        params = {
+            ViewParam.WHICH_IDNUM: idnum.which_idnum,
+        }
+
+        self.req.set_get_params(params)
+        pages = self.report.get_spreadsheet_pages(self.req)
+
+        self.assertEqual(len(pages), 1)
+        self.assertEqual(
+            pages[0].rows[0],
+            {
+                "surname": patient.surname,
+                "forename": patient.forename,
+                "dob": patient.dob,
+                "sex": patient.sex,
+                "NHS number": idnum.idnum_value,
+                "when_created": diagnosis.when_created,
+                "system": "ICD-10",
+                "code": item.code,
+                "description": item.description,
+            },
+        )
