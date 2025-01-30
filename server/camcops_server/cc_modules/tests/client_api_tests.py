@@ -1818,7 +1818,7 @@ class OpUploadRecordTests(ClientApiTestCase):
         self.assertEqual(patient_idnum.which_idnum, iddef.which_idnum)
         self.assertEqual(patient_idnum.idnum_value, nhs_number)
 
-    def test_fails_if_patient_idnum_invalid(self) -> None:
+    def test_fails_if_patient_idnum_type_unknown(self) -> None:
         now_utc_string = now("UTC").isoformat()
         patient = PatientFactory(_device=self.device)
 
@@ -1853,6 +1853,47 @@ class OpUploadRecordTests(ClientApiTestCase):
         )
         self.assertIn(
             "No such ID number type: 1",
+            reply_dict[TabletParam.ERROR],
+            msg=reply_dict,
+        )
+
+    def test_fails_if_patient_idnum_invalid(self) -> None:
+        now_utc_string = now("UTC").isoformat()
+        iddef = NHSIdNumDefinitionFactory()
+        patient = PatientFactory(_device=self.device)
+
+        self.post_dict[TabletParam.TABLE] = "patient_idnum"
+        self.post_dict[TabletParam.PKVALUES] = "1"
+        self.post_dict[TabletParam.FIELDS] = ",".join(
+            [
+                "id",
+                "which_idnum",
+                "idnum_value",
+                "when_last_modified",
+                "_move_off_tablet",
+                "patient_id",
+            ]
+        )
+        invalid_nhs_number = 123
+        self.post_dict[TabletParam.VALUES] = ",".join(
+            [
+                "1",
+                str(iddef.which_idnum),
+                str(invalid_nhs_number),
+                now_utc_string,
+                "1",
+                str(patient.id),
+            ]
+        )
+
+        reply_dict = self.call_api()
+
+        self.assertEqual(
+            reply_dict[TabletParam.SUCCESS], FAILURE_CODE, msg=reply_dict
+        )
+        self.assertIn(
+            f"For ID type {iddef.which_idnum}, ID number "
+            f"{invalid_nhs_number} is invalid",
             reply_dict[TabletParam.ERROR],
             msg=reply_dict,
         )
