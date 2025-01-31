@@ -4602,3 +4602,16 @@ class ForciblyFinalizeTests(BasicDatabaseTestCase):
         self.assertIsInstance(exc, HTTPFound)
         self.assertEqual(exc.status_code, 302)
         self.assertEqual(urlparse(exc.headers["Location"]).path, "/")
+
+    def test_renders_first_form_on_get(self) -> None:
+        mock_render = mock.Mock()
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.webview", render_to_response=mock_render
+        ):
+            forcibly_finalize(self.req)
+
+        args, kwargs = mock_render.call_args
+        context = args[1]
+
+        self.assertIn("form", context)
+        self.assertIn("<select", context["form"])
