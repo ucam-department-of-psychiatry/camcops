@@ -234,7 +234,9 @@ class DummyDataFactory(DummyDataInserter):
     def __init__(self, cfg: "CamcopsConfig") -> None:
         super().__init__()
         engine = cfg.get_sqla_engine()
-        self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
+        self.dbsession = sessionmaker()(
+            bind=engine, future=True
+        )  # type: SqlASession
 
         self.era_time = pendulum.now()
         self.era_time_utc = convert_datetime_to_utc(self.era_time)

@@ -1793,7 +1793,7 @@ class CamcopsConfig(object):
         """
         engine = self.get_sqla_engine()
         maker = sessionmaker(bind=engine)
-        dbsession = maker()  # type: SqlASession
+        dbsession = maker(future=True)  # type: SqlASession
         return dbsession
 
     @contextlib.contextmanager

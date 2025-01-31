@@ -782,7 +782,7 @@ def session_context():
     cfg = get_config()  # type: DummyConfig
     engine = cfg.create_engine()
     maker = sessionmaker(bind=engine)
-    dbsession = maker()  # type: SqlASession
+    dbsession = maker(future=True)  # type: SqlASession
     # noinspection PyUnusedLocal,PyBroadException
     try:
         yield dbsession

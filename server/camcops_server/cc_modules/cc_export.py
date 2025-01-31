@@ -402,7 +402,9 @@ def export_whole_database(
                 "Exporting to database: {}",
                 get_safe_url_from_engine(dst_engine),
             )
-            dst_session = sessionmaker(bind=dst_engine)()  # type: SqlASession
+            dst_session = sessionmaker(bind=dst_engine)(
+                future=True
+            )  # type: SqlASession
             task_generator = gen_tasks_having_exportedtasks(collection)
             export_options = TaskExportOptions(
                 include_blobs=recipient.db_include_blobs,
@@ -1209,7 +1211,9 @@ class SqliteExporter(TaskCollectionExporter):
             # ---------------------------------------------------------------------
             url = "sqlite:///" + db_filename
             engine = create_engine(url, echo=False, future=True)
-            dst_session = sessionmaker(bind=engine)()  # type: SqlASession
+            dst_session = sessionmaker(bind=engine)(
+                future=True
+            )  # type: SqlASession
             # ---------------------------------------------------------------------
             # Iterate through tasks, creating tables as we need them.
             # ---------------------------------------------------------------------
