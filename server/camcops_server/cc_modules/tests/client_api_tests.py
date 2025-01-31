@@ -796,7 +796,6 @@ class OpUploadEntireDatabaseTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _removal_pending=True,
             _era=ERA_NOW,
             _current=True,
@@ -1362,9 +1361,7 @@ class OpWhichKeysToSendTests(ClientApiTestCase):
     def test_succeeds_for_existing_record(self) -> None:
         self.post_dict[TabletParam.TABLE] = "bmi"
         patient = PatientFactory(_device=self.device)
-        bmi = BmiFactory(
-            id=123, patient=patient, _device=self.device, _era=ERA_NOW
-        )
+        bmi = BmiFactory(id=123, patient=patient, _era=ERA_NOW)
 
         self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
         self.post_dict[TabletParam.DATEVALUES] = "2025-01-23"
@@ -1386,7 +1383,6 @@ class OpWhichKeysToSendTests(ClientApiTestCase):
         bmi = BmiFactory(
             id=123,
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             when_last_modified=time_now,
             _move_off_tablet=False,
@@ -1421,7 +1417,6 @@ class OpDeleteWhereKeyNotTests(ClientApiTestCase):
         bmis = BmiFactory.create_batch(
             3,
             patient=patient,
-            _device=self.device,
             _removal_pending=False,
             _era=ERA_NOW,
         )
@@ -1458,7 +1453,6 @@ class OpStartPreservationTests(ClientApiTestCase):
         bmi = BmiFactory(
             id=123,
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
         )
         self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
@@ -1485,7 +1479,6 @@ class OpStartPreservationTests(ClientApiTestCase):
         bmi = BmiFactory(
             id=123,
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
         )
         self.post_dict[TabletParam.PKVALUES] = f"{bmi.id}"
@@ -1518,14 +1511,12 @@ class OpUploadEmptyTablesTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _current=True,
             _removal_pending=False,
         )
         phq9 = Phq9Factory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _current=True,
             _removal_pending=False,
@@ -1560,13 +1551,11 @@ class OpUploadEmptyTablesTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _current=True,
         )
         Phq9Factory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _current=True,
         )
@@ -1669,7 +1658,6 @@ class OpUploadRecordTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             height_m=1.8,
             mass_kg=70,
@@ -1994,7 +1982,6 @@ class OpUploadTableTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             height_m=1.8,
             mass_kg=70,
@@ -2034,7 +2021,6 @@ class OpUploadTableTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             height_m=1.8,
             mass_kg=70,
@@ -2043,7 +2029,6 @@ class OpUploadTableTests(ClientApiTestCase):
         # No record for this on the tablet
         bmi_to_delete = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
         )
         self.assertFalse(bmi_to_delete._removal_pending)
@@ -2108,7 +2093,6 @@ class OpEndUploadTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _addition_pending=True,
         )
@@ -2128,7 +2112,6 @@ class OpEndUploadTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _current=True,
             _removal_pending=True,
@@ -2151,7 +2134,6 @@ class OpEndUploadTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         bmi = BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _move_off_tablet=True,
         )
@@ -2188,7 +2170,6 @@ class OpStartUploadTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _addition_pending=True,
         )
@@ -2209,7 +2190,6 @@ class OpStartUploadTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _removal_pending=True,
             _when_added_exact=self.req.now,
@@ -2237,7 +2217,6 @@ class OpStartUploadTests(ClientApiTestCase):
         patient = PatientFactory(_device=self.device)
         BmiFactory(
             patient=patient,
-            _device=self.device,
             _era=ERA_NOW,
             _move_off_tablet=True,
         )
