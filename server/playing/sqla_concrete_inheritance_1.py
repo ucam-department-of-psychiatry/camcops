@@ -109,7 +109,7 @@ class FloatTreeNode(TreeNode):
 e = create_engine("sqlite://", echo=True, future=True)
 Base.metadata.create_all(e)
 
-session = Session(e)
+session = Session(e, future=True)
 
 root = IntTreeNode(name="root")
 IntTreeNode(name="n1", parent=root)

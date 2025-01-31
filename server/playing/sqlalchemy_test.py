@@ -481,7 +481,7 @@ def test():
     # noinspection PyPep8Naming
     Session = sessionmaker()
     Session.configure(bind=engine)  # once engine is available
-    session = Session()
+    session = Session(future=True)
     # Create tables
     Base.metadata.create_all(engine)
 
