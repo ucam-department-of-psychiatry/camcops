@@ -4911,7 +4911,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
                 for clienttable in CLIENT_TABLE_MAP.values():
                     # noinspection PyPropertyAccess
                     count_query = (
-                        select([func.count()])
+                        select(func.count())
                         .select_from(clienttable)
                         .where(clienttable.c[FN_DEVICE_ID] == device_id)
                         .where(clienttable.c[FN_ERA] == ERA_NOW)
