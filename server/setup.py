@@ -114,7 +114,7 @@ INSTALL_REQUIRES = [
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.13.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
-    "sqlalchemy==1.4.49",  # database access
+    "sqlalchemy==2.0.37",  # database access
     "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
