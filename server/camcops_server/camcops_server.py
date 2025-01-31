@@ -91,7 +91,6 @@ if TYPE_CHECKING:
     from argparse import _SubParsersAction
     from pyramid.router import Router
 
-warnings.filterwarnings("error", category=exc.RemovedIn20Warning)
 warnings.filterwarnings("error", category=exc.MovedIn20Warning)
 warnings.filterwarnings("error", category=exc.SADeprecationWarning)
 
