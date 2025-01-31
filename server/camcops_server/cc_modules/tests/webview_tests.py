@@ -32,6 +32,7 @@ import time
 from typing import cast
 import unittest
 from unittest import mock
+from urllib.parse import urlparse
 
 from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.httpconst import MimeType
@@ -127,6 +128,7 @@ from camcops_server.cc_modules.webview import (
     EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
+    forcibly_finalize,
     LoginView,
     MfaMixin,
     SendEmailFromPatientTaskScheduleView,
@@ -4589,3 +4591,14 @@ class AddUserTests(DemoRequestTestCase):
         self.assertTrue(user.must_change_password)
         self.assertIn(group_1.id, user.group_ids)
         self.assertIn(group_2.id, user.group_ids)
+
+
+class ForciblyFinalizeTests(BasicDatabaseTestCase):
+    def test_cancel_returns_to_home(self) -> None:
+        multidict = MultiDict([(FormAction.CANCEL, "cancel")])
+        self.req.fake_request_post_from_dict(multidict)
+
+        exc = forcibly_finalize(self.req)
+        self.assertIsInstance(exc, HTTPFound)
+        self.assertEqual(exc.status_code, 302)
+        self.assertEqual(urlparse(exc.headers["Location"]).path, "/")
