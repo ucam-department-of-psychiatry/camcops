@@ -92,6 +92,8 @@ if TYPE_CHECKING:
     from pyramid.router import Router
 
 warnings.filterwarnings("error", category=exc.RemovedIn20Warning)
+warnings.filterwarnings("error", category=exc.MovedIn20Warning)
+warnings.filterwarnings("error", category=exc.SADeprecationWarning)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
