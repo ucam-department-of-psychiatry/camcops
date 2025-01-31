@@ -396,7 +396,7 @@ def export_whole_database(
                 req, recipient, via_index=via_index
             )
             dst_engine = create_engine(
-                recipient.db_url, echo=recipient.db_echo
+                recipient.db_url, echo=recipient.db_echo, future=True
             )
             log.info(
                 "Exporting to database: {}",
@@ -1208,7 +1208,7 @@ class SqliteExporter(TaskCollectionExporter):
             # Make SQLAlchemy session
             # ---------------------------------------------------------------------
             url = "sqlite:///" + db_filename
-            engine = create_engine(url, echo=False)
+            engine = create_engine(url, echo=False, future=True)
             dst_session = sessionmaker(bind=engine)()  # type: SqlASession
             # ---------------------------------------------------------------------
             # Iterate through tasks, creating tables as we need them.

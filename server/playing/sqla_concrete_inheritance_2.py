@@ -75,7 +75,7 @@ class FloatTreeNode(TreeNode):
     miau = Column(String(50), default="zuff")
 
 
-e = create_engine("sqlite://", echo=True)
+e = create_engine("sqlite://", echo=True, future=True)
 Base.metadata.create_all(e)
 
 session = Session(e)

@@ -364,7 +364,7 @@ class DummyConfig(object):
         return auto_repr(self)
 
     def create_engine(self) -> Engine:
-        return create_engine(self.dburl)
+        return create_engine(self.dburl, future=True)
         # Don't use "echo=self.echo_sql"; things are logged twice. Set the log
         # level of the 'sqlalchemy.engine' logger; see main().
 

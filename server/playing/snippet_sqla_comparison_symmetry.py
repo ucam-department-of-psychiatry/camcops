@@ -96,7 +96,7 @@ def engine_mysql(
     # TypeError: 'str' does not support the buffer interface
     # because dates come back as e.g. b'2013-05-30 06:00:00' and then the
     # convert_datetime function in pymysql/converters.py chokes.
-    return sqlalchemy.create_engine(connectstring, echo=echo)
+    return sqlalchemy.create_engine(connectstring, echo=echo, future=True)
 
 
 def engine_mysql_commandline(echo=True):

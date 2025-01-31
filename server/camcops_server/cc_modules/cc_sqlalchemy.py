@@ -232,14 +232,14 @@ def make_memory_sqlite_engine(echo: bool = False) -> Engine:
     """
     Create an SQLAlchemy :class:`Engine` for an in-memory SQLite database.
     """
-    return create_engine(SQLITE_MEMORY_URL, echo=echo)
+    return create_engine(SQLITE_MEMORY_URL, echo=echo, future=True)
 
 
 def make_file_sqlite_engine(filename: str, echo: bool = False) -> Engine:
     """
     Create an SQLAlchemy :class:`Engine` for an on-disk SQLite database.
     """
-    return create_engine(make_sqlite_url(filename), echo=echo)
+    return create_engine(make_sqlite_url(filename), echo=echo, future=True)
 
 
 def sql_from_sqlite_database(connection: sqlite3.Connection) -> str:

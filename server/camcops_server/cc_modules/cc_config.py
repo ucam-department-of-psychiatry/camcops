@@ -1767,6 +1767,7 @@ class CamcopsConfig(object):
                 self.db_url,
                 echo=self.db_echo,
                 pool_pre_ping=True,
+                future=True,
                 # pool_size=0,  # no limit (for parallel testing, which failed)
             )
             log.debug(

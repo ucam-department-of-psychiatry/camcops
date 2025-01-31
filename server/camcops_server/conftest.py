@@ -217,7 +217,7 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
     # mysql> CREATE DATABASE <db_name>;
     # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
     #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
-    engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
+    engine = create_engine(db_url, echo=echo, pool_pre_ping=True, future=True)
 
     if create_db:
         Base.metadata.drop_all(engine)
