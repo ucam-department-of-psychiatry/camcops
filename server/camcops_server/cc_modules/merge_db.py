@@ -180,11 +180,9 @@ def get_src_iddefs(
         # noinspection PyUnresolvedReferences
         q = (
             select(
-                [
-                    IdNumDefinition.which_idnum,
-                    IdNumDefinition.description,
-                    IdNumDefinition.short_description,
-                ]
+                IdNumDefinition.which_idnum,
+                IdNumDefinition.description,
+                IdNumDefinition.short_description,
             )
             .select_from(IdNumDefinition.__table__)
             .order_by(IdNumDefinition.which_idnum)
@@ -206,7 +204,7 @@ def get_src_iddefs(
         for which_idnum in range(1, NUMBER_OF_IDNUMS_DEFUNCT + 1):
             nstr = str(which_idnum)
             qd = (
-                select([server_stored_var_table_defunct.columns.valueText])
+                select(server_stored_var_table_defunct.columns.valueText)
                 .select_from(server_stored_var_table_defunct)
                 .where(
                     server_stored_var_table_defunct.columns.name
@@ -215,7 +213,7 @@ def get_src_iddefs(
             )
             rd = src_engine.execute(qd).fetchall()
             qs = (
-                select([server_stored_var_table_defunct.columns.valueText])
+                select(server_stored_var_table_defunct.columns.valueText)
                 .select_from(server_stored_var_table_defunct)
                 .where(
                     server_stored_var_table_defunct.columns.name
@@ -762,7 +760,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         old_patient = cast(Patient, oldobj)
         # noinspection PyUnresolvedReferences
         src_pt_query = (
-            select([text("*")])
+            select(text("*"))
             .select_from(table(trcon.tablename))
             .where(column(Patient.id.name) == old_patient.id)
             .where(column(Patient._current.name) == True)  # noqa: E712
@@ -791,7 +789,7 @@ def translate_fn(trcon: TranslationContext) -> None:
             if PatientIdNum.__tablename__ in src_tables:
                 # noinspection PyUnresolvedReferences
                 src_idnum_query = (
-                    select([func.count()])
+                    select(func.count())
                     .select_from(table(PatientIdNum.__tablename__))
                     .where(
                         column(PatientIdNum.patient_id.name) == old_patient.id
@@ -924,7 +922,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         #       _when_removed_exact = removal date or NULL
         # noinspection PyUnresolvedReferences
         exists_query = (
-            select([func.count()])
+            select(func.count())
             .select_from(table(trcon.tablename))
             .where(column(cls.id.name) == oldobj.id)
             .where(
@@ -969,7 +967,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         if n_exists > 0:
             # noinspection PyUnresolvedReferences
             existing_rec_q = (
-                select(["*"])
+                select("*")
                 .select_from(table(trcon.tablename))
                 .where(column(cls.id.name) == oldobj.id)
                 .where(
