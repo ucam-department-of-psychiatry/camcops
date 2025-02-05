@@ -25,9 +25,8 @@ camcops_server/tasks/cope.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 

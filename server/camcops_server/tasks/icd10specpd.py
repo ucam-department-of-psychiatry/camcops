@@ -25,13 +25,12 @@ camcops_server/tasks/icd10specpd.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from cardinal_pythonlib.typetests import is_false
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 

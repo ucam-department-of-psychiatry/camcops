@@ -26,10 +26,9 @@ camcops_server/tasks/cet.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass

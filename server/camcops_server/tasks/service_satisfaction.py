@@ -27,9 +27,7 @@ camcops_server/tasks/service_satisfaction.py
 
 from typing import Optional
 
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -59,7 +57,7 @@ class AbstractSatisfaction(object):
     )
 
     # noinspection PyMethodParameters
-    rating: Mapped[int] = mapped_column(
+    rating: Mapped[int] = CamcopsColumn(
         "rating",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,

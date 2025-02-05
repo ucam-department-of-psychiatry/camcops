@@ -26,10 +26,9 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from typing import Dict, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

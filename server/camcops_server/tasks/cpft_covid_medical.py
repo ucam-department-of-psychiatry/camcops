@@ -27,9 +27,8 @@ camcops_server/tasks/cpft_covid_medical.py
 
 """
 
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

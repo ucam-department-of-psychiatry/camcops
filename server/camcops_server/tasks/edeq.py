@@ -28,11 +28,10 @@ camcops_server/tasks/edeq.py
 """
 
 import statistics
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy import Column
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

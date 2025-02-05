@@ -28,10 +28,9 @@ camcops_server/tasks/isaaqed.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_db import add_multiple_columns

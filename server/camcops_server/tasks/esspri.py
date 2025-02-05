@@ -40,8 +40,7 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
+from typing import List, Type
 
 
 class Esspri(

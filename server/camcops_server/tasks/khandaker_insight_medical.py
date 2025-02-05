@@ -29,10 +29,9 @@ camcops_server/tasks/khandaker_insight_medical.py
 # Imports
 # =============================================================================
 
-from typing import Any, Dict, Tuple, Type
+from typing import Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import UnicodeText
 

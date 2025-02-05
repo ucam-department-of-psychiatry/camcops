@@ -26,9 +26,8 @@ camcops_server/tasks/nart.py
 """
 
 import math
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float
 
 from camcops_server.cc_modules.cc_constants import CssClass

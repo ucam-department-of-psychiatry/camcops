@@ -25,9 +25,8 @@ camcops_server/tasks/demoquestionnaire.py
 
 """
 
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, Time, UnicodeText
 

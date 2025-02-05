@@ -25,9 +25,8 @@ camcops_server/tasks/ifs.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Dict, List, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_constants import (

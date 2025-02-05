@@ -32,7 +32,6 @@ from typing import List, Optional, Type, TYPE_CHECKING
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 import numpy
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, String, UnicodeText
 from typing import Iterable

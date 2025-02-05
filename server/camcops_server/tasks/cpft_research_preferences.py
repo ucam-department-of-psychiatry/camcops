@@ -27,9 +27,7 @@ camcops_server/tasks/cpft_research_preferences.py
 
 """
 
-from typing import Any, Dict, Optional, Tuple, Type
-
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from typing import Optional, Type
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_html import tr_qa, get_yes_no_unknown

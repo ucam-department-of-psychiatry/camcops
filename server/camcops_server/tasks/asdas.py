@@ -28,7 +28,7 @@ camcops_server/tasks/asdas.py
 """
 
 import math
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -46,7 +46,6 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Column, Float
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 class Asdas(

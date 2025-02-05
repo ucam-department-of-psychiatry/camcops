@@ -27,10 +27,9 @@ camcops_server/tasks/aq.py
 
 """
 
-from typing import Any, Dict, Iterable, List, Optional, Type, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

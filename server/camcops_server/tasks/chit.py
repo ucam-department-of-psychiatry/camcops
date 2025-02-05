@@ -27,13 +27,12 @@ camcops_server/tasks/chit.py
 
 """
 
-from typing import List, Type, Tuple, Dict, Any
+from typing import List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
 from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns

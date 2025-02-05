@@ -25,11 +25,10 @@ camcops_server/tasks/rand36.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.maths_py import mean
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

@@ -25,11 +25,10 @@ camcops_server/tasks/pdss.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import (

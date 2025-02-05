@@ -25,10 +25,9 @@ camcops_server/tasks/cgisch.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo

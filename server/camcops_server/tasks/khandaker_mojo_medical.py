@@ -25,10 +25,8 @@ camcops_server/tasks/khandaker_mojo_medical.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
+from typing import Type
 
-
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass

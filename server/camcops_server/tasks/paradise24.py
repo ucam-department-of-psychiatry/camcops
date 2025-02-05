@@ -27,10 +27,9 @@ camcops_server/tasks/paradise24.py
 
 """
 
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

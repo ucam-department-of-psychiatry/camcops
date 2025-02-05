@@ -44,8 +44,7 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
+from typing import List, Type
 
 
 class Suppsp(

@@ -76,7 +76,7 @@ class MetaclassReplacer:
                             print("Found init return")
                             self.state = State.FINDING_END_INIT
                             self.metaclass_init = [
-                                f'\n    def __init_subclass__(cls: Type["{self.class_name}"], **kwargs) -> None:\n'
+                                f'\n    def __init_subclass__(cls: Type["{self.class_name}"], **kwargs) -> None:\n'  # noqa: E501
                             ]
                             continue
 
@@ -84,7 +84,7 @@ class MetaclassReplacer:
                         if self.find_end_init():
                             print("Found end init")
                             self.metaclass_init.append(
-                                "        super().__init_subclass__(**kwargs)\n\n"
+                                "        super().__init_subclass__(**kwargs)\n\n"  # noqa: E501
                             )
                             self.state = State.FINDING_START_CLASS
                             continue

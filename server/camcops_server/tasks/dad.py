@@ -25,9 +25,8 @@ camcops_server/tasks/dad.py
 
 """
 
-from typing import Any, Dict, Iterable, List, Tuple, Type
+from typing import Dict, Iterable, List, Tuple, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (

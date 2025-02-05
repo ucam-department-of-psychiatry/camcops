@@ -27,10 +27,9 @@ camcops_server/tasks/cia.py
 
 """
 
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

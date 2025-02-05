@@ -27,11 +27,10 @@ camcops_server/tasks/rapid3.py
 
 """
 
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import List, Optional, Type, Tuple
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy import Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, tr_qa, tr, tr_span_col

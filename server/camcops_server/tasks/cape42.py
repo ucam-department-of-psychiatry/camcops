@@ -25,10 +25,9 @@ camcops_server/tasks/cape42.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass

@@ -28,10 +28,9 @@ camcops_server/tasks/isaaq10.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -54,7 +53,6 @@ class Isaaq10(
     LAST_B_Q = 10
 
     def __init_subclass__(cls: Type["Isaaq10"], **kwargs) -> None:
-
         add_multiple_columns(
             cls,
             cls.A_PREFIX,

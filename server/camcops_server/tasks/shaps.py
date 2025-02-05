@@ -27,11 +27,10 @@ camcops_server/tasks/shaps.py
 
 """
 
-from typing import Any, Dict, List, Type, Tuple
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns

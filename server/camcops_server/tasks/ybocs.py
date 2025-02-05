@@ -25,10 +25,9 @@ camcops_server/tasks/ybocs.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
