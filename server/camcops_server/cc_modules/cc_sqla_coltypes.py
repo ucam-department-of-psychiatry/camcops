@@ -1510,8 +1510,7 @@ class CamcopsColumn(Column):
         SQLAlchemy method (not clearly documented) to assist in copying
         objects. Returns a copy of this object.
 
-        See
-        https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
+        See https://github.com/sqlalchemy/sqlalchemy/issues/2284
         """
         kwargs["include_in_anon_staging_db"] = self.include_in_anon_staging_db
         kwargs["exempt_from_anonymisation"] = self.exempt_from_anonymisation
