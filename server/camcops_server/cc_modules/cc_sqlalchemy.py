@@ -74,7 +74,7 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBaseNoMeta
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql.schema import MetaData, Table
 
@@ -136,76 +136,78 @@ NAMING_CONVENTION = {
     # PRIMARY KEY:
     "pk": "pk_%(table_name)s",
 }
-MASTER_META = MetaData(naming_convention=NAMING_CONVENTION)
+
 
 # The base of all our model classes:
-Base = declarative_base(metadata=MASTER_META)
+class Base(DeclarativeBaseNoMeta):
+    metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
-# Special options:
-Base.__table_args__ = {
-    # -------------------------------------------------------------------------
-    # MySQL special options
-    # -------------------------------------------------------------------------
-    # SQLAlchemy __table_args__:
-    #   https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/table_config.html  # noqa
-    # SQLAlchemy sends keyword arguments like 'mysql_keyword_name' to be
-    # rendered as KEYWORD_NAME in the CREATE TABLE statement:
-    #   https://docs.sqlalchemy.org/en/latest/dialects/mysql.html
-    # Engine: InnoDB
-    "mysql_engine": "InnoDB",
-    # Barracuda: COMPRESSED or DYNAMIC
-    # https://dev.mysql.com/doc/refman/5.7/en/innodb-row-format-dynamic.html
-    # https://xenforo.com/community/threads/anyone-running-their-innodb-tables-with-row_format-compressed.99606/  # noqa
-    # We shouldn't compress everything by default; performance hit.
-    "mysql_row_format": "DYNAMIC",
-    # SEE server_troubleshooting.rst FOR BUG DISCUSSION
-    "mysql_charset": "utf8mb4 COLLATE utf8mb4_unicode_ci",
-    # Character set
-    # REPLACED # 'mysql_charset': 'utf8mb4',
-    # https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
-    # Collation
-    # Which collation for MySQL? See
-    # - https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci  # noqa
-    # REPLACED # 'mysql_collate': 'utf8mb4_unicode_ci'
-    # Note that COLLATION rules are, from least to greatest precedence:
-    #       Server collation
-    #       Connection-specific collation
-    #       Database collation
-    #       Table collation
-    #       Column collation
-    #       Query collation (using CAST or CONVERT)
-    # - https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation  # noqa
-    # Therefore, we can set the table collation for all our tables, and not
-    # worry about the column collation, e.g. Text(collation=...).
-    #
-    # To check a MySQL database, and connection/server settings:
-    #       SHOW VARIABLES LIKE '%character%';
-    #       SHOW VARIABLES LIKE '%collation%';
-    # To check tables:
-    #       SHOW TABLE STATUS WHERE NAME LIKE 'my_tablename'\G
-    # ... note use of \G to produce long-form output!
-    # To check columns:
-    #       SHOW FULL COLUMNS FROM my_tablename;
-    #
-    # ONE THING IN PARTICULAR TO BEWARE: utf8mb4_unicode_ci produces
-    # CASE-INSENSITIVE COMPARISON. For example:
-    #       SELECT 'a' = 'A';  -- produces 1
-    #       SELECT 'a' = 'B';  -- produces 0
-    #       SELECT BINARY 'a' = BINARY 'A';  -- produces 0
-    # This is a PROBLEM FOR PASSWORD FIELDS IF WE INTEND TO DO DATABASE-LEVEL
-    # COMPARISONS WITH THEM. In that case we must ensure a different collation
-    # is set; specifically, use
-    #
-    #       utf8mb4_bin
-    #
-    # and see also
-    #       SHOW COLLATION WHERE `Collation` LIKE 'utf8mb4%';
-    # and
-    #   https://dev.mysql.com/doc/refman/5.6/en/charset-binary-collations.html
-    #
-    # To check, run
-    #       SHOW FULL COLUMNS FROM _security_users;
-}
+    # Special options:
+    __table_args__ = {
+        # -------------------------------------------------------------------------
+        # MySQL special options
+        # -------------------------------------------------------------------------
+        # SQLAlchemy __table_args__:
+        #   https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/table_config.html  # noqa
+        # SQLAlchemy sends keyword arguments like 'mysql_keyword_name' to be
+        # rendered as KEYWORD_NAME in the CREATE TABLE statement:
+        #   https://docs.sqlalchemy.org/en/latest/dialects/mysql.html
+        # Engine: InnoDB
+        "mysql_engine": "InnoDB",
+        # Barracuda: COMPRESSED or DYNAMIC
+        # https://dev.mysql.com/doc/refman/5.7/en/innodb-row-format-dynamic.html
+        # https://xenforo.com/community/threads/anyone-running-their-innodb-tables-with-row_format-compressed.99606/  # noqa
+        # We shouldn't compress everything by default; performance hit.
+        "mysql_row_format": "DYNAMIC",
+        # SEE server_troubleshooting.rst FOR BUG DISCUSSION
+        "mysql_charset": "utf8mb4 COLLATE utf8mb4_unicode_ci",
+        # Character set
+        # REPLACED # 'mysql_charset': 'utf8mb4',
+        # https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html
+        # Collation
+        # Which collation for MySQL? See
+        # - https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci  # noqa
+        # REPLACED # 'mysql_collate': 'utf8mb4_unicode_ci'
+        # Note that COLLATION rules are, from least to greatest precedence:
+        #       Server collation
+        #       Connection-specific collation
+        #       Database collation
+        #       Table collation
+        #       Column collation
+        #       Query collation (using CAST or CONVERT)
+        # - https://stackoverflow.com/questions/24356090/difference-between-database-table-column-collation  # noqa
+        # Therefore, we can set the table collation for all our tables, and not
+        # worry about the column collation, e.g. Text(collation=...).
+        #
+        # To check a MySQL database, and connection/server settings:
+        #       SHOW VARIABLES LIKE '%character%';
+        #       SHOW VARIABLES LIKE '%collation%';
+        # To check tables:
+        #       SHOW TABLE STATUS WHERE NAME LIKE 'my_tablename'\G
+        # ... note use of \G to produce long-form output!
+        # To check columns:
+        #       SHOW FULL COLUMNS FROM my_tablename;
+        #
+        # ONE THING IN PARTICULAR TO BEWARE: utf8mb4_unicode_ci produces
+        # CASE-INSENSITIVE COMPARISON. For example:
+        #       SELECT 'a' = 'A';  -- produces 1
+        #       SELECT 'a' = 'B';  -- produces 0
+        #       SELECT BINARY 'a' = BINARY 'A';  -- produces 0
+        # This is a PROBLEM FOR PASSWORD FIELDS IF WE INTEND TO DO
+        # DATABASE-LEVEL COMPARISONS WITH THEM. In that case we must ensure a
+        # different collation is set; specifically, use
+        #
+        #       utf8mb4_bin
+        #
+        # and see also
+        #       SHOW COLLATION WHERE `Collation` LIKE 'utf8mb4%';
+        # and
+        #   https://dev.mysql.com/doc/refman/5.6/en/charset-binary-collations.html
+        #
+        # To check, run
+        #       SHOW FULL COLUMNS FROM _security_users;
+    }
+
 
 # MySQL things we can't set via SQLAlchemy, but would like to be set:
 # - max_allowed_packet: should be at least 32M
