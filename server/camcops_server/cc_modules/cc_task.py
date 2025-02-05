@@ -99,8 +99,7 @@ from pendulum import Date as PendulumDate, DateTime as Pendulum
 from pyramid.renderers import render
 from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.sql.sqltypes import (
@@ -280,23 +279,21 @@ class TaskHasPatientMixin(object):
 
     # https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
-    # noinspection PyMethodParameters
-    @declared_attr
-    def patient_id(cls) -> Column:
-        """
+    """
         SQLAlchemy :class:`Column` that is a foreign key to the patient table.
-        """
-        return Column(
-            TFN_PATIENT_ID,
-            Integer,
-            nullable=False,
-            index=True,
-            comment="(TASK) Foreign key to patient.id (for this device/era)",
-        )
+    """
+    # noinspection PyMethodParameters
+    patient_id: Mapped[int] = mapped_column(
+        TFN_PATIENT_ID,
+        Integer,
+        nullable=False,
+        index=True,
+        comment="(TASK) Foreign key to patient.id (for this device/era)",
+    )
 
     # noinspection PyMethodParameters
     @declared_attr
-    def patient(cls) -> RelationshipProperty:
+    def patient(cls) -> Mapped["Patient"]:
         """
         SQLAlchemy relationship: "the patient for this task".
 
@@ -356,68 +353,56 @@ class TaskHasClinicianMixin(object):
     """
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_specialty(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_SPECIALTY,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's specialty "
-            "(e.g. Liaison Psychiatry)",
-        )
+    clinician_specialty: Mapped[str] = CamcopsColumn(
+        TFN_CLINICIAN_SPECIALTY,
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's specialty "
+        "(e.g. Liaison Psychiatry)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_name(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_NAME,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
-        )
+    clinician_name: Mapped[str] = CamcopsColumn(
+        TFN_CLINICIAN_NAME,
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_professional_registration(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's professional registration (e.g. "
-            "GMC# 12345)",
-        )
+    clinician_professional_registration: Mapped[str] = CamcopsColumn(
+        TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's professional registration (e.g. "
+        "GMC# 12345)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_post(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_POST,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
-        )
+    clinician_post: Mapped[str] = CamcopsColumn(
+        TFN_CLINICIAN_POST,
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_service(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_SERVICE,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
-            "Service)",
-        )
+    clinician_service: Mapped[str] = CamcopsColumn(
+        TFN_CLINICIAN_SERVICE,
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+        "Service)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_contact_details(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_CONTACT_DETAILS,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
-            "extension)",
-        )
+    clinician_contact_details: Mapped[str] = CamcopsColumn(
+        TFN_CLINICIAN_CONTACT_DETAILS,
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
+        "extension)",
+    )
 
     # For field order, see also:
     # https://stackoverflow.com/questions/3923910/sqlalchemy-move-mixin-columns-to-end  # noqa
@@ -489,23 +474,19 @@ class TaskHasRespondentMixin(object):
     """
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def respondent_name(cls) -> Column:
-        return CamcopsColumn(
-            TFN_RESPONDENT_NAME,
-            Text,
-            identifies_patient=True,
-            comment="(RESPONDENT) Respondent's name",
-        )
+    respondent_name: Mapped[str] = CamcopsColumn(
+        TFN_RESPONDENT_NAME,
+        Text,
+        identifies_patient=True,
+        comment="(RESPONDENT) Respondent's name",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def respondent_relationship(cls) -> Column:
-        return Column(
-            TFN_RESPONDENT_RELATIONSHIP,
-            Text,
-            comment="(RESPONDENT) Respondent's relationship to patient",
-        )
+    respondent_relationship: Mapped[str] = mapped_column(
+        TFN_RESPONDENT_RELATIONSHIP,
+        Text,
+        comment="(RESPONDENT) Respondent's relationship to patient",
+    )
 
     # noinspection PyMethodParameters
     @classproperty
@@ -545,7 +526,7 @@ class Task(GenericTabletRecordMixin, Base):
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    @declared_attr
+    @declared_attr.directive
     def __mapper_args__(cls):
         return {"polymorphic_identity": cls.__name__, "concrete": True}
 
@@ -555,76 +536,65 @@ class Task(GenericTabletRecordMixin, Base):
 
     # Columns
 
+    """
+    Column representing the task's creation time.
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def when_created(cls) -> Column:
-        """
-        Column representing the task's creation time.
-        """
-        return Column(
-            TFN_WHEN_CREATED,
-            PendulumDateTimeAsIsoTextColType,
-            nullable=False,
-            comment="(TASK) Date/time this task instance was created "
-            "(ISO 8601)",
-        )
+    when_created: Mapped[Pendulum] = mapped_column(
+        TFN_WHEN_CREATED,
+        PendulumDateTimeAsIsoTextColType,
+        nullable=False,
+        comment="(TASK) Date/time this task instance was created "
+        "(ISO 8601)",
+    )
 
+    """
+    Column representing when the user first exited the task's editor
+    (i.e. first "finish" or first "abort").
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def when_firstexit(cls) -> Column:
-        """
-        Column representing when the user first exited the task's editor
-        (i.e. first "finish" or first "abort").
-        """
-        return Column(
-            TFN_WHEN_FIRSTEXIT,
-            PendulumDateTimeAsIsoTextColType,
-            comment="(TASK) Date/time of the first exit from this task "
-            "(ISO 8601)",
-        )
+    when_firstexit: Mapped[Pendulum] = mapped_column(
+        TFN_WHEN_FIRSTEXIT,
+        PendulumDateTimeAsIsoTextColType,
+        comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+    )
 
+    """
+    Was the first exit from the task's editor a successful "finish"?
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def firstexit_is_finish(cls) -> Column:
-        """
-        Was the first exit from the task's editor a successful "finish"?
-        """
-        return Column(
-            TFN_FIRSTEXIT_IS_FINISH,
-            Boolean,
-            comment="(TASK) Was the first exit from the task because it was "
-            "finished (1)?",
-        )
+    firstexit_is_finish: Mapped[bool] = mapped_column(
+        TFN_FIRSTEXIT_IS_FINISH,
+        Boolean,
+        comment="(TASK) Was the first exit from the task because it was "
+        "finished (1)?",
+    )
 
+    """
+    Was the first exit from the task's editor an "abort"?
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def firstexit_is_abort(cls) -> Column:
-        """
-        Was the first exit from the task's editor an "abort"?
-        """
-        return Column(
-            TFN_FIRSTEXIT_IS_ABORT,
-            Boolean,
-            comment="(TASK) Was the first exit from this task because it was "
-            "aborted (1)?",
-        )
+    firstexit_is_abort: Mapped[bool] = mapped_column(
+        TFN_FIRSTEXIT_IS_ABORT,
+        Boolean,
+        comment="(TASK) Was the first exit from this task because it was "
+        "aborted (1)?",
+    )
 
+    """
+    How long has the user spent editing the task?
+    (Calculated by the CamCOPS client.)
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def editing_time_s(cls) -> Column:
-        """
-        How long has the user spent editing the task?
-        (Calculated by the CamCOPS client.)
-        """
-        return Column(
-            TFN_EDITING_TIME_S, Float, comment="(TASK) Time spent editing (s)"
-        )
+    editing_time_: Mapped[float] = mapped_column(
+        TFN_EDITING_TIME_S, Float, comment="(TASK) Time spent editing (s)"
+    )
 
     # Relationships
 
     # noinspection PyMethodParameters
     @declared_attr
-    def special_notes(cls) -> RelationshipProperty:
+    def special_notes(cls) -> Mapped[SpecialNote]:
         """
         List-style SQLAlchemy relationship to any :class:`SpecialNote` objects
         attached to this class. Skips hidden (quasi-deleted) notes.
