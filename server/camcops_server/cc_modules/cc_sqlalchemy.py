@@ -72,7 +72,7 @@ from pendulum import DateTime as Pendulum
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBaseNoMeta
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql.schema import MetaData, Table
 
@@ -137,7 +137,7 @@ NAMING_CONVENTION = {
 
 
 # The base of all our model classes:
-class Base(DeclarativeBase):
+class Base(DeclarativeBaseNoMeta):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
     # Special options:
