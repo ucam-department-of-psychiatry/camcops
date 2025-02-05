@@ -135,7 +135,6 @@ from pendulum import DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
 import phonenumbers
 from semantic_version import Version
-from sqlalchemy import util
 from sqlalchemy.dialects import mysql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
@@ -1748,7 +1747,7 @@ def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
     type_in_args = False
     args = list(args)  # make a copy, and make it a list not a tuple
     if args:
-        if isinstance(args[0], util.string_types):
+        if isinstance(args[0], str):
             name_in_args = True
             args.pop(0)
     if args:
