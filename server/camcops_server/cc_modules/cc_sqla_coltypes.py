@@ -138,6 +138,7 @@ from semantic_version import Version
 from sqlalchemy.dialects import mysql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.orm import MappedColumn
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.elements import conv
 from sqlalchemy.sql.expression import text
@@ -1437,7 +1438,7 @@ COLATTR_PERMITTED_VALUE_CHECKER = "permitted_value_checker"
 
 
 # noinspection PyAbstractClass
-class CamcopsColumn(Column):
+class CamcopsColumn(MappedColumn):
     """
     A SQLAlchemy :class:`Column` class that supports some CamCOPS-specific
     flags, such as:
