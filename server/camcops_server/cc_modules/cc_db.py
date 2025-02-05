@@ -29,6 +29,7 @@ client.**
 """
 
 from collections import OrderedDict
+import datetime
 import logging
 from typing import (
     Any,
@@ -50,9 +51,10 @@ from typing import (
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from pendulum import DateTime as Pendulum
+from semantic_version import Version
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
@@ -96,6 +98,8 @@ from camcops_server.cc_modules.cc_xml import (
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_blob import Blob
+    from camcops_server.cc_modules.cc_device import Device
+    from camcops_server.cc_modules.cc_group import Group
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
@@ -104,6 +108,7 @@ if TYPE_CHECKING:
         SummaryElement,
     )
     from camcops_server.cc_modules.cc_task import Task
+    from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -437,261 +442,212 @@ class GenericTabletRecordMixin(object):
     # Plain columns
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _pk(cls) -> Column:
-        return Column(
-            FN_PK,
-            Integer,
-            primary_key=True,
-            autoincrement=True,
-            index=True,
-            comment="(SERVER) Primary key (on the server)",
-        )
+    _pk: Mapped[int] = mapped_column(
+        FN_PK,
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+        comment="(SERVER) Primary key (on the server)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _device_id(cls) -> Column:
-        return Column(
-            FN_DEVICE_ID,
-            Integer,
-            ForeignKey("_security_devices.id", use_alter=True),
-            nullable=False,
-            index=True,
-            comment="(SERVER) ID of the source tablet device",
-        )
+    _device_id: Mapped[int] = mapped_column(
+        FN_DEVICE_ID,
+        Integer,
+        ForeignKey("_security_devices.id", use_alter=True),
+        nullable=False,
+        index=True,
+        comment="(SERVER) ID of the source tablet device",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _era(cls) -> Column:
-        return Column(
-            FN_ERA,
-            EraColType,
-            nullable=False,
-            index=True,
-            comment="(SERVER) 'NOW', or when this row was preserved and "
-            "removed from the source device (UTC ISO 8601)",
-        )
-        # ... note that _era is textual so that plain comparison
-        # with "=" always works, i.e. no NULLs -- for USER comparison too, not
-        # just in CamCOPS code
+    _era: Mapped[str] = mapped_column(
+        FN_ERA,
+        EraColType,
+        nullable=False,
+        index=True,
+        comment="(SERVER) 'NOW', or when this row was preserved and "
+        "removed from the source device (UTC ISO 8601)",
+    )
+    # ... note that _era is textual so that plain comparison
+    # with "=" always works, i.e. no NULLs -- for USER comparison too, not
+    # just in CamCOPS code
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _current(cls) -> Column:
-        return Column(
-            FN_CURRENT,
-            Boolean,
-            nullable=False,
-            index=True,
-            comment="(SERVER) Is the row current (1) or not (0)?",
-        )
+    _current: Mapped[bool] = mapped_column(
+        FN_CURRENT,
+        Boolean,
+        nullable=False,
+        index=True,
+        comment="(SERVER) Is the row current (1) or not (0)?",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _when_added_exact(cls) -> Column:
-        return Column(
-            FN_WHEN_ADDED_EXACT,
-            PendulumDateTimeAsIsoTextColType,
-            comment="(SERVER) Date/time this row was added (ISO 8601)",
-        )
+    _when_added_exact: Mapped[Pendulum] = mapped_column(
+        FN_WHEN_ADDED_EXACT,
+        PendulumDateTimeAsIsoTextColType,
+        comment="(SERVER) Date/time this row was added (ISO 8601)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _when_added_batch_utc(cls) -> Column:
-        return Column(
-            FN_WHEN_ADDED_BATCH_UTC,
-            DateTime,
-            comment="(SERVER) Date/time of the upload batch that added this "
-            "row (DATETIME in UTC)",
-        )
+    _when_added_batch_utc: Mapped[datetime.datetime] = mapped_column(
+        FN_WHEN_ADDED_BATCH_UTC,
+        DateTime,
+        comment="(SERVER) Date/time of the upload batch that added this "
+        "row (DATETIME in UTC)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _adding_user_id(cls) -> Column:
-        return Column(
-            FN_ADDING_USER_ID,
-            Integer,
-            ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that added this row",
-        )
+    _adding_user_id: Mapped[int] = mapped_column(
+        FN_ADDING_USER_ID,
+        Integer,
+        ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that added this row",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _when_removed_exact(cls) -> Column:
-        return Column(
-            FN_WHEN_REMOVED_EXACT,
-            PendulumDateTimeAsIsoTextColType,
-            comment="(SERVER) Date/time this row was removed, i.e. made "
-            "not current (ISO 8601)",
-        )
+    _when_removed_exact: Mapped[Pendulum] = mapped_column(
+        FN_WHEN_REMOVED_EXACT,
+        PendulumDateTimeAsIsoTextColType,
+        comment="(SERVER) Date/time this row was removed, i.e. made "
+        "not current (ISO 8601)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _when_removed_batch_utc(cls) -> Column:
-        return Column(
-            FN_WHEN_REMOVED_BATCH_UTC,
-            DateTime,
-            comment="(SERVER) Date/time of the upload batch that removed "
-            "this row (DATETIME in UTC)",
-        )
+    _when_removed_batch_utc: Mapped[datetime.datetime] = mapped_column(
+        FN_WHEN_REMOVED_BATCH_UTC,
+        DateTime,
+        comment="(SERVER) Date/time of the upload batch that removed "
+        "this row (DATETIME in UTC)",
+    )
+
+    _removing_user_id: Mapped[int] = mapped_column(
+        FN_REMOVING_USER_ID,
+        Integer,
+        ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that removed this row",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _removing_user_id(cls) -> Column:
-        return Column(
-            FN_REMOVING_USER_ID,
-            Integer,
-            ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that removed this row",
-        )
+    _preserving_user_id: Mapped[int] = mapped_column(
+        FN_PRESERVING_USER_ID,
+        Integer,
+        ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that preserved this row",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _preserving_user_id(cls) -> Column:
-        return Column(
-            FN_PRESERVING_USER_ID,
-            Integer,
-            ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that preserved this row",
-        )
+    _forcibly_preserved: Mapped[bool] = mapped_column(
+        FN_FORCIBLY_PRESERVED,
+        Boolean,
+        default=False,
+        comment="(SERVER) Forcibly preserved by superuser (rather than "
+        "normally preserved by tablet)?",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _forcibly_preserved(cls) -> Column:
-        return Column(
-            FN_FORCIBLY_PRESERVED,
-            Boolean,
-            default=False,
-            comment="(SERVER) Forcibly preserved by superuser (rather than "
-            "normally preserved by tablet)?",
-        )
+    _predecessor_pk: Mapped[int] = mapped_column(
+        FN_PREDECESSOR_PK,
+        Integer,
+        comment="(SERVER) PK of predecessor record, prior to modification",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _predecessor_pk(cls) -> Column:
-        return Column(
-            FN_PREDECESSOR_PK,
-            Integer,
-            comment="(SERVER) PK of predecessor record, prior to modification",
-        )
+    _successor_pk: Mapped[int] = mapped_column(
+        FN_SUCCESSOR_PK,
+        Integer,
+        comment="(SERVER) PK of successor record  (after modification) "
+        "or NULL (whilst live, or after deletion)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _successor_pk(cls) -> Column:
-        return Column(
-            FN_SUCCESSOR_PK,
-            Integer,
-            comment="(SERVER) PK of successor record  (after modification) "
-            "or NULL (whilst live, or after deletion)",
-        )
+    _manually_erased: Mapped[bool] = mapped_column(
+        FN_MANUALLY_ERASED,
+        Boolean,
+        default=False,
+        comment="(SERVER) Record manually erased (content destroyed)?",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _manually_erased(cls) -> Column:
-        return Column(
-            FN_MANUALLY_ERASED,
-            Boolean,
-            default=False,
-            comment="(SERVER) Record manually erased (content destroyed)?",
-        )
+    _manually_erased_at: Mapped[Pendulum] = mapped_column(
+        FN_MANUALLY_ERASED_AT,
+        PendulumDateTimeAsIsoTextColType,
+        comment="(SERVER) Date/time of manual erasure (ISO 8601)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _manually_erased_at(cls) -> Column:
-        return Column(
-            FN_MANUALLY_ERASED_AT,
-            PendulumDateTimeAsIsoTextColType,
-            comment="(SERVER) Date/time of manual erasure (ISO 8601)",
-        )
+    _manually_erasing_user_id: Mapped[int] = mapped_column(
+        FN_MANUALLY_ERASING_USER_ID,
+        Integer,
+        ForeignKey("_security_users.id"),
+        comment="(SERVER) ID of user that erased this row manually",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _manually_erasing_user_id(cls) -> Column:
-        return Column(
-            FN_MANUALLY_ERASING_USER_ID,
-            Integer,
-            ForeignKey("_security_users.id"),
-            comment="(SERVER) ID of user that erased this row manually",
-        )
+    _camcops_version: Mapped[Version] = mapped_column(
+        FN_CAMCOPS_VERSION,
+        SemanticVersionColType,
+        default=CAMCOPS_SERVER_VERSION,
+        comment="(SERVER) CamCOPS version number of the uploading device",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _camcops_version(cls) -> Column:
-        return Column(
-            FN_CAMCOPS_VERSION,
-            SemanticVersionColType,
-            default=CAMCOPS_SERVER_VERSION,
-            comment="(SERVER) CamCOPS version number of the uploading device",
-        )
+    _addition_pending: Mapped[bool] = mapped_column(
+        FN_ADDITION_PENDING,
+        Boolean,
+        nullable=False,
+        default=False,
+        comment="(SERVER) Addition pending?",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _addition_pending(cls) -> Column:
-        return Column(
-            FN_ADDITION_PENDING,
-            Boolean,
-            nullable=False,
-            default=False,
-            comment="(SERVER) Addition pending?",
-        )
+    _removal_pending: Mapped[bool] = mapped_column(
+        FN_REMOVAL_PENDING,
+        Boolean,
+        default=False,
+        comment="(SERVER) Removal pending?",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _removal_pending(cls) -> Column:
-        return Column(
-            FN_REMOVAL_PENDING,
-            Boolean,
-            default=False,
-            comment="(SERVER) Removal pending?",
-        )
-
-    # noinspection PyMethodParameters
-    @declared_attr
-    def _group_id(cls) -> Column:
-        return Column(
-            FN_GROUP_ID,
-            Integer,
-            ForeignKey("_security_groups.id"),
-            nullable=False,
-            index=True,
-            comment="(SERVER) ID of group to which this record belongs",
-        )
+    _group_id: Mapped[int] = mapped_column(
+        FN_GROUP_ID,
+        Integer,
+        ForeignKey("_security_groups.id"),
+        nullable=False,
+        index=True,
+        comment="(SERVER) ID of group to which this record belongs",
+    )
 
     # -------------------------------------------------------------------------
     # Fields that *all* client tables have:
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def id(cls) -> Column:
-        return Column(
-            TABLET_ID_FIELD,
-            Integer,
-            nullable=False,
-            index=True,
-            comment="(TASK) Primary key (task ID) on the tablet device",
-        )
+    id: Mapped[int] = mapped_column(
+        TABLET_ID_FIELD,
+        Integer,
+        nullable=False,
+        index=True,
+        comment="(TASK) Primary key (task ID) on the tablet device",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def when_last_modified(cls) -> Column:
-        return Column(
-            CLIENT_DATE_FIELD,
-            PendulumDateTimeAsIsoTextColType,
-            index=True,  # ... as used by database upload script
-            comment="(STANDARD) Date/time this row was last modified on the "
-            "source tablet device (ISO 8601)",
-        )
+    when_last_modified: Mapped[Pendulum] = mapped_column(
+        CLIENT_DATE_FIELD,
+        PendulumDateTimeAsIsoTextColType,
+        index=True,  # ... as used by database upload script
+        comment="(STANDARD) Date/time this row was last modified on the "
+        "source tablet device (ISO 8601)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def _move_off_tablet(cls) -> Column:
-        return Column(
-            MOVE_OFF_TABLET_FIELD,
-            Boolean,
-            default=False,
-            comment="(SERVER/TABLET) Record-specific preservation pending?",
-        )
+    _move_off_tablet: Mapped[bool] = mapped_column(
+        MOVE_OFF_TABLET_FIELD,
+        Boolean,
+        default=False,
+        comment="(SERVER/TABLET) Record-specific preservation pending?",
+    )
 
     # -------------------------------------------------------------------------
     # Relationships
@@ -699,34 +655,34 @@ class GenericTabletRecordMixin(object):
 
     # noinspection PyMethodParameters
     @declared_attr
-    def _device(cls) -> RelationshipProperty:
+    def _device(cls) -> Mapped["Device"]:
         return relationship("Device")
 
     # noinspection PyMethodParameters
     @declared_attr
-    def _adding_user(cls) -> RelationshipProperty:
+    def _adding_user(cls) -> Mapped["User"]:
         return relationship("User", foreign_keys=[cls._adding_user_id])
 
     # noinspection PyMethodParameters
     @declared_attr
-    def _removing_user(cls) -> RelationshipProperty:
+    def _removing_user(cls) -> Mapped["User"]:
         return relationship("User", foreign_keys=[cls._removing_user_id])
 
     # noinspection PyMethodParameters
     @declared_attr
-    def _preserving_user(cls) -> RelationshipProperty:
+    def _preserving_user(cls) -> Mapped["User"]:
         return relationship("User", foreign_keys=[cls._preserving_user_id])
 
     # noinspection PyMethodParameters
     @declared_attr
-    def _manually_erasing_user(cls) -> RelationshipProperty:
+    def _manually_erasing_user(cls) -> Mapped["User"]:
         return relationship(
             "User", foreign_keys=[cls._manually_erasing_user_id]
         )
 
     # noinspection PyMethodParameters
     @declared_attr
-    def _group(cls) -> RelationshipProperty:
+    def _group(cls) -> Mapped["Group"]:
         return relationship("Group", foreign_keys=[cls._group_id])
 
     # -------------------------------------------------------------------------
