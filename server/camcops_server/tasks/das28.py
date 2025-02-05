@@ -64,12 +64,13 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 class Das28(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     __tablename__ = "das28"
     shortname = "DAS28"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Das28"], **kwargs) -> None:
         for field_name in cls.get_joint_field_names():

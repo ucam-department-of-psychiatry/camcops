@@ -52,7 +52,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Rand36(TaskHasPatientMixin, Task, ):
+class Rand36(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the RAND-36 task.
     """
@@ -62,7 +65,6 @@ class Rand36(TaskHasPatientMixin, Task, ):
     provides_trackers = True
 
     NQUESTIONS = 36
-
 
     def __init_subclass__(cls: Type["Rand36"], **kwargs) -> None:
         add_multiple_columns(

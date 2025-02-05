@@ -42,7 +42,10 @@ from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
-class Cia(TaskHasPatientMixin, Task, ):
+class Cia(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "cia"
     shortname = "CIA"
     provides_trackers = True
@@ -51,7 +54,6 @@ class Cia(TaskHasPatientMixin, Task, ):
     FIRST_Q = 1
     LAST_Q = 16
     MAX_SCORE = 48
-
 
     def __init_subclass__(cls: Type["Cia"], **kwargs) -> None:
 

@@ -56,7 +56,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Phq15(TaskHasPatientMixin, Task, ):
+class Phq15(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the PHQ-15 task.
     """
@@ -67,7 +70,6 @@ class Phq15(TaskHasPatientMixin, Task, ):
 
     NQUESTIONS = 15
     MAX_TOTAL = 30
-
 
     def __init_subclass__(cls: Type["Phq15"], **kwargs) -> None:
         add_multiple_columns(

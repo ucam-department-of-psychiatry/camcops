@@ -55,7 +55,10 @@ def to_csv(values: Iterable[Any]) -> str:
     return ", ".join(str(v) for v in values)
 
 
-class Aq(TaskHasPatientMixin, Task, ):
+class Aq(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "aq"
     shortname = "AQ"
 

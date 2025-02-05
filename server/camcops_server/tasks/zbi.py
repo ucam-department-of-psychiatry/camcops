@@ -55,7 +55,9 @@ from camcops_server.cc_modules.cc_task import (
 
 
 class Zbi12(
-    TaskHasRespondentMixin, TaskHasPatientMixin, Task, 
+    TaskHasRespondentMixin,
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the ZBI-12 task.

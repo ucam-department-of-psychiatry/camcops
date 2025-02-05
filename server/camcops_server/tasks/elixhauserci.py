@@ -100,7 +100,6 @@ class ElixhauserCI(
     __tablename__ = "elixhauserci"
     shortname = "ElixhauserCI"
 
-
     def __init_subclass__(cls: Type["ElixhauserCI"], **kwargs) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)

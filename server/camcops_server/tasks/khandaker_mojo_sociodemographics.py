@@ -89,8 +89,9 @@ class KhandakerMojoSociodemographics(
         FN_ACCOMMODATION: 6,
     }
 
-
-    def __init_subclass__(cls: Type["KhandakerMojoSociodemographics"], **kwargs) -> None:
+    def __init_subclass__(
+        cls: Type["KhandakerMojoSociodemographics"], **kwargs
+    ) -> None:
         setattr(
             cls,
             cls.FN_GENDER,

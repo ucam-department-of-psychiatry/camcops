@@ -56,7 +56,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Gad7(TaskHasPatientMixin, Task, ):
+class Gad7(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the GAD-7 task.
     """

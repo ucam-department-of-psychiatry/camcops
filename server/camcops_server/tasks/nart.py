@@ -113,7 +113,9 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 
 
 class Nart(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the NART task.
@@ -121,7 +123,6 @@ class Nart(
 
     __tablename__ = "nart"
     shortname = "NART"
-
 
     def __init_subclass__(cls: Type["Nart"], **kwargs) -> None:
         for w in WORDLIST:

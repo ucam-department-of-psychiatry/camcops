@@ -153,7 +153,10 @@ CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS = Task.fieldnames_from_list(
 # =============================================================================
 
 
-class Bdi(TaskHasPatientMixin, Task, ):
+class Bdi(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the BDI task.
     """
@@ -161,7 +164,6 @@ class Bdi(TaskHasPatientMixin, Task, ):
     __tablename__ = "bdi"
     shortname = "BDI"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Bdi"], **kwargs) -> None:
         add_multiple_columns(

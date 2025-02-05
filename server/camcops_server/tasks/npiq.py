@@ -58,7 +58,9 @@ DISTRESS = "distress"
 
 
 class NpiQ(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
 ):
     """
     Server implementation of the NPI-Q task.

@@ -61,7 +61,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Cesd(TaskHasPatientMixin, Task, ):
+class Cesd(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the CESD task.
     """

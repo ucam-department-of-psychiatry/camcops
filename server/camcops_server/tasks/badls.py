@@ -55,7 +55,9 @@ from camcops_server.cc_modules.cc_task import (
 
 
 class Badls(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
 ):
     """
     Server implementation of the BADLS task.

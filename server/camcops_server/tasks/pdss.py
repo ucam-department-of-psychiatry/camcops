@@ -53,7 +53,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class Pdss(TaskHasPatientMixin, Task, ):
+class Pdss(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the PDSS task.
     """

@@ -201,7 +201,6 @@ class Frs(
     __tablename__ = "frs"
     shortname = "FRS"
 
-
     def __init_subclass__(cls: Type["Frs"], **kwargs) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]

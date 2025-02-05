@@ -44,7 +44,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class Mfi20(TaskHasPatientMixin, Task, ):
+class Mfi20(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "mfi20"
     shortname = "MFI-20"
 

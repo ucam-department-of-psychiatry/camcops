@@ -54,7 +54,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class Bprs(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the BPRS task.

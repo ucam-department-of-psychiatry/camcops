@@ -52,7 +52,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Wemwbs(TaskHasPatientMixin, Task, ):
+class Wemwbs(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the WEMWBS task.
     """
@@ -224,7 +227,10 @@ class Wemwbs(TaskHasPatientMixin, Task, ):
 # =============================================================================
 
 
-class Swemwbs(TaskHasPatientMixin, Task, ):
+class Swemwbs(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the SWEMWBS task.
     """

@@ -43,7 +43,8 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 class KhandakerMojoMedical(
-    TaskHasPatientMixin, Task, 
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the KhandakerMojoMedical task

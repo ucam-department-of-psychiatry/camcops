@@ -66,7 +66,10 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq8(TaskHasPatientMixin, Task, ):
+class Phq8(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the Phq8 task.
     """

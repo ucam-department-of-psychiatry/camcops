@@ -59,7 +59,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Cesdr(TaskHasPatientMixin, Task, ):
+class Cesdr(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the CESD task.
     """
@@ -89,7 +92,6 @@ class Cesdr(TaskHasPatientMixin, Task, ):
     POSS_MAJOR_THRESH = 2
     PROB_MAJOR_THRESH = 3
     MAJOR_THRESH = 4
-
 
     def __init_subclass__(cls: Type["Cesdr"], **kwargs) -> None:
         add_multiple_columns(

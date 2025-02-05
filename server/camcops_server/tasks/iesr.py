@@ -57,7 +57,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Iesr(TaskHasPatientMixin, Task, ):
+class Iesr(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the IES-R task.
     """
@@ -65,7 +68,6 @@ class Iesr(TaskHasPatientMixin, Task, ):
     __tablename__ = "iesr"
     shortname = "IES-R"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Iesr"], **kwargs) -> None:
         add_multiple_columns(

@@ -97,7 +97,8 @@ X_COMMENT_HINT = "comment_hint"
 
 
 class KhandakerInsightMedical(
-    TaskHasPatientMixin, Task, 
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the Khandaker_1_MedicalHistory task.
@@ -107,8 +108,9 @@ class KhandakerInsightMedical(
     shortname = "Khandaker_Insight_Medical"
     info_filename_stem = "khandaker_insight_medical"
 
-
-    def __init_subclass__(cls: Type["KhandakerInsightMedical"], **kwargs) -> None:
+    def __init_subclass__(
+        cls: Type["KhandakerInsightMedical"], **kwargs
+    ) -> None:
         for qinfo in QUESTIONS:
             setattr(cls, qinfo.fieldname_yn, BoolColumn(qinfo.fieldname_yn))
             setattr(

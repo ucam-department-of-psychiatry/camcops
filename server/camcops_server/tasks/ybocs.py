@@ -64,7 +64,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class Ybocs(
-    TaskHasClinicianMixin, TaskHasPatientMixin, Task,
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the Y-BOCS task.

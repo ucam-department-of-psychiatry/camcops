@@ -175,7 +175,9 @@ def tr_heading(left: str, right: str) -> str:
 
 
 class Ace3(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task,
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the ACE-III task.

@@ -49,7 +49,10 @@ from sqlalchemy import Column, Float
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-class Asdas(TaskHasPatientMixin, Task, ):
+class Asdas(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "asdas"
     shortname = "ASDAS"
     provides_trackers = True

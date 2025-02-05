@@ -44,7 +44,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class Sfmpq2(TaskHasPatientMixin, Task, ):
+class Sfmpq2(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "sfmpq2"
     shortname = "SF-MPQ2"
 

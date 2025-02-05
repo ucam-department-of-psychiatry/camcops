@@ -52,7 +52,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Audit(TaskHasPatientMixin, Task, ):
+class Audit(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the AUDIT task.
     """

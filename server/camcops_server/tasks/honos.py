@@ -158,7 +158,9 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 
 
-class Honos(HonosBase, ):
+class Honos(
+    HonosBase,
+):
     """
     Server implementation of the HoNOS task.
     """
@@ -166,7 +168,6 @@ class Honos(HonosBase, ):
     __tablename__ = "honos"
     shortname = "HoNOS"
     info_filename_stem = "honos"
-
 
     def __init_subclass__(cls: Type["Honos"], **kwargs) -> None:
         add_multiple_columns(
@@ -369,7 +370,9 @@ class Honos(HonosBase, ):
 # =============================================================================
 
 
-class Honos65(HonosBase, ):
+class Honos65(
+    HonosBase,
+):
     """
     Server implementation of the HoNOS 65+ task.
     """
@@ -377,7 +380,6 @@ class Honos65(HonosBase, ):
     __tablename__ = "honos65"
     shortname = "HoNOS 65+"
     info_filename_stem = "honos"
-
 
     def __init_subclass__(cls: Type["Honos65"], **kwargs) -> None:
         add_multiple_columns(
@@ -543,7 +545,9 @@ class Honos65(HonosBase, ):
 # =============================================================================
 
 
-class Honosca(HonosBase, ):
+class Honosca(
+    HonosBase,
+):
     """
     Server implementation of the HoNOSCA task.
     """

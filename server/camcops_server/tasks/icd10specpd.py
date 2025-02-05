@@ -88,7 +88,6 @@ class Icd10SpecPD(
     shortname = "ICD10-PD"
     info_filename_stem = "icd"
 
-
     def __init_subclass__(cls: Type["Icd10SpecPD"], **kwargs) -> None:
         add_multiple_columns(
             cls,

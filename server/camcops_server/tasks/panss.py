@@ -57,7 +57,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class Panss(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the PANSS task.
@@ -70,7 +72,6 @@ class Panss(
     NUM_P = 7
     NUM_N = 7
     NUM_G = 16
-
 
     def __init_subclass__(cls: Type["Panss"], **kwargs) -> None:
         add_multiple_columns(

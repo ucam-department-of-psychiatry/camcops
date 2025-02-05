@@ -53,7 +53,10 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class CopeBrief(TaskHasPatientMixin, Task, ):
+class CopeBrief(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the COPE-Brief task.
     """
@@ -68,7 +71,6 @@ class CopeBrief(TaskHasPatientMixin, Task, ):
     RELATIONSHIPS_FIRST = 0
     RELATIONSHIPS_FIRST_NON_OTHER = 1
     RELATIONSHIPS_LAST = 9
-
 
     def __init_subclass__(cls: Type["CopeBrief"], **kwargs) -> None:
         add_multiple_columns(

@@ -56,7 +56,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Wsas(TaskHasPatientMixin, Task, ):
+class Wsas(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the WSAS task.
     """
@@ -64,7 +67,6 @@ class Wsas(TaskHasPatientMixin, Task, ):
     __tablename__ = "wsas"
     shortname = "WSAS"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Wsas"], **kwargs) -> None:
         add_multiple_columns(

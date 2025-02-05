@@ -46,7 +46,10 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 
 
-class Shaps(TaskHasPatientMixin, Task, ):
+class Shaps(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "shaps"
     shortname = "SHAPS"
 

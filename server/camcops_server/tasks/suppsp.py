@@ -48,7 +48,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class Suppsp(TaskHasPatientMixin, Task, ):
+class Suppsp(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "suppsp"
     shortname = "SUPPS-P"
 

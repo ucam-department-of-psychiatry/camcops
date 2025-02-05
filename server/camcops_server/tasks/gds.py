@@ -48,7 +48,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Gds15(TaskHasPatientMixin, Task, ):
+class Gds15(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the GDS-15 task.
     """

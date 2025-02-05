@@ -63,7 +63,9 @@ QUESTION_FRAGMENTS = [
 
 
 class CgiSch(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the CGI-SCH task.
@@ -72,7 +74,6 @@ class CgiSch(
     __tablename__ = "cgisch"
     shortname = "CGI-SCH"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["CgiSch"], **kwargs) -> None:
         add_multiple_columns(

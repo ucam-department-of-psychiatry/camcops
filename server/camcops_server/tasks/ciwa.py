@@ -69,7 +69,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 
 class Ciwa(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the CIWA-Ar task.

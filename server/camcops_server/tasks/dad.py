@@ -131,7 +131,6 @@ class Dad(
         "leisure_exec_safe_at_home",
     ]
 
-
     def __init_subclass__(cls: Type["Dad"], **kwargs) -> None:
         explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
         for colname in cls.ITEMS:

@@ -54,7 +54,8 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 class DistressThermometer(
-    TaskHasPatientMixin, Task, 
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the DistressThermometer task.
@@ -62,7 +63,6 @@ class DistressThermometer(
 
     __tablename__ = "distressthermometer"
     shortname = "Distress Thermometer"
-
 
     def __init_subclass__(cls: Type["DistressThermometer"], **kwargs) -> None:
         add_multiple_columns(

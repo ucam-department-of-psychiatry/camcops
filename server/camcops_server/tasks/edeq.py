@@ -44,7 +44,10 @@ from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
-class Edeq(TaskHasPatientMixin, Task, ):
+class Edeq(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "edeq"
     shortname = "EDE-Q"
     provides_trackers = True

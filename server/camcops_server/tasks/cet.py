@@ -79,7 +79,10 @@ Taranis et al. (2011), {pmid(21584918)}; Meyer et al. (2016), {pmid(27547403)}.
 # =============================================================================
 
 
-class Cet(TaskHasPatientMixin, Task, ):
+class Cet(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the CET task.
     """

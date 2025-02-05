@@ -59,7 +59,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class Aims(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the AIMS task.

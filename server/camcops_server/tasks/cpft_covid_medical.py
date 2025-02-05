@@ -43,7 +43,8 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 class CpftCovidMedical(
-    TaskHasPatientMixin, Task, 
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the CPFT_Covid_Medical task
@@ -54,7 +55,6 @@ class CpftCovidMedical(
     provides_trackers = False
 
     FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
-
 
     def __init_subclass__(cls: Type["CpftCovidMedical"], **kwargs) -> None:
         setattr(

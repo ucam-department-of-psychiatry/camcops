@@ -49,7 +49,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Cage(TaskHasPatientMixin, Task, ):
+class Cage(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the CAGE task.
     """

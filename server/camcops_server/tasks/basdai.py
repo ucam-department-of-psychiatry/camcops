@@ -53,7 +53,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Basdai(TaskHasPatientMixin, Task, ):
+class Basdai(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "basdai"
     shortname = "BASDAI"
     provides_trackers = True

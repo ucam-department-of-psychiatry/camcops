@@ -57,7 +57,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 
 class Hama(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the HAM-A task.

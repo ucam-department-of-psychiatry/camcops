@@ -65,7 +65,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Pcl5(TaskHasPatientMixin, Task, ):
+class Pcl5(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the PCL-5 task.
     """

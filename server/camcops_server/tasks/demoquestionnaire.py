@@ -61,7 +61,9 @@ def divtest(divname: str) -> str:
     return f'<div class="{divname}">.{divname}</div>\n'
 
 
-class DemoQuestionnaire(Task, ):
+class DemoQuestionnaire(
+    Task,
+):
     """
     Server implementation of the demo questionnaire task.
     """
@@ -69,7 +71,6 @@ class DemoQuestionnaire(Task, ):
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
     is_anonymous = True
-
 
     def __init_subclass__(cls: Type["DemoQuestionnaire"], **kwargs) -> None:
         add_multiple_columns(cls, "mcq", 1, N_MCQ)

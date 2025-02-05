@@ -83,7 +83,9 @@ class MetaclassReplacer:
                     if self.state == State.FINDING_END_INIT:
                         if self.find_end_init():
                             print("Found end init")
-                            self.metaclass_init.append("        super().__init_subclass__(**kwargs)\n\n")
+                            self.metaclass_init.append(
+                                "        super().__init_subclass__(**kwargs)\n\n"
+                            )
                             self.state = State.FINDING_START_CLASS
                             continue
                         self.metaclass_init.append(self.line)

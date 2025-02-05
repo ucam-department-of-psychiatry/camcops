@@ -56,7 +56,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Epds(TaskHasPatientMixin, Task, ):
+class Epds(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "epds"
     shortname = "EPDS"
     provides_trackers = True

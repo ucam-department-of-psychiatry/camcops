@@ -60,7 +60,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 
 class Hamd7(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the HAMD-7 task.

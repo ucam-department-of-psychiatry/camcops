@@ -78,7 +78,9 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 
 
 class Moca(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the MoCA task.
@@ -90,7 +92,6 @@ class Moca(
 
     prohibits_commercial = True
     prohibits_research = True
-
 
     def __init_subclass__(cls: Type["Moca"], **kwargs) -> None:
         add_multiple_columns(

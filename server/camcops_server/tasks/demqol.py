@@ -85,7 +85,9 @@ COPYRIGHT_DIV = f"""
 
 
 class Demqol(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the DEMQOL task.
@@ -94,7 +96,6 @@ class Demqol(
     __tablename__ = "demqol"
     shortname = "DEMQOL"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Demqol"], **kwargs) -> None:
         add_multiple_columns(
@@ -296,7 +297,6 @@ class DemqolProxy(
     shortname = "DEMQOL-Proxy"
     extrastring_taskname = "demqol"
     info_filename_stem = "demqol"
-
 
     def __init_subclass__(cls: Type["DemqolProxy"], **kwargs) -> None:
         add_multiple_columns(

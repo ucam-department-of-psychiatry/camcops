@@ -55,7 +55,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Rapid3(TaskHasPatientMixin, Task, ):
+class Rapid3(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "rapid3"
     shortname = "RAPID3"
     provides_trackers = True
@@ -73,7 +76,6 @@ class Rapid3(TaskHasPatientMixin, Task, ):
     LOW_SEVERITY_MAX = 6
     MODERATE_SEVERITY_MAX = 12
     MAXIMUM = 30
-
 
     def __init_subclass__(cls: Type["Rapid3"], **kwargs) -> None:
 

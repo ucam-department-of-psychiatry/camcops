@@ -52,7 +52,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Fast(TaskHasPatientMixin, Task, ):
+class Fast(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the FAST task.
     """

@@ -53,7 +53,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Dast(TaskHasPatientMixin, Task, ):
+class Dast(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the DAST task.
     """

@@ -134,7 +134,10 @@ DEP_MAX = MAX_SCORE_PER_Q * len(DEPRESSIVE)
 DP = 2
 
 
-class Cape42(TaskHasPatientMixin, Task, ):
+class Cape42(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the CAPE-42 task.
     """
@@ -143,7 +146,6 @@ class Cape42(TaskHasPatientMixin, Task, ):
     shortname = "CAPE-42"
     provides_trackers = True
     info_filename_stem = "cape"
-
 
     def __init_subclass__(cls: Type["Cape42"], **kwargs) -> None:
         add_multiple_columns(

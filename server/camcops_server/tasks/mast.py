@@ -57,7 +57,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Mast(TaskHasPatientMixin, Task, ):
+class Mast(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the MAST task.
     """

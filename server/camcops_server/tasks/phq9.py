@@ -69,7 +69,10 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq9(TaskHasPatientMixin, Task, ):
+class Phq9(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the PHQ9 task.
     """
@@ -77,7 +80,6 @@ class Phq9(TaskHasPatientMixin, Task, ):
     __tablename__ = "phq9"
     shortname = "PHQ-9"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Phq9"], **kwargs) -> None:
         add_multiple_columns(

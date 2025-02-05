@@ -44,7 +44,10 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class Esspri(TaskHasPatientMixin, Task, ):
+class Esspri(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "esspri"
     shortname = "ESSPRI"
 

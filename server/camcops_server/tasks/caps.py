@@ -86,7 +86,10 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class Caps(TaskHasPatientMixin, Task, ):
+class Caps(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the CAPS task.
     """

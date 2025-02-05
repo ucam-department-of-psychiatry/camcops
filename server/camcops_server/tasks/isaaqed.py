@@ -39,14 +39,15 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.tasks.isaaqcommon import IsaaqCommon
 
 
-class IsaaqEd(IsaaqCommon, ):
+class IsaaqEd(
+    IsaaqCommon,
+):
     __tablename__ = "isaaqed"
     shortname = "ISAAQ-ED"
 
     Q_PREFIX = "e"
     FIRST_Q = 11
     LAST_Q = 20
-
 
     def __init_subclass__(cls: Type["IsaaqEd"], **kwargs) -> None:
 

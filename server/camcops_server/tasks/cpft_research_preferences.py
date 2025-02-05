@@ -44,7 +44,8 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 class CpftResearchPreferences(
-    TaskHasPatientMixin, Task, 
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the CPFT_Research_Preferences task
@@ -64,8 +65,9 @@ class CpftResearchPreferences(
         FN_RESEARCH_OPT_OUT,
     ]
 
-
-    def __init_subclass__(cls: Type["CpftResearchPreferences"], **kwargs) -> None:
+    def __init_subclass__(
+        cls: Type["CpftResearchPreferences"], **kwargs
+    ) -> None:
         setattr(
             cls,
             cls.FN_CONTACT_PREFERENCE,

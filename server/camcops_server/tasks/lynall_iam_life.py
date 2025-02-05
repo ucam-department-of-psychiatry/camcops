@@ -77,7 +77,8 @@ def qfieldname_frequency(qnum: int) -> str:
 
 
 class LynallIamLifeEvents(
-    TaskHasPatientMixin, Task, 
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the LynallIamLifeEvents task.
@@ -87,7 +88,6 @@ class LynallIamLifeEvents(
     shortname = "Lynall_IAM_Life"
 
     prohibits_commercial = True
-
 
     def __init_subclass__(cls: Type["LynallIamLifeEvents"], **kwargs) -> None:
         comment_strings = [

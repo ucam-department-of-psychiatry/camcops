@@ -66,7 +66,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
 class Ifs(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the IFS task.
@@ -75,7 +77,6 @@ class Ifs(
     __tablename__ = "ifs"
     shortname = "IFS"
     provides_trackers = True
-
 
     def __init_subclass__(cls: Type["Ifs"], **kwargs) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:

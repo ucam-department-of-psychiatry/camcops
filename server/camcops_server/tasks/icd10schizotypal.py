@@ -76,7 +76,6 @@ class Icd10Schizotypal(
     shortname = "ICD10-SZTYP"
     info_filename_stem = "icd"
 
-
     def __init_subclass__(cls: Type["Icd10Schizotypal"], **kwargs) -> None:
         add_multiple_columns(
             cls,

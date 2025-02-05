@@ -108,7 +108,9 @@ QUESTION_SNIPPETS = [
 
 
 class CbiR(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
 ):
     """
     Server implementation of the CBI-R task.
@@ -116,7 +118,6 @@ class CbiR(
 
     __tablename__ = "cbir"
     shortname = "CBI-R"
-
 
     def __init_subclass__(cls: Type["CbiR"], **kwargs) -> None:
         add_multiple_columns(

@@ -70,7 +70,9 @@ MAX_SCORE = (
 
 
 class Hamd(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the HAM-D task.

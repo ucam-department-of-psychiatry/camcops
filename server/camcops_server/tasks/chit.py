@@ -52,7 +52,10 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 
 
-class Chit(TaskHasPatientMixin, Task, ):
+class Chit(
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "chit"
     shortname = "CHI-T"
 

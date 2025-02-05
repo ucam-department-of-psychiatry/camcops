@@ -59,7 +59,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Smast(TaskHasPatientMixin, Task, ):
+class Smast(
+    TaskHasPatientMixin,
+    Task,
+):
     """
     Server implementation of the SMAST task.
     """
