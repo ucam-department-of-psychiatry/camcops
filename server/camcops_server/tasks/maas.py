@@ -75,27 +75,6 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class MaasMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Maas"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(
-            cls,
-            cls.FN_QPREFIX,
-            1,
-            cls.N_QUESTIONS,
-            minimum=cls.MIN_SCORE_PER_Q,
-            maximum=cls.MAX_SCORE_PER_Q,
-            comment_fmt="Q{n} ({s}; 1 least attachment - 5 most attachment)",
-            comment_strings=QUESTION_SNIPPETS,
-        )
-        super().__init__(name, bases, classdict)
-
-
 class MaasScore(object):
     def __init__(self) -> None:
         self.quality_min = 0
@@ -124,7 +103,7 @@ class MaasScore(object):
         self.global_max += Maas.MAX_SCORE_PER_Q
 
 
-class Maas(TaskHasPatientMixin, Task, metaclass=MaasMetaclass):
+class Maas(TaskHasPatientMixin, Task):
     """
     Server implementation of the MAAS task.
     """
@@ -161,6 +140,19 @@ class Maas(TaskHasPatientMixin, Task, metaclass=MaasMetaclass):
     N_TIME = len(TIME_IN_ATTACHMENT_MODE_Q)
     MIN_TIME = N_TIME * MIN_SCORE_PER_Q
     MAX_TIME = N_TIME * MAX_SCORE_PER_Q
+
+    def __init_subclass__(cls: Type["Maas"], **kwargs) -> None:
+        add_multiple_columns(
+            cls,
+            cls.FN_QPREFIX,
+            1,
+            cls.N_QUESTIONS,
+            minimum=cls.MIN_SCORE_PER_Q,
+            maximum=cls.MAX_SCORE_PER_Q,
+            comment_fmt="Q{n} ({s}; 1 least attachment - 5 most attachment)",
+            comment_strings=QUESTION_SNIPPETS,
+        )
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

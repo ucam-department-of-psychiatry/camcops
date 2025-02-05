@@ -96,26 +96,8 @@ X_COMMENT_HINT = "comment_hint"
 # =============================================================================
 
 
-class KhandakerInsightMedicalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["KhandakerInsightMedical"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        for qinfo in QUESTIONS:
-            setattr(cls, qinfo.fieldname_yn, BoolColumn(qinfo.fieldname_yn))
-            setattr(
-                cls,
-                qinfo.fieldname_comment,
-                Column(qinfo.fieldname_comment, UnicodeText),
-            )
-        super().__init__(name, bases, classdict)
-
-
 class KhandakerInsightMedical(
-    TaskHasPatientMixin, Task, metaclass=KhandakerInsightMedicalMetaclass
+    TaskHasPatientMixin, Task, 
 ):
     """
     Server implementation of the Khandaker_1_MedicalHistory task.
@@ -124,6 +106,17 @@ class KhandakerInsightMedical(
     __tablename__ = "khandaker_1_medicalhistory"  # NB historical name
     shortname = "Khandaker_Insight_Medical"
     info_filename_stem = "khandaker_insight_medical"
+
+
+    def __init_subclass__(cls: Type["KhandakerInsightMedical"], **kwargs) -> None:
+        for qinfo in QUESTIONS:
+            setattr(cls, qinfo.fieldname_yn, BoolColumn(qinfo.fieldname_yn))
+            setattr(
+                cls,
+                qinfo.fieldname_comment,
+                Column(qinfo.fieldname_comment, UnicodeText),
+            )
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

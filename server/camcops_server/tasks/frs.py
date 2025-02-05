@@ -188,14 +188,21 @@ def get_tabular_logit(score: float) -> float:
 #     print(",".join(str(q) for q in (x, logit, severity)))
 
 
-class FrsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Frs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Frs(
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the FRS task.
+    """
+
+    __tablename__ = "frs"
+    shortname = "FRS"
+
+
+    def __init_subclass__(cls: Type["Frs"], **kwargs) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
             pc = [f"{NEVER} = never", f"{ALWAYS} = always"]
@@ -219,22 +226,7 @@ class FrsMetaclass(DeclarativeMeta):
                     comment=comment,
                 ),
             )
-        super().__init__(name, bases, classdict)
-
-
-class Frs(
-    TaskHasPatientMixin,
-    TaskHasRespondentMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=FrsMetaclass,
-):
-    """
-    Server implementation of the FRS task.
-    """
-
-    __tablename__ = "frs"
-    shortname = "FRS"
+        super().__init_subclass__(**kwargs)
 
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
 

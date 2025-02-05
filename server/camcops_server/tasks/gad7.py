@@ -56,14 +56,18 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Gad7Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Gad7"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Gad7(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the GAD-7 task.
+    """
+
+    __tablename__ = "gad7"
+    shortname = "GAD-7"
+    provides_trackers = True
+
+    NQUESTIONS = 7
+
+    def __init_subclass__(cls: Type["Gad7"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -82,19 +86,8 @@ class Gad7Metaclass(DeclarativeMeta):
                 "afraid",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Gad7(TaskHasPatientMixin, Task, metaclass=Gad7Metaclass):
-    """
-    Server implementation of the GAD-7 task.
-    """
-
-    __tablename__ = "gad7"
-    shortname = "GAD-7"
-    provides_trackers = True
-
-    NQUESTIONS = 7
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 21
 

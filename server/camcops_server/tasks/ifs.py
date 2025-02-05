@@ -65,14 +65,19 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class IfsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ifs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ifs(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the IFS task.
+    """
+
+    __tablename__ = "ifs"
+    shortname = "IFS"
+    provides_trackers = True
+
+
+    def __init_subclass__(cls: Type["Ifs"], **kwargs) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:
             fname1 = f"q4_len{seqlen}_1"
             fname2 = f"q4_len{seqlen}_2"
@@ -133,19 +138,7 @@ class IfsMetaclass(DeclarativeMeta):
                     comment=f"Q8. Hayling, sentence {n}",
                 ),
             )
-        super().__init__(name, bases, classdict)
-
-
-class Ifs(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=IfsMetaclass
-):
-    """
-    Server implementation of the IFS task.
-    """
-
-    __tablename__ = "ifs"
-    shortname = "IFS"
-    provides_trackers = True
+        super().__init_subclass__(**kwargs)
 
     q1 = CamcopsColumn(
         "q1",

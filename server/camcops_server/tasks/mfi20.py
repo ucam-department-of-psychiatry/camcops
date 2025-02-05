@@ -44,14 +44,23 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class Mfi20Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Mfi20"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Mfi20(TaskHasPatientMixin, Task, ):
+    __tablename__ = "mfi20"
+    shortname = "MFI-20"
+
+    prohibits_clinical = True
+    prohibits_commercial = True
+
+    N_QUESTIONS = 20
+    MIN_SCORE_PER_Q = 1
+    MAX_SCORE_PER_Q = 5
+    MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS
+    MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS
+    N_Q_PER_SUBSCALE = 4  # always
+    MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
+    MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
+
+    def __init_subclass__(cls: Type["Mfi20"], **kwargs) -> None:
 
         comment_strings = [
             "feel fit",
@@ -94,24 +103,8 @@ class Mfi20Metaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Mfi20(TaskHasPatientMixin, Task, metaclass=Mfi20Metaclass):
-    __tablename__ = "mfi20"
-    shortname = "MFI-20"
-
-    prohibits_clinical = True
-    prohibits_commercial = True
-
-    N_QUESTIONS = 20
-    MIN_SCORE_PER_Q = 1
-    MAX_SCORE_PER_Q = 5
-    MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS
-    MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS
-    N_Q_PER_SUBSCALE = 4  # always
-    MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
-    MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     REVERSE_QUESTIONS = Task.fieldnames_from_list(
         "q", {2, 5, 9, 10, 13, 14, 16, 17, 18, 19}

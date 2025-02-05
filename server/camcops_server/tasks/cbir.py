@@ -107,14 +107,18 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class CbiRMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CbiR"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CbiR(
+    TaskHasPatientMixin, TaskHasRespondentMixin, Task, 
+):
+    """
+    Server implementation of the CBI-R task.
+    """
+
+    __tablename__ = "cbir"
+    shortname = "CBI-R"
+
+
+    def __init_subclass__(cls: Type["CbiR"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -135,18 +139,7 @@ class CbiRMetaclass(DeclarativeMeta):
             maximum=cls.MAX_SCORE,
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
-
-
-class CbiR(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=CbiRMetaclass
-):
-    """
-    Server implementation of the CBI-R task.
-    """
-
-    __tablename__ = "cbir"
-    shortname = "CBI-R"
+        super().__init_subclass__(**kwargs)
 
     confirm_blanks = CamcopsColumn(
         "confirm_blanks",

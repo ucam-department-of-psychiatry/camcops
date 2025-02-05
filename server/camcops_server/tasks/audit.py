@@ -52,14 +52,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class AuditMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Audit"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Audit(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the AUDIT task.
+    """
+
+    __tablename__ = "audit"
+    shortname = "AUDIT"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 10
+
+    def __init_subclass__(cls: Type["Audit"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -81,21 +87,8 @@ class AuditMetaclass(DeclarativeMeta):
                 "others concerned",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
-    """
-    Server implementation of the AUDIT task.
-    """
-
-    __tablename__ = "audit"
-    shortname = "AUDIT"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod
@@ -247,14 +240,17 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
 # =============================================================================
 
 
-class AuditCMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["AuditC"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class AuditC(TaskHasPatientMixin, Task):
+    __tablename__ = "audit_c"
+    shortname = "AUDIT-C"
+    extrastring_taskname = "audit"  # shares strings with AUDIT
+    info_filename_stem = extrastring_taskname
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 3
+
+    def __init_subclass__(cls: Type["AuditC"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -269,18 +265,8 @@ class AuditCMetaclass(DeclarativeMeta):
                 "how often six drinks",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class AuditC(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
-    __tablename__ = "audit_c"
-    shortname = "AUDIT-C"
-    extrastring_taskname = "audit"  # shares strings with AUDIT
-    info_filename_stem = extrastring_taskname
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 3
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

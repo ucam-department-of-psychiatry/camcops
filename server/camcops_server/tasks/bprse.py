@@ -52,14 +52,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class BprseMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Bprse"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Bprse(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the BPRS-E task.
+    """
+
+    __tablename__ = "bprse"
+    shortname = "BPRS-E"
+    provides_trackers = True
+
+    NQUESTIONS = 24
+
+    def __init_subclass__(cls: Type["Bprse"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -95,21 +101,8 @@ class BprseMetaclass(DeclarativeMeta):
                 "mannerisms and posturing",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Bprse(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=BprseMetaclass
-):
-    """
-    Server implementation of the BPRS-E task.
-    """
-
-    __tablename__ = "bprse"
-    shortname = "BPRS-E"
-    provides_trackers = True
-
-    NQUESTIONS = 24
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 168
 

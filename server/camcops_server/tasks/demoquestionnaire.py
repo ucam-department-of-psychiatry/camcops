@@ -61,25 +61,7 @@ def divtest(divname: str) -> str:
     return f'<div class="{divname}">.{divname}</div>\n'
 
 
-class DemoQuestionnaireMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["DemoQuestionnaire"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(cls, "mcq", 1, N_MCQ)
-        add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
-        add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)
-        add_multiple_columns(cls, "booltext", 1, N_BOOLTEXT)
-        add_multiple_columns(cls, "boolimage", 1, N_BOOLIMAGE)
-        add_multiple_columns(cls, "picker", 1, N_PICKER)
-        add_multiple_columns(cls, "slider", 1, N_SLIDER, Float)
-        super().__init__(name, bases, classdict)
-
-
-class DemoQuestionnaire(Task, metaclass=DemoQuestionnaireMetaclass):
+class DemoQuestionnaire(Task, ):
     """
     Server implementation of the demo questionnaire task.
     """
@@ -87,6 +69,17 @@ class DemoQuestionnaire(Task, metaclass=DemoQuestionnaireMetaclass):
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
     is_anonymous = True
+
+
+    def __init_subclass__(cls: Type["DemoQuestionnaire"], **kwargs) -> None:
+        add_multiple_columns(cls, "mcq", 1, N_MCQ)
+        add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
+        add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)
+        add_multiple_columns(cls, "booltext", 1, N_BOOLTEXT)
+        add_multiple_columns(cls, "boolimage", 1, N_BOOLIMAGE)
+        add_multiple_columns(cls, "picker", 1, N_PICKER)
+        add_multiple_columns(cls, "slider", 1, N_SLIDER, Float)
+        super().__init_subclass__(**kwargs)
 
     mcqtext_1a = Column("mcqtext_1a", UnicodeText)
     mcqtext_1b = Column("mcqtext_1b", UnicodeText)

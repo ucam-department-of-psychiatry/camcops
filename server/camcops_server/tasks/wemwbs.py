@@ -52,14 +52,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class WemwbsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Wemwbs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Wemwbs(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the WEMWBS task.
+    """
+
+    __tablename__ = "wemwbs"
+    shortname = "WEMWBS"
+    provides_trackers = True
+
+    MINQSCORE = 1
+    MAXQSCORE = 5
+    N_QUESTIONS = 14
+    MINTOTALSCORE = N_QUESTIONS * MINQSCORE
+    MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
+
+    def __init_subclass__(cls: Type["Wemwbs"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -85,23 +93,8 @@ class WemwbsMetaclass(DeclarativeMeta):
                 "cheerful",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Wemwbs(TaskHasPatientMixin, Task, metaclass=WemwbsMetaclass):
-    """
-    Server implementation of the WEMWBS task.
-    """
-
-    __tablename__ = "wemwbs"
-    shortname = "WEMWBS"
-    provides_trackers = True
-
-    MINQSCORE = 1
-    MAXQSCORE = 5
-    N_QUESTIONS = 14
-    MINTOTALSCORE = N_QUESTIONS * MINQSCORE
-    MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
     TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod
@@ -231,14 +224,23 @@ class Wemwbs(TaskHasPatientMixin, Task, metaclass=WemwbsMetaclass):
 # =============================================================================
 
 
-class SwemwbsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Swemwbs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Swemwbs(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the SWEMWBS task.
+    """
+
+    __tablename__ = "swemwbs"
+    shortname = "SWEMWBS"
+    extrastring_taskname = "wemwbs"  # shares
+    info_filename_stem = extrastring_taskname
+
+    MINQSCORE = 1
+    MAXQSCORE = 5
+    N_QUESTIONS = 7
+    MINTOTALSCORE = N_QUESTIONS * MINQSCORE
+    MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
+
+    def __init_subclass__(cls: Type["Swemwbs"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -264,24 +266,8 @@ class SwemwbsMetaclass(DeclarativeMeta):
                 "cheerful",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Swemwbs(TaskHasPatientMixin, Task, metaclass=SwemwbsMetaclass):
-    """
-    Server implementation of the SWEMWBS task.
-    """
-
-    __tablename__ = "swemwbs"
-    shortname = "SWEMWBS"
-    extrastring_taskname = "wemwbs"  # shares
-    info_filename_stem = extrastring_taskname
-
-    MINQSCORE = 1
-    MAXQSCORE = 5
-    N_QUESTIONS = 7
-    MINTOTALSCORE = N_QUESTIONS * MINQSCORE
-    MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
     TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod

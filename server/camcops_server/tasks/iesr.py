@@ -57,14 +57,17 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class IesrMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Iesr"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Iesr(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the IES-R task.
+    """
+
+    __tablename__ = "iesr"
+    shortname = "IES-R"
+    provides_trackers = True
+
+
+    def __init_subclass__(cls: Type["Iesr"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -98,17 +101,7 @@ class IesrMetaclass(DeclarativeMeta):
                 "avoided talking",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Iesr(TaskHasPatientMixin, Task, metaclass=IesrMetaclass):
-    """
-    Server implementation of the IES-R task.
-    """
-
-    __tablename__ = "iesr"
-    shortname = "IES-R"
-    provides_trackers = True
+        super().__init_subclass__(**kwargs)
 
     event = Column("event", UnicodeText, comment="Relevant event")
 

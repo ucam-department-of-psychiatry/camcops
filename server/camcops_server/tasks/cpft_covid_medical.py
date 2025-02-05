@@ -42,14 +42,21 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class CpftCovidMedicalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CpftCovidMedical"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CpftCovidMedical(
+    TaskHasPatientMixin, Task, 
+):
+    """
+    Server implementation of the CPFT_Covid_Medical task
+    """
+
+    __tablename__ = "cpft_covid_medical"
+    shortname = "CPFT_Covid_Medical"
+    provides_trackers = False
+
+    FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
+
+
+    def __init_subclass__(cls: Type["CpftCovidMedical"], **kwargs) -> None:
         setattr(
             cls,
             cls.FN_HOW_AND_WHEN_SYMPTOMS,
@@ -66,21 +73,7 @@ class CpftCovidMedicalMetaclass(DeclarativeMeta):
             ),
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class CpftCovidMedical(
-    TaskHasPatientMixin, Task, metaclass=CpftCovidMedicalMetaclass
-):
-    """
-    Server implementation of the CPFT_Covid_Medical task
-    """
-
-    __tablename__ = "cpft_covid_medical"
-    shortname = "CPFT_Covid_Medical"
-    provides_trackers = False
-
-    FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

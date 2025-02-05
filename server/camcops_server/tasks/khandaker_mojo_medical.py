@@ -42,14 +42,27 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["KhandakerMojoMedical"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class KhandakerMojoMedical(
+    TaskHasPatientMixin, Task, 
+):
+    """
+    Server implementation of the KhandakerMojoMedical task
+    """
+
+    __tablename__ = "khandaker_mojo_medical"
+    shortname = "Khandaker_MOJO_Medical"
+    info_filename_stem = "khandaker_mojo"
+    provides_trackers = False
+
+    # Section 1: General Information
+    FN_DIAGNOSIS = "diagnosis"
+    FN_DIAGNOSIS_DATE = "diagnosis_date"
+    FN_DIAGNOSIS_DATE_APPROXIMATE = "diagnosis_date_approximate"
+    FN_HAS_FIBROMYALGIA = "has_fibromyalgia"
+    FN_IS_PREGNANT = "is_pregnant"
+    FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
+
+    def __init_subclass__(cls: Type["KhandakerMojoMedical"], **kwargs) -> None:
         setattr(
             cls,
             cls.FN_DIAGNOSIS,
@@ -416,28 +429,8 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
             ),
         )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class KhandakerMojoMedical(
-    TaskHasPatientMixin, Task, metaclass=KhandakerMojoMedicalMetaclass
-):
-    """
-    Server implementation of the KhandakerMojoMedical task
-    """
-
-    __tablename__ = "khandaker_mojo_medical"
-    shortname = "Khandaker_MOJO_Medical"
-    info_filename_stem = "khandaker_mojo"
-    provides_trackers = False
-
-    # Section 1: General Information
-    FN_DIAGNOSIS = "diagnosis"
-    FN_DIAGNOSIS_DATE = "diagnosis_date"
-    FN_DIAGNOSIS_DATE_APPROXIMATE = "diagnosis_date_approximate"
-    FN_HAS_FIBROMYALGIA = "has_fibromyalgia"
-    FN_IS_PREGNANT = "is_pregnant"
-    FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
     FN_HAD_INFECTION_TWO_MONTHS_PRECEDING = (
         "had_infection_two_months_preceding"
     )

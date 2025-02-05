@@ -53,14 +53,24 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class CopeBriefMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CopeBrief"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CopeBrief(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the COPE-Brief task.
+    """
+
+    __tablename__ = "cope_brief"
+    shortname = "COPE-Brief"
+    extrastring_taskname = "cope"
+    info_filename_stem = "cope"
+
+    NQUESTIONS = 28
+    RELATIONSHIP_OTHER_CODE = 0
+    RELATIONSHIPS_FIRST = 0
+    RELATIONSHIPS_FIRST_NON_OTHER = 1
+    RELATIONSHIPS_LAST = 9
+
+
+    def __init_subclass__(cls: Type["CopeBrief"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,24 +110,7 @@ class CopeBriefMetaclass(DeclarativeMeta):
                 "making fun of the situation",  # 28
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class CopeBrief(TaskHasPatientMixin, Task, metaclass=CopeBriefMetaclass):
-    """
-    Server implementation of the COPE-Brief task.
-    """
-
-    __tablename__ = "cope_brief"
-    shortname = "COPE-Brief"
-    extrastring_taskname = "cope"
-    info_filename_stem = "cope"
-
-    NQUESTIONS = 28
-    RELATIONSHIP_OTHER_CODE = 0
-    RELATIONSHIPS_FIRST = 0
-    RELATIONSHIPS_FIRST_NON_OTHER = 1
-    RELATIONSHIPS_LAST = 9
+        super().__init_subclass__(**kwargs)
 
     completed_by_patient = CamcopsColumn(
         "completed_by_patient",

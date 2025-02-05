@@ -59,14 +59,19 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class SmastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Smast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Smast(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the SMAST task.
+    """
+
+    __tablename__ = "smast"
+    shortname = "SMAST"
+    info_filename_stem = "mast"
+    provides_trackers = True
+
+    NQUESTIONS = 13
+
+    def __init_subclass__(cls: Type["Smast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -91,20 +96,8 @@ class SmastMetaclass(DeclarativeMeta):
                 "arrested for other drunken behaviour",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Smast(TaskHasPatientMixin, Task, metaclass=SmastMetaclass):
-    """
-    Server implementation of the SMAST task.
-    """
-
-    __tablename__ = "smast"
-    shortname = "SMAST"
-    info_filename_stem = "mast"
-    provides_trackers = True
-
-    NQUESTIONS = 13
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

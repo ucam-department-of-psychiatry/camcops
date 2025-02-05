@@ -39,13 +39,20 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.tasks.isaaqcommon import IsaaqCommon
 
 
-class Isaaq10Metaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Isaaq10"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Isaaq10(IsaaqCommon, ):
+    __tablename__ = "isaaq10"
+    shortname = "ISAAQ-10"
+
+    prohibits_commercial = True
+
+    A_PREFIX = "a"
+    B_PREFIX = "b"
+    FIRST_Q = 1
+    LAST_A_Q = 10
+    LAST_B_Q = 10
+
+
+    def __init_subclass__(cls: Type["Isaaq10"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -94,20 +101,7 @@ class Isaaq10Metaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Isaaq10(IsaaqCommon, metaclass=Isaaq10Metaclass):
-    __tablename__ = "isaaq10"
-    shortname = "ISAAQ-10"
-
-    prohibits_commercial = True
-
-    A_PREFIX = "a"
-    B_PREFIX = "b"
-    FIRST_Q = 1
-    LAST_A_Q = 10
-    LAST_B_Q = 10
+        super().__init_subclass__(**kwargs)
 
     ALL_FIELD_NAMES = strseq(A_PREFIX, FIRST_Q, LAST_A_Q) + strseq(
         B_PREFIX, FIRST_Q, LAST_B_Q

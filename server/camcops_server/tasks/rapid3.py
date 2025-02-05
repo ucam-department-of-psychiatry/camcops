@@ -55,14 +55,27 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Rapid3Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Rapid3"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Rapid3(TaskHasPatientMixin, Task, ):
+    __tablename__ = "rapid3"
+    shortname = "RAPID3"
+    provides_trackers = True
+
+    N_Q1_QUESTIONS = 13
+    N_Q1_SCORING_QUESTIONS = 10
+
+    # > 12 = HIGH
+    # 6.1 - 12 = MODERATE
+    # 3.1 - 6 = LOW
+    # <= 3 = REMISSION
+
+    MINIMUM = 0
+    NEAR_REMISSION_MAX = 3
+    LOW_SEVERITY_MAX = 6
+    MODERATE_SEVERITY_MAX = 12
+    MAXIMUM = 30
+
+
+    def __init_subclass__(cls: Type["Rapid3"], **kwargs) -> None:
 
         comment_strings = [
             "get dressed",
@@ -129,27 +142,7 @@ class Rapid3Metaclass(DeclarativeMeta):
             ),
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Rapid3(TaskHasPatientMixin, Task, metaclass=Rapid3Metaclass):
-    __tablename__ = "rapid3"
-    shortname = "RAPID3"
-    provides_trackers = True
-
-    N_Q1_QUESTIONS = 13
-    N_Q1_SCORING_QUESTIONS = 10
-
-    # > 12 = HIGH
-    # 6.1 - 12 = MODERATE
-    # 3.1 - 6 = LOW
-    # <= 3 = REMISSION
-
-    MINIMUM = 0
-    NEAR_REMISSION_MAX = 3
-    LOW_SEVERITY_MAX = 6
-    MODERATE_SEVERITY_MAX = 12
-    MAXIMUM = 30
+        super().__init_subclass__(**kwargs)
 
     @classmethod
     def q1_indexed_letters(cls, last: int) -> List[Tuple[int, str]]:

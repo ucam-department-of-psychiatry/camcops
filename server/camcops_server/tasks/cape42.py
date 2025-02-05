@@ -134,14 +134,18 @@ DEP_MAX = MAX_SCORE_PER_Q * len(DEPRESSIVE)
 DP = 2
 
 
-class Cape42Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cape42"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cape42(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the CAPE-42 task.
+    """
+
+    __tablename__ = "cape42"
+    shortname = "CAPE-42"
+    provides_trackers = True
+    info_filename_stem = "cape"
+
+
+    def __init_subclass__(cls: Type["Cape42"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -168,18 +172,7 @@ class Cape42Metaclass(DeclarativeMeta):
             ),
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
-
-
-class Cape42(TaskHasPatientMixin, Task, metaclass=Cape42Metaclass):
-    """
-    Server implementation of the CAPE-42 task.
-    """
-
-    __tablename__ = "cape42"
-    shortname = "CAPE-42"
-    provides_trackers = True
-    info_filename_stem = "cape"
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

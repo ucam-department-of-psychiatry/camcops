@@ -112,14 +112,18 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 # =============================================================================
 
 
-class NartMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Nart"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Nart(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the NART task.
+    """
+
+    __tablename__ = "nart"
+    shortname = "NART"
+
+
+    def __init_subclass__(cls: Type["Nart"], **kwargs) -> None:
         for w in WORDLIST:
             setattr(
                 cls,
@@ -131,18 +135,7 @@ class NartMetaclass(DeclarativeMeta):
                     comment=f"Pronounced {w} correctly (0 no, 1 yes)",
                 ),
             )
-        super().__init__(name, bases, classdict)
-
-
-class Nart(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=NartMetaclass
-):
-    """
-    Server implementation of the NART task.
-    """
-
-    __tablename__ = "nart"
-    shortname = "NART"
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

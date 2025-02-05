@@ -76,14 +76,20 @@ def qfieldname_frequency(qnum: int) -> str:
     return f"{QPREFIX}{qnum}{QSUFFIX_FREQUENCY}"
 
 
-class LynallIamLifeEventsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["LynallIamLifeEvents"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class LynallIamLifeEvents(
+    TaskHasPatientMixin, Task, 
+):
+    """
+    Server implementation of the LynallIamLifeEvents task.
+    """
+
+    __tablename__ = "lynall_iam_life"
+    shortname = "Lynall_IAM_Life"
+
+    prohibits_commercial = True
+
+
+    def __init_subclass__(cls: Type["LynallIamLifeEvents"], **kwargs) -> None:
         comment_strings = [
             "illness/injury/assault (self)",  # 1
             "illness/injury/assault (relative)",
@@ -150,20 +156,7 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
-
-
-class LynallIamLifeEvents(
-    TaskHasPatientMixin, Task, metaclass=LynallIamLifeEventsMetaclass
-):
-    """
-    Server implementation of the LynallIamLifeEvents task.
-    """
-
-    __tablename__ = "lynall_iam_life"
-    shortname = "Lynall_IAM_Life"
-
-    prohibits_commercial = True
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

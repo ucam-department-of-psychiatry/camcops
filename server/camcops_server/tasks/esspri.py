@@ -44,14 +44,14 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class EsspriMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Esspri"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Esspri(TaskHasPatientMixin, Task, ):
+    __tablename__ = "esspri"
+    shortname = "ESSPRI"
+
+    N_QUESTIONS = 3
+    MAX_SCORE = 10  # Mean of 3 scores of 10
+
+    def __init_subclass__(cls: Type["Esspri"], **kwargs) -> None:
 
         comment_strings = ["dryness", "fatigue", "pain"]
 
@@ -74,15 +74,8 @@ class EsspriMetaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Esspri(TaskHasPatientMixin, Task, metaclass=EsspriMetaclass):
-    __tablename__ = "esspri"
-    shortname = "ESSPRI"
-
-    N_QUESTIONS = 3
-    MAX_SCORE = 10  # Mean of 3 scores of 10
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod

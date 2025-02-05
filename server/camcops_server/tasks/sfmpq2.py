@@ -44,14 +44,14 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
 
-class Sfmpq2Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Sfmpq2"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Sfmpq2(TaskHasPatientMixin, Task, ):
+    __tablename__ = "sfmpq2"
+    shortname = "SF-MPQ2"
+
+    N_QUESTIONS = 22
+    MAX_SCORE_PER_Q = 10
+
+    def __init_subclass__(cls: Type["Sfmpq2"], **kwargs) -> None:
 
         # Field descriptions are open access, as per:
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/
@@ -99,15 +99,8 @@ class Sfmpq2Metaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Sfmpq2(TaskHasPatientMixin, Task, metaclass=Sfmpq2Metaclass):
-    __tablename__ = "sfmpq2"
-    shortname = "SF-MPQ2"
-
-    N_QUESTIONS = 22
-    MAX_SCORE_PER_Q = 10
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     CONTINUOUS_PAIN_QUESTIONS = Task.fieldnames_from_list(

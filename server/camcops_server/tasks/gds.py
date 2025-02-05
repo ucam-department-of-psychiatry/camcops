@@ -48,14 +48,19 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Gds15Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Gds15"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Gds15(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the GDS-15 task.
+    """
+
+    __tablename__ = "gds15"
+    shortname = "GDS-15"
+    info_filename_stem = "gds"
+    provides_trackers = True
+
+    NQUESTIONS = 15
+
+    def __init_subclass__(cls: Type["Gds15"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -82,20 +87,8 @@ class Gds15Metaclass(DeclarativeMeta):
                 "others better off",  # 15
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Gds15(TaskHasPatientMixin, Task, metaclass=Gds15Metaclass):
-    """
-    Server implementation of the GDS-15 task.
-    """
-
-    __tablename__ = "gds15"
-    shortname = "GDS-15"
-    info_filename_stem = "gds"
-    provides_trackers = True
-
-    NQUESTIONS = 15
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORE_IF_YES = [2, 3, 4, 6, 8, 9, 10, 12, 14, 15]
     SCORE_IF_NO = [1, 5, 7, 11, 13]

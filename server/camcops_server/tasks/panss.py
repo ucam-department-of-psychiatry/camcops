@@ -56,14 +56,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PanssMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Panss"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Panss(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the PANSS task.
+    """
+
+    __tablename__ = "panss"
+    shortname = "PANSS"
+    provides_trackers = True
+
+    NUM_P = 7
+    NUM_N = 7
+    NUM_G = 16
+
+
+    def __init_subclass__(cls: Type["Panss"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "p",
@@ -127,23 +136,7 @@ class PanssMetaclass(DeclarativeMeta):
                 "active social avoidance",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Panss(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=PanssMetaclass
-):
-    """
-    Server implementation of the PANSS task.
-    """
-
-    __tablename__ = "panss"
-    shortname = "PANSS"
-    provides_trackers = True
-
-    NUM_P = 7
-    NUM_N = 7
-    NUM_G = 16
+        super().__init_subclass__(**kwargs)
 
     P_FIELDS = strseq("p", 1, NUM_P)
     N_FIELDS = strseq("n", 1, NUM_N)

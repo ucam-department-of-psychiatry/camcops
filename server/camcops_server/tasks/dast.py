@@ -53,14 +53,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class DastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Dast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Dast(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the DAST task.
+    """
+
+    __tablename__ = "dast"
+    shortname = "DAST"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 28
+
+    def __init_subclass__(cls: Type["Dast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,21 +106,8 @@ class DastMetaclass(DeclarativeMeta):
                 "outpatient treatment for drug abuse (+)",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Dast(TaskHasPatientMixin, Task, metaclass=DastMetaclass):
-    """
-    Server implementation of the DAST task.
-    """
-
-    __tablename__ = "dast"
-    shortname = "DAST"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 28
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

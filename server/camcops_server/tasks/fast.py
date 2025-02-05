@@ -52,14 +52,17 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class FastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Fast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Fast(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the FAST task.
+    """
+
+    __tablename__ = "fast"
+    shortname = "FAST"
+
+    NQUESTIONS = 4
+
+    def __init_subclass__(cls: Type["Fast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -75,18 +78,8 @@ class FastMetaclass(DeclarativeMeta):
                 "others concerned",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Fast(TaskHasPatientMixin, Task, metaclass=FastMetaclass):
-    """
-    Server implementation of the FAST task.
-    """
-
-    __tablename__ = "fast"
-    shortname = "FAST"
-
-    NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 16
 

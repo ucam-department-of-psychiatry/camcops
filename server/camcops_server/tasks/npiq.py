@@ -57,14 +57,19 @@ SEVERITY = "severity"
 DISTRESS = "distress"
 
 
-class NpiQMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["NpiQ"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class NpiQ(
+    TaskHasPatientMixin, TaskHasRespondentMixin, Task, 
+):
+    """
+    Server implementation of the NPI-Q task.
+    """
+
+    __tablename__ = "npiq"
+    shortname = "NPI-Q"
+
+    NQUESTIONS = 12
+
+    def __init_subclass__(cls: Type["NpiQ"], **kwargs) -> None:
         question_snippets = [
             "delusions",  # 1
             "hallucinations",
@@ -107,20 +112,8 @@ class NpiQMetaclass(DeclarativeMeta):
             comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
             comment_strings=question_snippets,
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class NpiQ(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=NpiQMetaclass
-):
-    """
-    Server implementation of the NPI-Q task.
-    """
-
-    __tablename__ = "npiq"
-    shortname = "NPI-Q"
-
-    NQUESTIONS = 12
     ENDORSED_FIELDS = strseq(ENDORSED, 1, NQUESTIONS)
     MAX_SEVERITY = 3 * NQUESTIONS
     MAX_DISTRESS = 5 * NQUESTIONS

@@ -53,14 +53,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class PdssMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Pdss"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Pdss(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the PDSS task.
+    """
+
+    __tablename__ = "pdss"
+    shortname = "PDSS"
+    provides_trackers = True
+
+    MIN_PER_Q = 0
+    MAX_PER_Q = 4
+    NQUESTIONS = 7
+
+    def __init_subclass__(cls: Type["Pdss"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -79,21 +85,8 @@ class PdssMetaclass(DeclarativeMeta):
                 "interference with social life",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Pdss(TaskHasPatientMixin, Task, metaclass=PdssMetaclass):
-    """
-    Server implementation of the PDSS task.
-    """
-
-    __tablename__ = "pdss"
-    shortname = "PDSS"
-    provides_trackers = True
-
-    MIN_PER_Q = 0
-    MAX_PER_Q = 4
-    NQUESTIONS = 7
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
     MAX_COMPOSITE = 4

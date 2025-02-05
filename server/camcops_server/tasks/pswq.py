@@ -47,14 +47,21 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PswqMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Pswq"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Pswq(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the PSWQ task.
+    """
+
+    __tablename__ = "pswq"
+    shortname = "PSWQ"
+    provides_trackers = True
+
+    MIN_PER_Q = 1
+    MAX_PER_Q = 5
+    NQUESTIONS = 16
+    REVERSE_SCORE = [1, 3, 8, 10, 11]
+
+    def __init_subclass__(cls: Type["Pswq"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -82,22 +89,8 @@ class PswqMetaclass(DeclarativeMeta):
                 "worry about projects until done",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Pswq(TaskHasPatientMixin, Task, metaclass=PswqMetaclass):
-    """
-    Server implementation of the PSWQ task.
-    """
-
-    __tablename__ = "pswq"
-    shortname = "PSWQ"
-    provides_trackers = True
-
-    MIN_PER_Q = 1
-    MAX_PER_Q = 5
-    NQUESTIONS = 16
-    REVERSE_SCORE = [1, 3, 8, 10, 11]
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MIN_TOTAL = MIN_PER_Q * NQUESTIONS
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS

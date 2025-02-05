@@ -54,14 +54,22 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Zbi12Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Zbi12"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Zbi12(
+    TaskHasRespondentMixin, TaskHasPatientMixin, Task, 
+):
+    """
+    Server implementation of the ZBI-12 task.
+    """
+
+    __tablename__ = "zbi12"
+    shortname = "ZBI-12"
+    info_filename_stem = "zbi"
+
+    MIN_PER_Q = 0
+    MAX_PER_Q = 4
+    NQUESTIONS = 12
+
+    def __init_subclass__(cls: Type["Zbi12"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -85,23 +93,8 @@ class Zbi12Metaclass(DeclarativeMeta):
                 "could care better",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Zbi12(
-    TaskHasRespondentMixin, TaskHasPatientMixin, Task, metaclass=Zbi12Metaclass
-):
-    """
-    Server implementation of the ZBI-12 task.
-    """
-
-    __tablename__ = "zbi12"
-    shortname = "ZBI-12"
-    info_filename_stem = "zbi"
-
-    MIN_PER_Q = 0
-    MAX_PER_Q = 4
-    NQUESTIONS = 12
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
 

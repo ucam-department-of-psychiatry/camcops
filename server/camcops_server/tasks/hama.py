@@ -56,14 +56,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class HamaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Hama"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Hama(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the HAM-A task.
+    """
+
+    __tablename__ = "hama"
+    shortname = "HAM-A"
+    provides_trackers = True
+
+    NQUESTIONS = 14
+
+    def __init_subclass__(cls: Type["Hama"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -89,21 +95,8 @@ class HamaMetaclass(DeclarativeMeta):
                 "behaviour in interview",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Hama(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=HamaMetaclass
-):
-    """
-    Server implementation of the HAM-A task.
-    """
-
-    __tablename__ = "hama"
-    shortname = "HAM-A"
-    provides_trackers = True
-
-    NQUESTIONS = 14
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 56
 

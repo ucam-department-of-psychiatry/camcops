@@ -27,7 +27,7 @@ ACE-III and Mini-ACE.
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type, TYPE_CHECKING
+from typing import List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -174,14 +174,20 @@ def tr_heading(left: str, right: str) -> str:
 # =============================================================================
 
 
-class Ace3Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ace3"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ace3(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task,
+):
+    """
+    Server implementation of the ACE-III task.
+    """
+
+    __tablename__ = "ace3"
+    shortname = "ACE-III"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    def __init_subclass__(cls: Type["Ace3"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -396,21 +402,7 @@ class Ace3Metaclass(DeclarativeMeta):
             comment_strings=["name", "number", "street", "town", "county"],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Ace3(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Ace3Metaclass
-):
-    """
-    Server implementation of the ACE-III task.
-    """
-
-    __tablename__ = "ace3"
-    shortname = "ACE-III"
-    provides_trackers = True
-
-    prohibits_commercial = True
+        super().__init_subclass__(**kwargs)
 
     task_edition = CamcopsColumn(
         "task_edition",
@@ -1277,14 +1269,23 @@ class Ace3(
 # =============================================================================
 
 
-class MiniAceMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["MiniAce"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class MiniAce(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the Mini-ACE task.
+    """
+
+    __tablename__ = "miniace"
+    shortname = "Mini-ACE"
+    extrastring_taskname = "ace3"  # shares strings with ACE-III
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    def __init_subclass__(cls: Type["MiniAce"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -1334,25 +1335,7 @@ class MiniAceMetaclass(DeclarativeMeta):
             comment_strings=ADDRESS_PARTS,
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class MiniAce(
-    TaskHasPatientMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=MiniAceMetaclass,
-):
-    """
-    Server implementation of the Mini-ACE task.
-    """
-
-    __tablename__ = "miniace"
-    shortname = "Mini-ACE"
-    extrastring_taskname = "ace3"  # shares strings with ACE-III
-    provides_trackers = True
-
-    prohibits_commercial = True
+        super().__init_subclass__(**kwargs)
 
     task_edition = CamcopsColumn(
         "task_edition",

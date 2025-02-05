@@ -59,18 +59,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PclMetaclass(DeclarativeMeta, ABCMeta):
-    """
-    There is a multilayer metaclass problem; see hads.py for discussion.
-    """
+class PclCommon(TaskHasPatientMixin, Task, ABC):
+    __abstract__ = True
+    provides_trackers = True
+    extrastring_taskname = "pcl"
+    info_filename_stem = extrastring_taskname
+
+    NQUESTIONS = 17
+    SCORED_FIELDS = strseq("q", 1, NQUESTIONS)
+    TASK_FIELDS = SCORED_FIELDS  # may be overridden
+    TASK_TYPE = "?"  # will be overridden
+    # ... not really used; we display the generic question forms on the server
+    MIN_SCORE = NQUESTIONS
+    MAX_SCORE = 5 * NQUESTIONS
 
     # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["PclCommon"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    def __init_subclass__(cls: Type["PclCommon"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -99,22 +103,7 @@ class PclMetaclass(DeclarativeMeta, ABCMeta):
                 "jumpy/easily startled",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class PclCommon(TaskHasPatientMixin, Task, ABC, metaclass=PclMetaclass):
-    __abstract__ = True
-    provides_trackers = True
-    extrastring_taskname = "pcl"
-    info_filename_stem = extrastring_taskname
-
-    NQUESTIONS = 17
-    SCORED_FIELDS = strseq("q", 1, NQUESTIONS)
-    TASK_FIELDS = SCORED_FIELDS  # may be overridden
-    TASK_TYPE = "?"  # will be overridden
-    # ... not really used; we display the generic question forms on the server
-    MIN_SCORE = NQUESTIONS
-    MAX_SCORE = 5 * NQUESTIONS
+        super().__init_subclass__(**kwargs)
 
     def is_complete(self) -> bool:
         return (
@@ -294,7 +283,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC, metaclass=PclMetaclass):
 # =============================================================================
 
 
-class PclC(PclCommon, metaclass=PclMetaclass):
+class PclC(PclCommon):
     """
     Server implementation of the PCL-C task.
     """
@@ -315,7 +304,7 @@ class PclC(PclCommon, metaclass=PclMetaclass):
 # =============================================================================
 
 
-class PclM(PclCommon, metaclass=PclMetaclass):
+class PclM(PclCommon):
     """
     Server implementation of the PCL-M task.
     """
@@ -336,7 +325,7 @@ class PclM(PclCommon, metaclass=PclMetaclass):
 # =============================================================================
 
 
-class PclS(PclCommon, metaclass=PclMetaclass):
+class PclS(PclCommon):
     """
     Server implementation of the PCL-S task.
     """

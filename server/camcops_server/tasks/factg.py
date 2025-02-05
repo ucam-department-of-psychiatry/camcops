@@ -27,10 +27,9 @@
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -66,91 +65,6 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 DISPLAY_DP = 2
 MAX_QSCORE = 4
 NON_REVERSE_SCORED_EMOTIONAL_QNUM = 2
-
-
-class FactgMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Factg"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        answer_stem = (
-            " (0 not at all, 1 a little bit, 2 somewhat, 3 quite a bit, "
-            "4 very much)"
-        )
-        add_multiple_columns(
-            cls,
-            "p_q",
-            1,
-            cls.N_QUESTIONS_PHYSICAL,
-            minimum=0,
-            maximum=4,
-            comment_fmt="Physical well-being Q{n} ({s})" + answer_stem,
-            comment_strings=[
-                "lack of energy",
-                "nausea",
-                "trouble meeting family needs",
-                "pain",
-                "treatment side effects",
-                "feel ill",
-                "bedbound",
-            ],
-        )
-        add_multiple_columns(
-            cls,
-            "s_q",
-            1,
-            cls.N_QUESTIONS_SOCIAL,
-            minimum=0,
-            maximum=4,
-            comment_fmt="Social well-being Q{n} ({s})" + answer_stem,
-            comment_strings=[
-                "close to friends",
-                "emotional support from family",
-                "support from friends",
-                "family accepted illness",
-                "good family comms re illness",
-                "feel close to partner/main supporter",
-                "satisfied with sex life",
-            ],
-        )
-        add_multiple_columns(
-            cls,
-            "e_q",
-            1,
-            cls.N_QUESTIONS_EMOTIONAL,
-            minimum=0,
-            maximum=4,
-            comment_fmt="Emotional well-being Q{n} ({s})" + answer_stem,
-            comment_strings=[
-                "sad",
-                "satisfied with coping re illness",
-                "losing hope in fight against illness",
-                "nervous" "worried about dying",
-                "worried condition will worsen",
-            ],
-        )
-        add_multiple_columns(
-            cls,
-            "f_q",
-            1,
-            cls.N_QUESTIONS_FUNCTIONAL,
-            minimum=0,
-            maximum=4,
-            comment_fmt="Functional well-being Q{n} ({s})" + answer_stem,
-            comment_strings=[
-                "able to work",
-                "work fulfilling",
-                "able to enjoy life",
-                "accepted illness",
-                "sleeping well",
-                "enjoying usual fun things",
-                "content with quality of life",
-            ],
-        )
-        super().__init__(name, bases, classdict)
 
 
 class FactgGroupInfo(object):
@@ -203,7 +117,7 @@ class FactgGroupInfo(object):
         return scoresum * self.n_questions / answered
 
 
-class Factg(TaskHasPatientMixin, Task, metaclass=FactgMetaclass):
+class Factg(TaskHasPatientMixin, Task):
     """
     Server implementation of the Fact-G task.
     """
@@ -279,6 +193,83 @@ class Factg(TaskHasPatientMixin, Task, metaclass=FactgMetaclass):
     ]
 
     OPTIONAL_Q = "s_q7"
+
+    def __init_subclass__(cls: Type["Factg"], **kwargs) -> None:
+        answer_stem = (
+            " (0 not at all, 1 a little bit, 2 somewhat, 3 quite a bit, "
+            "4 very much)"
+        )
+        add_multiple_columns(
+            cls,
+            "p_q",
+            1,
+            cls.N_QUESTIONS_PHYSICAL,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Physical well-being Q{n} ({s})" + answer_stem,
+            comment_strings=[
+                "lack of energy",
+                "nausea",
+                "trouble meeting family needs",
+                "pain",
+                "treatment side effects",
+                "feel ill",
+                "bedbound",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "s_q",
+            1,
+            cls.N_QUESTIONS_SOCIAL,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Social well-being Q{n} ({s})" + answer_stem,
+            comment_strings=[
+                "close to friends",
+                "emotional support from family",
+                "support from friends",
+                "family accepted illness",
+                "good family comms re illness",
+                "feel close to partner/main supporter",
+                "satisfied with sex life",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "e_q",
+            1,
+            cls.N_QUESTIONS_EMOTIONAL,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Emotional well-being Q{n} ({s})" + answer_stem,
+            comment_strings=[
+                "sad",
+                "satisfied with coping re illness",
+                "losing hope in fight against illness",
+                "nervous" "worried about dying",
+                "worried condition will worsen",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "f_q",
+            1,
+            cls.N_QUESTIONS_FUNCTIONAL,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Functional well-being Q{n} ({s})" + answer_stem,
+            comment_strings=[
+                "able to work",
+                "work fulfilling",
+                "able to enjoy life",
+                "accepted illness",
+                "sleeping well",
+                "enjoying usual fun things",
+                "content with quality of life",
+            ],
+        )
+        super().__init_subclass__(**kwargs)
 
     ignore_s_q7 = CamcopsColumn(
         "ignore_s_q7", Boolean, permitted_value_checker=BIT_CHECKER

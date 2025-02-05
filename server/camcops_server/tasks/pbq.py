@@ -54,14 +54,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PbqMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Pbq"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Pbq(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the PBQ task.
+    """
+
+    __tablename__ = "pbq"
+    shortname = "PBQ"
+    provides_trackers = True
+
+    MIN_PER_Q = 0
+    MAX_PER_Q = 5
+    NQUESTIONS = 25
+
+    def __init_subclass__(cls: Type["Pbq"], **kwargs) -> None:
         comment_strings = [
             # This is the Brockington 2006 order; see XML for notes.
             # 1-5
@@ -116,21 +122,8 @@ class PbqMetaclass(DeclarativeMeta):
                     permitted_value_checker=pvc,
                 ),
             )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Pbq(TaskHasPatientMixin, Task, metaclass=PbqMetaclass):
-    """
-    Server implementation of the PBQ task.
-    """
-
-    __tablename__ = "pbq"
-    shortname = "PBQ"
-    provides_trackers = True
-
-    MIN_PER_Q = 0
-    MAX_PER_Q = 5
-    NQUESTIONS = 25
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
     SCORED_A0N5_Q = [1, 4, 8, 9, 11, 16, 22, 25]  # rest scored A5N0

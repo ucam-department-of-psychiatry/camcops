@@ -52,7 +52,6 @@ A few random notes:
 
 """
 
-from abc import ABCMeta
 from io import StringIO
 import logging
 import sqlite3
@@ -215,14 +214,6 @@ class Base(DeclarativeBaseNoMeta):
 
 # MySQL things we don't care about too much:
 # - innodb_file_per_table: desirable, but up to the user.
-
-
-class DeclarativeAndABCMeta(DeclarativeMeta, ABCMeta):
-    """
-    Metaclass for classes that want to inherit from Base and also ABC:
-    """
-
-    pass
 
 
 # =============================================================================

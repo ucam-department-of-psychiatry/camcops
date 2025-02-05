@@ -153,14 +153,17 @@ CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS = Task.fieldnames_from_list(
 # =============================================================================
 
 
-class BdiMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Bdi"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Bdi(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the BDI task.
+    """
+
+    __tablename__ = "bdi"
+    shortname = "BDI"
+    provides_trackers = True
+
+
+    def __init_subclass__(cls: Type["Bdi"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -178,17 +181,7 @@ class BdiMetaclass(DeclarativeMeta):
                 for q in range(1, NQUESTIONS + 1)
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Bdi(TaskHasPatientMixin, Task, metaclass=BdiMetaclass):
-    """
-    Server implementation of the BDI task.
-    """
-
-    __tablename__ = "bdi"
-    shortname = "BDI"
-    provides_trackers = True
+        super().__init_subclass__(**kwargs)
 
     bdi_scale = Column(
         "bdi_scale",

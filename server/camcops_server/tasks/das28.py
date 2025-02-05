@@ -63,14 +63,15 @@ from sqlalchemy import Column, Float, Integer
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-class Das28Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Das28"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Das28(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    __tablename__ = "das28"
+    shortname = "DAS28"
+    provides_trackers = True
+
+
+    def __init_subclass__(cls: Type["Das28"], **kwargs) -> None:
         for field_name in cls.get_joint_field_names():
             setattr(
                 cls, field_name, BoolColumn(field_name, comment="0 no, 1 yes")
@@ -93,15 +94,7 @@ class Das28Metaclass(DeclarativeMeta):
 
         setattr(cls, "esr", Column("esr", Float, comment="ESR (1-300 mm/h)"))
 
-        super().__init__(name, bases, classdict)
-
-
-class Das28(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Das28Metaclass
-):
-    __tablename__ = "das28"
-    shortname = "DAS28"
-    provides_trackers = True
+        super().__init_subclass__(**kwargs)
 
     JOINTS = (
         ["shoulder", "elbow", "wrist"]

@@ -63,35 +63,11 @@ YN_NA_CHECKER = PermittedValueChecker(permitted_values=[YES, NO, NA])
 # =============================================================================
 
 
-class DadMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Dad"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
-        for colname in cls.ITEMS:
-            setattr(
-                cls,
-                colname,
-                CamcopsColumn(
-                    colname,
-                    Integer,
-                    permitted_value_checker=YN_NA_CHECKER,
-                    comment=colname + explan,
-                ),
-            )
-        super().__init__(name, bases, classdict)
-
-
 class Dad(
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     TaskHasClinicianMixin,
     Task,
-    metaclass=DadMetaclass,
 ):
     """
     Server implementation of the DAD task.
@@ -154,6 +130,22 @@ class Dad(
         "leisure_exec_complete_chores",
         "leisure_exec_safe_at_home",
     ]
+
+
+    def __init_subclass__(cls: Type["Dad"], **kwargs) -> None:
+        explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
+        for colname in cls.ITEMS:
+            setattr(
+                cls,
+                colname,
+                CamcopsColumn(
+                    colname,
+                    Integer,
+                    permitted_value_checker=YN_NA_CHECKER,
+                    comment=colname + explan,
+                ),
+            )
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

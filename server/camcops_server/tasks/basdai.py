@@ -53,14 +53,14 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class BasdaiMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Basdai"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Basdai(TaskHasPatientMixin, Task, ):
+    __tablename__ = "basdai"
+    shortname = "BASDAI"
+    provides_trackers = True
+
+    N_QUESTIONS = 6
+
+    def __init_subclass__(cls: Type["Basdai"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -81,15 +81,8 @@ class BasdaiMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Basdai(TaskHasPatientMixin, Task, metaclass=BasdaiMetaclass):
-    __tablename__ = "basdai"
-    shortname = "BASDAI"
-    provides_trackers = True
-
-    N_QUESTIONS = 6
     FIELD_NAMES = strseq("q", 1, N_QUESTIONS)
 
     MINIMUM = 0.0

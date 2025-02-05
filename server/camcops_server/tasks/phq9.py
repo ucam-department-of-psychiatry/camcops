@@ -69,14 +69,17 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq9Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Phq9"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Phq9(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the PHQ9 task.
+    """
+
+    __tablename__ = "phq9"
+    shortname = "PHQ-9"
+    provides_trackers = True
+
+
+    def __init_subclass__(cls: Type["Phq9"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -97,17 +100,7 @@ class Phq9Metaclass(DeclarativeMeta):
                 "death/self-harm",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Phq9(TaskHasPatientMixin, Task, metaclass=Phq9Metaclass):
-    """
-    Server implementation of the PHQ9 task.
-    """
-
-    __tablename__ = "phq9"
-    shortname = "PHQ-9"
-    provides_trackers = True
+        super().__init_subclass__(**kwargs)
 
     q10 = CamcopsColumn(
         "q10",

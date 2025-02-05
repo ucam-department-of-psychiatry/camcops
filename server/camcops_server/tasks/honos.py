@@ -158,14 +158,17 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 
 
-class HonosMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Honos"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Honos(HonosBase, ):
+    """
+    Server implementation of the HoNOS task.
+    """
+
+    __tablename__ = "honos"
+    shortname = "HoNOS"
+    info_filename_stem = "honos"
+
+
+    def __init_subclass__(cls: Type["Honos"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -188,17 +191,7 @@ class HonosMetaclass(DeclarativeMeta):
                 "occupation/activities",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Honos(HonosBase, metaclass=HonosMetaclass):
-    """
-    Server implementation of the HoNOS task.
-    """
-
-    __tablename__ = "honos"
-    shortname = "HoNOS"
-    info_filename_stem = "honos"
+        super().__init_subclass__(**kwargs)
 
     q8problemtype = CamcopsColumn(
         "q8problemtype",
@@ -376,14 +369,17 @@ class Honos(HonosBase, metaclass=HonosMetaclass):
 # =============================================================================
 
 
-class Honos65Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Honos65"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Honos65(HonosBase, ):
+    """
+    Server implementation of the HoNOS 65+ task.
+    """
+
+    __tablename__ = "honos65"
+    shortname = "HoNOS 65+"
+    info_filename_stem = "honos"
+
+
+    def __init_subclass__(cls: Type["Honos65"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -406,17 +402,7 @@ class Honos65Metaclass(DeclarativeMeta):
                 "occupation/activities",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Honos65(HonosBase, metaclass=Honos65Metaclass):
-    """
-    Server implementation of the HoNOS 65+ task.
-    """
-
-    __tablename__ = "honos65"
-    shortname = "HoNOS 65+"
-    info_filename_stem = "honos"
+        super().__init_subclass__(**kwargs)
 
     q8problemtype = CamcopsColumn(
         "q8problemtype",
@@ -557,14 +543,18 @@ class Honos65(HonosBase, metaclass=Honos65Metaclass):
 # =============================================================================
 
 
-class HonoscaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Honosca"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Honosca(HonosBase, ):
+    """
+    Server implementation of the HoNOSCA task.
+    """
+
+    __tablename__ = "honosca"
+    shortname = "HoNOSCA"
+    info_filename_stem = "honos"
+
+    NQUESTIONS = 15
+
+    def __init_subclass__(cls: Type["Honosca"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -590,19 +580,8 @@ class HonoscaMetaclass(DeclarativeMeta):
                 "lack of information about services",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Honosca(HonosBase, metaclass=HonoscaMetaclass):
-    """
-    Server implementation of the HoNOSCA task.
-    """
-
-    __tablename__ = "honosca"
-    shortname = "HoNOSCA"
-    info_filename_stem = "honos"
-
-    NQUESTIONS = 15
     QFIELDS = strseq("q", 1, NQUESTIONS)
     LAST_SECTION_A_Q = 13
     FIRST_SECTION_B_Q = 14

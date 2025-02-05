@@ -46,14 +46,14 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 
 
-class ShapsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Shaps"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Shaps(TaskHasPatientMixin, Task, ):
+    __tablename__ = "shaps"
+    shortname = "SHAPS"
+
+    N_QUESTIONS = 14
+    MAX_SCORE = 14
+
+    def __init_subclass__(cls: Type["Shaps"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -81,15 +81,8 @@ class ShapsMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Shaps(TaskHasPatientMixin, Task, metaclass=ShapsMetaclass):
-    __tablename__ = "shaps"
-    shortname = "SHAPS"
-
-    N_QUESTIONS = 14
-    MAX_SCORE = 14
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     STRONGLY_DISAGREE = 0

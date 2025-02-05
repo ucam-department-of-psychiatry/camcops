@@ -75,14 +75,21 @@ def ctv_info_pd(
     return CtvInfo(content=condition + ": " + get_yes_no_unknown(req, has_it))
 
 
-class Icd10SpecPDMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Icd10SpecPD"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Icd10SpecPD(
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the ICD10-PD task.
+    """
+
+    __tablename__ = "icd10specpd"
+    shortname = "ICD10-PD"
+    info_filename_stem = "icd"
+
+
+    def __init_subclass__(cls: Type["Icd10SpecPD"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "g",
@@ -260,22 +267,7 @@ class Icd10SpecPDMetaclass(DeclarativeMeta):
                 "everyday decisions require advice/reassurance",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Icd10SpecPD(
-    TaskHasClinicianMixin,
-    TaskHasPatientMixin,
-    Task,
-    metaclass=Icd10SpecPDMetaclass,
-):
-    """
-    Server implementation of the ICD10-PD task.
-    """
-
-    __tablename__ = "icd10specpd"
-    shortname = "ICD10-PD"
-    info_filename_stem = "icd"
+        super().__init_subclass__(**kwargs)
 
     date_pertains_to = Column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"

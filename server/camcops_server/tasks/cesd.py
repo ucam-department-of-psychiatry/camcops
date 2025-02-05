@@ -61,18 +61,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class CesdMetaclass(DeclarativeMeta):
+class Cesd(TaskHasPatientMixin, Task, ):
     """
-    There is a multilayer metaclass problem; see hads.py for discussion.
+    Server implementation of the CESD task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cesd"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __tablename__ = "cesd"
+    shortname = "CESD"
+    provides_trackers = True
+    extrastring_taskname = "cesd"
+    N_QUESTIONS = 20
+    N_ANSWERS = 4
+    DEPRESSION_RISK_THRESHOLD = 16
+
+    def __init_subclass__(cls: Type["Cesd"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -106,21 +108,8 @@ class CesdMetaclass(DeclarativeMeta):
                 "could not get going",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Cesd(TaskHasPatientMixin, Task, metaclass=CesdMetaclass):
-    """
-    Server implementation of the CESD task.
-    """
-
-    __tablename__ = "cesd"
-    shortname = "CESD"
-    provides_trackers = True
-    extrastring_taskname = "cesd"
-    N_QUESTIONS = 20
-    N_ANSWERS = 4
-    DEPRESSION_RISK_THRESHOLD = 16
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS
     MIN_SCORE = 0

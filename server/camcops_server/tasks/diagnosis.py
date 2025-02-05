@@ -25,7 +25,8 @@ camcops_server/tasks/diagnosis.py
 
 """
 
-from abc import ABC
+from abc import ABC, ABCMeta
+import datetime
 import logging
 from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
@@ -43,7 +44,7 @@ from fhirclient.models.condition import Condition
 import hl7
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import (
     and_,
     exists,
@@ -90,7 +91,7 @@ from camcops_server.cc_modules.cc_snomed import (
     SnomedExpression,
     SnomedFocusConcept,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base, DeclarativeAndABCMeta
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     DiagnosticCodeColType,
@@ -120,36 +121,34 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def seqnum(cls) -> Column:
-        return Column(
-            "seqnum",
-            Integer,
-            nullable=False,
-            comment="Sequence number (consistently 1-based as of 2018-12-01)",
-        )
+    seqnum: Mapped[int] = mapped_column(
+        "seqnum",
+        Integer,
+        nullable=False,
+        comment="Sequence number (consistently 1-based as of 2018-12-01)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def code(cls) -> Column:
-        return Column("code", DiagnosticCodeColType, comment="Diagnostic code")
+    code: Mapped[str] = mapped_column(
+        "code",
+        DiagnosticCodeColType,
+        comment="Diagnostic code",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def description(cls) -> Column:
-        return CamcopsColumn(
-            "description",
-            UnicodeText,
-            exempt_from_anonymisation=True,
-            comment="Description of the diagnostic code",
-        )
+    description: Mapped[str] = CamcopsColumn(
+        "description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
+        comment="Description of the diagnostic code",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def comment(cls) -> Column:
-        return Column(  # new in v2.0.0
-            "comment", UnicodeText, comment="Clinician's comment"
-        )
+    comment: Mapped[str] = mapped_column(
+        "comment",
+        UnicodeText,
+        comment="Clinician's comment",
+    )
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -181,16 +180,16 @@ class DiagnosisBase(
     TaskHasPatientMixin,
     Task,
     ABC,
-    metaclass=DeclarativeAndABCMeta,
+    metaclass=ABCMeta,
 ):
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def relates_to_date(cls) -> Column:
-        return Column(  # new in v2.0.0
-            "relates_to_date", Date, comment="Date that diagnoses relate to"
-        )
+    relates_to_date: Mapped[datetime.date] = mapped_column(
+        "relates_to_date",
+        Date,
+        comment="Date that diagnoses relate to",
+    )
 
     items = None  # type: List[DiagnosisItemBase]
     # ... must be overridden by a relationship

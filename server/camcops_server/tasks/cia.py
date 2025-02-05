@@ -42,13 +42,18 @@ from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
-class CiaMetaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Cia"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cia(TaskHasPatientMixin, Task, ):
+    __tablename__ = "cia"
+    shortname = "CIA"
+    provides_trackers = True
+
+    Q_PREFIX = "q"
+    FIRST_Q = 1
+    LAST_Q = 16
+    MAX_SCORE = 48
+
+
+    def __init_subclass__(cls: Type["Cia"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -79,18 +84,7 @@ class CiaMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
-    __tablename__ = "cia"
-    shortname = "CIA"
-    provides_trackers = True
-
-    Q_PREFIX = "q"
-    FIRST_Q = 1
-    LAST_Q = 16
-    MAX_SCORE = 48
+        super().__init_subclass__(**kwargs)
 
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
     MANDATORY_QUESTIONS = [1, 2, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16]

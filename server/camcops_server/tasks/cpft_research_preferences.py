@@ -43,37 +43,8 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class CpftResearchPreferencesMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CpftResearchPreferences"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        setattr(
-            cls,
-            cls.FN_CONTACT_PREFERENCE,
-            CamcopsColumn(
-                cls.FN_CONTACT_PREFERENCE,
-                CharColType,
-                permitted_value_checker=PermittedValueChecker(
-                    permitted_values=PV.RYG
-                ),
-            ),
-        )
-        setattr(
-            cls, cls.FN_CONTACT_BY_EMAIL, BoolColumn(cls.FN_CONTACT_BY_EMAIL)
-        )
-        setattr(
-            cls, cls.FN_RESEARCH_OPT_OUT, BoolColumn(cls.FN_RESEARCH_OPT_OUT)
-        )
-
-        super().__init__(name, bases, classdict)
-
-
 class CpftResearchPreferences(
-    TaskHasPatientMixin, Task, metaclass=CpftResearchPreferencesMetaclass
+    TaskHasPatientMixin, Task, 
 ):
     """
     Server implementation of the CPFT_Research_Preferences task
@@ -92,6 +63,28 @@ class CpftResearchPreferences(
         FN_CONTACT_BY_EMAIL,
         FN_RESEARCH_OPT_OUT,
     ]
+
+
+    def __init_subclass__(cls: Type["CpftResearchPreferences"], **kwargs) -> None:
+        setattr(
+            cls,
+            cls.FN_CONTACT_PREFERENCE,
+            CamcopsColumn(
+                cls.FN_CONTACT_PREFERENCE,
+                CharColType,
+                permitted_value_checker=PermittedValueChecker(
+                    permitted_values=PV.RYG
+                ),
+            ),
+        )
+        setattr(
+            cls, cls.FN_CONTACT_BY_EMAIL, BoolColumn(cls.FN_CONTACT_BY_EMAIL)
+        )
+        setattr(
+            cls, cls.FN_RESEARCH_OPT_OUT, BoolColumn(cls.FN_RESEARCH_OPT_OUT)
+        )
+
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -28,6 +28,7 @@ camcops_server/tasks/service_satisfaction.py
 from typing import Optional
 
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -53,31 +54,27 @@ from camcops_server.cc_modules.cc_task import (
 
 class AbstractSatisfaction(object):
     # noinspection PyMethodParameters
-    @declared_attr
-    def service(cls) -> Column:
-        return Column(
-            "service", UnicodeText, comment="Clinical service being rated"
-        )
+    service: Mapped[str] = mapped_column(
+        "service", UnicodeText, comment="Clinical service being rated"
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def rating(cls) -> Column:
-        return CamcopsColumn(
-            "rating",
-            Integer,
-            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-            comment="Rating (0 very poor - 4 excellent)",
-        )
+    rating: Mapped[int] = mapped_column(
+        "rating",
+        Integer,
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment="Rating (0 very poor - 4 excellent)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def good(cls) -> Column:
-        return Column("good", UnicodeText, comment="What has been good?")
+    good: Mapped[str] = mapped_column(
+        "good", UnicodeText, comment="What has been good?"
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def bad(cls) -> Column:
-        return Column("bad", UnicodeText, comment="What could be improved?")
+    bad: Mapped[str] = mapped_column(
+        "bad", UnicodeText, comment="What could be improved?"
+    )
 
     TASK_FIELDS = ["service", "rating", "good", "bad"]
 

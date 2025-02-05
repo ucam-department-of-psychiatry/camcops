@@ -53,14 +53,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class BprsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Bprs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Bprs(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the BPRS task.
+    """
+
+    __tablename__ = "bprs"
+    shortname = "BPRS"
+    provides_trackers = True
+
+    NQUESTIONS = 20
+
+    def __init_subclass__(cls: Type["Bprs"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -92,21 +98,8 @@ class BprsMetaclass(DeclarativeMeta):
                 "global improvement",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Bprs(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=BprsMetaclass
-):
-    """
-    Server implementation of the BPRS task.
-    """
-
-    __tablename__ = "bprs"
-    shortname = "BPRS"
-    provides_trackers = True
-
-    NQUESTIONS = 20
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]
     MAX_SCORE = 126

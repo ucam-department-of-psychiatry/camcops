@@ -63,14 +63,21 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class Icd10SchizotypalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Icd10Schizotypal"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Icd10Schizotypal(
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the ICD10-SZTYP task.
+    """
+
+    __tablename__ = "icd10schizotypal"
+    shortname = "ICD10-SZTYP"
+    info_filename_stem = "icd"
+
+
+    def __init_subclass__(cls: Type["Icd10Schizotypal"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "a",
@@ -91,22 +98,7 @@ class Icd10SchizotypalMetaclass(DeclarativeMeta):
                 "occasional transient quasi-psychotic episodes",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Icd10Schizotypal(
-    TaskHasClinicianMixin,
-    TaskHasPatientMixin,
-    Task,
-    metaclass=Icd10SchizotypalMetaclass,
-):
-    """
-    Server implementation of the ICD10-SZTYP task.
-    """
-
-    __tablename__ = "icd10schizotypal"
-    shortname = "ICD10-SZTYP"
-    info_filename_stem = "icd"
+        super().__init_subclass__(**kwargs)
 
     date_pertains_to = Column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"

@@ -77,14 +77,22 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 # =============================================================================
 
 
-class MocaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Moca"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Moca(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the MoCA task.
+    """
+
+    __tablename__ = "moca"
+    shortname = "MoCA"
+    provides_trackers = True
+
+    prohibits_commercial = True
+    prohibits_research = True
+
+
+    def __init_subclass__(cls: Type["Moca"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -168,22 +176,7 @@ class MocaMetaclass(DeclarativeMeta):
             "{n}: {s} (0 or 1)",
             comment_strings=WORDLIST,
         )
-        super().__init__(name, bases, classdict)
-
-
-class Moca(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=MocaMetaclass
-):
-    """
-    Server implementation of the MoCA task.
-    """
-
-    __tablename__ = "moca"
-    shortname = "MoCA"
-    provides_trackers = True
-
-    prohibits_commercial = True
-    prohibits_research = True
+        super().__init_subclass__(**kwargs)
 
     education12y_or_less = CamcopsColumn(
         "education12y_or_less",

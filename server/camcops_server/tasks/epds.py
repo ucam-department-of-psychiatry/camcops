@@ -56,24 +56,17 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class EpdsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Epds"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
-        super().__init__(name, bases, classdict)
-
-
-class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
+class Epds(TaskHasPatientMixin, Task, ):
     __tablename__ = "epds"
     shortname = "EPDS"
     provides_trackers = True
 
     NQUESTIONS = 10
+
+    def __init_subclass__(cls: Type["Epds"], **kwargs) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+        super().__init_subclass__(**kwargs)
+
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 30
     CUTOFF_1_GREATER_OR_EQUAL = 10  # Cox et al. 1987, PubMed ID 3651732.

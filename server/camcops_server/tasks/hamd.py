@@ -69,14 +69,21 @@ MAX_SCORE = (
 )  # ... and not scored beyond Q17... total 52
 
 
-class HamdMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Hamd"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Hamd(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the HAM-D task.
+    """
+
+    __tablename__ = "hamd"
+    shortname = "HAM-D"
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 17
+    NQUESTIONS = 21
+
+    def __init_subclass__(cls: Type["Hamd"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -127,22 +134,8 @@ class HamdMetaclass(DeclarativeMeta):
         # noinspection PyUnresolvedReferences
         cls.q20.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Hamd(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=HamdMetaclass
-):
-    """
-    Server implementation of the HAM-D task.
-    """
-
-    __tablename__ = "hamd"
-    shortname = "HAM-D"
-    provides_trackers = True
-
-    NSCOREDQUESTIONS = 17
-    NQUESTIONS = 21
     TASK_FIELDS = strseq("q", 1, NQUESTIONS) + [
         "whichq16",
         "q16a",

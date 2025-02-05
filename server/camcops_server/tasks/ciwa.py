@@ -68,14 +68,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class CiwaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ciwa"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ciwa(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the CIWA-Ar task.
+    """
+
+    __tablename__ = "ciwa"
+    shortname = "CIWA-Ar"
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 10
+
+    def __init_subclass__(cls: Type["Ciwa"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -96,21 +102,8 @@ class CiwaMetaclass(DeclarativeMeta):
                 "headache/fullness in head",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Ciwa(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=CiwaMetaclass
-):
-    """
-    Server implementation of the CIWA-Ar task.
-    """
-
-    __tablename__ = "ciwa"
-    shortname = "CIWA-Ar"
-    provides_trackers = True
-
-    NSCOREDQUESTIONS = 10
     SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 
     q10 = CamcopsColumn(

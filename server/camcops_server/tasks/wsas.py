@@ -56,14 +56,17 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class WsasMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Wsas"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Wsas(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the WSAS task.
+    """
+
+    __tablename__ = "wsas"
+    shortname = "WSAS"
+    provides_trackers = True
+
+
+    def __init_subclass__(cls: Type["Wsas"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -80,17 +83,7 @@ class WsasMetaclass(DeclarativeMeta):
                 "relationships",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
-    """
-    Server implementation of the WSAS task.
-    """
-
-    __tablename__ = "wsas"
-    shortname = "WSAS"
-    provides_trackers = True
+        super().__init_subclass__(**kwargs)
 
     retired_etc = Column(
         "retired_etc",

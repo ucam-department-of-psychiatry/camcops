@@ -44,14 +44,53 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["KhandakerMojoSociodemographics"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class KhandakerMojoSociodemographics(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the Khandaker_2_MOJOSociodemographics task
+    """
+
+    __tablename__ = "khandaker_mojo_sociodemographics"
+    shortname = "Khandaker_MOJO_Sociodemographics"
+    info_filename_stem = "khandaker_mojo"
+    provides_trackers = False
+
+    FN_GENDER = "gender"
+    FN_ETHNICITY = "ethnicity"
+    FN_WITH_WHOM_LIVE = "with_whom_live"
+    FN_RELATIONSHIP_STATUS = "relationship_status"
+    FN_EDUCATION = "education"
+    FN_EMPLOYMENT = "employment"
+    FN_ACCOMMODATION = "accommodation"
+
+    FN_OTHER_GENDER = "other_gender"
+    FN_OTHER_ETHNICITY = "other_ethnicity"
+    FN_OTHER_WITH_WHOM_LIVE = "other_with_whom_live"
+    FN_OTHER_EMPLOYMENT = "other_employment"
+    FN_OTHER_ACCOMMODATION = "other_accommodation"
+
+    MANDATORY_FIELD_NAMES = [
+        FN_GENDER,
+        FN_ETHNICITY,
+        FN_WITH_WHOM_LIVE,
+        FN_RELATIONSHIP_STATUS,
+        FN_EDUCATION,
+        FN_EMPLOYMENT,
+        FN_ACCOMMODATION,
+    ]
+
+    OTHER_ANSWER_VALUES = {
+        FN_GENDER: 2,
+        FN_ETHNICITY: 10,
+        FN_WITH_WHOM_LIVE: 7,
+        FN_EMPLOYMENT: 7,
+        FN_ACCOMMODATION: 6,
+    }
+
+
+    def __init_subclass__(cls: Type["KhandakerMojoSociodemographics"], **kwargs) -> None:
         setattr(
             cls,
             cls.FN_GENDER,
@@ -192,54 +231,7 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
             ),
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class KhandakerMojoSociodemographics(
-    TaskHasPatientMixin,
-    Task,
-    metaclass=KhandakerMojoSociodemographicsMetaclass,
-):
-    """
-    Server implementation of the Khandaker_2_MOJOSociodemographics task
-    """
-
-    __tablename__ = "khandaker_mojo_sociodemographics"
-    shortname = "Khandaker_MOJO_Sociodemographics"
-    info_filename_stem = "khandaker_mojo"
-    provides_trackers = False
-
-    FN_GENDER = "gender"
-    FN_ETHNICITY = "ethnicity"
-    FN_WITH_WHOM_LIVE = "with_whom_live"
-    FN_RELATIONSHIP_STATUS = "relationship_status"
-    FN_EDUCATION = "education"
-    FN_EMPLOYMENT = "employment"
-    FN_ACCOMMODATION = "accommodation"
-
-    FN_OTHER_GENDER = "other_gender"
-    FN_OTHER_ETHNICITY = "other_ethnicity"
-    FN_OTHER_WITH_WHOM_LIVE = "other_with_whom_live"
-    FN_OTHER_EMPLOYMENT = "other_employment"
-    FN_OTHER_ACCOMMODATION = "other_accommodation"
-
-    MANDATORY_FIELD_NAMES = [
-        FN_GENDER,
-        FN_ETHNICITY,
-        FN_WITH_WHOM_LIVE,
-        FN_RELATIONSHIP_STATUS,
-        FN_EDUCATION,
-        FN_EMPLOYMENT,
-        FN_ACCOMMODATION,
-    ]
-
-    OTHER_ANSWER_VALUES = {
-        FN_GENDER: 2,
-        FN_ETHNICITY: 10,
-        FN_WITH_WHOM_LIVE: 7,
-        FN_EMPLOYMENT: 7,
-        FN_ACCOMMODATION: 6,
-    }
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

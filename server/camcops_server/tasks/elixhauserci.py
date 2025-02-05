@@ -92,14 +92,16 @@ CONSTRAINT_NAME_MAP = {
 }
 
 
-class ElixhauserCIMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["ElixhauserCI"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class ElixhauserCI(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    __tablename__ = "elixhauserci"
+    shortname = "ElixhauserCI"
+
+
+    def __init_subclass__(cls: Type["ElixhauserCI"], **kwargs) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)
             setattr(
@@ -111,17 +113,7 @@ class ElixhauserCIMetaclass(DeclarativeMeta):
                     constraint_name=constraint_name,
                 ),
             )
-        super().__init__(name, bases, classdict)
-
-
-class ElixhauserCI(
-    TaskHasPatientMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=ElixhauserCIMetaclass,
-):
-    __tablename__ = "elixhauserci"
-    shortname = "ElixhauserCI"
+        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

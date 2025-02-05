@@ -53,14 +53,18 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class DistressThermometerMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["DistressThermometer"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class DistressThermometer(
+    TaskHasPatientMixin, Task, 
+):
+    """
+    Server implementation of the DistressThermometer task.
+    """
+
+    __tablename__ = "distressthermometer"
+    shortname = "Distress Thermometer"
+
+
+    def __init_subclass__(cls: Type["DistressThermometer"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -107,18 +111,7 @@ class DistressThermometerMetaclass(DeclarativeMeta):
                 "tingling in hands/feet",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class DistressThermometer(
-    TaskHasPatientMixin, Task, metaclass=DistressThermometerMetaclass
-):
-    """
-    Server implementation of the DistressThermometer task.
-    """
-
-    __tablename__ = "distressthermometer"
-    shortname = "Distress Thermometer"
+        super().__init_subclass__(**kwargs)
 
     distress = CamcopsColumn(
         "distress",

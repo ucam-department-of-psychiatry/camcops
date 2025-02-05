@@ -66,14 +66,19 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq8Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Phq8"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Phq8(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the Phq8 task.
+    """
+
+    __tablename__ = "phq8"
+    shortname = "PHQ-8"
+    provides_trackers = True
+
+    N_QUESTIONS = 8
+    MAX_SCORE = 3 * N_QUESTIONS
+
+    def __init_subclass__(cls: Type["Phq8"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -93,20 +98,8 @@ class Phq8Metaclass(DeclarativeMeta):
                 "psychomotor",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Phq8(TaskHasPatientMixin, Task, metaclass=Phq8Metaclass):
-    """
-    Server implementation of the Phq8 task.
-    """
-
-    __tablename__ = "phq8"
-    shortname = "PHQ-8"
-    provides_trackers = True
-
-    N_QUESTIONS = 8
-    MAX_SCORE = 3 * N_QUESTIONS
     QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod

@@ -59,14 +59,21 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Hamd7Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature,PyUnresolvedReferences
-    def __init__(
-        cls: Type["Hamd7"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Hamd7(
+    TaskHasPatientMixin, TaskHasClinicianMixin, Task, 
+):
+    """
+    Server implementation of the HAMD-7 task.
+    """
+
+    __tablename__ = "hamd7"
+    shortname = "HAMD-7"
+    info_filename_stem = "hamd"
+    provides_trackers = True
+
+    NQUESTIONS = 7
+
+    def __init_subclass__(cls: Type["Hamd7"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -88,22 +95,8 @@ class Hamd7Metaclass(DeclarativeMeta):
         # Now fix the wrong bits. Hardly elegant!
         cls.q6.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Hamd7(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Hamd7Metaclass
-):
-    """
-    Server implementation of the HAMD-7 task.
-    """
-
-    __tablename__ = "hamd7"
-    shortname = "HAMD-7"
-    info_filename_stem = "hamd"
-    provides_trackers = True
-
-    NQUESTIONS = 7
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 26
 

@@ -52,14 +52,19 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Rand36Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Rand36"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Rand36(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the RAND-36 task.
+    """
+
+    __tablename__ = "rand36"
+    shortname = "RAND-36"
+    provides_trackers = True
+
+    NQUESTIONS = 36
+
+
+    def __init_subclass__(cls: Type["Rand36"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -149,19 +154,7 @@ class Rand36Metaclass(DeclarativeMeta):
                 "My health is excellent",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Rand36(TaskHasPatientMixin, Task, metaclass=Rand36Metaclass):
-    """
-    Server implementation of the RAND-36 task.
-    """
-
-    __tablename__ = "rand36"
-    shortname = "RAND-36"
-    provides_trackers = True
-
-    NQUESTIONS = 36
+        super().__init_subclass__(**kwargs)
 
     q1 = CamcopsColumn(
         "q1",

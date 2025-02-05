@@ -49,14 +49,16 @@ from sqlalchemy import Column, Float
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-class AsdasMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Asdas"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Asdas(TaskHasPatientMixin, Task, ):
+    __tablename__ = "asdas"
+    shortname = "ASDAS"
+    provides_trackers = True
+
+    N_SCALE_QUESTIONS = 4
+    MAX_SCORE_SCALE = 10
+    N_QUESTIONS = 6
+
+    def __init_subclass__(cls: Type["Asdas"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -86,17 +88,8 @@ class AsdasMetaclass(DeclarativeMeta):
             Column(cls.ESR_FIELD_NAME, Float, comment="ESR (mm/h)"),
         )
 
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Asdas(TaskHasPatientMixin, Task, metaclass=AsdasMetaclass):
-    __tablename__ = "asdas"
-    shortname = "ASDAS"
-    provides_trackers = True
-
-    N_SCALE_QUESTIONS = 4
-    MAX_SCORE_SCALE = 10
-    N_QUESTIONS = 6
     SCALE_FIELD_NAMES = strseq("q", 1, N_SCALE_QUESTIONS)
     CRP_FIELD_NAME = "q5"
     ESR_FIELD_NAME = "q6"

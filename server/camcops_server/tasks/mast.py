@@ -57,14 +57,18 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class MastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Mast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Mast(TaskHasPatientMixin, Task, ):
+    """
+    Server implementation of the MAST task.
+    """
+
+    __tablename__ = "mast"
+    shortname = "MAST"
+    provides_trackers = True
+
+    NQUESTIONS = 24
+
+    def __init_subclass__(cls: Type["Mast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,19 +104,8 @@ class MastMetaclass(DeclarativeMeta):
                 "arrested for other drunk behaviour",
             ],
         )
-        super().__init__(name, bases, classdict)
+        super().__init_subclass__(**kwargs)
 
-
-class Mast(TaskHasPatientMixin, Task, metaclass=MastMetaclass):
-    """
-    Server implementation of the MAST task.
-    """
-
-    __tablename__ = "mast"
-    shortname = "MAST"
-    provides_trackers = True
-
-    NQUESTIONS = 24
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 53
     ROSS_THRESHOLD = 13
