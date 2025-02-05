@@ -67,7 +67,8 @@ class Wsas(
     shortname = "WSAS"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["Wsas"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Wsas"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -84,7 +85,6 @@ class Wsas(
                 "relationships",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     retired_etc = Column(
         "retired_etc",

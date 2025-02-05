@@ -130,7 +130,8 @@ class Dad(
         "leisure_exec_safe_at_home",
     ]
 
-    def __init_subclass__(cls: Type["Dad"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Dad"], **kwargs) -> None:
         explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
         for colname in cls.ITEMS:
             setattr(
@@ -143,7 +144,6 @@ class Dad(
                     comment=colname + explan,
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

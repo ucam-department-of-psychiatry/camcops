@@ -63,7 +63,8 @@ class DistressThermometer(
     __tablename__ = "distressthermometer"
     shortname = "Distress Thermometer"
 
-    def __init_subclass__(cls: Type["DistressThermometer"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["DistressThermometer"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -110,7 +111,6 @@ class DistressThermometer(
                 "tingling in hands/feet",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     distress = CamcopsColumn(
         "distress",

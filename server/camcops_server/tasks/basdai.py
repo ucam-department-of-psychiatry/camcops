@@ -62,7 +62,8 @@ class Basdai(
 
     N_QUESTIONS = 6
 
-    def __init_subclass__(cls: Type["Basdai"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Basdai"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -82,8 +83,6 @@ class Basdai(
                 "morning stiffness duration 0-10 (none - 2 or more hours)",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     FIELD_NAMES = strseq("q", 1, N_QUESTIONS)
 

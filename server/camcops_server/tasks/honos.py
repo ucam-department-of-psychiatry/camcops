@@ -168,7 +168,8 @@ class Honos(
     shortname = "HoNOS"
     info_filename_stem = "honos"
 
-    def __init_subclass__(cls: Type["Honos"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Honos"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -191,7 +192,6 @@ class Honos(
                 "occupation/activities",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     q8problemtype = CamcopsColumn(
         "q8problemtype",
@@ -380,7 +380,8 @@ class Honos65(
     shortname = "HoNOS 65+"
     info_filename_stem = "honos"
 
-    def __init_subclass__(cls: Type["Honos65"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Honos65"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -403,7 +404,6 @@ class Honos65(
                 "occupation/activities",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     q8problemtype = CamcopsColumn(
         "q8problemtype",
@@ -557,7 +557,8 @@ class Honosca(
 
     NQUESTIONS = 15
 
-    def __init_subclass__(cls: Type["Honosca"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Honosca"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -583,7 +584,6 @@ class Honosca(
                 "lack of information about services",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     QFIELDS = strseq("q", 1, NQUESTIONS)
     LAST_SECTION_A_Q = 13

@@ -99,7 +99,8 @@ class ElixhauserCI(
     __tablename__ = "elixhauserci"
     shortname = "ElixhauserCI"
 
-    def __init_subclass__(cls: Type["ElixhauserCI"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["ElixhauserCI"], **kwargs) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)
             setattr(
@@ -111,7 +112,6 @@ class ElixhauserCI(
                     constraint_name=constraint_name,
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

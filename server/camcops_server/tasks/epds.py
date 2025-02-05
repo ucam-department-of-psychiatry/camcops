@@ -65,9 +65,9 @@ class Epds(
 
     NQUESTIONS = 10
 
-    def __init_subclass__(cls: Type["Epds"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Epds"], **kwargs) -> None:
         add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 30

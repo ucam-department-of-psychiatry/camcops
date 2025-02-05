@@ -65,7 +65,8 @@ class Mfi20(
     MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
 
-    def __init_subclass__(cls: Type["Mfi20"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Mfi20"], **kwargs) -> None:
 
         comment_strings = [
             "feel fit",
@@ -107,8 +108,6 @@ class Mfi20(
                     ),
                 ),
             )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     REVERSE_QUESTIONS = Task.fieldnames_from_list(

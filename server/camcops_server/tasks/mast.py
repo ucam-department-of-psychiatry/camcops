@@ -70,7 +70,8 @@ class Mast(
 
     NQUESTIONS = 24
 
-    def __init_subclass__(cls: Type["Mast"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Mast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -106,7 +107,6 @@ class Mast(
                 "arrested for other drunk behaviour",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 53

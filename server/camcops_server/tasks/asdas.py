@@ -60,7 +60,8 @@ class Asdas(
     MAX_SCORE_SCALE = 10
     N_QUESTIONS = 6
 
-    def __init_subclass__(cls: Type["Asdas"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Asdas"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -89,8 +90,6 @@ class Asdas(
             cls.ESR_FIELD_NAME,
             Column(cls.ESR_FIELD_NAME, Float, comment="ESR (mm/h)"),
         )
-
-        super().__init_subclass__(**kwargs)
 
     SCALE_FIELD_NAMES = strseq("q", 1, N_SCALE_QUESTIONS)
     CRP_FIELD_NAME = "q5"

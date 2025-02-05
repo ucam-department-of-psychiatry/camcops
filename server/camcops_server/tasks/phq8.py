@@ -80,7 +80,8 @@ class Phq8(
     N_QUESTIONS = 8
     MAX_SCORE = 3 * N_QUESTIONS
 
-    def __init_subclass__(cls: Type["Phq8"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Phq8"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,7 +101,6 @@ class Phq8(
                 "psychomotor",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     QUESTIONS = strseq("q", 1, N_QUESTIONS)
 

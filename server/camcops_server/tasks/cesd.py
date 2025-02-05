@@ -76,7 +76,8 @@ class Cesd(
     N_ANSWERS = 4
     DEPRESSION_RISK_THRESHOLD = 16
 
-    def __init_subclass__(cls: Type["Cesd"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Cesd"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -110,7 +111,6 @@ class Cesd(
                 "could not get going",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS

@@ -67,7 +67,8 @@ class Audit(
 
     NQUESTIONS = 10
 
-    def __init_subclass__(cls: Type["Audit"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Audit"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -89,7 +90,6 @@ class Audit(
                 "others concerned",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
@@ -252,7 +252,8 @@ class AuditC(TaskHasPatientMixin, Task):
 
     NQUESTIONS = 3
 
-    def __init_subclass__(cls: Type["AuditC"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["AuditC"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -267,7 +268,6 @@ class AuditC(TaskHasPatientMixin, Task):
                 "how often six drinks",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

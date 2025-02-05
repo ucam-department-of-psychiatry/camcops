@@ -50,7 +50,8 @@ class Paradise24(
     FIRST_Q = 1
     LAST_Q = 24
 
-    def __init_subclass__(cls: Type["Paradise24"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Paradise24"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -88,8 +89,6 @@ class Paradise24(
                 "community 0-2 (none - a lot)",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
 

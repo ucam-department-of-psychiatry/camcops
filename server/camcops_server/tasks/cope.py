@@ -71,7 +71,8 @@ class CopeBrief(
     RELATIONSHIPS_FIRST_NON_OTHER = 1
     RELATIONSHIPS_LAST = 9
 
-    def __init_subclass__(cls: Type["CopeBrief"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["CopeBrief"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -111,7 +112,6 @@ class CopeBrief(
                 "making fun of the situation",  # 28
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     completed_by_patient = CamcopsColumn(
         "completed_by_patient",

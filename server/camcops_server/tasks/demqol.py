@@ -96,7 +96,8 @@ class Demqol(
     shortname = "DEMQOL"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["Demqol"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Demqol"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -138,7 +139,6 @@ class Demqol(
                 "worried: health overall",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     q29 = CamcopsColumn(
         "q29",
@@ -297,7 +297,8 @@ class DemqolProxy(
     extrastring_taskname = "demqol"
     info_filename_stem = "demqol"
 
-    def __init_subclass__(cls: Type["DemqolProxy"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["DemqolProxy"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -342,7 +343,6 @@ class DemqolProxy(
                 "worried: physical health",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     q32 = CamcopsColumn(
         "q32",

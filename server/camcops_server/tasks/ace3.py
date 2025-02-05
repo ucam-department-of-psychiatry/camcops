@@ -173,11 +173,7 @@ def tr_heading(left: str, right: str) -> str:
 # =============================================================================
 
 
-class Ace3(
-    TaskHasPatientMixin,
-    TaskHasClinicianMixin,
-    Task,
-):
+class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     Server implementation of the ACE-III task.
     """
@@ -188,7 +184,8 @@ class Ace3(
 
     prohibits_commercial = True
 
-    def __init_subclass__(cls: Type["Ace3"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Ace3"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -402,8 +399,6 @@ class Ace3(
             "applicable) ({s}) (A/B/C)",
             comment_strings=["name", "number", "street", "town", "county"],
         )
-
-        super().__init_subclass__(**kwargs)
 
     task_edition = CamcopsColumn(
         "task_edition",
@@ -1286,7 +1281,8 @@ class MiniAce(
 
     prohibits_commercial = True
 
-    def __init_subclass__(cls: Type["MiniAce"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["MiniAce"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -1335,8 +1331,6 @@ class MiniAce(
             comment_fmt="Memory, recall address {n}/7, {s} (0-1)",
             comment_strings=ADDRESS_PARTS,
         )
-
-        super().__init_subclass__(**kwargs)
 
     task_edition = CamcopsColumn(
         "task_edition",

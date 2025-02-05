@@ -55,7 +55,8 @@ class Edeq(
 
     MEASUREMENT_FIELD_NAMES = ["mass_kg", "height_m"]
 
-    def __init_subclass__(cls: Type["Edeq"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Edeq"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -164,8 +165,6 @@ class Edeq(
                 "pill", Boolean, comment="Taking the (oral contraceptive) pill"
             ),
         )
-
-        super().__init_subclass__(**kwargs)
 
     COMMON_FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + MEASUREMENT_FIELD_NAMES
 

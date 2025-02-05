@@ -66,7 +66,8 @@ class Bprse(
 
     NQUESTIONS = 24
 
-    def __init_subclass__(cls: Type["Bprse"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Bprse"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -102,7 +103,6 @@ class Bprse(
                 "mannerisms and posturing",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 168

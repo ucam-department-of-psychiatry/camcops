@@ -68,7 +68,8 @@ class Pdss(
     MAX_PER_Q = 4
     NQUESTIONS = 7
 
-    def __init_subclass__(cls: Type["Pdss"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Pdss"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -87,7 +88,6 @@ class Pdss(
                 "interference with social life",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS

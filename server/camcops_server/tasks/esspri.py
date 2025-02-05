@@ -53,7 +53,8 @@ class Esspri(
     N_QUESTIONS = 3
     MAX_SCORE = 10  # Mean of 3 scores of 10
 
-    def __init_subclass__(cls: Type["Esspri"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Esspri"], **kwargs) -> None:
 
         comment_strings = ["dryness", "fatigue", "pain"]
 
@@ -75,8 +76,6 @@ class Esspri(
                     ),
                 ),
             )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 

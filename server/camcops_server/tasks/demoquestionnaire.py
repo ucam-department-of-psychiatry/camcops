@@ -71,7 +71,8 @@ class DemoQuestionnaire(
     shortname = "Demo"
     is_anonymous = True
 
-    def __init_subclass__(cls: Type["DemoQuestionnaire"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["DemoQuestionnaire"], **kwargs) -> None:
         add_multiple_columns(cls, "mcq", 1, N_MCQ)
         add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
         add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)
@@ -79,7 +80,6 @@ class DemoQuestionnaire(
         add_multiple_columns(cls, "boolimage", 1, N_BOOLIMAGE)
         add_multiple_columns(cls, "picker", 1, N_PICKER)
         add_multiple_columns(cls, "slider", 1, N_SLIDER, Float)
-        super().__init_subclass__(**kwargs)
 
     mcqtext_1a = Column("mcqtext_1a", UnicodeText)
     mcqtext_1b = Column("mcqtext_1b", UnicodeText)

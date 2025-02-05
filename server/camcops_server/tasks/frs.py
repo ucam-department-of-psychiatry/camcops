@@ -200,7 +200,8 @@ class Frs(
     __tablename__ = "frs"
     shortname = "FRS"
 
-    def __init_subclass__(cls: Type["Frs"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Frs"], **kwargs) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
             pc = [f"{NEVER} = never", f"{ALWAYS} = always"]
@@ -224,7 +225,6 @@ class Frs(
                     comment=comment,
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
 

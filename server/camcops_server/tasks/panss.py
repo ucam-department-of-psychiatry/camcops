@@ -72,7 +72,8 @@ class Panss(
     NUM_N = 7
     NUM_G = 16
 
-    def __init_subclass__(cls: Type["Panss"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Panss"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "p",
@@ -136,7 +137,6 @@ class Panss(
                 "active social avoidance",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     P_FIELDS = strseq("p", 1, NUM_P)
     N_FIELDS = strseq("n", 1, NUM_N)

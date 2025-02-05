@@ -101,7 +101,8 @@ class Caps(
 
     NQUESTIONS = 32
 
-    def __init_subclass__(cls: Type["Caps"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Caps"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "endorse",
@@ -142,7 +143,6 @@ class Caps(
             comment_fmt="Q{n} ({s}): frequency (1 low - 5 high), if endorsed",
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init_subclass__(**kwargs)
 
     ENDORSE_FIELDS = strseq("endorse", 1, NQUESTIONS)
 

@@ -67,7 +67,8 @@ class Bprs(
 
     NQUESTIONS = 20
 
-    def __init_subclass__(cls: Type["Bprs"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Bprs"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -99,7 +100,6 @@ class Bprs(
                 "global improvement",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]

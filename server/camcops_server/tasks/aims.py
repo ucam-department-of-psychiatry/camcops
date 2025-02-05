@@ -73,7 +73,8 @@ class Aims(
     NQUESTIONS = 12
     NSCOREDQUESTIONS = 10
 
-    def __init_subclass__(cls: Type["Aims"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Aims"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -107,8 +108,6 @@ class Aims(
                 "usually_wears_dentures",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = strseq("q", 1, NSCOREDQUESTIONS)

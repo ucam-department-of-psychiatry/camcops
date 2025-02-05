@@ -70,7 +70,8 @@ class Phq15(
     NQUESTIONS = 15
     MAX_TOTAL = 30
 
-    def __init_subclass__(cls: Type["Phq15"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Phq15"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -98,7 +99,6 @@ class Phq15(
                 "sleep",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     ONE_TO_THREE = strseq("q", 1, 3)
     FIVE_TO_END = strseq("q", 5, NQUESTIONS)

@@ -63,7 +63,8 @@ class Chit(
     MAX_ANSWER = 4
     MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
 
-    def __init_subclass__(cls: Type["Chit"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Chit"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -90,8 +91,6 @@ class Chit(
                 "hobby",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     SCORED_QUESTIONS = strseq("q", 1, N_SCORED_QUESTIONS)
 

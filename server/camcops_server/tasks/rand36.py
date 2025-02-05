@@ -65,7 +65,8 @@ class Rand36(
 
     NQUESTIONS = 36
 
-    def __init_subclass__(cls: Type["Rand36"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Rand36"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -155,7 +156,6 @@ class Rand36(
                 "My health is excellent",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     q1 = CamcopsColumn(
         "q1",

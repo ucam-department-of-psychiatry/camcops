@@ -74,7 +74,8 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):
     MAX_ANX_SCORE = 21
     MAX_DEP_SCORE = 21
 
-    def __init_subclass__(cls: Type["HadsBase"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["HadsBase"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,7 +101,6 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):
                 "book/TV/radio",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     def is_complete(self) -> bool:
         return self.field_contents_valid() and self.all_fields_not_none(

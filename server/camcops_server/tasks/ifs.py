@@ -77,7 +77,8 @@ class Ifs(
     shortname = "IFS"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["Ifs"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Ifs"], **kwargs) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:
             fname1 = f"q4_len{seqlen}_1"
             fname2 = f"q4_len{seqlen}_2"
@@ -138,7 +139,6 @@ class Ifs(
                     comment=f"Q8. Hayling, sentence {n}",
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     q1 = CamcopsColumn(
         "q1",

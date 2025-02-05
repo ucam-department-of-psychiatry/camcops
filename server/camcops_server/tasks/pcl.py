@@ -73,7 +73,9 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):
     MAX_SCORE = 5 * NQUESTIONS
 
     # noinspection PyInitNewSignature
-    def __init_subclass__(cls: Type["PclCommon"], **kwargs) -> None:
+
+    @classmethod
+    def extend_table(cls: Type["PclCommon"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -102,7 +104,6 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):
                 "jumpy/easily startled",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     def is_complete(self) -> bool:
         return (

@@ -123,7 +123,8 @@ class Nart(
     __tablename__ = "nart"
     shortname = "NART"
 
-    def __init_subclass__(cls: Type["Nart"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Nart"], **kwargs) -> None:
         for w in WORDLIST:
             setattr(
                 cls,
@@ -135,7 +136,6 @@ class Nart(
                     comment=f"Pronounced {w} correctly (0 no, 1 yes)",
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

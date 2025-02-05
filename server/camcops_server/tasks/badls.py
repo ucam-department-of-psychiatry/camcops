@@ -91,7 +91,8 @@ class Badls(
         "transport",  # 20
     ]
 
-    def __init_subclass__(cls: Type["Badls"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Badls"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -103,7 +104,6 @@ class Badls(
             pv=list(cls.SCORING.keys()),
             comment_strings=cls.QUESTION_SNIPPETS,
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

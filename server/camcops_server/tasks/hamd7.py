@@ -74,7 +74,8 @@ class Hamd7(
 
     NQUESTIONS = 7
 
-    def __init_subclass__(cls: Type["Hamd7"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Hamd7"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -95,8 +96,6 @@ class Hamd7(
         )
         # Now fix the wrong bits. Hardly elegant!
         cls.q6.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
-
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 26

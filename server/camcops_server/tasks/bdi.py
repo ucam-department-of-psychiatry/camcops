@@ -164,7 +164,8 @@ class Bdi(
     shortname = "BDI"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["Bdi"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Bdi"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -182,7 +183,6 @@ class Bdi(
                 for q in range(1, NQUESTIONS + 1)
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     bdi_scale = Column(
         "bdi_scale",

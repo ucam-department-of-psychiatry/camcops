@@ -78,7 +78,8 @@ class Pcl5(
     extrastring_taskname = "pcl5"
     N_QUESTIONS = 20
 
-    def __init_subclass__(cls: Type["Pcl5"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Pcl5"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -110,7 +111,6 @@ class Pcl5(
                 "hard to sleep",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS  # may be overridden

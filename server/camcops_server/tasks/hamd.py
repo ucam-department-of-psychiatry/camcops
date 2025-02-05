@@ -84,7 +84,8 @@ class Hamd(
     NSCOREDQUESTIONS = 17
     NQUESTIONS = 21
 
-    def __init_subclass__(cls: Type["Hamd"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Hamd"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -134,8 +135,6 @@ class Hamd(
             col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
         # noinspection PyUnresolvedReferences
         cls.q20.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
-
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS) + [
         "whichq16",

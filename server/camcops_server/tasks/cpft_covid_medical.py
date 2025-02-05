@@ -55,7 +55,8 @@ class CpftCovidMedical(
 
     FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
 
-    def __init_subclass__(cls: Type["CpftCovidMedical"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["CpftCovidMedical"], **kwargs) -> None:
         setattr(
             cls,
             cls.FN_HOW_AND_WHEN_SYMPTOMS,
@@ -71,8 +72,6 @@ class CpftCovidMedical(
                 ),
             ),
         )
-
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

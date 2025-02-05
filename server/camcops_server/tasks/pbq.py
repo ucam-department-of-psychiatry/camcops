@@ -69,7 +69,8 @@ class Pbq(
     MAX_PER_Q = 5
     NQUESTIONS = 25
 
-    def __init_subclass__(cls: Type["Pbq"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Pbq"], **kwargs) -> None:
         comment_strings = [
             # This is the Brockington 2006 order; see XML for notes.
             # 1-5
@@ -124,7 +125,6 @@ class Pbq(
                     permitted_value_checker=pvc,
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS

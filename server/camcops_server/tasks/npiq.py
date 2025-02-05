@@ -70,7 +70,8 @@ class NpiQ(
 
     NQUESTIONS = 12
 
-    def __init_subclass__(cls: Type["NpiQ"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["NpiQ"], **kwargs) -> None:
         question_snippets = [
             "delusions",  # 1
             "hallucinations",
@@ -113,7 +114,6 @@ class NpiQ(
             comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
             comment_strings=question_snippets,
         )
-        super().__init_subclass__(**kwargs)
 
     ENDORSED_FIELDS = strseq(ENDORSED, 1, NQUESTIONS)
     MAX_SEVERITY = 3 * NQUESTIONS

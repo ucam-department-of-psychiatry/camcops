@@ -87,7 +87,8 @@ class Icd10SpecPD(
     shortname = "ICD10-PD"
     info_filename_stem = "icd"
 
-    def __init_subclass__(cls: Type["Icd10SpecPD"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Icd10SpecPD"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "g",
@@ -265,7 +266,6 @@ class Icd10SpecPD(
                 "everyday decisions require advice/reassurance",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     date_pertains_to = Column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"

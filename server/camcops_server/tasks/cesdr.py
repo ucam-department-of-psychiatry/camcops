@@ -92,7 +92,8 @@ class Cesdr(
     PROB_MAJOR_THRESH = 3
     MAJOR_THRESH = 4
 
-    def __init_subclass__(cls: Type["Cesdr"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Cesdr"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -127,7 +128,6 @@ class Cesdr(
                 "lack of focus",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS

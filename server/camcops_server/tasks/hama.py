@@ -70,7 +70,8 @@ class Hama(
 
     NQUESTIONS = 14
 
-    def __init_subclass__(cls: Type["Hama"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Hama"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -96,7 +97,6 @@ class Hama(
                 "behaviour in interview",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 56

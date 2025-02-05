@@ -71,7 +71,8 @@ class Aq(
 
     # Questions where agreement indicates autistic-like traits.
 
-    def __init_subclass__(cls: Type["Aq"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Aq"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             cls.PREFIX,
@@ -144,8 +145,6 @@ class Aq(
                 "easy to play pretending games with children",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     # As listed in Baron-Cohen et al. (2001) [see refs in aq.rst], p7:
     #   'Scoring the AQ: “Definitely agree” or “slightly agree” responses

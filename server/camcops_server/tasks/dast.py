@@ -68,7 +68,8 @@ class Dast(
 
     NQUESTIONS = 28
 
-    def __init_subclass__(cls: Type["Dast"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Dast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -108,7 +109,6 @@ class Dast(
                 "outpatient treatment for drug abuse (+)",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

@@ -82,7 +82,8 @@ class Ciwa(
 
     NSCOREDQUESTIONS = 10
 
-    def __init_subclass__(cls: Type["Ciwa"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Ciwa"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -103,7 +104,6 @@ class Ciwa(
                 "headache/fullness in head",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 

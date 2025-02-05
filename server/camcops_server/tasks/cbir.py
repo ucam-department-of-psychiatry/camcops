@@ -118,7 +118,8 @@ class CbiR(
     __tablename__ = "cbir"
     shortname = "CBI-R"
 
-    def __init_subclass__(cls: Type["CbiR"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["CbiR"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -139,7 +140,6 @@ class CbiR(
             maximum=cls.MAX_SCORE,
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init_subclass__(**kwargs)
 
     confirm_blanks = CamcopsColumn(
         "confirm_blanks",

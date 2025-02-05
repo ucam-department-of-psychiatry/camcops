@@ -53,7 +53,8 @@ class Sfmpq2(
     N_QUESTIONS = 22
     MAX_SCORE_PER_Q = 10
 
-    def __init_subclass__(cls: Type["Sfmpq2"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Sfmpq2"], **kwargs) -> None:
 
         # Field descriptions are open access, as per:
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/
@@ -100,8 +101,6 @@ class Sfmpq2(
                     ),
                 ),
             )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 

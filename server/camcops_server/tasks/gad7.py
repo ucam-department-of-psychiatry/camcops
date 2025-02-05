@@ -69,7 +69,8 @@ class Gad7(
 
     NQUESTIONS = 7
 
-    def __init_subclass__(cls: Type["Gad7"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Gad7"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -88,7 +89,6 @@ class Gad7(
                 "afraid",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 21

@@ -63,9 +63,8 @@ class CpftResearchPreferences(
         FN_RESEARCH_OPT_OUT,
     ]
 
-    def __init_subclass__(
-        cls: Type["CpftResearchPreferences"], **kwargs
-    ) -> None:
+    @classmethod
+    def extend_table(cls: Type["CpftResearchPreferences"], **kwargs) -> None:
         setattr(
             cls,
             cls.FN_CONTACT_PREFERENCE,
@@ -83,8 +82,6 @@ class CpftResearchPreferences(
         setattr(
             cls, cls.FN_RESEARCH_OPT_OUT, BoolColumn(cls.FN_RESEARCH_OPT_OUT)
         )
-
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

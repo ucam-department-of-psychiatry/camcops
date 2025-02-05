@@ -75,7 +75,8 @@ class Icd10Schizotypal(
     shortname = "ICD10-SZTYP"
     info_filename_stem = "icd"
 
-    def __init_subclass__(cls: Type["Icd10Schizotypal"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Icd10Schizotypal"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "a",
@@ -96,7 +97,6 @@ class Icd10Schizotypal(
                 "occasional transient quasi-psychotic episodes",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     date_pertains_to = Column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"

@@ -140,7 +140,8 @@ class Maas(TaskHasPatientMixin, Task):
     MIN_TIME = N_TIME * MIN_SCORE_PER_Q
     MAX_TIME = N_TIME * MAX_SCORE_PER_Q
 
-    def __init_subclass__(cls: Type["Maas"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Maas"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             cls.FN_QPREFIX,
@@ -151,7 +152,6 @@ class Maas(TaskHasPatientMixin, Task):
             comment_fmt="Q{n} ({s}; 1 least attachment - 5 most attachment)",
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

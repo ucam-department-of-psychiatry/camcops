@@ -69,7 +69,8 @@ class Wemwbs(
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
-    def __init_subclass__(cls: Type["Wemwbs"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Wemwbs"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -95,7 +96,6 @@ class Wemwbs(
                 "cheerful",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
 
@@ -245,7 +245,8 @@ class Swemwbs(
     MINTOTALSCORE = N_QUESTIONS * MINQSCORE
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
-    def __init_subclass__(cls: Type["Swemwbs"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Swemwbs"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -271,7 +272,6 @@ class Swemwbs(
                 "cheerful",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, N_QUESTIONS)
 

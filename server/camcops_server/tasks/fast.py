@@ -64,7 +64,8 @@ class Fast(
 
     NQUESTIONS = 4
 
-    def __init_subclass__(cls: Type["Fast"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Fast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -80,7 +81,6 @@ class Fast(
                 "others concerned",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 16

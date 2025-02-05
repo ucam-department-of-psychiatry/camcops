@@ -194,7 +194,8 @@ class Factg(TaskHasPatientMixin, Task):
 
     OPTIONAL_Q = "s_q7"
 
-    def __init_subclass__(cls: Type["Factg"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Factg"], **kwargs) -> None:
         answer_stem = (
             " (0 not at all, 1 a little bit, 2 somewhat, 3 quite a bit, "
             "4 very much)"
@@ -269,7 +270,6 @@ class Factg(TaskHasPatientMixin, Task):
                 "content with quality of life",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     ignore_s_q7 = CamcopsColumn(
         "ignore_s_q7", Boolean, permitted_value_checker=BIT_CHECKER

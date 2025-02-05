@@ -63,7 +63,8 @@ class Suppsp(
     MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
 
-    def __init_subclass__(cls: Type["Suppsp"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Suppsp"], **kwargs) -> None:
 
         comment_strings = [
             "see to end",
@@ -111,8 +112,6 @@ class Suppsp(
                     ),
                 ),
             )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list("q", {6, 8, 13, 15})

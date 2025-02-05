@@ -54,7 +54,8 @@ class Cia(
     LAST_Q = 16
     MAX_SCORE = 48
 
-    def __init_subclass__(cls: Type["Cia"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Cia"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -84,8 +85,6 @@ class Cia(
                 "worry",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
     MANDATORY_QUESTIONS = [1, 2, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16]

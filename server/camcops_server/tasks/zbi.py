@@ -70,7 +70,8 @@ class Zbi12(
     MAX_PER_Q = 4
     NQUESTIONS = 12
 
-    def __init_subclass__(cls: Type["Zbi12"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Zbi12"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -94,7 +95,6 @@ class Zbi12(
                 "could care better",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS

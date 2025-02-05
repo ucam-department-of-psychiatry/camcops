@@ -55,7 +55,8 @@ class Shaps(
     N_QUESTIONS = 14
     MAX_SCORE = 14
 
-    def __init_subclass__(cls: Type["Shaps"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Shaps"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -82,8 +83,6 @@ class Shaps(
                 "praise",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 

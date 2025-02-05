@@ -74,7 +74,8 @@ class CgiSch(
     shortname = "CGI-SCH"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["CgiSch"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["CgiSch"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "severity",
@@ -94,7 +95,6 @@ class CgiSch(
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
             comment_strings=QUESTION_FRAGMENTS,
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("severity", 1, 5) + strseq("change", 1, 5)
 

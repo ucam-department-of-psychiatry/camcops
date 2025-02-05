@@ -62,7 +62,8 @@ class Gds15(
 
     NQUESTIONS = 15
 
-    def __init_subclass__(cls: Type["Gds15"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Gds15"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -89,7 +90,6 @@ class Gds15(
                 "others better off",  # 15
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORE_IF_YES = [2, 3, 4, 6, 8, 9, 10, 12, 14, 15]

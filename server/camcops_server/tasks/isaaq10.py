@@ -52,7 +52,8 @@ class Isaaq10(
     LAST_A_Q = 10
     LAST_B_Q = 10
 
-    def __init_subclass__(cls: Type["Isaaq10"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Isaaq10"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             cls.A_PREFIX,
@@ -99,8 +100,6 @@ class Isaaq10(
                 "cyberbullying 0-5 (not at all - all the time)",
             ],
         )
-
-        super().__init_subclass__(**kwargs)
 
     ALL_FIELD_NAMES = strseq(A_PREFIX, FIRST_Q, LAST_A_Q) + strseq(
         B_PREFIX, FIRST_Q, LAST_B_Q

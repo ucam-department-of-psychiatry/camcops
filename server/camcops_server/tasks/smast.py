@@ -73,7 +73,8 @@ class Smast(
 
     NQUESTIONS = 13
 
-    def __init_subclass__(cls: Type["Smast"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Smast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -98,7 +99,6 @@ class Smast(
                 "arrested for other drunken behaviour",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

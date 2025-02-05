@@ -206,6 +206,14 @@ class Base(DeclarativeBase):
         #       SHOW FULL COLUMNS FROM _security_users;
     }
 
+    def __init_subclass__(cls, **kwargs) -> None:
+        cls.extend_table(**kwargs)
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def extend_table(cls, **kwargs) -> None:
+        pass
+
 
 # MySQL things we can't set via SQLAlchemy, but would like to be set:
 # - max_allowed_packet: should be at least 32M

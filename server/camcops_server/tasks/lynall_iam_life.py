@@ -88,7 +88,8 @@ class LynallIamLifeEvents(
 
     prohibits_commercial = True
 
-    def __init_subclass__(cls: Type["LynallIamLifeEvents"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["LynallIamLifeEvents"], **kwargs) -> None:
         comment_strings = [
             "illness/injury/assault (self)",  # 1
             "illness/injury/assault (relative)",
@@ -154,8 +155,6 @@ class LynallIamLifeEvents(
                     permitted_value_checker=pv_frequency,
                 ),
             )
-
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

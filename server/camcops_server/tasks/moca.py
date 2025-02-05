@@ -92,7 +92,8 @@ class Moca(
     prohibits_commercial = True
     prohibits_research = True
 
-    def __init_subclass__(cls: Type["Moca"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Moca"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -176,7 +177,6 @@ class Moca(
             "{n}: {s} (0 or 1)",
             comment_strings=WORDLIST,
         )
-        super().__init_subclass__(**kwargs)
 
     education12y_or_less = CamcopsColumn(
         "education12y_or_less",

@@ -146,7 +146,8 @@ class Cape42(
     provides_trackers = True
     info_filename_stem = "cape"
 
-    def __init_subclass__(cls: Type["Cape42"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Cape42"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -173,7 +174,6 @@ class Cape42(
             ),
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

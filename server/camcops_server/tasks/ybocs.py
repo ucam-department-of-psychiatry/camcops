@@ -107,7 +107,8 @@ class Ybocs(
     MAX_OBS = 20
     MAX_COM = 20
 
-    def __init_subclass__(cls: Type["Ybocs"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Ybocs"], **kwargs) -> None:
         cls.TARGET_COLUMNS = []  # type: List[Column]
         for target in ("obsession", "compulsion", "avoidance"):
             for n in range(1, cls.NTARGETS + 1):
@@ -134,7 +135,6 @@ class Ybocs(
                     f"(0-{maxscore}, higher worse)",
                 ),
             )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -400,7 +400,8 @@ class YbocsSc(
         "com_misc_other",
     ]
 
-    def __init_subclass__(cls: Type["YbocsSc"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["YbocsSc"], **kwargs) -> None:
         for item in cls.ITEMS:
             setattr(
                 cls,
@@ -442,7 +443,6 @@ class YbocsSc(
                         comment=item + " (details)",
                     ),
                 )
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

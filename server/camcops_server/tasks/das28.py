@@ -71,7 +71,8 @@ class Das28(
     shortname = "DAS28"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["Das28"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Das28"], **kwargs) -> None:
         for field_name in cls.get_joint_field_names():
             setattr(
                 cls, field_name, BoolColumn(field_name, comment="0 no, 1 yes")
@@ -93,8 +94,6 @@ class Das28(
         setattr(cls, "crp", Column("crp", Float, comment="CRP (0-300 mg/L)"))
 
         setattr(cls, "esr", Column("esr", Float, comment="ESR (1-300 mm/h)"))
-
-        super().__init_subclass__(**kwargs)
 
     JOINTS = (
         ["shoulder", "elbow", "wrist"]

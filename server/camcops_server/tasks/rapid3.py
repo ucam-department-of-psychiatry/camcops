@@ -76,7 +76,8 @@ class Rapid3(
     MODERATE_SEVERITY_MAX = 12
     MAXIMUM = 30
 
-    def __init_subclass__(cls: Type["Rapid3"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Rapid3"], **kwargs) -> None:
 
         comment_strings = [
             "get dressed",
@@ -142,8 +143,6 @@ class Rapid3(
                 "(0 very well - very poorly)",
             ),
         )
-
-        super().__init_subclass__(**kwargs)
 
     @classmethod
     def q1_indexed_letters(cls, last: int) -> List[Tuple[int, str]]:

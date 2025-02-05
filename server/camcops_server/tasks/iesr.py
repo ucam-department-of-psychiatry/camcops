@@ -68,7 +68,8 @@ class Iesr(
     shortname = "IES-R"
     provides_trackers = True
 
-    def __init_subclass__(cls: Type["Iesr"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Iesr"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -102,7 +103,6 @@ class Iesr(
                 "avoided talking",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     event = Column("event", UnicodeText, comment="Relevant event")
 

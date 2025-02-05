@@ -104,7 +104,8 @@ class Cet(
     Q_SUBSCALE_4_LACK_EX_ENJOY = [5, 12, 21]
     Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
 
-    def __init_subclass__(cls: Type["Cet"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Cet"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -140,7 +141,6 @@ class Cet(
                 "less depressed/low after exercise",  # 24
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     QUESTIONS = strseq("q", FIRST_Q, N_QUESTIONS)  # fields and string names
     SUBSCALE_LOOKUP = {

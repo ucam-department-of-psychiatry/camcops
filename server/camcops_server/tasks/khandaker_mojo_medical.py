@@ -61,7 +61,8 @@ class KhandakerMojoMedical(
     FN_IS_PREGNANT = "is_pregnant"
     FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
 
-    def __init_subclass__(cls: Type["KhandakerMojoMedical"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["KhandakerMojoMedical"], **kwargs) -> None:
         setattr(
             cls,
             cls.FN_DIAGNOSIS,
@@ -427,8 +428,6 @@ class KhandakerMojoMedical(
                 comment="If other, please list here",
             ),
         )
-
-        super().__init_subclass__(**kwargs)
 
     FN_HAD_INFECTION_TWO_MONTHS_PRECEDING = (
         "had_infection_two_months_preceding"

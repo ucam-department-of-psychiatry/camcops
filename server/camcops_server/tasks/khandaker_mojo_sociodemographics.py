@@ -88,7 +88,8 @@ class KhandakerMojoSociodemographics(
         FN_ACCOMMODATION: 6,
     }
 
-    def __init_subclass__(
+    @classmethod
+    def extend_table(
         cls: Type["KhandakerMojoSociodemographics"], **kwargs
     ) -> None:
         setattr(
@@ -230,8 +231,6 @@ class KhandakerMojoSociodemographics(
                 comment="Other (specify)",
             ),
         )
-
-        super().__init_subclass__(**kwargs)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

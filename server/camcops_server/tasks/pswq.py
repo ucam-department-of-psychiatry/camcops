@@ -63,7 +63,8 @@ class Pswq(
     NQUESTIONS = 16
     REVERSE_SCORE = [1, 3, 8, 10, 11]
 
-    def __init_subclass__(cls: Type["Pswq"], **kwargs) -> None:
+    @classmethod
+    def extend_table(cls: Type["Pswq"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -91,7 +92,6 @@ class Pswq(
                 "worry about projects until done",
             ],
         )
-        super().__init_subclass__(**kwargs)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MIN_TOTAL = MIN_PER_Q * NQUESTIONS
