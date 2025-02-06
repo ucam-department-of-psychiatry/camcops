@@ -260,31 +260,31 @@ class PatientIdNumFactory(GenericTabletRecordFactory):
 
 class NHSPatientIdNumFactory(PatientIdNumFactory):
     class Meta:
-        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+        exclude = PatientIdNumFactory._meta.exclude + ("iddef",)
 
-    idnum = factory.SubFactory(NHSIdNumDefinitionFactory)
+    iddef = factory.SubFactory(NHSIdNumDefinitionFactory)
 
-    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    which_idnum = factory.SelfAttribute("iddef.which_idnum")
     idnum_value = factory.LazyFunction(Fake.en_gb.nhs_number)
 
 
 class RioPatientIdNumFactory(PatientIdNumFactory):
     class Meta:
-        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+        exclude = PatientIdNumFactory._meta.exclude + ("iddef",)
 
-    idnum = factory.SubFactory(RioIdNumDefinitionFactory)
+    iddef = factory.SubFactory(RioIdNumDefinitionFactory)
 
-    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    which_idnum = factory.SelfAttribute("iddef.which_idnum")
     idnum_value = factory.Sequence(lambda n: n + RIO_ID_OFFSET)
 
 
 class StudyPatientIdNumFactory(PatientIdNumFactory):
     class Meta:
-        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+        exclude = PatientIdNumFactory._meta.exclude + ("iddef",)
 
-    idnum = factory.SubFactory(StudyIdNumDefinitionFactory)
+    iddef = factory.SubFactory(StudyIdNumDefinitionFactory)
 
-    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    which_idnum = factory.SelfAttribute("iddef.which_idnum")
     idnum_value = factory.Sequence(lambda n: n + STUDY_ID_OFFSET)
 
 
