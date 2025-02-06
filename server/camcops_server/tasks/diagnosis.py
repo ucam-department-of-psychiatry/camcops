@@ -123,20 +123,18 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     seqnum: Mapped[int] = mapped_column(
         "seqnum",
-        Integer,
-        nullable=False,
         comment="Sequence number (consistently 1-based as of 2018-12-01)",
     )
 
     # noinspection PyMethodParameters
-    code: Mapped[str] = mapped_column(
+    code: Mapped[Optional[str]] = mapped_column(
         "code",
         DiagnosticCodeColType,
         comment="Diagnostic code",
     )
 
     # noinspection PyMethodParameters
-    description: Mapped[str] = CamcopsColumn(
+    description: Mapped[Optional[str]] = CamcopsColumn(
         "description",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -144,7 +142,7 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     )
 
     # noinspection PyMethodParameters
-    comment: Mapped[str] = mapped_column(
+    comment: Mapped[Optional[str]] = mapped_column(
         "comment",
         UnicodeText,
         comment="Clinician's comment",
@@ -185,7 +183,7 @@ class DiagnosisBase(
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    relates_to_date: Mapped[datetime.date] = mapped_column(
+    relates_to_date: Mapped[Optional[datetime.date]] = mapped_column(
         "relates_to_date",
         Date,
         comment="Date that diagnoses relate to",

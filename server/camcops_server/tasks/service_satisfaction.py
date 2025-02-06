@@ -28,7 +28,7 @@ camcops_server/tasks/service_satisfaction.py
 from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
@@ -52,25 +52,24 @@ from camcops_server.cc_modules.cc_task import (
 
 class AbstractSatisfaction(object):
     # noinspection PyMethodParameters
-    service: Mapped[str] = mapped_column(
+    service: Mapped[Optional[str]] = mapped_column(
         "service", UnicodeText, comment="Clinical service being rated"
     )
 
     # noinspection PyMethodParameters
-    rating: Mapped[int] = CamcopsColumn(
+    rating: Mapped[Optional[int]] = CamcopsColumn(
         "rating",
-        Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Rating (0 very poor - 4 excellent)",
     )
 
     # noinspection PyMethodParameters
-    good: Mapped[str] = mapped_column(
+    good: Mapped[Optional[str]] = mapped_column(
         "good", UnicodeText, comment="What has been good?"
     )
 
     # noinspection PyMethodParameters
-    bad: Mapped[str] = mapped_column(
+    bad: Mapped[Optional[str]] = mapped_column(
         "bad", UnicodeText, comment="What could be improved?"
     )
 

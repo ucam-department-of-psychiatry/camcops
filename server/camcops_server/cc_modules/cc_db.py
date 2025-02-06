@@ -59,7 +59,7 @@ from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
+from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
@@ -444,7 +444,6 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     _pk: Mapped[int] = mapped_column(
         FN_PK,
-        Integer,
         primary_key=True,
         autoincrement=True,
         index=True,
@@ -454,9 +453,7 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     _device_id: Mapped[int] = mapped_column(
         FN_DEVICE_ID,
-        Integer,
         ForeignKey("_security_devices.id", use_alter=True),
-        nullable=False,
         index=True,
         comment="(SERVER) ID of the source tablet device",
     )
@@ -465,7 +462,6 @@ class GenericTabletRecordMixin(object):
     _era: Mapped[str] = mapped_column(
         FN_ERA,
         EraColType,
-        nullable=False,
         index=True,
         comment="(SERVER) 'NOW', or when this row was preserved and "
         "removed from the source device (UTC ISO 8601)",
@@ -477,37 +473,33 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     _current: Mapped[bool] = mapped_column(
         FN_CURRENT,
-        Boolean,
-        nullable=False,
         index=True,
         comment="(SERVER) Is the row current (1) or not (0)?",
     )
 
     # noinspection PyMethodParameters
-    _when_added_exact: Mapped[Pendulum] = mapped_column(
+    _when_added_exact: Mapped[Optional[Pendulum]] = mapped_column(
         FN_WHEN_ADDED_EXACT,
         PendulumDateTimeAsIsoTextColType,
         comment="(SERVER) Date/time this row was added (ISO 8601)",
     )
 
     # noinspection PyMethodParameters
-    _when_added_batch_utc: Mapped[datetime.datetime] = mapped_column(
+    _when_added_batch_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
         FN_WHEN_ADDED_BATCH_UTC,
-        DateTime,
         comment="(SERVER) Date/time of the upload batch that added this "
         "row (DATETIME in UTC)",
     )
 
     # noinspection PyMethodParameters
-    _adding_user_id: Mapped[int] = mapped_column(
+    _adding_user_id: Mapped[Optional[int]] = mapped_column(
         FN_ADDING_USER_ID,
-        Integer,
         ForeignKey("_security_users.id"),
         comment="(SERVER) ID of user that added this row",
     )
 
     # noinspection PyMethodParameters
-    _when_removed_exact: Mapped[Pendulum] = mapped_column(
+    _when_removed_exact: Mapped[Optional[Pendulum]] = mapped_column(
         FN_WHEN_REMOVED_EXACT,
         PendulumDateTimeAsIsoTextColType,
         comment="(SERVER) Date/time this row was removed, i.e. made "
@@ -515,77 +507,71 @@ class GenericTabletRecordMixin(object):
     )
 
     # noinspection PyMethodParameters
-    _when_removed_batch_utc: Mapped[datetime.datetime] = mapped_column(
-        FN_WHEN_REMOVED_BATCH_UTC,
-        DateTime,
-        comment="(SERVER) Date/time of the upload batch that removed "
-        "this row (DATETIME in UTC)",
+    _when_removed_batch_utc: Mapped[Optional[datetime.datetime]] = (
+        mapped_column(
+            FN_WHEN_REMOVED_BATCH_UTC,
+            comment="(SERVER) Date/time of the upload batch that removed "
+            "this row (DATETIME in UTC)",
+        )
     )
 
-    _removing_user_id: Mapped[int] = mapped_column(
+    _removing_user_id: Mapped[Optional[int]] = mapped_column(
         FN_REMOVING_USER_ID,
-        Integer,
         ForeignKey("_security_users.id"),
         comment="(SERVER) ID of user that removed this row",
     )
 
     # noinspection PyMethodParameters
-    _preserving_user_id: Mapped[int] = mapped_column(
+    _preserving_user_id: Mapped[Optional[int]] = mapped_column(
         FN_PRESERVING_USER_ID,
-        Integer,
         ForeignKey("_security_users.id"),
         comment="(SERVER) ID of user that preserved this row",
     )
 
     # noinspection PyMethodParameters
-    _forcibly_preserved: Mapped[bool] = mapped_column(
+    _forcibly_preserved: Mapped[Optional[bool]] = mapped_column(
         FN_FORCIBLY_PRESERVED,
-        Boolean,
         default=False,
         comment="(SERVER) Forcibly preserved by superuser (rather than "
         "normally preserved by tablet)?",
     )
 
     # noinspection PyMethodParameters
-    _predecessor_pk: Mapped[int] = mapped_column(
+    _predecessor_pk: Mapped[Optional[int]] = mapped_column(
         FN_PREDECESSOR_PK,
-        Integer,
         comment="(SERVER) PK of predecessor record, prior to modification",
     )
 
     # noinspection PyMethodParameters
-    _successor_pk: Mapped[int] = mapped_column(
+    _successor_pk: Mapped[Optional[int]] = mapped_column(
         FN_SUCCESSOR_PK,
-        Integer,
         comment="(SERVER) PK of successor record  (after modification) "
         "or NULL (whilst live, or after deletion)",
     )
 
     # noinspection PyMethodParameters
-    _manually_erased: Mapped[bool] = mapped_column(
+    _manually_erased: Mapped[Optional[bool]] = mapped_column(
         FN_MANUALLY_ERASED,
-        Boolean,
         default=False,
         comment="(SERVER) Record manually erased (content destroyed)?",
     )
 
     # noinspection PyMethodParameters
-    _manually_erased_at: Mapped[Pendulum] = mapped_column(
+    _manually_erased_at: Mapped[Optional[Pendulum]] = mapped_column(
         FN_MANUALLY_ERASED_AT,
         PendulumDateTimeAsIsoTextColType,
         comment="(SERVER) Date/time of manual erasure (ISO 8601)",
     )
 
     # noinspection PyMethodParameters
-    _manually_erasing_user_id: Mapped[int] = mapped_column(
+    _manually_erasing_user_id: Mapped[Optional[int]] = mapped_column(
         FN_MANUALLY_ERASING_USER_ID,
-        Integer,
         ForeignKey("_security_users.id"),
         comment="(SERVER) ID of user that erased this row manually",
     )
 
     # noinspection PyMethodParameters
-    _camcops_version: Mapped[Version] = mapped_column(
+    _camcops_version: Mapped[Optional[Version]] = mapped_column(
         FN_CAMCOPS_VERSION,
         SemanticVersionColType,
         default=CAMCOPS_SERVER_VERSION,
@@ -595,16 +581,13 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     _addition_pending: Mapped[bool] = mapped_column(
         FN_ADDITION_PENDING,
-        Boolean,
-        nullable=False,
         default=False,
         comment="(SERVER) Addition pending?",
     )
 
     # noinspection PyMethodParameters
-    _removal_pending: Mapped[bool] = mapped_column(
+    _removal_pending: Mapped[Optional[bool]] = mapped_column(
         FN_REMOVAL_PENDING,
-        Boolean,
         default=False,
         comment="(SERVER) Removal pending?",
     )
@@ -612,9 +595,7 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     _group_id: Mapped[int] = mapped_column(
         FN_GROUP_ID,
-        Integer,
         ForeignKey("_security_groups.id"),
-        nullable=False,
         index=True,
         comment="(SERVER) ID of group to which this record belongs",
     )
@@ -626,14 +607,12 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     id: Mapped[int] = mapped_column(
         TABLET_ID_FIELD,
-        Integer,
-        nullable=False,
         index=True,
         comment="(TASK) Primary key (task ID) on the tablet device",
     )
 
     # noinspection PyMethodParameters
-    when_last_modified: Mapped[Pendulum] = mapped_column(
+    when_last_modified: Mapped[Optional[Pendulum]] = mapped_column(
         CLIENT_DATE_FIELD,
         PendulumDateTimeAsIsoTextColType,
         index=True,  # ... as used by database upload script
@@ -642,9 +621,8 @@ class GenericTabletRecordMixin(object):
     )
 
     # noinspection PyMethodParameters
-    _move_off_tablet: Mapped[bool] = mapped_column(
+    _move_off_tablet: Mapped[Optional[bool]] = mapped_column(
         MOVE_OFF_TABLET_FIELD,
-        Boolean,
         default=False,
         comment="(SERVER/TABLET) Record-specific preservation pending?",
     )

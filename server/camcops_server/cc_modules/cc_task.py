@@ -285,8 +285,6 @@ class TaskHasPatientMixin(object):
     # noinspection PyMethodParameters
     patient_id: Mapped[int] = mapped_column(
         TFN_PATIENT_ID,
-        Integer,
-        nullable=False,
         index=True,
         comment="(TASK) Foreign key to patient.id (for this device/era)",
     )
@@ -353,7 +351,7 @@ class TaskHasClinicianMixin(object):
     """
 
     # noinspection PyMethodParameters
-    clinician_specialty: Mapped[str] = CamcopsColumn(
+    clinician_specialty: Mapped[Optional[str]] = CamcopsColumn(
         TFN_CLINICIAN_SPECIALTY,
         Text,
         exempt_from_anonymisation=True,
@@ -362,7 +360,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_name: Mapped[str] = CamcopsColumn(
+    clinician_name: Mapped[Optional[str]] = CamcopsColumn(
         TFN_CLINICIAN_NAME,
         Text,
         exempt_from_anonymisation=True,
@@ -370,7 +368,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_professional_registration: Mapped[str] = CamcopsColumn(
+    clinician_professional_registration: Mapped[Optional[str]] = CamcopsColumn(
         TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
         Text,
         exempt_from_anonymisation=True,
@@ -379,7 +377,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_post: Mapped[str] = CamcopsColumn(
+    clinician_post: Mapped[Optional[str]] = CamcopsColumn(
         TFN_CLINICIAN_POST,
         Text,
         exempt_from_anonymisation=True,
@@ -387,7 +385,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_service: Mapped[str] = CamcopsColumn(
+    clinician_service: Mapped[Optional[str]] = CamcopsColumn(
         TFN_CLINICIAN_SERVICE,
         Text,
         exempt_from_anonymisation=True,
@@ -396,7 +394,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_contact_details: Mapped[str] = CamcopsColumn(
+    clinician_contact_details: Mapped[Optional[str]] = CamcopsColumn(
         TFN_CLINICIAN_CONTACT_DETAILS,
         Text,
         exempt_from_anonymisation=True,
@@ -474,7 +472,7 @@ class TaskHasRespondentMixin(object):
     """
 
     # noinspection PyMethodParameters
-    respondent_name: Mapped[str] = CamcopsColumn(
+    respondent_name: Mapped[Optional[str]] = CamcopsColumn(
         TFN_RESPONDENT_NAME,
         Text,
         identifies_patient=True,
@@ -482,7 +480,7 @@ class TaskHasRespondentMixin(object):
     )
 
     # noinspection PyMethodParameters
-    respondent_relationship: Mapped[str] = mapped_column(
+    respondent_relationship: Mapped[Optional[str]] = mapped_column(
         TFN_RESPONDENT_RELATIONSHIP,
         Text,
         comment="(RESPONDENT) Respondent's relationship to patient",
@@ -543,7 +541,6 @@ class Task(GenericTabletRecordMixin, Base):
     when_created: Mapped[Pendulum] = mapped_column(
         TFN_WHEN_CREATED,
         PendulumDateTimeAsIsoTextColType,
-        nullable=False,
         comment="(TASK) Date/time this task instance was created "
         "(ISO 8601)",
     )
@@ -553,7 +550,7 @@ class Task(GenericTabletRecordMixin, Base):
     (i.e. first "finish" or first "abort").
     """
     # noinspection PyMethodParameters
-    when_firstexit: Mapped[Pendulum] = mapped_column(
+    when_firstexit: Mapped[Optional[Pendulum]] = mapped_column(
         TFN_WHEN_FIRSTEXIT,
         PendulumDateTimeAsIsoTextColType,
         comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
@@ -563,9 +560,8 @@ class Task(GenericTabletRecordMixin, Base):
     Was the first exit from the task's editor a successful "finish"?
     """
     # noinspection PyMethodParameters
-    firstexit_is_finish: Mapped[bool] = mapped_column(
+    firstexit_is_finish: Mapped[Optional[bool]] = mapped_column(
         TFN_FIRSTEXIT_IS_FINISH,
-        Boolean,
         comment="(TASK) Was the first exit from the task because it was "
         "finished (1)?",
     )
@@ -574,9 +570,8 @@ class Task(GenericTabletRecordMixin, Base):
     Was the first exit from the task's editor an "abort"?
     """
     # noinspection PyMethodParameters
-    firstexit_is_abort: Mapped[bool] = mapped_column(
+    firstexit_is_abort: Mapped[Optional[bool]] = mapped_column(
         TFN_FIRSTEXIT_IS_ABORT,
-        Boolean,
         comment="(TASK) Was the first exit from this task because it was "
         "aborted (1)?",
     )
@@ -586,8 +581,8 @@ class Task(GenericTabletRecordMixin, Base):
     (Calculated by the CamCOPS client.)
     """
     # noinspection PyMethodParameters
-    editing_time_: Mapped[float] = mapped_column(
-        TFN_EDITING_TIME_S, Float, comment="(TASK) Time spent editing (s)"
+    editing_time_: Mapped[Optional[float]] = mapped_column(
+        TFN_EDITING_TIME_S, comment="(TASK) Time spent editing (s)"
     )
 
     # Relationships
