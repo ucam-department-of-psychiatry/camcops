@@ -1135,13 +1135,9 @@ def record_exists(
     """
     query = (
         select(
-            [
-                table.c[FN_PK],  # server PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
-            ]
+            table.c[FN_PK],  # server PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
         )
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
@@ -1181,14 +1177,10 @@ def client_pks_that_exist(
     """
     query = (
         select(
-            [
-                table.c[FN_PK],  # server PK
-                table.c[clientpk_name],  # client PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
-            ]
+            table.c[FN_PK],  # server PK
+            table.c[clientpk_name],  # client PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
         )
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
@@ -1231,7 +1223,7 @@ def get_all_predecessor_pks(
     finished = False
     while not finished:
         next_pk = dbsession.execute(
-            select([table.c[FN_PREDECESSOR_PK]]).where(
+            select(table.c[FN_PREDECESSOR_PK]).where(
                 table.c[FN_PK] == current_pk
             )
         ).scalar()  # type: Optional[int]
@@ -1757,11 +1749,9 @@ def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     # noinspection PyUnresolvedReferences
     query = (
         select(
-            [
-                Device.ongoing_upload_batch_utc,
-                Device.uploading_user_id,
-                Device.currently_preserving,
-            ]
+            Device.ongoing_upload_batch_utc,
+            Device.uploading_user_id,
+            Device.currently_preserving,
         )
         .select_from(Device.__table__)
         .where(Device.id == device_id)
@@ -1969,7 +1959,7 @@ def get_dirty_tables(req: "CamcopsRequest") -> List[Table]:
     Returns tables marked as dirty for this device. (See
     :func:`mark_table_dirty`.)
     """
-    query = select([DirtyTable.tablename]).where(
+    query = select(DirtyTable.tablename).where(
         DirtyTable.device_id == req.tabletsession.device_id
     )
     tablenames = fetch_all_first_values(req.dbsession, query)
