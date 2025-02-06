@@ -635,6 +635,7 @@ def ensure_valid_patient_json(
     ptinfo = BarePatientInfo()
     idnum_types_seen = set()  # type: Set[int]
     for k, v in pt_dict.items():
+        # May not be necessary as JSON has already been validated
         ensure_string(k, allow_none=False)
 
         if k == TabletParam.FORENAME:
@@ -2837,6 +2838,7 @@ def op_upload_table(req: "CamcopsRequest") -> str:
 
     nfields = len(fields)
     if nfields < 1:
+        # May never be reached as the POST var can't be empty
         fail_user_error(
             f"{TabletParam.FIELDS}={nfields}: can't be less than 1"
         )
@@ -3110,6 +3112,8 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
         try:
             move_off_tablet_values = [bool(x) for x in move_off_tablet_values]
         except (TypeError, ValueError):
+            # Probably never reached given pretty much anything standard can be
+            # converted to bool
             fail_user_error(
                 f"Bad move-off-tablet values: {move_off_tablet_values!r}"
             )
