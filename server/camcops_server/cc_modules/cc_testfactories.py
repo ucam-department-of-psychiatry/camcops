@@ -232,6 +232,7 @@ class NHSIdNumDefinitionFactory(IdNumDefinitionFactory):
     short_description = "NHS#"
     hl7_assigning_authority = "NHS"
     hl7_id_type = "NHSN"
+    validation_method = "uk_nhs_number"
 
 
 class StudyIdNumDefinitionFactory(IdNumDefinitionFactory):
