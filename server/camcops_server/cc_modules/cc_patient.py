@@ -464,24 +464,31 @@ class Patient(GenericTabletRecordMixin, Base):
             # log.debug("... same object; equal")
             return True
         # Same device/era/patient ID (client PK)? Test int before str for speed
-        if (
-            self.id == other.id
-            and self._device_id == other._device_id
-            and self._era == other._era
-            and self.id is not None
-            and self._device_id is not None
-            and self._era is not None
-        ):
-            # log.debug("... same device/era/id; equal")
-            return True
-        # Shared ID number?
-        for sid in self.idnums:
-            if sid in other.idnums:
-                # log.debug("... share idnum {}; equal", sid)
+        try:
+            if (
+                self.id == other.id
+                and self._device_id == other._device_id
+                and self._era == other._era
+                and self.id is not None
+                and self._device_id is not None
+                and self._era is not None
+            ):
+                # log.debug("... same device/era/id; equal")
                 return True
-        # Otherwise...
-        # log.debug("... unequal")
-        return False
+            # Shared ID number?
+            for sid in self.idnums:
+                if sid in other.idnums:
+                    # log.debug("... share idnum {}; equal", sid)
+                    return True
+            # Otherwise...
+            # log.debug("... unequal")
+            return False
+        except AttributeError:
+            # Since SQLAlchemy 2.0, when lazy-loading from related objects
+            # (e.g. Task.patient) the patient will be compared with
+            # non-patient SQLA internal status codes so we need to cater for
+            # this. It is probably good practice anyway.
+            return False
 
     def __hash__(self) -> int:
         """
