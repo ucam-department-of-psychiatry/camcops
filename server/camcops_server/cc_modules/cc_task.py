@@ -589,7 +589,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     # noinspection PyMethodParameters
     @declared_attr
-    def special_notes(cls) -> Mapped[SpecialNote]:
+    def special_notes(cls) -> Mapped[List[SpecialNote]]:
         """
         List-style SQLAlchemy relationship to any :class:`SpecialNote` objects
         attached to this class. Skips hidden (quasi-deleted) notes.
