@@ -1482,6 +1482,7 @@ def camcops_column(
             "of the relationship too"
         )
     info = dict(
+        is_camcops_column=True,
         include_in_anon_staging_db=include_in_anon_staging_db,
         exempt_from_anonymisation=exempt_from_anonymisation,
         identifies_patient=identifies_patient,
@@ -1550,7 +1551,7 @@ def gen_camcops_blob_columns(
         ``attrname, column`` tuples
     """
     for attrname, column in gen_camcops_columns(obj):
-        if column.is_blob_id_field:
+        if column.info.get("is_blob_id_field", False):
             if attrname != column.name:
                 log.warning(
                     "BLOB field where attribute name {!r} != SQL "
@@ -1599,8 +1600,8 @@ def permitted_value_failure_msgs(obj) -> List[str]:
     """
     failure_msgs = []
     for attrname, camcops_column in gen_camcops_columns(obj):
-        pv_checker = (
-            camcops_column.permitted_value_checker
+        pv_checker = camcops_column.info.get(
+            "permitted_value_checker"
         )  # type: Optional[PermittedValueChecker]
         if pv_checker is None:
             continue
@@ -1620,8 +1621,8 @@ def permitted_values_ok(obj) -> bool:
     :func:`permitted_value_failure_msgs`.
     """
     for attrname, camcops_column in gen_camcops_columns(obj):
-        pv_checker = (
-            camcops_column.permitted_value_checker
+        pv_checker = camcops_column.info.get(
+            "permitted_value_checker"
         )  # type: Optional[PermittedValueChecker]
         if pv_checker is None:
             continue
